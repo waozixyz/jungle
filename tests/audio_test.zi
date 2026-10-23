@@ -1,0 +1,25 @@
+#import "std/byte_text_linux"
+#import, file "../host/audio_samples.zi";
+#import, file "../host/platform.zi";
+
+#program_export
+main :: () -> s32 {
+    input: [2000]u8
+    output: [2000]u8
+    for sample: cast(s32)0..999 {
+        input[sample * 2] = cast(u8)(ifx sample % 2 == 0 then 255 else 0)
+        input[sample * 2 + 1] = cast(u8)(ifx sample % 2 == 0 then 127 else 128)
+    }
+    if AudioMix(TextView(input[:]), 25, output[:]) != 2000 { return 1 }
+    // +/- full-scale input becomes +/- one-quarter amplitude away from fades.
+    if output[400] != 255 || output[401] != 31 || output[402] != 0 || output[403] != 224 { return 2 }
+    if output[0] != 0 || output[1] != 0 || output[1998] != 0 || output[1999] != 0 { return 3 }
+    if AudioMix(TextView(input[:]), 0, output[:]) != 0 { return 4 }
+    if AudioMix("x", 25, output[:]) != 0 { return 5 }
+    if AudioMix(TextView(input[:]), 25, output[:16]) != 16 { return 6 }
+    long_input: [AUDIO_LIMIT * 2 + 10]u8
+    long_output: [AUDIO_LIMIT * 2 + 10]u8
+    if AudioMix(TextView(long_input[:]), 25, long_output[:]) != AUDIO_LIMIT * 2 { return 7 }
+    Report("local audio test: quiet gain, signed samples, fades, mute and duration limits passed\n")
+    return 0
+}

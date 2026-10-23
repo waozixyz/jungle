@@ -86,7 +86,7 @@ main :: () -> s32 {
         stars_x: [18]s32 = .[220,260,100,132,56,120,200,25,258,100,20,288,200,180,140,20,80,24]
         stars_y: [18]s32 = .[24,128,80,142,28,168,180,162,60,36,20,186,70,40,60,188,160,136]
         for star: cast(s32)0..17 {
-            if cast(float64)star < now - reward_started { RetroText(stars_x[star], stars_y[star], "*",
+            if cast(float64)star < (now - reward_started) * 12.0 { RetroText(stars_x[star], stars_y[star], "*",
                 ifx star % 3 == 0 then LIGHT_GREEN else ifx star % 3 == 1 then LIGHT_RED else YELLOW, 2) }
         }
         return 0
@@ -145,7 +145,7 @@ main :: () -> s32 {
                 reward_body = 18 + RandomNumber(3) - 1
                 reward_legs = 21 + RandomNumber(3) - 1
                 reward_started = now
-                praise_until = now + 21.4
+                praise_until = now + 1.5
                 Sound("reward")
             }
             NextNumber()

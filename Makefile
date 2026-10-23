@@ -84,11 +84,12 @@ build/tests/%: tests/%_test.zi $(wildcard games/*/*.zi host/*.zi) build/ziran/li
 		build/ziran/libziran.a -Wl,--gc-sections -lm -lpthread -o $@
 
 # Questions, painting and PNG pictures, then every game opened in the app.
-test: build/tests/paint build/tests/png build/tests/progress build/tests/document build/tests/counting build/tests/printing all
+test: build/tests/paint build/tests/png build/tests/progress build/tests/document build/tests/counting build/tests/printing build/tests/audio all
 	build/tests/paint
 	build/tests/progress
 	build/tests/document
 	build/tests/counting
+	build/tests/audio
 	build/tests/png build/tests/check.png
 	test "$$(convert build/tests/check.png -format '%w %h %[pixel:p{0,0}] %[pixel:p{2,1}]' info:)" = "3 2 srgb(170,0,0) srgb(255,255,85)"
 	rm -rf build/tests/data

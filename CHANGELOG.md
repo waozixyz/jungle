@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- Quieter default audio, softer and shorter feedback, a brief counting reward, and a persistent mute button with F10 available in every game.
+
 - Save and reload complete Dino pictures, stories and outlines, with separate save/load actions and overwrite confirmation.
 - Recover the working picture after reopening Dino Colors, and edit stories with normal text input, cursor movement and deletion.
 - Export PNG pictures, story text and color print pages; submit pages to the system printer with accurate failure reporting.

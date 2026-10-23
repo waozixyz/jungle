@@ -1,0 +1,24 @@
+// Signed 16-bit mono PCM, attenuated before SDL queues it. Apply short
+// edge fades and a bounded duration so even packed legacy beeps stay gentle.
+AUDIO_RATE :: 22050
+AUDIO_LIMIT :: AUDIO_RATE * 3
+AUDIO_FADE :: AUDIO_RATE / 125
+
+AudioMix :: (samples: string, percent: s32, output: []u8) -> s32 {
+    if percent <= 0 { return 0 }
+    if percent > 100 { percent = 100 }
+    length := cast(s32)(samples.count / 2)
+    if length > AUDIO_LIMIT { length = AUDIO_LIMIT }
+    if length > cast(s32)(output.count / 2) { length = cast(s32)(output.count / 2) }
+    for index: cast(s32)0..length - 1 {
+        value := cast(s32)samples[index * 2] | (cast(s32)samples[index * 2 + 1] << 8)
+        if value >= 32768 { value -= 65536 }
+        value = value * percent / 100
+        edge := ifx index < length - 1 - index then index else length - 1 - index
+        if edge < AUDIO_FADE { value = value * edge / AUDIO_FADE }
+        if value < 0 { value += 65536 }
+        output[index * 2] = cast(u8)(value & 255)
+        output[index * 2 + 1] = cast(u8)((value >> 8) & 255)
+    }
+    return length * 2
+}

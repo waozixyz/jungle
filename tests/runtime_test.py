@@ -183,6 +183,11 @@ def ui(binary):
                  "JUNGLE_PRINTER_LOG": str(data / "printed.txt")}
         with Desktop(binary, data, extra) as desktop:
             menu = desktop.capture("menu")
+            desktop.click(250, 189)
+            assert (data / "sound.txt").read_text() == "off\n", "menu mute was not saved"
+            muted_menu = desktop.capture("menu-muted")
+            desktop.key("F10")
+            assert (data / "sound.txt").read_text() == "quiet\n", "F10 did not restore quiet sound"
             desktop.key("1")
             counting = desktop.capture("counting")
             assert counting.getpixel((0, 0)) == (0, 0, 170), "counting did not render its native blue background"
@@ -292,11 +297,14 @@ def ui(binary):
             desktop.click(120, 140)
             desktop.capture("paint-printed")
             assert (data / "printed.txt").exists(), "Print did not submit the actual page"
+            desktop.key("F10")
+            assert (data / "sound.txt").read_text() == "off\n", "in-game mute did not persist"
             print("local UI test: dinosaur placement, crayons, edited stories, save/load, overwrite, export and print", flush=True)
         # The complete working picture survives process restart without a slot.
         before = (data / "games/jungle.paint/working.txt").read_bytes()
         with Desktop(binary, data, extra) as desktop:
-            desktop.capture("restart-menu")
+            restarted = desktop.capture("restart-menu")
+            assert ImageChops.difference(muted_menu, restarted).getbbox() is None, "mute setting did not survive restart"
             desktop.key("2")
             desktop.capture("paint-recovered")
             assert (data / "games/jungle.paint/working.txt").read_bytes() == before

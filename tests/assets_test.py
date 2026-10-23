@@ -32,10 +32,10 @@ def main():
             assert any(voice.readframes(voice.getnframes())), "empty dinosaur voice"
     for number in range(8):
         with wave.open(str(ROOT / f"assets/animal-count/sounds/right-{number}.wav")) as sound:
-            assert .5 < sound.getnframes() / sound.getframerate() < .6
+            assert .1 < sound.getnframes() / sound.getframerate() < .2
     with wave.open(str(ROOT / "assets/animal-count/sounds/reward.wav")) as reward:
-        assert 21 < reward.getnframes() / reward.getframerate() < 22
-    print("local asset test: native sprites, BIOS font, VGA crayons, voices and original score passed")
+        assert .2 < reward.getnframes() / reward.getframerate() < .5
+    print("local asset test: native sprites, BIOS font, VGA crayons, voices and brief feedback passed")
 
 
 if __name__ == "__main__":

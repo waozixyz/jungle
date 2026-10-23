@@ -42,6 +42,12 @@ They use temporary saves and never connect to the current desktop. Jungle's
 `--check` validates game identities and capabilities without touching saves.
 Old Jungle Math counting levels carry over into Animal Counting on startup.
 
+Audio plays quietly by default at one quarter of the former playback gain.
+Short triangle-wave cues replace the sharp beeps, and counting rewards use a
+brief chime instead of a long song. Click the sound button in the menu or press
+F10 anywhere to mute or unmute. Muting stops queued sounds immediately, and
+the setting persists when Jungle reopens.
+
 ## Saving, exporting and printing
 
 SAVE opens separate Save and Load choices. Saving over an occupied slot asks

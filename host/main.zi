@@ -71,6 +71,7 @@ chosen: s32;
 playing: bool;
 game: BundleApp;
 data_root: string;
+sound_setting: string;
 home_requested: bool;
 message: string;
 service_reply: [64]u8;
@@ -79,6 +80,11 @@ canvas_pixels: [CANVAS_WIDTH * CANVAS_HEIGHT]u8;
 
 Seconds :: () -> float64 {
     return cast(float64)Counter() / cast(float64)CounterRate()
+}
+
+ToggleSound :: () {
+    SoundMuted(!sound_muted)
+    unused WriteEntireFile(sound_setting, ifx sound_muted then "off\n" else "quiet\n")
 }
 
 // games/catalog.txt: one game a line, "FILE|TITLE|ABOUT|ICON".
@@ -292,7 +298,10 @@ Menu :: (session: Session, bounds: Rectangle, key: s32) {
         if press.clicked { Start(index) }
     }
     if message != "" { RetroCentered(166, message, LIGHT_RED) }
-    RetroCentered(182, "ARROWS + ENTER TO PLAY", DARK_GRAY)
+    RetroText(12, 183, "ARROWS + ENTER", DARK_GRAY)
+    if RetroButton(500, 192, 180, 120, 18, ifx sound_muted then "F10: SOUND OFF" else "F10: SOUND ON") || key == 299 {
+        ToggleSound()
+    }
     if key == KEY_UP || key == KEY_DOWN {
         step: s32 = ifx key == KEY_UP then game_count - 1 else 1
         chosen = (chosen + step) % game_count
@@ -324,7 +333,9 @@ DrawMenu :: (session: Session) -> bool {
 DrawGame :: () -> bool {
     BeginDesktopFrame()
     viewport := DesktopViewport()
-    ok := GameFrame(viewport, PollPointer(), PollSecondaryPointer(), DesktopPressedKey(), DesktopModifiers(),
+    key := DesktopPressedKey()
+    if key == 299 { ToggleSound(); key = 0 }
+    ok := GameFrame(viewport, PollPointer(), PollSecondaryPointer(), key, DesktopModifiers(),
         DesktopWheelMove(), Seconds())
     if ok {
         unused DesktopCursor(game.app.session)
@@ -419,6 +430,9 @@ main :: (argc: s32, argv: **u8) -> s32 {
     data_root = Cat(base, "/games")
     if argc == 2 && TextFromCString(argv[1]) == "--check" { return Check() }
     unused CreateDirectory(base)
+    sound_setting = Cat(base, "/sound.txt")
+    setting, setting_found := ReadEntireFile(sound_setting)
+    if setting_found { SoundMuted(setting == "off\n" || setting == "off") }
     unused CreateDirectory(data_root)
     KeepMathLevels(base)
     KeepAnimalLevels()

@@ -3,6 +3,7 @@
 // Jungle stays silent and runs on.
 #import "byte_text_linux"
 #import "file"
+#import, file "audio_samples.zi";
 
 sound_sdl :: #system_library "SDL2";
 sound_c :: #system_library "c";
@@ -37,6 +38,12 @@ sound_unavailable: bool;
 sound_muted: bool;
 sound_names: [SOUND_SLOTS]string;
 sound_data: [SOUND_SLOTS]string;
+sound_samples: [AUDIO_LIMIT * 2]u8;
+
+SoundMuted :: (muted: bool) {
+    sound_muted = muted
+    if muted && sound_device != cast(u32)0 { SoundClear(sound_device) }
+}
 
 SoundOpen :: () -> bool {
     if sound_device != cast(u32)0 { return true }
@@ -79,8 +86,9 @@ SoundPlayFile :: (wave: string) {
 }
 
 SoundQueueSamples :: (samples: string) {
-    if samples.count == 0 { return }
+    if sound_muted || samples.count == 0 { return }
+    length := AudioMix(samples, 25, sound_samples[:])
+    if length == 0 { return }
     SoundClear(sound_device)
-    descriptor := cast(*TextDescriptor)(*samples)
-    unused SoundQueue(sound_device, descriptor.data, cast(u32)samples.count)
+    unused SoundQueue(sound_device, *sound_samples[0], cast(u32)length)
 }
