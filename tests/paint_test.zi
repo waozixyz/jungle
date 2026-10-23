@@ -21,6 +21,17 @@ InkCount :: () -> s32 {
 main :: (argc: s32, argv: **u8) -> s32 {
     unused argc
     unused argv
+    // A one-pixel raster break must not let scenery leak into a body.
+    for at: cast(s32)0..63 { stamp[at] = false }
+    for point: cast(s32)2..5 {
+        stamp[2 * 8 + point] = true
+        stamp[5 * 8 + point] = true
+        stamp[point * 8 + 2] = true
+        stamp[point * 8 + 5] = true
+    }
+    stamp[2 * 8 + 3] = false
+    StampOutside(8, 8)
+    if stamp_outside[3 * 8 + 3] || !stamp_outside[0] { return PaintFail("body", "raster gap leaked background") }
     for scene: cast(s32)0..SCENE_COUNT - 1 {
         if !SceneOpen(scene, "") { return PaintFail("scene", "did not open") }
         ink := InkCount()

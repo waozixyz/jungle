@@ -15,6 +15,7 @@ canvas: [CANVAS_PIXELS]u8;
 lines: [CANVAS_PIXELS]bool;
 stamp: [STAMP_PIXELS]bool;
 stamp_outside: [STAMP_PIXELS]bool;
+stamp_barrier: [STAMP_PIXELS]bool;
 stamp_stack: [STAMP_PIXELS]s32;
 fill_stack: [CANVAS_PIXELS]s32;
 canvas_text: [CANVAS_PIXELS + 6]u8;
@@ -96,10 +97,26 @@ DinoScale :: (dino: s32, size: s32) -> s32 {
 // from the dinosaur's white body. Its body covers earlier scene lines.
 StampOutside :: (width: s32, height: s32) {
     total := width * height
-    for at: cast(s32)0..total - 1 { stamp_outside[at] = false }
+    for at: cast(s32)0..total - 1 {
+        stamp_outside[at] = false
+        stamp_barrier[at] = stamp[at]
+    }
+    // Raster reduction can leave a one-pixel break in a closed vector
+    // outline. Close those breaks only for the body mask, leaving the
+    // visible strokes unchanged.
+    for at: cast(s32)0..total - 1 {
+        if !stamp[at] { continue }
+        for dy: cast(s32)-1..1 {
+            for dx: cast(s32)-1..1 {
+                x := at % width + dx
+                y := at / width + dy
+                if x >= 0 && x < width && y >= 0 && y < height { stamp_barrier[y * width + x] = true }
+            }
+        }
+    }
     count: s32 = 0
     for at: cast(s32)0..total - 1 {
-        if (at < width || at >= total - width || at % width == 0 || at % width == width - 1) && !stamp[at] {
+        if (at < width || at >= total - width || at % width == 0 || at % width == width - 1) && !stamp_barrier[at] {
             stamp_outside[at] = true
             stamp_stack[count] = at
             count += 1
@@ -113,7 +130,7 @@ StampOutside :: (width: s32, height: s32) {
             other := next[side]
             if other < 0 || other >= total || (side == 0 && at % width == 0) ||
             (side == 1 && at % width == width - 1) { continue }
-            if !stamp[other] && !stamp_outside[other] {
+            if !stamp_barrier[other] && !stamp_outside[other] {
                 stamp_outside[other] = true
                 stamp_stack[count] = other
                 count += 1
