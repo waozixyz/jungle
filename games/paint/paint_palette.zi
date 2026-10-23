@@ -1,0 +1,28 @@
+// Original VGA crayons: fifteen solid colors and fifteen stippled colors.
+// The first sixteen EGA entries preserve earlier saves without recoloring.
+PAINT_CODES :: "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_"
+PAINT_COLORS :: 46
+paint_colors: [46]u32 = .[
+    0x000000ff, 0x0000aaff, 0x00aa00ff, 0x00aaaaff,
+    0xaa0000ff, 0xaa00aaff, 0xaa5500ff, 0xaaaaaaff,
+    0x555555ff, 0x5555ffff, 0x55ff55ff, 0x55ffffff,
+    0xff5555ff, 0xff55ffff, 0xffff55ff, 0xffffffff,
+    0x828282ff, 0x0000ffff, 0x0000c3ff, 0x00a2c3ff, 0xb200cbff,
+    0x00c351ff, 0x00a200ff, 0x007100ff, 0xc37100ff, 0xa25100ff,
+    0x820000ff, 0xff0000ff, 0xd30000ff, 0xefef3cff, 0xffffffff,
+    0x828282ff, 0x4141c0ff, 0x4141a2ff, 0x4192a2ff, 0x9a41a6ff,
+    0x41a269ff, 0x419241ff, 0x417941ff, 0xa27941ff, 0x926941ff,
+    0x824141ff, 0xc04141ff, 0xaa4141ff, 0xb8b85fff, 0xc0c0c0ff
+];
+
+PaintIndex :: (byte: u8) -> s32 {
+    for index: cast(s32)0..PAINT_COLORS - 1 {
+        if PAINT_CODES[index] == byte { return index }
+    }
+    return -1
+}
+
+PaintDisplayIndex :: (index: s32, x: s32, y: s32) -> s32 {
+    if index >= 31 { return ifx (x + y) % 2 == 0 then 16 else index - 15 }
+    return index
+}

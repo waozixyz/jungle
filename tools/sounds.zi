@@ -5,9 +5,11 @@
 #import "c_string"
 #import "file"
 #import "text_buffer"
+#import "number_text"
+#import, file "animal_score.zi";
 
 RATE :: 22050
-LIMIT :: 44100
+LIMIT :: 500000
 
 samples: [LIMIT]float64;
 length: s32;
@@ -46,6 +48,8 @@ Note :: (from: float64, to: float64, seconds: float64, loudness: float64 = 0.18)
 
 Rest :: (seconds: float64) { Note(0.0, 0.0, seconds) }
 
+Play :: (pitch: s32, seconds: float64) { Note(cast(float64)pitch, cast(float64)pitch, seconds); Rest(0.02) }
+
 Put32 :: (at: s32, value: s32) {
     bytes[at] = cast(u8)(value & 255)
     bytes[at + 1] = cast(u8)((value >> 8) & 255)
@@ -81,7 +85,7 @@ Save :: (name: string) -> bool {
 main :: (argc: s32, argv: **u8) -> s32 {
     unused argc
     unused argv
-    folders: [6]string = .["assets", "assets/jungle", "assets/jungle/sounds", "assets/jungle-math/sounds",
+    folders: [7]string = .["assets", "assets/jungle", "assets/jungle/sounds", "assets/animal-count", "assets/animal-count/sounds",
     "assets/dino-paint", "assets/dino-paint/sounds"]
     for folder: folders { unused CreateDirectory(folder) }
     ok := true
@@ -90,15 +94,33 @@ main :: (argc: s32, argv: **u8) -> s32 {
     ok = Save("assets/jungle/sounds/select.wav") && ok
     Clear(); Note(523.25, 523.25, 0.06); Note(659.25, 659.25, 0.06); Note(783.99, 783.99, 0.06); Note(1046.5, 1046.5, 0.12)
     ok = Save("assets/jungle/sounds/start.wav") && ok
-    // Jungle Math.
+    // Animal Counting.
     Clear(); Note(1318.5, 1318.5, 0.02, 0.12)
-    ok = Save("assets/jungle-math/sounds/key.wav") && ok
-    Clear(); Note(659.25, 659.25, 0.08); Rest(0.02); Note(987.77, 987.77, 0.16)
-    ok = Save("assets/jungle-math/sounds/right.wav") && ok
-    Clear(); Note(196.0, 147.0, 0.28, 0.14)
-    ok = Save("assets/jungle-math/sounds/miss.wav") && ok
+    ok = Save("assets/animal-count/sounds/key.wav") && ok
+    // ANIMALS.PAS: the eight four-note flourishes and 50..70 Hz miss sweep.
+    notes: [32]s32 = .[523,659,784,1046,440,523,659,880,392,494,587,784,
+        494,587,740,988,330,392,494,659,294,350,440,587,350,440,523,698,523,659,784,1046]
+    for tune: cast(s32)0..7 {
+        Clear()
+        for note: cast(s32)0..3 { Play(notes[tune * 4 + note], ifx note == 3 then 0.3 else 0.05) }
+        digits: [24]u8
+        name: Vec(u8)
+        BuilderPrint(*name, "assets/animal-count/sounds/right-%.wav", FormatInteger(cast(s64)tune, digits[:]))
+        ok = Save(BuilderFinish(name)) && ok
+    }
+    Clear()
+    for pitch: cast(s32)50..70 { Note(cast(float64)pitch, cast(float64)pitch, 0.01, 0.14) }
+    ok = Save("assets/animal-count/sounds/miss.wav") && ok
     Clear(); Note(392.0, 392.0, 0.05); Note(523.25, 523.25, 0.05); Note(659.25, 659.25, 0.1)
-    ok = Save("assets/jungle-math/sounds/start.wav") && ok
+    ok = Save("assets/animal-count/sounds/start.wav") && ok
+    // The Animal Fair reward, with the original note lengths and pauses.
+    Clear()
+    Play(523, 0.05); Play(659, 0.05); Play(784, 0.05); Play(1046, 0.3); Rest(0.5)
+    for index: cast(s32)0..cast(s32)REWARD_NOTES.count - 1 {
+        pitch := cast(float64)REWARD_NOTES[index]
+        Note(pitch, pitch, REWARD_SECONDS[index])
+    }
+    ok = Save("assets/animal-count/sounds/reward.wav") && ok
     // Dino Paint.
     Clear(); Note(1046.5, 1046.5, 0.02, 0.12)
     ok = Save("assets/dino-paint/sounds/click.wav") && ok

@@ -1,0 +1,83 @@
+// Private picture exports and native printer submission. The bundle supplies
+// pixels and text, never a command, printer argument or destination path.
+#import "std/process_capture_linux"
+#import "std/text_buffer"
+#import "bundle_time"
+#import "app_files"
+#import, file "canvas_png.zi";
+#import, file "jungle_text.zi";
+#import, file "../games/paint/paint_palette.zi";
+
+export_number: s32;
+export_pixels: [240 * 180]u8;
+
+PrintPage :: (pixels: []u8, story: string) -> string {
+    text: Vec(u8)
+    BuilderPrint(*text, "%", "%!PS-Adobe-3.0\n%%Pages: 1\n%%BoundingBox: 0 0 612 792\n")
+    BuilderPrint(*text, "<< /PageSize [612 792] >> setpagedevice\n")
+    BuilderPrint(*text, "/row 720 string def\ngsave\n66 360 translate\n480 360 scale\n")
+    BuilderPrint(*text, "240 180 8 [240 0 0 -180 0 180]\n{currentfile row readhexstring pop} false 3 colorimage\n")
+    hex := "0123456789abcdef"
+    for at: cast(s32)0..240 * 180 - 1 {
+        color := paint_colors[pixels[at]]
+        for channel: cast(s32)0..2 {
+            byte := cast(u8)(color >> cast(u32)(24 - channel * 8))
+            unused VecPush(text, hex[cast(s32)(byte >> 4)])
+            unused VecPush(text, hex[cast(s32)(byte & 15)])
+        }
+        if (at + 1) % 240 == 0 { unused VecPush(text, cast(u8)10) }
+    }
+    BuilderPrint(*text, "grestore\n/Courier findfont 12 scalefont setfont\n0 setgray\n")
+    row: s32 = 0
+    BuilderPrint(*text, "66 320 moveto (")
+    for byte: story {
+        if byte == cast(u8)10 {
+            BuilderPrint(*text, ") show\n")
+            row += 1
+            if row < 8 { BuilderPrint(*text, "66 % moveto (", 320 - row * 18) }
+        } else {
+            if byte == #char "(" || byte == #char ")" || byte == cast(u8)92 { unused VecPush(text, cast(u8)92) }
+            unused VecPush(text, byte)
+        }
+    }
+    if row < 8 { BuilderPrint(*text, ") show\n") }
+    BuilderPrint(*text, "%", "showpage\n%%EOF\n")
+    return BuilderFinish(text)
+}
+
+ExportPicture :: (files: *AppFiles, request: string, printer: bool) -> string {
+    length := 240 * 180 + 6
+    if request.count < length || request[:6] != "paint\n" || request.count > length + 8 * 39 { return "failed" }
+    for at: cast(s32)0..240 * 180 - 1 {
+        color := PaintIndex(request[at + 6])
+        if color < 0 { return "failed" }
+        export_pixels[at] = cast(u8)PaintDisplayIndex(color, at % 240, at / 240)
+    }
+    story := request[length:]
+    rows: s32 = 0
+    columns: s32 = 0
+    for byte: story {
+        if byte == cast(u8)10 { rows += 1; columns = 0 }
+        else {
+            if byte < 32 || byte > 126 { return "failed" }
+            columns += 1
+        }
+        if rows > 8 || columns > 38 { return "failed" }
+    }
+    export_number += 1
+    name: Vec(u8)
+    BuilderPrint(*name, "exports/picture-%-%", BundleUnixMilliseconds(), export_number)
+    base := BuilderFinish(name)
+    defer { AppFileFree(base) }
+    png := PngIndexed(240, 180, paint_colors[:], export_pixels[:])
+    if png == "" || !AppFileWrite(files, Cat(base, ".png"), png) ||
+    !AppFileWrite(files, Cat(base, ".txt"), story) ||
+    !AppFileWrite(files, Cat(base, ".ps"), PrintPage(export_pixels[:], story)) { return "failed" }
+    if !printer { return "exported" }
+    path := AppFilePath(files, Cat(base, ".ps"), false)
+    defer { AppFileFree(path) }
+    arguments: [4]string = .["lp", "-t", "Jungle picture and story", path]
+    output: [4096]u8
+    result := CaptureOutput(arguments[:], output[:])
+    return ifx !result.error && !result.truncated && result.code == 0 then "printed" else "exported"
+}

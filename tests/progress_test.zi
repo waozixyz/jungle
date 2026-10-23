@@ -1,0 +1,17 @@
+#import, file "../host/progress.zi";
+#import, file "../host/platform.zi";
+
+#program_export
+main :: () -> s32 {
+    if AnimalLevels("skill 0 4 2 1\nskill 1 2 0 0\n") != "animal 4 0 2 1\n" { return 1 }
+    if AnimalLevels("jungle 1\nskill 0 6 5 4\r\n") != "animal 6 0 5 4\n" { return 2 }
+    if AnimalLevels("skill 0 3 6 9\n") != "animal 3 0 0 0\n" { return 3 }
+    if AnimalLevels("skill 1 3 0 0\n") != "" { return 4 }
+    if AnimalLevels("skill 0 7 0 0\n") != "" { return 5 }
+    if AnimalLevels("skill 0 0 0 0\n") != "" { return 6 }
+    if AnimalLevels("skill 0 4 2\n") != "" { return 7 }
+    if AnimalLevels("skill 0 4 2 1trailing\n") != "" { return 8 }
+    if AnimalLevels("skill 0 999999999999999999999 2 1\n") != "" { return 9 }
+    Report("local progress test passed\n")
+    return 0
+}

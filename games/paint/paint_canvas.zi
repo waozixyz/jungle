@@ -1,20 +1,23 @@
-// Dino Paint's picture: 240 by 180 pixels of the sixteen colors, over a
-// page's black lines. The lines never change: fills stop at them and the
-// brush and eraser paint around them.
+// The picture: 240 by 180 pixels of the sixteen colors over black lines.
+// Lines are stamped from a scene and any dinosaurs placed on it; the paint
+// bucket fills up to those lines. Bert's Dinosaurs works the same way.
 #import, file "paint_pages.zi";
+#import, file "paint_palette.zi";
 
-CANVAS_WIDTH :: 240
-CANVAS_HEIGHT :: 180
-CANVAS_PIXELS :: 43200
+CANVAS_PIXELS :: CANVAS_WIDTH * CANVAS_HEIGHT
 INK :: 0
 PAPER :: 15
+MAX_STAMP_WIDTH :: 240
+MAX_STAMP_HEIGHT :: 184
+STAMP_PIXELS :: MAX_STAMP_WIDTH * MAX_STAMP_HEIGHT
 
 canvas: [CANVAS_PIXELS]u8;
 lines: [CANVAS_PIXELS]bool;
-// Pixels still to visit while filling.
+stamp: [STAMP_PIXELS]bool;
+stamp_outside: [STAMP_PIXELS]bool;
+stamp_stack: [STAMP_PIXELS]s32;
 fill_stack: [CANVAS_PIXELS]s32;
-// The picture as text, one letter a to p per pixel.
-canvas_text: [CANVAS_PIXELS]u8;
+canvas_text: [CANVAS_PIXELS + 6]u8;
 
 HexValue :: (byte: u8) -> s32 {
     if byte >= #char "0" && byte <= #char "9" { return cast(s32)(byte - #char "0") }
@@ -22,31 +25,141 @@ HexValue :: (byte: u8) -> s32 {
     return 0
 }
 
-// Opens a page: its lines, then the saved colors when `saved` is a whole
-// picture, otherwise white paper.
-CanvasOpen :: (page: s32, saved: string) -> bool {
-    // Four pixels a hex digit; the line breaks between rows are skipped.
+// Reads one part's hex rows into stamp[0..width*height); returns the next
+// row that has not been filled yet.
+ReadPart :: (part: string, width: s32, height: s32, at: s32) -> s32 {
+    row := at / width
+    column := at % width
+    for byte: part {
+        if byte == cast(u8)10 { continue }
+        if row >= height { return at }
+        nibble := HexValue(byte)
+        for bit: cast(s32)0..3 {
+            if column >= width { break }
+            stamp[row * width + column] = ((nibble >> (3 - bit)) & 1) != 0
+            column += 1
+            at += 1
+        }
+        if column >= width { row += 1; column = 0 }
+    }
+    return at
+}
+
+ReadLines :: (scene_kind: bool, index: s32, parts: s32, width: s32, height: s32) {
+    for pixel: cast(s32)0..width * height - 1 { stamp[pixel] = false }
     at: s32 = 0
-    for part: cast(s32)0..PAGE_PARTS - 1 {
-        for byte: PageLines(page, part) {
-            if byte == cast(u8)10 { continue }
-            if at >= CANVAS_PIXELS { return false }
-            nibble := HexValue(byte)
-            for bit: cast(s32)0..3 { lines[at + bit] = ((nibble >> (3 - bit)) & 1) != 0 }
-            at += 4
+    for part: cast(s32)0..parts - 1 {
+        text := ifx scene_kind then SceneLines(index, part) else DinoLines(index, part)
+        at = ReadPart(text, width, height, at)
+    }
+}
+
+// Starts a new picture: the scene's lines, then the saved colors when
+// `saved` is a whole picture, otherwise white paper.
+SceneOpen :: (scene: s32, saved: string) -> bool {
+    if scene < 0 || scene >= SCENE_COUNT { return false }
+    whole := saved.count == cast(s64)CANVAS_PIXELS + 6 && saved[:6] == "paint\n"
+    old := saved.count == cast(s64)CANVAS_PIXELS
+    if saved != "" && !whole && !old { return false }
+    if whole {
+        for at: cast(s32)0..CANVAS_PIXELS - 1 {
+            if PaintIndex(saved[at + 6]) < 0 { return false }
         }
     }
-    if at != CANVAS_PIXELS { return false }
-    whole := saved.count == cast(s64)CANVAS_PIXELS
+    ReadLines(true, scene, SCENE_PARTS, CANVAS_WIDTH, CANVAS_HEIGHT)
+    for at: cast(s32)0..CANVAS_PIXELS - 1 { lines[at] = stamp[at] }
     for at: cast(s32)0..CANVAS_PIXELS - 1 {
         color: s32 = PAPER
-        if whole {
+        if old {
             byte := saved[cast(s64)at]
             if byte >= #char "a" && byte <= #char "p" { color = cast(s32)(byte - #char "a") }
         }
+        if whole { color = PaintIndex(saved[at + 6]) }
         canvas[at] = cast(u8)(ifx lines[at] then INK else color)
     }
     return true
+}
+
+// Fit the largest dinosaur inside the picture, then take four fractions.
+// A 184-pixel-tall stamp cannot be placed on our 180-pixel-tall canvas.
+DinoScale :: (dino: s32, size: s32) -> s32 {
+    width := DINO_WIDTH[dino]
+    height := DINO_HEIGHT[dino]
+    if width <= 0 || height <= 0 { return 100 }
+    fit := 100 * CANVAS_HEIGHT / height
+    across := 100 * CANVAS_WIDTH / width
+    if across < fit { fit = across }
+    return fit * size / 4
+}
+
+// Flood from the stamp's edges to distinguish its transparent background
+// from the dinosaur's white body. Its body covers earlier scene lines.
+StampOutside :: (width: s32, height: s32) {
+    total := width * height
+    for at: cast(s32)0..total - 1 { stamp_outside[at] = false }
+    count: s32 = 0
+    for at: cast(s32)0..total - 1 {
+        if (at < width || at >= total - width || at % width == 0 || at % width == width - 1) && !stamp[at] {
+            stamp_outside[at] = true
+            stamp_stack[count] = at
+            count += 1
+        }
+    }
+    while count > 0 {
+        count -= 1
+        at := stamp_stack[count]
+        next: [4]s32 = .[at - 1, at + 1, at - width, at + width]
+        for side: cast(s32)0..3 {
+            other := next[side]
+            if other < 0 || other >= total || (side == 0 && at % width == 0) ||
+            (side == 1 && at % width == width - 1) { continue }
+            if !stamp[other] && !stamp_outside[other] {
+                stamp_outside[other] = true
+                stamp_stack[count] = other
+                count += 1
+            }
+        }
+    }
+}
+
+// Stamps a dinosaur's lines at x,y. Percent scales it; flip mirrors it.
+// The lines are thickened while shrinking so small figures still hold ink.
+CanvasStampDino :: (dino: s32, size: s32, x: s32, y: s32, flip: bool) {
+    base_w := DINO_WIDTH[dino]
+    base_h := DINO_HEIGHT[dino]
+    percent := DinoScale(dino, size)
+    w := base_w * percent / 100
+    h := base_h * percent / 100
+    if w < 1 || h < 1 { return }
+    ReadLines(false, dino, DINO_PARTS, base_w, base_h)
+    StampOutside(base_w, base_h)
+    for ty: cast(s32)0..h - 1 {
+        py := y + ty
+        if py < 0 || py >= CANVAS_HEIGHT { continue }
+        source_y := ty * base_h / h
+        for tx: cast(s32)0..w - 1 {
+            px := x + tx
+            if px < 0 || px >= CANVAS_WIDTH { continue }
+            sx := tx * base_w / w
+            fx := ifx flip then sx else sx
+            source_x := ifx flip then base_w - 1 - fx else fx
+            inked := stamp[source_y * base_w + source_x]
+            // When shrinking, look at the neighbouring source pixels too.
+            if !inked && w < base_w {
+                if source_x > 0 && stamp[source_y * base_w + source_x - 1] { inked = true }
+                if source_x < base_w - 1 && stamp[source_y * base_w + source_x + 1] { inked = true }
+            }
+            if !inked && h < base_h {
+                if source_y > 0 && stamp[(source_y - 1) * base_w + source_x] { inked = true }
+                if source_y < base_h - 1 && stamp[(source_y + 1) * base_w + source_x] { inked = true }
+            }
+            if inked || !stamp_outside[source_y * base_w + source_x] {
+                at := py * CANVAS_WIDTH + px
+                lines[at] = inked
+                canvas[at] = cast(u8)(ifx inked then INK else PAPER)
+            }
+        }
+    }
 }
 
 CanvasClear :: () {
@@ -56,7 +169,9 @@ CanvasClear :: () {
 }
 
 CanvasText :: () -> string {
-    for at: cast(s32)0..CANVAS_PIXELS - 1 { canvas_text[at] = #char "a" + canvas[at] }
+    prefix := "paint\n"
+    for at: cast(s32)0..5 { canvas_text[at] = prefix[at] }
+    for at: cast(s32)0..CANVAS_PIXELS - 1 { canvas_text[at + 6] = PAINT_CODES[canvas[at]] }
     return TextView(canvas_text[:])
 }
 
@@ -65,9 +180,8 @@ CanvasColorAt :: (x: s32, y: s32) -> s32 {
     return cast(s32)canvas[y * CANVAS_WIDTH + x]
 }
 
-// The paint bucket: the touching pixels of the clicked color, up to the
-// lines, take the new color. Returns how many pixels changed.
 CanvasFill :: (x: s32, y: s32, color: s32) -> s32 {
+    if color < 0 || color >= PAINT_COLORS { return 0 }
     if x < 0 || y < 0 || x >= CANVAS_WIDTH || y >= CANVAS_HEIGHT { return 0 }
     start := y * CANVAS_WIDTH + x
     if lines[start] { return 0 }
@@ -83,7 +197,6 @@ CanvasFill :: (x: s32, y: s32, color: s32) -> s32 {
         at := fill_stack[count]
         changed += 1
         column := at % CANVAS_WIDTH
-        // Left, right, up and down, each pushed once when it is recolored.
         if column > 0 && !lines[at - 1] && canvas[at - 1] == target {
             canvas[at - 1] = paint; fill_stack[count] = at - 1; count += 1
         }
@@ -96,40 +209,6 @@ CanvasFill :: (x: s32, y: s32, color: s32) -> s32 {
         if at < CANVAS_PIXELS - CANVAS_WIDTH && !lines[at + CANVAS_WIDTH] && canvas[at + CANVAS_WIDTH] == target {
             canvas[at + CANVAS_WIDTH] = paint; fill_stack[count] = at + CANVAS_WIDTH; count += 1
         }
-    }
-    return changed
-}
-
-// One round dab of the brush; lines stay as they are.
-CanvasDab :: (x: s32, y: s32, radius: s32, color: s32) -> bool {
-    changed := false
-    for dy: -radius..radius {
-        for dx: -radius..radius {
-            if dx * dx + dy * dy > radius * radius + radius { continue }
-            px := x + dx
-            py := y + dy
-            if px < 0 || py < 0 || px >= CANVAS_WIDTH || py >= CANVAS_HEIGHT { continue }
-            at := py * CANVAS_WIDTH + px
-            if lines[at] || canvas[at] == cast(u8)color { continue }
-            canvas[at] = cast(u8)color
-            changed = true
-        }
-    }
-    return changed
-}
-
-Distance :: (value: s32) -> s32 { return ifx value < 0 then -value else value }
-
-// A brush stroke from one point to the next, dab by dab.
-CanvasStroke :: (x0: s32, y0: s32, x1: s32, y1: s32, radius: s32, color: s32) -> bool {
-    dx := x1 - x0
-    dy := y1 - y0
-    steps := Distance(dx)
-    if Distance(dy) > steps { steps = Distance(dy) }
-    if steps == 0 { return CanvasDab(x0, y0, radius, color) }
-    changed := false
-    for step: cast(s32)0..steps {
-        changed = CanvasDab(x0 + dx * step / steps, y0 + dy * step / steps, radius, color) || changed
     }
     return changed
 }

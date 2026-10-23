@@ -11,9 +11,9 @@ DESKTOP_LIBS = $$(pkg-config --libs sdl2 cairo freetype2 fontconfig pangocairo) 
 CFLAGS_ZI = -std=c11 -O2 -ffunction-sections -fdata-sections -I'$(TOOLCHAIN)/include'
 # The app as it is installed: the program, its menu assets and the games.
 APP := build/app
-GAMES := $(APP)/games/jungle-math.zib $(APP)/games/dino-paint.zib
+GAMES := $(APP)/games/animal-count.zib $(APP)/games/dino-paint.zib
 
-.PHONY: all run art sounds test install
+.PHONY: all run art sounds test test-ui install
 
 all: $(APP)/jungle $(GAMES) $(APP)/games/catalog.txt $(APP)/assets/jungle/font.png
 
@@ -24,12 +24,13 @@ build/ziran/libziran.a:
 	$(MAKE) -C '$(TOOLCHAIN)' BUILD_DIR='$(abspath build/ziran)' '$(abspath $@)'
 
 $(APP)/jungle: $(wildcard host/*.zi retro/*.zi) build/ziran/libziran.a
-	rm -rf build/host-c
 	mkdir -p $(APP)
-	'$(ZIRANC)' build --target=c --root host $(MODULES) --entry main:main -o build/host-c host/main.zi
-	$${CC:-cc} $(CFLAGS_ZI) $$(find build/host-c -type d -printf ' -iquote %p') $$(find build/host-c -name '*.c') \
-		build/ziran/libziran.a -Wl,--gc-sections $(DESKTOP_LIBS) -o $@.new
-	mv $@.new $@
+	@set -eu; output=$$(mktemp -d build/host-c.XXXXXX); \
+		trap 'rm -rf "$$output"' EXIT; \
+		'$(ZIRANC)' build --target=c --root host $(MODULES) --entry main:main -o "$$output" host/main.zi; \
+		$${CC:-cc} $(CFLAGS_ZI) $$(find "$$output" -type d -printf ' -iquote %p') $$(find "$$output" -name '*.c') \
+		build/ziran/libziran.a -Wl,--gc-sections $(DESKTOP_LIBS) -o "$$output/jungle"; \
+		mv "$$output/jungle" $@
 
 $(APP)/games/catalog.txt: games/catalog.txt
 	mkdir -p $(APP)/games
@@ -41,12 +42,12 @@ $(APP)/assets/jungle/font.png: $(wildcard assets/jungle/* assets/jungle/sounds/*
 	cp -r assets/jungle $(APP)/assets/jungle
 
 # Each game is its own bundle, carrying only its own pictures and sounds.
-$(APP)/games/jungle-math.zib: $(wildcard games/math/*.zi retro/*.zi) $(shell find assets/jungle-math -type f)
-	rm -rf build/stage/jungle-math
-	mkdir -p build/stage/jungle-math/assets $(APP)/games
-	cp -r assets/jungle-math build/stage/jungle-math/assets/
-	'$(ZIRANC)' bundle --root games/math $(MODULES) --define KRYON_HOSTED_UI \
-		--asset-dir assets=build/stage/jungle-math/assets --entry jungle_math:main -o $@ games/math/jungle_math.zi
+$(APP)/games/animal-count.zib: $(wildcard games/animal/*.zi retro/*.zi) $(shell find assets/animal-count -type f)
+	rm -rf build/stage/animal-count
+	mkdir -p build/stage/animal-count/assets $(APP)/games
+	cp -r assets/animal-count build/stage/animal-count/assets/
+	'$(ZIRANC)' bundle --root games/animal $(MODULES) --define KRYON_HOSTED_UI \
+		--asset-dir assets=build/stage/animal-count/assets --entry animal_count:main -o $@ games/animal/animal_count.zi
 
 $(APP)/games/dino-paint.zib: $(wildcard games/paint/*.zi retro/*.zi) $(shell find assets/dino-paint -type f)
 	rm -rf build/stage/dino-paint
@@ -55,8 +56,8 @@ $(APP)/games/dino-paint.zib: $(wildcard games/paint/*.zi retro/*.zi) $(shell fin
 	'$(ZIRANC)' bundle --root games/paint $(MODULES) --define KRYON_HOSTED_UI \
 		--asset-dir assets=build/stage/dino-paint/assets --entry dino_paint:main -o $@ games/paint/dino_paint.zi
 
-# Pixel art: art/*.svg through Inkscape and ImageMagick into assets/ and
-# games/paint/paint_pages.zi (committed).
+# Pixel art: art/*.svg through Inkscape and ImageMagick into assets/
+# (committed). Dino Colors' original Bert artwork is committed directly.
 art: build/tools/art
 	build/tools/art
 
@@ -64,7 +65,7 @@ art: build/tools/art
 sounds: build/tools/sounds
 	build/tools/sounds
 
-build/tools/%: tools/%.zi build/ziran/libziran.a
+build/tools/%: tools/%.zi $(wildcard tools/*.zi) build/ziran/libziran.a
 	rm -rf build/tools/$*-c
 	'$(ZIRANC)' build --target=c --root tools --module-path 'std=$(TOOLCHAIN)/std' --module-path '$(TOOLCHAIN)/std' \
 		--entry $*:main -o build/tools/$*-c $<
@@ -73,22 +74,31 @@ build/tools/%: tools/%.zi build/ziran/libziran.a
 
 build/tests/%: tests/%_test.zi $(wildcard games/*/*.zi host/*.zi) build/ziran/libziran.a
 	rm -rf build/tests/$*-c
-	'$(ZIRANC)' build --target=c --root tests --module-path 'std=$(TOOLCHAIN)/std' --module-path '$(TOOLCHAIN)/std' \
+	'$(ZIRANC)' build --target=c --root tests $(MODULES) \
 		--entry $*_test:main -o build/tests/$*-c $<
 	$${CC:-cc} $(CFLAGS_ZI) $$(find build/tests/$*-c -type d -printf ' -iquote %p') $$(find build/tests/$*-c -name '*.c') \
 		build/ziran/libziran.a -Wl,--gc-sections -lm -lpthread -o $@
 
 # Questions, painting and PNG pictures, then every game opened in the app.
-test: build/tests/lessons build/tests/paint build/tests/png all
-	build/tests/lessons
+test: build/tests/paint build/tests/png build/tests/progress build/tests/document build/tests/counting build/tests/printing all
 	build/tests/paint
+	build/tests/progress
+	build/tests/document
+	build/tests/counting
 	build/tests/png build/tests/check.png
 	test "$$(convert build/tests/check.png -format '%w %h %[pixel:p{0,0}] %[pixel:p{2,1}]' info:)" = "3 2 srgb(170,0,0) srgb(255,255,85)"
 	rm -rf build/tests/data
 	mkdir -p build/tests/data
-	printf 'jungle 1\nskill 0 3 1 0\nfruits 4\n' > build/tests/data/progress.txt
+	printf 'jungle 1\nfruits 4\n' > build/tests/data/progress.txt
 	JUNGLE_DATA=$(abspath build/tests/data) $(APP)/jungle --check
-	test "$$(cat build/tests/data/games/jungle.math/progress.txt)" = "skill 0 3 1 0"
+	python3 tests/runtime_test.py
+	python3 tests/export_test.py
+	python3 tests/assets_test.py
+
+# Actual input and rendering on a private display; requires Xvfb, xdotool,
+# ImageMagick and Pillow. Never uses the inherited desktop or owner saves.
+test-ui: all
+	python3 tests/runtime_test.py --ui
 
 BIN_DIR ?= $(HOME)/.local/bin
 LIB_DIR ?= $(HOME)/.local/lib/jungle

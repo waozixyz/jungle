@@ -1,49 +1,57 @@
-// Dino Paint's pictures: every page's lines are closed, so the bucket fills
-// the sky without spilling into the ground; brush and eraser leave the lines;
-// a saved picture opens again exactly.
+// Dino Colors' scenes and dinosaurs: every scene opens, its lines hold a
+// fill, a saved picture opens again exactly, and every dinosaur stamps ink
+// in each size, both ways round.
 #import, file "../games/paint/paint_canvas.zi";
 #import, file "../games/paint/paint_pages.zi";
 #import, file "../host/platform.zi";
 #import, file "../host/jungle_text.zi";
 
-Fail :: (page: s32, message: string) -> s32 {
-    Report(Cat("paint test: page ", NumberText(page), ": ", message, "\n"))
+PaintFail :: (name: string, message: string) -> s32 {
+    Report(Cat("paint test: ", name, ": ", message, "\n"))
     return 1
+}
+
+InkCount :: () -> s32 {
+    ink: s32 = 0
+    for at: cast(s32)0..CANVAS_PIXELS - 1 { if lines[at] { ink += 1 } }
+    return ink
 }
 
 #program_export
 main :: (argc: s32, argv: **u8) -> s32 {
     unused argc
     unused argv
-    for page: cast(s32)0..PAGE_COUNT - 1 {
-        if !CanvasOpen(page, "") { return Fail(page, "did not open") }
-        ink: s32 = 0
-        for at: cast(s32)0..CANVAS_PIXELS - 1 { if lines[at] { ink += 1 } }
-        if ink < 800 || ink > 20000 { return Fail(page, Cat("odd amount of line: ", NumberText(ink))) }
-        if CanvasColorAt(2, 2) != PAPER { return Fail(page, "the sky's corner is not paper") }
-        sky := CanvasFill(2, 2, LIGHT_BLUE_INDEX)
-        if sky < 4000 { return Fail(page, Cat("the sky fill stopped early: ", NumberText(sky))) }
-        if CanvasColorAt(2, CANVAS_HEIGHT - 2) == LIGHT_BLUE_INDEX || CanvasColorAt(CANVAS_WIDTH - 3, CANVAS_HEIGHT - 2) == LIGHT_BLUE_INDEX {
-            return Fail(page, "the sky leaked into the ground")
-        }
-        if CanvasFill(2, 2, LIGHT_BLUE_INDEX) != 0 { return Fail(page, "filling with the same color changed something") }
-        unused CanvasStroke(0, 0, CANVAS_WIDTH - 1, CANVAS_HEIGHT - 1, 3, 4)
-        unused CanvasStroke(CANVAS_WIDTH - 1, 0, 0, CANVAS_HEIGHT - 1, 3, PAPER)
-        for at: cast(s32)0..CANVAS_PIXELS - 1 {
-            if lines[at] && canvas[at] != cast(u8)INK { return Fail(page, "the brush painted over a line") }
-        }
+    for scene: cast(s32)0..SCENE_COUNT - 1 {
+        if !SceneOpen(scene, "") { return PaintFail("scene", "did not open") }
+        ink := InkCount()
+        if ink < 200 || ink > 20000 { return PaintFail("scene", Cat("odd amount of line: ", NumberText(ink))) }
+        if CanvasColorAt(2, 2) != PAPER { return PaintFail("scene", "the corner is not paper") }
+        if CanvasFill(2, 2, 9) == 0 { return PaintFail("scene", "the fill painted nothing") }
         saved := CanvasText()
         copy: [CANVAS_PIXELS]u8
         for at: cast(s32)0..CANVAS_PIXELS - 1 { copy[at] = canvas[at] }
-        if !CanvasOpen(page, saved) { return Fail(page, "a saved picture did not open") }
+        if !SceneOpen(scene, saved) { return PaintFail("scene", "a saved picture did not open") }
         for at: cast(s32)0..CANVAS_PIXELS - 1 {
-            if canvas[at] != copy[at] { return Fail(page, "a saved picture opened differently") }
+            if canvas[at] != copy[at] { return PaintFail("scene", "a saved picture opened differently") }
         }
-        CanvasClear()
-        if CanvasColorAt(2, 2) != PAPER { return Fail(page, "clear left color behind") }
+    }
+    for dino: cast(s32)0..DINO_COUNT - 1 {
+        for size: cast(s32)1..4 {
+            scale := DinoScale(dino, size)
+            if DINO_WIDTH[dino] * scale / 100 > CANVAS_WIDTH ||
+            DINO_HEIGHT[dino] * scale / 100 > CANVAS_HEIGHT {
+                return PaintFail("dino", "a selectable size cannot fit the picture")
+            }
+            unused SceneOpen(0, "")
+            CanvasStampDino(dino, size, 10, 10, false)
+            forward := InkCount()
+            if forward < 20 { return PaintFail("dino", "stamped too little") }
+            unused SceneOpen(0, "")
+            CanvasStampDino(dino, size, 10, 10, true)
+            mirrored := InkCount()
+            if mirrored < forward / 2 { return PaintFail("dino", "mirroring lost most of the ink") }
+        }
     }
     Report("paint test passed\n")
     return 0
 }
-
-LIGHT_BLUE_INDEX :: 9

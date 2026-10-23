@@ -35,6 +35,9 @@
 #import, file "sound.zi";
 #import, file "canvas_png.zi";
 #import, file "jungle_text.zi";
+#import, file "progress.zi";
+#import, file "../games/paint/paint_palette.zi";
+#import, file "printing.zi";
 
 GAME_LIMIT :: 8
 FONT :: "assets/jungle/font.png"
@@ -114,19 +117,29 @@ Reply :: (text: string) -> HostValue {
 }
 
 GameAllows :: (context: *void, name: string) -> bool {
-    return name == "jungle.sound" || name == "jungle.home" || name == "jungle.canvas" || BundleAppAllows(context, name)
+    return name == "jungle.sound" || name == "jungle.home" || name == "jungle.canvas" ||
+        name == "jungle.export" || name == "jungle.print" || BundleAppAllows(context, name)
 }
 
 // A painted canvas, one letter a to p per pixel, as a PNG file in the
 // game's folder. Older pictures beyond CANVAS_KEEP are removed.
 WriteCanvas :: (pixels: string) -> string {
+    painting := pixels.count == cast(s64)(CANVAS_WIDTH * CANVAS_HEIGHT) + 6 && pixels[:6] == "paint\n"
+    if painting { pixels = pixels[6:] }
     if pixels.count != cast(s64)(CANVAS_WIDTH * CANVAS_HEIGHT) { return "" }
     for at: cast(s64)0..pixels.count - 1 {
         byte := pixels[at]
-        if byte < #char "a" || byte > #char "p" { return "" }
-        canvas_pixels[at] = byte - #char "a"
+        if painting {
+            index := PaintIndex(byte)
+            if index < 0 { return "" }
+            canvas_pixels[at] = cast(u8)PaintDisplayIndex(index, cast(s32)at % CANVAS_WIDTH, cast(s32)at / CANVAS_WIDTH)
+        } else {
+            if byte < #char "a" || byte > #char "p" { return "" }
+            canvas_pixels[at] = byte - #char "a"
+        }
     }
-    data := PngIndexed(CANVAS_WIDTH, CANVAS_HEIGHT, retro_colors[:], canvas_pixels[:])
+    data := PngIndexed(CANVAS_WIDTH, CANVAS_HEIGHT,
+        ifx painting then paint_colors[:] else retro_colors[:], canvas_pixels[:])
     if data == "" { return "" }
     canvas_count += 1
     name := Cat("canvas-", NumberText(canvas_count), ".png")
@@ -157,6 +170,10 @@ GameServices :: (context: *void, module: *u8, function: *u8,
         }
         if service == "jungle.canvas" {
             result.* = Reply(WriteCanvas(request))
+            return 1
+        }
+        if service == "jungle.export" || service == "jungle.print" {
+            result.* = Reply(ExportPicture(*game.local.files, request, service == "jungle.print"))
             return 1
         }
     }
@@ -234,8 +251,16 @@ GameFrame :: (bounds: Rectangle, pointer: PointerFrame, secondary: SecondaryPoin
     app.font = 18
     app.key = key
     app.modifiers = modifiers
-    app.input = TextFieldInputFor(key, modifiers, "")
-    app.area_input = TextAreaInputFor(key, modifiers, "")
+    typed_bytes: [128]u8
+    typed_count: s32 = 0
+    while true {
+        code := DesktopTypedCodepoint()
+        if code == 0 { break }
+        typed_count = TypedTextAppend(typed_bytes[:], typed_count, code)
+    }
+    typed := TextView(typed_bytes[:typed_count])
+    app.input = TextFieldInputFor(key, modifiers, typed)
+    app.area_input = TextAreaInputFor(key, modifiers, typed)
     app.area_input.now_seconds = seconds
     if BeginFrame(app.session, cast(u64)1, bounds) != FrameStatus.FrameOk { return false }
     bundle_drawing_app = *game
@@ -260,7 +285,10 @@ Menu :: (session: Session, bounds: Rectangle, key: s32) {
         RetroFrame(40, y, 240, 40, Pick(selected, WHITE, LIGHT_BLUE))
         RetroSprite(games[index].icon, 46, y + 4, 32, 32)
         RetroText(86, y + 4, games[index].title, Pick(selected, BLACK, WHITE))
-        RetroText(86, y + 20, games[index].about, Pick(selected, BLUE, LIGHT_GRAY))
+        about := games[index].about
+        // The fixed-width font fits 23 letters beside the icon.
+        if about.count > 23 { about = Cat(about[:20], "...") }
+        RetroText(86, y + 20, about, Pick(selected, BLUE, LIGHT_GRAY))
         if press.clicked { Start(index) }
     }
     if message != "" { RetroCentered(166, message, LIGHT_RED) }
@@ -341,13 +369,27 @@ KeepMathLevels :: (base: string) {
     unused WriteEntireFile(target, levels)
 }
 
+KeepAnimalLevels :: () {
+    folder := Cat(data_root, "/jungle.animals")
+    target := Cat(folder, "/progress.txt")
+    if PathExists(target) { return }
+    old, found := ReadEntireFile(Cat(data_root, "/jungle.math/progress.txt"))
+    if !found { return }
+    levels := AnimalLevels(old)
+    if levels == "" { return }
+    if CreatePrivateDirectory(folder) { unused WriteEntireFile(target, levels) }
+}
+
 // Opens each listed game, checks its capabilities and identity, and
 // closes it again; no window opens.
 Check :: () -> s32 {
     failed := false
     for index: cast(s32)0..game_count - 1 {
         bytes, found := ReadEntireFile(Cat("games/", games[index].file))
-        checked := found && BundleAppOpen(*game, bytes, data_root)
+        // Identify and validate capabilities without opening save storage.
+        // Closing an unplayed game with APP_SAVE can overwrite its progress
+        // with the bundle's initial values.
+        checked := found && BundleAppPrepare(*game, bytes, data_root)
         if checked {
             game.app.services = GameServices
             game.app.allows = GameAllows
@@ -374,11 +416,12 @@ main :: (argc: s32, argv: **u8) -> s32 {
     }
     base := DataDirectory()
     if base == "" { Report("jungle: no data folder\n"); return 1 }
-    unused CreateDirectory(base)
     data_root = Cat(base, "/games")
+    if argc == 2 && TextFromCString(argv[1]) == "--check" { return Check() }
+    unused CreateDirectory(base)
     unused CreateDirectory(data_root)
     KeepMathLevels(base)
-    if argc == 2 && TextFromCString(argv[1]) == "--check" { return Check() }
+    KeepAnimalLevels()
     zoom := WindowZoom()
     if !OpenDesktopSized(SCREEN_WIDTH * zoom, SCREEN_HEIGHT * zoom) { CloseDesktop(); return 1 }
     unused DesktopSetTitle("Jungle")

@@ -1,0 +1,163 @@
+// Animal Counting: Animal Math's counting game. The eighteen native sprites
+// sit in the original's fixed places, the ladder runs 4, 5, 6, 9, 12 and 18,
+// six right answers move up, six misses move back, and the eighth right answer
+// brings one of the original praises.
+#import "app_context"
+#import "app_protocol"
+#import "geometry"
+#import "number_text"
+#import "text_buffer"
+#import, file "../../retro/retro.zi";
+#import, file "../../retro/game.zi";
+#import, file "counting.zi";
+#import, file "counting_progress.zi";
+#import, file "../../host/jungle_text.zi";
+
+FONT :: "assets/animal-count/font.png"
+SOUNDS :: "assets/animal-count/sounds/"
+HOW_MANY :: "HOW MANY ?"
+YOU_GOT_IT :: "YOU GOT IT !!"
+TRY_AGAIN :: "Sorry, Try It Again !!!"
+// Animal Math's eighteen counting places, exactly as in ANIMALS.PAS.
+place_x: [18]s32 = .[164, 132, 132, 164, 100, 100, 132, 164, 100, 68, 68, 68, 36, 36, 36, 196, 196, 196];
+place_y: [18]s32 = .[100, 100, 72, 72, 72, 100, 128, 128, 128, 100, 72, 128, 72, 100, 128, 72, 100, 128];
+praises: [8]string = .[" GOOD JOB ", "   WOW    ", "  GREAT   ", "FANTASTIC ", "ALL RIGHT ", " TERRIFIC ", "  SUPER   ", " AWESOME  "];
+typed: [2]u8;
+typed_count: s32;
+state_message: string = "";
+state_until: float64 = -10.0;
+praise_until: float64 = -10.0;
+praise_word: string = "";
+loaded: bool;
+reward_started: float64;
+reward_head: s32;
+reward_body: s32;
+reward_legs: s32;
+
+Join :: (a: string, b: string = "", c: string = "") -> string {
+    text: Vec(u8)
+    parts: [3]string = .[a, b, c]
+    for part: parts { BuilderPrint(*text, "%", part) }
+    return BuilderFinish(text)
+}
+
+Number :: (value: s32) -> string {
+    digits: [24]u8
+    return Join(FormatInteger(cast(s64)value, digits[:]))
+}
+
+Sound :: (name: string) { GameSound(Join(SOUNDS, name, ".wav")) }
+
+NextNumber :: () {
+    NextCount()
+    typed_count = 0
+    typed[0] = 0
+    typed[1] = 0
+}
+
+ItemPath :: (which: s32) -> string {
+    return Join("assets/animal-count/items/animal-", Number(which + 1), ".png")
+}
+
+#program_export
+main :: () -> s32 {
+    mode := AppMode()
+    if mode == APP_IDENTIFY {
+        AppIdentity("jungle.animals")
+        AppDescribe("Animal Counting", "")
+        return APP_PROTOCOL
+    }
+    if mode == APP_SAVE { return ifx !loaded || CountSave() then 0 else 1 }
+    if mode != APP_FRAME { return 0 }
+    now := AppNow()
+    if !loaded {
+        CountLoad()
+        random_state = cast(u32)(cast(u64)(now * 1000.0) & cast(u64)0x7fffffff) | cast(u32)1
+        NextNumber()
+        loaded = true
+    }
+    RetroBegin(AppSession(), AppBounds(), FONT, now, AppKey(), BLUE, 8)
+    if AppKey() == KEY_ESCAPE { GameHome(); return 0 }
+    if now < praise_until {
+        RetroSprite(ItemPath(reward_head), 48, 64, 24, 20)
+        RetroSprite(ItemPath(reward_body), 48, 84, 24, 20)
+        RetroSprite(ItemPath(reward_legs), 48, 104, 24, 20)
+        RetroText(84, 110, praise_word, YELLOW, 2)
+        stars_x: [18]s32 = .[220,260,100,132,56,120,200,25,258,100,20,288,200,180,140,20,80,24]
+        stars_y: [18]s32 = .[24,128,80,142,28,168,180,162,60,36,20,186,70,40,60,188,160,136]
+        for star: cast(s32)0..17 {
+            if cast(float64)star < now - reward_started { RetroText(stars_x[star], stars_y[star], "*",
+                ifx star % 3 == 0 then LIGHT_GREEN else ifx star % 3 == 1 then LIGHT_RED else YELLOW, 2) }
+        }
+        return 0
+    }
+    RetroSprite("assets/animal-count/background.png", 0, 0, 320, 200)
+    // The original's title and question, in its places.
+    RetroText(120, 40, "COUNTING", LIGHT_GREEN)
+    RetroText(69, 157, HOW_MANY, YELLOW, 2)
+    RetroSprite("assets/animal-count/items/equals.png", 216, 90, 24, 20)
+    RetroSprite("assets/animal-count/items/question.png", 248, 90, 24, 20)
+    // The counted sprites, one per original place.
+    for index: cast(s32)0..number - 1 {
+        RetroSprite(ItemPath(item), place_x[index] - 12, place_y[index] - 10, 24, 20)
+    }
+    // The eight check marks, one for each right answer in the run.
+    marks := count % 8
+    for index: cast(s32)0..marks - 1 {
+        RetroSprite("assets/animal-count/items/check.png", 220 + index * 8, 60, 8, 8)
+    }
+    // What has been typed, in the original's big digits.
+    for index: cast(s32)0..typed_count - 1 {
+        one: [1]u8 = .[typed[index]]
+        RetroText(257 + index * 16, 157, TextView(one[:]), YELLOW, 2)
+    }
+    // The bottom line says what happened, exactly as the original did.
+    if retro.now < praise_until {
+        RetroText(84, 110, praise_word, YELLOW, 2)
+    }
+    if retro.now < state_until { RetroText(64, 192, state_message, LIGHT_GREEN) }
+    key := retro.key
+    if key == KEY_ESCAPE { GameHome(); return 0 }
+    if key >= 48 && key <= 57 && typed_count < 2 {
+        typed[typed_count] = cast(u8)key
+        typed_count += 1
+    }
+    if (key == 81 || key == 113) && typed_count < 2 {
+        typed[typed_count] = #char "Q"
+        typed_count += 1
+    }
+    if key == KEY_BACKSPACE && typed_count > 0 {
+        typed_count -= 1
+        typed[typed_count] = 0
+    }
+    if key == KEY_ENTER && typed_count > 0 && typed[0] == #char "Q" { GameHome(); return 0 }
+    if key == KEY_ENTER && typed_count > 0 {
+        answer: s32 = cast(s32)(typed[0] - #char "0")
+        if typed_count == 2 { answer = answer * 10 + cast(s32)(typed[1] - #char "0") }
+        if CountAnswer(answer) {
+            state_message = YOU_GOT_IT
+            state_until = retro.now + 1.0
+            Sound(Join("right-", Number((count - 1) % 8)))
+            if count % 8 == 0 {
+                praise_word = praises[RandomNumber(8) - 1]
+                heads: [7]s32 = .[7,3,15,13,14,8,11]
+                reward_head = heads[RandomNumber(7) - 1]
+                reward_body = 18 + RandomNumber(3) - 1
+                reward_legs = 21 + RandomNumber(3) - 1
+                reward_started = now
+                praise_until = now + 21.4
+                Sound("reward")
+            }
+            NextNumber()
+        } else {
+            state_message = TRY_AGAIN
+            state_until = retro.now + 1.5
+            Sound("miss")
+            typed_count = 0
+            typed[0] = 0
+            typed[1] = 0
+        }
+        unused CountSave()
+    }
+    return 0
+}

@@ -1,0 +1,56 @@
+#import, file "../games/paint/paint_document.zi";
+#import, file "../games/paint/paint_canvas.zi";
+#import, file "../games/paint/paint_pages.zi";
+#import "std/byte_text_linux"
+#import "std/c_string"
+#import "std/text_buffer"
+#import "std/text_buffer"
+#import, file "../host/platform.zi";
+#import, file "../host/jungle_text.zi";
+
+#program_export
+main :: () -> s32 {
+    scene = 3
+    crayon = 29
+    unused SceneOpen(scene, "")
+    CanvasStampDino(2, 2, 20, 20, true)
+    unused CanvasFill(2, 2, 45)
+    words := "My dinosaur (and friend)!"
+    for at: cast(s64)0..words.count - 1 { story[0][at] = words[at] }
+    story[7][37] = #char "!"
+    original := PictureText()
+    pixels: [CANVAS_PIXELS]u8
+    mask: [CANVAS_PIXELS]bool
+    for at: cast(s32)0..CANVAS_PIXELS - 1 { pixels[at] = canvas[at]; mask[at] = lines[at] }
+    unused SceneOpen(0, "")
+    scene = 0
+    ClearStory()
+    if !PictureLoad(original) || scene != 3 || crayon != 29 { return 1 }
+    if TextUntilNul(story[0][:]) != words || story[7][37] != #char "!" { return 2 }
+    for at: cast(s32)0..CANVAS_PIXELS - 1 {
+        if canvas[at] != pixels[at] || lines[at] != mask[at] { return 3 }
+    }
+    if PictureText() != original { return 4 }
+    for cut: cast(s64)0..original.count - 2 {
+        // Include every structural boundary, with no quadratic full-record loop.
+        if cut < 340 || cut % 4096 == 0 || cut > original.count - 5 {
+            if PictureLoad(original[:cut]) || PictureText() != original { return 5 }
+        }
+    }
+    if PictureLoad(Cat(original, "x")) || PictureText() != original { return 6 }
+    bad: Vec(u8)
+    BuilderPrint(*bad, "%", original)
+    bad[PICTURE_HEADER.count] = #char "9"
+    if PictureLoad(BuilderFinish(bad)) || scene != 3 { return 7 }
+    // Black paint remains paint; it must not become an immutable outline.
+    for at: cast(s32)0..CANVAS_PIXELS - 1 { canvas[at] = 0; lines[at] = false }
+    black := PictureText()
+    if !PictureLoad(black) || CanvasFill(0, 0, 44) != CANVAS_PIXELS { return 8 }
+    // Old palette-only records import exactly and gain a complete new record.
+    old: [CANVAS_PIXELS]u8
+    for at: cast(s32)0..CANVAS_PIXELS - 1 { old[at] = #char "p" }
+    old[0] = #char "a"
+    if !PictureLoad(TextView(old[:])) || canvas[0] != 0 || !lines[0] || canvas[1] != 15 { return 9 }
+    Report("local document test passed\n")
+    return 0
+}

@@ -1,0 +1,30 @@
+// Carry the counting ladder from Jungle Math into Animal Counting.
+#import, file "jungle_text.zi";
+
+AnimalLevels :: (text: string) -> string {
+    at: s64 = 0
+    while at < text.count {
+        end := at
+        while end < text.count && text[end] != cast(u8)10 { end += 1 }
+        line := text[at:end]
+        at = end + 1
+        if line.count < 6 || line[:6] != "skill " { continue }
+        cursor: s64 = 6
+        values: [4]s32
+        valid := true
+        for field: cast(s32)0..3 {
+            values[field] = ReadWhole(line, *cursor)
+            if values[field] < 0 { valid = false }
+            if field < 3 {
+                if cursor >= line.count || line[cursor] != #char " " { valid = false }
+                cursor += 1
+            }
+        }
+        if cursor < line.count && line[cursor] == cast(u8)13 { cursor += 1 }
+        if !valid || cursor != line.count || values[0] != 0 || values[1] < 1 || values[1] > 6 { continue }
+        right := ifx values[2] < 6 then values[2] else 0
+        misses := ifx values[3] < 6 then values[3] else 0
+        return Cat("animal ", NumberText(values[1]), " 0 ", NumberText(right), " ", NumberText(misses), "\n")
+    }
+    return ""
+}

@@ -1,0 +1,107 @@
+// Complete picture files: scene, crayon, story, pixels and immutable ink.
+// Validate the entire record before changing the current picture.
+#import "std/byte_text_linux"
+#import "std/text_buffer"
+#import, file "paint_canvas.zi";
+#import, file "paint_pages.zi";
+#import, file "paint_palette.zi";
+#import, file "paint_pages.zi";
+#import, file "paint_palette.zi";
+
+STORY_LINES :: 8
+STORY_COLUMNS :: 38
+PICTURE_HEADER :: "JUNGLE PICTURE 1\n"
+PICTURE_STORY :: STORY_LINES * (STORY_COLUMNS + 1)
+
+scene: s32 = -1;
+crayon: s32 = 14;
+story: [STORY_LINES][STORY_COLUMNS + 1]u8;
+
+ClearStory :: () {
+    for row: cast(s32)0..STORY_LINES - 1 {
+        for column: cast(s32)0..STORY_COLUMNS { story[row][column] = 0 }
+    }
+}
+
+StoryText :: () -> string {
+    text: Vec(u8)
+    for row: cast(s32)0..STORY_LINES - 1 {
+        BuilderPrint(*text, "%\n", TextUntilNul(story[row][:]))
+    }
+    return BuilderFinish(text)
+}
+
+PictureText :: () -> string {
+    if scene < -1 || scene >= SCENE_COUNT { return "" }
+    text: Vec(u8)
+    metadata: [3]u8 = .[ifx scene < 0 then #char "-" else cast(u8)(#char "0" + scene), PAINT_CODES[crayon], cast(u8)10]
+    BuilderPrint(*text, "%", PICTURE_HEADER)
+    BuilderPrint(*text, "%", TextView(metadata[:]))
+    for row: cast(s32)0..STORY_LINES - 1 {
+        for column: cast(s32)0..STORY_COLUMNS - 1 {
+            byte := story[row][column]
+            unused VecPush(text, ifx byte == 0 then #char " " else byte)
+        }
+        unused VecPush(text, cast(u8)10)
+    }
+    for at: cast(s32)0..CANVAS_PIXELS - 1 { unused VecPush(text, PAINT_CODES[canvas[at]]) }
+    unused VecPush(text, cast(u8)10)
+    for at: cast(s32)0..CANVAS_PIXELS - 1 {
+        unused VecPush(text, ifx lines[at] then #char "1" else #char "0")
+    }
+    unused VecPush(text, cast(u8)10)
+    return BuilderFinish(text)
+}
+
+PictureLoad :: (saved: string) -> bool {
+    // Early versions stored only sixteen-color pixels. Import them without
+    // adding another scene's lines or changing any of their colors.
+    if saved.count == cast(s64)CANVAS_PIXELS {
+        for byte: saved { if byte < #char "a" || byte > #char "p" { return false } }
+        scene = 0
+        crayon = 14
+        ClearStory()
+        for at: cast(s32)0..CANVAS_PIXELS - 1 {
+            canvas[at] = saved[at] - #char "a"
+            lines[at] = canvas[at] == cast(u8)INK
+        }
+        return true
+    }
+    header := PICTURE_HEADER.count
+    pixels := header + 3 + cast(s64)PICTURE_STORY
+    mask := pixels + cast(s64)CANVAS_PIXELS + 1
+    expected := mask + cast(s64)CANVAS_PIXELS + 1
+    if saved.count != expected || saved[:header] != PICTURE_HEADER { return false }
+    chosen := ifx saved[header] == #char "-" then -1 else cast(s32)(saved[header] - #char "0")
+    color := PaintIndex(saved[header + 1])
+    if chosen < -1 || chosen >= SCENE_COUNT || color < 0 || color >= 30 || saved[header + 2] != cast(u8)10 { return false }
+    for row: cast(s32)0..STORY_LINES - 1 {
+        start := header + 3 + cast(s64)(row * (STORY_COLUMNS + 1))
+        for column: cast(s32)0..STORY_COLUMNS - 1 {
+            byte := saved[start + cast(s64)column]
+            if byte < 32 || byte > 126 { return false }
+        }
+        if saved[start + cast(s64)STORY_COLUMNS] != cast(u8)10 { return false }
+    }
+    for at: cast(s32)0..CANVAS_PIXELS - 1 {
+        byte := saved[mask + cast(s64)at]
+        if byte != #char "0" && byte != #char "1" { return false }
+        index := PaintIndex(saved[pixels + cast(s64)at])
+        if index < 0 || (byte == #char "1" && index != INK) { return false }
+    }
+    if saved[mask - 1] != cast(u8)10 || saved[expected - 1] != cast(u8)10 { return false }
+    scene = chosen
+    crayon = color
+    ClearStory()
+    for row: cast(s32)0..STORY_LINES - 1 {
+        start := header + 3 + cast(s64)(row * (STORY_COLUMNS + 1))
+        last: s32 = STORY_COLUMNS - 1
+        while last >= 0 && saved[start + cast(s64)last] == #char " " { last -= 1 }
+        for column: cast(s32)0..last { story[row][column] = saved[start + cast(s64)column] }
+    }
+    for at: cast(s32)0..CANVAS_PIXELS - 1 {
+        canvas[at] = cast(u8)PaintIndex(saved[pixels + cast(s64)at])
+        lines[at] = saved[mask + cast(s64)at] == #char "1"
+    }
+    return true
+}

@@ -2,7 +2,7 @@
 #import "app_context"
 
 // Plays one of the game's own sound files, such as
-// "assets/jungle-math/sounds/right.wav".
+// "assets/animal-count/sounds/right.wav".
 GameSound :: (path: string) {
     unused AppService("jungle.sound", path)
 }
@@ -12,8 +12,8 @@ GameHome :: () {
     unused AppService("jungle.home", "")
 }
 
-// Turns a 240 by 180 picture, one letter a to p per pixel for the sixteen
-// colors, into a picture file the game can show; returns its name, or ""
+// Turns an indexed 240 by 180 picture into a file the game can show;
+// returns its name, or ""
 // when the app cannot make one.
 GameCanvas :: (pixels: string) -> string {
     name := AppService("jungle.canvas", pixels)

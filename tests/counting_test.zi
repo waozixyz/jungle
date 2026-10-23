@@ -1,0 +1,31 @@
+#import, file "../games/animal/counting.zi";
+#import, file "../host/platform.zi";
+#import, file "../host/jungle_text.zi";
+
+#program_export
+main :: () -> s32 {
+    for ladder: cast(s32)1..MAX_LEVEL {
+        level = ladder
+        for round: cast(s32)0..999 {
+            before := last_number
+            NextCount()
+            if number < 1 || number > level_most[level - 1] || number == before || item < 0 || item >= 18 { return 1 }
+        }
+    }
+    level = 1
+    right_run = 0
+    miss_run = 0
+    number = 3
+    for answer: cast(s32)0..4 {
+        if !CountAnswer(3) || level != 1 { return 2 }
+    }
+    if !CountAnswer(3) || level != 2 || right_run != 0 { return 3 }
+    for answer: cast(s32)0..4 { if CountAnswer(0) || level != 2 { return 4 } }
+    if CountAnswer(0) || level != 1 || miss_run != 0 { return 5 }
+    for answer: cast(s32)0..99 { unused CountAnswer(0) }
+    if level != 1 { return 6 }
+    for answer: cast(s32)0..99 { unused CountAnswer(3) }
+    if level != MAX_LEVEL || right_run >= 6 { return 7 }
+    Report("local counting test passed\n")
+    return 0
+}

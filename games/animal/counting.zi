@@ -1,0 +1,56 @@
+// Animal Math's counting ladder and random-number rules, without UI effects.
+MAX_LEVEL :: 6
+RIGHT_TO_MOVE :: 6
+MISS_TO_MOVE :: 6
+PRAISE_COUNT :: 8
+level_most: [6]s32 = .[4, 5, 6, 9, 12, 18];
+level: s32 = 1;
+count: s32;
+right_run: s32;
+miss_run: s32;
+number: s32;
+last_number: s32;
+item: s32;
+random_state: u32 = 1;
+
+RandomNext :: () -> u32 {
+    value := random_state
+    if value == 0 { value = 2463534242 }
+    value ^= value << 13
+    value ^= value >> 17
+    value ^= value << 5
+    random_state = value
+    return value
+}
+
+RandomNumber :: (limit: s32) -> s32 {
+    return cast(s32)(RandomNext() % cast(u32)100 % cast(u32)limit) + 1
+}
+
+NextCount :: () {
+    most := level_most[level - 1]
+    number = RandomNumber(most)
+    while number == last_number { number = RandomNumber(most) }
+    item = cast(s32)(RandomNext() % cast(u32)100 % cast(u32)18)
+    last_number = number
+}
+
+CountAnswer :: (answer: s32) -> bool {
+    if answer == number {
+        count += 1
+        right_run += 1
+        if right_run >= RIGHT_TO_MOVE {
+            right_run = 0
+            miss_run = 0
+            if level < MAX_LEVEL { level += 1 }
+        }
+        return true
+    }
+    miss_run += 1
+    if miss_run >= MISS_TO_MOVE {
+        right_run = 0
+        miss_run = 0
+        if level > 1 { level -= 1 }
+    }
+    return false
+}
