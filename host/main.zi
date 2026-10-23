@@ -46,6 +46,14 @@ CANVAS_KEEP :: 12
 jungle_sdl :: #system_library "SDL2";
 Counter :: () -> u64 #foreign jungle_sdl "SDL_GetPerformanceCounter";
 CounterRate :: () -> u64 #foreign jungle_sdl "SDL_GetPerformanceFrequency";
+SdlStart :: (flags: u32) -> s32 #foreign jungle_sdl "SDL_InitSubSystem";
+SdlRect :: struct {
+    x: s32
+    y: s32
+    w: s32
+    h: s32
+}
+UsableBounds :: (display: s32, area: *SdlRect) -> s32 #foreign jungle_sdl "SDL_GetDisplayUsableBounds";
 
 Game :: struct {
     file: string
@@ -297,6 +305,20 @@ DrawGame :: () -> bool {
     return ok
 }
 
+// The largest whole number of window pixels per screen pixel that fits the
+// first display's free area, leaving room for a title bar; 3 when the
+// display cannot be asked.
+WindowZoom :: () -> s32 {
+    area: SdlRect
+    // SDL_INIT_VIDEO; the desktop host starts it again when it opens.
+    if SdlStart(cast(u32)0x20) != 0 || UsableBounds(0, *area) != 0 { return 3 }
+    zoom := area.w / SCREEN_WIDTH
+    tall := (area.h - 40) / SCREEN_HEIGHT
+    if tall < zoom { zoom = tall }
+    if zoom < 1 { return 1 }
+    return zoom
+}
+
 // Jungle's first version kept Jungle Math's levels in one progress file;
 // they move into the game's own folder the first time it has none.
 KeepMathLevels :: (base: string) {
@@ -357,7 +379,8 @@ main :: (argc: s32, argv: **u8) -> s32 {
     unused CreateDirectory(data_root)
     KeepMathLevels(base)
     if argc == 2 && TextFromCString(argv[1]) == "--check" { return Check() }
-    if !OpenDesktopSized(SCREEN_WIDTH * 3, SCREEN_HEIGHT * 3) { CloseDesktop(); return 1 }
+    zoom := WindowZoom()
+    if !OpenDesktopSized(SCREEN_WIDTH * zoom, SCREEN_HEIGHT * zoom) { CloseDesktop(); return 1 }
     unused DesktopSetTitle("Jungle")
     unused WindowInterceptCloseHost(true)
     session := SessionOpen()

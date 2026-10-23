@@ -78,8 +78,9 @@ Sprite :: (source: string, target: string, width: s32, height: s32) -> bool {
     flatten: [13]string = .["convert", raw, "-background", "white", "-alpha", "remove", "-alpha", "off",
     "-dither", "None", "-remap", "build/art/palette.ppm", colors]
     cut: [7]string = .["convert", raw, "-alpha", "extract", "-threshold", "50%", mask]
-    join: [9]string = .["convert", colors, mask, "-alpha", "off", "-compose", "CopyOpacity", "-composite",
-    Cat("PNG32:", target)]
+    // No dates or other metadata, so drawing the same art writes the same file.
+    join: [12]string = .["convert", colors, mask, "-alpha", "off", "-compose", "CopyOpacity", "-composite",
+    "-strip", "-define", "png:exclude-chunks=date,time", Cat("PNG32:", target)]
     return Run(draw[:]) && Run(flatten[:]) && Run(cut[:]) && Run(join[:])
 }
 
@@ -105,8 +106,8 @@ Font :: () -> bool {
     if !WriteEntireFile("build/art/font.svg", BuilderFinish(text)) { return false }
     draw: [6]string = .["inkscape", "--export-type=png", "--export-filename=build/art/font-raw.png",
     "--export-png-antialias=0", "--export-width=128", "build/art/font.svg"]
-    clean: [8]string = .["convert", "build/art/font-raw.png", "-channel", "A", "-threshold", "50%", "+channel",
-    "PNG32:build/art/font.png"]
+    clean: [11]string = .["convert", "build/art/font-raw.png", "-channel", "A", "-threshold", "50%", "+channel",
+    "-strip", "-define", "png:exclude-chunks=date,time", "PNG32:build/art/font.png"]
     return Run(draw[:]) && Run(clean[:])
 }
 
@@ -196,6 +197,7 @@ main :: (argc: s32, argv: **u8) -> s32 {
     for target: fonts { ok = ok && CopyFile("build/art/font.png", target) }
     for name: ITEMS {
         ok = ok && Sprite(Cat("art/items/", name, ".svg"), Cat("assets/jungle-math/items/", name, "-32.png"), 32, 32)
+        ok = ok && Sprite(Cat("art/items/", name, ".svg"), Cat("assets/jungle-math/items/", name, "-24.png"), 24, 24)
         ok = ok && Sprite(Cat("art/items/", name, ".svg"), Cat("assets/jungle-math/items/", name, "-16.png"), 16, 16)
     }
     ok = ok && Sprite("art/scenes/stone.svg", "assets/jungle-math/stone.png", 40, 30)

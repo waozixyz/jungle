@@ -48,7 +48,7 @@ Number :: (value: s32) -> string {
 }
 
 ItemPath :: (item: s32, size: s32) -> string {
-    return Join("assets/jungle-math/items/", item_names[item], ifx size == 32 then "-32.png" else "-16.png")
+    return Join("assets/jungle-math/items/", item_names[item], "-", Number(size), ".png")
 }
 
 Sound :: (name: string) { GameSound(Join(SOUNDS, name, ".wav")) }
@@ -152,34 +152,55 @@ Menu :: () {
     if key == KEY_ESCAPE { GameHome() }
 }
 
-// `count` pictures in the area, big when they fit and small when not.
-// Pictures from `taken` on are dark shadows. With `number_from` of 1 or
-// more the others are numbered, counting on from it.
-Items :: (x: s32, y: s32, width: s32, height: s32, count: s32, taken: s32, number_from: s32) {
-    if count <= 0 { return }
-    size: s32 = 32
-    cell: s32 = 34
-    columns := width / cell
-    if columns * (height / cell) < count {
-        size = 16
-        cell = 19
-        columns = width / cell
+// `count` pictures in the area in groups of five, so they can be counted
+// at a glance: rows of five, a gap after every fifth, and two groups side
+// by side when there is room; as big as fits. Pictures from `taken` on are
+// dark shadows. With `number_from` of 1 or more the others are numbered,
+// counting on from it.
+GROUP :: 5
+GROUP_GAP :: 6
+
+// The biggest picture size that lays `count` out in groups of five inside
+// the area: a single short row when there are fewer than five.
+FitSize :: (width: s32, height: s32, count: s32) -> s32 {
+    sizes: [3]s32 = .[32, 24, 16]
+    for size: sizes {
+        cell := size + 2
+        if cell > height { continue }
+        if count < GROUP && count * cell <= width { return size }
+        across := (width + GROUP_GAP) / (GROUP * cell + GROUP_GAP)
+        if across >= 1 && (count + GROUP * across - 1) / (GROUP * across) * cell <= height { return size }
     }
-    if columns > count { columns = count }
-    rows := (count + columns - 1) / columns
-    left := x + (width - columns * cell) / 2 + 1
+    return 16
+}
+
+Items :: (x: s32, y: s32, width: s32, height: s32, count: s32, taken: s32, number_from: s32, size: s32) {
+    if count <= 0 { return }
+    groups := (width + GROUP_GAP) / (GROUP * (size + 2) + GROUP_GAP)
+    if groups < 1 { groups = 1 }
+    cell := size + 2
+    // Only as many groups across as the count needs.
+    needed := (count + GROUP - 1) / GROUP
+    if groups > needed { groups = needed }
+    // Fewer than a group's worth make one short row.
+    per_row := GROUP * groups
+    if per_row > count { per_row = count }
+    rows := (count + per_row - 1) / per_row
+    block_width := per_row * cell + ((per_row + GROUP - 1) / GROUP - 1) * GROUP_GAP
+    left := x + (width - block_width) / 2 + 1
     top := y + (height - rows * cell) / 2 + 1
     shown: s32 = 0
     for index: cast(s32)0..count - 1 {
-        at_x := left + (index % columns) * cell
-        at_y := top + (index / columns) * cell
+        column := index % per_row
+        at_x := left + column * cell + (column / GROUP) * GROUP_GAP
+        at_y := top + (index / per_row) * cell
         gone := index >= taken
         RetroSprite(ItemPath(question.item, size), at_x, at_y, size, size, Pick(gone, DARK_GRAY, -1))
         if !gone && number_from >= 1 {
             label := Number(number_from + shown)
             label_width := RetroTextWidth(label)
             label_x := ifx size == 32 then at_x + size - label_width else at_x + (size - label_width) / 2
-            label_y := ifx size == 32 then at_y + size - 14 else at_y
+            label_y := ifx size == 32 then at_y + size - 14 else at_y + size - 16
             RetroFill(label_x - 1, label_y, label_width + 2, 16, BLACK)
             RetroText(label_x, label_y, label, YELLOW)
             shown += 1
@@ -192,13 +213,15 @@ Scene :: () {
     RetroFrame(4, 38, 312, 98, DARK_GRAY)
     numbered := missed || solved
     if trail == TRAIL_COUNT {
-        Items(8, 40, 304, 94, question.first, question.first, ifx numbered then 1 else 0)
+        Items(8, 40, 304, 94, question.first, question.first, ifx numbered then 1 else 0, FitSize(304, 94, question.first))
     } else if trail == TRAIL_ADD {
-        Items(8, 40, 140, 94, question.first, question.first, ifx numbered then 1 else 0)
+        // Both groups at one size, the size the bigger group fits.
+        size := FitSize(140, 94, ifx question.first > question.second then question.first else question.second)
+        Items(8, 40, 140, 94, question.first, question.first, ifx numbered then 1 else 0, size)
         RetroText(152, 72, "+", WHITE, 2)
-        Items(172, 40, 140, 94, question.second, question.second, ifx numbered then question.first + 1 else 0)
+        Items(172, 40, 140, 94, question.second, question.second, ifx numbered then question.first + 1 else 0, size)
     } else if trail == TRAIL_TAKE {
-        Items(8, 40, 304, 94, question.first, question.answer, ifx numbered then 1 else 0)
+        Items(8, 40, 304, 94, question.first, question.answer, ifx numbered then 1 else 0, FitSize(304, 94, question.first))
     } else {
         RetroSprite(ItemPath(4, 32), 8, 40, 32, 32)
         RetroFill(5, 76, 310, 40, LIGHT_BLUE)
