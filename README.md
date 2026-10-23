@@ -76,6 +76,10 @@ the original Bert's Dinosaurs artwork into `assets/dino-paint/art` and
 written in Ziran (`tools/`), and their output is committed. They preserve the
 recovered game artwork and recordings.
 
+`tools/paint_pages.py` compiles the committed PNG line art into portable paint
+masks, respecting transparency, and makes previews that retain thin strokes.
+`make art` also runs this step.
+
 `tools/import_original.py --help` describes optional regeneration from the
 original Animal Math table/screens and Bert voice data. It decodes all 24
 native counting/reward sprites and can recover the BIOS glyphs from DOSBox.

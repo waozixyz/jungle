@@ -23,7 +23,7 @@ run: all
 build/ziran/libziran.a:
 	$(MAKE) -C '$(TOOLCHAIN)' BUILD_DIR='$(abspath build/ziran)' '$(abspath $@)'
 
-$(APP)/jungle: $(wildcard host/*.zi retro/*.zi) build/ziran/libziran.a
+$(APP)/jungle: $(wildcard host/*.zi retro/*.zi games/paint/paint_palette.zi) build/ziran/libziran.a
 	mkdir -p $(APP)
 	@set -eu; output=$$(mktemp -d build/host-c.XXXXXX); \
 		trap 'rm -rf "$$output"' EXIT; \
@@ -60,6 +60,10 @@ $(APP)/games/dino-paint.zib: $(wildcard games/paint/*.zi retro/*.zi) $(shell fin
 # (committed). Dino Colors' original Bert artwork is committed directly.
 art: build/tools/art
 	build/tools/art
+	python3 tools/paint_pages.py
+
+games/paint/paint_pages.zi: tools/paint_pages.py $(wildcard assets/dino-paint/art/scene[0-9].png assets/dino-paint/art/dino*-s4.png)
+	python3 tools/paint_pages.py
 
 # Sound effects into assets/ (committed).
 sounds: build/tools/sounds

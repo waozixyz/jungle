@@ -46,6 +46,7 @@ main :: (argc: s32, argv: **u8) -> s32 {
             CanvasStampDino(dino, size, 10, 10, false)
             forward := InkCount()
             if forward < 20 { return PaintFail("dino", "stamped too little") }
+            if forward > 20000 { return PaintFail("dino", Cat("outline became a solid rectangle: ", NumberText(dino), " size ", NumberText(size), " ink ", NumberText(forward))) }
             unused SceneOpen(0, "")
             CanvasStampDino(dino, size, 10, 10, true)
             mirrored := InkCount()

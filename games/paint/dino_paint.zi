@@ -292,7 +292,7 @@ DinoPicker :: () {
         if 46.0 / cast(float32)DINO_HEIGHT[index] < fit { fit = 46.0 / cast(float32)DINO_HEIGHT[index] }
         dw := cast(s32)(cast(float32)DINO_WIDTH[index] * fit)
         dh := cast(s32)(cast(float32)DINO_HEIGHT[index] * fit)
-        RetroSprite(Join(ART, Join("dino", Join(number, "-s4.png"))),
+        RetroSprite(Join(ART, Join("dino", Join(number, "-thumb.png"))),
             x + (96 - dw) / 2, y + 3 + (48 - dh) / 2, dw, dh, BLACK)
         name := dino_short[index]
         RetroText(x + (96 - RetroTextWidth(name)) / 2, y + 56, name, BLACK)
@@ -330,7 +330,9 @@ SizePicker :: () {
         if 94.0 / cast(float32)DINO_HEIGHT[dino] < fit { fit = 94.0 / cast(float32)DINO_HEIGHT[dino] }
         dw := cast(s32)(cast(float32)DINO_WIDTH[dino] * fit * cast(float32)(index + 1) / 4.0)
         dh := cast(s32)(cast(float32)DINO_HEIGHT[dino] * fit * cast(float32)(index + 1) / 4.0)
-        RetroSprite(Join(ART, Join("dino", Join(number, "-s4.png"))),
+        suffix_digits: [24]u8
+        suffix := FormatInteger(index + 1, suffix_digits[:])
+        RetroSprite(Join(ART, Join("dino", Join(number, Join("-preview", Join(suffix, ".png"))))),
             x + (72 - dw) / 2, y + 4 + (96 - dh) / 2, dw, dh, BLACK)
         RetroText(x + (72 - RetroTextWidth(size_names[index])) / 2, y + 104, size_names[index], BLACK)
         if press.clicked {

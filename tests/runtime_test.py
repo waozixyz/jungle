@@ -230,6 +230,8 @@ def ui(binary):
             placed = desktop.capture("paint-placed")
             assert ImageChops.difference(painting.crop((68, 10, 308, 190)),
                                         placed.crop((68, 10, 308, 190))).getbbox(), "Huge dinosaur could not be placed"
+            black = dict((color, count) for count, color in placed.crop((68, 10, 308, 190)).getcolors(10000))
+            assert black.get((0, 0, 0), 0) < 20000, "dinosaur outline rendered as a solid rectangle"
             desktop.click(30, 40)
             colors = desktop.capture("paint-colors")
             assert len(colors.crop((262, 128, 290, 142)).getcolors()) >= 2, "stippled crayons are missing"
@@ -250,6 +252,7 @@ def ui(binary):
             desktop.click(50, 80)
             slot = data / "games/jungle.paint/slot-0.txt"
             stored, story = read_picture(slot)
+            (OUTPUT / "saved-picture.txt").write_bytes(stored)
             assert story[0].rstrip() == "Roar (and friend)!", repr(story)
             assert story[1].rstrip() == "Second line", repr(story)
             desktop.click(30, 90)
@@ -285,6 +288,7 @@ def ui(binary):
             assert len(list(exports.glob("*.png"))) == 1, "Export did not write its PNG"
             assert len(list(exports.glob("*.txt"))) == 1, "Export did not write its story"
             assert len(list(exports.glob("*.ps"))) == 1, "Export did not write its print page"
+            shutil.copy2(next(exports.glob("*.png")), OUTPUT / "exported-picture.png")
             desktop.click(120, 140)
             desktop.capture("paint-printed")
             assert (data / "printed.txt").exists(), "Print did not submit the actual page"
