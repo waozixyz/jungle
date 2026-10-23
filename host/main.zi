@@ -1,0 +1,384 @@
+// Jungle: a menu of learning games for young children. Each game is its own
+// .zib bundle in games/, run through Kryon's app host, with its saves in
+// the user's data folder. Games may ask the app to play their sounds, to
+// turn a painted canvas into a picture, and to go back to this menu.
+//
+//     jungle            the menu
+//     jungle --check    opens every listed game and checks it can run here
+#import "c_string"
+#import "byte_text_linux"
+#import "file"
+#import "text_buffer"
+#import "std/bundle_host"
+#import "desktop_runtime"
+#import "cairo_raster"
+#import "session"
+#import "geometry"
+#import "tree"
+#import "tree_draw"
+#import "tree_input"
+#import "scroll_device"
+#import "key_input"
+#import "text_input_props"
+#import "system_clipboard"
+#import "widget_host"
+#import "hosted_values"
+#import "app_files"
+#import "app_local"
+#import "app_context_host"
+#import "app_protocol"
+#import "bundle_app"
+#import "bundle_assets"
+#import "bundle_resources"
+#import, file "../retro/retro.zi";
+#import, file "platform.zi";
+#import, file "sound.zi";
+#import, file "canvas_png.zi";
+#import, file "jungle_text.zi";
+
+GAME_LIMIT :: 8
+FONT :: "assets/jungle/font.png"
+CANVAS_WIDTH :: 240
+CANVAS_HEIGHT :: 180
+// Canvas pictures kept on disk: a page chooser shows six at once.
+CANVAS_KEEP :: 12
+
+jungle_sdl :: #system_library "SDL2";
+Counter :: () -> u64 #foreign jungle_sdl "SDL_GetPerformanceCounter";
+CounterRate :: () -> u64 #foreign jungle_sdl "SDL_GetPerformanceFrequency";
+
+Game :: struct {
+    file: string
+    title: string
+    about: string
+    icon: string
+}
+
+games: [GAME_LIMIT]Game;
+game_count: s32;
+chosen: s32;
+playing: bool;
+game: BundleApp;
+data_root: string;
+home_requested: bool;
+message: string;
+service_reply: [64]u8;
+canvas_count: s32;
+canvas_pixels: [CANVAS_WIDTH * CANVAS_HEIGHT]u8;
+
+Seconds :: () -> float64 {
+    return cast(float64)Counter() / cast(float64)CounterRate()
+}
+
+// games/catalog.txt: one game a line, "FILE|TITLE|ABOUT|ICON".
+LoadCatalog :: () -> bool {
+    text, found := ReadEntireFile("games/catalog.txt")
+    if !found { return false }
+    at: s64 = 0
+    while at < text.count && game_count < GAME_LIMIT {
+        end := at
+        while end < text.count && text[end] != cast(u8)10 { end += 1 }
+        line := text[at:end]
+        at = end + 1
+        fields: [4]string
+        field: s32 = 0
+        start: s64 = 0
+        for index: cast(s64)0..line.count {
+            if (index == line.count || line[index] == #char "|") && field < 4 {
+                fields[field] = Cat(line[start:index])
+                field += 1
+                start = index + 1
+            }
+        }
+        if field == 4 && fields[0] != "" {
+            games[game_count] = Game.{.file = fields[0], .title = fields[1], .about = fields[2], .icon = fields[3]}
+            game_count += 1
+        }
+    }
+    return game_count > 0
+}
+
+Reply :: (text: string) -> HostValue {
+    count := ifx text.count < 63 then text.count else 63
+    for at: cast(s64)0..count - 1 { service_reply[at] = text[at] }
+    service_reply[count] = 0
+    return AppLocalText(TextUntilNul(service_reply[:]))
+}
+
+GameAllows :: (context: *void, name: string) -> bool {
+    return name == "jungle.sound" || name == "jungle.home" || name == "jungle.canvas" || BundleAppAllows(context, name)
+}
+
+// A painted canvas, one letter a to p per pixel, as a PNG file in the
+// game's folder. Older pictures beyond CANVAS_KEEP are removed.
+WriteCanvas :: (pixels: string) -> string {
+    if pixels.count != cast(s64)(CANVAS_WIDTH * CANVAS_HEIGHT) { return "" }
+    for at: cast(s64)0..pixels.count - 1 {
+        byte := pixels[at]
+        if byte < #char "a" || byte > #char "p" { return "" }
+        canvas_pixels[at] = byte - #char "a"
+    }
+    data := PngIndexed(CANVAS_WIDTH, CANVAS_HEIGHT, retro_colors[:], canvas_pixels[:])
+    if data == "" { return "" }
+    canvas_count += 1
+    name := Cat("canvas-", NumberText(canvas_count), ".png")
+    if !AppFileWrite(*game.local.files, name, data) { return "" }
+    if canvas_count > CANVAS_KEEP {
+        old := AppFilePath(*game.local.files, Cat("canvas-", NumberText(canvas_count - CANVAS_KEEP), ".png"), false)
+        if old != "" { unused RemoveFile(old) }
+    }
+    return name
+}
+
+GameServices :: (context: *void, module: *u8, function: *u8,
+    arguments: *HostValue, count: s32, result: *HostValue) -> s32 {
+    if TextFromCString(function) == "AppServiceHost" && count == 2 &&
+    HostScalarValid(arguments[0], "string", cast(s32)HostValueKind.HostString) &&
+    HostScalarValid(arguments[1], "string", cast(s32)HostValueKind.HostString) {
+        service := AppArgumentText(arguments[0])
+        request := AppArgumentText(arguments[1])
+        if service == "jungle.sound" {
+            SoundPlayFile(BundleReadAsset(game.app.app.bundle, request))
+            result.* = Reply("played")
+            return 1
+        }
+        if service == "jungle.home" {
+            home_requested = true
+            result.* = Reply("ok")
+            return 1
+        }
+        if service == "jungle.canvas" {
+            result.* = Reply(WriteCanvas(request))
+            return 1
+        }
+    }
+    return BundleAppServices(context, module, function, arguments, count, result)
+}
+
+// The game's own packed files, and the canvas pictures made for it.
+GameAssetAllowed :: (path: string) -> bool {
+    if path.count > 11 && path[:7] == "canvas-" && path[path.count - 4:] == ".png" && AppFileNameValid(path) {
+        return true
+    }
+    return BundleAppAssetAllowed(path)
+}
+
+// Earlier sessions' canvas pictures are gone once a game opens.
+ClearCanvases :: (folder: string) {
+    cursor := OpenDirectory(folder)
+    names: [64][64]u8
+    found: s32 = 0
+    while !cursor.failed && found < 64 {
+        entry := NextDirectoryEntry(*cursor)
+        if !entry.valid { break }
+        name := TextView(entry.name[:entry.name_count])
+        if name.count > 7 && name.count < 64 && name[:7] == "canvas-" {
+            for at: cast(s64)0..name.count - 1 { names[found][at] = name[at] }
+            names[found][name.count] = 0
+            found += 1
+        }
+    }
+    unused CloseDirectory(*cursor)
+    for index: cast(s32)0..found - 1 { unused RemoveFile(Cat(folder, "/", TextUntilNul(names[index][:]))) }
+}
+
+OpenGame :: (index: s32) -> bool {
+    bytes, found := ReadEntireFile(Cat("games/", games[index].file))
+    if !found { message = "THAT GAME IS MISSING."; return false }
+    if !BundleAppOpen(*game, bytes, data_root) { message = "THAT GAME COULD NOT START."; return false }
+    game.app.services = GameServices
+    game.app.allows = GameAllows
+    game.extracted_assets = true
+    ClearCanvases(game.directory)
+    canvas_count = 0
+    if !BundleWriteAssets(game.app.app.bundle, *game.local.files) {
+        BundleAppClose(*game)
+        message = "THAT GAME'S PICTURES COULD NOT LOAD."
+        return false
+    }
+    home_requested = false
+    message = ""
+    playing = true
+    return true
+}
+
+CloseGame :: () {
+    BundleAppClose(*game)
+    playing = false
+}
+
+// One frame of the open game, as BundleAppFrame, with canvas pictures
+// allowed beside the game's packed files.
+GameFrame :: (bounds: Rectangle, pointer: PointerFrame, secondary: SecondaryPointerFrame, key: s32,
+    modifiers: s32, wheel: float32, seconds: float64) -> bool {
+    if !game.ready { return false }
+    defer { BundleAppFrameAssetsClear() }
+    app := *game.app
+    TreePointerUpdate(app.session, pointer)
+    TreeSecondaryPointerUpdate(app.session, secondary)
+    PointerWheelSend(app.session, pointer.x, pointer.y, wheel)
+    BeginScrollFrame(app.session, Vector2.{pointer.x, pointer.y}, pointer.pressed,
+        pointer.down, pointer.released, wheel, seconds)
+    KeyboardModifiersSend(app.session, modifiers)
+    if key != 0 { KeyboardSend(app.session, key) }
+    app.bounds = bounds
+    app.scale = 1.0
+    app.font = 18
+    app.key = key
+    app.modifiers = modifiers
+    app.input = TextFieldInputFor(key, modifiers, "")
+    app.area_input = TextAreaInputFor(key, modifiers, "")
+    app.area_input.now_seconds = seconds
+    if BeginFrame(app.session, cast(u64)1, bounds) != FrameStatus.FrameOk { return false }
+    bundle_drawing_app = *game
+    WidgetHostBegin(app.session, GameAssetAllowed, BundleAppAssetResolve)
+    ok := AppContextRun(app, APP_FRAME)
+    WidgetHostEnd()
+    bundle_drawing_app = null
+    if !ok { TreeCancel(app.session); game.failed = true; return false }
+    return EndFrame(app.session) == FrameStatus.FrameOk
+}
+
+Menu :: (session: Session, bounds: Rectangle, key: s32) {
+    RetroBegin(session, bounds, FONT, Seconds(), key, BLACK)
+    RetroCentered(10, "JUNGLE", LIGHT_GREEN, 3)
+    RetroCentered(60, "LEARNING GAMES", YELLOW)
+    for index: cast(s32)0..game_count - 1 {
+        y := 88 + index * 46
+        press := RetroTap(100 + index, 40, y, 240, 40, games[index].title)
+        if press.down { chosen = index }
+        selected := index == chosen
+        RetroFill(40, y, 240, 40, Pick(selected, CYAN, BLUE))
+        RetroFrame(40, y, 240, 40, Pick(selected, WHITE, LIGHT_BLUE))
+        RetroSprite(games[index].icon, 46, y + 4, 32, 32)
+        RetroText(86, y + 4, games[index].title, Pick(selected, BLACK, WHITE))
+        RetroText(86, y + 20, games[index].about, Pick(selected, BLUE, LIGHT_GRAY))
+        if press.clicked { Start(index) }
+    }
+    if message != "" { RetroCentered(166, message, LIGHT_RED) }
+    RetroCentered(182, "ARROWS + ENTER TO PLAY", DARK_GRAY)
+    if key == KEY_UP || key == KEY_DOWN {
+        step: s32 = ifx key == KEY_UP then game_count - 1 else 1
+        chosen = (chosen + step) % game_count
+        SoundPlay("assets/jungle/sounds/select.wav")
+    }
+    if key == KEY_ENTER { Start(chosen) }
+    if key >= 49 && key < 49 + game_count { Start(key - 49) }
+}
+
+Start :: (index: s32) {
+    if playing { return }
+    chosen = index
+    SoundPlay("assets/jungle/sounds/start.wav")
+    unused OpenGame(index)
+}
+
+DrawMenu :: (session: Session) -> bool {
+    BeginDesktopFrame()
+    viewport := DesktopViewport()
+    TreePointerUpdate(session, PollPointer())
+    key := DesktopPressedKey()
+    if BeginFrame(session, cast(u64)1, viewport) != FrameStatus.FrameOk { return false }
+    Menu(session, viewport, key)
+    if EndFrame(session) != FrameStatus.FrameOk { return false }
+    unused DesktopCursor(session)
+    return EndDesktopFrame()
+}
+
+DrawGame :: () -> bool {
+    BeginDesktopFrame()
+    viewport := DesktopViewport()
+    ok := GameFrame(viewport, PollPointer(), PollSecondaryPointer(), DesktopPressedKey(), DesktopModifiers(),
+        DesktopWheelMove(), Seconds())
+    if ok {
+        unused DesktopCursor(game.app.session)
+        ok = EndDesktopFrame()
+    }
+    return ok
+}
+
+// Jungle's first version kept Jungle Math's levels in one progress file;
+// they move into the game's own folder the first time it has none.
+KeepMathLevels :: (base: string) {
+    folder := Cat(data_root, "/jungle.math")
+    target := Cat(folder, "/progress.txt")
+    if PathExists(target) { return }
+    old, found := ReadEntireFile(Cat(base, "/progress.txt"))
+    if !found { return }
+    kept: Vec(u8)
+    at: s64 = 0
+    while at < old.count {
+        end := at
+        while end < old.count && old[end] != cast(u8)10 { end += 1 }
+        if end - at > 6 && old[at:at + 6] == "skill " { BuilderPrint(*kept, "%\n", old[at:end]) }
+        at = end + 1
+    }
+    levels := BuilderFinish(kept)
+    if levels == "" { return }
+    unused CreatePrivateDirectory(folder)
+    unused WriteEntireFile(target, levels)
+}
+
+// Opens each listed game, checks its capabilities and identity, and
+// closes it again; no window opens.
+Check :: () -> s32 {
+    failed := false
+    for index: cast(s32)0..game_count - 1 {
+        bytes, found := ReadEntireFile(Cat("games/", games[index].file))
+        checked := found && BundleAppOpen(*game, bytes, data_root)
+        if checked {
+            game.app.services = GameServices
+            game.app.allows = GameAllows
+            Report(Cat(games[index].file, ": ", TextFromCString(*game.app.id[0]), " runs here\n"))
+            BundleAppClose(*game)
+        } else {
+            Report(Cat(games[index].file, ": cannot run\n"))
+            failed = true
+        }
+    }
+    return ifx failed then 1 else 0
+}
+
+#program_export
+main :: (argc: s32, argv: **u8) -> s32 {
+    folder := AppDirectory()
+    if folder == "" || !EnterDirectory(folder) {
+        Report("jungle: cannot find its assets and games folders\n")
+        return 1
+    }
+    if !LoadCatalog() {
+        Report("jungle: games/catalog.txt lists no games\n")
+        return 1
+    }
+    base := DataDirectory()
+    if base == "" { Report("jungle: no data folder\n"); return 1 }
+    unused CreateDirectory(base)
+    data_root = Cat(base, "/games")
+    unused CreateDirectory(data_root)
+    KeepMathLevels(base)
+    if argc == 2 && TextFromCString(argv[1]) == "--check" { return Check() }
+    if !OpenDesktopSized(SCREEN_WIDTH * 3, SCREEN_HEIGHT * 3) { CloseDesktop(); return 1 }
+    unused DesktopSetTitle("Jungle")
+    unused WindowInterceptCloseHost(true)
+    session := SessionOpen()
+    if !SessionValid(session) { CloseDesktop(); return 1 }
+    ok := true
+    while ok && PollDesktop() {
+        if playing {
+            if !DrawGame() {
+                CloseGame()
+                message = "THAT GAME STOPPED."
+            } else if home_requested {
+                CloseGame()
+            }
+        } else {
+            ok = DrawMenu(session)
+        }
+        if WindowTakeCloseRequestHost() { break }
+        if ok { PauseDesktop() }
+    }
+    if playing { CloseGame() }
+    SessionClose(session)
+    CloseDesktop()
+    return ifx ok then 0 else 1
+}

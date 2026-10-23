@@ -2,7 +2,7 @@
 
 ## [Unreleased]
 
-- Jungle Math: count, stepping stones, add and take away, with levels that follow the child.
-- Fill the fruit basket to meet eight jungle friends.
-- Dino Colors: six dinosaur pages to color with sixteen colors, undo and clear.
-- Progress and colored pages are saved.
+- Jungle is a menu of games in the style of an old PC; each game is its own bundle.
+- Jungle Math: count, stepping stones, add and take away; type the answer.
+- Dino Paint: six dinosaur pictures to paint with a bucket, brush and eraser.
+- Jungle Math levels from the first version carry over.

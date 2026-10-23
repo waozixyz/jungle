@@ -1,9 +1,9 @@
 // Jungle Math's questions: every answer is right, the three choices hold it
 // once, numbers stay in each level's range, and levels follow the child.
 #import "c_string"
-#import, file "../src/lessons.zi";
-#import, file "../src/platform.zi";
-#import, file "../src/jungle_text.zi";
+#import, file "../games/math/lessons.zi";
+#import, file "../host/platform.zi";
+#import, file "../host/jungle_text.zi";
 
 Fail :: (message: string, trail: s32, level: s32) -> s32 {
     Report(Cat("lessons test: ", message, " (trail ", NumberText(trail), ", level ", NumberText(level), ")\n"))

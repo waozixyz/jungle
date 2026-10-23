@@ -1,0 +1,94 @@
+// Indexed PNG pictures for a game's canvas. The image data is stored, not
+// compressed, so writing one is a copy and two checksums.
+
+PNG_LIMIT :: 131072
+
+png_bytes: [PNG_LIMIT]u8;
+png_length: s32;
+crc_table: [256]u32;
+crc_ready: bool;
+
+CrcTable :: () {
+    for index: cast(u32)0..255 {
+        value := index
+        for bit: 0..7 {
+            value = ifx (value & cast(u32)1) != cast(u32)0 then (value >> 1) ^ cast(u32)0xedb88320 else value >> 1
+        }
+        crc_table[index] = value
+    }
+    crc_ready = true
+}
+
+PngByte :: (value: u32) {
+    if png_length < PNG_LIMIT { png_bytes[png_length] = cast(u8)(value & cast(u32)255) }
+    png_length += 1
+}
+
+PngWord :: (value: u32) {
+    PngByte(value >> 24)
+    PngByte(value >> 16)
+    PngByte(value >> 8)
+    PngByte(value)
+}
+
+// The CRC of png_bytes from `start` (the chunk's type) to the end.
+PngChunkEnd :: (start: s32) {
+    crc: u32 = cast(u32)0xffffffff
+    for at: start..png_length - 1 {
+        crc = crc_table[cast(s64)((crc ^ cast(u32)png_bytes[at]) & cast(u32)255)] ^ (crc >> 8)
+    }
+    PngWord(crc ^ cast(u32)0xffffffff)
+}
+
+PngChunkStart :: (length: s32, kind: string) -> s32 {
+    PngWord(cast(u32)length)
+    start := png_length
+    for byte: kind { PngByte(cast(u32)byte) }
+    return start
+}
+
+// `pixels` holds one palette index per pixel, row by row; palette entries
+// are 0xRRGGBBAA. Returns the file's bytes, or "" when it does not fit.
+PngIndexed :: (width: s32, height: s32, palette: []u32, pixels: []u8) -> string {
+    if !crc_ready { CrcTable() }
+    raw := (width + 1) * height
+    if width <= 0 || height <= 0 || raw > 65535 || cast(s64)(width * height) != pixels.count ||
+    palette.count == 0 || palette.count > 256 { return "" }
+    png_length = 0
+    signature: [8]u32 = .[137, 80, 78, 71, 13, 10, 26, 10]
+    for byte: signature { PngByte(byte) }
+    start := PngChunkStart(13, "IHDR")
+    PngWord(cast(u32)width)
+    PngWord(cast(u32)height)
+    // 8 bits per pixel, palette colors, then the standard methods.
+    PngByte(8); PngByte(3); PngByte(0); PngByte(0); PngByte(0)
+    PngChunkEnd(start)
+    start = PngChunkStart(cast(s32)palette.count * 3, "PLTE")
+    for color: palette { PngByte(color >> 24); PngByte(color >> 16); PngByte(color >> 8) }
+    PngChunkEnd(start)
+    // zlib: a header, one stored deflate block holding every row with a
+    // leading "no filter" byte, and the Adler-32 of those rows.
+    start = PngChunkStart(2 + 5 + raw + 4, "IDAT")
+    PngByte(0x78); PngByte(0x01)
+    PngByte(1)
+    PngByte(cast(u32)raw); PngByte(cast(u32)raw >> 8)
+    PngByte(~cast(u32)raw); PngByte(~cast(u32)raw >> 8)
+    low: u32 = 1
+    high: u32 = 0
+    for row: 0..height - 1 {
+        PngByte(0)
+        high = (high + low) % cast(u32)65521
+        for column: 0..width - 1 {
+            value := cast(u32)pixels[cast(s64)(row * width + column)]
+            PngByte(value)
+            low = (low + value) % cast(u32)65521
+            high = (high + low) % cast(u32)65521
+        }
+    }
+    PngWord((high << 16) | low)
+    PngChunkEnd(start)
+    start = PngChunkStart(0, "IEND")
+    PngChunkEnd(start)
+    if png_length > PNG_LIMIT { return "" }
+    return TextView(png_bytes[:png_length])
+}

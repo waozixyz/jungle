@@ -1,0 +1,49 @@
+// Dino Paint's pictures: every page's lines are closed, so the bucket fills
+// the sky without spilling into the ground; brush and eraser leave the lines;
+// a saved picture opens again exactly.
+#import, file "../games/paint/paint_canvas.zi";
+#import, file "../games/paint/paint_pages.zi";
+#import, file "../host/platform.zi";
+#import, file "../host/jungle_text.zi";
+
+Fail :: (page: s32, message: string) -> s32 {
+    Report(Cat("paint test: page ", NumberText(page), ": ", message, "\n"))
+    return 1
+}
+
+#program_export
+main :: (argc: s32, argv: **u8) -> s32 {
+    unused argc
+    unused argv
+    for page: cast(s32)0..PAGE_COUNT - 1 {
+        if !CanvasOpen(page, "") { return Fail(page, "did not open") }
+        ink: s32 = 0
+        for at: cast(s32)0..CANVAS_PIXELS - 1 { if lines[at] { ink += 1 } }
+        if ink < 800 || ink > 20000 { return Fail(page, Cat("odd amount of line: ", NumberText(ink))) }
+        if CanvasColorAt(2, 2) != PAPER { return Fail(page, "the sky's corner is not paper") }
+        sky := CanvasFill(2, 2, LIGHT_BLUE_INDEX)
+        if sky < 4000 { return Fail(page, Cat("the sky fill stopped early: ", NumberText(sky))) }
+        if CanvasColorAt(2, CANVAS_HEIGHT - 2) == LIGHT_BLUE_INDEX || CanvasColorAt(CANVAS_WIDTH - 3, CANVAS_HEIGHT - 2) == LIGHT_BLUE_INDEX {
+            return Fail(page, "the sky leaked into the ground")
+        }
+        if CanvasFill(2, 2, LIGHT_BLUE_INDEX) != 0 { return Fail(page, "filling with the same color changed something") }
+        unused CanvasStroke(0, 0, CANVAS_WIDTH - 1, CANVAS_HEIGHT - 1, 3, 4)
+        unused CanvasStroke(CANVAS_WIDTH - 1, 0, 0, CANVAS_HEIGHT - 1, 3, PAPER)
+        for at: cast(s32)0..CANVAS_PIXELS - 1 {
+            if lines[at] && canvas[at] != cast(u8)INK { return Fail(page, "the brush painted over a line") }
+        }
+        saved := CanvasText()
+        copy: [CANVAS_PIXELS]u8
+        for at: cast(s32)0..CANVAS_PIXELS - 1 { copy[at] = canvas[at] }
+        if !CanvasOpen(page, saved) { return Fail(page, "a saved picture did not open") }
+        for at: cast(s32)0..CANVAS_PIXELS - 1 {
+            if canvas[at] != copy[at] { return Fail(page, "a saved picture opened differently") }
+        }
+        CanvasClear()
+        if CanvasColorAt(2, 2) != PAPER { return Fail(page, "clear left color behind") }
+    }
+    Report("paint test passed\n")
+    return 0
+}
+
+LIGHT_BLUE_INDEX :: 9

@@ -1,0 +1,245 @@
+// Dino Paint: pick a dinosaur picture and paint it. The bucket fills any
+// closed area, the brush and eraser paint freely, and every picture is kept.
+#import "app_context"
+#import "app_protocol"
+#import "geometry"
+#import "number_text"
+#import "text_buffer"
+#import, file "../../retro/retro.zi";
+#import, file "../../retro/game.zi";
+#import, file "paint_canvas.zi";
+#import, file "paint_pages.zi";
+
+FONT :: "assets/dino-paint/font.png"
+SOUNDS :: "assets/dino-paint/sounds/"
+PICK :: 0
+DRAW :: 1
+TOOL_FILL :: 0
+TOOL_BRUSH :: 1
+TOOL_ERASER :: 2
+UNDO_STEPS :: 4
+// Where the picture sits on the screen.
+CANVAS_X :: 2
+CANVAS_Y :: 18
+
+page_titles: [6]string = .["T. REX", "TRICERATOPS", "STEGOSAURUS", "BRACHIOSAURUS", "PTERANODON", "BABY DINO"];
+tool_names: [3]string = .["FILL", "BRUSH", "ERASER"];
+
+view: s32;
+chosen: s32;
+page: s32 = -1;
+tool: s32;
+color: s32 = LIGHT_GREEN;
+thick: bool;
+// The picture file the app made from the canvas, and whether the canvas
+// changed since.
+canvas_name: [32]u8;
+dirty: bool = true;
+thumb_names: [PAGE_COUNT][32]u8;
+thumbs_ready: bool;
+dragging: bool;
+last_x: s32;
+last_y: s32;
+undo: [UNDO_STEPS][CANVAS_PIXELS]u8;
+undo_count: s32;
+undo_next: s32;
+clear_armed_at: float64 = -10.0;
+
+Join :: (a: string, b: string = "", c: string = "") -> string {
+    text: Vec(u8)
+    parts: [3]string = .[a, b, c]
+    for part: parts { BuilderPrint(*text, "%", part) }
+    return BuilderFinish(text)
+}
+
+PageFile :: (index: s32) -> string {
+    digits: [24]u8
+    return Join("page-", FormatInteger(cast(s64)index, digits[:]), ".txt")
+}
+
+Sound :: (name: string) { GameSound(Join(SOUNDS, name, ".wav")) }
+
+Keep :: (name: string, bytes: []u8) {
+    count := ifx name.count < bytes.count then name.count else bytes.count - 1
+    for at: cast(s64)0..count - 1 { bytes[at] = name[at] }
+    bytes[count] = 0
+}
+
+SavePage :: () -> bool {
+    if page < 0 { return true }
+    return DocumentWrite(PageFile(page), CanvasText())
+}
+
+// Each page's picture for the chooser, as it was last painted.
+MakeThumbs :: () {
+    for index: cast(s32)0..PAGE_COUNT - 1 {
+        if CanvasOpen(index, DocumentRead(PageFile(index))) { Keep(GameCanvas(CanvasText()), thumb_names[index][:]) }
+    }
+    thumbs_ready = true
+}
+
+OpenPage :: (index: s32) {
+    if !CanvasOpen(index, DocumentRead(PageFile(index))) { return }
+    page = index
+    chosen = index
+    undo_count = 0
+    dirty = true
+    dragging = false
+    view = DRAW
+    Sound("open")
+}
+
+ClosePage :: () {
+    unused SavePage()
+    page = -1
+    view = PICK
+    thumbs_ready = false
+}
+
+PushUndo :: () {
+    for at: cast(s32)0..CANVAS_PIXELS - 1 { undo[undo_next][at] = canvas[at] }
+    undo_next = (undo_next + 1) % UNDO_STEPS
+    if undo_count < UNDO_STEPS { undo_count += 1 }
+}
+
+Undo :: () {
+    if undo_count == 0 { return }
+    undo_next = (undo_next + UNDO_STEPS - 1) % UNDO_STEPS
+    undo_count -= 1
+    for at: cast(s32)0..CANVAS_PIXELS - 1 { canvas[at] = undo[undo_next][at] }
+    dirty = true
+    unused SavePage()
+    Sound("undo")
+}
+
+Picker :: () {
+    if !thumbs_ready { MakeThumbs() }
+    RetroCentered(2, "DINO PAINT", YELLOW, 2)
+    RetroText(SCREEN_WIDTH - RetroTextWidth("ESC: BACK") - 4, 4, "ESC: BACK", LIGHT_GRAY)
+    for index: cast(s32)0..PAGE_COUNT - 1 {
+        x := 16 + (index % 3) * 100
+        y := 40 + (index / 3) * 80
+        press := RetroTap(300 + index, x - 2, y - 2, 84, 80, page_titles[index])
+        if press.down { chosen = index }
+        RetroFrame(x - 2, y - 2, 84, 64, Pick(index == chosen, YELLOW, BLUE))
+        RetroFill(x, y, 80, 60, WHITE)
+        name := TextUntilNul(thumb_names[index][:])
+        if name != "" { RetroSprite(name, x, y, 80, 60, -1, true) }
+        title := page_titles[index]
+        RetroText(x + 40 - RetroTextWidth(title) / 2, y + 62, title, Pick(index == chosen, YELLOW, WHITE))
+        if press.clicked { OpenPage(index); return }
+    }
+    key := retro.key
+    if key == KEY_RIGHT { chosen = (chosen + 1) % PAGE_COUNT }
+    if key == KEY_LEFT { chosen = (chosen + PAGE_COUNT - 1) % PAGE_COUNT }
+    if key == KEY_DOWN || key == KEY_UP { chosen = (chosen + 3) % PAGE_COUNT }
+    if key == KEY_ENTER { OpenPage(chosen) }
+    if key >= 49 && key < 49 + PAGE_COUNT { OpenPage(key - 49) }
+    if key == KEY_ESCAPE { GameHome() }
+}
+
+Paint :: () {
+    RetroFill(0, 0, SCREEN_WIDTH, 16, BLUE)
+    RetroText(4, 0, Join("DINO PAINT: ", page_titles[page]), YELLOW)
+    RetroText(SCREEN_WIDTH - RetroTextWidth("ESC") - 4, 0, "ESC", LIGHT_GRAY)
+    // The picture, made again only after it changed.
+    if dirty {
+        made := GameCanvas(CanvasText())
+        if made != "" { Keep(made, canvas_name[:]); dirty = false }
+    }
+    RetroFrame(CANVAS_X - 1, CANVAS_Y - 1, CANVAS_WIDTH + 2, CANVAS_HEIGHT + 2, LIGHT_GRAY)
+    name := TextUntilNul(canvas_name[:])
+    if name != "" { RetroSprite(name, CANVAS_X, CANVAS_Y, CANVAS_WIDTH, CANVAS_HEIGHT) }
+    press := RetroTap(500, CANVAS_X, CANVAS_Y, CANVAS_WIDTH, CANVAS_HEIGHT, "Picture", true)
+    x := RetroPointX(press.x) - CANVAS_X
+    y := RetroPointY(press.y) - CANVAS_Y
+    if tool == TOOL_FILL {
+        if press.clicked && CanvasColorAt(x, y) >= 0 && CanvasColorAt(x, y) != color && CanvasColorAt(x, y) != INK {
+            PushUndo()
+            if CanvasFill(x, y, color) > 0 {
+                dirty = true
+                unused SavePage()
+                Sound("fill")
+            }
+        }
+    } else {
+        paint := ifx tool == TOOL_ERASER then PAPER else color
+        radius: s32 = ifx thick then 3 else 1
+        if press.down {
+            if !dragging {
+                PushUndo()
+                dragging = true
+                last_x = x
+                last_y = y
+                if CanvasDab(x, y, radius, paint) { dirty = true }
+                Sound("brush")
+            } else if x != last_x || y != last_y {
+                if CanvasStroke(last_x, last_y, x, y, radius, paint) { dirty = true }
+                last_x = x
+                last_y = y
+            }
+        } else if dragging {
+            dragging = false
+            unused SavePage()
+        }
+    }
+    // Tools, line width, colors and page actions down the right side.
+    for index: cast(s32)0..2 {
+        if RetroButton(510 + index, 246, 18 + index * 16, 72, 15, tool_names[index], tool == index) {
+            tool = index
+            Sound("click")
+        }
+    }
+    if RetroButton(513, 246, 66, 72, 15, ifx thick then "THICK" else "THIN") {
+        thick = !thick
+        Sound("click")
+    }
+    for index: cast(s32)0..15 {
+        swatch_x := 246 + (index % 4) * 18
+        swatch_y := 85 + (index / 4) * 16
+        if index == color { RetroFill(swatch_x - 1, swatch_y - 1, 18, 16, WHITE) }
+        RetroFill(swatch_x, swatch_y, 16, 14, BLACK)
+        RetroFill(swatch_x + 1, swatch_y + 1, 14, 12, index)
+        if RetroTap(520 + index, swatch_x, swatch_y, 16, 14, "Color").clicked {
+            color = index
+            if tool == TOOL_ERASER { tool = TOOL_BRUSH }
+            Sound("click")
+        }
+    }
+    if RetroButton(540, 246, 151, 72, 15, "UNDO") { Undo() }
+    armed := retro.now - clear_armed_at < 2.0
+    if RetroButton(541, 246, 167, 72, 15, ifx armed then "SURE?" else "CLEAR", armed) {
+        if armed {
+            PushUndo()
+            CanvasClear()
+            dirty = true
+            unused SavePage()
+            clear_armed_at = -10.0
+            Sound("clear")
+        } else {
+            clear_armed_at = retro.now
+        }
+    }
+    if RetroButton(542, 246, 183, 72, 15, "PAGES") { ClosePage(); return }
+    key := retro.key
+    if key == 70 { tool = TOOL_FILL }
+    if key == 66 { tool = TOOL_BRUSH }
+    if key == 69 { tool = TOOL_ERASER }
+    if key == 85 || key == KEY_BACKSPACE { Undo() }
+    if key == KEY_ESCAPE { ClosePage() }
+}
+
+#program_export
+main :: () -> s32 {
+    mode := AppMode()
+    if mode == APP_IDENTIFY {
+        AppIdentity("jungle.paint")
+        AppDescribe("Dino Paint", "")
+        return APP_PROTOCOL
+    }
+    if mode == APP_SAVE { return ifx SavePage() then 0 else 1 }
+    if mode != APP_FRAME { return 0 }
+    RetroBegin(AppSession(), AppBounds(), FONT, AppNow(), AppKey(), Pick(view == DRAW, BLACK, BLUE))
+    if view == DRAW && page >= 0 { Paint() } else { Picker() }
+    return 0
+}

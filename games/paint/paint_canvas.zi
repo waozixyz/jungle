@@ -1,0 +1,135 @@
+// Dino Paint's picture: 240 by 180 pixels of the sixteen colors, over a
+// page's black lines. The lines never change: fills stop at them and the
+// brush and eraser paint around them.
+#import, file "paint_pages.zi";
+
+CANVAS_WIDTH :: 240
+CANVAS_HEIGHT :: 180
+CANVAS_PIXELS :: 43200
+INK :: 0
+PAPER :: 15
+
+canvas: [CANVAS_PIXELS]u8;
+lines: [CANVAS_PIXELS]bool;
+// Pixels still to visit while filling.
+fill_stack: [CANVAS_PIXELS]s32;
+// The picture as text, one letter a to p per pixel.
+canvas_text: [CANVAS_PIXELS]u8;
+
+HexValue :: (byte: u8) -> s32 {
+    if byte >= #char "0" && byte <= #char "9" { return cast(s32)(byte - #char "0") }
+    if byte >= #char "a" && byte <= #char "f" { return cast(s32)(byte - #char "a") + 10 }
+    return 0
+}
+
+// Opens a page: its lines, then the saved colors when `saved` is a whole
+// picture, otherwise white paper.
+CanvasOpen :: (page: s32, saved: string) -> bool {
+    // Four pixels a hex digit; the line breaks between rows are skipped.
+    at: s32 = 0
+    for part: cast(s32)0..PAGE_PARTS - 1 {
+        for byte: PageLines(page, part) {
+            if byte == cast(u8)10 { continue }
+            if at >= CANVAS_PIXELS { return false }
+            nibble := HexValue(byte)
+            for bit: cast(s32)0..3 { lines[at + bit] = ((nibble >> (3 - bit)) & 1) != 0 }
+            at += 4
+        }
+    }
+    if at != CANVAS_PIXELS { return false }
+    whole := saved.count == cast(s64)CANVAS_PIXELS
+    for at: cast(s32)0..CANVAS_PIXELS - 1 {
+        color: s32 = PAPER
+        if whole {
+            byte := saved[cast(s64)at]
+            if byte >= #char "a" && byte <= #char "p" { color = cast(s32)(byte - #char "a") }
+        }
+        canvas[at] = cast(u8)(ifx lines[at] then INK else color)
+    }
+    return true
+}
+
+CanvasClear :: () {
+    for at: cast(s32)0..CANVAS_PIXELS - 1 {
+        canvas[at] = cast(u8)(ifx lines[at] then INK else PAPER)
+    }
+}
+
+CanvasText :: () -> string {
+    for at: cast(s32)0..CANVAS_PIXELS - 1 { canvas_text[at] = #char "a" + canvas[at] }
+    return TextView(canvas_text[:])
+}
+
+CanvasColorAt :: (x: s32, y: s32) -> s32 {
+    if x < 0 || y < 0 || x >= CANVAS_WIDTH || y >= CANVAS_HEIGHT { return -1 }
+    return cast(s32)canvas[y * CANVAS_WIDTH + x]
+}
+
+// The paint bucket: the touching pixels of the clicked color, up to the
+// lines, take the new color. Returns how many pixels changed.
+CanvasFill :: (x: s32, y: s32, color: s32) -> s32 {
+    if x < 0 || y < 0 || x >= CANVAS_WIDTH || y >= CANVAS_HEIGHT { return 0 }
+    start := y * CANVAS_WIDTH + x
+    if lines[start] { return 0 }
+    target := canvas[start]
+    paint := cast(u8)color
+    if target == paint { return 0 }
+    changed: s32 = 0
+    count: s32 = 1
+    fill_stack[0] = start
+    canvas[start] = paint
+    while count > 0 {
+        count -= 1
+        at := fill_stack[count]
+        changed += 1
+        column := at % CANVAS_WIDTH
+        // Left, right, up and down, each pushed once when it is recolored.
+        if column > 0 && !lines[at - 1] && canvas[at - 1] == target {
+            canvas[at - 1] = paint; fill_stack[count] = at - 1; count += 1
+        }
+        if column < CANVAS_WIDTH - 1 && !lines[at + 1] && canvas[at + 1] == target {
+            canvas[at + 1] = paint; fill_stack[count] = at + 1; count += 1
+        }
+        if at >= CANVAS_WIDTH && !lines[at - CANVAS_WIDTH] && canvas[at - CANVAS_WIDTH] == target {
+            canvas[at - CANVAS_WIDTH] = paint; fill_stack[count] = at - CANVAS_WIDTH; count += 1
+        }
+        if at < CANVAS_PIXELS - CANVAS_WIDTH && !lines[at + CANVAS_WIDTH] && canvas[at + CANVAS_WIDTH] == target {
+            canvas[at + CANVAS_WIDTH] = paint; fill_stack[count] = at + CANVAS_WIDTH; count += 1
+        }
+    }
+    return changed
+}
+
+// One round dab of the brush; lines stay as they are.
+CanvasDab :: (x: s32, y: s32, radius: s32, color: s32) -> bool {
+    changed := false
+    for dy: -radius..radius {
+        for dx: -radius..radius {
+            if dx * dx + dy * dy > radius * radius + radius { continue }
+            px := x + dx
+            py := y + dy
+            if px < 0 || py < 0 || px >= CANVAS_WIDTH || py >= CANVAS_HEIGHT { continue }
+            at := py * CANVAS_WIDTH + px
+            if lines[at] || canvas[at] == cast(u8)color { continue }
+            canvas[at] = cast(u8)color
+            changed = true
+        }
+    }
+    return changed
+}
+
+Distance :: (value: s32) -> s32 { return ifx value < 0 then -value else value }
+
+// A brush stroke from one point to the next, dab by dab.
+CanvasStroke :: (x0: s32, y0: s32, x1: s32, y1: s32, radius: s32, color: s32) -> bool {
+    dx := x1 - x0
+    dy := y1 - y0
+    steps := Distance(dx)
+    if Distance(dy) > steps { steps = Distance(dy) }
+    if steps == 0 { return CanvasDab(x0, y0, radius, color) }
+    changed := false
+    for step: cast(s32)0..steps {
+        changed = CanvasDab(x0 + dx * step / steps, y0 + dy * step / steps, radius, color) || changed
+    }
+    return changed
+}
