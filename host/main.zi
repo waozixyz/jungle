@@ -73,6 +73,7 @@ game: BundleApp;
 data_root: string;
 sound_setting: string;
 home_requested: bool;
+game_secondary_down: bool;
 message: string;
 service_reply: [64]u8;
 canvas_count: s32;
@@ -124,7 +125,7 @@ Reply :: (text: string) -> HostValue {
 
 GameAllows :: (context: *void, name: string) -> bool {
     return name == "jungle.sound" || name == "jungle.home" || name == "jungle.canvas" ||
-        name == "jungle.export" || name == "jungle.print" || BundleAppAllows(context, name)
+        name == "jungle.export" || name == "jungle.print" || name == "jungle.secondary" || BundleAppAllows(context, name)
 }
 
 // A painted canvas, one letter a to p per pixel, as a PNG file in the
@@ -172,6 +173,10 @@ GameServices :: (context: *void, module: *u8, function: *u8,
         if service == "jungle.home" {
             home_requested = true
             result.* = Reply("ok")
+            return 1
+        }
+        if service == "jungle.secondary" {
+            result.* = Reply(ifx game_secondary_down then "down" else "up")
             return 1
         }
         if service == "jungle.canvas" {
@@ -243,6 +248,7 @@ CloseGame :: () {
 GameFrame :: (bounds: Rectangle, pointer: PointerFrame, secondary: SecondaryPointerFrame, key: s32,
     modifiers: s32, wheel: float32, seconds: float64) -> bool {
     if !game.ready { return false }
+    game_secondary_down = secondary.down
     defer { BundleAppFrameAssetsClear() }
     app := *game.app
     TreePointerUpdate(app.session, pointer)

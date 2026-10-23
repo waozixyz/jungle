@@ -1,4 +1,4 @@
-// The picture: 240 by 180 pixels of the sixteen colors over black lines.
+// The picture: 240 by 180 pixels of crayon colors over black lines.
 // Lines are stamped from a scene and any dinosaurs placed on it; the paint
 // bucket fills up to those lines. Bert's Dinosaurs works the same way.
 #import, file "paint_pages.zi";
@@ -14,9 +14,7 @@ STAMP_PIXELS :: MAX_STAMP_WIDTH * MAX_STAMP_HEIGHT
 canvas: [CANVAS_PIXELS]u8;
 lines: [CANVAS_PIXELS]bool;
 stamp: [STAMP_PIXELS]bool;
-stamp_outside: [STAMP_PIXELS]bool;
-stamp_barrier: [STAMP_PIXELS]bool;
-stamp_stack: [STAMP_PIXELS]s32;
+stamp_body: [STAMP_PIXELS]bool;
 fill_stack: [CANVAS_PIXELS]s32;
 canvas_text: [CANVAS_PIXELS + 6]u8;
 
@@ -26,9 +24,9 @@ HexValue :: (byte: u8) -> s32 {
     return 0
 }
 
-// Reads one part's hex rows into stamp[0..width*height); returns the next
+// Reads one part's hex rows into a mask[0..width*height); returns the next
 // row that has not been filled yet.
-ReadPart :: (part: string, width: s32, height: s32, at: s32) -> s32 {
+ReadPart :: (part: string, width: s32, height: s32, at: s32, mask: []bool) -> s32 {
     row := at / width
     column := at % width
     for byte: part {
@@ -37,7 +35,7 @@ ReadPart :: (part: string, width: s32, height: s32, at: s32) -> s32 {
         nibble := HexValue(byte)
         for bit: cast(s32)0..3 {
             if column >= width { break }
-            stamp[row * width + column] = ((nibble >> (3 - bit)) & 1) != 0
+            mask[row * width + column] = ((nibble >> (3 - bit)) & 1) != 0
             column += 1
             at += 1
         }
@@ -51,7 +49,7 @@ ReadLines :: (scene_kind: bool, index: s32, parts: s32, width: s32, height: s32)
     at: s32 = 0
     for part: cast(s32)0..parts - 1 {
         text := ifx scene_kind then SceneLines(index, part) else DinoLines(index, part)
-        at = ReadPart(text, width, height, at)
+        at = ReadPart(text, width, height, at, stamp[:])
     }
 }
 
@@ -93,49 +91,13 @@ DinoScale :: (dino: s32, size: s32) -> s32 {
     return fit * size / 4
 }
 
-// Flood from the stamp's edges to distinguish its transparent background
-// from the dinosaur's white body. Its body covers earlier scene lines.
-StampOutside :: (width: s32, height: s32) {
-    total := width * height
-    for at: cast(s32)0..total - 1 {
-        stamp_outside[at] = false
-        stamp_barrier[at] = stamp[at]
-    }
-    // Raster reduction can leave a one-pixel break in a closed vector
-    // outline. Close those breaks only for the body mask, leaving the
-    // visible strokes unchanged.
-    for at: cast(s32)0..total - 1 {
-        if !stamp[at] { continue }
-        for dy: cast(s32)-1..1 {
-            for dx: cast(s32)-1..1 {
-                x := at % width + dx
-                y := at / width + dy
-                if x >= 0 && x < width && y >= 0 && y < height { stamp_barrier[y * width + x] = true }
-            }
-        }
-    }
-    count: s32 = 0
-    for at: cast(s32)0..total - 1 {
-        if (at < width || at >= total - width || at % width == 0 || at % width == width - 1) && !stamp_barrier[at] {
-            stamp_outside[at] = true
-            stamp_stack[count] = at
-            count += 1
-        }
-    }
-    while count > 0 {
-        count -= 1
-        at := stamp_stack[count]
-        next: [4]s32 = .[at - 1, at + 1, at - width, at + width]
-        for side: cast(s32)0..3 {
-            other := next[side]
-            if other < 0 || other >= total || (side == 0 && at % width == 0) ||
-            (side == 1 && at % width == width - 1) { continue }
-            if !stamp_barrier[other] && !stamp_outside[other] {
-                stamp_outside[other] = true
-                stamp_stack[count] = other
-                count += 1
-            }
-        }
+// The original full-resolution outline supplies an explicit opaque body.
+// Keep it separate from ink: white body pixels cover earlier lines and fills.
+ReadBody :: (dino: s32, width: s32, height: s32) {
+    for pixel: cast(s32)0..width * height - 1 { stamp_body[pixel] = false }
+    at: s32 = 0
+    for part: cast(s32)0..BODY_PARTS - 1 {
+        at = ReadPart(DinoBody(dino, part), width, height, at, stamp_body[:])
     }
 }
 
@@ -149,7 +111,7 @@ CanvasStampDino :: (dino: s32, size: s32, x: s32, y: s32, flip: bool) {
     h := base_h * percent / 100
     if w < 1 || h < 1 { return }
     ReadLines(false, dino, DINO_PARTS, base_w, base_h)
-    StampOutside(base_w, base_h)
+    ReadBody(dino, base_w, base_h)
     for ty: cast(s32)0..h - 1 {
         py := y + ty
         if py < 0 || py >= CANVAS_HEIGHT { continue }
@@ -158,8 +120,7 @@ CanvasStampDino :: (dino: s32, size: s32, x: s32, y: s32, flip: bool) {
             px := x + tx
             if px < 0 || px >= CANVAS_WIDTH { continue }
             sx := tx * base_w / w
-            fx := ifx flip then sx else sx
-            source_x := ifx flip then base_w - 1 - fx else fx
+            source_x := ifx flip then base_w - 1 - sx else sx
             inked := stamp[source_y * base_w + source_x]
             // When shrinking, look at the neighbouring source pixels too.
             if !inked && w < base_w {
@@ -170,7 +131,7 @@ CanvasStampDino :: (dino: s32, size: s32, x: s32, y: s32, flip: bool) {
                 if source_y > 0 && stamp[(source_y - 1) * base_w + source_x] { inked = true }
                 if source_y < base_h - 1 && stamp[(source_y + 1) * base_w + source_x] { inked = true }
             }
-            if inked || !stamp_outside[source_y * base_w + source_x] {
+            if inked || stamp_body[source_y * base_w + source_x] {
                 at := py * CANVAS_WIDTH + px
                 lines[at] = inked
                 canvas[at] = cast(u8)(ifx inked then INK else PAPER)

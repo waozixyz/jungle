@@ -12,6 +12,12 @@ GameHome :: () {
     unused AppService("jungle.home", "")
 }
 
+// Original Bert controls mirror a dinosaur while the right button is held
+// as the left button releases it. A completed right-click is too late.
+GameSecondaryDown :: () -> bool {
+    return AppService("jungle.secondary", "") == "down"
+}
+
 // Turns an indexed 240 by 180 picture into a file the game can show;
 // returns its name, or ""
 // when the app cannot make one.

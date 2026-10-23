@@ -25,6 +25,11 @@ def main():
             if number > 16:
                 assert len(colors) == 2, f"crayon {number} lost its stipple"
     for number in range(1, 13):
+        with Image.open(ROOT / f"assets/dino-paint/art/dino{number}-s4.png") as dinosaur:
+            colors = dict((color, count) for count, color in dinosaur.convert("RGBA").getcolors())
+            assert colors.get((255, 255, 255, 255), 0) > 100, "dinosaur lost its opaque white body"
+            assert colors.get((0, 0, 0, 255), 0) > 100, "dinosaur lost its ink"
+            assert colors.get((0, 0, 0, 0), 0) > 100, "dinosaur erased its surrounding scenery"
         with wave.open(str(ROOT / f"assets/dino-paint/sounds/voice-{number}.wav")) as voice:
             assert voice.getnchannels() == 1 and voice.getsampwidth() == 2
             assert voice.getframerate() == 22050
@@ -35,7 +40,7 @@ def main():
             assert .1 < sound.getnframes() / sound.getframerate() < .2
     with wave.open(str(ROOT / "assets/animal-count/sounds/reward.wav")) as reward:
         assert .2 < reward.getnframes() / reward.getframerate() < .5
-    print("local asset test: native sprites, BIOS font, VGA crayons, voices and brief feedback passed")
+    print("local asset test: native sprites, opaque dinosaur bodies, BIOS font, VGA crayons, voices and brief feedback passed")
 
 
 if __name__ == "__main__":

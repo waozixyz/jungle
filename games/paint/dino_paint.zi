@@ -1,5 +1,5 @@
 // Dino Colors: a 1:1 play-alike of Bert's Dinosaurs. Pick one of six
-// scenes, place any of twelve dinosaurs in four sizes (right-click mirrors),
+// scenes, drag any of twelve dinosaurs in four sizes (hold right to mirror),
 // fill regions with thirty crayon colors, write an eight-line story, and
 // keep the whole picture in one of six slots.
 #import "app_context"
@@ -45,8 +45,12 @@ size_names: [4]string = .["SMALL", "MEDIUM", "LARGE", "HUGE"];
 view: s32 = MAIN;
 dino: s32 = -1;
 size: s32 = 2;
-flip: bool;
 placing: bool;
+placement_x: s32;
+placement_y: s32;
+dragging: bool;
+grab_x: s32;
+grab_y: s32;
 dino_page: s32;
 story_row: s32;
 story_column: s32;
@@ -182,6 +186,8 @@ MainView :: () {
     RetroFill(0, 0, PANEL_WIDTH, SCREEN_HEIGHT, GREEN)
     for index: cast(s32)0..7 {
         if RetroButton(20 + index, 2, 4 + index * 24, 60, 22, button_names[index]) {
+            placing = false
+            dragging = false
             Sound("click")
             if index == 0 { view = ifx scene < 0 then PICK_SCENE else PICK_DINO }
             if index == 1 { view = PICK_COLOR }
@@ -194,6 +200,9 @@ MainView :: () {
             return
         }
     }
+    // Like Bert's crayon, show the chosen solid or checkerboard on COLOR.
+    digits: [24]u8
+    RetroSprite(Join("assets/dino-paint/crayons/", FormatInteger(crayon + 1, digits[:]), ".png"), 6, 48, 52, 1)
     if scene >= 0 { MakeCanvas() }
     RetroFill(CANVAS_X - 2, CANVAS_Y - 2, CANVAS_WIDTH + 4, CANVAS_HEIGHT + 4, BLACK)
     name := TextUntilNul(canvas_name[:])
@@ -206,22 +215,37 @@ MainView :: () {
     x := RetroPointX(press.x) - CANVAS_X
     y := RetroPointY(press.y) - CANVAS_Y
     if placing {
-        // The outline of the dinosaur follows the pointer until it is set.
+        // A retained box starts in the upper left. Grab anywhere inside it,
+        // drag within the paper, then release to replace the artwork below.
         w := DINO_WIDTH[dino] * DinoScale(dino, size) / 100
         h := DINO_HEIGHT[dino] * DinoScale(dino, size) / 100
         pointer := SamplePointer()
         x = RetroPointX(pointer.x) - CANVAS_X
         y = RetroPointY(pointer.y) - CANVAS_Y
-        RetroFrame(CANVAS_X + x, CANVAS_Y + y, w, h, LIGHT_GREEN)
-        if press.released && x >= 0 && y >= 0 && x + w <= CANVAS_WIDTH && y + h <= CANVAS_HEIGHT {
+        if pointer.pressed && x >= placement_x && x < placement_x + w &&
+        y >= placement_y && y < placement_y + h {
+            dragging = true
+            grab_x = x - placement_x
+            grab_y = y - placement_y
+        }
+        if dragging {
+            placement_x = x - grab_x
+            placement_y = y - grab_y
+            if placement_x < 0 { placement_x = 0 }
+            if placement_y < 0 { placement_y = 0 }
+            if placement_x > CANVAS_WIDTH - w { placement_x = CANVAS_WIDTH - w }
+            if placement_y > CANVAS_HEIGHT - h { placement_y = CANVAS_HEIGHT - h }
+        }
+        RetroFrame(CANVAS_X + placement_x, CANVAS_Y + placement_y, w, h, BLACK)
+        if pointer.released && dragging {
             PushUndo()
-            CanvasStampDino(dino, size, x, y, flip)
+            CanvasStampDino(dino, size, placement_x, placement_y, GameSecondaryDown())
             placing = false
+            dragging = false
             dirty = true
             unused SaveSlot()
             Sound("fill")
         }
-        if press.right_clicked { flip = !flip }
     } else if press.clicked {
         fill := 16 + crayon
         if scene >= 0 && CanvasColorAt(x, y) >= 0 && CanvasColorAt(x, y) != fill {
@@ -337,8 +361,10 @@ SizePicker :: () {
         RetroText(x + (72 - RetroTextWidth(size_names[index])) / 2, y + 104, size_names[index], BLACK)
         if press.clicked {
             size = index + 1
-            flip = false
             placing = true
+            placement_x = 0
+            placement_y = 0
+            dragging = false
             Sound("click")
             view = MAIN
             return
@@ -364,8 +390,11 @@ ColorPicker :: () {
         }
     }
     RetroText(20, 176, "CLICK OUTSIDE TO CANCEL", BLACK)
-    outside := RetroTap(190, 0, 0, SCREEN_WIDTH, 24, "Outside")
-    if outside.clicked { view = MAIN }
+    pointer := SamplePointer()
+    x := RetroPointX(pointer.x)
+    y := RetroPointY(pointer.y)
+    inside := x >= 20 && x < 304 && y >= 30 && y < 146
+    if pointer.released && !inside { view = MAIN }
     unused CancelButton()
 }
 

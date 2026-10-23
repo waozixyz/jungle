@@ -13,7 +13,7 @@ import shutil
 import struct
 import wave
 
-from PIL import Image
+from PIL import Image, ImageDraw
 
 ROOT = Path(__file__).resolve().parents[1]
 CGA = [(0, 0, 170, 255), (85, 255, 85, 255),
@@ -79,6 +79,47 @@ def font(binary):
     picture.save(ROOT / "assets/animal-count/font.png")
 
 
+def dinosaur_bodies(source):
+    """Recover opaque bodies before reducing the original closed outlines.
+
+    Flooding a reduced drawing can leak through raster gaps. The native DOT
+    strokes form the actual boundary; everything enclosed by it covers older
+    artwork, including the white spaces between interior detail lines.
+    """
+    output = ROOT / "assets/dino-paint/art"
+    for index in range(12):
+        raw = (source / f"BDA{300 + index}.DOT").read_bytes()
+        commands = [(chr(raw[at]), *struct.unpack_from("<hh", raw, at + 1))
+                    for at in range(72, len(raw) - 4, 5)]
+        command, width, height = commands[0]
+        assert command == "M" and 0 < width < 640 and 0 < height < 480
+        native = Image.new("L", (width + 3, height + 3))
+        draw = ImageDraw.Draw(native)
+        point = (1, 1)
+        for command, x, y in commands[1:]:
+            next_point = (x + 1, y + 1)
+            if command == "S":
+                point = next_point
+            elif command == "N":
+                draw.line((point, next_point), fill=255)
+                point = next_point
+        ImageDraw.floodfill(native, (0, 0), 128)
+        body = native.point(lambda value: 0 if value == 128 else 255)
+        body = body.crop((1, 1, width + 1, height + 1))
+        path = output / f"dino{index + 1}-s4.png"
+        ink = Image.open(path).convert("RGBA")
+        body = body.resize(ink.size, Image.Resampling.NEAREST)
+        picture = Image.new("RGBA", ink.size)
+        for y in range(ink.height):
+            for x in range(ink.width):
+                r, g, b, a = ink.getpixel((x, y))
+                if a >= 128 and r + g + b < 384:
+                    picture.putpixel((x, y), (0, 0, 0, 255))
+                elif body.getpixel((x, y)):
+                    picture.putpixel((x, y), (255, 255, 255, 255))
+        picture.save(path)
+
+
 def voices(source):
     output = ROOT / "assets/dino-paint/sounds"
     for index in range(12):
@@ -109,7 +150,9 @@ def main():
         sources.extend(args.animal_dir / name for name in ["ANIMALS.TAB", "ANIMALS.PAS", "ANIMALS.__2"])
     if args.bert_dir:
         voices(args.bert_dir)
+        dinosaur_bodies(args.bert_dir)
         sources.extend(args.bert_dir.glob("BDS3*.V8"))
+        sources.extend(args.bert_dir.glob("BDA*.DOT"))
     if args.dosbox:
         font(args.dosbox)
     assert sources or args.dosbox, "select an input with --animal-dir, --bert-dir or --dosbox"

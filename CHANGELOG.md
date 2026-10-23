@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+- Cover earlier artwork with each dinosaur's recovered white body, preserve surrounding scenery, and restore Bert's drag-to-place and hold-right-to-mirror controls.
+- Show the selected crayon on COLOR, cancel pending placement when switching tools, and dismiss the color picker by clicking outside it.
+
 - Quieter default audio, softer and shorter feedback, a brief counting reward, and a persistent mute button with F10 available in every game.
 
 - Save and reload complete Dino pictures, stories and outlines, with separate save/load actions and overwrite confirmation.

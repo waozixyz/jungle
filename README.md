@@ -16,12 +16,17 @@ back down, the same number never comes twice, and every eighth right
 answer brings one of the original praises, from GOOD JOB to AWESOME.
 
 **Dino Colors** plays like Bert's Dinosaurs. Pick one of six scenes, place
-any of twelve dinosaurs in four sizes (a right-click mirrors it), then fill
+any of twelve dinosaurs in four sizes, then fill
 the picture with thirty crayon buttons. You can write an eight-line story
 and keep the whole picture and story in one of six slots. Undo takes back the
 last dinosaur, fill or erase. The working picture recovers when you reopen the
 game. Dinosaur selection includes the original recorded names, with sound on,
 silent and voice-only settings.
+
+Grab the placement box in the upper-left corner, drag it onto the picture,
+and release. Hold the right mouse button while releasing the left to mirror
+the dinosaur. Its white body replaces the lines and colors beneath it;
+scenery outside its outline stays in place. Undo restores the covered artwork.
 
 ## Build and run
 
@@ -83,7 +88,9 @@ written in Ziran (`tools/`), and their output is committed. They preserve the
 recovered game artwork and recordings.
 
 `tools/paint_pages.py` compiles the committed PNG line art into portable paint
-masks, respecting transparency, and makes previews that retain thin strokes.
+masks, keeping opaque white bodies separate from ink, and makes previews that
+retain thin strokes. The optional Bert importer recovers body masks from the
+original full-resolution DOT outlines before reducing them to game pixels.
 `make art` also runs this step.
 
 `tools/import_original.py --help` describes optional regeneration from the

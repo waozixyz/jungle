@@ -123,6 +123,29 @@ class Desktop:
         time.sleep(.3)
         self.alive()
 
+    def move(self, x, y):
+        run(["xdotool", "mousemove", "--window", self.window,
+             str(x * self.scale + self.left),
+             str(y * self.scale + self.top)], self.env)
+        time.sleep(.15)
+
+    def drag(self, x, y, to_x, to_y, mirror=False):
+        self.move(x, y)
+        run(["xdotool", "mousedown", "1"], self.env)
+        try:
+            time.sleep(.15)
+            self.move(to_x, to_y)
+            if mirror:
+                run(["xdotool", "mousedown", "3"], self.env)
+                time.sleep(.15)
+        finally:
+            run(["xdotool", "mouseup", "1"], self.env)
+            time.sleep(.2)
+            if mirror:
+                run(["xdotool", "mouseup", "3"], self.env)
+        time.sleep(.3)
+        self.alive()
+
     def type(self, text):
         run(["xdotool", "type", "--clearmodifiers", "--delay", "60", text], self.env)
         time.sleep(.3)
@@ -164,6 +187,24 @@ def read_picture(path):
     head = len(b"JUNGLE PICTURE 1\n")
     story = data[head + 3:head + 3 + 8 * 39].decode("ascii").splitlines()
     return data, story
+
+
+def assert_dinosaur(before, after, x, y, mirror=False):
+    """Compare an actual Huge T-rex placement with the committed opaque art."""
+    from PIL import Image
+    offset = len(b"JUNGLE PICTURE 1\n") + 3 + 8 * 39
+    mask = offset + 240 * 180 + 1
+    expected = bytearray(before)
+    art = Image.open(ROOT / "assets/dino-paint/art/dino1-s4.png").convert("RGBA")
+    for row in range(art.height):
+        for column in range(art.width):
+            pixel = art.getpixel((art.width - 1 - column if mirror else column, row))
+            if pixel[3]:
+                at = (y + row) * 240 + x + column
+                ink = pixel[:3] == (0, 0, 0)
+                expected[offset + at] = ord("0" if ink else "f")
+                expected[mask + at] = ord("1" if ink else "0")
+    assert after == bytes(expected), "placement did not replace exactly the dinosaur body"
 
 
 def ui(binary):
@@ -231,12 +272,31 @@ def ui(binary):
             desktop.capture("paint-sizes")
             desktop.click(280, 90)
             painting = desktop.capture("paint-placement")
-            desktop.click(68, 11)
+            working = data / "games/jungle.paint/working.txt"
+            scene_only = working.read_bytes()
+            desktop.click(290, 170)
+            hovering = desktop.capture("paint-placement-waiting")
+            assert working.read_bytes() == scene_only, "clicking outside the box placed a dinosaur"
+            assert hovering.getpixel((68, 10)) == (0, 0, 0), "placement box followed a hovering pointer"
+            desktop.drag(72, 14, 72, 34)
             placed = desktop.capture("paint-placed")
+            assert_dinosaur(scene_only, working.read_bytes(), 0, 20)
             assert ImageChops.difference(painting.crop((68, 10, 308, 190)),
                                         placed.crop((68, 10, 308, 190))).getbbox(), "Huge dinosaur could not be placed"
             black = dict((color, count) for count, color in placed.crop((68, 10, 308, 190)).getcolors(10000))
             assert black.get((0, 0, 0), 0) < 20000, "dinosaur outline rendered as a solid rectangle"
+            desktop.click(30, 160)
+            assert working.read_bytes() == scene_only, "Undo did not restore covered scene lines and colors"
+            desktop.click(30, 15)
+            desktop.click(52, 58)
+            desktop.click(280, 90)
+            desktop.drag(72, 14, 72, 34, mirror=True)
+            desktop.capture("paint-mirrored")
+            assert_dinosaur(scene_only, working.read_bytes(), 0, 20, mirror=True)
+            desktop.click(30, 40)
+            desktop.click(8, 160)
+            desktop.capture("paint-color-cancelled")
+            assert working.read_bytes() != scene_only, "color cancel removed the dinosaur"
             desktop.click(30, 40)
             colors = desktop.capture("paint-colors")
             assert len(colors.crop((262, 128, 290, 142)).getcolors()) >= 2, "stippled crayons are missing"
