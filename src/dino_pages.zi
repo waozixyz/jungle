@@ -1,0 +1,286 @@
+// Dino Colors' pages. Each page is drawn from art/dinos/PAGE.svg as one fill
+// mask and one outline per region (tools/art.zi). The game reads the same
+// SVG's shapes to find the region under a tap, and the box table to place
+// each region's pictures.
+#import "file"
+#import, file "jungle_text.zi";
+
+PAGES :: 6
+PAGE_WIDTH :: 1000.0
+PAGE_HEIGHT :: 750.0
+REGION_LIMIT :: 32
+POINT_LIMIT :: 16384
+CURVE_STEPS :: 12
+ELLIPSE_STEPS :: 40
+
+page_names: [6]string = .["trex", "triceratops", "stegosaurus", "brachiosaurus", "pteranodon", "egg"];
+
+RegionBox :: struct {
+    x0: s32
+    y0: s32
+    x1: s32
+    y1: s32
+}
+
+// The open page: region boxes in page units and their outlines as polygons.
+DinoPage :: struct {
+    index: s32
+    regions: s32
+    boxes: [REGION_LIMIT]RegionBox
+    has_top: bool
+    top: RegionBox
+    first: [REGION_LIMIT]s32
+    count: [REGION_LIMIT]s32
+}
+
+page_x: [POINT_LIMIT]float32;
+page_y: [POINT_LIMIT]float32;
+// Where each closed outline of a shape starts.
+page_start: [POINT_LIMIT]bool;
+page_points: s32;
+
+AddPoint :: (x: float32, y: float32, start: bool) {
+    if page_points >= POINT_LIMIT { return }
+    page_x[page_points] = x
+    page_y[page_points] = y
+    page_start[page_points] = start
+    page_points += 1
+}
+
+IsDigit :: (byte: u8) -> bool { return byte >= #char "0" && byte <= #char "9" }
+
+SkipSpace :: (text: string, at: *s64) {
+    while at.* < text.count && (text[at.*] == #char " " || text[at.*] == #char "," ||
+        text[at.*] == cast(u8)10 || text[at.*] == cast(u8)9 || text[at.*] == cast(u8)13) { at.* += 1 }
+}
+
+// A decimal such as -3.5; `found` is false when there is no number at `at`.
+ReadDecimal :: (text: string, at: *s64, found: *bool) -> float32 {
+    SkipSpace(text, at)
+    found.* = false
+    negative := false
+    if at.* < text.count && (text[at.*] == #char "-" || text[at.*] == #char "+") {
+        negative = text[at.*] == #char "-"
+        at.* += 1
+    }
+    value: float32 = 0.0
+    while at.* < text.count && IsDigit(text[at.*]) {
+        value = value * 10.0 + cast(float32)(text[at.*] - #char "0")
+        at.* += 1
+        found.* = true
+    }
+    if at.* < text.count && text[at.*] == #char "." {
+        at.* += 1
+        place: float32 = 0.1
+        while at.* < text.count && IsDigit(text[at.*]) {
+            value += place * cast(float32)(text[at.*] - #char "0")
+            place *= 0.1
+            at.* += 1
+            found.* = true
+        }
+    }
+    return ifx negative then -value else value
+}
+
+// The value of name="..." inside one element, or "".
+Attribute :: (element: string, name: string) -> string {
+    at: s64 = 0
+    while at + name.count + 2 < element.count {
+        before_ok := at == 0 || element[at - 1] == #char " " || element[at - 1] == cast(u8)10
+        if before_ok && element[at:at + name.count] == name && element[at + name.count] == #char "=" &&
+        element[at + name.count + 1] == #char "\"" {
+            start := at + name.count + 2
+            end := start
+            while end < element.count && element[end] != #char "\"" { end += 1 }
+            return element[start:end]
+        }
+        at += 1
+    }
+    return ""
+}
+
+AttributeNumber :: (element: string, name: string) -> float32 {
+    value := Attribute(element, name)
+    at: s64 = 0
+    found := false
+    return ReadDecimal(value, *at, *found)
+}
+
+// Absolute M, L, H, V, C and Z, the commands the pages use.
+AddPath :: (data: string) {
+    at: s64 = 0
+    command: u8 = #char "M"
+    x: float32 = 0.0
+    y: float32 = 0.0
+    start_new := true
+    while at < data.count {
+        SkipSpace(data, *at)
+        if at >= data.count { break }
+        byte := data[at]
+        if (byte >= #char "A" && byte <= #char "Z") || (byte >= #char "a" && byte <= #char "z") {
+            command = byte
+            at += 1
+            if command == #char "Z" || command == #char "z" { start_new = true; continue }
+            continue
+        }
+        found := false
+        if command == #char "M" || command == #char "L" {
+            x = ReadDecimal(data, *at, *found)
+            y = ReadDecimal(data, *at, *found)
+            if !found { break }
+            AddPoint(x, y, start_new || command == #char "M")
+            start_new = false
+            // Pairs after a move continue as lines.
+            if command == #char "M" { command = #char "L" }
+        } else if command == #char "H" {
+            x = ReadDecimal(data, *at, *found)
+            if !found { break }
+            AddPoint(x, y, false)
+        } else if command == #char "V" {
+            y = ReadDecimal(data, *at, *found)
+            if !found { break }
+            AddPoint(x, y, false)
+        } else if command == #char "C" {
+            x1 := ReadDecimal(data, *at, *found)
+            y1 := ReadDecimal(data, *at, *found)
+            x2 := ReadDecimal(data, *at, *found)
+            y2 := ReadDecimal(data, *at, *found)
+            x3 := ReadDecimal(data, *at, *found)
+            y3 := ReadDecimal(data, *at, *found)
+            if !found { break }
+            for step: cast(s32)1..CURVE_STEPS {
+                t := cast(float32)step / cast(float32)CURVE_STEPS
+                u := 1.0 - t
+                px := u * u * u * x + 3.0 * u * u * t * x1 + 3.0 * u * t * t * x2 + t * t * t * x3
+                py := u * u * u * y + 3.0 * u * u * t * y1 + 3.0 * u * t * t * y2 + t * t * t * y3
+                AddPoint(px, py, false)
+            }
+            x = x3
+            y = y3
+        } else {
+            // A command the pages do not use: stop rather than guess.
+            break
+        }
+    }
+}
+
+// Unit circle corners for ellipses, a quarter turn per ELLIPSE_STEPS / 4.
+Cosine :: (turn: float32) -> float32 {
+    // Taylor series around the nearest quarter, enough for a tap test.
+    angle := turn * 6.28318530718
+    while angle > 3.14159265359 { angle -= 6.28318530718 }
+    while angle < -3.14159265359 { angle += 6.28318530718 }
+    a2 := angle * angle
+    return 1.0 - a2 / 2.0 + a2 * a2 / 24.0 - a2 * a2 * a2 / 720.0 + a2 * a2 * a2 * a2 / 40320.0 -
+    a2 * a2 * a2 * a2 * a2 / 3628800.0
+}
+
+AddEllipse :: (cx: float32, cy: float32, rx: float32, ry: float32) {
+    for step: cast(s32)0..ELLIPSE_STEPS - 1 {
+        turn := cast(float32)step / cast(float32)ELLIPSE_STEPS
+        AddPoint(cx + rx * Cosine(turn), cy + ry * Cosine(turn - 0.25), step == 0)
+    }
+}
+
+ReadBoxes :: (page: *DinoPage, table: string) -> bool {
+    at: s64 = 0
+    while at < table.count {
+        top := at + 3 <= table.count && table[at:at + 3] == "top"
+        region: s32 = -1
+        if top { at += 3 } else { region = ReadWhole(table, *at) }
+        if !top && (region < 0 || region >= REGION_LIMIT) { return false }
+        box: RegionBox
+        values: [4]s32
+        for index: cast(s32)0..3 {
+            while at < table.count && table[at] == #char " " { at += 1 }
+            values[index] = ReadWhole(table, *at)
+            if values[index] < 0 { return false }
+        }
+        box = RegionBox.{values[0], values[1], values[2], values[3]}
+        if top { page.top = box; page.has_top = true }
+        else {
+            page.boxes[region] = box
+            if region + 1 > page.regions { page.regions = region + 1 }
+        }
+        while at < table.count && table[at] != cast(u8)10 { at += 1 }
+        at += 1
+    }
+    return page.regions > 0
+}
+
+// Loads one page's boxes and shapes; false when its files are missing or
+// do not match.
+DinoPageLoad :: (page: *DinoPage, index: s32) -> bool {
+    page.* = DinoPage.{.index = index}
+    page_points = 0
+    if index < 0 || index >= PAGES { return false }
+    name := page_names[index]
+    table, has_table := ReadEntireFile(Cat("assets/dinos/", name, ".txt"))
+    if !has_table || !ReadBoxes(page, table) { return false }
+    drawing, has_drawing := ReadEntireFile(Cat("assets/dinos/", name, ".svg"))
+    if !has_drawing { return false }
+    for region: cast(s32)0..REGION_LIMIT - 1 { page.first[region] = -1 }
+    at: s64 = 0
+    while at + 6 < drawing.count {
+        if drawing[at] != #char "<" { at += 1; continue }
+        end := at
+        while end < drawing.count && drawing[end] != #char ">" { end += 1 }
+        element := drawing[at:end]
+        at = end
+        id := Attribute(element, "id")
+        if id.count < 2 || id[0] != #char "p" { continue }
+        cursor: s64 = 1
+        region := ReadWhole(id, *cursor)
+        if region < 0 || region >= page.regions || cursor != id.count { continue }
+        page.first[region] = page_points
+        if element.count > 5 && element[:5] == "<path" { AddPath(Attribute(element, "d")) }
+        else if element.count > 7 && element[:7] == "<circle" {
+            r := AttributeNumber(element, "r")
+            AddEllipse(AttributeNumber(element, "cx"), AttributeNumber(element, "cy"), r, r)
+        } else if element.count > 8 && element[:8] == "<ellipse" {
+            AddEllipse(AttributeNumber(element, "cx"), AttributeNumber(element, "cy"),
+                AttributeNumber(element, "rx"), AttributeNumber(element, "ry"))
+        }
+        page.count[region] = page_points - page.first[region]
+    }
+    for region: cast(s32)0..page.regions - 1 {
+        if page.first[region] < 0 || page.count[region] < 3 { return false }
+    }
+    return page_points < POINT_LIMIT
+}
+
+// Even-odd: a point is inside when a ray to its right crosses the outline
+// an odd number of times.
+RegionContains :: (page: *DinoPage, region: s32, x: float32, y: float32) -> bool {
+    box := page.boxes[region]
+    if x < cast(float32)box.x0 || x > cast(float32)box.x1 || y < cast(float32)box.y0 || y > cast(float32)box.y1 { return false }
+    inside := false
+    first := page.first[region]
+    last := first + page.count[region] - 1
+    start := first
+    for at: first..last {
+        if page_start[at] { start = at }
+        next := at + 1
+        // Close each outline back to its first point.
+        if next > last || page_start[next] { next = start }
+        ax := page_x[at]
+        ay := page_y[at]
+        bx := page_x[next]
+        by := page_y[next]
+        if (ay > y) != (by > y) {
+            cross := ax + (y - ay) * (bx - ax) / (by - ay)
+            if x < cross { inside = !inside }
+        }
+    }
+    return inside
+}
+
+// The topmost region at a point in page units, or -1.
+DinoPageRegionAt :: (page: *DinoPage, x: float32, y: float32) -> s32 {
+    region := page.regions - 1
+    while region >= 0 {
+        if RegionContains(page, region, x, y) { return region }
+        region -= 1
+    }
+    return -1
+}

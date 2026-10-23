@@ -1,0 +1,146 @@
+// Jungle's shared look: the jungle backdrop, a cream top bar, picture cards
+// and big number buttons sized for small fingers.
+#import "session"
+#import "geometry"
+#import "drawing_props"
+#import "text_props"
+#import "text_align"
+#import "text_widget"
+#import "box_props"
+#import "box_widget"
+#import "image_props"
+#import "image_widget"
+#import "press_props"
+#import "press_widget"
+#import "widget_palette"
+#import, file "sound.zi";
+
+INK :: 0x24402eff
+CREAM :: 0xfff8e7ff
+CREAM_SOFT :: 0xfff8e7e0
+CREAM_EDGE :: 0xc9b48aff
+LEAF :: 0x2e7d68ff
+LEAF_DARK :: 0x1e4a40ff
+SUN :: 0xf2a65eff
+RIGHT :: 0x7ccf6bff
+WRONG :: 0xf3b4a8ff
+SHADE :: 0x1e4a40a0
+
+UiFrame :: struct {
+    session: Session
+    width: float32
+    height: float32
+    now: float64
+    key: s32
+}
+
+ui: UiFrame;
+
+UiPalette :: () -> WidgetPalette {
+    return WidgetPalette.{.background = cast(u32)CREAM, .base = cast(u32)0xf3ead2ff, .text = cast(u32)INK,
+        .selected = cast(u32)LEAF, .selected_text = cast(u32)0xffffffff, .border = cast(u32)CREAM_EDGE,
+        .danger = cast(u32)0xe53935ff, .warning = cast(u32)SUN, .success = cast(u32)0x43a047ff, .material = true}
+}
+
+Landscape :: () -> bool { return ui.width > ui.height }
+
+Fill :: (key: s32, bounds: Rectangle, color: u32, radius: float32 = 0.0, border: u32 = 0) {
+    unused Box(ui.session, BoxProps.{.key = cast(u64)key, .bounds = bounds, .fill = ColorFromPacked(color),
+            .border = ColorFromPacked(border), .radius = radius})
+}
+
+Words :: (key: s32, bounds: Rectangle, text: string, font: s32, center: bool = true) {
+    Text(ui.session, TextProps.{.key = cast(u64)key, .bounds = bounds, .text = text, .font = font,
+            .wrap = TextWrap.TextWrapAuto,
+            .align = ifx center then TextAlign.TextAlignCenter else TextAlign.TextAlignStart,
+            .vertical_align = TextAlign.TextAlignCenter})
+}
+
+// A picture fitted inside bounds. A tint paints its shape in one color.
+Picture :: (key: s32, path: string, bounds: Rectangle, label: string = "", tint: u32 = 0) {
+    Image(ui.session, ImageProps.{.key = cast(u64)key, .asset_path = path, .alt_text = label,
+            .bounds = bounds, .fit = ImageFit.ImageFitContain, .smooth = true, .tint = tint})
+}
+
+// An area that answers a tap; it draws nothing itself.
+Tap :: (id: s32, bounds: Rectangle, label: string) -> PressResult {
+    return Press(ui.session, PressProps.{.key = cast(u64)id, .id = id, .bounds = bounds, .label = label, .now = ui.now})
+}
+
+Tapped :: (id: s32, bounds: Rectangle, label: string) -> bool {
+    pressed := Tap(id, bounds, label).clicked
+    if pressed { SoundPlay("assets/sounds/tap.wav") }
+    return pressed
+}
+
+// The jungle behind every screen, cut to fill the window.
+Backdrop :: () {
+    Fill(1, Rectangle.{0.0, 0.0, ui.width, ui.height}, cast(u32)0xd5ecd5ff)
+    Image(ui.session, ImageProps.{.key = cast(u64)2,
+            .asset_path = ifx Landscape() then "assets/scenes/jungle-landscape.png" else "assets/scenes/jungle-portrait.png",
+            .bounds = Rectangle.{0.0, 0.0, ui.width, ui.height}, .fit = ImageFit.ImageFitCover, .smooth = true})
+}
+
+TOP_BAR :: 76.0
+
+// The bar across the top: a back button when `back` is set, and a title.
+// Returns true when back was pressed.
+TopBar :: (title: string, back: bool) -> bool {
+    Fill(10, Rectangle.{12.0, 10.0, ui.width - 24.0, TOP_BAR - 16.0}, cast(u32)CREAM_SOFT, 22.0, cast(u32)CREAM_EDGE)
+    Words(11, Rectangle.{96.0, 10.0, ui.width - 192.0, TOP_BAR - 16.0}, title, 30)
+    if !back { return false }
+    button := Rectangle.{20.0, 16.0, 64.0, TOP_BAR - 28.0}
+    Fill(12, button, cast(u32)LEAF, 18.0)
+    Words(13, button, "<", 30)
+    return Tapped(14, button, "Back")
+}
+
+// A small round button in the top bar's right side, `slot` places from the
+// right edge. Returns true when tapped.
+BarButton :: (id: s32, slot: s32, text: string, label: string, wide: float32 = 64.0) -> bool {
+    right := ui.width - 20.0 - cast(float32)slot * (wide + 10.0)
+    button := Rectangle.{right - wide, 16.0, wide, TOP_BAR - 28.0}
+    Fill(id, button, cast(u32)0xf3ead2ff, 18.0, cast(u32)CREAM_EDGE)
+    Words(id + 1, button, text, 22)
+    return Tapped(id + 2, button, label)
+}
+
+// A cream card holding a picture over its name.
+Card :: (id: s32, bounds: Rectangle, picture: string, name: string, detail: string = "") -> bool {
+    pressed := Tap(id + 9, bounds, name)
+    lift: float32 = ifx pressed.down then 3.0 else 0.0
+    shadow := Rectangle.{bounds.x + 4.0, bounds.y + 6.0, bounds.width, bounds.height}
+    Fill(id, shadow, cast(u32)0x1e4a4033, 26.0)
+    face := Rectangle.{bounds.x, bounds.y + lift, bounds.width, bounds.height}
+    Fill(id + 1, face, cast(u32)CREAM, 26.0, cast(u32)CREAM_EDGE)
+    label_height: float32 = ifx detail == "" then 52.0 else 78.0
+    art := Rectangle.{face.x + 14.0, face.y + 14.0, face.width - 28.0, face.height - label_height - 20.0}
+    if picture != "" { Picture(id + 2, picture, art, name) }
+    Words(id + 3, Rectangle.{face.x + 8.0, face.y + face.height - label_height - 4.0, face.width - 16.0, 44.0}, name, 26)
+    if detail != "" {
+        Words(id + 4, Rectangle.{face.x + 8.0, face.y + face.height - 40.0, face.width - 16.0, 30.0}, detail, 18)
+    }
+    if pressed.clicked { SoundPlay("assets/sounds/tap.wav") }
+    return pressed.clicked
+}
+
+// Lays out `count` equal cells in a grid inside `area`, as square as fits.
+GridCell :: (area: Rectangle, count: s32, columns: s32, index: s32, gap: float32) -> Rectangle {
+    rows := (count + columns - 1) / columns
+    width := (area.width - gap * cast(float32)(columns - 1)) / cast(float32)columns
+    height := (area.height - gap * cast(float32)(rows - 1)) / cast(float32)rows
+    column := index % columns
+    row := index / columns
+    return Rectangle.{area.x + cast(float32)column * (width + gap), area.y + cast(float32)row * (height + gap), width, height}
+}
+
+// A rectangle of the given aspect, as large as fits centered in `area`.
+FitInside :: (area: Rectangle, aspect: float32) -> Rectangle {
+    width := area.width
+    height := width / aspect
+    if height > area.height {
+        height = area.height
+        width = height * aspect
+    }
+    return Rectangle.{area.x + (area.width - width) / 2.0, area.y + (area.height - height) / 2.0, width, height}
+}

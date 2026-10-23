@@ -1,0 +1,213 @@
+// Renders Jungle's pictures from the SVG sources in art/ with Inkscape.
+// Run from the repository root after changing any drawing:
+//
+//     make art
+//
+// Pictures go to assets/. Each coloring page becomes one fill mask and one
+// outline per region, cut to the region's box, plus a table of those boxes
+// (assets/dinos/PAGE.txt) and a copy of the page, whose shapes the game
+// reads to know which region a tap lands on.
+#import "c_string"
+#import "byte_text_linux"
+#import "file"
+#import "number_text"
+#import "process_capture_linux"
+
+libc :: #system_library "libc";
+WriteError :: (fd: s32, bytes: *u8, count: usize) -> isize #foreign libc "write";
+
+ITEMS: [8]string = .["banana", "butterfly", "coconut", "flower", "frog", "ladybug", "mango", "snail"];
+FRIENDS: [8]string = .["toucan", "monkey", "sloth", "tiger", "elephant", "parrot", "chameleon", "snake"];
+PAGES: [6]string = .["trex", "triceratops", "stegosaurus", "brachiosaurus", "pteranodon", "egg"];
+
+PAGE_WIDTH :: 1000.0
+PAGE_HEIGHT :: 750.0
+// Pixels per page unit: 144 dpi against Inkscape's 96 user units per inch.
+PAGE_DPI :: "144"
+
+STYLE_FILL :: "<style>.o{fill:#ffffff;stroke:none}.w{fill:#ffffff}.l{display:none}</style>"
+STYLE_LINE :: "<style>.o{fill:none;stroke:#2b2622;stroke-width:7;stroke-linejoin:round;stroke-linecap:round}.w{fill:none}.l{fill:none;stroke:#2b2622;stroke-width:7;stroke-linejoin:round;stroke-linecap:round}</style>"
+
+output: [65536]u8;
+
+Report :: (message: string) {
+    bytes: [1024]u8
+    if CopyCString(message, bytes[:]) { unused WriteError(2, *bytes[0], cast(usize)message.count) }
+}
+
+Cat :: (a: string, b: string = "", c: string = "", d: string = "", e: string = "", f: string = "", g: string = "",
+    h: string = "", i: string = "") -> string {
+    text: Vec(u8)
+    parts: [9]string = .[a, b, c, d, e, f, g, h, i]
+    for part: parts { BuilderPrint(*text, "%", part) }
+    return BuilderFinish(text)
+}
+
+// Runs a command; its standard output is left in `output`.
+Run :: (arguments: []string) -> string {
+    result := CaptureOutput(arguments, output[:])
+    if result.error || result.truncated || result.code != 0 {
+        Report(Cat("art: failed: ", arguments[0], " ", arguments[arguments.count - 1], "\n"))
+        return ""
+    }
+    return TextView(output[:result.length])
+}
+
+Picture :: (source: string, target: string, width: string) -> bool {
+    arguments: [5]string = .["inkscape", "--export-type=png", Cat("--export-filename=", target),
+    Cat("--export-width=", width), source]
+    return Run(arguments[:]).count >= 0 && PathExists(target)
+}
+
+// A decimal such as -3.5 or 417.718 at `at`; `at` moves past it.
+ReadNumber :: (text: string, at: *s64) -> float64 {
+    negative := false
+    if at.* < text.count && text[at.*] == #char "-" { negative = true; at.* += 1 }
+    value: float64 = 0.0
+    while at.* < text.count && text[at.*] >= #char "0" && text[at.*] <= #char "9" {
+        value = value * 10.0 + cast(float64)(text[at.*] - #char "0")
+        at.* += 1
+    }
+    if at.* < text.count && text[at.*] == #char "." {
+        at.* += 1
+        place: float64 = 0.1
+        while at.* < text.count && text[at.*] >= #char "0" && text[at.*] <= #char "9" {
+            value += place * cast(float64)(text[at.*] - #char "0")
+            place *= 0.1
+            at.* += 1
+        }
+    }
+    // Inkscape writes tiny values such as 1e-05; they round to nothing here.
+    if at.* < text.count && (text[at.*] == #char "e" || text[at.*] == #char "E") {
+        at.* += 1
+        exponent_negative := at.* < text.count && text[at.*] == #char "-"
+        while at.* < text.count && (text[at.*] == #char "-" || text[at.*] == #char "+" ||
+            (text[at.*] >= #char "0" && text[at.*] <= #char "9")) { at.* += 1 }
+        if exponent_negative { value = 0.0 }
+    }
+    return ifx negative then -value else value
+}
+
+// Whole even page units, so each box is a whole number of pixels at 1.5
+// pixels per unit, kept inside the page.
+SnapDown :: (value: float64, limit: float64) -> s64 {
+    snapped := cast(s64)(value / 2.0)
+    if cast(float64)snapped * 2.0 > value { snapped -= 1 }
+    result := snapped * 2
+    if result < 0 { return 0 }
+    if cast(float64)result > limit { return cast(s64)limit }
+    return result
+}
+
+SnapUp :: (value: float64, limit: float64) -> s64 {
+    snapped := cast(s64)(value / 2.0)
+    if cast(float64)snapped * 2.0 < value { snapped += 1 }
+    result := snapped * 2
+    if result < 0 { return 0 }
+    if cast(float64)result > limit { return cast(s64)limit }
+    return result
+}
+
+Number :: (value: s64) -> string {
+    digits: [24]u8
+    return Cat(FormatInteger(value, digits[:]))
+}
+
+// The page with its region styles replaced, for one export pass.
+Variant :: (page: string, style: string) -> string {
+    start: s64 = -1
+    end: s64 = -1
+    at: s64 = 0
+    while at + 8 <= page.count {
+        if start < 0 && page[at:at + 7] == "<style>" { start = at }
+        if start >= 0 && page[at:at + 8] == "</style>" { end = at + 8; break }
+        at += 1
+    }
+    if start < 0 || end < 0 { return "" }
+    return Cat(page[:start], style, page[end:])
+}
+
+Page :: (name: string) -> bool {
+    source := Cat("art/dinos/", name, ".svg")
+    page, found := ReadEntireFile(source)
+    if !found { Report(Cat("art: missing ", source, "\n")); return false }
+    folder := Cat("assets/dinos/", name)
+    unused CreateDirectory("assets/dinos")
+    unused CreateDirectory(folder)
+    query: [3]string = .["inkscape", "--query-all", source]
+    boxes := Run(query[:])
+    if boxes == "" { return false }
+    table: Vec(u8)
+    fills: Vec(u8)
+    lines: Vec(u8)
+    BuilderPrint(*fills, "export-type:png;export-dpi:%;\n", PAGE_DPI)
+    BuilderPrint(*lines, "export-type:png;export-dpi:%;\n", PAGE_DPI)
+    regions: s64 = 0
+    at: s64 = 0
+    while at < boxes.count {
+        end := at
+        while end < boxes.count && boxes[end] != cast(u8)10 { end += 1 }
+        line := boxes[at:end]
+        at = end + 1
+        top := line.count > 4 && line[:4] == "top,"
+        if !top && (line.count < 3 || line[0] != #char "r" || line[1] < #char "0" || line[1] > #char "9") { continue }
+        comma: s64 = 0
+        while comma < line.count && line[comma] != #char "," { comma += 1 }
+        id := line[:comma]
+        cursor := comma + 1
+        x := ReadNumber(line, *cursor); cursor += 1
+        y := ReadNumber(line, *cursor); cursor += 1
+        width := ReadNumber(line, *cursor); cursor += 1
+        height := ReadNumber(line, *cursor)
+        x0 := SnapDown(x, PAGE_WIDTH)
+        y0 := SnapDown(y, PAGE_HEIGHT)
+        x1 := SnapUp(x + width, PAGE_WIDTH)
+        y1 := SnapUp(y + height, PAGE_HEIGHT)
+        if x1 <= x0 || y1 <= y0 { continue }
+        area := Cat("export-area:", Number(x0), ":", Number(y0), ":", Number(x1), ":", Number(y1), ";")
+        label := ifx top then "top" else id[1:]
+        BuilderPrint(*table, "% % % % %\n", label, x0, y0, x1, y1)
+        if !top {
+            BuilderPrint(*fills, "%export-id:%;export-id-only;export-filename:%/%-fill.png;export-do;\n", area, id, folder, label)
+            regions += 1
+        }
+        BuilderPrint(*lines, "%export-id:%;export-id-only;export-filename:%/%-line.png;export-do;\n", area, id, folder, label)
+    }
+    if regions == 0 { Report(Cat("art: no regions in ", source, "\n")); return false }
+    unused CreateDirectory("build")
+    unused CreateDirectory("build/art")
+    passes: [2]string = .["fill", "line"]
+    for pass: passes {
+        variant := Variant(page, ifx pass == "fill" then STYLE_FILL else STYLE_LINE)
+        if variant == "" { Report(Cat("art: no <style> in ", source, "\n")); return false }
+        page_file := Cat("build/art/", name, "-", pass, ".svg")
+        actions_file := Cat("build/art/", name, "-", pass, ".actions")
+        actions := ifx pass == "fill" then BuilderFinish(fills) else BuilderFinish(lines)
+        if !WriteEntireFile(page_file, variant) || !WriteEntireFile(actions_file, actions) { return false }
+        command: [3]string = .["inkscape", Cat("--actions-file=", actions_file), page_file]
+        unused Run(command[:])
+    }
+    // The uncolored page for the page chooser.
+    if !Picture(source, Cat("assets/dinos/", name, "-thumb.png"), "480") { return false }
+    return WriteEntireFile(Cat("assets/dinos/", name, ".txt"), BuilderFinish(table)) &&
+    WriteEntireFile(Cat("assets/dinos/", name, ".svg"), page)
+}
+
+#program_export
+main :: (argc: s32, argv: **u8) -> s32 {
+    unused argc
+    unused argv
+    ok := true
+    folders: [4]string = .["assets", "assets/items", "assets/friends", "assets/scenes"]
+    for folder: folders { unused CreateDirectory(folder) }
+    for name: ITEMS { ok = Picture(Cat("art/items/", name, ".svg"), Cat("assets/items/", name, ".png"), "384") && ok }
+    for name: FRIENDS { ok = Picture(Cat("art/friends/", name, ".svg"), Cat("assets/friends/", name, ".png"), "384") && ok }
+    ok = Picture("art/scenes/stone.svg", "assets/scenes/stone.png", "384") && ok
+    ok = Picture("art/scenes/jungle-landscape.svg", "assets/scenes/jungle-landscape.png", "1600") && ok
+    ok = Picture("art/scenes/jungle-portrait.svg", "assets/scenes/jungle-portrait.png", "1000") && ok
+    ok = Picture("art/icon.svg", "assets/icon.png", "256") && ok
+    for name: PAGES { ok = Page(name) && ok }
+    if !ok { return 1 }
+    Report("art: pictures written to assets/\n")
+    return 0
+}

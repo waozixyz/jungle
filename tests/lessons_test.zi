@@ -1,0 +1,95 @@
+// Jungle Math's questions: every answer is right, the three choices hold it
+// once, numbers stay in each level's range, and levels follow the child.
+#import "c_string"
+#import, file "../src/lessons.zi";
+#import, file "../src/platform.zi";
+#import, file "../src/jungle_text.zi";
+
+Fail :: (message: string, trail: s32, level: s32) -> s32 {
+    Report(Cat("lessons test: ", message, " (trail ", NumberText(trail), ", level ", NumberText(level), ")\n"))
+    return 1
+}
+
+CheckQuestion :: (question: *Question) -> string {
+    trail := question.trail
+    level := question.level
+    if question.item < 0 || question.item >= ITEMS { return "picture out of range" }
+    if trail == TRAIL_COUNT {
+        if question.answer != question.first { return "count answer" }
+        if question.first < CountLeast(level) || question.first > CountMost(level) { return "count range" }
+    }
+    if trail == TRAIL_ADD {
+        if question.answer != question.first + question.second { return "sum" }
+        if question.first < 1 || question.second < 1 || question.answer > SumMost(level) { return "sum range" }
+    }
+    if trail == TRAIL_TAKE {
+        if question.answer != question.first - question.second { return "difference" }
+        if question.second < 1 || question.answer < 0 || question.first > SumMost(level) { return "difference range" }
+        if level == 1 && question.answer < 1 { return "first level leaves nothing" }
+    }
+    if trail == TRAIL_STONES {
+        for index: cast(s32)1..STONES - 1 {
+            if question.stones[index] - question.stones[index - 1] != question.step { return "stones step" }
+        }
+        if question.stones[STONES - 1] < 0 || question.stones[0] < 0 { return "negative stone" }
+        if question.answer != question.stones[question.missing] { return "missing stone" }
+        if level == 1 && question.missing != STONES - 1 { return "first level asks the next stone" }
+    }
+    found: s32 = 0
+    for index: cast(s32)0..CHOICES - 1 {
+        if question.choices[index] < 0 { return "negative choice" }
+        if question.choices[index] == 0 && (trail == TRAIL_COUNT || trail == TRAIL_ADD) { return "zero offered" }
+        if question.choices[index] == question.answer { found += 1 }
+        for other: cast(s32)0..CHOICES - 1 {
+            if other != index && question.choices[other] == question.choices[index] { return "repeated choice" }
+        }
+    }
+    if found != 1 { return "answer not offered once" }
+    return ""
+}
+
+#program_export
+main :: (argc: s32, argv: **u8) -> s32 {
+    unused argc
+    unused argv
+    random := Random.{.state = cast(u32)12345}
+    for trail: cast(s32)0..TRAILS - 1 {
+        for level: cast(s32)1..LEVELS {
+            previous: Question
+            answers_seen: [100]bool
+            for round: cast(s32)0..599 {
+                question := Ask(trail, level, *random, *previous)
+                problem := CheckQuestion(*question)
+                if problem != "" { return Fail(problem, trail, level) }
+                if question.first == previous.first && question.second == previous.second &&
+                question.answer == previous.answer && round > 0 && trail != TRAIL_STONES {
+                    return Fail("same question twice", trail, level)
+                }
+                if question.answer < 100 { answers_seen[question.answer] = true }
+                previous = question
+            }
+            // Each level asks more than a handful of different answers.
+            different: s32 = 0
+            for seen: answers_seen { if seen { different += 1 } }
+            if different < 4 { return Fail("too few different answers", trail, level) }
+        }
+    }
+    skill := SkillNew()
+    for step: cast(s32)0..LEVEL_UP_STREAK - 2 { if SkillRight(*skill) { return Fail("moved up early", 0, skill.level) } }
+    if !SkillRight(*skill) || skill.level != 2 { return Fail("did not move up", 0, skill.level) }
+    unused SkillMiss(*skill)
+    unused SkillMiss(*skill)
+    if !SkillMiss(*skill) || skill.level != 1 { return Fail("did not move down", 0, skill.level) }
+    for step: cast(s32)0..9 { unused SkillMiss(*skill) }
+    if skill.level != 1 { return Fail("fell below the first level", 0, skill.level) }
+    for step: cast(s32)0..40 { unused SkillRight(*skill) }
+    if skill.level != LEVELS { return Fail("did not stop at the top level", 0, skill.level) }
+    // A miss between right answers starts the streak again.
+    skill = SkillNew()
+    unused SkillRight(*skill); unused SkillRight(*skill); unused SkillRight(*skill)
+    unused SkillMiss(*skill)
+    unused SkillRight(*skill)
+    if skill.level != 1 { return Fail("a miss kept the streak", 0, skill.level) }
+    Report("lessons test passed\n")
+    return 0
+}

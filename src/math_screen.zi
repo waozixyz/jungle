@@ -1,0 +1,352 @@
+// Jungle Math: four trails of questions with pictures to count, a basket
+// that fills with fruit, and jungle friends to meet.
+#import "geometry"
+#import, file "ui.zi";
+#import, file "lessons.zi";
+#import, file "store.zi";
+#import, file "sound.zi";
+#import, file "jungle_text.zi";
+
+MATH_HUB :: 0
+MATH_PLAY :: 1
+MATH_ALBUM :: 2
+
+item_files: [8]string = .["assets/items/banana.png", "assets/items/butterfly.png", "assets/items/coconut.png",
+"assets/items/flower.png", "assets/items/frog.png", "assets/items/ladybug.png", "assets/items/mango.png",
+"assets/items/snail.png"];
+item_plurals: [8]string = .["bananas", "butterflies", "coconuts", "flowers", "frogs", "ladybugs", "mangoes", "snails"];
+friend_files: [8]string = .["assets/friends/toucan.png", "assets/friends/monkey.png", "assets/friends/sloth.png",
+"assets/friends/tiger.png", "assets/friends/elephant.png", "assets/friends/parrot.png",
+"assets/friends/chameleon.png", "assets/friends/snake.png"];
+friend_names: [8]string = .["Toucan", "Monkey", "Sloth", "Tiger", "Elephant", "Parrot", "Chameleon", "Snake"];
+trail_names: [4]string = .["Count", "Stepping Stones", "Add", "Take Away"];
+trail_pictures: [4]string = .["assets/items/banana.png", "assets/scenes/stone.png", "assets/items/mango.png",
+"assets/friends/monkey.png"];
+praises: [6]string = .["Great!", "Well done!", "Yes!", "You got it!", "Super!", "Wonderful!"];
+
+math_view: s32;
+trail: s32;
+question: Question;
+random: Random;
+// This question: the choices tried and missed, whether any miss happened,
+// and when it was solved.
+wrong: [CHOICES]bool;
+missed: bool;
+solved: bool;
+solved_at: float64;
+leveled: bool;
+praise: s32;
+// A friend met with the last fruit, shown once the answer has been seen.
+new_friend: s32 = -1;
+friend_open: bool;
+typed: s32 = -1;
+// Where the friends album returns to.
+album_return: s32;
+
+// The pause after a right answer before the next question.
+NEXT_SECONDS :: 1.4
+
+MathOpen :: (now: float64) {
+    math_view = MATH_HUB
+    random.state = cast(u32)(cast(u64)(now * 1000.0) & cast(u64)0xffffffff) | cast(u32)1
+}
+
+NextQuestion :: () {
+    previous := question
+    question = Ask(trail, jungle.skills[trail].level, *random, *previous)
+    for index: cast(s32)0..CHOICES - 1 { wrong[index] = false }
+    missed = false
+    solved = false
+    leveled = false
+    typed = -1
+}
+
+StartTrail :: (which: s32) {
+    trail = which
+    question = Question.{}
+    NextQuestion()
+    math_view = MATH_PLAY
+}
+
+Answer :: (value: s32) {
+    if solved || friend_open { return }
+    if value == question.answer {
+        solved = true
+        solved_at = ui.now
+        praise = (praise + 1) % 6
+        if !missed { leveled = SkillRight(*jungle.skills[trail]) }
+        jungle.fruits += 1
+        if jungle.fruits >= BASKET {
+            jungle.fruits = 0
+            if jungle.friends < FRIENDS {
+                new_friend = jungle.friends
+                jungle.friends += 1
+            }
+        }
+        SoundPlay(ifx leveled then "assets/sounds/level.wav" else "assets/sounds/right.wav")
+        Remember()
+        return
+    }
+    for index: cast(s32)0..CHOICES - 1 {
+        if question.choices[index] == value { wrong[index] = true }
+    }
+    if !missed {
+        missed = true
+        unused SkillMiss(*jungle.skills[trail])
+        Remember()
+    }
+    SoundPlay("assets/sounds/miss.wav")
+}
+
+PromptText :: () -> string {
+    things := item_plurals[question.item]
+    if solved {
+        word := praises[praise]
+        if leveled { return Cat(word, " Level up!") }
+        return Cat(word, " The answer is ", NumberText(question.answer), ".")
+    }
+    retry := ifx missed then "Try again! " else ""
+    if trail == TRAIL_COUNT { return Cat(retry, "How many ", things, "?") }
+    if trail == TRAIL_ADD { return Cat(retry, "How many ", things, " in all?") }
+    if trail == TRAIL_TAKE {
+        return Cat(retry, "The monkey takes ", NumberText(question.second), ". How many ", things, " are left?")
+    }
+    if question.level == 1 { return Cat(retry, "What number comes next?") }
+    if question.step < 0 { return Cat(retry, "Counting down! Which number is missing?") }
+    if question.step > 1 { return Cat(retry, "Counting by ", NumberText(question.step), "s! Which number is missing?") }
+    return Cat(retry, "Which number is missing?")
+}
+
+// Draws `count` pictures as large as fit in `area`. Pictures from `ghost`
+// on are shadows (taken away), and `number_from` numbers the others when
+// it is 1 or more.
+ItemGroup :: (key: s32, area: Rectangle, count: s32, ghost: s32, number_from: s32) {
+    if count <= 0 { return }
+    best_columns: s32 = 1
+    best: float32 = 0.0
+    for columns: cast(s32)1..count {
+        rows := (count + columns - 1) / columns
+        size := area.width / cast(float32)columns
+        if area.height / cast(float32)rows < size { size = area.height / cast(float32)rows }
+        if size > best { best = size; best_columns = columns }
+    }
+    size: float32 = best
+    if size > 180.0 { size = 180.0 }
+    rows := (count + best_columns - 1) / best_columns
+    left := area.x + (area.width - size * cast(float32)best_columns) / 2.0
+    top := area.y + (area.height - size * cast(float32)rows) / 2.0
+    shown: s32 = 0
+    for index: cast(s32)0..count - 1 {
+        // A little scatter, the same every frame, so the rows look picked.
+        dx := cast(float32)((index * 37) % 11 - 5) * size * 0.012
+        dy := cast(float32)((index * 53) % 9 - 4) * size * 0.015
+        cell := Rectangle.{left + cast(float32)(index % best_columns) * size + size * 0.08 + dx,
+            top + cast(float32)(index / best_columns) * size + size * 0.08 + dy, size * 0.84, size * 0.84}
+        taken := index >= ghost
+        Picture(key + index * 4, item_files[question.item], cell, item_plurals[question.item],
+            ifx taken then cast(u32)0x24402e38 else cast(u32)0)
+        if !taken && number_from >= 1 {
+            badge := Rectangle.{cell.x + cell.width - 30.0, cell.y + cell.height - 30.0, 34.0, 34.0}
+            Fill(key + index * 4 + 1, badge, cast(u32)LEAF, 17.0)
+            Words(key + index * 4 + 2, badge, NumberText(number_from + shown), 18)
+            shown += 1
+        }
+    }
+}
+
+Equation :: (key: s32, area: Rectangle, text: string) {
+    Words(key, area, text, 40)
+}
+
+Scene :: (panel: Rectangle) {
+    inner := Rectangle.{panel.x + 16.0, panel.y + 12.0, panel.width - 32.0, panel.height - 24.0}
+    numbers := missed || solved
+    answer_text := ifx solved then NumberText(question.answer) else "?"
+    if trail == TRAIL_COUNT {
+        ItemGroup(3000, inner, question.first, question.first, ifx numbers then 1 else 0)
+        return
+    }
+    if trail == TRAIL_ADD || trail == TRAIL_TAKE {
+        pictures := Rectangle.{inner.x, inner.y, inner.width, inner.height - 60.0}
+        line := Rectangle.{inner.x, inner.y + inner.height - 56.0, inner.width, 56.0}
+        if trail == TRAIL_ADD {
+            half := (pictures.width - 70.0) / 2.0
+            ItemGroup(3000, Rectangle.{pictures.x, pictures.y, half, pictures.height}, question.first,
+                question.first, ifx numbers then 1 else 0)
+            Words(3990, Rectangle.{pictures.x + half, pictures.y, 70.0, pictures.height}, "+", 56)
+            ItemGroup(3500, Rectangle.{pictures.x + half + 70.0, pictures.y, half, pictures.height}, question.second,
+                question.second, ifx numbers then question.first + 1 else 0)
+            Equation(3991, line, Cat(NumberText(question.first), " + ", NumberText(question.second), " = ", answer_text))
+        } else {
+            monkey := pictures.height * 0.34
+            if monkey > 120.0 { monkey = 120.0 }
+            Picture(3992, "assets/friends/monkey.png", Rectangle.{pictures.x + pictures.width - monkey, pictures.y, monkey, monkey}, "Monkey")
+            ItemGroup(3000, Rectangle.{pictures.x, pictures.y, pictures.width - monkey - 8.0, pictures.height}, question.first,
+                question.answer, ifx numbers then 1 else 0)
+            Equation(3991, line, Cat(NumberText(question.first), " - ", NumberText(question.second), " = ", answer_text))
+        }
+        return
+    }
+    // Stepping stones across a river.
+    river_height := inner.height * 0.46
+    river := Rectangle.{inner.x, inner.y + (inner.height - river_height) / 2.0 + 20.0, inner.width, river_height}
+    Fill(3000, river, cast(u32)0x7ec8e3ff, 30.0)
+    Fill(3001, Rectangle.{river.x + 30.0, river.y + river.height * 0.3, river.width - 60.0, 6.0}, cast(u32)0xb8e4f2ff, 3.0)
+    Fill(3002, Rectangle.{river.x + 80.0, river.y + river.height * 0.72, river.width - 160.0, 6.0}, cast(u32)0xb8e4f2ff, 3.0)
+    frog := river.y - inner.y
+    if frog > 90.0 { frog = 90.0 }
+    if frog > 30.0 { Picture(3003, "assets/items/frog.png", Rectangle.{inner.x, river.y - frog, frog, frog}, "Frog") }
+    width := inner.width / 5.6
+    if width > 170.0 { width = 170.0 }
+    height := width * 0.75
+    gap := (inner.width - width * 5.0) / 6.0
+    for index: cast(s32)0..STONES - 1 {
+        stone := Rectangle.{inner.x + gap + cast(float32)index * (width + gap), river.y + (river.height - height) / 2.0, width, height}
+        Picture(3010 + index * 3, "assets/scenes/stone.png", stone, "Stone")
+        empty := index == question.missing && !solved
+        label := ifx empty then "?" else NumberText(question.stones[index])
+        if index == question.missing {
+            Fill(3011 + index * 3, Rectangle.{stone.x + width * 0.2, stone.y + height * 0.12, width * 0.6, height * 0.6},
+                ifx solved then cast(u32)RIGHT else cast(u32)SUN, width * 0.3)
+        }
+        Words(3012 + index * 3, Rectangle.{stone.x, stone.y + height * 0.06, width, height * 0.66}, label, cast(s32)(width * 0.3))
+    }
+}
+
+Basket :: (area: Rectangle) -> bool {
+    slot := area.height
+    if slot > 40.0 { slot = 40.0 }
+    friends_width: float32 = 150.0
+    total := slot * cast(float32)BASKET + friends_width + 16.0
+    left := area.x + (area.width - total) / 2.0
+    Fill(4000, Rectangle.{left - 10.0, area.y - 4.0, total + 20.0, slot + 8.0}, cast(u32)CREAM_SOFT, (slot + 8.0) / 2.0, cast(u32)CREAM_EDGE)
+    for index: cast(s32)0..BASKET - 1 {
+        cell := Rectangle.{left + cast(float32)index * slot + 2.0, area.y, slot - 4.0, slot}
+        Picture(4001 + index, item_files[index % ITEMS], cell, "Fruit",
+            ifx index < jungle.fruits then cast(u32)0 else cast(u32)0x24402e30)
+    }
+    friends := Rectangle.{left + slot * cast(float32)BASKET + 16.0, area.y, friends_width, slot}
+    Fill(4020, friends, cast(u32)LEAF, slot / 2.0)
+    Words(4021, friends, Cat("Friends ", NumberText(jungle.friends), "/", NumberText(FRIENDS)), 18)
+    return Tapped(4022, friends, "Jungle friends")
+}
+
+FriendOverlay :: () {
+    Fill(5000, Rectangle.{0.0, 0.0, ui.width, ui.height}, cast(u32)SHADE)
+    width := ui.width * 0.8
+    if width > 520.0 { width = 520.0 }
+    height := ui.height * 0.8
+    if height > 560.0 { height = 560.0 }
+    panel := Rectangle.{(ui.width - width) / 2.0, (ui.height - height) / 2.0, width, height}
+    Fill(5001, panel, cast(u32)CREAM, 30.0, cast(u32)CREAM_EDGE)
+    Words(5002, Rectangle.{panel.x + 16.0, panel.y + 16.0, panel.width - 32.0, 50.0}, "You found a new friend!", 30)
+    Picture(5003, friend_files[new_friend], Rectangle.{panel.x + 40.0, panel.y + 76.0, panel.width - 80.0, panel.height - 230.0},
+        friend_names[new_friend])
+    Words(5004, Rectangle.{panel.x + 16.0, panel.y + panel.height - 150.0, panel.width - 32.0, 50.0}, friend_names[new_friend], 34)
+    button := Rectangle.{panel.x + panel.width / 2.0 - 90.0, panel.y + panel.height - 88.0, 180.0, 64.0}
+    Fill(5005, button, cast(u32)LEAF, 32.0)
+    Words(5006, button, "Yay!", 30)
+    if Tapped(5007, button, "Yay!") || ui.key == 257 || ui.key == 32 {
+        friend_open = false
+        new_friend = -1
+        NextQuestion()
+    }
+}
+
+Play :: () -> bool {
+    level := jungle.skills[trail].level
+    if TopBar(trail_names[trail], true) || (ui.key == 256 && !friend_open) {
+        math_view = MATH_HUB
+        return true
+    }
+    pill := Rectangle.{ui.width - 140.0, 18.0, 112.0, TOP_BAR - 32.0}
+    if ui.width > 560.0 {
+        Fill(20, pill, cast(u32)SUN, 20.0)
+        Words(21, pill, Cat("Level ", NumberText(level)), 20)
+    }
+    prompt := Rectangle.{24.0, TOP_BAR + 4.0, ui.width - 48.0, 60.0}
+    Fill(30, prompt, cast(u32)CREAM_SOFT, 24.0)
+    Words(31, prompt, PromptText(), ifx ui.width < 640.0 then 22 else 28)
+    basket := Rectangle.{16.0, ui.height - 52.0, ui.width - 32.0, 40.0}
+    button_height: float32 = 100.0
+    buttons_y := basket.y - button_height - 14.0
+    panel := Rectangle.{24.0, prompt.y + prompt.height + 10.0, ui.width - 48.0, buttons_y - prompt.y - prompt.height - 24.0}
+    Fill(40, panel, cast(u32)0xfff8e7e8, 28.0)
+    Scene(panel)
+    button_width := (ui.width - 48.0 - 32.0) / 3.0
+    if button_width > 220.0 { button_width = 220.0 }
+    row_left := (ui.width - button_width * 3.0 - 32.0) / 2.0
+    for index: cast(s32)0..CHOICES - 1 {
+        value := question.choices[index]
+        button := Rectangle.{row_left + cast(float32)index * (button_width + 16.0), buttons_y, button_width, button_height}
+        color := cast(u32)CREAM
+        if wrong[index] { color = cast(u32)WRONG }
+        if solved && value == question.answer { color = cast(u32)RIGHT }
+        Fill(6000 + index * 4, Rectangle.{button.x + 3.0, button.y + 6.0, button.width, button.height}, cast(u32)0x1e4a4033, 24.0)
+        Fill(6001 + index * 4, button, color, 24.0, cast(u32)CREAM_EDGE)
+        Words(6002 + index * 4, button, NumberText(value), 52)
+        if Tap(6003 + index * 4, button, NumberText(value)).clicked && !wrong[index] { Answer(value) }
+    }
+    if Basket(basket) && !friend_open { album_return = MATH_PLAY; math_view = MATH_ALBUM }
+    // Typing the number works too: digits, then Enter.
+    if ui.key >= 48 && ui.key <= 57 && !solved {
+        digit := ui.key - 48
+        typed = ifx typed < 0 || typed >= 10 then digit else typed * 10 + digit
+    }
+    if ui.key == 259 { typed = -1 }
+    if typed >= 0 && !solved {
+        Words(50, Rectangle.{panel.x, panel.y + 8.0, 120.0, 50.0}, NumberText(typed), 36)
+    }
+    if ui.key == 257 && typed >= 0 && !solved { Answer(typed); typed = -1 }
+    if solved && !friend_open && ui.now - solved_at >= NEXT_SECONDS {
+        if new_friend >= 0 {
+            friend_open = true
+            SoundPlay("assets/sounds/friend.wav")
+        } else {
+            NextQuestion()
+        }
+    }
+    if friend_open { FriendOverlay() }
+    return true
+}
+
+Hub :: () -> bool {
+    if TopBar("Jungle Math", true) || ui.key == 256 { return false }
+    columns: s32 = ifx Landscape() && ui.width >= 900.0 then 4 else 2
+    area := Rectangle.{24.0, TOP_BAR + 12.0, ui.width - 48.0, ui.height - TOP_BAR - 92.0}
+    for index: cast(s32)0..TRAILS - 1 {
+        cell := GridCell(area, TRAILS, columns, index, 18.0)
+        if Card(100 + index * 10, cell, trail_pictures[index], trail_names[index],
+            Cat("Level ", NumberText(jungle.skills[index].level))) {
+            StartTrail(index)
+        }
+    }
+    if Basket(Rectangle.{16.0, ui.height - 60.0, ui.width - 32.0, 44.0}) { album_return = MATH_HUB; math_view = MATH_ALBUM }
+    return true
+}
+
+Album :: () {
+    if TopBar("Jungle Friends", true) || ui.key == 256 {
+        math_view = album_return
+        return
+    }
+    columns: s32 = ifx Landscape() then 4 else 2
+    area := Rectangle.{24.0, TOP_BAR + 12.0, ui.width - 48.0, ui.height - TOP_BAR - 84.0}
+    for index: cast(s32)0..FRIENDS - 1 {
+        cell := GridCell(area, FRIENDS, columns, index, 14.0)
+        met := index < jungle.friends
+        Fill(200 + index * 4, cell, cast(u32)CREAM, 22.0, cast(u32)CREAM_EDGE)
+        Picture(201 + index * 4, friend_files[index], Rectangle.{cell.x + 10.0, cell.y + 8.0, cell.width - 20.0, cell.height - 54.0},
+            ifx met then friend_names[index] else "A friend still to meet", ifx met then cast(u32)0 else cast(u32)0x24402e40)
+        Words(202 + index * 4, Rectangle.{cell.x, cell.y + cell.height - 46.0, cell.width, 40.0}, ifx met then friend_names[index] else "?", 22)
+    }
+    Words(240, Rectangle.{24.0, ui.height - 64.0, ui.width - 48.0, 52.0},
+        "Fill the basket with 10 fruits to meet a new friend.", 20)
+}
+
+// One frame of Jungle Math; false when the child goes back home.
+MathFrame :: () -> bool {
+    if math_view == MATH_PLAY { return Play() }
+    if math_view == MATH_ALBUM { Album(); return true }
+    return Hub()
+}

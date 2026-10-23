@@ -1,0 +1,197 @@
+// Dino Colors: a coloring book of dinosaur pages. Tap a color, then tap a
+// part of the picture to fill it. Colors are kept for each page.
+#import "geometry"
+#import "image_props"
+#import "image_widget"
+#import, file "ui.zi";
+#import, file "dino_pages.zi";
+#import, file "store.zi";
+#import, file "sound.zi";
+#import, file "jungle_text.zi";
+
+DINO_PICKER :: 0
+DINO_PAINT :: 1
+UNDO_LIMIT :: 64
+
+palette_colors: [16]u32 = .[0xe53935ff, 0xfb8c00ff, 0xfdd835ff, 0x9ccc65ff, 0x43a047ff, 0x2e7d32ff, 0x81d4faff,
+0x1e88e5ff, 0x8e24aaff, 0xf48fb1ff, 0x8d6e63ff, 0xd7b98eff, 0x9e9e9eff, 0x37322eff, 0xffffffff, 0xffccbcff];
+palette_names: [16]string = .["Red", "Orange", "Yellow", "Light green", "Green", "Dark green", "Sky blue", "Blue",
+"Purple", "Pink", "Brown", "Sand", "Grey", "Black", "White", "Peach"];
+dino_titles: [6]string = .["T. rex", "Triceratops", "Stegosaurus", "Brachiosaurus", "Pteranodon", "Baby Dino"];
+dino_facts: [6]string = .["Tyrannosaurus rex had teeth as long as bananas.",
+"Triceratops means \"three-horned face\".",
+"Stegosaurus had big plates on its back and spikes on its tail.",
+"Brachiosaurus was as tall as a four-story building.",
+"Pteranodon was a flying reptile, not a dinosaur.",
+"Baby dinosaurs hatched from eggs, like birds do today."];
+
+dino_view: s32;
+dino_page: DinoPage;
+page_ready: s32 = -1;
+page_failed: bool;
+fill_paths: [REGION_LIMIT]string;
+line_paths: [REGION_LIMIT]string;
+top_path: string;
+brush: s32 = 4;
+undo_regions: [UNDO_LIMIT]s32;
+undo_colors: [UNDO_LIMIT]s32;
+undo_count: s32;
+confirm_clear: bool;
+
+DinoOpen :: () { dino_view = DINO_PICKER }
+
+OpenPage :: (index: s32) {
+    page_failed = !DinoPageLoad(*dino_page, index)
+    if page_failed { page_ready = -1; return }
+    name := page_names[index]
+    for region: cast(s32)0..dino_page.regions - 1 {
+        fill_paths[region] = Cat("assets/dinos/", name, "/", NumberText(region), "-fill.png")
+        line_paths[region] = Cat("assets/dinos/", name, "/", NumberText(region), "-line.png")
+    }
+    top_path = Cat("assets/dinos/", name, "/top-line.png")
+    page_ready = index
+    undo_count = 0
+    confirm_clear = false
+    dino_view = DINO_PAINT
+}
+
+// A picture stretched to exactly `bounds`, for page parts cut to their box.
+Part :: (key: s32, path: string, bounds: Rectangle, tint: u32) {
+    Image(ui.session, ImageProps.{.key = cast(u64)key, .asset_path = path, .bounds = bounds,
+            .fit = ImageFit.ImageFitStretch, .smooth = true, .tint = tint})
+}
+
+BoxOnScreen :: (page: Rectangle, box: RegionBox) -> Rectangle {
+    scale := page.width / cast(float32)PAGE_WIDTH
+    return Rectangle.{page.x + cast(float32)box.x0 * scale, page.y + cast(float32)box.y0 * scale,
+        cast(float32)(box.x1 - box.x0) * scale, cast(float32)(box.y1 - box.y0) * scale}
+}
+
+PaintRegion :: (region: s32, color: s32) {
+    if region < 0 || region >= dino_page.regions || jungle.colors[page_ready][region] == color { return }
+    if undo_count == UNDO_LIMIT {
+        for at: cast(s32)1..UNDO_LIMIT - 1 {
+            undo_regions[at - 1] = undo_regions[at]
+            undo_colors[at - 1] = undo_colors[at]
+        }
+        undo_count -= 1
+    }
+    undo_regions[undo_count] = region
+    undo_colors[undo_count] = jungle.colors[page_ready][region]
+    undo_count += 1
+    jungle.colors[page_ready][region] = color
+    SoundPlay("assets/sounds/splash.wav")
+    Remember()
+}
+
+Undo :: () {
+    if undo_count == 0 { return }
+    undo_count -= 1
+    jungle.colors[page_ready][undo_regions[undo_count]] = undo_colors[undo_count]
+    Remember()
+}
+
+Swatch :: (index: s32, bounds: Rectangle) {
+    if index == brush {
+        Fill(7100 + index * 4, Rectangle.{bounds.x - 5.0, bounds.y - 5.0, bounds.width + 10.0, bounds.height + 10.0},
+            cast(u32)INK, (bounds.width + 10.0) / 2.0)
+    }
+    Fill(7101 + index * 4, bounds, palette_colors[index], bounds.width / 2.0, cast(u32)0x24402e60)
+    if Tap(7102 + index * 4, bounds, palette_names[index]).clicked {
+        brush = index
+        SoundPlay("assets/sounds/tap.wav")
+    }
+}
+
+Paint :: () {
+    if TopBar(dino_titles[page_ready], true) || (ui.key == 256 && !confirm_clear) {
+        dino_view = DINO_PICKER
+        return
+    }
+    if !confirm_clear && BarButton(7000, 0, "Clear", "Make this page white again", 96.0) { confirm_clear = true }
+    if !confirm_clear && BarButton(7004, 1, "Undo", "Undo", 96.0) || ui.key == 90 { Undo() }
+    landscape := Landscape()
+    swatch: float32 = 56.0
+    area: Rectangle
+    if landscape {
+        swatch = (ui.height - TOP_BAR - 60.0) / 8.0 - 12.0
+        if swatch > 60.0 { swatch = 60.0 }
+        palette_width := swatch * 2.0 + 36.0
+        area = Rectangle.{20.0, TOP_BAR + 6.0, ui.width - palette_width - 40.0, ui.height - TOP_BAR - 52.0}
+        panel := Rectangle.{ui.width - palette_width - 16.0, TOP_BAR + 6.0, palette_width, swatch * 8.0 + 12.0 * 9.0}
+        Fill(7090, panel, cast(u32)CREAM_SOFT, 24.0, cast(u32)CREAM_EDGE)
+        for index: cast(s32)0..15 {
+            Swatch(index, Rectangle.{panel.x + 12.0 + cast(float32)(index % 2) * (swatch + 12.0),
+                    panel.y + 12.0 + cast(float32)(index / 2) * (swatch + 12.0), swatch, swatch})
+        }
+    } else {
+        swatch = (ui.width - 48.0) / 8.0 - 12.0
+        if swatch > 60.0 { swatch = 60.0 }
+        palette_height := swatch * 2.0 + 36.0
+        panel := Rectangle.{(ui.width - (swatch * 8.0 + 12.0 * 9.0)) / 2.0, ui.height - palette_height - 16.0,
+            swatch * 8.0 + 12.0 * 9.0, palette_height}
+        Fill(7090, panel, cast(u32)CREAM_SOFT, 24.0, cast(u32)CREAM_EDGE)
+        for index: cast(s32)0..15 {
+            Swatch(index, Rectangle.{panel.x + 12.0 + cast(float32)(index % 8) * (swatch + 12.0),
+                    panel.y + 12.0 + cast(float32)(index / 8) * (swatch + 12.0), swatch, swatch})
+        }
+        area = Rectangle.{16.0, TOP_BAR + 6.0, ui.width - 32.0, panel.y - TOP_BAR - 52.0}
+    }
+    page := FitInside(area, cast(float32)(PAGE_WIDTH / PAGE_HEIGHT))
+    Fill(7091, Rectangle.{page.x - 6.0, page.y - 6.0, page.width + 12.0, page.height + 12.0}, cast(u32)CREAM, 16.0, cast(u32)CREAM_EDGE)
+    Fill(7092, page, cast(u32)0xffffffff)
+    for region: cast(s32)0..dino_page.regions - 1 {
+        bounds := BoxOnScreen(page, dino_page.boxes[region])
+        color := jungle.colors[page_ready][region]
+        Part(8000 + region * 2, fill_paths[region], bounds, ifx color < 0 then cast(u32)0xffffffff else palette_colors[color])
+        Part(8001 + region * 2, line_paths[region], bounds, cast(u32)0)
+    }
+    if dino_page.has_top { Part(8100, top_path, BoxOnScreen(page, dino_page.top), cast(u32)0) }
+    Words(7093, Rectangle.{page.x, page.y + page.height + 8.0, page.width, 34.0}, dino_facts[page_ready], 20)
+    tap := Tap(7094, page, "Coloring page")
+    if tap.clicked && !confirm_clear {
+        scale := cast(float32)PAGE_WIDTH / page.width
+        PaintRegion(DinoPageRegionAt(*dino_page, (tap.x - page.x) * scale, (tap.y - page.y) * scale), brush)
+    }
+    if confirm_clear {
+        Fill(7200, Rectangle.{0.0, 0.0, ui.width, ui.height}, cast(u32)SHADE)
+        panel := FitInside(Rectangle.{ui.width * 0.1, ui.height * 0.25, ui.width * 0.8, ui.height * 0.5}, 2.0)
+        Fill(7201, panel, cast(u32)CREAM, 28.0, cast(u32)CREAM_EDGE)
+        Words(7202, Rectangle.{panel.x + 20.0, panel.y + 16.0, panel.width - 40.0, panel.height * 0.5}, "Make this page white again?", 30)
+        yes := Rectangle.{panel.x + panel.width * 0.1, panel.y + panel.height * 0.6, panel.width * 0.35, panel.height * 0.28}
+        no := Rectangle.{panel.x + panel.width * 0.55, yes.y, yes.width, yes.height}
+        Fill(7203, yes, cast(u32)WRONG, 24.0)
+        Words(7204, yes, "Yes, clear", 26)
+        Fill(7205, no, cast(u32)RIGHT, 24.0)
+        Words(7206, no, "No", 26)
+        if Tapped(7207, yes, "Yes, clear") {
+            for region: cast(s32)0..REGION_LIMIT - 1 { jungle.colors[page_ready][region] = -1 }
+            undo_count = 0
+            confirm_clear = false
+            Remember()
+        }
+        if Tapped(7208, no, "No") || ui.key == 256 { confirm_clear = false }
+    }
+}
+
+Picker :: () -> bool {
+    if TopBar("Dino Colors", true) || ui.key == 256 { return false }
+    columns: s32 = ifx Landscape() then 3 else 2
+    area := Rectangle.{24.0, TOP_BAR + 12.0, ui.width - 48.0, ui.height - TOP_BAR - 36.0}
+    for index: cast(s32)0..PAGES - 1 {
+        cell := GridCell(area, PAGES, columns, index, 18.0)
+        if Card(300 + index * 10, cell, Cat("assets/dinos/", page_names[index], "-thumb.png"), dino_titles[index]) {
+            OpenPage(index)
+        }
+    }
+    if page_failed {
+        Words(399, Rectangle.{24.0, ui.height - 40.0, ui.width - 48.0, 30.0}, "That page could not be opened.", 20)
+    }
+    return true
+}
+
+// One frame of Dino Colors; false when the child goes back home.
+DinoFrame :: () -> bool {
+    if dino_view == DINO_PAINT && page_ready >= 0 { Paint(); return true }
+    return Picker()
+}

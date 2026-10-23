@@ -1,0 +1,134 @@
+// Makes Jungle's sound effects as 16-bit mono WAV files in assets/sounds:
+//
+//     make sounds
+//
+// Every sound is a few sine tones with a soft attack and a fading tail, so
+// none of them is loud or sharp for small ears.
+#import "c_string"
+#import "file"
+#import "math"
+#import "text_buffer"
+
+RATE :: 22050
+LIMIT :: 44100
+
+samples: [LIMIT]float64;
+length: s32;
+bytes: [44 + 2 * LIMIT]u8;
+
+Clear :: (seconds: float64) {
+    length = cast(s32)(seconds * cast(float64)RATE)
+    if length > LIMIT { length = LIMIT }
+    for at: cast(s32)0..length - 1 { samples[at] = 0.0 }
+}
+
+// A plucked tone like a wooden bar: the note, two soft overtones and a fade.
+Bar :: (start: float64, frequency: float64, seconds: float64, loudness: float64) {
+    first := cast(s32)(start * cast(float64)RATE)
+    count := cast(s32)(seconds * cast(float64)RATE)
+    for step: cast(s32)0..count - 1 {
+        at := first + step
+        if at < 0 || at >= length { continue }
+        t := cast(float64)step / cast(float64)RATE
+        attack := ifx t < 0.006 then t / 0.006 else 1.0
+        fade := Exp(-t * 7.0 / seconds)
+        phase := 6.283185307179586 * frequency * t
+        tone := Sin(phase) + 0.25 * Sin(2.0 * phase) * Exp(-t * 12.0) + 0.08 * Sin(4.0 * phase) * Exp(-t * 30.0)
+        samples[at] += loudness * attack * fade * tone
+    }
+}
+
+// A tone that slides from one pitch to another.
+Glide :: (start: float64, from: float64, to: float64, seconds: float64, loudness: float64) {
+    first := cast(s32)(start * cast(float64)RATE)
+    count := cast(s32)(seconds * cast(float64)RATE)
+    phase: float64 = 0.0
+    for step: cast(s32)0..count - 1 {
+        at := first + step
+        if at < 0 || at >= length { continue }
+        t := cast(float64)step / cast(float64)RATE
+        share := t / seconds
+        frequency := from + (to - from) * share
+        phase += 6.283185307179586 * frequency / cast(float64)RATE
+        attack := ifx t < 0.01 then t / 0.01 else 1.0
+        fade := 1.0 - share
+        samples[at] += loudness * attack * fade * fade * (Sin(phase) + 0.2 * Sin(2.0 * phase))
+    }
+}
+
+Save :: (name: string) -> bool {
+    data := length * 2
+    header: [44]u8
+    Put32 :: (at: s32, value: s32) {
+        bytes[at] = cast(u8)(value & 255)
+        bytes[at + 1] = cast(u8)((value >> 8) & 255)
+        bytes[at + 2] = cast(u8)((value >> 16) & 255)
+        bytes[at + 3] = cast(u8)((value >> 24) & 255)
+    }
+    Put16 :: (at: s32, value: s32) {
+        bytes[at] = cast(u8)(value & 255)
+        bytes[at + 1] = cast(u8)((value >> 8) & 255)
+    }
+    unused header
+    text := "RIFF....WAVEfmt "
+    for at: cast(s32)0..15 { bytes[at] = text[at] }
+    Put32(4, 36 + data)
+    Put32(16, 16)
+    Put16(20, 1)
+    Put16(22, 1)
+    Put32(24, RATE)
+    Put32(28, RATE * 2)
+    Put16(32, 2)
+    Put16(34, 16)
+    chunk := "data"
+    for at: cast(s32)0..3 { bytes[36 + at] = chunk[at] }
+    Put32(40, data)
+    for at: cast(s32)0..length - 1 {
+        value := samples[at]
+        if value > 1.0 { value = 1.0 }
+        if value < -1.0 { value = -1.0 }
+        Put16(44 + 2 * at, cast(s32)(value * 30000.0))
+    }
+    return WriteEntireFile(name, TextView(bytes[:44 + data]))
+}
+
+#program_export
+main :: (argc: s32, argv: **u8) -> s32 {
+    unused argc
+    unused argv
+    unused CreateDirectory("assets")
+    unused CreateDirectory("assets/sounds")
+    ok := true
+    // A light tap for buttons.
+    Clear(0.08)
+    Bar(0.0, 1046.5, 0.07, 0.25)
+    ok = Save("assets/sounds/tap.wav") && ok
+    // A right answer: two rising wooden notes.
+    Clear(0.5)
+    Bar(0.0, 659.25, 0.25, 0.4)
+    Bar(0.12, 987.77, 0.35, 0.45)
+    ok = Save("assets/sounds/right.wav") && ok
+    // Not quite: a soft falling hum.
+    Clear(0.4)
+    Glide(0.0, 330.0, 220.0, 0.35, 0.35)
+    ok = Save("assets/sounds/miss.wav") && ok
+    // A paint splash for Dino Colors.
+    Clear(0.2)
+    Glide(0.0, 420.0, 880.0, 0.16, 0.35)
+    ok = Save("assets/sounds/splash.wav") && ok
+    // A new friend: a climbing run and a bright chord.
+    Clear(1.4)
+    notes: [5]float64 = .[523.25, 587.33, 659.25, 783.99, 880.0]
+    for index: cast(s32)0..4 { Bar(cast(float64)index * 0.11, notes[index], 0.3, 0.35) }
+    Bar(0.6, 523.25, 0.8, 0.25)
+    Bar(0.6, 659.25, 0.8, 0.25)
+    Bar(0.6, 1046.5, 0.8, 0.3)
+    ok = Save("assets/sounds/friend.wav") && ok
+    // A level step up: three quick notes.
+    Clear(0.6)
+    Bar(0.0, 783.99, 0.2, 0.35)
+    Bar(0.09, 987.77, 0.2, 0.35)
+    Bar(0.18, 1174.66, 0.4, 0.4)
+    ok = Save("assets/sounds/level.wav") && ok
+    return ifx ok then 0 else 1
+}

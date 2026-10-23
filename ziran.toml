@@ -1,0 +1,11 @@
+[package]
+name = "Jungle"
+module_roots = ["src"]
+
+[toolchain]
+git = "https://github.com/ziranlang/ziran.git"
+ref = "master"
+
+[dependencies.kryon]
+git = "https://github.com/kryonlabs/kryon.git"
+ref = "master"
