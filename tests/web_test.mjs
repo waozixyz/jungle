@@ -19,19 +19,26 @@ try{
  if(!port)throw Error('Private Chromium did not expose a test port: '+stderr);
  const pages=await(await fetch('http://127.0.0.1:'+port+'/json/list')).json();
  socket=new WebSocket(pages.find(p=>p.type==='page').webSocketDebuggerUrl);await new Promise((r,j)=>{socket.onopen=r;socket.onerror=j});
- let sequence=0;const pending=new Map();socket.onmessage=e=>{const m=JSON.parse(e.data);if(m.method==='Runtime.exceptionThrown')diagnostics.push(m.params);if(m.method==='Runtime.consoleAPICalled'&&m.params.type==='error')diagnostics.push(m.params.args.map(a=>a.value||a.description));if(pending.has(m.id)){pending.get(m.id)(m);pending.delete(m.id)}};
+ let sequence=0;let holdAudio=false;const pausedAudio=[];const pending=new Map();socket.onmessage=e=>{const m=JSON.parse(e.data);if(m.method==='Fetch.requestPaused'){if(holdAudio)pausedAudio.push(m.params.requestId);else void command('Fetch.continueRequest',{requestId:m.params.requestId})}if(m.method==='Runtime.exceptionThrown')diagnostics.push(m.params);if(m.method==='Runtime.consoleAPICalled'&&m.params.type==='error')diagnostics.push(m.params.args.map(a=>a.value||a.description));if(pending.has(m.id)){pending.get(m.id)(m);pending.delete(m.id)}};
  async function command(method,params={}){const id=++sequence;const result=new Promise(r=>pending.set(id,r));socket.send(JSON.stringify({id,method,params}));return result}
  async function evaluate(expression){const r=await command('Runtime.evaluate',{expression,returnByValue:true,awaitPromise:true});if(r.result?.exceptionDetails)throw Error(JSON.stringify(r.result.exceptionDetails));return r.result?.result?.value}
  async function key(key,code=key){await command('Input.dispatchKeyEvent',{type:'keyDown',key,code,windowsVirtualKeyCode:key==='Enter'?13:key==='Escape'?27:key.startsWith('Arrow')?({ArrowLeft:37,ArrowUp:38,ArrowRight:39,ArrowDown:40}[key]):key.charCodeAt(0)});await delay(100);await command('Input.dispatchKeyEvent',{type:'keyUp',key,code});await delay(250)}
  async function click(x,y){const b=await evaluate('(()=>{let b=document.getElementById("canvas").getBoundingClientRect();return {x:b.x,y:b.y,w:b.width,h:b.height}})()');x=b.x+x*b.w/320;y=b.y+y*b.h/200;await command('Input.dispatchMouseEvent',{type:'mousePressed',x,y,button:'left',clickCount:1});await delay(80);await command('Input.dispatchMouseEvent',{type:'mouseReleased',x,y,button:'left',clickCount:1});await delay(400)}
- await command('Runtime.enable');await command('Page.enable');await command('Emulation.setDeviceMetricsOverride',{width:960,height:600,deviceScaleFactor:1,mobile:false});await command('Page.navigate',{url});
+ await command('Runtime.enable');await command('Page.enable');await command('Emulation.setDeviceMetricsOverride',{width:1280,height:800,deviceScaleFactor:1,mobile:false});await command('Page.navigate',{url});
  let ready=false;while(Date.now()<deadline){if(await evaluate('typeof Module!=="undefined"&&Module.FS&&document.getElementById("loading").style.display==="none"')){ready=true;break}if(diagnostics.length)throw Error(JSON.stringify(diagnostics));await delay(250)}
  if(!ready)throw Error('Browser startup timeout '+JSON.stringify(diagnostics)+' '+await evaluate('JSON.stringify({url:location.href,title:document.title,text:document.body?.innerText?.slice(0,500)})'));await delay(1000);
  await mkdir('build/tests/web',{recursive:true});
  const captures=new Map();
- async function shot(name){const r=await command('Page.captureScreenshot',{format:'png'});captures.set(name,r.result.data);await writeFile('build/tests/web/'+name+'.png',Buffer.from(r.result.data,'base64'))}
+ async function shot(name){const r=await command('Page.captureScreenshot',{format:'png'});captures.set(name,r.result.data);await writeFile('build/tests/web/'+name+'.png',Buffer.from(r.result.data,'base64'));return r.result.data}
  await shot('menu');
- await key('1','Digit1');await shot('books');await key('1','Digit1');await shot('first-page');await key('ArrowRight');await shot('second-page');await key('Escape');
+ holdAudio=true;await command('Fetch.enable',{patterns:[{urlPattern:'*.wav*',requestStage:'Request'}]});
+ await key('1','Digit1');await shot('books');await key('1','Digit1');const firstPage=await shot('first-page');
+ await click(274,178);const secondPage=await shot('second-page');if(firstPage===secondPage)throw Error('Next click froze while audio was downloading');
+ await click(45,178);const back=await command('Page.captureScreenshot',{format:'png'});if(back.result.data!==firstPage)throw Error('Back click did not restore the first page while audio was downloading');
+ holdAudio=false;for(const requestId of pausedAudio)await command('Fetch.continueRequest',{requestId});await command('Fetch.disable');
+ await key('Escape');
+ await command('Input.dispatchMouseEvent',{type:'mouseMoved',x:640,y:400});await delay(100);await command('Input.dispatchMouseEvent',{type:'mouseWheel',x:640,y:400,deltaY:800,deltaX:0});await delay(500);await shot('scrolled-shelf');
+ await click(225,123);const room=await shot('room-from-scroll');captures.delete('room-from-scroll');await key('Escape');await key('8','Digit8');const directRoom=await command('Page.captureScreenshot',{format:'png'});if(room!==directRoom.result.data)throw Error('Scrolled room card opened the wrong book');await key('Escape');
  for(let index=5;index<=9;index++){await key(String(index),'Digit'+index);await shot('book-'+index);await key('Escape')}
  await click(225,160);await key('2','Digit2');await shot('spelling');await key('Escape');await key('Escape');
  await click(155,51);if(await evaluate('Module.FS.readFile("/kryon-apps/jungle/settings/language.txt",{encoding:"utf8"})')!=="de")throw Error('German flag did not persist');

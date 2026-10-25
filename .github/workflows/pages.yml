@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   test-build:
-    name: Test Linux and browser games
+    name: Test and publish Jungle
     runs-on: ubuntu-latest
     env:
       MAKEFLAGS: -j2
@@ -71,43 +71,20 @@ jobs:
         run: |
           make -j2 all
           make test
+          python3 tests/book_shelf_test.py
           python3 tools/build_web.py
           node tests/web_test.mjs
-      - uses: actions/upload-artifact@v6
-        with:
-          name: jungle-website
-          path: waozixyz/jungle/build/web/
-          if-no-files-found: error
-      - uses: actions/upload-artifact@v6
-        if: failure()
-        with:
-          name: jungle-test-diagnostics
-          path: waozixyz/jungle/build/tests/
-
-  deploy:
-    name: Publish jungle.waozi.xyz
-    needs: test-build
-    if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
-    runs-on: ubuntu-latest
-    environment: production
-    env:
-      CLOUDFLARE_ACCOUNT_ID: '244fef03abd1e471baed2ec35c59e9e7'
-      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-    steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v6
-        with:
-          node-version: '22'
-      - uses: actions/download-artifact@v7
-        with:
-          name: jungle-website
-          path: build/web
       - name: Publish the tested website
+        if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
+        env:
+          CLOUDFLARE_ACCOUNT_ID: '244fef03abd1e471baed2ec35c59e9e7'
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         run: |
           test -n "$CLOUDFLARE_API_TOKEN" || { echo 'Add the scoped CLOUDFLARE_API_TOKEN repository secret to enable deployment.'; exit 1; }
           npx --yes wrangler@4.152.0 pages deploy build/web --project-name jungle --branch master --commit-hash "$GITHUB_SHA"
           python3 tools/connect_domain.py
       - name: Verify public version
+        if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
         run: |
           python3 - <<'PY'
           import json,os,time,urllib.request

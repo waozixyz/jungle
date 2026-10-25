@@ -47,7 +47,7 @@ def check_saves(binary):
 
 
 class Desktop:
-    def __init__(self, binary, data, extra_env=None):
+    def __init__(self, binary, data, extra_env=None, screen_size="1280x800"):
         self.env = environment()
         self.env.update(extra_env or {})
         self.binary = binary
@@ -55,6 +55,7 @@ class Desktop:
         self.server = None
         self.app = None
         self.logs = []
+        self.screen_size = screen_size
 
     def __enter__(self):
         OUTPUT.mkdir(parents=True, exist_ok=True)
@@ -64,7 +65,7 @@ class Desktop:
         try:
             self.server = subprocess.Popen(
                 ["Xvfb", "-displayfd", str(writefd), "-screen", "0",
-                 "1280x800x24", "-nolisten", "tcp", "-ac"],
+                 self.screen_size + "x24", "-nolisten", "tcp", "-ac"],
                 pass_fds=(writefd,), env=self.env, stdout=log, stderr=log)
         finally:
             os.close(writefd)
@@ -105,7 +106,7 @@ class Desktop:
         assert self.server.poll() is None, "private Xvfb exited"
         command = Path(f"/proc/{self.server.pid}/cmdline").read_bytes().split(b"\0")
         assert Path(os.fsdecode(command[0])).name == "Xvfb"
-        assert b"-displayfd" in command and b"1280x800x24" in command
+        assert b"-displayfd" in command and (self.screen_size + "x24").encode() in command
 
     def alive(self):
         assert self.app.poll() is None, "Jungle exited; see build/tests/ui/jungle.log"

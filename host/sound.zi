@@ -27,6 +27,7 @@ SoundOpenDevice :: (device: *u8, capture: s32, desired: *SoundSpec, obtained: *S
 SoundPause :: (device: u32, paused: s32) #foreign sound_sdl "SDL_PauseAudioDevice";
 SoundQueue :: (device: u32, data: *u8, length: u32) -> s32 #foreign sound_sdl "SDL_QueueAudio";
 SoundClear :: (device: u32) #foreign sound_sdl "SDL_ClearQueuedAudio";
+SoundQueued :: (device: u32) -> u32 #foreign sound_sdl "SDL_GetQueuedAudioSize";
 
 SOUND_INIT_AUDIO :: 16
 // AUDIO_S16LSB, mono, as tools/sounds.zi writes them.
@@ -98,6 +99,9 @@ SoundQueueSamples :: (samples: string) {
 // Narration may contain a whole word and its spelling; keep the short cue
 // limit for the other games and clear the previous voice on every turn.
 SoundStop :: () { if sound_device != cast(u32)0 { SoundClear(sound_device) } }
+SoundBusy :: () -> bool {
+    return !sound_muted && sound_device != cast(u32)0 && SoundQueued(sound_device) > cast(u32)0
+}
 SoundVoice :: (wave: string) {
     SoundStop()
     if sound_muted || wave.count <= 44 || wave[:4] != "RIFF" || wave[8:12] != "WAVE" || !SoundOpen() { return }
