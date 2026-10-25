@@ -90,7 +90,8 @@ jobs:
           import json,os,time,urllib.request
           for attempt in range(20):
               try:
-                  with urllib.request.urlopen('https://jungle.waozi.xyz/version.json?run='+os.environ['GITHUB_RUN_ID'],timeout=15) as response:data=json.load(response)
+                  request=urllib.request.Request('https://jungle.waozi.xyz/version.json?run='+os.environ['GITHUB_RUN_ID'],headers={'User-Agent':'Jungle-deployment-verification'})
+                  with urllib.request.urlopen(request,timeout=15) as response:data=json.load(response)
                   if data['revision']==os.environ['GITHUB_SHA']:break
               except Exception:pass
               time.sleep(3)
