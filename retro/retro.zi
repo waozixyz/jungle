@@ -1,6 +1,8 @@
 // Jungle's old-PC look, shared by the host and every game: a 320 by 200
 // screen of fat pixels in the sixteen colors of an old color card, and
 // letters 8 pixels wide and 16 tall, drawn from a font picture.
+#import, file "language.zi";
+#import "std/utf8"
 #import "session"
 #import "geometry"
 #import "drawing_props"
@@ -53,6 +55,7 @@ Retro :: struct {
     font: string
     now: float64
     key: s32
+    latin_font: string
     glyph_height: s32
 }
 
@@ -64,7 +67,7 @@ RetroColor :: (index: s32) -> Color {
 
 // Fits the screen in bounds at a whole number of window pixels per screen
 // pixel, centered on black, and paints it in one color.
-RetroBegin :: (session: Session, bounds: Rectangle, font: string, now: float64, key: s32, background: s32, glyph_height: s32 = 16) {
+RetroBegin :: (session: Session, bounds: Rectangle, font: string, now: float64, key: s32, background: s32, glyph_height: s32 = 16, latin_font: string = "") {
     across := bounds.width / cast(float32)SCREEN_WIDTH
     down := bounds.height / cast(float32)SCREEN_HEIGHT
     fit := ifx across < down then across else down
@@ -72,7 +75,7 @@ RetroBegin :: (session: Session, bounds: Rectangle, font: string, now: float64, 
     // A window smaller than the screen still shows all of it.
     if scale < 1.0 { scale = fit }
     retro = Retro.{.session = session, .scale = scale, .font = font, .now = now, .key = key,
-        .glyph_height = glyph_height,
+        .glyph_height = glyph_height, .latin_font = latin_font,
         .x = bounds.x + cast(float32)cast(s32)((bounds.width - scale * cast(float32)SCREEN_WIDTH) / 2.0),
         .y = bounds.y + cast(float32)cast(s32)((bounds.height - scale * cast(float32)SCREEN_HEIGHT) / 2.0)}
     unused Box(session, BoxProps.{.bounds = bounds, .fill = RetroColor(BLACK)})
@@ -106,35 +109,51 @@ RetroSprite :: (path: string, x: s32, y: s32, width: s32, height: s32, tint: s32
 }
 
 RetroTextWidth :: (text: string, size: s32 = 1) -> s32 {
-    return cast(s32)text.count * 8 * size
+    return Count(Tr(text)) * 8 * size
 }
 
-// Printable ASCII in the font picture's cells, 16 to a row; anything else
-// shows as a question mark.
-RetroText :: (x: s32, y: s32, text: string, color: s32, size: s32 = 1) {
-    if text.count == 0 { return }
-    tint := retro_colors[color & 15]
-    for index: cast(s64)0..text.count - 1 {
-        code := cast(s32)text[index]
+// Decode UTF-8 once per glyph; the atlas includes Latin-1 accents. Fit long
+// translations inside their button or the remaining screen width.
+RetroText :: (x: s32, y: s32, text: string, color: s32, size: s32 = 1, localize: bool = true, width: s32 = 0) {
+    shown := ifx localize then Tr(text) else text
+    count := Count(shown)
+    if count == 0 { return }
+    available := ifx width > 0 then width else SCREEN_WIDTH - x
+    advance := cast(float32)(8 * size)
+    if cast(float32)(count * 8 * size) > cast(float32)available { advance = cast(float32)available / cast(float32)count }
+    at: s32 = 0
+    index: s32 = 0
+    while at < cast(s32)shown.count {
+        decoded := Decode(shown, at)
+        at = decoded.after
+        code := cast(s32)decoded.value
+        position := index
+        index += 1
         if code == 32 { continue }
-        if code < 32 || code > 126 { code = 63 }
+        if code < 32 || code > 255 { code = 63 }
         cell := code - 32
-        Image(retro.session, ImageProps.{.asset_path = retro.font,
-                .source = Rectangle.{cast(float32)((cell % 16) * 8), cast(float32)((cell / 16) * retro.glyph_height), 8.0, cast(float32)retro.glyph_height},
-                .bounds = RetroRect(x + cast(s32)index * 8 * size, y, 8 * size, retro.glyph_height * size),
-                .fit = ImageFit.ImageFitStretch, .smooth = false, .tint = tint})
+        font := retro.font
+        source_height := retro.glyph_height
+        if code > 126 && retro.latin_font != "" { font = retro.latin_font; source_height = 16 }
+        Image(retro.session, ImageProps.{.asset_path = font,
+            .source = Rectangle.{cast(float32)((cell % 16) * 8), cast(float32)((cell / 16) * source_height), 8.0, cast(float32)source_height},
+            .bounds = Rectangle.{retro.x + (cast(float32)x + cast(float32)position * advance) * retro.scale,
+                retro.y + cast(float32)y * retro.scale, advance * retro.scale, cast(float32)(retro.glyph_height * size) * retro.scale},
+            .fit = ImageFit.ImageFitStretch, .smooth = false, .tint = retro_colors[color & 15]})
     }
 }
 
 RetroCentered :: (y: s32, text: string, color: s32, size: s32 = 1) {
-    RetroText((SCREEN_WIDTH - RetroTextWidth(text, size)) / 2, y, text, color, size)
+    span := RetroTextWidth(text, size)
+    if span > SCREEN_WIDTH - 8 { span = SCREEN_WIDTH - 8 }
+    RetroText((SCREEN_WIDTH - span) / 2, y, text, color, size, true, span)
 }
 
 // An area that answers a click or touch; it draws nothing itself. With
 // capture it keeps following a drag that leaves it.
 RetroTap :: (id: s32, x: s32, y: s32, width: s32, height: s32, label: string, capture: bool = false) -> PressResult {
     return Press(retro.session, PressProps.{.key = cast(u64)id, .id = id, .bounds = RetroRect(x, y, width, height),
-            .label = label, .now = retro.now, .capture = capture})
+            .label = Tr(label), .now = retro.now, .capture = capture})
 }
 
 // The screen pixel under a window point.
@@ -155,7 +174,9 @@ RetroButton :: (id: s32, x: s32, y: s32, width: s32, height: s32, label: string,
     if press.down { face = DARK_GRAY; ink = WHITE }
     RetroFill(x, y, width, height, face)
     RetroFrame(x, y, width, height, BLACK)
-    RetroText(x + (width - RetroTextWidth(label)) / 2, y + (height - 16) / 2, label, ink)
+    span := RetroTextWidth(label)
+    if span > width - 4 { span = width - 4 }
+    RetroText(x + (width - span) / 2, y + (height - 16) / 2, label, ink, 1, true, span)
     return press.clicked
 }
 

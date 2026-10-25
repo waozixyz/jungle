@@ -63,6 +63,7 @@ main :: (argc: s32, argv: **u8) -> s32 {
                 w := DINO_WIDTH[dino] * scale / 100
                 h := DINO_HEIGHT[dino] * scale / 100
                 white: s32 = 0
+                body_pixels: s32 = 0
                 preserved: s32 = 0
                 for at: cast(s32)0..CANVAS_PIXELS - 1 {
                     x := at % CANVAS_WIDTH
@@ -79,6 +80,7 @@ main :: (argc: s32, argv: **u8) -> s32 {
                         if mirror == 1 { sx = DINO_WIDTH[dino] - 1 - sx }
                         sy := y * DINO_HEIGHT[dino] / h
                         if stamp_body[sy * DINO_WIDTH[dino] + sx] {
+                            body_pixels += 1
                             if canvas[at] != INK && canvas[at] != PAPER {
                                 return PaintFail("body", "old color showed through a dinosaur")
                             }
@@ -89,7 +91,9 @@ main :: (argc: s32, argv: **u8) -> s32 {
                         }
                     }
                 }
-                if white < w * h / 15 { return PaintFail("body", "dinosaur lost its white interior") }
+                // Long tails and wings leave empty space in the placement box.
+                // Require white interior relative to the actual silhouette.
+                if body_pixels == 0 || white < body_pixels / 10 { return PaintFail("body", "dinosaur lost its white interior") }
                 if preserved < w * h / 10 { return PaintFail("body", "transparent scenery was erased") }
             }
         }

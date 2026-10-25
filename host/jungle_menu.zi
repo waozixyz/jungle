@@ -1,0 +1,101 @@
+// The same title screen is drawn by the native and browser hosts.
+#import "session"
+#import "geometry"
+#import "text_align"
+#import, file "../retro/retro.zi";
+#import, file "../retro/book_theme.zi";
+#import, file "../retro/language.zi";
+#import, file "jungle_text.zi";
+
+Game :: struct {
+    bundle_name: string
+    title: string
+    about: string
+    icon: string
+    age: s32
+}
+
+MenuAction :: struct {
+    game: s32
+    language_changed: bool
+    sound_toggle: bool
+    navigated: bool
+}
+
+// Flags retain their native language names on the same cream paper as the book.
+LanguageFlags :: () -> bool {
+    changed := false
+    names: [3]string = .["English", "Deutsch", "Español"]
+    codes: [3]string = .["en", "de", "es"]
+    for index: cast(s32)0..2 {
+        x := 22 + index * 94
+        press := RetroTap(510 + index, x, 45, 88, 18, names[index])
+        selected := language == index
+        BookBox(x, 45, 88, 18, ifx selected then cast(u32)0xdcebdcff else cast(u32)0xf7f1e3ff,
+            ifx selected then cast(u32)0x2e6956ff else cast(u32)0xdacdb5ff, 4.0)
+        // Small flags drawn as pixels; labels use the book's native lettering.
+        if index == 0 {
+            RetroFill(x + 4, 48, 20, 12, BLUE)
+            for line: cast(s32)0..11 {
+                RetroFill(x + 4 + line * 19 / 11, 48 + line, 1, 1, WHITE)
+                RetroFill(x + 23 - line * 19 / 11, 48 + line, 1, 1, WHITE)
+            }
+            RetroFill(x + 12, 48, 4, 12, WHITE)
+            RetroFill(x + 4, 52, 20, 4, WHITE)
+            RetroFill(x + 13, 48, 2, 12, RED)
+            RetroFill(x + 4, 53, 20, 2, RED)
+        } else if index == 1 {
+            RetroFill(x + 4, 48, 20, 4, BLACK)
+            RetroFill(x + 4, 52, 20, 4, RED)
+            RetroFill(x + 4, 56, 20, 4, YELLOW)
+        } else {
+            RetroFill(x + 4, 48, 20, 12, RED)
+            RetroFill(x + 4, 51, 20, 6, YELLOW)
+        }
+        BookText(x + 28, 45, 56, 18, names[index], 9)
+        if press.clicked {
+            LanguageSet(codes[index])
+            changed = true
+        }
+    }
+    return changed
+}
+
+JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font: string,
+    games: []Game, choice: *s32, sound_muted: bool, message: string) -> MenuAction {
+    action := MenuAction.{.game = -1}
+    game_count := cast(s32)games.count
+    RetroBegin(session, bounds, font, now, key, BLACK)
+    BookPaper()
+    BookText(24, 14, 272, 24, "Jungle Academy", 20)
+    BookText(24, 36, 272, 9, "Choose a little adventure", 8)
+    action.language_changed = LanguageFlags()
+    for index: cast(s32)0..game_count - 1 {
+        y := 67 + index * 35
+        press := RetroTap(100 + index, 22, y, 276, 33, games[index].title)
+        if press.down { choice.* = index }
+        selected := index == choice.*
+        BookBox(22, y, 276, 33, ifx selected then cast(u32)0xe5eee1ff else cast(u32)0xf7f1e3ff,
+            ifx selected then cast(u32)0x2e6956ff else cast(u32)0xdacdb5ff, 4.0)
+        BookPicture(games[index].icon, 25, y + 2, 29, 29)
+        BookText(62, y + 2, 188, 16, games[index].title, 12, TextAlign.TextAlignStart)
+        BookText(62, y + 18, 194, 12, games[index].about, 8, TextAlign.TextAlignStart)
+        BookBox(267, y + 9, 24, 15, 0xeee4cfff, 0xd6c6a8ff, 5.0)
+        BookText(267, y + 9, 24, 15, Cat(NumberText(games[index].age), "+"), 9)
+        if press.clicked { action.game = index }
+    }
+    BookText(24, 175, 150, 10, ifx message != "" then message else "Arrows + Enter", 8, TextAlign.TextAlignStart)
+    sound := RetroTap(500, 182, 174, 116, 14, ifx sound_muted then "Sound off · F10" else "Sound on · F10")
+    BookBox(182, 174, 116, 14, ifx sound.down then cast(u32)0xdcebdcff else cast(u32)0xeee4cfff,
+        0xd6c6a8ff, 4.0)
+    BookText(182, 174, 116, 14, ifx sound_muted then "Sound off · F10" else "Sound on · F10", 8)
+    if sound.clicked || key == 299 { action.sound_toggle = true }
+    if key == KEY_UP || key == KEY_DOWN {
+        step: s32 = ifx key == KEY_UP then game_count - 1 else 1
+        choice.* = (choice.* + step) % game_count
+        action.navigated = true
+    }
+    if key == KEY_ENTER { action.game = choice.* }
+    if key >= 49 && key < 49 + game_count { action.game = key - 49 }
+    return action
+}

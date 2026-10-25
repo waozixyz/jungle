@@ -3,6 +3,7 @@
 // Jungle stays silent and runs on.
 #import "byte_text_linux"
 #import "file"
+#import "std/vec"
 #import, file "audio_samples.zi";
 
 sound_sdl :: #system_library "SDL2";
@@ -87,8 +88,26 @@ SoundPlayFile :: (wave: string) {
 
 SoundQueueSamples :: (samples: string) {
     if sound_muted || samples.count == 0 { return }
-    length := AudioMix(samples, 25, sound_samples[:])
+    buffer := sound_samples[:]
+    length := AudioMix(samples, 25, buffer)
     if length == 0 { return }
     SoundClear(sound_device)
-    unused SoundQueue(sound_device, *sound_samples[0], cast(u32)length)
+    unused SoundQueue(sound_device, *buffer[0], cast(u32)length)
+}
+
+// Narration may contain a whole word and its spelling; keep the short cue
+// limit for the other games and clear the previous voice on every turn.
+SoundStop :: () { if sound_device != cast(u32)0 { SoundClear(sound_device) } }
+SoundVoice :: (wave: string) {
+    SoundStop()
+    if sound_muted || wave.count <= 44 || wave[:4] != "RIFF" || wave[8:12] != "WAVE" || !SoundOpen() { return }
+    // Heap storage is bounded by the generator's maximum; short effects keep
+    // their small reusable buffer. SDL copies the samples before this returns.
+    samples: Vec(u8)
+    needed := wave.count - 44
+    if needed > cast(s64)(VOICE_LIMIT * 2) { needed = cast(s64)(VOICE_LIMIT * 2) }
+    for at: cast(s64)0..needed - 1 { unused VecPush(samples, cast(u8)0) }
+    buffer := VecSlice(samples, 0, needed)
+    length := AudioMix(wave[44:], 45, buffer, VOICE_LIMIT)
+    if length > 0 { unused SoundQueue(sound_device, *buffer[0], cast(u32)length) }
 }

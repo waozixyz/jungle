@@ -1,0 +1,13 @@
+{
+  "generator": "Codex built-in imagegen",
+  "source": "picture-book-watercolors.png",
+  "reference": "picture-book-reference.png",
+  "prompt_file": "picture-book-prompt.txt",
+  "atlas_grid": [
+    4,
+    4
+  ],
+  "illustrations": 26,
+  "additional_source": "picture-book-more-animals.png",
+  "additional_prompt_file": "picture-book-more-animals-prompt.txt"
+}

@@ -86,15 +86,15 @@ class Desktop:
             for _ in range(100):
                 self.alive()
                 result = subprocess.run(
-                    ["xdotool", "search", "--pid", str(self.app.pid),
-                     "--name", "^Jungle$"], env=self.env,
+                    ["xdotool", "search", "--onlyvisible", "--pid", str(self.app.pid),
+                     "--name", "^Jungle Academy$"], env=self.env,
                     capture_output=True, text=True, timeout=2)
                 if result.returncode == 0:
                     self.window = result.stdout.splitlines()[0]
                     run(["xdotool", "windowfocus", self.window], self.env)
                     return self
                 time.sleep(.1)
-            raise AssertionError("Jungle did not open its window")
+            raise AssertionError("Jungle Academy did not open its window")
         except BaseException:
             self.__exit__(None, None, None)
             raise
@@ -160,13 +160,33 @@ class Desktop:
              self.window, str(path)], self.env)
         from PIL import Image
         picture = Image.open(path).convert("RGB")
-        # WindowZoom chooses the largest integral scale fitting the display.
+        # Jungle opens windowed at a default integral scale.
         scale = min(picture.width // 320, picture.height // 200)
         left = (picture.width - 320 * scale) // 2
         top = (picture.height - 200 * scale) // 2
         self.scale, self.left, self.top = scale, left, top
         return picture.crop((left, top, left + 320 * scale, top + 200 * scale)).resize(
             (320, 200), Image.Resampling.NEAREST)
+
+    def wait_book(self, name):
+        # A complete offline speech library is larger than the original book;
+        # wait for its real first frame before sending further input.
+        deadline = time.monotonic() + 20
+        while time.monotonic() < deadline:
+            picture = self.capture(name)
+            if picture.getpixel((0, 0)) == (227, 236, 228) and picture.getpixel((28, 48)) != (0, 0, 170):
+                return picture
+            time.sleep(.1)
+        raise AssertionError("Picture Book did not reach its first frame")
+
+    def wait_menu(self, name):
+        deadline = time.monotonic() + 10
+        while time.monotonic() < deadline:
+            picture = self.capture(name)
+            if picture.getpixel((0, 0)) == (227, 236, 228) and picture.getpixel((28, 48)) == (0, 0, 170):
+                return picture
+            time.sleep(.1)
+        raise AssertionError("Jungle did not return to its menu")
 
     def __exit__(self, *unused):
         for process in (self.app, self.server):
@@ -224,14 +244,37 @@ def ui(binary):
                  "JUNGLE_PRINTER_LOG": str(data / "printed.txt")}
         with Desktop(binary, data, extra) as desktop:
             menu = desktop.capture("menu")
-            desktop.click(250, 189)
+            desktop.click(250, 186)
             assert (data / "sound.txt").read_text() == "off\n", "menu mute was not saved"
             muted_menu = desktop.capture("menu-muted")
             desktop.key("F10")
             assert (data / "sound.txt").read_text() == "quiet\n", "F10 did not restore quiet sound"
             desktop.key("1")
+            book = desktop.wait_book("book")
+            assert book.getpixel((0, 0)) == (227, 236, 228), "Picture Book lost its soft book background"
+            assert book.getpixel((15, 15)) == (255, 252, 243), "Picture Book lost its cream pages"
+            desktop.click(224, 160)
+            book = desktop.capture("book-spelling-categories")
+            desktop.key("Down")
+            desktop.key("Return")
+            pages = desktop.capture("book-pages")
+            ink = (62, 51, 42)
+            assert ink in [color for _, color in pages.crop((168, 57, 298, 96)).getcolors(10000)], "Picture Book did not show its large word"
+            assert ink in [color for _, color in pages.crop((168, 103, 298, 125)).getcolors(10000)], "Picture Book did not show its spelling"
+            desktop.key("Right")
+            next_page = desktop.capture("book-next")
+            assert ImageChops.difference(pages, next_page).getbbox(), "Picture Book did not turn the page"
+            desktop.key("Left")
+            desktop.key("Escape")
+            desktop.key("Up")
+            categories = desktop.capture("book-categories-return")
+            assert ImageChops.difference(book, categories).getbbox() is None, "Picture Book did not return to categories"
+            desktop.key("Escape")
+            desktop.capture("menu-book-return")
+            print("local UI test: Picture Book categories, pages and English names", flush=True)
+            desktop.key("2")
             counting = desktop.capture("counting")
-            assert counting.getpixel((0, 0)) == (0, 0, 170), "counting did not render its native blue background"
+            assert counting.getpixel((0, 0)) == (227, 236, 228), "counting did not render its book background"
             places = [(164, 100), (132, 100), (132, 72), (164, 72),
                       (100, 72), (100, 100), (132, 128), (164, 128),
                       (100, 128), (68, 100), (68, 72), (68, 128),
@@ -241,10 +284,10 @@ def ui(binary):
             previous = 0
             for answer_index in range(6):
                 counting = desktop.capture("counting")
-                background = Image.new("RGB", (24, 20), (0, 0, 170))
+                background = Image.new("RGB", (24, 20), (247, 241, 227))
                 answer = sum(ImageChops.difference(counting.crop((x - 12, y - 10, x + 12, y + 10)),
                                                   background).getbbox() is not None for x, y in places)
-                assert 1 <= answer <= 4, "counting did not render its native sprites"
+                assert 1 <= answer <= 4, "counting did not render its watercolor animals"
                 assert answer != previous, "counting repeated a question"
                 previous = answer
                 desktop.key(str(answer))
@@ -257,14 +300,15 @@ def ui(binary):
                 desktop.key("Return")
             assert progress.read_text().split()[1:] == ["1", "6", "0", "0"], "six misses did not move down"
             desktop.key("Escape")
+            desktop.key("Up")
             returned = desktop.capture("menu-return")
             assert ImageChops.difference(menu, returned).getbbox() is None, "counting did not return home"
-            print("local UI test: native counting artwork, questions, ladder and progress", flush=True)
-            desktop.key("2")
+            print("local UI test: watercolor counting artwork, questions, ladder and progress", flush=True)
+            desktop.key("3")
             desktop.capture("paint-main")
             desktop.click(30, 15)
             scenes = desktop.capture("paint-scenes")
-            assert scenes.getpixel((5, 5)) == (255, 255, 255), "scene picker did not render"
+            assert scenes.getpixel((5, 5)) == (227, 236, 228), "scene picker did not render its book background"
             assert len(scenes.crop((19, 33, 97, 78)).getcolors()) > 1, "scene preview has no artwork"
             desktop.click(52, 58)
             desktop.capture("paint-dinosaurs")
@@ -365,7 +409,7 @@ def ui(binary):
         with Desktop(binary, data, extra) as desktop:
             restarted = desktop.capture("restart-menu")
             assert ImageChops.difference(muted_menu, restarted).getbbox() is None, "mute setting did not survive restart"
-            desktop.key("2")
+            desktop.key("3")
             desktop.capture("paint-recovered")
             assert (data / "games/jungle.paint/working.txt").read_bytes() == before
             print("local UI test: working picture recovers after restart", flush=True)

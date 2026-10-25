@@ -1,0 +1,217 @@
+// A compiled browser launcher for the same three Jungle game modules.
+#import "app_context"
+#import "app_protocol"
+#import "session"
+#import "geometry"
+#import "canvas_audio"
+#import "canvas_types"
+#import "canvas_input"
+#import "canvas_window"
+#import "canvas_host"
+#import "secondary_pointer"
+#import "page_core"
+#import "file_export"
+#import "std/file"
+#import "std/c_string"
+#import "std/byte_text_linux"
+#import "std/web"
+Runner :: #import "canvas_app_run";
+Book :: #import, file "../games/book/jungle_book.zi";
+Counting :: #import, file "../games/animal/animal_count.zi";
+Paint :: #import, file "../games/paint/dino_paint.zi";
+#import, file "../host/jungle_menu.zi";
+#import, file "../host/jungle_text.zi";
+#import, file "../host/canvas_png.zi";
+#import, file "../games/paint/paint_palette.zi";
+#import, file "../retro/language.zi";
+
+web_games: [3]Game = .[
+    Game.{.title = "Picture Book", .about = "Pictures and words", .icon = "assets/jungle/covers/book.png", .age = 2},
+    Game.{.title = "Animal Counting", .about = "Count the animals", .icon = "assets/jungle/covers/count.png", .age = 4},
+    Game.{.title = "Dino Colors", .about = "Draw and color", .icon = "assets/jungle/covers/paint.png", .age = 5},
+];
+active_game: s32 = -1;
+selected: s32;
+web_initialized: bool;
+web_muted: bool;
+web_home: bool;
+web_sound: CanvasSound;
+canvas_sequence: s32;
+export_pixels: [240 * 180]u8;
+
+GamePrefix :: () -> string {
+    if active_game == 0 { return "jungle.book/" }
+    if active_game == 1 { return "jungle.animals/" }
+    return "jungle.paint/"
+}
+
+RunGame :: () -> s32 {
+    if active_game == 0 { return Book.GameMain() }
+    if active_game == 1 { return Counting.GameMain() }
+    if active_game == 2 { return Paint.GameMain() }
+    return 0
+}
+
+#program_export
+WebIdentity :: (id: string, minimum_api: s32) {
+    if active_game < 0 { Runner.AppIdentityHost(id, minimum_api) }
+}
+
+#program_export
+WebRead :: (name: string) -> string {
+    return Runner.DocumentReadHost(Cat(GamePrefix(), name))
+}
+
+#program_export
+WebWrite :: (name: string, value: string) -> bool {
+    return Runner.DocumentWriteHost(Cat(GamePrefix(), name), value)
+}
+
+#program_export
+WebAsset :: (name: string) -> string {
+    if name.count > 7 && name[:7] == "canvas-" { return Cat("/", name) }
+    return name
+}
+
+StopAudio :: () {
+    if IsSoundValid(web_sound) { StopSound(web_sound); UnloadSound(web_sound) }
+    web_sound = CanvasSound.{}
+}
+
+PlayAudio :: (path: string, narration: bool) {
+    StopAudio()
+    if web_muted || path == "" { return }
+    filename: [1024]u8
+    if !CopyCString(path, filename[:]) { return }
+    web_sound = LoadSound(*filename[0])
+    if IsSoundValid(web_sound) {
+        SetSoundVolume(web_sound, ifx narration then 0.45 else 0.25)
+        PlaySound(web_sound)
+    }
+}
+
+ToggleAudio :: () {
+    web_muted = !web_muted
+    StopAudio()
+    unused Runner.DocumentWriteHost("settings/sound.txt", ifx web_muted then "off" else "quiet")
+}
+
+CanvasImage :: (request: string) -> string {
+    if request.count != cast(s64)(240 * 180 + 6) || request[:6] != "paint\n" { return "" }
+    for at: cast(s32)0..240 * 180 - 1 {
+        index := PaintIndex(request[at + 6])
+        if index < 0 { return "" }
+        export_pixels[at] = cast(u8)PaintDisplayIndex(index, at % 240, at / 240)
+    }
+    data := PngIndexed(240, 180, paint_colors[:], export_pixels[:])
+    canvas_sequence += 1
+    name := Cat("canvas-", NumberText(canvas_sequence), ".png")
+    if !WriteEntireFile(Cat("/", name), data) { return "" }
+    if canvas_sequence > 12 { unused RemoveFile(Cat("/canvas-", NumberText(canvas_sequence - 12), ".png")) }
+    return name
+}
+
+WebExport :: (request: string, printing: bool) -> string {
+    if request.count < cast(s64)(240 * 180 + 6) || request[:6] != "paint\n" { return "failed" }
+    for at: cast(s32)0..240 * 180 - 1 {
+        index := PaintIndex(request[at + 6])
+        if index < 0 { return "failed" }
+        export_pixels[at] = cast(u8)PaintDisplayIndex(index, at % 240, at / 240)
+    }
+    png := PngIndexed(240, 180, paint_colors[:], export_pixels[:])
+    story := request[240 * 180 + 6:]
+    if printing { return WebPrint(png, story) }
+    if !ExportBytes(png, "jungle-picture.png", "image/png", "Jungle Academy") { return "failed" }
+    unused ExportBytes(story, "jungle-story.txt", "text/plain;charset=utf-8", "Jungle Academy")
+    return "exported"
+}
+
+print_ready: s32;
+print_url: WebValue;
+PrintLoaded :: (context: s32, event: s32, second: s32, third: s32) {
+    unused WebCall0(WebGlobal, WebName("print"))
+}
+
+WebPrint :: (png: string, story: string) -> string {
+    scope := WebScope()
+    defer WebEnd(scope)
+    descriptor := cast(*TextDescriptor)(*png)
+    bytes := WebBytes(WebBytesUint8, cast(*void)descriptor.data, cast(s32)png.count)
+    parts := WebNewArray()
+    unused WebCall1(parts, WebName("push"), WebObject(bytes))
+    options := WebNewObject()
+    WebSet(options, WebName("type"), WebText("image/png"))
+    blob := WebNew2(WebGetObject(WebGlobal, WebName("Blob")), WebObject(parts), WebObject(options))
+    url_class := WebGetObject(WebGlobal, WebName("URL"))
+    document := WebGetObject(WebGlobal, WebName("document"))
+    image := WebAsObject(WebCall1(document, WebName("getElementById"), WebText("print-picture")))
+    text := WebAsObject(WebCall1(document, WebName("getElementById"), WebText("print-story")))
+    if image == 0 || text == 0 || blob == 0 { return "failed" }
+    if print_ready == 0 { print_ready = WebFunction(PrintLoaded, 0) }
+    WebSet(text, WebName("textContent"), WebText(story))
+    WebSet(image, WebName("onload"), WebObject(print_ready))
+    WebSet(image, WebName("src"), WebCall1(url_class, WebName("createObjectURL"), WebObject(blob)))
+    return ifx WebFailed() then "failed" else "printed"
+}
+
+#program_export
+WebService :: (name: string, request: string) -> string {
+    if name == "jungle.language" { return LanguageCode() }
+    if name == "jungle.home" { web_home = true; return "ok" }
+    if name == "jungle.secondary" { return ifx IsMouseButtonDown(1) then "down" else "up" }
+    if name == "jungle.sound" || name == "jungle.voice" {
+        PlayAudio(request, name == "jungle.voice")
+        return "played"
+    }
+    if name == "jungle.canvas" { return CanvasImage(request) }
+    if name == "jungle.export" || name == "jungle.print" { return WebExport(request, name == "jungle.print") }
+    return "{\"status\":\"unavailable\"}"
+}
+
+OpenGame :: (index: s32) {
+    selected = index
+    active_game = index
+    Runner.canvas_app_mode = APP_IDENTIFY
+    unused RunGame()
+    Runner.canvas_app_mode = APP_FRAME
+    PlayAudio("assets/jungle/sounds/start.wav", false)
+}
+
+#program_export
+JungleMain :: () -> s64 {
+    mode := AppMode()
+    if mode == APP_IDENTIFY {
+        SetExitKey(0)
+        AppIdentity("jungle", 1)
+        AppDescribe("Jungle Academy", "")
+        return APP_PROTOCOL
+    }
+    if mode == APP_SAVE { return cast(s64)RunGame() }
+    if mode != APP_FRAME { return 0 }
+    if !web_initialized {
+        InitAudioDevice()
+        LanguageSet(Runner.DocumentReadHost("settings/language.txt"))
+        web_muted = Runner.DocumentReadHost("settings/sound.txt") == "off"
+        web_initialized = true
+    }
+    key := AppKey()
+    if active_game < 0 {
+        action := JungleMenu(AppSession(), AppBounds(), key, AppNow(), "assets/jungle/font.png", web_games[:], *selected, web_muted, "")
+        if action.language_changed { unused Runner.DocumentWriteHost("settings/language.txt", LanguageCode()) }
+        if action.sound_toggle { ToggleAudio() }
+        if action.navigated { PlayAudio("assets/jungle/sounds/select.wav", false) }
+        if action.game >= 0 { OpenGame(action.game) }
+    } else {
+        if key == 299 { ToggleAudio(); Runner.canvas_app_key = 0 }
+        unused RunGame()
+        if web_home {
+            Runner.canvas_app_mode = APP_SAVE
+            unused RunGame()
+            Runner.canvas_app_mode = APP_FRAME
+            StopAudio()
+            active_game = -1
+            web_home = false
+        }
+    }
+    return 0
+}

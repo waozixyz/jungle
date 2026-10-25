@@ -1,0 +1,36 @@
+// Exercise the real SDL queue with a private dummy audio device, no window.
+#import "std/file"
+#import, file "../host/sound.zi";
+#import, file "../host/audio_samples.zi";
+#import, file "../host/platform.zi";
+voice_sdl :: #system_library "SDL2";
+Queued :: (device: u32) -> u32 #foreign voice_sdl "SDL_GetQueuedAudioSize";
+CloseAudio :: (device: u32) #foreign voice_sdl "SDL_CloseAudioDevice";
+
+#program_export
+main :: () -> s32 {
+    wave, found := ReadEntireFile("assets/jungle-book/sounds/butterfly.wav")
+    if !found { return 1 }
+    SoundVoice(wave)
+    if sound_device == cast(u32)0 { return 2 }
+    defer { CloseAudio(sound_device) }
+    // More than three seconds must reach SDL, rather than being clipped by
+    // the cue mixer before playback.
+    if Queued(sound_device) <= cast(u32)(AUDIO_LIMIT * 2) { return 3 }
+    SoundMuted(true)
+    if Queued(sound_device) != cast(u32)0 { return 4 }
+    SoundMuted(false)
+    SoundVoice(wave)
+    if Queued(sound_device) <= cast(u32)(AUDIO_LIMIT * 2) { return 5 }
+    SoundVoice("")
+    if Queued(sound_device) != cast(u32)0 { return 6 }
+    long_wave, long_found := ReadEntireFile("assets/jungle-book/sounds/de/spelling/butterfly.wav")
+    if !long_found || long_wave.count <= cast(s64)(AUDIO_RATE * 20 * 2 + 44) { return 7 }
+    SoundVoice(long_wave)
+    // Allow half a second for the dummy device to consume queued samples;
+    // the complete 27-second German spelling must reach SDL.
+    if cast(s64)Queued(sound_device) < long_wave.count - 44 - cast(s64)AUDIO_RATE { return 8 }
+    SoundVoice("")
+    Report("local narration test: complete voice reaches SDL; mute and leaving a page clear playback\n")
+    return 0
+}

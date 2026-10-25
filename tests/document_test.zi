@@ -51,6 +51,17 @@ main :: () -> s32 {
     for at: cast(s32)0..CANVAS_PIXELS - 1 { old[at] = #char "p" }
     old[0] = #char "a"
     if !PictureLoad(TextView(old[:])) || canvas[0] != 0 || !lines[0] || canvas[1] != 15 { return 9 }
+    // The existing fixed-width story format preserves accented cells, while
+    // text shown and exported is valid UTF-8 in every supported language.
+    ClearStory()
+    story[0][0] = cast(u8)252
+    story[0][1] = cast(u8)223
+    story[0][2] = cast(u8)241
+    story[0][3] = cast(u8)225
+    accented := PictureText()
+    ClearStory()
+    if !PictureLoad(accented) || StoryText() != "üßñá\n\n\n\n\n\n\n\n" { return 10 }
+    if PictureText() != accented { return 11 }
     Report("local document test passed\n")
     return 0
 }

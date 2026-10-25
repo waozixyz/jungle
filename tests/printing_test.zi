@@ -16,7 +16,7 @@ main :: (argc: s32, argv: **u8) -> s32 {
     for at: cast(s32)0..240 * 180 - 1 { pixels[at] = PAINT_CODES[16 + (at / 240) % 30] }
     text: Vec(u8)
     BuilderPrint(*text, "paint\n%", TextView(pixels[:]))
-    BuilderPrint(*text, "My dinosaur (and friend)\\hello\nSecond line\n\n\n\n\n\n\n")
+    BuilderPrint(*text, "My dinosaur (and friend)\\hello\nGrüße, niño, piña, ratón\n\n\n\n\n\n\n")
     request := BuilderFinish(text)
     if ExportPicture(*files, request, false) != "exported" { return 3 }
     if ExportPicture(*files, request, true) != "printed" { return 4 }

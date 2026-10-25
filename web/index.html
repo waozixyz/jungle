@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#e3ece4">
+<meta name="description" content="Gentle watercolor learning games. Picture books, animal counting and dinosaur coloring in English, German and Spanish.">
+<title>Jungle Academy</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;background:#e3ece4;font-family:system-ui,sans-serif;color:#3e332a}body{display:flex;align-items:center;justify-content:center}#canvas-frame{width:100%;height:100%;display:flex;align-items:center;justify-content:center}canvas{display:block;width:100%;height:100%;touch-action:none;outline:none}#loading{position:absolute;inset:0;display:grid;place-content:center;text-align:center;padding:2rem;background:#e3ece4;pointer-events:none}#loading strong{font-size:clamp(1.5rem,4vw,2.5rem);font-weight:500}#loading p{font-size:1rem}#print-sheet{display:none}@media print{body{display:block;background:white}#canvas-frame,#loading{display:none!important}#print-sheet{display:block;padding:1cm;color:black}#print-picture{width:100%;image-rendering:auto}#print-story{white-space:pre-wrap;font:16px/1.5 system-ui,sans-serif}}
+</style>
+<div id="canvas-frame"><canvas id="canvas" tabindex="0" aria-label="Jungle Academy learning games"></canvas></div>
+<div id="loading" role="status"><strong>Jungle Academy</strong><p id="status">Opening your books…</p></div>
+<section id="print-sheet"><img id="print-picture" alt="Your dinosaur picture"><pre id="print-story"></pre></section>
+<script>
+var Module={canvas:document.getElementById('canvas'),locateFile:p=>p,print:console.log,printErr:console.error,preRun:[function(){Module.addRunDependency('pictures');fetch('images.json').then(r=>{if(!r.ok)throw Error('picture list');return r.json()}).then(async paths=>{let next=0;await Promise.all(Array.from({length:6},async()=>{while(next<paths.length){const path=paths[next++],response=await fetch(path);if(!response.ok)throw Error(path);const data=new Uint8Array(await response.arrayBuffer());Module.FS.mkdirTree('/'+path.substring(0,path.lastIndexOf('/')));Module.FS.writeFile('/'+path,data)}}));Module.removeRunDependency('pictures')}).catch(e=>{console.error(e);Module.onAbort()})}],onRuntimeInitialized(){document.getElementById('loading').hidden=true;document.getElementById('loading').style.display='none';document.getElementById('canvas').focus()},onAbort(){document.getElementById('loading').style.display='grid';document.getElementById('status').textContent='The game could not open. Please reload to try again.'}};
+</script>
+<script src="jungle.js" defer></script>
+</html>
