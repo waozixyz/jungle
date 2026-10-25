@@ -5,6 +5,9 @@
 #import "app_context"
 #import "app_protocol"
 #import "geometry"
+#import "scroll_widget"
+#import "scroll_props"
+#import "tree"
 #import "swipe"
 #import "swipe_props"
 #import, file "book_pages.zi";
@@ -24,7 +27,11 @@ choosing_category: bool = true;
 finished: bool;
 finished_started: float64;
 category: s32;
-shelf: s32;
+book_scroll: s32;
+shelf_order: [9]s32 = .[0,1,3,8,2,4,5,6,7];
+shelf_tops: [9]s32 = .[18,18,66,66,134,202,202,250,250];
+shelf_columns: [9]s32 = .[0,1,0,1,0,0,1,0,1];
+voice_idle_started: float64;
 voice_pending: bool;
 simple: bool = true;
 settings_loaded: bool;
@@ -88,6 +95,7 @@ Turn :: (step: s32) {
         page = next
     }
     page_started = retro.now
+    voice_idle_started = 0.0
     voice_pending = true
 }
 
@@ -97,6 +105,7 @@ OpenBook :: () {
     swipe_tracking = false
     page = 0
     page_started = retro.now
+    voice_idle_started = 0.0
     voice_pending = true
 }
 
@@ -128,7 +137,7 @@ FinishedBook :: () {
     next_book := RetroTap(41, 164, 161, 132, 22, "Read this book")
     BookBox(164, 161, 132, 22, 0xdcebdcff, 0x2e6956ff, 4.0)
     BookText(164, 161, 132, 22, "Read this book", 10)
-    if all_books.clicked || retro.key == KEY_ESCAPE { choosing_category = true; finished = false; shelf = category / 4 }
+    if all_books.clicked || retro.key == KEY_ESCAPE { choosing_category = true; finished = false }
     else if next_book.clicked || retro.key == KEY_ENTER || retro.key == KEY_RIGHT || retro.now - finished_started >= 3.0 {
         category = next_category
         OpenBook()
@@ -146,7 +155,7 @@ GameMain :: () -> s32 {
         swipe_tracking = false
         page = 0
         category = 0
-        shelf = 0
+        book_scroll = 0
         AppIdentity("jungle.book")
         AppDescribe("Picture Book", "")
         return APP_PROTOCOL
@@ -161,37 +170,53 @@ GameMain :: () -> s32 {
     now := AppNow()
     RetroBegin(AppSession(), AppBounds(), FONT, now, AppKey(), BLACK)
     BookPaper()
-    if !choosing_category && !finished && !swipe_tracking && now - page_started >= PageHold() { Turn(1) }
+    if !choosing_category && !finished && !swipe_tracking {
+        state := AppService("jungle.voice-state", "")
+        if state == "loading" || state == "playing" { voice_idle_started = 0.0 }
+        else if voice_idle_started == 0.0 { voice_idle_started = now }
+        if now - page_started >= PageHold() && voice_idle_started > 0.0 && now - voice_idle_started >= 3.0 { Turn(1) }
+    }
     if choosing_category {
         BookText(24, 14, 272, 23, "Picture Book", 19)
         BookText(24, 36, 272, 12, "Choose a book", 9)
-        previous_shelf := RetroTap(60, 24, 17, 26, 24, "Previous books")
-        next_shelf := RetroTap(61, 270, 17, 26, 24, "More books")
-        BookText(24, 17, 26, 24, "<", 18)
-        BookText(270, 17, 26, 24, ">", 18)
-        shelf_count: s32 = (CATEGORY_COUNT + 3) / 4
-        if previous_shelf.clicked { shelf = (shelf + shelf_count - 1) % shelf_count; category = shelf * 4 }
-        if next_shelf.clicked { shelf = (shelf + 1) % shelf_count; category = shelf * 4 }
-        for slot: cast(s32)0..3 {
-            index := shelf * 4 + slot
-            if index >= CATEGORY_COUNT { continue }
-            x := 24 + (slot % 2) * 140
-            y := 51 + (slot / 2) * 48
-            selected := index == category
-            press := RetroTap(20 + index, x, y, 132, 44, category_names[index])
-            BookBox(x, y, 132, 44, ifx selected then cast(u32)0xe5eee1ff else cast(u32)0xf7f1e3ff,
-                ifx selected then cast(u32)0x2e6956ff else cast(u32)0xdacdb5ff, 4.0)
-            BookPicture(category_previews[index], x + 3, y + 3, 38, 38)
-            BookText(x + 42, y + 4, 87, 36, category_names[index], 12)
-            if press.clicked { category = index; OpenBook() }
+        scrolled := Scroll(retro.session, ScrollProps.{.key = cast(u64)600,
+            .bounds = RetroRect(24, 50, 272, 98), .scale = retro.scale,
+            .content_height = cast(s32)(298.0 * retro.scale), .scroll_offset = book_scroll,
+            .keep_scrollbar = true})
+        book_scroll = scrolled.scroll_offset
+        if scrolled.opened {
+            saved_y := retro.y
+            retro.y -= cast(float32)book_scroll
+            BookText(26, 51, 256, 15, "Animals and nature", 10)
+            BookText(26, 167, 256, 15, "Food", 10)
+            BookText(26, 235, 256, 15, "At home", 10)
+            for slot: cast(s32)0..8 {
+                index := shelf_order[slot]
+                x := 24 + shelf_columns[slot] * 136
+                y := 51 + shelf_tops[slot]
+                selected := index == category
+                press := RetroTap(20 + index, x, y, 128, 44, category_names[index])
+                BookBox(x, y, 128, 44, ifx selected then cast(u32)0xe5eee1ff else cast(u32)0xf7f1e3ff,
+                    ifx selected then cast(u32)0x2e6956ff else cast(u32)0xdacdb5ff, 4.0)
+                BookPicture(category_previews[index], x + 3, y + 3, 38, 38)
+                BookText(x + 42, y + 4, 83, 36, category_names[index], 12)
+                if press.clicked { category = index; OpenBook() }
+            }
+            retro.y = saved_y
+            unused End(retro.session)
         }
         if ModeButton(30, 24, "Simple", simple) { simple = true; unused DocumentWrite("mode.txt", "simple") }
         if ModeButton(31, 164, "Spelling", !simple) { simple = false; unused DocumentWrite("mode.txt", "spelling") }
         BookText(24, 173, 272, 11, ifx simple then "Say the word once" else "Word and letters", 8)
-        if retro.key == KEY_LEFT { category = (category + CATEGORY_COUNT - 1) % CATEGORY_COUNT }
-        if retro.key == KEY_RIGHT { category = (category + 1) % CATEGORY_COUNT }
-        if retro.key == KEY_UP || retro.key == KEY_DOWN { category = (category + 2) % CATEGORY_COUNT }
-        if retro.key == KEY_LEFT || retro.key == KEY_RIGHT || retro.key == KEY_UP || retro.key == KEY_DOWN { shelf = category / 4 }
+        if retro.key == KEY_LEFT || retro.key == KEY_RIGHT || retro.key == KEY_UP || retro.key == KEY_DOWN {
+            slot: s32 = 0
+            for at: cast(s32)0..8 { if shelf_order[at] == category { slot = at } }
+            step: s32 = ifx retro.key == KEY_LEFT then -1 else ifx retro.key == KEY_RIGHT then 1 else ifx retro.key == KEY_UP then -2 else 2
+            slot = (slot + step + CATEGORY_COUNT) % CATEGORY_COUNT
+            category = shelf_order[slot]
+            book_scroll = cast(s32)(cast(float32)(shelf_tops[slot] - 18) * retro.scale)
+            if book_scroll > cast(s32)(200.0 * retro.scale) { book_scroll = cast(s32)(200.0 * retro.scale) }
+        }
         if retro.key == 83 { simple = true; unused DocumentWrite("mode.txt", "simple") }
         if retro.key == 68 { simple = false; unused DocumentWrite("mode.txt", "spelling") }
         if retro.key >= 49 && retro.key < 49 + CATEGORY_COUNT { category = retro.key - 49; OpenBook() }
@@ -236,7 +261,6 @@ GameMain :: () -> s32 {
             picture_tap || direction == SwipeDirection.SwipeLeft { Turn(1) }
         if retro.key == KEY_ESCAPE || categories.clicked {
             choosing_category = true
-            shelf = category / 4
             swipe_tracking = false
             voice_pending = false
             unused AppService("jungle.voice", "")

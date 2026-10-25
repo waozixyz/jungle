@@ -19,7 +19,7 @@ Accented German and Spanish letters work in Dino stories, saves and exports.
 
 **Picture Book** has nine organized books: Wild animals (15 pictures), Garden
 (10), Fruits (16), Farm (20), Kitchen (8), Bathroom (8), Bedroom (8),
-Living room (8), and Nature (8). Use the shelf arrows to browse the books. Choose **Simple** to hear each word once with
+Living room (8), and Nature (8). Browse the scrollable shelf, grouped into Animals and nature, Food, and At home. Choose **Simple** to hear each word once with
 its picture, or **Spelling** to hear the word, its letters and the word again.
 The selected mode is remembered. Every one of the 101 pictures has names and
 both kinds of narration in English, German and Spanish, including correctly

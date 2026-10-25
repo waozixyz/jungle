@@ -132,7 +132,7 @@ Reply :: (text: string) -> HostValue {
 }
 
 GameAllows :: (context: *void, name: string) -> bool {
-    return name == "jungle.language" || name == "jungle.voice" || name == "jungle.sound" || name == "jungle.home" || name == "jungle.canvas" ||
+    return name == "jungle.language" || name == "jungle.voice" || name == "jungle.voice-state" || name == "jungle.sound" || name == "jungle.home" || name == "jungle.canvas" ||
         name == "jungle.export" || name == "jungle.print" || name == "jungle.secondary" || BundleAppAllows(context, name)
 }
 
@@ -173,6 +173,10 @@ GameServices :: (context: *void, module: *u8, function: *u8,
     HostScalarValid(arguments[1], "string", cast(s32)HostValueKind.HostString) {
         service := AppArgumentText(arguments[0])
         request := AppArgumentText(arguments[1])
+        if service == "jungle.voice-state" {
+            result.* = Reply(ifx SoundBusy() then "playing" else "idle")
+            return 1
+        }
         if service == "jungle.language" {
             result.* = Reply(LanguageCode())
             return 1
@@ -346,17 +350,17 @@ DrawGame :: () -> bool {
     return ok
 }
 
-// Jungle opens windowed at 3x by default, shrinking only when the first
-// display's free area cannot fit that window; 3 when the display cannot be
+// Jungle opens windowed at 4x by default, shrinking only when the first
+// display's free area cannot fit that window; 4 when the display cannot be
 // asked.
 WindowZoom :: () -> s32 {
     area: SdlRect
     // SDL_INIT_VIDEO; the desktop host starts it again when it opens.
-    if SdlStart(cast(u32)0x20) != 0 || UsableBounds(0, *area) != 0 { return 3 }
+    if SdlStart(cast(u32)0x20) != 0 || UsableBounds(0, *area) != 0 { return 4 }
     zoom := area.w / SCREEN_WIDTH
     tall := (area.h - 40) / SCREEN_HEIGHT
     if tall < zoom { zoom = tall }
-    if zoom > 3 { zoom = 3 }
+    if zoom > 4 { zoom = 4 }
     if zoom < 1 { return 1 }
     return zoom
 }

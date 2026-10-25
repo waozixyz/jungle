@@ -3,7 +3,6 @@
 #import "app_protocol"
 #import "session"
 #import "geometry"
-#import "canvas_audio"
 #import "canvas_types"
 #import "canvas_input"
 #import "canvas_window"
@@ -35,7 +34,9 @@ selected: s32;
 web_initialized: bool;
 web_muted: bool;
 web_home: bool;
-web_sound: CanvasSound;
+web_audio: s32;
+web_narration: bool;
+audio_rejected: s32;
 canvas_sequence: s32;
 export_pixels: [240 * 180]u8;
 
@@ -74,20 +75,47 @@ WebAsset :: (name: string) -> string {
 }
 
 StopAudio :: () {
-    if IsSoundValid(web_sound) { StopSound(web_sound); UnloadSound(web_sound) }
-    web_sound = CanvasSound.{}
+    if web_audio == 0 { return }
+    scope := WebScope()
+    defer WebEnd(scope)
+    unused WebCall0(web_audio, WebName("pause"))
+    unused WebCall1(web_audio, WebName("removeAttribute"), WebText("src"))
+    unused WebCall0(web_audio, WebName("load"))
+    WebRelease(web_audio)
+    web_audio = 0
+    web_narration = false
 }
 
+AudioRejected :: (context: s32, error: s32, second: s32, third: s32) {
+    unused context; unused error; unused second; unused third
+}
+
+// HTML media loads asynchronously. Never await a network request inside a
+// Canvas frame: input received during that wait would be cleared at frame end.
 PlayAudio :: (path: string, narration: bool) {
     StopAudio()
     if web_muted || path == "" { return }
-    filename: [1024]u8
-    if !CopyCString(path, filename[:]) { return }
-    web_sound = LoadSound(*filename[0])
-    if IsSoundValid(web_sound) {
-        SetSoundVolume(web_sound, ifx narration then 0.45 else 0.25)
-        PlaySound(web_sound)
-    }
+    scope := WebScope()
+    defer WebEnd(scope)
+    audio := WebNew1(WebGetObject(WebGlobal, WebName("Audio")), WebText(path))
+    if audio == 0 { return }
+    web_audio = WebKeep(audio)
+    web_narration = narration
+    WebSet(web_audio, WebName("volume"), WebNumber(ifx narration then 0.45 else 0.25))
+    promise := WebAsObject(WebCall0(web_audio, WebName("play")))
+    if audio_rejected == 0 { audio_rejected = WebFunction(AudioRejected, 0) }
+    if promise != 0 { unused WebCall1(promise, WebName("catch"), WebObject(audio_rejected)) }
+}
+
+VoiceState :: () -> string {
+    if web_audio == 0 || !web_narration || web_muted { return "idle" }
+    scope := WebScope()
+    defer WebEnd(scope)
+    if WebGetObject(web_audio, WebName("error")) != 0 { return "idle" }
+    if WebAsBool(WebGet(web_audio, WebName("ended"))) { return "ended" }
+    if WebAsBool(WebGet(web_audio, WebName("paused"))) { return "idle" }
+    if WebGetNumber(web_audio, WebName("readyState")) < 3.0 { return "loading" }
+    return "playing"
 }
 
 ToggleAudio :: () {
@@ -156,6 +184,7 @@ WebPrint :: (png: string, story: string) -> string {
 
 #program_export
 WebService :: (name: string, request: string) -> string {
+    if name == "jungle.voice-state" { return VoiceState() }
     if name == "jungle.language" { return LanguageCode() }
     if name == "jungle.home" { web_home = true; return "ok" }
     if name == "jungle.secondary" { return ifx IsMouseButtonDown(1) then "down" else "up" }
@@ -189,7 +218,6 @@ JungleMain :: () -> s64 {
     if mode == APP_SAVE { return cast(s64)RunGame() }
     if mode != APP_FRAME { return 0 }
     if !web_initialized {
-        InitAudioDevice()
         LanguageSet(Runner.DocumentReadHost("settings/language.txt"))
         web_muted = Runner.DocumentReadHost("settings/sound.txt") == "off"
         web_initialized = true
