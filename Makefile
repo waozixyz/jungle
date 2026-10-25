@@ -11,9 +11,16 @@ DESKTOP_LIBS = $$(pkg-config --libs sdl2 cairo freetype2 fontconfig pangocairo) 
 CFLAGS_ZI = -std=c11 -O2 -ffunction-sections -fdata-sections -I'$(TOOLCHAIN)/include'
 # The app as it is installed: the program, its menu assets and the games.
 APP := build/app
-GAMES := $(APP)/games/animal-count.zib $(APP)/games/dino-paint.zib
+COUNT_PICTURES := $(addprefix assets/jungle-book/items/,$(addsuffix .png,tiger frog butterfly ladybug snail elephant giraffe monkey panda lion zebra crocodile parrot toucan rabbit cat dog sheep))
+GAMES := $(APP)/games/jungle-book.zx $(APP)/games/animal-count.zx $(APP)/games/dino-paint.zx
 
-.PHONY: all run art sounds test test-ui install
+.PHONY: all run art sounds test test-ui install locales web
+
+web:
+	python3 tools/build_web.py
+
+locales:
+	python3 tools/locales.py
 
 all: $(APP)/jungle $(GAMES) $(APP)/games/catalog.txt $(APP)/assets/jungle/font.png
 
@@ -36,30 +43,45 @@ $(APP)/games/catalog.txt: games/catalog.txt
 	mkdir -p $(APP)/games
 	cp $< $@
 
-$(APP)/assets/jungle/font.png: $(wildcard assets/jungle/* assets/jungle/sounds/*)
+$(APP)/assets/jungle/font.png: $(shell find assets/jungle -type f)
 	mkdir -p $(APP)/assets
 	rm -rf $(APP)/assets/jungle
 	cp -r assets/jungle $(APP)/assets/jungle
 
 # Each game is its own bundle, carrying only its own pictures and sounds.
-$(APP)/games/animal-count.zib: $(wildcard games/animal/*.zi retro/*.zi) $(shell find assets/animal-count -type f)
+$(APP)/games/jungle-book.zx: $(wildcard games/book/*.zi retro/*.zi) $(shell find assets/jungle-book -type f)
+	rm -rf build/stage/jungle-book
+	mkdir -p build/stage/jungle-book/assets $(APP)/games
+	cp -r assets/jungle-book build/stage/jungle-book/assets/
+	find build/stage/jungle-book/assets -type f -name '*.speech.json' -delete
+	find build/stage/jungle-book/assets -type d -name letters -exec rm -r {} +
+	'$(ZIRANC)' bundle --root games/book $(MODULES) --define KRYON_HOSTED_UI \
+		--asset-dir assets=build/stage/jungle-book/assets --entry jungle_book:main -o $@ games/book/jungle_book.zi
+
+$(APP)/games/animal-count.zx: $(wildcard games/animal/*.zi retro/*.zi) $(shell find assets/animal-count -type f) $(COUNT_PICTURES)
 	rm -rf build/stage/animal-count
 	mkdir -p build/stage/animal-count/assets $(APP)/games
 	cp -r assets/animal-count build/stage/animal-count/assets/
+	mkdir -p build/stage/animal-count/assets/animal-count/pictures
+	cp $(COUNT_PICTURES) build/stage/animal-count/assets/animal-count/pictures/
 	'$(ZIRANC)' bundle --root games/animal $(MODULES) --define KRYON_HOSTED_UI \
 		--asset-dir assets=build/stage/animal-count/assets --entry animal_count:main -o $@ games/animal/animal_count.zi
 
-$(APP)/games/dino-paint.zib: $(wildcard games/paint/*.zi retro/*.zi) $(shell find assets/dino-paint -type f)
+$(APP)/games/dino-paint.zx: $(wildcard games/paint/*.zi retro/*.zi) $(shell find assets/dino-paint -type f)
 	rm -rf build/stage/dino-paint
 	mkdir -p build/stage/dino-paint/assets $(APP)/games
 	cp -r assets/dino-paint build/stage/dino-paint/assets/
+	find build/stage/dino-paint/assets -type f -name 'voice-*' -delete
 	'$(ZIRANC)' bundle --root games/paint $(MODULES) --define KRYON_HOSTED_UI \
 		--asset-dir assets=build/stage/dino-paint/assets --entry dino_paint:main -o $@ games/paint/dino_paint.zi
 
-# Pixel art: art/*.svg through Inkscape and ImageMagick into assets/
-# (committed). Dino Colors' original Bert artwork is committed directly.
+# Menu pixel art from SVG, Picture Book raster cartoons, then paint masks.
+# Dino Colors' original Bert artwork is committed directly.
 art: build/tools/art
 	build/tools/art
+	python3 tools/book_art.py
+	python3 tools/menu_art.py
+	python3 tools/dino_art.py
 	python3 tools/paint_pages.py
 
 games/paint/paint_pages.zi: tools/paint_pages.py $(wildcard assets/dino-paint/art/scene[0-9].png assets/dino-paint/art/dino*-s4.png)
@@ -74,22 +96,25 @@ build/tools/%: tools/%.zi $(wildcard tools/*.zi) build/ziran/libziran.a
 	'$(ZIRANC)' build --target=c --root tools --module-path 'std=$(TOOLCHAIN)/std' --module-path '$(TOOLCHAIN)/std' \
 		--entry $*:main -o build/tools/$*-c $<
 	$${CC:-cc} $(CFLAGS_ZI) $$(find build/tools/$*-c -type d -printf ' -iquote %p') $$(find build/tools/$*-c -name '*.c') \
-		build/ziran/libziran.a -Wl,--gc-sections -lm -lpthread -o $@
+		build/ziran/libziran.a -Wl,--gc-sections -lm -lpthread $(TEST_LIBS) -o $@
 
-build/tests/%: tests/%_test.zi $(wildcard games/*/*.zi host/*.zi) build/ziran/libziran.a
+build/tests/voice: TEST_LIBS = $(DESKTOP_LIBS)
+
+build/tests/%: tests/%_test.zi $(wildcard games/*/*.zi host/*.zi retro/*.zi) build/ziran/libziran.a
 	rm -rf build/tests/$*-c
 	'$(ZIRANC)' build --target=c --root tests $(MODULES) \
 		--entry $*_test:main -o build/tests/$*-c $<
 	$${CC:-cc} $(CFLAGS_ZI) $$(find build/tests/$*-c -type d -printf ' -iquote %p') $$(find build/tests/$*-c -name '*.c') \
-		build/ziran/libziran.a -Wl,--gc-sections -lm -lpthread -o $@
+		build/ziran/libziran.a -Wl,--gc-sections -lm -lpthread $(TEST_LIBS) -o $@
 
 # Questions, painting and PNG pictures, then every game opened in the app.
-test: build/tests/paint build/tests/png build/tests/progress build/tests/document build/tests/counting build/tests/printing build/tests/audio all
+test: build/tests/paint build/tests/png build/tests/progress build/tests/document build/tests/counting build/tests/printing build/tests/audio build/tests/voice all
 	build/tests/paint
 	build/tests/progress
 	build/tests/document
 	build/tests/counting
 	build/tests/audio
+	SDL_AUDIODRIVER=dummy build/tests/voice
 	build/tests/png build/tests/check.png
 	test "$$(convert build/tests/check.png -format '%w %h %[pixel:p{0,0}] %[pixel:p{2,1}]' info:)" = "3 2 srgb(170,0,0) srgb(255,255,85)"
 	rm -rf build/tests/data
@@ -99,11 +124,14 @@ test: build/tests/paint build/tests/png build/tests/progress build/tests/documen
 	python3 tests/runtime_test.py
 	python3 tests/export_test.py
 	python3 tests/assets_test.py
+	python3 tests/language_test.py
 
 # Actual input and rendering on a private display; requires Xvfb, xdotool,
 # ImageMagick and Pillow. Never uses the inherited desktop or owner saves.
 test-ui: all
 	python3 tests/runtime_test.py --ui
+	python3 tests/book_ui_test.py
+	python3 tests/language_ui_test.py
 
 BIN_DIR ?= $(HOME)/.local/bin
 LIB_DIR ?= $(HOME)/.local/lib/jungle
@@ -114,7 +142,7 @@ install: all
 	mkdir -p '$(LIB_DIR)/assets' '$(LIB_DIR)/games' '$(BIN_DIR)' '$(DATA_DIR)/applications' \
 		'$(DATA_DIR)/icons/hicolor/64x64/apps'
 	cp -r $(APP)/assets/. '$(LIB_DIR)/assets/'
-	cp $(APP)/games/*.zib $(APP)/games/catalog.txt '$(LIB_DIR)/games/'
+	cp $(APP)/games/*.zx $(APP)/games/catalog.txt '$(LIB_DIR)/games/'
 	install -m 0755 $(APP)/jungle '$(LIB_DIR)/jungle.new'
 	mv -f '$(LIB_DIR)/jungle.new' '$(LIB_DIR)/jungle'
 	ln -sfn '$(LIB_DIR)/jungle' '$(BIN_DIR)/jungle'

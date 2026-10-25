@@ -2,6 +2,7 @@
 // Validate the entire record before changing the current picture.
 #import "std/byte_text_linux"
 #import "std/text_buffer"
+#import, file "../../retro/language.zi";
 #import, file "paint_canvas.zi";
 #import, file "paint_pages.zi";
 #import, file "paint_palette.zi";
@@ -26,7 +27,7 @@ ClearStory :: () {
 StoryText :: () -> string {
     text: Vec(u8)
     for row: cast(s32)0..STORY_LINES - 1 {
-        BuilderPrint(*text, "%\n", TextUntilNul(story[row][:]))
+        BuilderPrint(*text, "%\n", LatinText(TextUntilNul(story[row][:])))
     }
     return BuilderFinish(text)
 }
@@ -79,7 +80,7 @@ PictureLoad :: (saved: string) -> bool {
         start := header + 3 + cast(s64)(row * (STORY_COLUMNS + 1))
         for column: cast(s32)0..STORY_COLUMNS - 1 {
             byte := saved[start + cast(s64)column]
-            if byte < 32 || byte > 126 { return false }
+            if byte < 32 || (byte >= 127 && byte < 160) { return false }
         }
         if saved[start + cast(s64)STORY_COLUMNS] != cast(u8)10 { return false }
     }

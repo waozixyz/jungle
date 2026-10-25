@@ -1,3 +1,5 @@
+#import, file "../../retro/language.zi";
+#import "std/utf8"
 // Dino Colors: a 1:1 play-alike of Bert's Dinosaurs. Pick one of six
 // scenes, drag any of twelve dinosaurs in four sizes (hold right to mirror),
 // fill regions with thirty crayon colors, write an eight-line story, and
@@ -9,6 +11,7 @@
 #import "text_buffer"
 #import, file "../../retro/retro.zi";
 #import, file "../../retro/game.zi";
+#import, file "../../retro/book_theme.zi";
 #import, file "paint_canvas.zi";
 #import, file "paint_pages.zi";
 #import, file "paint_document.zi";
@@ -36,11 +39,11 @@ PANEL_WIDTH :: 64
 SLOT_COUNT :: 6
 UNDO_STEPS :: 8
 
-scene_names: [6]string = .["PICTURE 1", "PICTURE 2", "PICTURE 3", "PICTURE 4", "PICTURE 5", "PICTURE 6"];
+scene_names: [6]string = .["Scene 1", "Scene 2", "Scene 3", "Scene 4", "Scene 5", "Scene 6"];
 dino_names: [12]string = .["TYRANNOSAURUS", "STEGOSAURUS", "TRICERATOPS", "ANATOSAURUS", "BRACHIOSAURUS", "DIPLODOCUS", "PARASAUROLOPHUS", "DEINONYCHUS", "PROTOCERATOPS", "PTERANODON", "STRACOSAURUS", "CORYTHOSAURUS"];
-dino_short: [12]string = .["T-REX", "STEGO", "TRIKE", "DUCKBILL", "BRACHIO", "DIPLO", "PARA", "RAPTOR", "PROTO", "PTERANODON", "STRACO", "CORY"];
-button_names: [8]string = .["IMAGE", "COLOR", "STORY", "ERASE", "SAVE", "PRINT", "UNDO", "STOP"];
-size_names: [4]string = .["SMALL", "MEDIUM", "LARGE", "HUGE"];
+dino_short: [12]string = .["T-REX", "STEGO", "TRIKE", "Duckbill", "BRACHIO", "DIPLO", "PARA", "RAPTOR", "PROTO", "PTERANODON", "STRACO", "CORY"];
+button_names: [8]string = .["Image", "Color", "Story", "Erase", "Save", "Print", "Undo", "Exit"];
+size_names: [4]string = .["Small", "Medium", "Large", "Huge"];
 
 view: s32 = MAIN;
 dino: s32 = -1;
@@ -69,7 +72,6 @@ saving: bool = true;
 status: string;
 status_until: float64;
 initialized: bool;
-voice_mode: s32;
 
 Join :: (a: string, b: string = "", c: string = "") -> string {
     text: Vec(u8)
@@ -78,13 +80,7 @@ Join :: (a: string, b: string = "", c: string = "") -> string {
     return BuilderFinish(text)
 }
 
-Sound :: (name: string) { if voice_mode == 0 { GameSound(Join(SOUNDS, name, ".wav")) } }
-
-Voice :: (which: s32) {
-    if voice_mode == 1 { return }
-    digits: [24]u8
-    GameSound(Join(SOUNDS, "voice-", Join(FormatInteger(cast(s64)which + 1, digits[:]), ".wav")))
-}
+Sound :: (name: string) { GameSound(Join(SOUNDS, name, ".wav")) }
 
 SlotFile :: (index: s32) -> string {
     digits: [24]u8
@@ -105,16 +101,16 @@ SaveSlot :: () -> bool {
 Notice :: (text: string) { status = text; status_until = retro.now + 3.0 }
 
 StoreSlot :: (index: s32) -> bool {
-    if scene < 0 { Notice("CHOOSE A SCENE FIRST"); return false }
-    if !DocumentWrite(SlotFile(index), PictureText()) { Notice("COULD NOT SAVE"); return false }
+    if scene < 0 { Notice("Choose a scene first"); return false }
+    if !DocumentWrite(SlotFile(index), PictureText()) { Notice("Could not save"); return false }
     slot = index
-    Notice("PICTURE AND STORY SAVED")
+    Notice("Picture and story saved")
     unused SaveSlot()
     return true
 }
 
 LoadSlot :: (index: s32) -> bool {
-    if !PictureLoad(DocumentRead(SlotFile(index))) { Notice("EMPTY OR DAMAGED SAVE"); return false }
+    if !PictureLoad(DocumentRead(SlotFile(index))) { Notice("Empty or damaged save"); return false }
     slot = index
     placing = false
     undo_count = 0
@@ -123,7 +119,7 @@ LoadSlot :: (index: s32) -> bool {
     story_column = 0
     dirty = true
     unused SaveSlot()
-    Notice("PICTURE AND STORY LOADED")
+    Notice("Picture and story loaded")
     return true
 }
 
@@ -183,9 +179,10 @@ MakeCanvas :: () {
 
 // The green command rail with Bert's eight buttons, then the picture.
 MainView :: () {
-    RetroFill(0, 0, PANEL_WIDTH, SCREEN_HEIGHT, GREEN)
+    BookBox(0, 0, 320, 200, 0xe3ece4ff)
+    BookBox(4, 4, 58, 192, 0xfffcf3ff, 0xdacdb5ff, 5.0)
     for index: cast(s32)0..7 {
-        if RetroButton(20 + index, 2, 4 + index * 24, 60, 22, button_names[index]) {
+        if BookButton(20 + index, 6, 5 + index * 24, 52, 22, button_names[index]) {
             placing = false
             dragging = false
             Sound("click")
@@ -204,7 +201,7 @@ MainView :: () {
     digits: [24]u8
     RetroSprite(Join("assets/dino-paint/crayons/", FormatInteger(crayon + 1, digits[:]), ".png"), 6, 48, 52, 1)
     if scene >= 0 { MakeCanvas() }
-    RetroFill(CANVAS_X - 2, CANVAS_Y - 2, CANVAS_WIDTH + 4, CANVAS_HEIGHT + 4, BLACK)
+    BookBox(CANVAS_X - 4, CANVAS_Y - 4, CANVAS_WIDTH + 8, CANVAS_HEIGHT + 8, 0xfffcf3ff, 0x704d36ff, 5.0)
     name := TextUntilNul(canvas_name[:])
     if scene >= 0 && name != "" {
         RetroSprite(name, CANVAS_X, CANVAS_Y, CANVAS_WIDTH, CANVAS_HEIGHT)
@@ -259,20 +256,19 @@ MainView :: () {
     }
     if retro.key == KEY_ESCAPE { view = CONFIRM_STOP }
     if retro.now < status_until {
-        RetroFill(0, 182, SCREEN_WIDTH, 18, BLACK)
-        RetroCentered(183, status, WHITE)
+        BookBox(4, 180, 312, 18, 0xf3ecdcff, 0xdacdb5ff, 3.0)
+        BookCentered(183, status, WHITE)
     }
 }
 
-DialogBack :: (title: string) {
-    RetroFill(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, BLACK)
-    RetroFill(4, 4, SCREEN_WIDTH - 8, SCREEN_HEIGHT - 8, WHITE)
-    RetroFrame(4, 4, SCREEN_WIDTH - 8, SCREEN_HEIGHT - 8, BLACK)
-    RetroText(12, 8, title, BLACK)
+DialogBack :: (title: string, wide: bool = false) {
+    BookPaper()
+    if wide { BookBox(4, 4, 312, 192, 0xfffcf3ff, 0x704d36ff, 5.0) }
+    BookText(20, 11, 280, 17, title, 13)
 }
 
 CancelButton :: () -> bool {
-    pressed := RetroButton(19, 244, 180, 68, 16, "STOP")
+    pressed := BookButton(19, 234, 173, 64, 14, "Back")
     if pressed || (retro.key == KEY_ESCAPE) {
         Sound("click")
         view = MAIN
@@ -282,16 +278,15 @@ CancelButton :: () -> bool {
 }
 
 ScenePicker :: () {
-    DialogBack("SELECT A PICTURE")
+    DialogBack("Choose a scene")
     for index: cast(s32)0..SCENE_COUNT - 1 {
-        x := 12 + (index % 3) * 104
+        x := 20 + (index % 3) * 94
         y := 30 + (index / 3) * 74
-        press := RetroTap(60 + index, x, y, 96, 70, scene_names[index])
-        if press.down { RetroFrame(x, y, 96, 70, LIGHT_GREEN) }
-        RetroFill(x + 2, y + 2, 92, 62, WHITE)
+        press := RetroTap(60 + index, x, y, 90, 70, scene_names[index])
+        BookBox(x, y, 90, 70, ifx press.down then cast(u32)0xdcebdcff else cast(u32)0xf7f1e3ff, 0xdacdb5ff, 4.0)
         number := FormatInteger(index + 1, digits_a[:])
-        RetroSprite(Join(ART, Join("scene", Join(number, "-thumb.png"))), x + 7, y + 3, 78, 48)
-        RetroText(x + (96 - RetroTextWidth(scene_names[index])) / 2, y + 55, scene_names[index], BLACK)
+        RetroSprite(Join(ART, Join("scene", Join(number, "-thumb.png"))), x + 6, y + 3, 78, 48)
+        BookText(x + 2, y + 54, 86, 15, scene_names[index], 10)
         if press.clicked {
             OpenScene(index, "")
             return
@@ -301,64 +296,55 @@ ScenePicker :: () {
 }
 
 DinoPicker :: () {
-    DialogBack("SELECT A DINOSAUR")
+    DialogBack("Choose a dinosaur")
     first := dino_page * 6
     for offset: cast(s32)0..5 {
         index := first + offset
         if index >= DINO_COUNT { continue }
-        x := 12 + (offset % 3) * 104
+        x := 20 + (offset % 3) * 94
         y := 30 + (offset / 3) * 74
-        press := RetroTap(80 + index, x, y, 96, 70, dino_names[index])
-        if press.down { RetroFrame(x, y, 96, 70, LIGHT_GREEN) }
-        RetroFill(x + 2, y + 2, 92, 62, WHITE)
+        press := RetroTap(80 + index, x, y, 90, 70, dino_names[index])
+        BookBox(x, y, 90, 70, ifx press.down then cast(u32)0xdcebdcff else cast(u32)0xf7f1e3ff, 0xdacdb5ff, 4.0)
         number := FormatInteger(index + 1, digits_a[:])
         fit: float32 = 68.0 / cast(float32)DINO_WIDTH[index]
         if 46.0 / cast(float32)DINO_HEIGHT[index] < fit { fit = 46.0 / cast(float32)DINO_HEIGHT[index] }
         dw := cast(s32)(cast(float32)DINO_WIDTH[index] * fit)
         dh := cast(s32)(cast(float32)DINO_HEIGHT[index] * fit)
         RetroSprite(Join(ART, Join("dino", Join(number, "-thumb.png"))),
-            x + (96 - dw) / 2, y + 3 + (48 - dh) / 2, dw, dh, BLACK)
+            x + (90 - dw) / 2, y + 3 + (48 - dh) / 2, dw, dh, BLACK)
         name := dino_short[index]
-        RetroText(x + (96 - RetroTextWidth(name)) / 2, y + 56, name, BLACK)
+        BookText(x + 2, y + 54, 86, 15, name, 10)
         if press.clicked {
             dino = index
             Sound("click")
-            Voice(index)
             view = PICK_SIZE
             return
         }
     }
-    up := RetroButton(96, 12, 176, 60, 20, "UP")
-    down := RetroButton(97, 84, 176, 60, 20, "DOWN")
-    voice_label := ifx voice_mode == 0 then "VOICE ON" else ifx voice_mode == 1 then "SILENT" else "VOICE"
-    if RetroButton(98, 156, 176, 80, 20, voice_label) {
-        voice_mode = (voice_mode + 1) % 3
-        digits: [24]u8
-        unused DocumentWrite("voice.txt", FormatInteger(cast(s64)voice_mode, digits[:]))
-    }
+    up := BookButton(96, 22, 173, 78, 14, "Previous")
+    down := BookButton(97, 106, 173, 78, 14, "Next")
     if up && (dino_page > 0) { dino_page -= 1 }
     if down && (dino_page < 1) { dino_page += 1 }
     unused CancelButton()
 }
 
 SizePicker :: () {
-    DialogBack(Join("SIZE OF ", dino_short[dino]))
+    DialogBack(Join(Tr("Size: "), Tr(dino_short[dino])))
     number := FormatInteger(dino + 1, digits_a[:])
     for index: cast(s32)0..3 {
-        x: s32 = 12 + index * 78
+        x: s32 = 24 + index * 70
         y: s32 = 40
-        press := RetroTap(110 + index, x, y, 72, 120, size_names[index])
-        if press.down { RetroFrame(x, y, 72, 120, LIGHT_GREEN) }
-        RetroFill(x + 2, y + 2, 68, 100, WHITE)
-        fit: float32 = 60.0 / cast(float32)DINO_WIDTH[dino]
+        press := RetroTap(110 + index, x, y, 64, 120, size_names[index])
+        BookBox(x, y, 64, 120, ifx press.down then cast(u32)0xdcebdcff else cast(u32)0xf7f1e3ff, 0xdacdb5ff, 4.0)
+        fit: float32 = 54.0 / cast(float32)DINO_WIDTH[dino]
         if 94.0 / cast(float32)DINO_HEIGHT[dino] < fit { fit = 94.0 / cast(float32)DINO_HEIGHT[dino] }
         dw := cast(s32)(cast(float32)DINO_WIDTH[dino] * fit * cast(float32)(index + 1) / 4.0)
         dh := cast(s32)(cast(float32)DINO_HEIGHT[dino] * fit * cast(float32)(index + 1) / 4.0)
         suffix_digits: [24]u8
         suffix := FormatInteger(index + 1, suffix_digits[:])
         RetroSprite(Join(ART, Join("dino", Join(number, Join("-preview", Join(suffix, ".png"))))),
-            x + (72 - dw) / 2, y + 4 + (96 - dh) / 2, dw, dh, BLACK)
-        RetroText(x + (72 - RetroTextWidth(size_names[index])) / 2, y + 104, size_names[index], BLACK)
+            x + (64 - dw) / 2, y + 4 + (96 - dh) / 2, dw, dh, BLACK)
+        BookText(x + 2, y + 103, 60, 17, size_names[index], 11)
         if press.clicked {
             size = index + 1
             placing = true
@@ -374,7 +360,7 @@ SizePicker :: () {
 }
 
 ColorPicker :: () {
-    DialogBack("PICK A COLOR")
+    DialogBack("Choose a color")
     for index: cast(s32)0..29 {
         x := 20 + (index % 6) * 48
         y := 30 + (index / 6) * 24
@@ -389,7 +375,7 @@ ColorPicker :: () {
             return
         }
     }
-    RetroText(20, 176, "CLICK OUTSIDE TO CANCEL", BLACK)
+    BookLabel(20, 176, "Click outside to cancel", BLACK)
     pointer := SamplePointer()
     x := RetroPointX(pointer.x)
     y := RetroPointY(pointer.y)
@@ -399,11 +385,11 @@ ColorPicker :: () {
 }
 
 StoryView :: () {
-    DialogBack("WRITE YOUR STORY")
+    DialogBack("Write your story", true)
     for row: cast(s32)0..STORY_LINES - 1 {
-        RetroFill(6, 28 + row * 18, STORY_COLUMNS * 8 + 4, 17, LIGHT_GRAY)
-        text := TextUntilNul(story[row][:])
-        if text.count > 0 { RetroText(8, 29 + row * 18, text, BLACK) }
+        BookBox(6, 28 + row * 18, STORY_COLUMNS * 8 + 4, 17, 0xf3ecdcff, 0xdacdb5ff, 2.0)
+        text := LatinText(TextUntilNul(story[row][:]))
+        if text.count > 0 { RetroText(8, 29 + row * 18, text, BLACK, 1, false) }
         press := RetroTap(220 + row, 8, 28 + row * 18, STORY_COLUMNS * 8, 17, "Story line")
         if press.clicked {
             story_row = row
@@ -433,8 +419,13 @@ StoryView :: () {
         story_row = position / STORY_COLUMNS
         story_column = position % STORY_COLUMNS
     }
-    for byte: input.text {
-        if byte < 32 || byte > 126 { continue }
+    input_at: s32 = 0
+    while input_at < cast(s32)input.text.count {
+        decoded := Decode(input.text, input_at)
+        input_at = decoded.after
+        if !decoded.valid || decoded.value < cast(u32)32 || decoded.value > cast(u32)255 ||
+            (decoded.value >= cast(u32)127 && decoded.value < cast(u32)160) { continue }
+        byte := cast(u8)decoded.value
         for column: cast(s32)0..story_column - 1 {
             if story[story_row][column] == 0 { story[story_row][column] = #char " " }
         }
@@ -444,7 +435,7 @@ StoryView :: () {
         story_row = position / STORY_COLUMNS
         story_column = position % STORY_COLUMNS
     }
-    done := RetroButton(145, 244, 180, 68, 16, "DONE")
+    done := BookButton(145, 234, 173, 64, 14, "Done")
     if done || key == KEY_ENTER || key == KEY_ESCAPE || view == MAIN {
         view = MAIN
         unused SaveSlot()
@@ -452,28 +443,22 @@ StoryView :: () {
 }
 
 ConfirmView :: (erasing: bool) {
-    DialogBack(ifx erasing then "ERASE - YES OR NO" else "STOP - YES OR NO")
+    DialogBack(ifx erasing then "Erase this picture?" else "Leave this picture?")
     // Happy: yellow with a wide smile. Sad: blue with a frown.
-    RetroFill(44, 54, 72, 66, YELLOW)
-    RetroFill(52, 50, 56, 8, YELLOW)
-    RetroFill(52, 116, 56, 8, YELLOW)
-    RetroFrame(44, 54, 72, 66, BLACK)
+    BookBox(44, 50, 72, 74, 0xf1d681ff, 0xd6b763ff, 34.0)
     RetroFill(62, 76, 8, 10, BLACK)
     RetroFill(90, 76, 8, 10, BLACK)
     RetroFill(56, 94, 6, 6, BLACK)
     RetroFill(98, 94, 6, 6, BLACK)
     RetroFill(62, 98, 36, 6, BLACK)
-    RetroText(44, 138, "HAPPY = YES", BLACK)
-    RetroFill(204, 54, 72, 66, LIGHT_BLUE)
-    RetroFill(212, 50, 56, 8, LIGHT_BLUE)
-    RetroFill(212, 116, 56, 8, LIGHT_BLUE)
-    RetroFrame(204, 54, 72, 66, BLACK)
+    BookText(40, 132, 80, 20, "Yes", 13)
+    BookBox(204, 50, 72, 74, 0xbdd3ddff, 0x8cabbaff, 34.0)
     RetroFill(222, 76, 8, 10, BLACK)
     RetroFill(250, 76, 8, 10, BLACK)
     RetroFill(226, 100, 28, 6, BLACK)
     RetroFill(216, 94, 6, 6, BLACK)
     RetroFill(258, 94, 6, 6, BLACK)
-    RetroText(196, 138, "SAD = NO", BLACK)
+    BookText(200, 132, 80, 20, "No", 13)
     yes := RetroTap(150, 40, 50, 80, 120, "Yes").clicked
     if yes {
         if erasing {
@@ -496,18 +481,18 @@ ConfirmView :: (erasing: bool) {
 }
 
 SaveLoadView :: () {
-    DialogBack(ifx saving then "SAVE PICTURE + STORY" else "LOAD PICTURE + STORY")
-    if RetroButton(200, 20, 28, 128, 20, "SAVE", saving) { saving = true }
-    if RetroButton(201, 168, 28, 128, 20, "LOAD", !saving) { saving = false }
+    DialogBack(ifx saving then "Save picture and story" else "Load picture and story")
+    if BookButton(200, 20, 28, 128, 20, "Save", saving) { saving = true }
+    if BookButton(201, 168, 28, 128, 20, "Load", !saving) { saving = false }
     for index: cast(s32)0..SLOT_COUNT - 1 {
         x := 20 + (index % 3) * 96
         y := 56 + (index / 3) * 54
         saved := DocumentRead(SlotFile(index))
-        label := ifx saved.count > 0 then "FULL" else "EMPTY"
+        label := ifx saved.count > 0 then "Saved" else "Empty"
         press := RetroTap(160 + index, x, y, 88, 52, label)
-        RetroFrame(x, y, 88, 52, ifx index == slot then BLACK else DARK_GRAY)
-        RetroText(x + (88 - RetroTextWidth(label)) / 2, y + 18, label, BLACK)
-        RetroText(x + 18, y + 36, "SLOT", DARK_GRAY)
+        BookBox(x, y, 88, 52, 0xf7f1e3ff, ifx index == slot then cast(u32)0x2e6956ff else cast(u32)0xdacdb5ff, 4.0)
+        BookLabel(x + (88 - RetroTextWidth(label)) / 2, y + 18, label, BLACK)
+        BookLabel(x + 18, y + 36, "Slot", DARK_GRAY)
         if press.clicked {
             if saving {
                 if saved.count > 0 { pending_slot = index; view = OVERWRITE }
@@ -518,58 +503,67 @@ SaveLoadView :: () {
             return
         }
     }
-    if retro.now < status_until { RetroText(12, 164, status, RED) }
+    if retro.now < status_until { BookLabel(12, 164, status, RED) }
     unused CancelButton()
 }
 
 OverwriteView :: () {
-    DialogBack("REPLACE THIS SAVED PICTURE?")
-    RetroCentered(56, "ITS PICTURE AND STORY", BLACK)
-    RetroCentered(80, "WILL BE REPLACED.", BLACK)
-    if RetroButton(202, 24, 120, 128, 28, "REPLACE") {
+    DialogBack("Replace this saved picture?")
+    BookCentered(56, "Its picture and story", BLACK)
+    BookCentered(80, "will be replaced.", BLACK)
+    if BookButton(202, 24, 120, 128, 28, "Replace") {
         if pending_slot >= 0 && StoreSlot(pending_slot) { view = MAIN }
     }
-    if RetroButton(203, 168, 120, 128, 28, "CANCEL") || retro.key == KEY_ESCAPE {
+    if BookButton(203, 168, 120, 128, 28, "Cancel") || retro.key == KEY_ESCAPE {
         view = SAVE_LOAD
     }
 }
 
 PrintView :: () {
-    DialogBack("PICTURE AND STORY")
-    RetroCentered(38, "SAVE A PNG, STORY AND", BLACK)
-    RetroCentered(58, "PRINTABLE COLOR PICTURE", BLACK)
-    if RetroButton(204, 28, 90, 264, 28, "EXPORT FILES") {
+    DialogBack("Picture and story")
+    BookCentered(38, "Save a PNG, story and", BLACK)
+    BookCentered(58, "printable color picture", BLACK)
+    if BookButton(204, 28, 90, 264, 28, "Export files") {
         reply := AppService("jungle.export", Join(CanvasText(), StoryText()))
-        Notice(ifx reply == "exported" then "FILES SAVED IN GAME EXPORTS" else "COULD NOT EXPORT")
+        Notice(ifx reply == "exported" then "Files saved in game exports" else "Could not export")
     }
-    if RetroButton(205, 28, 126, 264, 28, "PRINT") {
+    if BookButton(205, 28, 126, 264, 28, "Print") {
         reply := AppService("jungle.print", Join(CanvasText(), StoryText()))
-        Notice(ifx reply == "printed" then "SENT TO PRINTER" else
-            ifx reply == "exported" then "NO PRINTER; FILES SAVED" else "COULD NOT PRINT")
+        Notice(ifx reply == "printed" then "Sent to printer" else
+            ifx reply == "exported" then "No printer; files saved" else "Could not print")
     }
-    if retro.now < status_until { RetroCentered(160, status, BLACK) }
+    if retro.now < status_until { BookCentered(160, status, BLACK) }
     unused CancelButton()
 }
 
-#program_export
-main :: () -> s32 {
+GameMain :: () -> s32 {
     mode := AppMode()
     if mode == APP_IDENTIFY {
+        initialized = false
+        view = MAIN
+        placing = false
+        dragging = false
+        undo_count = 0
+        undo_next = 0
+        scene = -1
+        crayon = 14
+        dino = -1
+        canvas_name[0] = 0
+        ClearStory()
         AppIdentity("jungle.paint")
         AppDescribe("Dino Colors", "")
         return APP_PROTOCOL
     }
     if mode == APP_SAVE { return ifx SaveSlot() then 0 else 1 }
     if mode != APP_FRAME { return 0 }
+    GameLanguage()
     if !initialized {
         for at: cast(s32)0..CANVAS_PIXELS - 1 { canvas[at] = cast(u8)PAPER; lines[at] = false }
         unused PictureLoad(DocumentRead("working.txt"))
-        setting := DocumentRead("voice.txt")
-        if setting == "1" { voice_mode = 1 }
-        if setting == "2" { voice_mode = 2 }
         initialized = true
     }
     RetroBegin(AppSession(), AppBounds(), FONT, AppNow(), AppKey(), BLACK)
+    BookPalette()
     if view == MAIN { MainView() }
     else if view == PICK_SCENE { ScenePicker() }
     else if view == PICK_DINO { DinoPicker() }
@@ -582,4 +576,9 @@ main :: () -> s32 {
     else if view == OVERWRITE { OverwriteView() }
     else if view == PRINT_VIEW { PrintView() }
     return 0
+}
+
+#if !#defined(PLATFORM_WEB) {
+    #program_export
+    main :: () -> s32 { return GameMain() }
 }

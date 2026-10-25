@@ -35,12 +35,14 @@ def main():
             with Image.open(png) as picture:
                 assert picture.size == (240, 180)
                 assert len(picture.convert("RGB").getcolors(500) or []) >= 15
-            assert png.with_suffix(".txt").read_text().startswith("My dinosaur (and friend)\\hello\nSecond line")
+            assert png.with_suffix(".txt").read_text().startswith("My dinosaur (and friend)\\hello\nGrüße, niño, piña, ratón")
         received = json.loads((folder / "printer.json").read_text())
         assert received[:2] == ["-t", "Jungle picture and story"]
         ps = Path(received[-1])
-        content = ps.read_text()
+        content = ps.read_bytes().decode("latin-1")
         assert content.startswith("%!PS-Adobe-3.0\n"), repr(content[:80])
+        assert "Grüße, niño, piña, ratón" in content
+        assert "ISOLatin1Encoding" in content
         assert "colorimage" in content and r"\(and friend\)\\hello" in content
         # Ghostscript validates the actual page, including escaped story text.
         subprocess.run(["gs", "-q", "-dSAFER", "-dBATCH", "-dNOPAUSE", "-sDEVICE=png16m",

@@ -69,8 +69,9 @@ Sprite :: (source: string, target: string, width: s32, height: s32) -> bool {
     raw := "build/art/sprite-raw.png"
     colors := "build/art/sprite-colors.png"
     mask := "build/art/sprite-mask.png"
-    draw: [6]string = .["inkscape", "--export-type=png", Cat("--export-filename=", raw),
-    Cat("--export-width=", Number(width)), Cat("--export-height=", Number(height)), source]
+    draw: [7]string = .["inkscape", "--export-type=png", Cat("--export-filename=", raw),
+    Cat("--export-width=", Number(width)), Cat("--export-height=", Number(height)),
+    "--export-png-antialias=0", source]
     flatten: [13]string = .["convert", raw, "-background", "white", "-alpha", "remove", "-alpha", "off",
     "-dither", "None", "-remap", "build/art/palette.ppm", colors]
     cut: [7]string = .["convert", raw, "-alpha", "extract", "-threshold", "50%", mask]
@@ -80,22 +81,15 @@ Sprite :: (source: string, target: string, width: s32, height: s32) -> bool {
     return Run(draw[:]) && Run(flatten[:]) && Run(cut[:]) && Run(join[:])
 }
 
-// The printable ASCII letters of GNU Unifont, 16 to a row, white on clear.
+// The ASCII and Latin-1 letters of GNU Unifont, 16 to a row, white on clear.
 Font :: () -> bool {
     text: Vec(u8)
-    BuilderPrint(*text, "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"128\" height=\"96\" viewBox=\"0 0 128 96\">")
+    BuilderPrint(*text, "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"128\" height=\"224\" viewBox=\"0 0 128 224\">")
     BuilderPrint(*text, "<g font-family=\"Unifont\" font-size=\"16\" fill=\"#ffffff\">")
-    for code: cast(s32)32..126 {
+    for code: cast(s32)32..255 {
         at := code - 32
         BuilderPrint(*text, "<text x=\"%\" y=\"%\" xml:space=\"preserve\">", (at % 16) * 8, (at / 16) * 16 + 14)
-        if code == 38 { BuilderPrint(*text, "&amp;") }
-        else if code == 60 { BuilderPrint(*text, "&lt;") }
-        else if code == 62 { BuilderPrint(*text, "&gt;") }
-        else {
-            letter: [1]u8
-            letter[0] = cast(u8)code
-            BuilderPrint(*text, "%", TextView(letter[:]))
-        }
+        if code < 127 || code >= 160 { BuilderPrint(*text, "&#%;", code) }
         BuilderPrint(*text, "</text>")
     }
     BuilderPrint(*text, "</g></svg>\n")
@@ -130,10 +124,11 @@ Crayons :: () -> bool {
 main :: (argc: s32, argv: **u8) -> s32 {
     unused argc
     unused argv
-    folders: [5]string = .["build", "build/art", "assets", "assets/jungle", "assets/dino-paint"]
+    folders: [7]string = .["build", "build/art", "assets", "assets/jungle", "assets/dino-paint",
+        "assets/jungle-book", "assets/jungle-book/items"]
     for folder: folders { unused CreateDirectory(folder) }
     ok := Palette() && Font()
-    fonts: [2]string = .["assets/jungle/font.png", "assets/dino-paint/font.png"]
+    fonts: [4]string = .["assets/animal-count/latin.png", "assets/jungle/font.png", "assets/dino-paint/font.png", "assets/jungle-book/font.png"]
     for target: fonts { ok = ok && CopyFile("build/art/font.png", target) }
     ok = ok && Crayons()
     ok = ok && Sprite("art/items/frog.svg", "assets/jungle/math.png", 32, 32)

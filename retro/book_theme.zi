@@ -1,0 +1,70 @@
+// Jungle's shared watercolor-book paper, native lettering and whole illustrations.
+#import "geometry"
+#import "text_widget"
+#import "text_props"
+#import "text_align"
+#import "box_props"
+#import "box_widget"
+#import "drawing_props"
+#import "widget_palette"
+#import "image_props"
+#import "image_widget"
+#import "std/utf8"
+#import, file "language.zi";
+#import, file "retro.zi";
+
+BookText :: (x: s32, y: s32, width: s32, height: s32, text: string, size: s32,
+    alignment: TextAlign = TextAlign.TextAlignCenter, localize: bool = true) {
+    font := size
+    shown := ifx localize then Tr(text) else text
+    length := Count(shown)
+    if length > 0 && length * font * 3 > width * 5 { font = width * 5 / (length * 3) }
+    if font < 6 { font = 6 }
+    Text(retro.session, TextProps.{.bounds = RetroRect(x, y, width, height), .text = shown,
+        .font = cast(s32)(cast(float32)font * retro.scale),
+        .align = alignment, .vertical_align = TextAlign.TextAlignCenter,
+        .wrap = TextWrap.TextWrapNone})
+}
+
+BookBox :: (x: s32, y: s32, width: s32, height: s32, fill: u32, border: u32 = 0, radius: float32 = 0.0) {
+    unused Box(retro.session, BoxProps.{.bounds = RetroRect(x, y, width, height),
+        .fill = ColorFromPacked(fill), .border = ColorFromPacked(border), .radius = radius * retro.scale})
+}
+
+BookPicture :: (path: string, x: s32, y: s32, width: s32, height: s32) {
+    Image(retro.session, ImageProps.{.asset_path = path, .bounds = RetroRect(x, y, width, height),
+        .fit = ImageFit.ImageFitContain, .smooth = true})
+}
+
+BookPalette :: () {
+    unused WidgetPaletteUse(retro.session, WidgetPalette.{.background = 0xe3ece4ff,
+        .base = 0xfffcf3ff, .text = 0x3e332aff, .selected = 0x2e6956ff,
+        .selected_text = 0xfffcf3ff, .border = 0xbba98bff})
+}
+
+BookPaper :: () {
+    BookPalette()
+    BookBox(0, 0, 320, 200, 0xe3ece4ff)
+    BookBox(9, 8, 302, 184, 0x704d36ff, 0x593d2dff, 8.0)
+    BookBox(14, 12, 292, 176, 0xfffcf3ff, 0xdacdb5ff, 5.0)
+}
+
+BookButton :: (id: s32, x: s32, y: s32, width: s32, height: s32, label: string, chosen: bool = false) -> bool {
+    press := RetroTap(id, x, y, width, height, label)
+    BookBox(x, y, width, height,
+        ifx chosen || press.down then cast(u32)0xdcebdcff else cast(u32)0xf3ecdcff,
+        ifx chosen then cast(u32)0x2e6956ff else cast(u32)0xdacdb5ff, 4.0)
+    BookText(x + 3, y, width - 6, height, label, 11)
+    return press.clicked
+}
+
+// Dialog labels keep existing control positions while using native typography.
+BookLabel :: (x: s32, y: s32, text: string, color: s32, size: s32 = 1, localize: bool = true, width: s32 = 0) {
+    span := ifx width > 0 then width else Count(ifx localize then Tr(text) else text) * 8 * size
+    if span > SCREEN_WIDTH - x - 8 { span = SCREEN_WIDTH - x - 8 }
+    BookText(x, y, span, 16 * size, text, 12 * size, TextAlign.TextAlignStart, localize)
+}
+
+BookCentered :: (y: s32, text: string, color: s32, size: s32 = 1) {
+    BookText(22, y, 276, 16 * size, text, 12 * size)
+}

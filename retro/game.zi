@@ -1,5 +1,6 @@
 // What a Jungle game asks of the Jungle app around it.
 #import "app_context"
+#import, file "language.zi";
 
 // Plays one of the game's own sound files, such as
 // "assets/animal-count/sounds/right.wav".
@@ -24,5 +25,12 @@ GameSecondaryDown :: () -> bool {
 GameCanvas :: (pixels: string) -> string {
     name := AppService("jungle.canvas", pixels)
     if name.count < 8 || name[:7] != "canvas-" { return "" }
+    #if #defined(PLATFORM_WEB) {
+        return AppAssetPath(name)
+    }
     return name
+}
+
+GameLanguage :: () {
+    LanguageSet(AppService("jungle.language", ""))
 }

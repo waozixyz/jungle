@@ -20,6 +20,13 @@ main :: () -> s32 {
     long_input: [AUDIO_LIMIT * 2 + 10]u8
     long_output: [AUDIO_LIMIT * 2 + 10]u8
     if AudioMix(TextView(long_input[:]), 25, long_output[:]) != AUDIO_LIMIT * 2 { return 7 }
-    Report("local audio test: quiet gain, signed samples, fades, mute and duration limits passed\n")
+    voice_input: [AUDIO_RATE * 8]u8
+    voice_output: [AUDIO_RATE * 8]u8
+    for at: cast(s32)0..cast(s32)voice_input.count - 1 { voice_input[at] = cast(u8)64 }
+    if AudioMix(TextView(voice_input[:]), 45, voice_output[:], VOICE_LIMIT) != AUDIO_RATE * 8 { return 8 }
+    // Speech after the third second must survive, while cue calls stay short.
+    if voice_output[AUDIO_RATE * 7] == cast(u8)0 { return 9 }
+    if AudioMix(TextView(voice_input[:]), 25, voice_output[:]) != AUDIO_LIMIT * 2 { return 10 }
+    Report("local audio test: quiet gain, signed samples, fades, mute, cue limits and complete narration passed\n")
     return 0
 }

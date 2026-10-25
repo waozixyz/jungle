@@ -1,0 +1,122 @@
+name: Build and deploy Jungle
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: jungle-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test-build:
+    name: Test Linux and browser games
+    runs-on: ubuntu-latest
+    env:
+      MAKEFLAGS: -j2
+      CHROMIUM: google-chrome
+    defaults:
+      run:
+        working-directory: waozixyz/jungle
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          path: waozixyz/jungle
+      - name: Read locked dependencies
+        id: deps
+        run: |
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import json
+          lock=json.load(open('ziran.lock'))
+          print('ziran='+lock['toolchain']['commit'])
+          print('kryon='+next(p['commit'] for p in lock['packages'] if p['name']=='kryon'))
+          PY
+      - uses: actions/checkout@v7
+        with:
+          repository: ziranlang/ziran
+          ref: ${{ steps.deps.outputs.ziran }}
+          path: ziranlang/ziran
+      - uses: actions/checkout@v7
+        with:
+          repository: kryonlabs/kryon
+          ref: ${{ steps.deps.outputs.kryon }}
+          path: kryonlabs/kryon
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+      - uses: emscripten-core/setup-emsdk@v15
+        with:
+          version: '6.0.6'
+      - name: Install build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libsdl2-dev libcairo2-dev libfreetype-dev libfontconfig-dev libpango1.0-dev python3-pil xvfb xdotool imagemagick ghostscript
+      - name: Build compiler and select locked source directories
+        run: |
+          make -j2 -C "$GITHUB_WORKSPACE/ziranlang/ziran" all
+          echo "$GITHUB_WORKSPACE/ziranlang/ziran/build/bin" >> "$GITHUB_PATH"
+          echo "ZIRAN_ROOT=$GITHUB_WORKSPACE/ziranlang/ziran" >> "$GITHUB_ENV"
+          python3 - <<'PY'
+          from pathlib import Path
+          import os
+          root=Path(os.environ['GITHUB_WORKSPACE'])
+          Path('ziran.local.toml').write_text('[overrides]\nziran = "'+str(root/'ziranlang/ziran')+'"\nkryon = "'+str(root/'kryonlabs/kryon')+'"\n')
+          PY
+      - name: Build and run local tests
+        run: |
+          make -j2 all
+          make test
+          python3 tools/build_web.py
+          node tests/web_test.mjs
+      - uses: actions/upload-artifact@v6
+        with:
+          name: jungle-website
+          path: waozixyz/jungle/build/web/
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v6
+        if: failure()
+        with:
+          name: jungle-test-diagnostics
+          path: waozixyz/jungle/build/tests/
+
+  deploy:
+    name: Publish jungle.waozi.xyz
+    needs: test-build
+    if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      CLOUDFLARE_ACCOUNT_ID: '244fef03abd1e471baed2ec35c59e9e7'
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+      - uses: actions/download-artifact@v7
+        with:
+          name: jungle-website
+          path: build/web
+      - name: Publish the tested website
+        run: |
+          test -n "$CLOUDFLARE_API_TOKEN" || { echo 'Add the scoped CLOUDFLARE_API_TOKEN repository secret to enable deployment.'; exit 1; }
+          npx --yes wrangler@4.152.0 pages deploy build/web --project-name jungle --branch master --commit-hash "$GITHUB_SHA"
+          python3 tools/connect_domain.py
+      - name: Verify public version
+        run: |
+          python3 - <<'PY'
+          import json,os,time,urllib.request
+          for attempt in range(20):
+              try:
+                  with urllib.request.urlopen('https://jungle.waozi.xyz/version.json?run='+os.environ['GITHUB_RUN_ID'],timeout=15) as response:data=json.load(response)
+                  if data['revision']==os.environ['GITHUB_SHA']:break
+              except Exception:pass
+              time.sleep(3)
+          else:raise SystemExit('The exact deployed revision is not yet verified on jungle.waozi.xyz')
+          print('Verified deployed Jungle version '+data['version'])
+          PY

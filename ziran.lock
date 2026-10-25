@@ -2,6 +2,14 @@
   "format": 1,
   "packages": [
     {
+      "commit": "92ca1fd68ced43969df57632720060ee9666da16",
+      "dependencies": {"raylib": "p5a77c9c35110e925"},
+      "id": "p2d318e48a4d2aa44",
+      "name": "kryon",
+      "ref": "master",
+      "url": "https://github.com/kryonlabs/kryon.git"
+    },
+    {
       "commit": "fafa2cea97d0cb379d832086ba45a989fa6f9c8e",
       "dependencies": {},
       "id": "p5a77c9c35110e925",
@@ -9,22 +17,14 @@
       "ref": "fafa2cea97d0cb379d832086ba45a989fa6f9c8e",
       "source": true,
       "url": "https://github.com/raysan5/raylib.git"
-    },
-    {
-      "commit": "a024dc573bec70dcfe1d377d9853b4f3eda6beb4",
-      "dependencies": {"raylib": "p5a77c9c35110e925"},
-      "id": "p6fb45e3a87d81025",
-      "name": "kryon",
-      "ref": "master",
-      "url": "https://github.com/kryonlabs/kryon.git"
     }
   ],
   "root": {
-    "dependencies": {"kryon": "p6fb45e3a87d81025"},
+    "dependencies": {"kryon": "p2d318e48a4d2aa44"},
     "name": "Jungle"
   },
   "toolchain": {
-    "commit": "6be888add06a729145dbe63554e29c1f1c26aaa3",
+    "commit": "21c6a681c9ba684bbe069004fd971748cc5c7dc0",
     "ref": "master",
     "url": "https://github.com/ziranlang/ziran.git"
   }

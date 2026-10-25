@@ -1,16 +1,40 @@
-# Jungle
+# Jungle Academy
 
-Learning games for young children in the style of an old PC: a 320 by 200
-screen of fat pixels, VGA crayons, square-wave beeps, and the keyboard or
+Play at **https://jungle.waozi.xyz**.
+
+Gentle learning games for young children, with watercolor illustrations,
+cream book pages, warm colors and quiet feedback. Play with the keyboard or
 mouse. Made with [Ziran](https://github.com/ziranlang/ziran) and
 [Kryon](https://github.com/kryonlabs/kryon).
 
-Jungle is a menu. Each game is its own `.zib` bundle in `games/`, which the
+Jungle Academy is a menu. Each game is its own `.zx` bundle in `games/`, which the
 app opens through Kryon's app host. A game keeps its saves in its own folder
 under `~/.local/share/jungle/games/`.
 
-**Animal Counting** is Animal Math's counting game: how many are there?
-The pictures sit in the original eighteen fixed places, the levels climb
+Choose **English, Deutsch or Español** with the flag buttons on the title
+screen. Jungle remembers the language. Its title screen shares the Picture Book's cream
+paper, warm frame, native lettering and watercolor game covers. All three games' menus, feedback and
+controls are translated. Picture Book has local narration.
+Accented German and Spanish letters work in Dino stories, saves and exports.
+
+**Picture Book** has nine organized books: Wild animals (15 pictures), Garden
+(10), Fruits (16), Farm (20), Kitchen (8), Bathroom (8), Bedroom (8),
+Living room (8), and Nature (8). Use the shelf arrows to browse the books. Choose **Simple** to hear each word once with
+its picture, or **Spelling** to hear the word, its letters and the word again.
+The selected mode is remembered. Every one of the 101 pictures has names and
+both kinds of narration in English, German and Spanish, including correctly
+spaced accented letters. Pictures sit on cream pages in a softly bound book.
+Simple pages stay open at least six seconds; spelling pages at least twelve.
+Both wait until three seconds after their recording finishes. Swipe left for
+the next page and right for the previous page. Arrows, Enter or a picture tap
+turn pages too; Books or Escape returns to the categories. Pages show the
+picture and word without a category heading or page counter. Each book ends
+after its final picture and suggests another book. After a short finish screen,
+the next book opens automatically; All books returns to the book choices. Back from the first picture stays there.
+
+**Animal Counting** pairs watercolor animals with a clean answer card on
+cream paper. Its counting rules follow Animal Math. The pictures sit in
+eighteen fixed places, the levels climb
 4, 5, 6, 9, 12 and 18, six right answers move up, six misses move
 back down, the same number never comes twice, and every eighth right
 answer brings one of the original praises, from GOOD JOB to AWESOME.
@@ -20,8 +44,9 @@ any of twelve dinosaurs in four sizes, then fill
 the picture with thirty crayon buttons. You can write an eight-line story
 and keep the whole picture and story in one of six slots. Undo takes back the
 last dinosaur, fill or erase. The working picture recovers when you reopen the
-game. Dinosaur selection includes the original recorded names, with sound on,
-silent and voice-only settings.
+game. Rounded tool buttons, paper galleries and native lettering match the
+book theme. Dinosaur selection has no voiceover or voice controls. Quiet sound
+effects follow the shared mute setting.
 
 Grab the placement box in the upper-left corner, drag it onto the picture,
 and release. Hold the right mouse button while releasing the left to mirror
@@ -39,6 +64,7 @@ make run
 make test       # counting, complete saves, painting, PNGs and printing
 make test-ui    # real keyboard/mouse play on a separate virtual display
 make install    # ~/.local/bin/jungle and a menu entry
+make web        # browser game in build/web (requires Emscripten)
 ```
 
 The tests need ImageMagick, Python's Pillow package and Ghostscript. UI tests
@@ -77,11 +103,23 @@ render the page with Ghostscript, without sending paper jobs.
 The thirty crayons reproduce the original fifteen solid VGA colors and their
 fifteen checkerboard fills. Earlier sixteen-color saves retain their palette.
 
-## Pixel art and sounds
+## Art and sounds
 
-The drawings are SVG files in `art/`. `make art` cuts them down to small
-sprites in the sixteen colors with Inkscape and ImageMagick, and makes the
-letters from GNU Unifont. Dino Colors' scenes and dinosaurs are traced from
+Menu sprites are SVG files in `art/`. `make art` cuts them down to small
+sprites in the sixteen colors with Inkscape and ImageMagick, makes the
+ASCII and Latin-1 letters from GNU Unifont. Picture Book's pages are cut from a watercolor atlas generated with Codex's
+built-in imagegen tool, following the owner's illustrated jungle-book reference.
+The source, generation prompt and reference stay in `art/generated/`.
+`tools/book_art.py` cuts its individual illustrations and category covers.
+The 42 pages include ten more fruits and six more farm animals.
+`tools/book_catalog.py` owns the category, word and literal letter-name inventory;
+`tools/locales.py` compiles `locales/ui.json` into the portable UI translations.
+Its recordings are generated through Harmony's reusable `generate_speech` tool
+on OpenRouter, using Gemini TTS's Kore voice with gentle delivery and slower,
+pitch-preserving playback. Each WAV has a `.speech.json` with the literal word,
+spelling, model, voice, speed, measured duration and checksum. No network or
+credential is needed while playing.
+Dino Colors' scenes and dinosaurs are traced from
 the original Bert's Dinosaurs artwork into `assets/dino-paint/art` and
 `games/paint/paint_pages.zi`. `make sounds` makes the beeps. Both tools are
 written in Ziran (`tools/`), and their output is committed. They preserve the
@@ -108,3 +146,13 @@ BIOS glyphs are recovered from DOSBox; see
 [licenses/dosbox-font.txt](licenses/dosbox-font.txt) and
 [licenses/GPL-2.txt](licenses/GPL-2.txt). Original game artwork and voice data
 retain their original authorship.
+
+## Website deployment
+
+Pushes to `master` run the Linux tests and a private browser test in GitHub
+Actions, then publish the same tested website artifact to Cloudflare Pages.
+The deployment verifies its revision on `jungle.waozi.xyz`. The repository
+secret `CLOUDFLARE_API_TOKEN` grants Pages Edit for the hosting account and
+DNS Edit for `waozi.xyz`; credentials are never stored in this repository.
+Browser saves stay on that browser in IndexedDB. Images load before play,
+and narration loads as needed. Browser printing opens the browser print dialog.

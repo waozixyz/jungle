@@ -2,6 +2,8 @@
 // pixels and text, never a command, printer argument or destination path.
 #import "std/process_capture_linux"
 #import "std/text_buffer"
+#import "std/utf8"
+#import, file "../retro/language.zi";
 #import "bundle_time"
 #import "app_files"
 #import, file "canvas_png.zi";
@@ -27,10 +29,14 @@ PrintPage :: (pixels: []u8, story: string) -> string {
         }
         if (at + 1) % 240 == 0 { unused VecPush(text, cast(u8)10) }
     }
-    BuilderPrint(*text, "grestore\n/Courier findfont 12 scalefont setfont\n0 setgray\n")
+    BuilderPrint(*text, "grestore\n/Courier findfont dup length dict begin {1 index /FID ne {def} {pop pop} ifelse} forall /Encoding ISOLatin1Encoding def currentdict end /JungleCourier exch definefont 12 scalefont setfont\n0 setgray\n")
     row: s32 = 0
     BuilderPrint(*text, "66 320 moveto (")
-    for byte: story {
+    story_at: s32 = 0
+    while story_at < cast(s32)story.count {
+        decoded := Decode(story, story_at)
+        story_at = decoded.after
+        byte := cast(u8)decoded.value
         if byte == cast(u8)10 {
             BuilderPrint(*text, ") show\n")
             row += 1
@@ -47,7 +53,7 @@ PrintPage :: (pixels: []u8, story: string) -> string {
 
 ExportPicture :: (files: *AppFiles, request: string, printer: bool) -> string {
     length := 240 * 180 + 6
-    if request.count < length || request[:6] != "paint\n" || request.count > length + 8 * 39 { return "failed" }
+    if request.count < length || request[:6] != "paint\n" || request.count > length + 8 * 77 { return "failed" }
     for at: cast(s32)0..240 * 180 - 1 {
         color := PaintIndex(request[at + 6])
         if color < 0 { return "failed" }
@@ -56,10 +62,15 @@ ExportPicture :: (files: *AppFiles, request: string, printer: bool) -> string {
     story := request[length:]
     rows: s32 = 0
     columns: s32 = 0
-    for byte: story {
-        if byte == cast(u8)10 { rows += 1; columns = 0 }
+    at: s32 = 0
+    while at < cast(s32)story.count {
+        decoded := Decode(story, at)
+        at = decoded.after
+        code := decoded.value
+        if !decoded.valid { return "failed" }
+        if code == cast(u32)10 { rows += 1; columns = 0 }
         else {
-            if byte < 32 || byte > 126 { return "failed" }
+            if code < cast(u32)32 || code > cast(u32)255 || (code >= cast(u32)127 && code < cast(u32)160) { return "failed" }
             columns += 1
         }
         if rows > 8 || columns > 38 { return "failed" }
@@ -76,7 +87,7 @@ ExportPicture :: (files: *AppFiles, request: string, printer: bool) -> string {
     if !printer { return "exported" }
     path := AppFilePath(files, Cat(base, ".ps"), false)
     defer { AppFileFree(path) }
-    arguments: [4]string = .["lp", "-t", "Jungle picture and story", path]
+    arguments: [4]string = .["lp", "-t", Tr("Jungle picture and story"), path]
     output: [4096]u8
     result := CaptureOutput(arguments[:], output[:])
     return ifx !result.error && !result.truncated && result.code == 0 then "printed" else "exported"

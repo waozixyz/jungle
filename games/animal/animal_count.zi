@@ -1,3 +1,4 @@
+#import, file "../../retro/language.zi";
 // Animal Counting: Animal Math's counting game. The eighteen native sprites
 // sit in the original's fixed places, the ladder runs 4, 5, 6, 9, 12 and 18,
 // six right answers move up, six misses move back, and the eighth right answer
@@ -9,15 +10,16 @@
 #import "text_buffer"
 #import, file "../../retro/retro.zi";
 #import, file "../../retro/game.zi";
+#import, file "../../retro/book_theme.zi";
 #import, file "counting.zi";
 #import, file "counting_progress.zi";
 #import, file "../../host/jungle_text.zi";
 
 FONT :: "assets/animal-count/font.png"
 SOUNDS :: "assets/animal-count/sounds/"
-HOW_MANY :: "HOW MANY ?"
-YOU_GOT_IT :: "YOU GOT IT !!"
-TRY_AGAIN :: "Sorry, Try It Again !!!"
+HOW_MANY :: "How many animals?"
+YOU_GOT_IT :: "You got it!"
+TRY_AGAIN :: "Try again!"
 // Animal Math's eighteen counting places, exactly as in ANIMALS.PAS.
 place_x: [18]s32 = .[164, 132, 132, 164, 100, 100, 132, 164, 100, 68, 68, 68, 36, 36, 36, 196, 196, 196];
 place_y: [18]s32 = .[100, 100, 72, 72, 72, 100, 128, 128, 128, 100, 72, 128, 72, 100, 128, 72, 100, 128];
@@ -31,8 +33,6 @@ praise_word: string = "";
 loaded: bool;
 reward_started: float64;
 reward_head: s32;
-reward_body: s32;
-reward_legs: s32;
 
 Join :: (a: string, b: string = "", c: string = "") -> string {
     text: Vec(u8)
@@ -55,20 +55,56 @@ NextNumber :: () {
     typed[1] = 0
 }
 
+animal_pictures: [18]string = .["tiger", "frog", "butterfly", "ladybug", "snail", "elephant",
+    "giraffe", "monkey", "panda", "lion", "zebra", "crocodile", "parrot", "toucan", "rabbit", "cat", "dog", "sheep"];
+
 ItemPath :: (which: s32) -> string {
-    return Join("assets/animal-count/items/animal-", Number(which + 1), ".png")
+    return Join("assets/animal-count/pictures/", animal_pictures[which % 18], ".png")
 }
 
-#program_export
-main :: () -> s32 {
+CountingView :: () {
+    BookPaper()
+    BookText(24, 16, 272, 24, "Animal Counting", 18)
+    BookText(24, 41, 272, 14, HOW_MANY, 11)
+    BookBox(22, 58, 276, 90, 0xf7f1e3ff, 0xdacdb5ff, 5.0)
+    for index: cast(s32)0..number - 1 {
+        BookPicture(ItemPath(item), place_x[index] - 13, place_y[index] - 13, 26, 26)
+    }
+    BookText(210, 89, 18, 28, "=", 20)
+    BookBox(232, 85, 56, 38, 0xfffcf3ff, 0xbba98bff, 6.0)
+    answer := ifx typed_count > 0 then TextView(typed[:typed_count]) else "?"
+    BookText(234, 85, 52, 38, answer, 25)
+    for index: cast(s32)0..7 {
+        BookBox(24 + index * 8, 155, 5, 5,
+            ifx index < count % 8 then cast(u32)0x2e6956ff else cast(u32)0xe5d9c3ff, 0, 3.0)
+    }
+    BookText(96, 152, 194, 14, "Type a number, then Enter", 8)
+    if BookButton(30, 24, 173, 52, 14, "Menu") { GameHome() }
+    if retro.now < state_until { BookText(84, 173, 210, 14, state_message, 10) }
+}
+
+CountingReward :: () {
+    BookPaper()
+    BookText(24, 19, 272, 30, praise_word, 21)
+    BookPicture(ItemPath(reward_head), 110, 58, 100, 100)
+    for index: cast(s32)0..7 {
+        BookBox(119 + index * 11, 169, 5, 5, 0x2e6956ff, 0, 3.0)
+    }
+}
+
+GameMain :: () -> s32 {
     mode := AppMode()
     if mode == APP_IDENTIFY {
+        loaded = false
+        state_until = -10.0
+        praise_until = -10.0
         AppIdentity("jungle.animals")
         AppDescribe("Animal Counting", "")
         return APP_PROTOCOL
     }
     if mode == APP_SAVE { return ifx !loaded || CountSave() then 0 else 1 }
     if mode != APP_FRAME { return 0 }
+    GameLanguage()
     now := AppNow()
     if !loaded {
         CountLoad()
@@ -76,46 +112,10 @@ main :: () -> s32 {
         NextNumber()
         loaded = true
     }
-    RetroBegin(AppSession(), AppBounds(), FONT, now, AppKey(), BLUE, 8)
+    RetroBegin(AppSession(), AppBounds(), FONT, now, AppKey(), BLACK)
     if AppKey() == KEY_ESCAPE { GameHome(); return 0 }
-    if now < praise_until {
-        RetroSprite(ItemPath(reward_head), 48, 64, 24, 20)
-        RetroSprite(ItemPath(reward_body), 48, 84, 24, 20)
-        RetroSprite(ItemPath(reward_legs), 48, 104, 24, 20)
-        RetroText(84, 110, praise_word, YELLOW, 2)
-        stars_x: [18]s32 = .[220,260,100,132,56,120,200,25,258,100,20,288,200,180,140,20,80,24]
-        stars_y: [18]s32 = .[24,128,80,142,28,168,180,162,60,36,20,186,70,40,60,188,160,136]
-        for star: cast(s32)0..17 {
-            if cast(float64)star < (now - reward_started) * 12.0 { RetroText(stars_x[star], stars_y[star], "*",
-                ifx star % 3 == 0 then LIGHT_GREEN else ifx star % 3 == 1 then LIGHT_RED else YELLOW, 2) }
-        }
-        return 0
-    }
-    RetroSprite("assets/animal-count/background.png", 0, 0, 320, 200)
-    // The original's title and question, in its places.
-    RetroText(120, 40, "COUNTING", LIGHT_GREEN)
-    RetroText(69, 157, HOW_MANY, YELLOW, 2)
-    RetroSprite("assets/animal-count/items/equals.png", 216, 90, 24, 20)
-    RetroSprite("assets/animal-count/items/question.png", 248, 90, 24, 20)
-    // The counted sprites, one per original place.
-    for index: cast(s32)0..number - 1 {
-        RetroSprite(ItemPath(item), place_x[index] - 12, place_y[index] - 10, 24, 20)
-    }
-    // The eight check marks, one for each right answer in the run.
-    marks := count % 8
-    for index: cast(s32)0..marks - 1 {
-        RetroSprite("assets/animal-count/items/check.png", 220 + index * 8, 60, 8, 8)
-    }
-    // What has been typed, in the original's big digits.
-    for index: cast(s32)0..typed_count - 1 {
-        one: [1]u8 = .[typed[index]]
-        RetroText(257 + index * 16, 157, TextView(one[:]), YELLOW, 2)
-    }
-    // The bottom line says what happened, exactly as the original did.
-    if retro.now < praise_until {
-        RetroText(84, 110, praise_word, YELLOW, 2)
-    }
-    if retro.now < state_until { RetroText(64, 192, state_message, LIGHT_GREEN) }
+    if now < praise_until { CountingReward(); return 0 }
+    CountingView()
     key := retro.key
     if key == KEY_ESCAPE { GameHome(); return 0 }
     if key >= 48 && key <= 57 && typed_count < 2 {
@@ -140,10 +140,7 @@ main :: () -> s32 {
             Sound(Join("right-", Number((count - 1) % 8)))
             if count % 8 == 0 {
                 praise_word = praises[RandomNumber(8) - 1]
-                heads: [7]s32 = .[7,3,15,13,14,8,11]
-                reward_head = heads[RandomNumber(7) - 1]
-                reward_body = 18 + RandomNumber(3) - 1
-                reward_legs = 21 + RandomNumber(3) - 1
+                reward_head = RandomNumber(18) - 1
                 reward_started = now
                 praise_until = now + 1.5
                 Sound("reward")
@@ -160,4 +157,9 @@ main :: () -> s32 {
         unused CountSave()
     }
     return 0
+}
+
+#if !#defined(PLATFORM_WEB) {
+    #program_export
+    main :: () -> s32 { return GameMain() }
 }

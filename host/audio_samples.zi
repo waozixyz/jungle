@@ -2,13 +2,15 @@
 // edge fades and a bounded duration so even packed legacy beeps stay gentle.
 AUDIO_RATE :: 22050
 AUDIO_LIMIT :: AUDIO_RATE * 3
+// Match the maximum duration accepted by Harmony's offline speech generator.
+VOICE_LIMIT :: AUDIO_RATE * 60
 AUDIO_FADE :: AUDIO_RATE / 125
 
-AudioMix :: (samples: string, percent: s32, output: []u8) -> s32 {
+AudioMix :: (samples: string, percent: s32, output: []u8, limit: s32 = AUDIO_LIMIT) -> s32 {
     if percent <= 0 { return 0 }
     if percent > 100 { percent = 100 }
     length := cast(s32)(samples.count / 2)
-    if length > AUDIO_LIMIT { length = AUDIO_LIMIT }
+    if length > limit { length = limit }
     if length > cast(s32)(output.count / 2) { length = cast(s32)(output.count / 2) }
     for index: cast(s32)0..length - 1 {
         value := cast(s32)samples[index * 2] | (cast(s32)samples[index * 2 + 1] << 8)
