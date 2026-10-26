@@ -19,15 +19,15 @@ returns home from its first screen. The sound button at the top right mutes
 or unmutes every game.
 Accented German and Spanish letters work in Dino stories, saves and exports.
 
-**Picture Book** has fifteen organized books: Wild animals (15 pictures), Garden
+**Picture Book** has seventeen organized books: Wild animals (15 pictures), Garden
 (10), Fruits (16), Farm (20), Kitchen (8), Bathroom (8), Bedroom (8),
-Living room (8), Nature (8), Vegetables (16), Family (8), Body Parts (10), Breakfast (6), Lunch (6), and Dinner (6). Browse the framed book list through Nature, Food, Home and Family tabs. Every page is one gentle watercolor
+Living room (8), Nature (8), Vegetables (16), Family (8), Body Parts (10), Breakfast (6), Lunch (6), Dinner (6), Clothing (12), and Seasons (4). Browse the framed book list through Nature, Food, Home and Family tabs. Every page is one gentle watercolor
 scene in the style of the title-screen covers: each animal, food or thing sits
 in its own setting, so no two pages share a background. Breakfast pages are
 drawn in morning light, Lunch at midday and Dinner in the evening. The scene
 fills the page and its word sits on a label at the bottom. Choose **Simple** to hear each word once with
 its picture, or **Spelling** to hear the word, its letters and the word again.
-The selected mode is remembered. Every one of the 153 pictures has names and
+The selected mode is remembered. Every one of the 169 pictures has names and
 both kinds of narration in English, German and Spanish, including correctly
 spaced accented letters. Each cover lists its page count. Linux narration is read only when played; browser pictures load as needed.
 Simple pages stay open at least six seconds; spelling pages at least twelve.

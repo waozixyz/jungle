@@ -72,6 +72,7 @@ jobs:
           make -j2 all
           make test
           python3 tests/book_shelf_test.py
+          python3 tests/book_additions_ui_test.py
           python3 tests/learning_menu_test.py
           python3 tools/build_web.py
           node tests/web_test.mjs

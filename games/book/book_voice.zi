@@ -149,7 +149,7 @@ voice_paths_en_spelling_96: [48]string = .[
     "assets/jungle-book/sounds/lasagne.wav",
     "assets/jungle-book/sounds/head.wav",
 ];
-voice_paths_en_spelling_144: [9]string = .[
+voice_paths_en_spelling_144: [25]string = .[
     "assets/jungle-book/sounds/eye.wav",
     "assets/jungle-book/sounds/ear.wav",
     "assets/jungle-book/sounds/nose.wav",
@@ -159,12 +159,28 @@ voice_paths_en_spelling_144: [9]string = .[
     "assets/jungle-book/sounds/hand.wav",
     "assets/jungle-book/sounds/leg.wav",
     "assets/jungle-book/sounds/foot.wav",
+    "assets/jungle-book/sounds/shirt.wav",
+    "assets/jungle-book/sounds/sweater.wav",
+    "assets/jungle-book/sounds/trousers.wav",
+    "assets/jungle-book/sounds/dress.wav",
+    "assets/jungle-book/sounds/skirt.wav",
+    "assets/jungle-book/sounds/socks.wav",
+    "assets/jungle-book/sounds/shoes.wav",
+    "assets/jungle-book/sounds/coat.wav",
+    "assets/jungle-book/sounds/hat.wav",
+    "assets/jungle-book/sounds/scarf.wav",
+    "assets/jungle-book/sounds/gloves.wav",
+    "assets/jungle-book/sounds/boots.wav",
+    "assets/jungle-book/sounds/spring.wav",
+    "assets/jungle-book/sounds/summer.wav",
+    "assets/jungle-book/sounds/autumn.wav",
+    "assets/jungle-book/sounds/winter.wav",
 ];
 VoicePath_en_spelling :: (at: s32) -> string {
     if at < 48 { return voice_paths_en_spelling_0[at - 0] }
     if at < 96 { return voice_paths_en_spelling_48[at - 48] }
     if at < 144 { return voice_paths_en_spelling_96[at - 96] }
-    if at < 153 { return voice_paths_en_spelling_144[at - 144] }
+    if at < 169 { return voice_paths_en_spelling_144[at - 144] }
     return ""
 }
 voice_seconds_en_spelling_0: [48]float64 = .[
@@ -317,7 +333,7 @@ voice_seconds_en_spelling_96: [48]float64 = .[
     13.691156,
     8.400454,
 ];
-voice_seconds_en_spelling_144: [9]float64 = .[
+voice_seconds_en_spelling_144: [25]float64 = .[
     7.149070,
     6.529070,
     9.176508,
@@ -327,12 +343,28 @@ voice_seconds_en_spelling_144: [9]float64 = .[
     9.544535,
     7.050068,
     8.990023,
+    10.731338,
+    13.361497,
+    15.106213,
+    9.993197,
+    11.900590,
+    10.510476,
+    10.366531,
+    9.010159,
+    8.080136,
+    10.301905,
+    10.750794,
+    9.517778,
+    12.758957,
+    11.055964,
+    11.731519,
+    13.021814,
 ];
 VoiceSeconds_en_spelling :: (at: s32) -> float64 {
     if at < 48 { return voice_seconds_en_spelling_0[at - 0] }
     if at < 96 { return voice_seconds_en_spelling_48[at - 48] }
     if at < 144 { return voice_seconds_en_spelling_96[at - 96] }
-    if at < 153 { return voice_seconds_en_spelling_144[at - 144] }
+    if at < 169 { return voice_seconds_en_spelling_144[at - 144] }
     return 0.0
 }
 voice_paths_en_simple_0: [48]string = .[
@@ -485,7 +517,7 @@ voice_paths_en_simple_96: [48]string = .[
     "assets/jungle-book/sounds/en/simple/lasagne.wav",
     "assets/jungle-book/sounds/en/simple/head.wav",
 ];
-voice_paths_en_simple_144: [9]string = .[
+voice_paths_en_simple_144: [25]string = .[
     "assets/jungle-book/sounds/en/simple/eye.wav",
     "assets/jungle-book/sounds/en/simple/ear.wav",
     "assets/jungle-book/sounds/en/simple/nose.wav",
@@ -495,12 +527,28 @@ voice_paths_en_simple_144: [9]string = .[
     "assets/jungle-book/sounds/en/simple/hand.wav",
     "assets/jungle-book/sounds/en/simple/leg.wav",
     "assets/jungle-book/sounds/en/simple/foot.wav",
+    "assets/jungle-book/sounds/en/simple/shirt.wav",
+    "assets/jungle-book/sounds/en/simple/sweater.wav",
+    "assets/jungle-book/sounds/en/simple/trousers.wav",
+    "assets/jungle-book/sounds/en/simple/dress.wav",
+    "assets/jungle-book/sounds/en/simple/skirt.wav",
+    "assets/jungle-book/sounds/en/simple/socks.wav",
+    "assets/jungle-book/sounds/en/simple/shoes.wav",
+    "assets/jungle-book/sounds/en/simple/coat.wav",
+    "assets/jungle-book/sounds/en/simple/hat.wav",
+    "assets/jungle-book/sounds/en/simple/scarf.wav",
+    "assets/jungle-book/sounds/en/simple/gloves.wav",
+    "assets/jungle-book/sounds/en/simple/boots.wav",
+    "assets/jungle-book/sounds/en/simple/spring.wav",
+    "assets/jungle-book/sounds/en/simple/summer.wav",
+    "assets/jungle-book/sounds/en/simple/autumn.wav",
+    "assets/jungle-book/sounds/en/simple/winter.wav",
 ];
 VoicePath_en_simple :: (at: s32) -> string {
     if at < 48 { return voice_paths_en_simple_0[at - 0] }
     if at < 96 { return voice_paths_en_simple_48[at - 48] }
     if at < 144 { return voice_paths_en_simple_96[at - 96] }
-    if at < 153 { return voice_paths_en_simple_144[at - 144] }
+    if at < 169 { return voice_paths_en_simple_144[at - 144] }
     return ""
 }
 voice_seconds_en_simple_0: [48]float64 = .[
@@ -653,7 +701,7 @@ voice_seconds_en_simple_96: [48]float64 = .[
     2.184671,
     1.635057,
 ];
-voice_seconds_en_simple_144: [9]float64 = .[
+voice_seconds_en_simple_144: [25]float64 = .[
     1.727211,
     1.439592,
     1.934966,
@@ -663,12 +711,28 @@ voice_seconds_en_simple_144: [9]float64 = .[
     1.996417,
     1.638639,
     1.636100,
+    1.778141,
+    1.740363,
+    1.932925,
+    1.790068,
+    1.978549,
+    1.732063,
+    1.932698,
+    1.530658,
+    1.677324,
+    2.175374,
+    1.879909,
+    1.831202,
+    2.179184,
+    1.889433,
+    1.789297,
+    1.725850,
 ];
 VoiceSeconds_en_simple :: (at: s32) -> float64 {
     if at < 48 { return voice_seconds_en_simple_0[at - 0] }
     if at < 96 { return voice_seconds_en_simple_48[at - 48] }
     if at < 144 { return voice_seconds_en_simple_96[at - 96] }
-    if at < 153 { return voice_seconds_en_simple_144[at - 144] }
+    if at < 169 { return voice_seconds_en_simple_144[at - 144] }
     return 0.0
 }
 voice_paths_de_spelling_0: [48]string = .[
@@ -821,7 +885,7 @@ voice_paths_de_spelling_96: [48]string = .[
     "assets/jungle-book/sounds/de/spelling/lasagne.wav",
     "assets/jungle-book/sounds/de/spelling/head.wav",
 ];
-voice_paths_de_spelling_144: [9]string = .[
+voice_paths_de_spelling_144: [25]string = .[
     "assets/jungle-book/sounds/de/spelling/eye.wav",
     "assets/jungle-book/sounds/de/spelling/ear.wav",
     "assets/jungle-book/sounds/de/spelling/nose.wav",
@@ -831,12 +895,28 @@ voice_paths_de_spelling_144: [9]string = .[
     "assets/jungle-book/sounds/de/spelling/hand.wav",
     "assets/jungle-book/sounds/de/spelling/leg.wav",
     "assets/jungle-book/sounds/de/spelling/foot.wav",
+    "assets/jungle-book/sounds/de/spelling/shirt.wav",
+    "assets/jungle-book/sounds/de/spelling/sweater.wav",
+    "assets/jungle-book/sounds/de/spelling/trousers.wav",
+    "assets/jungle-book/sounds/de/spelling/dress.wav",
+    "assets/jungle-book/sounds/de/spelling/skirt.wav",
+    "assets/jungle-book/sounds/de/spelling/socks.wav",
+    "assets/jungle-book/sounds/de/spelling/shoes.wav",
+    "assets/jungle-book/sounds/de/spelling/coat.wav",
+    "assets/jungle-book/sounds/de/spelling/hat.wav",
+    "assets/jungle-book/sounds/de/spelling/scarf.wav",
+    "assets/jungle-book/sounds/de/spelling/gloves.wav",
+    "assets/jungle-book/sounds/de/spelling/boots.wav",
+    "assets/jungle-book/sounds/de/spelling/spring.wav",
+    "assets/jungle-book/sounds/de/spelling/summer.wav",
+    "assets/jungle-book/sounds/de/spelling/autumn.wav",
+    "assets/jungle-book/sounds/de/spelling/winter.wav",
 ];
 VoicePath_de_spelling :: (at: s32) -> string {
     if at < 48 { return voice_paths_de_spelling_0[at - 0] }
     if at < 96 { return voice_paths_de_spelling_48[at - 48] }
     if at < 144 { return voice_paths_de_spelling_96[at - 96] }
-    if at < 153 { return voice_paths_de_spelling_144[at - 144] }
+    if at < 169 { return voice_paths_de_spelling_144[at - 144] }
     return ""
 }
 voice_seconds_de_spelling_0: [48]float64 = .[
@@ -989,7 +1069,7 @@ voice_seconds_de_spelling_96: [48]float64 = .[
     12.911565,
     7.690748,
 ];
-voice_seconds_de_spelling_144: [9]float64 = .[
+voice_seconds_de_spelling_144: [25]float64 = .[
     8.139320,
     6.260136,
     8.084082,
@@ -999,12 +1079,28 @@ voice_seconds_de_spelling_144: [9]float64 = .[
     8.062313,
     7.094649,
     7.081905,
+    7.829297,
+    14.428798,
+    8.689388,
+    9.705714,
+    7.417732,
+    10.324989,
+    10.219592,
+    11.642585,
+    8.077551,
+    10.188254,
+    15.259274,
+    12.936735,
+    12.288299,
+    10.595964,
+    10.725351,
+    10.833787,
 ];
 VoiceSeconds_de_spelling :: (at: s32) -> float64 {
     if at < 48 { return voice_seconds_de_spelling_0[at - 0] }
     if at < 96 { return voice_seconds_de_spelling_48[at - 48] }
     if at < 144 { return voice_seconds_de_spelling_96[at - 96] }
-    if at < 153 { return voice_seconds_de_spelling_144[at - 144] }
+    if at < 169 { return voice_seconds_de_spelling_144[at - 144] }
     return 0.0
 }
 voice_paths_de_simple_0: [48]string = .[
@@ -1157,7 +1253,7 @@ voice_paths_de_simple_96: [48]string = .[
     "assets/jungle-book/sounds/de/simple/lasagne.wav",
     "assets/jungle-book/sounds/de/simple/head.wav",
 ];
-voice_paths_de_simple_144: [9]string = .[
+voice_paths_de_simple_144: [25]string = .[
     "assets/jungle-book/sounds/de/simple/eye.wav",
     "assets/jungle-book/sounds/de/simple/ear.wav",
     "assets/jungle-book/sounds/de/simple/nose.wav",
@@ -1167,12 +1263,28 @@ voice_paths_de_simple_144: [9]string = .[
     "assets/jungle-book/sounds/de/simple/hand.wav",
     "assets/jungle-book/sounds/de/simple/leg.wav",
     "assets/jungle-book/sounds/de/simple/foot.wav",
+    "assets/jungle-book/sounds/de/simple/shirt.wav",
+    "assets/jungle-book/sounds/de/simple/sweater.wav",
+    "assets/jungle-book/sounds/de/simple/trousers.wav",
+    "assets/jungle-book/sounds/de/simple/dress.wav",
+    "assets/jungle-book/sounds/de/simple/skirt.wav",
+    "assets/jungle-book/sounds/de/simple/socks.wav",
+    "assets/jungle-book/sounds/de/simple/shoes.wav",
+    "assets/jungle-book/sounds/de/simple/coat.wav",
+    "assets/jungle-book/sounds/de/simple/hat.wav",
+    "assets/jungle-book/sounds/de/simple/scarf.wav",
+    "assets/jungle-book/sounds/de/simple/gloves.wav",
+    "assets/jungle-book/sounds/de/simple/boots.wav",
+    "assets/jungle-book/sounds/de/simple/spring.wav",
+    "assets/jungle-book/sounds/de/simple/summer.wav",
+    "assets/jungle-book/sounds/de/simple/autumn.wav",
+    "assets/jungle-book/sounds/de/simple/winter.wav",
 ];
 VoicePath_de_simple :: (at: s32) -> string {
     if at < 48 { return voice_paths_de_simple_0[at - 0] }
     if at < 96 { return voice_paths_de_simple_48[at - 48] }
     if at < 144 { return voice_paths_de_simple_96[at - 96] }
-    if at < 153 { return voice_paths_de_simple_144[at - 144] }
+    if at < 169 { return voice_paths_de_simple_144[at - 144] }
     return ""
 }
 voice_seconds_de_simple_0: [48]float64 = .[
@@ -1325,7 +1437,7 @@ voice_seconds_de_simple_96: [48]float64 = .[
     2.380091,
     2.126213,
 ];
-voice_seconds_de_simple_144: [9]float64 = .[
+voice_seconds_de_simple_144: [25]float64 = .[
     1.830385,
     1.532336,
     1.842540,
@@ -1335,12 +1447,28 @@ voice_seconds_de_simple_144: [9]float64 = .[
     1.789252,
     1.682449,
     1.779048,
+    1.977098,
+    2.188390,
+    2.231791,
+    1.825261,
+    1.525261,
+    1.935964,
+    1.784127,
+    1.781723,
+    1.935964,
+    1.978231,
+    1.892381,
+    2.489116,
+    1.891338,
+    1.791293,
+    2.273605,
+    1.728617,
 ];
 VoiceSeconds_de_simple :: (at: s32) -> float64 {
     if at < 48 { return voice_seconds_de_simple_0[at - 0] }
     if at < 96 { return voice_seconds_de_simple_48[at - 48] }
     if at < 144 { return voice_seconds_de_simple_96[at - 96] }
-    if at < 153 { return voice_seconds_de_simple_144[at - 144] }
+    if at < 169 { return voice_seconds_de_simple_144[at - 144] }
     return 0.0
 }
 voice_paths_es_spelling_0: [48]string = .[
@@ -1493,7 +1621,7 @@ voice_paths_es_spelling_96: [48]string = .[
     "assets/jungle-book/sounds/es/spelling/lasagne.wav",
     "assets/jungle-book/sounds/es/spelling/head.wav",
 ];
-voice_paths_es_spelling_144: [9]string = .[
+voice_paths_es_spelling_144: [25]string = .[
     "assets/jungle-book/sounds/es/spelling/eye.wav",
     "assets/jungle-book/sounds/es/spelling/ear.wav",
     "assets/jungle-book/sounds/es/spelling/nose.wav",
@@ -1503,12 +1631,28 @@ voice_paths_es_spelling_144: [9]string = .[
     "assets/jungle-book/sounds/es/spelling/hand.wav",
     "assets/jungle-book/sounds/es/spelling/leg.wav",
     "assets/jungle-book/sounds/es/spelling/foot.wav",
+    "assets/jungle-book/sounds/es/spelling/shirt.wav",
+    "assets/jungle-book/sounds/es/spelling/sweater.wav",
+    "assets/jungle-book/sounds/es/spelling/trousers.wav",
+    "assets/jungle-book/sounds/es/spelling/dress.wav",
+    "assets/jungle-book/sounds/es/spelling/skirt.wav",
+    "assets/jungle-book/sounds/es/spelling/socks.wav",
+    "assets/jungle-book/sounds/es/spelling/shoes.wav",
+    "assets/jungle-book/sounds/es/spelling/coat.wav",
+    "assets/jungle-book/sounds/es/spelling/hat.wav",
+    "assets/jungle-book/sounds/es/spelling/scarf.wav",
+    "assets/jungle-book/sounds/es/spelling/gloves.wav",
+    "assets/jungle-book/sounds/es/spelling/boots.wav",
+    "assets/jungle-book/sounds/es/spelling/spring.wav",
+    "assets/jungle-book/sounds/es/spelling/summer.wav",
+    "assets/jungle-book/sounds/es/spelling/autumn.wav",
+    "assets/jungle-book/sounds/es/spelling/winter.wav",
 ];
 VoicePath_es_spelling :: (at: s32) -> string {
     if at < 48 { return voice_paths_es_spelling_0[at - 0] }
     if at < 96 { return voice_paths_es_spelling_48[at - 48] }
     if at < 144 { return voice_paths_es_spelling_96[at - 96] }
-    if at < 153 { return voice_paths_es_spelling_144[at - 144] }
+    if at < 169 { return voice_paths_es_spelling_144[at - 144] }
     return ""
 }
 voice_seconds_es_spelling_0: [48]float64 = .[
@@ -1661,7 +1805,7 @@ voice_seconds_es_spelling_96: [48]float64 = .[
     11.859864,
     10.197279,
 ];
-voice_seconds_es_spelling_144: [9]float64 = .[
+voice_seconds_es_spelling_144: [25]float64 = .[
     7.738503,
     9.385669,
     10.405805,
@@ -1671,12 +1815,28 @@ voice_seconds_es_spelling_144: [9]float64 = .[
     9.133288,
     11.802902,
     5.937778,
+    11.274376,
+    13.370023,
+    19.496327,
+    13.052426,
+    10.209977,
+    17.820091,
+    14.295011,
+    11.741905,
+    14.049705,
+    12.846848,
+    13.354104,
+    9.778503,
+    15.233741,
+    12.300952,
+    10.941315,
+    15.838776,
 ];
 VoiceSeconds_es_spelling :: (at: s32) -> float64 {
     if at < 48 { return voice_seconds_es_spelling_0[at - 0] }
     if at < 96 { return voice_seconds_es_spelling_48[at - 48] }
     if at < 144 { return voice_seconds_es_spelling_96[at - 96] }
-    if at < 153 { return voice_seconds_es_spelling_144[at - 144] }
+    if at < 169 { return voice_seconds_es_spelling_144[at - 144] }
     return 0.0
 }
 voice_paths_es_simple_0: [48]string = .[
@@ -1829,7 +1989,7 @@ voice_paths_es_simple_96: [48]string = .[
     "assets/jungle-book/sounds/es/simple/lasagne.wav",
     "assets/jungle-book/sounds/es/simple/head.wav",
 ];
-voice_paths_es_simple_144: [9]string = .[
+voice_paths_es_simple_144: [25]string = .[
     "assets/jungle-book/sounds/es/simple/eye.wav",
     "assets/jungle-book/sounds/es/simple/ear.wav",
     "assets/jungle-book/sounds/es/simple/nose.wav",
@@ -1839,12 +1999,28 @@ voice_paths_es_simple_144: [9]string = .[
     "assets/jungle-book/sounds/es/simple/hand.wav",
     "assets/jungle-book/sounds/es/simple/leg.wav",
     "assets/jungle-book/sounds/es/simple/foot.wav",
+    "assets/jungle-book/sounds/es/simple/shirt.wav",
+    "assets/jungle-book/sounds/es/simple/sweater.wav",
+    "assets/jungle-book/sounds/es/simple/trousers.wav",
+    "assets/jungle-book/sounds/es/simple/dress.wav",
+    "assets/jungle-book/sounds/es/simple/skirt.wav",
+    "assets/jungle-book/sounds/es/simple/socks.wav",
+    "assets/jungle-book/sounds/es/simple/shoes.wav",
+    "assets/jungle-book/sounds/es/simple/coat.wav",
+    "assets/jungle-book/sounds/es/simple/hat.wav",
+    "assets/jungle-book/sounds/es/simple/scarf.wav",
+    "assets/jungle-book/sounds/es/simple/gloves.wav",
+    "assets/jungle-book/sounds/es/simple/boots.wav",
+    "assets/jungle-book/sounds/es/simple/spring.wav",
+    "assets/jungle-book/sounds/es/simple/summer.wav",
+    "assets/jungle-book/sounds/es/simple/autumn.wav",
+    "assets/jungle-book/sounds/es/simple/winter.wav",
 ];
 VoicePath_es_simple :: (at: s32) -> string {
     if at < 48 { return voice_paths_es_simple_0[at - 0] }
     if at < 96 { return voice_paths_es_simple_48[at - 48] }
     if at < 144 { return voice_paths_es_simple_96[at - 96] }
-    if at < 153 { return voice_paths_es_simple_144[at - 144] }
+    if at < 169 { return voice_paths_es_simple_144[at - 144] }
     return ""
 }
 voice_seconds_es_simple_0: [48]float64 = .[
@@ -1997,7 +2173,7 @@ voice_seconds_es_simple_96: [48]float64 = .[
     2.483129,
     2.031066,
 ];
-voice_seconds_es_simple_144: [9]float64 = .[
+voice_seconds_es_simple_144: [25]float64 = .[
     2.186757,
     1.882222,
     1.884717,
@@ -2007,11 +2183,27 @@ voice_seconds_es_simple_144: [9]float64 = .[
     1.828753,
     1.926032,
     1.378639,
+    2.142132,
+    2.143855,
+    3.530612,
+    2.488163,
+    1.635964,
+    2.628299,
+    2.376281,
+    2.386984,
+    2.028390,
+    2.235147,
+    2.539093,
+    2.087302,
+    2.279184,
+    2.382948,
+    2.275374,
+    2.878277,
 ];
 VoiceSeconds_es_simple :: (at: s32) -> float64 {
     if at < 48 { return voice_seconds_es_simple_0[at - 0] }
     if at < 96 { return voice_seconds_es_simple_48[at - 48] }
     if at < 144 { return voice_seconds_es_simple_96[at - 96] }
-    if at < 153 { return voice_seconds_es_simple_144[at - 144] }
+    if at < 169 { return voice_seconds_es_simple_144[at - 144] }
     return 0.0
 }

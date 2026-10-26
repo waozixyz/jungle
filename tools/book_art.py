@@ -10,7 +10,7 @@ import json
 from math import ceil
 import sys
 from PIL import Image
-from book_catalog import BOOKS, NAMES, WORDS, LANGUAGES, narration, voice_path, TITLES
+from book_catalog import BOOKS, BOOK_GROUPS, NAMES, WORDS, LANGUAGES, narration, voice_path, TITLES
 
 ROOT = Path(__file__).resolve().parents[1]
 SCENES = ROOT / "assets/jungle-book/pages"
@@ -44,12 +44,16 @@ def main():
     catalog += f"CATEGORY_COUNT :: {len(BOOKS)}\n"
     catalog += f"category_counts: [{len(BOOKS)}]s32 = .{{{counts}}};\n"
     catalog += f"category_starts: [{len(BOOKS)}]s32 = .[" + ", ".join(map(str, starts)) + "];\n"
-    order = [c for c in ("jungle", "garden", "farm", "nature", "fruits", "vegetables", "breakfast", "lunch", "dinner", "kitchen", "bathroom", "bedroom", "living-room", "family", "body") if c in dict(BOOKS)]
+    groups = BOOK_GROUPS
+    order = [category for _, members in groups for category in members]
+    assert len(order) == len(set(order)) == len(BOOKS) and set(order) == set(dict(BOOKS))
     catalog += f"shelf_order: [{len(BOOKS)}]s32 = .[" + ", ".join(str([c for c, _ in BOOKS].index(c)) for c in order) + "];\n"
-    groups = [("Nature", ["jungle","garden","farm","nature"]), ("Food", ["fruits","vegetables","breakfast","lunch","dinner"]), ("Home", ["kitchen","bathroom","bedroom","living-room"]), ("Family", ["family","body"])]
-    catalog += 'book_groups: [4]string = .["Nature", "Food", "Home", "Family"];\n'
-    catalog += 'group_starts: [4]s32 = .[0,4,9,13];\ngroup_counts: [4]s32 = .[4,5,4,2];\n'
-    catalog += 'category_groups: [15]s32 = .[' + ','.join(str(next(i for i,(_,members) in enumerate(groups) if c in members)) for c,_ in BOOKS) + '];\n'
+    catalog += f'book_groups: [{len(groups)}]string = .[' + ','.join(json.dumps(name) for name, _ in groups) + '];\n'
+    group_counts = [len(members) for _, members in groups]
+    group_starts = [sum(group_counts[:index]) for index in range(len(groups))]
+    catalog += f'group_starts: [{len(groups)}]s32 = .[' + ','.join(map(str, group_starts)) + '];\n'
+    catalog += f'group_counts: [{len(groups)}]s32 = .[' + ','.join(map(str, group_counts)) + '];\n'
+    catalog += f'category_groups: [{len(BOOKS)}]s32 = .[' + ','.join(str(next(i for i,(_,members) in enumerate(groups) if c in members)) for c,_ in BOOKS) + '];\n'
     catalog += f"category_names: [{len(BOOKS)}]string = .[" + ", ".join(json.dumps(TITLES[c][0]) for c, _ in BOOKS) + "];\n"
     catalog += f"category_previews: [{len(BOOKS)}]string = .[" + ", ".join(json.dumps("assets/jungle-book/previews/" + c + ".jpg") for c, _ in BOOKS) + "];\n"
     catalog += string_table("page_paths", [f"assets/jungle-book/pages/{name}.jpg" for name in NAMES])

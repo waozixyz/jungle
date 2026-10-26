@@ -140,6 +140,26 @@
       "hand",
       "leg",
       "foot"
+    ],
+    "clothing": [
+      "shirt",
+      "sweater",
+      "trousers",
+      "dress",
+      "skirt",
+      "socks",
+      "shoes",
+      "coat",
+      "hat",
+      "scarf",
+      "gloves",
+      "boots"
+    ],
+    "seasons": [
+      "spring",
+      "summer",
+      "autumn",
+      "winter"
     ]
   },
   "titles": {
@@ -217,6 +237,16 @@
       "Body Parts",
       "Körperteile",
       "Partes del cuerpo"
+    ],
+    "clothing": [
+      "Clothing",
+      "Kleidung",
+      "Ropa"
+    ],
+    "seasons": [
+      "Seasons",
+      "Jahreszeiten",
+      "Estaciones"
     ]
   },
   "words": {
@@ -774,6 +804,86 @@
       "Foot",
       "Fuß",
       "Pie"
+    ],
+    "shirt": [
+      "Shirt",
+      "Hemd",
+      "Camisa"
+    ],
+    "sweater": [
+      "Sweater",
+      "Pullover",
+      "Suéter"
+    ],
+    "trousers": [
+      "Trousers",
+      "Hose",
+      "Pantalón"
+    ],
+    "dress": [
+      "Dress",
+      "Kleid",
+      "Vestido"
+    ],
+    "skirt": [
+      "Skirt",
+      "Rock",
+      "Falda"
+    ],
+    "socks": [
+      "Socks",
+      "Socken",
+      "Calcetines"
+    ],
+    "shoes": [
+      "Shoes",
+      "Schuhe",
+      "Zapatos"
+    ],
+    "coat": [
+      "Coat",
+      "Mantel",
+      "Abrigo"
+    ],
+    "hat": [
+      "Hat",
+      "Hut",
+      "Sombrero"
+    ],
+    "scarf": [
+      "Scarf",
+      "Schal",
+      "Bufanda"
+    ],
+    "gloves": [
+      "Gloves",
+      "Handschuhe",
+      "Guantes"
+    ],
+    "boots": [
+      "Boots",
+      "Stiefel",
+      "Botas"
+    ],
+    "spring": [
+      "Spring",
+      "Frühling",
+      "Primavera"
+    ],
+    "summer": [
+      "Summer",
+      "Sommer",
+      "Verano"
+    ],
+    "autumn": [
+      "Autumn",
+      "Herbst",
+      "Otoño"
+    ],
+    "winter": [
+      "Winter",
+      "Winter",
+      "Invierno"
     ]
   }
 }
