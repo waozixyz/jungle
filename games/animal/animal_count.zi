@@ -231,7 +231,7 @@ GameMain :: () -> s32 {
         unused CountSave()
     }
     if question_pending && now >= question_at {
-        Sound(Join("question-", LanguageCode()))
+        unused AppService("jungle.voice", Join(SOUNDS, Join("question-", LanguageCode()), ".wav"))
         question_pending = false
     }
     return 0
