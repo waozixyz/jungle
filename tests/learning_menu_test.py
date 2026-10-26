@@ -37,7 +37,10 @@ for language in ("en", "de", "es"):
                     pixels = colors.get_flattened_data() if hasattr(colors, "get_flattened_data") else colors.getdata()
                     assert sum(1 for r,g,b in pixels if max(r,g,b)-min(r,g,b)>65 and min(r,g,b)<160) > 300, "Optional shared illustration did not render"
                 else:
-                    assert vivid > 300, (language, "Counted animals did not render")
+                    # Cows and other pale/grey animals are valid watercolor
+                    # pictures too. Check image detail rather than saturation.
+                    colors = picture.getcolors(picture.width * picture.height)
+                    assert len(colors or []) > 256, (language, "Counted animals did not render")
                 desktop.key("Right")
                 changed = desktop.capture_actual("next-" + name + "-" + language)
                 assert ImageChops.difference(page, changed).getbbox(), "Next did not change the learning page"
