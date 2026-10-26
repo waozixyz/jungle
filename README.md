@@ -41,23 +41,16 @@ picture stays there.
 
 **ABC + 123** combines the letter and number books in one menu entry.
 Choose **ABC Book** or **123 Book** inside it; Back returns to that choice.
-Both books keep their existing progress and narration.
-
-**123 Book** is the numbers twin of ABC Book. **Learn the numbers** shows each
-numeral from one to ten with its word and that many watercolor animals,
-packed like Animal Counting's rows; the strip along the bottom reaches every
-number and a new animal greets each visit. **Find the number** asks how many
-animals there are — with the spoken question — and follows the same gentle
-ladder: six right answers move up, six misses move back, the same number
-never comes twice, and every eighth right answer brings one of the original
-praises. Level one counts to three among three numeral tiles; later levels
-reach ten, add look-alike numerals like 6 and 9, then six tiles. Progress is
-kept in the game's own save folder.
+Both open directly into learning, without an activity chooser or a find game.
+ABC pages pair each letter with watercolor pictures and Simple or Spelling narration.
+123 pages show each numeral from one to ten with its word and that many
+watercolor animals. The strip along the bottom reaches every number.
+Existing saved progress files are preserved.
 
 **Animal Counting** pairs watercolor animals with a clean answer card on
 cream paper, with a touch number pad below the animals on phones or beside
 them on wider screens. Its counting rules follow Animal Math. The levels climb
-4, 5, 6, 9, 12 and 18, six right answers move up, six misses move
+4, 5, 6, 8, 9 and 10, six right answers move up, six misses move
 back down, the same number never comes twice, and every eighth right
 answer brings one of the original praises, from GOOD JOB to AWESOME.
 
@@ -182,3 +175,10 @@ The deployment verifies its revision on `jungle.waozi.xyz`. The repository
 secret `CLOUDFLARE_API_TOKEN` grants Pages Edit for the hosting account and
 DNS Edit for `waozi.xyz`; credentials are never stored in this repository.
 Browser saves stay on that browser in IndexedDB. Menu images load first; book pictures and narration load as needed. Browser printing opens the browser print dialog.
+
+Linux releases include `jungle-vVERSION-x86_64.AppImage`. Make it executable and
+open it; it includes the pictures, narration, fonts and desktop runtime libraries.
+On systems without FUSE, use `APPIMAGE_EXTRACT_AND_RUN=1` when launching it.
+Build locally with `python3 tools/build_appimage.py` and run its private-display
+tests with `python3 tests/appimage_test.py`. GitHub's release workflow verifies
+the AppImage before publishing it alongside the Android APK.

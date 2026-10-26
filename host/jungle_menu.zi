@@ -5,6 +5,9 @@
 #import "kryon/drawing_props"
 #import "kryon/svg_icon_props"
 #import "kryon/svg_icon_widget"
+#import "kryon/title_bar_props"
+#import "kryon/dropdown_props"
+#import "kryon/title_bar_widget"
 SoundOnIcon :: #import "mingcute/mingcute_regular_volume";
 SoundOffIcon :: #import "mingcute/mingcute_regular_volume_off";
 #import, file "../retro/retro.zi";
@@ -46,15 +49,17 @@ GameTitleBar :: (session: Session, bounds: Rectangle, key: s32, now: float64, ti
     action: TitleBarAction
     width := cast(s32)bounds.width
     BookPalette()
-    BookBox(0, 0, width, GAME_BAR_HEIGHT, 0xe3ece4ff)
-    action.back = BookBack(9001, 12, 6, 44, 44)
-    BookText(68, 0, width - 136, GAME_BAR_HEIGHT, title, 22, TextAlign.TextAlignStart)
+    options: [0]DropdownOption
+    bar := TitleBar(session, TitleBarProps.{.key = 9001,
+        .bounds = Rectangle.{bounds.x, bounds.y, bounds.width, cast(float32)GAME_BAR_HEIGHT},
+        .height = GAME_BAR_HEIGHT, .title = Tr(title), .has_leading_action = true,
+        .leading_label = Tr("Back"), .trailing_width = 60}, options[:])
+    action.back = bar.clicked_leading
     sound := RetroTap(9002, width - 56, 6, 44, 44, ifx sound_muted then "Sound off · F10" else "Sound on · F10")
     BookBox(width - 56, 6, 44, 44, ifx sound.down then cast(u32)0xdcebdcff else cast(u32)0xf3ecdcff, 0xdacdb5ff, 4.0)
     SvgIcon(session, SvgIconProps.{.bounds = RetroRect(width - 49, 13, 30, 30),
         .shape = ifx sound_muted then SoundOffIcon.Shape else SoundOnIcon.Shape, .color = ColorFromPacked(0x3e332aff)})
     action.sound_toggle = sound.clicked
-    BookBox(0, GAME_BAR_HEIGHT - 1, width, 1, 0xdacdb5ff)
     return action
 }
 
@@ -167,11 +172,7 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
         if picture > h - 8 { picture = h - 8 }
         if picture < 1 { picture = 1 }
         image_y := y + (h - picture) / 2
-        if group {
-            BookBox(25, image_y, picture, picture, 0xfffcf3ff, 0xd6c6a8ff, 3.0)
-            BookText(25, image_y, picture, picture / 2, "Aa", picture / 3, TextAlign.TextAlignCenter, false)
-            BookText(25, image_y + picture / 2, picture, picture / 2, "123", picture / 4, TextAlign.TextAlignCenter, false)
-        } else { BookPicture(games[index].icon, 25, image_y, picture, picture) }
+        BookPicture(ifx group then "assets/jungle/covers/abc-123.png" else games[index].icon, 25, image_y, picture, picture)
         text_x := 25 + picture + 9
         if h >= 54 {
             text_y := y + (h - 42) / 2

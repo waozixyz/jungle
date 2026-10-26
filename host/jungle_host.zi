@@ -188,6 +188,8 @@ GameAssetAllowed :: (path: string) -> bool {
     if path.count > 11 && path[:7] == "canvas-" && path[path.count - 4:] == ".png" && AppFileNameValid(path) {
         return true
     }
+    // These read-only pictures ship beside all three learning bundles.
+    if book_assets_installed && path.count > 25 && path[:25] == "assets/jungle-book/items/" && AppFileNameValid(path) { return true }
     return BundleAppAssetAllowed(path)
 }
 

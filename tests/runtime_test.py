@@ -178,7 +178,7 @@ class Desktop:
         from PIL import Image
         picture = Image.open(path).convert("RGB")
         # Jungle opens windowed at a default integral scale.
-        header = 56 if picture.height > 56 and picture.getpixel((0,55)) == (218,205,181) else 0
+        header = 56 if picture.height > 56 and picture.getpixel((0,55)) in ((218,205,181), (213,225,231)) else 0
         scale = min(picture.width / 320, (picture.height - header) / 200)
         left = (picture.width - 320 * scale) / 2
         top = header + (picture.height - header - 200 * scale) / 2
@@ -335,8 +335,8 @@ def ui(binary):
             desktop.key("Return")
             pages = desktop.capture("book-pages")
             ink = (62, 51, 42)
-            assert ink in [color for _, color in pages.crop((168, 57, 298, 96)).getcolors(10000)], "Picture Book did not show its large word"
-            assert ink in [color for _, color in pages.crop((168, 103, 298, 125)).getcolors(10000)], "Picture Book did not show its spelling"
+            assert ink in [color for _, color in pages.crop((80, 170, 240, 190)).getcolors(10000)], "Picture Book did not show its large word"
+            assert ink in [color for _, color in pages.crop((80, 180, 240, 192)).getcolors(10000)], "Picture Book did not show its spelling"
             desktop.key("Right")
             next_page = desktop.capture("book-next")
             assert ImageChops.difference(pages, next_page).getbbox(), "Picture Book did not turn the page"
@@ -350,54 +350,28 @@ def ui(binary):
             print("local UI test: Picture Book categories, pages and English names", flush=True)
             desktop.key("2")
             desktop.key("1")
-            abc = desktop.capture("abc-chooser")
+            abc = desktop.capture("abc-learn")
             assert abc.getpixel((0, 0)) == (227, 236, 228), "ABC Book lost its cream background"
-            desktop.click(230, 120)
-            find = desktop.capture("abc-find")
-            if ImageChops.difference(find, abc).getbbox() is None:
-                desktop.click(230, 120)
-                find = desktop.capture("abc-find-retry")
-            assert ImageChops.difference(find, abc).getbbox(), "ABC find card did not open"
-            abc_progress = data / "games/jungle.abc/progress.txt"
-            for letter in "abcdefghijklmnopqrstuvwxyz":
-                desktop.key(letter)
-                if abc_progress.exists():
-                    fields = abc_progress.read_text().split()
-                    if len(fields) == 5 and fields[2].isdigit() and int(fields[2]) >= 1:
-                        break
-            assert abc_progress.exists() and int(abc_progress.read_text().split()[2]) >= 1, \
-                "ABC find did not accept the right letter"
-            desktop.click(90, 120)
-            letter_a = desktop.capture("abc-letter-a")
-            assert ImageChops.difference(letter_a, find).getbbox(), "ABC letter page did not open"
-            desktop.click(58, 158)
-            letter_m = desktop.capture("abc-letter-b")
-            assert ImageChops.difference(letter_a, letter_m).getbbox(), "ABC strip did not move to another letter"
-            desktop.key("Escape")
+            desktop.key("Right")
+            letter_b = desktop.capture("abc-letter-b")
+            assert ImageChops.difference(abc, letter_b).getbbox(), "ABC did not turn the letter page"
             desktop.key("Escape")
             desktop.key("Escape")
             desktop.capture("menu-abc-return")
-            print("local UI test: ABC letters, navigation and find answers", flush=True)
+            print("local UI test: ABC opens directly into learning", flush=True)
             desktop.key("2")
             desktop.key("2")
-            numbers = desktop.capture("numbers-chooser")
+            numbers = desktop.capture("numbers-learn")
             assert numbers.getpixel((0, 0)) == (227, 236, 228), "123 Book lost its cream background"
-            desktop.click(90, 120)
-            page = desktop.capture("numbers-learn")
-            if ImageChops.difference(page, numbers).getbbox() is None:
-                desktop.click(90, 120)
-                page = desktop.capture("numbers-learn-retry")
-            assert ImageChops.difference(page, numbers).getbbox(), "123 learn card did not open"
-            desktop.click(116, 164)
+            desktop.key("4")
             four = desktop.capture("numbers-four")
-            assert ImageChops.difference(page, four).getbbox(), "123 strip did not move to another number"
-            desktop.click(224, 164)
-            eight = desktop.capture("numbers-eight")
-            assert ImageChops.difference(four, eight).getbbox(), "123 strip did not move again"
+            assert ImageChops.difference(numbers, four).getbbox(), "123 did not select number four"
+            desktop.key("0")
+            ten = desktop.capture("numbers-ten")
+            assert ImageChops.difference(four, ten).getbbox(), "123 did not select number ten"
             desktop.key("Escape")
             desktop.key("Escape")
-            desktop.key("Escape")
-            print("local UI test: 123 number pages and the number strip", flush=True)
+            print("local UI test: 123 opens directly into learning and reaches ten", flush=True)
             desktop.key("3")
             counting = desktop.capture("counting")
             assert counting.getpixel((0, 0)) == (227, 236, 228), "counting did not render its book background"
@@ -422,6 +396,7 @@ def ui(binary):
                 desktop.key("Return")
             assert progress.read_text().split()[1:] == ["1", "6", "0", "0"], "six misses did not move down"
             desktop.key("Escape")
+            desktop.key("Up")
             desktop.key("Up")
             returned = desktop.capture("menu-return")
             assert ImageChops.difference(menu, returned).getbbox() is None, "counting did not return home"
@@ -501,6 +476,7 @@ def ui(binary):
             desktop.click(30, 90)
             desktop.capture("paint-erase")
             desktop.click(80, 85)
+            desktop.key("Escape")  # Dismiss the new-background chooser before loading.
             desktop.click(30, 110)
             desktop.click(210, 38)
             desktop.click(50, 80)

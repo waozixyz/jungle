@@ -13,5 +13,7 @@ def main():
         cell = source.crop(tuple(round(v) for v in (column * source.width / 2, row * source.height / 2,
                           (column + 1) * source.width / 2, (row + 1) * source.height / 2)))
         cell.resize((420, 420), Image.Resampling.LANCZOS).save(target / (name + '.png'), optimize=True)
-    print('Prepared three watercolor title covers')
+    with Image.open(ROOT / 'art/generated/abc-123-cover.png') as cover:
+        cover.resize((420, 420), Image.Resampling.LANCZOS).save(target / 'abc-123.png', optimize=True)
+    print('Prepared four watercolor title covers')
 if __name__ == '__main__': main()

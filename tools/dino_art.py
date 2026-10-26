@@ -184,7 +184,8 @@ def scene(sheet, index):
 def standalone_stencils():
     """Trace each new stencil from its own generated image."""
     manifest = json.loads((ROOT / 'tools/coloring_stencils.json').read_text())
-    for index, item in enumerate(manifest['stencils'], 19):
+    for item in manifest['stencils']:
+        index = item['index']
         source = ROOT / 'art/generated/coloring-stencils' / (item['name'] + '.png')
         with Image.open(source) as image:
             rgba = image.convert('RGBA')
