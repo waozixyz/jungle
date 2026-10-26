@@ -1,7 +1,8 @@
 name: Desktop and Android release
 
 # Every release includes a tested Linux AppImage and a signed Android APK.
-# Android creates the release only after the AppImage job succeeds.
+# Both downloads stay in this job until verified, then publish together.
+# No artifact-storage transfer is required between build jobs.
 # A version that is already published is never replaced.
 on:
   push:
@@ -16,86 +17,15 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  appimage:
-    name: Linux AppImage
-    runs-on: ubuntu-24.04
-    timeout-minutes: 45
-    env:
-      ZIRAN_PAR_THREADS: '1'
-      MAKEFLAGS: -j2
-      OMP_NUM_THREADS: '1'
-      MAGICK_THREAD_LIMIT: '1'
-    defaults:
-      run:
-        working-directory: waozixyz/jungle
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          path: waozixyz/jungle
-      - name: Read locked dependencies
-        id: deps
-        run: |
-          python3 - <<'PY' >> "$GITHUB_OUTPUT"
-          import json
-          lock=json.load(open('ziran.lock'))
-          print('ziran='+lock['toolchain']['commit'])
-          print('kryon='+next(p['commit'] for p in lock['packages'] if p['name']=='kryon'))
-          print('version='+open('VERSION').read().strip())
-          PY
-      - uses: actions/checkout@v7
-        with:
-          repository: ziranlang/ziran
-          ref: ${{ steps.deps.outputs.ziran }}
-          path: ziranlang/ziran
-      - uses: actions/checkout@v7
-        with:
-          repository: kryonlabs/kryon
-          ref: ${{ steps.deps.outputs.kryon }}
-          path: kryonlabs/kryon
-      - name: Install Linux build and test tools
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libsdl2-dev libcairo2-dev libfreetype-dev libfontconfig-dev libpango1.0-dev libgdk-pixbuf-2.0-0 python3-pil imagemagick xvfb xdotool
-      - name: Build the locked compiler
-        run: |
-          make -j2 -C "$GITHUB_WORKSPACE/ziranlang/ziran" all
-          echo "$GITHUB_WORKSPACE/ziranlang/ziran/build/bin" >> "$GITHUB_PATH"
-          python3 - <<'PYTHON'
-          from pathlib import Path
-          import os
-          root=Path(os.environ['GITHUB_WORKSPACE'])
-          Path('ziran.local.toml').write_text('[overrides]\nziran = "'+str(root/'ziranlang/ziran')+'"\nkryon = "'+str(root/'kryonlabs/kryon')+'"\n')
-          PYTHON
-          "$GITHUB_WORKSPACE/ziranlang/ziran/build/bin/ziran" fetch
-      - name: Build and test the AppImage
-        run: |
-          python3 tools/build_appimage.py
-          python3 tests/appimage_test.py
-      - name: Save private test captures on failure
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: appimage-ui-failure
-          path: |
-            waozixyz/jungle/build/tests/ui/*.png
-            waozixyz/jungle/build/tests/ui/*.log
-            waozixyz/jungle/build/tests/web/*.png
-          if-no-files-found: ignore
-      - uses: actions/upload-artifact@v4
-        with:
-          name: jungle-appimage
-          path: |
-            waozixyz/jungle/build/downloads/*.AppImage
-            waozixyz/jungle/build/downloads/*.AppImage.sha256
-          if-no-files-found: error
   apk:
-    needs: appimage
-    name: Signed Android APK
+    name: Linux AppImage and signed Android APK
     runs-on: ubuntu-24.04
     timeout-minutes: 90
     env:
       ZIRAN_PAR_THREADS: '1'
       MAKEFLAGS: -j2
+      OMP_NUM_THREADS: '1'
+      MAGICK_THREAD_LIMIT: '1'
     defaults:
       run:
         working-directory: waozixyz/jungle
@@ -130,10 +60,7 @@ jobs:
       - name: Install build tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y libsdl2-dev libcairo2-dev libfreetype-dev libfontconfig-dev libpango1.0-dev python3-pil imagemagick
-      - name: Install the pinned Android SDK tools
-        run: |
-          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'ndk;28.2.13676358' 'build-tools;36.0.0' 'platforms;android-36' 'cmake;3.22.1'
+          sudo apt-get install -y libsdl2-dev libcairo2-dev libfreetype-dev libfontconfig-dev libpango1.0-dev libgdk-pixbuf-2.0-0 python3-pil imagemagick xvfb xdotool
       - name: Build compiler and select locked source directories
         run: |
           make -j2 -C "$GITHUB_WORKSPACE/ziranlang/ziran" all
@@ -145,6 +72,13 @@ jobs:
           Path('ziran.local.toml').write_text('[overrides]\nziran = "'+str(root/'ziranlang/ziran')+'"\nkryon = "'+str(root/'kryonlabs/kryon')+'"\n')
           PY
           "$GITHUB_WORKSPACE/ziranlang/ziran/build/bin/ziran" fetch
+      - name: Build and test the Linux AppImage
+        run: |
+          python3 tools/build_appimage.py
+          python3 tests/appimage_test.py
+      - name: Install the pinned Android SDK tools
+        run: |
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'ndk;28.2.13676358' 'build-tools;36.0.0' 'platforms;android-36' 'cmake;3.22.1'
       - name: Build both ARM architectures in one APK
         run: python3 tools/build_android.py --release --abi universal
       - name: Sign and verify the download
@@ -160,10 +94,6 @@ jobs:
           printf '%s' "$PASSWORD" > "$RUNNER_TEMP/jungle-password"
           python3 tools/android_release.py sign build/android/JungleAcademy-universal-release-unsigned.apk \
             --keystore "$RUNNER_TEMP/jungle-release.p12" --password-file "$RUNNER_TEMP/jungle-password"
-      - uses: actions/download-artifact@v4
-        with:
-          name: jungle-appimage
-          path: waozixyz/jungle/build/downloads
       - name: Release notes
         env:
           VERSION: ${{ steps.deps.outputs.version }}
@@ -176,6 +106,17 @@ jobs:
           assert section, 'CHANGELOG.md needs a section for ' + os.environ['VERSION']
           print(section[1].strip())
           PY
+      - name: Save private test captures on failure
+        if: failure()
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-ui-failure
+          retention-days: 1
+          path: |
+            waozixyz/jungle/build/tests/ui/*.png
+            waozixyz/jungle/build/tests/ui/*.log
+          if-no-files-found: ignore
       - name: Publish this version once its download is verified
         if: github.ref == 'refs/heads/master'
         env:
