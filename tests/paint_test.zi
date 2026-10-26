@@ -1,10 +1,15 @@
-// Dino Colors' scenes and dinosaurs: every scene opens, its lines hold a
-// fill, a saved picture opens again exactly, and every dinosaur stamps ink
-// in each size, both ways round.
+// Dino Colors' scenes and dinosaurs: every scene opens with its lines, its
+// lines hold a fill, a picture survives its text form exactly, and every
+// dinosaur stamps closed ink and a white body in each size, both ways round,
+// leaving the scenery outside its outline.
 #import, file "../games/paint/paint_canvas.zi";
 #import, file "../games/paint/paint_pages.zi";
+#import, file "../games/paint/paint_picture.zi";
 #import, file "../host/platform.zi";
 #import, file "../host/jungle_text.zi";
+
+copy: [CANVAS_PIXELS]u8;
+read_back: [CANVAS_PIXELS]u8;
 
 PaintFail :: (name: string, message: string) -> s32 {
     Report(Cat("paint test: ", name, ": ", message, "\n"))
@@ -13,8 +18,12 @@ PaintFail :: (name: string, message: string) -> s32 {
 
 InkCount :: () -> s32 {
     ink: s32 = 0
-    for at: cast(s32)0..CANVAS_PIXELS - 1 { if lines[at] { ink += 1 } }
+    for at: cast(s32)0..CANVAS_PIXELS - 1 { if canvas[at] == cast(u8)INK { ink += 1 } }
     return ink
+}
+
+Blank :: () {
+    for at: cast(s32)0..CANVAS_PIXELS - 1 { canvas[at] = cast(u8)PAPER }
 }
 
 #program_export
@@ -22,82 +31,85 @@ main :: (argc: s32, argv: **u8) -> s32 {
     unused argc
     unused argv
     for scene: cast(s32)0..SCENE_COUNT - 1 {
-        if !SceneOpen(scene, "") { return PaintFail("scene", "did not open") }
+        if !SceneOpen(scene) { return PaintFail("scene", "did not open") }
         ink := InkCount()
-        if ink < 200 || ink > 20000 { return PaintFail("scene", Cat("odd amount of line: ", NumberText(ink))) }
-        if CanvasColorAt(2, 2) != PAPER { return PaintFail("scene", "the corner is not paper") }
-        if CanvasFill(2, 2, 9) == 0 { return PaintFail("scene", "the fill painted nothing") }
-        saved := CanvasText()
-        copy: [CANVAS_PIXELS]u8
+        if ink < 20000 || ink > CANVAS_PIXELS / 3 { return PaintFail("scene", Cat("odd amount of line: ", NumberText(ink))) }
+        start: s32 = 0
+        while canvas[start] != cast(u8)PAPER { start += 1 }
+        filled := CanvasFill(start % CANVAS_WIDTH, start / CANVAS_WIDTH, 25)
+        if filled == 0 { return PaintFail("scene", "the fill painted nothing") }
+        if filled > CANVAS_PIXELS - ink - 1000 { return PaintFail("scene", "the fill ran through the lines") }
         for at: cast(s32)0..CANVAS_PIXELS - 1 { copy[at] = canvas[at] }
-        if !SceneOpen(scene, saved) { return PaintFail("scene", "a saved picture did not open") }
+        text := CanvasText()
+        if PictureFromGame(text, read_back[:]) != text.count { return PaintFail("scene", "its picture text did not read back") }
         for at: cast(s32)0..CANVAS_PIXELS - 1 {
-            if canvas[at] != copy[at] { return PaintFail("scene", "a saved picture opened differently") }
+            if read_back[at] != copy[at] { return PaintFail("scene", "its picture text changed a pixel") }
         }
     }
     for dino: cast(s32)0..DINO_COUNT - 1 {
-        for size: cast(s32)1..4 {
-            scale := DinoScale(dino, size)
-            if DINO_WIDTH[dino] * scale / 100 > CANVAS_WIDTH ||
-            DINO_HEIGHT[dino] * scale / 100 > CANVAS_HEIGHT {
-                return PaintFail("dino", "a selectable size cannot fit the picture")
+        huge_w := DinoWidth(dino, DINO_SIZES)
+        huge_h := DinoHeight(dino, DINO_SIZES)
+        if huge_w != CANVAS_WIDTH && huge_h != CANVAS_HEIGHT { return PaintFail("dino", "Huge does not fill the picture") }
+        for size: cast(s32)1..DINO_SIZES {
+            w := DinoWidth(dino, size)
+            h := DinoHeight(dino, size)
+            if w > CANVAS_WIDTH || h > CANVAS_HEIGHT || w < huge_w * size / 4 - 2 || h < huge_h * size / 4 - 2 {
+                return PaintFail("dino", "a selectable size has the wrong shape")
             }
-            unused SceneOpen(0, "")
-            CanvasStampDino(dino, size, 10, 10, false)
+            Blank()
+            CanvasStampDino(dino, size, 0, 0, false)
             forward := InkCount()
-            if forward < 20 { return PaintFail("dino", "stamped too little") }
-            if forward > 20000 { return PaintFail("dino", Cat("outline became a solid rectangle: ", NumberText(dino), " size ", NumberText(size), " ink ", NumberText(forward))) }
-            unused SceneOpen(0, "")
-            CanvasStampDino(dino, size, 10, 10, true)
-            mirrored := InkCount()
-            if mirrored < forward / 2 { return PaintFail("dino", "mirroring lost most of the ink") }
-            // Put every body over an existing solid outline and colored
-            // picture. Its white interior must erase both; transparent
-            // scenery and everything outside its bounds must survive.
+            body: s32 = 0
+            inside: s32 = -1
+            for at: cast(s32)0..w * h - 1 {
+                if stamp_body[at] { body += 1 }
+                if inside < 0 && stamp_body[at] && !stamp[at] && at / w > h / 3 { inside = at }
+            }
+            if forward < 200 { return PaintFail("dino", "stamped too little") }
+            if forward > body * 3 / 4 {
+                return PaintFail("dino", Cat("outline became a solid shape: ", NumberText(dino), " size ", NumberText(size)))
+            }
+            // Paint from inside the body must stay inside its outline.
+            if inside < 0 { return PaintFail("dino", "no white inside the body") }
+            if CanvasFill(inside % w, inside / w, 30) >= w * h {
+                return PaintFail("dino", Cat("a fill leaked out of dinosaur ", NumberText(dino + 1), " size ", NumberText(size)))
+            }
+            Blank()
+            CanvasStampDino(dino, size, 0, 0, true)
+            if InkCount() != forward { return PaintFail("dino", "mirroring changed the ink") }
+            // Put every body over an existing outline and colored picture.
+            // Its white interior must erase both; transparent scenery and
+            // everything outside its bounds must survive.
             for mirror: cast(s32)0..1 {
-                for at: cast(s32)0..CANVAS_PIXELS - 1 {
-                    lines[at] = at % 2 == 0
-                    canvas[at] = cast(u8)(ifx lines[at] then INK else 17)
-                }
-                CanvasStampDino(dino, size, 0, 0, mirror == 1)
-                w := DINO_WIDTH[dino] * scale / 100
-                h := DINO_HEIGHT[dino] * scale / 100
+                for at: cast(s32)0..CANVAS_PIXELS - 1 { canvas[at] = cast(u8)(ifx at % 2 == 0 then INK else 17) }
+                x := CANVAS_WIDTH - w
+                CanvasStampDino(dino, size, x, 0, mirror == 1)
                 white: s32 = 0
-                body_pixels: s32 = 0
                 preserved: s32 = 0
                 for at: cast(s32)0..CANVAS_PIXELS - 1 {
-                    x := at % CANVAS_WIDTH
-                    y := at / CANVAS_WIDTH
-                    old_line := at % 2 == 0
-                    old_color := cast(u8)(ifx old_line then INK else 17)
-                    if x >= w || y >= h {
-                        if lines[at] != old_line || canvas[at] != old_color {
-                            return PaintFail("placement", "changed artwork outside the dinosaur bounds")
-                        }
+                    px := at % CANVAS_WIDTH - x
+                    py := at / CANVAS_WIDTH
+                    old := cast(u8)(ifx at % 2 == 0 then INK else 17)
+                    if px < 0 || py >= h {
+                        if canvas[at] != old { return PaintFail("placement", "changed artwork outside the dinosaur bounds") }
+                        continue
+                    }
+                    source := py * w + (ifx mirror == 1 then w - 1 - px else px)
+                    if stamp[source] {
+                        if canvas[at] != cast(u8)INK { return PaintFail("body", "a line is missing") }
+                    } else if stamp_body[source] {
+                        if canvas[at] != cast(u8)PAPER { return PaintFail("body", "old color or line showed through a dinosaur") }
+                        white += 1
                     } else {
-                        if canvas[at] == old_color && lines[at] == old_line { preserved += 1 }
-                        sx := x * DINO_WIDTH[dino] / w
-                        if mirror == 1 { sx = DINO_WIDTH[dino] - 1 - sx }
-                        sy := y * DINO_HEIGHT[dino] / h
-                        if stamp_body[sy * DINO_WIDTH[dino] + sx] {
-                            body_pixels += 1
-                            if canvas[at] != INK && canvas[at] != PAPER {
-                                return PaintFail("body", "old color showed through a dinosaur")
-                            }
-                            if canvas[at] == PAPER {
-                                white += 1
-                                if lines[at] { return PaintFail("body", "old outline survived under white body") }
-                            }
-                        }
+                        if canvas[at] != old { return PaintFail("body", "transparent scenery was erased") }
+                        preserved += 1
                     }
                 }
-                // Long tails and wings leave empty space in the placement box.
-                // Require white interior relative to the actual silhouette.
-                if body_pixels == 0 || white < body_pixels / 10 { return PaintFail("body", "dinosaur lost its white interior") }
-                if preserved < w * h / 10 { return PaintFail("body", "transparent scenery was erased") }
+                if white < body / 4 { return PaintFail("body", "dinosaur lost its white interior") }
+                if preserved == 0 { return PaintFail("body", "the box around a dinosaur covered everything") }
             }
         }
     }
-    Report("paint test passed\n")
+    Report("local paint test passed\n")
     return 0
 }

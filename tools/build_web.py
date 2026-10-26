@@ -23,6 +23,7 @@ def package(name):
 def main():
     ziran = package('ziran')
     kryon = package('kryon')
+    mingcute = package('mingcute')
     compiler = ziran/'build/bin/ziran'
     emcc = Path(os.environ.get('EMCC', shutil.which('emcc') or str(Path.home()/'emsdk/upstream/emscripten/emcc')))
     if not emcc.is_file():raise SystemExit('Emscripten is required: set EMCC to the installed emcc executable')
@@ -31,7 +32,7 @@ def main():
     modules=[]
     for path in [kryon/'src/ui',kryon/'src/backend',ziran/'std',ROOT/'web',ROOT/'host']:
         modules += ['--module-path',str(path)]
-    modules += ['--module-path','kryon='+str(kryon/'src/ui'),'--module-path','kryon='+str(kryon/'src/backend'),'--module-path','std='+str(ziran/'std')]
+    modules += ['--module-path','kryon='+str(kryon/'src/ui'),'--module-path','kryon='+str(kryon/'src/backend'),'--module-path','mingcute='+str(mingcute/'src'),'--module-path','std='+str(ziran/'std')]
     bindings = {
         'canvas_app_run:CanvasAppMain':'jungle_web:JungleMain',
         'app_context:AppIdentityHost':'jungle_web:WebIdentity',

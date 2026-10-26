@@ -41,12 +41,11 @@
 #import, file "jungle_menu.zi";
 #import, file "jungle_progress.zi";
 #import, file "../games/paint/paint_palette.zi";
+#import, file "../games/paint/paint_picture.zi";
 #import, file "printing.zi";
 
 GAME_LIMIT :: 8
 FONT :: "assets/jungle/font.png"
-CANVAS_WIDTH :: 240
-CANVAS_HEIGHT :: 180
 // Canvas pictures kept on disk: a page chooser shows six at once.
 CANVAS_KEEP :: 12
 
@@ -76,7 +75,7 @@ game_secondary_down: bool;
 message: string;
 service_reply: [64]u8;
 canvas_count: s32;
-canvas_pixels: [CANVAS_WIDTH * CANVAS_HEIGHT]u8;
+canvas_pixels: [CANVAS_PIXELS]u8;
 
 Seconds :: () -> float64 {
     return cast(float64)Counter() / cast(float64)CounterRate()
@@ -136,25 +135,11 @@ GameAllows :: (context: *void, name: string) -> bool {
         name == "jungle.export" || name == "jungle.print" || name == "jungle.secondary" || BundleAppAllows(context, name)
 }
 
-// A painted canvas, one letter a to p per pixel, as a PNG file in the
-// game's folder. Older pictures beyond CANVAS_KEEP are removed.
-WriteCanvas :: (pixels: string) -> string {
-    painting := pixels.count == cast(s64)(CANVAS_WIDTH * CANVAS_HEIGHT) + 6 && pixels[:6] == "paint\n"
-    if painting { pixels = pixels[6:] }
-    if pixels.count != cast(s64)(CANVAS_WIDTH * CANVAS_HEIGHT) { return "" }
-    for at: cast(s64)0..pixels.count - 1 {
-        byte := pixels[at]
-        if painting {
-            index := PaintIndex(byte)
-            if index < 0 { return "" }
-            canvas_pixels[at] = cast(u8)PaintDisplayIndex(index, cast(s32)at % CANVAS_WIDTH, cast(s32)at / CANVAS_WIDTH)
-        } else {
-            if byte < #char "a" || byte > #char "p" { return "" }
-            canvas_pixels[at] = byte - #char "a"
-        }
-    }
-    data := PngIndexed(CANVAS_WIDTH, CANVAS_HEIGHT,
-        ifx painting then paint_colors[:] else retro_colors[:], canvas_pixels[:])
+// A Dino Colors picture as a PNG file in the game's folder. Older pictures
+// beyond CANVAS_KEEP are removed.
+WriteCanvas :: (request: string) -> string {
+    if PictureFromGame(request, canvas_pixels[:]) != request.count { return "" }
+    data := PngIndexed(CANVAS_WIDTH, CANVAS_HEIGHT, paint_colors[:], canvas_pixels[:])
     if data == "" { return "" }
     canvas_count += 1
     name := Cat("canvas-", NumberText(canvas_count), ".png")

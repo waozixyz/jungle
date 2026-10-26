@@ -1,156 +1,84 @@
-// The picture: 240 by 180 pixels of crayon colors over black lines.
+// The picture: 960 by 720 pixels of crayon colors over black lines.
 // Lines are stamped from a scene and any dinosaurs placed on it; the paint
-// bucket fills up to those lines. Bert's Dinosaurs works the same way.
+// bucket fills up to those lines. A pixel is a line exactly when it is INK:
+// crayons start at 16, so no fill ever paints INK.
 #import, file "paint_pages.zi";
 #import, file "paint_palette.zi";
+#import, file "paint_picture.zi";
 
-CANVAS_PIXELS :: CANVAS_WIDTH * CANVAS_HEIGHT
 INK :: 0
 PAPER :: 15
-MAX_STAMP_WIDTH :: 240
-MAX_STAMP_HEIGHT :: 184
-STAMP_PIXELS :: MAX_STAMP_WIDTH * MAX_STAMP_HEIGHT
 
 canvas: [CANVAS_PIXELS]u8;
-lines: [CANVAS_PIXELS]bool;
-stamp: [STAMP_PIXELS]bool;
-stamp_body: [STAMP_PIXELS]bool;
+stamp: [CANVAS_PIXELS]bool;
+stamp_body: [CANVAS_PIXELS]bool;
 fill_stack: [CANVAS_PIXELS]s32;
-canvas_text: [CANVAS_PIXELS + 6]u8;
 
-HexValue :: (byte: u8) -> s32 {
-    if byte >= #char "0" && byte <= #char "9" { return cast(s32)(byte - #char "0") }
-    if byte >= #char "a" && byte <= #char "f" { return cast(s32)(byte - #char "a") + 10 }
-    return 0
-}
+// Masks in paint_pages.zi's order: six scenes, then ink and body for each
+// dinosaur size.
+SceneMask :: (scene: s32) -> s32 { return scene }
+InkMask :: (dino: s32, size: s32) -> s32 { return SCENE_COUNT + (dino * DINO_SIZES + size - 1) * 2 }
 
-// Reads one part's hex rows into a mask[0..width*height); returns the next
-// row that has not been filled yet.
-ReadPart :: (part: string, width: s32, height: s32, at: s32, mask: []bool) -> s32 {
-    row := at / width
-    column := at % width
-    for byte: part {
-        if byte == cast(u8)10 { continue }
-        if row >= height { return at }
-        nibble := HexValue(byte)
-        for bit: cast(s32)0..3 {
-            if column >= width { break }
-            mask[row * width + column] = ((nibble >> (3 - bit)) & 1) != 0
-            column += 1
-            at += 1
-        }
-        if column >= width { row += 1; column = 0 }
-    }
-    return at
-}
+DinoWidth :: (dino: s32, size: s32) -> s32 { return DINO_WIDTH[dino * DINO_SIZES + size - 1] }
+DinoHeight :: (dino: s32, size: s32) -> s32 { return DINO_HEIGHT[dino * DINO_SIZES + size - 1] }
 
-ReadLines :: (scene_kind: bool, index: s32, parts: s32, width: s32, height: s32) {
-    for pixel: cast(s32)0..width * height - 1 { stamp[pixel] = false }
+// Reads a mask's alternating paper and ink runs into mask[0..count). A run
+// and its digits may continue from one chunk into the next.
+ReadMask :: (index: s32, mask: []bool, count: s32) -> bool {
     at: s32 = 0
-    for part: cast(s32)0..parts - 1 {
-        text := ifx scene_kind then SceneLines(index, part) else DinoLines(index, part)
-        at = ReadPart(text, width, height, at, stamp[:])
+    ink := false
+    length: s32 = 0
+    shift: s32 = 0
+    for chunk: MASK_START[index]..MASK_START[index + 1] - 1 {
+        for byte: MaskChunk(chunk) {
+            digit := RunDigit(byte)
+            if digit < 0 { return false }
+            length = length | ((digit & 31) << shift)
+            shift += 5
+            if digit >= 32 { continue }
+            if at + length > count { return false }
+            if length > 0 { for offset: cast(s32)0..length - 1 { mask[at + offset] = ink } }
+            at += length
+            ink = !ink
+            length = 0
+            shift = 0
+        }
     }
+    return at == count
 }
 
-// Starts a new picture: the scene's lines, then the saved colors when
-// `saved` is a whole picture, otherwise white paper.
-SceneOpen :: (scene: s32, saved: string) -> bool {
+// Starts a new picture: the scene's lines on white paper.
+SceneOpen :: (scene: s32) -> bool {
     if scene < 0 || scene >= SCENE_COUNT { return false }
-    whole := saved.count == cast(s64)CANVAS_PIXELS + 6 && saved[:6] == "paint\n"
-    old := saved.count == cast(s64)CANVAS_PIXELS
-    if saved != "" && !whole && !old { return false }
-    if whole {
-        for at: cast(s32)0..CANVAS_PIXELS - 1 {
-            if PaintIndex(saved[at + 6]) < 0 { return false }
-        }
-    }
-    ReadLines(true, scene, SCENE_PARTS, CANVAS_WIDTH, CANVAS_HEIGHT)
-    for at: cast(s32)0..CANVAS_PIXELS - 1 { lines[at] = stamp[at] }
-    for at: cast(s32)0..CANVAS_PIXELS - 1 {
-        color: s32 = PAPER
-        if old {
-            byte := saved[cast(s64)at]
-            if byte >= #char "a" && byte <= #char "p" { color = cast(s32)(byte - #char "a") }
-        }
-        if whole { color = PaintIndex(saved[at + 6]) }
-        canvas[at] = cast(u8)(ifx lines[at] then INK else color)
-    }
+    if !ReadMask(SceneMask(scene), stamp[:], CANVAS_PIXELS) { return false }
+    for at: cast(s32)0..CANVAS_PIXELS - 1 { canvas[at] = cast(u8)(ifx stamp[at] then INK else PAPER) }
     return true
 }
 
-// Fit the largest dinosaur inside the picture, then take four fractions.
-// A 184-pixel-tall stamp cannot be placed on our 180-pixel-tall canvas.
-DinoScale :: (dino: s32, size: s32) -> s32 {
-    width := DINO_WIDTH[dino]
-    height := DINO_HEIGHT[dino]
-    if width <= 0 || height <= 0 { return 100 }
-    fit := 100 * CANVAS_HEIGHT / height
-    across := 100 * CANVAS_WIDTH / width
-    if across < fit { fit = across }
-    return fit * size / 4
-}
-
-// The original full-resolution outline supplies an explicit opaque body.
-// Keep it separate from ink: white body pixels cover earlier lines and fills.
-ReadBody :: (dino: s32, width: s32, height: s32) {
-    for pixel: cast(s32)0..width * height - 1 { stamp_body[pixel] = false }
-    at: s32 = 0
-    for part: cast(s32)0..BODY_PARTS - 1 {
-        at = ReadPart(DinoBody(dino, part), width, height, at, stamp_body[:])
-    }
-}
-
-// Stamps a dinosaur's lines at x,y. Percent scales it; flip mirrors it.
-// The lines are thickened while shrinking so small figures still hold ink.
+// Stamps a dinosaur at x,y in one of its four sizes; flip mirrors it. Its
+// white body replaces the lines and colors beneath it, and scenery outside
+// its outline stays.
 CanvasStampDino :: (dino: s32, size: s32, x: s32, y: s32, flip: bool) {
-    base_w := DINO_WIDTH[dino]
-    base_h := DINO_HEIGHT[dino]
-    percent := DinoScale(dino, size)
-    w := base_w * percent / 100
-    h := base_h * percent / 100
-    if w < 1 || h < 1 { return }
-    ReadLines(false, dino, DINO_PARTS, base_w, base_h)
-    ReadBody(dino, base_w, base_h)
+    if dino < 0 || dino >= DINO_COUNT || size < 1 || size > DINO_SIZES { return }
+    w := DinoWidth(dino, size)
+    h := DinoHeight(dino, size)
+    if !ReadMask(InkMask(dino, size), stamp[:], w * h) ||
+    !ReadMask(InkMask(dino, size) + 1, stamp_body[:], w * h) { return }
     for ty: cast(s32)0..h - 1 {
         py := y + ty
         if py < 0 || py >= CANVAS_HEIGHT { continue }
-        source_y := ty * base_h / h
         for tx: cast(s32)0..w - 1 {
             px := x + tx
             if px < 0 || px >= CANVAS_WIDTH { continue }
-            sx := tx * base_w / w
-            source_x := ifx flip then base_w - 1 - sx else sx
-            inked := stamp[source_y * base_w + source_x]
-            // When shrinking, look at the neighbouring source pixels too.
-            if !inked && w < base_w {
-                if source_x > 0 && stamp[source_y * base_w + source_x - 1] { inked = true }
-                if source_x < base_w - 1 && stamp[source_y * base_w + source_x + 1] { inked = true }
-            }
-            if !inked && h < base_h {
-                if source_y > 0 && stamp[(source_y - 1) * base_w + source_x] { inked = true }
-                if source_y < base_h - 1 && stamp[(source_y + 1) * base_w + source_x] { inked = true }
-            }
-            if inked || stamp_body[source_y * base_w + source_x] {
-                at := py * CANVAS_WIDTH + px
-                lines[at] = inked
-                canvas[at] = cast(u8)(ifx inked then INK else PAPER)
-            }
+            source := ty * w + (ifx flip then w - 1 - tx else tx)
+            if stamp[source] { canvas[py * CANVAS_WIDTH + px] = cast(u8)INK }
+            else if stamp_body[source] { canvas[py * CANVAS_WIDTH + px] = cast(u8)PAPER }
         }
-    }
-}
-
-CanvasClear :: () {
-    for at: cast(s32)0..CANVAS_PIXELS - 1 {
-        canvas[at] = cast(u8)(ifx lines[at] then INK else PAPER)
     }
 }
 
 CanvasText :: () -> string {
-    prefix := "paint\n"
-    for at: cast(s32)0..5 { canvas_text[at] = prefix[at] }
-    for at: cast(s32)0..CANVAS_PIXELS - 1 { canvas_text[at + 6] = PAINT_CODES[canvas[at]] }
-    return TextView(canvas_text[:])
+    return PictureRunsText(canvas[:])
 }
 
 CanvasColorAt :: (x: s32, y: s32) -> s32 {
@@ -158,14 +86,15 @@ CanvasColorAt :: (x: s32, y: s32) -> s32 {
     return cast(s32)canvas[y * CANVAS_WIDTH + x]
 }
 
+// Fills the area around x,y up to its lines. The target is never INK, so
+// comparing colors alone keeps the fill inside them.
 CanvasFill :: (x: s32, y: s32, color: s32) -> s32 {
-    if color < 0 || color >= PAINT_COLORS { return 0 }
+    if color <= INK || color >= PAINT_COLORS { return 0 }
     if x < 0 || y < 0 || x >= CANVAS_WIDTH || y >= CANVAS_HEIGHT { return 0 }
     start := y * CANVAS_WIDTH + x
-    if lines[start] { return 0 }
     target := canvas[start]
     paint := cast(u8)color
-    if target == paint { return 0 }
+    if target == cast(u8)INK || target == paint { return 0 }
     changed: s32 = 0
     count: s32 = 1
     fill_stack[0] = start
@@ -175,16 +104,16 @@ CanvasFill :: (x: s32, y: s32, color: s32) -> s32 {
         at := fill_stack[count]
         changed += 1
         column := at % CANVAS_WIDTH
-        if column > 0 && !lines[at - 1] && canvas[at - 1] == target {
+        if column > 0 && canvas[at - 1] == target {
             canvas[at - 1] = paint; fill_stack[count] = at - 1; count += 1
         }
-        if column < CANVAS_WIDTH - 1 && !lines[at + 1] && canvas[at + 1] == target {
+        if column < CANVAS_WIDTH - 1 && canvas[at + 1] == target {
             canvas[at + 1] = paint; fill_stack[count] = at + 1; count += 1
         }
-        if at >= CANVAS_WIDTH && !lines[at - CANVAS_WIDTH] && canvas[at - CANVAS_WIDTH] == target {
+        if at >= CANVAS_WIDTH && canvas[at - CANVAS_WIDTH] == target {
             canvas[at - CANVAS_WIDTH] = paint; fill_stack[count] = at - CANVAS_WIDTH; count += 1
         }
-        if at < CANVAS_PIXELS - CANVAS_WIDTH && !lines[at + CANVAS_WIDTH] && canvas[at + CANVAS_WIDTH] == target {
+        if at < CANVAS_PIXELS - CANVAS_WIDTH && canvas[at + CANVAS_WIDTH] == target {
             canvas[at + CANVAS_WIDTH] = paint; fill_stack[count] = at + CANVAS_WIDTH; count += 1
         }
     }

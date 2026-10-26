@@ -22,12 +22,13 @@ Paint :: #import, file "../games/paint/dino_paint.zi";
 #import, file "../host/jungle_text.zi";
 #import, file "../host/canvas_png.zi";
 #import, file "../games/paint/paint_palette.zi";
+#import, file "../games/paint/paint_picture.zi";
 #import, file "../retro/language.zi";
 
 web_games: [3]Game = .[
-    Game.{.title = "Picture Book", .about = "Pictures and words", .icon = "assets/jungle/covers/book.png", .age = 2},
-    Game.{.title = "Animal Counting", .about = "Count the animals", .icon = "assets/jungle/covers/count.png", .age = 4},
-    Game.{.title = "Dino Colors", .about = "Draw and color", .icon = "assets/jungle/covers/paint.png", .age = 5},
+    Game.{.title = "Picture Book", .icon = "assets/jungle/covers/book.png"},
+    Game.{.title = "Animal Counting", .icon = "assets/jungle/covers/count.png"},
+    Game.{.title = "Dino Colors", .icon = "assets/jungle/covers/paint.png"},
 ];
 active_game: s32 = -1;
 selected: s32;
@@ -38,7 +39,7 @@ web_audio: s32;
 web_narration: bool;
 audio_rejected: s32;
 canvas_sequence: s32;
-export_pixels: [240 * 180]u8;
+export_pixels: [CANVAS_PIXELS]u8;
 
 GamePrefix :: () -> string {
     if active_game == 0 { return "jungle.book/" }
@@ -125,13 +126,8 @@ ToggleAudio :: () {
 }
 
 CanvasImage :: (request: string) -> string {
-    if request.count != cast(s64)(240 * 180 + 6) || request[:6] != "paint\n" { return "" }
-    for at: cast(s32)0..240 * 180 - 1 {
-        index := PaintIndex(request[at + 6])
-        if index < 0 { return "" }
-        export_pixels[at] = cast(u8)PaintDisplayIndex(index, at % 240, at / 240)
-    }
-    data := PngIndexed(240, 180, paint_colors[:], export_pixels[:])
+    if PictureFromGame(request, export_pixels[:]) != request.count { return "" }
+    data := PngIndexed(CANVAS_WIDTH, CANVAS_HEIGHT, paint_colors[:], export_pixels[:])
     canvas_sequence += 1
     name := Cat("canvas-", NumberText(canvas_sequence), ".png")
     if !WriteEntireFile(Cat("/", name), data) { return "" }
@@ -140,14 +136,10 @@ CanvasImage :: (request: string) -> string {
 }
 
 WebExport :: (request: string, printing: bool) -> string {
-    if request.count < cast(s64)(240 * 180 + 6) || request[:6] != "paint\n" { return "failed" }
-    for at: cast(s32)0..240 * 180 - 1 {
-        index := PaintIndex(request[at + 6])
-        if index < 0 { return "failed" }
-        export_pixels[at] = cast(u8)PaintDisplayIndex(index, at % 240, at / 240)
-    }
-    png := PngIndexed(240, 180, paint_colors[:], export_pixels[:])
-    story := request[240 * 180 + 6:]
+    length := PictureFromGame(request, export_pixels[:])
+    if length < 0 { return "failed" }
+    png := PngIndexed(CANVAS_WIDTH, CANVAS_HEIGHT, paint_colors[:], export_pixels[:])
+    story := request[length:]
     if printing { return WebPrint(png, story) }
     if !ExportBytes(png, "jungle-picture.png", "image/png", "Jungle Academy") { return "failed" }
     unused ExportBytes(story, "jungle-story.txt", "text/plain;charset=utf-8", "Jungle Academy")

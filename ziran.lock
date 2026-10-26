@@ -17,10 +17,18 @@
       "ref": "fafa2cea97d0cb379d832086ba45a989fa6f9c8e",
       "source": true,
       "url": "https://github.com/raysan5/raylib.git"
+    },
+    {
+      "commit": "9cc6872f75447c3a24c16764f9829d0f58751cb0",
+      "dependencies": {},
+      "id": "pe1027b9d16704793",
+      "name": "mingcute",
+      "ref": "master",
+      "url": "https://github.com/kryonlabs/mingcute.git"
     }
   ],
   "root": {
-    "dependencies": {"kryon": "p2d318e48a4d2aa44"},
+    "dependencies": {"kryon": "p2d318e48a4d2aa44", "mingcute": "pe1027b9d16704793"},
     "name": "Jungle"
   },
   "toolchain": {

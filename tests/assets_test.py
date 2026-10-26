@@ -8,6 +8,7 @@ import sys
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 from book_catalog import NAMES, BOOKS, LANGUAGES, WORDS, narration, voice_path
 
+import numpy
 from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -63,24 +64,34 @@ def main():
             assert cover.size == (420, 420) and cover.mode == "RGBA"
     with Image.open(ROOT / "assets/animal-count/background.png") as background:
         assert background.size == (320, 200)
-    for number in range(1, 31):
-        with Image.open(ROOT / f"assets/dino-paint/crayons/{number}.png") as crayon:
-            assert crayon.size == (44, 20)
-            colors = crayon.convert("RGB").getcolors(100)
-            assert 1 <= len(colors) <= 2
-            if number > 16:
-                assert len(colors) == 2, f"crayon {number} lost its stipple"
+    art = ROOT / "assets/dino-paint/art"
+    assert not (ROOT / "assets/dino-paint/crayons").exists(), "crayons are drawn as color boxes"
+    for number in range(1, 7):
+        assert (ROOT / f"art/paint/scene{number}.svg").read_text().count("<path") == 1
+        with Image.open(art / f"scene{number}-thumb.png") as thumb:
+            assert thumb.size == (256, 192) and len(thumb.getcolors(1 << 16) or range(1 << 16)) > 16, "scene thumbnail is not smooth"
     for number in range(1, 13):
-        with Image.open(ROOT / f"assets/dino-paint/art/dino{number}-s4.png") as dinosaur:
-            colors = dict((color, count) for count, color in dinosaur.convert("RGBA").getcolors())
-            assert colors.get((255, 255, 255, 255), 0) > 100, "dinosaur lost its opaque white body"
-            assert colors.get((0, 0, 0, 255), 0) > 100, "dinosaur lost its ink"
-            assert colors.get((0, 0, 0, 0), 0) > 100, "dinosaur erased its surrounding scenery"
+        svg = (ROOT / f"art/paint/dino{number}.svg").read_text()
+        assert '<path id="body" fill="#fff"' in svg and '<path id="ink" fill="#000"' in svg
+        with Image.open(art / f"dino{number}.png") as dinosaur, Image.open(art / f"dino{number}-flip.png") as flipped:
+            assert 720 in dinosaur.size or 960 in dinosaur.size, "placement picture is not the Huge size"
+            assert dinosaur.transpose(Image.Transpose.FLIP_LEFT_RIGHT).tobytes() == flipped.tobytes()
+            pixels = numpy.asarray(dinosaur.convert("RGBA"))
+            color, alpha = pixels[..., :3], pixels[..., 3]
+            assert ((alpha == 255) & (color.min(axis=2) > 240)).sum() > 10000, "dinosaur lost its opaque white body"
+            assert ((alpha == 255) & (color.max(axis=2) < 40)).sum() > 1000, "dinosaur lost its ink"
+            assert (alpha == 0).sum() > 10000, "dinosaur erased its surrounding scenery"
+            assert ((alpha > 0) & (alpha < 255)).sum() > 100, "dinosaur edges are not smooth"
+        for kind in ("thumb", "preview"):
+            with Image.open(art / f"dino{number}-{kind}.png") as picture:
+                assert picture.mode == "RGBA" and picture.getbbox()
         with wave.open(str(ROOT / f"assets/dino-paint/sounds/voice-{number}.wav")) as voice:
             assert voice.getnchannels() == 1 and voice.getsampwidth() == 2
             assert voice.getframerate() == 22050
             assert .5 < voice.getnframes() / voice.getframerate() < 3
             assert any(voice.readframes(voice.getnframes())), "empty dinosaur voice"
+    old = [path.name for path in art.glob("*.png") if "-s" in path.name or path.stem[-1].isdigit() and "preview" in path.stem]
+    assert not old, f"stale pixel art: {old[:3]}"
     for number in range(8):
         with wave.open(str(ROOT / f"assets/animal-count/sounds/right-{number}.wav")) as sound:
             assert .1 < sound.getnframes() / sound.getframerate() < .2
