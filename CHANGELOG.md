@@ -2,6 +2,13 @@
 
 ## 0.1.5
 
+- Correct the snail's two eyes and redraw the elephant, giraffe, bee, spider and butterfly with natural animal features and full habitat scenes.
+- Give optional ABC examples the Picture Book's full-scene backgrounds.
+- Add a matching Jungle Academy logo, website and app icons, search and sharing metadata, and desktop app information.
+
+- Teach standalone spoken letters by default in a gentle alphabet sequence, with Play/Pause, previous/next and tap-to-repeat controls in English, German and Spanish.
+- Make illustrated word examples optional, with a clean letter/picture split and one example at a time; place Spanish Ñ between N and O.
+
 - Open ABC and 123 directly into learning; remove the extra find-letter and find-number activities and fix their missing shared pictures.
 - Give ABC + 123 an illustrated watercolor cover and use the shared title bar with Back and sound controls.
 - Keep Animal Counting between one and ten at every level.

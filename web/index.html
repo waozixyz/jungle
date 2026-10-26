@@ -1,18 +1,67 @@
 <!doctype html>
 <html lang="en">
+<head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content">
+<title>Jungle Academy — Gentle learning for little ones</title>
+<meta name="description" content="Learn letters and numbers, explore watercolor picture books, count up to ten, and draw and color. Play in English, German and Spanish.">
+<meta name="application-name" content="Jungle Academy">
 <meta name="theme-color" content="#e3ece4">
-<meta name="description" content="Gentle watercolor learning games. Picture books, animal counting and dinosaur coloring in English, German and Spanish.">
-<title>Jungle Academy</title>
+<link rel="canonical" href="https://jungle.waozi.xyz/">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" href="/assets/jungle/icons/icon-32.png" sizes="32x32">
+<link rel="icon" type="image/png" href="/assets/jungle/icons/icon-192.png" sizes="192x192">
+<link rel="apple-touch-icon" href="/assets/jungle/icons/icon-180.png" sizes="180x180">
+<link rel="manifest" href="/site.webmanifest">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Jungle Academy">
+<meta property="og:url" content="https://jungle.waozi.xyz/">
+<meta property="og:title" content="Jungle Academy — Gentle learning for little ones">
+<meta property="og:description" content="Learn letters and numbers, explore watercolor picture books, count up to ten, and draw and color. Play in English, German and Spanish.">
+<meta property="og:image" content="https://jungle.waozi.xyz/assets/jungle/icons/icon-1024.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1024">
+<meta property="og:image:height" content="1024">
+<meta property="og:image:alt" content="A young tiger with an open storybook, the Jungle Academy icon">
+<meta property="og:locale" content="en_GB">
+<meta property="og:locale:alternate" content="de_DE">
+<meta property="og:locale:alternate" content="es_ES">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Jungle Academy — Gentle learning for little ones">
+<meta name="twitter:description" content="Learn letters and numbers, explore watercolor picture books, count up to ten, and draw and color. Play in English, German and Spanish.">
+<meta name="twitter:image" content="https://jungle.waozi.xyz/assets/jungle/icons/icon-1024.png">
+<meta name="twitter:image:alt" content="A young tiger with an open storybook, the Jungle Academy icon">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"SoftwareApplication","@id":"https://jungle.waozi.xyz/#app","name":"Jungle Academy","url":"https://jungle.waozi.xyz/","applicationCategory":"EducationalApplication","operatingSystem":"Web browser, Android, Linux","inLanguage":["en","de","es"],"isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"image":"https://jungle.waozi.xyz/assets/jungle/icons/icon-1024.png","description":"Gentle alphabet, number and picture-book learning, animal counting and coloring for young children.","license":"https://github.com/waozixyz/jungle/blob/master/LICENSE"}
+</script>
 <style>
-*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;background:#e3ece4;font-family:system-ui,sans-serif;color:#3e332a}body{display:flex;align-items:center;justify-content:center}#canvas-frame{width:100%;height:100%;display:flex;align-items:center;justify-content:center}canvas{display:block;width:100%;height:100%;touch-action:none;outline:none}body{height:var(--app-height,100dvh)}#canvas-frame{padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}#mobile-input{position:fixed;bottom:0;left:0;width:1px;height:1px;padding:0;border:0;opacity:.01;font-size:16px}#loading{position:absolute;inset:0;display:grid;place-content:center;text-align:center;padding:2rem;background:#e3ece4;pointer-events:none}#loading strong{font-size:clamp(1.5rem,4vw,2.5rem);font-weight:500}#loading p{font-size:1rem}#print-sheet{display:none}@media print{body{display:block;background:white}#canvas-frame,body{height:var(--app-height,100dvh)}#canvas-frame{padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}#mobile-input{position:fixed;bottom:0;left:0;width:1px;height:1px;padding:0;border:0;opacity:.01;font-size:16px}#loading{display:none!important}#print-sheet{display:block;padding:1cm;color:black}#print-picture{width:100%;image-rendering:auto}#print-story{white-space:pre-wrap;font:16px/1.5 system-ui,sans-serif}}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;background:#e3ece4;font-family:system-ui,sans-serif;color:#3e332a}body{display:flex;align-items:center;justify-content:center}#canvas-frame{width:100%;height:100%;display:flex;align-items:center;justify-content:center}canvas{display:block;width:100%;height:100%;touch-action:none;outline:none}body{height:var(--app-height,100dvh)}#canvas-frame{padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}#mobile-input{position:fixed;bottom:0;left:0;width:1px;height:1px;padding:0;border:0;opacity:.01;font-size:16px}#loading{position:absolute;inset:0;display:grid;place-content:center;text-align:center;padding:2rem;background:#e3ece4;pointer-events:none}#brand-logo{display:block;width:min(80vw,440px);height:auto;margin:0 auto 1rem}#loading strong{font-size:clamp(1.5rem,4vw,2.5rem);font-weight:500}#loading p{font-size:1rem}#print-sheet{display:none}@media print{body{display:block;background:white}#canvas-frame,body{height:var(--app-height,100dvh)}#canvas-frame{padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}#mobile-input{position:fixed;bottom:0;left:0;width:1px;height:1px;padding:0;border:0;opacity:.01;font-size:16px}#loading{display:none!important}#print-sheet{display:block;padding:1cm;color:black}#print-picture{width:100%;image-rendering:auto}#print-story{white-space:pre-wrap;font:16px/1.5 system-ui,sans-serif}}
 </style>
+</head>
+<body>
 <div id="canvas-frame"><canvas id="canvas" tabindex="0" aria-label="Jungle Academy learning games"></canvas></div>
-<div id="loading" role="status"><strong>Jungle Academy</strong><p id="status">Opening your books…</p></div>
+<div id="loading" role="status"><img id="brand-logo" src="/assets/jungle/branding/logo.png" alt="Jungle Academy"><p id="status">Opening your books…</p></div>
 <textarea id="mobile-input" disabled aria-label="Story text" autocapitalize="sentences" autocomplete="off" spellcheck="false"></textarea>
 <section id="print-sheet"><img id="print-picture" alt="Your dinosaur picture"><pre id="print-story"></pre></section>
 <script>
+const siteCopy={
+ en:{title:'Jungle Academy — Gentle learning for little ones',description:'Learn letters and numbers, explore watercolor picture books, count up to ten, and draw and color. Play in English, German and Spanish.',opening:'Opening your books…',error:'The game could not open. Please reload to try again.',locale:'en_GB',alt:'A young tiger with an open storybook, the Jungle Academy icon',canvas:'Jungle Academy learning games',story:'Story text'},
+ de:{title:'Jungle Academy — Sanftes Lernen für die Kleinen',description:'Buchstaben und Zahlen lernen, Aquarell-Bilderbücher entdecken, bis zehn zählen, zeichnen und ausmalen. Auf Englisch, Deutsch und Spanisch.',opening:'Deine Bücher werden geöffnet…',error:'Das Spiel konnte nicht geöffnet werden. Bitte lade die Seite neu.',locale:'de_DE',alt:'Ein junger Tiger mit einem offenen Bilderbuch, das Symbol von Jungle Academy',canvas:'Jungle Academy Lernspiele',story:'Text der Geschichte'},
+ es:{title:'Jungle Academy — Aprendizaje tranquilo para los pequeños',description:'Aprende letras y números, explora libros ilustrados en acuarela, cuenta hasta diez, dibuja y colorea. Juega en inglés, alemán y español.',opening:'Abriendo tus libros…',error:'No se pudo abrir el juego. Recarga la página para intentarlo de nuevo.',locale:'es_ES',alt:'Un pequeño tigre con un libro abierto, el icono de Jungle Academy',canvas:'Juegos educativos de Jungle Academy',story:'Texto de la historia'}
+};
+let siteLanguage='en';
+function updateSiteLanguage(language){
+ siteLanguage=Object.hasOwn(siteCopy,language)?language:'en';const copy=siteCopy[siteLanguage];
+ document.documentElement.lang=siteLanguage;document.title=copy.title;
+ for(const selector of ['meta[name="description"]','meta[property="og:description"]','meta[name="twitter:description"]'])document.querySelector(selector).content=copy.description;
+ for(const selector of ['meta[property="og:title"]','meta[name="twitter:title"]'])document.querySelector(selector).content=copy.title;
+ for(const selector of ['meta[property="og:image:alt"]','meta[name="twitter:image:alt"]'])document.querySelector(selector).content=copy.alt;
+ document.querySelector('meta[property="og:locale"]').content=copy.locale;
+ document.querySelectorAll('meta[property="og:locale:alternate"]').forEach((meta,index)=>meta.content=Object.values(siteCopy).filter(value=>value.locale!==copy.locale)[index].locale);
+ document.getElementById('status').textContent=copy.opening;
+ document.getElementById('canvas').setAttribute('aria-label',copy.canvas);
+ document.getElementById('mobile-input').setAttribute('aria-label',copy.story);
+}
 const imageLoads=new Map();
 let imagePaths=new Set();
 async function loadImage(path){
@@ -27,6 +76,7 @@ async function loadImage(path){
  imageLoads.set(path,request);return request;
 }
 var Module={canvas:document.getElementById('canvas'),locateFile:p=>p,print:console.log,printErr:console.error,
+ jungleLanguage:updateSiteLanguage,
  jungleImageReady(path){
   if(Module.FS.analyzePath('/'+path).exists)return true;
   if(imagePaths.has(path)&&!imageLoads.has(path))void loadImage(path).catch(console.error);
@@ -43,7 +93,7 @@ var Module={canvas:document.getElementById('canvas'),locateFile:p=>p,print:conso
   }).catch(e=>{console.error(e);Module.onAbort()});
  }],
  onRuntimeInitialized(){document.getElementById('loading').hidden=true;document.getElementById('loading').style.display='none';document.getElementById('canvas').focus()},
- onAbort(){document.getElementById('loading').style.display='grid';document.getElementById('status').textContent='The game could not open. Please reload to try again.'}
+ onAbort(){document.getElementById('loading').style.display='grid';document.getElementById('status').textContent=siteCopy[siteLanguage].error}
 };
 
 const mobileInput=document.getElementById('mobile-input');
@@ -58,4 +108,5 @@ const resizeApp=()=>document.documentElement.style.setProperty('--app-height',(w
 window.visualViewport?.addEventListener('resize',resizeApp);addEventListener('resize',resizeApp);resizeApp();
 </script>
 <script src="jungle.js" defer></script>
+</body>
 </html>

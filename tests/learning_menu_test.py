@@ -21,11 +21,23 @@ for language in ("en", "de", "es"):
             for choice, name in (("1", "letters"), ("2", "numbers")):
                 desktop.key(choice)
                 page = desktop.capture_actual("direct-" + name + "-" + language)
-                # A real watercolor picture must render immediately. The old
-                # activity cards and the stopped-game menu contain no such art.
+                # Letters are taught alone by default. Pictures are optional;
+                # the number pages still show their counted animals.
                 picture = page.crop((page.width // 2, 90, page.width - 40, page.height - 90))
                 vivid = sum(1 for r,g,b in (picture.get_flattened_data() if hasattr(picture, "get_flattened_data") else picture.getdata()) if max(r,g,b)-min(r,g,b)>65 and min(r,g,b)<160)
-                assert vivid > 300, (name, language, "shared illustration did not render")
+                if name == "letters":
+                    assert vivid < 100, (language, "ABC default still shows word examples")
+                    # Open the optional right-hand examples at the current size.
+                    width, height = page.size
+                    fit = min(width / 320, (height - 56) / 200)
+                    padding = max(24, int(14 * fit) + 8)
+                    desktop.click_actual(width * 3 // 4, 56 + padding + 16)
+                    illustrated = desktop.capture_actual("examples-" + language)
+                    colors = illustrated.crop((width // 2, 90, width - 40, height - 90))
+                    pixels = colors.get_flattened_data() if hasattr(colors, "get_flattened_data") else colors.getdata()
+                    assert sum(1 for r,g,b in pixels if max(r,g,b)-min(r,g,b)>65 and min(r,g,b)<160) > 300, "Optional shared illustration did not render"
+                else:
+                    assert vivid > 300, (language, "Counted animals did not render")
                 desktop.key("Right")
                 changed = desktop.capture_actual("next-" + name + "-" + language)
                 assert ImageChops.difference(page, changed).getbbox(), "Next did not change the learning page"

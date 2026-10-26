@@ -189,7 +189,7 @@ GameAssetAllowed :: (path: string) -> bool {
         return true
     }
     // These read-only pictures ship beside all three learning bundles.
-    if book_assets_installed && path.count > 25 && path[:25] == "assets/jungle-book/items/" && AppFileNameValid(path) { return true }
+    if book_assets_installed && path.count > 25 && (path[:25] == "assets/jungle-book/items/" || path[:25] == "assets/jungle-book/pages/") && AppFileNameValid(path) { return true }
     return BundleAppAssetAllowed(path)
 }
 

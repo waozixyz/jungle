@@ -4,11 +4,14 @@
 #import, file "../host/jungle_text.zi";
 
 DataChecks :: () -> s32 {
+    if LetterText(2, 13) != "N" || LetterText(2, 14) != "Ñ" || LetterText(2, 15) != "O" { return 90 }
     for lang: cast(s32)0..2 {
         count := LetterCount(lang)
         if count < 26 || count > 32 { return 100 + lang }
         with_words: s32 = 0
         for letter: cast(s32)0..count - 1 {
+            voice := LetterVoice(lang, letter)
+            if voice.count < 25 || voice[:18] != "assets/abc/sounds/" { return 700 + lang }
             words := LetterWordCount(lang, letter)
             if words < 0 || words > 8 { return 200 + lang }
             if words == 0 { continue }

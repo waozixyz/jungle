@@ -12,7 +12,7 @@ const hasNumbers=(await readFile('games/catalog.txt','utf8')).includes('jungle-n
 // Phone portrait menu row centers: rows begin at virtual 112 and share (693-164)/count.
 const visibleGames=catalog-Number(hasABC&&hasNumbers);
 const rowY=(i,count=visibleGames)=>Math.round((112+(693-164)/count*(i+0.5))*(844/693));
-const mime={'.html':'text/html','.js':'text/javascript','.wasm':'application/wasm','.json':'application/json','.png':'image/png','.wav':'audio/wav'};
+const mime={'.html':'text/html','.js':'text/javascript','.wasm':'application/wasm','.json':'application/json','.webmanifest':'application/manifest+json','.ico':'image/x-icon','.xml':'application/xml','.jpg':'image/jpeg','.png':'image/png','.wav':'audio/wav'};
 const server=createServer(async(req,res)=>{try{let file=resolve(root,'.'+decodeURIComponent(new URL(req.url,'http://localhost').pathname));if(!file.startsWith(root+'/')&&file!==root)throw Error();if(file===root||file.endsWith('/'))file=join(file,'index.html');const data=await readFile(file);res.writeHead(200,{'Content-Type':mime[extname(file)]||'application/octet-stream'});res.end(data)}catch{res.writeHead(404);res.end()}});
 await new Promise(r=>server.listen(0,'127.0.0.1',r));
 const url=process.argv[2]||'http://127.0.0.1:'+server.address().port;
@@ -70,9 +70,21 @@ try{
   await pixelClick(34,28,true);
  }
  await pixelClick(34,28,true);await shot('restored-menu-phone');await pixelClick(325,102,true);if(await evaluate('Module.FS.readFile("/kryon-apps/jungle/settings/language.txt",{encoding:"utf8"})')!=="es")throw Error('Spanish flag did not persist');
+ if(await evaluate('document.documentElement.lang')!=='es')throw Error('Website metadata did not follow the selected language');
+ if(!(await evaluate('document.querySelector("meta[name=description]").content')).startsWith('Aprende'))throw Error('Spanish website description is missing');
  if(hasABC){
-  await pixelClick(195,rowY(1),true);await shot('letters-numbers-hub');await pixelClick(195,rowY(0,2),true);const abcLearn=await shot('abc-learn-phone');
-  await key('ArrowRight');if(abcLearn===await shot('abc-next-phone'))throw Error('ABC did not open directly into learning');
+  const resources=()=>evaluate('performance.getEntriesByType("resource").map(e=>e.name)');
+  const waitResource=async fragment=>{const until=Date.now()+12000;while(Date.now()<until){if((await resources()).some(n=>n.includes(fragment)))return;await delay(100)}throw Error('Missing alphabet resource: '+fragment)};
+  await pixelClick(195,rowY(1),true);await shot('letters-numbers-hub');await pixelClick(195,rowY(0,2),true);await shot('abc-letters-phone');
+  await waitResource('/abc/sounds/es/letters/0061.wav');
+  await waitResource('/abc/sounds/es/letters/0062.wav');
+  await key('b','KeyB');const pausedAlphabet=await pagePixels();await delay(4500);
+  if(pausedAlphabet!==await pagePixels())throw Error('Manual letter selection did not pause the sequence');
+  if((await resources()).some(n=>n.includes('/jungle-book/sounds/es/simple/garlic.wav')))throw Error('Default alphabet spoke a word example');
+  await key('a','KeyA');await pixelClick(300,101,true);
+  await waitResource('/jungle-book/pages/garlic.jpg');await waitResource('/jungle-book/sounds/es/simple/garlic.wav');await shot('abc-example-phone');
+  await pixelClick(275,562,true);await waitResource('/jungle-book/pages/water.jpg');await shot('abc-next-example-phone');
+  await pixelClick(80,101,true);await key(' ','Space');await shot('abc-letters-return-phone');
   await pixelClick(34,28,true);await key('Escape');await shot('menu-after-abc-phone');
  }
  if(hasNumbers){

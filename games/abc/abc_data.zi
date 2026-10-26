@@ -184,6 +184,190 @@ WordArt :: (at: s32) -> string {
     if at < 169 { return word_art_144[at - 144] }
     return ""
 }
+word_scene_0: [48]string = .[
+    "assets/jungle-book/pages/tiger.jpg",
+    "assets/jungle-book/pages/elephant.jpg",
+    "assets/jungle-book/pages/giraffe.jpg",
+    "assets/jungle-book/pages/monkey.jpg",
+    "assets/jungle-book/pages/panda.jpg",
+    "assets/jungle-book/pages/lion.jpg",
+    "assets/jungle-book/pages/zebra.jpg",
+    "assets/jungle-book/pages/crocodile.jpg",
+    "assets/jungle-book/pages/parrot.jpg",
+    "assets/jungle-book/pages/toucan.jpg",
+    "assets/jungle-book/pages/gorilla.jpg",
+    "assets/jungle-book/pages/hippo.jpg",
+    "assets/jungle-book/pages/rhino.jpg",
+    "assets/jungle-book/pages/snake.jpg",
+    "assets/jungle-book/pages/bear.jpg",
+    "assets/jungle-book/pages/frog.jpg",
+    "assets/jungle-book/pages/butterfly.jpg",
+    "assets/jungle-book/pages/ladybug.jpg",
+    "assets/jungle-book/pages/snail.jpg",
+    "assets/jungle-book/pages/flower.jpg",
+    "assets/jungle-book/pages/bee.jpg",
+    "assets/jungle-book/pages/ant.jpg",
+    "assets/jungle-book/pages/dragonfly.jpg",
+    "assets/jungle-book/pages/spider.jpg",
+    "assets/jungle-book/pages/grasshopper.jpg",
+    "assets/jungle-book/pages/banana.jpg",
+    "assets/jungle-book/pages/mango.jpg",
+    "assets/jungle-book/pages/coconut.jpg",
+    "assets/jungle-book/pages/apple.jpg",
+    "assets/jungle-book/pages/pear.jpg",
+    "assets/jungle-book/pages/orange.jpg",
+    "assets/jungle-book/pages/strawberry.jpg",
+    "assets/jungle-book/pages/grapes.jpg",
+    "assets/jungle-book/pages/pineapple.jpg",
+    "assets/jungle-book/pages/watermelon.jpg",
+    "assets/jungle-book/pages/lemon.jpg",
+    "assets/jungle-book/pages/peach.jpg",
+    "assets/jungle-book/pages/cherry.jpg",
+    "assets/jungle-book/pages/kiwi.jpg",
+    "assets/jungle-book/pages/avocado.jpg",
+    "assets/jungle-book/pages/blueberries.jpg",
+    "assets/jungle-book/pages/rabbit.jpg",
+    "assets/jungle-book/pages/cat.jpg",
+    "assets/jungle-book/pages/mouse.jpg",
+    "assets/jungle-book/pages/pig.jpg",
+    "assets/jungle-book/pages/cow.jpg",
+    "assets/jungle-book/pages/dog.jpg",
+    "assets/jungle-book/pages/horse.jpg",
+];
+word_scene_48: [48]string = .[
+    "assets/jungle-book/pages/sheep.jpg",
+    "assets/jungle-book/pages/duck.jpg",
+    "assets/jungle-book/pages/hen.jpg",
+    "assets/jungle-book/pages/goat.jpg",
+    "assets/jungle-book/pages/donkey.jpg",
+    "assets/jungle-book/pages/goose.jpg",
+    "assets/jungle-book/pages/turkey.jpg",
+    "assets/jungle-book/pages/chick.jpg",
+    "assets/jungle-book/pages/rooster.jpg",
+    "assets/jungle-book/pages/llama.jpg",
+    "assets/jungle-book/pages/alpaca.jpg",
+    "assets/jungle-book/pages/calf.jpg",
+    "assets/jungle-book/pages/lamb.jpg",
+    "assets/jungle-book/pages/spoon.jpg",
+    "assets/jungle-book/pages/fork.jpg",
+    "assets/jungle-book/pages/plate.jpg",
+    "assets/jungle-book/pages/cup.jpg",
+    "assets/jungle-book/pages/bowl.jpg",
+    "assets/jungle-book/pages/teapot.jpg",
+    "assets/jungle-book/pages/pan.jpg",
+    "assets/jungle-book/pages/refrigerator.jpg",
+    "assets/jungle-book/pages/bathtub.jpg",
+    "assets/jungle-book/pages/shower.jpg",
+    "assets/jungle-book/pages/toilet.jpg",
+    "assets/jungle-book/pages/sink.jpg",
+    "assets/jungle-book/pages/soap.jpg",
+    "assets/jungle-book/pages/towel.jpg",
+    "assets/jungle-book/pages/toothbrush.jpg",
+    "assets/jungle-book/pages/mirror.jpg",
+    "assets/jungle-book/pages/bed.jpg",
+    "assets/jungle-book/pages/pillow.jpg",
+    "assets/jungle-book/pages/blanket.jpg",
+    "assets/jungle-book/pages/lamp.jpg",
+    "assets/jungle-book/pages/wardrobe.jpg",
+    "assets/jungle-book/pages/clock.jpg",
+    "assets/jungle-book/pages/teddy.jpg",
+    "assets/jungle-book/pages/book.jpg",
+    "assets/jungle-book/pages/sofa.jpg",
+    "assets/jungle-book/pages/chair.jpg",
+    "assets/jungle-book/pages/table.jpg",
+    "assets/jungle-book/pages/rug.jpg",
+    "assets/jungle-book/pages/window.jpg",
+    "assets/jungle-book/pages/door.jpg",
+    "assets/jungle-book/pages/shelf.jpg",
+    "assets/jungle-book/pages/cushion.jpg",
+    "assets/jungle-book/pages/sun.jpg",
+    "assets/jungle-book/pages/moon.jpg",
+    "assets/jungle-book/pages/cloud.jpg",
+];
+word_scene_96: [48]string = .[
+    "assets/jungle-book/pages/rain.jpg",
+    "assets/jungle-book/pages/tree.jpg",
+    "assets/jungle-book/pages/river.jpg",
+    "assets/jungle-book/pages/mountain.jpg",
+    "assets/jungle-book/pages/lake.jpg",
+    "assets/jungle-book/pages/carrot.jpg",
+    "assets/jungle-book/pages/broccoli.jpg",
+    "assets/jungle-book/pages/tomato.jpg",
+    "assets/jungle-book/pages/potato.jpg",
+    "assets/jungle-book/pages/cucumber.jpg",
+    "assets/jungle-book/pages/pumpkin.jpg",
+    "assets/jungle-book/pages/pepper.jpg",
+    "assets/jungle-book/pages/onion.jpg",
+    "assets/jungle-book/pages/garlic.jpg",
+    "assets/jungle-book/pages/lettuce.jpg",
+    "assets/jungle-book/pages/cabbage.jpg",
+    "assets/jungle-book/pages/peas.jpg",
+    "assets/jungle-book/pages/corn.jpg",
+    "assets/jungle-book/pages/eggplant.jpg",
+    "assets/jungle-book/pages/beet.jpg",
+    "assets/jungle-book/pages/cauliflower.jpg",
+    "assets/jungle-book/pages/mother.jpg",
+    "assets/jungle-book/pages/father.jpg",
+    "assets/jungle-book/pages/sister.jpg",
+    "assets/jungle-book/pages/brother.jpg",
+    "assets/jungle-book/pages/baby.jpg",
+    "assets/jungle-book/pages/grandmother.jpg",
+    "assets/jungle-book/pages/grandfather.jpg",
+    "assets/jungle-book/pages/family.jpg",
+    "assets/jungle-book/pages/bread.jpg",
+    "assets/jungle-book/pages/milk.jpg",
+    "assets/jungle-book/pages/eggs.jpg",
+    "assets/jungle-book/pages/cereal.jpg",
+    "assets/jungle-book/pages/butter.jpg",
+    "assets/jungle-book/pages/jam.jpg",
+    "assets/jungle-book/pages/sandwich.jpg",
+    "assets/jungle-book/pages/soup.jpg",
+    "assets/jungle-book/pages/salad.jpg",
+    "assets/jungle-book/pages/rice.jpg",
+    "assets/jungle-book/pages/pasta.jpg",
+    "assets/jungle-book/pages/water.jpg",
+    "assets/jungle-book/pages/roast_chicken.jpg",
+    "assets/jungle-book/pages/stew.jpg",
+    "assets/jungle-book/pages/meatballs.jpg",
+    "assets/jungle-book/pages/tacos.jpg",
+    "assets/jungle-book/pages/pizza.jpg",
+    "assets/jungle-book/pages/lasagne.jpg",
+    "assets/jungle-book/pages/head.jpg",
+];
+word_scene_144: [25]string = .[
+    "assets/jungle-book/pages/eye.jpg",
+    "assets/jungle-book/pages/ear.jpg",
+    "assets/jungle-book/pages/nose.jpg",
+    "assets/jungle-book/pages/mouth.jpg",
+    "assets/jungle-book/pages/tooth.jpg",
+    "assets/jungle-book/pages/arm.jpg",
+    "assets/jungle-book/pages/hand.jpg",
+    "assets/jungle-book/pages/leg.jpg",
+    "assets/jungle-book/pages/foot.jpg",
+    "assets/jungle-book/pages/shirt.jpg",
+    "assets/jungle-book/pages/sweater.jpg",
+    "assets/jungle-book/pages/trousers.jpg",
+    "assets/jungle-book/pages/dress.jpg",
+    "assets/jungle-book/pages/skirt.jpg",
+    "assets/jungle-book/pages/socks.jpg",
+    "assets/jungle-book/pages/shoes.jpg",
+    "assets/jungle-book/pages/coat.jpg",
+    "assets/jungle-book/pages/hat.jpg",
+    "assets/jungle-book/pages/scarf.jpg",
+    "assets/jungle-book/pages/gloves.jpg",
+    "assets/jungle-book/pages/boots.jpg",
+    "assets/jungle-book/pages/spring.jpg",
+    "assets/jungle-book/pages/summer.jpg",
+    "assets/jungle-book/pages/autumn.jpg",
+    "assets/jungle-book/pages/winter.jpg",
+];
+WordScene :: (at: s32) -> string {
+    if at < 48 { return word_scene_0[at - 0] }
+    if at < 96 { return word_scene_48[at - 48] }
+    if at < 144 { return word_scene_96[at - 96] }
+    if at < 169 { return word_scene_144[at - 144] }
+    return ""
+}
 word_name_en_0: [48]string = .[
     "Tiger",
     "Elephant",
@@ -2947,7 +3131,8 @@ WordSeconds_es_spelling :: (at: s32) -> float64 {
 LETTER_COUNT_EN :: 26
 alphabet_en: [26]string = .["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
 alphabet_lower_en: [26]string = .["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"];
-letter_name_en: [26]string = .["ay", "bee", "cee", "dee", "ee", "ef", "gee", "aych", "eye", "jay", "kay", "ell", "em", "en", "oh", "pee", "cue", "ar", "ess", "tee", "you", "vee", "double-you", "ex", "why", "zee"];
+letter_name_en: [26]string = .["ay", "bee", "see", "dee", "ee", "ef", "gee", "aitch", "eye", "jay", "kay", "el", "em", "en", "oh", "pee", "cue", "ar", "ess", "tee", "you", "vee", "double you", "ex", "why", "zed"];
+letter_voice_en: [26]string = .["assets/abc/sounds/en/letters/0061.wav", "assets/abc/sounds/en/letters/0062.wav", "assets/abc/sounds/en/letters/0063.wav", "assets/abc/sounds/en/letters/0064.wav", "assets/abc/sounds/en/letters/0065.wav", "assets/abc/sounds/en/letters/0066.wav", "assets/abc/sounds/en/letters/0067.wav", "assets/abc/sounds/en/letters/0068.wav", "assets/abc/sounds/en/letters/0069.wav", "assets/abc/sounds/en/letters/006a.wav", "assets/abc/sounds/en/letters/006b.wav", "assets/abc/sounds/en/letters/006c.wav", "assets/abc/sounds/en/letters/006d.wav", "assets/abc/sounds/en/letters/006e.wav", "assets/abc/sounds/en/letters/006f.wav", "assets/abc/sounds/en/letters/0070.wav", "assets/abc/sounds/en/letters/0071.wav", "assets/abc/sounds/en/letters/0072.wav", "assets/abc/sounds/en/letters/0073.wav", "assets/abc/sounds/en/letters/0074.wav", "assets/abc/sounds/en/letters/0075.wav", "assets/abc/sounds/en/letters/0076.wav", "assets/abc/sounds/en/letters/0077.wav", "assets/abc/sounds/en/letters/0078.wav", "assets/abc/sounds/en/letters/0079.wav", "assets/abc/sounds/en/letters/007a.wav"];
 letter_starts_en: [27]s32 = .[0, 6, 12, 18, 24, 29, 35, 41, 47, 47, 48, 49, 55, 61, 62, 64, 70, 70, 76, 82, 88, 88, 88, 93, 93, 93, 94];
 letter_words_en_0: [48]s32 = .[
     21,
@@ -3056,6 +3241,7 @@ LETTER_COUNT_DE :: 30
 alphabet_de: [30]string = .["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "Ä", "Ö", "Ü", "ß"];
 alphabet_lower_de: [30]string = .["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "ä", "ö", "ü", "ß"];
 letter_name_de: [30]string = .["a", "be", "ze", "de", "e", "ef", "ge", "ha", "i", "jot", "ka", "el", "em", "en", "o", "pe", "ku", "er", "es", "te", "u", "fau", "we", "iks", "ypsilon", "zett", "ä", "ö", "ü", "Eszett"];
+letter_voice_de: [30]string = .["assets/abc/sounds/de/letters/0061.wav", "assets/abc/sounds/de/letters/0062.wav", "assets/abc/sounds/de/letters/0063.wav", "assets/abc/sounds/de/letters/0064.wav", "assets/abc/sounds/de/letters/0065.wav", "assets/abc/sounds/de/letters/0066.wav", "assets/abc/sounds/de/letters/0067.wav", "assets/abc/sounds/de/letters/0068.wav", "assets/abc/sounds/de/letters/0069.wav", "assets/abc/sounds/de/letters/006a.wav", "assets/abc/sounds/de/letters/006b.wav", "assets/abc/sounds/de/letters/006c.wav", "assets/abc/sounds/de/letters/006d.wav", "assets/abc/sounds/de/letters/006e.wav", "assets/abc/sounds/de/letters/006f.wav", "assets/abc/sounds/de/letters/0070.wav", "assets/abc/sounds/de/letters/0071.wav", "assets/abc/sounds/de/letters/0072.wav", "assets/abc/sounds/de/letters/0073.wav", "assets/abc/sounds/de/letters/0074.wav", "assets/abc/sounds/de/letters/0075.wav", "assets/abc/sounds/de/letters/0076.wav", "assets/abc/sounds/de/letters/0077.wav", "assets/abc/sounds/de/letters/0078.wav", "assets/abc/sounds/de/letters/0079.wav", "assets/abc/sounds/de/letters/007a.wav", "assets/abc/sounds/de/letters/00e4.wav", "assets/abc/sounds/de/letters/00f6.wav", "assets/abc/sounds/de/letters/00fc.wav", "assets/abc/sounds/de/letters/00df.wav"];
 letter_starts_de: [31]s32 = .[0, 6, 12, 13, 15, 21, 27, 33, 39, 39, 39, 45, 51, 57, 61, 63, 69, 69, 74, 80, 86, 87, 88, 93, 93, 93, 99, 99, 99, 99, 99];
 letter_words_de_0: [48]s32 = .[
     149,
@@ -3169,10 +3355,11 @@ LetterWord_de :: (at: s32) -> s32 {
     return 0
 }
 LETTER_COUNT_ES :: 27
-alphabet_es: [27]string = .["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "Ñ"];
-alphabet_lower_es: [27]string = .["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "ñ"];
-letter_name_es: [27]string = .["a", "be", "ce", "de", "e", "efe", "ge", "hache", "i", "jota", "ka", "ele", "eme", "ene", "o", "pe", "cu", "erre", "ese", "te", "u", "uve", "uve doble", "equis", "ye", "zeta", "eñe"];
-letter_starts_es: [28]s32 = .[0, 6, 12, 18, 20, 25, 29, 35, 40, 42, 44, 45, 51, 57, 61, 67, 73, 73, 79, 85, 91, 92, 96, 96, 96, 96, 98, 98];
+alphabet_es: [27]string = .["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "Ñ", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
+alphabet_lower_es: [27]string = .["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "ñ", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"];
+letter_name_es: [27]string = .["a", "be", "ce", "de", "e", "efe", "ge", "hache", "i", "jota", "ka", "ele", "eme", "ene", "eñe", "o", "pe", "cu", "erre", "ese", "te", "u", "uve", "uve doble", "equis", "ye", "zeta"];
+letter_voice_es: [27]string = .["assets/abc/sounds/es/letters/0061.wav", "assets/abc/sounds/es/letters/0062.wav", "assets/abc/sounds/es/letters/0063.wav", "assets/abc/sounds/es/letters/0064.wav", "assets/abc/sounds/es/letters/0065.wav", "assets/abc/sounds/es/letters/0066.wav", "assets/abc/sounds/es/letters/0067.wav", "assets/abc/sounds/es/letters/0068.wav", "assets/abc/sounds/es/letters/0069.wav", "assets/abc/sounds/es/letters/006a.wav", "assets/abc/sounds/es/letters/006b.wav", "assets/abc/sounds/es/letters/006c.wav", "assets/abc/sounds/es/letters/006d.wav", "assets/abc/sounds/es/letters/006e.wav", "assets/abc/sounds/es/letters/00f1.wav", "assets/abc/sounds/es/letters/006f.wav", "assets/abc/sounds/es/letters/0070.wav", "assets/abc/sounds/es/letters/0071.wav", "assets/abc/sounds/es/letters/0072.wav", "assets/abc/sounds/es/letters/0073.wav", "assets/abc/sounds/es/letters/0074.wav", "assets/abc/sounds/es/letters/0075.wav", "assets/abc/sounds/es/letters/0076.wav", "assets/abc/sounds/es/letters/0077.wav", "assets/abc/sounds/es/letters/0078.wav", "assets/abc/sounds/es/letters/0079.wav", "assets/abc/sounds/es/letters/007a.wav"];
+letter_starts_es: [28]s32 = .[0, 6, 12, 18, 20, 25, 29, 35, 40, 42, 44, 45, 51, 57, 61, 61, 67, 73, 73, 79, 85, 91, 92, 96, 96, 96, 96, 98];
 letter_words_es_0: [48]s32 = .[
     109,
     136,
@@ -3318,6 +3505,12 @@ LetterLower :: (language: s32, letter: s32) -> string {
     if language == 1 { return alphabet_lower_de[letter] }
     if language == 2 { return alphabet_lower_es[letter] }
     return alphabet_lower_en[letter]
+}
+
+LetterVoice :: (language: s32, letter: s32) -> string {
+    if language == 1 { return letter_voice_de[letter] }
+    if language == 2 { return letter_voice_es[letter] }
+    return letter_voice_en[letter]
 }
 
 LetterName :: (language: s32, letter: s32) -> string {

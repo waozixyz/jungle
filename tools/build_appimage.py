@@ -37,6 +37,9 @@ def main():
     fonts = appdir / 'usr/share/fonts/truetype/jungle'
     fonts.mkdir(parents=True)
     shutil.copy2(kryon / 'assets/fonts/LiberationSans-Regular.ttf', fonts)
+    metainfo = appdir / 'usr/share/metainfo'
+    metainfo.mkdir(parents=True)
+    shutil.copy2(ROOT / 'packaging/xyz.waozi.jungle.metainfo.xml', metainfo)
     docs = appdir / 'usr/share/doc/jungle'
     docs.mkdir(parents=True)
     shutil.copy2(ROOT / 'LICENSE', docs)
@@ -52,7 +55,7 @@ def main():
     # GdkPixbuf is loaded at runtime for JPEG pages; it is not in ldd output.
     subprocess.run([str(tool), '--appdir', str(appdir), '--deploy-deps-only', str(payload / 'jungle'),
                     '--library', pixbuf, '--desktop-file', str(ROOT / 'packaging/xyz.waozi.jungle.desktop'),
-                    '--icon-file', str(ROOT / 'assets/jungle/icon.png'), '--icon-filename', 'xyz.waozi.jungle',
+                    '--icon-file', str(ROOT / 'assets/jungle/icons/icon-512.png'), '--icon-filename', 'xyz.waozi.jungle',
                     '--custom-apprun', str(apprun)], env=env, check=True)
     # Keep the distribution copyright notices for each bundled library.
     notices = docs / 'bundled-licenses'

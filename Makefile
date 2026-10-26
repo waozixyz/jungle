@@ -74,6 +74,7 @@ $(APP)/games/jungle-abc.zx: $(wildcard games/abc/*.zi retro/*.zi) $(shell find a
 	rm -rf build/stage/jungle-abc
 	mkdir -p build/stage/jungle-abc/assets $(APP)/games
 	cp -r assets/abc build/stage/jungle-abc/assets/
+	find build/stage/jungle-abc/assets -type f -name '*.speech.json' -delete
 	'$(ZIRANC)' bundle --root games/abc $(MODULES) --define KRYON_HOSTED_UI \
 		--asset-dir assets=build/stage/jungle-abc/assets --entry jungle_abc:main -o $@ games/abc/jungle_abc.zi
 
@@ -111,6 +112,7 @@ art: build/tools/art
 	build/tools/art
 	python3 tools/book_art.py
 	python3 tools/menu_art.py
+	python3 tools/branding.py
 	python3 tools/dino_art.py
 	python3 tools/paint_pages.py
 
@@ -154,6 +156,8 @@ test: build/tests/paint build/tests/png build/tests/progress build/tests/documen
 	python3 tests/export_test.py
 	python3 tests/assets_test.py
 	python3 tests/language_test.py
+	python3 tests/abc_audio_test.py
+	python3 tests/brand_metadata_test.py
 
 # Actual input and rendering on a private display; requires Xvfb, xdotool,
 # ImageMagick and Pillow. Never uses the inherited desktop or owner saves.
@@ -162,6 +166,7 @@ test-ui: all
 	python3 tests/book_ui_test.py
 	python3 tests/book_additions_ui_test.py
 	python3 tests/learning_menu_test.py
+	python3 tests/abc_sequence_ui_test.py
 	python3 tests/slot_preview_test.py
 	python3 tests/language_ui_test.py
 
@@ -178,5 +183,10 @@ install: all
 	install -m 0755 $(APP)/jungle '$(LIB_DIR)/jungle.new'
 	mv -f '$(LIB_DIR)/jungle.new' '$(LIB_DIR)/jungle'
 	ln -sfn '$(LIB_DIR)/jungle' '$(BIN_DIR)/jungle'
-	install -m 0644 assets/jungle/icon.png '$(DATA_DIR)/icons/hicolor/64x64/apps/xyz.waozi.jungle.png'
-	install -m 0644 packaging/xyz.waozi.jungle.desktop '$(DATA_DIR)/applications/'
+	@for size in 16 32 48 64 128 256 512; do \
+		mkdir -p '$(DATA_DIR)/icons/hicolor/'$$size'x'$$size'/apps'; \
+		install -m 0644 assets/jungle/icons/icon-$$size.png '$(DATA_DIR)/icons/hicolor/'$$size'x'$$size'/apps/xyz.waozi.jungle.png'; \
+	done
+	mkdir -p '$(DATA_DIR)/metainfo'
+	install -m 0644 packaging/xyz.waozi.jungle.metainfo.xml '$(DATA_DIR)/metainfo/'
+	python3 tools/install_desktop.py '$(LIB_DIR)' '$(DATA_DIR)'

@@ -42,7 +42,12 @@ picture stays there.
 **ABC + 123** combines the letter and number books in one menu entry.
 Choose **ABC Book** or **123 Book** inside it; Back returns to that choice.
 Both open directly into learning, without an activity chooser or a find game.
-ABC pages pair each letter with watercolor pictures and Simple or Spelling narration.
+ABC starts with standalone letter names, spoken in order with a gentle pause
+between letters. Play/Pause controls the sequence; arrows or a letter selection
+pause it for exploration. Tap a letter to hear it again. **Examples** optionally
+shows the letter on the left and one watercolor word example on the right;
+**Next example** cycles through the words and **Spelling** toggles word spelling.
+Spanish Ñ sits between N and O.
 123 pages show each numeral from one to ten with its word and that many
 watercolor animals. The strip along the bottom reaches every number.
 Existing saved progress files are preserved.
