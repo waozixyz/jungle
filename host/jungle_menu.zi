@@ -108,11 +108,16 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
     BookText(24, ifx menu_portrait then 22 else 14, 272, 24, "Jungle Academy", 20)
     BookText(24, ifx menu_portrait then 49 else 36, 272, 9, "Choose a little adventure", 8)
     action.language_changed = LanguageFlags()
-    row_height: s32 = ifx menu_portrait then (menu_height - 164) / game_count else 35
+    // Landscape keeps one list, squeezing its rows once four games no longer
+    // fit above the footer; the squeezed rows drop their description line.
+    landscape_rows: s32 = (menu_height - 95) / game_count
+    if landscape_rows > 35 { landscape_rows = 35 }
+    row_height: s32 = ifx menu_portrait then (menu_height - 164) / game_count else landscape_rows
     row_top: s32 = ifx menu_portrait then 112 else 67
     for index: cast(s32)0..game_count - 1 {
         y := row_top + index * row_height
         h := row_height - 2
+        compact := h < 30
         press := RetroTap(100 + index, 22, y, 276, h, games[index].title)
         if press.down { choice.* = index }
         selected := index == choice.*
@@ -124,10 +129,15 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
         image_y := y + (h - picture) / 2
         BookPicture(games[index].icon, 25, image_y, picture, picture)
         text_x: s32 = ifx menu_portrait then 102 else 62
-        BookText(text_x, y + h / 2 - (ifx menu_portrait then 25 else 14), 264 - text_x, ifx menu_portrait then 30 else 16, games[index].title, ifx menu_portrait then 17 else 12, TextAlign.TextAlignStart)
-        BookText(text_x, y + h / 2 + 3, 264 - text_x, ifx menu_portrait then 24 else 12, games[index].about, ifx menu_portrait then 10 else 8, TextAlign.TextAlignStart)
-        BookBox(267, y + (h - 15) / 2, 24, 15, 0xeee4cfff, 0xd6c6a8ff, 5.0)
-        BookText(267, y + (h - 15) / 2, 24, 15, Cat(NumberText(games[index].age), "+"), 9)
+        title_height: s32 = ifx menu_portrait then 30 else ifx compact then 14 else 16
+        title_size: s32 = ifx menu_portrait then 17 else ifx compact then 10 else 12
+        BookText(text_x, y + h / 2 - (ifx menu_portrait then 25 else ifx compact then 8 else 14), 264 - text_x, title_height, games[index].title, title_size, TextAlign.TextAlignStart)
+        if !compact {
+            BookText(text_x, y + h / 2 + 3, 264 - text_x, ifx menu_portrait then 24 else 12, games[index].about, ifx menu_portrait then 10 else 8, TextAlign.TextAlignStart)
+        }
+        badge_height: s32 = ifx compact then 13 else 15
+        BookBox(267, y + (h - badge_height) / 2, 24, badge_height, 0xeee4cfff, 0xd6c6a8ff, 5.0)
+        BookText(267, y + (h - badge_height) / 2, 24, badge_height, Cat(NumberText(games[index].age), "+"), 9)
         if press.clicked { action.game = index }
     }
     footer: s32 = ifx menu_portrait then menu_height - 50 else menu_height - 26
