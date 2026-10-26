@@ -191,7 +191,7 @@ class Desktop:
         deadline = time.monotonic() + 20
         while time.monotonic() < deadline:
             picture = self.capture(name)
-            if picture.getpixel((0, 0)) == (227, 236, 228) and picture.getpixel((28, 48)) != (0, 0, 170):
+            if picture.getpixel((0, 0)) == (255, 252, 243) and (0, 0, 170) not in [c for _, c in picture.crop((0,0,106,28)).getcolors(10000)]:
                 return picture
             time.sleep(.1)
         raise AssertionError("Picture Book did not reach its first frame")
@@ -200,7 +200,7 @@ class Desktop:
         deadline = time.monotonic() + 10
         while time.monotonic() < deadline:
             picture = self.capture(name)
-            if picture.getpixel((0, 0)) == (227, 236, 228) and picture.getpixel((28, 48)) == (0, 0, 170):
+            if picture.getpixel((0, 0)) == (255, 252, 243) and (0, 0, 170) in [c for _, c in picture.crop((0,0,106,28)).getcolors(10000)]:
                 return picture
             time.sleep(.1)
         raise AssertionError("Jungle did not return to its menu")
@@ -327,9 +327,8 @@ def ui(binary):
             assert (data / "sound.txt").read_text() == "quiet\n", "F10 did not restore quiet sound"
             desktop.key("1")
             book = desktop.wait_book("book")
-            assert book.getpixel((0, 0)) == (227, 236, 228), "Picture Book lost its soft book background"
-            assert book.getpixel((15, 15)) == (255, 252, 243), "Picture Book lost its cream pages"
-            desktop.click(224, 160)
+            assert book.getpixel((0, 0)) == (255, 252, 243), "Picture Book lost its cream background"
+            desktop.key("d")
             book = desktop.capture("book-spelling-categories")
             desktop.key("Down")
             desktop.key("Return")
@@ -350,19 +349,21 @@ def ui(binary):
             print("local UI test: Picture Book categories, pages and English names", flush=True)
             desktop.key("2")
             counting = desktop.capture("counting")
-            assert counting.getpixel((0, 0)) == (227, 236, 228), "counting did not render its book background"
-            places = [(164, 100), (132, 100), (132, 72), (164, 72),
-                      (100, 72), (100, 100), (132, 128), (164, 128),
-                      (100, 128), (68, 100), (68, 72), (68, 128),
-                      (36, 72), (36, 100), (36, 128), (196, 72),
-                      (196, 100), (196, 128)]
+            assert counting.getpixel((0, 0)) == (255, 252, 243), "counting did not render its book background"
             progress = data / "games/jungle.animals/progress.txt"
             previous = 0
             for answer_index in range(6):
-                counting = desktop.capture("counting")
-                background = Image.new("RGB", (24, 20), (247, 241, 227))
-                answer = sum(ImageChops.difference(counting.crop((x - 12, y - 10, x + 12, y + 10)),
-                                                  background).getbbox() is not None for x, y in places)
+                counting = desktop.capture_actual("counting")
+                width, height = counting.size
+                key_width = max(230, min(360, width // 3))
+                animal_width = width - 72 - key_width
+                animal_height = height - 138
+                size = min(100, (animal_width - 16) // 6)
+                left = 24 + (animal_width - 6 * size) // 2
+                top = 84 + (animal_height - size) // 2
+                background = Image.new("RGB", (size - 6, size - 6), (247, 241, 227))
+                answer = sum(ImageChops.difference(counting.crop((left + i * size + 3, top + 3,
+                    left + (i + 1) * size - 3, top + size - 3)), background).getbbox() is not None for i in range(6))
                 assert 1 <= answer <= 4, "counting did not render its watercolor animals"
                 assert answer != previous, "counting repeated a question"
                 previous = answer

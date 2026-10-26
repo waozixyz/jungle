@@ -9,7 +9,7 @@ LanguageCode :: () -> string {
 LanguageSet :: (code: string) {
     language = ifx code == "de" then 1 else ifx code == "es" then 2 else 0
 }
-ui_en: [131]string = .[
+ui_en: [133]string = .[
     "Picture Book",
     "Animal Counting",
     "Dino Colors",
@@ -139,10 +139,12 @@ ui_en: [131]string = .[
     "Animals and nature",
     "Food",
     "At home",
+    "Vegetables",
+    "OK",
     "Mirror",
     "Drag the dinosaur, then let go",
 ];
-ui_de: [131]string = .[
+ui_de: [133]string = .[
     "Bilderbuch",
     "Tiere zählen",
     "Dino Farben",
@@ -272,10 +274,12 @@ ui_de: [131]string = .[
     "Tiere und Natur",
     "Essen",
     "Zu Hause",
+    "Gemüse",
+    "OK",
     "Spiegeln",
     "Ziehe den Dinosaurier und lass ihn los",
 ];
-ui_es: [131]string = .[
+ui_es: [133]string = .[
     "Libro ilustrado",
     "Contar animales",
     "Colores Dino",
@@ -405,6 +409,8 @@ ui_es: [131]string = .[
     "Animales y naturaleza",
     "Alimentos",
     "En casa",
+    "Verduras",
+    "Aceptar",
     "Reflejar",
     "Arrastra el dinosaurio y suéltalo",
 ];

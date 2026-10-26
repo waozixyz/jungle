@@ -27,8 +27,8 @@ def main():
             if value in ("FILE|TITLE|ABOUT|ICON|AGE", "Jungle Academy", "jungle --check", "COUNTING") or "\\" in value:
                 continue
             assert value in rows, (source, "untranslated message", value)
-    assert len(BOOKS) == 9 and len(NAMES) == len(set(NAMES)) == 101
-    assert dict((name, len(words)) for name, words in BOOKS) == dict(jungle=15, garden=10, fruits=16, farm=20, kitchen=8, bathroom=8, bedroom=8, **{"living-room":8}, nature=8)
+    assert len(BOOKS) == 10 and len(NAMES) == len(set(NAMES)) == 117
+    assert dict((name, len(words)) for name, words in BOOKS) == dict(jungle=15, garden=10, fruits=16, farm=20, kitchen=8, bathroom=8, bedroom=8, **{"living-room":8}, nature=8, vegetables=16)
     assert set(NAMES) == set(WORDS)
     generated = (ROOT / "games/book/book_pages.zi").read_text()
     voices = (ROOT / "games/book/book_voice.zi").read_text()
@@ -45,7 +45,7 @@ def main():
                 assert str(path.relative_to(ROOT)) in voices
                 if simple:
                     assert metadata["text"] == word + ".", "Simple mode must say the word exactly once"
-    print("local language test: complete UI coverage, 101 translated words, 606 book recordings passed")
+    print("local language test: complete UI coverage, 117 translated words, 702 book recordings passed")
 
 
 if __name__ == "__main__":

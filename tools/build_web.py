@@ -40,6 +40,7 @@ def main():
         'app_context:DocumentReadHost':'jungle_web:WebRead',
         'app_context:DocumentWriteHost':'jungle_web:WebWrite',
         'app_context:AppAssetPathHost':'jungle_web:WebAsset',
+        'app_context:AppKeyboardHost':'jungle_web:WebKeyboard',
     }
     args=[compiler,'build','--target=c','--entry','canvas_app_run:main','--define','PLATFORM_WEB','--root',ROOT/'web',*modules]
     for source,target in bindings.items():args += ['--bind',source+'='+target]

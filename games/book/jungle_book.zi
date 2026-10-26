@@ -28,9 +28,6 @@ finished: bool;
 finished_started: float64;
 category: s32;
 book_scroll: s32;
-shelf_order: [9]s32 = .[0,1,3,8,2,4,5,6,7];
-shelf_tops: [9]s32 = .[18,18,66,66,134,202,202,250,250];
-shelf_columns: [9]s32 = .[0,1,0,1,0,0,1,0,1];
 voice_idle_started: float64;
 voice_pending: bool;
 simple: bool = true;
@@ -116,33 +113,179 @@ Spelling :: () -> string {
     return page_spelling_en(at)
 }
 
-ModeButton :: (id: s32, x: s32, label: string, selected: bool) -> bool {
-    press := RetroTap(id, x, 151, 130, 18, label)
-    BookBox(x, 151, 130, 18, ifx selected then cast(u32)0xdcebdcff else cast(u32)0xf3ecdcff,
-        ifx selected then cast(u32)0x2e6956ff else cast(u32)0xdacdb5ff, 3.0)
-    BookText(x, 151, 130, 18, label, 10)
+// Book layouts use the actual viewport; gameplay state and narration are shared.
+book_width: s32;
+book_height: s32;
+book_padding: s32;
+book_gap: s32;
+shelf_columns: s32;
+shelf_card_width: s32;
+shelf_card_height: s32;
+shelf_view_height: s32;
+
+TouchButton :: (id: s32, x: s32, y: s32, width: s32, height: s32, text: string, selected: bool = false) -> bool {
+    press := RetroTap(id, x, y, width, height, text)
+    BookBox(x, y, width, height, ifx selected || press.down then cast(u32)0xdcebdcff else cast(u32)0xf3ecdcff,
+        ifx selected then cast(u32)0x2e6956ff else cast(u32)0xdacdb5ff, 8.0)
+    BookText(x + 6, y, width - 12, height, text, 18)
     return press.clicked
+}
+
+ResponsiveBook :: (bounds: Rectangle) {
+    book_width = cast(s32)bounds.width
+    book_height = cast(s32)bounds.height
+    book_padding = ifx book_width < 600 then 12 else 24
+    book_gap = ifx book_width < 600 then 12 else 20
+    retro.x = bounds.x
+    retro.y = bounds.y
+    retro.scale = 1.0
+    BookPalette()
+    BookBox(0, 0, book_width, book_height, 0xfffcf3ff)
+    minimum_width: s32 = ifx book_width < 600 then 140 else 170
+    shelf_columns = (book_width - book_padding * 2 + book_gap) / (minimum_width + book_gap)
+    if shelf_columns < 1 { shelf_columns = 1 }
+    if shelf_columns > 6 { shelf_columns = 6 }
+    shelf_card_width = (book_width - book_padding * 2 - book_gap * (shelf_columns - 1) - 10) / shelf_columns
+    shelf_card_height = shelf_card_width + 40
+    shelf_view_height = book_height - book_padding * 2 - 64
+    if shelf_view_height < 80 { shelf_view_height = 80 }
+}
+
+BookShelf :: () {
+    rows := (CATEGORY_COUNT + shelf_columns - 1) / shelf_columns
+    content_height := rows * (shelf_card_height + book_gap)
+    scrolled := Scroll(retro.session, ScrollProps.{.key = cast(u64)600,
+        .bounds = RetroRect(book_padding, book_padding, book_width - book_padding * 2, shelf_view_height),
+        .scale = 1.0, .content_height = content_height, .scroll_offset = book_scroll, .keep_scrollbar = true})
+    book_scroll = scrolled.scroll_offset
+    if scrolled.opened {
+        saved_y := retro.y
+        retro.y -= cast(float32)book_scroll
+        for slot: cast(s32)0..CATEGORY_COUNT - 1 {
+            index := shelf_order[slot]
+            x := book_padding + (slot % shelf_columns) * (shelf_card_width + book_gap)
+            y := book_padding + (slot / shelf_columns) * (shelf_card_height + book_gap)
+            press := RetroTap(20 + index, x, y, shelf_card_width, shelf_card_height, category_names[index])
+            selected := index == category
+            BookBox(x, y, shelf_card_width, shelf_card_height, ifx selected then cast(u32)0xe5eee1ff else cast(u32)0xf7f1e3ff,
+                ifx selected then cast(u32)0x2e6956ff else cast(u32)0xdacdb5ff, 9.0)
+            BookPicture(category_previews[index], x + 7, y + 7, shelf_card_width - 14, shelf_card_width - 14)
+            BookText(x + 7, y + shelf_card_width, shelf_card_width - 14, 34, category_names[index], 20)
+            if press.clicked { category = index; OpenBook() }
+        }
+        retro.y = saved_y
+        unused End(retro.session)
+    }
+    footer := book_height - book_padding - 48
+    if TouchButton(62, book_padding, footer, 48, 48, "<") { GameHome() }
+    mode_width := (book_width - book_padding * 2 - 60 - book_gap * 2) / 2
+    if mode_width > 180 { mode_width = 180 }
+    x := book_padding + 60
+    if TouchButton(30, x, footer, mode_width, 48, "Simple", simple) { simple = true; unused DocumentWrite("mode.txt", "simple") }
+    if TouchButton(31, x + mode_width + book_gap, footer, mode_width, 48, "Spelling", !simple) { simple = false; unused DocumentWrite("mode.txt", "spelling") }
+    if retro.key == KEY_LEFT || retro.key == KEY_RIGHT || retro.key == KEY_UP || retro.key == KEY_DOWN {
+        slot: s32 = 0
+        for at: cast(s32)0..CATEGORY_COUNT - 1 { if shelf_order[at] == category { slot = at } }
+        step: s32 = ifx retro.key == KEY_LEFT then -1 else ifx retro.key == KEY_RIGHT then 1 else ifx retro.key == KEY_UP then -shelf_columns else shelf_columns
+        slot = (slot + step + CATEGORY_COUNT) % CATEGORY_COUNT
+        category = shelf_order[slot]
+        top := (slot / shelf_columns) * (shelf_card_height + book_gap)
+        if top < book_scroll { book_scroll = top }
+        if top + shelf_card_height > book_scroll + shelf_view_height { book_scroll = top + shelf_card_height - shelf_view_height }
+    }
+    if retro.key == 83 { simple = true; unused DocumentWrite("mode.txt", "simple") }
+    if retro.key == 68 { simple = false; unused DocumentWrite("mode.txt", "spelling") }
+    if retro.key >= 49 && retro.key <= 57 && retro.key < 49 + CATEGORY_COUNT { category = retro.key - 49; OpenBook() }
+    if retro.key == 48 && CATEGORY_COUNT >= 10 { category = 9; OpenBook() }
+    if retro.key == KEY_ENTER { OpenBook() }
+    if retro.key == KEY_ESCAPE { GameHome() }
 }
 
 FinishedBook :: () {
     next_category := (category + 1) % CATEGORY_COUNT
-    BookText(24, 16, 272, 25, "Book finished", 19)
-    BookText(24, 42, 272, 14, "Next book starts shortly", 10)
-    BookBox(24, 61, 272, 88, 0xe5eee1ff, 0xdacdb5ff, 5.0)
-    BookPicture(category_previews[next_category], 29, 65, 80, 80)
-    BookText(119, 83, 170, 34, category_names[next_category], 18)
-    all_books := RetroTap(40, 24, 161, 130, 22, "All books")
-    BookBox(24, 161, 130, 22, 0xf3ecdcff, 0xdacdb5ff, 4.0)
-    BookText(24, 161, 130, 22, "All books", 10)
-    next_book := RetroTap(41, 164, 161, 132, 22, "Read this book")
-    BookBox(164, 161, 132, 22, 0xdcebdcff, 0x2e6956ff, 4.0)
-    BookText(164, 161, 132, 22, "Read this book", 10)
-    if all_books.clicked || retro.key == KEY_ESCAPE { choosing_category = true; finished = false }
-    else if next_book.clicked || retro.key == KEY_ENTER || retro.key == KEY_RIGHT || retro.now - finished_started >= 3.0 {
+    size := book_width - book_padding * 2
+    if size > book_height - 160 { size = book_height - 160 }
+    if size < 80 { size = 80 }
+    BookPicture(category_previews[next_category], (book_width - size) / 2, book_padding, size, size)
+    BookText(book_padding, book_padding + size + 8, book_width - book_padding * 2, 36, category_names[next_category], 25)
+    footer := book_height - book_padding - 48
+    width := (book_width - book_padding * 2 - book_gap) / 2
+    all_books := TouchButton(40, book_padding, footer, width, 48, "All books")
+    next_book := TouchButton(41, book_padding + width + book_gap, footer, width, 48, "Read this book", true)
+    if all_books || retro.key == KEY_ESCAPE { choosing_category = true; finished = false }
+    else if next_book || retro.key == KEY_ENTER || retro.key == KEY_RIGHT || retro.now - finished_started >= 3.0 {
         category = next_category
         OpenBook()
     }
     if retro.key == KEY_LEFT { Turn(-1) }
+}
+
+ReadingPage :: () {
+    width := book_width - book_padding * 2
+    height := book_height - book_padding * 2 - 64
+    landscape := book_width >= book_height
+    image_size: s32
+    image_x: s32
+    image_y: s32
+    word_x: s32
+    word_y: s32
+    word_width: s32
+    if landscape {
+        image_size = (width - book_gap) / 2
+        if image_size > height { image_size = height }
+        image_x = book_padding + ((width - book_gap) / 2 - image_size) / 2
+        image_y = book_padding + (height - image_size) / 2
+        word_x = book_width / 2 + book_gap / 2
+        word_width = book_width - book_padding - word_x
+        word_y = book_padding + height / 2 - 32
+        BookBox(book_width / 2 - 1, book_padding, 2, height, 0xe5d9c3ff)
+    } else {
+        image_size = width
+        if image_size > height - 104 { image_size = height - 104 }
+        if image_size < 64 { image_size = 64 }
+        image_x = (book_width - image_size) / 2
+        image_y = book_padding + (height - image_size - 104) / 2
+        word_x = book_padding
+        word_width = width
+        word_y = image_y + image_size + 12
+    }
+    BookPicture(page_paths(PageIndex()), image_x, image_y, image_size, image_size)
+    BookText(word_x, word_y, word_width, 56, PageName(), ifx landscape then 44 else 34)
+    if !simple { BookText(word_x, word_y + 58, word_width, 32, Spelling(), 20) }
+    footer := book_height - book_padding - 48
+    previous := TouchButton(10, book_padding, footer, 56, 48, "<")
+    books_width: s32 = 120
+    if width < 280 { books_width = 96 }
+    categories := TouchButton(13, (book_width - books_width) / 2, footer, books_width, 48, "Books")
+    next := TouchButton(11, book_width - book_padding - 56, footer, 56, 48, ">")
+    touch := RetroTap(12, book_padding, book_padding, width, height, "Swipe to turn the page", true)
+    now := retro.now
+    if touch.down && !swipe_tracking {
+        swipe_start = Vector2.{touch.x, touch.y}
+        swipe_started = now
+        swipe_tracking = true
+    }
+    direction := SwipeDirection.SwipeNone
+    moved := false
+    if touch.released && swipe_tracking {
+        delta := Vector2.{touch.x - swipe_start.x, touch.y - swipe_start.y}
+        moved = SwipeMaxDistanceFor(delta) >= 8.0
+        gesture := SwipeReleaseStateFor(delta, cast(u32)SwipeDirection.SwipeHorizontal,
+            1.25, 40.0, now - swipe_started, 0.0, moved)
+        direction = gesture.direction
+        swipe_tracking = false
+    }
+    if !touch.down && !touch.released { swipe_tracking = false }
+    picture_tap := touch.clicked && !moved && touch.x >= retro.x + cast(float32)image_x &&
+        touch.x <= retro.x + cast(float32)(image_x + image_size)
+    if previous || retro.key == KEY_LEFT || direction == SwipeDirection.SwipeRight { Turn(-1) }
+    if next || retro.key == KEY_RIGHT || retro.key == KEY_ENTER || retro.key == 32 || picture_tap || direction == SwipeDirection.SwipeLeft { Turn(1) }
+    if retro.key == KEY_ESCAPE || categories {
+        choosing_category = true
+        swipe_tracking = false
+        voice_pending = false
+        unused AppService("jungle.voice", "")
+    }
 }
 
 GameMain :: () -> s32 {
@@ -168,104 +311,18 @@ GameMain :: () -> s32 {
         settings_loaded = true
     }
     now := AppNow()
-    RetroBegin(AppSession(), AppBounds(), FONT, now, AppKey(), BLACK)
-    BookPaper()
+    bounds := AppBounds()
+    RetroBegin(AppSession(), bounds, FONT, now, AppKey(), BLACK)
+    ResponsiveBook(bounds)
     if !choosing_category && !finished && !swipe_tracking {
         state := AppService("jungle.voice-state", "")
         if state == "loading" || state == "playing" { voice_idle_started = 0.0 }
         else if voice_idle_started == 0.0 { voice_idle_started = now }
         if now - page_started >= PageHold() && voice_idle_started > 0.0 && now - voice_idle_started >= 3.0 { Turn(1) }
     }
-    if choosing_category {
-        BookText(24, 14, 272, 23, "Picture Book", 19)
-        BookText(24, 36, 272, 12, "Choose a book", 9)
-        scrolled := Scroll(retro.session, ScrollProps.{.key = cast(u64)600,
-            .bounds = RetroRect(24, 50, 272, 98), .scale = retro.scale,
-            .content_height = cast(s32)(298.0 * retro.scale), .scroll_offset = book_scroll,
-            .keep_scrollbar = true})
-        book_scroll = scrolled.scroll_offset
-        if scrolled.opened {
-            saved_y := retro.y
-            retro.y -= cast(float32)book_scroll
-            BookText(26, 51, 256, 15, "Animals and nature", 10)
-            BookText(26, 167, 256, 15, "Food", 10)
-            BookText(26, 235, 256, 15, "At home", 10)
-            for slot: cast(s32)0..8 {
-                index := shelf_order[slot]
-                x := 24 + shelf_columns[slot] * 136
-                y := 51 + shelf_tops[slot]
-                selected := index == category
-                press := RetroTap(20 + index, x, y, 128, 44, category_names[index])
-                BookBox(x, y, 128, 44, ifx selected then cast(u32)0xe5eee1ff else cast(u32)0xf7f1e3ff,
-                    ifx selected then cast(u32)0x2e6956ff else cast(u32)0xdacdb5ff, 4.0)
-                BookPicture(category_previews[index], x + 3, y + 3, 38, 38)
-                BookText(x + 42, y + 4, 83, 36, category_names[index], 12)
-                if press.clicked { category = index; OpenBook() }
-            }
-            retro.y = saved_y
-            unused End(retro.session)
-        }
-        if ModeButton(30, 24, "Simple", simple) { simple = true; unused DocumentWrite("mode.txt", "simple") }
-        if ModeButton(31, 164, "Spelling", !simple) { simple = false; unused DocumentWrite("mode.txt", "spelling") }
-        BookText(24, 173, 272, 11, ifx simple then "Say the word once" else "Word and letters", 8)
-        if retro.key == KEY_LEFT || retro.key == KEY_RIGHT || retro.key == KEY_UP || retro.key == KEY_DOWN {
-            slot: s32 = 0
-            for at: cast(s32)0..8 { if shelf_order[at] == category { slot = at } }
-            step: s32 = ifx retro.key == KEY_LEFT then -1 else ifx retro.key == KEY_RIGHT then 1 else ifx retro.key == KEY_UP then -2 else 2
-            slot = (slot + step + CATEGORY_COUNT) % CATEGORY_COUNT
-            category = shelf_order[slot]
-            book_scroll = cast(s32)(cast(float32)(shelf_tops[slot] - 18) * retro.scale)
-            if book_scroll > cast(s32)(200.0 * retro.scale) { book_scroll = cast(s32)(200.0 * retro.scale) }
-        }
-        if retro.key == 83 { simple = true; unused DocumentWrite("mode.txt", "simple") }
-        if retro.key == 68 { simple = false; unused DocumentWrite("mode.txt", "spelling") }
-        if retro.key >= 49 && retro.key < 49 + CATEGORY_COUNT { category = retro.key - 49; OpenBook() }
-        if retro.key == KEY_ENTER { OpenBook() }
-        if retro.key == KEY_ESCAPE { GameHome() }
-    } else if finished {
-        FinishedBook()
-    } else {
-        BookBox(157, 16, 2, 151, 0xe5d9c3ff)
-        BookBox(159, 16, 2, 151, 0xf0e7d7ff)
-        BookPicture(page_paths(category_starts[category] + page), 22, 28, 132, 132)
-        BookText(168, ifx simple then 74 else 57, 130, 39, PageName(), 21)
-        if !simple { BookText(168, 103, 130, 22, Spelling(), 11) }
-        previous := RetroTap(10, 22, 171, 48, 14, "Previous page")
-        BookBox(22, 171, 48, 14, 0xeee4cfff, 0xd6c6a8ff, 3.0)
-        BookText(22, 171, 48, 14, "< Back", 8)
-        categories := RetroTap(13, 114, 171, 92, 14, "Choose a book")
-        BookText(114, 171, 92, 14, "Books", 9)
-        next := RetroTap(11, 250, 171, 48, 14, "Next page")
-        BookBox(250, 171, 48, 14, 0xeee4cfff, 0xd6c6a8ff, 3.0)
-        BookText(250, 171, 48, 14, "Next >", 8)
-        touch := RetroTap(12, 24, 39, 274, 128, "Swipe to turn the page", true)
-        if touch.down && !swipe_tracking {
-            swipe_start = Vector2.{touch.x, touch.y}
-            swipe_started = now
-            swipe_tracking = true
-        }
-        direction := SwipeDirection.SwipeNone
-        moved := false
-        if touch.released && swipe_tracking {
-            delta := Vector2.{touch.x - swipe_start.x, touch.y - swipe_start.y}
-            moved = SwipeMaxDistanceFor(delta) >= 8.0 * retro.scale
-            gesture := SwipeReleaseStateFor(delta, cast(u32)SwipeDirection.SwipeHorizontal,
-                1.25, 40.0 * retro.scale, now - swipe_started, 0.0, moved)
-            direction = gesture.direction
-            swipe_tracking = false
-        }
-        if !touch.down && !touch.released { swipe_tracking = false }
-        picture_tap := touch.clicked && !moved && RetroPointX(touch.x) <= 152
-        if previous.clicked || retro.key == KEY_LEFT || direction == SwipeDirection.SwipeRight { Turn(-1) }
-        if next.clicked || retro.key == KEY_RIGHT || retro.key == KEY_ENTER || retro.key == 32 ||
-            picture_tap || direction == SwipeDirection.SwipeLeft { Turn(1) }
-        if retro.key == KEY_ESCAPE || categories.clicked {
-            choosing_category = true
-            swipe_tracking = false
-            voice_pending = false
-            unused AppService("jungle.voice", "")
-        }
-    }
+    if choosing_category { BookShelf() }
+    else if finished { FinishedBook() }
+    else { ReadingPage() }
     if voice_pending && !choosing_category && !finished {
         unused AppService("jungle.voice", PageVoice())
         voice_pending = false

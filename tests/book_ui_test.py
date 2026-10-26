@@ -1,4 +1,4 @@
-"""Exercise all languages, both reading modes and nine books on a private Xvfb."""
+"""Exercise all languages, both reading modes and ten books on a private Xvfb."""
 import argparse
 import json
 from pathlib import Path
@@ -29,16 +29,16 @@ def main():
         for index, language in enumerate(LANGUAGES):
             with Desktop(binary, data) as desktop:
                 desktop.capture(f"{language}-menu-before")
-                desktop.click(55 + index * 100, 51)
+                desktop.click(55 + index * 100, 12)
                 menu = desktop.capture(f"{language}-menu")
                 assert (data / "language.txt").read_text() == language
                 desktop.key("1")
                 categories = desktop.wait_book(f"{language}-books")
                 # The saved setting from the preceding language is reset explicitly.
-                desktop.click(80, 160)
+                desktop.key("s")
                 firsts, endings = {}, {}
                 for category_index, (name, names) in enumerate(BOOKS):
-                    desktop.key(str(category_index + 1))
+                    desktop.key(str((category_index + 1) % 10))
                     first = desktop.capture(f"{language}-{name}-simple")
                     assert ink in [c for _, c in first.crop((168, 74, 298, 113)).getcolors(10000)]
                     assert ink not in [c for _, c in first.crop((168, 115, 298, 130)).getcolors(10000)], "Simple mode still shows spelling"
@@ -57,8 +57,8 @@ def main():
                     desktop.key("Left")
                     assert not different(last, desktop.capture(f"{language}-{name}-finished-back")), "Back from the finish did not restore the last picture"
                     desktop.key("Right")
-                    desktop.click(80, 172)
-                    desktop.key(str(category_index + 1))
+                    desktop.key("Escape")
+                    desktop.key(str((category_index + 1) % 10))
                     assert not different(first, desktop.capture(f"{language}-{name}-restarted"))
                     desktop.key("Right")
                     next_page = desktop.capture(f"{language}-{name}-next")
@@ -76,7 +76,7 @@ def main():
                     desktop.drag(100, 60, 100, 145)
                     assert not different(next_page, desktop.capture(f"{language}-{name}-vertical-drag"))
                     desktop.key("Escape")
-                desktop.click(225, 160)
+                desktop.key("d")
                 assert (data / "games/jungle.book/mode.txt").read_text() == "spelling"
                 desktop.key("2")  # Garden contains the long butterfly word.
                 desktop.key("Right")
@@ -98,7 +98,7 @@ def main():
                 desktop.key("Right")
                 assert not different(spelling, desktop.capture(f"{language}-spelling-persisted")), "Book mode did not persist"
                 desktop.key("Escape")
-                desktop.click(80, 160)
+                desktop.key("s")
                 desktop.key("1")
                 simple = desktop.capture(f"{language}-simple-timing")
                 duration = json.loads((ROOT / voice_path("tiger", language, True)).with_suffix(".speech.json").read_text())["duration"]
@@ -126,7 +126,7 @@ def main():
             with Desktop(binary, data) as desktop:
                 persisted = desktop.capture(f"{language}-menu-persisted")
                 assert not different(menu, persisted), "Language did not survive reopening Jungle"
-            print(f"local UI test: {language}, nine books, two modes, swipes, timing and persistence passed", flush=True)
+            print(f"local UI test: {language}, ten books, two modes, swipes, timing and persistence passed", flush=True)
     print("local Picture Book language and mode UI tests passed")
 
 

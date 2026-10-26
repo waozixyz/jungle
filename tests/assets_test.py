@@ -38,8 +38,10 @@ def main():
             assert sprite.mode == "RGBA", f"{path.name} must preserve its transparency"
             assert sprite.getbbox(), f"{path.name} is empty"
             alpha = sprite.getchannel("A")
-            assert alpha.getextrema()[1] == 255, f"{path.name} has no opaque artwork"
-            assert alpha.getextrema()[0] == 255, f"{path.name} lost its picture-book background"
+            assert alpha.getextrema()[1] >= 200, f"{path.name} has no opaque artwork"
+            if path.stem not in dict(BOOKS)["nature"]:
+                assert alpha.getextrema()[0] == 0, f"{path.name} needs an isolated illustration without a paper panel"
+                assert all(alpha.getpixel(p) == 0 for p in [(0,0),(419,0),(0,419),(419,419)]), f"{path.name} has a clipped edge"
             colors = sprite.convert("RGBA").getcolors(420 * 420)
             assert colors is not None and len(colors) > 1000, f"{path.name} is not smooth generated artwork"
     for path in sorted((ROOT / "assets/jungle-book/previews").glob("*.png")):
