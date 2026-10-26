@@ -79,9 +79,11 @@ jobs:
           node tests/web_test.mjs
       - name: Save private test captures on failure
         if: failure()
+        continue-on-error: true
         uses: actions/upload-artifact@v4
         with:
           name: website-ui-failure
+          retention-days: 1
           path: |
             waozixyz/jungle/build/tests/ui/*.png
             waozixyz/jungle/build/tests/ui/*.log
