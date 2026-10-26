@@ -152,6 +152,22 @@ class Desktop:
         time.sleep(.3)
         self.alive()
 
+    def click_actual(self, x, y, button=1):
+        run(["xdotool", "mousemove", "--window", self.window, str(x), str(y)], self.env)
+        run(["xdotool", "click", str(button)], self.env)
+        time.sleep(.3)
+        self.alive()
+
+    def resize(self, width, height):
+        run(["xdotool", "windowsize", "--sync", self.window, str(width), str(height)], self.env)
+        time.sleep(.5)
+        self.alive()
+
+    def capture_actual(self, name):
+        self.capture(name)
+        from PIL import Image
+        return Image.open(OUTPUT / (name + ".png")).convert("RGB")
+
     def capture(self, name):
         self.verify_server()
         self.alive()
@@ -202,30 +218,89 @@ class Desktop:
             log.close()
 
 
+PICTURE_HEADER = b"JUNGLE PICTURE 2\n"
+DIGITS = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_"
+CANVAS = (960, 720)
+
+
 def read_picture(path):
     data = path.read_bytes()
-    assert data.startswith(b"JUNGLE PICTURE 1\n"), "save is not a complete picture"
-    head = len(b"JUNGLE PICTURE 1\n")
+    assert data.startswith(PICTURE_HEADER), "save is not a complete picture"
+    head = len(PICTURE_HEADER)
     story = data[head + 3:head + 3 + 8 * 39].decode("ascii").splitlines()
     return data, story
 
 
-def assert_dinosaur(before, after, x, y, mirror=False):
-    """Compare an actual Huge T-rex placement with the committed opaque art."""
-    from PIL import Image
-    offset = len(b"JUNGLE PICTURE 1\n") + 3 + 8 * 39
-    mask = offset + 240 * 180 + 1
-    expected = bytearray(before)
-    art = Image.open(ROOT / "assets/dino-paint/art/dino1-s4.png").convert("RGBA")
-    for row in range(art.height):
-        for column in range(art.width):
-            pixel = art.getpixel((art.width - 1 - column if mirror else column, row))
-            if pixel[3]:
-                at = (y + row) * 240 + x + column
-                ink = pixel[:3] == (0, 0, 0)
-                expected[offset + at] = ord("0" if ink else "f")
-                expected[mask + at] = ord("1" if ink else "0")
-    assert after == bytes(expected), "placement did not replace exactly the dinosaur body"
+def run_number(text, at):
+    value = shift = 0
+    while True:
+        digit = DIGITS.index(text[at])
+        at += 1
+        value |= (digit & 31) << shift
+        shift += 5
+        if digit < 32:
+            return value, at
+
+
+def picture_pixels(data):
+    """A saved picture's crayon indices, decoded from its runs."""
+    import numpy
+    text = data[len(PICTURE_HEADER) + 3 + 8 * 39:-1].decode("ascii")
+    pixels, at = [], 0
+    while at < len(text):
+        color = DIGITS.index(text[at])
+        length, at = run_number(text, at + 1)
+        pixels.append(numpy.full(length, color, numpy.uint8))
+    return numpy.concatenate(pixels).reshape(CANVAS[1], CANVAS[0])
+
+
+def dinosaur_masks(dino, size):
+    """Ink and body masks of a dinosaur size, from games/paint/paint_pages.zi."""
+    import numpy
+    import re
+    source = (ROOT / "games/paint/paint_pages.zi").read_text()
+    table = lambda name: [int(v) for v in re.search(name + r": \[\d+\]s32 = \.\[([^\]]*)\]", source).group(1).split(",")]
+    starts = table("MASK_START")
+    chunks = dict(re.findall(r'^MASK_(\d+) :: "([^"]*)"', source, re.M))
+    index = dino * 4 + size - 1
+    width, height = table("DINO_WIDTH")[index], table("DINO_HEIGHT")[index]
+    masks = []
+    for mask in (6 + index * 2, 7 + index * 2):
+        text = "".join(chunks[str(chunk)] for chunk in range(starts[mask], starts[mask + 1]))
+        bits, ink, at = [], False, 0
+        while at < len(text):
+            length, at = run_number(text, at)
+            bits.append(numpy.full(length, ink))
+            ink = not ink
+        masks.append(numpy.concatenate(bits).reshape(height, width))
+    return masks
+
+
+def assert_dinosaur(before, after, mirror=False):
+    """Compare an actual Huge T-rex placement with its compiled ink and body.
+    Returns where it was placed."""
+    import numpy
+    old, new = picture_pixels(before), picture_pixels(after)
+    ink, body = dinosaur_masks(0, 4)
+    if mirror:
+        ink, body = ink[:, ::-1], body[:, ::-1]
+    height, width = ink.shape
+    changed = numpy.argwhere(old != new)
+    assert len(changed), "placing changed nothing"
+    covers = ink | body
+    columns = numpy.flatnonzero(covers.any(axis=0))
+    rows = numpy.flatnonzero(covers.any(axis=1))
+    for x in range(changed[:, 1].min() - columns[0] - 2, changed[:, 1].min() - columns[0] + 3):
+        for y in range(changed[:, 0].min() - rows[0] - 2, changed[:, 0].min() - rows[0] + 3):
+            if x < 0 or y < 0 or x + width > CANVAS[0] or y + height > CANVAS[1]:
+                continue
+            expected = old.copy()
+            area = expected[y:y + height, x:x + width]
+            area[body] = 15
+            area[ink] = 0
+            if numpy.array_equal(expected, new):
+                return x, y
+    raise AssertionError("placement did not replace exactly the dinosaur body")
 
 
 def ui(binary):
@@ -322,29 +397,32 @@ def ui(binary):
             desktop.click(290, 170)
             hovering = desktop.capture("paint-placement-waiting")
             assert working.read_bytes() == scene_only, "clicking outside the box placed a dinosaur"
-            assert hovering.getpixel((68, 10)) == (0, 0, 0), "placement box followed a hovering pointer"
-            desktop.drag(72, 14, 72, 34)
+            box_edge = [color for _, color in hovering.crop((64, 5, 100, 9)).getcolors(10000)]
+            assert (46, 105, 86) in box_edge, "placement box followed a hovering pointer"
+            desktop.drag(72, 14, 102, 14)
             placed = desktop.capture("paint-placed")
-            assert_dinosaur(scene_only, working.read_bytes(), 0, 20)
-            assert ImageChops.difference(painting.crop((68, 10, 308, 190)),
-                                        placed.crop((68, 10, 308, 190))).getbbox(), "Huge dinosaur could not be placed"
-            black = dict((color, count) for count, color in placed.crop((68, 10, 308, 190)).getcolors(10000))
+            x, y = assert_dinosaur(scene_only, working.read_bytes())
+            assert x > 60 and y == 0, f"the dinosaur did not move with the pointer: {x},{y}"
+            assert ImageChops.difference(painting.crop((64, 6, 315, 194)),
+                                        placed.crop((64, 6, 315, 194))).getbbox(), "Huge dinosaur could not be placed"
+            black = dict((color, count) for count, color in placed.crop((64, 6, 315, 194)).getcolors(10000))
             assert black.get((0, 0, 0), 0) < 20000, "dinosaur outline rendered as a solid rectangle"
             desktop.click(30, 160)
             assert working.read_bytes() == scene_only, "Undo did not restore covered scene lines and colors"
             desktop.click(30, 15)
             desktop.click(52, 58)
             desktop.click(280, 90)
-            desktop.drag(72, 14, 72, 34, mirror=True)
+            desktop.drag(72, 14, 102, 14, mirror=True)
             desktop.capture("paint-mirrored")
-            assert_dinosaur(scene_only, working.read_bytes(), 0, 20, mirror=True)
+            assert_dinosaur(scene_only, working.read_bytes(), mirror=True)
             desktop.click(30, 40)
             desktop.click(8, 160)
             desktop.capture("paint-color-cancelled")
             assert working.read_bytes() != scene_only, "color cancel removed the dinosaur"
             desktop.click(30, 40)
             colors = desktop.capture("paint-colors")
-            assert len(colors.crop((262, 128, 290, 142)).getcolors()) >= 2, "stippled crayons are missing"
+            assert len(colors.crop((256, 122, 308, 150)).getcolors()) >= 3, "crayon swatches are missing"
+            assert colors.getpixel((282, 136)) == (192, 192, 192), "the last crayon is not its solid color"
             desktop.click(282, 136)
             desktop.click(71, 13)
             desktop.capture("paint-colored")
@@ -405,6 +483,27 @@ def ui(binary):
             desktop.key("F10")
             assert (data / "sound.txt").read_text() == "off\n", "in-game mute did not persist"
             print("local UI test: dinosaur placement, crayons, edited stories, save/load, overwrite, export and print", flush=True)
+            # On a tall window the picture spans the top and the tools sit in
+            # two rows of four below it; Color is the second tool.
+            desktop.key("Escape")
+            desktop.resize(420, 700)
+            tall = desktop.capture_actual("paint-portrait")
+            width, height = tall.size
+            assert height > width, f"the window did not turn tall: {tall.size}"
+            pad, gap = max(6, min(20, width // 40)), max(4, min(10, width // 80))
+            tool_w = (width - pad * 2 - gap * 3) // 4
+            tool_h = max(44, min(110, tool_w * 3 // 4))
+            canvas_h = min((width - pad * 2) * 3 // 4, height - pad * 3 - gap - tool_h * 2)
+            below = pad + canvas_h + pad
+            top = below + (height - pad - below - tool_h * 2 - gap) // 2
+            assert tall.getpixel((width // 2, pad + canvas_h // 2)) != (227, 236, 228), "the picture is not across the top"
+            assert tall.getpixel((width // 2, below - pad // 2)) == (227, 236, 228), "the picture runs into the tools"
+            desktop.click_actual(pad + tool_w + gap + tool_w // 2, top + tool_h // 2)
+            shown = {color for _, color in desktop.capture_actual("paint-portrait-colors").getcolors(1 << 20)}
+            crayons = {(0x82, 0x82, 0x82), (0x00, 0x00, 0xff), (0x00, 0xa2, 0xc3), (0xb2, 0x00, 0xcb), (0x00, 0xc3, 0x51),
+                       (0xc3, 0x71, 0x00), (0xef, 0xef, 0x3c), (0x41, 0x41, 0xc0), (0x9a, 0x41, 0xa6), (0xc0, 0xc0, 0xc0)}
+            assert len(crayons & shown) == len(crayons), "the Color tool is not below the picture in portrait"
+            print("local UI test: portrait layout puts the tools below the picture", flush=True)
         # The complete working picture survives process restart without a slot.
         before = (data / "games/jungle.paint/working.txt").read_bytes()
         with Desktop(binary, data, extra) as desktop:

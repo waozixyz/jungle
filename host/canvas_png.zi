@@ -1,7 +1,11 @@
 // Indexed PNG pictures for a game's canvas. The image data is stored, not
 // compressed, so writing one is a copy and two checksums.
 
-PNG_LIMIT :: 131072
+// Enough for a 960 by 720 picture: its rows, the stored blocks' headers
+// and the chunks around them.
+PNG_LIMIT :: 1048576
+// The most bytes one stored deflate block holds.
+STORED_BLOCK :: 65535
 
 png_bytes: [PNG_LIMIT]u8;
 png_length: s32;
@@ -52,7 +56,8 @@ PngChunkStart :: (length: s32, kind: string) -> s32 {
 PngIndexed :: (width: s32, height: s32, palette: []u32, pixels: []u8) -> string {
     if !crc_ready { CrcTable() }
     raw := (width + 1) * height
-    if width <= 0 || height <= 0 || raw > 65535 || cast(s64)(width * height) != pixels.count ||
+    blocks := (raw + STORED_BLOCK - 1) / STORED_BLOCK
+    if width <= 0 || height <= 0 || cast(s64)(width * height) != pixels.count ||
     palette.count == 0 || palette.count > 256 { return "" }
     png_length = 0
     signature: [8]u32 = .[137, 80, 78, 71, 13, 10, 26, 10]
@@ -66,24 +71,25 @@ PngIndexed :: (width: s32, height: s32, palette: []u32, pixels: []u8) -> string 
     start = PngChunkStart(cast(s32)palette.count * 3, "PLTE")
     for color: palette { PngByte(color >> 24); PngByte(color >> 16); PngByte(color >> 8) }
     PngChunkEnd(start)
-    // zlib: a header, one stored deflate block holding every row with a
+    // zlib: a header, stored deflate blocks holding every row with a
     // leading "no filter" byte, and the Adler-32 of those rows.
-    start = PngChunkStart(2 + 5 + raw + 4, "IDAT")
+    start = PngChunkStart(2 + 5 * blocks + raw + 4, "IDAT")
     PngByte(0x78); PngByte(0x01)
-    PngByte(1)
-    PngByte(cast(u32)raw); PngByte(cast(u32)raw >> 8)
-    PngByte(~cast(u32)raw); PngByte(~cast(u32)raw >> 8)
     low: u32 = 1
     high: u32 = 0
-    for row: 0..height - 1 {
-        PngByte(0)
-        high = (high + low) % cast(u32)65521
-        for column: 0..width - 1 {
-            value := cast(u32)pixels[cast(s64)(row * width + column)]
-            PngByte(value)
-            low = (low + value) % cast(u32)65521
-            high = (high + low) % cast(u32)65521
+    for at: 0..raw - 1 {
+        if at % STORED_BLOCK == 0 {
+            size := ifx raw - at < STORED_BLOCK then raw - at else STORED_BLOCK
+            PngByte(ifx at + size == raw then cast(u32)1 else cast(u32)0)
+            PngByte(cast(u32)size); PngByte(cast(u32)size >> 8)
+            PngByte(~cast(u32)size); PngByte(~cast(u32)size >> 8)
         }
+        column := at % (width + 1)
+        value: u32 = 0
+        if column > 0 { value = cast(u32)pixels[cast(s64)((at / (width + 1)) * width + column - 1)] }
+        PngByte(value)
+        low = (low + value) % cast(u32)65521
+        high = (high + low) % cast(u32)65521
     }
     PngWord((high << 16) | low)
     PngChunkEnd(start)

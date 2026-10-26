@@ -5,6 +5,9 @@
 #import "app_files"
 #import, file "../host/printing.zi";
 #import, file "../games/paint/paint_palette.zi";
+#import, file "../games/paint/paint_picture.zi";
+
+pixels: [CANVAS_PIXELS]u8;
 
 #program_export
 main :: (argc: s32, argv: **u8) -> s32 {
@@ -12,14 +15,13 @@ main :: (argc: s32, argv: **u8) -> s32 {
     files: AppFiles
     if !AppFilesOpen(*files, TextFromCString(argv[1])) { return 2 }
     defer { AppFilesClose(*files) }
-    pixels: [240 * 180]u8
-    for at: cast(s32)0..240 * 180 - 1 { pixels[at] = PAINT_CODES[16 + (at / 240) % 30] }
+    for at: cast(s32)0..CANVAS_PIXELS - 1 { pixels[at] = cast(u8)(16 + (at / CANVAS_WIDTH) % 30) }
     text: Vec(u8)
-    BuilderPrint(*text, "paint\n%", TextView(pixels[:]))
+    BuilderPrint(*text, "%", PictureRunsText(pixels[:]))
     BuilderPrint(*text, "My dinosaur (and friend)\\hello\nGrüße, niño, piña, ratón\n\n\n\n\n\n\n")
     request := BuilderFinish(text)
     if ExportPicture(*files, request, false) != "exported" { return 3 }
     if ExportPicture(*files, request, true) != "printed" { return 4 }
-    if ExportPicture(*files, "paint\ninvalid", false) != "failed" { return 5 }
+    if ExportPicture(*files, "paint runs\ninvalid", false) != "failed" { return 5 }
     return 0
 }

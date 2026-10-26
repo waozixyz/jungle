@@ -1,0 +1,90 @@
+// A Dino Colors picture's size and its text form, shared by the game and the
+// apps that show, export and print it. The text is runs of one crayon: the
+// crayon's letter from PAINT_CODES, then how many pixels in a row have it.
+// Numbers are digits of five bits, lowest first, in the same 64 letters; a
+// digit of 32 or more says another digit follows.
+#import "std/text_buffer"
+#import, file "paint_palette.zi";
+
+CANVAS_WIDTH :: 960
+CANVAS_HEIGHT :: 720
+CANVAS_PIXELS :: CANVAS_WIDTH * CANVAS_HEIGHT
+// Pictures painted before the vector artwork were a quarter as wide and tall.
+OLD_WIDTH :: 240
+OLD_HEIGHT :: 180
+OLD_PIXELS :: OLD_WIDTH * OLD_HEIGHT
+PICTURE_RUNS :: "paint runs\n"
+
+RunDigit :: (byte: u8) -> s32 {
+    if byte >= #char "0" && byte <= #char "9" { return cast(s32)(byte - #char "0") }
+    if byte >= #char "a" && byte <= #char "z" { return cast(s32)(byte - #char "a") + 10 }
+    if byte >= #char "A" && byte <= #char "Z" { return cast(s32)(byte - #char "A") + 36 }
+    if byte == #char "-" { return 62 }
+    if byte == #char "_" { return 63 }
+    return -1
+}
+
+RunNumberAppend :: (text: *Vec(u8), value: s64) {
+    while value >= 32 {
+        unused VecPush(text.*, PAINT_CODES[32 + (value & 31)])
+        value = value >> 5
+    }
+    unused VecPush(text.*, PAINT_CODES[value])
+}
+
+PictureRunsAppend :: (text: *Vec(u8), pixels: []u8) {
+    at: s64 = 0
+    while at < pixels.count {
+        color := pixels[at]
+        end := at + 1
+        while end < pixels.count && pixels[end] == color { end += 1 }
+        unused VecPush(text.*, PAINT_CODES[color])
+        RunNumberAppend(text, end - at)
+        at = end
+    }
+}
+
+// Fills every pixel from the runs at the start of text. Returns how many
+// bytes the runs took, or -1 when they are damaged or do not fill exactly.
+PictureRunsRead :: (text: string, pixels: []u8) -> s64 {
+    at: s64 = 0
+    filled: s64 = 0
+    while filled < pixels.count {
+        if at >= text.count { return -1 }
+        color := PaintIndex(text[at])
+        if color < 0 { return -1 }
+        at += 1
+        length: s64 = 0
+        shift: s64 = 0
+        while true {
+            if at >= text.count || shift > 30 { return -1 }
+            digit := RunDigit(text[at])
+            if digit < 0 { return -1 }
+            at += 1
+            length = length | (cast(s64)(digit & 31) << shift)
+            shift += 5
+            if digit < 32 { break }
+        }
+        if length <= 0 || filled + length > pixels.count { return -1 }
+        for offset: cast(s64)0..length - 1 { pixels[filled + offset] = cast(u8)color }
+        filled += length
+    }
+    return at
+}
+
+// A picture as the game hands it to its app: PICTURE_RUNS, then the runs.
+PictureRunsText :: (pixels: []u8) -> string {
+    text: Vec(u8)
+    BuilderPrint(*text, "%", PICTURE_RUNS)
+    PictureRunsAppend(*text, pixels)
+    return BuilderFinish(text)
+}
+
+// Reads a picture from the game; returns the bytes it used, or -1.
+PictureFromGame :: (request: string, pixels: []u8) -> s64 {
+    header := PICTURE_RUNS.count
+    if request.count < header || request[:header] != PICTURE_RUNS { return -1 }
+    used := PictureRunsRead(request[header:], pixels)
+    if used < 0 { return -1 }
+    return header + used
+}

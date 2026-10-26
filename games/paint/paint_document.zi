@@ -1,22 +1,26 @@
-// Complete picture files: scene, crayon, story, pixels and immutable ink.
-// Validate the entire record before changing the current picture.
+// Complete picture files: scene, crayon, story and pixels, whose INK pixels
+// are the lines. Validate the entire record before changing the current
+// picture.
 #import "std/byte_text_linux"
 #import "std/text_buffer"
 #import, file "../../retro/language.zi";
 #import, file "paint_canvas.zi";
 #import, file "paint_pages.zi";
 #import, file "paint_palette.zi";
-#import, file "paint_pages.zi";
-#import, file "paint_palette.zi";
+#import, file "paint_picture.zi";
 
 STORY_LINES :: 8
 STORY_COLUMNS :: 38
-PICTURE_HEADER :: "JUNGLE PICTURE 1\n"
+PICTURE_HEADER :: "JUNGLE PICTURE 2\n"
+// Version 1 kept 240 by 180 pixels, one letter each, then a line mask.
+OLD_HEADER :: "JUNGLE PICTURE 1\n"
 PICTURE_STORY :: STORY_LINES * (STORY_COLUMNS + 1)
 
 scene: s32 = -1;
 crayon: s32 = 14;
 story: [STORY_LINES][STORY_COLUMNS + 1]u8;
+loaded: [CANVAS_PIXELS]u8;
+old_pixels: [OLD_PIXELS]u8;
 
 ClearStory :: () {
     for row: cast(s32)0..STORY_LINES - 1 {
@@ -45,34 +49,23 @@ PictureText :: () -> string {
         }
         unused VecPush(text, cast(u8)10)
     }
-    for at: cast(s32)0..CANVAS_PIXELS - 1 { unused VecPush(text, PAINT_CODES[canvas[at]]) }
-    unused VecPush(text, cast(u8)10)
-    for at: cast(s32)0..CANVAS_PIXELS - 1 {
-        unused VecPush(text, ifx lines[at] then #char "1" else #char "0")
-    }
+    PictureRunsAppend(*text, canvas[:])
     unused VecPush(text, cast(u8)10)
     return BuilderFinish(text)
 }
 
-PictureLoad :: (saved: string) -> bool {
-    // Early versions stored only sixteen-color pixels. Import them without
-    // adding another scene's lines or changing any of their colors.
-    if saved.count == cast(s64)CANVAS_PIXELS {
-        for byte: saved { if byte < #char "a" || byte > #char "p" { return false } }
-        scene = 0
-        crayon = 14
-        ClearStory()
-        for at: cast(s32)0..CANVAS_PIXELS - 1 {
-            canvas[at] = saved[at] - #char "a"
-            lines[at] = canvas[at] == cast(u8)INK
-        }
-        return true
+// An old picture four times as wide and tall, each pixel a 4 by 4 block,
+// so none of its colors change.
+Enlarge :: () {
+    for at: cast(s32)0..CANVAS_PIXELS - 1 {
+        x := at % CANVAS_WIDTH
+        y := at / CANVAS_WIDTH
+        loaded[at] = old_pixels[(y * OLD_HEIGHT / CANVAS_HEIGHT) * OLD_WIDTH + x * OLD_WIDTH / CANVAS_WIDTH]
     }
-    header := PICTURE_HEADER.count
-    pixels := header + 3 + cast(s64)PICTURE_STORY
-    mask := pixels + cast(s64)CANVAS_PIXELS + 1
-    expected := mask + cast(s64)CANVAS_PIXELS + 1
-    if saved.count != expected || saved[:header] != PICTURE_HEADER { return false }
+}
+
+// The scene, crayon and story lines after a header; false when damaged.
+StoryValid :: (saved: string, header: s64) -> bool {
     chosen := ifx saved[header] == #char "-" then -1 else cast(s32)(saved[header] - #char "0")
     color := PaintIndex(saved[header + 1])
     if chosen < -1 || chosen >= SCENE_COUNT || color < 0 || color >= 30 || saved[header + 2] != cast(u8)10 { return false }
@@ -84,15 +77,12 @@ PictureLoad :: (saved: string) -> bool {
         }
         if saved[start + cast(s64)STORY_COLUMNS] != cast(u8)10 { return false }
     }
-    for at: cast(s32)0..CANVAS_PIXELS - 1 {
-        byte := saved[mask + cast(s64)at]
-        if byte != #char "0" && byte != #char "1" { return false }
-        index := PaintIndex(saved[pixels + cast(s64)at])
-        if index < 0 || (byte == #char "1" && index != INK) { return false }
-    }
-    if saved[mask - 1] != cast(u8)10 || saved[expected - 1] != cast(u8)10 { return false }
-    scene = chosen
-    crayon = color
+    return true
+}
+
+StoryLoad :: (saved: string, header: s64) {
+    scene = ifx saved[header] == #char "-" then -1 else cast(s32)(saved[header] - #char "0")
+    crayon = PaintIndex(saved[header + 1])
     ClearStory()
     for row: cast(s32)0..STORY_LINES - 1 {
         start := header + 3 + cast(s64)(row * (STORY_COLUMNS + 1))
@@ -100,9 +90,51 @@ PictureLoad :: (saved: string) -> bool {
         while last >= 0 && saved[start + cast(s64)last] == #char " " { last -= 1 }
         for column: cast(s32)0..last { story[row][column] = saved[start + cast(s64)column] }
     }
-    for at: cast(s32)0..CANVAS_PIXELS - 1 {
-        canvas[at] = cast(u8)PaintIndex(saved[pixels + cast(s64)at])
-        lines[at] = saved[mask + cast(s64)at] == #char "1"
+}
+
+// Version 1: pixels as letters, then a mask that marks exactly the INK.
+OldPixelsValid :: (saved: string, pixels: s64) -> bool {
+    mask := pixels + cast(s64)OLD_PIXELS + 1
+    if saved.count != mask + cast(s64)OLD_PIXELS + 1 { return false }
+    for at: cast(s32)0..OLD_PIXELS - 1 {
+        byte := saved[mask + cast(s64)at]
+        if byte != #char "0" && byte != #char "1" { return false }
+        index := PaintIndex(saved[pixels + cast(s64)at])
+        if index < 0 || index == BLACK_PAINT || (byte == #char "1" && index != INK) { return false }
+        // Black outside the mask was paint; it stays paint.
+        old_pixels[at] = cast(u8)(ifx index == INK && byte == #char "0" then BLACK_PAINT else index)
     }
+    return saved[mask - 1] == cast(u8)10 && saved[saved.count - 1] == cast(u8)10
+}
+
+PictureLoad :: (saved: string) -> bool {
+    // Early versions stored only sixteen-color pixels. Import them without
+    // adding another scene's lines or changing any of their colors.
+    if saved.count == cast(s64)OLD_PIXELS {
+        for at: cast(s32)0..OLD_PIXELS - 1 {
+            byte := saved[at]
+            if byte < #char "a" || byte > #char "p" { return false }
+            old_pixels[at] = byte - #char "a"
+        }
+        Enlarge()
+        scene = 0
+        crayon = 14
+        ClearStory()
+        for at: cast(s32)0..CANVAS_PIXELS - 1 { canvas[at] = loaded[at] }
+        return true
+    }
+    header := PICTURE_HEADER.count
+    pixels := header + 3 + cast(s64)PICTURE_STORY
+    if saved.count <= pixels || !StoryValid(saved, header) { return false }
+    if saved[:header] == OLD_HEADER {
+        if !OldPixelsValid(saved, pixels) { return false }
+        Enlarge()
+    } else {
+        if saved[:header] != PICTURE_HEADER { return false }
+        used := PictureRunsRead(saved[pixels:], loaded[:])
+        if used < 0 || pixels + used + 1 != saved.count || saved[saved.count - 1] != cast(u8)10 { return false }
+    }
+    StoryLoad(saved, header)
+    for at: cast(s32)0..CANVAS_PIXELS - 1 { canvas[at] = loaded[at] }
     return true
 }

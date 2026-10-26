@@ -44,13 +44,16 @@ any of twelve dinosaurs in four sizes, then fill
 the picture with thirty crayon buttons. You can write an eight-line story
 and keep the whole picture and story in one of six slots. Undo takes back the
 last dinosaur, fill or erase. The working picture recovers when you reopen the
-game. Rounded tool buttons, paper galleries and native lettering match the
+game. Scenes and dinosaurs are smooth vector line art in `art/paint`, painted
+on a 960 by 720 picture. The tools have icons; on a tall screen they sit in
+two rows below the picture. Paper galleries and native lettering match the
 book theme. Dinosaur selection has no voiceover or voice controls. Quiet sound
 effects follow the shared mute setting.
 
-Grab the placement box in the upper-left corner, drag it onto the picture,
-and release. Hold the right mouse button while releasing the left to mirror
-the dinosaur. Its white body replaces the lines and colors beneath it;
+A new dinosaur waits in the upper-left corner in a green dashed box with a
+move badge. Drag it onto the picture and release. Press **Mirror**, or hold
+the right mouse button while releasing the left, to mirror the dinosaur.
+Its white body replaces the lines and colors beneath it;
 scenery outside its outline stays in place. Undo restores the covered artwork.
 
 ## Build and run

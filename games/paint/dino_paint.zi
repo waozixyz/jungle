@@ -1,21 +1,42 @@
 #import, file "../../retro/language.zi";
 #import "std/utf8"
 // Dino Colors: a 1:1 play-alike of Bert's Dinosaurs. Pick one of six
-// scenes, drag any of twelve dinosaurs in four sizes (hold right to mirror),
-// fill regions with thirty crayon colors, write an eight-line story, and
-// keep the whole picture in one of six slots.
+// scenes, drag any of twelve dinosaurs in four sizes (hold right or press
+// Mirror to mirror), fill regions with thirty crayon colors, write an
+// eight-line story, and keep the whole picture in one of six slots.
 #import "app_context"
 #import "app_protocol"
 #import "geometry"
 #import "number_text"
 #import "text_buffer"
+#import "drawing_props"
+#import "box_props"
+#import "box_widget"
+#import "image_props"
+#import "image_widget"
+#import "svg_icon_props"
+#import "svg_icon_widget"
 #import, file "../../retro/retro.zi";
 #import, file "../../retro/game.zi";
 #import, file "../../retro/book_theme.zi";
 #import, file "paint_canvas.zi";
 #import, file "paint_pages.zi";
+#import, file "paint_palette.zi";
+#import, file "paint_picture.zi";
 #import, file "paint_document.zi";
 #import "pointer_input"
+PictureIcon :: #import "mingcute/mingcute_regular_pic";
+BucketIcon :: #import "mingcute/mingcute_regular_paint";
+PencilIcon :: #import "mingcute/mingcute_regular_pencil";
+EraserIcon :: #import "mingcute/mingcute_regular_eraser";
+SaveIcon :: #import "mingcute/mingcute_regular_save";
+PrintIcon :: #import "mingcute/mingcute_regular_print";
+UndoIcon :: #import "mingcute/mingcute_regular_back_2";
+ExitIcon :: #import "mingcute/mingcute_regular_exit_door";
+MirrorIcon :: #import "mingcute/mingcute_regular_flip_horizontal";
+MoveIcon :: #import "mingcute/mingcute_regular_move";
+HappyIcon :: #import "mingcute/mingcute_regular_happy";
+SadIcon :: #import "mingcute/mingcute_regular_sad";
 
 FONT :: "assets/dino-paint/font.png"
 SOUNDS :: "assets/dino-paint/sounds/"
@@ -33,9 +54,6 @@ SAVE_LOAD :: 8
 OVERWRITE :: 9
 PRINT_VIEW :: 10
 
-CANVAS_X :: 68
-CANVAS_Y :: 10
-PANEL_WIDTH :: 64
 SLOT_COUNT :: 6
 UNDO_STEPS :: 8
 
@@ -49,6 +67,7 @@ view: s32 = MAIN;
 dino: s32 = -1;
 size: s32 = 2;
 placing: bool;
+placement_flip: bool;
 placement_x: s32;
 placement_y: s32;
 dragging: bool;
@@ -61,7 +80,6 @@ canvas_name: [32]u8;
 digits_a: [24]u8;
 dirty: bool = true;
 undo_canvas: [UNDO_STEPS][CANVAS_PIXELS]u8;
-undo_lines: [UNDO_STEPS][CANVAS_PIXELS]bool;
 undo_stories: [UNDO_STEPS][STORY_LINES][STORY_COLUMNS + 1]u8;
 undo_scenes: [UNDO_STEPS]s32;
 undo_count: s32;
@@ -128,10 +146,7 @@ PushUndo :: () {
     for row: cast(s32)0..STORY_LINES - 1 {
         for column: cast(s32)0..STORY_COLUMNS { undo_stories[undo_next][row][column] = story[row][column] }
     }
-    for at: cast(s32)0..CANVAS_PIXELS - 1 {
-        undo_canvas[undo_next][at] = canvas[at]
-        undo_lines[undo_next][at] = lines[at]
-    }
+    for at: cast(s32)0..CANVAS_PIXELS - 1 { undo_canvas[undo_next][at] = canvas[at] }
     undo_next = (undo_next + 1) % UNDO_STEPS
     if undo_count < UNDO_STEPS { undo_count += 1 }
 }
@@ -144,18 +159,15 @@ Undo :: () {
     for row: cast(s32)0..STORY_LINES - 1 {
         for column: cast(s32)0..STORY_COLUMNS { story[row][column] = undo_stories[undo_next][row][column] }
     }
-    for at: cast(s32)0..CANVAS_PIXELS - 1 {
-        canvas[at] = undo_canvas[undo_next][at]
-        lines[at] = undo_lines[undo_next][at]
-    }
+    for at: cast(s32)0..CANVAS_PIXELS - 1 { canvas[at] = undo_canvas[undo_next][at] }
     dirty = true
     unused SaveSlot()
     Sound("undo")
 }
 
-OpenScene :: (index: s32, saved: string) {
+OpenScene :: (index: s32) {
     scene = index
-    unused SceneOpen(index, saved)
+    unused SceneOpen(index)
     placing = false
     undo_count = 0
     dirty = true
@@ -177,12 +189,180 @@ MakeCanvas :: () {
     }
 }
 
-// The green command rail with Bert's eight buttons, then the picture.
+// The main screen is laid out in window pixels: on a wide window the eight
+// tools stand in a rail beside the picture, on a tall one in two rows of
+// four below it. The picture keeps its 4:3 shape.
+canvas_x: s32;
+canvas_y: s32;
+canvas_w: s32 = 1;
+canvas_h: s32 = 1;
+tool_x: [8]s32;
+tool_y: [8]s32;
+tool_w: s32;
+tool_h: s32;
+
+Clamp :: (value: s32, low: s32, high: s32) -> s32 {
+    if value < low { return low }
+    if value > high { return high }
+    return value
+}
+
+LayoutMain :: () {
+    bounds := AppBounds()
+    retro.x = bounds.x
+    retro.y = bounds.y
+    retro.scale = 1.0
+    width := cast(s32)bounds.width
+    height := cast(s32)bounds.height
+    shortest := ifx width < height then width else height
+    pad := Clamp(shortest / 40, 6, 20)
+    gap := Clamp(shortest / 80, 4, 10)
+    if height > width {
+        tool_w = (width - pad * 2 - gap * 3) / 4
+        tool_h = Clamp(tool_w * 3 / 4, 44, 110)
+        canvas_w = width - pad * 2
+        canvas_h = canvas_w * 3 / 4
+        room := height - pad * 3 - gap - tool_h * 2
+        if canvas_h > room { canvas_h = room; canvas_w = canvas_h * 4 / 3 }
+        canvas_x = (width - canvas_w) / 2
+        canvas_y = pad
+        below := canvas_y + canvas_h + pad
+        top := below + (height - pad - below - tool_h * 2 - gap) / 2
+        for index: cast(s32)0..7 {
+            tool_x[index] = pad + (index % 4) * (tool_w + gap)
+            tool_y[index] = top + (index / 4) * (tool_h + gap)
+        }
+    } else {
+        tool_h = (height - pad * 2 - gap * 7) / 8
+        tool_w = Clamp(tool_h * 5 / 2, 64, width / 5)
+        room_w := width - pad * 3 - tool_w
+        room_h := height - pad * 2
+        canvas_w = room_w
+        canvas_h = canvas_w * 3 / 4
+        if canvas_h > room_h { canvas_h = room_h; canvas_w = canvas_h * 4 / 3 }
+        left := (width - tool_w - pad - canvas_w) / 2
+        canvas_x = left + tool_w + pad
+        canvas_y = pad + (room_h - canvas_h) / 2
+        for index: cast(s32)0..7 {
+            tool_x[index] = left
+            tool_y[index] = canvas_y + (canvas_h - tool_h * 8 - gap * 7) / 2 + index * (tool_h + gap)
+        }
+    }
+    if canvas_w < 1 { canvas_w = 1 }
+    if canvas_h < 1 { canvas_h = 1 }
+}
+
+ToolShape :: (index: s32) -> string {
+    if index == 0 { return PictureIcon.Shape }
+    if index == 1 { return BucketIcon.Shape }
+    if index == 2 { return PencilIcon.Shape }
+    if index == 3 { return EraserIcon.Shape }
+    if index == 4 { return SaveIcon.Shape }
+    if index == 5 { return PrintIcon.Shape }
+    if index == 6 { return ifx placing then MirrorIcon.Shape else UndoIcon.Shape }
+    return ExitIcon.Shape
+}
+
+// A rounded tool with its icon above its name.
+ToolButton :: (id: s32, x: s32, y: s32, w: s32, h: s32, shape: string, label: string, chosen: bool) -> bool {
+    press := RetroTap(id, x, y, w, h, label)
+    BookBox(x, y, w, h, ifx chosen || press.down then cast(u32)0xdcebdcff else cast(u32)0xfffcf3ff,
+        ifx chosen then cast(u32)0x2e6956ff else cast(u32)0xdacdb5ff, cast(float32)(h / 6))
+    label_h := h * 3 / 10
+    icon := Clamp(h - label_h - h / 4, 8, 96)
+    if icon > w * 3 / 5 { icon = w * 3 / 5 }
+    SvgIcon(retro.session, SvgIconProps.{.bounds = RetroRect(x + (w - icon) / 2, y + (h - label_h - icon) / 2, icon, icon),
+        .shape = shape, .color = ColorFromPacked(ifx chosen then cast(u32)0x2e6956ff else cast(u32)0x3e332aff)})
+    BookText(x + 2, y + h - label_h - h / 12, w - 4, label_h, label, label_h * 4 / 5)
+    return press.clicked
+}
+
+// The window rectangle of a part of the picture, in picture pixels.
+PictureRect :: (x: s32, y: s32, w: s32, h: s32) -> Rectangle {
+    across := cast(float32)canvas_w / cast(float32)CANVAS_WIDTH
+    down := cast(float32)canvas_h / cast(float32)CANVAS_HEIGHT
+    return Rectangle.{retro.x + cast(float32)canvas_x + cast(float32)x * across,
+        retro.y + cast(float32)canvas_y + cast(float32)y * down,
+        cast(float32)w * across, cast(float32)h * down}
+}
+
+PictureX :: (x: float32) -> s32 {
+    return cast(s32)((x - retro.x - cast(float32)canvas_x) * cast(float32)CANVAS_WIDTH / cast(float32)canvas_w)
+}
+
+PictureY :: (y: float32) -> s32 {
+    return cast(s32)((y - retro.y - cast(float32)canvas_y) * cast(float32)CANVAS_HEIGHT / cast(float32)canvas_h)
+}
+
+Fill :: (area: Rectangle, color: u32, radius: float32 = 0.0) {
+    unused Box(retro.session, BoxProps.{.bounds = area, .fill = ColorFromPacked(color), .radius = radius})
+}
+
+// The dinosaur waiting to be placed: its picture in a tinted box with a
+// dashed green edge, round handles at the corners and a move badge, so it
+// reads as something to pick up and drag.
+PlacementBox :: (area: Rectangle, flip: bool) {
+    Fill(area, 0x2e69562a)
+    number := FormatInteger(dino + 1, digits_a[:])
+    Image(retro.session, ImageProps.{.asset_path = Join(ART, Join("dino", number, ifx flip then "-flip.png" else ".png")),
+        .bounds = area, .fit = ImageFit.ImageFitStretch, .smooth = true})
+    edge := Clamp(cast(s32)(area.width / 60.0), 2, 4)
+    thick := cast(float32)edge
+    dash := thick * 5.0
+    left := area.x
+    right := area.x + area.width - thick
+    top := area.y
+    bottom := area.y + area.height - thick
+    at: float32 = 0.0
+    while at < area.width {
+        long := ifx at + dash > area.width then area.width - at else dash
+        Fill(Rectangle.{left + at, top, long, thick}, 0x2e6956ff)
+        Fill(Rectangle.{left + at, bottom, long, thick}, 0x2e6956ff)
+        at += dash * 1.6
+    }
+    at = 0.0
+    while at < area.height {
+        long := ifx at + dash > area.height then area.height - at else dash
+        Fill(Rectangle.{left, top + at, thick, long}, 0x2e6956ff)
+        Fill(Rectangle.{right, top + at, thick, long}, 0x2e6956ff)
+        at += dash * 1.6
+    }
+    handle := thick * 4.0
+    corners: [4]Vector2 = .[Vector2.{left, top}, Vector2.{right + thick, top}, Vector2.{left, bottom + thick}, Vector2.{right + thick, bottom + thick}]
+    for corner: corners {
+        unused Box(retro.session, BoxProps.{.bounds = Rectangle.{corner.x - handle / 2.0, corner.y - handle / 2.0, handle, handle},
+            .fill = ColorFromPacked(0xfffcf3ff), .border = ColorFromPacked(0x2e6956ff), .radius = handle / 2.0})
+    }
+    badge := area.width / 4.0
+    if area.height / 4.0 < badge { badge = area.height / 4.0 }
+    if badge > 64.0 { badge = 64.0 }
+    if badge >= 18.0 {
+        center := Rectangle.{area.x + (area.width - badge) / 2.0, area.y + (area.height - badge) / 2.0, badge, badge}
+        Fill(center, 0x2e6956e6, badge / 2.0)
+        inset := badge / 5.0
+        SvgIcon(retro.session, SvgIconProps.{.bounds = Rectangle.{center.x + inset, center.y + inset, badge - inset * 2.0, badge - inset * 2.0},
+            .shape = MoveIcon.Shape, .color = ColorFromPacked(0xfffcf3ff)})
+    }
+}
+
+// A short message across the bottom of the picture.
+PictureNote :: (text: string) {
+    note_h := Clamp(canvas_h / 10, 18, 44)
+    BookBox(canvas_x + canvas_w / 8, canvas_y + canvas_h - note_h - note_h / 3, canvas_w * 3 / 4, note_h,
+        0xfffcf3f0, 0xdacdb5ff, cast(float32)(note_h / 2))
+    BookText(canvas_x + canvas_w / 8 + 4, canvas_y + canvas_h - note_h - note_h / 3, canvas_w * 3 / 4 - 8, note_h,
+        text, note_h * 11 / 20)
+}
+
 MainView :: () {
-    BookBox(0, 0, 320, 200, 0xe3ece4ff)
-    BookBox(4, 4, 58, 192, 0xfffcf3ff, 0xdacdb5ff, 5.0)
+    LayoutMain()
+    bounds := AppBounds()
+    BookBox(0, 0, cast(s32)bounds.width, cast(s32)bounds.height, 0xe3ece4ff)
     for index: cast(s32)0..7 {
-        if BookButton(20 + index, 6, 5 + index * 24, 52, 22, button_names[index]) {
+        mirror := placing && index == 6
+        label := ifx mirror then "Mirror" else button_names[index]
+        if ToolButton(20 + index, tool_x[index], tool_y[index], tool_w, tool_h, ToolShape(index), label, mirror && placement_flip) {
+            if mirror { placement_flip = !placement_flip; Sound("click"); return }
             placing = false
             dragging = false
             Sound("click")
@@ -197,28 +377,31 @@ MainView :: () {
             return
         }
     }
-    // Like Bert's crayon, show the chosen solid or checkerboard on COLOR.
-    digits: [24]u8
-    RetroSprite(Join("assets/dino-paint/crayons/", FormatInteger(crayon + 1, digits[:]), ".png"), 6, 48, 52, 1)
+    // The chosen crayon, as a dot on the Color tool.
+    dot := Clamp(tool_h / 4, 8, 24)
+    BookBox(tool_x[1] + tool_w - dot - tool_h / 10, tool_y[1] + tool_h / 10, dot, dot,
+        paint_colors[16 + crayon], 0x3e332aff, cast(float32)(dot / 2))
     if scene >= 0 { MakeCanvas() }
-    BookBox(CANVAS_X - 4, CANVAS_Y - 4, CANVAS_WIDTH + 8, CANVAS_HEIGHT + 8, 0xfffcf3ff, 0x704d36ff, 5.0)
+    frame := Clamp(canvas_w / 120, 3, 8)
+    BookBox(canvas_x - frame, canvas_y - frame, canvas_w + frame * 2, canvas_h + frame * 2,
+        0xfffcf3ff, 0x704d36ff, cast(float32)(frame * 2))
     name := TextUntilNul(canvas_name[:])
     if scene >= 0 && name != "" {
-        RetroSprite(name, CANVAS_X, CANVAS_Y, CANVAS_WIDTH, CANVAS_HEIGHT)
+        RetroSprite(name, canvas_x, canvas_y, canvas_w, canvas_h, -1, true)
     } else {
-        RetroFill(CANVAS_X, CANVAS_Y, CANVAS_WIDTH, CANVAS_HEIGHT, WHITE)
+        BookBox(canvas_x, canvas_y, canvas_w, canvas_h, 0xffffffff)
     }
-    press := RetroTap(40, CANVAS_X, CANVAS_Y, CANVAS_WIDTH, CANVAS_HEIGHT, "Picture", true)
-    x := RetroPointX(press.x) - CANVAS_X
-    y := RetroPointY(press.y) - CANVAS_Y
+    press := RetroTap(40, canvas_x, canvas_y, canvas_w, canvas_h, "Picture", true)
+    x := PictureX(press.x)
+    y := PictureY(press.y)
     if placing {
         // A retained box starts in the upper left. Grab anywhere inside it,
         // drag within the paper, then release to replace the artwork below.
-        w := DINO_WIDTH[dino] * DinoScale(dino, size) / 100
-        h := DINO_HEIGHT[dino] * DinoScale(dino, size) / 100
+        w := DinoWidth(dino, size)
+        h := DinoHeight(dino, size)
         pointer := SamplePointer()
-        x = RetroPointX(pointer.x) - CANVAS_X
-        y = RetroPointY(pointer.y) - CANVAS_Y
+        x = PictureX(pointer.x)
+        y = PictureY(pointer.y)
         if pointer.pressed && x >= placement_x && x < placement_x + w &&
         y >= placement_y && y < placement_y + h {
             dragging = true
@@ -226,17 +409,15 @@ MainView :: () {
             grab_y = y - placement_y
         }
         if dragging {
-            placement_x = x - grab_x
-            placement_y = y - grab_y
-            if placement_x < 0 { placement_x = 0 }
-            if placement_y < 0 { placement_y = 0 }
-            if placement_x > CANVAS_WIDTH - w { placement_x = CANVAS_WIDTH - w }
-            if placement_y > CANVAS_HEIGHT - h { placement_y = CANVAS_HEIGHT - h }
+            placement_x = Clamp(x - grab_x, 0, CANVAS_WIDTH - w)
+            placement_y = Clamp(y - grab_y, 0, CANVAS_HEIGHT - h)
         }
-        RetroFrame(CANVAS_X + placement_x, CANVAS_Y + placement_y, w, h, BLACK)
+        flip := placement_flip || GameSecondaryDown()
+        PlacementBox(PictureRect(placement_x, placement_y, w, h), flip)
+        if !dragging { PictureNote("Drag the dinosaur, then let go") }
         if pointer.released && dragging {
             PushUndo()
-            CanvasStampDino(dino, size, placement_x, placement_y, GameSecondaryDown())
+            CanvasStampDino(dino, size, placement_x, placement_y, flip)
             placing = false
             dragging = false
             dirty = true
@@ -255,10 +436,7 @@ MainView :: () {
         }
     }
     if retro.key == KEY_ESCAPE { view = CONFIRM_STOP }
-    if retro.now < status_until {
-        BookBox(4, 180, 312, 18, 0xf3ecdcff, 0xdacdb5ff, 3.0)
-        BookCentered(183, status, WHITE)
-    }
+    if retro.now < status_until { PictureNote(status) }
 }
 
 DialogBack :: (title: string, wide: bool = false) {
@@ -285,10 +463,10 @@ ScenePicker :: () {
         press := RetroTap(60 + index, x, y, 90, 70, scene_names[index])
         BookBox(x, y, 90, 70, ifx press.down then cast(u32)0xdcebdcff else cast(u32)0xf7f1e3ff, 0xdacdb5ff, 4.0)
         number := FormatInteger(index + 1, digits_a[:])
-        RetroSprite(Join(ART, Join("scene", Join(number, "-thumb.png"))), x + 6, y + 3, 78, 48)
+        RetroSprite(Join(ART, Join("scene", Join(number, "-thumb.png"))), x + 13, y + 3, 64, 48, -1, true)
         BookText(x + 2, y + 54, 86, 15, scene_names[index], 10)
         if press.clicked {
-            OpenScene(index, "")
+            OpenScene(index)
             return
         }
     }
@@ -306,12 +484,12 @@ DinoPicker :: () {
         press := RetroTap(80 + index, x, y, 90, 70, dino_names[index])
         BookBox(x, y, 90, 70, ifx press.down then cast(u32)0xdcebdcff else cast(u32)0xf7f1e3ff, 0xdacdb5ff, 4.0)
         number := FormatInteger(index + 1, digits_a[:])
-        fit: float32 = 68.0 / cast(float32)DINO_WIDTH[index]
-        if 46.0 / cast(float32)DINO_HEIGHT[index] < fit { fit = 46.0 / cast(float32)DINO_HEIGHT[index] }
-        dw := cast(s32)(cast(float32)DINO_WIDTH[index] * fit)
-        dh := cast(s32)(cast(float32)DINO_HEIGHT[index] * fit)
+        fit: float32 = 68.0 / cast(float32)DinoWidth(index, DINO_SIZES)
+        if 46.0 / cast(float32)DinoHeight(index, DINO_SIZES) < fit { fit = 46.0 / cast(float32)DinoHeight(index, DINO_SIZES) }
+        dw := cast(s32)(cast(float32)DinoWidth(index, DINO_SIZES) * fit)
+        dh := cast(s32)(cast(float32)DinoHeight(index, DINO_SIZES) * fit)
         RetroSprite(Join(ART, Join("dino", Join(number, "-thumb.png"))),
-            x + (90 - dw) / 2, y + 3 + (48 - dh) / 2, dw, dh, BLACK)
+            x + (90 - dw) / 2, y + 3 + (48 - dh) / 2, dw, dh, -1, true)
         name := dino_short[index]
         BookText(x + 2, y + 54, 86, 15, name, 10)
         if press.clicked {
@@ -336,18 +514,17 @@ SizePicker :: () {
         y: s32 = 40
         press := RetroTap(110 + index, x, y, 64, 120, size_names[index])
         BookBox(x, y, 64, 120, ifx press.down then cast(u32)0xdcebdcff else cast(u32)0xf7f1e3ff, 0xdacdb5ff, 4.0)
-        fit: float32 = 54.0 / cast(float32)DINO_WIDTH[dino]
-        if 94.0 / cast(float32)DINO_HEIGHT[dino] < fit { fit = 94.0 / cast(float32)DINO_HEIGHT[dino] }
-        dw := cast(s32)(cast(float32)DINO_WIDTH[dino] * fit * cast(float32)(index + 1) / 4.0)
-        dh := cast(s32)(cast(float32)DINO_HEIGHT[dino] * fit * cast(float32)(index + 1) / 4.0)
-        suffix_digits: [24]u8
-        suffix := FormatInteger(index + 1, suffix_digits[:])
-        RetroSprite(Join(ART, Join("dino", Join(number, Join("-preview", Join(suffix, ".png"))))),
-            x + (64 - dw) / 2, y + 4 + (96 - dh) / 2, dw, dh, BLACK)
+        fit: float32 = 54.0 / cast(float32)DinoWidth(dino, DINO_SIZES)
+        if 94.0 / cast(float32)DinoHeight(dino, DINO_SIZES) < fit { fit = 94.0 / cast(float32)DinoHeight(dino, DINO_SIZES) }
+        dw := cast(s32)(cast(float32)DinoWidth(dino, DINO_SIZES) * fit * cast(float32)(index + 1) / 4.0)
+        dh := cast(s32)(cast(float32)DinoHeight(dino, DINO_SIZES) * fit * cast(float32)(index + 1) / 4.0)
+        RetroSprite(Join(ART, Join("dino", number, "-preview.png")),
+            x + (64 - dw) / 2, y + 4 + (96 - dh) / 2, dw, dh, -1, true)
         BookText(x + 2, y + 103, 60, 17, size_names[index], 11)
         if press.clicked {
             size = index + 1
             placing = true
+            placement_flip = false
             placement_x = 0
             placement_y = 0
             dragging = false
@@ -365,9 +542,9 @@ ColorPicker :: () {
         x := 20 + (index % 6) * 48
         y := 30 + (index / 6) * 24
         press := RetroTap(130 + index, x, y, 44, 20, "Color")
-        suffix := FormatInteger(index + 1, digits_a[:])
-        RetroSprite(Join("assets/dino-paint/crayons/", suffix, ".png"), x, y, 44, 20)
-        RetroFrame(x, y, 44, 20, ifx index == crayon then BLACK else DARK_GRAY)
+        chosen := index == crayon
+        if chosen { BookBox(x - 2, y - 2, 48, 24, 0x2e6956ff, 0x2e6956ff, 5.0) }
+        BookBox(x, y, 44, 20, paint_colors[16 + index], ifx chosen then cast(u32)0xfffcf3ff else cast(u32)0x8a7a66ff, 4.0)
         if press.clicked {
             crayon = index
             Sound("click")
@@ -442,28 +619,30 @@ StoryView :: () {
     }
 }
 
+// A face icon on a round disk in the middle of area. Kryon keeps icons
+// sharp up to 96 window pixels, so the disk is sized to the icon.
+FaceIcon :: (shape: string, area: Rectangle, fill: u32, border: u32) {
+    edge := ifx area.width < area.height then area.width * 0.75 else area.height * 0.75
+    if edge > 96.0 { edge = 96.0 }
+    disk := edge * 1.35
+    unused Box(retro.session, BoxProps.{.bounds = Rectangle.{area.x + (area.width - disk) / 2.0, area.y + (area.height - disk) / 2.0, disk, disk},
+        .fill = ColorFromPacked(fill), .border = ColorFromPacked(border), .radius = disk / 2.0})
+    SvgIcon(retro.session, SvgIconProps.{.bounds = Rectangle.{area.x + (area.width - edge) / 2.0, area.y + (area.height - edge) / 2.0, edge, edge},
+        .shape = shape, .color = ColorFromPacked(0x3e332aff)})
+}
+
 ConfirmView :: (erasing: bool) {
     DialogBack(ifx erasing then "Erase this picture?" else "Leave this picture?")
-    // Happy: yellow with a wide smile. Sad: blue with a frown.
-    BookBox(44, 50, 72, 74, 0xf1d681ff, 0xd6b763ff, 34.0)
-    RetroFill(62, 76, 8, 10, BLACK)
-    RetroFill(90, 76, 8, 10, BLACK)
-    RetroFill(56, 94, 6, 6, BLACK)
-    RetroFill(98, 94, 6, 6, BLACK)
-    RetroFill(62, 98, 36, 6, BLACK)
+    // Happy: a yellow face with a smile. Sad: a blue face with a frown.
+    FaceIcon(HappyIcon.Shape, RetroRect(44, 50, 72, 74), 0xf1d681ff, 0xd6b763ff)
     BookText(40, 132, 80, 20, "Yes", 13)
-    BookBox(204, 50, 72, 74, 0xbdd3ddff, 0x8cabbaff, 34.0)
-    RetroFill(222, 76, 8, 10, BLACK)
-    RetroFill(250, 76, 8, 10, BLACK)
-    RetroFill(226, 100, 28, 6, BLACK)
-    RetroFill(216, 94, 6, 6, BLACK)
-    RetroFill(258, 94, 6, 6, BLACK)
+    FaceIcon(SadIcon.Shape, RetroRect(204, 50, 72, 74), 0xbdd3ddff, 0x8cabbaff)
     BookText(200, 132, 80, 20, "No", 13)
     yes := RetroTap(150, 40, 50, 80, 120, "Yes").clicked
     if yes {
         if erasing {
             PushUndo()
-            for at: cast(s32)0..CANVAS_PIXELS - 1 { canvas[at] = cast(u8)PAPER; lines[at] = false }
+            for at: cast(s32)0..CANVAS_PIXELS - 1 { canvas[at] = cast(u8)PAPER }
             scene = -1
             ClearStory()
             dirty = true
@@ -558,7 +737,7 @@ GameMain :: () -> s32 {
     if mode != APP_FRAME { return 0 }
     GameLanguage()
     if !initialized {
-        for at: cast(s32)0..CANVAS_PIXELS - 1 { canvas[at] = cast(u8)PAPER; lines[at] = false }
+        for at: cast(s32)0..CANVAS_PIXELS - 1 { canvas[at] = cast(u8)PAPER }
         unused PictureLoad(DocumentRead("working.txt"))
         initialized = true
     }

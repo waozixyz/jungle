@@ -3,9 +3,11 @@ ZIRAN ?= ziran
 LOCK_FLAGS := $(if $(wildcard ziran.local.toml),,--locked)
 TOOLCHAIN = $(shell $(ZIRAN) pkg path ziran $(LOCK_FLAGS))
 KRYON = $(shell $(ZIRAN) pkg path kryon $(LOCK_FLAGS))
+MINGCUTE = $(shell $(ZIRAN) pkg path mingcute $(LOCK_FLAGS))
 ZIRANC = $(TOOLCHAIN)/build/bin/ziran
 MODULES = --module-path '$(KRYON)/src/ui' --module-path '$(KRYON)/src/backend' \
 	--module-path 'kryon=$(KRYON)/src/ui' --module-path 'kryon=$(KRYON)/src/backend' \
+	--module-path 'mingcute=$(MINGCUTE)/src' \
 	--module-path 'std=$(TOOLCHAIN)/std' --module-path '$(TOOLCHAIN)/std'
 DESKTOP_LIBS = $$(pkg-config --libs sdl2 cairo freetype2 fontconfig pangocairo) -ldl -lm -lpthread
 CFLAGS_ZI = -std=c11 -O2 -ffunction-sections -fdata-sections -I'$(TOOLCHAIN)/include'
@@ -30,7 +32,7 @@ run: all
 build/ziran/libziran.a:
 	$(MAKE) -C '$(TOOLCHAIN)' BUILD_DIR='$(abspath build/ziran)' '$(abspath $@)'
 
-$(APP)/jungle: $(wildcard host/*.zi retro/*.zi games/paint/paint_palette.zi) build/ziran/libziran.a
+$(APP)/jungle: $(wildcard host/*.zi retro/*.zi games/paint/paint_palette.zi games/paint/paint_picture.zi) build/ziran/libziran.a
 	mkdir -p $(APP)
 	@set -eu; output=$$(mktemp -d build/host-c.XXXXXX); \
 		trap 'rm -rf "$$output"' EXIT; \
@@ -75,8 +77,8 @@ $(APP)/games/dino-paint.zx: $(wildcard games/paint/*.zi retro/*.zi) $(shell find
 	'$(ZIRANC)' bundle --root games/paint $(MODULES) --define KRYON_HOSTED_UI \
 		--asset-dir assets=build/stage/dino-paint/assets --entry dino_paint:main -o $@ games/paint/dino_paint.zi
 
-# Menu pixel art from SVG, Picture Book raster cartoons, then paint masks.
-# Dino Colors' original Bert artwork is committed directly.
+# Menu pixel art from SVG, Picture Book raster cartoons, then Dino Colors'
+# vector art traced from its generated sheets and compiled into masks.
 art: build/tools/art
 	build/tools/art
 	python3 tools/book_art.py
@@ -84,7 +86,7 @@ art: build/tools/art
 	python3 tools/dino_art.py
 	python3 tools/paint_pages.py
 
-games/paint/paint_pages.zi: tools/paint_pages.py $(wildcard assets/dino-paint/art/scene[0-9].png assets/dino-paint/art/dino*-s4.png)
+games/paint/paint_pages.zi: tools/paint_pages.py $(wildcard art/paint/*.svg)
 	python3 tools/paint_pages.py
 
 # Sound effects into assets/ (committed).

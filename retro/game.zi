@@ -19,9 +19,8 @@ GameSecondaryDown :: () -> bool {
     return AppService("jungle.secondary", "") == "down"
 }
 
-// Turns an indexed 240 by 180 picture into a file the game can show;
-// returns its name, or ""
-// when the app cannot make one.
+// Turns a picture's text (see games/paint/paint_picture.zi) into a file the
+// game can show; returns its name, or "" when the app cannot make one.
 GameCanvas :: (pixels: string) -> string {
     name := AppService("jungle.canvas", pixels)
     if name.count < 8 || name[:7] != "canvas-" { return "" }

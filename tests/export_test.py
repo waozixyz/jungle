@@ -33,7 +33,7 @@ def main():
         assert len(list(exported.glob("*.txt"))) == 2
         for png in exported.glob("*.png"):
             with Image.open(png) as picture:
-                assert picture.size == (240, 180)
+                assert picture.size == (960, 720)
                 assert len(picture.convert("RGB").getcolors(500) or []) >= 15
             assert png.with_suffix(".txt").read_text().startswith("My dinosaur (and friend)\\hello\nGrüße, niño, piña, ratón")
         received = json.loads((folder / "printer.json").read_text())
