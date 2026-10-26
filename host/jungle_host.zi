@@ -43,7 +43,7 @@
 GAME_LIMIT :: 8
 FONT :: "assets/jungle/font.png"
 // Canvas pictures kept on disk: a page chooser shows six at once.
-CANVAS_KEEP :: 12
+CANVAS_KEEP :: 24
 
 games: [GAME_LIMIT]Game;
 game_count: s32;
@@ -54,6 +54,9 @@ data_root: string;
 sound_setting: string;
 language_setting: string;
 home_requested: bool;
+// The title bar's back arrow reaches the game as Escape on the next frame,
+// so each game steps back itself and leaves from its first screen.
+title_back_pending: bool;
 game_secondary_down: bool;
 book_assets_installed: bool;
 message: string;
@@ -254,6 +257,8 @@ GameFrame :: (bounds: Rectangle, pointer: PointerFrame, secondary: SecondaryPoin
     BeginScrollFrame(app.session, Vector2.{pointer.x, pointer.y}, pointer.pressed,
         pointer.down, pointer.released, wheel, seconds)
     KeyboardModifiersSend(app.session, modifiers)
+    if title_back_pending && key == 0 { key = KEY_ESCAPE }
+    title_back_pending = false
     if key != 0 { KeyboardSend(app.session, key) }
     app.bounds = Rectangle.{bounds.x, bounds.y + cast(float32)GAME_BAR_HEIGHT, bounds.width, bounds.height - cast(float32)GAME_BAR_HEIGHT}
     app.scale = 1.0
@@ -270,7 +275,9 @@ GameFrame :: (bounds: Rectangle, pointer: PointerFrame, secondary: SecondaryPoin
     WidgetHostEnd()
     bundle_drawing_app = null
     if !ok { TreeCancel(app.session); game.failed = true; return false }
-    if GameTitleBar(app.session, bounds, key, seconds, games[chosen].title) { home_requested = true }
+    bar := GameTitleBar(app.session, bounds, key, seconds, games[chosen].title, sound_muted)
+    if bar.back { title_back_pending = true }
+    if bar.sound_toggle { ToggleSound() }
     return EndFrame(app.session) == FrameStatus.FrameOk
 }
 
