@@ -71,6 +71,16 @@ jobs:
         run: |
           python3 tools/build_appimage.py
           python3 tests/appimage_test.py
+      - name: Save private test captures on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: appimage-ui-failure
+          path: |
+            waozixyz/jungle/build/tests/ui/*.png
+            waozixyz/jungle/build/tests/ui/*.log
+            waozixyz/jungle/build/tests/web/*.png
+          if-no-files-found: ignore
       - uses: actions/upload-artifact@v4
         with:
           name: jungle-appimage

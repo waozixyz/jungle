@@ -77,6 +77,16 @@ jobs:
           python3 tests/abc_sequence_ui_test.py
           python3 tools/build_web.py
           node tests/web_test.mjs
+      - name: Save private test captures on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: website-ui-failure
+          path: |
+            waozixyz/jungle/build/tests/ui/*.png
+            waozixyz/jungle/build/tests/ui/*.log
+            waozixyz/jungle/build/tests/web/*.png
+          if-no-files-found: ignore
       - name: Publish the tested website
         if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
         env:

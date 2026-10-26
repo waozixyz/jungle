@@ -168,7 +168,7 @@ class Desktop:
         from PIL import Image
         return Image.open(OUTPUT / (name + ".png")).convert("RGB")
 
-    def capture(self, name):
+    def capture(self, name, header=None):
         self.verify_server()
         self.alive()
         time.sleep(.25)
@@ -178,13 +178,30 @@ class Desktop:
         from PIL import Image
         picture = Image.open(path).convert("RGB")
         # Jungle opens windowed at a default integral scale.
-        header = 56 if picture.height > 56 and picture.getpixel((0,55)) in ((218,205,181), (213,225,231)) else 0
+        if header is None:
+            header = 56 if picture.height > 56 and picture.getpixel((0,55)) in ((218,205,181), (213,225,231)) else 0
         scale = min(picture.width / 320, (picture.height - header) / 200)
         left = (picture.width - 320 * scale) / 2
         top = header + (picture.height - header - 200 * scale) / 2
         self.scale, self.left, self.top = scale, left, top
         return picture.crop(tuple(round(v) for v in (left, top, left + 320 * scale, top + 200 * scale))).resize(
             (320, 200), Image.Resampling.NEAREST)
+
+    def wait_scene_picker(self, name):
+        # Wait for the actual monochrome background preview before clicking.
+        # The explicit game header also keeps input mapping independent of
+        # backend differences in the title bar's antialiased separator.
+        deadline = time.monotonic() + 20
+        while time.monotonic() < deadline:
+            picture = self.capture(name, header=56)
+            tile = picture.crop((33, 33, 97, 78))
+            colors = {color: count for count, color in tile.getcolors(10000)}
+            white = sum(count for color,count in colors.items() if min(color) > 245 and max(color)-min(color) < 6)
+            ink = sum(count for color,count in colors.items() if max(color) < 180 and max(color)-min(color) < 6)
+            if white > 500 and ink > 20:
+                return picture
+            time.sleep(.1)
+        raise AssertionError("Coloring Book did not reach its background chooser")
 
     def wait_book(self, name):
         # A complete offline speech library is larger than the original book;
