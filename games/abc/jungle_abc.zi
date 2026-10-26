@@ -457,13 +457,8 @@ GameMain :: () -> s32 {
         ladder_loaded = true
     }
     if now < praise_until && view == VIEW_FIND { PraiseView(); return 0 }
-    if view == VIEW_CHOICE { ChoiceView() }
-    else if view == VIEW_LEARN { LearnView() }
-    else { FindView() }
-    if question_pending && now >= question_at && view == VIEW_FIND {
-        unused AppService("jungle.voice", WordVoice(question_word))
-        question_pending = false
-    }
+    // Keys are handled before drawing, so the frame a key arrives in already
+    // shows the new letter or answer; the desktop host only draws on events.
     key := retro.key
     if key == KEY_ESCAPE && view != VIEW_CHOICE {
         view = VIEW_CHOICE
@@ -481,6 +476,13 @@ GameMain :: () -> s32 {
     } else if view == VIEW_FIND {
         letter := LetterForKey(key)
         if letter >= 0 { Answer(letter) }
+    }
+    if view == VIEW_CHOICE { ChoiceView() }
+    else if view == VIEW_LEARN { LearnView() }
+    else { FindView() }
+    if question_pending && now >= question_at && view == VIEW_FIND {
+        unused AppService("jungle.voice", WordVoice(question_word))
+        question_pending = false
     }
     return 0
 }
