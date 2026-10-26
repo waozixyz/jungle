@@ -316,7 +316,7 @@ ReadingPage :: () {
     label_x := (book_width - label_width) / 2
     label_y := y + size - label_height - 16
     BookBox(label_x, label_y, label_width, label_height, 0xfffcf3e8, 0xdacdb5ff, 20.0)
-    BookText(label_x + 16, label_y + 6, label_width - 32, 60, PageName(), ifx landscape then 46 else 38)
+    BookText(label_x + 16, label_y + 6, label_width - 32, 60, PageName(), ifx landscape then 46 else 38, TextAlign.TextAlignCenter, false)
     if !simple { BookText(label_x + 16, label_y + 64, label_width - 32, 34, Spelling(), 22) }
     touch := RetroTap(12, 0, 0, book_width, book_height, "Swipe to turn the page", true)
     now := retro.now

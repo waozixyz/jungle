@@ -1,4 +1,4 @@
-"""Exercise all languages, both reading modes and fifteen books on a private Xvfb."""
+"""Exercise all languages, both reading modes and every book on a private Xvfb."""
 import argparse
 import json
 from pathlib import Path
@@ -9,7 +9,7 @@ import time
 from PIL import ImageChops
 from runtime_test import Desktop, ROOT
 sys.path.insert(0, str(ROOT / "tools"))
-from book_catalog import BOOKS, LANGUAGES, voice_path
+from book_catalog import BOOKS, BOOK_GROUPS, LANGUAGES, voice_path
 
 
 # Regions of a 320 by 200 capture of the default 960 by 600 window.
@@ -31,7 +31,7 @@ def select_book(desktop, category_index):
         desktop.key(str((category_index + 1) % 10))
         return
     name = BOOKS[category_index][0]
-    groups = [("jungle","garden","farm","nature"), ("fruits","vegetables","breakfast","lunch","dinner"), ("kitchen","bathroom","bedroom","living-room"), ("family","body")]
+    groups = [members for _, members in BOOK_GROUPS]
     group = next(i for i,names in enumerate(groups) if name in names)
     picture = desktop.capture_actual("book-selection-bounds")
     width,height=picture.size
@@ -153,7 +153,7 @@ def main():
             with Desktop(binary, data) as desktop:
                 persisted = desktop.capture(f"{language}-menu-persisted")
                 assert not different(menu, persisted), "Language did not survive reopening Jungle"
-            print(f"local UI test: {language}, fifteen books, two modes, swipes, timing and persistence passed", flush=True)
+            print(f"local UI test: {language}, {len(BOOKS)} books, two modes, swipes, timing and persistence passed", flush=True)
     print("local Picture Book language and mode UI tests passed")
 
 

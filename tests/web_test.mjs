@@ -60,6 +60,8 @@ try{
  for(const [w,h,mobile] of [[320,568,true],[844,390,true],[768,1024,true],[1920,1080,false],[390,844,true]]){await resize(w,h,mobile);await shot('shelf-'+w+'-'+h)}
  await pixelClick(280,159,true);await shot('family-tab-phone');await pixelClick(195,239,true);await delay(500);await shot('family-book-phone');await waitPage('mother');await pixelClick(34,28,true);await pixelClick(195,343,true);await delay(500);await shot('body-parts-phone');
  await waitPage('head');
+ await pixelClick(34,28,true);await pixelClick(195,447,true);await waitPage('shirt');await shot('clothing-phone');
+ await pixelClick(34,28,true);await pixelClick(110,107,true);await pixelClick(195,655,true);await waitPage('spring');await shot('seasons-phone');
  await pixelClick(34,28,true);await pixelClick(280,107,true);
  for(const [name,y,image] of [['breakfast',447,'bread'],['lunch',551,'sandwich'],['dinner',655,'roast_chicken']]){
   await pixelClick(195,y,true);await delay(500);await shot(name+'-phone');
@@ -89,7 +91,7 @@ try{
  if(await evaluate('document.activeElement.id')!=='mobile-input')throw Error('Story did not focus mobile text input');
  await command('Input.insertText',{text:'Niño, piña'});await delay(500);await shot('story-phone');await legacy(266,180);await pixelClick(54,630,true);await legacy(50,80);
  const story=await evaluate('Array.from(Module.FS.readFile("/kryon-apps/jungle/jungle.paint/slot-0.txt")).map(b=>String.fromCharCode(b)).join("")');if(!story.includes('Niño, piña'))throw Error('Mobile story lost accented text');
- for(const [category,name,dropX] of [[149,'animals',95],[243,'people',155]]){
+ for(const [category,name,dropX] of [[124,'animals',95],[195,'people',155],[266,'objects',125]]){
   await pixelClick(54,559,true);await legacy(category,38);await shot('stencils-'+name);await legacy(52,76);await legacy(52,90);
   await evaluate('Module.stencilBefore=Module.FS.readFile("/kryon-apps/jungle/jungle.paint/working.txt").slice()');
   await swipe(35,90,dropX,140);await shot('placed-'+name);

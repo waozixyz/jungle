@@ -253,7 +253,7 @@ DrawChips :: (x: s32, y: s32, width: s32, words: s32) {
         press := RetroTap(200 + slot, at, y, chip_width, 34, WordName(word))
         BookBox(at, y, chip_width, 34, ifx slot == learn_slot || press.down then cast(u32)0xdcebdcff else cast(u32)0xf3ecdcff,
             ifx slot == learn_slot then cast(u32)0x2e6956ff else cast(u32)0xdacdb5ff, 8.0)
-        BookText(at + 3, y, chip_width - 6, 34, WordName(word), 15)
+        BookText(at + 3, y, chip_width - 6, 34, WordName(word), 15, TextAlign.TextAlignCenter, false)
         if press.clicked {
             learn_slot = slot
             voice_pending = true
@@ -301,7 +301,7 @@ LearnView :: () {
         if word >= 0 {
             BookBox(picture_x, picture_y, picture_size, picture_size, 0xf7f1e3ff, 0xdacdb5ff, 10.0)
             BookPicture(WordArt(word), picture_x + 6, picture_y + 6, picture_size - 12, picture_size - 12)
-            BookText(picture_x, picture_y + picture_size + 6, panel, 44, WordName(word), 34)
+            BookText(picture_x, picture_y + picture_size + 6, panel, 44, WordName(word), 34, TextAlign.TextAlignCenter, false)
             if !simple { BookText(picture_x, picture_y + picture_size + 50, panel, 24, SpacedLetters(WordName(word)), 18) }
         } else {
             BookBox(picture_x, picture_y, picture_size, picture_size, 0xe5eee1ff, 0xdacdb5ff, 10.0)
@@ -325,7 +325,7 @@ LearnView :: () {
         if word >= 0 {
             BookBox((abc_width - picture_size) / 2, picture_y, picture_size, picture_size, 0xf7f1e3ff, 0xdacdb5ff, 10.0)
             BookPicture(WordArt(word), (abc_width - picture_size) / 2 + 6, picture_y + 6, picture_size - 12, picture_size - 12)
-            BookText(abc_padding, picture_y + picture_size + 4, width, 36, WordName(word), 30)
+            BookText(abc_padding, picture_y + picture_size + 4, width, 36, WordName(word), 30, TextAlign.TextAlignCenter, false)
             if !simple { BookText(abc_padding, picture_y + picture_size + 40, width, 20, SpacedLetters(WordName(word)), 15) }
         } else {
             BookBox((abc_width - picture_size) / 2, picture_y, picture_size, picture_size, 0xe5eee1ff, 0xdacdb5ff, 10.0)
@@ -362,7 +362,7 @@ FindView :: () {
         if picture > 96 { picture = 96 }
         if picture < 40 { picture = 40 }
         BookPicture(WordArt(question_word), (abc_width - picture) / 2, abc_padding + 60, picture, picture)
-        BookText(abc_padding, abc_padding + prompt_height - 30, abc_width - abc_padding * 2, 26, WordName(question_word), 20)
+        BookText(abc_padding, abc_padding + prompt_height - 30, abc_width - abc_padding * 2, 26, WordName(question_word), 20, TextAlign.TextAlignCenter, false)
     } else {
         shown := ifx level >= 4 then LetterLower(language, target) else BigLetter(target)
         BookText(abc_padding, abc_padding + 30, abc_width - abc_padding * 2, prompt_height - 24, shown, prompt_height * 2 / 5)

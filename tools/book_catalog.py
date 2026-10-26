@@ -60,6 +60,12 @@ BOOKS = tuple((category, _original.get(category, ()) + tuple(extra)) for categor
 WORDS.update((name, tuple(words)) for name, words in EXPANSION["words"].items())
 TITLES = EXPANSION["titles"]
 NAMES = tuple(name for _, names in BOOKS for name in names)
+BOOK_GROUPS = (
+    ("Nature", ("jungle", "garden", "farm", "nature", "seasons")),
+    ("Food", ("fruits", "vegetables", "breakfast", "lunch", "dinner")),
+    ("Home", ("kitchen", "bathroom", "bedroom", "living-room")),
+    ("Family", ("family", "body", "clothing")),
+)
 LETTERS = {
     "de": dict(zip("abcdefghijklmnopqrstuvwxyz", ("a", "be", "ze", "de", "e", "ef", "ge", "ha", "i", "jot", "ka", "el", "em", "en", "o", "pe", "ku", "er", "es", "te", "u", "fau", "we", "iks", "ypsilon", "zett")), ä="ä", ö="ö", ü="ü", ß="Eszett"),
     "es": dict(zip("abcdefghijklmnopqrstuvwxyz", ("a", "be", "ce", "de", "e", "efe", "ge", "hache", "i", "jota", "ka", "ele", "eme", "ene", "o", "pe", "cu", "erre", "ese", "te", "u", "uve", "uve doble", "equis", "ye", "zeta")), ñ="eñe", á="a con tilde", é="e con tilde", í="i con tilde", ó="o con tilde", ú="u con tilde"),

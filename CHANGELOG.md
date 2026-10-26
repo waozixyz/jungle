@@ -4,6 +4,7 @@
 
 - Combine ABC and 123 into one ABC + 123 entry, with both books and their saved progress inside.
 - Keep game titles and descriptions inside their cards at every window size, including nearly square windows.
+- Add Clothing and Seasons picture books with sixteen new watercolor scenes and names, simple narration and spelling in English, German and Spanish.
 
 ## 0.1.4
 

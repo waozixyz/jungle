@@ -62,3 +62,5 @@ is in `tools/book_prompts.json`; the full-size originals are kept in
 - ABC and 123 share one ABC + 123 entry, with both books inside. Keep their
   existing saved progress. Menu text must fit within each row at every window
   size; use one centered title when a row cannot hold its description.
+- Picture Book includes Clothing and Seasons, with the same full-scene art
+  and complete English, German and Spanish names and narration as every book.
