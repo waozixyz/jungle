@@ -35,6 +35,8 @@ selected: s32;
 web_initialized: bool;
 web_muted: bool;
 web_home: bool;
+// The title bar's back arrow reaches the game as Escape on the next frame.
+web_back_pending: bool;
 web_audio: s32;
 web_narration: bool;
 audio_rejected: s32;
@@ -145,7 +147,7 @@ CanvasImage :: (request: string) -> string {
     canvas_sequence += 1
     name := Cat("canvas-", NumberText(canvas_sequence), ".png")
     if !WriteEntireFile(Cat("/", name), data) { return "" }
-    if canvas_sequence > 12 { unused RemoveFile(Cat("/canvas-", NumberText(canvas_sequence - 12), ".png")) }
+    if canvas_sequence > 24 { unused RemoveFile(Cat("/canvas-", NumberText(canvas_sequence - 24), ".png")) }
     return name
 }
 
@@ -243,12 +245,16 @@ JungleMain :: () -> s64 {
         if action.game >= 0 { OpenGame(action.game) }
     } else {
         if key == 299 { ToggleAudio(); Runner.canvas_app_key = 0 }
+        if web_back_pending && key == 0 { key = 256; Runner.canvas_app_key = 256 }
+        web_back_pending = false
         full_bounds := Runner.canvas_app_bounds
         Runner.canvas_app_bounds = Rectangle.{full_bounds.x, full_bounds.y + cast(float32)GAME_BAR_HEIGHT,
             full_bounds.width, full_bounds.height - cast(float32)GAME_BAR_HEIGHT}
         unused RunGame()
         Runner.canvas_app_bounds = full_bounds
-        if GameTitleBar(AppSession(), full_bounds, key, AppNow(), web_games[active_game].title) { web_home = true }
+        bar := GameTitleBar(AppSession(), full_bounds, key, AppNow(), web_games[active_game].title, web_muted)
+        if bar.back { web_back_pending = true }
+        if bar.sound_toggle { ToggleAudio() }
         if web_home {
             Runner.canvas_app_mode = APP_SAVE
             unused RunGame()

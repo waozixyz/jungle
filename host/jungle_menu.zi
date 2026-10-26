@@ -2,6 +2,11 @@
 #import "kryon/session"
 #import "kryon/geometry"
 #import "kryon/text_align"
+#import "kryon/drawing_props"
+#import "kryon/svg_icon_props"
+#import "kryon/svg_icon_widget"
+SoundOnIcon :: #import "mingcute/mingcute_regular_volume";
+SoundOffIcon :: #import "mingcute/mingcute_regular_volume_off";
 #import, file "../retro/retro.zi";
 #import, file "../retro/book_theme.zi";
 #import, file "../retro/language.zi";
@@ -26,15 +31,28 @@ menu_height: s32;
 menu_portrait: bool;
 GAME_BAR_HEIGHT :: 56
 
-GameTitleBar :: (session: Session, bounds: Rectangle, key: s32, now: float64, title: string) -> bool {
+TitleBarAction :: struct {
+    back: bool
+    sound_toggle: bool
+}
+
+// Back on the left, the game's name, and sound on or off on the right.
+GameTitleBar :: (session: Session, bounds: Rectangle, key: s32, now: float64, title: string, sound_muted: bool) -> TitleBarAction {
     retro = Retro.{.session = session, .font = "assets/jungle/font.png", .now = now, .key = key,
         .x = bounds.x, .y = bounds.y, .scale = 1.0, .glyph_height = 16}
+    action: TitleBarAction
+    width := cast(s32)bounds.width
     BookPalette()
-    BookBox(0, 0, cast(s32)bounds.width, GAME_BAR_HEIGHT, 0xe3ece4ff)
-    back := BookBack(9001, 12, 6, 44, 44)
-    BookText(68, 0, cast(s32)bounds.width - 80, GAME_BAR_HEIGHT, title, 22, TextAlign.TextAlignStart)
-    BookBox(0, GAME_BAR_HEIGHT - 1, cast(s32)bounds.width, 1, 0xdacdb5ff)
-    return back
+    BookBox(0, 0, width, GAME_BAR_HEIGHT, 0xe3ece4ff)
+    action.back = BookBack(9001, 12, 6, 44, 44)
+    BookText(68, 0, width - 136, GAME_BAR_HEIGHT, title, 22, TextAlign.TextAlignStart)
+    sound := RetroTap(9002, width - 56, 6, 44, 44, ifx sound_muted then "Sound off · F10" else "Sound on · F10")
+    BookBox(width - 56, 6, 44, 44, ifx sound.down then cast(u32)0xdcebdcff else cast(u32)0xf3ecdcff, 0xdacdb5ff, 4.0)
+    SvgIcon(session, SvgIconProps.{.bounds = RetroRect(width - 49, 13, 30, 30),
+        .shape = ifx sound_muted then SoundOffIcon.Shape else SoundOnIcon.Shape, .color = ColorFromPacked(0x3e332aff)})
+    action.sound_toggle = sound.clicked
+    BookBox(0, GAME_BAR_HEIGHT - 1, width, 1, 0xdacdb5ff)
+    return action
 }
 
 // Flags retain their native language names on the same cream paper as the book.

@@ -67,7 +67,7 @@ def main():
     pictures=OUT/'assets/animal-count/pictures';pictures.mkdir(parents=True,exist_ok=True)
     animals=('tiger','frog','butterfly','ladybug','snail','elephant','giraffe','monkey','panda','lion','zebra','crocodile','parrot','toucan','rabbit','cat','dog','sheep')
     for name in animals:shutil.copy2(ROOT/'assets/jungle-book/items'/f'{name}.png',pictures/f'{name}.png')
-    images=sorted(str(p.relative_to(OUT)) for p in (OUT/'assets').rglob('*.png'))
+    images=sorted(str(p.relative_to(OUT)) for p in (OUT/'assets').rglob('*') if p.suffix in ('.png','.jpg'))
     (OUT/'images.json').write_text(json.dumps(images))
     for path in OUT.rglob('*'):
         if path.is_file() and path.stat().st_size > 25*1024*1024:
