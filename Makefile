@@ -79,14 +79,13 @@ $(APP)/games/dino-paint.zx: $(wildcard games/paint/*.zi retro/*.zi) $(shell find
 
 # Menu pixel art from SVG, Picture Book raster cartoons, then Dino Colors'
 # vector art traced from its generated sheets and compiled into masks.
+# games/paint/paint_pages.zi and its pictures are committed, so a fresh
+# checkout's file times never make an ordinary build regenerate them.
 art: build/tools/art
 	build/tools/art
 	python3 tools/book_art.py
 	python3 tools/menu_art.py
 	python3 tools/dino_art.py
-	python3 tools/paint_pages.py
-
-games/paint/paint_pages.zi: tools/paint_pages.py $(wildcard art/paint/*.svg)
 	python3 tools/paint_pages.py
 
 # Sound effects into assets/ (committed).
