@@ -71,3 +71,9 @@ is in `tools/book_prompts.json`; the full-size originals are kept in
 - Coloring Book Back leaves directly and preserves the working picture; no Yes/No exit dialog.
 - The first row of Animals and People uses the same polished generated line-art style as the second row.
 - Each new release includes an AppImage built and tested in GitHub CI, published alongside the APK.
+
+- ABC defaults to standalone spoken letter names in alphabet order, with a gentle sequence and Play/Pause. Word examples are optional; their layout separates the letter on the left from a picture and example word on the right. Spanish Ñ belongs between N and O.
+
+- Animal faces keep natural anatomy, without human smiles, lips, eyebrows or eyelashes. The snail has exactly two eyes, only on its long upper eyestalks. Bees, spiders and butterflies keep natural insect/arachnid features. The owner approved the six corrected scene/cut-out pairs (snail, elephant, giraffe, bee, spider, butterfly).
+
+- Picture Book pages and optional ABC examples use actual full-scene backgrounds. Cut-outs remain available for counting; standalone alphabet practice uses plain paper.

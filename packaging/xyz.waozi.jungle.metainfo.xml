@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>xyz.waozi.jungle</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>BSD-3-Clause</project_license>
+  <name>Jungle Academy</name>
+  <summary>Gentle picture books, alphabet learning, counting and coloring</summary>
+  <summary xml:lang="de">Sanfte Bilderbücher, Buchstaben, Zahlen und Ausmalbilder</summary>
+  <summary xml:lang="es">Libros ilustrados, letras, números y dibujos para colorear</summary>
+  <description>
+    <p>Learn letters and numbers, explore watercolor picture books, count up to ten animals, and draw and color. Jungle Academy offers gentle activities for young children in English, German and Spanish.</p>
+    <p xml:lang="de">Buchstaben und Zahlen lernen, Aquarell-Bilderbücher entdecken, bis zu zehn Tiere zählen, zeichnen und ausmalen. Jungle Academy bietet sanfte Aktivitäten für kleine Kinder auf Englisch, Deutsch und Spanisch.</p>
+    <p xml:lang="es">Aprende letras y números, explora libros ilustrados en acuarela, cuenta hasta diez animales, dibuja y colorea. Jungle Academy ofrece actividades tranquilas para niños pequeños en inglés, alemán y español.</p>
+  </description>
+  <content_rating type="oars-1.1" />
+  <launchable type="desktop-id">xyz.waozi.jungle.desktop</launchable>
+  <icon type="stock">xyz.waozi.jungle</icon>
+  <url type="homepage">https://jungle.waozi.xyz/</url>
+  <url type="bugtracker">https://github.com/waozixyz/jungle/issues</url>
+  <url type="vcs-browser">https://github.com/waozixyz/jungle</url>
+  <developer id="xyz.waozi"><name>Waozi</name></developer>
+  <categories><category>Education</category><category>KidsGame</category></categories>
+</component>

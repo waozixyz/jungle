@@ -1,6 +1,6 @@
 """Compile the ABC game's letter tables from the Picture Book catalog.
 
-Every letter page and find question is built from words that already exist in
+Every optional example uses words that already exist in
 tools/book_catalog.py with its watercolor art and narration, so the alphabet
 never drifts from the book. Run from the repository root: python3 tools/abc_catalog.py
 """
@@ -15,9 +15,9 @@ import book_catalog as cat  # noqa: E402
 MAX_WORDS_PER_LETTER = 6
 
 EN_NAMES = [
-    "ay", "bee", "cee", "dee", "ee", "ef", "gee", "aych", "eye", "jay", "kay",
-    "ell", "em", "en", "oh", "pee", "cue", "ar", "ess", "tee", "you", "vee",
-    "double-you", "ex", "why", "zee",
+    "ay", "bee", "see", "dee", "ee", "ef", "gee", "aitch", "eye", "jay", "kay",
+    "el", "em", "en", "oh", "pee", "cue", "ar", "ess", "tee", "you", "vee",
+    "double you", "ex", "why", "zed",
 ]
 EXTRA_LETTERS = {"de": ["Ä", "Ö", "Ü", "ß"], "es": ["Ñ"]}
 EXTRA_NAMES = {"de": ["ä", "ö", "ü", "Eszett"], "es": ["eñe"]}
@@ -25,7 +25,9 @@ EXTRA_NAMES = {"de": ["ä", "ö", "ü", "Eszett"], "es": ["eñe"]}
 
 def alphabet(language):
     letters = list("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
-    if language != "en":
+    if language == "es":
+        letters.insert(14, "Ñ")
+    elif language == "de":
         letters += EXTRA_LETTERS[language]
     return letters
 
@@ -33,7 +35,7 @@ def alphabet(language):
 def letter_names(language):
     if language == "en":
         return EN_NAMES
-    return [cat.LETTERS[language][letter.lower()] for letter in "abcdefghijklmnopqrstuvwxyz"] + EXTRA_NAMES[language]
+    return [cat.LETTERS[language][letter.lower()] for letter in alphabet(language)]
 
 
 def build_language(language):
@@ -90,6 +92,9 @@ def main():
     art = [f"assets/jungle-book/items/{name}.png" for name in names]
     out.append(table("word_art", art, "string"))
     out.append(accessor("WordArt", "word_art", len(art), "string", '""'))
+    scenes = [f"assets/jungle-book/pages/{name}.jpg" for name in names]
+    out.append(table("word_scene", scenes, "string"))
+    out.append(accessor("WordScene", "word_scene", len(scenes), "string", '""'))
 
     for index, language in enumerate(cat.LANGUAGES):
         words = [cat.WORDS[name][index] for name in names]
@@ -111,6 +116,8 @@ def main():
         out.append(single_table(f"alphabet_lower_{language}",
                                 [letter if letter == "ß" else letter.lower() for letter in letters]))
         out.append(single_table(f"letter_name_{language}", letter_names(language)))
+        paths = [f"assets/abc/sounds/{language}/letters/{ord(letter.lower()):04x}.wav" for letter in letters]
+        out.append(single_table(f"letter_voice_{language}", paths))
         flat = [position[name] for page in pages for name in page]
         starts = [0]
         for page in pages:
@@ -159,6 +166,12 @@ LetterLower :: (language: s32, letter: s32) -> string {
     if language == 1 { return alphabet_lower_de[letter] }
     if language == 2 { return alphabet_lower_es[letter] }
     return alphabet_lower_en[letter]
+}
+
+LetterVoice :: (language: s32, letter: s32) -> string {
+    if language == 1 { return letter_voice_de[letter] }
+    if language == 2 { return letter_voice_es[letter] }
+    return letter_voice_en[letter]
 }
 
 LetterName :: (language: s32, letter: s32) -> string {

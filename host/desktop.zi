@@ -51,6 +51,23 @@ SdlRect :: struct {
     h: s32
 }
 UsableBounds :: (display: s32, area: *SdlRect) -> s32 #foreign jungle_sdl "SDL_GetDisplayUsableBounds";
+IconFile :: (file: *u8, mode: *u8) -> *void #foreign jungle_sdl "SDL_RWFromFile";
+IconBitmap :: (stream: *void, close_stream: s32) -> *void #foreign jungle_sdl "SDL_LoadBMP_RW";
+WindowIcon :: (window: *void, surface: *void) #foreign jungle_sdl "SDL_SetWindowIcon";
+FreeIcon :: (surface: *void) #foreign jungle_sdl "SDL_FreeSurface";
+
+// Set only this application's owned window, including its task-switcher icon.
+JungleWindowIcon :: () {
+    path: [64]u8
+    mode: [4]u8
+    if !CopyCString("assets/jungle/icons/window.bmp", path[:]) || !CopyCString("rb", mode[:]) { return }
+    stream := IconFile(*path[0], *mode[0])
+    if stream == null { return }
+    surface := IconBitmap(stream, 1)
+    if surface == null { return }
+    WindowIcon(DesktopWindow(), surface)
+    FreeIcon(surface)
+}
 
 DrawMenu :: (session: Session) -> bool {
     BeginDesktopFrame()
@@ -111,6 +128,7 @@ main :: (argc: s32, argv: **u8) -> s32 {
     if argc == 2 && TextFromCString(argv[1]) == "--check" { return Check() }
     zoom := WindowZoom()
     if !OpenDesktopSized(SCREEN_WIDTH * zoom, SCREEN_HEIGHT * zoom) { CloseDesktop(); return 1 }
+    JungleWindowIcon()
     unused DesktopSetTitle("Jungle Academy")
     unused WindowInterceptCloseHost(true)
     session := SessionOpen()

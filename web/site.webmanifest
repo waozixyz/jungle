@@ -1,0 +1,18 @@
+{
+  "id": "/",
+  "name": "Jungle Academy",
+  "short_name": "Jungle Academy",
+  "description": "Gentle alphabet, number and picture-book learning, animal counting and coloring in English, German and Spanish.",
+  "lang": "en",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#e3ece4",
+  "theme_color": "#e3ece4",
+  "categories": ["education", "kids", "games"],
+  "icons": [
+    {"src": "/assets/jungle/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "/assets/jungle/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+    {"src": "/assets/jungle/icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ]
+}

@@ -56,6 +56,9 @@ def main():
          '-sSTACK_SIZE=8388608','-sENVIRONMENT=web','-sFORCE_FILESYSTEM=1','-lidbfs.js','-o',OUT/'jungle.js'],env=env)
     shutil.copy2(ROOT/'web/index.html',OUT/'index.html')
     shutil.copy2(ROOT/'LICENSE',OUT/'LICENSE')
+    for name in ('site.webmanifest','robots.txt','sitemap.xml'):
+        shutil.copy2(ROOT/'web'/name,OUT/name)
+    shutil.copy2(ROOT/'assets/jungle/icons/favicon.ico',OUT/'favicon.ico')
     for name in ('jungle','jungle-book','abc','numbers','animal-count','dino-paint'):
         source=ROOT/'assets'/name
         shutil.copytree(source,OUT/'assets'/name,dirs_exist_ok=True,

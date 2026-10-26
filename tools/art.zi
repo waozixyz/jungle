@@ -115,7 +115,6 @@ main :: (argc: s32, argv: **u8) -> s32 {
     for target: fonts { ok = ok && CopyFile("build/art/font.png", target) }
     ok = ok && Sprite("art/items/frog.svg", "assets/jungle/math.png", 32, 32)
     ok = ok && Sprite("art/icons/dino.svg", "assets/jungle/paint.png", 32, 32)
-    ok = ok && Sprite("art/icon.svg", "assets/jungle/icon.png", 64, 64)
     if !ok { return 1 }
     Report("art: menu and fonts written to assets/\n")
     return 0

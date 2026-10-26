@@ -9,7 +9,7 @@ LanguageCode :: () -> string {
 LanguageSet :: (code: string) {
     language = ifx code == "de" then 1 else ifx code == "es" then 2 else 0
 }
-UI_COUNT :: 184
+UI_COUNT :: 192
 ui_en_0: [48]string = .[
     "Picture Book",
     "Animal Counting",
@@ -160,7 +160,7 @@ ui_en_96: [48]string = .[
     "Astronaut",
     "Farmer",
 ];
-ui_en_144: [40]string = .[
+ui_en_144: [48]string = .[
     "Drag the stencil, then let go",
     "Coloring Book",
     "Family",
@@ -201,6 +201,14 @@ ui_en_144: [40]string = .[
     "Letters and numbers",
     "Clothing",
     "Seasons",
+    "Letters",
+    "Examples",
+    "Hear letter",
+    "Next example",
+    "Tap to listen",
+    "Play",
+    "Pause",
+    "Try another letter",
 ];
 ui_de_0: [48]string = .[
     "Bilderbuch",
@@ -352,7 +360,7 @@ ui_de_96: [48]string = .[
     "Astronaut",
     "Landwirt",
 ];
-ui_de_144: [40]string = .[
+ui_de_144: [48]string = .[
     "Ziehe die Vorlage und lass los",
     "Malbuch",
     "Familie",
@@ -393,6 +401,14 @@ ui_de_144: [40]string = .[
     "Buchstaben und Zahlen",
     "Kleidung",
     "Jahreszeiten",
+    "Buchstaben",
+    "Beispiele",
+    "Buchstabe hören",
+    "Nächstes Beispiel",
+    "Antippen zum Hören",
+    "Start",
+    "Pause",
+    "Wähle einen anderen Buchstaben",
 ];
 ui_es_0: [48]string = .[
     "Libro ilustrado",
@@ -544,7 +560,7 @@ ui_es_96: [48]string = .[
     "Astronauta",
     "Granjero",
 ];
-ui_es_144: [40]string = .[
+ui_es_144: [48]string = .[
     "Arrastra la plantilla y suéltala",
     "Libro para colorear",
     "Familia",
@@ -585,26 +601,34 @@ ui_es_144: [40]string = .[
     "Letras y números",
     "Ropa",
     "Estaciones",
+    "Letras",
+    "Ejemplos",
+    "Escuchar letra",
+    "Siguiente ejemplo",
+    "Toca para escuchar",
+    "Reproducir",
+    "Pausa",
+    "Elige otra letra",
 ];
 Ui_en :: (at: s32) -> string {
     if at < 48 { return ui_en_0[at - 0] }
     if at < 96 { return ui_en_48[at - 48] }
     if at < 144 { return ui_en_96[at - 96] }
-    if at < 184 { return ui_en_144[at - 144] }
+    if at < 192 { return ui_en_144[at - 144] }
     return ""
 }
 Ui_de :: (at: s32) -> string {
     if at < 48 { return ui_de_0[at - 0] }
     if at < 96 { return ui_de_48[at - 48] }
     if at < 144 { return ui_de_96[at - 96] }
-    if at < 184 { return ui_de_144[at - 144] }
+    if at < 192 { return ui_de_144[at - 144] }
     return ""
 }
 Ui_es :: (at: s32) -> string {
     if at < 48 { return ui_es_0[at - 0] }
     if at < 96 { return ui_es_48[at - 48] }
     if at < 144 { return ui_es_96[at - 96] }
-    if at < 184 { return ui_es_144[at - 144] }
+    if at < 192 { return ui_es_144[at - 144] }
     return ""
 }
 Tr :: (text: string) -> string {

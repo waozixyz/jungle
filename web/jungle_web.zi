@@ -218,6 +218,12 @@ WebService :: (name: string, request: string) -> string {
     return "{\"status\":\"unavailable\"}"
 }
 
+UpdateSiteLanguage :: () {
+    scope := WebScope()
+    defer WebEnd(scope)
+    unused WebCall1(WebModule, WebName("jungleLanguage"), WebText(LanguageCode()))
+}
+
 OpenGame :: (index: s32) {
     WebKeyboard(false)
     selected = index
@@ -242,12 +248,13 @@ JungleMain :: () -> s64 {
     if !web_initialized {
         LanguageSet(Runner.DocumentReadHost("settings/language.txt"))
         web_muted = Runner.DocumentReadHost("settings/sound.txt") == "off"
+        UpdateSiteLanguage()
         web_initialized = true
     }
     key := AppKey()
     if active_game < 0 {
         action := JungleMenu(AppSession(), AppBounds(), key, AppNow(), "assets/jungle/font.png", web_games[:], *selected, web_muted, "")
-        if action.language_changed { unused Runner.DocumentWriteHost("settings/language.txt", LanguageCode()) }
+        if action.language_changed { unused Runner.DocumentWriteHost("settings/language.txt", LanguageCode()); UpdateSiteLanguage() }
         if action.sound_toggle { ToggleAudio() }
         if action.navigated { PlayAudio("assets/jungle/sounds/select.wav", false) }
         if action.game >= 0 { OpenGame(action.game) }
