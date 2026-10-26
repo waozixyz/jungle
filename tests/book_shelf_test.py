@@ -34,7 +34,7 @@ with tempfile.TemporaryDirectory(prefix='jungle-responsive-') as directory:
             desktop.resize(width,height)
             shelf=desktop.capture_actual(f'responsive-native-shelf-{width}')
             assert shelf.size==(width,height), 'Window resize did not reach the game viewport'
-            assert shelf.getpixel((0,0))==(227,236,228), 'The responsive book has a black letterbox'
+            assert shelf.getpixel((0,56))==(227,236,228), 'The responsive book has a black letterbox'
             desktop.key('0')
             first=desktop.capture_actual(f'responsive-native-vegetables-{width}')
             padding=max(24,int(14*min(width/320,(height-56)/200))+12)

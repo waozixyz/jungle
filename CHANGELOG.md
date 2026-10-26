@@ -2,6 +2,13 @@
 
 ## 0.1.5
 
+- Open ABC and 123 directly into learning; remove the extra find-letter and find-number activities and fix their missing shared pictures.
+- Give ABC + 123 an illustrated watercolor cover and use the shared title bar with Back and sound controls.
+- Keep Animal Counting between one and ten at every level.
+- Redraw the cat, dog, butterfly, child, astronaut and farmer coloring stencils with cleaner, more detailed outlines.
+- Leave Coloring Book directly with Back, keeping the current picture saved.
+- Provide a portable Linux AppImage alongside the Android download for each new release.
+
 - Combine ABC and 123 into one ABC + 123 entry, with both books and their saved progress inside.
 - Keep game titles and descriptions inside their cards at every window size, including nearly square windows.
 - Add Clothing and Seasons picture books with sixteen new watercolor scenes and names, simple narration and spelling in English, German and Spanish.

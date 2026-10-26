@@ -1,8 +1,5 @@
 #import, file "../../retro/language.zi";
-// ABC Book: browse the alphabet over the Picture Book's watercolor words, then
-// find letters in a gentle quiz that follows Animal Counting's ladder. Every
-// letter page reuses the book's pictures and narration; letters without a word
-// yet simply show themselves and move on.
+// ABC Book opens directly on illustrated letters with Simple and Spelling narration.
 #import "app_context"
 #import "app_protocol"
 #import "geometry"
@@ -20,15 +17,6 @@
 
 FONT :: "assets/jungle-book/font.png"
 SOUNDS :: "assets/abc/sounds/"
-VIEW_CHOICE :: 0
-VIEW_LEARN :: 1
-VIEW_FIND :: 2
-praises: [8]string = .[" GOOD JOB ", "   WOW    ", "  GREAT   ", "FANTASTIC ", "ALL RIGHT ", " TERRIFIC ", "  SUPER   ", " AWESOME  "];
-// Look-alike letter pairs (b d, b p, d q, …) that join the choices from
-// level three on.
-similar: [28]string = .["b", "d", "b", "p", "d", "q", "m", "n", "m", "w", "n", "u", "c", "g", "i", "j", "v", "w", "a", "o", "e", "c", "h", "k", "f", "t", "s", "z"];
-
-view: s32 = VIEW_CHOICE;
 abc_width: s32;
 abc_height: s32;
 abc_padding: s32;
@@ -39,18 +27,7 @@ simple: bool = true;
 settings_loaded: bool;
 ladder_loaded: bool;
 last_language: s32 = -1;
-usable: [40]s32;
-usable_count: s32;
-question_word: s32;
-question_pending: bool;
-question_at: float64;
 voice_pending: bool;
-state_message: string = "";
-state_until: float64 = -10.0;
-praise_until: float64 = -10.0;
-praise_word: string = "";
-praise_picture: s32;
-
 WordName :: (at: s32) -> string {
     if language == 1 { return WordName_de(at) }
     if language == 2 { return WordName_es(at) }
@@ -96,21 +73,6 @@ BigLetter :: (letter: s32) -> string {
     return Cat(upper, " ", LetterLower(language, letter))
 }
 
-// A look-alike for the target, as a letter index in the active alphabet.
-MateFor :: (letter: s32) -> s32 {
-    own := LetterLower(language, letter)
-    for pair: cast(s32)0..13 {
-        for side: cast(s32)0..1 {
-            if similar[pair * 2 + side] != own { continue }
-            other := similar[pair * 2 + 1 - side]
-            for at: cast(s32)0..LetterCount(language) - 1 {
-                if LetterLower(language, at) == other { return at }
-            }
-        }
-    }
-    return -1
-}
-
 // Hosts and keyboards deliver letters as either case; match both.
 LetterForKey :: (key: s32) -> s32 {
     if key >= 97 && key <= 122 { key = key - 32 }
@@ -133,23 +95,8 @@ OpenLetter :: (letter: s32, speak: bool) {
 RefreshLanguage :: () {
     if language == last_language { return }
     last_language = language
-    usable_count = 0
-    for letter: cast(s32)0..LetterCount(language) - 1 {
-        if LetterWords(letter) > 0 && usable_count < 40 {
-            usable[usable_count] = letter
-            usable_count += 1
-        }
-    }
     if learn_letter >= LetterCount(language) { learn_letter = 0 }
-    if view == VIEW_FIND { NextAbcQuestion() }
-}
-
-NextAbcQuestion :: () {
-    mate := ifx level >= 3 then MateFor(target) else -1
-    NextQuestion(LetterCount(language), usable[:usable_count], mate)
-    question_word = LetterWord(language, target, 0)
-    question_pending = level >= 2
-    question_at = retro.now + 0.45
+    voice_pending = true
 }
 
 ResponsiveAbc :: (bounds: Rectangle) {
@@ -172,42 +119,6 @@ TouchButton :: (id: s32, x: s32, y: s32, width: s32, height: s32, text: string, 
         ifx selected then cast(u32)0x2e6956ff else cast(u32)0xdacdb5ff, 8.0)
     BookText(x + 6, y, width - 12, height, text, 18)
     return press.clicked
-}
-
-ActivityCard :: (id: s32, x: s32, y: s32, width: s32, height: s32, tile: string, title: string, about: string) -> bool {
-    press := RetroTap(id, x, y, width, height, title)
-    BookBox(x, y, width, height, ifx press.down then cast(u32)0xe5eee1ff else cast(u32)0xf7f1e3ff, 0xdacdb5ff, 12.0)
-    tile_size := height / 2
-    if tile_size > width / 2 { tile_size = width / 2 }
-    if tile_size < 40 { tile_size = 40 }
-    tile_x := x + (width - tile_size) / 2
-    tile_y := y + height / 8
-    BookBox(tile_x, tile_y, tile_size, tile_size, 0xfffcf3ff, 0xd6c6a8ff, 10.0)
-    BookText(tile_x, tile_y, tile_size, tile_size, tile, tile_size * 3 / 5)
-    BookText(x + 8, tile_y + tile_size, width - 16, 32, title, 22)
-    BookText(x + 8, tile_y + tile_size + 32, width - 16, 24, about, 14, TextAlign.TextAlignCenter, true, true)
-    return press.clicked
-}
-
-ChoiceView :: () {
-    stacked := abc_width < 600
-    width := ifx stacked then abc_width - abc_padding * 2 else (abc_width - abc_padding * 2 - abc_gap) / 2
-    height := ifx stacked then (abc_height - abc_padding * 3) / 2 else abc_height - abc_padding * 2
-    if height > width * 4 / 3 { height = width * 4 / 3 }
-    y := ifx stacked then abc_padding else (abc_height - height) / 2
-    if ActivityCard(40, abc_padding, y, width, height, "Aa", "Learn the letters", "Browse A to Z with pictures") {
-        view = VIEW_LEARN
-        OpenLetter(0, true)
-    }
-    if ActivityCard(41, ifx stacked then abc_padding else abc_padding + width + abc_gap,
-        ifx stacked then y + height + abc_padding else y, width, height, "?a",
-        "Find the letter", "A gentle letter game") {
-        view = VIEW_FIND
-        NextAbcQuestion()
-    }
-    if retro.key == KEY_ENTER || retro.key == 49 { view = VIEW_LEARN; OpenLetter(0, true) }
-    if retro.key == 50 { view = VIEW_FIND; NextAbcQuestion() }
-    if retro.key == KEY_ESCAPE { GameHome() }
 }
 
 StripMetrics :: (width: s32) -> (button: s32, rows: s32, used: s32) {
@@ -339,99 +250,12 @@ LearnView :: () {
     }
 }
 
-FindView :: () {
-    landscape := abc_width >= abc_height
-    tiles := choice_count
-    columns: s32 = ifx landscape then 3 else 2
-    if tiles > columns * 3 { columns *= 2 }
-    rows: s32 = (tiles + columns - 1) / columns
-    prompt_height: s32 = ifx level >= 2 then 150 else 120
-    if abc_height < 420 { prompt_height -= 30 }
-    choice_area: s32 = abc_height - abc_padding * 2 - prompt_height - 74
-    tile_height: s32 = (choice_area - (rows - 1) * abc_gap) / rows
-    if tile_height > 110 { tile_height = 110 }
-    if tile_height < 40 { tile_height = 40 }
-    tile_width: s32 = (abc_width - abc_padding * 2 - (columns - 1) * abc_gap) / columns
-    BookText(abc_padding, abc_padding, abc_width - abc_padding * 2, 30, "Find the letter", 20)
-    if level >= 2 {
-        BookBox(abc_padding + 6, abc_padding + 34, abc_width - abc_padding * 2 - 12, prompt_height - 34,
-            0xf7f1e3ff, 0xdacdb5ff, 10.0)
-        BookText(abc_padding, abc_padding + 36, abc_width - abc_padding * 2, 22,
-            "Which letter starts", 14, TextAlign.TextAlignCenter, true, true)
-        picture := prompt_height - 90
-        if picture > 96 { picture = 96 }
-        if picture < 40 { picture = 40 }
-        BookPicture(WordArt(question_word), (abc_width - picture) / 2, abc_padding + 60, picture, picture)
-        BookText(abc_padding, abc_padding + prompt_height - 30, abc_width - abc_padding * 2, 26, WordName(question_word), 20, TextAlign.TextAlignCenter, false)
-    } else {
-        shown := ifx level >= 4 then LetterLower(language, target) else BigLetter(target)
-        BookText(abc_padding, abc_padding + 30, abc_width - abc_padding * 2, prompt_height - 24, shown, prompt_height * 2 / 5)
-    }
-    grid_top := abc_padding + prompt_height + 10
-    for index: cast(s32)0..tiles - 1 {
-        at := cast(s32)index
-        x := abc_padding + (at % columns) * (tile_width + abc_gap)
-        y := grid_top + (at / columns) * (tile_height + abc_gap)
-        letter := choices[at]
-        text := ifx level >= 4 then LetterLower(language, letter) else LetterText(language, letter)
-        press := RetroTap(300 + at, x, y, tile_width, tile_height, text)
-        BookBox(x, y, tile_width, tile_height, ifx press.down then cast(u32)0xdcebdcff else cast(u32)0xf3ecdcff,
-            0xdacdb5ff, 10.0)
-        BookText(x, y, tile_width, tile_height, text, tile_height * 3 / 5)
-        if press.clicked { Answer(letter) }
-    }
-    for index: cast(s32)0..RIGHT_TO_MOVE - 1 {
-        BookBox(abc_padding + index * 18, abc_height - abc_padding - 30, 9, 9,
-            ifx index < right_run then cast(u32)0x2e6956ff else cast(u32)0xe5d9c3ff, 0, 5.0)
-    }
-    BookText(abc_width - abc_padding - 70, abc_height - abc_padding - 34, 70, 18,
-        Cat(NumberText(level), "/", NumberText(MAX_LEVEL)), 12, TextAlign.TextAlignEnd, false)
-    if retro.now < state_until {
-        BookText(abc_padding, abc_height - abc_padding - 60, abc_width - abc_padding * 2, 24, state_message, 16)
-    }
-}
-
-Answer :: (letter: s32) {
-    if AnswerLetter(letter) {
-        state_message = "You got it!"
-        state_until = retro.now + 1.0
-        Sound(Cat("right-", NumberText((count - 1) % 8)))
-        if count % 8 == 0 {
-            praise_word = praises[RandomNumber(8) - 1]
-            praise_picture = question_word
-            praise_until = retro.now + 1.5
-            Sound("reward")
-        }
-        NextAbcQuestion()
-    } else {
-        state_message = "Try again!"
-        state_until = retro.now + 1.5
-        Sound("miss")
-    }
-    unused AbcSave()
-}
-
-PraiseView :: () {
-    BookText(abc_padding, abc_padding, abc_width - abc_padding * 2, 34, praise_word, 26)
-    picture := abc_height - abc_padding * 2 - 120
-    if picture > abc_width - abc_padding * 2 { picture = abc_width - abc_padding * 2 }
-    if picture > 160 { picture = 160 }
-    if picture < 40 { picture = 40 }
-    BookPicture(WordArt(praise_picture), (abc_width - picture) / 2, abc_padding + 40, picture, picture)
-    for index: cast(s32)0..7 {
-        BookBox(abc_width / 2 - 44 + index * 12, abc_height - abc_padding - 44, 7, 7, 0x2e6956ff, 0, 4.0)
-    }
-}
-
 GameMain :: () -> s32 {
     mode := AppMode()
     if mode == APP_IDENTIFY {
-        view = VIEW_CHOICE
         settings_loaded = false
         ladder_loaded = false
-        voice_pending = false
-        state_until = -10.0
-        praise_until = -10.0
+        voice_pending = true
         learn_letter = 0
         learn_slot = 0
         last_language = -1
@@ -452,38 +276,17 @@ GameMain :: () -> s32 {
     RefreshLanguage()
     if !ladder_loaded {
         AbcLoad()
-        random_state = cast(u32)(cast(u64)(now * 1000.0) & cast(u64)0x7fffffff) | cast(u32)1
-        NextAbcQuestion()
         ladder_loaded = true
     }
-    if now < praise_until && view == VIEW_FIND { PraiseView(); return 0 }
-    // Keys are handled before drawing, so the frame a key arrives in already
-    // shows the new letter or answer; the desktop host only draws on events.
     key := retro.key
-    if key == KEY_ESCAPE && view != VIEW_CHOICE {
-        view = VIEW_CHOICE
-        voice_pending = false
-        question_pending = false
-        unused AppService("jungle.voice", "")
-    } else if view == VIEW_LEARN {
-        total: s32 = LetterCount(language)
-        current: s32 = learn_letter
-        if key == KEY_RIGHT { OpenLetter((current + 1) % total, true) }
-        if key == KEY_LEFT { OpenLetter((current - 1 + total) % total, true) }
-        if key == KEY_ENTER { voice_pending = true }
-        letter := LetterForKey(key)
-        if letter >= 0 { OpenLetter(letter, true) }
-    } else if view == VIEW_FIND {
-        letter := LetterForKey(key)
-        if letter >= 0 { Answer(letter) }
-    }
-    if view == VIEW_CHOICE { ChoiceView() }
-    else if view == VIEW_LEARN { LearnView() }
-    else { FindView() }
-    if question_pending && now >= question_at && view == VIEW_FIND {
-        unused AppService("jungle.voice", WordVoice(question_word))
-        question_pending = false
-    }
+    if key == KEY_ESCAPE { GameHome(); return 0 }
+    total := LetterCount(language)
+    if key == KEY_RIGHT { OpenLetter((learn_letter + 1) % total, true) }
+    if key == KEY_LEFT { OpenLetter((learn_letter - 1 + total) % total, true) }
+    if key == KEY_ENTER { voice_pending = true }
+    letter := LetterForKey(key)
+    if letter >= 0 { OpenLetter(letter, true) }
+    LearnView()
     return 0
 }
 

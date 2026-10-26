@@ -35,7 +35,8 @@ try{
  if(!ready)throw Error('Browser startup timeout '+JSON.stringify(diagnostics)+' '+await evaluate('JSON.stringify({url:location.href,title:document.title,text:document.body?.innerText?.slice(0,500)})'));await delay(1000);
  await mkdir('build/tests/web',{recursive:true});
  const captures=new Map();
- async function shot(name){const r=await command('Page.captureScreenshot',{format:'png'});captures.set(name,r.result.data);await writeFile('build/tests/web/'+name+'.png',Buffer.from(r.result.data,'base64'));return r.result.data}
+ async function pagePixels(){const {w,h}=await evaluate('({w:Module.canvas.clientWidth,h:Module.canvas.clientHeight})');return (await command('Page.captureScreenshot',{format:'png',clip:{x:0,y:56,width:w,height:h-56,scale:1}})).result.data}
+ async function shot(name,pageOnly=false){const data=pageOnly?await pagePixels():(await command('Page.captureScreenshot',{format:'png'})).result.data;captures.set(name,data);await writeFile('build/tests/web/'+name+'.png',Buffer.from(data,'base64'));return data}
  async function pixelClick(x,y,touch=false){
   if(touch){await command('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x,y}]});await delay(70);await command('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]})}
   else{await command('Input.dispatchMouseEvent',{type:'mouseMoved',x,y});await command('Input.dispatchMouseEvent',{type:'mousePressed',x,y,button:'left',clickCount:1});await delay(70);await command('Input.dispatchMouseEvent',{type:'mouseReleased',x,y,button:'left',clickCount:1})}
@@ -46,16 +47,16 @@ try{
  async function swipe(x,y,xx,yy){await command('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x,y}]});for(let i=1;i<=6;i++){await delay(35);await command('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:x+(xx-x)*i/6,y:y+(yy-y)*i/6}]})}await command('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});await delay(350)}
  const eager=await evaluate('performance.getEntriesByType("resource").filter(e=>e.name.includes("/jungle-book/pages/")).length');if(eager)throw Error('Startup downloaded book pages before selection');await shot('menu');
  holdAudio=true;await command('Fetch.enable',{patterns:[{urlPattern:'*jungle-book/sounds/*.wav*',requestStage:'Request'}]});
- await pixelClick(400,330);await shot('books');if(pausedAudio.length)throw Error('Opening Picture Book skipped the category list');await key('0','Digit0');const first=await shot('vegetables-desktop');
- await pixelClick(1188,712);const second=await shot('vegetables-next');if(first===second)throw Error('Page navigation froze under stalled narration');
- await pixelClick(92,712);const restored=await command('Page.captureScreenshot',{format:'png'});if(restored.result.data!==first)throw Error('Back page failed under stalled narration');
- await resize(390,844,true);const phoneFirst=await shot('vegetables-phone');
- await pixelClick(333,791,true);const phoneSecond=await shot('vegetables-phone-next');if(phoneFirst===phoneSecond)throw Error('Touch Next failed');
- await swipe(320,350,45,350);const swiped=await shot('vegetables-phone-swipe');if(swiped===phoneSecond)throw Error('Touch swipe did not turn the page');
- await swipe(45,350,320,350);const swipedBack=await command('Page.captureScreenshot',{format:'png'});if(swipedBack.result.data!==phoneSecond)throw Error('Reverse touch swipe lost its page');
+ await pixelClick(400,330);await shot('books');if(pausedAudio.length)throw Error('Opening Picture Book skipped the category list');await key('0','Digit0');await waitPage('carrot');await delay(300);const first=await shot('vegetables-desktop',true);
+ await pixelClick(1188,712);const second=await shot('vegetables-next',true);if(first===second)throw Error('Page navigation froze under stalled narration');
+ await pixelClick(92,712);const restored=await shot('vegetables-restored',true);if(restored!==first)throw Error('Back page failed under stalled narration');
+ await resize(390,844,true);const phoneFirst=await shot('vegetables-phone',true);
+ await pixelClick(333,791,true);const phoneSecond=await shot('vegetables-phone-next',true);if(phoneFirst===phoneSecond)throw Error('Touch Next failed');
+ await swipe(320,350,45,350);const swiped=await shot('vegetables-phone-swipe',true);if(swiped===phoneSecond)throw Error('Touch swipe did not turn the page');
+ await swipe(45,350,320,350);const swipedBack=await pagePixels();if(swipedBack!==phoneSecond)throw Error('Reverse touch swipe lost its page');
  holdAudio=false;for(const requestId of pausedAudio)await command('Fetch.continueRequest',{requestId});await command('Fetch.disable');
  await pixelClick(34,28,true);await shot('books-phone');
- await pixelClick(195,343,true);const fromCover=await shot('vegetables-cover-touch');await pixelClick(34,28,true);await key('0','Digit0');const directCover=await command('Page.captureScreenshot',{format:'png'});if(fromCover!==directCover.result.data)throw Error('Vegetables cover opened the wrong book');await pixelClick(34,28,true);
+ await pixelClick(195,343,true);const fromCover=await shot('vegetables-cover-touch',true);await pixelClick(34,28,true);await key('0','Digit0');const directCover=await pagePixels();if(fromCover!==directCover)throw Error('Vegetables cover opened the wrong book');await pixelClick(34,28,true);
  await swipe(90,620,90,160);await shot('books-touch-scroll');
  for(const [w,h,mobile] of [[320,568,true],[844,390,true],[768,1024,true],[1920,1080,false],[390,844,true]]){await resize(w,h,mobile);await shot('shelf-'+w+'-'+h)}
  await pixelClick(280,159,true);await shot('family-tab-phone');await pixelClick(195,239,true);await delay(500);await shot('family-book-phone');await waitPage('mother');await pixelClick(34,28,true);await pixelClick(195,343,true);await delay(500);await shot('body-parts-phone');
@@ -70,14 +71,14 @@ try{
  }
  await pixelClick(34,28,true);await shot('restored-menu-phone');await pixelClick(325,102,true);if(await evaluate('Module.FS.readFile("/kryon-apps/jungle/settings/language.txt",{encoding:"utf8"})')!=="es")throw Error('Spanish flag did not persist');
  if(hasABC){
-  await pixelClick(195,rowY(1),true);await shot('letters-numbers-hub');await pixelClick(195,rowY(0,2),true);const abcChooser=await shot('abc-chooser-phone');await pixelClick(195,300,true);const abcLearn=await shot('abc-learn-phone');
-  if(abcChooser===abcLearn)throw Error('ABC learn card did not open the letter pages');
-  await pixelClick(34,28,true);await pixelClick(34,28,true);await key('Escape');await shot('menu-after-abc-phone');
+  await pixelClick(195,rowY(1),true);await shot('letters-numbers-hub');await pixelClick(195,rowY(0,2),true);const abcLearn=await shot('abc-learn-phone');
+  await key('ArrowRight');if(abcLearn===await shot('abc-next-phone'))throw Error('ABC did not open directly into learning');
+  await pixelClick(34,28,true);await key('Escape');await shot('menu-after-abc-phone');
  }
  if(hasNumbers){
-  await pixelClick(195,rowY(1),true);await pixelClick(195,rowY(1,2),true);const numbersChooser=await shot('numbers-chooser-phone');await pixelClick(195,300,true);const numbersLearn=await shot('numbers-learn-phone');
-  if(numbersChooser===numbersLearn)throw Error('123 learn card did not open the number pages');
-  await pixelClick(34,28,true);await pixelClick(34,28,true);await key('Escape');await shot('menu-after-numbers-phone');
+  await pixelClick(195,rowY(1),true);await pixelClick(195,rowY(1,2),true);const numbersLearn=await shot('numbers-learn-phone');
+  await key('0');if(numbersLearn===await shot('numbers-ten-phone'))throw Error('123 did not open directly into learning');
+  await pixelClick(34,28,true);await key('Escape');await shot('menu-after-numbers-phone');
  }
  const countingRow=hasABC&&hasNumbers?2:hasABC||hasNumbers?2:1;
  await pixelClick(195,rowY(countingRow),true);await shot('counting-phone');

@@ -9,7 +9,7 @@ main :: () -> s32 {
         for round: cast(s32)0..999 {
             before := last_number
             NextCount()
-            if number < 1 || number > level_most[level - 1] || number == before || item < 0 || item >= 18 { return 1 }
+            if number < 1 || number > 10 || number > level_most[level - 1] || number == before || item < 0 || item >= 18 { return 1 }
         }
     }
     level = 1

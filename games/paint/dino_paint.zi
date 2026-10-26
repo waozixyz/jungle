@@ -48,7 +48,6 @@ PICK_SIZE :: 3
 PICK_COLOR :: 4
 STORY :: 5
 CONFIRM_ERASE :: 6
-CONFIRM_STOP :: 7
 SAVE_LOAD :: 8
 OVERWRITE :: 9
 PRINT_VIEW :: 10
@@ -448,7 +447,7 @@ MainView :: () {
         }
     }
     }
-    if retro.key == KEY_ESCAPE { view = CONFIRM_STOP }
+    if retro.key == KEY_ESCAPE { unused SaveSlot(); GameHome() }
     if retro.now < status_until { PictureNote(status) }
 }
 
@@ -653,8 +652,8 @@ FaceIcon :: (shape: string, area: Rectangle, fill: u32, border: u32) {
         .shape = shape, .color = ColorFromPacked(0x3e332aff)})
 }
 
-ConfirmView :: (erasing: bool) {
-    DialogBack(ifx erasing then "Erase this picture?" else "Leave this picture?")
+ConfirmView :: () {
+    DialogBack("Erase this picture?")
     // Happy: a yellow face with a smile. Sad: a blue face with a frown.
     FaceIcon(HappyIcon.Shape, RetroRect(44, 50, 72, 74), 0xf1d681ff, 0xd6b763ff)
     BookText(40, 132, 80, 20, "Yes", 13)
@@ -662,16 +661,14 @@ ConfirmView :: (erasing: bool) {
     BookText(200, 132, 80, 20, "No", 13)
     yes := RetroTap(150, 40, 50, 80, 120, "Yes").clicked
     if yes {
-        if erasing {
-            PushUndo()
-            for at: cast(s32)0..CANVAS_PIXELS - 1 { canvas[at] = cast(u8)PAPER }
-            scene = -1
-            ClearStory()
-            dirty = true
-            unused SaveSlot()
-            Sound("clear")
-            view = PICK_SCENE
-        } else { GameHome() }
+        PushUndo()
+        for at: cast(s32)0..CANVAS_PIXELS - 1 { canvas[at] = cast(u8)PAPER }
+        scene = -1
+        ClearStory()
+        dirty = true
+        unused SaveSlot()
+        Sound("clear")
+        view = PICK_SCENE
         return
     }
     no := RetroTap(151, 200, 50, 80, 120, "No").clicked
@@ -797,8 +794,7 @@ GameMain :: () -> s32 {
     else if view == PICK_SIZE { SizePicker() }
     else if view == PICK_COLOR { ColorPicker() }
     else if view == STORY { StoryView() }
-    else if view == CONFIRM_ERASE { ConfirmView(true) }
-    else if view == CONFIRM_STOP { ConfirmView(false) }
+    else if view == CONFIRM_ERASE { ConfirmView() }
     else if view == SAVE_LOAD { SaveLoadView() }
     else if view == OVERWRITE { OverwriteView() }
     else if view == PRINT_VIEW { PrintView() }

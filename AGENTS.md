@@ -64,3 +64,10 @@ is in `tools/book_prompts.json`; the full-size originals are kept in
   size; use one centered title when a row cannot hold its description.
 - Picture Book includes Clothing and Seasons, with the same full-scene art
   and complete English, German and Spanish names and narration as every book.
+
+- ABC and 123 open directly into learning. No extra activity chooser or Find game.
+- Animal Counting never asks for more than ten animals, at any level.
+- Use Kryon's shared TitleBar with Back and sound controls.
+- Coloring Book Back leaves directly and preserves the working picture; no Yes/No exit dialog.
+- The first row of Animals and People uses the same polished generated line-art style as the second row.
+- Each new release includes an AppImage built and tested in GitHub CI, published alongside the APK.
