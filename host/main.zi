@@ -109,7 +109,7 @@ LoadCatalog :: () -> bool {
         age_at: s64 = 0
         age := ReadWhole(fields[4], *age_at)
         if field == 5 && fields[0] != "" && age >= 0 && age_at == fields[4].count {
-            game := Game.{.bundle_name = fields[0], .title = fields[1],
+            game := Game.{.bundle_name = fields[0], .title = fields[1], .about = fields[2],
                 .icon = fields[3], .age = age}
             position := game_count
             while position > 0 && games[position - 1].age > game.age {

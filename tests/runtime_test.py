@@ -191,7 +191,7 @@ class Desktop:
         deadline = time.monotonic() + 20
         while time.monotonic() < deadline:
             picture = self.capture(name)
-            if picture.getpixel((0, 0)) == (255, 252, 243) and (0, 0, 170) not in [c for _, c in picture.crop((0,0,106,28)).getcolors(10000)]:
+            if picture.getpixel((0, 0)) == (227, 236, 228) and (0, 0, 170) not in [c for _, c in picture.crop((20,42,45,64)).getcolors(10000)]:
                 return picture
             time.sleep(.1)
         raise AssertionError("Picture Book did not reach its first frame")
@@ -200,7 +200,7 @@ class Desktop:
         deadline = time.monotonic() + 10
         while time.monotonic() < deadline:
             picture = self.capture(name)
-            if picture.getpixel((0, 0)) == (255, 252, 243) and (0, 0, 170) in [c for _, c in picture.crop((0,0,106,28)).getcolors(10000)]:
+            if picture.getpixel((0, 0)) == (227, 236, 228) and (0, 0, 170) in [c for _, c in picture.crop((20,42,45,64)).getcolors(10000)]:
                 return picture
             time.sleep(.1)
         raise AssertionError("Jungle did not return to its menu")
@@ -327,7 +327,7 @@ def ui(binary):
             assert (data / "sound.txt").read_text() == "quiet\n", "F10 did not restore quiet sound"
             desktop.key("1")
             book = desktop.wait_book("book")
-            assert book.getpixel((0, 0)) == (255, 252, 243), "Picture Book lost its cream background"
+            assert book.getpixel((0, 0)) == (227, 236, 228), "Picture Book lost its cream background"
             desktop.key("d")
             book = desktop.capture("book-spelling-categories")
             desktop.key("Down")

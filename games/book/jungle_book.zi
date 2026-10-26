@@ -5,6 +5,7 @@
 #import "app_context"
 #import "app_protocol"
 #import "geometry"
+#import "text_align"
 #import "scroll_widget"
 #import "scroll_props"
 #import "tree"
@@ -134,26 +135,31 @@ TouchButton :: (id: s32, x: s32, y: s32, width: s32, height: s32, text: string, 
 ResponsiveBook :: (bounds: Rectangle) {
     book_width = cast(s32)bounds.width
     book_height = cast(s32)bounds.height
-    book_padding = ifx book_width < 600 then 12 else 24
+    fit := bounds.width / 320.0
+    if bounds.height / 200.0 < fit { fit = bounds.height / 200.0 }
+    book_padding = cast(s32)(14.0 * fit) + 12
+    if book_padding < 24 { book_padding = 24 }
     book_gap = ifx book_width < 600 then 12 else 20
     retro.x = bounds.x
     retro.y = bounds.y
     retro.scale = 1.0
-    BookPalette()
-    BookBox(0, 0, book_width, book_height, 0xfffcf3ff)
-    minimum_width: s32 = ifx book_width < 600 then 140 else 170
-    shelf_columns = (book_width - book_padding * 2 + book_gap) / (minimum_width + book_gap)
-    if shelf_columns < 1 { shelf_columns = 1 }
-    if shelf_columns > 6 { shelf_columns = 6 }
+    BookPaperSized(book_width, book_height)
+    shelf_columns = ifx book_width < 600 then 1 else 2
     shelf_card_width = (book_width - book_padding * 2 - book_gap * (shelf_columns - 1) - 10) / shelf_columns
-    shelf_card_height = shelf_card_width + 40
+    shelf_card_height = ifx book_width < 600 then 92 else 120
     shelf_view_height = book_height - book_padding * 2 - 64
     if shelf_view_height < 80 { shelf_view_height = 80 }
 }
 
+ShelfTop :: (slot: s32) -> s32 {
+    group: s32 = ifx slot < 4 then 0 else ifx slot < 6 then 1 else 2
+    before: s32 = ifx group == 0 then 0 else ifx group == 1 then 4 else 6
+    rows_before: s32 = ifx group == 0 then 0 else ifx group == 1 then (4 + shelf_columns - 1) / shelf_columns else (4 + shelf_columns - 1) / shelf_columns + (2 + shelf_columns - 1) / shelf_columns
+    return group * 40 + 40 + (rows_before + (slot - before) / shelf_columns) * (shelf_card_height + book_gap)
+}
+
 BookShelf :: () {
-    rows := (CATEGORY_COUNT + shelf_columns - 1) / shelf_columns
-    content_height := rows * (shelf_card_height + book_gap)
+    content_height := ShelfTop(CATEGORY_COUNT - 1) + shelf_card_height + book_gap
     scrolled := Scroll(retro.session, ScrollProps.{.key = cast(u64)600,
         .bounds = RetroRect(book_padding, book_padding, book_width - book_padding * 2, shelf_view_height),
         .scale = 1.0, .content_height = content_height, .scroll_offset = book_scroll, .keep_scrollbar = true})
@@ -161,16 +167,20 @@ BookShelf :: () {
     if scrolled.opened {
         saved_y := retro.y
         retro.y -= cast(float32)book_scroll
+        BookText(book_padding + 2, book_padding, book_width - book_padding * 2 - 12, 32, "Animals and nature", 22, TextAlign.TextAlignStart)
+        BookText(book_padding + 2, book_padding + ShelfTop(4) - 40, book_width - book_padding * 2 - 12, 32, "Food", 22, TextAlign.TextAlignStart)
+        BookText(book_padding + 2, book_padding + ShelfTop(6) - 40, book_width - book_padding * 2 - 12, 32, "At home", 22, TextAlign.TextAlignStart)
         for slot: cast(s32)0..CATEGORY_COUNT - 1 {
             index := shelf_order[slot]
             x := book_padding + (slot % shelf_columns) * (shelf_card_width + book_gap)
-            y := book_padding + (slot / shelf_columns) * (shelf_card_height + book_gap)
+            y := book_padding + ShelfTop(slot)
             press := RetroTap(20 + index, x, y, shelf_card_width, shelf_card_height, category_names[index])
             selected := index == category
             BookBox(x, y, shelf_card_width, shelf_card_height, ifx selected then cast(u32)0xe5eee1ff else cast(u32)0xf7f1e3ff,
                 ifx selected then cast(u32)0x2e6956ff else cast(u32)0xdacdb5ff, 9.0)
-            BookPicture(category_previews[index], x + 7, y + 7, shelf_card_width - 14, shelf_card_width - 14)
-            BookText(x + 7, y + shelf_card_width, shelf_card_width - 14, 34, category_names[index], 20)
+            picture := shelf_card_height - 14
+            BookPicture(category_previews[index], x + 7, y + 7, picture, picture)
+            BookText(x + picture + 14, y + 8, shelf_card_width - picture - 24, shelf_card_height - 16, category_names[index], 24, TextAlign.TextAlignStart)
             if press.clicked { category = index; OpenBook() }
         }
         retro.y = saved_y
@@ -189,7 +199,7 @@ BookShelf :: () {
         step: s32 = ifx retro.key == KEY_LEFT then -1 else ifx retro.key == KEY_RIGHT then 1 else ifx retro.key == KEY_UP then -shelf_columns else shelf_columns
         slot = (slot + step + CATEGORY_COUNT) % CATEGORY_COUNT
         category = shelf_order[slot]
-        top := (slot / shelf_columns) * (shelf_card_height + book_gap)
+        top := ShelfTop(slot)
         if top < book_scroll { book_scroll = top }
         if top + shelf_card_height > book_scroll + shelf_view_height { book_scroll = top + shelf_card_height - shelf_view_height }
     }

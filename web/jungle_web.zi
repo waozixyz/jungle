@@ -26,9 +26,9 @@ Paint :: #import, file "../games/paint/dino_paint.zi";
 #import, file "../retro/language.zi";
 
 web_games: [3]Game = .[
-    Game.{.title = "Picture Book", .icon = "assets/jungle/covers/book.png"},
-    Game.{.title = "Animal Counting", .icon = "assets/jungle/covers/count.png"},
-    Game.{.title = "Dino Colors", .icon = "assets/jungle/covers/paint.png"},
+    Game.{.title = "Picture Book", .about = "Pictures and words", .age = 2, .icon = "assets/jungle/covers/book.png"},
+    Game.{.title = "Animal Counting", .about = "Count the animals", .age = 4, .icon = "assets/jungle/covers/count.png"},
+    Game.{.title = "Dino Colors", .about = "Draw and color", .age = 5, .icon = "assets/jungle/covers/paint.png"},
 ];
 active_game: s32 = -1;
 selected: s32;

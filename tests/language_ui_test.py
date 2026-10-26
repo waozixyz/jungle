@@ -14,7 +14,7 @@ def main():
             data = Path(temporary)
             with Desktop(args.binary.resolve(), data) as desktop:
                 desktop.capture(f"language-{language}-initial")
-                desktop.click(55 + index * 100, 12)
+                desktop.click(55 + index * 100, 51)
                 desktop.capture(f"language-{language}-title")
                 desktop.key("2")
                 desktop.capture(f"language-{language}-counting")

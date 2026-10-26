@@ -29,7 +29,7 @@ def main():
         for index, language in enumerate(LANGUAGES):
             with Desktop(binary, data) as desktop:
                 desktop.capture(f"{language}-menu-before")
-                desktop.click(55 + index * 100, 12)
+                desktop.click(55 + index * 100, 51)
                 menu = desktop.capture(f"{language}-menu")
                 assert (data / "language.txt").read_text() == language
                 desktop.key("1")
