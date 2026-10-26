@@ -37,32 +37,39 @@ try{
  }
  async function resize(width,height,mobile=false){await command('Emulation.setDeviceMetricsOverride',{width,height,deviceScaleFactor:1,mobile});await command('Emulation.setTouchEmulationEnabled',{enabled:mobile,maxTouchPoints:1});await delay(500);const box=await evaluate('({w:Module.canvas.clientWidth,h:Module.canvas.clientHeight})');if(box.w!==width||box.h!==height)throw Error('Canvas did not resize to the viewport '+JSON.stringify(box))}
  async function swipe(x,y,xx,yy){await command('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x,y}]});for(let i=1;i<=6;i++){await delay(35);await command('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:x+(xx-x)*i/6,y:y+(yy-y)*i/6}]})}await command('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});await delay(350)}
- await shot('menu');
+ const eager=await evaluate('performance.getEntriesByType("resource").filter(e=>e.name.includes("/jungle-book/items/")).length');if(eager)throw Error('Startup downloaded book pages before selection');await shot('menu');
  holdAudio=true;await command('Fetch.enable',{patterns:[{urlPattern:'*jungle-book/sounds/*.wav*',requestStage:'Request'}]});
  await pixelClick(400,330);await shot('books');if(pausedAudio.length)throw Error('Opening Picture Book skipped the category list');await key('0','Digit0');const first=await shot('vegetables-desktop');
- await pixelClick(1184,708);const second=await shot('vegetables-next');if(first===second)throw Error('Page navigation froze under stalled narration');
- await pixelClick(96,708);const restored=await command('Page.captureScreenshot',{format:'png'});if(restored.result.data!==first)throw Error('Back page failed under stalled narration');
+ await pixelClick(1188,712);const second=await shot('vegetables-next');if(first===second)throw Error('Page navigation froze under stalled narration');
+ await pixelClick(92,712);const restored=await command('Page.captureScreenshot',{format:'png'});if(restored.result.data!==first)throw Error('Back page failed under stalled narration');
  await resize(390,844,true);const phoneFirst=await shot('vegetables-phone');
  await pixelClick(333,791,true);const phoneSecond=await shot('vegetables-phone-next');if(phoneFirst===phoneSecond)throw Error('Touch Next failed');
  await swipe(320,350,45,350);const swiped=await shot('vegetables-phone-swipe');if(swiped===phoneSecond)throw Error('Touch swipe did not turn the page');
  await swipe(45,350,320,350);const swipedBack=await command('Page.captureScreenshot',{format:'png'});if(swipedBack.result.data!==phoneSecond)throw Error('Reverse touch swipe lost its page');
  holdAudio=false;for(const requestId of pausedAudio)await command('Fetch.continueRequest',{requestId});await command('Fetch.disable');
  await pixelClick(195,791,true);await shot('books-phone');
- await pixelClick(195,675,true);const fromCover=await shot('vegetables-cover-touch');await pixelClick(195,791,true);await key('0','Digit0');const directCover=await command('Page.captureScreenshot',{format:'png'});if(fromCover!==directCover.result.data)throw Error('Vegetables cover opened the wrong book');await pixelClick(195,791,true);
+ await pixelClick(195,730,true);const fromCover=await shot('vegetables-cover-touch');await pixelClick(195,791,true);await key('0','Digit0');const directCover=await command('Page.captureScreenshot',{format:'png'});if(fromCover!==directCover.result.data)throw Error('Vegetables cover opened the wrong book');await pixelClick(195,791,true);
  await swipe(90,620,90,160);await shot('books-touch-scroll');
  for(const [w,h,mobile] of [[320,568,true],[844,390,true],[768,1024,true],[1920,1080,false],[390,844,true]]){await resize(w,h,mobile);await shot('shelf-'+w+'-'+h)}
- await pixelClick(53,791,true);await pixelClick(325,102,true);if(await evaluate('Module.FS.readFile("/kryon-apps/jungle/settings/language.txt",{encoding:"utf8"})')!=="es")throw Error('Spanish flag did not persist');
+ await pixelClick(34,28,true);await shot('restored-menu-phone');await pixelClick(325,102,true);if(await evaluate('Module.FS.readFile("/kryon-apps/jungle/settings/language.txt",{encoding:"utf8"})')!=="es")throw Error('Spanish flag did not persist');
  await pixelClick(195,420,true);await shot('counting-phone');
  let counted=false;for(let n=1;n<=4;n++){
-  await pixelClick(70,808,true);const index=n-1;await pixelClick(70+(index%3)*125,640+Math.floor(index/3)*56,true);await pixelClick(320,808,true);
+  await pixelClick(78,796,true);const index=n-1;await pixelClick(78+(index%3)*116,628+Math.floor(index/3)*56,true);await pixelClick(310,796,true);
   const count=await evaluate('(()=>{try{return Number(Module.FS.readFile("/kryon-apps/jungle/jungle.animals/progress.txt",{encoding:"utf8"}).trim().split(" ")[2])}catch{return 0}})()');if(count>0){counted=true;break}
  }if(!counted)throw Error('Counting touch keypad did not submit an answer');
- await pixelClick(42,34,true);await pixelClick(195,650,true);await shot('paint-phone');
- const legacy=async(x,y)=>pixelClick(x*390/320,(844-390*200/320)/2+y*390/320,true);
- await pixelClick(54,530,true);await legacy(52,58);await legacy(52,58);await legacy(280,90);await pixelClick(242,530,true);await legacy(10,36);
+ await pixelClick(34,28,true);await pixelClick(195,650,true);await shot('paint-phone');
+ const legacy=async(x,y)=>pixelClick(x*390/320,56+(788-390*200/320)/2+y*390/320,true);
+ await pixelClick(54,559,true);await legacy(52,58);await legacy(52,58);await legacy(280,90);await pixelClick(242,559,true);await legacy(10,36);
  if(await evaluate('document.activeElement.id')!=='mobile-input')throw Error('Story did not focus mobile text input');
- await command('Input.insertText',{text:'Niño, piña'});await delay(500);await shot('story-phone');await legacy(266,180);await pixelClick(54,602,true);await legacy(50,80);
+ await command('Input.insertText',{text:'Niño, piña'});await delay(500);await shot('story-phone');await legacy(266,180);await pixelClick(54,630,true);await legacy(50,80);
  const story=await evaluate('Array.from(Module.FS.readFile("/kryon-apps/jungle/jungle.paint/slot-0.txt")).map(b=>String.fromCharCode(b)).join("")');if(!story.includes('Niño, piña'))throw Error('Mobile story lost accented text');
+ for(const [category,name,dropX] of [[149,'animals',95],[243,'people',155]]){
+  await pixelClick(54,559,true);await legacy(category,38);await shot('stencils-'+name);await legacy(52,76);await legacy(52,90);
+  await evaluate('Module.stencilBefore=Module.FS.readFile("/kryon-apps/jungle/jungle.paint/working.txt").slice()');
+  await swipe(35,90,dropX,140);await shot('placed-'+name);
+  if(!await evaluate('(()=>{const after=Module.FS.readFile("/kryon-apps/jungle/jungle.paint/working.txt");return after.length!==Module.stencilBefore.length||after.some((b,i)=>b!==Module.stencilBefore[i])})()'))throw Error(name+' stencil did not place');
+ }
+ await pixelClick(34,28,true);await shot('menu-after-paint-back');
  await delay(1200);await command('Page.reload');await delay(500);const reloaded=Date.now()+30000;while(Date.now()<reloaded){if(await evaluate('typeof Module!=="undefined"&&Module.FS&&document.getElementById("loading").style.display==="none"'))break;await delay(200)}await delay(500);
  if(await evaluate('Module.FS.readFile("/kryon-apps/jungle/settings/language.txt",{encoding:"utf8"})')!=="es")throw Error('Language did not survive reload');
  if(diagnostics.length)throw Error(JSON.stringify(diagnostics));

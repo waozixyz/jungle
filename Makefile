@@ -24,7 +24,7 @@ web:
 locales:
 	python3 tools/locales.py
 
-all: $(APP)/jungle $(GAMES) $(APP)/games/catalog.txt $(APP)/assets/jungle/font.png
+all: $(APP)/jungle $(GAMES) $(APP)/games/catalog.txt $(APP)/assets/jungle/font.png $(APP)/assets/jungle-book/font.png
 
 run: all
 	$(APP)/jungle
@@ -51,12 +51,20 @@ $(APP)/assets/jungle/font.png: $(shell find assets/jungle -type f)
 	cp -r assets/jungle $(APP)/assets/jungle
 
 # Each game is its own bundle, carrying only its own pictures and sounds.
+# Narration stays beside the installed book and is read only when played.
+$(APP)/assets/jungle-book/font.png: $(shell find assets/jungle-book -type f)
+	mkdir -p $(APP)/assets
+	cp -r assets/jungle-book $(APP)/assets/
+	find $(APP)/assets/jungle-book -type f -name '*.speech.json' -delete
+	find $(APP)/assets/jungle-book -type d -name letters -exec rm -r {} +
+
 $(APP)/games/jungle-book.zx: $(wildcard games/book/*.zi retro/*.zi) $(shell find assets/jungle-book -type f)
 	rm -rf build/stage/jungle-book
 	mkdir -p build/stage/jungle-book/assets $(APP)/games
 	cp -r assets/jungle-book build/stage/jungle-book/assets/
 	find build/stage/jungle-book/assets -type f -name '*.speech.json' -delete
 	find build/stage/jungle-book/assets -type d -name letters -exec rm -r {} +
+	rm -r build/stage/jungle-book/assets/jungle-book/sounds
 	'$(ZIRANC)' bundle --root games/book $(MODULES) --define KRYON_HOSTED_UI \
 		--asset-dir assets=build/stage/jungle-book/assets --entry jungle_book:main -o $@ games/book/jungle_book.zi
 

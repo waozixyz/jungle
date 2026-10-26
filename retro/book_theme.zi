@@ -9,12 +9,15 @@
 #import "widget_palette"
 #import "image_props"
 #import "image_widget"
+#import "svg_icon_props"
+#import "svg_icon_widget"
+BackArrow :: #import "mingcute/mingcute_regular_arrow_left";
 #import "std/utf8"
 #import, file "language.zi";
 #import, file "retro.zi";
 
 BookText :: (x: s32, y: s32, width: s32, height: s32, text: string, size: s32,
-    alignment: TextAlign = TextAlign.TextAlignCenter, localize: bool = true) {
+    alignment: TextAlign = TextAlign.TextAlignCenter, localize: bool = true, muted: bool = false) {
     font := size
     shown := ifx localize then Tr(text) else text
     length := Count(shown)
@@ -23,7 +26,7 @@ BookText :: (x: s32, y: s32, width: s32, height: s32, text: string, size: s32,
     Text(retro.session, TextProps.{.bounds = RetroRect(x, y, width, height), .text = shown,
         .font = cast(s32)(cast(float32)font * retro.scale),
         .align = alignment, .vertical_align = TextAlign.TextAlignCenter,
-        .wrap = TextWrap.TextWrapNone})
+        .wrap = TextWrap.TextWrapNone, .disabled = muted})
 }
 
 BookBox :: (x: s32, y: s32, width: s32, height: s32, fill: u32, border: u32 = 0, radius: float32 = 0.0) {
@@ -32,6 +35,7 @@ BookBox :: (x: s32, y: s32, width: s32, height: s32, fill: u32, border: u32 = 0,
 }
 
 BookPicture :: (path: string, x: s32, y: s32, width: s32, height: s32) {
+    if !RetroImageReady(path) { return }
     Image(retro.session, ImageProps.{.asset_path = path, .bounds = RetroRect(x, y, width, height),
         .fit = ImageFit.ImageFitContain, .smooth = true})
 }
@@ -64,6 +68,15 @@ BookButton :: (id: s32, x: s32, y: s32, width: s32, height: s32, label: string, 
         ifx chosen || press.down then cast(u32)0xdcebdcff else cast(u32)0xf3ecdcff,
         ifx chosen then cast(u32)0x2e6956ff else cast(u32)0xdacdb5ff, 4.0)
     BookText(x + 3, y, width - 6, height, label, 11)
+    return press.clicked
+}
+
+BookBack :: (id: s32, x: s32, y: s32, width: s32, height: s32) -> bool {
+    press := RetroTap(id, x, y, width, height, "Back")
+    BookBox(x, y, width, height, ifx press.down then cast(u32)0xdcebdcff else cast(u32)0xf3ecdcff, 0xdacdb5ff, 4.0)
+    edge := height * 2 / 3
+    SvgIcon(retro.session, SvgIconProps.{.bounds = RetroRect(x + (width - edge) / 2, y + (height - edge) / 2, edge, edge),
+        .shape = BackArrow.Shape, .color = ColorFromPacked(0x3e332aff)})
     return press.clicked
 }
 

@@ -180,17 +180,18 @@ BookShelf :: () {
                 ifx selected then cast(u32)0x2e6956ff else cast(u32)0xdacdb5ff, 9.0)
             picture := shelf_card_height - 14
             BookPicture(category_previews[index], x + 7, y + 7, picture, picture)
-            BookText(x + picture + 14, y + 8, shelf_card_width - picture - 24, shelf_card_height - 16, category_names[index], 24, TextAlign.TextAlignStart)
+            BookText(x + picture + 14, y + shelf_card_height / 2 - 28, shelf_card_width - picture - 24, 32, category_names[index], 24, TextAlign.TextAlignStart)
+            count_text: Vec(u8)
+            BuilderPrint(*count_text, "% %", category_counts[index], Tr("pages"))
+            BookText(x + picture + 14, y + shelf_card_height / 2 + 8, shelf_card_width - picture - 24, 22, BuilderFinish(count_text), 15, TextAlign.TextAlignStart, false, true)
             if press.clicked { category = index; OpenBook() }
         }
         retro.y = saved_y
         unused End(retro.session)
     }
     footer := book_height - book_padding - 48
-    if TouchButton(62, book_padding, footer, 48, 48, "<") { GameHome() }
-    mode_width := (book_width - book_padding * 2 - 60 - book_gap * 2) / 2
-    if mode_width > 180 { mode_width = 180 }
-    x := book_padding + 60
+    mode_width := (book_width - book_padding * 2 - book_gap) / 2
+    x := book_padding
     if TouchButton(30, x, footer, mode_width, 48, "Simple", simple) { simple = true; unused DocumentWrite("mode.txt", "simple") }
     if TouchButton(31, x + mode_width + book_gap, footer, mode_width, 48, "Spelling", !simple) { simple = false; unused DocumentWrite("mode.txt", "spelling") }
     if retro.key == KEY_LEFT || retro.key == KEY_RIGHT || retro.key == KEY_UP || retro.key == KEY_DOWN {
@@ -258,6 +259,9 @@ ReadingPage :: () {
         word_x = book_padding
         word_width = width
         word_y = image_y + image_size + 12
+    }
+    for ahead: cast(s32)1..2 {
+        if page + ahead < category_counts[category] { unused RetroImageReady(page_paths(PageIndex() + ahead)) }
     }
     BookPicture(page_paths(PageIndex()), image_x, image_y, image_size, image_size)
     BookText(word_x, word_y, word_width, 56, PageName(), ifx landscape then 44 else 34)

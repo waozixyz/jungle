@@ -58,8 +58,8 @@ SLOT_COUNT :: 6
 UNDO_STEPS :: 8
 
 scene_names: [6]string = .["Scene 1", "Scene 2", "Scene 3", "Scene 4", "Scene 5", "Scene 6"];
-dino_names: [12]string = .["TYRANNOSAURUS", "STEGOSAURUS", "TRICERATOPS", "ANATOSAURUS", "BRACHIOSAURUS", "DIPLODOCUS", "PARASAUROLOPHUS", "DEINONYCHUS", "PROTOCERATOPS", "PTERANODON", "STRACOSAURUS", "CORYTHOSAURUS"];
-dino_short: [12]string = .["T-REX", "STEGO", "TRIKE", "Duckbill", "BRACHIO", "DIPLO", "PARA", "RAPTOR", "PROTO", "PTERANODON", "STRACO", "CORY"];
+dino_names: [18]string = .["TYRANNOSAURUS", "STEGOSAURUS", "TRICERATOPS", "ANATOSAURUS", "BRACHIOSAURUS", "DIPLODOCUS", "PARASAUROLOPHUS", "DEINONYCHUS", "PROTOCERATOPS", "PTERANODON", "STRACOSAURUS", "CORYTHOSAURUS", "Cat", "Dog", "Butterfly", "Child", "Astronaut", "Farmer"];
+dino_short: [18]string = .["T-REX", "STEGO", "TRIKE", "Duckbill", "BRACHIO", "DIPLO", "PARA", "RAPTOR", "PROTO", "PTERANODON", "STRACO", "CORY", "Cat", "Dog", "Butterfly", "Child", "Astronaut", "Farmer"];
 button_names: [8]string = .["Image", "Color", "Story", "Erase", "Save", "Print", "Undo", "Exit"];
 size_names: [4]string = .["Small", "Medium", "Large", "Huge"];
 
@@ -71,9 +71,14 @@ placement_flip: bool;
 placement_x: s32;
 placement_y: s32;
 dragging: bool;
+canvas_can_fill: bool;
 grab_x: s32;
 grab_y: s32;
 dino_page: s32;
+stencil_category: s32;
+category_starts: [3]s32 = .[0, 12, 15];
+category_counts: [3]s32 = .[12, 3, 3];
+stencil_categories: [3]string = .["Dinosaurs", "Animals", "People"];
 story_row: s32;
 story_column: s32;
 canvas_name: [32]u8;
@@ -303,9 +308,7 @@ Fill :: (area: Rectangle, color: u32, radius: float32 = 0.0) {
 // reads as something to pick up and drag.
 PlacementBox :: (area: Rectangle, flip: bool) {
     Fill(area, 0x2e69562a)
-    number := FormatInteger(dino + 1, digits_a[:])
-    Image(retro.session, ImageProps.{.asset_path = Join(ART, Join("dino", number, ifx flip then "-flip.png" else ".png")),
-        .bounds = area, .fit = ImageFit.ImageFitStretch, .smooth = true})
+    unused flip
     edge := Clamp(cast(s32)(area.width / 60.0), 2, 4)
     thick := cast(float32)edge
     dash := thick * 5.0
@@ -414,7 +417,7 @@ MainView :: () {
         }
         flip := placement_flip || GameSecondaryDown()
         PlacementBox(PictureRect(placement_x, placement_y, w, h), flip)
-        if !dragging { PictureNote("Drag the dinosaur, then let go") }
+        if !dragging { PictureNote("Drag the stencil, then let go") }
         if pointer.released && dragging {
             PushUndo()
             CanvasStampDino(dino, size, placement_x, placement_y, flip)
@@ -424,9 +427,12 @@ MainView :: () {
             unused SaveSlot()
             Sound("fill")
         }
-    } else if press.clicked {
-        fill := 16 + crayon
-        if scene >= 0 && CanvasColorAt(x, y) >= 0 && CanvasColorAt(x, y) != fill {
+    } else {
+        if SamplePointer().pressed { canvas_can_fill = true }
+        if press.clicked && canvas_can_fill {
+            canvas_can_fill = false
+            fill := 16 + crayon
+            if scene >= 0 && CanvasColorAt(x, y) >= 0 && CanvasColorAt(x, y) != fill {
             PushUndo()
             if CanvasFill(x, y, fill) > 0 {
                 dirty = true
@@ -434,6 +440,7 @@ MainView :: () {
                 Sound("fill")
             }
         }
+    }
     }
     if retro.key == KEY_ESCAPE { view = CONFIRM_STOP }
     if retro.now < status_until { PictureNote(status) }
@@ -474,24 +481,29 @@ ScenePicker :: () {
 }
 
 DinoPicker :: () {
-    DialogBack("Choose a dinosaur")
-    first := dino_page * 6
+    DialogBack("Choose a stencil")
+    for category: cast(s32)0..2 {
+        if BookButton(500 + category, 20 + category * 94, 30, 90, 17, stencil_categories[category], stencil_category == category) {
+            stencil_category = category; dino_page = 0; return
+        }
+    }
+    first := category_starts[stencil_category] + dino_page * 6
     for offset: cast(s32)0..5 {
         index := first + offset
-        if index >= DINO_COUNT { continue }
+        if index >= category_starts[stencil_category] + category_counts[stencil_category] { continue }
         x := 20 + (offset % 3) * 94
-        y := 30 + (offset / 3) * 74
-        press := RetroTap(80 + index, x, y, 90, 70, dino_names[index])
-        BookBox(x, y, 90, 70, ifx press.down then cast(u32)0xdcebdcff else cast(u32)0xf7f1e3ff, 0xdacdb5ff, 4.0)
+        y := 51 + (offset / 3) * 60
+        press := RetroTap(80 + index, x, y, 90, 56, dino_names[index])
+        BookBox(x, y, 90, 56, ifx press.down then cast(u32)0xdcebdcff else cast(u32)0xf7f1e3ff, 0xdacdb5ff, 4.0)
         number := FormatInteger(index + 1, digits_a[:])
         fit: float32 = 68.0 / cast(float32)DinoWidth(index, DINO_SIZES)
-        if 46.0 / cast(float32)DinoHeight(index, DINO_SIZES) < fit { fit = 46.0 / cast(float32)DinoHeight(index, DINO_SIZES) }
+        if 34.0 / cast(float32)DinoHeight(index, DINO_SIZES) < fit { fit = 34.0 / cast(float32)DinoHeight(index, DINO_SIZES) }
         dw := cast(s32)(cast(float32)DinoWidth(index, DINO_SIZES) * fit)
         dh := cast(s32)(cast(float32)DinoHeight(index, DINO_SIZES) * fit)
         RetroSprite(Join(ART, Join("dino", Join(number, "-thumb.png"))),
-            x + (90 - dw) / 2, y + 3 + (48 - dh) / 2, dw, dh, -1, true)
+            x + (90 - dw) / 2, y + 3 + (36 - dh) / 2, dw, dh, -1, true)
         name := dino_short[index]
-        BookText(x + 2, y + 54, 86, 15, name, 10)
+        BookText(x + 2, y + 39, 86, 14, name, 10)
         if press.clicked {
             dino = index
             Sound("click")
@@ -502,7 +514,7 @@ DinoPicker :: () {
     up := BookButton(96, 22, 173, 78, 14, "Previous")
     down := BookButton(97, 106, 173, 78, 14, "Next")
     if up && (dino_page > 0) { dino_page -= 1 }
-    if down && (dino_page < 1) { dino_page += 1 }
+    if down && (dino_page < (category_counts[stencil_category] + 5) / 6 - 1) { dino_page += 1 }
     unused CancelButton()
 }
 
@@ -524,6 +536,7 @@ SizePicker :: () {
         if press.clicked {
             size = index + 1
             placing = true
+            canvas_can_fill = false
             placement_flip = false
             placement_x = 0
             placement_y = 0

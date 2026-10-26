@@ -71,9 +71,9 @@ def main():
         assert (ROOT / f"art/paint/scene{number}.svg").read_text().count("<path") == 1
         with Image.open(art / f"scene{number}-thumb.png") as thumb:
             assert thumb.size == (256, 192) and len(thumb.getcolors(1 << 16) or range(1 << 16)) > 16, "scene thumbnail is not smooth"
-    for number in range(1, 13):
+    for number in range(1, 19):
         svg = (ROOT / f"art/paint/dino{number}.svg").read_text()
-        assert '<path id="body" fill="#fff"' in svg and '<path id="ink" fill="#000"' in svg
+        assert '<path id="body" fill="#fff"' in svg and ('<path id="ink" fill="#000"' in svg or '<g id="ink"' in svg)
         with Image.open(art / f"dino{number}.png") as dinosaur, Image.open(art / f"dino{number}-flip.png") as flipped:
             assert 720 in dinosaur.size or 960 in dinosaur.size, "placement picture is not the Huge size"
             assert dinosaur.transpose(Image.Transpose.FLIP_LEFT_RIGHT).tobytes() == flipped.tobytes()
@@ -89,13 +89,22 @@ def main():
         for kind in ("thumb", "preview"):
             with Image.open(art / f"dino{number}-{kind}.png") as picture:
                 assert picture.mode == "RGBA" and picture.getbbox()
-        with wave.open(str(ROOT / f"assets/dino-paint/sounds/voice-{number}.wav")) as voice:
-            assert voice.getnchannels() == 1 and voice.getsampwidth() == 2
-            assert voice.getframerate() == 22050
-            assert .5 < voice.getnframes() / voice.getframerate() < 3
-            assert any(voice.readframes(voice.getnframes())), "empty dinosaur voice"
+        if number <= 12:
+            with wave.open(str(ROOT / f"assets/dino-paint/sounds/voice-{number}.wav")) as voice:
+                assert voice.getnchannels() == 1 and voice.getsampwidth() == 2
+                assert voice.getframerate() == 22050
+                assert .5 < voice.getnframes() / voice.getframerate() < 3
+                assert any(voice.readframes(voice.getnframes())), "empty dinosaur voice"
     old = [path.name for path in art.glob("*.png") if "-s" in path.name or path.stem[-1].isdigit() and "preview" in path.stem]
     assert not old, f"stale pixel art: {old[:3]}"
+    prompts = {"en":"How many animals?", "de":"Wie viele Tiere?", "es":"¿Cuántos animales hay?"}
+    for language, text in prompts.items():
+        path = ROOT / f"assets/animal-count/sounds/question-{language}.wav"
+        receipt = json.loads(path.with_suffix(".speech.json").read_text())
+        assert receipt["text"] == text and receipt["sha256"] == hashlib.sha256(path.read_bytes()).hexdigest()
+        with wave.open(str(path)) as prompt:
+            assert (prompt.getnchannels(), prompt.getsampwidth(), prompt.getframerate()) == (1,2,22050)
+            assert .5 < prompt.getnframes()/prompt.getframerate() < 10
     for number in range(8):
         with wave.open(str(ROOT / f"assets/animal-count/sounds/right-{number}.wav")) as sound:
             assert .1 < sound.getnframes() / sound.getframerate() < .2

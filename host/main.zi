@@ -72,6 +72,7 @@ sound_setting: string;
 language_setting: string;
 home_requested: bool;
 game_secondary_down: bool;
+book_assets_installed: bool;
 message: string;
 service_reply: [64]u8;
 canvas_count: s32;
@@ -167,7 +168,10 @@ GameServices :: (context: *void, module: *u8, function: *u8,
             return 1
         }
         if service == "jungle.voice" {
-            SoundVoice(ifx request == "" then "" else BundleReadAsset(game.app.app.bundle, request))
+            if book_assets_installed && request.count > 26 && request[:26] == "assets/jungle-book/sounds/" && AppFileNameValid(request) {
+                wave, found := ReadEntireFile(request)
+                if found { SoundVoice(wave); AppFileFree(wave) }
+            } else { SoundVoice(ifx request == "" then "" else BundleReadAsset(game.app.app.bundle, request)) }
             result.* = Reply("played")
             return 1
         }
@@ -227,13 +231,14 @@ ClearCanvases :: (folder: string) {
 OpenGame :: (index: s32) -> bool {
     bytes, found := ReadEntireFile(Cat("games/", games[index].bundle_name))
     if !found { message = "THAT GAME IS MISSING."; return false }
+    defer { AppFileFree(bytes) }
     if !BundleAppOpen(*game, bytes, data_root) { message = "THAT GAME COULD NOT START."; return false }
     game.app.services = GameServices
     game.app.allows = GameAllows
-    game.extracted_assets = true
+    book_assets_installed = games[index].bundle_name == "jungle-book.zx"
+    game.extracted_assets = !book_assets_installed
     ClearCanvases(game.directory)
-    canvas_count = 0
-    if !BundleWriteAssets(game.app.app.bundle, *game.local.files) {
+    if !book_assets_installed && !BundleWriteAssets(game.app.app.bundle, *game.local.files) {
         BundleAppClose(*game)
         message = "THAT GAME'S PICTURES COULD NOT LOAD."
         return false
@@ -265,7 +270,7 @@ GameFrame :: (bounds: Rectangle, pointer: PointerFrame, secondary: SecondaryPoin
         pointer.down, pointer.released, wheel, seconds)
     KeyboardModifiersSend(app.session, modifiers)
     if key != 0 { KeyboardSend(app.session, key) }
-    app.bounds = bounds
+    app.bounds = Rectangle.{bounds.x, bounds.y + cast(float32)GAME_BAR_HEIGHT, bounds.width, bounds.height - cast(float32)GAME_BAR_HEIGHT}
     app.scale = 1.0
     app.font = 18
     app.key = key
@@ -288,6 +293,7 @@ GameFrame :: (bounds: Rectangle, pointer: PointerFrame, secondary: SecondaryPoin
     WidgetHostEnd()
     bundle_drawing_app = null
     if !ok { TreeCancel(app.session); game.failed = true; return false }
+    if GameTitleBar(app.session, bounds, key, seconds, games[chosen].title) { home_requested = true }
     return EndFrame(app.session) == FrameStatus.FrameOk
 }
 
