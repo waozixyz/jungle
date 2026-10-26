@@ -62,25 +62,71 @@ ItemPath :: (which: s32) -> string {
     return Join("assets/animal-count/pictures/", animal_pictures[which % 18], ".png")
 }
 
+touch_key: s32;
+keypad_labels: [12]string = .["1","2","3","4","5","6","7","8","9","<","0","OK"];
+
 CountingView :: () {
-    BookPaper()
-    BookText(24, 16, 272, 24, "Animal Counting", 18)
-    BookText(24, 41, 272, 14, HOW_MANY, 11)
-    BookBox(22, 58, 276, 90, 0xf7f1e3ff, 0xdacdb5ff, 5.0)
+    bounds := AppBounds()
+    width := cast(s32)bounds.width
+    height := cast(s32)bounds.height
+    retro.x = bounds.x
+    retro.y = bounds.y
+    retro.scale = 1.0
+    padding: s32 = ifx width < 600 then 12 else 24
+    gap: s32 = 8
+    portrait := height > width
+    BookPalette()
+    BookBox(0, 0, width, height, 0xfffcf3ff)
+    if BookButton(30, padding, padding, 60, 44, "Menu") { GameHome() }
+    BookText(padding + 70, padding, width - padding * 2 - 70, 44, HOW_MANY, 25)
+    key_width := width - padding * 2
+    key_height: s32 = 48
+    key_x := padding
+    key_y := height - padding - key_height * 4 - gap * 3
+    animal_x := padding
+    animal_y := padding + 60
+    animal_width := width - padding * 2
+    animal_height := key_y - animal_y - 70
+    if !portrait {
+        key_width = width / 3
+        if key_width > 360 { key_width = 360 }
+        if key_width < 230 { key_width = 230 }
+        key_x = width - padding - key_width
+        key_y = (height - key_height * 4 - gap * 3) / 2 + 40
+        if key_y + key_height * 4 + gap * 3 > height - padding { key_y = height - padding - key_height * 4 - gap * 3 }
+        animal_width = key_x - padding * 2
+        animal_height = height - animal_y - padding - 30
+    }
+    if animal_height < 70 { animal_height = 70 }
+    BookBox(animal_x, animal_y, animal_width, animal_height, 0xf7f1e3ff, 0xdacdb5ff, 8.0)
+    columns: s32 = ifx portrait then 4 else 6
+    rows := (number + columns - 1) / columns
+    size := (animal_width - gap * 2) / columns
+    fit := (animal_height - gap * 2) / rows
+    if fit < size { size = fit }
+    if size > 100 { size = 100 }
     for index: cast(s32)0..number - 1 {
-        BookPicture(ItemPath(item), place_x[index] - 13, place_y[index] - 13, 26, 26)
+        x := animal_x + (animal_width - columns * size) / 2 + (index % columns) * size
+        y := animal_y + (animal_height - rows * size) / 2 + (index / columns) * size
+        BookPicture(ItemPath(item), x + 3, y + 3, size - 6, size - 6)
     }
-    BookText(210, 89, 18, 28, "=", 20)
-    BookBox(232, 85, 56, 38, 0xfffcf3ff, 0xbba98bff, 6.0)
     answer := ifx typed_count > 0 then TextView(typed[:typed_count]) else "?"
-    BookText(234, 85, 52, 38, answer, 25)
-    for index: cast(s32)0..7 {
-        BookBox(24 + index * 8, 155, 5, 5,
-            ifx index < count % 8 then cast(u32)0x2e6956ff else cast(u32)0xe5d9c3ff, 0, 3.0)
+    BookText(key_x, key_y - 56, key_width, 48, answer, 34)
+    touch_key = 0
+    button_width := (key_width - gap * 2) / 3
+    for index: cast(s32)0..11 {
+        x := key_x + (index % 3) * (button_width + gap)
+        y := key_y + (index / 3) * (key_height + gap)
+        press := RetroTap(320 + index, x, y, button_width, key_height, keypad_labels[index])
+        BookBox(x, y, button_width, key_height, ifx press.down then cast(u32)0xdcebdcff else cast(u32)0xf3ecdcff, 0xdacdb5ff, 7.0)
+        BookText(x, y, button_width, key_height, keypad_labels[index], 24)
+        if press.clicked {
+            touch_key = ifx index < 9 then 49 + index else ifx index == 9 then KEY_BACKSPACE else ifx index == 10 then 48 else KEY_ENTER
+        }
     }
-    BookText(96, 152, 194, 14, "Type a number, then Enter", 8)
-    if BookButton(30, 24, 173, 52, 14, "Menu") { GameHome() }
-    if retro.now < state_until { BookText(84, 173, 210, 14, state_message, 10) }
+    if retro.now < state_until {
+        BookText(animal_x, height - padding - 26, animal_width, 26, state_message, 18)
+    }
 }
 
 CountingReward :: () {
@@ -116,7 +162,7 @@ GameMain :: () -> s32 {
     if AppKey() == KEY_ESCAPE { GameHome(); return 0 }
     if now < praise_until { CountingReward(); return 0 }
     CountingView()
-    key := retro.key
+    key := ifx touch_key != 0 then touch_key else retro.key
     if key == KEY_ESCAPE { GameHome(); return 0 }
     if key >= 48 && key <= 57 && typed_count < 2 {
         typed[typed_count] = cast(u8)key

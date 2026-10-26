@@ -3,6 +3,7 @@ import hashlib
 import json
 from pathlib import Path
 import wave
+import sys
 
 from book_catalog import EXPANSION, LANGUAGES, WORDS, narration, voice_path
 
@@ -28,6 +29,7 @@ def main():
     total = 0
     for language in LANGUAGES:
         for name in EXPANSION['words']:
+            if len(sys.argv) > 1 and name not in EXPANSION['extra'][sys.argv[1]]:continue
             word = WORDS[name][LANGUAGES.index(language)]
             source = ROOT / voice_path(name, language, True)
             word_data, word_hash = read_clip(source)

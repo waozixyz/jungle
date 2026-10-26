@@ -30,30 +30,41 @@ try{
  await mkdir('build/tests/web',{recursive:true});
  const captures=new Map();
  async function shot(name){const r=await command('Page.captureScreenshot',{format:'png'});captures.set(name,r.result.data);await writeFile('build/tests/web/'+name+'.png',Buffer.from(r.result.data,'base64'));return r.result.data}
+ async function pixelClick(x,y,touch=false){
+  if(touch){await command('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x,y}]});await delay(70);await command('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]})}
+  else{await command('Input.dispatchMouseEvent',{type:'mouseMoved',x,y});await command('Input.dispatchMouseEvent',{type:'mousePressed',x,y,button:'left',clickCount:1});await delay(70);await command('Input.dispatchMouseEvent',{type:'mouseReleased',x,y,button:'left',clickCount:1})}
+  await delay(250)
+ }
+ async function resize(width,height,mobile=false){await command('Emulation.setDeviceMetricsOverride',{width,height,deviceScaleFactor:1,mobile});await command('Emulation.setTouchEmulationEnabled',{enabled:mobile,maxTouchPoints:1});await delay(500);const box=await evaluate('({w:Module.canvas.clientWidth,h:Module.canvas.clientHeight})');if(box.w!==width||box.h!==height)throw Error('Canvas did not resize to the viewport '+JSON.stringify(box))}
+ async function swipe(x,y,xx,yy){await command('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x,y}]});for(let i=1;i<=6;i++){await delay(35);await command('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:x+(xx-x)*i/6,y:y+(yy-y)*i/6}]})}await command('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});await delay(350)}
  await shot('menu');
  holdAudio=true;await command('Fetch.enable',{patterns:[{urlPattern:'*.wav*',requestStage:'Request'}]});
- await key('1','Digit1');await shot('books');await key('1','Digit1');const firstPage=await shot('first-page');
- await click(274,178);const secondPage=await shot('second-page');if(firstPage===secondPage)throw Error('Next click froze while audio was downloading');
- await click(45,178);const back=await command('Page.captureScreenshot',{format:'png'});if(back.result.data!==firstPage)throw Error('Back click did not restore the first page while audio was downloading');
+ await key('1','Digit1');await shot('books');await key('0','Digit0');const first=await shot('vegetables-desktop');
+ await pixelClick(1228,752);const second=await shot('vegetables-next');if(first===second)throw Error('Page navigation froze under stalled narration');
+ await pixelClick(52,752);const restored=await command('Page.captureScreenshot',{format:'png'});if(restored.result.data!==first)throw Error('Back page failed under stalled narration');
+ await resize(390,844,true);const phoneFirst=await shot('vegetables-phone');
+ await pixelClick(350,808,true);const phoneSecond=await shot('vegetables-phone-next');if(phoneFirst===phoneSecond)throw Error('Touch Next failed');
+ await swipe(320,350,45,350);const swiped=await shot('vegetables-phone-swipe');if(swiped===phoneSecond)throw Error('Touch swipe did not turn the page');
+ await swipe(45,350,320,350);const swipedBack=await command('Page.captureScreenshot',{format:'png'});if(swipedBack.result.data!==phoneSecond)throw Error('Reverse touch swipe lost its page');
  holdAudio=false;for(const requestId of pausedAudio)await command('Fetch.continueRequest',{requestId});await command('Fetch.disable');
- await key('Escape');
- await command('Input.dispatchMouseEvent',{type:'mouseMoved',x:640,y:400});await delay(100);await command('Input.dispatchMouseEvent',{type:'mouseWheel',x:640,y:400,deltaY:800,deltaX:0});await delay(500);await shot('scrolled-shelf');
- await click(225,123);const room=await shot('room-from-scroll');captures.delete('room-from-scroll');await key('Escape');await key('8','Digit8');const directRoom=await command('Page.captureScreenshot',{format:'png'});if(room!==directRoom.result.data)throw Error('Scrolled room card opened the wrong book');await key('Escape');
- for(let index=5;index<=9;index++){await key(String(index),'Digit'+index);await shot('book-'+index);await key('Escape')}
- await click(225,160);await key('2','Digit2');await shot('spelling');await key('Escape');await key('Escape');
- await click(155,51);if(await evaluate('Module.FS.readFile("/kryon-apps/jungle/settings/language.txt",{encoding:"utf8"})')!=="de")throw Error('German flag did not persist');
- await key('2','Digit2');await shot('counting');await key('Escape');
- await key('3','Digit3');await shot('paint');await click(32,14);await shot('scenes');
- await click(52,58);await shot('dinosaurs');await click(52,58);await click(280,90);
- await click(30,65);
- for(const text of 'Grüße'){await command('Input.dispatchKeyEvent',{type:'char',key:text,text,unmodifiedText:text});await delay(90)}
- await shot('story');await key('Enter');await click(30,110);await click(50,80);
- const story=await evaluate('Array.from(Module.FS.readFile("/kryon-apps/jungle/jungle.paint/slot-0.txt")).map(b=>String.fromCharCode(b)).join("")');
- if(!story.includes('Grüße'))throw Error('Browser save lost the accented story');
- await delay(1200);await command('Page.reload');await delay(500);
- const reloaded=Date.now()+30000;while(Date.now()<reloaded){if(await evaluate('typeof Module!=="undefined"&&Module.FS&&document.getElementById("loading").style.display==="none"'))break;await delay(200)}await delay(500);
- const saved=await evaluate('Module.FS.readFile("/kryon-apps/jungle/settings/language.txt",{encoding:"utf8"})');if(saved!=="de")throw Error('Language did not survive page reload');
- if(new Set(captures.values()).size!==captures.size)throw Error('A game route did not change the visible screen');
+ await pixelClick(195,808,true);await shot('books-phone');
+ await pixelClick(292,555,true);const fromCover=await shot('vegetables-cover-touch');await pixelClick(195,808,true);await key('0','Digit0');const directCover=await command('Page.captureScreenshot',{format:'png'});if(fromCover!==directCover.result.data)throw Error('Vegetables cover opened the wrong book');await pixelClick(195,808,true);
+ await swipe(90,620,90,160);await shot('books-touch-scroll');
+ for(const [w,h,mobile] of [[320,568,true],[844,390,true],[768,1024,true],[1920,1080,false],[390,844,true]]){await resize(w,h,mobile);await shot('shelf-'+w+'-'+h)}
+ await pixelClick(36,808,true);await pixelClick(325,36,true);if(await evaluate('Module.FS.readFile("/kryon-apps/jungle/settings/language.txt",{encoding:"utf8"})')!=="es")throw Error('Spanish flag did not persist');
+ await pixelClick(195,420,true);await shot('counting-phone');
+ let counted=false;for(let n=1;n<=4;n++){
+  await pixelClick(70,808,true);const index=n-1;await pixelClick(70+(index%3)*125,640+Math.floor(index/3)*56,true);await pixelClick(320,808,true);
+  const count=await evaluate('(()=>{try{return Number(Module.FS.readFile("/kryon-apps/jungle/jungle.animals/progress.txt",{encoding:"utf8"}).trim().split(" ")[2])}catch{return 0}})()');if(count>0){counted=true;break}
+ }if(!counted)throw Error('Counting touch keypad did not submit an answer');
+ await pixelClick(42,34,true);await pixelClick(195,650,true);await shot('paint-phone');
+ const legacy=async(x,y)=>pixelClick(x*390/320,(844-390*200/320)/2+y*390/320,true);
+ await pixelClick(54,530,true);await legacy(52,58);await legacy(52,58);await legacy(280,90);await pixelClick(242,530,true);await legacy(10,36);
+ if(await evaluate('document.activeElement.id')!=='mobile-input')throw Error('Story did not focus mobile text input');
+ await command('Input.insertText',{text:'Niño, piña'});await delay(500);await shot('story-phone');await legacy(266,180);await pixelClick(54,602,true);await legacy(50,80);
+ const story=await evaluate('Array.from(Module.FS.readFile("/kryon-apps/jungle/jungle.paint/slot-0.txt")).map(b=>String.fromCharCode(b)).join("")');if(!story.includes('Niño, piña'))throw Error('Mobile story lost accented text');
+ await delay(1200);await command('Page.reload');await delay(500);const reloaded=Date.now()+30000;while(Date.now()<reloaded){if(await evaluate('typeof Module!=="undefined"&&Module.FS&&document.getElementById("loading").style.display==="none"'))break;await delay(200)}await delay(500);
+ if(await evaluate('Module.FS.readFile("/kryon-apps/jungle/settings/language.txt",{encoding:"utf8"})')!=="es")throw Error('Language did not survive reload');
  if(diagnostics.length)throw Error(JSON.stringify(diagnostics));
- console.log('local browser test: website opened and all three game routes exercised at '+url);
+ console.log('local browser test: responsive books, vegetables, stalled audio, mobile swipes, counting keypad and accented story saves passed at '+url);
 }finally{if(socket)socket.close();browser.kill('SIGTERM');await new Promise(r=>{if(browser.exitCode!==null||browser.signalCode!==null)r();else browser.once('exit',r)});await new Promise(r=>server.close(r));await rm(profile,{recursive:true,force:true,maxRetries:20,retryDelay:100})}

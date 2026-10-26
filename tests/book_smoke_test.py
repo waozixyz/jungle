@@ -18,13 +18,13 @@ def main():
         data = Path(temporary)
         with Desktop(args.binary.resolve(), data) as desktop:
             desktop.capture('new-version-menu')
-            desktop.click(255, 51)
+            desktop.click(255, 12)
             desktop.key('1')
             desktop.wait_book('new-version-spanish-books')
             desktop.key('3')
             simple = desktop.capture('new-version-spanish-simple')
             desktop.key('Escape')
-            desktop.click(225, 160)
+            desktop.key("d")
             desktop.key('3')
             spelling = desktop.capture('new-version-spanish-spelling')
             assert ImageChops.difference(simple.crop((168, 103, 298, 125)), spelling.crop((168, 103, 298, 125))).getbbox(), 'Mode did not change the spelling line'
@@ -34,7 +34,7 @@ def main():
             desktop.key('Escape')
             desktop.key('Escape')
             desktop.wait_menu('new-version-language-menu')
-            desktop.click(155, 51)
+            desktop.click(155, 12)
             desktop.key('1')
             desktop.wait_book('new-version-german-books')
             desktop.key('2')
@@ -51,7 +51,7 @@ def main():
             assert not ImageChops.difference(continued, expected).getbbox(), 'The next book did not open automatically'
             assert (data / 'language.txt').read_text() == 'de'
             assert (data / 'games/jungle.book/mode.txt').read_text() == 'spelling'
-    print('local startup test: new language flags, nine books, Simple/Spelling modes and German/Spanish pages passed')
+    print('local startup test: new language flags, ten books, Simple/Spelling modes and German/Spanish pages passed')
 
 
 if __name__ == '__main__': main()

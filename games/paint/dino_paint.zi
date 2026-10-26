@@ -562,6 +562,7 @@ ColorPicker :: () {
 }
 
 StoryView :: () {
+    AppKeyboard(true)
     DialogBack("Write your story", true)
     for row: cast(s32)0..STORY_LINES - 1 {
         BookBox(6, 28 + row * 18, STORY_COLUMNS * 8 + 4, 17, 0xf3ecdcff, 0xdacdb5ff, 2.0)
@@ -614,6 +615,7 @@ StoryView :: () {
     }
     done := BookButton(145, 234, 173, 64, 14, "Done")
     if done || key == KEY_ENTER || key == KEY_ESCAPE || view == MAIN {
+        AppKeyboard(false)
         view = MAIN
         unused SaveSlot()
     }

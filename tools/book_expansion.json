@@ -1,54 +1,620 @@
 {
   "extra": {
-    "jungle": ["gorilla", "hippo", "rhino", "snake", "bear"],
-    "garden": ["bee", "ant", "dragonfly", "spider", "grasshopper"],
-    "fruits": ["kiwi", "avocado", "blueberries"],
-    "farm": ["chick", "rooster", "llama", "alpaca", "calf", "lamb"],
-    "kitchen": ["spoon", "fork", "plate", "cup", "bowl", "teapot", "pan", "refrigerator"],
-    "bathroom": ["bathtub", "shower", "toilet", "sink", "soap", "towel", "toothbrush", "mirror"],
-    "bedroom": ["bed", "pillow", "blanket", "lamp", "wardrobe", "clock", "teddy", "book"],
-    "living-room": ["sofa", "chair", "table", "rug", "window", "door", "shelf", "cushion"],
-    "nature": ["sun", "moon", "cloud", "rain", "tree", "river", "mountain", "lake"]
+    "jungle": [
+      "gorilla",
+      "hippo",
+      "rhino",
+      "snake",
+      "bear"
+    ],
+    "garden": [
+      "bee",
+      "ant",
+      "dragonfly",
+      "spider",
+      "grasshopper"
+    ],
+    "fruits": [
+      "kiwi",
+      "avocado",
+      "blueberries"
+    ],
+    "farm": [
+      "chick",
+      "rooster",
+      "llama",
+      "alpaca",
+      "calf",
+      "lamb"
+    ],
+    "kitchen": [
+      "spoon",
+      "fork",
+      "plate",
+      "cup",
+      "bowl",
+      "teapot",
+      "pan",
+      "refrigerator"
+    ],
+    "bathroom": [
+      "bathtub",
+      "shower",
+      "toilet",
+      "sink",
+      "soap",
+      "towel",
+      "toothbrush",
+      "mirror"
+    ],
+    "bedroom": [
+      "bed",
+      "pillow",
+      "blanket",
+      "lamp",
+      "wardrobe",
+      "clock",
+      "teddy",
+      "book"
+    ],
+    "living-room": [
+      "sofa",
+      "chair",
+      "table",
+      "rug",
+      "window",
+      "door",
+      "shelf",
+      "cushion"
+    ],
+    "nature": [
+      "sun",
+      "moon",
+      "cloud",
+      "rain",
+      "tree",
+      "river",
+      "mountain",
+      "lake"
+    ],
+    "vegetables": [
+      "carrot",
+      "broccoli",
+      "tomato",
+      "potato",
+      "cucumber",
+      "pumpkin",
+      "pepper",
+      "onion",
+      "garlic",
+      "lettuce",
+      "cabbage",
+      "peas",
+      "corn",
+      "eggplant",
+      "beet",
+      "cauliflower"
+    ]
   },
   "titles": {
-    "jungle": ["Wild animals", "Wildtiere", "Animales salvajes"],
-    "garden": ["Garden", "Garten", "Jardín"],
-    "fruits": ["Fruits", "Früchte", "Frutas"],
-    "farm": ["Farm", "Bauernhof", "Granja"],
-    "kitchen": ["Kitchen", "Küche", "Cocina"],
-    "bathroom": ["Bathroom", "Badezimmer", "Baño"],
-    "bedroom": ["Bedroom", "Schlafzimmer", "Dormitorio"],
-    "living-room": ["Living room", "Wohnzimmer", "Sala de estar"],
-    "nature": ["Nature", "Natur", "Naturaleza"]
+    "jungle": [
+      "Wild animals",
+      "Wildtiere",
+      "Animales salvajes"
+    ],
+    "garden": [
+      "Garden",
+      "Garten",
+      "Jardín"
+    ],
+    "fruits": [
+      "Fruits",
+      "Früchte",
+      "Frutas"
+    ],
+    "farm": [
+      "Farm",
+      "Bauernhof",
+      "Granja"
+    ],
+    "kitchen": [
+      "Kitchen",
+      "Küche",
+      "Cocina"
+    ],
+    "bathroom": [
+      "Bathroom",
+      "Badezimmer",
+      "Baño"
+    ],
+    "bedroom": [
+      "Bedroom",
+      "Schlafzimmer",
+      "Dormitorio"
+    ],
+    "living-room": [
+      "Living room",
+      "Wohnzimmer",
+      "Sala de estar"
+    ],
+    "nature": [
+      "Nature",
+      "Natur",
+      "Naturaleza"
+    ],
+    "vegetables": [
+      "Vegetables",
+      "Gemüse",
+      "Verduras"
+    ]
   },
   "words": {
-    "gorilla": ["Gorilla", "Gorilla", "Gorila"], "hippo": ["Hippo", "Nilpferd", "Hipopótamo"],
-    "rhino": ["Rhino", "Nashorn", "Rinoceronte"], "snake": ["Snake", "Schlange", "Serpiente"], "bear": ["Bear", "Bär", "Oso"],
-    "bee": ["Bee", "Biene", "Abeja"], "ant": ["Ant", "Ameise", "Hormiga"], "dragonfly": ["Dragonfly", "Libelle", "Libélula"],
-    "spider": ["Spider", "Spinne", "Araña"], "grasshopper": ["Grasshopper", "Heuschrecke", "Saltamontes"],
-    "chick": ["Chick", "Küken", "Pollito"], "rooster": ["Rooster", "Hahn", "Gallo"], "llama": ["Llama", "Lama", "Llama"],
-    "alpaca": ["Alpaca", "Alpaka", "Alpaca"], "calf": ["Calf", "Kalb", "Ternero"], "lamb": ["Lamb", "Lamm", "Cordero"],
-    "kiwi": ["Kiwi", "Kiwi", "Kiwi"], "avocado": ["Avocado", "Avocado", "Aguacate"], "blueberries": ["Blueberries", "Blaubeeren", "Arándanos"],
-    "spoon": ["Spoon", "Löffel", "Cuchara"], "fork": ["Fork", "Gabel", "Tenedor"], "plate": ["Plate", "Teller", "Plato"],
-    "cup": ["Cup", "Tasse", "Taza"], "bowl": ["Bowl", "Schüssel", "Cuenco"], "teapot": ["Teapot", "Teekanne", "Tetera"],
-    "pan": ["Pan", "Pfanne", "Sartén"], "refrigerator": ["Refrigerator", "Kühlschrank", "Nevera"],
-    "bathtub": ["Bathtub", "Badewanne", "Bañera"], "shower": ["Shower", "Dusche", "Ducha"], "toilet": ["Toilet", "Toilette", "Inodoro"],
-    "sink": ["Sink", "Waschbecken", "Lavabo"], "soap": ["Soap", "Seife", "Jabón"], "towel": ["Towel", "Handtuch", "Toalla"],
-    "toothbrush": ["Toothbrush", "Zahnbürste", "Cepillo de dientes"], "mirror": ["Mirror", "Spiegel", "Espejo"],
-    "bed": ["Bed", "Bett", "Cama"], "pillow": ["Pillow", "Kopfkissen", "Almohada"], "blanket": ["Blanket", "Decke", "Manta"],
-    "lamp": ["Lamp", "Lampe", "Lámpara"], "wardrobe": ["Wardrobe", "Kleiderschrank", "Armario"], "clock": ["Clock", "Uhr", "Reloj"],
-    "teddy": ["Teddy bear", "Teddybär", "Osito de peluche"], "book": ["Book", "Buch", "Libro"],
-    "sofa": ["Sofa", "Sofa", "Sofá"], "chair": ["Chair", "Stuhl", "Silla"], "table": ["Table", "Tisch", "Mesa"],
-    "rug": ["Rug", "Teppich", "Alfombra"], "window": ["Window", "Fenster", "Ventana"], "door": ["Door", "Tür", "Puerta"],
-    "shelf": ["Shelf", "Regal", "Estantería"], "cushion": ["Cushion", "Sofakissen", "Cojín"],
-    "sun": ["Sun", "Sonne", "Sol"], "moon": ["Moon", "Mond", "Luna"], "cloud": ["Cloud", "Wolke", "Nube"],
-    "rain": ["Rain", "Regen", "Lluvia"], "tree": ["Tree", "Baum", "Árbol"], "river": ["River", "Fluss", "Río"],
-    "mountain": ["Mountain", "Berg", "Montaña"], "lake": ["Lake", "See", "Lago"]
+    "gorilla": [
+      "Gorilla",
+      "Gorilla",
+      "Gorila"
+    ],
+    "hippo": [
+      "Hippo",
+      "Nilpferd",
+      "Hipopótamo"
+    ],
+    "rhino": [
+      "Rhino",
+      "Nashorn",
+      "Rinoceronte"
+    ],
+    "snake": [
+      "Snake",
+      "Schlange",
+      "Serpiente"
+    ],
+    "bear": [
+      "Bear",
+      "Bär",
+      "Oso"
+    ],
+    "bee": [
+      "Bee",
+      "Biene",
+      "Abeja"
+    ],
+    "ant": [
+      "Ant",
+      "Ameise",
+      "Hormiga"
+    ],
+    "dragonfly": [
+      "Dragonfly",
+      "Libelle",
+      "Libélula"
+    ],
+    "spider": [
+      "Spider",
+      "Spinne",
+      "Araña"
+    ],
+    "grasshopper": [
+      "Grasshopper",
+      "Heuschrecke",
+      "Saltamontes"
+    ],
+    "chick": [
+      "Chick",
+      "Küken",
+      "Pollito"
+    ],
+    "rooster": [
+      "Rooster",
+      "Hahn",
+      "Gallo"
+    ],
+    "llama": [
+      "Llama",
+      "Lama",
+      "Llama"
+    ],
+    "alpaca": [
+      "Alpaca",
+      "Alpaka",
+      "Alpaca"
+    ],
+    "calf": [
+      "Calf",
+      "Kalb",
+      "Ternero"
+    ],
+    "lamb": [
+      "Lamb",
+      "Lamm",
+      "Cordero"
+    ],
+    "kiwi": [
+      "Kiwi",
+      "Kiwi",
+      "Kiwi"
+    ],
+    "avocado": [
+      "Avocado",
+      "Avocado",
+      "Aguacate"
+    ],
+    "blueberries": [
+      "Blueberries",
+      "Blaubeeren",
+      "Arándanos"
+    ],
+    "spoon": [
+      "Spoon",
+      "Löffel",
+      "Cuchara"
+    ],
+    "fork": [
+      "Fork",
+      "Gabel",
+      "Tenedor"
+    ],
+    "plate": [
+      "Plate",
+      "Teller",
+      "Plato"
+    ],
+    "cup": [
+      "Cup",
+      "Tasse",
+      "Taza"
+    ],
+    "bowl": [
+      "Bowl",
+      "Schüssel",
+      "Cuenco"
+    ],
+    "teapot": [
+      "Teapot",
+      "Teekanne",
+      "Tetera"
+    ],
+    "pan": [
+      "Pan",
+      "Pfanne",
+      "Sartén"
+    ],
+    "refrigerator": [
+      "Refrigerator",
+      "Kühlschrank",
+      "Nevera"
+    ],
+    "bathtub": [
+      "Bathtub",
+      "Badewanne",
+      "Bañera"
+    ],
+    "shower": [
+      "Shower",
+      "Dusche",
+      "Ducha"
+    ],
+    "toilet": [
+      "Toilet",
+      "Toilette",
+      "Inodoro"
+    ],
+    "sink": [
+      "Sink",
+      "Waschbecken",
+      "Lavabo"
+    ],
+    "soap": [
+      "Soap",
+      "Seife",
+      "Jabón"
+    ],
+    "towel": [
+      "Towel",
+      "Handtuch",
+      "Toalla"
+    ],
+    "toothbrush": [
+      "Toothbrush",
+      "Zahnbürste",
+      "Cepillo de dientes"
+    ],
+    "mirror": [
+      "Mirror",
+      "Spiegel",
+      "Espejo"
+    ],
+    "bed": [
+      "Bed",
+      "Bett",
+      "Cama"
+    ],
+    "pillow": [
+      "Pillow",
+      "Kopfkissen",
+      "Almohada"
+    ],
+    "blanket": [
+      "Blanket",
+      "Decke",
+      "Manta"
+    ],
+    "lamp": [
+      "Lamp",
+      "Lampe",
+      "Lámpara"
+    ],
+    "wardrobe": [
+      "Wardrobe",
+      "Kleiderschrank",
+      "Armario"
+    ],
+    "clock": [
+      "Clock",
+      "Uhr",
+      "Reloj"
+    ],
+    "teddy": [
+      "Teddy bear",
+      "Teddybär",
+      "Osito de peluche"
+    ],
+    "book": [
+      "Book",
+      "Buch",
+      "Libro"
+    ],
+    "sofa": [
+      "Sofa",
+      "Sofa",
+      "Sofá"
+    ],
+    "chair": [
+      "Chair",
+      "Stuhl",
+      "Silla"
+    ],
+    "table": [
+      "Table",
+      "Tisch",
+      "Mesa"
+    ],
+    "rug": [
+      "Rug",
+      "Teppich",
+      "Alfombra"
+    ],
+    "window": [
+      "Window",
+      "Fenster",
+      "Ventana"
+    ],
+    "door": [
+      "Door",
+      "Tür",
+      "Puerta"
+    ],
+    "shelf": [
+      "Shelf",
+      "Regal",
+      "Estantería"
+    ],
+    "cushion": [
+      "Cushion",
+      "Sofakissen",
+      "Cojín"
+    ],
+    "sun": [
+      "Sun",
+      "Sonne",
+      "Sol"
+    ],
+    "moon": [
+      "Moon",
+      "Mond",
+      "Luna"
+    ],
+    "cloud": [
+      "Cloud",
+      "Wolke",
+      "Nube"
+    ],
+    "rain": [
+      "Rain",
+      "Regen",
+      "Lluvia"
+    ],
+    "tree": [
+      "Tree",
+      "Baum",
+      "Árbol"
+    ],
+    "river": [
+      "River",
+      "Fluss",
+      "Río"
+    ],
+    "mountain": [
+      "Mountain",
+      "Berg",
+      "Montaña"
+    ],
+    "lake": [
+      "Lake",
+      "See",
+      "Lago"
+    ],
+    "carrot": [
+      "Carrot",
+      "Karotte",
+      "Zanahoria"
+    ],
+    "broccoli": [
+      "Broccoli",
+      "Brokkoli",
+      "Brócoli"
+    ],
+    "tomato": [
+      "Tomato",
+      "Tomate",
+      "Tomate"
+    ],
+    "potato": [
+      "Potato",
+      "Kartoffel",
+      "Patata"
+    ],
+    "cucumber": [
+      "Cucumber",
+      "Gurke",
+      "Pepino"
+    ],
+    "pumpkin": [
+      "Pumpkin",
+      "Kürbis",
+      "Calabaza"
+    ],
+    "pepper": [
+      "Pepper",
+      "Paprika",
+      "Pimiento"
+    ],
+    "onion": [
+      "Onion",
+      "Zwiebel",
+      "Cebolla"
+    ],
+    "garlic": [
+      "Garlic",
+      "Knoblauch",
+      "Ajo"
+    ],
+    "lettuce": [
+      "Lettuce",
+      "Salat",
+      "Lechuga"
+    ],
+    "cabbage": [
+      "Cabbage",
+      "Kohl",
+      "Col"
+    ],
+    "peas": [
+      "Peas",
+      "Erbsen",
+      "Guisantes"
+    ],
+    "corn": [
+      "Corn",
+      "Mais",
+      "Maíz"
+    ],
+    "eggplant": [
+      "Eggplant",
+      "Aubergine",
+      "Berenjena"
+    ],
+    "beet": [
+      "Beetroot",
+      "Rote Bete",
+      "Remolacha"
+    ],
+    "cauliflower": [
+      "Cauliflower",
+      "Blumenkohl",
+      "Coliflor"
+    ]
   },
   "atlases": {
-    "expanded-animals": ["gorilla", "hippo", "rhino", "snake", "bear", "bee", "ant", "dragonfly", "spider", "grasshopper", "chick", "rooster", "llama", "alpaca", "calf", "lamb"],
-    "house-kitchen-bathroom": ["spoon", "fork", "plate", "cup", "bowl", "teapot", "pan", "refrigerator", "bathtub", "shower", "toilet", "sink", "soap", "towel", "toothbrush", "mirror"],
-    "house-bedroom-living": ["bed", "pillow", "blanket", "lamp", "wardrobe", "clock", "teddy", "book", "sofa", "chair", "table", "rug", "window", "door", "shelf", "cushion"],
-    "nature-fruits-covers": ["sun", "moon", "cloud", "rain", "tree", "river", "mountain", "lake", "kiwi", "avocado", "blueberries", "cover-kitchen", "cover-bathroom", "cover-bedroom", "cover-living-room", "cover-nature"]
+    "expanded-animals": [
+      "gorilla",
+      "hippo",
+      "rhino",
+      "snake",
+      "bear",
+      "bee",
+      "ant",
+      "dragonfly",
+      "spider",
+      "grasshopper",
+      "chick",
+      "rooster",
+      "llama",
+      "alpaca",
+      "calf",
+      "lamb"
+    ],
+    "house-kitchen-bathroom": [
+      "spoon",
+      "fork",
+      "plate",
+      "cup",
+      "bowl",
+      "teapot",
+      "pan",
+      "refrigerator",
+      "bathtub",
+      "shower",
+      "toilet",
+      "sink",
+      "soap",
+      "towel",
+      "toothbrush",
+      "mirror"
+    ],
+    "house-bedroom-living": [
+      "bed",
+      "pillow",
+      "blanket",
+      "lamp",
+      "wardrobe",
+      "clock",
+      "teddy",
+      "book",
+      "sofa",
+      "chair",
+      "table",
+      "rug",
+      "window",
+      "door",
+      "shelf",
+      "cushion"
+    ],
+    "nature-fruits-covers": [
+      "sun",
+      "moon",
+      "cloud",
+      "rain",
+      "tree",
+      "river",
+      "mountain",
+      "lake",
+      "kiwi",
+      "avocado",
+      "blueberries",
+      "cover-kitchen",
+      "cover-bathroom",
+      "cover-bedroom",
+      "cover-living-room",
+      "cover-nature"
+    ],
+    "picture-book-vegetables": [
+      "carrot",
+      "broccoli",
+      "tomato",
+      "potato",
+      "cucumber",
+      "pumpkin",
+      "pepper",
+      "onion",
+      "garlic",
+      "lettuce",
+      "cabbage",
+      "peas",
+      "corn",
+      "eggplant",
+      "beet",
+      "cauliflower"
+    ]
   }
 }

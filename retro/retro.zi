@@ -71,14 +71,12 @@ RetroBegin :: (session: Session, bounds: Rectangle, font: string, now: float64, 
     across := bounds.width / cast(float32)SCREEN_WIDTH
     down := bounds.height / cast(float32)SCREEN_HEIGHT
     fit := ifx across < down then across else down
-    scale := cast(float32)cast(s32)fit
-    // A window smaller than the screen still shows all of it.
-    if scale < 1.0 { scale = fit }
+    scale := fit
     retro = Retro.{.session = session, .scale = scale, .font = font, .now = now, .key = key,
         .glyph_height = glyph_height, .latin_font = latin_font,
         .x = bounds.x + cast(float32)cast(s32)((bounds.width - scale * cast(float32)SCREEN_WIDTH) / 2.0),
         .y = bounds.y + cast(float32)cast(s32)((bounds.height - scale * cast(float32)SCREEN_HEIGHT) / 2.0)}
-    unused Box(session, BoxProps.{.bounds = bounds, .fill = RetroColor(BLACK)})
+    unused Box(session, BoxProps.{.bounds = bounds, .fill = ColorFromPacked(0xe3ece4ff)})
     RetroFill(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, background)
 }
 

@@ -75,6 +75,20 @@ WebAsset :: (name: string) -> string {
     return name
 }
 
+#program_export
+WebKeyboard :: (visible: bool) {
+    scope := WebScope()
+    defer WebEnd(scope)
+    WebSet(WebModule, WebName("jungleKeyboardWanted"), WebBool(visible))
+    document := WebGetObject(WebGlobal, WebName("document"))
+    input := WebAsObject(WebCall1(document, WebName("getElementById"), WebText("mobile-input")))
+    if input != 0 {
+        WebSet(input, WebName("disabled"), WebBool(!visible))
+        unused WebCall2(input, WebName("setAttribute"), WebText("aria-label"), WebText(Tr("Write your story")))
+        if !visible { unused WebCall0(input, WebName("blur")) }
+    }
+}
+
 StopAudio :: () {
     if web_audio == 0 { return }
     scope := WebScope()
@@ -190,6 +204,7 @@ WebService :: (name: string, request: string) -> string {
 }
 
 OpenGame :: (index: s32) {
+    WebKeyboard(false)
     selected = index
     active_game = index
     Runner.canvas_app_mode = APP_IDENTIFY

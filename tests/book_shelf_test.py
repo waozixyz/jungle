@@ -1,24 +1,32 @@
-"""Verify the larger native window and grouped scrolling on an owned display."""
+"""Verify book covers and whole illustrations across actual native window sizes."""
 from pathlib import Path
 import tempfile
+import time
 from PIL import ImageChops
 from runtime_test import Desktop, ROOT
 
-
-with tempfile.TemporaryDirectory(prefix='jungle-shelf-') as directory:
-    with Desktop(ROOT / 'build/app/jungle', Path(directory), screen_size='1600x1000') as desktop:
-        desktop.capture('larger-window-menu')
-        assert desktop.scale == 4, 'Default window did not grow to 1280 by 800'
+with tempfile.TemporaryDirectory(prefix='jungle-responsive-') as directory:
+    with Desktop(ROOT / 'build/app/jungle', Path(directory), screen_size='1600x1100') as desktop:
+        desktop.capture('responsive-native-menu')
         desktop.key('1')
-        top = desktop.wait_book('shelf-top')
-        for _ in range(8):
-            desktop.click(225, 120, button=5)
-        bottom = desktop.capture('shelf-bottom')
-        assert ImageChops.difference(top, bottom).getbbox(), 'Wheel did not scroll the book shelf'
-        desktop.click(225, 123)
-        selected = desktop.capture('shelf-room')
-        desktop.key('Escape')
-        desktop.key('8')
-        direct = desktop.capture('shelf-room-direct')
-        assert not ImageChops.difference(selected, direct).getbbox(), 'Clipped scroll input opened the wrong book'
-print('local UI test: larger default window, grouped shelf, wheel scrolling and room selection passed')
+        desktop.wait_book('responsive-native-books')
+        for width,height in [(1280,800),(1000,700),(375,812),(844,390)]:
+            desktop.resize(width,height)
+            shelf=desktop.capture_actual(f'responsive-native-shelf-{width}')
+            assert shelf.size==(width,height), 'Window resize did not reach the game viewport'
+            assert shelf.getpixel((0,0))==(255,252,243), 'The responsive book has a black letterbox'
+            desktop.key('0')
+            first=desktop.capture_actual(f'responsive-native-vegetables-{width}')
+            padding=12 if width<600 else 24
+            desktop.click_actual(width-padding-28,height-padding-24)
+            second=desktop.capture_actual(f'responsive-native-next-{width}')
+            assert ImageChops.difference(first,second).getbbox(), 'Next page ignored a resized pointer'
+            desktop.click_actual(padding+28,height-padding-24)
+            restored=desktop.capture_actual(f'responsive-native-back-{width}')
+            assert not ImageChops.difference(first,restored).getbbox(), 'Back did not restore the full picture'
+            desktop.key('Escape')
+        desktop.resize(375,812)
+        for _ in range(8):desktop.click_actual(180,350,button=5)
+        bottom=desktop.capture_actual('responsive-native-scroll-bottom')
+        assert bottom.size==(375,812)
+print('local UI test: desktop and phone-shaped native resizing, whole vegetable pages, navigation and scrolling passed')

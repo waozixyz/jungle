@@ -3,8 +3,7 @@
 Play at **https://jungle.waozi.xyz**.
 
 Gentle learning games for young children, with watercolor illustrations,
-cream book pages, warm colors and quiet feedback. Play with the keyboard or
-mouse. Made with [Ziran](https://github.com/ziranlang/ziran) and
+cream book pages, warm colors and quiet feedback. Play with the keyboard, mouse or touch. Made with [Ziran](https://github.com/ziranlang/ziran) and
 [Kryon](https://github.com/kryonlabs/kryon).
 
 Jungle Academy is a menu. Each game is its own `.zx` bundle in `games/`, which the
@@ -17,11 +16,11 @@ paper, warm frame, native lettering and watercolor game covers. All three games'
 controls are translated. Picture Book has local narration.
 Accented German and Spanish letters work in Dino stories, saves and exports.
 
-**Picture Book** has nine organized books: Wild animals (15 pictures), Garden
+**Picture Book** has ten organized books: Wild animals (15 pictures), Garden
 (10), Fruits (16), Farm (20), Kitchen (8), Bathroom (8), Bedroom (8),
-Living room (8), and Nature (8). Browse the scrollable shelf, grouped into Animals and nature, Food, and At home. Choose **Simple** to hear each word once with
+Living room (8), Nature (8), and Vegetables (16). Browse large covers in a responsive scrollable shelf. Portrait pages stack the full illustration and word; landscape pages place them side by side. Choose **Simple** to hear each word once with
 its picture, or **Spelling** to hear the word, its letters and the word again.
-The selected mode is remembered. Every one of the 101 pictures has names and
+The selected mode is remembered. Every one of the 117 pictures has names and
 both kinds of narration in English, German and Spanish, including correctly
 spaced accented letters. Pictures sit on cream pages in a softly bound book.
 Simple pages stay open at least six seconds; spelling pages at least twelve.
@@ -33,8 +32,8 @@ after its final picture and suggests another book. After a short finish screen,
 the next book opens automatically; All books returns to the book choices. Back from the first picture stays there.
 
 **Animal Counting** pairs watercolor animals with a clean answer card on
-cream paper. Its counting rules follow Animal Math. The pictures sit in
-eighteen fixed places, the levels climb
+cream paper, with a touch number pad below the animals on phones or beside
+them on wider screens. Its counting rules follow Animal Math. The levels climb
 4, 5, 6, 9, 12 and 18, six right answers move up, six misses move
 back down, the same number never comes twice, and every eighth right
 answer brings one of the original praises, from GOOD JOB to AWESOME.
