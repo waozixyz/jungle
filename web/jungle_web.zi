@@ -17,6 +17,7 @@
 Runner :: #import "canvas_app_run";
 Book :: #import, file "../games/book/jungle_book.zi";
 ABC :: #import, file "../games/abc/jungle_abc.zi";
+Numbers :: #import, file "../games/numbers/jungle_numbers.zi";
 Counting :: #import, file "../games/animal/animal_count.zi";
 Paint :: #import, file "../games/paint/dino_paint.zi";
 #import, file "../host/jungle_menu.zi";
@@ -26,9 +27,10 @@ Paint :: #import, file "../games/paint/dino_paint.zi";
 #import, file "../games/paint/paint_picture.zi";
 #import, file "../retro/language.zi";
 
-web_games: [4]Game = .[
+web_games: [5]Game = .[
     Game.{.title = "Picture Book", .about = "Pictures and words", .age = 2, .icon = "assets/jungle/covers/book.png"},
     Game.{.title = "ABC Book", .about = "Letters and sounds", .age = 3, .icon = "assets/jungle/covers/abc.png"},
+    Game.{.title = "123 Book", .about = "Numbers and quantities", .age = 3, .icon = "assets/jungle/covers/numbers.png"},
     Game.{.title = "Animal Counting", .about = "Count the animals", .age = 4, .icon = "assets/jungle/covers/count.png"},
     Game.{.title = "Coloring Book", .about = "Draw and color", .age = 5, .icon = "assets/jungle/covers/paint.png"},
 ];
@@ -48,15 +50,17 @@ export_pixels: [CANVAS_PIXELS]u8;
 GamePrefix :: () -> string {
     if active_game == 0 { return "jungle.book/" }
     if active_game == 1 { return "jungle.abc/" }
-    if active_game == 2 { return "jungle.animals/" }
+    if active_game == 2 { return "jungle.numbers/" }
+    if active_game == 3 { return "jungle.animals/" }
     return "jungle.paint/"
 }
 
 RunGame :: () -> s32 {
     if active_game == 0 { return Book.GameMain() }
     if active_game == 1 { return ABC.GameMain() }
-    if active_game == 2 { return Counting.GameMain() }
-    if active_game == 3 { return Paint.GameMain() }
+    if active_game == 2 { return Numbers.GameMain() }
+    if active_game == 3 { return Counting.GameMain() }
+    if active_game == 4 { return Paint.GameMain() }
     return 0
 }
 

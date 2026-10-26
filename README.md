@@ -39,6 +39,17 @@ picture and shows the next book on the shelf, which opens by itself after a
 few seconds; All books returns to the book choices. Back from the first
 picture stays there.
 
+**123 Book** is the numbers twin of ABC Book. **Learn the numbers** shows each
+numeral from one to ten with its word and that many watercolor animals,
+packed like Animal Counting's rows; the strip along the bottom reaches every
+number and a new animal greets each visit. **Find the number** asks how many
+animals there are — with the spoken question — and follows the same gentle
+ladder: six right answers move up, six misses move back, the same number
+never comes twice, and every eighth right answer brings one of the original
+praises. Level one counts to three among three numeral tiles; later levels
+reach ten, add look-alike numerals like 6 and 9, then six tiles. Progress is
+kept in the game's own save folder.
+
 **Animal Counting** pairs watercolor animals with a clean answer card on
 cream paper, with a touch number pad below the animals on phones or beside
 them on wider screens. Its counting rules follow Animal Math. The levels climb

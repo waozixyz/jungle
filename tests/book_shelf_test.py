@@ -5,6 +5,8 @@ import time
 from PIL import ImageChops
 from runtime_test import Desktop, ROOT
 
+GAMES = len([line for line in (ROOT / 'games/catalog.txt').read_text().splitlines() if line.strip()])
+
 with tempfile.TemporaryDirectory(prefix='jungle-responsive-') as directory:
     with Desktop(ROOT / 'build/app/jungle', Path(directory), screen_size='1600x1300') as desktop:
         desktop.capture('responsive-native-menu')
@@ -13,7 +15,7 @@ with tempfile.TemporaryDirectory(prefix='jungle-responsive-') as directory:
             menu=desktop.capture_actual(f'menu-thumbnail-bounds-{mw}')
             fit=min(mw/320,mh/200); portrait=mh>mw
             # Landscape rows squeeze below 35 once four games share the list.
-            rh=(int(mh/fit)-164)//4 if portrait else min(35,(int(mh/fit)-95)//4)
+            rh=(int(mh/fit)-164)//GAMES if portrait else min(35,(int(mh/fit)-95)//GAMES)
             start=112 if portrait else 67
             left=(mw-320*fit)/2
             gap=menu.crop((round(left+26*fit),round((start+rh-1)*fit),round(left+90*fit),round((start+rh-1)*fit)+1))

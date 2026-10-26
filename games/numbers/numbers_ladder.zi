@@ -1,0 +1,96 @@
+// The find-the-number ladder, following Animal Counting's rules: six right
+// answers move up, six misses move back, the same number never comes twice,
+// and the eighth right answer earns one of the original praises.
+MAX_LEVEL :: 5
+RIGHT_TO_MOVE :: 6
+MISS_TO_MOVE :: 6
+PRAISE_COUNT :: 8
+// The highest number asked, then how many numeral tiles are shown, per level.
+level_most: [5]s32 = .[3, 5, 9, 10, 10];
+choice_counts: [5]s32 = .[3, 4, 4, 6, 6];
+level: s32 = 1;
+count: s32;
+right_run: s32;
+miss_run: s32;
+target: s32;
+last_target: s32 = -1;
+choices: [8]s32;
+choice_count: s32;
+random_state: u32 = 1;
+
+RandomNext :: () -> u32 {
+    value := random_state
+    if value == 0 { value = 2463534242 }
+    value ^= value << 13
+    value ^= value >> 17
+    value ^= value << 5
+    random_state = value
+    return value
+}
+
+RandomNumber :: (limit: s32) -> s32 {
+    return cast(s32)(RandomNext() % cast(u32)100 % cast(u32)limit) + 1
+}
+
+HasChoice :: (number: s32) -> bool {
+    for at: cast(s32)0..choice_count - 1 {
+        if choices[at] == number { return true }
+    }
+    return false
+}
+
+// mate is a look-alike numeral (6 and 9, 1 and 7, 3 and 8) to prefer among
+// the distractors, or -1.
+NextQuestion :: (mate: s32) {
+    most := level_most[level - 1]
+    tiles := choice_counts[level - 1]
+    if tiles > 8 { tiles = 8 }
+    target = RandomNumber(most)
+    while target == last_target {
+        target = RandomNumber(most)
+    }
+    last_target = target
+    choice_count = 0
+    choices[choice_count] = target
+    choice_count += 1
+    if mate >= 1 && mate <= level_most[level - 1] && !HasChoice(mate) && choice_count < tiles {
+        choices[choice_count] = mate
+        choice_count += 1
+    }
+    guard: s32 = 0
+    while choice_count < tiles && guard < 256 {
+        guard += 1
+        number := cast(s32)(RandomNext() % cast(u32)level_most[level - 1]) + 1
+        if !HasChoice(number) {
+            choices[choice_count] = number
+            choice_count += 1
+        }
+    }
+    for at: cast(s32)1..choice_count - 1 {
+        other := cast(s32)(RandomNext() % cast(u32)(at + 1))
+        saved := choices[at]
+        choices[at] = choices[other]
+        choices[other] = saved
+    }
+}
+
+// A wrong answer keeps the same question, as Animal Counting does.
+AnswerNumber :: (number: s32) -> bool {
+    if number == target {
+        count += 1
+        right_run += 1
+        if right_run >= RIGHT_TO_MOVE {
+            right_run = 0
+            miss_run = 0
+            if level < MAX_LEVEL { level += 1 }
+        }
+        return true
+    }
+    miss_run += 1
+    if miss_run >= MISS_TO_MOVE {
+        right_run = 0
+        miss_run = 0
+        if level > 1 { level -= 1 }
+    }
+    return false
+}
