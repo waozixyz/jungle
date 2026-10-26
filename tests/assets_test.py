@@ -47,6 +47,12 @@ def main():
     for path in sorted((ROOT / "assets/jungle-book/previews").glob("*.png")):
         with Image.open(path) as preview:
             assert preview.size == (420, 420) and preview.mode == "RGBA"
+    backgrounds=ROOT/'assets/jungle-book/backgrounds'
+    assert {p.stem for p in backgrounds.glob('*.png')} == {'jungle','garden','farm','food','family','body','kitchen','bathroom','bedroom','living-room','nature'}
+    for path in backgrounds.glob('*.png'):
+        with Image.open(path) as background:
+            assert background.size==(420,420) and background.mode=='RGBA'
+            assert len(background.getcolors(420*420) or [])>1000, path
     for language in LANGUAGES:
         for simple in (True, False):
             for name in NAMES:

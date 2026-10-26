@@ -48,9 +48,17 @@ try{
  await swipe(45,350,320,350);const swipedBack=await command('Page.captureScreenshot',{format:'png'});if(swipedBack.result.data!==phoneSecond)throw Error('Reverse touch swipe lost its page');
  holdAudio=false;for(const requestId of pausedAudio)await command('Fetch.continueRequest',{requestId});await command('Fetch.disable');
  await pixelClick(195,791,true);await shot('books-phone');
- await pixelClick(195,730,true);const fromCover=await shot('vegetables-cover-touch');await pixelClick(195,791,true);await key('0','Digit0');const directCover=await command('Page.captureScreenshot',{format:'png'});if(fromCover!==directCover.result.data)throw Error('Vegetables cover opened the wrong book');await pixelClick(195,791,true);
+ await pixelClick(195,343,true);const fromCover=await shot('vegetables-cover-touch');await pixelClick(195,791,true);await key('0','Digit0');const directCover=await command('Page.captureScreenshot',{format:'png'});if(fromCover!==directCover.result.data)throw Error('Vegetables cover opened the wrong book');await pixelClick(195,791,true);
  await swipe(90,620,90,160);await shot('books-touch-scroll');
  for(const [w,h,mobile] of [[320,568,true],[844,390,true],[768,1024,true],[1920,1080,false],[390,844,true]]){await resize(w,h,mobile);await shot('shelf-'+w+'-'+h)}
+ await pixelClick(280,159,true);await shot('family-tab-phone');await pixelClick(195,239,true);await delay(500);await shot('family-book-phone');if(!await evaluate('Module.FS.analyzePath("/assets/jungle-book/items/mother.png").exists'))throw Error('Family book did not open');await pixelClick(195,791,true);await pixelClick(195,343,true);await delay(500);await shot('body-parts-phone');
+ if(!await evaluate('Module.FS.analyzePath("/assets/jungle-book/items/head.png").exists'))throw Error('Body Parts book did not open');
+ await pixelClick(195,791,true);await pixelClick(280,107,true);
+ for(const [name,y,image] of [['breakfast',447,'bread'],['lunch',551,'sandwich'],['dinner',655,'roast_chicken']]){
+  await pixelClick(195,y,true);await delay(500);await shot(name+'-phone');
+  if(!await evaluate('Module.FS.analyzePath("/assets/jungle-book/items/'+image+'.png").exists'))throw Error(name+' book did not open');
+  await pixelClick(195,791,true);
+ }
  await pixelClick(34,28,true);await shot('restored-menu-phone');await pixelClick(325,102,true);if(await evaluate('Module.FS.readFile("/kryon-apps/jungle/settings/language.txt",{encoding:"utf8"})')!=="es")throw Error('Spanish flag did not persist');
  await pixelClick(195,420,true);await shot('counting-phone');
  let counted=false;for(let n=1;n<=4;n++){
@@ -73,5 +81,5 @@ try{
  await delay(1200);await command('Page.reload');await delay(500);const reloaded=Date.now()+30000;while(Date.now()<reloaded){if(await evaluate('typeof Module!=="undefined"&&Module.FS&&document.getElementById("loading").style.display==="none"'))break;await delay(200)}await delay(500);
  if(await evaluate('Module.FS.readFile("/kryon-apps/jungle/settings/language.txt",{encoding:"utf8"})')!=="es")throw Error('Language did not survive reload');
  if(diagnostics.length)throw Error(JSON.stringify(diagnostics));
- console.log('local browser test: responsive books, vegetables, stalled audio, mobile swipes, counting keypad and accented story saves passed at '+url);
+ console.log('local browser test: category tabs, Family/Body Parts/meal books, layered backgrounds, touch controls, stencil categories and accented story saves passed at '+url);
 }finally{if(socket)socket.close();browser.kill('SIGTERM');await new Promise(r=>{if(browser.exitCode!==null||browser.signalCode!==null)r();else browser.once('exit',r)});await new Promise(r=>server.close(r));await rm(profile,{recursive:true,force:true,maxRetries:20,retryDelay:100})}
