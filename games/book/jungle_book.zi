@@ -1,7 +1,7 @@
 #import, file "../../retro/language.zi";
-// Picture Book: a category-first book that turns by itself. Each page shows
-// one watercolor illustration and its word, with optional spelling. Narration finishes
-// before the next page; arrows, Enter or a click also turn pages.
+// Picture Book: a category-first book that turns by itself. Each page is one
+// watercolor scene with its word, and optional spelling, on top. Narration
+// finishes before the next page; arrows, Enter, a tap or a swipe also turn pages.
 #import "app_context"
 #import "app_protocol"
 #import "geometry"
@@ -153,11 +153,6 @@ ResponsiveBook :: (bounds: Rectangle) {
     if shelf_view_height < 80 { shelf_view_height = 80 }
 }
 
-BookIllustration :: (index: s32, path: string, x: s32, y: s32, width: s32, height: s32) {
-    BookPicture(category_backdrops[index], x, y, width, height)
-    BookPicture(path, x, y, width, height)
-}
-
 BookShelf :: () {
     handled := false
     tab_gap: s32 = 8
@@ -194,7 +189,7 @@ BookShelf :: () {
             BookBox(x, y, shelf_card_width, shelf_card_height, ifx selected then cast(u32)0xe5eee1ff else cast(u32)0xf7f1e3ff,
                 ifx selected then cast(u32)0x2e6956ff else cast(u32)0xdacdb5ff, 9.0)
             picture := shelf_card_height - 14
-            BookIllustration(index, category_previews[index], x + 7, y + 7, picture, picture)
+            BookPicture(category_previews[index], x + 7, y + 7, picture, picture)
             BookText(x + picture + 14, y + shelf_card_height / 2 - 28, shelf_card_width - picture - 24, 32, category_names[index], 24, TextAlign.TextAlignStart)
             count_text: Vec(u8)
             BuilderPrint(*count_text, "% %", category_counts[index], Tr("pages"))
@@ -227,67 +222,103 @@ BookShelf :: () {
     if retro.key == KEY_ESCAPE { GameHome() }
 }
 
+// The scenes fade into this paper, so a page reaches every edge of the screen.
+PagePaper :: () { BookBox(0, 0, book_width, book_height, 0xfcf2d4ff) }
+
+// A whole scene as large as the page allows; its faded edges meet the paper,
+// so nothing of the picture is cut off.
+SceneRect :: () -> (x: s32, y: s32, size: s32) {
+    size := ifx book_width < book_height then book_width else book_height
+    return (book_width - size) / 2, (book_height - size) / 2, size
+}
+
+// Books follow the shelf, so the next book is the one beside it on the shelf.
+NextCategory :: () -> s32 {
+    for slot: cast(s32)0..CATEGORY_COUNT - 1 {
+        if shelf_order[slot] == category { return shelf_order[(slot + 1) % CATEGORY_COUNT] }
+    }
+    return (category + 1) % CATEGORY_COUNT
+}
+
+FINISHED_SECONDS :: 8.0
+
 FinishedBook :: () {
-    next_category := (category + 1) % CATEGORY_COUNT
-    size := book_width - book_padding * 2
-    if size > book_height - 160 { size = book_height - 160 }
-    if size < 80 { size = 80 }
-    BookIllustration(next_category, category_previews[next_category], (book_width - size) / 2, book_padding, size, size)
-    BookText(book_padding, book_padding + size + 8, book_width - book_padding * 2, 36, category_names[next_category], 25)
-    footer := book_height - book_padding - 48
-    width := (book_width - book_padding * 2 - book_gap) / 2
-    all_books := TouchButton(40, book_padding, footer, width, 48, "All books")
-    next_book := TouchButton(41, book_padding + width + book_gap, footer, width, 48, "Read this book", true)
+    next_category := NextCategory()
+    landscape := book_width > book_height
+    PagePaper()
+    BookText(book_padding, book_padding / 2, book_width - book_padding * 2, 48, "Book finished", 30)
+    top := book_padding / 2 + 56
+    bottom := book_height - book_padding
+    cover: s32
+    cover_x: s32
+    cover_y: s32
+    text_x: s32
+    text_y: s32
+    text_width: s32
+    if landscape {
+        cover = bottom - top
+        if cover > book_width / 2 - book_padding * 2 { cover = book_width / 2 - book_padding * 2 }
+        cover_x = book_width / 2 - cover - book_gap
+        cover_y = top + (bottom - top - cover) / 2
+        text_x = book_width / 2 + book_gap
+        text_width = book_width / 2 - book_padding - book_gap
+        if text_width > 420 { text_width = 420 }
+        text_y = top + (bottom - top) / 2 - 104
+    } else {
+        cover = book_width - book_padding * 2
+        if cover > bottom - top - 230 { cover = bottom - top - 230 }
+        if cover < 80 { cover = 80 }
+        cover_x = (book_width - cover) / 2
+        cover_y = top
+        text_x = book_padding
+        text_width = book_width - book_padding * 2
+        text_y = cover_y + cover + 14
+    }
+    // The next book's cover, framed like a card on the shelf.
+    BookBox(cover_x - 6, cover_y - 6, cover + 12, cover + 12, 0xfffcf3ff, 0xdacdb5ff, 14.0)
+    BookPicture(category_previews[next_category], cover_x, cover_y, cover, cover)
+    BookText(text_x, text_y, text_width, 44, category_names[next_category], 34)
+    count_text: Vec(u8)
+    BuilderPrint(*count_text, "% %", category_counts[next_category], Tr("pages"))
+    BookText(text_x, text_y + 42, text_width, 24, BuilderFinish(count_text), 19, TextAlign.TextAlignCenter, false, true)
+    // A quiet bar shows when the next book opens by itself.
+    progress := (retro.now - finished_started) / FINISHED_SECONDS
+    if progress > 1.0 { progress = 1.0 }
+    bar_width := text_width - 40
+    BookText(text_x, text_y + 74, text_width, 22, "Next book starts shortly", 18, TextAlign.TextAlignCenter, true, true)
+    BookBox(text_x + 20, text_y + 100, bar_width, 8, 0xeee4cfff, 0, 4.0)
+    BookBox(text_x + 20, text_y + 100, cast(s32)(cast(float64)bar_width * progress), 8, 0x2e6956ff, 0, 4.0)
+    button_width := (text_width - book_gap) / 2
+    all_books := TouchButton(40, text_x, text_y + 124, button_width, 52, "All books")
+    next_book := TouchButton(41, text_x + button_width + book_gap, text_y + 124, button_width, 52, "Read this book", true)
     if all_books || retro.key == KEY_ESCAPE { choosing_category = true; finished = false }
-    else if next_book || retro.key == KEY_ENTER || retro.key == KEY_RIGHT || retro.now - finished_started >= 3.0 {
+    else if next_book || retro.key == KEY_ENTER || retro.key == KEY_RIGHT || retro.now - finished_started >= FINISHED_SECONDS {
         category = next_category
         OpenBook()
     }
     if retro.key == KEY_LEFT { Turn(-1) }
 }
 
+// A page is one whole scene with its word on top. Tap the left side to go
+// back and anywhere else to turn the page; the title bar's back arrow returns
+// to the books.
 ReadingPage :: () {
-    width := book_width - book_padding * 2
-    height := book_height - book_padding * 2 - 64
+    PagePaper()
+    x, y, size := SceneRect()
     landscape := book_width >= book_height
-    image_size: s32
-    image_x: s32
-    image_y: s32
-    word_x: s32
-    word_y: s32
-    word_width: s32
-    if landscape {
-        image_size = (width - book_gap) / 2
-        if image_size > height { image_size = height }
-        image_x = book_padding + ((width - book_gap) / 2 - image_size) / 2
-        image_y = book_padding + (height - image_size) / 2
-        word_x = book_width / 2 + book_gap / 2
-        word_width = book_width - book_padding - word_x
-        word_y = book_padding + height / 2 - 32
-        BookBox(book_width / 2 - 1, book_padding, 2, height, 0xe5d9c3ff)
-    } else {
-        image_size = width
-        if image_size > height - 104 { image_size = height - 104 }
-        if image_size < 64 { image_size = 64 }
-        image_x = (book_width - image_size) / 2
-        image_y = book_padding + (height - image_size - 104) / 2
-        word_x = book_padding
-        word_width = width
-        word_y = image_y + image_size + 12
-    }
     for ahead: cast(s32)1..2 {
         if page + ahead < category_counts[category] { unused RetroImageReady(page_paths(PageIndex() + ahead)) }
     }
-    BookIllustration(category, page_paths(PageIndex()), image_x, image_y, image_size, image_size)
-    BookText(word_x, word_y, word_width, 56, PageName(), ifx landscape then 44 else 34)
-    if !simple { BookText(word_x, word_y + 58, word_width, 32, Spelling(), 20) }
-    footer := book_height - book_padding - 48
-    previous := TouchButton(10, book_padding, footer, 56, 48, "<")
-    books_width: s32 = 120
-    if width < 280 { books_width = 96 }
-    categories := TouchButton(13, (book_width - books_width) / 2, footer, books_width, 48, "Books")
-    next := TouchButton(11, book_width - book_padding - 56, footer, 56, 48, ">")
-    touch := RetroTap(12, book_padding, book_padding, width, height, "Swipe to turn the page", true)
+    BookPicture(page_paths(PageIndex()), x, y, size, size)
+    label_width := size - 48
+    if label_width > 560 { label_width = 560 }
+    label_height: s32 = ifx simple then 72 else 108
+    label_x := (book_width - label_width) / 2
+    label_y := y + size - label_height - 16
+    BookBox(label_x, label_y, label_width, label_height, 0xfffcf3e8, 0xdacdb5ff, 20.0)
+    BookText(label_x + 16, label_y + 6, label_width - 32, 60, PageName(), ifx landscape then 46 else 38)
+    if !simple { BookText(label_x + 16, label_y + 64, label_width - 32, 34, Spelling(), 22) }
+    touch := RetroTap(12, 0, 0, book_width, book_height, "Swipe to turn the page", true)
     now := retro.now
     if touch.down && !swipe_tracking {
         swipe_start = Vector2.{touch.x, touch.y}
@@ -305,11 +336,11 @@ ReadingPage :: () {
         swipe_tracking = false
     }
     if !touch.down && !touch.released { swipe_tracking = false }
-    picture_tap := touch.clicked && !moved && touch.x >= retro.x + cast(float32)image_x &&
-        touch.x <= retro.x + cast(float32)(image_x + image_size)
-    if previous || retro.key == KEY_LEFT || direction == SwipeDirection.SwipeRight { Turn(-1) }
-    if next || retro.key == KEY_RIGHT || retro.key == KEY_ENTER || retro.key == 32 || picture_tap || direction == SwipeDirection.SwipeLeft { Turn(1) }
-    if retro.key == KEY_ESCAPE || categories {
+    tapped := touch.clicked && !moved
+    back_side := tapped && touch.x < retro.x + cast(float32)(book_width / 3)
+    if back_side || retro.key == KEY_LEFT || direction == SwipeDirection.SwipeRight { Turn(-1) }
+    else if tapped || retro.key == KEY_RIGHT || retro.key == KEY_ENTER || retro.key == 32 || direction == SwipeDirection.SwipeLeft { Turn(1) }
+    if retro.key == KEY_ESCAPE {
         choosing_category = true
         swipe_tracking = false
         voice_pending = false

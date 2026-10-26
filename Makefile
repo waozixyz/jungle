@@ -140,6 +140,7 @@ test: build/tests/paint build/tests/png build/tests/progress build/tests/documen
 test-ui: all
 	python3 tests/runtime_test.py --ui
 	python3 tests/book_ui_test.py
+	python3 tests/slot_preview_test.py
 	python3 tests/language_ui_test.py
 
 BIN_DIR ?= $(HOME)/.local/bin

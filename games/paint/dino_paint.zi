@@ -57,8 +57,8 @@ SLOT_COUNT :: 6
 UNDO_STEPS :: 8
 
 scene_names: [6]string = .["Scene 1", "Scene 2", "Scene 3", "Scene 4", "Scene 5", "Scene 6"];
-dino_names: [18]string = .["TYRANNOSAURUS", "STEGOSAURUS", "TRICERATOPS", "ANATOSAURUS", "BRACHIOSAURUS", "DIPLODOCUS", "PARASAUROLOPHUS", "DEINONYCHUS", "PROTOCERATOPS", "PTERANODON", "STRACOSAURUS", "CORYTHOSAURUS", "Cat", "Dog", "Butterfly", "Child", "Astronaut", "Farmer"];
-dino_short: [18]string = .["T-REX", "STEGO", "TRIKE", "Duckbill", "BRACHIO", "DIPLO", "PARA", "RAPTOR", "PROTO", "PTERANODON", "STRACO", "CORY", "Cat", "Dog", "Butterfly", "Child", "Astronaut", "Farmer"];
+dino_names: [30]string = .["TYRANNOSAURUS", "STEGOSAURUS", "TRICERATOPS", "ANATOSAURUS", "BRACHIOSAURUS", "DIPLODOCUS", "PARASAUROLOPHUS", "DEINONYCHUS", "PROTOCERATOPS", "PTERANODON", "STRACOSAURUS", "CORYTHOSAURUS", "Cat", "Dog", "Butterfly", "Child", "Astronaut", "Farmer", "Rabbit", "Elephant", "Lion", "Doctor", "Firefighter", "Cook", "Crate", "Campfire", "Tent", "Tree", "Rock", "Barrel"];
+dino_short: [30]string = .["T-REX", "STEGO", "TRIKE", "Duckbill", "BRACHIO", "DIPLO", "PARA", "RAPTOR", "PROTO", "PTERANODON", "STRACO", "CORY", "Cat", "Dog", "Butterfly", "Child", "Astronaut", "Farmer", "Rabbit", "Elephant", "Lion", "Doctor", "Firefighter", "Cook", "Crate", "Campfire", "Tent", "Tree", "Rock", "Barrel"];
 button_names: [7]string = .["Image", "Color", "Story", "Erase", "Save", "Print", "Undo"];
 size_names: [4]string = .["Small", "Medium", "Large", "Huge"];
 
@@ -75,9 +75,11 @@ grab_x: s32;
 grab_y: s32;
 dino_page: s32;
 stencil_category: s32;
-category_starts: [3]s32 = .[0, 12, 15];
-category_counts: [3]s32 = .[12, 3, 3];
-stencil_categories: [3]string = .["Dinosaurs", "Animals", "People"];
+category_starts: [4]s32 = .[0, 12, 18, 24];
+category_counts: [4]s32 = .[12, 6, 6, 6];
+// Keep the original stencil indices while grouping the new pictures with them.
+stencil_order: [30]s32 = .[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,18,19,20,15,16,17,21,22,23,24,25,26,27,28,29];
+stencil_categories: [4]string = .["Dinosaurs", "Animals", "People", "Objects"];
 story_row: s32;
 story_column: s32;
 canvas_name: [32]u8;
@@ -126,6 +128,7 @@ StoreSlot :: (index: s32) -> bool {
     if scene < 0 { Notice("Choose a scene first"); return false }
     if !DocumentWrite(SlotFile(index), PictureText()) { Notice("Could not save"); return false }
     slot = index
+    slot_previews_ready[index] = false
     Notice("Picture and story saved")
     unused SaveSlot()
     return true
@@ -372,7 +375,12 @@ MainView :: () {
             if index == 1 { view = PICK_COLOR }
             if index == 2 { view = STORY }
             if index == 3 { view = CONFIRM_ERASE }
-            if index == 4 { view = SAVE_LOAD; saving = true }
+            if index == 4 {
+                // Painting may have evicted the previous temporary images.
+                for slot_index: cast(s32)0..SLOT_COUNT - 1 { slot_previews_ready[slot_index] = false }
+                view = SAVE_LOAD
+                saving = true
+            }
             if index == 5 { view = PRINT_VIEW }
             if index == 6 { Undo() }
             return
@@ -475,20 +483,21 @@ ScenePicker :: () {
             return
         }
     }
-    unused CancelButton()
+    if CancelButton() && scene < 0 && undo_count == 0 { GameHome() }
 }
 
 DinoPicker :: () {
     DialogBack("Choose a stencil")
-    for category: cast(s32)0..2 {
-        if BookButton(500 + category, 20 + category * 94, 30, 90, 17, stencil_categories[category], stencil_category == category) {
+    for category: cast(s32)0..3 {
+        if BookButton(500 + category, 20 + category * 71, 30, 67, 17, stencil_categories[category], stencil_category == category) {
             stencil_category = category; dino_page = 0; return
         }
     }
     first := category_starts[stencil_category] + dino_page * 6
     for offset: cast(s32)0..5 {
-        index := first + offset
-        if index >= category_starts[stencil_category] + category_counts[stencil_category] { continue }
+        at := first + offset
+        if at >= category_starts[stencil_category] + category_counts[stencil_category] { continue }
+        index := stencil_order[at]
         x := 20 + (offset % 3) * 94
         y := 51 + (offset / 3) * 60
         press := RetroTap(80 + index, x, y, 90, 56, dino_names[index])
@@ -509,8 +518,8 @@ DinoPicker :: () {
             return
         }
     }
-    up := BookButton(96, 22, 173, 78, 14, "Previous")
-    down := BookButton(97, 106, 173, 78, 14, "Next")
+    up := BookButton(196, 22, 173, 78, 14, "Previous")
+    down := BookButton(197, 106, 173, 78, 14, "Next")
     if up && (dino_page > 0) { dino_page -= 1 }
     if down && (dino_page < (category_counts[stencil_category] + 5) / 6 - 1) { dino_page += 1 }
     unused CancelButton()
@@ -661,7 +670,7 @@ ConfirmView :: (erasing: bool) {
             dirty = true
             unused SaveSlot()
             Sound("clear")
-            view = MAIN
+            view = PICK_SCENE
         } else { GameHome() }
         return
     }
@@ -670,6 +679,25 @@ ConfirmView :: (erasing: bool) {
         view = MAIN
         Sound("click")
     }
+}
+
+// Each saved slot shows a small copy of its picture, made once and again
+// after that slot is saved.
+slot_previews: [SLOT_COUNT][32]u8;
+slot_previews_ready: [SLOT_COUNT]bool;
+
+SlotPreview :: (index: s32, saved: string) -> string {
+    if !slot_previews_ready[index] {
+        slot_previews_ready[index] = true
+        slot_previews[index][0] = 0
+        // Only current saves carry pixel runs a preview can be made from.
+        pixels := PICTURE_HEADER.count + 3 + cast(s64)PICTURE_STORY
+        if saved.count > pixels + 1 && saved[:PICTURE_HEADER.count] == PICTURE_HEADER {
+            made := GameCanvas(Join(PICTURE_RUNS, saved[pixels:saved.count - 1]))
+            if made != "" { Keep(made, slot_previews[index][:]) }
+        }
+    }
+    return TextUntilNul(slot_previews[index][:])
 }
 
 SaveLoadView :: () {
@@ -683,8 +711,14 @@ SaveLoadView :: () {
         label := ifx saved.count > 0 then "Saved" else "Empty"
         press := RetroTap(160 + index, x, y, 88, 52, label)
         BookBox(x, y, 88, 52, 0xf7f1e3ff, ifx index == slot then cast(u32)0x2e6956ff else cast(u32)0xdacdb5ff, 4.0)
-        BookLabel(x + (88 - RetroTextWidth(label)) / 2, y + 18, label, BLACK)
-        BookLabel(x + 18, y + 36, "Slot", DARK_GRAY)
+        preview := ifx saved.count > 0 then SlotPreview(index, saved) else ""
+        if preview != "" {
+            BookBox(x + 15, y + 4, 58, 44, 0xffffffff, 0xdacdb5ff, 2.0)
+            RetroSprite(preview, x + 16, y + 5, 56, 42, -1, true)
+        } else {
+            BookLabel(x + (88 - RetroTextWidth(label)) / 2, y + 18, label, BLACK)
+            BookLabel(x + 18, y + 36, "Slot", DARK_GRAY)
+        }
         if press.clicked {
             if saving {
                 if saved.count > 0 { pending_slot = index; view = OVERWRITE }
@@ -752,6 +786,7 @@ GameMain :: () -> s32 {
     if !initialized {
         for at: cast(s32)0..CANVAS_PIXELS - 1 { canvas[at] = cast(u8)PAPER }
         unused PictureLoad(DocumentRead("working.txt"))
+        if scene < 0 { view = PICK_SCENE }
         initialized = true
     }
     RetroBegin(AppSession(), AppBounds(), FONT, AppNow(), AppKey(), BLACK)

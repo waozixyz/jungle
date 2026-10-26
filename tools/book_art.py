@@ -1,87 +1,43 @@
-"""Cut the generated watercolor atlas into the book's illustrated pages."""
+"""Prepare the Picture Book's covers, word lists and narration timings.
+
+Each page is one whole watercolor scene in assets/jungle-book/pages, and
+each word also has a transparent cut-out in assets/jungle-book/items for
+Animal Counting and the ABC Book. Both are drawn with Codex image generation
+in the title-screen cover style (see AGENTS.md).
+"""
 from pathlib import Path
 import json
 from math import ceil
 import sys
 from PIL import Image
-from book_cutout import illustration
-from book_catalog import BOOKS, NAMES, ADDED, WORDS, LANGUAGES, narration, voice_path, EXPANSION, TITLES
+from book_catalog import BOOKS, NAMES, WORDS, LANGUAGES, narration, voice_path, TITLES
 
 ROOT = Path(__file__).resolve().parents[1]
-SOURCE = ROOT / "art/generated/picture-book-watercolors.png"
-EXTRA_SOURCE = ROOT / "art/generated/picture-book-more-animals.png"
-ORIGINAL = ("tiger", "frog", "butterfly", "ladybug", "snail", "flower", "banana", "mango", "coconut", "rabbit", "cat", "mouse", "pig", "cow")
-EXTRA = ("elephant", "giraffe", "monkey", "panda", "lion", "zebra", "crocodile", "parrot", "toucan", "dog", "horse", "sheep")
-CROP_FIXED = ("panda", "crocodile", "parrot", "toucan")
-FIXED_SOURCE = ROOT / "art/generated/picture-book-uncropped.png"
-ADDED_SOURCE = ROOT / "art/generated/picture-book-fruits-farm.png"
+SCENES = ROOT / "assets/jungle-book/pages"
 
 
 def main():
     catalog_only = "--catalog-only" in sys.argv
-    new_only = "--new-only" in sys.argv
-    only = sys.argv[sys.argv.index("--only")+1] if "--only" in sys.argv else None
-    source = Image.open(SOURCE).convert("RGBA")
-    assert source.width == source.height and source.width >= 1024
-    extra_source = Image.open(EXTRA_SOURCE).convert("RGBA")
-    assert extra_source.width == extra_source.height and extra_source.width >= 1024
-    added_source = Image.open(ADDED_SOURCE).convert("RGBA")
-    fixed_source = Image.open(FIXED_SOURCE).convert("RGBA")
-    output = ROOT / "assets/jungle-book/items"
     previews = ROOT / "assets/jungle-book/previews"
-    output.mkdir(parents=True, exist_ok=True)
-    previews.mkdir(parents=True, exist_ok=True)
-    atlases = {slug: (ROOT / "art/generated" / (slug + ".png")) for slug in EXPANSION["atlases"]} if not catalog_only else {}
-    isolated = json.loads((ROOT/"tools/book_isolated.json").read_text())
-    atlases.update({slug:(ROOT/"art/generated"/(slug+".png")) for slug in isolated} if not catalog_only else {})
-    atlas_names = {**EXPANSION["atlases"], **isolated}
-    locations = {name: (atlases[slug], index, 1 if len(names) == 1 else 4) for slug, names in atlas_names.items() for index, name in enumerate(names)} if not catalog_only else {}
-    pages = []
-    for name in NAMES:
-        if catalog_only:
-            pages.append(None)
-            continue
-        if (new_only and (output / (name + ".png")).exists()) or (only and name != only):
-            pages.append(Image.open(output / (name + ".png")).convert("RGBA"))
-            continue
-        if name in locations:
-            atlas, index, columns = locations[name]
-        elif name in CROP_FIXED:
-            atlas, index, columns = fixed_source, CROP_FIXED.index(name), 2
-        elif name in ORIGINAL:
-            atlas, index, columns = source, ORIGINAL.index(name), 4
-        elif name in EXTRA:
-            atlas, index, columns = extra_source, EXTRA.index(name), 4
-        else:
-            atlas, index, columns = added_source, ADDED.index(name), 4
-        if isinstance(atlas, Path): atlas = Image.open(atlas).convert("RGBA")
-        if name in dict(BOOKS)["nature"]:
-            row, column = divmod(index, columns)
-            page = atlas.crop((round(column*atlas.width/columns)+3,round(row*atlas.height/columns)+3,
-                               round((column+1)*atlas.width/columns)-3,round((row+1)*atlas.height/columns)-3)).resize((420,420),Image.Resampling.LANCZOS)
-        else:
-            page = illustration(atlas, index, columns, name)
-        page.save(output / (name + ".png"), optimize=True)
-        pages.append(page)
+    missing = [name for name in NAMES if not (SCENES / (name + ".jpg")).exists()]
+    assert not missing, "pages without a scene: " + ", ".join(missing)
     starts = []
     index = 0
     for category, names in BOOKS:
         starts.append(index)
-        if not catalog_only and not (new_only and (previews / (category + ".png")).exists()):
-            preview = pages[NAMES.index("family")] if category == "family" else pages[index]
-            if "cover-" + category in locations:
-                atlas, cell, columns = locations["cover-" + category]
-                if isinstance(atlas, Path): atlas = Image.open(atlas).convert("RGBA")
-                row, column = divmod(cell, columns)
-                preview = atlas.crop(tuple(round(v) for v in (column*atlas.width/4, row*atlas.height/4, (column+1)*atlas.width/4, (row+1)*atlas.height/4)))
-            preview.resize((420, 420), Image.Resampling.LANCZOS).save(previews / (category + ".png"), optimize=True)
         index += len(names)
     if not catalog_only:
-        pages[0].resize((64, 64), Image.Resampling.LANCZOS).save(ROOT / "assets/jungle/book.png", optimize=True)
-        sheet = Image.new("RGB", (840, 210 * ceil(len(pages) / 4)), "#f9f6eb")
-        for index, page in enumerate(pages):
-            thumb = page.resize((210, 210), Image.Resampling.LANCZOS)
-            sheet.paste(thumb, (index % 4 * 210, index // 4 * 210), thumb)
+        previews.mkdir(parents=True, exist_ok=True)
+        # A book's cover is its first page.
+        for category, names in BOOKS:
+            with Image.open(SCENES / (names[0] + ".jpg")) as cover:
+                cover.convert("RGB").resize((768, 768), Image.Resampling.LANCZOS).save(previews / (category + ".jpg"), quality=86)
+        with Image.open(SCENES / (NAMES[0] + ".jpg")) as first:
+            first.convert("RGB").resize((64, 64), Image.Resampling.LANCZOS).save(ROOT / "assets/jungle/book.png", optimize=True)
+        sheet = Image.new("RGB", (840, 210 * ceil(len(NAMES) / 4)), "#fcf2d4")
+        for at, name in enumerate(NAMES):
+            with Image.open(SCENES / (name + ".jpg")) as page:
+                sheet.paste(page.convert("RGB").resize((210, 210), Image.Resampling.LANCZOS), (at % 4 * 210, at // 4 * 210))
         sheet.save(ROOT / "art/generated/picture-book-preview.png", optimize=True)
     counts = ", ".join(str(len(names)) for _, names in BOOKS)
     catalog = "// Generated by tools/book_art.py from the illustrated books.\n"
@@ -94,11 +50,9 @@ def main():
     catalog += 'book_groups: [4]string = .["Nature", "Food", "Home", "Family"];\n'
     catalog += 'group_starts: [4]s32 = .[0,4,9,13];\ngroup_counts: [4]s32 = .[4,5,4,2];\n'
     catalog += 'category_groups: [15]s32 = .[' + ','.join(str(next(i for i,(_,members) in enumerate(groups) if c in members)) for c,_ in BOOKS) + '];\n'
-    backdrops = {c:('food' if c in groups[1][1] else 'family' if c == 'family' else c) for c,_ in BOOKS}
-    catalog += 'category_backdrops: [15]string = .[' + ','.join(json.dumps('assets/jungle-book/backgrounds/'+backdrops[c]+'.png') for c,_ in BOOKS) + '];\n'
     catalog += f"category_names: [{len(BOOKS)}]string = .[" + ", ".join(json.dumps(TITLES[c][0]) for c, _ in BOOKS) + "];\n"
-    catalog += f"category_previews: [{len(BOOKS)}]string = .[" + ", ".join(json.dumps("assets/jungle-book/previews/" + c + ".png") for c, _ in BOOKS) + "];\n"
-    catalog += string_table("page_paths", [f"assets/jungle-book/items/{name}.png" for name in NAMES])
+    catalog += f"category_previews: [{len(BOOKS)}]string = .[" + ", ".join(json.dumps("assets/jungle-book/previews/" + c + ".jpg") for c, _ in BOOKS) + "];\n"
+    catalog += string_table("page_paths", [f"assets/jungle-book/pages/{name}.jpg" for name in NAMES])
     for language_index, language in enumerate(LANGUAGES):
         catalog += string_table(f"page_names_{language}", [WORDS[name][language_index] for name in NAMES])
         catalog += string_table(f"page_spelling_{language}", [" ".join(WORDS[name][language_index].upper()) for name in NAMES])
@@ -129,7 +83,7 @@ def main():
                 voices += f"    if at < {min(start+48,len(durations))} {{ return voice_seconds_{suffix}_{start}[at - {start}] }}\n"
             voices += "    return 0.0\n}\n"
     (ROOT / "games/book/book_voice.zi").write_text(voices)
-    print(f"Prepared {len(pages)} watercolor pages, category covers, word lists and narration timings")
+    print(f"Prepared {len(NAMES)} scene pages, book covers, word lists and narration timings")
 
 
 def string_table(name, values):
