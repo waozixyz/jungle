@@ -41,7 +41,7 @@ for language in ('en', 'de', 'es'):
             paused = desktop.capture_actual('alphabet-paused-' + language)
             assert ImageChops.difference(selected, paused).getbbox() is None, 'Manual exploration did not pause the sequence'
             desktop.key('a')
-            for width,height in ((1284,834),(390,844),(844,390),(320,568)) if language=='es' else ((960,600),):
+            for width,height in ((1284,834),(390,844),(844,390),(320,568)):
                 desktop.resize(width,height)
                 standalone = desktop.capture_actual(f'alphabet-letters-{language}-{width}')
                 assert standalone.size == (width,height)
@@ -53,5 +53,20 @@ for language in ('en', 'de', 'es'):
                 desktop.key('space')  # Pause after returning to standalone letters.
                 plain = desktop.capture_actual(f'alphabet-return-{language}-{width}')
                 assert vivid(plain.crop((pad,56+pad,width-pad,height-pad))) < 100, 'Letters mode retained an example'
+                # The final language-specific letter must be present and
+                # selectable in every layout, including short landscape.
+                count = 30 if language == 'de' else 27 if language == 'es' else 26
+                columns = min(15,max(5,(width-pad*2)//42))
+                rows = (count+columns-1)//columns
+                columns = (count+rows-1)//rows
+                cell = (width-pad*2-(columns-1)*6)//columns
+                cell_height = 24 if height-56<400 else 30 if width<360 else 42
+                strip = height-56-pad-(rows*(cell_height+6)-6)
+                last = count-1
+                desktop.click_actual(pad+(last%columns)*(cell+6)+cell//2,56+strip+(last//columns)*(cell_height+6)+cell_height//2)
+                final = desktop.capture_actual(f'alphabet-final-letter-{language}-{width}')
+                area=(pad,56+pad+control+gap,width-pad,56+strip-gap-control-gap)
+                assert ImageChops.difference(plain.crop(area),final.crop(area)).getbbox(), 'The last alphabet letter was hidden or unreachable'
+                desktop.key('a')
             assert 'portable execution failed' not in (OUTPUT / 'jungle.log').read_text()
 print('local alphabet UI test: default letters, A–B sequence, pause, optional examples and four responsive layouts passed')

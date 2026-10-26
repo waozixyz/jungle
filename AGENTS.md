@@ -77,3 +77,6 @@ is in `tools/book_prompts.json`; the full-size originals are kept in
 - Animal faces keep natural anatomy, without human smiles, lips, eyebrows or eyelashes. The snail has exactly two eyes, only on its long upper eyestalks. Bees, spiders and butterflies keep natural insect/arachnid features. The owner approved the six corrected scene/cut-out pairs (snail, elephant, giraffe, bee, spider, butterfly).
 
 - Picture Book pages and optional ABC examples use actual full-scene backgrounds. Cut-outs remain available for counting; standalone alphabet practice uses plain paper.
+
+- Show the complete English, German (Ä Ö Ü ß included) and Spanish (Ñ included) alphabets at every size; no shortened alphabet strip. Show uppercase ẞ with lowercase ß on its letter page.
+- 123 Book speaks each selected number from one to ten in the active language, on entry, selection and tap-to-repeat.

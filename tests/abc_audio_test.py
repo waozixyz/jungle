@@ -7,6 +7,9 @@ import wave
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'tools'))
 from abc_catalog import alphabet, letter_names
 ROOT = Path(__file__).resolve().parents[1]
+assert alphabet('en') == list('ABCDEFGHIJKLMNOPQRSTUVWXYZ')
+assert alphabet('de') == list('ABCDEFGHIJKLMNOPQRSTUVWXYZ') + ['Ä','Ö','Ü','ß']
+assert alphabet('es') == list('ABCDEFGHIJKLMNÑOPQRSTUVWXYZ')
 total = 0
 for language in ('en', 'de', 'es'):
     for letter, name in zip(alphabet(language), letter_names(language)):

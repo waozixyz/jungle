@@ -73,7 +73,7 @@ SpacedLetters :: (word: string) -> string {
 
 BigLetter :: (letter: s32) -> string {
     upper := LetterText(language, letter)
-    if upper == "ß" { return upper }
+    if upper == "ß" { return Cat("ẞ", " ", upper) }
     return Cat(upper, " ", LetterLower(language, letter))
 }
 
@@ -137,20 +137,16 @@ StripMetrics :: (width: s32) -> (columns: s32, cell: s32, height: s32, used: s32
     if columns > 15 { columns = 15 }
     if columns < 5 { columns = 5 }
     rows := (count + columns - 1) / columns
-    if abc_height < 400 { rows = 1 }
-    else { columns = (count + rows - 1) / rows }
+    columns = (count + rows - 1) / rows
     cell := (width - (columns - 1) * 6) / columns
-    height: s32 = ifx abc_height < 400 then 28 else ifx abc_width < 360 then 30 else 42
+    height: s32 = ifx abc_height < 400 then 24 else ifx abc_width < 360 then 30 else 42
     return columns, cell, height, rows * (height + 6) - 6
 }
 
 LetterStrip :: (x: s32, y: s32, width: s32) {
     columns, cell, height, _ := StripMetrics(width)
-    first := ifx abc_height < 400 then (learn_letter / columns) * columns else 0
-    last := ifx abc_height < 400 then first + columns else LetterCount(language)
-    if last > LetterCount(language) { last = LetterCount(language) }
-    for letter: first..last - 1 {
-        at := letter - first
+    for letter: cast(s32)0..LetterCount(language) - 1 {
+        at := letter
         bx := x + (at % columns) * (cell + 6)
         by := y + (at / columns) * (height + 6)
         press := RetroTap(100 + letter, bx, by, cell, height, LetterText(language, letter))

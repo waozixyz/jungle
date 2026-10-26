@@ -43,10 +43,15 @@ numbers_gap: s32;
 learn_number: s32;
 learn_item: s32;
 ladder_loaded: bool;
+voice_pending: bool;
 NumberWord :: (number: s32) -> string {
     if language == 1 { return word_de[number - 1] }
     if language == 2 { return word_es[number - 1] }
     return word_en[number - 1]
+}
+
+NumberVoice :: (number: s32) -> string {
+    return Cat(SOUNDS, LanguageCode(), "/", NumberText(number), ".wav")
 }
 
 Sound :: (name: string) { GameSound(Cat(SOUNDS, name, ".wav")) }
@@ -54,6 +59,7 @@ Sound :: (name: string) { GameSound(Cat(SOUNDS, name, ".wav")) }
 OpenNumber :: (number: s32) {
     learn_number = number
     learn_item = cast(s32)(RandomNext() % 12)
+    voice_pending = true
 }
 
 ResponsiveNumbers :: (bounds: Rectangle) {
@@ -138,7 +144,8 @@ LearnView :: () {
         if big > content_height * 3 / 4 { big = content_height * 3 / 4 }
         if big < 40 { big = 40 }
         BookText(numbers_padding, numbers_padding, panel, big + 20, NumberText(learn_number), big)
-        BookText(numbers_padding, numbers_padding + big + 16, panel, 34, NumberWord(learn_number), 24)
+        BookText(numbers_padding, numbers_padding + big + 16, panel, 34, NumberWord(learn_number), 24, TextAlign.TextAlignCenter, false)
+        if RetroTap(50, numbers_padding, numbers_padding, panel, content_height, "Hear number").clicked { voice_pending = true }
         BookBox(numbers_width / 2 - 1, numbers_padding, 2, content_height, 0xe5d9c3ff)
         picture_x: s32 = numbers_width / 2 + numbers_gap / 2
         DrawThings(learn_item, learn_number, picture_x, numbers_padding, panel, content_height)
@@ -147,7 +154,8 @@ LearnView :: () {
         if big > 90 { big = 90 }
         if big < 36 { big = 36 }
         BookText(numbers_padding, numbers_padding, width / 2, big + 16, NumberText(learn_number), big)
-        BookText(numbers_padding + width / 2, numbers_padding + big / 2, width / 2, 40, NumberWord(learn_number), 24)
+        BookText(numbers_padding + width / 2, numbers_padding + big / 2, width / 2, 40, NumberWord(learn_number), 24, TextAlign.TextAlignCenter, false)
+        if RetroTap(50, numbers_padding, numbers_padding, width, big + 16, "Hear number").clicked { voice_pending = true }
         picture_height: s32 = content_bottom - numbers_padding - big - 12
         DrawThings(learn_item, learn_number, numbers_padding, numbers_padding + big + 16, width, picture_height)
     }
@@ -159,6 +167,7 @@ GameMain :: () -> s32 {
         ladder_loaded = false
         learn_number = 1
         learn_item = 0
+        voice_pending = false
         AppIdentity("jungle.numbers")
         AppDescribe("123 Book", "")
         return APP_PROTOCOL
@@ -183,7 +192,12 @@ GameMain :: () -> s32 {
     if key == KEY_RIGHT { OpenNumber(learn_number % NUMBER_COUNT + 1) }
     if key == KEY_LEFT { OpenNumber((learn_number + NUMBER_COUNT - 2) % NUMBER_COUNT + 1) }
     if typed >= 1 { OpenNumber(typed) }
+    if key == KEY_ENTER { voice_pending = true }
     LearnView()
+    if voice_pending {
+        unused AppService("jungle.voice", NumberVoice(learn_number))
+        voice_pending = false
+    }
     return 0
 }
 
