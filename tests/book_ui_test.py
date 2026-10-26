@@ -69,7 +69,7 @@ def main():
                     assert not different(next_page, desktop.capture(f"{language}-{name}-swipe-forward"))
                     desktop.key("Left")
                     desktop.key("Right")
-                    desktop.drag(80, 100, 94, 100)
+                    desktop.drag(80, 100, 84, 100)
                     assert not different(next_page, desktop.capture(f"{language}-{name}-short-drag"))
                     desktop.key("Left")
                     desktop.key("Right")
