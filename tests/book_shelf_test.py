@@ -12,7 +12,8 @@ with tempfile.TemporaryDirectory(prefix='jungle-responsive-') as directory:
             desktop.resize(mw,mh)
             menu=desktop.capture_actual(f'menu-thumbnail-bounds-{mw}')
             fit=min(mw/320,mh/200); portrait=mh>mw
-            rh=(int(mh/fit)-164)//3 if portrait else 35
+            # Landscape rows squeeze below 35 once four games share the list.
+            rh=(int(mh/fit)-164)//4 if portrait else min(35,(int(mh/fit)-95)//4)
             start=112 if portrait else 67
             left=(mw-320*fit)/2
             gap=menu.crop((round(left+26*fit),round((start+rh-1)*fit),round(left+90*fit),round((start+rh-1)*fit)+1))
