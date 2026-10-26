@@ -2,6 +2,7 @@
 from pathlib import Path
 import tempfile
 import os
+import time
 from PIL import ImageChops
 from runtime_test import Desktop, ROOT, OUTPUT
 
@@ -50,15 +51,23 @@ for language in ("en", "de", "es"):
                 assert ImageChops.difference(hub, returned).getbbox() is None, "Back did not return directly to the book choice"
             desktop.key("Escape")
             desktop.key("4")
-            desktop.capture("combined-coloring")
+            desktop.wait_scene_picker("combined-coloring")
             desktop.click(52, 58)
             working = data / "games/jungle.paint/working.txt"
-            assert working.exists(), "Fourth card did not open Coloring Book"
+            deadline = time.monotonic() + 20
+            while not working.exists() and time.monotonic() < deadline:
+                desktop.alive()
+                time.sleep(.05)
+            assert working.exists(), "Choosing the first background did not save the working picture"
+            desktop.capture("combined-coloring-stencils", header=56)
             saved = working.read_bytes()
             desktop.key("Escape")  # Close the stencil picker.
             desktop.key("Escape")  # Leave the picture directly.
+            desktop.wait_menu("after-coloring-home")
             desktop.key("2")
-            assert ImageChops.difference(hub, desktop.capture("after-coloring-exit")).getbbox() is None, "Coloring Back still asks Yes/No"
+            deadline = time.monotonic() + 20
+            while ImageChops.difference(hub, desktop.capture("after-coloring-exit")).getbbox() is not None:
+                assert time.monotonic() < deadline, "Coloring Back did not return directly to the book choice"
             assert working.read_bytes() == saved, "Back changed the saved picture"
             assert "portable execution failed" not in (OUTPUT / "jungle.log").read_text(), "A game stopped"
         for name, content in saves.items():
