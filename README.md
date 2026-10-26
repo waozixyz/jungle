@@ -49,7 +49,7 @@ shows the letter on the left and one watercolor word example on the right;
 **Next example** cycles through the words and **Spelling** toggles word spelling.
 Spanish Ñ sits between N and O.
 123 pages show each numeral from one to ten with its word and that many
-watercolor animals. The strip along the bottom reaches every number.
+watercolor animals. Every number is spoken in the selected language; tap the numeral or press Enter to hear it again. The strip along the bottom reaches every number.
 Existing saved progress files are preserved.
 
 **Animal Counting** pairs watercolor animals with a clean answer card on

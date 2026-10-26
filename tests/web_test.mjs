@@ -44,6 +44,7 @@ try{
  }
  async function resize(width,height,mobile=false){await command('Emulation.setDeviceMetricsOverride',{width,height,deviceScaleFactor:1,mobile});await command('Emulation.setTouchEmulationEnabled',{enabled:mobile,maxTouchPoints:1});await delay(500);const box=await evaluate('({w:Module.canvas.clientWidth,h:Module.canvas.clientHeight})');if(box.w!==width||box.h!==height)throw Error('Canvas did not resize to the viewport '+JSON.stringify(box))}
  async function waitPage(name){const until=Date.now()+15000;const path='/assets/jungle-book/pages/'+name+'.jpg';while(Date.now()<until){if(await evaluate('Module.FS.analyzePath('+JSON.stringify(path)+').exists'))return;await delay(100)}throw Error('Page image did not load: '+name)}
+ async function waitResource(fragment){const until=Date.now()+12000;while(Date.now()<until){if(await evaluate('performance.getEntriesByType("resource").some(e=>e.name.includes('+JSON.stringify(fragment)+'))'))return;await delay(100)}throw Error('Missing lesson audio/image resource: '+fragment)}
  async function swipe(x,y,xx,yy){await command('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x,y}]});for(let i=1;i<=6;i++){await delay(35);await command('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:x+(xx-x)*i/6,y:y+(yy-y)*i/6}]})}await command('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});await delay(350)}
  const eager=await evaluate('performance.getEntriesByType("resource").filter(e=>e.name.includes("/jungle-book/pages/")).length');if(eager)throw Error('Startup downloaded book pages before selection');await shot('menu');
  holdAudio=true;await command('Fetch.enable',{patterns:[{urlPattern:'*jungle-book/sounds/*.wav*',requestStage:'Request'}]});
@@ -74,7 +75,6 @@ try{
  if(!(await evaluate('document.querySelector("meta[name=description]").content')).startsWith('Aprende'))throw Error('Spanish website description is missing');
  if(hasABC){
   const resources=()=>evaluate('performance.getEntriesByType("resource").map(e=>e.name)');
-  const waitResource=async fragment=>{const until=Date.now()+12000;while(Date.now()<until){if((await resources()).some(n=>n.includes(fragment)))return;await delay(100)}throw Error('Missing alphabet resource: '+fragment)};
   await pixelClick(195,rowY(1),true);await shot('letters-numbers-hub');await pixelClick(195,rowY(0,2),true);await shot('abc-letters-phone');
   await waitResource('/abc/sounds/es/letters/0061.wav');
   await waitResource('/abc/sounds/es/letters/0062.wav');
@@ -88,8 +88,8 @@ try{
   await pixelClick(34,28,true);await key('Escape');await shot('menu-after-abc-phone');
  }
  if(hasNumbers){
-  await pixelClick(195,rowY(1),true);await pixelClick(195,rowY(1,2),true);const numbersLearn=await shot('numbers-learn-phone');
-  await key('0');if(numbersLearn===await shot('numbers-ten-phone'))throw Error('123 did not open directly into learning');
+  await pixelClick(195,rowY(1),true);await pixelClick(195,rowY(1,2),true);const numbersLearn=await shot('numbers-learn-phone');await waitResource('/numbers/sounds/es/1.wav');
+  await key('0');await waitResource('/numbers/sounds/es/10.wav');if(numbersLearn===await shot('numbers-ten-phone'))throw Error('123 did not open directly into learning');
   await pixelClick(34,28,true);await key('Escape');await shot('menu-after-numbers-phone');
  }
  const countingRow=hasABC&&hasNumbers?2:hasABC||hasNumbers?2:1;

@@ -84,6 +84,7 @@ $(APP)/games/jungle-numbers.zx: $(wildcard games/numbers/*.zi retro/*.zi) $(shel
 	rm -rf build/stage/jungle-numbers
 	mkdir -p build/stage/jungle-numbers/assets $(APP)/games
 	cp -r assets/numbers build/stage/jungle-numbers/assets/
+	find build/stage/jungle-numbers/assets -type f -name '*.speech.json' -delete
 	'$(ZIRANC)' bundle --root games/numbers $(MODULES) --define KRYON_HOSTED_UI \
 		--asset-dir assets=build/stage/jungle-numbers/assets --entry jungle_numbers:main -o $@ games/numbers/jungle_numbers.zi
 
@@ -157,6 +158,7 @@ test: build/tests/paint build/tests/png build/tests/progress build/tests/documen
 	python3 tests/assets_test.py
 	python3 tests/language_test.py
 	python3 tests/abc_audio_test.py
+	python3 tests/numbers_audio_test.py
 	python3 tests/brand_metadata_test.py
 
 # Actual input and rendering on a private display; requires Xvfb, xdotool,

@@ -2,6 +2,9 @@
 
 ## 0.1.5
 
+- Keep every letter in each language's alphabet visible, including German Ä, Ö, Ü, ß and Spanish Ñ, even in short landscape windows.
+- Speak the names of all ten numbers in English, German and Spanish when opening or selecting them, with tap-to-repeat.
+
 - Correct the snail's two eyes and redraw the elephant, giraffe, bee, spider and butterfly with natural animal features and full habitat scenes.
 - Give optional ABC examples the Picture Book's full-scene backgrounds.
 - Add a matching Jungle Academy logo, website and app icons, search and sharing metadata, and desktop app information.
