@@ -18,7 +18,7 @@ def main():
         data = Path(temporary)
         with Desktop(args.binary.resolve(), data) as desktop:
             desktop.capture('new-version-menu')
-            desktop.click(255, 12)
+            desktop.click(255, 51)
             desktop.key('1')
             desktop.wait_book('new-version-spanish-books')
             desktop.key('3')
@@ -34,7 +34,7 @@ def main():
             desktop.key('Escape')
             desktop.key('Escape')
             desktop.wait_menu('new-version-language-menu')
-            desktop.click(155, 12)
+            desktop.click(155, 51)
             desktop.key('1')
             desktop.wait_book('new-version-german-books')
             desktop.key('2')

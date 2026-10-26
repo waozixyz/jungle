@@ -14,10 +14,10 @@ with tempfile.TemporaryDirectory(prefix='jungle-responsive-') as directory:
             desktop.resize(width,height)
             shelf=desktop.capture_actual(f'responsive-native-shelf-{width}')
             assert shelf.size==(width,height), 'Window resize did not reach the game viewport'
-            assert shelf.getpixel((0,0))==(255,252,243), 'The responsive book has a black letterbox'
+            assert shelf.getpixel((0,0))==(227,236,228), 'The responsive book has a black letterbox'
             desktop.key('0')
             first=desktop.capture_actual(f'responsive-native-vegetables-{width}')
-            padding=12 if width<600 else 24
+            padding=max(24,int(14*min(width/320,height/200))+12)
             desktop.click_actual(width-padding-28,height-padding-24)
             second=desktop.capture_actual(f'responsive-native-next-{width}')
             assert ImageChops.difference(first,second).getbbox(), 'Next page ignored a resized pointer'

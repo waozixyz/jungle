@@ -10,6 +10,7 @@
 Game :: struct {
     bundle_name: string
     title: string
+    about: string
     icon: string
     age: s32
 }
@@ -21,42 +22,46 @@ MenuAction :: struct {
     navigated: bool
 }
 
-menu_width: s32;
-menu_padding: s32;
-menu_gap: s32;
+menu_height: s32;
+menu_portrait: bool;
 
+// Flags retain their native language names on the same cream paper as the book.
 LanguageFlags :: () -> bool {
     changed := false
     names: [3]string = .["English", "Deutsch", "Español"]
     codes: [3]string = .["en", "de", "es"]
-    width := (menu_width - menu_padding * 2 - menu_gap * 2) / 3
     for index: cast(s32)0..2 {
-        x := menu_padding + index * (width + menu_gap)
-        y := menu_padding
-        press := RetroTap(510 + index, x, y, width, 48, names[index])
+        x := 22 + index * 94
+        y: s32 = ifx menu_portrait then 66 else 45
+        h: s32 = ifx menu_portrait then 36 else 18
+        press := RetroTap(510 + index, x, y, 88, h, names[index])
         selected := language == index
-        BookBox(x, y, width, 48, ifx selected then cast(u32)0xdcebdcff else cast(u32)0xf7f1e3ff,
-            ifx selected then cast(u32)0x2e6956ff else cast(u32)0xdacdb5ff, 8.0)
+        BookBox(x, y, 88, h, ifx selected then cast(u32)0xdcebdcff else cast(u32)0xf7f1e3ff,
+            ifx selected then cast(u32)0x2e6956ff else cast(u32)0xdacdb5ff, 4.0)
+        // Small flags drawn as pixels; labels use the book's native lettering.
         if index == 0 {
-            RetroFill(x + 9, y + 17, 20, 12, BLUE)
+            RetroFill(x + 4, y + (h - 12) / 2, 20, 12, BLUE)
             for line: cast(s32)0..11 {
-                RetroFill(x + 9 + line * 19 / 11, y + 17 + line, 1, 1, WHITE)
-                RetroFill(x + 28 - line * 19 / 11, y + 17 + line, 1, 1, WHITE)
+                RetroFill(x + 4 + line * 19 / 11, y + (h - 12) / 2 + line, 1, 1, WHITE)
+                RetroFill(x + 23 - line * 19 / 11, y + (h - 12) / 2 + line, 1, 1, WHITE)
             }
-            RetroFill(x + 17, y + 17, 4, 12, WHITE)
-            RetroFill(x + 9, y + 21, 20, 4, WHITE)
-            RetroFill(x + 18, y + 17, 2, 12, RED)
-            RetroFill(x + 9, y + 22, 20, 2, RED)
+            RetroFill(x + 12, y + (h - 12) / 2, 4, 12, WHITE)
+            RetroFill(x + 4, y + (h - 12) / 2 + 4, 20, 4, WHITE)
+            RetroFill(x + 13, y + (h - 12) / 2, 2, 12, RED)
+            RetroFill(x + 4, y + (h - 12) / 2 + 5, 20, 2, RED)
         } else if index == 1 {
-            RetroFill(x + 9, y + 17, 20, 4, BLACK)
-            RetroFill(x + 9, y + 21, 20, 4, RED)
-            RetroFill(x + 9, y + 25, 20, 4, YELLOW)
+            RetroFill(x + 4, y + (h - 12) / 2, 20, 4, BLACK)
+            RetroFill(x + 4, y + (h - 12) / 2 + 4, 20, 4, RED)
+            RetroFill(x + 4, y + (h - 12) / 2 + 8, 20, 4, YELLOW)
         } else {
-            RetroFill(x + 9, y + 17, 20, 12, RED)
-            RetroFill(x + 9, y + 20, 20, 6, YELLOW)
+            RetroFill(x + 4, y + (h - 12) / 2, 20, 12, RED)
+            RetroFill(x + 4, y + (h - 12) / 2 + 3, 20, 6, YELLOW)
         }
-        BookText(x + 35, y, width - 41, 48, names[index], 18, TextAlign.TextAlignCenter, false)
-        if press.clicked { LanguageSet(codes[index]); changed = true }
+        BookText(x + 28, y, 56, h, names[index], 9)
+        if press.clicked {
+            LanguageSet(codes[index])
+            changed = true
+        }
     }
     return changed
 }
@@ -66,54 +71,40 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
     action := MenuAction.{.game = -1}
     game_count := cast(s32)games.count
     RetroBegin(session, bounds, font, now, key, BLACK)
-    retro.x = bounds.x
     retro.y = bounds.y
-    retro.scale = 1.0
-    menu_width = cast(s32)bounds.width
-    height := cast(s32)bounds.height
-    menu_padding = ifx menu_width < 600 then 12 else 24
-    menu_gap = ifx menu_width < 600 then 12 else 20
-    BookPalette()
-    BookBox(0, 0, menu_width, height, 0xfffcf3ff)
+    menu_height = cast(s32)(bounds.height / retro.scale)
+    menu_portrait = bounds.height > bounds.width
+    BookPaperSized(320, menu_height)
+    BookText(24, ifx menu_portrait then 22 else 14, 272, 24, "Jungle Academy", 20)
+    BookText(24, ifx menu_portrait then 49 else 36, 272, 9, "Choose a little adventure", 8)
     action.language_changed = LanguageFlags()
-    landscape := menu_width > height
-    card_width := menu_width - menu_padding * 2
-    card_height := (height - menu_padding * 2 - 96 - menu_gap * 4) / game_count
-    if landscape {
-        card_width = (card_width - menu_gap * (game_count - 1)) / game_count
-        card_height = card_width + 58
-        maximum := height - menu_padding * 2 - 96 - menu_gap * 2
-        if card_height > maximum { card_height = maximum }
-    } else if card_height > 220 { card_height = 220 }
+    row_height: s32 = ifx menu_portrait then (menu_height - 164) / game_count else 35
+    row_top: s32 = ifx menu_portrait then 112 else 67
     for index: cast(s32)0..game_count - 1 {
-        x := menu_padding + ifx landscape then index * (card_width + menu_gap) else 0
-        y := menu_padding + 48 + menu_gap + ifx landscape then 0 else index * (card_height + menu_gap)
-        press := RetroTap(100 + index, x, y, card_width, card_height, games[index].title)
+        y := row_top + index * row_height
+        h := row_height - 2
+        press := RetroTap(100 + index, 22, y, 276, h, games[index].title)
         if press.down { choice.* = index }
         selected := index == choice.*
-        BookBox(x, y, card_width, card_height, ifx selected then cast(u32)0xe5eee1ff else cast(u32)0xf7f1e3ff,
-            ifx selected then cast(u32)0x2e6956ff else cast(u32)0xdacdb5ff, 10.0)
-        if landscape {
-            size := card_width - 16
-            if size > card_height - 58 { size = card_height - 58 }
-            BookPicture(games[index].icon, x + (card_width - size) / 2, y + 8, size, size)
-            BookText(x + 10, y + card_height - 48, card_width - 20, 40, games[index].title, 25)
-        } else {
-            size := card_height - 16
-            BookPicture(games[index].icon, x + 8, y + 8, size, size)
-            BookText(x + size + 18, y + 8, card_width - size - 28, card_height - 16, games[index].title, 24)
-        }
+        BookBox(22, y, 276, h, ifx selected then cast(u32)0xe5eee1ff else cast(u32)0xf7f1e3ff,
+            ifx selected then cast(u32)0x2e6956ff else cast(u32)0xdacdb5ff, 4.0)
+        picture: s32 = ifx menu_portrait then 68 else 29
+        image_y := y + (h - picture) / 2
+        BookPicture(games[index].icon, 25, image_y, picture, picture)
+        text_x: s32 = ifx menu_portrait then 102 else 62
+        BookText(text_x, y + h / 2 - (ifx menu_portrait then 25 else 14), 264 - text_x, ifx menu_portrait then 30 else 16, games[index].title, ifx menu_portrait then 17 else 12, TextAlign.TextAlignStart)
+        BookText(text_x, y + h / 2 + 3, 264 - text_x, ifx menu_portrait then 24 else 12, games[index].about, ifx menu_portrait then 10 else 8, TextAlign.TextAlignStart)
+        BookBox(267, y + (h - 15) / 2, 24, 15, 0xeee4cfff, 0xd6c6a8ff, 5.0)
+        BookText(267, y + (h - 15) / 2, 24, 15, Cat(NumberText(games[index].age), "+"), 9)
         if press.clicked { action.game = index }
     }
-    footer := height - menu_padding - 48
-    if menu_width > 700 { BookText(menu_padding, footer, 250, 48, ifx message != "" then message else "Arrows + Enter", 16, TextAlign.TextAlignStart) }
-    sound_width: s32 = 210
-    if sound_width > menu_width - menu_padding * 2 { sound_width = menu_width - menu_padding * 2 }
-    sound_x := menu_width - menu_padding - sound_width
-    label := ifx sound_muted then "Sound off · F10" else "Sound on · F10"
-    sound := RetroTap(500, sound_x, footer, sound_width, 48, label)
-    BookBox(sound_x, footer, sound_width, 48, 0xeee4cfff, 0xd6c6a8ff, 8.0)
-    BookText(sound_x + 4, footer, sound_width - 8, 48, label, 18)
+    footer: s32 = ifx menu_portrait then menu_height - 50 else menu_height - 26
+    footer_height: s32 = ifx menu_portrait then 36 else 14
+    BookText(24, footer + (footer_height - 10) / 2, 150, 10, ifx message != "" then message else "Arrows + Enter", 8, TextAlign.TextAlignStart)
+    sound := RetroTap(500, 182, footer, 116, footer_height, ifx sound_muted then "Sound off · F10" else "Sound on · F10")
+    BookBox(182, footer, 116, footer_height, ifx sound.down then cast(u32)0xdcebdcff else cast(u32)0xeee4cfff,
+        0xd6c6a8ff, 4.0)
+    BookText(182, footer, 116, footer_height, ifx sound_muted then "Sound off · F10" else "Sound on · F10", 8)
     if sound.clicked || key == 299 { action.sound_toggle = true }
     if key == KEY_UP || key == KEY_DOWN {
         step: s32 = ifx key == KEY_UP then game_count - 1 else 1

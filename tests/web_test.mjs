@@ -38,20 +38,20 @@ try{
  async function resize(width,height,mobile=false){await command('Emulation.setDeviceMetricsOverride',{width,height,deviceScaleFactor:1,mobile});await command('Emulation.setTouchEmulationEnabled',{enabled:mobile,maxTouchPoints:1});await delay(500);const box=await evaluate('({w:Module.canvas.clientWidth,h:Module.canvas.clientHeight})');if(box.w!==width||box.h!==height)throw Error('Canvas did not resize to the viewport '+JSON.stringify(box))}
  async function swipe(x,y,xx,yy){await command('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x,y}]});for(let i=1;i<=6;i++){await delay(35);await command('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:x+(xx-x)*i/6,y:y+(yy-y)*i/6}]})}await command('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});await delay(350)}
  await shot('menu');
- holdAudio=true;await command('Fetch.enable',{patterns:[{urlPattern:'*.wav*',requestStage:'Request'}]});
- await key('1','Digit1');await shot('books');await key('0','Digit0');const first=await shot('vegetables-desktop');
- await pixelClick(1228,752);const second=await shot('vegetables-next');if(first===second)throw Error('Page navigation froze under stalled narration');
- await pixelClick(52,752);const restored=await command('Page.captureScreenshot',{format:'png'});if(restored.result.data!==first)throw Error('Back page failed under stalled narration');
+ holdAudio=true;await command('Fetch.enable',{patterns:[{urlPattern:'*jungle-book/sounds/*.wav*',requestStage:'Request'}]});
+ await pixelClick(400,330);await shot('books');if(pausedAudio.length)throw Error('Opening Picture Book skipped the category list');await key('0','Digit0');const first=await shot('vegetables-desktop');
+ await pixelClick(1184,708);const second=await shot('vegetables-next');if(first===second)throw Error('Page navigation froze under stalled narration');
+ await pixelClick(96,708);const restored=await command('Page.captureScreenshot',{format:'png'});if(restored.result.data!==first)throw Error('Back page failed under stalled narration');
  await resize(390,844,true);const phoneFirst=await shot('vegetables-phone');
- await pixelClick(350,808,true);const phoneSecond=await shot('vegetables-phone-next');if(phoneFirst===phoneSecond)throw Error('Touch Next failed');
+ await pixelClick(333,791,true);const phoneSecond=await shot('vegetables-phone-next');if(phoneFirst===phoneSecond)throw Error('Touch Next failed');
  await swipe(320,350,45,350);const swiped=await shot('vegetables-phone-swipe');if(swiped===phoneSecond)throw Error('Touch swipe did not turn the page');
  await swipe(45,350,320,350);const swipedBack=await command('Page.captureScreenshot',{format:'png'});if(swipedBack.result.data!==phoneSecond)throw Error('Reverse touch swipe lost its page');
  holdAudio=false;for(const requestId of pausedAudio)await command('Fetch.continueRequest',{requestId});await command('Fetch.disable');
- await pixelClick(195,808,true);await shot('books-phone');
- await pixelClick(292,555,true);const fromCover=await shot('vegetables-cover-touch');await pixelClick(195,808,true);await key('0','Digit0');const directCover=await command('Page.captureScreenshot',{format:'png'});if(fromCover!==directCover.result.data)throw Error('Vegetables cover opened the wrong book');await pixelClick(195,808,true);
+ await pixelClick(195,791,true);await shot('books-phone');
+ await pixelClick(195,675,true);const fromCover=await shot('vegetables-cover-touch');await pixelClick(195,791,true);await key('0','Digit0');const directCover=await command('Page.captureScreenshot',{format:'png'});if(fromCover!==directCover.result.data)throw Error('Vegetables cover opened the wrong book');await pixelClick(195,791,true);
  await swipe(90,620,90,160);await shot('books-touch-scroll');
  for(const [w,h,mobile] of [[320,568,true],[844,390,true],[768,1024,true],[1920,1080,false],[390,844,true]]){await resize(w,h,mobile);await shot('shelf-'+w+'-'+h)}
- await pixelClick(36,808,true);await pixelClick(325,36,true);if(await evaluate('Module.FS.readFile("/kryon-apps/jungle/settings/language.txt",{encoding:"utf8"})')!=="es")throw Error('Spanish flag did not persist');
+ await pixelClick(53,791,true);await pixelClick(325,102,true);if(await evaluate('Module.FS.readFile("/kryon-apps/jungle/settings/language.txt",{encoding:"utf8"})')!=="es")throw Error('Spanish flag did not persist');
  await pixelClick(195,420,true);await shot('counting-phone');
  let counted=false;for(let n=1;n<=4;n++){
   await pixelClick(70,808,true);const index=n-1;await pixelClick(70+(index%3)*125,640+Math.floor(index/3)*56,true);await pixelClick(320,808,true);

@@ -18,11 +18,11 @@ Accented German and Spanish letters work in Dino stories, saves and exports.
 
 **Picture Book** has ten organized books: Wild animals (15 pictures), Garden
 (10), Fruits (16), Farm (20), Kitchen (8), Bathroom (8), Bedroom (8),
-Living room (8), Nature (8), and Vegetables (16). Browse large covers in a responsive scrollable shelf. Portrait pages stack the full illustration and word; landscape pages place them side by side. Choose **Simple** to hear each word once with
+Living room (8), Nature (8), and Vegetables (16). Browse the original grouped book list in a responsive scrollable shelf, with Animals and nature, Food, and At home sections. Portrait pages stack the full illustration and word; landscape pages place them side by side. Choose **Simple** to hear each word once with
 its picture, or **Spelling** to hear the word, its letters and the word again.
 The selected mode is remembered. Every one of the 117 pictures has names and
 both kinds of narration in English, German and Spanish, including correctly
-spaced accented letters. Pictures sit on cream pages in a softly bound book.
+spaced accented letters. Pictures sit on cream pages inside the original warm book frame.
 Simple pages stay open at least six seconds; spelling pages at least twelve.
 Both wait until three seconds after their recording finishes. Swipe left for
 the next page and right for the previous page. Arrows, Enter or a picture tap

@@ -3,7 +3,7 @@
 ## 0.1.1
 
 - Picture books fill the window and adapt to portrait, landscape, phones, tablets and desktop resizing.
-- Browse large book covers without a title or category headings above them.
+- Keep the framed book style, the title-screen list and the Animals and nature, Food and At home groups while resizing.
 - Add a Vegetables book with sixteen pictures and English, German and Spanish words and narration.
 - Use touch buttons to answer counting questions and the phone keyboard to write dinosaur stories.
 - Dino Colors draws its scenes and dinosaurs as smooth line art instead of blocky pixels.

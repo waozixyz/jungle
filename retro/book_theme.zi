@@ -42,12 +42,21 @@ BookPalette :: () {
         .selected_text = 0xfffcf3ff, .border = 0xbba98bff})
 }
 
-BookPaper :: () {
+BookPaperSized :: (width: s32, height: s32) {
+    fit := cast(float32)width / 320.0
+    if cast(float32)height / 200.0 < fit { fit = cast(float32)height / 200.0 }
+    if fit < 1.0 { fit = 1.0 }
+    outer_x := cast(s32)(9.0 * fit)
+    outer_y := cast(s32)(8.0 * fit)
+    inner_x := cast(s32)(14.0 * fit)
+    inner_y := cast(s32)(12.0 * fit)
     BookPalette()
-    BookBox(0, 0, 320, 200, 0xe3ece4ff)
-    BookBox(9, 8, 302, 184, 0x704d36ff, 0x593d2dff, 8.0)
-    BookBox(14, 12, 292, 176, 0xfffcf3ff, 0xdacdb5ff, 5.0)
+    BookBox(0, 0, width, height, 0xe3ece4ff)
+    BookBox(outer_x, outer_y, width - outer_x * 2, height - outer_y * 2, 0x704d36ff, 0x593d2dff, 8.0 * fit)
+    BookBox(inner_x, inner_y, width - inner_x * 2, height - inner_y * 2, 0xfffcf3ff, 0xdacdb5ff, 5.0 * fit)
 }
+
+BookPaper :: () { BookPaperSized(320, 200) }
 
 BookButton :: (id: s32, x: s32, y: s32, width: s32, height: s32, label: string, chosen: bool = false) -> bool {
     press := RetroTap(id, x, y, width, height, label)
