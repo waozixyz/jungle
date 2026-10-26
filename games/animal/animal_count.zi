@@ -1,6 +1,5 @@
 #import, file "../../retro/language.zi";
-// Animal Counting: Animal Math's counting game. The eighteen native sprites
-// sit in the original's fixed places, the ladder runs 4, 5, 6, 8, 9 and 10,
+// Animal Counting: Animal Math's counting game. The ladder runs 4, 5, 6, 8, 9 and 10,
 // six right answers move up, six misses move back, and the eighth right answer
 // brings one of the original praises.
 #import "app_context"
@@ -20,9 +19,6 @@ SOUNDS :: "assets/animal-count/sounds/"
 HOW_MANY :: "How many animals?"
 YOU_GOT_IT :: "You got it!"
 TRY_AGAIN :: "Try again!"
-// Animal Math's eighteen counting places, exactly as in ANIMALS.PAS.
-place_x: [18]s32 = .[164, 132, 132, 164, 100, 100, 132, 164, 100, 68, 68, 68, 36, 36, 36, 196, 196, 196];
-place_y: [18]s32 = .[100, 100, 72, 72, 72, 100, 128, 128, 128, 100, 72, 128, 72, 100, 128, 72, 100, 128];
 praises: [8]string = .[" GOOD JOB ", "   WOW    ", "  GREAT   ", "FANTASTIC ", "ALL RIGHT ", " TERRIFIC ", "  SUPER   ", " AWESOME  "];
 typed: [2]u8;
 typed_count: s32;
@@ -33,8 +29,6 @@ praise_word: string = "";
 loaded: bool;
 reward_started: float64;
 reward_head: s32;
-question_pending: bool;
-question_at: float64;
 
 Join :: (a: string, b: string = "", c: string = "") -> string {
     text: Vec(u8)
@@ -52,8 +46,6 @@ Sound :: (name: string) { GameSound(Join(SOUNDS, name, ".wav")) }
 
 NextNumber :: () {
     NextCount()
-    question_pending = true
-    question_at = retro.now + 0.45
     typed_count = 0
     typed[0] = 0
     typed[1] = 0
@@ -73,8 +65,15 @@ CountingBookView :: () {
     BookPaper()
     BookText(24, 16, 272, 24, HOW_MANY, 18)
     BookBox(22, 58, 276, 90, 0xf7f1e3ff, 0xdacdb5ff, 5.0)
+    columns: s32 = ifx number < 5 then number else 5
+    rows := (number + columns - 1) / columns
     for index: cast(s32)0..number - 1 {
-        BookPicture(ItemPath(item), place_x[index] - 13, place_y[index] - 13, 26, 26)
+        row := index / columns
+        in_row := number - row * columns
+        if in_row > columns { in_row = columns }
+        x := 22 + (184 - in_row * 32) / 2 + (index % columns) * 32 + 3
+        y := 58 + (90 - rows * 28) / 2 + row * 28 + 1
+        BookPicture(ItemPath(item), x, y, 26, 26)
     }
     BookText(210, 89, 18, 28, "=", 20)
     BookBox(232, 85, 56, 38, 0xfffcf3ff, 0xbba98bff, 6.0)
@@ -131,8 +130,11 @@ CountingView :: () {
     if fit < size { size = fit }
     if size > 100 { size = 100 }
     for index: cast(s32)0..number - 1 {
-        x := animal_x + (animal_width - columns * size) / 2 + (index % columns) * size
-        y := animal_y + (animal_height - rows * size) / 2 + (index / columns) * size
+        row := index / columns
+        in_row := number - row * columns
+        if in_row > columns { in_row = columns }
+        x := animal_x + (animal_width - in_row * size) / 2 + (index % columns) * size
+        y := animal_y + (animal_height - rows * size) / 2 + row * size
         BookPicture(ItemPath(item), x + 3, y + 3, size - 6, size - 6)
     }
     answer := ifx typed_count > 0 then TextView(typed[:typed_count]) else ""
@@ -205,7 +207,6 @@ GameMain :: () -> s32 {
     }
     if key == KEY_ENTER && typed_count > 0 && typed[0] == #char "Q" { GameHome(); return 0 }
     if key == KEY_ENTER && typed_count > 0 {
-        question_pending = false
         answer: s32 = cast(s32)(typed[0] - #char "0")
         if typed_count == 2 { answer = answer * 10 + cast(s32)(typed[1] - #char "0") }
         if CountAnswer(answer) {
@@ -229,10 +230,6 @@ GameMain :: () -> s32 {
             typed[1] = 0
         }
         unused CountSave()
-    }
-    if question_pending && now >= question_at {
-        unused AppService("jungle.voice", Join(SOUNDS, Join("question-", LanguageCode()), ".wav"))
-        question_pending = false
     }
     return 0
 }

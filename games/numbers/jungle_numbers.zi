@@ -143,8 +143,10 @@ LearnView :: () {
         big: s32 = panel * 2 / 3
         if big > content_height * 3 / 4 { big = content_height * 3 / 4 }
         if big < 40 { big = 40 }
-        BookText(numbers_padding, numbers_padding, panel, big + 20, NumberText(learn_number), big)
-        BookText(numbers_padding, numbers_padding + big + 16, panel, 34, NumberWord(learn_number), 24, TextAlign.TextAlignCenter, false)
+        label_height: s32 = 34
+        numeral_height := content_height - label_height
+        BookText(numbers_padding, numbers_padding, panel, numeral_height, NumberText(learn_number), big)
+        BookText(numbers_padding, numbers_padding + numeral_height, panel, label_height, NumberWord(learn_number), 24, TextAlign.TextAlignCenter, false)
         if RetroTap(50, numbers_padding, numbers_padding, panel, content_height, "Hear number").clicked { voice_pending = true }
         BookBox(numbers_width / 2 - 1, numbers_padding, 2, content_height, 0xe5d9c3ff)
         picture_x: s32 = numbers_width / 2 + numbers_gap / 2
@@ -154,7 +156,7 @@ LearnView :: () {
         if big > 90 { big = 90 }
         if big < 36 { big = 36 }
         BookText(numbers_padding, numbers_padding, width / 2, big + 16, NumberText(learn_number), big)
-        BookText(numbers_padding + width / 2, numbers_padding + big / 2, width / 2, 40, NumberWord(learn_number), 24, TextAlign.TextAlignCenter, false)
+        BookText(numbers_padding + width / 2, numbers_padding + (big + 16 - 40) / 2, width / 2, 40, NumberWord(learn_number), 24, TextAlign.TextAlignCenter, false)
         if RetroTap(50, numbers_padding, numbers_padding, width, big + 16, "Hear number").clicked { voice_pending = true }
         picture_height: s32 = content_bottom - numbers_padding - big - 12
         DrawThings(learn_item, learn_number, numbers_padding, numbers_padding + big + 16, width, picture_height)

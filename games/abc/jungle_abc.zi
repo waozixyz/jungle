@@ -30,6 +30,7 @@ last_language: s32 = -1;
 voice_pending: bool;
 examples: bool;
 sequence_playing: bool;
+sequence_speed: s32 = 1;
 letter_started: float64;
 voice_idle_started: float64;
 WordName :: (at: s32) -> string {
@@ -171,14 +172,16 @@ ToggleSequence :: () {
     OpenLetter(ifx learn_letter == LetterCount(language) - 1 then 0 else learn_letter, true)
 }
 
-// Stay on each letter for at least four seconds, including a quiet pause
+// Keep each recording complete and leave a quiet pause at the chosen pace
 // after its recording. A loading or playing recording never gets skipped.
 AdvanceSequence :: () {
     if !sequence_playing || examples || voice_pending { return }
     state := AppService("jungle.voice-state", "")
     if state == "loading" || state == "playing" { voice_idle_started = 0.0; return }
     if voice_idle_started == 0.0 { voice_idle_started = retro.now }
-    if retro.now - letter_started < 4.0 || retro.now - voice_idle_started < 1.5 { return }
+    duration: float64 = ifx sequence_speed == 0 then 6.0 else ifx sequence_speed == 1 then 4.0 else 2.0
+    quiet: float64 = ifx sequence_speed == 0 then 2.5 else ifx sequence_speed == 1 then 1.5 else 0.5
+    if retro.now - letter_started < duration || retro.now - voice_idle_started < quiet { return }
     if learn_letter + 1 == LetterCount(language) { sequence_playing = false; return }
     OpenLetter(learn_letter + 1, true)
 }
@@ -272,7 +275,7 @@ GameMain :: () -> s32 {
     mode := AppMode()
     if mode == APP_IDENTIFY {
         settings_loaded = false; ladder_loaded = false
-        examples = false; sequence_playing = true
+        examples = false; sequence_playing = true; sequence_speed = 1
         voice_pending = true; voice_idle_started = 0.0
         learn_letter = 0; learn_slot = 0; last_language = -1
         AppIdentity("jungle.abc")
@@ -288,6 +291,7 @@ GameMain :: () -> s32 {
     RefreshLanguage()
     if !ladder_loaded { AbcLoad(); ladder_loaded = true }
     key := retro.key
+    if key == 10001 { sequence_speed = (sequence_speed + 1) % 3 }
     if key == KEY_ESCAPE { GameHome(); return 0 }
     if key == KEY_RIGHT { MoveLetter(1) }
     if key == KEY_LEFT { MoveLetter(-1) }

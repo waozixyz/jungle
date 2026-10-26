@@ -30,7 +30,7 @@ try{
  async function evaluate(expression){const r=await command('Runtime.evaluate',{expression,returnByValue:true,awaitPromise:true});if(r.result?.exceptionDetails)throw Error(JSON.stringify(r.result.exceptionDetails));return r.result?.result?.value}
  async function key(key,code=key){await command('Input.dispatchKeyEvent',{type:'keyDown',key,code,windowsVirtualKeyCode:key==='Enter'?13:key==='Escape'?27:key.startsWith('Arrow')?({ArrowLeft:37,ArrowUp:38,ArrowRight:39,ArrowDown:40}[key]):key.charCodeAt(0)});await delay(100);await command('Input.dispatchKeyEvent',{type:'keyUp',key,code});await delay(250)}
  async function click(x,y){const b=await evaluate('(()=>{let b=document.getElementById("canvas").getBoundingClientRect();return {x:b.x,y:b.y,w:b.width,h:b.height}})()');x=b.x+x*b.w/320;y=b.y+y*b.h/200;await command('Input.dispatchMouseEvent',{type:'mousePressed',x,y,button:'left',clickCount:1});await delay(80);await command('Input.dispatchMouseEvent',{type:'mouseReleased',x,y,button:'left',clickCount:1});await delay(400)}
- await command('Runtime.enable');await command('Page.enable');await command('Emulation.setDeviceMetricsOverride',{width:1280,height:800,deviceScaleFactor:1,mobile:false});await command('Page.navigate',{url});
+ await command('Runtime.enable');await command('Page.enable');await command('Page.addScriptToEvaluateOnNewDocument',{source:'performance.setResourceTimingBufferSize(5000)'});await command('Emulation.setDeviceMetricsOverride',{width:1280,height:800,deviceScaleFactor:1,mobile:false});await command('Page.navigate',{url});
  let ready=false;while(Date.now()<deadline){if(await evaluate('typeof Module!=="undefined"&&Module.FS&&document.getElementById("loading").style.display==="none"')){ready=true;break}if(diagnostics.length)throw Error(JSON.stringify(diagnostics));await delay(250)}
  if(!ready)throw Error('Browser startup timeout '+JSON.stringify(diagnostics)+' '+await evaluate('JSON.stringify({url:location.href,title:document.title,text:document.body?.innerText?.slice(0,500)})'));await delay(1000);
  await mkdir('build/tests/web',{recursive:true});
@@ -46,7 +46,7 @@ try{
  async function waitPage(name){const until=Date.now()+15000;const path='/assets/jungle-book/pages/'+name+'.jpg';while(Date.now()<until){if(await evaluate('Module.FS.analyzePath('+JSON.stringify(path)+').exists'))return;await delay(100)}throw Error('Page image did not load: '+name)}
  async function waitResource(fragment){const until=Date.now()+12000;while(Date.now()<until){if(await evaluate('performance.getEntriesByType("resource").some(e=>e.name.includes('+JSON.stringify(fragment)+'))'))return;await delay(100)}throw Error('Missing lesson audio/image resource: '+fragment)}
  async function swipe(x,y,xx,yy){await command('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x,y}]});for(let i=1;i<=6;i++){await delay(35);await command('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:x+(xx-x)*i/6,y:y+(yy-y)*i/6}]})}await command('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});await delay(350)}
- const eager=await evaluate('performance.getEntriesByType("resource").filter(e=>e.name.includes("/jungle-book/pages/")).length');if(eager)throw Error('Startup downloaded book pages before selection');await shot('menu');
+ const missing=await evaluate('Array.from(imagePaths).filter(path=>!Module.FS.analyzePath("/"+path).exists).length');if(missing)throw Error('Opening screen cleared before all pictures loaded: '+missing);await shot('menu');
  holdAudio=true;await command('Fetch.enable',{patterns:[{urlPattern:'*jungle-book/sounds/*.wav*',requestStage:'Request'}]});
  await pixelClick(400,330);await shot('books');if(pausedAudio.length)throw Error('Opening Picture Book skipped the category list');await key('0','Digit0');await waitPage('carrot');await delay(300);const first=await shot('vegetables-desktop',true);
  await pixelClick(1188,712);const second=await shot('vegetables-next',true);if(first===second)throw Error('Page navigation froze under stalled narration');
@@ -77,7 +77,20 @@ try{
   const resources=()=>evaluate('performance.getEntriesByType("resource").map(e=>e.name)');
   await pixelClick(195,rowY(1),true);await shot('letters-numbers-hub');await pixelClick(195,rowY(0,2),true);await shot('abc-letters-phone');
   await waitResource('/abc/sounds/es/letters/0061.wav');
+  // Switch to a separate private tab: narration and progression must continue
+  // when the lesson is hidden, not only after it regains focus.
+  const originalTarget=pages.find(p=>p.type==='page').id;
+  const other=await command('Target.createTarget',{url:'about:blank'});
+  await command('Target.activateTarget',{targetId:other.result.targetId});
+  await delay(300);
+  if(!await evaluate('document.hidden'))throw Error('Private test did not hide the lesson tab');
   await waitResource('/abc/sounds/es/letters/0062.wav');
+  await command('Target.activateTarget',{targetId:originalTarget});
+  await command('Target.closeTarget',{targetId:other.result.targetId});
+  const fasterAt=Date.now();
+  await pixelClick(285,28,true); // Normal -> Fast.
+  await waitResource('/abc/sounds/es/letters/0063.wav');
+  if(Date.now()-fasterAt>3500)throw Error('Fast pace did not advance the alphabet sooner');
   await key('b','KeyB');const pausedAlphabet=await pagePixels();await delay(4500);
   if(pausedAlphabet!==await pagePixels())throw Error('Manual letter selection did not pause the sequence');
   if((await resources()).some(n=>n.includes('/jungle-book/sounds/es/simple/garlic.wav')))throw Error('Default alphabet spoke a word example');

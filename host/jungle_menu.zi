@@ -36,10 +36,13 @@ menu_learning: bool;
 menu_lesson_choice: s32;
 menu_root_choice: s32;
 GAME_BAR_HEIGHT :: 56
+ABC_SPEED_KEY :: 10001
+abc_title_speed: s32 = 1;
 
 TitleBarAction :: struct {
     back: bool
     sound_toggle: bool
+    speed_toggle: bool
 }
 
 // Back on the left, the game's name, and sound on or off on the right.
@@ -50,16 +53,25 @@ GameTitleBar :: (session: Session, bounds: Rectangle, key: s32, now: float64, ti
     width := cast(s32)bounds.width
     BookPalette()
     options: [0]DropdownOption
+    abc := title == "ABC Book"
     bar := TitleBar(session, TitleBarProps.{.key = 9001,
         .bounds = Rectangle.{bounds.x, bounds.y, bounds.width, cast(float32)GAME_BAR_HEIGHT},
         .height = GAME_BAR_HEIGHT, .title = Tr(title), .has_leading_action = true,
-        .leading_label = Tr("Back"), .trailing_width = 60}, options[:])
+        .leading_label = Tr("Back"), .trailing_width = ifx abc then 155 else 60}, options[:])
     action.back = bar.clicked_leading
     sound := RetroTap(9002, width - 56, 6, 44, 44, ifx sound_muted then "Sound off · F10" else "Sound on · F10")
     BookBox(width - 56, 6, 44, 44, ifx sound.down then cast(u32)0xdcebdcff else cast(u32)0xf3ecdcff, 0xdacdb5ff, 4.0)
     SvgIcon(session, SvgIconProps.{.bounds = RetroRect(width - 49, 13, 30, 30),
         .shape = ifx sound_muted then SoundOffIcon.Shape else SoundOnIcon.Shape, .color = ColorFromPacked(0x3e332aff)})
     action.sound_toggle = sound.clicked
+    if abc {
+        speed_label := ifx abc_title_speed == 0 then "Slow" else ifx abc_title_speed == 1 then "Normal" else "Fast"
+        speed := RetroTap(9003, width - 150, 6, 88, 44, Tr("Speed"))
+        BookBox(width - 150, 6, 88, 44, ifx speed.down then cast(u32)0xdcebdcff else cast(u32)0xf3ecdcff, 0xdacdb5ff, 4.0)
+        BookText(width - 150, 7, 88, 18, "Speed", 12)
+        BookText(width - 150, 24, 88, 20, speed_label, 13)
+        if speed.clicked { abc_title_speed = (abc_title_speed + 1) % 3; action.speed_toggle = true }
+    }
     return action
 }
 

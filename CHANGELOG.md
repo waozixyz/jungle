@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.6
+
+- Change ABC playback pace from the title bar and keep the spoken sequence going when its browser tab is in the background.
+- Show the opening screen while the picture library loads.
+- Center numbers and animal groups, and remove the spoken counting question.
+
 ## 0.1.5
 
 - Keep every letter in each language's alphabet visible, including German Ä, Ö, Ü, ß and Spanish Ñ, even in short landscape windows.
