@@ -36,7 +36,7 @@ $(APP)/jungle: $(wildcard host/*.zi retro/*.zi games/paint/paint_palette.zi game
 	mkdir -p $(APP)
 	@set -eu; output=$$(mktemp -d build/host-c.XXXXXX); \
 		trap 'rm -rf "$$output"' EXIT; \
-		'$(ZIRANC)' build --target=c --root host $(MODULES) --entry main:main -o "$$output" host/main.zi; \
+		'$(ZIRANC)' build --target=c --root host $(MODULES) --entry desktop:main -o "$$output" host/desktop.zi; \
 		$${CC:-cc} $(CFLAGS_ZI) $$(find "$$output" -type d -printf ' -iquote %p') $$(find "$$output" -name '*.c') \
 		build/ziran/libziran.a -Wl,--gc-sections $(DESKTOP_LIBS) -o "$$output/jungle"; \
 		mv "$$output/jungle" $@

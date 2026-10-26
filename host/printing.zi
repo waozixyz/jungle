@@ -4,8 +4,8 @@
 #import "std/text_buffer"
 #import "std/utf8"
 #import, file "../retro/language.zi";
-#import "bundle_time"
-#import "app_files"
+#import "kryon/bundle_time"
+#import "kryon/app_files"
 #import, file "canvas_png.zi";
 #import, file "jungle_text.zi";
 #import, file "../games/paint/paint_palette.zi";

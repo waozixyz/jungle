@@ -1,0 +1,137 @@
+// Jungle Academy on the desktop: the shared menu and games in a window.
+//
+//     jungle            the menu
+//     jungle --check    opens every listed game and checks it can run here
+#import "desktop_runtime"
+#import "cairo_raster"
+#import "system_clipboard"
+#import "c_string"
+#import "byte_text_linux"
+#import "file"
+#import "text_buffer"
+#import "std/bundle_host"
+#import "session"
+#import "geometry"
+#import "text_align"
+#import "tree"
+#import "tree_draw"
+#import "tree_input"
+#import "scroll_device"
+#import "key_input"
+#import "text_input_props"
+#import "widget_host"
+#import "hosted_values"
+#import "app_files"
+#import "app_local"
+#import "app_context_host"
+#import "app_protocol"
+#import "bundle_app"
+#import "bundle_assets"
+#import "bundle_resources"
+#import, file "../retro/retro.zi";
+#import, file "../retro/book_theme.zi";
+#import, file "platform.zi";
+#import, file "sound.zi";
+#import, file "canvas_png.zi";
+#import, file "jungle_text.zi";
+#import, file "jungle_menu.zi";
+#import, file "jungle_progress.zi";
+#import, file "../games/paint/paint_palette.zi";
+#import, file "../games/paint/paint_picture.zi";
+#import, file "printing.zi";
+#import, file "../retro/language.zi";
+#import, file "jungle_host.zi";
+
+jungle_sdl :: #system_library "SDL2";
+SdlStart :: (flags: u32) -> s32 #foreign jungle_sdl "SDL_InitSubSystem";
+SdlRect :: struct {
+    x: s32
+    y: s32
+    w: s32
+    h: s32
+}
+UsableBounds :: (display: s32, area: *SdlRect) -> s32 #foreign jungle_sdl "SDL_GetDisplayUsableBounds";
+
+DrawMenu :: (session: Session) -> bool {
+    BeginDesktopFrame()
+    viewport := DesktopViewport()
+    TreePointerUpdate(session, PollPointer())
+    key := DesktopPressedKey()
+    if BeginFrame(session, cast(u64)1, viewport) != FrameStatus.FrameOk { return false }
+    Menu(session, viewport, key)
+    if EndFrame(session) != FrameStatus.FrameOk { return false }
+    unused DesktopCursor(session)
+    return EndDesktopFrame()
+}
+
+DrawGame :: () -> bool {
+    BeginDesktopFrame()
+    viewport := DesktopViewport()
+    key := DesktopPressedKey()
+    if key == 299 { ToggleSound(); key = 0 }
+    typed_bytes: [128]u8
+    typed_count: s32 = 0
+    while true {
+        code := DesktopTypedCodepoint()
+        if code == 0 { break }
+        typed_count = TypedTextAppend(typed_bytes[:], typed_count, code)
+    }
+    ok := GameFrame(viewport, PollPointer(), PollSecondaryPointer(), key, DesktopModifiers(),
+        DesktopWheelMove(), TextView(typed_bytes[:typed_count]), JungleSeconds())
+    if ok {
+        unused DesktopCursor(game.app.session)
+        ok = EndDesktopFrame()
+    }
+    return ok
+}
+
+// Jungle opens windowed at 4x by default, shrinking only when the first
+// display's free area cannot fit that window; 4 when the display cannot be
+// asked.
+WindowZoom :: () -> s32 {
+    area: SdlRect
+    // SDL_INIT_VIDEO; the desktop host starts it again when it opens.
+    if SdlStart(cast(u32)0x20) != 0 || UsableBounds(0, *area) != 0 { return 4 }
+    zoom := area.w / SCREEN_WIDTH
+    tall := (area.h - 40) / SCREEN_HEIGHT
+    if tall < zoom { zoom = tall }
+    if zoom > 4 { zoom = 4 }
+    if zoom < 1 { return 1 }
+    return zoom
+}
+
+#program_export
+main :: (argc: s32, argv: **u8) -> s32 {
+    folder := AppDirectory()
+    if folder == "" || !EnterDirectory(folder) {
+        Report("jungle: cannot find its assets and games folders\n")
+        return 1
+    }
+    if !JungleOpen(argc == 2 && TextFromCString(argv[1]) == "--check") { return 1 }
+    if argc == 2 && TextFromCString(argv[1]) == "--check" { return Check() }
+    zoom := WindowZoom()
+    if !OpenDesktopSized(SCREEN_WIDTH * zoom, SCREEN_HEIGHT * zoom) { CloseDesktop(); return 1 }
+    unused DesktopSetTitle("Jungle Academy")
+    unused WindowInterceptCloseHost(true)
+    session := SessionOpen()
+    if !SessionValid(session) { CloseDesktop(); return 1 }
+    ok := true
+    while ok && PollDesktop() {
+        if playing {
+            if !DrawGame() {
+                CloseGame()
+                message = "THAT GAME STOPPED."
+            } else if home_requested {
+                CloseGame()
+            }
+        } else {
+            ok = DrawMenu(session)
+        }
+        if WindowTakeCloseRequestHost() { break }
+        if ok { PauseDesktop() }
+    }
+    if playing { CloseGame() }
+    SessionClose(session)
+    CloseDesktop()
+    return ifx ok then 0 else 1
+}

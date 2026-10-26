@@ -1,5 +1,5 @@
 // Small text helpers shared by Jungle's screens and tools.
-#import "number_text"
+#import "std/number_text"
 
 // Joins up to nine pieces of text.
 Cat :: (a: string, b: string = "", c: string = "", d: string = "", e: string = "", f: string = "", g: string = "",

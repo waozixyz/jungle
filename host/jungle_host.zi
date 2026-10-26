@@ -1,37 +1,31 @@
-#import, file "../retro/language.zi";
-// Jungle Academy: a menu of learning games for young children. Each game is its own
-// .zx bundle in games/, run through Kryon's app host, with its saves in
-// the user's data folder. Games may ask the app to play their sounds, to
-// turn a painted canvas into a picture, and to go back to this menu.
-//
-//     jungle            the menu
-//     jungle --check    opens every listed game and checks it can run here
-#import "c_string"
-#import "byte_text_linux"
-#import "file"
-#import "text_buffer"
+// Jungle Academy's menu, games and services, shared by the desktop and
+// Android hosts. Each game is its own .zx bundle in games/, run through
+// Kryon's app host, with its saves in the person's data folder. Games may ask
+// the app to play their sounds, to turn a painted canvas into a picture, and
+// to go back to this menu.
+#import "std/c_string"
+#import "std/byte_text_linux"
+#import "std/file"
+#import "std/text_buffer"
 #import "std/bundle_host"
-#import "desktop_runtime"
-#import "cairo_raster"
-#import "session"
-#import "geometry"
-#import "text_align"
-#import "tree"
-#import "tree_draw"
-#import "tree_input"
-#import "scroll_device"
-#import "key_input"
-#import "text_input_props"
-#import "system_clipboard"
-#import "widget_host"
-#import "hosted_values"
-#import "app_files"
-#import "app_local"
-#import "app_context_host"
-#import "app_protocol"
-#import "bundle_app"
-#import "bundle_assets"
-#import "bundle_resources"
+#import "kryon/session"
+#import "kryon/geometry"
+#import "kryon/text_align"
+#import "kryon/tree"
+#import "kryon/tree_draw"
+#import "kryon/tree_input"
+#import "kryon/scroll_device"
+#import "kryon/key_input"
+#import "kryon/text_input_props"
+#import "kryon/widget_host"
+#import "kryon/hosted_values"
+#import "kryon/app_files"
+#import "kryon/app_local"
+#import "kryon/app_context_host"
+#import "kryon/app_protocol"
+#import "kryon/bundle_app"
+#import "kryon/bundle_assets"
+#import "kryon/bundle_resources"
 #import, file "../retro/retro.zi";
 #import, file "../retro/book_theme.zi";
 #import, file "platform.zi";
@@ -44,23 +38,12 @@
 #import, file "../games/paint/paint_picture.zi";
 #import, file "printing.zi";
 
+#import, file "../retro/language.zi";
+
 GAME_LIMIT :: 8
 FONT :: "assets/jungle/font.png"
 // Canvas pictures kept on disk: a page chooser shows six at once.
 CANVAS_KEEP :: 12
-
-jungle_sdl :: #system_library "SDL2";
-Counter :: () -> u64 #foreign jungle_sdl "SDL_GetPerformanceCounter";
-CounterRate :: () -> u64 #foreign jungle_sdl "SDL_GetPerformanceFrequency";
-SdlStart :: (flags: u32) -> s32 #foreign jungle_sdl "SDL_InitSubSystem";
-SdlRect :: struct {
-    x: s32
-    y: s32
-    w: s32
-    h: s32
-}
-UsableBounds :: (display: s32, area: *SdlRect) -> s32 #foreign jungle_sdl "SDL_GetDisplayUsableBounds";
-
 
 games: [GAME_LIMIT]Game;
 game_count: s32;
@@ -78,10 +61,6 @@ service_reply: [64]u8;
 canvas_count: s32;
 canvas_pixels: [CANVAS_PIXELS]u8;
 
-Seconds :: () -> float64 {
-    return cast(float64)Counter() / cast(float64)CounterRate()
-}
-
 ToggleSound :: () {
     SoundMuted(!sound_muted)
     unused WriteEntireFile(sound_setting, ifx sound_muted then "off\n" else "quiet\n")
@@ -89,7 +68,7 @@ ToggleSound :: () {
 
 // games/catalog.txt: one game a line, "FILE|TITLE|ABOUT|ICON|AGE".
 LoadCatalog :: () -> bool {
-    text, found := ReadEntireFile("games/catalog.txt")
+    text, found := ShippedRead("games/catalog.txt")
     if !found { return false }
     at: s64 = 0
     while at < text.count && game_count < GAME_LIMIT {
@@ -169,8 +148,8 @@ GameServices :: (context: *void, module: *u8, function: *u8,
         }
         if service == "jungle.voice" {
             if book_assets_installed && request.count > 26 && request[:26] == "assets/jungle-book/sounds/" && AppFileNameValid(request) {
-                wave, found := ReadEntireFile(request)
-                if found { SoundVoice(wave); AppFileFree(wave) }
+                wave, found := ShippedRead(request)
+                if found { SoundVoice(wave); ShippedFree(wave) }
             } else { SoundVoice(ifx request == "" then "" else BundleReadAsset(game.app.app.bundle, request)) }
             result.* = Reply("played")
             return 1
@@ -228,14 +207,20 @@ ClearCanvases :: (folder: string) {
     for index: cast(s32)0..found - 1 { unused RemoveFile(Cat(folder, "/", TextUntilNul(names[index][:]))) }
 }
 
+// The book's pictures and narration ship beside the app once and are shared
+// by every game that draws them, instead of packing them into each bundle.
+SharedBookAssets :: (bundle: string) -> bool {
+    return bundle == "jungle-book.zx" || bundle == "jungle-abc.zx"
+}
+
 OpenGame :: (index: s32) -> bool {
-    bytes, found := ReadEntireFile(Cat("games/", games[index].bundle_name))
+    bytes, found := ShippedRead(Cat("games/", games[index].bundle_name))
     if !found { message = "THAT GAME IS MISSING."; return false }
-    defer { AppFileFree(bytes) }
+    defer { ShippedFree(bytes) }
     if !BundleAppOpen(*game, bytes, data_root) { message = "THAT GAME COULD NOT START."; return false }
     game.app.services = GameServices
     game.app.allows = GameAllows
-    book_assets_installed = games[index].bundle_name == "jungle-book.zx"
+    book_assets_installed = SharedBookAssets(games[index].bundle_name)
     game.extracted_assets = !book_assets_installed
     ClearCanvases(game.directory)
     if !book_assets_installed && !BundleWriteAssets(game.app.app.bundle, *game.local.files) {
@@ -258,7 +243,7 @@ CloseGame :: () {
 // One frame of the open game, as BundleAppFrame, with canvas pictures
 // allowed beside the game's packed files.
 GameFrame :: (bounds: Rectangle, pointer: PointerFrame, secondary: SecondaryPointerFrame, key: s32,
-    modifiers: s32, wheel: float32, seconds: float64) -> bool {
+    modifiers: s32, wheel: float32, typed: string, seconds: float64) -> bool {
     if !game.ready { return false }
     game_secondary_down = secondary.down
     defer { BundleAppFrameAssetsClear() }
@@ -275,14 +260,6 @@ GameFrame :: (bounds: Rectangle, pointer: PointerFrame, secondary: SecondaryPoin
     app.font = 18
     app.key = key
     app.modifiers = modifiers
-    typed_bytes: [128]u8
-    typed_count: s32 = 0
-    while true {
-        code := DesktopTypedCodepoint()
-        if code == 0 { break }
-        typed_count = TypedTextAppend(typed_bytes[:], typed_count, code)
-    }
-    typed := TextView(typed_bytes[:typed_count])
     app.input = TextFieldInputFor(key, modifiers, typed)
     app.area_input = TextAreaInputFor(key, modifiers, typed)
     app.area_input.now_seconds = seconds
@@ -298,7 +275,7 @@ GameFrame :: (bounds: Rectangle, pointer: PointerFrame, secondary: SecondaryPoin
 }
 
 Menu :: (session: Session, bounds: Rectangle, key: s32) {
-    action := JungleMenu(session, bounds, key, Seconds(), FONT, games[:game_count], *chosen, sound_muted, message)
+    action := JungleMenu(session, bounds, key, JungleSeconds(), FONT, games[:game_count], *chosen, sound_muted, message)
     if action.language_changed {
         unused WriteEntireFile(language_setting, LanguageCode())
         message = ""
@@ -313,47 +290,6 @@ Start :: (index: s32) {
     chosen = index
     SoundPlay("assets/jungle/sounds/start.wav")
     unused OpenGame(index)
-}
-
-DrawMenu :: (session: Session) -> bool {
-    BeginDesktopFrame()
-    viewport := DesktopViewport()
-    TreePointerUpdate(session, PollPointer())
-    key := DesktopPressedKey()
-    if BeginFrame(session, cast(u64)1, viewport) != FrameStatus.FrameOk { return false }
-    Menu(session, viewport, key)
-    if EndFrame(session) != FrameStatus.FrameOk { return false }
-    unused DesktopCursor(session)
-    return EndDesktopFrame()
-}
-
-DrawGame :: () -> bool {
-    BeginDesktopFrame()
-    viewport := DesktopViewport()
-    key := DesktopPressedKey()
-    if key == 299 { ToggleSound(); key = 0 }
-    ok := GameFrame(viewport, PollPointer(), PollSecondaryPointer(), key, DesktopModifiers(),
-        DesktopWheelMove(), Seconds())
-    if ok {
-        unused DesktopCursor(game.app.session)
-        ok = EndDesktopFrame()
-    }
-    return ok
-}
-
-// Jungle opens windowed at 4x by default, shrinking only when the first
-// display's free area cannot fit that window; 4 when the display cannot be
-// asked.
-WindowZoom :: () -> s32 {
-    area: SdlRect
-    // SDL_INIT_VIDEO; the desktop host starts it again when it opens.
-    if SdlStart(cast(u32)0x20) != 0 || UsableBounds(0, *area) != 0 { return 4 }
-    zoom := area.w / SCREEN_WIDTH
-    tall := (area.h - 40) / SCREEN_HEIGHT
-    if tall < zoom { zoom = tall }
-    if zoom > 4 { zoom = 4 }
-    if zoom < 1 { return 1 }
-    return zoom
 }
 
 // Jungle's first version kept Jungle Math's levels in one progress file;
@@ -394,7 +330,7 @@ KeepAnimalLevels :: () {
 Check :: () -> s32 {
     failed := false
     for index: cast(s32)0..game_count - 1 {
-        bytes, found := ReadEntireFile(Cat("games/", games[index].bundle_name))
+        bytes, found := ShippedRead(Cat("games/", games[index].bundle_name))
         // Identify and validate capabilities without opening save storage.
         // Closing an unplayed game with APP_SAVE can overwrite its progress
         // with the bundle's initial values.
@@ -412,21 +348,17 @@ Check :: () -> s32 {
     return ifx failed then 1 else 0
 }
 
-#program_export
-main :: (argc: s32, argv: **u8) -> s32 {
-    folder := AppDirectory()
-    if folder == "" || !EnterDirectory(folder) {
-        Report("jungle: cannot find its assets and games folders\n")
-        return 1
-    }
+// Reads the catalog and the saved settings, and moves earlier saves into
+// place. checking leaves the data folder as it is.
+JungleOpen :: (checking: bool) -> bool {
     if !LoadCatalog() {
         Report("jungle: games/catalog.txt lists no games\n")
-        return 1
+        return false
     }
     base := DataDirectory()
-    if base == "" { Report("jungle: no data folder\n"); return 1 }
+    if base == "" { Report("jungle: no data folder\n"); return false }
     data_root = Cat(base, "/games")
-    if argc == 2 && TextFromCString(argv[1]) == "--check" { return Check() }
+    if checking { return true }
     unused CreateDirectory(base)
     language_setting = Cat(base, "/language.txt")
     saved_language, has_language := ReadEntireFile(language_setting)
@@ -437,29 +369,5 @@ main :: (argc: s32, argv: **u8) -> s32 {
     unused CreateDirectory(data_root)
     KeepMathLevels(base)
     KeepAnimalLevels()
-    zoom := WindowZoom()
-    if !OpenDesktopSized(SCREEN_WIDTH * zoom, SCREEN_HEIGHT * zoom) { CloseDesktop(); return 1 }
-    unused DesktopSetTitle("Jungle Academy")
-    unused WindowInterceptCloseHost(true)
-    session := SessionOpen()
-    if !SessionValid(session) { CloseDesktop(); return 1 }
-    ok := true
-    while ok && PollDesktop() {
-        if playing {
-            if !DrawGame() {
-                CloseGame()
-                message = "THAT GAME STOPPED."
-            } else if home_requested {
-                CloseGame()
-            }
-        } else {
-            ok = DrawMenu(session)
-        }
-        if WindowTakeCloseRequestHost() { break }
-        if ok { PauseDesktop() }
-    }
-    if playing { CloseGame() }
-    SessionClose(session)
-    CloseDesktop()
-    return ifx ok then 0 else 1
+    return true
 }

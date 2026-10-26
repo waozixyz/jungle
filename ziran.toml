@@ -1,6 +1,8 @@
 [package]
 name = "Jungle"
-module_roots = ["src"]
+module_roots = ["src", "host", "retro", "games/paint"]
+# Kryon's Android host (android_run) draws the Frame in src/app.zi.
+bridge_modules = ["app"]
 
 [toolchain]
 git = "https://github.com/ziranlang/ziran.git"

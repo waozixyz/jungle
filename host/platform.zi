@@ -1,8 +1,17 @@
 // Where Jungle finds its pictures and keeps its saves, and error output.
-#import "c_string"
-#import "byte_text_linux"
-#import "file"
+// On Android the pictures, sounds and games are inside the APK.
+#import "std/c_string"
+#import "std/byte_text_linux"
+#import "std/file"
+#import "kryon/app_files"
+#import "std/timer_linux"
 #import, file "jungle_text.zi";
+#if #defined(ANDROID_BUILD) {
+    #import "kryon/app_asset"
+    #import "kryon/android_jni"
+    android_log :: #system_library "log";
+    AndroidLogWrite :: (priority: s32, tag: *u8, message: *u8) -> s32 #foreign android_log "__android_log_write";
+}
 
 libc :: #system_library "libc";
 GetEnvironment :: (key: *u8) -> *u8 #foreign libc "getenv";
@@ -19,7 +28,37 @@ EnvironmentText :: (key: string) -> string {
 
 Report :: (message: string) {
     bytes: [1024]u8
-    if CopyCString(message, bytes[:]) { unused WriteError(2, *bytes[0], cast(usize)message.count) }
+    if !CopyCString(message, bytes[:]) { return }
+    #if #defined(ANDROID_BUILD) {
+        tag: [8]u8
+        unused CopyCString("Jungle", tag[:])
+        unused AndroidLogWrite(6, *tag[0], *bytes[0])
+    } else {
+        unused WriteError(2, *bytes[0], cast(usize)message.count)
+    }
+}
+
+JungleSeconds :: () -> float64 {
+    return cast(float64)MonotonicMilliseconds() / 1000.0
+}
+
+// A file Jungle ships: games/, assets/. Release it with ShippedFree.
+ShippedRead :: (name: string) -> (text: string, ok: bool) {
+    #if #defined(ANDROID_BUILD) {
+        data := ReadAppAsset(name)
+        return data, data.count > 0
+    } else {
+        text, ok := ReadEntireFile(name)
+        return text, ok
+    }
+}
+
+ShippedFree :: (data: string) {
+    #if #defined(ANDROID_BUILD) {
+        FreeAppAsset(data)
+    } else {
+        AppFileFree(data)
+    }
 }
 
 ExecutableDirectory :: () -> string {
@@ -45,8 +84,15 @@ EnterDirectory :: (path: string) -> bool {
     return CopyCString(path, bytes[:]) && ChangeDirectory(*bytes[0]) == 0
 }
 
-// $JUNGLE_DATA for tests, otherwise the user's data folder.
+// $JUNGLE_DATA for tests, otherwise the user's data folder; on Android the
+// app's private files.
 DataDirectory :: () -> string {
+    #if #defined(ANDROID_BUILD) {
+        resolved: [4096]u8
+        private := AndroidPrivateDataPath(resolved[:])
+        if private == "" { return "" }
+        return Cat(private, "/jungle")
+    }
     exact := EnvironmentText("JUNGLE_DATA")
     if exact != "" { return exact }
     base := EnvironmentText("XDG_DATA_HOME")

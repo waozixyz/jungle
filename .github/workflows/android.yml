@@ -1,0 +1,121 @@
+name: Android
+
+# Every push to master builds Jungle Academy for Android phones (both ARM
+# architectures), signs it with the release key kept only in GitHub secrets
+# and publishes it as the release of VERSION. A version that is already out
+# is built and verified again, never replaced.
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: jungle-android
+  cancel-in-progress: false
+
+jobs:
+  apk:
+    name: Signed Android APK
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    env:
+      ZIRAN_PAR_THREADS: '1'
+      MAKEFLAGS: -j2
+    defaults:
+      run:
+        working-directory: waozixyz/jungle
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          path: waozixyz/jungle
+      - name: Read locked dependencies
+        id: deps
+        run: |
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import json
+          lock=json.load(open('ziran.lock'))
+          print('ziran='+lock['toolchain']['commit'])
+          print('kryon='+next(p['commit'] for p in lock['packages'] if p['name']=='kryon'))
+          print('version='+open('VERSION').read().strip())
+          PY
+      - uses: actions/checkout@v7
+        with:
+          repository: ziranlang/ziran
+          ref: ${{ steps.deps.outputs.ziran }}
+          path: ziranlang/ziran
+      - uses: actions/checkout@v7
+        with:
+          repository: kryonlabs/kryon
+          ref: ${{ steps.deps.outputs.kryon }}
+          path: kryonlabs/kryon
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Install build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libsdl2-dev libcairo2-dev libfreetype-dev libfontconfig-dev libpango1.0-dev python3-pil imagemagick
+      - name: Install the pinned Android SDK tools
+        run: |
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'ndk;28.2.13676358' 'build-tools;36.0.0' 'platforms;android-36' 'cmake;3.22.1'
+      - name: Build compiler and select locked source directories
+        run: |
+          make -j2 -C "$GITHUB_WORKSPACE/ziranlang/ziran" all
+          echo "$GITHUB_WORKSPACE/ziranlang/ziran/build/bin" >> "$GITHUB_PATH"
+          python3 - <<'PY'
+          from pathlib import Path
+          import os
+          root=Path(os.environ['GITHUB_WORKSPACE'])
+          Path('ziran.local.toml').write_text('[overrides]\nziran = "'+str(root/'ziranlang/ziran')+'"\nkryon = "'+str(root/'kryonlabs/kryon')+'"\n')
+          PY
+          "$GITHUB_WORKSPACE/ziranlang/ziran/build/bin/ziran" fetch
+      - name: Build both ARM architectures in one APK
+        run: python3 tools/build_android.py --release --abi universal
+      - name: Sign and verify the download
+        env:
+          KEYSTORE: ${{ secrets.JUNGLE_ANDROID_KEYSTORE }}
+          PASSWORD: ${{ secrets.JUNGLE_ANDROID_KEYSTORE_PASSWORD }}
+        run: |
+          set -euo pipefail
+          umask 077
+          test -n "$KEYSTORE" && test -n "$PASSWORD"
+          trap 'rm -f "$RUNNER_TEMP/jungle-release.p12" "$RUNNER_TEMP/jungle-password"' EXIT
+          printf '%s' "$KEYSTORE" | base64 -d > "$RUNNER_TEMP/jungle-release.p12"
+          printf '%s' "$PASSWORD" > "$RUNNER_TEMP/jungle-password"
+          python3 tools/android_release.py sign build/android/JungleAcademy-universal-release-unsigned.apk \
+            --keystore "$RUNNER_TEMP/jungle-release.p12" --password-file "$RUNNER_TEMP/jungle-password"
+      - name: Release notes
+        env:
+          VERSION: ${{ steps.deps.outputs.version }}
+        run: |
+          python3 - <<'PY' > build/release-notes.md
+          import os, re
+          from pathlib import Path
+          text = Path('CHANGELOG.md').read_text()
+          section = re.search(r'^## ' + re.escape(os.environ['VERSION']) + r'\s*\n(.*?)(?=^## |\Z)', text, re.M | re.S)
+          assert section, 'CHANGELOG.md needs a section for ' + os.environ['VERSION']
+          print(section[1].strip())
+          PY
+      - name: Publish this version once its download is verified
+        if: github.ref == 'refs/heads/master'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          VERSION: ${{ steps.deps.outputs.version }}
+        run: |
+          set -euo pipefail
+          tag="v$VERSION"
+          state=$(gh release view "$tag" --json isDraft --jq .isDraft 2>/dev/null || echo missing)
+          if [ "$state" = false ]; then
+            echo "Jungle Academy $VERSION is already published; its signed APK was built and verified again."
+            exit 0
+          fi
+          if [ "$state" = missing ]; then
+            gh release create "$tag" --draft --target "$GITHUB_SHA" --title "Jungle Academy $VERSION" --notes-file build/release-notes.md
+          fi
+          gh release upload "$tag" "build/downloads/jungle-v$VERSION.apk" --clobber
+          gh release edit "$tag" --draft=false --latest
