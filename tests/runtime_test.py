@@ -396,10 +396,16 @@ def ui(binary):
             previous = 0
             for answer_index in range(6):
                 counting = desktop.capture("counting")
-                places = [(164,100),(132,100),(132,72),(164,72),(100,72),(100,100),(132,128),(164,128),
-                          (100,128),(68,100),(68,72),(68,128),(36,72),(36,100),(36,128),(196,72),(196,100),(196,128)]
-                background = Image.new("RGB", (24,20), (247,241,227))
-                answer = sum(ImageChops.difference(counting.crop((x-12,y-10,x+12,y+10)), background).getbbox() is not None for x,y in places)
+                # At the first level all animals fit on one centered row.
+                # Count separated painted groups, excluding the frame and answer.
+                columns = []
+                for x in range(26, 204):
+                    painted = any(counting.getpixel((x, y)) != (247, 241, 227) for y in range(72, 134))
+                    if painted and (not columns or x > columns[-1][-1] + 1):
+                        columns.append([x])
+                    elif painted:
+                        columns[-1].append(x)
+                answer = len([group for group in columns if len(group) >= 3])
                 assert 1 <= answer <= 4, "counting did not render its watercolor animals"
                 assert answer != previous, "counting repeated a question"
                 previous = answer

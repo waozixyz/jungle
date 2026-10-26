@@ -29,8 +29,8 @@ fills the page and its word sits on a label at the bottom. Choose **Simple** to 
 its picture, or **Spelling** to hear the word, its letters and the word again.
 The selected mode is remembered. Every one of the 169 pictures has names and
 both kinds of narration in English, German and Spanish, including correctly
-spaced accented letters. Each cover lists its page count. Linux narration is read only when played; browser pictures load as needed.
-Simple pages stay open at least six seconds; spelling pages at least twelve.
+spaced accented letters. Each cover lists its page count. Narration is read only when played.
+Browser pictures load before the opening screen clears. Simple pages stay open at least six seconds; spelling pages at least twelve.
 Both wait until three seconds after their recording finishes. Tap the right
 side of a page or swipe left for the next page; tap the left side or swipe
 right for the previous one. Arrows and Enter turn pages too. The back arrow in
@@ -43,7 +43,7 @@ picture stays there.
 Choose **ABC Book** or **123 Book** inside it; Back returns to that choice.
 Both open directly into learning, without an activity chooser or a find game.
 ABC starts with standalone letter names, spoken in order with a gentle pause
-between letters. Play/Pause controls the sequence; arrows or a letter selection
+between letters. The title-bar Speed button cycles through normal, fast and slow pacing; each recording finishes before the next letter. Play/Pause controls the sequence; arrows or a letter selection
 pause it for exploration. Tap a letter to hear it again. **Examples** optionally
 shows the letter on the left and one watercolor word example on the right;
 **Next example** cycles through the words and **Spelling** toggles word spelling.

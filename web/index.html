@@ -62,6 +62,24 @@ function updateSiteLanguage(language){
  document.getElementById('canvas').setAttribute('aria-label',copy.canvas);
  document.getElementById('mobile-input').setAttribute('aria-label',copy.story);
 }
+// Animation frames stop in hidden tabs. Keep the learning sequence ticking
+// with a timer while hidden, and resume normal browser frames when visible.
+const browserFrame=window.requestAnimationFrame.bind(window);
+const cancelBrowserFrame=window.cancelAnimationFrame.bind(window);
+const pendingFrames=new Map();let nextFrameId=1;
+function scheduleHiddenFrames(){
+ if(!document.hidden)return;
+ for(const entry of pendingFrames.values())if(!entry.timer)entry.timer=setTimeout(()=>entry.run(performance.now()),250);
+}
+window.requestAnimationFrame=callback=>{
+ const id=nextFrameId++;const entry={frame:0,timer:0,run(time){
+  if(!pendingFrames.has(id))return;
+  pendingFrames.delete(id);cancelBrowserFrame(entry.frame);clearTimeout(entry.timer);callback(time);
+ }};
+ pendingFrames.set(id,entry);entry.frame=browserFrame(entry.run);scheduleHiddenFrames();return id;
+};
+window.cancelAnimationFrame=id=>{const entry=pendingFrames.get(id);if(entry){pendingFrames.delete(id);cancelBrowserFrame(entry.frame);clearTimeout(entry.timer)}};
+document.addEventListener('visibilitychange',scheduleHiddenFrames);
 const imageLoads=new Map();
 let imagePaths=new Set();
 async function loadImage(path){
@@ -86,10 +104,11 @@ var Module={canvas:document.getElementById('canvas'),locateFile:p=>p,print:conso
   Module.addRunDependency('menu-pictures');
   fetch('images.json').then(r=>{if(!r.ok)throw Error('picture list');return r.json()}).then(async paths=>{
    imagePaths=new Set(paths);
-   await Promise.all(paths.filter(p=>p.endsWith('/font.png')||p.startsWith('assets/jungle/covers/')).map(loadImage));
+   // Show the opening screen until every picture is available, with bounded
+   // parallel downloads so a large library does not flood the connection.
+   let next=0;
+   await Promise.all(Array.from({length:8},async()=>{while(next<paths.length){const path=paths[next++];await loadImage(path)}}));
    Module.removeRunDependency('menu-pictures');
-   // Warm just the shelf covers while the menu is already interactive.
-   for(const path of paths.filter(p=>p.startsWith('assets/jungle-book/previews/')))void loadImage(path).catch(console.error);
   }).catch(e=>{console.error(e);Module.onAbort()});
  }],
  onRuntimeInitialized(){document.getElementById('loading').hidden=true;document.getElementById('loading').style.display='none';document.getElementById('canvas').focus()},

@@ -57,6 +57,7 @@ home_requested: bool;
 // The title bar's back arrow reaches the game as Escape on the next frame,
 // so each game steps back itself and leaves from its first screen.
 title_back_pending: bool;
+title_speed_pending: bool;
 game_secondary_down: bool;
 book_assets_installed: bool;
 message: string;
@@ -259,8 +260,8 @@ GameFrame :: (bounds: Rectangle, pointer: PointerFrame, secondary: SecondaryPoin
     BeginScrollFrame(app.session, Vector2.{pointer.x, pointer.y}, pointer.pressed,
         pointer.down, pointer.released, wheel, seconds)
     KeyboardModifiersSend(app.session, modifiers)
-    if title_back_pending && key == 0 { key = KEY_ESCAPE }
-    title_back_pending = false
+    if title_back_pending && key == 0 { key = KEY_ESCAPE; title_back_pending = false }
+    if title_speed_pending && key == 0 { key = ABC_SPEED_KEY; title_speed_pending = false }
     if key != 0 { KeyboardSend(app.session, key) }
     app.bounds = Rectangle.{bounds.x, bounds.y + cast(float32)GAME_BAR_HEIGHT, bounds.width, bounds.height - cast(float32)GAME_BAR_HEIGHT}
     app.scale = 1.0
@@ -279,6 +280,7 @@ GameFrame :: (bounds: Rectangle, pointer: PointerFrame, secondary: SecondaryPoin
     if !ok { TreeCancel(app.session); game.failed = true; return false }
     bar := GameTitleBar(app.session, bounds, key, seconds, games[chosen].title, sound_muted)
     if bar.back { title_back_pending = true }
+    if bar.speed_toggle { title_speed_pending = true }
     if bar.sound_toggle { ToggleSound() }
     return EndFrame(app.session) == FrameStatus.FrameOk
 }
@@ -295,6 +297,7 @@ Menu :: (session: Session, bounds: Rectangle, key: s32) {
 }
 
 Start :: (index: s32) {
+    abc_title_speed = 1; title_speed_pending = false
     if playing { return }
     chosen = index
     SoundPlay("assets/jungle/sounds/start.wav")
