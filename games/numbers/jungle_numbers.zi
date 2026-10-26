@@ -1,0 +1,375 @@
+#import, file "../../retro/language.zi";
+// 123 Book: the numbers twin of ABC Book. Learn pages show each numeral from
+// one to ten with its word and that many watercolor things; the find game
+// asks how many things there are, following Animal Counting's ladder.
+#import "app_context"
+#import "app_protocol"
+#import "geometry"
+#import "number_text"
+#import "std/format"
+#import "text_align"
+#import "text_buffer"
+#import, file "numbers_ladder.zi";
+#import, file "numbers_progress.zi";
+#import, file "../../retro/retro.zi";
+#import, file "../../retro/game.zi";
+#import, file "../../retro/book_theme.zi";
+#import, file "../../host/jungle_text.zi";
+
+FONT :: "assets/jungle-book/font.png"
+SOUNDS :: "assets/numbers/sounds/"
+NUMBER_COUNT :: 10
+VIEW_CHOICE :: 0
+VIEW_LEARN :: 1
+VIEW_FIND :: 2
+praises: [8]string = .[" GOOD JOB ", "   WOW    ", "  GREAT   ", "FANTASTIC ", "ALL RIGHT ", " TERRIFIC ", "  SUPER   ", " AWESOME  "];
+word_en: [10]string = .["One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten"];
+word_de: [10]string = .["Eins", "Zwei", "Drei", "Vier", "Fünf", "Sechs", "Sieben", "Acht", "Neun", "Zehn"];
+word_es: [10]string = .["Uno", "Dos", "Tres", "Cuatro", "Cinco", "Seis", "Siete", "Ocho", "Nueve", "Diez"];
+// Look-alike numeral pairs (1 7, 3 8, 5 6, 6 9) that join the tiles from
+// level three on.
+similar: [8]s32 = .[1, 7, 3, 8, 5, 6, 6, 9];
+// The spoken question asks about animals, so every counted thing is one of
+// the book's watercolor animals.
+items: [12]string = .[
+    "assets/jungle-book/items/tiger.png",
+    "assets/jungle-book/items/frog.png",
+    "assets/jungle-book/items/butterfly.png",
+    "assets/jungle-book/items/ladybug.png",
+    "assets/jungle-book/items/duck.png",
+    "assets/jungle-book/items/hen.png",
+    "assets/jungle-book/items/cat.png",
+    "assets/jungle-book/items/dog.png",
+    "assets/jungle-book/items/pig.png",
+    "assets/jungle-book/items/cow.png",
+    "assets/jungle-book/items/rabbit.png",
+    "assets/jungle-book/items/monkey.png",
+];
+
+view: s32 = VIEW_CHOICE;
+numbers_width: s32;
+numbers_height: s32;
+numbers_padding: s32;
+numbers_gap: s32;
+learn_number: s32;
+learn_item: s32;
+find_item: s32;
+ladder_loaded: bool;
+question_pending: bool;
+question_at: float64;
+state_message: string = "";
+state_until: float64 = -10.0;
+praise_until: float64 = -10.0;
+praise_word: string = "";
+praise_number: s32;
+
+NumberWord :: (number: s32) -> string {
+    if language == 1 { return word_de[number - 1] }
+    if language == 2 { return word_es[number - 1] }
+    return word_en[number - 1]
+}
+
+Sound :: (name: string) { GameSound(Cat(SOUNDS, name, ".wav")) }
+
+OpenNumber :: (number: s32) {
+    learn_number = number
+    learn_item = cast(s32)(RandomNext() % 12)
+}
+
+// A look-alike for the target number, or -1.
+MateFor :: (number: s32) -> s32 {
+    for pair: cast(s32)0..3 {
+        for side: cast(s32)0..1 {
+            if similar[pair * 2 + side] != number { continue }
+            return similar[pair * 2 + 1 - side]
+        }
+    }
+    return -1
+}
+
+NextNumbersQuestion :: () {
+    mate := ifx level >= 3 then MateFor(target) else -1
+    NextQuestion(mate)
+    find_item = cast(s32)(RandomNext() % 12)
+    question_pending = true
+    question_at = retro.now + 0.45
+}
+
+ResponsiveNumbers :: (bounds: Rectangle) {
+    numbers_width = cast(s32)bounds.width
+    numbers_height = cast(s32)bounds.height
+    fit := bounds.width / 320.0
+    if bounds.height / 200.0 < fit { fit = bounds.height / 200.0 }
+    numbers_padding = cast(s32)(14.0 * fit) + 12
+    if numbers_padding < 24 { numbers_padding = 24 }
+    numbers_gap = ifx numbers_width < 600 then 12 else 20
+    retro.x = bounds.x
+    retro.y = bounds.y
+    retro.scale = 1.0
+    BookPaperSized(numbers_width, numbers_height)
+}
+
+TouchButton :: (id: s32, x: s32, y: s32, width: s32, height: s32, text: string, selected: bool = false) -> bool {
+    press := RetroTap(id, x, y, width, height, text)
+    BookBox(x, y, width, height, ifx selected || press.down then cast(u32)0xdcebdcff else cast(u32)0xf3ecdcff,
+        ifx selected then cast(u32)0x2e6956ff else cast(u32)0xdacdb5ff, 8.0)
+    BookText(x + 6, y, width - 12, height, text, 18)
+    return press.clicked
+}
+
+ActivityCard :: (id: s32, x: s32, y: s32, width: s32, height: s32, tile: string, title: string, about: string) -> bool {
+    press := RetroTap(id, x, y, width, height, title)
+    BookBox(x, y, width, height, ifx press.down then cast(u32)0xe5eee1ff else cast(u32)0xf7f1e3ff, 0xdacdb5ff, 12.0)
+    tile_size := height / 2
+    if tile_size > width / 2 { tile_size = width / 2 }
+    if tile_size < 40 { tile_size = 40 }
+    tile_x := x + (width - tile_size) / 2
+    tile_y := y + height / 8
+    BookBox(tile_x, tile_y, tile_size, tile_size, 0xfffcf3ff, 0xd6c6a8ff, 10.0)
+    BookText(tile_x, tile_y, tile_size, tile_size, tile, tile_size * 3 / 5)
+    BookText(x + 8, tile_y + tile_size, width - 16, 32, title, 22)
+    BookText(x + 8, tile_y + tile_size + 32, width - 16, 24, about, 14, TextAlign.TextAlignCenter, true, true)
+    return press.clicked
+}
+
+// count things in a framed box, packed like Animal Counting's rows.
+DrawThings :: (item: s32, count: s32, x: s32, y: s32, width: s32, height: s32) {
+    BookBox(x, y, width, height, 0xf7f1e3ff, 0xdacdb5ff, 10.0)
+    columns: s32 = 5
+    if count < 5 { columns = count }
+    if columns < 1 { columns = 1 }
+    rows := (count + columns - 1) / columns
+    size := (width - numbers_gap * 2) / columns
+    fit := (height - numbers_gap * 2) / rows
+    if fit < size { size = fit }
+    if size > 96 { size = 96 }
+    if size < 12 { size = 12 }
+    inside_x := x + (width - columns * size) / 2
+    inside_y := y + (height - rows * size) / 2
+    for at: cast(s32)0..count - 1 {
+        thing := cast(s32)at
+        BookPicture(items[item], inside_x + (thing % columns) * size + 2, inside_y + (thing / columns) * size + 2,
+            size - 4, size - 4)
+    }
+}
+
+ChoiceView :: () {
+    stacked := numbers_width < 600
+    width := ifx stacked then numbers_width - numbers_padding * 2 else (numbers_width - numbers_padding * 2 - numbers_gap) / 2
+    height := ifx stacked then (numbers_height - numbers_padding * 3) / 2 else numbers_height - numbers_padding * 2
+    if height > width * 4 / 3 { height = width * 4 / 3 }
+    y := ifx stacked then numbers_padding else (numbers_height - height) / 2
+    if ActivityCard(40, numbers_padding, y, width, height, "12", "Learn the numbers", "Count from one to ten") {
+        view = VIEW_LEARN
+        OpenNumber(1)
+    }
+    if ActivityCard(41, ifx stacked then numbers_padding else numbers_padding + width + numbers_gap,
+        ifx stacked then y + height + numbers_padding else y, width, height, "5?",
+        "Find the number", "How many things are there?") {
+        view = VIEW_FIND
+        NextNumbersQuestion()
+    }
+    if retro.key == KEY_ENTER || retro.key == 49 { view = VIEW_LEARN; OpenNumber(1) }
+    if retro.key == 50 { view = VIEW_FIND; NextNumbersQuestion() }
+    if retro.key == KEY_ESCAPE { GameHome() }
+}
+
+// One row of ten small number buttons; numerals stay legible even where the
+// letters needed two rows, and the pages keep most of the screen.
+NumberStrip :: (x: s32, y: s32, width: s32) -> s32 {
+    button: s32 = (width - (NUMBER_COUNT - 1) * 4) / NUMBER_COUNT
+    if button > 44 { button = 44 }
+    if button < 20 { button = 20 }
+    for number: cast(s32)1..NUMBER_COUNT {
+        at := number - 1
+        bx := x + at * (button + 4)
+        press := RetroTap(100 + at, bx, y, button, button, NumberText(number))
+        selected := number == learn_number
+        BookBox(bx, y, button, button, ifx selected || press.down then cast(u32)0xdcebdcff else cast(u32)0xf3ecdcff,
+            ifx selected then cast(u32)0x2e6956ff else cast(u32)0xdacdb5ff, 6.0)
+        BookText(bx, y, button, button, NumberText(number), button * 2 / 3)
+        if press.clicked { OpenNumber(number) }
+    }
+    return button + 6
+}
+
+StripUsed :: (width: s32) -> s32 {
+    button: s32 = (width - (NUMBER_COUNT - 1) * 4) / NUMBER_COUNT
+    if button > 44 { button = 44 }
+    if button < 20 { button = 20 }
+    return button + 6
+}
+
+LearnView :: () {
+    landscape := numbers_width >= numbers_height
+    width := numbers_width - numbers_padding * 2
+    strip_top: s32 = numbers_height - numbers_padding - StripUsed(width) + 6
+    NumberStrip(numbers_padding, strip_top, width)
+    content_bottom: s32 = strip_top - 12
+    if landscape {
+        panel: s32 = (width - numbers_gap) / 2
+        content_height: s32 = content_bottom - numbers_padding
+        big: s32 = panel * 2 / 3
+        if big > content_height * 3 / 4 { big = content_height * 3 / 4 }
+        if big < 40 { big = 40 }
+        BookText(numbers_padding, numbers_padding, panel, big + 20, NumberText(learn_number), big)
+        BookText(numbers_padding, numbers_padding + big + 16, panel, 34, NumberWord(learn_number), 24)
+        BookBox(numbers_width / 2 - 1, numbers_padding, 2, content_height, 0xe5d9c3ff)
+        picture_x: s32 = numbers_width / 2 + numbers_gap / 2
+        DrawThings(learn_item, learn_number, picture_x, numbers_padding, panel, content_height)
+    } else {
+        big: s32 = numbers_width / 3
+        if big > 90 { big = 90 }
+        if big < 36 { big = 36 }
+        BookText(numbers_padding, numbers_padding, width / 2, big + 16, NumberText(learn_number), big)
+        BookText(numbers_padding + width / 2, numbers_padding + big / 2, width / 2, 40, NumberWord(learn_number), 24)
+        picture_height: s32 = content_bottom - numbers_padding - big - 12
+        DrawThings(learn_item, learn_number, numbers_padding, numbers_padding + big + 16, width, picture_height)
+    }
+}
+
+FindView :: () {
+    // Number keys answer here, inside the view, the way the book handles its
+    // own keys: the arriving frame already shows the answer's effect.
+    if retro.key >= 49 && retro.key <= 57 { Answer(retro.key - 48) }
+    if retro.key == 48 { Answer(10) }
+    landscape := numbers_width >= numbers_height
+    tiles := choice_count
+    prompt_top := numbers_padding + 34
+    grid_x := numbers_padding
+    grid_width := numbers_width - numbers_padding * 2
+    grid_top: s32 = prompt_top
+    grid_height: s32 = numbers_height - prompt_top - numbers_padding - 46
+    columns: s32 = 2
+    if landscape {
+        panel := (numbers_width - numbers_padding * 2 - numbers_gap) / 2
+        DrawThings(find_item, target, numbers_padding, prompt_top, panel, grid_height)
+        grid_x = numbers_padding + panel + numbers_gap
+        grid_width = panel
+        columns = 3
+    } else {
+        prompt_height := (numbers_height - numbers_padding * 2) * 2 / 5
+        DrawThings(find_item, target, numbers_padding, prompt_top, grid_width, prompt_height - 34)
+        grid_top = prompt_top + prompt_height - 34 + 10
+        grid_height = numbers_height - grid_top - numbers_padding - 46
+    }
+    if tiles > columns * 3 { columns = 6 }
+    rows := (tiles + columns - 1) / columns
+    tile_height: s32 = (grid_height - (rows - 1) * numbers_gap) / rows
+    if tile_height > 110 { tile_height = 110 }
+    if tile_height < 40 { tile_height = 40 }
+    tile_width: s32 = (grid_width - (columns - 1) * numbers_gap) / columns
+    BookText(numbers_padding, numbers_padding, numbers_width - numbers_padding * 2, 30, "How many?", 20)
+    for index: cast(s32)0..tiles - 1 {
+        at := cast(s32)index
+        x := grid_x + (at % columns) * (tile_width + numbers_gap)
+        y := grid_top + (at / columns) * (tile_height + numbers_gap)
+        number := choices[at]
+        text := NumberText(number)
+        press := RetroTap(300 + at, x, y, tile_width, tile_height, text)
+        BookBox(x, y, tile_width, tile_height, ifx press.down then cast(u32)0xdcebdcff else cast(u32)0xf3ecdcff,
+            0xdacdb5ff, 10.0)
+        BookText(x, y, tile_width, tile_height, text, tile_height * 3 / 5)
+        if press.clicked { Answer(number) }
+    }
+    for index: cast(s32)0..RIGHT_TO_MOVE - 1 {
+        at := cast(s32)index
+        BookBox(numbers_padding + at * 18, numbers_height - numbers_padding - 30, 9, 9,
+            ifx at < right_run then cast(u32)0x2e6956ff else cast(u32)0xe5d9c3ff, 0, 5.0)
+    }
+    BookText(numbers_width - numbers_padding - 70, numbers_height - numbers_padding - 34, 70, 18,
+        Cat(NumberText(level), "/", NumberText(MAX_LEVEL)), 12, TextAlign.TextAlignEnd, false)
+    if retro.now < state_until {
+        BookText(numbers_padding, numbers_height - numbers_padding - 60, numbers_width - numbers_padding * 2, 24, state_message, 16)
+    }
+}
+
+Answer :: (number: s32) {
+    if AnswerNumber(number) {
+        state_message = "You got it!"
+        state_until = retro.now + 1.0
+        Sound(Cat("right-", NumberText((count - 1) % 8)))
+        if count % 8 == 0 {
+            praise_word = praises[RandomNumber(8) - 1]
+            praise_number = target
+            praise_until = retro.now + 1.5
+            Sound("reward")
+        }
+        NextNumbersQuestion()
+    } else {
+        state_message = "Try again!"
+        state_until = retro.now + 1.5
+        Sound("miss")
+    }
+    unused NumbersSave()
+}
+
+PraiseView :: () {
+    BookText(numbers_padding, numbers_padding, numbers_width - numbers_padding * 2, 34, praise_word, 26)
+    picture := numbers_height - numbers_padding * 2 - 120
+    if picture > numbers_width - numbers_padding * 2 { picture = numbers_width - numbers_padding * 2 }
+    if picture > 160 { picture = 160 }
+    if picture < 40 { picture = 40 }
+    DrawThings(find_item, praise_number, (numbers_width - picture) / 2, numbers_padding + 44, picture, picture)
+    for index: cast(s32)0..7 {
+        at := cast(s32)index
+        BookBox(numbers_width / 2 - 44 + at * 12, numbers_height - numbers_padding - 44, 7, 7, 0x2e6956ff, 0, 4.0)
+    }
+}
+
+GameMain :: () -> s32 {
+    mode := AppMode()
+    if mode == APP_IDENTIFY {
+        view = VIEW_CHOICE
+        ladder_loaded = false
+        state_until = -10.0
+        praise_until = -10.0
+        learn_number = 1
+        learn_item = 0
+        find_item = 0
+        AppIdentity("jungle.numbers")
+        AppDescribe("123 Book", "")
+        return APP_PROTOCOL
+    }
+    if mode == APP_SAVE { return ifx !ladder_loaded || NumbersSave() then 0 else 1 }
+    if mode != APP_FRAME { return 0 }
+    GameLanguage()
+    now := AppNow()
+    RetroBegin(AppSession(), AppBounds(), FONT, now, AppKey(), BLACK)
+    ResponsiveNumbers(AppBounds())
+    if !ladder_loaded {
+        NumbersLoad()
+        random_state = cast(u32)(cast(u64)(now * 1000.0) & cast(u64)0x7fffffff) | cast(u32)1
+        NextNumbersQuestion()
+        ladder_loaded = true
+    }
+    if now < praise_until && view == VIEW_FIND { PraiseView(); return 0 }
+    // Keys are handled before drawing, so the frame a key arrives in already
+    // shows the new page or answer; the desktop host only draws on events.
+    key := retro.key
+    typed: s32 = -1
+    if key >= 49 && key <= 57 { typed = key - 48 }
+    if key == 48 { typed = 10 }
+    if key == KEY_ESCAPE && view != VIEW_CHOICE {
+        view = VIEW_CHOICE
+        question_pending = false
+        unused AppService("jungle.voice", "")
+    } else if view == VIEW_LEARN {
+        if key == KEY_RIGHT { OpenNumber(learn_number % NUMBER_COUNT + 1) }
+        if key == KEY_LEFT { OpenNumber((learn_number + NUMBER_COUNT - 2) % NUMBER_COUNT + 1) }
+        if typed >= 1 { OpenNumber(typed) }
+    }
+    if view == VIEW_CHOICE { ChoiceView() }
+    else if view == VIEW_LEARN { LearnView() }
+    else { FindView() }
+    if question_pending && now >= question_at && view == VIEW_FIND {
+        unused AppService("jungle.voice", Cat(SOUNDS, "question-", LanguageCode(), ".wav"))
+        question_pending = false
+    }
+    return 0
+}
+
+#if !#defined(PLATFORM_WEB) {
+    #program_export
+    main :: () -> s32 { return GameMain() }
+}

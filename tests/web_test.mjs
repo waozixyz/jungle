@@ -6,7 +6,11 @@ import {join,resolve,extname} from 'node:path';
 import {tmpdir} from 'node:os';
 import {setTimeout as delay} from 'node:timers/promises';
 const root=resolve('build/web'),profile=await mkdtemp('/tmp/jungle-web-');
+const catalog=(await readFile('games/catalog.txt','utf8')).split('\n').filter(l=>l.includes('|')).length;
 const hasABC=(await readFile('games/catalog.txt','utf8')).includes('jungle-abc.zx|');
+const hasNumbers=(await readFile('games/catalog.txt','utf8')).includes('jungle-numbers.zx|');
+// Phone portrait menu row centers: rows begin at virtual 112 and share (693-164)/count.
+const rowY=i=>Math.round((112+(693-164)/catalog*(i+0.5))*(844/693));
 const mime={'.html':'text/html','.js':'text/javascript','.wasm':'application/wasm','.json':'application/json','.png':'image/png','.wav':'audio/wav'};
 const server=createServer(async(req,res)=>{try{let file=resolve(root,'.'+decodeURIComponent(new URL(req.url,'http://localhost').pathname));if(!file.startsWith(root+'/')&&file!==root)throw Error();if(file===root||file.endsWith('/'))file=join(file,'index.html');const data=await readFile(file);res.writeHead(200,{'Content-Type':mime[extname(file)]||'application/octet-stream'});res.end(data)}catch{res.writeHead(404);res.end()}});
 await new Promise(r=>server.listen(0,'127.0.0.1',r));
@@ -62,16 +66,22 @@ try{
  }
  await pixelClick(34,28,true);await shot('restored-menu-phone');await pixelClick(325,102,true);if(await evaluate('Module.FS.readFile("/kryon-apps/jungle/settings/language.txt",{encoding:"utf8"})')!=="es")throw Error('Spanish flag did not persist');
  if(hasABC){
-  await pixelClick(195,378,true);const abcChooser=await shot('abc-chooser-phone');await pixelClick(195,300,true);const abcLearn=await shot('abc-learn-phone');
+  await pixelClick(195,rowY(1),true);const abcChooser=await shot('abc-chooser-phone');await pixelClick(195,300,true);const abcLearn=await shot('abc-learn-phone');
   if(abcChooser===abcLearn)throw Error('ABC learn card did not open the letter pages');
   await pixelClick(34,28,true);await pixelClick(34,28,true);await shot('menu-after-abc-phone');
  }
- await pixelClick(195,hasABC?540:420,true);await shot('counting-phone');
+ if(hasNumbers){
+  await pixelClick(195,rowY(2),true);const numbersChooser=await shot('numbers-chooser-phone');await pixelClick(195,300,true);const numbersLearn=await shot('numbers-learn-phone');
+  if(numbersChooser===numbersLearn)throw Error('123 learn card did not open the number pages');
+  await pixelClick(34,28,true);await pixelClick(34,28,true);await shot('menu-after-numbers-phone');
+ }
+ const countingRow=hasNumbers?3:hasABC?2:1;
+ await pixelClick(195,rowY(countingRow),true);await shot('counting-phone');
  let counted=false;for(let n=1;n<=4;n++){
   await pixelClick(78,796,true);const index=n-1;await pixelClick(78+(index%3)*116,628+Math.floor(index/3)*56,true);await pixelClick(310,796,true);
   const count=await evaluate('(()=>{try{return Number(Module.FS.readFile("/kryon-apps/jungle/jungle.animals/progress.txt",{encoding:"utf8"}).trim().split(" ")[2])}catch{return 0}})()');if(count>0){counted=true;break}
  }if(!counted)throw Error('Counting touch keypad did not submit an answer');
- await pixelClick(34,28,true);await pixelClick(195,hasABC?700:650,true);await shot('paint-phone');
+ await pixelClick(34,28,true);await pixelClick(195,rowY(catalog-1),true);await shot('paint-phone');
  const legacy=async(x,y)=>pixelClick(x*390/320,56+(788-390*200/320)/2+y*390/320,true);
  await pixelClick(54,559,true);await legacy(52,58);await legacy(52,58);await legacy(280,90);await pixelClick(242,559,true);await legacy(10,36);
  if(await evaluate('document.activeElement.id')!=='mobile-input')throw Error('Story did not focus mobile text input');

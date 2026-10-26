@@ -14,7 +14,7 @@ CFLAGS_ZI = -std=c11 -O2 -ffunction-sections -fdata-sections -I'$(TOOLCHAIN)/inc
 # The app as it is installed: the program, its menu assets and the games.
 APP := build/app
 COUNT_PICTURES := $(addprefix assets/jungle-book/items/,$(addsuffix .png,tiger frog butterfly ladybug snail elephant giraffe monkey panda lion zebra crocodile parrot toucan rabbit cat dog sheep))
-GAMES := $(APP)/games/jungle-book.zx $(APP)/games/jungle-abc.zx $(APP)/games/animal-count.zx $(APP)/games/dino-paint.zx
+GAMES := $(APP)/games/jungle-book.zx $(APP)/games/jungle-abc.zx $(APP)/games/jungle-numbers.zx $(APP)/games/animal-count.zx $(APP)/games/dino-paint.zx
 
 .PHONY: all run art sounds test test-ui install locales web
 
@@ -77,6 +77,15 @@ $(APP)/games/jungle-abc.zx: $(wildcard games/abc/*.zi retro/*.zi) $(shell find a
 	'$(ZIRANC)' bundle --root games/abc $(MODULES) --define KRYON_HOSTED_UI \
 		--asset-dir assets=build/stage/jungle-abc/assets --entry jungle_abc:main -o $@ games/abc/jungle_abc.zi
 
+# 123 Book draws the book's installed watercolor pictures, so its bundle
+# carries only its own quiet sounds and questions.
+$(APP)/games/jungle-numbers.zx: $(wildcard games/numbers/*.zi retro/*.zi) $(shell find assets/numbers -type f)
+	rm -rf build/stage/jungle-numbers
+	mkdir -p build/stage/jungle-numbers/assets $(APP)/games
+	cp -r assets/numbers build/stage/jungle-numbers/assets/
+	'$(ZIRANC)' bundle --root games/numbers $(MODULES) --define KRYON_HOSTED_UI \
+		--asset-dir assets=build/stage/jungle-numbers/assets --entry jungle_numbers:main -o $@ games/numbers/jungle_numbers.zi
+
 $(APP)/games/animal-count.zx: $(wildcard games/animal/*.zi retro/*.zi) $(shell find assets/animal-count -type f) $(COUNT_PICTURES)
 	rm -rf build/stage/animal-count
 	mkdir -p build/stage/animal-count/assets $(APP)/games
@@ -126,12 +135,13 @@ build/tests/%: tests/%_test.zi $(wildcard games/*/*.zi host/*.zi retro/*.zi) bui
 		build/ziran/libziran.a -Wl,--gc-sections -lm -lpthread $(TEST_LIBS) -o $@
 
 # Questions, painting and PNG pictures, then every game opened in the app.
-test: build/tests/paint build/tests/png build/tests/progress build/tests/document build/tests/counting build/tests/abc build/tests/printing build/tests/audio build/tests/voice all
+test: build/tests/paint build/tests/png build/tests/progress build/tests/document build/tests/counting build/tests/abc build/tests/numbers build/tests/printing build/tests/audio build/tests/voice all
 	build/tests/paint
 	build/tests/progress
 	build/tests/document
 	build/tests/counting
 	build/tests/abc
+	build/tests/numbers
 	build/tests/audio
 	SDL_AUDIODRIVER=dummy build/tests/voice
 	build/tests/png build/tests/check.png

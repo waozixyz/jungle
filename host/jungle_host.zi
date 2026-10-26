@@ -213,7 +213,7 @@ ClearCanvases :: (folder: string) {
 // The book's pictures and narration ship beside the app once and are shared
 // by every game that draws them, instead of packing them into each bundle.
 SharedBookAssets :: (bundle: string) -> bool {
-    return bundle == "jungle-book.zx" || bundle == "jungle-abc.zx"
+    return bundle == "jungle-book.zx" || bundle == "jungle-abc.zx" || bundle == "jungle-numbers.zx"
 }
 
 OpenGame :: (index: s32) -> bool {

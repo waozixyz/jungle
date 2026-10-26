@@ -19,7 +19,7 @@ def main():
     # Every visible fixed message, including errors and legacy game dialogs,
     # must have both translations. Technical strings and scientific short
     # names are explicitly outside this message inventory.
-    for source in ("games/paint/dino_paint.zi", "games/animal/animal_count.zi", "games/abc/jungle_abc.zi", "host/desktop.zi", "host/jungle_host.zi", "src/app.zi"):
+    for source in ("games/paint/dino_paint.zi", "games/animal/animal_count.zi", "games/abc/jungle_abc.zi", "games/numbers/jungle_numbers.zi", "host/desktop.zi", "host/jungle_host.zi", "src/app.zi"):
         text = (ROOT / source).read_text()
         for value in re.findall(r'"([^"\n]*)"', text):
             if " " not in value or not value.strip() or value.startswith(("assets/", "paint", "skill ", " runs here", ":", "jungle:")):

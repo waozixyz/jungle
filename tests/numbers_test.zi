@@ -1,0 +1,54 @@
+#import, file "../games/numbers/numbers_ladder.zi";
+#import, file "../host/platform.zi";
+#import, file "../host/jungle_text.zi";
+
+#program_export
+main :: () -> s32 {
+    // The ladder follows Animal Counting's rules over every level.
+    for ladder: cast(s32)1..MAX_LEVEL {
+        level = ladder
+        for round: cast(s32)0..999 {
+            before := last_target
+            NextQuestion(-1)
+            most := level_most[level - 1]
+            if target < 1 || target > most || target == before { return 1 }
+            if choice_count != choice_counts[level - 1] { return 2 }
+            seen: [12]bool
+            target_inside := false
+            for at: cast(s32)0..choice_count - 1 {
+                if choices[at] < 1 || choices[at] > most { return 3 }
+                if seen[choices[at]] { return 4 }
+                seen[choices[at]] = true
+                if choices[at] == target { target_inside = true }
+            }
+            if !target_inside { return 5 }
+        }
+    }
+    // A preferred look-alike joins the tiles when it fits.
+    level = 3
+    mate_used := false
+    for round: cast(s32)0..99 {
+        NextQuestion(9)
+        for at: cast(s32)0..choice_count - 1 {
+            if choices[at] == 9 && target != 9 { mate_used = true }
+        }
+    }
+    if !mate_used { return 6 }
+    // Six right answers climb, six misses fall, as in Animal Counting.
+    level = 1
+    count = 0
+    right_run = 0
+    miss_run = 0
+    NextQuestion(-1)
+    saved := target
+    for answer: cast(s32)0..4 { if !AnswerNumber(saved) || level != 1 { return 7 } }
+    if !AnswerNumber(saved) || level != 2 || right_run != 0 { return 8 }
+    for answer: cast(s32)0..4 { if AnswerNumber(100) || level != 2 { return 9 } }
+    if AnswerNumber(100) || level != 1 || miss_run != 0 { return 10 }
+    for answer: cast(s32)0..99 { unused AnswerNumber(100) }
+    if level != 1 { return 11 }
+    for answer: cast(s32)0..99 { unused AnswerNumber(target) }
+    if level != MAX_LEVEL || right_run >= RIGHT_TO_MOVE { return 12 }
+    Report("local numbers test passed\n")
+    return 0
+}

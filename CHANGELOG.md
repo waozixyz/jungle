@@ -3,6 +3,7 @@
 ## 0.1.4
 
 - Add ABC Book, a fourth game: browse the alphabet on the Picture Book's watercolor words with Simple and Spelling narration, then find letters in a gentle quiz that follows Animal Counting's ladder, in English, German (with Ä Ö Ü ß) and Spanish (with Ñ).
+- Add 123 Book, a fifth game: learn the numerals one to ten over watercolor animal counts, then answer how many animals there are in a gentle quiz with the spoken question, in English, German and Spanish.
 - Redraw every Picture Book page as a gentle watercolor scene in the style of the title screen, with each animal, food or thing in its own setting and sharp, high-resolution pictures.
 - Draw Breakfast in morning light, Lunch at midday and Dinner in the evening.
 - Let each picture fill the page with its word on top, and turn pages by tapping the right or left side.
