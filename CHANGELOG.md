@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.3
+
+- Restore illustrated watercolor backgrounds behind the centered book pictures.
+- Choose books through Nature, Food, Home and Family tabs.
+- Add Family, Body Parts, Breakfast, Lunch and Dinner books, with 36 new words and English, German and Spanish narration.
+- Rename the coloring game to Coloring Book, Malbuch and Libro para colorear.
+- Remove the coloring game’s extra Exit tool and use its shared back arrow.
+
 ## 0.1.2
 
 - Open Picture Book without extracting every recording, and load browser pictures as needed.

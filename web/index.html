@@ -39,7 +39,7 @@ var Module={canvas:document.getElementById('canvas'),locateFile:p=>p,print:conso
    await Promise.all(paths.filter(p=>p.endsWith('/font.png')||p.startsWith('assets/jungle/covers/')).map(loadImage));
    Module.removeRunDependency('menu-pictures');
    // Warm just the shelf covers while the menu is already interactive.
-   for(const path of paths.filter(p=>p.startsWith('assets/jungle-book/previews/')))void loadImage(path).catch(console.error);
+   for(const path of paths.filter(p=>(p.startsWith('assets/jungle-book/previews/')||p.startsWith('assets/jungle-book/backgrounds/'))))void loadImage(path).catch(console.error);
   }).catch(e=>{console.error(e);Module.onAbort()});
  }],
  onRuntimeInitialized(){document.getElementById('loading').hidden=true;document.getElementById('loading').style.display='none';document.getElementById('canvas').focus()},

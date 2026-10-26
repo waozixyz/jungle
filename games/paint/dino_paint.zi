@@ -1,6 +1,6 @@
 #import, file "../../retro/language.zi";
 #import "std/utf8"
-// Dino Colors: a 1:1 play-alike of Bert's Dinosaurs. Pick one of six
+// Coloring Book: a 1:1 play-alike of Bert's Dinosaurs. Pick one of six
 // scenes, drag any of twelve dinosaurs in four sizes (hold right or press
 // Mirror to mirror), fill regions with thirty crayon colors, write an
 // eight-line story, and keep the whole picture in one of six slots.
@@ -32,7 +32,6 @@ EraserIcon :: #import "mingcute/mingcute_regular_eraser";
 SaveIcon :: #import "mingcute/mingcute_regular_save";
 PrintIcon :: #import "mingcute/mingcute_regular_print";
 UndoIcon :: #import "mingcute/mingcute_regular_back_2";
-ExitIcon :: #import "mingcute/mingcute_regular_exit_door";
 MirrorIcon :: #import "mingcute/mingcute_regular_flip_horizontal";
 MoveIcon :: #import "mingcute/mingcute_regular_move";
 HappyIcon :: #import "mingcute/mingcute_regular_happy";
@@ -60,7 +59,7 @@ UNDO_STEPS :: 8
 scene_names: [6]string = .["Scene 1", "Scene 2", "Scene 3", "Scene 4", "Scene 5", "Scene 6"];
 dino_names: [18]string = .["TYRANNOSAURUS", "STEGOSAURUS", "TRICERATOPS", "ANATOSAURUS", "BRACHIOSAURUS", "DIPLODOCUS", "PARASAUROLOPHUS", "DEINONYCHUS", "PROTOCERATOPS", "PTERANODON", "STRACOSAURUS", "CORYTHOSAURUS", "Cat", "Dog", "Butterfly", "Child", "Astronaut", "Farmer"];
 dino_short: [18]string = .["T-REX", "STEGO", "TRIKE", "Duckbill", "BRACHIO", "DIPLO", "PARA", "RAPTOR", "PROTO", "PTERANODON", "STRACO", "CORY", "Cat", "Dog", "Butterfly", "Child", "Astronaut", "Farmer"];
-button_names: [8]string = .["Image", "Color", "Story", "Erase", "Save", "Print", "Undo", "Exit"];
+button_names: [7]string = .["Image", "Color", "Story", "Erase", "Save", "Print", "Undo"];
 size_names: [4]string = .["Small", "Medium", "Large", "Huge"];
 
 view: s32 = MAIN;
@@ -265,7 +264,7 @@ ToolShape :: (index: s32) -> string {
     if index == 4 { return SaveIcon.Shape }
     if index == 5 { return PrintIcon.Shape }
     if index == 6 { return ifx placing then MirrorIcon.Shape else UndoIcon.Shape }
-    return ExitIcon.Shape
+    return UndoIcon.Shape
 }
 
 // A rounded tool with its icon above its name.
@@ -361,7 +360,7 @@ MainView :: () {
     LayoutMain()
     bounds := AppBounds()
     BookBox(0, 0, cast(s32)bounds.width, cast(s32)bounds.height, 0xe3ece4ff)
-    for index: cast(s32)0..7 {
+    for index: cast(s32)0..6 {
         mirror := placing && index == 6
         label := ifx mirror then "Mirror" else button_names[index]
         if ToolButton(20 + index, tool_x[index], tool_y[index], tool_w, tool_h, ToolShape(index), label, mirror && placement_flip) {
@@ -376,7 +375,6 @@ MainView :: () {
             if index == 4 { view = SAVE_LOAD; saving = true }
             if index == 5 { view = PRINT_VIEW }
             if index == 6 { Undo() }
-            if index == 7 { view = CONFIRM_STOP }
             return
         }
     }
@@ -745,7 +743,7 @@ GameMain :: () -> s32 {
         canvas_name[0] = 0
         ClearStory()
         AppIdentity("jungle.paint")
-        AppDescribe("Dino Colors", "")
+        AppDescribe("Coloring Book", "")
         return APP_PROTOCOL
     }
     if mode == APP_SAVE { return ifx SaveSlot() then 0 else 1 }

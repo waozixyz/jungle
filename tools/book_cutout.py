@@ -35,6 +35,14 @@ def regions(mask):
 
 
 def illustration(atlas, index, columns, name):
+    if columns == 1 and atlas.getchannel('A').getextrema()[0] < 255:
+        bounds = atlas.getchannel('A').point(lambda value: 255 if value > 8 else 0).getbbox()
+        assert bounds, name
+        picture = atlas.crop(bounds)
+        picture.thumbnail((360,360), Image.Resampling.LANCZOS)
+        output = Image.new('RGBA',(420,420))
+        output.alpha_composite(picture,((420-picture.width)//2,(420-picture.height)//2))
+        return output
     row, column = divmod(index, columns)
     cell_width, cell_height = atlas.width / columns, atlas.height / columns
     nominal = (column * cell_width, row * cell_height,

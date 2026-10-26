@@ -29,7 +29,7 @@ def main():
     total = 0
     for language in LANGUAGES:
         for name in EXPANSION['words']:
-            if len(sys.argv) > 1 and name not in EXPANSION['extra'][sys.argv[1]]:continue
+            if len(sys.argv) > 1 and not any(name in EXPANSION['extra'][category] for category in sys.argv[1:]):continue
             word = WORDS[name][LANGUAGES.index(language)]
             source = ROOT / voice_path(name, language, True)
             word_data, word_hash = read_clip(source)

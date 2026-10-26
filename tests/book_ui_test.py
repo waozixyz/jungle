@@ -1,4 +1,4 @@
-"""Exercise all languages, both reading modes and ten books on a private Xvfb."""
+"""Exercise all languages, both reading modes and fifteen books on a private Xvfb."""
 import argparse
 import json
 from pathlib import Path
@@ -16,6 +16,22 @@ def different(a, b, box=None):
     if box:
         a, b = a.crop(box), b.crop(box)
     return ImageChops.difference(a, b).getbbox() is not None
+
+
+def select_book(desktop, category_index):
+    if category_index < 10:
+        desktop.key(str((category_index + 1) % 10))
+        return
+    name = BOOKS[category_index][0]
+    groups = [("jungle","garden","farm","nature"), ("fruits","vegetables","breakfast","lunch","dinner"), ("kitchen","bathroom","bedroom","living-room"), ("family","body")]
+    group = next(i for i,names in enumerate(groups) if name in names)
+    picture = desktop.capture_actual("book-selection-bounds")
+    width,height=picture.size
+    padding=max(24,int(14*min(width/320,(height-56)/200))+12)
+    tab_width=(width-padding*2-24)//4
+    desktop.click_actual(padding+group*(tab_width+8)+tab_width//2,56+padding+22)
+    for _ in range(groups[group].index(name)):desktop.key("Right")
+    desktop.key("Return")
 
 
 def main():
@@ -38,7 +54,7 @@ def main():
                 desktop.key("s")
                 firsts, endings = {}, {}
                 for category_index, (name, names) in enumerate(BOOKS):
-                    desktop.key(str((category_index + 1) % 10))
+                    select_book(desktop, category_index)
                     first = desktop.capture(f"{language}-{name}-simple")
                     assert ink in [c for _, c in first.crop((168, 74, 298, 113)).getcolors(10000)]
                     assert ink not in [c for _, c in first.crop((168, 115, 298, 130)).getcolors(10000)], "Simple mode still shows spelling"
@@ -58,7 +74,7 @@ def main():
                     assert not different(last, desktop.capture(f"{language}-{name}-finished-back")), "Back from the finish did not restore the last picture"
                     desktop.key("Right")
                     desktop.key("Escape")
-                    desktop.key(str((category_index + 1) % 10))
+                    select_book(desktop, category_index)
                     assert not different(first, desktop.capture(f"{language}-{name}-restarted"))
                     desktop.key("Right")
                     next_page = desktop.capture(f"{language}-{name}-next")
@@ -126,7 +142,7 @@ def main():
             with Desktop(binary, data) as desktop:
                 persisted = desktop.capture(f"{language}-menu-persisted")
                 assert not different(menu, persisted), "Language did not survive reopening Jungle"
-            print(f"local UI test: {language}, ten books, two modes, swipes, timing and persistence passed", flush=True)
+            print(f"local UI test: {language}, fifteen books, two modes, swipes, timing and persistence passed", flush=True)
     print("local Picture Book language and mode UI tests passed")
 
 

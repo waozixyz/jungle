@@ -9,7 +9,7 @@ LanguageCode :: () -> string {
 LanguageSet :: (code: string) {
     language = ifx code == "de" then 1 else ifx code == "es" then 2 else 0
 }
-ui_en: [145]string = .[
+ui_en: [152]string = .[
     "Picture Book",
     "Animal Counting",
     "Dino Colors",
@@ -155,8 +155,15 @@ ui_en: [145]string = .[
     "Astronaut",
     "Farmer",
     "Drag the stencil, then let go",
+    "Coloring Book",
+    "Family",
+    "Home",
+    "Breakfast",
+    "Lunch",
+    "Dinner",
+    "Body Parts",
 ];
-ui_de: [145]string = .[
+ui_de: [152]string = .[
     "Bilderbuch",
     "Tiere zählen",
     "Dino Farben",
@@ -302,8 +309,15 @@ ui_de: [145]string = .[
     "Astronaut",
     "Landwirt",
     "Ziehe die Vorlage und lass los",
+    "Malbuch",
+    "Familie",
+    "Zuhause",
+    "Frühstück",
+    "Mittagessen",
+    "Abendessen",
+    "Körperteile",
 ];
-ui_es: [145]string = .[
+ui_es: [152]string = .[
     "Libro ilustrado",
     "Contar animales",
     "Colores Dino",
@@ -449,6 +463,13 @@ ui_es: [145]string = .[
     "Astronauta",
     "Granjero",
     "Arrastra la plantilla y suéltala",
+    "Libro para colorear",
+    "Familia",
+    "Hogar",
+    "Desayuno",
+    "Almuerzo",
+    "Cena",
+    "Partes del cuerpo",
 ];
 Tr :: (text: string) -> string {
     if language == 0 { return text }

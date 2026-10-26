@@ -99,7 +99,7 @@ voice_paths_en_spelling_48: [48]string = .[
     "assets/jungle-book/sounds/moon.wav",
     "assets/jungle-book/sounds/cloud.wav",
 ];
-voice_paths_en_spelling_96: [21]string = .[
+voice_paths_en_spelling_96: [48]string = .[
     "assets/jungle-book/sounds/rain.wav",
     "assets/jungle-book/sounds/tree.wav",
     "assets/jungle-book/sounds/river.wav",
@@ -121,11 +121,50 @@ voice_paths_en_spelling_96: [21]string = .[
     "assets/jungle-book/sounds/eggplant.wav",
     "assets/jungle-book/sounds/beet.wav",
     "assets/jungle-book/sounds/cauliflower.wav",
+    "assets/jungle-book/sounds/mother.wav",
+    "assets/jungle-book/sounds/father.wav",
+    "assets/jungle-book/sounds/sister.wav",
+    "assets/jungle-book/sounds/brother.wav",
+    "assets/jungle-book/sounds/baby.wav",
+    "assets/jungle-book/sounds/grandmother.wav",
+    "assets/jungle-book/sounds/grandfather.wav",
+    "assets/jungle-book/sounds/family.wav",
+    "assets/jungle-book/sounds/bread.wav",
+    "assets/jungle-book/sounds/milk.wav",
+    "assets/jungle-book/sounds/eggs.wav",
+    "assets/jungle-book/sounds/cereal.wav",
+    "assets/jungle-book/sounds/butter.wav",
+    "assets/jungle-book/sounds/jam.wav",
+    "assets/jungle-book/sounds/sandwich.wav",
+    "assets/jungle-book/sounds/soup.wav",
+    "assets/jungle-book/sounds/salad.wav",
+    "assets/jungle-book/sounds/rice.wav",
+    "assets/jungle-book/sounds/pasta.wav",
+    "assets/jungle-book/sounds/water.wav",
+    "assets/jungle-book/sounds/roast_chicken.wav",
+    "assets/jungle-book/sounds/stew.wav",
+    "assets/jungle-book/sounds/meatballs.wav",
+    "assets/jungle-book/sounds/tacos.wav",
+    "assets/jungle-book/sounds/pizza.wav",
+    "assets/jungle-book/sounds/lasagne.wav",
+    "assets/jungle-book/sounds/head.wav",
+];
+voice_paths_en_spelling_144: [9]string = .[
+    "assets/jungle-book/sounds/eye.wav",
+    "assets/jungle-book/sounds/ear.wav",
+    "assets/jungle-book/sounds/nose.wav",
+    "assets/jungle-book/sounds/mouth.wav",
+    "assets/jungle-book/sounds/tooth.wav",
+    "assets/jungle-book/sounds/arm.wav",
+    "assets/jungle-book/sounds/hand.wav",
+    "assets/jungle-book/sounds/leg.wav",
+    "assets/jungle-book/sounds/foot.wav",
 ];
 VoicePath_en_spelling :: (at: s32) -> string {
     if at < 48 { return voice_paths_en_spelling_0[at - 0] }
     if at < 96 { return voice_paths_en_spelling_48[at - 48] }
-    if at < 117 { return voice_paths_en_spelling_96[at - 96] }
+    if at < 144 { return voice_paths_en_spelling_96[at - 96] }
+    if at < 153 { return voice_paths_en_spelling_144[at - 144] }
     return ""
 }
 voice_seconds_en_spelling_0: [48]float64 = .[
@@ -228,7 +267,7 @@ voice_seconds_en_spelling_48: [48]float64 = .[
     8.880091,
     10.949388,
 ];
-voice_seconds_en_spelling_96: [21]float64 = .[
+voice_seconds_en_spelling_96: [48]float64 = .[
     9.775510,
     9.210204,
     10.599274,
@@ -250,11 +289,50 @@ voice_seconds_en_spelling_96: [21]float64 = .[
     15.280045,
     15.057188,
     20.096553,
+    12.104082,
+    12.879773,
+    12.186440,
+    13.393016,
+    8.465442,
+    20.512426,
+    20.922585,
+    11.952109,
+    9.439728,
+    8.305805,
+    7.830748,
+    11.743764,
+    11.957460,
+    7.071882,
+    16.255918,
+    8.484989,
+    10.669615,
+    9.116916,
+    10.802721,
+    11.303946,
+    24.561859,
+    9.875646,
+    15.676961,
+    10.757823,
+    10.189977,
+    13.691156,
+    8.400454,
+];
+voice_seconds_en_spelling_144: [9]float64 = .[
+    7.149070,
+    6.529070,
+    9.176508,
+    10.613061,
+    11.584989,
+    6.391474,
+    9.544535,
+    7.050068,
+    8.990023,
 ];
 VoiceSeconds_en_spelling :: (at: s32) -> float64 {
     if at < 48 { return voice_seconds_en_spelling_0[at - 0] }
     if at < 96 { return voice_seconds_en_spelling_48[at - 48] }
-    if at < 117 { return voice_seconds_en_spelling_96[at - 96] }
+    if at < 144 { return voice_seconds_en_spelling_96[at - 96] }
+    if at < 153 { return voice_seconds_en_spelling_144[at - 144] }
     return 0.0
 }
 voice_paths_en_simple_0: [48]string = .[
@@ -357,7 +435,7 @@ voice_paths_en_simple_48: [48]string = .[
     "assets/jungle-book/sounds/en/simple/moon.wav",
     "assets/jungle-book/sounds/en/simple/cloud.wav",
 ];
-voice_paths_en_simple_96: [21]string = .[
+voice_paths_en_simple_96: [48]string = .[
     "assets/jungle-book/sounds/en/simple/rain.wav",
     "assets/jungle-book/sounds/en/simple/tree.wav",
     "assets/jungle-book/sounds/en/simple/river.wav",
@@ -379,11 +457,50 @@ voice_paths_en_simple_96: [21]string = .[
     "assets/jungle-book/sounds/en/simple/eggplant.wav",
     "assets/jungle-book/sounds/en/simple/beet.wav",
     "assets/jungle-book/sounds/en/simple/cauliflower.wav",
+    "assets/jungle-book/sounds/en/simple/mother.wav",
+    "assets/jungle-book/sounds/en/simple/father.wav",
+    "assets/jungle-book/sounds/en/simple/sister.wav",
+    "assets/jungle-book/sounds/en/simple/brother.wav",
+    "assets/jungle-book/sounds/en/simple/baby.wav",
+    "assets/jungle-book/sounds/en/simple/grandmother.wav",
+    "assets/jungle-book/sounds/en/simple/grandfather.wav",
+    "assets/jungle-book/sounds/en/simple/family.wav",
+    "assets/jungle-book/sounds/en/simple/bread.wav",
+    "assets/jungle-book/sounds/en/simple/milk.wav",
+    "assets/jungle-book/sounds/en/simple/eggs.wav",
+    "assets/jungle-book/sounds/en/simple/cereal.wav",
+    "assets/jungle-book/sounds/en/simple/butter.wav",
+    "assets/jungle-book/sounds/en/simple/jam.wav",
+    "assets/jungle-book/sounds/en/simple/sandwich.wav",
+    "assets/jungle-book/sounds/en/simple/soup.wav",
+    "assets/jungle-book/sounds/en/simple/salad.wav",
+    "assets/jungle-book/sounds/en/simple/rice.wav",
+    "assets/jungle-book/sounds/en/simple/pasta.wav",
+    "assets/jungle-book/sounds/en/simple/water.wav",
+    "assets/jungle-book/sounds/en/simple/roast_chicken.wav",
+    "assets/jungle-book/sounds/en/simple/stew.wav",
+    "assets/jungle-book/sounds/en/simple/meatballs.wav",
+    "assets/jungle-book/sounds/en/simple/tacos.wav",
+    "assets/jungle-book/sounds/en/simple/pizza.wav",
+    "assets/jungle-book/sounds/en/simple/lasagne.wav",
+    "assets/jungle-book/sounds/en/simple/head.wav",
+];
+voice_paths_en_simple_144: [9]string = .[
+    "assets/jungle-book/sounds/en/simple/eye.wav",
+    "assets/jungle-book/sounds/en/simple/ear.wav",
+    "assets/jungle-book/sounds/en/simple/nose.wav",
+    "assets/jungle-book/sounds/en/simple/mouth.wav",
+    "assets/jungle-book/sounds/en/simple/tooth.wav",
+    "assets/jungle-book/sounds/en/simple/arm.wav",
+    "assets/jungle-book/sounds/en/simple/hand.wav",
+    "assets/jungle-book/sounds/en/simple/leg.wav",
+    "assets/jungle-book/sounds/en/simple/foot.wav",
 ];
 VoicePath_en_simple :: (at: s32) -> string {
     if at < 48 { return voice_paths_en_simple_0[at - 0] }
     if at < 96 { return voice_paths_en_simple_48[at - 48] }
-    if at < 117 { return voice_paths_en_simple_96[at - 96] }
+    if at < 144 { return voice_paths_en_simple_96[at - 96] }
+    if at < 153 { return voice_paths_en_simple_144[at - 144] }
     return ""
 }
 voice_seconds_en_simple_0: [48]float64 = .[
@@ -486,7 +603,7 @@ voice_seconds_en_simple_48: [48]float64 = .[
     1.927664,
     1.881905,
 ];
-voice_seconds_en_simple_96: [21]float64 = .[
+voice_seconds_en_simple_96: [48]float64 = .[
     1.989206,
     1.730975,
     1.975556,
@@ -508,11 +625,50 @@ voice_seconds_en_simple_96: [21]float64 = .[
     1.777098,
     1.933787,
     2.437959,
+    2.081814,
+    2.034331,
+    1.933968,
+    1.636508,
+    1.780590,
+    2.037596,
+    2.333016,
+    2.131066,
+    1.484943,
+    1.738141,
+    1.734422,
+    1.931882,
+    1.636100,
+    1.781633,
+    2.128481,
+    1.925669,
+    2.034014,
+    1.727710,
+    2.033333,
+    1.681587,
+    3.238141,
+    2.031610,
+    2.332200,
+    1.935420,
+    1.729887,
+    2.184671,
+    1.635057,
+];
+voice_seconds_en_simple_144: [9]float64 = .[
+    1.727211,
+    1.439592,
+    1.934966,
+    1.836009,
+    1.825760,
+    1.530431,
+    1.996417,
+    1.638639,
+    1.636100,
 ];
 VoiceSeconds_en_simple :: (at: s32) -> float64 {
     if at < 48 { return voice_seconds_en_simple_0[at - 0] }
     if at < 96 { return voice_seconds_en_simple_48[at - 48] }
-    if at < 117 { return voice_seconds_en_simple_96[at - 96] }
+    if at < 144 { return voice_seconds_en_simple_96[at - 96] }
+    if at < 153 { return voice_seconds_en_simple_144[at - 144] }
     return 0.0
 }
 voice_paths_de_spelling_0: [48]string = .[
@@ -615,7 +771,7 @@ voice_paths_de_spelling_48: [48]string = .[
     "assets/jungle-book/sounds/de/spelling/moon.wav",
     "assets/jungle-book/sounds/de/spelling/cloud.wav",
 ];
-voice_paths_de_spelling_96: [21]string = .[
+voice_paths_de_spelling_96: [48]string = .[
     "assets/jungle-book/sounds/de/spelling/rain.wav",
     "assets/jungle-book/sounds/de/spelling/tree.wav",
     "assets/jungle-book/sounds/de/spelling/river.wav",
@@ -637,11 +793,50 @@ voice_paths_de_spelling_96: [21]string = .[
     "assets/jungle-book/sounds/de/spelling/eggplant.wav",
     "assets/jungle-book/sounds/de/spelling/beet.wav",
     "assets/jungle-book/sounds/de/spelling/cauliflower.wav",
+    "assets/jungle-book/sounds/de/spelling/mother.wav",
+    "assets/jungle-book/sounds/de/spelling/father.wav",
+    "assets/jungle-book/sounds/de/spelling/sister.wav",
+    "assets/jungle-book/sounds/de/spelling/brother.wav",
+    "assets/jungle-book/sounds/de/spelling/baby.wav",
+    "assets/jungle-book/sounds/de/spelling/grandmother.wav",
+    "assets/jungle-book/sounds/de/spelling/grandfather.wav",
+    "assets/jungle-book/sounds/de/spelling/family.wav",
+    "assets/jungle-book/sounds/de/spelling/bread.wav",
+    "assets/jungle-book/sounds/de/spelling/milk.wav",
+    "assets/jungle-book/sounds/de/spelling/eggs.wav",
+    "assets/jungle-book/sounds/de/spelling/cereal.wav",
+    "assets/jungle-book/sounds/de/spelling/butter.wav",
+    "assets/jungle-book/sounds/de/spelling/jam.wav",
+    "assets/jungle-book/sounds/de/spelling/sandwich.wav",
+    "assets/jungle-book/sounds/de/spelling/soup.wav",
+    "assets/jungle-book/sounds/de/spelling/salad.wav",
+    "assets/jungle-book/sounds/de/spelling/rice.wav",
+    "assets/jungle-book/sounds/de/spelling/pasta.wav",
+    "assets/jungle-book/sounds/de/spelling/water.wav",
+    "assets/jungle-book/sounds/de/spelling/roast_chicken.wav",
+    "assets/jungle-book/sounds/de/spelling/stew.wav",
+    "assets/jungle-book/sounds/de/spelling/meatballs.wav",
+    "assets/jungle-book/sounds/de/spelling/tacos.wav",
+    "assets/jungle-book/sounds/de/spelling/pizza.wav",
+    "assets/jungle-book/sounds/de/spelling/lasagne.wav",
+    "assets/jungle-book/sounds/de/spelling/head.wav",
+];
+voice_paths_de_spelling_144: [9]string = .[
+    "assets/jungle-book/sounds/de/spelling/eye.wav",
+    "assets/jungle-book/sounds/de/spelling/ear.wav",
+    "assets/jungle-book/sounds/de/spelling/nose.wav",
+    "assets/jungle-book/sounds/de/spelling/mouth.wav",
+    "assets/jungle-book/sounds/de/spelling/tooth.wav",
+    "assets/jungle-book/sounds/de/spelling/arm.wav",
+    "assets/jungle-book/sounds/de/spelling/hand.wav",
+    "assets/jungle-book/sounds/de/spelling/leg.wav",
+    "assets/jungle-book/sounds/de/spelling/foot.wav",
 ];
 VoicePath_de_spelling :: (at: s32) -> string {
     if at < 48 { return voice_paths_de_spelling_0[at - 0] }
     if at < 96 { return voice_paths_de_spelling_48[at - 48] }
-    if at < 117 { return voice_paths_de_spelling_96[at - 96] }
+    if at < 144 { return voice_paths_de_spelling_96[at - 96] }
+    if at < 153 { return voice_paths_de_spelling_144[at - 144] }
     return ""
 }
 voice_seconds_de_spelling_0: [48]float64 = .[
@@ -744,7 +939,7 @@ voice_seconds_de_spelling_48: [48]float64 = .[
     8.054921,
     11.042449,
 ];
-voice_seconds_de_spelling_96: [21]float64 = .[
+voice_seconds_de_spelling_96: [48]float64 = .[
     8.770159,
     8.353333,
     9.390884,
@@ -766,11 +961,50 @@ voice_seconds_de_spelling_96: [21]float64 = .[
     14.823356,
     15.605351,
     16.494739,
+    11.116825,
+    10.136689,
+    15.283537,
+    10.191837,
+    8.633878,
+    17.248435,
+    15.424036,
+    12.189025,
+    8.027392,
+    9.752018,
+    7.064626,
+    9.606349,
+    10.951474,
+    17.179773,
+    14.266848,
+    8.896508,
+    10.984218,
+    8.105624,
+    12.138277,
+    12.621497,
+    19.624399,
+    11.600544,
+    19.008390,
+    10.896644,
+    9.485896,
+    12.911565,
+    7.690748,
+];
+voice_seconds_de_spelling_144: [9]float64 = .[
+    8.139320,
+    6.260136,
+    8.084082,
+    7.821361,
+    8.117596,
+    6.957506,
+    8.062313,
+    7.094649,
+    7.081905,
 ];
 VoiceSeconds_de_spelling :: (at: s32) -> float64 {
     if at < 48 { return voice_seconds_de_spelling_0[at - 0] }
     if at < 96 { return voice_seconds_de_spelling_48[at - 48] }
-    if at < 117 { return voice_seconds_de_spelling_96[at - 96] }
+    if at < 144 { return voice_seconds_de_spelling_96[at - 96] }
+    if at < 153 { return voice_seconds_de_spelling_144[at - 144] }
     return 0.0
 }
 voice_paths_de_simple_0: [48]string = .[
@@ -873,7 +1107,7 @@ voice_paths_de_simple_48: [48]string = .[
     "assets/jungle-book/sounds/de/simple/moon.wav",
     "assets/jungle-book/sounds/de/simple/cloud.wav",
 ];
-voice_paths_de_simple_96: [21]string = .[
+voice_paths_de_simple_96: [48]string = .[
     "assets/jungle-book/sounds/de/simple/rain.wav",
     "assets/jungle-book/sounds/de/simple/tree.wav",
     "assets/jungle-book/sounds/de/simple/river.wav",
@@ -895,11 +1129,50 @@ voice_paths_de_simple_96: [21]string = .[
     "assets/jungle-book/sounds/de/simple/eggplant.wav",
     "assets/jungle-book/sounds/de/simple/beet.wav",
     "assets/jungle-book/sounds/de/simple/cauliflower.wav",
+    "assets/jungle-book/sounds/de/simple/mother.wav",
+    "assets/jungle-book/sounds/de/simple/father.wav",
+    "assets/jungle-book/sounds/de/simple/sister.wav",
+    "assets/jungle-book/sounds/de/simple/brother.wav",
+    "assets/jungle-book/sounds/de/simple/baby.wav",
+    "assets/jungle-book/sounds/de/simple/grandmother.wav",
+    "assets/jungle-book/sounds/de/simple/grandfather.wav",
+    "assets/jungle-book/sounds/de/simple/family.wav",
+    "assets/jungle-book/sounds/de/simple/bread.wav",
+    "assets/jungle-book/sounds/de/simple/milk.wav",
+    "assets/jungle-book/sounds/de/simple/eggs.wav",
+    "assets/jungle-book/sounds/de/simple/cereal.wav",
+    "assets/jungle-book/sounds/de/simple/butter.wav",
+    "assets/jungle-book/sounds/de/simple/jam.wav",
+    "assets/jungle-book/sounds/de/simple/sandwich.wav",
+    "assets/jungle-book/sounds/de/simple/soup.wav",
+    "assets/jungle-book/sounds/de/simple/salad.wav",
+    "assets/jungle-book/sounds/de/simple/rice.wav",
+    "assets/jungle-book/sounds/de/simple/pasta.wav",
+    "assets/jungle-book/sounds/de/simple/water.wav",
+    "assets/jungle-book/sounds/de/simple/roast_chicken.wav",
+    "assets/jungle-book/sounds/de/simple/stew.wav",
+    "assets/jungle-book/sounds/de/simple/meatballs.wav",
+    "assets/jungle-book/sounds/de/simple/tacos.wav",
+    "assets/jungle-book/sounds/de/simple/pizza.wav",
+    "assets/jungle-book/sounds/de/simple/lasagne.wav",
+    "assets/jungle-book/sounds/de/simple/head.wav",
+];
+voice_paths_de_simple_144: [9]string = .[
+    "assets/jungle-book/sounds/de/simple/eye.wav",
+    "assets/jungle-book/sounds/de/simple/ear.wav",
+    "assets/jungle-book/sounds/de/simple/nose.wav",
+    "assets/jungle-book/sounds/de/simple/mouth.wav",
+    "assets/jungle-book/sounds/de/simple/tooth.wav",
+    "assets/jungle-book/sounds/de/simple/arm.wav",
+    "assets/jungle-book/sounds/de/simple/hand.wav",
+    "assets/jungle-book/sounds/de/simple/leg.wav",
+    "assets/jungle-book/sounds/de/simple/foot.wav",
 ];
 VoicePath_de_simple :: (at: s32) -> string {
     if at < 48 { return voice_paths_de_simple_0[at - 0] }
     if at < 96 { return voice_paths_de_simple_48[at - 48] }
-    if at < 117 { return voice_paths_de_simple_96[at - 96] }
+    if at < 144 { return voice_paths_de_simple_96[at - 96] }
+    if at < 153 { return voice_paths_de_simple_144[at - 144] }
     return ""
 }
 voice_seconds_de_simple_0: [48]float64 = .[
@@ -1002,7 +1275,7 @@ voice_seconds_de_simple_48: [48]float64 = .[
     1.737596,
     1.940544,
 ];
-voice_seconds_de_simple_96: [21]float64 = .[
+voice_seconds_de_simple_96: [48]float64 = .[
     1.937370,
     1.678866,
     1.787075,
@@ -1024,11 +1297,50 @@ voice_seconds_de_simple_96: [21]float64 = .[
     2.430930,
     2.832426,
     2.039819,
+    1.981088,
+    2.134240,
+    2.081542,
+    1.880590,
+    1.935737,
+    2.179909,
+    2.289841,
+    2.184717,
+    1.634649,
+    1.683991,
+    1.639456,
+    1.842721,
+    1.633696,
+    2.630431,
+    2.330431,
+    1.676054,
+    1.981905,
+    1.881542,
+    2.081542,
+    1.987800,
+    2.787891,
+    2.144127,
+    2.631837,
+    2.278005,
+    1.678639,
+    2.380091,
+    2.126213,
+];
+voice_seconds_de_simple_144: [9]float64 = .[
+    1.830385,
+    1.532336,
+    1.842540,
+    1.677959,
+    1.790385,
+    1.829161,
+    1.789252,
+    1.682449,
+    1.779048,
 ];
 VoiceSeconds_de_simple :: (at: s32) -> float64 {
     if at < 48 { return voice_seconds_de_simple_0[at - 0] }
     if at < 96 { return voice_seconds_de_simple_48[at - 48] }
-    if at < 117 { return voice_seconds_de_simple_96[at - 96] }
+    if at < 144 { return voice_seconds_de_simple_96[at - 96] }
+    if at < 153 { return voice_seconds_de_simple_144[at - 144] }
     return 0.0
 }
 voice_paths_es_spelling_0: [48]string = .[
@@ -1131,7 +1443,7 @@ voice_paths_es_spelling_48: [48]string = .[
     "assets/jungle-book/sounds/es/spelling/moon.wav",
     "assets/jungle-book/sounds/es/spelling/cloud.wav",
 ];
-voice_paths_es_spelling_96: [21]string = .[
+voice_paths_es_spelling_96: [48]string = .[
     "assets/jungle-book/sounds/es/spelling/rain.wav",
     "assets/jungle-book/sounds/es/spelling/tree.wav",
     "assets/jungle-book/sounds/es/spelling/river.wav",
@@ -1153,11 +1465,50 @@ voice_paths_es_spelling_96: [21]string = .[
     "assets/jungle-book/sounds/es/spelling/eggplant.wav",
     "assets/jungle-book/sounds/es/spelling/beet.wav",
     "assets/jungle-book/sounds/es/spelling/cauliflower.wav",
+    "assets/jungle-book/sounds/es/spelling/mother.wav",
+    "assets/jungle-book/sounds/es/spelling/father.wav",
+    "assets/jungle-book/sounds/es/spelling/sister.wav",
+    "assets/jungle-book/sounds/es/spelling/brother.wav",
+    "assets/jungle-book/sounds/es/spelling/baby.wav",
+    "assets/jungle-book/sounds/es/spelling/grandmother.wav",
+    "assets/jungle-book/sounds/es/spelling/grandfather.wav",
+    "assets/jungle-book/sounds/es/spelling/family.wav",
+    "assets/jungle-book/sounds/es/spelling/bread.wav",
+    "assets/jungle-book/sounds/es/spelling/milk.wav",
+    "assets/jungle-book/sounds/es/spelling/eggs.wav",
+    "assets/jungle-book/sounds/es/spelling/cereal.wav",
+    "assets/jungle-book/sounds/es/spelling/butter.wav",
+    "assets/jungle-book/sounds/es/spelling/jam.wav",
+    "assets/jungle-book/sounds/es/spelling/sandwich.wav",
+    "assets/jungle-book/sounds/es/spelling/soup.wav",
+    "assets/jungle-book/sounds/es/spelling/salad.wav",
+    "assets/jungle-book/sounds/es/spelling/rice.wav",
+    "assets/jungle-book/sounds/es/spelling/pasta.wav",
+    "assets/jungle-book/sounds/es/spelling/water.wav",
+    "assets/jungle-book/sounds/es/spelling/roast_chicken.wav",
+    "assets/jungle-book/sounds/es/spelling/stew.wav",
+    "assets/jungle-book/sounds/es/spelling/meatballs.wav",
+    "assets/jungle-book/sounds/es/spelling/tacos.wav",
+    "assets/jungle-book/sounds/es/spelling/pizza.wav",
+    "assets/jungle-book/sounds/es/spelling/lasagne.wav",
+    "assets/jungle-book/sounds/es/spelling/head.wav",
+];
+voice_paths_es_spelling_144: [9]string = .[
+    "assets/jungle-book/sounds/es/spelling/eye.wav",
+    "assets/jungle-book/sounds/es/spelling/ear.wav",
+    "assets/jungle-book/sounds/es/spelling/nose.wav",
+    "assets/jungle-book/sounds/es/spelling/mouth.wav",
+    "assets/jungle-book/sounds/es/spelling/tooth.wav",
+    "assets/jungle-book/sounds/es/spelling/arm.wav",
+    "assets/jungle-book/sounds/es/spelling/hand.wav",
+    "assets/jungle-book/sounds/es/spelling/leg.wav",
+    "assets/jungle-book/sounds/es/spelling/foot.wav",
 ];
 VoicePath_es_spelling :: (at: s32) -> string {
     if at < 48 { return voice_paths_es_spelling_0[at - 0] }
     if at < 96 { return voice_paths_es_spelling_48[at - 48] }
-    if at < 117 { return voice_paths_es_spelling_96[at - 96] }
+    if at < 144 { return voice_paths_es_spelling_96[at - 96] }
+    if at < 153 { return voice_paths_es_spelling_144[at - 144] }
     return ""
 }
 voice_seconds_es_spelling_0: [48]float64 = .[
@@ -1260,7 +1611,7 @@ voice_seconds_es_spelling_48: [48]float64 = .[
     9.039229,
     8.409751,
 ];
-voice_seconds_es_spelling_96: [21]float64 = .[
+voice_seconds_es_spelling_96: [48]float64 = .[
     12.172381,
     11.335057,
     9.516100,
@@ -1282,11 +1633,50 @@ voice_seconds_es_spelling_96: [21]float64 = .[
     14.678458,
     15.590794,
     15.349841,
+    10.163447,
+    9.485533,
+    13.047528,
+    13.282676,
+    10.680998,
+    10.294966,
+    11.256825,
+    13.792789,
+    6.691474,
+    10.189977,
+    10.801134,
+    13.764717,
+    19.175102,
+    16.399138,
+    16.762721,
+    8.737732,
+    15.487483,
+    10.677596,
+    9.306757,
+    6.916871,
+    20.185578,
+    15.194104,
+    18.965034,
+    9.440272,
+    10.421723,
+    11.859864,
+    10.197279,
+];
+voice_seconds_es_spelling_144: [9]float64 = .[
+    7.738503,
+    9.385669,
+    10.405805,
+    7.170703,
+    11.415556,
+    9.335782,
+    9.133288,
+    11.802902,
+    5.937778,
 ];
 VoiceSeconds_es_spelling :: (at: s32) -> float64 {
     if at < 48 { return voice_seconds_es_spelling_0[at - 0] }
     if at < 96 { return voice_seconds_es_spelling_48[at - 48] }
-    if at < 117 { return voice_seconds_es_spelling_96[at - 96] }
+    if at < 144 { return voice_seconds_es_spelling_96[at - 96] }
+    if at < 153 { return voice_seconds_es_spelling_144[at - 144] }
     return 0.0
 }
 voice_paths_es_simple_0: [48]string = .[
@@ -1389,7 +1779,7 @@ voice_paths_es_simple_48: [48]string = .[
     "assets/jungle-book/sounds/es/simple/moon.wav",
     "assets/jungle-book/sounds/es/simple/cloud.wav",
 ];
-voice_paths_es_simple_96: [21]string = .[
+voice_paths_es_simple_96: [48]string = .[
     "assets/jungle-book/sounds/es/simple/rain.wav",
     "assets/jungle-book/sounds/es/simple/tree.wav",
     "assets/jungle-book/sounds/es/simple/river.wav",
@@ -1411,11 +1801,50 @@ voice_paths_es_simple_96: [21]string = .[
     "assets/jungle-book/sounds/es/simple/eggplant.wav",
     "assets/jungle-book/sounds/es/simple/beet.wav",
     "assets/jungle-book/sounds/es/simple/cauliflower.wav",
+    "assets/jungle-book/sounds/es/simple/mother.wav",
+    "assets/jungle-book/sounds/es/simple/father.wav",
+    "assets/jungle-book/sounds/es/simple/sister.wav",
+    "assets/jungle-book/sounds/es/simple/brother.wav",
+    "assets/jungle-book/sounds/es/simple/baby.wav",
+    "assets/jungle-book/sounds/es/simple/grandmother.wav",
+    "assets/jungle-book/sounds/es/simple/grandfather.wav",
+    "assets/jungle-book/sounds/es/simple/family.wav",
+    "assets/jungle-book/sounds/es/simple/bread.wav",
+    "assets/jungle-book/sounds/es/simple/milk.wav",
+    "assets/jungle-book/sounds/es/simple/eggs.wav",
+    "assets/jungle-book/sounds/es/simple/cereal.wav",
+    "assets/jungle-book/sounds/es/simple/butter.wav",
+    "assets/jungle-book/sounds/es/simple/jam.wav",
+    "assets/jungle-book/sounds/es/simple/sandwich.wav",
+    "assets/jungle-book/sounds/es/simple/soup.wav",
+    "assets/jungle-book/sounds/es/simple/salad.wav",
+    "assets/jungle-book/sounds/es/simple/rice.wav",
+    "assets/jungle-book/sounds/es/simple/pasta.wav",
+    "assets/jungle-book/sounds/es/simple/water.wav",
+    "assets/jungle-book/sounds/es/simple/roast_chicken.wav",
+    "assets/jungle-book/sounds/es/simple/stew.wav",
+    "assets/jungle-book/sounds/es/simple/meatballs.wav",
+    "assets/jungle-book/sounds/es/simple/tacos.wav",
+    "assets/jungle-book/sounds/es/simple/pizza.wav",
+    "assets/jungle-book/sounds/es/simple/lasagne.wav",
+    "assets/jungle-book/sounds/es/simple/head.wav",
+];
+voice_paths_es_simple_144: [9]string = .[
+    "assets/jungle-book/sounds/es/simple/eye.wav",
+    "assets/jungle-book/sounds/es/simple/ear.wav",
+    "assets/jungle-book/sounds/es/simple/nose.wav",
+    "assets/jungle-book/sounds/es/simple/mouth.wav",
+    "assets/jungle-book/sounds/es/simple/tooth.wav",
+    "assets/jungle-book/sounds/es/simple/arm.wav",
+    "assets/jungle-book/sounds/es/simple/hand.wav",
+    "assets/jungle-book/sounds/es/simple/leg.wav",
+    "assets/jungle-book/sounds/es/simple/foot.wav",
 ];
 VoicePath_es_simple :: (at: s32) -> string {
     if at < 48 { return voice_paths_es_simple_0[at - 0] }
     if at < 96 { return voice_paths_es_simple_48[at - 48] }
-    if at < 117 { return voice_paths_es_simple_96[at - 96] }
+    if at < 144 { return voice_paths_es_simple_96[at - 96] }
+    if at < 153 { return voice_paths_es_simple_144[at - 144] }
     return ""
 }
 voice_seconds_es_simple_0: [48]float64 = .[
@@ -1518,7 +1947,7 @@ voice_seconds_es_simple_48: [48]float64 = .[
     1.784263,
     1.936735,
 ];
-voice_seconds_es_simple_96: [21]float64 = .[
+voice_seconds_es_simple_96: [48]float64 = .[
     2.344807,
     1.935782,
     1.881587,
@@ -1540,10 +1969,49 @@ voice_seconds_es_simple_96: [21]float64 = .[
     2.040091,
     2.190567,
     1.978503,
+    1.787891,
+    1.786440,
+    2.032154,
+    2.188798,
+    2.032472,
+    1.872971,
+    2.191202,
+    2.434875,
+    1.481361,
+    1.740544,
+    1.782358,
+    2.238367,
+    2.482041,
+    2.576190,
+    1.935782,
+    1.580181,
+    2.340000,
+    2.132472,
+    1.647891,
+    1.478639,
+    3.284082,
+    2.236190,
+    2.392880,
+    2.035646,
+    1.843855,
+    2.483129,
+    2.031066,
+];
+voice_seconds_es_simple_144: [9]float64 = .[
+    2.186757,
+    1.882222,
+    1.884717,
+    1.532245,
+    1.918458,
+    1.996599,
+    1.828753,
+    1.926032,
+    1.378639,
 ];
 VoiceSeconds_es_simple :: (at: s32) -> float64 {
     if at < 48 { return voice_seconds_es_simple_0[at - 0] }
     if at < 96 { return voice_seconds_es_simple_48[at - 48] }
-    if at < 117 { return voice_seconds_es_simple_96[at - 96] }
+    if at < 144 { return voice_seconds_es_simple_96[at - 96] }
+    if at < 153 { return voice_seconds_es_simple_144[at - 144] }
     return 0.0
 }

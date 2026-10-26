@@ -94,6 +94,52 @@
       "eggplant",
       "beet",
       "cauliflower"
+    ],
+    "family": [
+      "mother",
+      "father",
+      "sister",
+      "brother",
+      "baby",
+      "grandmother",
+      "grandfather",
+      "family"
+    ],
+    "breakfast": [
+      "bread",
+      "milk",
+      "eggs",
+      "cereal",
+      "butter",
+      "jam"
+    ],
+    "lunch": [
+      "sandwich",
+      "soup",
+      "salad",
+      "rice",
+      "pasta",
+      "water"
+    ],
+    "dinner": [
+      "roast_chicken",
+      "stew",
+      "meatballs",
+      "tacos",
+      "pizza",
+      "lasagne"
+    ],
+    "body": [
+      "head",
+      "eye",
+      "ear",
+      "nose",
+      "mouth",
+      "tooth",
+      "arm",
+      "hand",
+      "leg",
+      "foot"
     ]
   },
   "titles": {
@@ -146,6 +192,31 @@
       "Vegetables",
       "Gemüse",
       "Verduras"
+    ],
+    "family": [
+      "Family",
+      "Familie",
+      "Familia"
+    ],
+    "breakfast": [
+      "Breakfast",
+      "Frühstück",
+      "Desayuno"
+    ],
+    "lunch": [
+      "Lunch",
+      "Mittagessen",
+      "Almuerzo"
+    ],
+    "dinner": [
+      "Dinner",
+      "Abendessen",
+      "Cena"
+    ],
+    "body": [
+      "Body Parts",
+      "Körperteile",
+      "Partes del cuerpo"
     ]
   },
   "words": {
@@ -523,6 +594,186 @@
       "Cauliflower",
       "Blumenkohl",
       "Coliflor"
+    ],
+    "mother": [
+      "Mother",
+      "Mutter",
+      "Madre"
+    ],
+    "father": [
+      "Father",
+      "Vater",
+      "Padre"
+    ],
+    "sister": [
+      "Sister",
+      "Schwester",
+      "Hermana"
+    ],
+    "brother": [
+      "Brother",
+      "Bruder",
+      "Hermano"
+    ],
+    "baby": [
+      "Baby",
+      "Baby",
+      "Bebé"
+    ],
+    "grandmother": [
+      "Grandmother",
+      "Großmutter",
+      "Abuela"
+    ],
+    "grandfather": [
+      "Grandfather",
+      "Großvater",
+      "Abuelo"
+    ],
+    "family": [
+      "Family",
+      "Familie",
+      "Familia"
+    ],
+    "bread": [
+      "Bread",
+      "Brot",
+      "Pan"
+    ],
+    "milk": [
+      "Milk",
+      "Milch",
+      "Leche"
+    ],
+    "eggs": [
+      "Eggs",
+      "Eier",
+      "Huevos"
+    ],
+    "cereal": [
+      "Cereal",
+      "Müsli",
+      "Cereales"
+    ],
+    "butter": [
+      "Butter",
+      "Butter",
+      "Mantequilla"
+    ],
+    "jam": [
+      "Jam",
+      "Marmelade",
+      "Mermelada"
+    ],
+    "sandwich": [
+      "Sandwich",
+      "Sandwich",
+      "Sándwich"
+    ],
+    "soup": [
+      "Soup",
+      "Suppe",
+      "Sopa"
+    ],
+    "salad": [
+      "Salad",
+      "Salat",
+      "Ensalada"
+    ],
+    "rice": [
+      "Rice",
+      "Reis",
+      "Arroz"
+    ],
+    "pasta": [
+      "Pasta",
+      "Nudeln",
+      "Pasta"
+    ],
+    "water": [
+      "Water",
+      "Wasser",
+      "Agua"
+    ],
+    "roast_chicken": [
+      "Roast chicken",
+      "Brathähnchen",
+      "Pollo asado"
+    ],
+    "stew": [
+      "Stew",
+      "Eintopf",
+      "Estofado"
+    ],
+    "meatballs": [
+      "Meatballs",
+      "Frikadellen",
+      "Albóndigas"
+    ],
+    "tacos": [
+      "Tacos",
+      "Tacos",
+      "Tacos"
+    ],
+    "pizza": [
+      "Pizza",
+      "Pizza",
+      "Pizza"
+    ],
+    "lasagne": [
+      "Lasagne",
+      "Lasagne",
+      "Lasaña"
+    ],
+    "head": [
+      "Head",
+      "Kopf",
+      "Cabeza"
+    ],
+    "eye": [
+      "Eye",
+      "Auge",
+      "Ojo"
+    ],
+    "ear": [
+      "Ear",
+      "Ohr",
+      "Oreja"
+    ],
+    "nose": [
+      "Nose",
+      "Nase",
+      "Nariz"
+    ],
+    "mouth": [
+      "Mouth",
+      "Mund",
+      "Boca"
+    ],
+    "tooth": [
+      "Tooth",
+      "Zahn",
+      "Diente"
+    ],
+    "arm": [
+      "Arm",
+      "Arm",
+      "Brazo"
+    ],
+    "hand": [
+      "Hand",
+      "Hand",
+      "Mano"
+    ],
+    "leg": [
+      "Leg",
+      "Bein",
+      "Pierna"
+    ],
+    "foot": [
+      "Foot",
+      "Fuß",
+      "Pie"
     ]
   },
   "atlases": {
@@ -615,6 +866,114 @@
       "eggplant",
       "beet",
       "cauliflower"
+    ],
+    "book-word-mother": [
+      "mother"
+    ],
+    "book-word-father": [
+      "father"
+    ],
+    "book-word-sister": [
+      "sister"
+    ],
+    "book-word-brother": [
+      "brother"
+    ],
+    "book-word-baby": [
+      "baby"
+    ],
+    "book-word-grandmother": [
+      "grandmother"
+    ],
+    "book-word-grandfather": [
+      "grandfather"
+    ],
+    "book-word-family": [
+      "family"
+    ],
+    "book-word-bread": [
+      "bread"
+    ],
+    "book-word-milk": [
+      "milk"
+    ],
+    "book-word-eggs": [
+      "eggs"
+    ],
+    "book-word-cereal": [
+      "cereal"
+    ],
+    "book-word-butter": [
+      "butter"
+    ],
+    "book-word-jam": [
+      "jam"
+    ],
+    "book-word-sandwich": [
+      "sandwich"
+    ],
+    "book-word-soup": [
+      "soup"
+    ],
+    "book-word-salad": [
+      "salad"
+    ],
+    "book-word-rice": [
+      "rice"
+    ],
+    "book-word-pasta": [
+      "pasta"
+    ],
+    "book-word-water": [
+      "water"
+    ],
+    "book-word-roast_chicken": [
+      "roast_chicken"
+    ],
+    "book-word-stew": [
+      "stew"
+    ],
+    "book-word-meatballs": [
+      "meatballs"
+    ],
+    "book-word-tacos": [
+      "tacos"
+    ],
+    "book-word-pizza": [
+      "pizza"
+    ],
+    "book-word-lasagne": [
+      "lasagne"
+    ],
+    "book-word-head": [
+      "head"
+    ],
+    "book-word-eye": [
+      "eye"
+    ],
+    "book-word-ear": [
+      "ear"
+    ],
+    "book-word-nose": [
+      "nose"
+    ],
+    "book-word-mouth": [
+      "mouth"
+    ],
+    "book-word-tooth": [
+      "tooth"
+    ],
+    "book-word-arm": [
+      "arm"
+    ],
+    "book-word-hand": [
+      "hand"
+    ],
+    "book-word-leg": [
+      "leg"
+    ],
+    "book-word-foot": [
+      "foot"
     ]
   }
 }

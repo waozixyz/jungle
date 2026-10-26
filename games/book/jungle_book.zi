@@ -29,6 +29,7 @@ finished: bool;
 finished_started: float64;
 category: s32;
 book_scroll: s32;
+book_tab: s32;
 voice_idle_started: float64;
 voice_pending: bool;
 simple: bool = true;
@@ -98,6 +99,7 @@ Turn :: (step: s32) {
 }
 
 OpenBook :: () {
+    book_tab = category_groups[category]
     choosing_category = false
     finished = false
     swipe_tracking = false
@@ -151,35 +153,48 @@ ResponsiveBook :: (bounds: Rectangle) {
     if shelf_view_height < 80 { shelf_view_height = 80 }
 }
 
-ShelfTop :: (slot: s32) -> s32 {
-    group: s32 = ifx slot < 4 then 0 else ifx slot < 6 then 1 else 2
-    before: s32 = ifx group == 0 then 0 else ifx group == 1 then 4 else 6
-    rows_before: s32 = ifx group == 0 then 0 else ifx group == 1 then (4 + shelf_columns - 1) / shelf_columns else (4 + shelf_columns - 1) / shelf_columns + (2 + shelf_columns - 1) / shelf_columns
-    return group * 40 + 40 + (rows_before + (slot - before) / shelf_columns) * (shelf_card_height + book_gap)
+BookIllustration :: (index: s32, path: string, x: s32, y: s32, width: s32, height: s32) {
+    BookPicture(category_backdrops[index], x, y, width, height)
+    BookPicture(path, x, y, width, height)
 }
 
 BookShelf :: () {
-    content_height := ShelfTop(CATEGORY_COUNT - 1) + shelf_card_height + book_gap
+    handled := false
+    tab_gap: s32 = 8
+    tab_columns: s32 = ifx book_width < 600 then 2 else 4
+    tab_rows := 4 / tab_columns
+    tab_width := (book_width - book_padding * 2 - tab_gap * (tab_columns - 1)) / tab_columns
+    for index: cast(s32)0..3 {
+        if TouchButton(700 + index, book_padding + (index % tab_columns) * (tab_width + tab_gap), book_padding + (index / tab_columns) * 52, tab_width, 44, book_groups[index], book_tab == index) {
+            book_tab = index
+            category = shelf_order[group_starts[index]]
+            book_scroll = 0
+            handled = true
+        }
+    }
+    count := group_counts[book_tab]
+    rows := (count + shelf_columns - 1) / shelf_columns
+    content_height := rows * (shelf_card_height + book_gap)
+    tab_height := tab_rows * 52 + 4
+    view_top := book_padding + tab_height
+    view_height := shelf_view_height - tab_height
     scrolled := Scroll(retro.session, ScrollProps.{.key = cast(u64)600,
-        .bounds = RetroRect(book_padding, book_padding, book_width - book_padding * 2, shelf_view_height),
+        .bounds = RetroRect(book_padding, view_top, book_width - book_padding * 2, view_height),
         .scale = 1.0, .content_height = content_height, .scroll_offset = book_scroll, .keep_scrollbar = true})
     book_scroll = scrolled.scroll_offset
     if scrolled.opened {
         saved_y := retro.y
         retro.y -= cast(float32)book_scroll
-        BookText(book_padding + 2, book_padding, book_width - book_padding * 2 - 12, 32, "Animals and nature", 22, TextAlign.TextAlignStart)
-        BookText(book_padding + 2, book_padding + ShelfTop(4) - 40, book_width - book_padding * 2 - 12, 32, "Food", 22, TextAlign.TextAlignStart)
-        BookText(book_padding + 2, book_padding + ShelfTop(6) - 40, book_width - book_padding * 2 - 12, 32, "At home", 22, TextAlign.TextAlignStart)
-        for slot: cast(s32)0..CATEGORY_COUNT - 1 {
-            index := shelf_order[slot]
+        for slot: cast(s32)0..count - 1 {
+            index := shelf_order[group_starts[book_tab] + slot]
             x := book_padding + (slot % shelf_columns) * (shelf_card_width + book_gap)
-            y := book_padding + ShelfTop(slot)
+            y := view_top + (slot / shelf_columns) * (shelf_card_height + book_gap)
             press := RetroTap(20 + index, x, y, shelf_card_width, shelf_card_height, category_names[index])
             selected := index == category
             BookBox(x, y, shelf_card_width, shelf_card_height, ifx selected then cast(u32)0xe5eee1ff else cast(u32)0xf7f1e3ff,
                 ifx selected then cast(u32)0x2e6956ff else cast(u32)0xdacdb5ff, 9.0)
             picture := shelf_card_height - 14
-            BookPicture(category_previews[index], x + 7, y + 7, picture, picture)
+            BookIllustration(index, category_previews[index], x + 7, y + 7, picture, picture)
             BookText(x + picture + 14, y + shelf_card_height / 2 - 28, shelf_card_width - picture - 24, 32, category_names[index], 24, TextAlign.TextAlignStart)
             count_text: Vec(u8)
             BuilderPrint(*count_text, "% %", category_counts[index], Tr("pages"))
@@ -192,23 +207,23 @@ BookShelf :: () {
     footer := book_height - book_padding - 48
     mode_width := (book_width - book_padding * 2 - book_gap) / 2
     x := book_padding
-    if TouchButton(30, x, footer, mode_width, 48, "Simple", simple) { simple = true; unused DocumentWrite("mode.txt", "simple") }
-    if TouchButton(31, x + mode_width + book_gap, footer, mode_width, 48, "Spelling", !simple) { simple = false; unused DocumentWrite("mode.txt", "spelling") }
+    if TouchButton(30, x, footer, mode_width, 48, "Simple", simple) { simple = true; unused DocumentWrite("mode.txt", "simple"); handled = true }
+    if TouchButton(31, x + mode_width + book_gap, footer, mode_width, 48, "Spelling", !simple) { simple = false; unused DocumentWrite("mode.txt", "spelling"); handled = true }
     if retro.key == KEY_LEFT || retro.key == KEY_RIGHT || retro.key == KEY_UP || retro.key == KEY_DOWN {
         slot: s32 = 0
-        for at: cast(s32)0..CATEGORY_COUNT - 1 { if shelf_order[at] == category { slot = at } }
+        for at: cast(s32)0..count - 1 { if shelf_order[group_starts[book_tab] + at] == category { slot = at } }
         step: s32 = ifx retro.key == KEY_LEFT then -1 else ifx retro.key == KEY_RIGHT then 1 else ifx retro.key == KEY_UP then -shelf_columns else shelf_columns
-        slot = (slot + step + CATEGORY_COUNT) % CATEGORY_COUNT
-        category = shelf_order[slot]
-        top := ShelfTop(slot)
+        slot = (slot + step + count) % count
+        category = shelf_order[group_starts[book_tab] + slot]
+        top := (slot / shelf_columns) * (shelf_card_height + book_gap)
         if top < book_scroll { book_scroll = top }
-        if top + shelf_card_height > book_scroll + shelf_view_height { book_scroll = top + shelf_card_height - shelf_view_height }
+        if top + shelf_card_height > book_scroll + view_height { book_scroll = top + shelf_card_height - view_height }
     }
     if retro.key == 83 { simple = true; unused DocumentWrite("mode.txt", "simple") }
     if retro.key == 68 { simple = false; unused DocumentWrite("mode.txt", "spelling") }
     if retro.key >= 49 && retro.key <= 57 && retro.key < 49 + CATEGORY_COUNT { category = retro.key - 49; OpenBook() }
     if retro.key == 48 && CATEGORY_COUNT >= 10 { category = 9; OpenBook() }
-    if retro.key == KEY_ENTER { OpenBook() }
+    if retro.key == KEY_ENTER && !handled { OpenBook() }
     if retro.key == KEY_ESCAPE { GameHome() }
 }
 
@@ -217,7 +232,7 @@ FinishedBook :: () {
     size := book_width - book_padding * 2
     if size > book_height - 160 { size = book_height - 160 }
     if size < 80 { size = 80 }
-    BookPicture(category_previews[next_category], (book_width - size) / 2, book_padding, size, size)
+    BookIllustration(next_category, category_previews[next_category], (book_width - size) / 2, book_padding, size, size)
     BookText(book_padding, book_padding + size + 8, book_width - book_padding * 2, 36, category_names[next_category], 25)
     footer := book_height - book_padding - 48
     width := (book_width - book_padding * 2 - book_gap) / 2
@@ -263,7 +278,7 @@ ReadingPage :: () {
     for ahead: cast(s32)1..2 {
         if page + ahead < category_counts[category] { unused RetroImageReady(page_paths(PageIndex() + ahead)) }
     }
-    BookPicture(page_paths(PageIndex()), image_x, image_y, image_size, image_size)
+    BookIllustration(category, page_paths(PageIndex()), image_x, image_y, image_size, image_size)
     BookText(word_x, word_y, word_width, 56, PageName(), ifx landscape then 44 else 34)
     if !simple { BookText(word_x, word_y + 58, word_width, 32, Spelling(), 20) }
     footer := book_height - book_padding - 48
@@ -313,6 +328,7 @@ GameMain :: () -> s32 {
         page = 0
         category = 0
         book_scroll = 0
+        book_tab = 0
         AppIdentity("jungle.book")
         AppDescribe("Picture Book", "")
         return APP_PROTOCOL

@@ -63,7 +63,7 @@ def main():
                 desktop.click(30, 90)
                 desktop.capture(f"language-{language}-erase")
                 desktop.click(240, 85)
-                desktop.click(30, 182)
+                desktop.key("Escape")
                 desktop.capture(f"language-{language}-stop")
             print(f"local language UI test: {language} dialogs, accented input, save/load and UTF-8 export passed", flush=True)
 

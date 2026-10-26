@@ -17,14 +17,14 @@ controls are translated. Picture Book has local narration.
 A consistent back arrow in the top title bar returns home from every game.
 Accented German and Spanish letters work in Dino stories, saves and exports.
 
-**Picture Book** has ten organized books: Wild animals (15 pictures), Garden
+**Picture Book** has fifteen organized books: Wild animals (15 pictures), Garden
 (10), Fruits (16), Farm (20), Kitchen (8), Bathroom (8), Bedroom (8),
-Living room (8), Nature (8), and Vegetables (16). Browse the original grouped book list in a responsive scrollable shelf, with Animals and nature, Food, and At home sections. Portrait pages stack the full illustration and word; landscape pages place them side by side. Choose **Simple** to hear each word once with
+Living room (8), Nature (8), Vegetables (16), Family (8), Body Parts (10), Breakfast (6), Lunch (6), and Dinner (6). Browse the framed book list through Nature, Food, Home and Family tabs. Portrait pages stack the full illustration and word; landscape pages place them side by side. Choose **Simple** to hear each word once with
 its picture, or **Spelling** to hear the word, its letters and the word again.
-The selected mode is remembered. Every one of the 117 pictures has names and
+The selected mode is remembered. Every one of the 153 pictures has names and
 both kinds of narration in English, German and Spanish, including correctly
 spaced accented letters. Pictures sit on cream pages inside the original warm book frame.
-Each cover lists its page count. Linux narration is read only when played; browser pictures load as needed.
+Each cover lists its page count. The centered pictures sit over separate illustrated watercolor backgrounds, with a quiet paper wash for Body Parts. Linux narration is read only when played; browser pictures load as needed.
 Simple pages stay open at least six seconds; spelling pages at least twelve.
 Both wait until three seconds after their recording finishes. Swipe left for
 the next page and right for the previous page. Arrows, Enter or a picture tap
@@ -40,7 +40,7 @@ them on wider screens. Its counting rules follow Animal Math. The levels climb
 back down, the same number never comes twice, and every eighth right
 answer brings one of the original praises, from GOOD JOB to AWESOME.
 
-**Dino Colors** plays like Bert's Dinosaurs. Pick one of six scenes, place
+**Coloring Book** plays like Bert's Dinosaurs. Pick one of six scenes, place
 any of twelve dinosaurs or six Animals and People stencils in four sizes, then fill
 the picture with thirty crayon buttons. You can write an eight-line story
 and keep the whole picture and story in one of six slots. Undo takes back the
@@ -115,7 +115,7 @@ ASCII and Latin-1 letters from GNU Unifont. Picture Book's pages are cut from a 
 built-in imagegen tool, following the owner's illustrated jungle-book reference.
 The source, generation prompt and reference stay in `art/generated/`.
 `tools/book_art.py` cuts its individual illustrations and category covers.
-The 42 pages include ten more fruits and six more farm animals.
+The 153 pages include family members, body parts and meals. Foreground cutouts and separate watercolor backgrounds compose the book pages. `tools/book_backgrounds.py` prepares the scene layers.
 `tools/book_catalog.py` owns the category, word and literal letter-name inventory;
 `tools/locales.py` compiles `locales/ui.json` into the portable UI translations.
 Its recordings are generated through Harmony's reusable `generate_speech` tool
@@ -123,7 +123,7 @@ on OpenRouter, using Gemini TTS's Kore voice with gentle delivery and slower,
 pitch-preserving playback. Each WAV has a `.speech.json` with the literal word,
 spelling, model, voice, speed, measured duration and checksum. No network or
 credential is needed while playing.
-Dino Colors' scenes and dinosaurs are traced from
+Coloring Book' scenes and dinosaurs are traced from
 the original Bert's Dinosaurs artwork into `assets/dino-paint/art` and
 `games/paint/paint_pages.zi`. `make sounds` makes the beeps. Both tools are
 written in Ziran (`tools/`), and their output is committed. They preserve the
@@ -158,5 +158,4 @@ Actions, then publish the same tested website artifact to Cloudflare Pages.
 The deployment verifies its revision on `jungle.waozi.xyz`. The repository
 secret `CLOUDFLARE_API_TOKEN` grants Pages Edit for the hosting account and
 DNS Edit for `waozi.xyz`; credentials are never stored in this repository.
-Browser saves stay on that browser in IndexedDB. Images load before play,
-and narration loads as needed. Browser printing opens the browser print dialog.
+Browser saves stay on that browser in IndexedDB. Menu images load first; book pictures and narration load as needed. Browser printing opens the browser print dialog.
