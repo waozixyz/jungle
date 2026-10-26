@@ -349,6 +349,7 @@ def ui(binary):
             desktop.capture("menu-book-return")
             print("local UI test: Picture Book categories, pages and English names", flush=True)
             desktop.key("2")
+            desktop.key("1")
             abc = desktop.capture("abc-chooser")
             assert abc.getpixel((0, 0)) == (227, 236, 228), "ABC Book lost its cream background"
             desktop.click(230, 120)
@@ -374,9 +375,11 @@ def ui(binary):
             assert ImageChops.difference(letter_a, letter_m).getbbox(), "ABC strip did not move to another letter"
             desktop.key("Escape")
             desktop.key("Escape")
+            desktop.key("Escape")
             desktop.capture("menu-abc-return")
             print("local UI test: ABC letters, navigation and find answers", flush=True)
-            desktop.key("3")
+            desktop.key("2")
+            desktop.key("2")
             numbers = desktop.capture("numbers-chooser")
             assert numbers.getpixel((0, 0)) == (227, 236, 228), "123 Book lost its cream background"
             desktop.click(90, 120)
@@ -393,8 +396,9 @@ def ui(binary):
             assert ImageChops.difference(four, eight).getbbox(), "123 strip did not move again"
             desktop.key("Escape")
             desktop.key("Escape")
+            desktop.key("Escape")
             print("local UI test: 123 number pages and the number strip", flush=True)
-            desktop.key("4")
+            desktop.key("3")
             counting = desktop.capture("counting")
             assert counting.getpixel((0, 0)) == (227, 236, 228), "counting did not render its book background"
             progress = data / "games/jungle.animals/progress.txt"
@@ -422,7 +426,7 @@ def ui(binary):
             returned = desktop.capture("menu-return")
             assert ImageChops.difference(menu, returned).getbbox() is None, "counting did not return home"
             print("local UI test: watercolor counting artwork, questions, ladder and progress", flush=True)
-            desktop.key("5")
+            desktop.key("4")
             desktop.capture("paint-main")
             desktop.click(30, 15)
             scenes = desktop.capture("paint-scenes")
@@ -561,7 +565,7 @@ def ui(binary):
         with Desktop(binary, data, extra) as desktop:
             restarted = desktop.capture("restart-menu")
             assert ImageChops.difference(muted_menu, restarted).getbbox() is None, "mute setting did not survive restart"
-            desktop.key("5")
+            desktop.key("4")
             desktop.capture("paint-recovered")
             assert (data / "games/jungle.paint/working.txt").read_bytes() == before
             print("local UI test: working picture recovers after restart", flush=True)
