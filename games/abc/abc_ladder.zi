@@ -1,0 +1,93 @@
+// The find-the-letter ladder, following Animal Counting's rules: six right
+// answers move up, six misses move back, the same target never comes twice,
+// and the eighth right answer earns one of the original praises.
+MAX_LEVEL :: 5
+RIGHT_TO_MOVE :: 6
+MISS_TO_MOVE :: 6
+PRAISE_COUNT :: 8
+choice_counts: [5]s32 = .[3, 4, 4, 6, 6];
+level: s32 = 1;
+count: s32;
+right_run: s32;
+miss_run: s32;
+target: s32;
+last_target: s32 = -1;
+choices: [8]s32;
+choice_count: s32;
+random_state: u32 = 1;
+
+RandomNext :: () -> u32 {
+    value := random_state
+    if value == 0 { value = 2463534242 }
+    value ^= value << 13
+    value ^= value >> 17
+    value ^= value << 5
+    random_state = value
+    return value
+}
+
+RandomNumber :: (limit: s32) -> s32 {
+    return cast(s32)(RandomNext() % cast(u32)100 % cast(u32)limit) + 1
+}
+
+HasChoice :: (letter: s32) -> bool {
+    for at: cast(s32)0..choice_count - 1 {
+        if choices[at] == letter { return true }
+    }
+    return false
+}
+
+// usable lists the letters that can be asked about (those with words); mate is
+// a look-alike letter to prefer among the distractors, or -1.
+NextQuestion :: (letter_count: s32, usable: []s32, mate: s32) {
+    most := choice_counts[level - 1]
+    if most > 8 { most = 8 }
+    target = usable[RandomNumber(cast(s32)usable.count) - 1]
+    while usable.count > 1 && target == last_target {
+        target = usable[RandomNumber(cast(s32)usable.count) - 1]
+    }
+    last_target = target
+    choice_count = 0
+    choices[choice_count] = target
+    choice_count += 1
+    if mate >= 0 && mate < letter_count && !HasChoice(mate) && choice_count < most {
+        choices[choice_count] = mate
+        choice_count += 1
+    }
+    guard: s32 = 0
+    while choice_count < most && guard < 256 {
+        guard += 1
+        letter := cast(s32)(RandomNext() % cast(u32)letter_count)
+        if !HasChoice(letter) {
+            choices[choice_count] = letter
+            choice_count += 1
+        }
+    }
+    for at: cast(s32)1..choice_count - 1 {
+        other := cast(s32)(RandomNext() % cast(u32)(at + 1))
+        saved := choices[at]
+        choices[at] = choices[other]
+        choices[other] = saved
+    }
+}
+
+// A wrong answer keeps the same question, as Animal Counting does.
+AnswerLetter :: (letter: s32) -> bool {
+    if letter == target {
+        count += 1
+        right_run += 1
+        if right_run >= RIGHT_TO_MOVE {
+            right_run = 0
+            miss_run = 0
+            if level < MAX_LEVEL { level += 1 }
+        }
+        return true
+    }
+    miss_run += 1
+    if miss_run >= MISS_TO_MOVE {
+        right_run = 0
+        miss_run = 0
+        if level > 1 { level -= 1 }
+    }
+    return false
+}

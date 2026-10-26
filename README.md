@@ -14,24 +14,30 @@ Choose **English, Deutsch or Español** with the flag buttons on the title
 screen. Jungle remembers the language. Its title screen shares the Picture Book's cream
 paper, warm frame, native lettering and watercolor game covers. All three games' menus, feedback and
 controls are translated. Picture Book has local narration.
-A consistent back arrow in the top title bar returns home from every game.
+A consistent back arrow in the top title bar steps back inside each game and
+returns home from its first screen. The sound button at the top right mutes
+or unmutes every game.
 Accented German and Spanish letters work in Dino stories, saves and exports.
 
 **Picture Book** has fifteen organized books: Wild animals (15 pictures), Garden
 (10), Fruits (16), Farm (20), Kitchen (8), Bathroom (8), Bedroom (8),
-Living room (8), Nature (8), Vegetables (16), Family (8), Body Parts (10), Breakfast (6), Lunch (6), and Dinner (6). Browse the framed book list through Nature, Food, Home and Family tabs. Portrait pages stack the full illustration and word; landscape pages place them side by side. Choose **Simple** to hear each word once with
+Living room (8), Nature (8), Vegetables (16), Family (8), Body Parts (10), Breakfast (6), Lunch (6), and Dinner (6). Browse the framed book list through Nature, Food, Home and Family tabs. Every page is one gentle watercolor
+scene in the style of the title-screen covers: each animal, food or thing sits
+in its own setting, so no two pages share a background. Breakfast pages are
+drawn in morning light, Lunch at midday and Dinner in the evening. The scene
+fills the page and its word sits on a label at the bottom. Choose **Simple** to hear each word once with
 its picture, or **Spelling** to hear the word, its letters and the word again.
 The selected mode is remembered. Every one of the 153 pictures has names and
 both kinds of narration in English, German and Spanish, including correctly
-spaced accented letters. Pictures sit on cream pages inside the original warm book frame.
-Each cover lists its page count. The centered pictures sit over separate illustrated watercolor backgrounds, with a quiet paper wash for Body Parts. Linux narration is read only when played; browser pictures load as needed.
+spaced accented letters. Each cover lists its page count. Linux narration is read only when played; browser pictures load as needed.
 Simple pages stay open at least six seconds; spelling pages at least twelve.
-Both wait until three seconds after their recording finishes. Swipe left for
-the next page and right for the previous page. Arrows, Enter or a picture tap
-turn pages too; Books or Escape returns to the categories. Pages show the
-picture and word without a category heading or page counter. Each book ends
-after its final picture and suggests another book. After a short finish screen,
-the next book opens automatically; All books returns to the book choices. Back from the first picture stays there.
+Both wait until three seconds after their recording finishes. Tap the right
+side of a page or swipe left for the next page; tap the left side or swipe
+right for the previous one. Arrows and Enter turn pages too. The back arrow in
+the title bar, or Escape, returns to the books. Each book ends after its final
+picture and shows the next book on the shelf, which opens by itself after a
+few seconds; All books returns to the book choices. Back from the first
+picture stays there.
 
 **Animal Counting** pairs watercolor animals with a clean answer card on
 cream paper, with a touch number pad below the animals on phones or beside
@@ -79,14 +85,14 @@ Old Jungle Math counting levels carry over into Animal Counting on startup.
 
 Audio plays quietly by default at one quarter of the former playback gain.
 Short triangle-wave cues replace the sharp beeps, and counting rewards use a
-brief chime instead of a long song. Click the sound button in the menu or press
-F10 anywhere to mute or unmute. Muting stops queued sounds immediately, and
+brief chime instead of a long song. Click the sound button in the menu or the
+title bar, or press F10 anywhere, to mute or unmute. Muting stops queued sounds immediately, and
 the setting persists when Jungle reopens.
 
 ## Saving, exporting and printing
 
-SAVE opens separate Save and Load choices. Saving over an occupied slot asks
-before replacing it. Each picture contains its scene, all painted pixels,
+SAVE opens separate Save and Load choices. Each saved slot shows a small
+preview of its picture. Saving over an occupied slot asks before replacing it. Each picture contains its scene, all painted pixels,
 dinosaur outlines, crayon selection and eight-line story. Invalid or incomplete
 slot files leave the current picture intact. Early palette-only saves still
 open with their existing pixels; missing story data from those old files
@@ -111,11 +117,13 @@ fifteen checkerboard fills. Earlier sixteen-color saves retain their palette.
 
 Menu sprites are SVG files in `art/`. `make art` cuts them down to small
 sprites in the sixteen colors with Inkscape and ImageMagick, makes the
-ASCII and Latin-1 letters from GNU Unifont. Picture Book's pages are cut from a watercolor atlas generated with Codex's
-built-in imagegen tool, following the owner's illustrated jungle-book reference.
-The source, generation prompt and reference stay in `art/generated/`.
-`tools/book_art.py` cuts its individual illustrations and category covers.
-The 153 pages include family members, body parts and meals. Foreground cutouts and separate watercolor backgrounds compose the book pages. `tools/book_backgrounds.py` prepares the scene layers.
+ASCII and Latin-1 letters from GNU Unifont. Picture Book's pages and the
+transparent cut-outs used by Animal Counting and the ABC Book are drawn one
+picture at a time with Codex's built-in imagegen tool, in the style of the
+title-screen covers (`art/generated/title-covers.png`). Their prompts are kept
+in `tools/book_prompts.json`; the pages are 1254 pixel JPEG files in
+`assets/jungle-book/pages`. `tools/book_art.py` makes the book covers from the
+first pages and writes the page and narration tables.
 `tools/book_catalog.py` owns the category, word and literal letter-name inventory;
 `tools/locales.py` compiles `locales/ui.json` into the portable UI translations.
 Its recordings are generated through Harmony's reusable `generate_speech` tool

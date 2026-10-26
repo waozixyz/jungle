@@ -1,0 +1,84 @@
+#import, file "../games/abc/abc_data.zi";
+#import, file "../games/abc/abc_ladder.zi";
+#import, file "../host/platform.zi";
+#import, file "../host/jungle_text.zi";
+
+DataChecks :: () -> s32 {
+    for lang: cast(s32)0..2 {
+        count := LetterCount(lang)
+        if count < 26 || count > 32 { return 100 + lang }
+        with_words: s32 = 0
+        for letter: cast(s32)0..count - 1 {
+            words := LetterWordCount(lang, letter)
+            if words < 0 || words > 8 { return 200 + lang }
+            if words == 0 { continue }
+            with_words += 1
+            for at: cast(s32)0..words - 1 {
+                word := LetterWord(lang, letter, at)
+                if word < 0 || word >= WORD_COUNT { return 300 + lang }
+                art := WordArt(word)
+                if art.count < 25 || art[:25] != "assets/jungle-book/items/" { return 400 + lang }
+                voice := WordVoice_en_simple(word)
+                if voice.count < 26 || voice[:26] != "assets/jungle-book/sounds/" { return 500 + lang }
+            }
+        }
+        if with_words < 20 { return 600 + lang }
+    }
+    return 0
+}
+
+#program_export
+main :: () -> s32 {
+    failed := DataChecks()
+    if failed != 0 { return failed }
+    // The ladder follows Animal Counting's rules over invented alphabets.
+    for ladder: cast(s32)1..MAX_LEVEL {
+        level = ladder
+        letters: [26]s32
+        for at: cast(s32)0..25 { letters[at] = at }
+        for round: cast(s32)0..999 {
+            before := last_target
+            NextQuestion(26, letters[:], -1)
+            if target < 0 || target >= 26 || target == before { return 1 }
+            if choice_count != choice_counts[level - 1] { return 2 }
+            seen: [32]bool
+            targets_inside := false
+            for at: cast(s32)0..choice_count - 1 {
+                if choices[at] < 0 || choices[at] >= 26 { return 3 }
+                if seen[choices[at]] { return 4 }
+                seen[choices[at]] = true
+                if choices[at] == target { targets_inside = true }
+            }
+            if !targets_inside { return 5 }
+        }
+    }
+    // A preferred look-alike joins the choices when it fits.
+    level = 3
+    letters: [26]s32
+    for at: cast(s32)0..25 { letters[at] = at }
+    mate_used := false
+    for round: cast(s32)0..99 {
+        NextQuestion(26, letters[:], 1)
+        for at: cast(s32)0..choice_count - 1 {
+            if choices[at] == 1 && target != 1 { mate_used = true }
+        }
+    }
+    if !mate_used { return 6 }
+    // Six right answers climb, six misses fall, as in Animal Counting.
+    level = 1
+    count = 0
+    right_run = 0
+    miss_run = 0
+    NextQuestion(26, letters[:], -1)
+    saved := target
+    for answer: cast(s32)0..4 { if !AnswerLetter(saved) || level != 1 { return 7 } }
+    if !AnswerLetter(saved) || level != 2 || right_run != 0 { return 8 }
+    for answer: cast(s32)0..4 { if AnswerLetter(-1) || level != 2 { return 9 } }
+    if AnswerLetter(-1) || level != 1 || miss_run != 0 { return 10 }
+    for answer: cast(s32)0..99 { unused AnswerLetter(-1) }
+    if level != 1 { return 11 }
+    for answer: cast(s32)0..99 { unused AnswerLetter(target) }
+    if level != MAX_LEVEL || right_run >= RIGHT_TO_MOVE { return 12 }
+    Report("local abc test passed\n")
+    return 0
+}

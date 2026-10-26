@@ -92,7 +92,6 @@ $(APP)/games/dino-paint.zx: $(wildcard games/paint/*.zi retro/*.zi) $(shell find
 art: build/tools/art
 	build/tools/art
 	python3 tools/book_art.py
-	python3 tools/book_backgrounds.py
 	python3 tools/menu_art.py
 	python3 tools/dino_art.py
 	python3 tools/paint_pages.py

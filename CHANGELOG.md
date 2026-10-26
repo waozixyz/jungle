@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.1.4
+
+- Redraw every Picture Book page as a gentle watercolor scene in the style of the title screen, with each animal, food or thing in its own setting and sharp, high-resolution pictures.
+- Draw Breakfast in morning light, Lunch at midday and Dinner in the evening.
+- Let each picture fill the page with its word on top, and turn pages by tapping the right or left side.
+- End each book with the next book on the shelf: its cover, page count and a gentle countdown before it opens.
+- Redraw the counting animals in the same friendly style.
+- Step back inside a game with the title bar's back arrow, and mute or unmute with a new sound button at the top right.
+- Show a small preview of each saved picture in the Coloring Book's Save and Load slots.
+
 ## 0.1.3
 
 - Restore illustrated watercolor backgrounds behind the centered book pictures.
