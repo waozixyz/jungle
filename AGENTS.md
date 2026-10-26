@@ -58,3 +58,7 @@ is in `tools/book_prompts.json`; the full-size originals are kept in
   person or object. Saved pictures reopen with their existing background.
 - The stencil gallery has Dinosaurs, Animals, People and Objects sections,
   including placeable objects such as crates and campfires.
+
+- ABC and 123 share one ABC + 123 entry, with both books inside. Keep their
+  existing saved progress. Menu text must fit within each row at every window
+  size; use one centered title when a row cannot hold its description.

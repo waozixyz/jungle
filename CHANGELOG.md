@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.5
+
+- Combine ABC and 123 into one ABC + 123 entry, with both books and their saved progress inside.
+- Keep game titles and descriptions inside their cards at every window size, including nearly square windows.
+
 ## 0.1.4
 
 - Add ABC Book, a fourth game: browse the alphabet on the Picture Book's watercolor words with Simple and Spelling narration, then find letters in a gentle quiz that follows Animal Counting's ladder, in English, German (with Ä Ö Ü ß) and Spanish (with Ñ).

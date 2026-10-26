@@ -12,7 +12,7 @@ under `~/.local/share/jungle/games/`.
 
 Choose **English, Deutsch or Español** with the flag buttons on the title
 screen. Jungle remembers the language. Its title screen shares the Picture Book's cream
-paper, warm frame, native lettering and watercolor game covers. All three games' menus, feedback and
+paper, warm frame, native lettering and watercolor game covers. All games' menus, feedback and
 controls are translated. Picture Book has local narration.
 A consistent back arrow in the top title bar steps back inside each game and
 returns home from its first screen. The sound button at the top right mutes
@@ -38,6 +38,10 @@ the title bar, or Escape, returns to the books. Each book ends after its final
 picture and shows the next book on the shelf, which opens by itself after a
 few seconds; All books returns to the book choices. Back from the first
 picture stays there.
+
+**ABC + 123** combines the letter and number books in one menu entry.
+Choose **ABC Book** or **123 Book** inside it; Back returns to that choice.
+Both books keep their existing progress and narration.
 
 **123 Book** is the numbers twin of ABC Book. **Learn the numbers** shows each
 numeral from one to ten with its word and that many watercolor animals,
