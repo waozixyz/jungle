@@ -9,6 +9,8 @@
 - Redraw the counting animals in the same friendly style.
 - Step back inside a game with the title bar's back arrow, and mute or unmute with a new sound button at the top right.
 - Show a small preview of each saved picture in the Coloring Book's Save and Load slots.
+- Start a new Coloring Book picture by choosing its background before a stencil.
+- Add rabbit, elephant and lion stencils, a doctor, firefighter and cook, and an Objects section with a crate, campfire, tent, tree, rock and barrel.
 
 ## 0.1.3
 

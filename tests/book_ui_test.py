@@ -12,6 +12,14 @@ sys.path.insert(0, str(ROOT / "tools"))
 from book_catalog import BOOKS, LANGUAGES, voice_path
 
 
+# Regions of a 320 by 200 capture of the default 960 by 600 window.
+SCENE = (70, 20, 250, 150)
+WORD = (80, 170, 240, 190)
+SPELLING = (80, 180, 240, 192)
+LABEL = (70, 150, 250, 196)
+COVER = (20, 40, 150, 170)
+
+
 def different(a, b, box=None):
     if box:
         a, b = a.crop(box), b.crop(box)
@@ -52,12 +60,12 @@ def main():
                 categories = desktop.wait_book(f"{language}-books")
                 # The saved setting from the preceding language is reset explicitly.
                 desktop.key("s")
-                firsts, endings = {}, {}
+                firsts, endings, nexts = {}, {}, {}
                 for category_index, (name, names) in enumerate(BOOKS):
                     select_book(desktop, category_index)
                     first = desktop.capture(f"{language}-{name}-simple")
-                    assert ink in [c for _, c in first.crop((168, 74, 298, 113)).getcolors(10000)]
-                    assert ink not in [c for _, c in first.crop((168, 115, 298, 130)).getcolors(10000)], "Simple mode still shows spelling"
+                    # The word sits on a label at the bottom of the scene.
+                    assert ink in [c for _, c in first.crop(WORD).getcolors(10000)]
                     firsts[name] = first
                     assert ink not in [c for _, c in first.crop((24, 16, 298, 27)).getcolors(10000)], "Page still shows a category or counter"
                     desktop.key("Left")
@@ -65,7 +73,7 @@ def main():
                     for _ in range(len(names) - 1):
                         desktop.key("Right")
                     last = desktop.capture(f"{language}-{name}-last")
-                    assert different(first, last, (24, 39, 152, 167))
+                    assert different(first, last, SCENE)
                     desktop.key("Right")
                     ending = desktop.capture(f"{language}-{name}-finished")
                     endings[name] = ending
@@ -78,7 +86,8 @@ def main():
                     assert not different(first, desktop.capture(f"{language}-{name}-restarted"))
                     desktop.key("Right")
                     next_page = desktop.capture(f"{language}-{name}-next")
-                    assert different(first, next_page, (24, 39, 152, 167))
+                    assert different(first, next_page, SCENE)
+                    nexts[name] = next_page
                     desktop.drag(40, 112, 280, 112)
                     assert not different(first, desktop.capture(f"{language}-{name}-swipe-back"))
                     desktop.drag(280, 112, 40, 112)
@@ -98,7 +107,8 @@ def main():
                 desktop.key("Right")
                 started = time.monotonic()
                 spelling = desktop.capture(f"{language}-butterfly-spelling")
-                assert ink in [c for _, c in spelling.crop((168, 103, 298, 125)).getcolors(10000)], "Spelling line is missing"
+                assert ink in [c for _, c in spelling.crop(SPELLING).getcolors(10000)], "Spelling line is missing"
+                assert different(nexts["garden"], spelling, LABEL), "Spelling mode looks like simple mode"
                 duration = json.loads((ROOT / voice_path("butterfly", language)).with_suffix(".speech.json").read_text())["duration"]
                 hold = max(12, duration + 3)
                 time.sleep(min(5, hold - 2))
@@ -126,9 +136,10 @@ def main():
                     desktop.key("Right")
                 duration = json.loads((ROOT / voice_path(dict(BOOKS)["garden"][-1], language, True)).with_suffix(".speech.json").read_text())["duration"]
                 time.sleep(max(6, duration + 3) + 1)
-                assert not different(endings["garden"], desktop.capture(f"{language}-auto-finished")), "Automatic reading looped instead of finishing"
-                time.sleep(3.2)
-                assert not different(firsts["fruits"], desktop.capture(f"{language}-suggested-next-book")), "Suggested book did not open"
+                # The finish screen's bar moves, so compare the next book's cover.
+                assert not different(endings["garden"], desktop.capture(f"{language}-auto-finished"), COVER), "Automatic reading looped instead of finishing"
+                time.sleep(8.2)
+                assert not different(firsts["farm"], desktop.capture(f"{language}-suggested-next-book")), "Suggested book did not open"
                 desktop.key("Escape")
                 desktop.key("Escape")
                 desktop.key("2")

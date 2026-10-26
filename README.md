@@ -47,14 +47,14 @@ back down, the same number never comes twice, and every eighth right
 answer brings one of the original praises, from GOOD JOB to AWESOME.
 
 **Coloring Book** plays like Bert's Dinosaurs. Pick one of six scenes, place
-any of twelve dinosaurs or six Animals and People stencils in four sizes, then fill
+any of twelve dinosaurs, six animals, six people or six objects in four sizes, then fill
 the picture with thirty crayon buttons. You can write an eight-line story
 and keep the whole picture and story in one of six slots. Undo takes back the
 last dinosaur, fill or erase. The working picture recovers when you reopen the
 game. Scenes and dinosaurs are smooth vector line art in `art/paint`, painted
 on a 960 by 720 picture. The tools have icons; on a tall screen they sit in
 two rows below the picture. Paper galleries and native lettering match the
-book theme. Choose Dinosaurs, Animals or People at the top of the stencil gallery. Dinosaur selection has no voiceover or voice controls. Quiet sound
+book theme. New pictures choose a background first. Choose Dinosaurs, Animals, People or Objects at the top of the stencil gallery. Dinosaur selection has no voiceover or voice controls. Quiet sound
 effects follow the shared mute setting.
 
 A new stencil starts as a green dashed placement box with a move badge.

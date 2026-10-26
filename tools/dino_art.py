@@ -11,7 +11,9 @@ are the only source for every size tools/paint_pages.py makes.
 """
 from collections import deque
 import ctypes
+import json
 from pathlib import Path
+import sys
 
 import numpy
 from PIL import Image, ImageDraw, ImageFilter
@@ -179,8 +181,43 @@ def scene(sheet, index):
     return trace(ink, SCENE_SIZE[0] / width, SCENE_SIZE[1] / height)
 
 
+def standalone_stencils():
+    """Trace each new stencil from its own generated image."""
+    manifest = json.loads((ROOT / 'tools/coloring_stencils.json').read_text())
+    for index, item in enumerate(manifest['stencils'], 19):
+        source = ROOT / 'art/generated/coloring-stencils' / (item['name'] + '.png')
+        with Image.open(source) as image:
+            rgba = image.convert('RGBA')
+            paper = Image.new('RGBA', rgba.size, 'white')
+            paper.alpha_composite(rgba)
+            ink = paper.convert('L').point(lambda value: 255 if value < 160 else 0)
+        bounds = ink.getbbox()
+        assert bounds, f'Empty stencil: {source}'
+        ink = ink.crop(bounds)
+        ink.thumbnail((960, 960), Image.Resampling.LANCZOS)
+        margin = 12
+        outline = Image.new('L', (ink.width + margin * 2, ink.height + margin * 2))
+        outline.paste(ink, (margin, margin))
+        body = silhouette(outline)
+        width, height = outline.size
+        body_path = trace(body.point(lambda value: 255 if value else 0, mode='1'))
+        ink_path = trace(outline.point(lambda value: 255 if value >= 128 else 0, mode='1'))
+        (OUT / f'dino{index}.svg').write_text(
+            f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}" '
+            f'width="{width}" height="{height}">\n'
+            f'<path id="body" fill="#fff" fill-rule="evenodd" d="{body_path}"/>\n'
+            f'<g id="ink" fill="#000" fill-rule="evenodd">\n'
+            f'<path d="{ink_path}"/>\n'
+            f'<path d="{body_path}" fill="none" stroke="#000" stroke-width="10" '
+            f'stroke-linejoin="round"/>\n</g>\n</svg>\n')
+    print(f"Traced {len(manifest['stencils'])} individual animal, people and object stencils.")
+
+
 def main():
     OUT.mkdir(exist_ok=True)
+    if '--stencils-only' in sys.argv:
+        standalone_stencils()
+        return
     sheet = Image.open(ROOT / 'art/generated/dino-coloring-shapes.png').convert('L')
     found = components(sheet)
     for index in range(12):
@@ -203,6 +240,7 @@ def main():
             f'width="{width}" height="{height}">\n'
             f'<rect width="{width}" height="{height}" fill="#fff"/>\n'
             f'<path id="ink" fill="#000" fill-rule="evenodd" d="{scene(scenery, index)}"/>\n</svg>\n')
+    standalone_stencils()
     print('Traced twelve dinosaurs and six scenes into art/paint.')
 
 

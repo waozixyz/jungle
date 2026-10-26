@@ -22,37 +22,44 @@ def main():
         assert font.size == (128, 48), "counting needs the original 8-pixel font"
     with Image.open(ROOT / "assets/jungle-book/font.png") as font:
         assert font.size == (128, 224), "Jungle Book needs the shared 8-by-16 font"
+    # Each page is one whole watercolor scene whose edges fade into the paper.
+    expected = {name + ".jpg" for name in NAMES}
+    actual = {path.name for path in (ROOT / "assets/jungle-book/pages").glob("*")}
+    assert actual == expected, "Picture Book has stale or missing scene pages"
+    for name in NAMES:
+        with Image.open(ROOT / f"assets/jungle-book/pages/{name}.jpg") as page:
+            assert page.size == (1254, 1254) and page.mode == "RGB", f"{name} page is not a sharp full scene"
+            corners = [page.getpixel(p) for p in [(4, 4), (1249, 4), (4, 1249), (1249, 1249)]]
+            # A leaf or arm can reach a corner while the scene still fades
+            # into paper around the rest of its edges.
+            assert sum(min(color) > 190 for color in corners) >= 3, f"{name} page does not fade into the paper"
+            assert len(page.resize((300, 300)).getcolors(300 * 300) or range(90001)) > 5000, f"{name} page is not smooth artwork"
+    prompts = json.loads((ROOT / "tools/book_prompts.json").read_text())
+    assert set(prompts["pages"]) == set(NAMES) == set(prompts["cutouts"]), "every picture keeps its prompt"
+    assert (ROOT / "art/generated/title-covers.png").exists(), "the cover style reference is missing"
+    expected_previews = {name + ".jpg" for name, _ in BOOKS}
+    actual_previews = {path.name for path in (ROOT / "assets/jungle-book/previews").glob("*")}
+    assert actual_previews == expected_previews, "Picture Book needs one cover per book"
+    for path in sorted((ROOT / "assets/jungle-book/previews").glob("*.jpg")):
+        with Image.open(path) as preview:
+            assert preview.size == (768, 768)
+    assert not (ROOT / "assets/jungle-book/backgrounds").exists(), "scenes replace the shared backdrops"
+    with Image.open(ROOT / "assets/jungle/book.png") as icon:
+        assert icon.size == (64, 64), "Picture Book needs a generated raster icon"
+    # Animal Counting and the ABC Book use a transparent cut-out of each word.
     expected = {name + ".png" for name in NAMES}
     actual = {path.name for path in (ROOT / "assets/jungle-book/items").glob("*.png")}
-    assert actual == expected, "Picture Book has stale or missing category artwork"
-    expected_previews = {name + ".png" for name, _ in BOOKS}
-    actual_previews = {path.name for path in (ROOT / "assets/jungle-book/previews").glob("*.png")}
-    assert actual_previews == expected_previews, "Picture Book needs clean category previews"
-    with Image.open(ROOT / "art/generated/picture-book-watercolors.png") as source:
-        assert source.width == source.height and source.width >= 1024, "Picture Book needs its generated watercolor source"
-    with Image.open(ROOT / "assets/jungle/book.png") as icon:
-        assert icon.size == (64, 64) and icon.mode == "RGBA", "Picture Book needs a generated raster icon"
+    assert actual == expected, "Picture Book has stale or missing cut-outs"
     for path in sorted((ROOT / "assets/jungle-book/items").glob("*.png")):
         with Image.open(path) as sprite:
-            assert sprite.size == (420, 420), f"{path.name} must match Picture Book's smooth page art"
+            assert sprite.size == (420, 420), f"{path.name} must be a 420 pixel cut-out"
             assert sprite.mode == "RGBA", f"{path.name} must preserve its transparency"
             assert sprite.getbbox(), f"{path.name} is empty"
             alpha = sprite.getchannel("A")
-            assert alpha.getextrema()[1] >= 200, f"{path.name} has no opaque artwork"
-            if path.stem not in dict(BOOKS)["nature"]:
-                assert alpha.getextrema()[0] == 0, f"{path.name} needs an isolated illustration without a paper panel"
-                assert all(alpha.getpixel(p) == 0 for p in [(0,0),(419,0),(0,419),(419,419)]), f"{path.name} has a clipped edge"
+            assert alpha.getextrema() == (0, 255), f"{path.name} needs an isolated illustration without a paper panel"
+            assert all(alpha.getpixel(p) == 0 for p in [(0,0),(419,0),(0,419),(419,419)]), f"{path.name} has a clipped edge"
             colors = sprite.convert("RGBA").getcolors(420 * 420)
             assert colors is not None and len(colors) > 1000, f"{path.name} is not smooth generated artwork"
-    for path in sorted((ROOT / "assets/jungle-book/previews").glob("*.png")):
-        with Image.open(path) as preview:
-            assert preview.size == (420, 420) and preview.mode == "RGBA"
-    backgrounds=ROOT/'assets/jungle-book/backgrounds'
-    assert {p.stem for p in backgrounds.glob('*.png')} == {'jungle','garden','farm','food','family','body','kitchen','bathroom','bedroom','living-room','nature'}
-    for path in backgrounds.glob('*.png'):
-        with Image.open(path) as background:
-            assert background.size==(420,420) and background.mode=='RGBA'
-            assert len(background.getcolors(420*420) or [])>1000, path
     for language in LANGUAGES:
         for simple in (True, False):
             for name in NAMES:
@@ -77,7 +84,7 @@ def main():
         assert (ROOT / f"art/paint/scene{number}.svg").read_text().count("<path") == 1
         with Image.open(art / f"scene{number}-thumb.png") as thumb:
             assert thumb.size == (256, 192) and len(thumb.getcolors(1 << 16) or range(1 << 16)) > 16, "scene thumbnail is not smooth"
-    for number in range(1, 19):
+    for number in range(1, 31):
         svg = (ROOT / f"art/paint/dino{number}.svg").read_text()
         assert '<path id="body" fill="#fff"' in svg and ('<path id="ink" fill="#000"' in svg or '<g id="ink"' in svg)
         with Image.open(art / f"dino{number}.png") as dinosaur, Image.open(art / f"dino{number}-flip.png") as flipped:
@@ -116,7 +123,7 @@ def main():
             assert .1 < sound.getnframes() / sound.getframerate() < .2
     with wave.open(str(ROOT / "assets/animal-count/sounds/reward.wav")) as reward:
         assert .2 < reward.getnframes() / reward.getframerate() < .5
-    print("local asset test: cartoon pages, native sprites, opaque dinosaur bodies, BIOS font, VGA crayons, voices and brief feedback passed")
+    print("local asset test: watercolor scene pages, cut-outs, native sprites, opaque dinosaur bodies, BIOS font, VGA crayons, voices and brief feedback passed")
 
 
 if __name__ == "__main__":

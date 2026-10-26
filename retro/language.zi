@@ -9,7 +9,8 @@ LanguageCode :: () -> string {
 LanguageSet :: (code: string) {
     language = ifx code == "de" then 1 else ifx code == "es" then 2 else 0
 }
-ui_en: [152]string = .[
+UI_COUNT :: 165
+ui_en_0: [48]string = .[
     "Picture Book",
     "Animal Counting",
     "Dino Colors",
@@ -58,6 +59,8 @@ ui_en: [152]string = .[
     "STRACOSAURUS",
     "CORYTHOSAURUS",
     "Jungle picture and story",
+];
+ui_en_48: [48]string = .[
     "Jungle Academy",
     "Choose a little adventure",
     "Pictures and words",
@@ -106,6 +109,8 @@ ui_en: [152]string = .[
     "Replace this saved picture?",
     "Its picture and story",
     "will be replaced.",
+];
+ui_en_96: [48]string = .[
     "Replace",
     "Cancel",
     "Picture and story",
@@ -154,6 +159,8 @@ ui_en: [152]string = .[
     "Child",
     "Astronaut",
     "Farmer",
+];
+ui_en_144: [21]string = .[
     "Drag the stencil, then let go",
     "Coloring Book",
     "Family",
@@ -162,8 +169,21 @@ ui_en: [152]string = .[
     "Lunch",
     "Dinner",
     "Body Parts",
+    "Rabbit",
+    "Elephant",
+    "Lion",
+    "Doctor",
+    "Firefighter",
+    "Cook",
+    "Crate",
+    "Campfire",
+    "Tent",
+    "Tree",
+    "Rock",
+    "Barrel",
+    "Objects",
 ];
-ui_de: [152]string = .[
+ui_de_0: [48]string = .[
     "Bilderbuch",
     "Tiere zählen",
     "Dino Farben",
@@ -212,6 +232,8 @@ ui_de: [152]string = .[
     "STYRACOSAURUS",
     "CORYTHOSAURUS",
     "Jungle Bild und Geschichte",
+];
+ui_de_48: [48]string = .[
     "Jungle Akademie",
     "Wähle ein kleines Abenteuer",
     "Bilder und Wörter",
@@ -260,6 +282,8 @@ ui_de: [152]string = .[
     "Gespeichertes Bild ersetzen?",
     "Das Bild und die Geschichte",
     "werden ersetzt.",
+];
+ui_de_96: [48]string = .[
     "Ersetzen",
     "Abbrechen",
     "Bild und Geschichte",
@@ -308,6 +332,8 @@ ui_de: [152]string = .[
     "Kind",
     "Astronaut",
     "Landwirt",
+];
+ui_de_144: [21]string = .[
     "Ziehe die Vorlage und lass los",
     "Malbuch",
     "Familie",
@@ -316,8 +342,21 @@ ui_de: [152]string = .[
     "Mittagessen",
     "Abendessen",
     "Körperteile",
+    "Kaninchen",
+    "Elefant",
+    "Löwe",
+    "Ärztin",
+    "Feuerwehrmann",
+    "Köchin",
+    "Kiste",
+    "Lagerfeuer",
+    "Zelt",
+    "Baum",
+    "Felsen",
+    "Fass",
+    "Objekte",
 ];
-ui_es: [152]string = .[
+ui_es_0: [48]string = .[
     "Libro ilustrado",
     "Contar animales",
     "Colores Dino",
@@ -366,6 +405,8 @@ ui_es: [152]string = .[
     "ESTIRACOSAURIO",
     "CORITOSAURIO",
     "Imagen y cuento de Jungle",
+];
+ui_es_48: [48]string = .[
     "Academia Jungla",
     "Elige una pequeña aventura",
     "Imágenes y palabras",
@@ -414,6 +455,8 @@ ui_es: [152]string = .[
     "¿Reemplazar esta imagen?",
     "Su imagen y su cuento",
     "se reemplazarán.",
+];
+ui_es_96: [48]string = .[
     "Reemplazar",
     "Cancelar",
     "Imagen y cuento",
@@ -462,6 +505,8 @@ ui_es: [152]string = .[
     "Niño",
     "Astronauta",
     "Granjero",
+];
+ui_es_144: [21]string = .[
     "Arrastra la plantilla y suéltala",
     "Libro para colorear",
     "Familia",
@@ -470,11 +515,45 @@ ui_es: [152]string = .[
     "Almuerzo",
     "Cena",
     "Partes del cuerpo",
+    "Conejo",
+    "Elefante",
+    "León",
+    "Doctora",
+    "Bombero",
+    "Cocinera",
+    "Caja",
+    "Fogata",
+    "Tienda",
+    "Árbol",
+    "Roca",
+    "Barril",
+    "Objetos",
 ];
+Ui_en :: (at: s32) -> string {
+    if at < 48 { return ui_en_0[at - 0] }
+    if at < 96 { return ui_en_48[at - 48] }
+    if at < 144 { return ui_en_96[at - 96] }
+    if at < 165 { return ui_en_144[at - 144] }
+    return ""
+}
+Ui_de :: (at: s32) -> string {
+    if at < 48 { return ui_de_0[at - 0] }
+    if at < 96 { return ui_de_48[at - 48] }
+    if at < 144 { return ui_de_96[at - 96] }
+    if at < 165 { return ui_de_144[at - 144] }
+    return ""
+}
+Ui_es :: (at: s32) -> string {
+    if at < 48 { return ui_es_0[at - 0] }
+    if at < 96 { return ui_es_48[at - 48] }
+    if at < 144 { return ui_es_96[at - 96] }
+    if at < 165 { return ui_es_144[at - 144] }
+    return ""
+}
 Tr :: (text: string) -> string {
     if language == 0 { return text }
-    for at: cast(s32)0..cast(s32)ui_en.count - 1 {
-        if text == ui_en[at] { return ifx language == 1 then ui_de[at] else ui_es[at] }
+    for at: cast(s32)0..UI_COUNT - 1 {
+        if text == Ui_en(at) { return ifx language == 1 then Ui_de(at) else Ui_es(at) }
     }
     return text
 }
