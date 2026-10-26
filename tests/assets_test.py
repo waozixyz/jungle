@@ -8,8 +8,7 @@ import sys
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 from book_catalog import NAMES, BOOKS, LANGUAGES, WORDS, narration, voice_path
 
-import numpy
-from PIL import Image
+from PIL import Image, ImageChops
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -76,12 +75,15 @@ def main():
         with Image.open(art / f"dino{number}.png") as dinosaur, Image.open(art / f"dino{number}-flip.png") as flipped:
             assert 720 in dinosaur.size or 960 in dinosaur.size, "placement picture is not the Huge size"
             assert dinosaur.transpose(Image.Transpose.FLIP_LEFT_RIGHT).tobytes() == flipped.tobytes()
-            pixels = numpy.asarray(dinosaur.convert("RGBA"))
-            color, alpha = pixels[..., :3], pixels[..., 3]
-            assert ((alpha == 255) & (color.min(axis=2) > 240)).sum() > 10000, "dinosaur lost its opaque white body"
-            assert ((alpha == 255) & (color.max(axis=2) < 40)).sum() > 1000, "dinosaur lost its ink"
-            assert (alpha == 0).sum() > 10000, "dinosaur erased its surrounding scenery"
-            assert ((alpha > 0) & (alpha < 255)).sum() > 100, "dinosaur edges are not smooth"
+            red, green, blue, alpha = dinosaur.convert("RGBA").split()
+            opaque = alpha.point(lambda v: 255 if v == 255 else 0)
+            lightest = ImageChops.darker(ImageChops.darker(red, green), blue).point(lambda v: 255 if v > 240 else 0)
+            darkest = ImageChops.lighter(ImageChops.lighter(red, green), blue).point(lambda v: 255 if v < 40 else 0)
+            levels = alpha.histogram()
+            assert ImageChops.multiply(opaque, lightest).histogram()[255] > 10000, "dinosaur lost its opaque white body"
+            assert ImageChops.multiply(opaque, darkest).histogram()[255] > 1000, "dinosaur lost its ink"
+            assert levels[0] > 10000, "dinosaur erased its surrounding scenery"
+            assert sum(levels[1:255]) > 100, "dinosaur edges are not smooth"
         for kind in ("thumb", "preview"):
             with Image.open(art / f"dino{number}-{kind}.png") as picture:
                 assert picture.mode == "RGBA" and picture.getbbox()
