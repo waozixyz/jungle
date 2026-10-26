@@ -12,6 +12,16 @@
 #import "image_widget"
 #import "press_props"
 #import "press_widget"
+#if #defined(PLATFORM_WEB) {
+    #import "app_context"
+}
+
+RetroImageReady :: (path: string) -> bool {
+    #if #defined(PLATFORM_WEB) {
+        return AppService("jungle.image", path) == "ready"
+    }
+    return true
+}
 
 SCREEN_WIDTH :: 320
 SCREEN_HEIGHT :: 200
@@ -101,6 +111,7 @@ RetroFrame :: (x: s32, y: s32, width: s32, height: s32, color: s32) {
 // A picture stretched to width by height screen pixels. A tint paints its
 // shape in one color.
 RetroSprite :: (path: string, x: s32, y: s32, width: s32, height: s32, tint: s32 = -1, smooth: bool = false) {
+    if !RetroImageReady(path) { return }
     Image(retro.session, ImageProps.{.asset_path = path, .bounds = RetroRect(x, y, width, height),
             .fit = ImageFit.ImageFitStretch, .smooth = smooth,
             .tint = ifx tint < 0 then cast(u32)0 else retro_colors[tint & 15]})

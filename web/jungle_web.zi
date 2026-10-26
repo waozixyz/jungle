@@ -190,6 +190,11 @@ WebPrint :: (png: string, story: string) -> string {
 
 #program_export
 WebService :: (name: string, request: string) -> string {
+    if name == "jungle.image" {
+        scope := WebScope()
+        defer WebEnd(scope)
+        return ifx WebAsBool(WebCall1(WebModule, WebName("jungleImageReady"), WebText(request))) then "ready" else "pending"
+    }
     if name == "jungle.voice-state" { return VoiceState() }
     if name == "jungle.language" { return LanguageCode() }
     if name == "jungle.home" { web_home = true; return "ok" }
@@ -238,12 +243,18 @@ JungleMain :: () -> s64 {
         if action.game >= 0 { OpenGame(action.game) }
     } else {
         if key == 299 { ToggleAudio(); Runner.canvas_app_key = 0 }
+        full_bounds := Runner.canvas_app_bounds
+        Runner.canvas_app_bounds = Rectangle.{full_bounds.x, full_bounds.y + cast(float32)GAME_BAR_HEIGHT,
+            full_bounds.width, full_bounds.height - cast(float32)GAME_BAR_HEIGHT}
         unused RunGame()
+        Runner.canvas_app_bounds = full_bounds
+        if GameTitleBar(AppSession(), full_bounds, key, AppNow(), web_games[active_game].title) { web_home = true }
         if web_home {
             Runner.canvas_app_mode = APP_SAVE
             unused RunGame()
             Runner.canvas_app_mode = APP_FRAME
             StopAudio()
+            WebKeyboard(false)
             active_game = -1
             web_home = false
         }

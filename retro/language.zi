@@ -9,7 +9,7 @@ LanguageCode :: () -> string {
 LanguageSet :: (code: string) {
     language = ifx code == "de" then 1 else ifx code == "es" then 2 else 0
 }
-ui_en: [133]string = .[
+ui_en: [145]string = .[
     "Picture Book",
     "Animal Counting",
     "Dino Colors",
@@ -143,8 +143,20 @@ ui_en: [133]string = .[
     "OK",
     "Mirror",
     "Drag the dinosaur, then let go",
+    "pages",
+    "Choose a stencil",
+    "Dinosaurs",
+    "Animals",
+    "People",
+    "Cat",
+    "Dog",
+    "Butterfly",
+    "Child",
+    "Astronaut",
+    "Farmer",
+    "Drag the stencil, then let go",
 ];
-ui_de: [133]string = .[
+ui_de: [145]string = .[
     "Bilderbuch",
     "Tiere zählen",
     "Dino Farben",
@@ -278,8 +290,20 @@ ui_de: [133]string = .[
     "OK",
     "Spiegeln",
     "Ziehe den Dinosaurier und lass ihn los",
+    "Seiten",
+    "Vorlage auswählen",
+    "Dinosaurier",
+    "Tiere",
+    "Menschen",
+    "Katze",
+    "Hund",
+    "Schmetterling",
+    "Kind",
+    "Astronaut",
+    "Landwirt",
+    "Ziehe die Vorlage und lass los",
 ];
-ui_es: [133]string = .[
+ui_es: [145]string = .[
     "Libro ilustrado",
     "Contar animales",
     "Colores Dino",
@@ -387,7 +411,7 @@ ui_es: [133]string = .[
     "Enviado a la impresora",
     "Sin impresora; archivos guardados",
     "No se pudo imprimir",
-    "¿Cuántos animales?",
+    "¿Cuántos animales hay?",
     "¡Correcto!",
     "¡Inténtalo otra vez!",
     "Escribe un número y pulsa Intro",
@@ -413,6 +437,18 @@ ui_es: [133]string = .[
     "Aceptar",
     "Reflejar",
     "Arrastra el dinosaurio y suéltalo",
+    "páginas",
+    "Elige una plantilla",
+    "Dinosaurios",
+    "Animales",
+    "Personas",
+    "Gato",
+    "Perro",
+    "Mariposa",
+    "Niño",
+    "Astronauta",
+    "Granjero",
+    "Arrastra la plantilla y suéltala",
 ];
 Tr :: (text: string) -> string {
     if language == 0 { return text }

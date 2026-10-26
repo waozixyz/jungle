@@ -118,16 +118,16 @@ class Desktop:
 
     def click(self, x, y, button=1):
         run(["xdotool", "mousemove", "--window", self.window,
-             str(x * self.scale + self.left),
-             str(y * self.scale + self.top)], self.env)
+             str(round(x * self.scale + self.left)),
+             str(round(y * self.scale + self.top))], self.env)
         run(["xdotool", "click", str(button)], self.env)
         time.sleep(.3)
         self.alive()
 
     def move(self, x, y):
         run(["xdotool", "mousemove", "--window", self.window,
-             str(x * self.scale + self.left),
-             str(y * self.scale + self.top)], self.env)
+             str(round(x * self.scale + self.left)),
+             str(round(y * self.scale + self.top))], self.env)
         time.sleep(.15)
 
     def drag(self, x, y, to_x, to_y, mirror=False):
@@ -178,11 +178,12 @@ class Desktop:
         from PIL import Image
         picture = Image.open(path).convert("RGB")
         # Jungle opens windowed at a default integral scale.
-        scale = min(picture.width // 320, picture.height // 200)
-        left = (picture.width - 320 * scale) // 2
-        top = (picture.height - 200 * scale) // 2
+        header = 56 if picture.height > 56 and picture.getpixel((0,55)) == (218,205,181) else 0
+        scale = min(picture.width / 320, (picture.height - header) / 200)
+        left = (picture.width - 320 * scale) / 2
+        top = header + (picture.height - header - 200 * scale) / 2
         self.scale, self.left, self.top = scale, left, top
-        return picture.crop((left, top, left + 320 * scale, top + 200 * scale)).resize(
+        return picture.crop(tuple(round(v) for v in (left, top, left + 320 * scale, top + 200 * scale))).resize(
             (320, 200), Image.Resampling.NEAREST)
 
     def wait_book(self, name):
@@ -349,21 +350,15 @@ def ui(binary):
             print("local UI test: Picture Book categories, pages and English names", flush=True)
             desktop.key("2")
             counting = desktop.capture("counting")
-            assert counting.getpixel((0, 0)) == (255, 252, 243), "counting did not render its book background"
+            assert counting.getpixel((0, 0)) == (227, 236, 228), "counting did not render its book background"
             progress = data / "games/jungle.animals/progress.txt"
             previous = 0
             for answer_index in range(6):
-                counting = desktop.capture_actual("counting")
-                width, height = counting.size
-                key_width = max(230, min(360, width // 3))
-                animal_width = width - 72 - key_width
-                animal_height = height - 138
-                size = min(100, (animal_width - 16) // 6)
-                left = 24 + (animal_width - 6 * size) // 2
-                top = 84 + (animal_height - size) // 2
-                background = Image.new("RGB", (size - 6, size - 6), (247, 241, 227))
-                answer = sum(ImageChops.difference(counting.crop((left + i * size + 3, top + 3,
-                    left + (i + 1) * size - 3, top + size - 3)), background).getbbox() is not None for i in range(6))
+                counting = desktop.capture("counting")
+                places = [(164,100),(132,100),(132,72),(164,72),(100,72),(100,100),(132,128),(164,128),
+                          (100,128),(68,100),(68,72),(68,128),(36,72),(36,100),(36,128),(196,72),(196,100),(196,128)]
+                background = Image.new("RGB", (24,20), (247,241,227))
+                answer = sum(ImageChops.difference(counting.crop((x-12,y-10,x+12,y+10)), background).getbbox() is not None for x,y in places)
                 assert 1 <= answer <= 4, "counting did not render its watercolor animals"
                 assert answer != previous, "counting repeated a question"
                 previous = answer
@@ -386,7 +381,7 @@ def ui(binary):
             desktop.click(30, 15)
             scenes = desktop.capture("paint-scenes")
             assert scenes.getpixel((5, 5)) == (227, 236, 228), "scene picker did not render its book background"
-            assert len(scenes.crop((19, 33, 97, 78)).getcolors()) > 1, "scene preview has no artwork"
+            assert len(scenes.crop((19, 33, 97, 78)).getcolors(1 << 20)) > 1, "scene preview has no artwork"
             desktop.click(52, 58)
             desktop.capture("paint-dinosaurs")
             desktop.click(52, 58)
@@ -408,6 +403,15 @@ def ui(binary):
                                         placed.crop((64, 6, 315, 194))).getbbox(), "Huge dinosaur could not be placed"
             black = dict((color, count) for count, color in placed.crop((64, 6, 315, 194)).getcolors(10000))
             assert black.get((0, 0, 0), 0) < 20000, "dinosaur outline rendered as a solid rectangle"
+            once = working.read_bytes()
+            desktop.click(30, 15)
+            desktop.click(52, 58)
+            desktop.click(280, 90)
+            desktop.drag(72, 14, 117, 14)
+            time.sleep(.5)
+            assert_dinosaur(once, working.read_bytes())
+            desktop.click(30, 160)
+            assert working.read_bytes() == once, "second placement painted the ground or changed the selected stencil"
             desktop.click(30, 160)
             assert working.read_bytes() == scene_only, "Undo did not restore covered scene lines and colors"
             desktop.click(30, 15)
@@ -422,7 +426,7 @@ def ui(binary):
             assert working.read_bytes() != scene_only, "color cancel removed the dinosaur"
             desktop.click(30, 40)
             colors = desktop.capture("paint-colors")
-            assert len(colors.crop((256, 122, 308, 150)).getcolors()) >= 3, "crayon swatches are missing"
+            assert len(colors.crop((256, 122, 308, 150)).getcolors(1 << 20)) >= 3, "crayon swatches are missing"
             assert colors.getpixel((282, 136)) == (192, 192, 192), "the last crayon is not its solid color"
             desktop.click(282, 136)
             desktop.click(71, 13)
@@ -490,6 +494,7 @@ def ui(binary):
             desktop.resize(420, 700)
             tall = desktop.capture_actual("paint-portrait")
             width, height = tall.size
+            height -= 56
             assert height > width, f"the window did not turn tall: {tall.size}"
             pad, gap = max(6, min(20, width // 40)), max(4, min(10, width // 80))
             tool_w = (width - pad * 2 - gap * 3) // 4
@@ -497,9 +502,9 @@ def ui(binary):
             canvas_h = min((width - pad * 2) * 3 // 4, height - pad * 3 - gap - tool_h * 2)
             below = pad + canvas_h + pad
             top = below + (height - pad - below - tool_h * 2 - gap) // 2
-            assert tall.getpixel((width // 2, pad + canvas_h // 2)) != (227, 236, 228), "the picture is not across the top"
-            assert tall.getpixel((width // 2, below - pad // 2)) == (227, 236, 228), "the picture runs into the tools"
-            desktop.click_actual(pad + tool_w + gap + tool_w // 2, top + tool_h // 2)
+            assert tall.getpixel((width // 2, 56 + pad + canvas_h // 2)) != (227, 236, 228), "the picture is not across the top"
+            assert tall.getpixel((width // 2, 56 + below - pad // 2)) == (227, 236, 228), "the picture runs into the tools"
+            desktop.click_actual(pad + tool_w + gap + tool_w // 2, 56 + top + tool_h // 2)
             shown = {color for _, color in desktop.capture_actual("paint-portrait-colors").getcolors(1 << 20)}
             crayons = {(0x82, 0x82, 0x82), (0x00, 0x00, 0xff), (0x00, 0xa2, 0xc3), (0xb2, 0x00, 0xcb), (0x00, 0xc3, 0x51),
                        (0xc3, 0x71, 0x00), (0xef, 0xef, 0x3c), (0x41, 0x41, 0xc0), (0x9a, 0x41, 0xa6), (0xc0, 0xc0, 0xc0)}

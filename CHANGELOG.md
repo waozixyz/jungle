@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.1.2
+
+- Open Picture Book without extracting every recording, and load browser pictures as needed.
+- Show a discreet translated page count under each book name.
+- Keep title-screen pictures inside their rows at every window size.
+- Restore the counting layout, its spoken question and a clean empty answer field.
+- Return home through a consistent back arrow in a title bar above every game.
+- Choose coloring stencils from Dinosaurs, Animals and People, with six new designs.
+- Position the placement box before revealing its stencil, without accidentally painting the ground.
+- Keep newly placed pictures fresh when reopening the coloring game.
+
 ## 0.1.1
 
 - Picture books fill the window and adapt to portrait, landscape, phones, tablets and desktop resizing.

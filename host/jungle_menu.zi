@@ -24,6 +24,18 @@ MenuAction :: struct {
 
 menu_height: s32;
 menu_portrait: bool;
+GAME_BAR_HEIGHT :: 56
+
+GameTitleBar :: (session: Session, bounds: Rectangle, key: s32, now: float64, title: string) -> bool {
+    retro = Retro.{.session = session, .font = "assets/jungle/font.png", .now = now, .key = key,
+        .x = bounds.x, .y = bounds.y, .scale = 1.0, .glyph_height = 16}
+    BookPalette()
+    BookBox(0, 0, cast(s32)bounds.width, GAME_BAR_HEIGHT, 0xe3ece4ff)
+    back := BookBack(9001, 12, 6, 44, 44)
+    BookText(68, 0, cast(s32)bounds.width - 80, GAME_BAR_HEIGHT, title, 22, TextAlign.TextAlignStart)
+    BookBox(0, GAME_BAR_HEIGHT - 1, cast(s32)bounds.width, 1, 0xdacdb5ff)
+    return back
+}
 
 // Flags retain their native language names on the same cream paper as the book.
 LanguageFlags :: () -> bool {
@@ -89,6 +101,8 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
         BookBox(22, y, 276, h, ifx selected then cast(u32)0xe5eee1ff else cast(u32)0xf7f1e3ff,
             ifx selected then cast(u32)0x2e6956ff else cast(u32)0xdacdb5ff, 4.0)
         picture: s32 = ifx menu_portrait then 68 else 29
+        if picture > h - 4 { picture = h - 4 }
+        if picture < 1 { picture = 1 }
         image_y := y + (h - picture) / 2
         BookPicture(games[index].icon, 25, image_y, picture, picture)
         text_x: s32 = ifx menu_portrait then 102 else 62

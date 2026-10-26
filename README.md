@@ -14,6 +14,7 @@ Choose **English, Deutsch or Español** with the flag buttons on the title
 screen. Jungle remembers the language. Its title screen shares the Picture Book's cream
 paper, warm frame, native lettering and watercolor game covers. All three games' menus, feedback and
 controls are translated. Picture Book has local narration.
+A consistent back arrow in the top title bar returns home from every game.
 Accented German and Spanish letters work in Dino stories, saves and exports.
 
 **Picture Book** has ten organized books: Wild animals (15 pictures), Garden
@@ -23,6 +24,7 @@ its picture, or **Spelling** to hear the word, its letters and the word again.
 The selected mode is remembered. Every one of the 117 pictures has names and
 both kinds of narration in English, German and Spanish, including correctly
 spaced accented letters. Pictures sit on cream pages inside the original warm book frame.
+Each cover lists its page count. Linux narration is read only when played; browser pictures load as needed.
 Simple pages stay open at least six seconds; spelling pages at least twelve.
 Both wait until three seconds after their recording finishes. Swipe left for
 the next page and right for the previous page. Arrows, Enter or a picture tap
@@ -39,18 +41,18 @@ back down, the same number never comes twice, and every eighth right
 answer brings one of the original praises, from GOOD JOB to AWESOME.
 
 **Dino Colors** plays like Bert's Dinosaurs. Pick one of six scenes, place
-any of twelve dinosaurs in four sizes, then fill
+any of twelve dinosaurs or six Animals and People stencils in four sizes, then fill
 the picture with thirty crayon buttons. You can write an eight-line story
 and keep the whole picture and story in one of six slots. Undo takes back the
 last dinosaur, fill or erase. The working picture recovers when you reopen the
 game. Scenes and dinosaurs are smooth vector line art in `art/paint`, painted
 on a 960 by 720 picture. The tools have icons; on a tall screen they sit in
 two rows below the picture. Paper galleries and native lettering match the
-book theme. Dinosaur selection has no voiceover or voice controls. Quiet sound
+book theme. Choose Dinosaurs, Animals or People at the top of the stencil gallery. Dinosaur selection has no voiceover or voice controls. Quiet sound
 effects follow the shared mute setting.
 
-A new dinosaur waits in the upper-left corner in a green dashed box with a
-move badge. Drag it onto the picture and release. Press **Mirror**, or hold
+A new stencil starts as a green dashed placement box with a move badge.
+The stencil appears on the paper after you place it. Drag it onto the picture and release. Press **Mirror**, or hold
 the right mouse button while releasing the left, to mirror the dinosaur.
 Its white body replaces the lines and colors beneath it;
 scenery outside its outline stays in place. Undo restores the covered artwork.

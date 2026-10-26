@@ -33,6 +33,8 @@ praise_word: string = "";
 loaded: bool;
 reward_started: float64;
 reward_head: s32;
+question_pending: bool;
+question_at: float64;
 
 Join :: (a: string, b: string = "", c: string = "") -> string {
     text: Vec(u8)
@@ -50,6 +52,8 @@ Sound :: (name: string) { GameSound(Join(SOUNDS, name, ".wav")) }
 
 NextNumber :: () {
     NextCount()
+    question_pending = true
+    question_at = retro.now + 0.45
     typed_count = 0
     typed[0] = 0
     typed[1] = 0
@@ -65,26 +69,47 @@ ItemPath :: (which: s32) -> string {
 touch_key: s32;
 keypad_labels: [12]string = .["1","2","3","4","5","6","7","8","9","<","0","OK"];
 
+CountingBookView :: () {
+    BookPaper()
+    BookText(24, 16, 272, 24, HOW_MANY, 18)
+    BookBox(22, 58, 276, 90, 0xf7f1e3ff, 0xdacdb5ff, 5.0)
+    for index: cast(s32)0..number - 1 {
+        BookPicture(ItemPath(item), place_x[index] - 13, place_y[index] - 13, 26, 26)
+    }
+    BookText(210, 89, 18, 28, "=", 20)
+    BookBox(232, 85, 56, 38, 0xfffcf3ff, 0xbba98bff, 6.0)
+    answer := ifx typed_count > 0 then TextView(typed[:typed_count]) else ""
+    BookText(234, 85, 52, 38, answer, 25)
+    if typed_count == 0 { BookBox(258, 94, 1, 20, 0xbba98bff) }
+    for index: cast(s32)0..7 {
+        BookBox(24 + index * 8, 155, 5, 5,
+            ifx index < count % 8 then cast(u32)0x2e6956ff else cast(u32)0xe5d9c3ff, 0, 3.0)
+    }
+    BookText(96, 152, 194, 14, "Type a number, then Enter", 8)
+    if retro.now < state_until { BookText(84, 173, 210, 14, state_message, 10) }
+}
+
+
 CountingView :: () {
+    touch_key = 0
+    if AppBounds().width >= AppBounds().height { CountingBookView(); return }
     bounds := AppBounds()
     width := cast(s32)bounds.width
     height := cast(s32)bounds.height
     retro.x = bounds.x
     retro.y = bounds.y
     retro.scale = 1.0
-    padding: s32 = ifx width < 600 then 12 else 24
+    padding: s32 = 24
     gap: s32 = 8
     portrait := height > width
-    BookPalette()
-    BookBox(0, 0, width, height, 0xfffcf3ff)
-    if BookButton(30, padding, padding, 60, 44, "Menu") { GameHome() }
-    BookText(padding + 70, padding, width - padding * 2 - 70, 44, HOW_MANY, 25)
+    BookPaperSized(width, height)
+    BookText(padding, padding, width - padding * 2, 44, HOW_MANY, 25)
     key_width := width - padding * 2
     key_height: s32 = 48
     key_x := padding
     key_y := height - padding - key_height * 4 - gap * 3
     animal_x := padding
-    animal_y := padding + 60
+    animal_y := padding + 88
     animal_width := width - padding * 2
     animal_height := key_y - animal_y - 70
     if !portrait {
@@ -110,8 +135,10 @@ CountingView :: () {
         y := animal_y + (animal_height - rows * size) / 2 + (index / columns) * size
         BookPicture(ItemPath(item), x + 3, y + 3, size - 6, size - 6)
     }
-    answer := ifx typed_count > 0 then TextView(typed[:typed_count]) else "?"
+    answer := ifx typed_count > 0 then TextView(typed[:typed_count]) else ""
+    BookBox(key_x, key_y - 56, key_width, 48, 0xfffcf3ff, 0xbba98bff, 6.0)
     BookText(key_x, key_y - 56, key_width, 48, answer, 34)
+    if typed_count == 0 { BookBox(key_x + key_width / 2, key_y - 44, 1, 24, 0xbba98bff) }
     touch_key = 0
     button_width := (key_width - gap * 2) / 3
     for index: cast(s32)0..11 {
@@ -178,6 +205,7 @@ GameMain :: () -> s32 {
     }
     if key == KEY_ENTER && typed_count > 0 && typed[0] == #char "Q" { GameHome(); return 0 }
     if key == KEY_ENTER && typed_count > 0 {
+        question_pending = false
         answer: s32 = cast(s32)(typed[0] - #char "0")
         if typed_count == 2 { answer = answer * 10 + cast(s32)(typed[1] - #char "0") }
         if CountAnswer(answer) {
@@ -201,6 +229,10 @@ GameMain :: () -> s32 {
             typed[1] = 0
         }
         unused CountSave()
+    }
+    if question_pending && now >= question_at {
+        Sound(Join("question-", LanguageCode()))
+        question_pending = false
     }
     return 0
 }

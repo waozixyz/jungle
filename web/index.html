@@ -13,7 +13,38 @@
 <textarea id="mobile-input" disabled aria-label="Story text" autocapitalize="sentences" autocomplete="off" spellcheck="false"></textarea>
 <section id="print-sheet"><img id="print-picture" alt="Your dinosaur picture"><pre id="print-story"></pre></section>
 <script>
-var Module={canvas:document.getElementById('canvas'),locateFile:p=>p,print:console.log,printErr:console.error,preRun:[function(){Module.addRunDependency('pictures');fetch('images.json').then(r=>{if(!r.ok)throw Error('picture list');return r.json()}).then(async paths=>{let next=0;await Promise.all(Array.from({length:6},async()=>{while(next<paths.length){const path=paths[next++],response=await fetch(path);if(!response.ok)throw Error(path);const data=new Uint8Array(await response.arrayBuffer());Module.FS.mkdirTree('/'+path.substring(0,path.lastIndexOf('/')));Module.FS.writeFile('/'+path,data)}}));Module.removeRunDependency('pictures')}).catch(e=>{console.error(e);Module.onAbort()})}],onRuntimeInitialized(){document.getElementById('loading').hidden=true;document.getElementById('loading').style.display='none';document.getElementById('canvas').focus()},onAbort(){document.getElementById('loading').style.display='grid';document.getElementById('status').textContent='The game could not open. Please reload to try again.'}};
+const imageLoads=new Map();
+let imagePaths=new Set();
+async function loadImage(path){
+ if(Module.FS.analyzePath('/'+path).exists)return;
+ if(imageLoads.has(path))return imageLoads.get(path);
+ const request=fetch(path).then(async response=>{
+  if(!response.ok)throw Error(path);
+  const bytes=new Uint8Array(await response.arrayBuffer());
+  Module.FS.mkdirTree('/'+path.substring(0,path.lastIndexOf('/')));
+  Module.FS.writeFile('/'+path,bytes);
+ });
+ imageLoads.set(path,request);return request;
+}
+var Module={canvas:document.getElementById('canvas'),locateFile:p=>p,print:console.log,printErr:console.error,
+ jungleImageReady(path){
+  if(Module.FS.analyzePath('/'+path).exists)return true;
+  if(imagePaths.has(path)&&!imageLoads.has(path))void loadImage(path).catch(console.error);
+  return false;
+ },
+ preRun:[function(){
+  Module.addRunDependency('menu-pictures');
+  fetch('images.json').then(r=>{if(!r.ok)throw Error('picture list');return r.json()}).then(async paths=>{
+   imagePaths=new Set(paths);
+   await Promise.all(paths.filter(p=>p.endsWith('/font.png')||p.startsWith('assets/jungle/covers/')).map(loadImage));
+   Module.removeRunDependency('menu-pictures');
+   // Warm just the shelf covers while the menu is already interactive.
+   for(const path of paths.filter(p=>p.startsWith('assets/jungle-book/previews/')))void loadImage(path).catch(console.error);
+  }).catch(e=>{console.error(e);Module.onAbort()});
+ }],
+ onRuntimeInitialized(){document.getElementById('loading').hidden=true;document.getElementById('loading').style.display='none';document.getElementById('canvas').focus()},
+ onAbort(){document.getElementById('loading').style.display='grid';document.getElementById('status').textContent='The game could not open. Please reload to try again.'}
+};
 
 const mobileInput=document.getElementById('mobile-input');
 const keyToCanvas=(key,code=key)=>{for(const type of ['keydown','keyup'])Module.canvas.dispatchEvent(new KeyboardEvent(type,{key,code,bubbles:true,cancelable:true}))};
