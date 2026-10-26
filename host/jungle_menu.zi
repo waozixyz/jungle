@@ -1,7 +1,7 @@
 // The same title screen is drawn by the native and browser hosts.
-#import "session"
-#import "geometry"
-#import "text_align"
+#import "kryon/session"
+#import "kryon/geometry"
+#import "kryon/text_align"
 #import, file "../retro/retro.zi";
 #import, file "../retro/book_theme.zi";
 #import, file "../retro/language.zi";

@@ -1,0 +1,41 @@
+// Jungle Academy on Android: Kryon's canonical host (android_run) draws this
+// Frame. The games, pictures and sounds come from the APK; saves live in the
+// app's private files.
+#import "kryon/session"
+#import "kryon/geometry"
+#import "kryon/tree_input"
+#import "kryon/key_input"
+#import "kryon/input_protocol"
+#import, file "../host/platform.zi";
+#import, file "../host/sound.zi";
+#import, file "../host/jungle_host.zi";
+
+// Android's Back key as raylib reports it.
+JUNGLE_BACK_KEY :: 4
+
+// 0 until the first frame opens Jungle, then 1, or 2 when it could not.
+jungle_state: s32;
+
+Frame :: (session: Session, viewport: Rectangle) -> s32 {
+    if jungle_state == 0 { jungle_state = ifx JungleOpen(false) then 1 else 2 }
+    if jungle_state != 1 { return 1 }
+    SoundPump()
+    key := KeyboardTake(session)
+    if !playing {
+        // Back on the menu closes the app, as Android users expect.
+        if key == JUNGLE_BACK_KEY { unused KeyboardSend(session, key); return 0 }
+        Menu(session, viewport, key)
+        return 0
+    }
+    // Back leaves a game for the menu.
+    if key == JUNGLE_BACK_KEY { home_requested = true; key = 0 }
+    typed: [256]u8
+    text := TypedTextTake(session, typed[:])
+    if !GameFrame(viewport, PointerSample(session), SecondaryPointerFrame.{}, key, 0, 0.0, text, JungleSeconds()) {
+        CloseGame()
+        message = "THAT GAME STOPPED."
+    } else if home_requested {
+        CloseGame()
+    }
+    return 0
+}

@@ -2,9 +2,9 @@
   "format": 1,
   "packages": [
     {
-      "commit": "92ca1fd68ced43969df57632720060ee9666da16",
+      "commit": "7f54d91ea7a7c65d1f20e607d5b293db9bae5864",
       "dependencies": {"raylib": "p5a77c9c35110e925"},
-      "id": "p2d318e48a4d2aa44",
+      "id": "pe5d0945ff21f8352",
       "name": "kryon",
       "ref": "master",
       "url": "https://github.com/kryonlabs/kryon.git"
@@ -28,11 +28,11 @@
     }
   ],
   "root": {
-    "dependencies": {"kryon": "p2d318e48a4d2aa44", "mingcute": "pe1027b9d16704793"},
+    "dependencies": {"kryon": "pe5d0945ff21f8352", "mingcute": "pe1027b9d16704793"},
     "name": "Jungle"
   },
   "toolchain": {
-    "commit": "21c6a681c9ba684bbe069004fd971748cc5c7dc0",
+    "commit": "71c3d3e7f7ff34d437f2bd054f78f3c4413ea6c9",
     "ref": "master",
     "url": "https://github.com/ziranlang/ziran.git"
   }

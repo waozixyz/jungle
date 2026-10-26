@@ -3,17 +3,17 @@
 // letters 8 pixels wide and 16 tall, drawn from a font picture.
 #import, file "language.zi";
 #import "std/utf8"
-#import "session"
-#import "geometry"
-#import "drawing_props"
-#import "box_props"
-#import "box_widget"
-#import "image_props"
-#import "image_widget"
-#import "press_props"
-#import "press_widget"
+#import "kryon/session"
+#import "kryon/geometry"
+#import "kryon/drawing_props"
+#import "kryon/box_props"
+#import "kryon/box_widget"
+#import "kryon/image_props"
+#import "kryon/image_widget"
+#import "kryon/press_props"
+#import "kryon/press_widget"
 #if #defined(PLATFORM_WEB) {
-    #import "app_context"
+    #import "kryon/app_context"
 }
 
 RetroImageReady :: (path: string) -> bool {
