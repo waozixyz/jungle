@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.10
+
+- Give the animals more varied, forward and three-quarter poses with calm gazes just past the viewer, including farm animals and their matching counting pictures.
+- Carry the revised artwork through book previews, menu covers, the app icon and logo.
+
 ## 0.1.9
 
 - Add Jigsaw Puzzles, inspired by Jigsaw Puzzle Mania on the Amiga, with three new watercolor scenes and six sizes from 4 to 64 interlocking pieces.
