@@ -30,13 +30,13 @@ try{
  async function evaluate(expression){const r=await command('Runtime.evaluate',{expression,returnByValue:true,awaitPromise:true});if(r.result?.exceptionDetails)throw Error(JSON.stringify(r.result.exceptionDetails));return r.result?.result?.value}
  async function key(key,code=key){await command('Input.dispatchKeyEvent',{type:'keyDown',key,code,windowsVirtualKeyCode:key==='Enter'?13:key==='Escape'?27:key.startsWith('Arrow')?({ArrowLeft:37,ArrowUp:38,ArrowRight:39,ArrowDown:40}[key]):key.charCodeAt(0)});await delay(100);await command('Input.dispatchKeyEvent',{type:'keyUp',key,code});await delay(250)}
  async function click(x,y){const b=await evaluate('(()=>{let b=document.getElementById("canvas").getBoundingClientRect();return {x:b.x,y:b.y,w:b.width,h:b.height}})()');x=b.x+x*b.w/320;y=b.y+y*b.h/200;await command('Input.dispatchMouseEvent',{type:'mousePressed',x,y,button:'left',clickCount:1});await delay(80);await command('Input.dispatchMouseEvent',{type:'mouseReleased',x,y,button:'left',clickCount:1});await delay(400)}
- await command('Runtime.enable');await command('Page.enable');await command('Page.addScriptToEvaluateOnNewDocument',{source:'performance.setResourceTimingBufferSize(5000)'});await command('Emulation.setDeviceMetricsOverride',{width:1280,height:800,deviceScaleFactor:1,mobile:false});await command('Page.navigate',{url});
+ await command('Runtime.enable');await command('Page.enable');await command('Page.addScriptToEvaluateOnNewDocument',{source:'performance.setResourceTimingBufferSize(5000);window.jungleTestVoices=[];const jungleOriginalPlay=HTMLMediaElement.prototype.play;HTMLMediaElement.prototype.play=function(){window.jungleTestVoices.push(this.src);return jungleOriginalPlay.apply(this,arguments)}'});await command('Emulation.setDeviceMetricsOverride',{width:1280,height:800,deviceScaleFactor:1,mobile:false});await command('Page.navigate',{url});
  let ready=false;while(Date.now()<deadline){if(await evaluate('typeof Module!=="undefined"&&Module.FS&&document.getElementById("loading").style.display==="none"')){ready=true;break}if(diagnostics.length)throw Error(JSON.stringify(diagnostics));await delay(250)}
  if(!ready)throw Error('Browser startup timeout '+JSON.stringify(diagnostics)+' '+await evaluate('JSON.stringify({url:location.href,title:document.title,text:document.body?.innerText?.slice(0,500)})'));await delay(1000);
  await mkdir('build/tests/web',{recursive:true});
  const captures=new Map();
- async function pagePixels(){const {w,h}=await evaluate('({w:Module.canvas.clientWidth,h:Module.canvas.clientHeight})');return (await command('Page.captureScreenshot',{format:'png',clip:{x:0,y:56,width:w,height:h-56,scale:1}})).result.data}
- async function shot(name,pageOnly=false){const data=pageOnly?await pagePixels():(await command('Page.captureScreenshot',{format:'png'})).result.data;captures.set(name,data);await writeFile('build/tests/web/'+name+'.png',Buffer.from(data,'base64'));return data}
+ async function pagePixels(trimBottom=0){const {w,h}=await evaluate('({w:Module.canvas.clientWidth,h:Module.canvas.clientHeight})');return (await command('Page.captureScreenshot',{format:'png',clip:{x:0,y:56,width:w,height:h-56-trimBottom,scale:1}})).result.data}
+ async function shot(name,pageOnly=false,trimBottom=0){const data=pageOnly?await pagePixels(trimBottom):(await command('Page.captureScreenshot',{format:'png'})).result.data;captures.set(name,data);await writeFile('build/tests/web/'+name+'.png',Buffer.from(data,'base64'));return data}
  async function pixelClick(x,y,touch=false){
   if(touch){await command('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x,y}]});await delay(70);await command('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]})}
   else{await command('Input.dispatchMouseEvent',{type:'mouseMoved',x,y});await command('Input.dispatchMouseEvent',{type:'mousePressed',x,y,button:'left',clickCount:1});await delay(70);await command('Input.dispatchMouseEvent',{type:'mouseReleased',x,y,button:'left',clickCount:1})}
@@ -45,16 +45,19 @@ try{
  async function resize(width,height,mobile=false){await command('Emulation.setDeviceMetricsOverride',{width,height,deviceScaleFactor:1,mobile});await command('Emulation.setTouchEmulationEnabled',{enabled:mobile,maxTouchPoints:1});await delay(500);const box=await evaluate('({w:Module.canvas.clientWidth,h:Module.canvas.clientHeight})');if(box.w!==width||box.h!==height)throw Error('Canvas did not resize to the viewport '+JSON.stringify(box))}
  async function waitPage(name){const until=Date.now()+15000;const path='/assets/jungle-book/pages/'+name+'.jpg';while(Date.now()<until){if(await evaluate('Module.FS.analyzePath('+JSON.stringify(path)+').exists'))return;await delay(100)}throw Error('Page image did not load: '+name)}
  async function waitResource(fragment){const until=Date.now()+12000;while(Date.now()<until){if(await evaluate('performance.getEntriesByType("resource").some(e=>e.name.includes('+JSON.stringify(fragment)+'))'))return;await delay(100)}throw Error('Missing lesson audio/image resource: '+fragment)}
+ async function waitSpoken(fragment){const until=Date.now()+12000;while(Date.now()<until){if(await evaluate('window.jungleTestVoices.some(path=>path.includes('+JSON.stringify(fragment)+'))'))return;await delay(100)}throw Error('Missing actual playback: '+fragment)}
  async function swipe(x,y,xx,yy){await command('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x,y}]});for(let i=1;i<=6;i++){await delay(35);await command('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:x+(xx-x)*i/6,y:y+(yy-y)*i/6}]})}await command('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});await delay(350)}
  const missing=await evaluate('Array.from(imagePaths).filter(path=>!Module.FS.analyzePath("/"+path).exists).length');if(missing)throw Error('Opening screen cleared before all pictures loaded: '+missing);await shot('menu');
  holdAudio=true;await command('Fetch.enable',{patterns:[{urlPattern:'*jungle-book/sounds/*.wav*',requestStage:'Request'}]});
- await pixelClick(400,330);await shot('books');if(pausedAudio.length)throw Error('Opening Picture Book skipped the category list');await key('0','Digit0');await waitPage('carrot');await delay(300);const first=await shot('vegetables-desktop',true);
- await pixelClick(1188,712);const second=await shot('vegetables-next',true);if(first===second)throw Error('Page navigation froze under stalled narration');
- await pixelClick(92,712);const restored=await shot('vegetables-restored',true);if(restored!==first)throw Error('Back page failed under stalled narration');
- await resize(390,844,true);const phoneFirst=await shot('vegetables-phone',true);
- await pixelClick(333,791,true);const phoneSecond=await shot('vegetables-phone-next',true);if(phoneFirst===phoneSecond)throw Error('Touch Next failed');
- await swipe(320,350,45,350);const swiped=await shot('vegetables-phone-swipe',true);if(swiped===phoneSecond)throw Error('Touch swipe did not turn the page');
- await swipe(45,350,320,350);const swipedBack=await pagePixels();if(swipedBack!==phoneSecond)throw Error('Reverse touch swipe lost its page');
+ await pixelClick(400,330);await shot('books');if(pausedAudio.length)throw Error('Opening Picture Book skipped the category list');await key('0','Digit0');await waitPage('carrot');await delay(300);const first=await shot('vegetables-desktop',true,64);
+ await key(' ','Space');const pausedBook=await pagePixels();await delay(6500);if(pausedBook!==await pagePixels())throw Error('Space did not hold the picture book');await key(' ','Space');
+ // Compare page content independently of transport-button antialiasing.
+ await pixelClick(1188,712);const second=await shot('vegetables-next',true,64);if(first===second)throw Error('Page navigation froze under stalled narration');
+ await pixelClick(92,712);const restored=await shot('vegetables-restored',true,64);if(restored!==first)throw Error('Back page failed under stalled narration');
+ await resize(390,844,true);const phoneFirst=await shot('vegetables-phone',true,64);
+ await pixelClick(333,700,true);const phoneSecond=await shot('vegetables-phone-next',true,64);if(phoneFirst===phoneSecond)throw Error('Touch Next failed');
+ await swipe(320,350,45,350);const swiped=await shot('vegetables-phone-swipe',true,64);if(swiped===phoneSecond)throw Error('Touch swipe did not turn the page');
+ await swipe(45,350,320,350);const swipedBack=await pagePixels(64);if(swipedBack!==phoneSecond)throw Error('Reverse touch swipe lost its page');
  holdAudio=false;for(const requestId of pausedAudio)await command('Fetch.continueRequest',{requestId});await command('Fetch.disable');
  await pixelClick(34,28,true);await shot('books-phone');
  await pixelClick(195,343,true);const fromCover=await shot('vegetables-cover-touch',true);await pixelClick(34,28,true);await key('0','Digit0');const directCover=await pagePixels();if(fromCover!==directCover)throw Error('Vegetables cover opened the wrong book');await pixelClick(34,28,true);
@@ -70,6 +73,10 @@ try{
   await waitPage(image);
   await pixelClick(34,28,true);
  }
+ for(const [slot,name,voice] of [[4,'toys','teddy'],[5,'vehicles','car'],[6,'bedtime','bed']]){
+  await pixelClick(110,159,true);for(let i=0;i<slot;i++)await key('ArrowRight','ArrowRight');await evaluate('window.jungleTestVoices=[]');await key('Enter','Enter');await waitSpoken('/simple/'+voice+'.wav');await shot('new-book-'+name);await pixelClick(34,28,true);
+ }
+ await pixelClick(110,107,true);for(let i=0;i<5;i++)await key('ArrowRight','ArrowRight');await evaluate('window.jungleTestVoices=[]');await key('Enter','Enter');await waitSpoken('/simple/parrot.wav');await shot('new-book-birds');await pixelClick(34,28,true);
  await pixelClick(34,28,true);await shot('restored-menu-phone');await pixelClick(325,102,true);if(await evaluate('Module.FS.readFile("/kryon-apps/jungle/settings/language.txt",{encoding:"utf8"})')!=="es")throw Error('Spanish flag did not persist');
  if(await evaluate('document.documentElement.lang')!=='es')throw Error('Website metadata did not follow the selected language');
  if(!(await evaluate('document.querySelector("meta[name=description]").content')).startsWith('Aprende'))throw Error('Spanish website description is missing');
@@ -94,15 +101,19 @@ try{
   await key('b','KeyB');const pausedAlphabet=await pagePixels();await delay(4500);
   if(pausedAlphabet!==await pagePixels())throw Error('Manual letter selection did not pause the sequence');
   if((await resources()).some(n=>n.includes('/jungle-book/sounds/es/simple/garlic.wav')))throw Error('Default alphabet spoke a word example');
-  await key('a','KeyA');await pixelClick(300,101,true);
+  await key('a','KeyA');await pixelClick(195,101,true);
   await waitResource('/jungle-book/pages/garlic.jpg');await waitResource('/jungle-book/sounds/es/simple/garlic.wav');await shot('abc-example-phone');
-  await pixelClick(275,562,true);await waitResource('/jungle-book/pages/water.jpg');await shot('abc-next-example-phone');
+  await pixelClick(200,562,true);await waitResource('/jungle-book/pages/water.jpg');await shot('abc-next-example-phone');
+  await evaluate('window.jungleTestVoices=[]');await pixelClick(90,557,true);await waitSpoken('/abc/sounds/es/letters/0061.wav');await shot('abc-letter-only-example-phone');
+  await evaluate('window.jungleTestVoices=[]');await key(' ','Space');await waitSpoken('/abc/sounds/es/letters/0062.wav');await shot('abc-examples-autoplay-phone');
+  await key(' ','Space');await evaluate('window.jungleTestVoices=[]');await delay(2700);if(await evaluate('window.jungleTestVoices.length'))throw Error('Paused example autoplay kept speaking');
   await pixelClick(80,101,true);await key(' ','Space');await shot('abc-letters-return-phone');
   await pixelClick(34,28,true);await key('Escape');await shot('menu-after-abc-phone');
  }
  if(hasNumbers){
   await pixelClick(195,rowY(1),true);await pixelClick(195,rowY(1,2),true);const numbersLearn=await shot('numbers-learn-phone');await waitResource('/numbers/sounds/es/1.wav');
   await key('0');await waitResource('/numbers/sounds/es/10.wav');if(numbersLearn===await shot('numbers-ten-phone'))throw Error('123 did not open directly into learning');
+  await evaluate('window.jungleTestVoices=[]');await key(' ','Space');await waitSpoken('/numbers/sounds/es/2.wav');await key(' ','Space');await evaluate('window.jungleTestVoices=[]');await delay(4500);if(await evaluate('window.jungleTestVoices.length'))throw Error('Paused number autoplay kept speaking');await shot('numbers-autoplay-paused-phone');
   await pixelClick(34,28,true);await key('Escape');await shot('menu-after-numbers-phone');
  }
  const countingRow=hasABC&&hasNumbers?2:hasABC||hasNumbers?2:1;
@@ -127,5 +138,5 @@ try{
  await delay(1200);await command('Page.reload');await delay(500);const reloaded=Date.now()+30000;while(Date.now()<reloaded){if(await evaluate('typeof Module!=="undefined"&&Module.FS&&document.getElementById("loading").style.display==="none"'))break;await delay(200)}await delay(500);
  if(await evaluate('Module.FS.readFile("/kryon-apps/jungle/settings/language.txt",{encoding:"utf8"})')!=="es")throw Error('Language did not survive reload');
  if(diagnostics.length)throw Error(JSON.stringify(diagnostics));
- console.log('local browser test: category tabs, Family/Body Parts/meal books, watercolor scenes, touch controls, stencil categories and accented story saves passed at '+url);
+ console.log('local browser test: four new books, Space pause, letter-only examples and autoplay, number autoplay, category navigation, touch controls, stencils and accented saves passed at '+url);
 }finally{if(socket)socket.close();browser.kill('SIGTERM');await new Promise(r=>{if(browser.exitCode!==null||browser.signalCode!==null)r();else browser.once('exit',r)});await new Promise(r=>server.close(r));await rm(profile,{recursive:true,force:true,maxRetries:20,retryDelay:100})}

@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.7
+
+- Add Birds, Toys, Vehicles and Bedtime picture books, with English, German and Spanish names and narration.
+- Hide unwanted books or keep them available for manual reading while excluding them from autoplay. Remember each choice.
+- Pause and resume Picture Book narration and page turns with Space. Keep Play/Pause and Hear word in a compact toolbar below the label, with repeat settings in Manage books.
+- Add number autoplay and repeat, and let ABC autoplay keep examples visible while speaking only the letter.
+
 ## 0.1.6
 
 - Change ABC playback pace from the title bar and keep the spoken sequence going when its browser tab is in the background.

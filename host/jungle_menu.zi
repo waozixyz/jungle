@@ -53,7 +53,7 @@ GameTitleBar :: (session: Session, bounds: Rectangle, key: s32, now: float64, ti
     width := cast(s32)bounds.width
     BookPalette()
     options: [0]DropdownOption
-    abc := title == "ABC Book"
+    abc := title == "ABC Book" || title == "123 Book" || title == "Picture Book"
     bar := TitleBar(session, TitleBarProps.{.key = 9001,
         .bounds = Rectangle.{bounds.x, bounds.y, bounds.width, cast(float32)GAME_BAR_HEIGHT},
         .height = GAME_BAR_HEIGHT, .title = Tr(title), .has_leading_action = true,

@@ -33,6 +33,9 @@ sequence_playing: bool;
 sequence_speed: s32 = 1;
 letter_started: float64;
 voice_idle_started: float64;
+repeat_sequence: bool;
+letter_only: bool;
+sequence_paused_at: float64;
 WordName :: (at: s32) -> string {
     if language == 1 { return WordName_de(at) }
     if language == 2 { return WordName_es(at) }
@@ -166,23 +169,33 @@ MoveLetter :: (step: s32) {
 }
 
 ToggleSequence :: () {
-    if sequence_playing { sequence_playing = false; return }
-    examples = false
+    if sequence_playing {
+        sequence_playing = false; sequence_paused_at = retro.now
+        unused AppService("jungle.voice-control", "pause")
+        return
+    }
     sequence_playing = true
-    OpenLetter(ifx learn_letter == LetterCount(language) - 1 then 0 else learn_letter, true)
+    if AppService("jungle.voice-state", "") == "paused" {
+        unused AppService("jungle.voice-control", "resume")
+        letter_started += retro.now - sequence_paused_at
+        voice_idle_started = 0.0
+    } else { OpenLetter(ifx learn_letter == LetterCount(language) - 1 then 0 else learn_letter, true) }
 }
 
 // Keep each recording complete and leave a quiet pause at the chosen pace
 // after its recording. A loading or playing recording never gets skipped.
 AdvanceSequence :: () {
-    if !sequence_playing || examples || voice_pending { return }
+    if !sequence_playing || voice_pending { return }
     state := AppService("jungle.voice-state", "")
     if state == "loading" || state == "playing" { voice_idle_started = 0.0; return }
     if voice_idle_started == 0.0 { voice_idle_started = retro.now }
     duration: float64 = ifx sequence_speed == 0 then 6.0 else ifx sequence_speed == 1 then 4.0 else 2.0
     quiet: float64 = ifx sequence_speed == 0 then 2.5 else ifx sequence_speed == 1 then 1.5 else 0.5
     if retro.now - letter_started < duration || retro.now - voice_idle_started < quiet { return }
-    if learn_letter + 1 == LetterCount(language) { sequence_playing = false; return }
+    if learn_letter + 1 == LetterCount(language) {
+        if repeat_sequence { OpenLetter(0, true) } else { sequence_playing = false }
+        return
+    }
     OpenLetter(learn_letter + 1, true)
 }
 
@@ -204,7 +217,10 @@ ExamplePanel :: (x: s32, y: s32, width: s32, height: s32) {
     BookBox(picture_x, picture_y, edge, edge, 0xf7f1e3ff, 0xdacdb5ff, 10.0)
     BookPicture(WordScene(word), picture_x + 4, picture_y + 4, edge - 8, edge - 8)
     tap := RetroTap(210, picture_x, picture_y, edge, edge, WordName(word))
-    if tap.clicked { voice_pending = true }
+    if tap.clicked {
+        unused AppService("jungle.voice", WordVoice(word))
+        voice_pending = false; letter_started = retro.now; voice_idle_started = 0.0
+    }
     font: s32 = ifx abc_width < 600 then 22 else 32
     name := WordName(word)
     while font > 12 && cast(s32)name.count * font * 3 / 5 > width - 8 { font -= 1 }
@@ -213,21 +229,33 @@ ExamplePanel :: (x: s32, y: s32, width: s32, height: s32) {
         BookText(x, picture_y + edge + label, width, spelling, SpacedLetters(name),
             ifx abc_width < 600 then 12 else 16, TextAlign.TextAlignCenter, false)
     }
-    if TouchButton(32, x, y + height - footer, width, control, "Next example") {
+    button := (width - abc_gap) / 2
+    if TouchButton(32, x, y + height - footer, button, control, "Next example") {
         learn_slot = (learn_slot + 1) % LetterWords(learn_letter)
         voice_pending = true
+        letter_started = retro.now; voice_idle_started = 0.0
+    }
+    if TouchButton(33, x + button + abc_gap, y + height - footer, button, control, "Spelling", !simple) {
+        simple = !simple
+        unused DocumentWrite("mode.txt", ifx simple then "simple" else "spelling")
+        voice_pending = true; letter_started = retro.now; voice_idle_started = 0.0
     }
 }
 
 LearnView :: () {
     width := abc_width - abc_padding * 2
     control: s32 = ifx abc_height < 400 then 32 else 40
-    mode_width := (width - abc_gap) / 2
+    mode_width := (width - abc_gap * 2) / 3
     if TouchButton(20, abc_padding, abc_padding, mode_width, control, "Letters", !examples) && examples {
-        examples = false; sequence_playing = true; OpenLetter(learn_letter, true)
+        examples = false; OpenLetter(learn_letter, true)
     }
     if TouchButton(21, abc_padding + mode_width + abc_gap, abc_padding, mode_width, control, "Examples", examples) && !examples {
-        examples = true; sequence_playing = false; OpenLetter(learn_letter, true)
+        examples = true; OpenLetter(learn_letter, true)
+    }
+    if TouchButton(43, abc_padding + (mode_width + abc_gap) * 2, abc_padding, mode_width, control,
+        ifx repeat_sequence then "Repeat on" else "Repeat off", repeat_sequence) {
+        repeat_sequence = !repeat_sequence
+        unused DocumentWrite("repeat.txt", ifx repeat_sequence then "on" else "off")
     }
     _, _, _, strip_used := StripMetrics(width)
     strip_top := abc_height - abc_padding - strip_used
@@ -253,10 +281,11 @@ LearnView :: () {
     }
     if examples {
         BookText(abc_padding, top + letter_height, letter_width, 22, "Tap to listen", 12, TextAlign.TextAlignCenter, true, true)
-        if TouchButton(31, abc_padding, top + height - control, letter_width, control, "Spelling", !simple) {
-            simple = !simple
-            unused DocumentWrite("mode.txt", ifx simple then "simple" else "spelling")
+        if TouchButton(31, abc_padding, top + height - control, letter_width, control, ifx letter_only then "Letter only" else "Word audio", letter_only) {
+            letter_only = !letter_only
+            unused DocumentWrite("example-audio.txt", ifx letter_only then "letter" else "word")
             voice_pending = true
+            letter_started = retro.now; voice_idle_started = 0.0
         }
         split := abc_padding + letter_width + abc_gap / 2
         BookBox(split, top, 1, height, 0xe5d9c3ff)
@@ -266,7 +295,7 @@ LearnView :: () {
     }
     if voice_pending {
         word := CurrentWord()
-        unused AppService("jungle.voice", ifx examples && word >= 0 then WordVoice(word) else LetterVoice(language, learn_letter))
+        unused AppService("jungle.voice", ifx examples && !letter_only && word >= 0 then WordVoice(word) else LetterVoice(language, learn_letter))
         voice_pending = false
     }
 }
@@ -285,7 +314,12 @@ GameMain :: () -> s32 {
     if mode == APP_SAVE { return ifx !ladder_loaded || AbcSave() then 0 else 1 }
     if mode != APP_FRAME { return 0 }
     GameLanguage()
-    if !settings_loaded { simple = DocumentRead("mode.txt") != "spelling"; settings_loaded = true }
+    if !settings_loaded {
+        simple = DocumentRead("mode.txt") != "spelling"
+        repeat_sequence = DocumentRead("repeat.txt") == "on"
+        letter_only = DocumentRead("example-audio.txt") == "letter"
+        settings_loaded = true
+    }
     RetroBegin(AppSession(), AppBounds(), FONT, AppNow(), AppKey(), BLACK)
     ResponsiveAbc(AppBounds())
     RefreshLanguage()

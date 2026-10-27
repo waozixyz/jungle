@@ -35,7 +35,7 @@ def main():
             assert sum(min(color) > 190 for color in corners) >= 3, f"{name} page does not fade into the paper"
             assert len(page.resize((300, 300)).getcolors(300 * 300) or range(90001)) > 5000, f"{name} page is not smooth artwork"
     prompts = json.loads((ROOT / "tools/book_prompts.json").read_text())
-    assert set(prompts["pages"]) == set(NAMES) == set(prompts["cutouts"]), "every picture keeps its prompt"
+    assert set(prompts["pages"]) == set(NAMES), "every full scene keeps its prompt"
     assert (ROOT / "art/generated/title-covers.png").exists(), "the cover style reference is missing"
     expected_previews = {name + ".jpg" for name, _ in BOOKS}
     actual_previews = {path.name for path in (ROOT / "assets/jungle-book/previews").glob("*")}
@@ -46,10 +46,14 @@ def main():
     assert not (ROOT / "assets/jungle-book/backgrounds").exists(), "scenes replace the shared backdrops"
     with Image.open(ROOT / "assets/jungle/book.png") as icon:
         assert icon.size == (64, 64), "Picture Book needs a generated raster icon"
-    # Animal Counting and the ABC Book use a transparent cut-out of each word.
-    expected = {name + ".png" for name in NAMES}
+    # Counting uses cut-outs; Picture Book and ABC examples use full scenes.
+    # New words need no unused duplicate cut-out.
+    expected = {name + ".png" for name in prompts["cutouts"]}
     actual = {path.name for path in (ROOT / "assets/jungle-book/items").glob("*.png")}
     assert actual == expected, "Picture Book has stale or missing cut-outs"
+    assert set(prompts["cutouts"]) <= set(NAMES), "cut-outs must belong to a real word"
+    counting = {'tiger','frog','butterfly','ladybug','snail','elephant','giraffe','monkey','panda','lion','zebra','crocodile','parrot','toucan','rabbit','cat','dog','sheep','duck','hen','pig','cow'}
+    assert counting <= set(prompts["cutouts"]), "a counting animal has no cut-out"
     for path in sorted((ROOT / "assets/jungle-book/items").glob("*.png")):
         with Image.open(path) as sprite:
             assert sprite.size == (420, 420), f"{path.name} must be a 420 pixel cut-out"

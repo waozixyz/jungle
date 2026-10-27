@@ -6,10 +6,15 @@ friendly, gentle and obvious.
 ## Picture art (owner feedback, 2026-10-26)
 
 - **One style everywhere:** the title-screen cover style,
-  `art/generated/title-covers.png`: soft naturalistic storybook watercolor on
+  `art/generated/title-covers.png`: soft cartoonish storybook watercolor on
   warm cream paper, delicate botanical leaves, gentle earthy colors, friendly
   young animals with big gentle eyes. Use its tiger cover as the style
-  reference for every picture. Never draw realistic, staring or toothy
+  reference for every picture. Use simplified rounded forms and smooth washes,
+  without realistic wrinkles, skin texture or sharply detailed features.
+  Animals look sideways, down, or toward their surroundings, never directly
+  at the viewer. Keep natural animal anatomy and calm poses. Apply this to
+  every existing animal scene, counting cut-out and animal cover. Never draw
+  realistic, staring or toothy
   animals; they are too scary for babies.
 - **Pages like a touch-and-learn book** (owner screenshot,
   `backup/reference/touch-and-learn-book.png`): each page is one complete
@@ -50,6 +55,9 @@ is in `tools/book_prompts.json`; the full-size originals are kept in
   the picture. No Books or arrow buttons: tap the left or right side of the
   page to turn it, and the title bar's back arrow returns to the books.
 - The title bar has the sound on/off button at the top right.
+- Picture Book has a compact bottom toolbar directly below the word label,
+  with Play/Pause and Hear word. Keep Repeat on/off in Manage books, never
+  on the picture page.
 - The end-of-book screen that offers the next book must be styled as
   carefully as the book pages.
 - Coloring Book save and load slots show a preview of each saved picture, so

@@ -1,0 +1,21 @@
+// Saved visibility and automatic reading choices share stable catalog IDs.
+#import, file "book_pages.zi";
+
+hidden_books: [CATEGORY_COUNT]bool;
+excluded_books: [CATEGORY_COUNT]bool;
+
+BookAllowed :: (index: s32, automatic: bool = false) -> bool {
+    return index >= 0 && index < CATEGORY_COUNT && !hidden_books[index] && (!automatic || !excluded_books[index])
+}
+
+NextBookCategory :: (category: s32, automatic: bool = false) -> s32 {
+    current: s32 = 0
+    for slot: cast(s32)0..CATEGORY_COUNT - 1 {
+        if shelf_order[slot] == category { current = slot }
+    }
+    for step: cast(s32)1..CATEGORY_COUNT {
+        candidate := shelf_order[(current + step) % CATEGORY_COUNT]
+        if BookAllowed(candidate, automatic) { return candidate }
+    }
+    return -1
+}

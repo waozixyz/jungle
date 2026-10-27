@@ -14,9 +14,9 @@ from book_catalog import BOOKS, BOOK_GROUPS, LANGUAGES, voice_path
 
 # Regions of a 320 by 200 capture of the default 960 by 600 window.
 SCENE = (70, 20, 250, 150)
-WORD = (80, 170, 240, 190)
-SPELLING = (80, 180, 240, 192)
-LABEL = (70, 150, 250, 196)
+WORD = (80, 150, 240, 173)
+SPELLING = (80, 166, 240, 179)
+LABEL = (70, 132, 250, 179)
 COVER = (20, 40, 150, 170)
 
 

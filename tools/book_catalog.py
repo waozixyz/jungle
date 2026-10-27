@@ -59,11 +59,12 @@ _original = dict(BOOKS)
 BOOKS = tuple((category, _original.get(category, ()) + tuple(extra)) for category, extra in EXPANSION["extra"].items())
 WORDS.update((name, tuple(words)) for name, words in EXPANSION["words"].items())
 TITLES = EXPANSION["titles"]
-NAMES = tuple(name for _, names in BOOKS for name in names)
+PAGE_NAMES = tuple(name for _, names in BOOKS for name in names)
+NAMES = tuple(dict.fromkeys(PAGE_NAMES))
 BOOK_GROUPS = (
-    ("Nature", ("jungle", "garden", "farm", "nature", "seasons")),
+    ("Nature", ("jungle", "garden", "farm", "nature", "seasons", "birds")),
     ("Food", ("fruits", "vegetables", "breakfast", "lunch", "dinner")),
-    ("Home", ("kitchen", "bathroom", "bedroom", "living-room")),
+    ("Home", ("kitchen", "bathroom", "bedroom", "living-room", "toys", "vehicles", "bedtime")),
     ("Family", ("family", "body", "clothing")),
 )
 LETTERS = {

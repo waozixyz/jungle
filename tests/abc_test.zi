@@ -19,8 +19,8 @@ DataChecks :: () -> s32 {
             for at: cast(s32)0..words - 1 {
                 word := LetterWord(lang, letter, at)
                 if word < 0 || word >= WORD_COUNT { return 300 + lang }
-                art := WordArt(word)
-                if art.count < 25 || art[:25] != "assets/jungle-book/items/" { return 400 + lang }
+                art := WordScene(word)
+                if art.count < 25 || art[:25] != "assets/jungle-book/pages/" { return 400 + lang }
                 voice := WordVoice_en_simple(word)
                 if voice.count < 26 || voice[:26] != "assets/jungle-book/sounds/" { return 500 + lang }
             }
