@@ -32,7 +32,7 @@ for language in ("en", "de", "es"):
                     width, height = page.size
                     fit = min(width / 320, (height - 56) / 200)
                     padding = max(24, int(14 * fit) + 8)
-                    desktop.click_actual(width * 3 // 4, 56 + padding + 16)
+                    desktop.click_actual(width // 2, 56 + padding + 16)
                     illustrated = desktop.capture_actual("examples-" + language)
                     colors = illustrated.crop((width // 2, 90, width - 40, height - 90))
                     pixels = colors.get_flattened_data() if hasattr(colors, "get_flattened_data") else colors.getdata()
