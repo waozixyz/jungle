@@ -12,6 +12,13 @@ with tempfile.TemporaryDirectory(prefix="jungle-paint-choices-") as temporary:
     with Desktop(ROOT / 'build/app/jungle', data) as desktop:
         desktop.game('Coloring Book')
         first = desktop.capture('paint-scenes-page-1')
+        # Navigation belongs in the title bar; the old footer button is gone.
+        footer = first.crop((234, 173, 298, 187))
+        assert len(footer.getcolors(10000)) == 1, 'Duplicate Back button remains beside pagination'
+        desktop.click_actual(28, 28)
+        desktop.wait_menu('paint-title-back-to-menu')
+        desktop.game('Coloring Book')
+        first = desktop.wait_scene_picker('paint-scenes-title-back-reopened')
         desktop.click(180, 180)
         second = desktop.capture('paint-scenes-page-2')
         assert first.crop((20, 30, 299, 162)).tobytes() != second.crop((20, 30, 299, 162)).tobytes()
@@ -31,6 +38,11 @@ with tempfile.TemporaryDirectory(prefix="jungle-paint-choices-") as temporary:
                 desktop.capture('paint-new-picture-confirm')
                 desktop.click(104, 130)
                 desktop.capture('paint-next-background')
+        desktop.click(30, 40)
+        colors = desktop.capture('paint-expanded-colors')
+        desktop.click_actual(28, 28)
+        desktop.capture('paint-colors-title-back')
+        assert working.read_bytes()[len(PICTURE_HEADER)] == ord(DIGITS[11]), 'Title-bar Back changed the working picture'
         desktop.click(30, 40)
         colors = desktop.capture('paint-expanded-colors')
         source = (ROOT / 'games/paint/paint_palette.zi').read_text()

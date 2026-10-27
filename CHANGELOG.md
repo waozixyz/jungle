@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.14
+
+- Keep Coloring Book's Back arrow in the title bar, leaving only Previous and Next beside the scene and stencil pages.
+
 ## 0.1.13
 
 - Offer 42 distinct coloring crayons grouped by hue, including pastels, skin tones and dark charcoal that keeps the black outlines visible.
