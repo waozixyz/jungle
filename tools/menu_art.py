@@ -10,6 +10,6 @@ def main():
         with Image.open(ROOT / 'art/generated/menu-covers' / (name + '.png')) as cover:
             assert cover.width == cover.height
             cover.convert('RGBA').resize((420, 420), Image.Resampling.LANCZOS).save(
-                target / (name + '.png'), optimize=True)
+                target / (('counting' if name == 'count' else name) + '.png'), optimize=True)
     print('Prepared four watercolor title covers')
 if __name__ == '__main__': main()

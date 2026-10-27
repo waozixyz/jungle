@@ -86,32 +86,45 @@ window.cancelAnimationFrame=id=>{const entry=pendingFrames.get(id);if(entry){pen
 document.addEventListener('visibilitychange',scheduleHiddenFrames);
 const imageLoads=new Map();
 let imagePaths=new Set();
+function unavailableImage(path,error){imagePaths.delete(path);console.warn('Picture unavailable:',path,error)}
+async function fetchResource(path,read){
+ for(let attempt=0;attempt<3;attempt++){
+  try{
+   const response=await fetch(assetUrl(path));
+   if(response.ok)return await read(response);
+   if(![408,429,500,502,503,504].includes(response.status)||attempt===2)throw Error(path+' (HTTP '+response.status+')');
+  }catch(error){
+   if(!(error instanceof TypeError)||attempt===2)throw error;
+  }
+  await new Promise(resolve=>setTimeout(resolve,250*(attempt+1)));
+ }
+}
 async function loadImage(path){
  if(Module.FS.analyzePath('/'+path).exists)return;
  if(imageLoads.has(path))return imageLoads.get(path);
- const request=fetch(assetUrl(path)).then(async response=>{
-  if(!response.ok)throw Error(path);
-  const bytes=new Uint8Array(await response.arrayBuffer());
+ const request=fetchResource(path,response=>response.arrayBuffer()).then(buffer=>{
+  const bytes=new Uint8Array(buffer);
   Module.FS.mkdirTree('/'+path.substring(0,path.lastIndexOf('/')));
   Module.FS.writeFile('/'+path,bytes);
  });
- imageLoads.set(path,request);return request;
+ imageLoads.set(path,request);
+ try{return await request}catch(error){imageLoads.delete(path);throw error}
 }
 var Module={canvas:document.getElementById('canvas'),locateFile:assetUrl,print:console.log,printErr:console.error,
  jungleLanguage:updateSiteLanguage,
  jungleImageReady(path){
   if(Module.FS.analyzePath('/'+path).exists)return true;
-  if(imagePaths.has(path)&&!imageLoads.has(path))void loadImage(path).catch(console.error);
+  if(imagePaths.has(path)&&!imageLoads.has(path))void loadImage(path).catch(error=>unavailableImage(path,error));
   return false;
  },
  preRun:[function(){
   Module.addRunDependency('menu-pictures');
-  fetch(assetUrl('images.json')).then(r=>{if(!r.ok)throw Error('picture list');return r.json()}).then(async paths=>{
+  fetchResource('images.json',response=>response.json()).then(async paths=>{
    imagePaths=new Set(paths);
-   // Show the opening screen until every picture is available, with bounded
-   // parallel downloads so a large library does not flood the connection.
+   // Finish picture loads before opening, with bounded parallel downloads.
+   // A blocked optional picture must not prevent the game from starting.
    let next=0;
-   await Promise.all(Array.from({length:8},async()=>{while(next<paths.length){const path=paths[next++];await loadImage(path)}}));
+   await Promise.all(Array.from({length:8},async()=>{while(next<paths.length){const path=paths[next++];try{await loadImage(path)}catch(error){unavailableImage(path,error)}}}));
    Module.removeRunDependency('menu-pictures');
   }).catch(e=>{console.error(e);Module.onAbort()});
  }],
