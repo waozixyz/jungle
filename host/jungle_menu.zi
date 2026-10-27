@@ -221,7 +221,7 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
             if picture > h - 8 { picture = h - 8 }
             if picture < 1 { picture = 1 }
             image_y := y + (h - picture) / 2
-            BookPicture(ifx group then "assets/jungle/covers/abc-123.png" else games[index].icon, 25, image_y, picture, picture)
+            BookPicture(ifx group then "assets/jungle/covers/abc-123.jpg" else games[index].icon, 25, image_y, picture, picture)
             text_x := 25 + picture + 9
             if h >= 54 {
                 text_y := y + (h - 42) / 2

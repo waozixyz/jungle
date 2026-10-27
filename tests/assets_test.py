@@ -78,15 +78,15 @@ def main():
                     assert any(voice.readframes(voice.getnframes())), (name, language, simple)
                 assert path.read_bytes()[36:40] == b"data"
     for name in ("book", "counting", "paint"):
-        with Image.open(ROOT / f"assets/jungle/covers/{name}.png") as cover:
-            assert cover.size == (420, 420) and cover.mode == "RGBA"
+        with Image.open(ROOT / f"assets/jungle/covers/{name}.jpg") as cover:
+            assert cover.size == (420, 420) and cover.format == "JPEG"
     with Image.open(ROOT / "assets/animal-count/background.png") as background:
         assert background.size == (320, 200)
     art = ROOT / "assets/dino-paint/art"
     assert not (ROOT / "assets/dino-paint/crayons").exists(), "crayons are drawn as color boxes"
     for number in range(1, 7):
         assert (ROOT / f"art/paint/scene{number}.svg").read_text().count("<path") == 1
-        with Image.open(art / f"scene{number}-thumb.png") as thumb:
+        with Image.open(art / f"scene{number}-thumb.jpg") as thumb:
             assert thumb.size == (256, 192) and len(thumb.getcolors(1 << 16) or range(1 << 16)) > 16, "scene thumbnail is not smooth"
     for number in range(1, 31):
         svg = (ROOT / f"art/paint/dino{number}.svg").read_text()
