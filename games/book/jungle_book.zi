@@ -314,7 +314,8 @@ PlaybackControls :: (can_hear: bool = true) {
     if can_hear {
         BookBox(x + button, y + 10, 1, 22, 0xdacdb5ff)
         if PlaybackAction(63, x + button, y, width - button, "Hear word") {
-            voice_pending = true; page_started = retro.now; paused_at = retro.now; voice_idle_started = 0.0
+            unused AppService("jungle.voice", PageVoice())
+            voice_pending = false; page_started = retro.now; paused_at = retro.now; voice_idle_started = 0.0
         }
     }
 }

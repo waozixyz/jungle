@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.8
+
+- Give the existing animals softer cartoon shapes, calm natural poses and gazes toward their surroundings, including their counting pictures, book covers and opening artwork.
+- Play Hear word while automatic page turns are paused.
+
 ## 0.1.7
 
 - Add Birds, Toys, Vehicles and Bedtime picture books, with English, German and Spanish names and narration.
