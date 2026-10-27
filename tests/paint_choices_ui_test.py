@@ -3,7 +3,7 @@ import re
 import tempfile
 from pathlib import Path
 
-from runtime_test import Desktop, DIGITS, PICTURE_HEADER, ROOT, picture_pixels
+from runtime_test import Desktop, DIGITS, PICTURE_HEADER, ROOT, picture_runs
 
 
 with tempfile.TemporaryDirectory(prefix="jungle-paint-choices-") as temporary:
@@ -46,8 +46,9 @@ with tempfile.TemporaryDirectory(prefix="jungle-paint-choices-") as temporary:
         desktop.capture('paint-charcoal-fill')
         saved = working.read_bytes()
         assert saved[len(PICTURE_HEADER) + 1] == ord(DIGITS[47]), 'Charcoal selection was not saved'
-        assert (picture_pixels(saved) == 63).any(), 'The bucket did not use charcoal'
-        assert (picture_pixels(saved) == 0).any(), 'Painting removed the outline ink'
+        painted_colors = {color for color, length in picture_runs(saved)}
+        assert 63 in painted_colors, 'The bucket did not use charcoal'
+        assert 0 in painted_colors, 'Painting removed the outline ink'
     with Desktop(ROOT / 'build/app/jungle', data) as desktop:
         desktop.game('Coloring Book')
         desktop.capture('paint-new-scene-resumed')

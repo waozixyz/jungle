@@ -287,15 +287,20 @@ def run_number(text, at):
             return value, at
 
 
-def picture_pixels(data):
-    """A saved picture's crayon indices, decoded from its runs."""
-    import numpy
+def picture_runs(data):
+    """A saved picture's (crayon index, run length) pairs."""
     text = data[len(PICTURE_HEADER) + 3 + 8 * 39:-1].decode("ascii")
-    pixels, at = [], 0
+    at = 0
     while at < len(text):
         color = DIGITS.index(text[at])
         length, at = run_number(text, at + 1)
-        pixels.append(numpy.full(length, color, numpy.uint8))
+        yield color, length
+
+
+def picture_pixels(data):
+    """A saved picture's crayon indices, decoded from its runs."""
+    import numpy
+    pixels = [numpy.full(length, color, numpy.uint8) for color, length in picture_runs(data)]
     return numpy.concatenate(pixels).reshape(CANVAS[1], CANVAS[0])
 
 
