@@ -4,6 +4,7 @@
 
 - Give the animals more varied, forward and three-quarter poses with calm gazes just past the viewer, including farm animals and their matching counting pictures.
 - Carry the revised artwork through book previews, menu covers, the app icon and logo.
+- Strengthen the Coloring Book palm-tree outlines and leaf joins so the fill tool stays inside their shapes.
 
 ## 0.1.9
 
