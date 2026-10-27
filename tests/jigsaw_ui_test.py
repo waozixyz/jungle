@@ -84,25 +84,23 @@ for language in ('en', 'de', 'es'):
                 cx,cy = 16+(w-32)*nx/10000,72+(h-144)*ny/10000
                 px,py = bx+(piece%2+.5)*size/2, by+(piece//2+.5)*size/2
                 start,end = xy(cx,cy),xy(px,py)
-                if width == 390:
-                    run(['xdotool','mousemove','--window',desktop.window,str(start[0]),str(start[1])],desktop.env)
-                    run(['xdotool','mousedown','1'],desktop.env)
-                    try:
-                        time.sleep(.15)
-                        run(['xdotool','mousemove','--window',desktop.window,str(end[0]),str(end[1])],desktop.env)
-                        time.sleep(.2)
-                    finally:
-                        run(['xdotool','mouseup','1'],desktop.env)
-                    time.sleep(.3)
-                else:
-                    desktop.click_actual(*start)
+                # A free piece may cover a destination after resizing. Drag
+                # across it rather than treating that piece as an empty slot.
+                run(['xdotool','mousemove','--window',desktop.window,str(start[0]),str(start[1])],desktop.env)
+                run(['xdotool','mousedown','1'],desktop.env)
+                try:
+                    time.sleep(.15)
+                    run(['xdotool','mousemove','--window',desktop.window,str(end[0]),str(end[1])],desktop.env)
+                    time.sleep(.2)
                     desktop.capture(f'jigsaw-selected-{language}-{width}-{height}')
-                    desktop.click_actual(*end)
+                finally:
+                    run(['xdotool','mouseup','1'],desktop.env)
+                time.sleep(.3)
                 _,after,_,_ = saved(progress)
                 if after[piece] == 0:
                     desktop.capture(f'jigsaw-failed-{language}-{width}-{height}')
                     print('placement diagnostic',start,end,values,after,flush=True)
-                assert after[piece] > 0, ('tap placement failed',language,width,height,piece)
+                assert after[piece] > 0, ('drag placement failed',language,width,height,piece)
                 if sum(owner > 0 for owner in after) == 4: break
             assert sum(owner > 0 for owner in after) == 4, 'Puzzle did not complete'
             desktop.capture('jigsaw-complete-'+language)
@@ -130,4 +128,4 @@ for language in ('en', 'de', 'es'):
                 assert saved(progress)[0][5] == '1','Next player did not pass the turn'
             log = (OUTPUT/'jungle.log').read_text()
             assert 'portable execution failed' not in log and 'cannot run' not in log, log
-print('local jigsaw UI test: real placements, completion, all three languages, four layouts and saved progress passed')
+print('local jigsaw UI test: free drops, drag placements, completion, all three languages, four layouts and saved progress passed')
