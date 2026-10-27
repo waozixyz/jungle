@@ -26,6 +26,18 @@ Blank :: () {
     for at: cast(s32)0..CANVAS_PIXELS - 1 { canvas[at] = cast(u8)PAPER }
 }
 
+PalmFillStaysInside :: (scene: s32, x: s32, y: s32, left: s32, top: s32, right: s32, bottom: s32) -> bool {
+    if !SceneOpen(scene) || CanvasColorAt(x, y) != PAPER { return false }
+    if CanvasFill(x, y, 30) < 20 { return false }
+    for at: cast(s32)0..CANVAS_PIXELS - 1 {
+        if canvas[at] != 30 { continue }
+        px := at % CANVAS_WIDTH
+        py := at / CANVAS_WIDTH
+        if px < left || px >= right || py < top || py >= bottom { return false }
+    }
+    return true
+}
+
 #program_export
 main :: (argc: s32, argv: **u8) -> s32 {
     unused argc
@@ -45,6 +57,22 @@ main :: (argc: s32, argv: **u8) -> s32 {
         for at: cast(s32)0..CANVAS_PIXELS - 1 {
             if read_back[at] != copy[at] { return PaintFail("scene", "its picture text changed a pixel") }
         }
+    }
+    // Real palm fronds and trunk sections must fill independently, without
+    // coloring their neighboring leaves, foliage, sky or beach.
+    if !PalmFillStaysInside(0, 250, 80, 160, 40, 350, 240) ||
+       !PalmFillStaysInside(0, 225, 160, 155, 85, 265, 285) ||
+       !PalmFillStaysInside(0, 95, 240, 70, 205, 125, 285) ||
+       !PalmFillStaysInside(0, 800, 60, 720, 0, 915, 135) ||
+       !PalmFillStaysInside(0, 284, 303, 265, 270, 300, 320) ||
+       !PalmFillStaysInside(0, 290, 313, 280, 300, 300, 340) ||
+       !PalmFillStaysInside(0, 350, 354, 342, 322, 365, 370) ||
+       !PalmFillStaysInside(0, 863, 350, 850, 335, 875, 365) ||
+       !PalmFillStaysInside(4, 250, 80, 160, 40, 360, 170) ||
+       !PalmFillStaysInside(4, 65, 105, 0, 50, 165, 220) ||
+       !PalmFillStaysInside(4, 105, 205, 85, 180, 135, 245) ||
+       !PalmFillStaysInside(4, 100, 30, 0, 0, 165, 100) {
+        return PaintFail("palm", "a leaf or trunk fill crossed its outline")
     }
     for dino: cast(s32)0..DINO_COUNT - 1 {
         huge_w := DinoWidth(dino, DINO_SIZES)

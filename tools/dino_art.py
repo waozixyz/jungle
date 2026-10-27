@@ -25,6 +25,37 @@ SCENE_SIZE = (960, 720)
 DINO_UPSCALE = 3
 SCENE_UPSCALE = 2
 
+# Preserve the palm outline joins when the original scenery is traced again.
+PALM_OUTLINES = {
+    1: [
+        '0,0 385,0 385,120 345,247 245,291 0,215',
+        '720,0 960,0 960,245 848,245 770,200 720,145',
+        '132,89 167,88 98,440 38,453',
+        '891,80 925,80 960,321 960,366 922,332',
+        '265,268 321,268 321,341 265,341',
+        '330,288 389,288 389,371 330,371',
+        '710,311 777,311 777,426 710,426',
+        '777,229 921,229 921,394 777,394',
+    ],
+    5: [
+        '0,0 360,0 360,181 276,275 146,178 0,225',
+        '125,96 174,96 78,473 15,467',
+    ],
+}
+
+
+def palm_outlines(index):
+    if index not in PALM_OUTLINES:
+        return ''
+    polygons = ''.join(f'<polygon points="{points}"/>' for points in PALM_OUTLINES[index])
+    return (
+        '<!-- Reinforce palm outlines and narrow joins for reliable bucket fills. -->\n'
+        '<defs><clipPath id="palm-outlines">' + polygons + '</clipPath></defs>\n'
+        '<use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#ink" '
+        'clip-path="url(#palm-outlines)" fill="#000" stroke="#000" stroke-width="1.6" '
+        'stroke-linejoin="round" stroke-linecap="round"/>\n'
+    )
+
 potrace = ctypes.CDLL('libpotrace.so.0')
 WORD = ctypes.c_ulong
 WORD_BITS = ctypes.sizeof(WORD) * 8
@@ -240,7 +271,8 @@ def main():
             f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}" '
             f'width="{width}" height="{height}">\n'
             f'<rect width="{width}" height="{height}" fill="#fff"/>\n'
-            f'<path id="ink" fill="#000" fill-rule="evenodd" d="{scene(scenery, index)}"/>\n</svg>\n')
+            f'<path id="ink" fill="#000" fill-rule="evenodd" d="{scene(scenery, index)}"/>\n'
+            + palm_outlines(index + 1) + '</svg>\n')
     standalone_stencils()
     print('Traced twelve dinosaurs and six scenes into art/paint.')
 
