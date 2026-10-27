@@ -78,6 +78,9 @@ def main():
     pictures=OUT/'assets/animal-count/pictures';pictures.mkdir(parents=True,exist_ok=True)
     animals=('tiger','frog','butterfly','ladybug','snail','elephant','giraffe','monkey','panda','lion','zebra','crocodile','parrot','toucan','rabbit','cat','dog','sheep')
     for name in animals:shutil.copy2(ROOT/'assets/jungle-book/items'/f'{name}.png',pictures/f'{name}.png')
+    # Do not retain the old cover name in a reused output directory: browser
+    # content filters can classify count.png as a tracking image.
+    (OUT/'assets/jungle/covers/count.png').unlink(missing_ok=True)
     images=sorted(str(p.relative_to(OUT)) for p in (OUT/'assets').rglob('*') if p.suffix in ('.png','.jpg'))
     (OUT/'images.json').write_text(json.dumps(images))
     for path in OUT.rglob('*'):

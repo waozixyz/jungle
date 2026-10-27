@@ -32,7 +32,7 @@ web_games: [6]Game = .[
     Game.{.title = "Picture Book", .about = "Pictures and words", .age = 2, .icon = "assets/jungle/covers/book.png"},
     Game.{.title = "ABC Book", .about = "Letters and sounds", .age = 3, .icon = "assets/jungle/covers/abc.png"},
     Game.{.title = "123 Book", .about = "Numbers and quantities", .age = 3, .icon = "assets/jungle/covers/numbers.png"},
-    Game.{.title = "Animal Counting", .about = "Count the animals", .age = 4, .icon = "assets/jungle/covers/count.png"},
+    Game.{.title = "Animal Counting", .about = "Count the animals", .age = 4, .icon = "assets/jungle/covers/counting.png"},
     Game.{.title = "Coloring Book", .about = "Draw and color", .age = 5, .icon = "assets/jungle/covers/paint.png"},
     Game.{.title = "Jigsaw Puzzles", .about = "Pictures, piece by piece", .age = 3, .icon = "assets/jungle/covers/jigsaw.png"},
 ];
