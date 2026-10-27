@@ -112,7 +112,10 @@ class Desktop:
         assert self.app.poll() is None, "Jungle exited; see build/tests/ui/jungle.log"
 
     def key(self, key):
-        run(["xdotool", "key", "--clearmodifiers", key], self.env)
+        run(["xdotool", "windowfocus", self.window], self.env)
+        # A 12 ms synthetic tap can fall entirely between slower packaged
+        # frames. Keep this owned-window press visible for several frames.
+        run(["xdotool", "key", "--clearmodifiers", "--delay", "80", key], self.env)
         time.sleep(.18)
         self.alive()
 
@@ -208,6 +211,23 @@ class Desktop:
                 return picture
             time.sleep(.1)
         raise AssertionError("Coloring Book did not reach its background chooser")
+
+    def wait_jigsaw_setup(self, name):
+        deadline = time.monotonic() + 20
+        while time.monotonic() < deadline:
+            picture = self.capture_actual(name)
+            width,height = picture.size
+            height -= 56
+            scale = min(width/780,height/520,1.5)
+            w,h = int(width/scale),int(height/scale)
+            edge = min((w-80)//2,h-160)
+            tile = picture.crop((round(24*scale),round(56+64*scale),round((24+edge)*scale),round(56+(64+edge)*scale))).resize((100,100))
+            pixels = tile.get_flattened_data() if hasattr(tile,'get_flattened_data') else tile.getdata()
+            vivid = sum(max(color)-min(color)>45 and min(color)<210 for color in pixels)
+            if vivid > 2500:
+                return picture
+            time.sleep(.1)
+        raise AssertionError('Jigsaw did not reach its picture chooser')
 
     def wait_book(self, name):
         # A complete offline speech library is larger than the original book;

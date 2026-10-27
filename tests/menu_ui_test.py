@@ -2,6 +2,7 @@
 from pathlib import Path
 import os
 import tempfile
+import time
 from PIL import ImageChops
 from runtime_test import Desktop, ROOT
 
@@ -12,9 +13,13 @@ with tempfile.TemporaryDirectory(prefix='jungle-menu-') as temporary:
         # The third entry is the new 3+ puzzle, before counting (4+) and
         # coloring (5+). Number activation still reaches offscreen entries.
         desktop.key('3')
-        desktop.capture('age-menu-third-jigsaw')
+        desktop.wait_jigsaw_setup('age-menu-third-jigsaw')
         desktop.key('Return')
-        assert (Path(temporary)/'games/jungle.jigsaw/puzzle.txt').exists()
+        saved = Path(temporary)/'games/jungle.jigsaw/puzzle.txt'
+        deadline=time.monotonic()+20
+        while not saved.exists() and time.monotonic()<deadline:
+            desktop.alive();time.sleep(.1)
+        assert saved.exists(),'Jigsaw did not start and save its puzzle'
         desktop.key('Escape');desktop.key('Escape')
         for _ in range(8): desktop.click(180,120,button=5)
         scrolled=desktop.capture('age-menu-scrolled')
