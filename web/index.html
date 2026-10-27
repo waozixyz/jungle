@@ -121,10 +121,13 @@ var Module={canvas:document.getElementById('canvas'),locateFile:assetUrl,print:c
   Module.addRunDependency('menu-pictures');
   fetchResource('images.json',response=>response.json()).then(async paths=>{
    imagePaths=new Set(paths);
-   // Finish picture loads before opening, with bounded parallel downloads.
+   // Open once the menu's own pictures are here, with bounded parallel
+   // downloads. Each game's pictures load when it first shows them
+   // (jungleImageReady), so opening never downloads every puzzle and page.
    // A blocked optional picture must not prevent the game from starting.
+   const menu=paths.filter(path=>/^assets\/jungle\/([^/]+|covers\/[^/]+|branding\/[^/]+)$/.test(path));
    let next=0;
-   await Promise.all(Array.from({length:8},async()=>{while(next<paths.length){const path=paths[next++];try{await loadImage(path)}catch(error){unavailableImage(path,error)}}}));
+   await Promise.all(Array.from({length:8},async()=>{while(next<menu.length){const path=menu[next++];try{await loadImage(path)}catch(error){unavailableImage(path,error)}}}));
    Module.removeRunDependency('menu-pictures');
   }).catch(e=>{console.error(e);Module.onAbort()});
  }],

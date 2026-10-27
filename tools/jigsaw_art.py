@@ -59,7 +59,7 @@ def main():
                     atlas.paste(rim,(col*tile,row*tile))
             atlas.save(dest/f'{name}-{n}.png', optimize=True)
         print('Built jigsaw picture and six atlases:', name, flush=True)
-    Image.open(dest/'tiger-stream.jpg').convert('RGBA').resize((420,420),Image.Resampling.LANCZOS).save(ROOT/'assets/jungle/covers/jigsaw.png')
+    Image.open(dest/'tiger-stream.jpg').convert('RGB').resize((420,420),Image.Resampling.LANCZOS).save(ROOT/'assets/jungle/covers/jigsaw.jpg',quality=90,optimize=True,progressive=True)
 
 
 if __name__ == '__main__':

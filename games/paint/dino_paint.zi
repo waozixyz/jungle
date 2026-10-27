@@ -475,7 +475,7 @@ ScenePicker :: () {
         press := RetroTap(60 + index, x, y, 90, 70, scene_names[index])
         BookBox(x, y, 90, 70, ifx press.down then cast(u32)0xdcebdcff else cast(u32)0xf7f1e3ff, 0xdacdb5ff, 4.0)
         number := FormatInteger(index + 1, digits_a[:])
-        RetroSprite(Join(ART, Join("scene", Join(number, "-thumb.png"))), x + 13, y + 3, 64, 48, -1, true)
+        RetroSprite(Join(ART, Join("scene", Join(number, "-thumb.jpg"))), x + 13, y + 3, 64, 48, -1, true)
         BookText(x + 2, y + 54, 86, 15, scene_names[index], 10)
         if press.clicked {
             OpenScene(index)

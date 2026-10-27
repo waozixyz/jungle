@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.12
+
+- Open the website after only the menu's pictures; each game's pictures load when you open it, instead of every puzzle and page first.
+- Show the menu covers and coloring-page previews as JPEG pictures, a sixth of their former size, looking the same.
+
 ## 0.1.11
 
 - Load each website update with fresh pictures, covers, icons and game code, even when the browser has cached an earlier release.
