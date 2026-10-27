@@ -19,9 +19,9 @@ babies and toddlers.
   out, and turn the pages together. Discover Birds, Toys, Vehicles and Bedtime,
   hide unwanted books, and choose which books play automatically.
 - **ABC + 123:** Hear letter names, explore optional illustrated word examples,
-  and discover the numbers one to ten with watercolor animals. Both books
+  and discover the numbers one to twenty with watercolor animals. Both books
   offer Play/Pause and repeat; examples can stay visible while only the letter is spoken.
-- **Animal Counting:** Count animals in clear groups of up to five and practice choosing
+- **Animal Counting:** Count up to twenty animals in clear groups of five and practice choosing
   the right number as the game gently adjusts its difficulty.
 - **Coloring Book:** Choose a scene, add dinosaurs, animals, people and objects,
   and make a picture with crayons. Save your creations, write a story, and

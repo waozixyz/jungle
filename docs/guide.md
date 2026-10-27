@@ -63,19 +63,20 @@ just the letter; **Word audio** returns to spoken examples. Autoplay works in
 both views, and **Repeat on/off** chooses whether the alphabet starts again.
 Space and Play/Pause pause or resume narration as well as the sequence.
 Spanish Ñ sits between N and O.
-123 pages show each numeral from one to ten with its word and that many
+123 pages show each numeral from one to twenty with its word and that many
 watercolor animals. Every number is spoken in the selected language; tap the numeral or press Enter to hear it again. The strip along the bottom reaches every number.
-**Play/Pause** or Space starts and pauses number autoplay; **Repeat on/off**
-chooses whether ten returns to one. Arrow keys and number selection pause
-the sequence for manual exploration. The title-bar Speed button sets its pace.
+Number autoplay and repeat start on by default. **Play/Pause** or Space pauses
+and resumes it; **Repeat on/off** chooses whether twenty returns to one.
+Swipe left or right across the number or animals to turn pages. Arrow keys
+and number selection also turn pages, keeping the current Play/Pause choice. The title-bar Speed button sets its pace.
 Existing saved progress files are preserved.
 
 **Animal Counting** pairs watercolor animals with a clean answer card on
 cream paper, with a touch number pad below the animals on phones or beside
 them on wider screens. Animals sit in familiar dice patterns of up to five;
-six to ten animals form two clearly separated groups, five plus the rest.
+six to twenty animals form up to four clearly separated groups of five plus the rest.
 The groups adapt to the available space. Its counting rules follow Animal Math. The levels climb
-4, 5, 6, 8, 9 and 10, six right answers move up, six misses move
+4, 5, 6, 8, 9, 10, 12, 15 and 20, six right answers move up, six misses move
 back down, the same number never comes twice, and every eighth right
 answer brings one of the original praises, from GOOD JOB to AWESOME.
 
@@ -188,7 +189,8 @@ transparent cut-outs used by Animal Counting and the ABC Book are drawn one
 picture at a time with Codex's built-in imagegen tool, in the style of the
 title-screen covers (`art/generated/title-covers.png`). Their prompts are kept
 in `tools/book_prompts.json`; the pages are 1254 pixel JPEG files in
-`assets/jungle-book/pages`. `tools/book_art.py` makes the book covers from the
+`assets/jungle-book/pages`. `tools/counting_art.py` makes transparent 128 pixel copies for both counting games,
+keeping their full-size sources intact. `tools/book_art.py` makes the book covers from the
 first pages and writes the page and narration tables.
 `tools/book_catalog.py` owns the category, word and literal letter-name inventory;
 `tools/locales.py` compiles `locales/ui.json` into the portable UI translations.

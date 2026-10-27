@@ -134,8 +134,15 @@ try{
  }
  if(hasNumbers){
   await pixelClick(195,rowY(1),true);await pixelClick(195,rowY(1,2),true);const numbersLearn=await shot('numbers-learn-phone');await waitResource('/numbers/sounds/es/1.wav');
+  await waitSpoken('/numbers/sounds/es/2.wav');
+  const numberImages=await evaluate('performance.getEntriesByType("resource").map(e=>e.name)');if(!numberImages.some(path=>path.includes('/jungle-book/counting/')))throw Error('123 did not load the small counting pictures');
+  if(numberImages.some(path=>path.includes('/jungle-book/items/')))throw Error('123 loaded full-size counting pictures');
   await key('0');await waitResource('/numbers/sounds/es/10.wav');if(numbersLearn===await shot('numbers-ten-phone'))throw Error('123 did not open directly into learning');
-  await evaluate('window.jungleTestVoices=[]');await key(' ','Space');await waitSpoken('/numbers/sounds/es/2.wav');await key(' ','Space');await evaluate('window.jungleTestVoices=[]');await delay(4500);if(await evaluate('window.jungleTestVoices.length'))throw Error('Paused number autoplay kept speaking');await shot('numbers-autoplay-paused-phone');
+  await waitSpoken('/numbers/sounds/es/11.wav');await key(' ','Space');await evaluate('window.jungleTestVoices=[]');await delay(4500);if(await evaluate('window.jungleTestVoices.length'))throw Error('Paused number autoplay kept speaking');await shot('numbers-autoplay-paused-phone');
+  await key('0');await evaluate('window.jungleTestVoices=[]');await swipe(300,320,90,320);await waitSpoken('/numbers/sounds/es/11.wav');
+  await evaluate('window.jungleTestVoices=[]');await swipe(90,320,300,320);await waitSpoken('/numbers/sounds/es/10.wav');
+  for(let i=0;i<10;i++)await key('ArrowRight','ArrowRight');await waitSpoken('/numbers/sounds/es/20.wav');await shot('numbers-twenty-phone');
+  await evaluate('window.jungleTestVoices=[]');await key(' ','Space');await waitSpoken('/numbers/sounds/es/1.wav');
   await pixelClick(34,28,true);await key('Escape');await shot('menu-after-numbers-phone');
  }
  const countingRow=3;

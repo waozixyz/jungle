@@ -54,7 +54,6 @@ with tempfile.TemporaryDirectory(prefix='jungle-playback-') as temporary:
         desktop.key('2')
         desktop.key('2')
         number_one = desktop.capture_actual('playback-number-one')
-        desktop.key('space')
         time.sleep(4.7)
         number_two = desktop.capture_actual('playback-number-two')
         assert changed(number_one, number_two, (90, 90, 430, 430)), 'Number autoplay did not advance'
@@ -62,5 +61,29 @@ with tempfile.TemporaryDirectory(prefix='jungle-playback-') as temporary:
         number_paused = desktop.capture_actual('playback-number-paused')
         time.sleep(4.7)
         assert not changed(number_paused, desktop.capture_actual('playback-number-held')), 'Paused number autoplay kept advancing'
+        # A swipe changes exactly one number and preserves an explicit pause.
+        numeral = (90, 90, 430, 360)
+        desktop.key('0')
+        ten = desktop.capture_actual('playback-number-ten')
+        desktop.key('Right')
+        eleven = desktop.capture_actual('playback-number-eleven')
+        desktop.drag(70, 90, 245, 90)
+        assert not changed(ten, desktop.capture_actual('playback-number-swipe-back'), numeral), 'Swipe right did not return to ten'
+        desktop.drag(245, 90, 70, 90)
+        assert not changed(eleven, desktop.capture_actual('playback-number-swipe-forward'), numeral), 'Swipe left did not return to eleven'
+        for _ in range(9): desktop.key('Right')
+        twenty = desktop.capture_actual('playback-number-twenty')
+        assert changed(ten, twenty, numeral), 'The number book stopped at ten'
+        desktop.key('Right')
+        first = desktop.capture_actual('playback-number-wrap-first')
+        desktop.key('Left')
+        held_twenty = desktop.capture_actual('playback-number-wrap-last')
+        assert not changed(twenty, held_twenty, numeral), 'Previous from one did not reach twenty'
+        assert changed(first, twenty, numeral), 'The complete number range did not wrap'
+        time.sleep(4.7)
+        assert not changed(held_twenty, desktop.capture_actual('playback-number-manual-held')), 'Manual page turns resumed a paused sequence'
+        desktop.key('space')
+        time.sleep(4.7)
+        assert changed(twenty, desktop.capture_actual('playback-number-repeat-default'), numeral), 'The number book did not repeat by default'
         assert 'portable execution failed' not in (ROOT / 'build/tests/ui/jungle.log').read_text()
-print('local playback UI test: Space pause/resume, hidden shortcuts, independent saved autoplay choices and number autoplay passed')
+print('local playback UI test: saved book choices, default number autoplay/repeat, pause/resume, swipes and numbers through twenty passed')

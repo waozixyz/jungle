@@ -13,7 +13,7 @@ DESKTOP_LIBS = $$(pkg-config --libs sdl2 cairo freetype2 fontconfig pangocairo) 
 CFLAGS_ZI = -std=c11 -O2 -ffunction-sections -fdata-sections -I'$(TOOLCHAIN)/include'
 # The app as it is installed: the program, its menu assets and the games.
 APP := build/app
-COUNT_PICTURES := $(addprefix assets/jungle-book/items/,$(addsuffix .png,tiger frog butterfly ladybug snail elephant giraffe monkey panda lion zebra crocodile parrot toucan rabbit cat dog sheep))
+COUNT_PICTURES := $(addprefix assets/jungle-book/counting/,$(addsuffix .png,tiger frog butterfly ladybug snail elephant giraffe monkey panda lion zebra crocodile parrot toucan rabbit cat dog sheep))
 GAMES := $(APP)/games/jungle-book.zx $(APP)/games/jungle-abc.zx $(APP)/games/jungle-numbers.zx $(APP)/games/animal-count.zx $(APP)/games/dino-paint.zx $(APP)/games/jungle-jigsaw.zx
 
 .PHONY: all run art sounds test test-ui install locales web
@@ -118,6 +118,7 @@ $(APP)/games/jungle-jigsaw.zx: $(wildcard games/jigsaw/*.zi retro/*.zi) $(shell 
 art: build/tools/art
 	build/tools/art
 	python3 tools/book_art.py
+	python3 tools/counting_art.py
 	python3 tools/menu_art.py
 	python3 tools/branding.py
 	python3 tools/dino_art.py

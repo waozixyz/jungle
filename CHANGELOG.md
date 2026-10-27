@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.15
+
+- Start the 123 Book playing and repeating automatically; swipe across a page to move between numbers while keeping the current Play/Pause choice.
+- Learn and count from one to twenty, with English, German and Spanish number names, spoken narration and clear groups of up to five animals.
+- Load smaller transparent counting pictures for quicker, lighter number and counting games.
+
 ## 0.1.14
 
 - Keep Coloring Book's Back arrow in the title bar, leaving only Previous and Next beside the scene and stencil pages.

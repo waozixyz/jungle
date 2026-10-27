@@ -77,7 +77,7 @@ def main():
     from book_catalog import NAMES
     pictures=OUT/'assets/animal-count/pictures';pictures.mkdir(parents=True,exist_ok=True)
     animals=('tiger','frog','butterfly','ladybug','snail','elephant','giraffe','monkey','panda','lion','zebra','crocodile','parrot','toucan','rabbit','cat','dog','sheep')
-    for name in animals:shutil.copy2(ROOT/'assets/jungle-book/items'/f'{name}.png',pictures/f'{name}.png')
+    for name in animals:shutil.copy2(ROOT/'assets/jungle-book/counting'/f'{name}.png',pictures/f'{name}.png')
     # Do not retain the old cover name in a reused output directory: browser
     # content filters can classify count.png as a tracking image.
     (OUT/'assets/jungle/covers/count.png').unlink(missing_ok=True)

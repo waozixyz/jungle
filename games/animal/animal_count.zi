@@ -1,5 +1,5 @@
 #import, file "../../retro/language.zi";
-// Animal Counting: Animal Math's counting game. The ladder runs 4, 5, 6, 8, 9 and 10,
+// Animal Counting: Animal Math's counting game, extended gently through twenty.
 // six right answers move up, six misses move back, and the eighth right answer
 // brings one of the original praises.
 #import "app_context"
@@ -65,8 +65,8 @@ keypad_labels: [12]string = .["1","2","3","4","5","6","7","8","9","<","0","OK"];
 CountingGroups :: (x: s32, y: s32, width: s32, height: s32) {
     layout := CountLayout(number, x, y, width, height)
     for group: cast(s32)0..layout.groups - 1 {
-        gx := layout.x + ifx layout.across then group * (layout.edge + layout.gap) else 0
-        gy := layout.y + ifx layout.across then 0 else group * (layout.edge + layout.gap)
+        gx := layout.x + (group % layout.columns) * (layout.edge + layout.gap)
+        gy := layout.y + (group / layout.columns) * (layout.edge + layout.gap)
         BookBox(gx, gy, layout.edge, layout.edge, 0xe9f0e3ff, 0xc8d7bdff, 6.0)
         amount := CountGroupAmount(number, group)
         for index: cast(s32)0..amount - 1 {

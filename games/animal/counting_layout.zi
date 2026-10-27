@@ -6,7 +6,8 @@ CountGroupLayout :: struct {
     y: s32
     edge: s32
     gap: s32
-    across: bool
+    columns: s32
+    rows: s32
     inset: s32
     cell: s32
 }
@@ -27,7 +28,7 @@ CountSpot :: (amount: s32, index: s32) -> CountPoint {
 
 CountLayout :: (total: s32, x: s32, y: s32, width: s32, height: s32) -> CountGroupLayout {
     layout: CountGroupLayout
-    if total < 1 || total > 10 { return layout }
+    if total < 1 || total > 20 { return layout }
     layout.groups = (total + 4) / 5
     margin := height / 16
     if width / 16 < margin { margin = width / 16 }
@@ -35,17 +36,20 @@ CountLayout :: (total: s32, x: s32, y: s32, width: s32, height: s32) -> CountGro
     if margin < 2 { margin = 2 }
     w := width - margin * 2; h := height - margin * 2
     layout.gap = margin * 2
-    layout.edge = ifx w < h then w else h
-    if layout.groups == 2 {
-        wide := (w - layout.gap) / 2
-        if h < wide { wide = h }
-        tall := (h - layout.gap) / 2
-        if w < tall { tall = w }
-        layout.across = wide >= tall
-        layout.edge = ifx layout.across then wide else tall
+    // Up to four groups: choose the grid with the largest animal pictures.
+    for columns: cast(s32)1..layout.groups {
+        rows := (layout.groups + columns - 1) / columns
+        edge := (w - (columns - 1) * layout.gap) / columns
+        tall := (h - (rows - 1) * layout.gap) / rows
+        if tall < edge { edge = tall }
+        if edge > layout.edge {
+            layout.columns = columns
+            layout.rows = rows
+            layout.edge = edge
+        }
     }
-    group_width := ifx layout.across then layout.edge * layout.groups + layout.gap * (layout.groups - 1) else layout.edge
-    group_height := ifx layout.across then layout.edge else layout.edge * layout.groups + layout.gap * (layout.groups - 1)
+    group_width := layout.edge * layout.columns + layout.gap * (layout.columns - 1)
+    group_height := layout.edge * layout.rows + layout.gap * (layout.rows - 1)
     layout.x = x + (width - group_width) / 2; layout.y = y + (height - group_height) / 2
     layout.inset = layout.edge / 12
     layout.cell = (layout.edge - layout.inset * 2) / 3
