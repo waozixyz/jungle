@@ -32,11 +32,21 @@ try{
  async function evaluate(expression){const result=await command('Runtime.evaluate',{expression,returnByValue:true,awaitPromise:true});if(result.exceptionDetails)throw Error(JSON.stringify(result.exceptionDetails));return result.result.value}
  async function key(key){const code=key==='Enter'?13:key==='Escape'?27:key.charCodeAt(0);await command('Input.dispatchKeyEvent',{type:'keyDown',key,windowsVirtualKeyCode:code});await delay(90);await command('Input.dispatchKeyEvent',{type:'keyUp',key,windowsVirtualKeyCode:code});await delay(350)}
  async function click(x,y){await command('Input.dispatchMouseEvent',{type:'mousePressed',x,y,button:'left',clickCount:1});await delay(90);await command('Input.dispatchMouseEvent',{type:'mouseReleased',x,y,button:'left',clickCount:1});await delay(350)}
- async function ready(){const end=Date.now()+45000;while(Date.now()<end){if(errors.length)throw Error(JSON.stringify(errors));if(await evaluate('typeof Module!=="undefined"&&Module.FS&&document.getElementById("loading").style.display==="none"'))return;await delay(150)}throw Error('Startup timed out')}
+ async function ready(previousDocument=null,expectedFile=null){
+  const end=Date.now()+45000;
+  while(Date.now()<end){
+   if(errors.length)throw Error(JSON.stringify(errors));
+   const loaded=await evaluate('window.jungleTestDocument&&window.jungleTestDocument!=='+JSON.stringify(previousDocument)+'&&typeof Module!=="undefined"&&Module.FS&&document.getElementById("loading").style.display==="none"');
+   if(loaded&&(!expectedFile||await evaluate('Module.FS.analyzePath('+JSON.stringify(expectedFile)+').exists')))return;
+   await delay(150);
+  }
+  throw Error(expectedFile?'Reload did not restore the saved puzzle':'Startup timed out');
+ }
  const savePath='/kryon-apps/jungle/jungle.jigsaw/puzzle.txt';
  async function saved(){return evaluate('Module.FS.readFile('+JSON.stringify(savePath)+',{encoding:"utf8"})')}
  function fields(text){return text.trim().split(/\s+/).map(v=>Number(v))}
  await command('Runtime.enable');await command('Page.enable');
+ await command('Page.addScriptToEvaluateOnNewDocument',{source:'window.jungleTestDocument=crypto.randomUUID()'});
  await command('Emulation.setDeviceMetricsOverride',{width:960,height:600,deviceScaleFactor:1,mobile:false});
  await command('Page.navigate',{url:'http://127.0.0.1:'+server.address().port});await ready();
  // Wheel the age-ordered list to the 5+ coloring entry, with header fixed.
@@ -63,7 +73,7 @@ try{
  await mkdir('build/tests/web',{recursive:true});
  await writeFile('build/tests/web/jigsaw-phone.png',Buffer.from((await command('Page.captureScreenshot',{format:'png'})).data,'base64'));
  await key('Escape');await key('Escape');
- await delay(1200);const before=await saved();await command('Page.reload');await ready();
+ await delay(1200);const before=await saved(),previousDocument=await evaluate('window.jungleTestDocument');await command('Page.reload');await ready(previousDocument,savePath);
  if(await saved()!==before)throw Error('Reload lost puzzle progress');
  await key('3');
  const picture=Math.min(w-48,Math.trunc(h*35/100)),resume=xy(w/2,108+picture+114+44+30+48+52+20);
