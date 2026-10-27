@@ -77,7 +77,7 @@ is in `tools/book_prompts.json`; the full-size originals are kept in
   and complete English, German and Spanish names and narration as every book.
 
 - ABC and 123 open directly into learning. No extra activity chooser or Find game.
-- Animal Counting never asks for more than ten animals, at any level.
+- Animal Counting progresses gently through twenty animals, arranged in groups of five.
 - Use Kryon's shared TitleBar with Back and sound controls.
 - Coloring Book Back leaves directly and preserves the working picture; no Yes/No exit dialog.
 - The first row of Animals and People uses the same polished generated line-art style as the second row.
@@ -90,4 +90,6 @@ is in `tools/book_prompts.json`; the full-size originals are kept in
 - Picture Book pages and optional ABC examples use actual full-scene backgrounds. Cut-outs remain available for counting; standalone alphabet practice uses plain paper.
 
 - Show the complete English, German (Ä Ö Ü ß included) and Spanish (Ñ included) alphabets at every size; no shortened alphabet strip. Show uppercase ẞ with lowercase ß on its letter page.
-- 123 Book speaks each selected number from one to ten in the active language, on entry, selection and tap-to-repeat.
+- 123 Book speaks each selected number from one to twenty in the active language, on entry, selection and tap-to-repeat.
+
+- 123 Book opens with autoplay and repeat on by default. Swipes, arrows and number selection keep the current Play/Pause choice. Counting games load 128 px transparent derivatives; preserve the full-size artwork.

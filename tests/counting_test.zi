@@ -5,7 +5,7 @@
 
 #program_export
 main :: () -> s32 {
-    for amount: cast(s32)1..10 {
+    for amount: cast(s32)1..20 {
         for size: cast(s32)0..2 {
             w: s32 = ifx size == 0 then 180 else ifx size == 1 then 342 else 272
             h: s32 = ifx size == 0 then 86 else ifx size == 1 then 306 else 90
@@ -24,18 +24,21 @@ main :: () -> s32 {
                 }
             }
             if sum != amount || layout.x < 0 || layout.y < 0 { return 11 }
-            end_x := layout.x + ifx layout.across then layout.groups * layout.edge + (layout.groups - 1) * layout.gap else layout.edge
-            end_y := layout.y + ifx layout.across then layout.edge else layout.groups * layout.edge + (layout.groups - 1) * layout.gap
+            end_x := layout.x + layout.columns * layout.edge + (layout.columns - 1) * layout.gap
+            end_y := layout.y + layout.rows * layout.edge + (layout.rows - 1) * layout.gap
             if end_x > w || end_y > h { return 12 }
         }
     }
     for ladder: cast(s32)1..MAX_LEVEL {
         level = ladder
+        highest_seen := false
         for round: cast(s32)0..999 {
             before := last_number
             NextCount()
-            if number < 1 || number > 10 || number > level_most[level - 1] || number == before || item < 0 || item >= 18 { return 1 }
+            if number < 1 || number > 20 || number > level_most[level - 1] || number == before || item < 0 || item >= 18 { return 1 }
+            if number == level_most[level - 1] { highest_seen = true }
         }
+        if !highest_seen { return 13 }
     }
     level = 1
     right_run = 0
@@ -51,6 +54,7 @@ main :: () -> s32 {
     if level != 1 { return 6 }
     for answer: cast(s32)0..99 { unused CountAnswer(3) }
     if level != MAX_LEVEL || right_run >= 6 { return 7 }
-    Report("local counting test: groups one to ten, responsive bounds and counting ladder passed\n")
+    if level_most[MAX_LEVEL - 1] != 20 { return 14 }
+    Report("local counting test: groups one to twenty, responsive bounds and counting ladder passed\n")
     return 0
 }

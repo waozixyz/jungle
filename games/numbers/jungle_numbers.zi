@@ -1,5 +1,5 @@
 #import, file "../../retro/language.zi";
-// 123 Book opens directly on numerals one to ten and watercolor animal counts.
+// 123 Book opens directly on numerals one to twenty and watercolor animal counts.
 #import "app_context"
 #import "app_protocol"
 #import "geometry"
@@ -7,6 +7,8 @@
 #import "std/format"
 #import "text_align"
 #import "text_buffer"
+#import "swipe"
+#import "swipe_props"
 #import, file "numbers_ladder.zi";
 #import, file "numbers_progress.zi";
 #import, file "../../retro/retro.zi";
@@ -16,24 +18,27 @@
 
 FONT :: "assets/jungle-book/font.png"
 SOUNDS :: "assets/numbers/sounds/"
-NUMBER_COUNT :: 10
-word_en: [10]string = .["One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten"];
-word_de: [10]string = .["Eins", "Zwei", "Drei", "Vier", "Fünf", "Sechs", "Sieben", "Acht", "Neun", "Zehn"];
-word_es: [10]string = .["Uno", "Dos", "Tres", "Cuatro", "Cinco", "Seis", "Siete", "Ocho", "Nueve", "Diez"];
+NUMBER_COUNT :: 20
+word_en: [20]string = .["One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten",
+    "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen", "Twenty"];
+word_de: [20]string = .["Eins", "Zwei", "Drei", "Vier", "Fünf", "Sechs", "Sieben", "Acht", "Neun", "Zehn",
+    "Elf", "Zwölf", "Dreizehn", "Vierzehn", "Fünfzehn", "Sechzehn", "Siebzehn", "Achtzehn", "Neunzehn", "Zwanzig"];
+word_es: [20]string = .["Uno", "Dos", "Tres", "Cuatro", "Cinco", "Seis", "Siete", "Ocho", "Nueve", "Diez",
+    "Once", "Doce", "Trece", "Catorce", "Quince", "Dieciséis", "Diecisiete", "Dieciocho", "Diecinueve", "Veinte"];
 // Every counted thing is one of the book's watercolor animals.
 items: [12]string = .[
-    "assets/jungle-book/items/tiger.png",
-    "assets/jungle-book/items/frog.png",
-    "assets/jungle-book/items/butterfly.png",
-    "assets/jungle-book/items/ladybug.png",
-    "assets/jungle-book/items/duck.png",
-    "assets/jungle-book/items/hen.png",
-    "assets/jungle-book/items/cat.png",
-    "assets/jungle-book/items/dog.png",
-    "assets/jungle-book/items/pig.png",
-    "assets/jungle-book/items/cow.png",
-    "assets/jungle-book/items/rabbit.png",
-    "assets/jungle-book/items/monkey.png",
+    "assets/jungle-book/counting/tiger.png",
+    "assets/jungle-book/counting/frog.png",
+    "assets/jungle-book/counting/butterfly.png",
+    "assets/jungle-book/counting/ladybug.png",
+    "assets/jungle-book/counting/duck.png",
+    "assets/jungle-book/counting/hen.png",
+    "assets/jungle-book/counting/cat.png",
+    "assets/jungle-book/counting/dog.png",
+    "assets/jungle-book/counting/pig.png",
+    "assets/jungle-book/counting/cow.png",
+    "assets/jungle-book/counting/rabbit.png",
+    "assets/jungle-book/counting/monkey.png",
 ];
 
 numbers_width: s32;
@@ -50,6 +55,9 @@ sequence_speed: s32 = 1;
 number_started: float64;
 voice_idle_started: float64;
 sequence_paused_at: float64;
+swipe_tracking: bool;
+swipe_start: Vector2;
+swipe_started: float64;
 NumberWord :: (number: s32) -> string {
     if language == 1 { return word_de[number - 1] }
     if language == 2 { return word_es[number - 1] }
@@ -83,7 +91,7 @@ ToggleAutoplay :: () {
 }
 
 AdvanceSequence :: () {
-    if !autoplay || voice_pending { return }
+    if !autoplay || voice_pending || swipe_tracking { return }
     state := AppService("jungle.voice-state", "")
     if state == "loading" || state == "playing" { voice_idle_started = 0.0; return }
     if voice_idle_started == 0.0 { voice_idle_started = retro.now }
@@ -140,30 +148,60 @@ DrawThings :: (item: s32, count: s32, x: s32, y: s32, width: s32, height: s32) {
     }
 }
 
-// One row of ten small number buttons; numerals stay legible even where the
-// letters needed two rows, and the pages keep most of the screen.
-NumberStrip :: (x: s32, y: s32, width: s32) -> s32 {
-    button: s32 = (width - (NUMBER_COUNT - 1) * 4) / NUMBER_COUNT
+// Wrap the complete range into balanced rows, keeping two-digit numbers legible.
+StripMetrics :: (width: s32) -> (columns: s32, button: s32, used: s32) {
+    columns := (width + 4) / 36
+    if columns > NUMBER_COUNT { columns = NUMBER_COUNT }
+    if columns < 1 { columns = 1 }
+    rows := (NUMBER_COUNT + columns - 1) / columns
+    columns = (NUMBER_COUNT + rows - 1) / rows
+    button := (width - (columns - 1) * 4) / columns
     if button > 44 { button = 44 }
-    if button < 20 { button = 20 }
+    return columns, button, rows * (button + 4) + 2
+}
+
+NumberStrip :: (x: s32, y: s32, width: s32) -> s32 {
+    columns, button, used := StripMetrics(width)
+    left := x + (width - columns * (button + 4) + 4) / 2
     for number: cast(s32)1..NUMBER_COUNT {
         at := number - 1
-        bx := x + at * (button + 4)
-        press := RetroTap(100 + at, bx, y, button, button, NumberText(number))
+        bx := left + (at % columns) * (button + 4)
+        by := y + (at / columns) * (button + 4)
+        press := RetroTap(100 + at, bx, by, button, button, NumberText(number))
         selected := number == learn_number
-        BookBox(bx, y, button, button, ifx selected || press.down then cast(u32)0xdcebdcff else cast(u32)0xf3ecdcff,
+        BookBox(bx, by, button, button, ifx selected || press.down then cast(u32)0xdcebdcff else cast(u32)0xf3ecdcff,
             ifx selected then cast(u32)0x2e6956ff else cast(u32)0xdacdb5ff, 6.0)
-        BookText(bx, y, button, button, NumberText(number), button * 2 / 3)
-        if press.clicked { autoplay = false; OpenNumber(number) }
+        BookText(bx, by, button, button, NumberText(number), button / 2)
+        if press.clicked { OpenNumber(number) }
     }
-    return button + 6
+    return used
 }
 
 StripUsed :: (width: s32) -> s32 {
-    button: s32 = (width - (NUMBER_COUNT - 1) * 4) / NUMBER_COUNT
-    if button > 44 { button = 44 }
-    if button < 20 { button = 20 }
-    return button + 6
+    _, _, used := StripMetrics(width)
+    return used
+}
+
+PageInput :: (bottom: s32) {
+    touch := RetroTap(50, numbers_padding, numbers_padding,
+        numbers_width - numbers_padding * 2, bottom - numbers_padding, "Hear number", true)
+    if touch.down && !swipe_tracking {
+        swipe_start = Vector2.{touch.x, touch.y}
+        swipe_started = retro.now
+        swipe_tracking = true
+    }
+    moved := false
+    if touch.released && swipe_tracking {
+        delta := Vector2.{touch.x - swipe_start.x, touch.y - swipe_start.y}
+        moved = SwipeMaxDistanceFor(delta) >= 8.0
+        gesture := SwipeReleaseStateFor(delta, cast(u32)SwipeDirection.SwipeHorizontal,
+            1.25, 40.0, retro.now - swipe_started, 0.0, moved)
+        if gesture.direction == SwipeDirection.SwipeLeft { OpenNumber(learn_number % NUMBER_COUNT + 1) }
+        if gesture.direction == SwipeDirection.SwipeRight { OpenNumber((learn_number + NUMBER_COUNT - 2) % NUMBER_COUNT + 1) }
+        swipe_tracking = false
+    }
+    if !touch.down && !touch.released { swipe_tracking = false }
+    if touch.clicked && !moved { voice_pending = true }
 }
 
 LearnView :: () {
@@ -191,7 +229,6 @@ LearnView :: () {
         numeral_height := content_height - label_height
         BookText(numbers_padding, numbers_padding, panel, numeral_height, NumberText(learn_number), big)
         BookText(numbers_padding, numbers_padding + numeral_height, panel, label_height, NumberWord(learn_number), 24, TextAlign.TextAlignCenter, false)
-        if RetroTap(50, numbers_padding, numbers_padding, panel, content_height, "Hear number").clicked { voice_pending = true }
         BookBox(numbers_width / 2 - 1, numbers_padding, 2, content_height, 0xe5d9c3ff)
         picture_x: s32 = numbers_width / 2 + numbers_gap / 2
         DrawThings(learn_item, learn_number, picture_x, numbers_padding, panel, content_height)
@@ -201,10 +238,10 @@ LearnView :: () {
         if big < 36 { big = 36 }
         BookText(numbers_padding, numbers_padding, width / 2, big + 16, NumberText(learn_number), big)
         BookText(numbers_padding + width / 2, numbers_padding + (big + 16 - 40) / 2, width / 2, 40, NumberWord(learn_number), 24, TextAlign.TextAlignCenter, false)
-        if RetroTap(50, numbers_padding, numbers_padding, width, big + 16, "Hear number").clicked { voice_pending = true }
         picture_height: s32 = content_bottom - numbers_padding - big - 12
         DrawThings(learn_item, learn_number, numbers_padding, numbers_padding + big + 16, width, picture_height)
     }
+    PageInput(content_bottom)
 }
 
 GameMain :: () -> s32 {
@@ -214,7 +251,8 @@ GameMain :: () -> s32 {
         learn_number = 1
         learn_item = 0
         voice_pending = false
-        autoplay = false; sequence_speed = 1
+        autoplay = true; sequence_speed = 1
+        swipe_tracking = false
         AppIdentity("jungle.numbers")
         AppDescribe("123 Book", "")
         return APP_PROTOCOL
@@ -229,7 +267,7 @@ GameMain :: () -> s32 {
         NumbersLoad()
         random_state = cast(u32)(cast(u64)(now * 1000.0) & cast(u64)0x7fffffff) | cast(u32)1
         OpenNumber(1)
-        repeat_sequence = DocumentRead("repeat.txt") == "on"
+        repeat_sequence = DocumentRead("repeat.txt") != "off"
         ladder_loaded = true
     }
     key := retro.key
@@ -238,9 +276,9 @@ GameMain :: () -> s32 {
     typed: s32 = -1
     if key >= 49 && key <= 57 { typed = key - 48 }
     if key == 48 { typed = 10 }
-    if key == KEY_RIGHT { autoplay = false; OpenNumber(learn_number % NUMBER_COUNT + 1) }
-    if key == KEY_LEFT { autoplay = false; OpenNumber((learn_number + NUMBER_COUNT - 2) % NUMBER_COUNT + 1) }
-    if typed >= 1 { autoplay = false; OpenNumber(typed) }
+    if key == KEY_RIGHT { OpenNumber(learn_number % NUMBER_COUNT + 1) }
+    if key == KEY_LEFT { OpenNumber((learn_number + NUMBER_COUNT - 2) % NUMBER_COUNT + 1) }
+    if typed >= 1 { OpenNumber(typed) }
     if key == 32 { ToggleAutoplay() }
     if key == KEY_ENTER { voice_pending = true }
     AdvanceSequence()

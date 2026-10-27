@@ -54,6 +54,19 @@ def main():
     assert set(prompts["cutouts"]) <= set(NAMES), "cut-outs must belong to a real word"
     counting = {'tiger','frog','butterfly','ladybug','snail','elephant','giraffe','monkey','panda','lion','zebra','crocodile','parrot','toucan','rabbit','cat','dog','sheep','duck','hen','pig','cow'}
     assert counting <= set(prompts["cutouts"]), "a counting animal has no cut-out"
+    assert {p.stem for p in (ROOT / 'assets/jungle-book/counting').glob('*.png')} == counting
+    original_bytes = 0
+    counting_bytes = 0
+    for name in counting:
+        original = ROOT / f'assets/jungle-book/items/{name}.png'
+        small = ROOT / f'assets/jungle-book/counting/{name}.png'
+        with Image.open(original) as source, Image.open(small) as picture:
+            assert picture.size == (128, 128) and picture.mode == 'RGBA', name
+            assert picture.getchannel('A').getextrema() == (0, 255), name
+            assert picture.tobytes() == source.resize((128, 128), Image.Resampling.LANCZOS).tobytes(), name
+        original_bytes += original.stat().st_size
+        counting_bytes += small.stat().st_size
+    assert counting_bytes < original_bytes / 5, 'Counting pictures are no longer small downloads'
     for path in sorted((ROOT / "assets/jungle-book/items").glob("*.png")):
         with Image.open(path) as sprite:
             assert sprite.size == (420, 420), f"{path.name} must be a 420 pixel cut-out"
