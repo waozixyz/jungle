@@ -117,3 +117,46 @@ jobs:
           else:raise SystemExit('The exact deployed revision is not yet verified on jungle.waozi.xyz')
           print('Verified deployed Jungle version '+data['version'])
           PY
+      - name: Prepare the browser edition for itch.io's embedded path
+        if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
+        run: |
+          python3 - <<'PY'
+          import json, re, shutil
+          from pathlib import Path
+          root = Path('build/itch-web')
+          shutil.copytree('build/web', root)
+          index = root / 'index.html'
+          html = re.sub(r'((?:src|href)=")/(?!/)', r'\1', index.read_text())
+          index.write_text(html)
+          manifest_path = root / 'site.webmanifest'
+          manifest = json.loads(manifest_path.read_text())
+          for name in ('id', 'start_url', 'scope'):
+              manifest[name] = './'
+          for icon in manifest['icons']:
+              icon['src'] = icon['src'].lstrip('/')
+          manifest_path.write_text(json.dumps(manifest, indent=2) + '\n')
+          for name in re.findall(r'(?:src|href)="([^"?#]+)', html):
+              if ':' not in name and not name.startswith('#'):
+                  assert not name.startswith('/'), f'Root-relative embed asset: {name}'
+                  assert (root / name).is_file(), f'Missing embed asset: {name}'
+          PY
+      - name: Install itch.io Butler
+        if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
+        run: |
+          curl --fail --show-error --location --retry 3 \
+            https://broth.itch.zone/butler/linux-amd64/LATEST/archive/default \
+            --output "$RUNNER_TEMP/butler.zip"
+          mkdir -p "$RUNNER_TEMP/butler"
+          unzip -q "$RUNNER_TEMP/butler.zip" -d "$RUNNER_TEMP/butler"
+          chmod +x "$RUNNER_TEMP/butler/butler"
+          echo "$RUNNER_TEMP/butler" >> "$GITHUB_PATH"
+      - name: Publish the tested browser edition to itch.io
+        if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
+        env:
+          BUTLER_API_KEY: ${{ secrets.ITCH_API_KEY }}
+        run: |
+          set -euo pipefail
+          test -n "$BUTLER_API_KEY" || { echo '::error::Set the ITCH_API_KEY repository secret to enable automatic itch.io updates.'; exit 1; }
+          test -f build/itch-web/index.html
+          butler push build/itch-web waozi/jungle:html5 --userversion "$(cat VERSION)"
+          butler status waozi/jungle

@@ -136,3 +136,26 @@ jobs:
           fi
           gh release upload "$tag" "build/downloads/jungle-v$VERSION.apk" "build/downloads/jungle-v$VERSION-x86_64.AppImage" "build/downloads/jungle-v$VERSION-x86_64.AppImage.sha256" --clobber
           gh release edit "$tag" --draft=false --latest
+      - name: Install itch.io Butler
+        if: github.ref == 'refs/heads/master'
+        run: |
+          curl --fail --show-error --location --retry 3 \
+            https://broth.itch.zone/butler/linux-amd64/LATEST/archive/default \
+            --output "$RUNNER_TEMP/butler.zip"
+          mkdir -p "$RUNNER_TEMP/butler"
+          unzip -q "$RUNNER_TEMP/butler.zip" -d "$RUNNER_TEMP/butler"
+          chmod +x "$RUNNER_TEMP/butler/butler"
+          echo "$RUNNER_TEMP/butler" >> "$GITHUB_PATH"
+      - name: Publish the verified Android and Linux downloads to itch.io
+        if: github.ref == 'refs/heads/master'
+        env:
+          BUTLER_API_KEY: ${{ secrets.ITCH_API_KEY }}
+          VERSION: ${{ steps.deps.outputs.version }}
+        run: |
+          set -euo pipefail
+          test -n "$BUTLER_API_KEY" || { echo '::error::Set the ITCH_API_KEY repository secret to enable automatic itch.io updates.'; exit 1; }
+          test -f "build/downloads/jungle-v$VERSION.apk"
+          test -f "build/downloads/jungle-v$VERSION-x86_64.AppImage"
+          butler push "build/downloads/jungle-v$VERSION.apk" waozi/jungle:android --userversion "$VERSION"
+          butler push "build/downloads/jungle-v$VERSION-x86_64.AppImage" waozi/jungle:linux --userversion "$VERSION"
+          butler status waozi/jungle
