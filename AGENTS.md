@@ -11,8 +11,11 @@ friendly, gentle and obvious.
   young animals with big gentle eyes. Use its tiger cover as the style
   reference for every picture. Use simplified rounded forms and smooth washes,
   without realistic wrinkles, skin texture or sharply detailed features.
-  Animals look sideways, down, or toward their surroundings, never directly
-  at the viewer. Keep natural animal anatomy and calm poses. Apply this to
+  Vary the angles, favoring forward and three-quarter views with naturally
+  upright heads. Their eyes look slightly past the viewer or toward nearby
+  surroundings, without staring directly at the viewer. Do not make every
+  animal a sideways profile or give every animal a lowered head. Keep
+  natural animal anatomy and calm poses. Apply this to
   every existing animal scene, counting cut-out and animal cover. Never draw
   realistic, staring or toothy
   animals; they are too scary for babies.
