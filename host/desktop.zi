@@ -72,7 +72,12 @@ JungleWindowIcon :: () {
 DrawMenu :: (session: Session) -> bool {
     BeginDesktopFrame()
     viewport := DesktopViewport()
-    TreePointerUpdate(session, PollPointer())
+    pointer := PollPointer()
+    wheel := DesktopWheelMove()
+    TreePointerUpdate(session, pointer)
+    PointerWheelSend(session, pointer.x, pointer.y, wheel)
+    BeginScrollFrame(session, Vector2.{pointer.x, pointer.y}, pointer.pressed,
+        pointer.down, pointer.released, wheel, JungleSeconds())
     key := DesktopPressedKey()
     if BeginFrame(session, cast(u64)1, viewport) != FrameStatus.FrameOk { return false }
     Menu(session, viewport, key)

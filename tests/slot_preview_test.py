@@ -10,7 +10,7 @@ with tempfile.TemporaryDirectory(prefix="jungle-slot-previews-") as temporary:
     data = Path(temporary)
     with Desktop(ROOT / "build/app/jungle", data) as desktop:
         desktop.capture("slot-preview-menu")
-        desktop.key("4")
+        desktop.game("Coloring Book")
         desktop.capture("slot-preview-paint")
         folder = data / "games/jungle.paint"
         assert not (folder / "working.txt").exists(), "A new picture unexpectedly has saved artwork"
@@ -47,7 +47,7 @@ with tempfile.TemporaryDirectory(prefix="jungle-slot-previews-") as temporary:
         path.unlink()
     with Desktop(ROOT / "build/app/jungle", data) as desktop:
         desktop.capture("slot-preview-restart-menu")
-        desktop.key("4")
+        desktop.game("Coloring Book")
         desktop.capture("slot-preview-resume")
         desktop.click(30, 110)
         desktop.capture("slot-preview-resumed-save")

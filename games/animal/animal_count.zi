@@ -12,6 +12,7 @@
 #import, file "../../retro/book_theme.zi";
 #import, file "counting.zi";
 #import, file "counting_progress.zi";
+#import, file "counting_layout.zi";
 #import, file "../../host/jungle_text.zi";
 
 FONT :: "assets/animal-count/font.png"
@@ -61,20 +62,28 @@ ItemPath :: (which: s32) -> string {
 touch_key: s32;
 keypad_labels: [12]string = .["1","2","3","4","5","6","7","8","9","<","0","OK"];
 
+CountingGroups :: (x: s32, y: s32, width: s32, height: s32) {
+    layout := CountLayout(number, x, y, width, height)
+    for group: cast(s32)0..layout.groups - 1 {
+        gx := layout.x + ifx layout.across then group * (layout.edge + layout.gap) else 0
+        gy := layout.y + ifx layout.across then 0 else group * (layout.edge + layout.gap)
+        BookBox(gx, gy, layout.edge, layout.edge, 0xe9f0e3ff, 0xc8d7bdff, 6.0)
+        amount := CountGroupAmount(number, group)
+        for index: cast(s32)0..amount - 1 {
+            spot := CountSpot(amount, index)
+            inset := layout.cell / 12
+            if inset < 1 { inset = 1 }
+            BookPicture(ItemPath(item), gx + layout.inset + spot.x * layout.cell + inset,
+                gy + layout.inset + spot.y * layout.cell + inset, layout.cell - inset * 2, layout.cell - inset * 2)
+        }
+    }
+}
+
 CountingBookView :: () {
     BookPaper()
     BookText(24, 16, 272, 24, HOW_MANY, 18)
     BookBox(22, 58, 276, 90, 0xf7f1e3ff, 0xdacdb5ff, 5.0)
-    columns: s32 = ifx number < 5 then number else 5
-    rows := (number + columns - 1) / columns
-    for index: cast(s32)0..number - 1 {
-        row := index / columns
-        in_row := number - row * columns
-        if in_row > columns { in_row = columns }
-        x := 22 + (184 - in_row * 32) / 2 + (index % columns) * 32 + 3
-        y := 58 + (90 - rows * 28) / 2 + row * 28 + 1
-        BookPicture(ItemPath(item), x, y, 26, 26)
-    }
+    CountingGroups(24, 60, 180, 86)
     BookText(210, 89, 18, 28, "=", 20)
     BookBox(232, 85, 56, 38, 0xfffcf3ff, 0xbba98bff, 6.0)
     answer := ifx typed_count > 0 then TextView(typed[:typed_count]) else ""
@@ -123,20 +132,7 @@ CountingView :: () {
     }
     if animal_height < 70 { animal_height = 70 }
     BookBox(animal_x, animal_y, animal_width, animal_height, 0xf7f1e3ff, 0xdacdb5ff, 8.0)
-    columns: s32 = ifx portrait then 4 else 6
-    rows := (number + columns - 1) / columns
-    size := (animal_width - gap * 2) / columns
-    fit := (animal_height - gap * 2) / rows
-    if fit < size { size = fit }
-    if size > 100 { size = 100 }
-    for index: cast(s32)0..number - 1 {
-        row := index / columns
-        in_row := number - row * columns
-        if in_row > columns { in_row = columns }
-        x := animal_x + (animal_width - in_row * size) / 2 + (index % columns) * size
-        y := animal_y + (animal_height - rows * size) / 2 + row * size
-        BookPicture(ItemPath(item), x + 3, y + 3, size - 6, size - 6)
-    }
+    CountingGroups(animal_x, animal_y, animal_width, animal_height)
     answer := ifx typed_count > 0 then TextView(typed[:typed_count]) else ""
     BookBox(key_x, key_y - 56, key_width, 48, 0xfffcf3ff, 0xbba98bff, 6.0)
     BookText(key_x, key_y - 56, key_width, 48, answer, 34)

@@ -1,0 +1,126 @@
+// Portable jigsaw rules and validated saves, shared by all hosts.
+#import "std/format"
+#import, file "../../host/jungle_text.zi";
+
+PUZZLE_SCENES :: 3
+PUZZLE_LEVELS :: 6
+grid_sizes: [6]s32 = .[2, 3, 4, 5, 6, 8];
+
+Puzzle :: struct {
+    scene: s32
+    level: s32
+    mode: s32
+    player: s32
+    elapsed: s32
+    turn: s32
+    peeking: bool
+    locking: bool
+    owners: [64]s32
+    order: [64]s32
+    // Centers on the whole table, in 1/10000 of its width and height.
+    // Zero means this piece has not been scattered yet (including older saves).
+    loose_x: [64]s32
+    loose_y: [64]s32
+}
+
+PuzzleCount :: (p: Puzzle) -> s32 { n := grid_sizes[p.level]; return n * n }
+PuzzlePlaced :: (p: Puzzle) -> s32 {
+    count: s32
+    for i: cast(s32)0..PuzzleCount(p) - 1 { if p.owners[i] > 0 { count += 1 } }
+    return count
+}
+PuzzleScore :: (p: Puzzle, player: s32) -> s32 {
+    count: s32
+    for i: cast(s32)0..PuzzleCount(p) - 1 { if p.owners[i] == player + 1 { count += 1 } }
+    return count
+}
+PuzzleEdge :: (p: Puzzle, piece: s32) -> bool {
+    n := grid_sizes[p.level]
+    return piece < n || piece >= n * (n - 1) || piece % n == 0 || piece % n == n - 1
+}
+PuzzleNew :: (scene: s32, level: s32, mode: s32, seed: s32) -> Puzzle {
+    p := Puzzle.{.scene = scene, .level = level, .mode = mode, .peeking = true, .locking = true}
+    if p.scene < 0 || p.scene >= PUZZLE_SCENES { p.scene = 0 }
+    if p.level < 0 || p.level >= PUZZLE_LEVELS { p.level = 0 }
+    if p.mode < 0 || p.mode > 2 { p.mode = 0 }
+    total := PuzzleCount(p)
+    for i: cast(s32)0..total - 1 { p.order[i] = i }
+    random: s64 = cast(s64)(seed & 0x7fffffff) + 1
+    i := total - 1
+    while i > 0 {
+        random = (random * 48271) % 2147483647
+        j := cast(s32)(random % cast(s64)(i + 1))
+        swap := p.order[i]; p.order[i] = p.order[j]; p.order[j] = swap
+        i -= 1
+    }
+    return p
+}
+PuzzlePlace :: (p: *Puzzle, piece: s32) -> bool {
+    if piece < 0 || piece >= PuzzleCount(p.*) || p.owners[piece] > 0 { return false }
+    p.owners[piece] = p.player + 1
+    return true
+}
+PuzzlePass :: (p: *Puzzle) {
+    if p.mode != 0 { p.player = 1 - p.player; p.turn = 0 }
+}
+PuzzleTick :: (p: *Puzzle, seconds: s32) {
+    if seconds < 1 || PuzzlePlaced(p.*) == PuzzleCount(p.*) { return }
+    p.elapsed += seconds
+    if p.mode != 0 {
+        p.turn += seconds
+        if p.turn >= 60 { if (p.turn / 60) % 2 == 1 { p.player = 1 - p.player }; p.turn %= 60 }
+    }
+}
+PuzzleText :: (p: Puzzle) -> string {
+    text: Vec(u8)
+    BuilderPrint(*text, "jigsaw 2 % % % % % % % %", p.scene, p.level, p.mode, p.player, p.elapsed, p.turn,
+        ifx p.peeking then 1 else 0, ifx p.locking then 1 else 0)
+    for i: cast(s32)0..PuzzleCount(p) - 1 { BuilderPrint(*text, " % %", p.owners[i], p.order[i]) }
+    for i: cast(s32)0..PuzzleCount(p) - 1 { BuilderPrint(*text, " % %", p.loose_x[i], p.loose_y[i]) }
+    Append(*text, "\n")
+    return BuilderFinish(text)
+}
+PuzzleRead :: (text: string, result: *Puzzle) -> bool {
+    if text.count < 9 || (text[:9] != "jigsaw 1 " && text[:9] != "jigsaw 2 ") { return false }
+    layout := text[7] == #char "2"
+    at: s64 = 9
+    values: [8]s32
+    for i: cast(s32)0..7 {
+        values[i] = ReadWhole(text, *at)
+        if values[i] < 0 || at >= text.count || text[at] != #char " " { return false }
+        at += 1
+    }
+    if values[0] >= PUZZLE_SCENES || values[1] >= PUZZLE_LEVELS || values[2] > 2 || values[3] > 1 ||
+        values[4] > 31536000 || values[5] >= 60 || values[6] > 1 || values[7] > 1 { return false }
+    p := Puzzle.{.scene = values[0], .level = values[1], .mode = values[2], .player = values[3],
+        .elapsed = values[4], .turn = values[5], .peeking = values[6] == 1, .locking = values[7] == 1}
+    seen: [64]bool
+    for i: cast(s32)0..PuzzleCount(p) - 1 {
+        owner := ReadWhole(text, *at)
+        if owner < 0 || owner > 2 || at >= text.count || text[at] != #char " " { return false }
+        at += 1
+        order := ReadWhole(text, *at)
+        if order < 0 || order >= PuzzleCount(p) || seen[order] { return false }
+        seen[order] = true; p.owners[i] = owner; p.order[i] = order
+        if i < PuzzleCount(p) - 1 {
+            if at >= text.count || text[at] != #char " " { return false }
+            at += 1
+        }
+    }
+    if layout {
+        for i: cast(s32)0..PuzzleCount(p) - 1 {
+            if at >= text.count || text[at] != #char " " { return false }
+            at += 1
+            x := ReadWhole(text, *at)
+            if x < 0 || x > 10000 || at >= text.count || text[at] != #char " " { return false }
+            at += 1
+            y := ReadWhole(text, *at)
+            if y < 0 || y > 10000 || ((x == 0) != (y == 0)) { return false }
+            p.loose_x[i] = x; p.loose_y[i] = y
+        }
+    }
+    if at < text.count && text[at] == #char "\n" { at += 1 }
+    if at != text.count { return false }
+    result.* = p
+    return true
+}

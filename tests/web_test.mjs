@@ -117,13 +117,13 @@ try{
   await evaluate('window.jungleTestVoices=[]');await key(' ','Space');await waitSpoken('/numbers/sounds/es/2.wav');await key(' ','Space');await evaluate('window.jungleTestVoices=[]');await delay(4500);if(await evaluate('window.jungleTestVoices.length'))throw Error('Paused number autoplay kept speaking');await shot('numbers-autoplay-paused-phone');
   await pixelClick(34,28,true);await key('Escape');await shot('menu-after-numbers-phone');
  }
- const countingRow=hasABC&&hasNumbers?2:hasABC||hasNumbers?2:1;
+ const countingRow=3;
  await pixelClick(195,rowY(countingRow),true);await shot('counting-phone');
  let counted=false;for(let n=1;n<=4;n++){
   await pixelClick(78,796,true);const index=n-1;await pixelClick(78+(index%3)*116,628+Math.floor(index/3)*56,true);await pixelClick(310,796,true);
   const count=await evaluate('(()=>{try{return Number(Module.FS.readFile("/kryon-apps/jungle/jungle.animals/progress.txt",{encoding:"utf8"}).trim().split(" ")[2])}catch{return 0}})()');if(count>0){counted=true;break}
  }if(!counted)throw Error('Counting touch keypad did not submit an answer');
- await pixelClick(34,28,true);await pixelClick(195,rowY(visibleGames-1),true);await shot('paint-phone');
+ await pixelClick(34,28,true);await pixelClick(195,rowY(countingRow+1),true);await shot('paint-phone');
  const legacy=async(x,y)=>pixelClick(x*390/320,56+(788-390*200/320)/2+y*390/320,true);
  await pixelClick(54,559,true);await legacy(52,58);await legacy(52,58);await legacy(280,90);await pixelClick(242,559,true);await legacy(10,36);
  if(await evaluate('document.activeElement.id')!=='mobile-input')throw Error('Story did not focus mobile text input');

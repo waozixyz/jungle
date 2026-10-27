@@ -59,7 +59,7 @@ def main():
     for name in ('site.webmanifest','robots.txt','sitemap.xml'):
         shutil.copy2(ROOT/'web'/name,OUT/name)
     shutil.copy2(ROOT/'assets/jungle/icons/favicon.ico',OUT/'favicon.ico')
-    for name in ('jungle','jungle-book','abc','numbers','animal-count','dino-paint'):
+    for name in ('jungle','jungle-book','abc','numbers','animal-count','dino-paint','jigsaw'):
         source=ROOT/'assets'/name
         shutil.copytree(source,OUT/'assets'/name,dirs_exist_ok=True,
                         ignore=shutil.ignore_patterns('*.speech.json','voice-*'))

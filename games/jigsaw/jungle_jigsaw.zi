@@ -1,0 +1,351 @@
+// Picture puzzles inspired by Jigsaw Puzzle Mania (Artworx, 1990).
+// Original rules reimplemented in Ziran; all pictures are new Jungle artwork.
+#import "kryon/app_context"
+#import "kryon/app_protocol"
+#import "kryon/geometry"
+#import "kryon/image_props"
+#import "kryon/image_widget"
+#import, file "puzzle.zi";
+#import, file "table.zi";
+#import, file "../../retro/retro.zi";
+#import, file "../../retro/game.zi";
+#import, file "../../retro/book_theme.zi";
+#import, file "../../host/jungle_text.zi";
+#import, file "../../retro/language.zi";
+
+scene_names: [3]string = .["Tiger stream", "Duck pond", "Meadow train"];
+scene_files: [3]string = .["tiger-stream", "duck-pond", "meadow-train"];
+mode_names: [3]string = .["Solo", "Team", "Competition"];
+puzzle: Puzzle;
+loaded: bool;
+has_save: bool;
+playing_puzzle: bool;
+choose_scene: s32;
+choose_level: s32;
+choose_mode: s32;
+choose_peek: bool = true;
+choose_lock: bool = true;
+selected_piece: s32 = -1;
+edges_only: bool;
+peek_until: float64;
+last_tick: float64;
+save_notice: bool;
+notice_until: float64;
+pointer_down: bool;
+dragging: bool;
+drag_x: s32;
+drag_y: s32;
+drag_offset_x: s32;
+drag_offset_y: s32;
+drag_start_x: s32;
+drag_start_y: s32;
+drag_moved: bool;
+board_x: s32;
+board_y: s32;
+board_size: s32;
+tray_x: s32;
+tray_y: s32;
+tray_width: s32;
+tray_height: s32;
+view_width: s32;
+view_height: s32;
+view_scale: float32;
+table_area: TableBounds;
+table_width: s32;
+table_height: s32;
+
+PicturePath :: (scene: s32) -> string { return Cat("assets/jigsaw/", scene_files[scene], ".jpg") }
+AtlasPath :: () -> string { return Cat("assets/jigsaw/", scene_files[puzzle.scene], "-", NumberText(grid_sizes[puzzle.level]), ".png") }
+
+PuzzleButton :: (id: s32, x: s32, y: s32, width: s32, height: s32, label: string, chosen: bool = false) -> bool {
+    press := RetroTap(id, x, y, width, height, label)
+    BookBox(x, y, width, height, ifx chosen || press.down then cast(u32)0xdcebdcff else cast(u32)0xf3ecdcff,
+        ifx chosen then cast(u32)0x2e6956ff else cast(u32)0xdacdb5ff, 5.0)
+    BookText(x + 5, y, width - 10, height, label, 16)
+    return press.clicked
+}
+
+SavePuzzle :: () -> bool {
+    saved := DocumentWrite("puzzle.txt", PuzzleText(puzzle))
+    if saved { has_save = true }
+    save_notice = !saved
+    return saved
+}
+
+BeginPuzzle :: (fresh: bool) {
+    if fresh {
+        puzzle = PuzzleNew(choose_scene, choose_level, choose_mode, cast(s32)(cast(s64)(retro.now * 1000.0) % 2147483646))
+        puzzle.peeking = choose_peek; puzzle.locking = choose_lock
+        unused SavePuzzle()
+    }
+    playing_puzzle = true; selected_piece = -1; edges_only = false
+    table_width = 0; table_height = 0
+    last_tick = retro.now; peek_until = 0.0; pointer_down = false; dragging = false
+}
+
+SetupView :: () {
+    if retro.key == KEY_LEFT { choose_scene = (choose_scene + PUZZLE_SCENES - 1) % PUZZLE_SCENES }
+    if retro.key == KEY_RIGHT { choose_scene = (choose_scene + 1) % PUZZLE_SCENES }
+    if retro.key == KEY_UP { choose_level = (choose_level + PUZZLE_LEVELS - 1) % PUZZLE_LEVELS }
+    if retro.key == KEY_DOWN { choose_level = (choose_level + 1) % PUZZLE_LEVELS }
+    margin: s32 = 24
+    wide := view_width > view_height
+    BookText(margin, 18, view_width - margin * 2, 30, "Choose your puzzle", 25)
+    picture: s32
+    x: s32
+    y: s32
+    w: s32
+    if wide {
+        picture = (view_width - 80) / 2
+        if picture > view_height - 160 { picture = view_height - 160 }
+        x = view_width / 2 + 12; y = 62; w = view_width - x - margin
+        BookPicture(PicturePath(choose_scene), margin, 64, picture, picture)
+        BookText(margin, 66 + picture, picture, 28, scene_names[choose_scene], 18)
+        if PuzzleButton(1, margin, 98 + picture, picture / 2 - 4, 36, "Previous picture") { choose_scene = (choose_scene + PUZZLE_SCENES - 1) % PUZZLE_SCENES }
+        if PuzzleButton(2, margin + picture / 2 + 4, 98 + picture, picture / 2 - 4, 36, "Next picture") { choose_scene = (choose_scene + 1) % PUZZLE_SCENES }
+    } else {
+        picture = view_width - margin * 2
+        if picture > view_height * 35 / 100 { picture = view_height * 35 / 100 }
+        BookPicture(PicturePath(choose_scene), (view_width - picture) / 2, 56, picture, picture)
+        if PuzzleButton(1, margin, 60 + picture, 52, 36, "<") { choose_scene = (choose_scene + PUZZLE_SCENES - 1) % PUZZLE_SCENES }
+        BookText(margin + 56, 60 + picture, view_width - margin * 2 - 112, 36, scene_names[choose_scene], 18)
+        if PuzzleButton(2, view_width - margin - 52, 60 + picture, 52, 36, ">") { choose_scene = (choose_scene + 1) % PUZZLE_SCENES }
+        x = margin; y = 108 + picture; w = view_width - margin * 2
+    }
+    BookText(x, y, w, 24, "Pieces", 17)
+    for i: cast(s32)0..PUZZLE_LEVELS - 1 {
+        n := grid_sizes[i]
+        if PuzzleButton(10 + i, x + i % 3 * (w + 6) / 3, y + 28 + i / 3 * 42, (w - 12) / 3, 36, NumberText(n * n), choose_level == i) { choose_level = i }
+    }
+    y += 114
+    for i: cast(s32)0..2 {
+        if PuzzleButton(20 + i, x + i * (w + 6) / 3, y, (w - 12) / 3, 36, mode_names[i], choose_mode == i) { choose_mode = i }
+    }
+    y += 44
+    BookText(x, y, w, 22, ifx choose_mode == 0 then "A quiet puzzle at your own pace" else "Two players, one minute each", 13)
+    y += 30
+    if PuzzleButton(30, x, y, (w - 8) / 2, 36, ifx choose_peek then "Peek allowed" else "No peeking", choose_peek) { choose_peek = !choose_peek }
+    if PuzzleButton(31, x + (w + 8) / 2, y, (w - 8) / 2, 36, ifx choose_lock then "Lock on" else "Lock off", choose_lock) { choose_lock = !choose_lock }
+    y += 48
+    if PuzzleButton(32, x, y, w, 44, "Start puzzle", true) || retro.key == KEY_ENTER { BeginPuzzle(true) }
+    if has_save && PuzzleButton(33, x, y + 52, w, 40, "Resume puzzle") { BeginPuzzle(false) }
+}
+
+LayoutPuzzle :: () {
+    wide := view_width > view_height
+    if wide {
+        board_size = view_height - 180
+        if board_size > view_width * 64 / 100 { board_size = view_width * 64 / 100 }
+        board_x = 24; board_y = 80
+        tray_x = board_x + board_size + 24; tray_y = board_y
+        tray_width = view_width - tray_x - 24; tray_height = view_height - 160
+    } else {
+        board_size = view_width - 48
+        if board_size > (view_height - 180) * 45 / 100 { board_size = (view_height - 180) * 45 / 100 }
+        board_x = (view_width - board_size) / 2; board_y = 80
+        tray_x = 24; tray_y = board_y + board_size + 24
+        tray_width = view_width - 48; tray_height = view_height - tray_y - 72
+    }
+    if board_size < 48 { board_size = 48 }
+    board_size = board_size / grid_sizes[puzzle.level] * grid_sizes[puzzle.level]
+    table_area = TableBounds.{16, 72, view_width - 32, view_height - 144}
+}
+
+DrawPiece :: (piece: s32, cx: s32, cy: s32, cell: s32, tint: u32 = 0) {
+    n := grid_sizes[puzzle.level]
+    source_cell := 1200 / n
+    source_tile := source_cell + source_cell / 4 * 2
+    span := cast(s32)(cast(float32)cell * cast(float32)source_tile / cast(float32)source_cell)
+    path := AtlasPath()
+    if !RetroImageReady(path) { return }
+    Image(retro.session, ImageProps.{.asset_path = path, .alt_text = Tr("Puzzle piece"),
+        .source = Rectangle.{cast(float32)(piece % n * source_tile), cast(float32)(piece / n * source_tile), cast(float32)source_tile, cast(float32)source_tile},
+        .bounds = RetroRect(cx - span / 2, cy - span / 2, span, span), .fit = ImageFit.ImageFitStretch, .smooth = true, .tint = tint})
+}
+
+PieceVisible :: (piece: s32) -> bool {
+    return puzzle.owners[piece] == 0 && (!edges_only || PuzzleEdge(puzzle, piece))
+}
+
+FinishDrop :: (x: s32, y: s32) {
+    if selected_piece < 0 { return }
+    n := grid_sizes[puzzle.level]
+    cell := board_size / n
+    target_x := board_x + selected_piece % n * cell + cell / 2
+    target_y := board_y + selected_piece / n * cell + cell / 2
+    tolerance := cell * 45 / 100
+    if tolerance < 18 { tolerance = 18 }
+    if x >= board_x && x < board_x + board_size && y >= board_y && y < board_y + board_size &&
+        x > target_x - tolerance && x < target_x + tolerance && y > target_y - tolerance && y < target_y + tolerance {
+        if PuzzlePlace(*puzzle, selected_piece) {
+            GameSound("assets/jigsaw/sounds/place.wav")
+            selected_piece = -1
+            if PuzzlePlaced(puzzle) == PuzzleCount(puzzle) { GameSound("assets/jigsaw/sounds/complete.wav") }
+        }
+    }
+    if selected_piece >= 0 {
+        TablePosition(*puzzle, selected_piece, table_area, x, y, cell)
+        if drag_moved { selected_piece = -1 }
+    }
+    unused SavePuzzle()
+}
+
+PickPiece :: (x: s32, y: s32) {
+    cell := board_size / grid_sizes[puzzle.level]
+    picked: s32 = -1
+    center: TablePoint
+    i := PuzzleCount(puzzle) - 1
+    while i >= 0 {
+        piece := puzzle.order[i]
+        at := TableCenter(puzzle, piece, table_area)
+        if PieceVisible(piece) && TableHit(puzzle, piece, at, cell, x, y) {
+            picked = piece; center = at; break
+        }
+        i -= 1
+    }
+    if picked < 0 && !puzzle.locking {
+        for piece: cast(s32)0..PuzzleCount(puzzle) - 1 {
+            at := TablePoint.{board_x + piece % grid_sizes[puzzle.level] * cell + cell / 2,
+                board_y + piece / grid_sizes[puzzle.level] * cell + cell / 2}
+            if puzzle.owners[piece] > 0 && TableHit(puzzle, piece, at, cell, x, y) {
+                picked = piece; center = at; puzzle.owners[piece] = 0; break
+            }
+        }
+    }
+    if picked >= 0 {
+        selected_piece = picked
+        drag_offset_x = x - center.x; drag_offset_y = y - center.y
+        TableFront(*puzzle, picked)
+    } else if selected_piece >= 0 {
+        // A short tap can still select a piece, then tap its destination.
+        drag_offset_x = 0; drag_offset_y = 0
+    }
+    dragging = selected_piece >= 0
+    drag_start_x = x; drag_start_y = y; drag_moved = false
+    drag_x = x - drag_offset_x; drag_y = y - drag_offset_y
+}
+
+TableInput :: () {
+    press := RetroTap(200, table_area.x, table_area.y, table_area.width, table_area.height, "Puzzle table", true)
+    px := RetroPointX(press.x); py := RetroPointY(press.y)
+    if (press.down && !pointer_down) || (press.clicked && !pointer_down && !dragging) { PickPiece(px, py) }
+    if dragging && (press.down || press.released || press.clicked) {
+        drag_x = px - drag_offset_x; drag_y = py - drag_offset_y
+        if px - drag_start_x > 6 || drag_start_x - px > 6 || py - drag_start_y > 6 || drag_start_y - py > 6 { drag_moved = true }
+    }
+    if (press.released || press.clicked) && dragging { FinishDrop(drag_x, drag_y); dragging = false }
+    pointer_down = press.down
+}
+
+BoardView :: () {
+    LayoutPuzzle()
+    n := grid_sizes[puzzle.level]
+    cell := board_size / n
+    done := PuzzlePlaced(puzzle) == PuzzleCount(puzzle)
+    BookText(24, 16, view_width - 48, 28, ifx done then "Beautifully done!" else scene_names[puzzle.scene], 23)
+    BookBox(board_x - 6, board_y - 6, board_size + 12, board_size + 12, 0xb79b73ff, 0x8e7656ff, 6.0)
+    BookBox(board_x, board_y, board_size, board_size, 0xeee5d2ff)
+    if done || peek_until > retro.now { BookPicture(PicturePath(puzzle.scene), board_x, board_y, board_size, board_size) }
+    else {
+        for i: cast(s32)0..PuzzleCount(puzzle) - 1 {
+            x := board_x + i % n * board_size / n; y := board_y + i / n * board_size / n
+            BookBox(x, y, cell, cell, ifx (i / n + i % n) % 2 == 0 then cast(u32)0xf1e9d9ff else cast(u32)0xede2cdff, 0xe1d4bcff)
+        }
+        for i: cast(s32)0..PuzzleCount(puzzle) - 1 {
+            if puzzle.owners[i] > 0 { DrawPiece(i, board_x + i % n * board_size / n + cell / 2, board_y + i / n * board_size / n + cell / 2, cell) }
+        }
+    }
+    if done {
+        BookText(tray_x, tray_y, tray_width, 40, "A lovely picture, piece by piece", 18)
+        BookPicture(PicturePath(puzzle.scene), tray_x, tray_y + 48, tray_width, tray_height - 100)
+        if PuzzleButton(45, tray_x, tray_y + tray_height - 44, tray_width, 44, "Play again") {
+            choose_scene = puzzle.scene; choose_level = puzzle.level; choose_mode = puzzle.mode
+            choose_peek = puzzle.peeking; choose_lock = puzzle.locking; BeginPuzzle(true)
+        }
+    } else {
+        changed := TableScatter(*puzzle, table_area, TableBounds.{tray_x, tray_y, tray_width, tray_height}, cell)
+        if table_width != view_width || table_height != view_height {
+            for piece: cast(s32)0..PuzzleCount(puzzle) - 1 {
+                if puzzle.owners[piece] == 0 {
+                    at := TableCenter(puzzle, piece, table_area)
+                    TablePosition(*puzzle, piece, table_area, at.x, at.y, cell)
+                }
+            }
+            table_width = view_width; table_height = view_height; changed = true
+        }
+        if changed { unused SavePuzzle() }
+        TableInput()
+        for i: cast(s32)0..PuzzleCount(puzzle) - 1 {
+            piece := puzzle.order[i]
+            if !PieceVisible(piece) || (dragging && piece == selected_piece) { continue }
+            at := TableCenter(puzzle, piece, table_area)
+            DrawPiece(piece, at.x + 2, at.y + 3, cell, ifx piece == selected_piece then cast(u32)0x2e695677 else cast(u32)0x70593c33)
+            DrawPiece(piece, at.x, at.y, cell)
+        }
+        if selected_piece >= 0 && dragging {
+            DrawPiece(selected_piece, drag_x + 4, drag_y + 6, cell, 0x70593c44)
+            DrawPiece(selected_piece, drag_x, drag_y, cell)
+        }
+    }
+    status_y: s32 = 44
+    BookText(board_x, status_y, board_size, 26, Cat(NumberText(PuzzlePlaced(puzzle)), " / ", NumberText(PuzzleCount(puzzle)), "  ·  ", NumberText(puzzle.elapsed / 60), ":", ifx puzzle.elapsed % 60 < 10 then "0" else "", NumberText(puzzle.elapsed % 60)), 16)
+    if puzzle.mode != 0 {
+        status := Cat(Tr(ifx puzzle.player == 0 then "Player 1" else "Player 2"), "  ·  ", NumberText(60 - puzzle.turn), "s")
+        if puzzle.mode == 2 { status = Cat(status, "  ·  ", NumberText(PuzzleScore(puzzle, 0)), " : ", NumberText(PuzzleScore(puzzle, 1))) }
+        BookText(board_x, board_y + board_size + 8, board_size, 24, status, 14)
+    }
+    button_y := view_height - 46
+    width := (view_width - 64) / 4
+    if PuzzleButton(50, 20, button_y, width, 36, "Pictures") { unused SavePuzzle(); playing_puzzle = false }
+    if puzzle.peeking && !done && PuzzleButton(51, 28 + width, button_y, width, 36, "Peek", peek_until > retro.now) { peek_until = ifx peek_until > retro.now then 0.0 else retro.now + 4.0 }
+    if !done && PuzzleButton(52, 36 + width * 2, button_y, width, 36, ifx edges_only then "All pieces" else "Edge pieces", edges_only) { edges_only = !edges_only; selected_piece = -1 }
+    if puzzle.mode != 0 && !done {
+        if PuzzleButton(53, 44 + width * 3, button_y, width, 36, "Next player") { PuzzlePass(*puzzle); unused SavePuzzle() }
+    } else if PuzzleButton(54, 44 + width * 3, button_y, width, 36, "Save puzzle") { unused SavePuzzle(); notice_until = retro.now + 2.0 }
+    if notice_until > retro.now || save_notice { BookText(24, 44, view_width - 48, 18, ifx save_notice then "Could not save puzzle" else "Puzzle saved", 12) }
+}
+
+GameMain :: () -> s32 {
+    mode := AppMode()
+    if mode == APP_IDENTIFY {
+        loaded = false; playing_puzzle = false; has_save = false
+        AppIdentity("jungle.jigsaw"); AppDescribe("Jigsaw Puzzles", "")
+        return APP_PROTOCOL
+    }
+    if mode == APP_SAVE { return ifx !loaded || (!has_save && !playing_puzzle) || SavePuzzle() then 0 else 1 }
+    if mode != APP_FRAME { return 0 }
+    GameLanguage()
+    bounds := AppBounds()
+    view_scale = bounds.width / 400.0
+    if bounds.height / 740.0 < view_scale { view_scale = bounds.height / 740.0 }
+    if bounds.width > bounds.height { view_scale = bounds.height / 520.0; if bounds.width / 780.0 < view_scale { view_scale = bounds.width / 780.0 } }
+    if view_scale > 1.5 { view_scale = 1.5 }
+    retro = Retro.{.session = AppSession(), .x = bounds.x, .y = bounds.y, .scale = view_scale, .now = AppNow(), .key = AppKey()}
+    view_width = cast(s32)(bounds.width / view_scale); view_height = cast(s32)(bounds.height / view_scale)
+    BookPalette(); BookBox(0, 0, view_width, view_height, 0xfffcf3ff)
+    if !loaded {
+        has_save = PuzzleRead(DocumentRead("puzzle.txt"), *puzzle)
+        if has_save {
+            choose_scene = puzzle.scene; choose_level = puzzle.level; choose_mode = puzzle.mode
+            choose_peek = puzzle.peeking; choose_lock = puzzle.locking
+        }
+        loaded = true
+    }
+    if retro.key == KEY_ESCAPE {
+        if playing_puzzle { unused SavePuzzle(); playing_puzzle = false; dragging = false; selected_piece = -1 }
+        else { GameHome() }
+        return 0
+    }
+    if playing_puzzle {
+        if retro.now < last_tick || retro.now - last_tick > 2.0 { last_tick = retro.now }
+        seconds := cast(s32)(retro.now - last_tick)
+        if seconds > 0 { PuzzleTick(*puzzle, seconds); last_tick += cast(float64)seconds }
+        BoardView()
+    } else { SetupView() }
+    return 0
+}
+
+#if !#defined(PLATFORM_WEB) {
+    #program_export
+    main :: () -> s32 { return GameMain() }
+}

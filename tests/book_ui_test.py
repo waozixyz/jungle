@@ -142,10 +142,10 @@ def main():
                 assert not different(firsts["farm"], desktop.capture(f"{language}-suggested-next-book")), "Suggested book did not open"
                 desktop.key("Escape")
                 desktop.key("Escape")
-                desktop.key("3")
+                desktop.game("Animal Counting")
                 desktop.capture(f"{language}-counting")
                 desktop.key("Escape")
-                desktop.key("4")
+                desktop.game("Coloring Book")
                 desktop.capture(f"{language}-paint")
                 desktop.click(32, 14)
                 desktop.capture(f"{language}-scenes")

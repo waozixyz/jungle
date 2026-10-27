@@ -72,7 +72,9 @@ Existing saved progress files are preserved.
 
 **Animal Counting** pairs watercolor animals with a clean answer card on
 cream paper, with a touch number pad below the animals on phones or beside
-them on wider screens. Its counting rules follow Animal Math. The levels climb
+them on wider screens. Animals sit in familiar dice patterns of up to five;
+six to ten animals form two clearly separated groups, five plus the rest.
+The groups adapt to the available space. Its counting rules follow Animal Math. The levels climb
 4, 5, 6, 8, 9 and 10, six right answers move up, six misses move
 back down, the same number never comes twice, and every eighth right
 answer brings one of the original praises, from GOOD JOB to AWESOME.
@@ -94,7 +96,37 @@ the right mouse button while releasing the left, to mirror the dinosaur.
 Its white body replaces the lines and colors beneath it;
 scenery outside its outline stays in place. Undo restores the covered artwork.
 
+**Jigsaw Puzzles** takes inspiration from Artworx's 1990 Amiga game Jigsaw
+Puzzle Mania. Choose Tiger stream, Duck pond or Meadow train, with 4, 9, 16,
+25, 36 or 64 interlocking pieces. Every loose piece is already its finished
+size. Pick up pieces from the scattered table and drag them onto the board,
+or leave them anywhere on the table. A piece keeps its size and the place
+you grabbed it throughout a drag. Overlapping pieces come to the front when
+picked up; correct pieces snap into place. Edge pieces filters the loose
+pieces; All pieces brings the middle pieces back.
+Peek shows the finished picture for four seconds when peeking is allowed.
+Lock on keeps placed pieces fixed; with Lock off, they can be picked up again.
+Solo has no turn limit. Team and Competition offer two players one-minute
+turns on the same device, with a Next player button to pass early. Competition
+also keeps each player's placed-piece score. There is no losing screen.
+Progress saves after placements, when leaving and with Save puzzle. Resume
+puzzle restores the picture, piece count, stacking order, loose-piece
+positions, placed pieces and turns. Older saved puzzles keep their progress.
+The shared title-bar Back returns to picture selection, then the main menu.
+All controls are available in English, German and Spanish.
+
+The three original puzzle pictures were made with Codex's built-in imagegen
+tool. Full-size originals and their prompts live in `art/generated/jigsaw`;
+`python3 tools/jigsaw_art.py` makes the high-resolution pictures and smooth,
+complementary piece atlases in `assets/jigsaw`. No artwork, sound or program
+code from the Amiga archive is shipped in this mode.
+
 ## Build and run
+
+The main game list is ordered by age, from Picture Book (2+) through Coloring
+Book (5+). ABC + 123 and Jigsaw Puzzles are both 3+. Scroll the game list with
+the mouse wheel, the scrollbar or a finger; the title, language flags and
+sound control stay in place. Arrow keys reveal the selected row.
 
 Needs a C compiler, SDL2, Cairo, FreeType, Fontconfig and Pango development
 packages, and Ziran. Dependencies are pinned in `ziran.lock`.

@@ -1,9 +1,34 @@
 #import, file "../games/animal/counting.zi";
 #import, file "../host/platform.zi";
 #import, file "../host/jungle_text.zi";
+#import, file "../games/animal/counting_layout.zi";
 
 #program_export
 main :: () -> s32 {
+    for amount: cast(s32)1..10 {
+        for size: cast(s32)0..2 {
+            w: s32 = ifx size == 0 then 180 else ifx size == 1 then 342 else 272
+            h: s32 = ifx size == 0 then 86 else ifx size == 1 then 306 else 90
+            layout := CountLayout(amount, 0, 0, w, h)
+            if layout.groups != (amount + 4) / 5 || layout.cell < 7 { return 8 }
+            sum: s32
+            for group: cast(s32)0..layout.groups - 1 {
+                n := CountGroupAmount(amount, group)
+                if n < 1 || n > 5 { return 9 }
+                sum += n
+                used: [9]bool
+                for i: cast(s32)0..n - 1 {
+                    spot := CountSpot(n, i)
+                    if spot.x < 0 || spot.x > 2 || spot.y < 0 || spot.y > 2 || used[spot.y * 3 + spot.x] { return 10 }
+                    used[spot.y * 3 + spot.x] = true
+                }
+            }
+            if sum != amount || layout.x < 0 || layout.y < 0 { return 11 }
+            end_x := layout.x + ifx layout.across then layout.groups * layout.edge + (layout.groups - 1) * layout.gap else layout.edge
+            end_y := layout.y + ifx layout.across then layout.edge else layout.groups * layout.edge + (layout.groups - 1) * layout.gap
+            if end_x > w || end_y > h { return 12 }
+        }
+    }
     for ladder: cast(s32)1..MAX_LEVEL {
         level = ladder
         for round: cast(s32)0..999 {
@@ -26,6 +51,6 @@ main :: () -> s32 {
     if level != 1 { return 6 }
     for answer: cast(s32)0..99 { unused CountAnswer(3) }
     if level != MAX_LEVEL || right_run >= 6 { return 7 }
-    Report("local counting test passed\n")
+    Report("local counting test: groups one to ten, responsive bounds and counting ladder passed\n")
     return 0
 }
