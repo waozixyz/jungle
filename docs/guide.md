@@ -79,9 +79,9 @@ The groups adapt to the available space. Its counting rules follow Animal Math. 
 back down, the same number never comes twice, and every eighth right
 answer brings one of the original praises, from GOOD JOB to AWESOME.
 
-**Coloring Book** plays like Bert's Dinosaurs. Pick one of six scenes, place
+**Coloring Book** plays like Bert's Dinosaurs. Pick one of twelve scenes across two pages, place
 any of twelve dinosaurs, six animals, six people or six objects in four sizes, then fill
-the picture with thirty crayon buttons. You can write an eight-line story
+the picture with forty-two crayon buttons. You can write an eight-line story
 and keep the whole picture and story in one of six slots. Undo takes back the
 last dinosaur, fill or erase. The working picture recovers when you reopen the
 game. Scenes and dinosaurs are smooth vector line art in `art/paint`, painted
@@ -173,8 +173,11 @@ using `lp`. If no printer accepts the job, the exported files are retained and
 the game reports that result. Tests substitute a private fake printer and
 render the page with Ghostscript, without sending paper jobs.
 
-The thirty crayons reproduce the original fifteen solid VGA colors and their
-fifteen checkerboard fills. Earlier sixteen-color saves retain their palette.
+The forty-two crayons are grouped by hue, with pastels, bright and deep shades,
+skin tones and a neutral row ending in dark charcoal. The charcoal stays lighter
+than the black outlines. Earlier pictures retain all their original colors.
+The scene chooser has six previews per page, Previous/Next controls and a page
+count. Its six new scenes are Meadow, Forest, Desert, Snowy hills, Pond and Farmyard.
 
 ## Art and sounds
 

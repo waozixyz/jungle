@@ -14,7 +14,7 @@ stamp: [CANVAS_PIXELS]bool;
 stamp_body: [CANVAS_PIXELS]bool;
 fill_stack: [CANVAS_PIXELS]s32;
 
-// Masks in paint_pages.zi's order: six scenes, then ink and body for each
+// Masks in paint_pages.zi's order: the scenes, then ink and body for each
 // dinosaur size.
 SceneMask :: (scene: s32) -> s32 { return scene }
 InkMask :: (dino: s32, size: s32) -> s32 { return SCENE_COUNT + (dino * DINO_SIZES + size - 1) * 2 }

@@ -121,6 +121,7 @@ art: build/tools/art
 	python3 tools/menu_art.py
 	python3 tools/branding.py
 	python3 tools/dino_art.py
+	python3 tools/paint_scenes.py
 	python3 tools/paint_pages.py
 
 # Sound effects into assets/ (committed).
@@ -162,6 +163,7 @@ test: build/tests/paint build/tests/png build/tests/progress build/tests/documen
 	printf 'jungle 1\nfruits 4\n' > build/tests/data/progress.txt
 	JUNGLE_DATA=$(abspath build/tests/data) $(APP)/jungle --check
 	python3 tests/runtime_test.py
+	python3 tests/paint_choices_ui_test.py
 	python3 tests/export_test.py
 	python3 tests/assets_test.py
 	python3 tests/language_test.py

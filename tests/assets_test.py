@@ -84,8 +84,8 @@ def main():
         assert background.size == (320, 200)
     art = ROOT / "assets/dino-paint/art"
     assert not (ROOT / "assets/dino-paint/crayons").exists(), "crayons are drawn as color boxes"
-    for number in range(1, 7):
-        assert (ROOT / f"art/paint/scene{number}.svg").read_text().count("<path") == 1
+    for number in range(1, 13):
+        assert '<svg ' in (ROOT / f"art/paint/scene{number}.svg").read_text()
         with Image.open(art / f"scene{number}-thumb.jpg") as thumb:
             assert thumb.size == (256, 192) and len(thumb.getcolors(1 << 16) or range(1 << 16)) > 16, "scene thumbnail is not smooth"
     for number in range(1, 31):

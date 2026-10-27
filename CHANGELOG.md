@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.13
+
+- Offer 42 distinct coloring crayons grouped by hue, including pastels, skin tones and dark charcoal that keeps the black outlines visible.
+- Add Meadow, Forest, Desert, Snowy hills, Pond and Farmyard backgrounds, with six large scene previews per page and Previous/Next controls.
+- Close the remaining palm-tree outline gaps so bucket fills stay inside their leaves and trunks. Existing saved pictures keep their colors.
+
 ## 0.1.12
 
 - Open the website after only the menu's pictures; each game's pictures load when you open it, instead of every puzzle and page first.
