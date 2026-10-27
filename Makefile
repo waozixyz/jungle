@@ -138,7 +138,7 @@ build/tests/%: tests/%_test.zi $(wildcard games/*/*.zi host/*.zi retro/*.zi) bui
 		build/ziran/libziran.a -Wl,--gc-sections -lm -lpthread $(TEST_LIBS) -o $@
 
 # Questions, painting and PNG pictures, then every game opened in the app.
-test: build/tests/paint build/tests/png build/tests/progress build/tests/document build/tests/counting build/tests/abc build/tests/numbers build/tests/printing build/tests/audio build/tests/voice all
+test: build/tests/paint build/tests/png build/tests/progress build/tests/document build/tests/counting build/tests/abc build/tests/numbers build/tests/printing build/tests/audio build/tests/voice build/tests/book_preferences all
 	build/tests/paint
 	build/tests/progress
 	build/tests/document
@@ -146,6 +146,7 @@ test: build/tests/paint build/tests/png build/tests/progress build/tests/documen
 	build/tests/abc
 	build/tests/numbers
 	build/tests/audio
+	build/tests/book_preferences
 	SDL_AUDIODRIVER=dummy build/tests/voice
 	build/tests/png build/tests/check.png
 	test "$$(convert build/tests/check.png -format '%w %h %[pixel:p{0,0}] %[pixel:p{2,1}]' info:)" = "3 2 srgb(170,0,0) srgb(255,255,85)"
@@ -169,6 +170,7 @@ test-ui: all
 	python3 tests/book_additions_ui_test.py
 	python3 tests/learning_menu_test.py
 	python3 tests/abc_sequence_ui_test.py
+	python3 tests/playback_ui_test.py
 	python3 tests/slot_preview_test.py
 	python3 tests/language_ui_test.py
 

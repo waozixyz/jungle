@@ -46,7 +46,7 @@ for language in ('en', 'de', 'es'):
                 standalone = desktop.capture_actual(f'alphabet-letters-{language}-{width}')
                 assert standalone.size == (width,height)
                 pad,gap,control = layout(width,height)
-                desktop.click_actual(width*3//4,56+pad+control//2)
+                desktop.click_actual(width//2,56+pad+control//2)
                 example = desktop.capture_actual(f'alphabet-example-{language}-{width}')
                 assert vivid(example.crop((width//2,56+pad+control+gap,width-pad,height-pad))) > 100, 'Example did not render on the right'
                 desktop.click_actual(width//4,56+pad+control//2)

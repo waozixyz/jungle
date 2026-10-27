@@ -1,4 +1,4 @@
-"""Read the Clothing and Seasons books in every supported language."""
+"""Read all recently added books in every supported language."""
 from pathlib import Path
 import sys
 import tempfile
@@ -19,7 +19,7 @@ with tempfile.TemporaryDirectory(prefix="jungle-new-books-") as temporary:
             desktop.key("1")
             desktop.wait_book(f"new-books-{language}-shelf")
             desktop.key("s")
-            for category in ("clothing", "seasons"):
+            for category in ("clothing", "seasons", "birds", "toys", "vehicles", "bedtime"):
                 category_index = [name for name, _ in BOOKS].index(category)
                 select_book(desktop, category_index)
                 first = desktop.capture(f"new-books-{language}-{category}-first")
@@ -39,4 +39,4 @@ with tempfile.TemporaryDirectory(prefix="jungle-new-books-") as temporary:
                 assert different(first, spelling, LABEL), f"{category} did not show its spelling"
                 desktop.key("Escape")
                 desktop.key("s")
-        print(f"local UI test: {language} Clothing and Seasons, all pages, spelling and finish screens passed", flush=True)
+        print(f"local UI test: {language} Clothing, Seasons, Birds, Toys, Vehicles and Bedtime, all pages, spelling and finish screens passed", flush=True)

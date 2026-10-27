@@ -42,6 +42,7 @@ web_home: bool;
 // The title bar's back arrow reaches the game as Escape on the next frame.
 web_back_pending: bool;
 web_speed_pending: bool;
+web_voice_paused: bool;
 web_audio: s32;
 web_narration: bool;
 audio_rejected: s32;
@@ -110,6 +111,7 @@ StopAudio :: () {
     WebRelease(web_audio)
     web_audio = 0
     web_narration = false
+    web_voice_paused = false
 }
 
 AudioRejected :: (context: s32, error: s32, second: s32, third: s32) {
@@ -135,6 +137,7 @@ PlayAudio :: (path: string, narration: bool) {
 
 VoiceState :: () -> string {
     if web_audio == 0 || !web_narration || web_muted { return "idle" }
+    if web_voice_paused { return "paused" }
     scope := WebScope()
     defer WebEnd(scope)
     if WebGetObject(web_audio, WebName("error")) != 0 { return "idle" }
@@ -207,6 +210,20 @@ WebService :: (name: string, request: string) -> string {
         return ifx WebAsBool(WebCall1(WebModule, WebName("jungleImageReady"), WebText(request))) then "ready" else "pending"
     }
     if name == "jungle.voice-state" { return VoiceState() }
+    if name == "jungle.voice-control" {
+        if web_audio != 0 && web_narration {
+            web_voice_paused = request == "pause"
+            scope := WebScope()
+            defer WebEnd(scope)
+            if request == "pause" { unused WebCall0(web_audio, WebName("pause")) }
+            else {
+                promise := WebAsObject(WebCall0(web_audio, WebName("play")))
+                if audio_rejected == 0 { audio_rejected = WebFunction(AudioRejected, 0) }
+                if promise != 0 { unused WebCall1(promise, WebName("catch"), WebObject(audio_rejected)) }
+            }
+        }
+        return "ok"
+    }
     if name == "jungle.language" { return LanguageCode() }
     if name == "jungle.home" { web_home = true; return "ok" }
     if name == "jungle.secondary" { return ifx IsMouseButtonDown(1) then "down" else "up" }

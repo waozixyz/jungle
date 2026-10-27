@@ -44,6 +44,12 @@ learn_number: s32;
 learn_item: s32;
 ladder_loaded: bool;
 voice_pending: bool;
+autoplay: bool;
+repeat_sequence: bool;
+sequence_speed: s32 = 1;
+number_started: float64;
+voice_idle_started: float64;
+sequence_paused_at: float64;
 NumberWord :: (number: s32) -> string {
     if language == 1 { return word_de[number - 1] }
     if language == 2 { return word_es[number - 1] }
@@ -60,6 +66,33 @@ OpenNumber :: (number: s32) {
     learn_number = number
     learn_item = cast(s32)(RandomNext() % 12)
     voice_pending = true
+    number_started = retro.now
+    voice_idle_started = 0.0
+}
+
+ToggleAutoplay :: () {
+    autoplay = !autoplay
+    if !autoplay {
+        sequence_paused_at = retro.now
+        unused AppService("jungle.voice-control", "pause")
+    } else if AppService("jungle.voice-state", "") == "paused" {
+        unused AppService("jungle.voice-control", "resume")
+        number_started += retro.now - sequence_paused_at
+        voice_idle_started = 0.0
+    } else { OpenNumber(ifx learn_number == NUMBER_COUNT then 1 else learn_number) }
+}
+
+AdvanceSequence :: () {
+    if !autoplay || voice_pending { return }
+    state := AppService("jungle.voice-state", "")
+    if state == "loading" || state == "playing" { voice_idle_started = 0.0; return }
+    if voice_idle_started == 0.0 { voice_idle_started = retro.now }
+    duration: float64 = ifx sequence_speed == 0 then 6.0 else ifx sequence_speed == 1 then 4.0 else 2.0
+    quiet: float64 = ifx sequence_speed == 0 then 2.5 else ifx sequence_speed == 1 then 1.5 else 0.5
+    if retro.now - number_started < duration || retro.now - voice_idle_started < quiet { return }
+    if learn_number == NUMBER_COUNT {
+        if repeat_sequence { OpenNumber(1) } else { autoplay = false }
+    } else { OpenNumber(learn_number + 1) }
 }
 
 ResponsiveNumbers :: (bounds: Rectangle) {
@@ -80,7 +113,9 @@ TouchButton :: (id: s32, x: s32, y: s32, width: s32, height: s32, text: string, 
     press := RetroTap(id, x, y, width, height, text)
     BookBox(x, y, width, height, ifx selected || press.down then cast(u32)0xdcebdcff else cast(u32)0xf3ecdcff,
         ifx selected then cast(u32)0x2e6956ff else cast(u32)0xdacdb5ff, 8.0)
-    BookText(x + 6, y, width - 12, height, text, 18)
+    font: s32 = 18
+    while font > 10 && cast(s32)Tr(text).count * font * 3 / 5 > width - 12 { font -= 1 }
+    BookText(x + 6, y, width - 12, height, text, font)
     return press.clicked
 }
 
@@ -119,7 +154,7 @@ NumberStrip :: (x: s32, y: s32, width: s32) -> s32 {
         BookBox(bx, y, button, button, ifx selected || press.down then cast(u32)0xdcebdcff else cast(u32)0xf3ecdcff,
             ifx selected then cast(u32)0x2e6956ff else cast(u32)0xdacdb5ff, 6.0)
         BookText(bx, y, button, button, NumberText(number), button * 2 / 3)
-        if press.clicked { OpenNumber(number) }
+        if press.clicked { autoplay = false; OpenNumber(number) }
     }
     return button + 6
 }
@@ -136,7 +171,16 @@ LearnView :: () {
     width := numbers_width - numbers_padding * 2
     strip_top: s32 = numbers_height - numbers_padding - StripUsed(width) + 6
     NumberStrip(numbers_padding, strip_top, width)
-    content_bottom: s32 = strip_top - 12
+    control: s32 = ifx numbers_height < 400 then 32 else 40
+    transport_y := strip_top - numbers_gap - control
+    button := (width - numbers_gap) / 2
+    if TouchButton(41, numbers_padding, transport_y, button, control, ifx autoplay then "Pause" else "Play", autoplay) { ToggleAutoplay() }
+    if TouchButton(43, numbers_padding + button + numbers_gap, transport_y, button, control,
+        ifx repeat_sequence then "Repeat on" else "Repeat off", repeat_sequence) {
+        repeat_sequence = !repeat_sequence
+        unused DocumentWrite("repeat.txt", ifx repeat_sequence then "on" else "off")
+    }
+    content_bottom: s32 = transport_y - 12
     if landscape {
         panel: s32 = (width - numbers_gap) / 2
         content_height: s32 = content_bottom - numbers_padding
@@ -170,6 +214,7 @@ GameMain :: () -> s32 {
         learn_number = 1
         learn_item = 0
         voice_pending = false
+        autoplay = false; sequence_speed = 1
         AppIdentity("jungle.numbers")
         AppDescribe("123 Book", "")
         return APP_PROTOCOL
@@ -184,19 +229,24 @@ GameMain :: () -> s32 {
         NumbersLoad()
         random_state = cast(u32)(cast(u64)(now * 1000.0) & cast(u64)0x7fffffff) | cast(u32)1
         OpenNumber(1)
+        repeat_sequence = DocumentRead("repeat.txt") == "on"
         ladder_loaded = true
     }
     key := retro.key
+    if key == 10001 { sequence_speed = (sequence_speed + 1) % 3 }
     if key == KEY_ESCAPE { GameHome(); return 0 }
     typed: s32 = -1
     if key >= 49 && key <= 57 { typed = key - 48 }
     if key == 48 { typed = 10 }
-    if key == KEY_RIGHT { OpenNumber(learn_number % NUMBER_COUNT + 1) }
-    if key == KEY_LEFT { OpenNumber((learn_number + NUMBER_COUNT - 2) % NUMBER_COUNT + 1) }
-    if typed >= 1 { OpenNumber(typed) }
+    if key == KEY_RIGHT { autoplay = false; OpenNumber(learn_number % NUMBER_COUNT + 1) }
+    if key == KEY_LEFT { autoplay = false; OpenNumber((learn_number + NUMBER_COUNT - 2) % NUMBER_COUNT + 1) }
+    if typed >= 1 { autoplay = false; OpenNumber(typed) }
+    if key == 32 { ToggleAutoplay() }
     if key == KEY_ENTER { voice_pending = true }
+    AdvanceSequence()
     LearnView()
     if voice_pending {
+        number_started = retro.now; voice_idle_started = 0.0
         unused AppService("jungle.voice", NumberVoice(learn_number))
         voice_pending = false
     }

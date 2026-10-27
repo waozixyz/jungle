@@ -115,7 +115,7 @@ Reply :: (text: string) -> HostValue {
 }
 
 GameAllows :: (context: *void, name: string) -> bool {
-    return name == "jungle.language" || name == "jungle.voice" || name == "jungle.voice-state" || name == "jungle.sound" || name == "jungle.home" || name == "jungle.canvas" ||
+    return name == "jungle.language" || name == "jungle.voice" || name == "jungle.voice-state" || name == "jungle.voice-control" || name == "jungle.sound" || name == "jungle.home" || name == "jungle.canvas" ||
         name == "jungle.export" || name == "jungle.print" || name == "jungle.secondary" || BundleAppAllows(context, name)
 }
 
@@ -143,7 +143,12 @@ GameServices :: (context: *void, module: *u8, function: *u8,
         service := AppArgumentText(arguments[0])
         request := AppArgumentText(arguments[1])
         if service == "jungle.voice-state" {
-            result.* = Reply(ifx SoundBusy() then "playing" else "idle")
+            result.* = Reply(ifx sound_paused then "paused" else ifx SoundBusy() then "playing" else "idle")
+            return 1
+        }
+        if service == "jungle.voice-control" {
+            SoundSetPaused(request == "pause")
+            result.* = Reply("ok")
             return 1
         }
         if service == "jungle.language" {

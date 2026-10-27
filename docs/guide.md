@@ -19,15 +19,15 @@ returns home from its first screen. The sound button at the top right mutes
 or unmutes every game.
 Accented German and Spanish letters work in Dino stories, saves and exports.
 
-**Picture Book** has seventeen organized books: Wild animals (15 pictures), Garden
+**Picture Book** has twenty-one organized books: Wild animals (15 pictures), Garden
 (10), Fruits (16), Farm (20), Kitchen (8), Bathroom (8), Bedroom (8),
-Living room (8), Nature (8), Vegetables (16), Family (8), Body Parts (10), Breakfast (6), Lunch (6), Dinner (6), Clothing (12), and Seasons (4). Browse the framed book list through Nature, Food, Home and Family tabs. Every page is one gentle watercolor
+Living room (8), Nature (8), Vegetables (16), Family (8), Body Parts (10), Breakfast (6), Lunch (6), Dinner (6), Clothing (12), Seasons (4), Birds (6), Toys (6), Vehicles (6), and Bedtime (6). Browse the framed book list through Nature, Food, Home and Family tabs. Every page is one gentle watercolor
 scene in the style of the title-screen covers: each animal, food or thing sits
 in its own setting, so no two pages share a background. Breakfast pages are
 drawn in morning light, Lunch at midday and Dinner in the evening. The scene
 fills the page and its word sits on a label at the bottom. Choose **Simple** to hear each word once with
 its picture, or **Spelling** to hear the word, its letters and the word again.
-The selected mode is remembered. Every one of the 169 pictures has names and
+The selected mode is remembered. Every one of the 180 pictures has names and
 both kinds of narration in English, German and Spanish, including correctly
 spaced accented letters. Each cover lists its page count. Narration is read only when played.
 Browser pictures load before the opening screen clears. Simple pages stay open at least six seconds; spelling pages at least twelve.
@@ -37,7 +37,18 @@ right for the previous one. Arrows and Enter turn pages too. The back arrow in
 the title bar, or Escape, returns to the books. Each book ends after its final
 picture and shows the next book on the shelf, which opens by itself after a
 few seconds; All books returns to the book choices. Back from the first
-picture stays there.
+picture stays there. **Space** or the visible **Play/Pause** button pauses
+both narration and automatic page turns, and resumes the same recording.
+The title-bar **Speed** button changes pacing without cutting narration short.
+The compact bottom toolbar sits directly under the word label, with Play/Pause
+and Hear word. **Repeat on/off** in **Manage books** chooses whether to continue
+to another book. **Manage books**
+on the shelf offers independent **Hide book** and **In autoplay / Skip autoplay**
+choices. Hidden books disappear from the shelf and automatic reading; a book
+excluded from autoplay remains available to read manually. All choices are
+remembered, and selecting no books for autoplay stops at the finish screen.
+Birds, Toys, Vehicles and Bedtime each have six pages; familiar pictures can
+appear in more than one book without duplicating their recordings.
 
 **ABC + 123** combines the letter and number books in one menu entry.
 Choose **ABC Book** or **123 Book** inside it; Back returns to that choice.
@@ -47,9 +58,16 @@ between letters. The title-bar Speed button cycles through normal, fast and slow
 pause it for exploration. Tap a letter to hear it again. **Examples** optionally
 shows the letter on the left and one watercolor word example on the right;
 **Next example** cycles through the words and **Spelling** toggles word spelling.
+**Letter only** keeps the illustrated example visible while narration speaks
+just the letter; **Word audio** returns to spoken examples. Autoplay works in
+both views, and **Repeat on/off** chooses whether the alphabet starts again.
+Space and Play/Pause pause or resume narration as well as the sequence.
 Spanish Ñ sits between N and O.
 123 pages show each numeral from one to ten with its word and that many
 watercolor animals. Every number is spoken in the selected language; tap the numeral or press Enter to hear it again. The strip along the bottom reaches every number.
+**Play/Pause** or Space starts and pauses number autoplay; **Repeat on/off**
+chooses whether ten returns to one. Arrow keys and number selection pause
+the sequence for manual exploration. The title-bar Speed button sets its pace.
 Existing saved progress files are preserved.
 
 **Animal Counting** pairs watercolor animals with a clean answer card on

@@ -27,8 +27,8 @@ def main():
             if value in ("FILE|TITLE|ABOUT|ICON|AGE", "Jungle Academy", "jungle --check", "COUNTING") or "\\" in value:
                 continue
             assert value in rows, (source, "untranslated message", value)
-    assert len(BOOKS) == 17 and len(NAMES) == len(set(NAMES)) == 169
-    assert dict((name, len(words)) for name, words in BOOKS) == dict(jungle=15, garden=10, fruits=16, farm=20, kitchen=8, bathroom=8, bedroom=8, **{"living-room":8}, nature=8, vegetables=16, family=8, breakfast=6, lunch=6, dinner=6, body=10, clothing=12, seasons=4)
+    assert len(BOOKS) == 21 and len(NAMES) == len(set(NAMES)) == 180
+    assert dict((name, len(words)) for name, words in BOOKS) == dict(jungle=15, garden=10, fruits=16, farm=20, kitchen=8, bathroom=8, bedroom=8, **{"living-room":8}, nature=8, vegetables=16, family=8, breakfast=6, lunch=6, dinner=6, body=10, clothing=12, seasons=4, birds=6, toys=6, vehicles=6, bedtime=6)
     assert set(NAMES) == set(WORDS)
     generated = (ROOT / "games/book/book_pages.zi").read_text()
     voices = (ROOT / "games/book/book_voice.zi").read_text()

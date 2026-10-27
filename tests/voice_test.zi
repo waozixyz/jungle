@@ -6,6 +6,7 @@
 voice_sdl :: #system_library "SDL2";
 Queued :: (device: u32) -> u32 #foreign voice_sdl "SDL_GetQueuedAudioSize";
 CloseAudio :: (device: u32) #foreign voice_sdl "SDL_CloseAudioDevice";
+WaitAudio :: (milliseconds: u32) #foreign voice_sdl "SDL_Delay";
 
 #program_export
 main :: () -> s32 {
@@ -30,7 +31,15 @@ main :: () -> s32 {
     // Allow half a second for the dummy device to consume queued samples;
     // the complete 27-second German spelling must reach SDL.
     if cast(s64)Queued(sound_device) < long_wave.count - 44 - cast(s64)AUDIO_RATE { return 8 }
+    SoundSetPaused(true)
+    before := Queued(sound_device)
+    WaitAudio(cast(u32)160)
+    if !sound_paused || Queued(sound_device) != before { return 9 }
+    SoundSetPaused(false)
+    WaitAudio(cast(u32)160)
+    if sound_paused || Queued(sound_device) >= before { return 10 }
     SoundVoice("")
-    Report("local narration test: complete voice reaches SDL; mute and leaving a page clear playback\n")
+    if sound_paused { return 11 }
+    Report("local narration test: complete voice, pause/resume preserves audio position, mute and leaving clear playback\n")
     return 0
 }

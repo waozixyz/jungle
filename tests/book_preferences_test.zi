@@ -1,0 +1,26 @@
+#import, file "../games/book/book_preferences.zi";
+#import, file "../games/book/book_pages.zi";
+
+#program_export
+main :: () -> s32 {
+    first := shelf_order[0]
+    second := shelf_order[1]
+    third := shelf_order[2]
+    if NextBookCategory(first, true) != second { return 1 }
+    excluded_books[second] = true
+    if NextBookCategory(first, true) != third { return 2 }
+    if NextBookCategory(first) != second || !BookAllowed(second) { return 3 }
+    hidden_books[third] = true
+    if BookAllowed(third) || BookAllowed(third, true) { return 4 }
+    // One selected book repeats itself; every unselected book is skipped.
+    for at: cast(s32)0..CATEGORY_COUNT - 1 { excluded_books[at] = true }
+    excluded_books[first] = false
+    if NextBookCategory(first, true) != first { return 5 }
+    excluded_books[first] = true
+    if NextBookCategory(first, true) != -1 { return 6 }
+    // Hiding every book has a bounded, empty result instead of wrapping forever.
+    for at: cast(s32)0..CATEGORY_COUNT - 1 { hidden_books[at] = true }
+    if NextBookCategory(first) != -1 || BookAllowed(first) { return 7 }
+    if BookAllowed(-1) || BookAllowed(CATEGORY_COUNT) { return 8 }
+    return 0
+}

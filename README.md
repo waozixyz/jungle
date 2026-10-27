@@ -14,11 +14,13 @@ babies and toddlers.
 
 ## Little discoveries, every day
 
-- **Picture Book:** Explore 17 illustrated books filled with animals, food,
+- **Picture Book:** Explore 21 illustrated books filled with animals, food,
   family, seasons and familiar things. Listen to each word or hear it spelled
-  out, and turn the pages together.
+  out, and turn the pages together. Discover Birds, Toys, Vehicles and Bedtime,
+  hide unwanted books, and choose which books play automatically.
 - **ABC + 123:** Hear letter names, explore optional illustrated word examples,
-  and discover the numbers one to ten with watercolor animals.
+  and discover the numbers one to ten with watercolor animals. Both books
+  offer Play/Pause and repeat; examples can stay visible while only the letter is spoken.
 - **Animal Counting:** Count animals and practice choosing the right number as
   the game gently adjusts its difficulty.
 - **Coloring Book:** Choose a scene, add dinosaurs, animals, people and objects,

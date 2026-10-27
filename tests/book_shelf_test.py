@@ -38,10 +38,10 @@ with tempfile.TemporaryDirectory(prefix='jungle-responsive-') as directory:
             desktop.key('0')
             first=desktop.capture_actual(f'responsive-native-vegetables-{width}')
             padding=max(24,int(14*min(width/320,(height-56)/200))+12)
-            desktop.click_actual(width-padding-28,height-padding-24)
+            desktop.click_actual(width-padding-28,height-140)
             second=desktop.capture_actual(f'responsive-native-next-{width}')
             assert ImageChops.difference(first,second).getbbox(), 'Next page ignored a resized pointer'
-            desktop.click_actual(padding+28,height-padding-24)
+            desktop.click_actual(padding+28,height-140)
             restored=desktop.capture_actual(f'responsive-native-back-{width}')
             assert not ImageChops.difference(first,restored).getbbox(), 'Back did not restore the full picture'
             desktop.key('Escape')

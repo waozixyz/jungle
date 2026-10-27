@@ -9,7 +9,7 @@ LanguageCode :: () -> string {
 LanguageSet :: (code: string) {
     language = ifx code == "de" then 1 else ifx code == "es" then 2 else 0
 }
-UI_COUNT :: 197
+UI_COUNT :: 214
 ui_en_0: [48]string = .[
     "Picture Book",
     "Animal Counting",
@@ -210,12 +210,29 @@ ui_en_144: [48]string = .[
     "Pause",
     "Try another letter",
 ];
-ui_en_192: [5]string = .[
+ui_en_192: [22]string = .[
     "Hear number",
     "Speed",
     "Slow",
     "Normal",
     "Fast",
+    "Manage books",
+    "Show book",
+    "Hide book",
+    "Skip autoplay",
+    "In autoplay",
+    "No visible books",
+    "Repeat on",
+    "Repeat off",
+    "Hear word",
+    "Autoplay paused",
+    "Letter only",
+    "Birds",
+    "Toys",
+    "Vehicles",
+    "Bedtime",
+    "Word audio",
+    "Manage",
 ];
 ui_de_0: [48]string = .[
     "Bilderbuch",
@@ -417,12 +434,29 @@ ui_de_144: [48]string = .[
     "Pause",
     "Wähle einen anderen Buchstaben",
 ];
-ui_de_192: [5]string = .[
+ui_de_192: [22]string = .[
     "Zahl hören",
     "Tempo",
     "Langsam",
     "Normal",
     "Schnell",
+    "Bücher verwalten",
+    "Buch zeigen",
+    "Buch ausblenden",
+    "Nicht abspielen",
+    "Automatisch",
+    "Keine sichtbaren Bücher",
+    "Schleife an",
+    "Schleife aus",
+    "Wort hören",
+    "Wiedergabe pausiert",
+    "Nur Buchstabe",
+    "Vögel",
+    "Spielzeug",
+    "Fahrzeuge",
+    "Schlafenszeit",
+    "Wort anhören",
+    "Verwalten",
 ];
 ui_es_0: [48]string = .[
     "Libro ilustrado",
@@ -624,19 +658,36 @@ ui_es_144: [48]string = .[
     "Pausa",
     "Elige otra letra",
 ];
-ui_es_192: [5]string = .[
+ui_es_192: [22]string = .[
     "Escuchar número",
     "Velocidad",
     "Lento",
     "Normal",
     "Rápido",
+    "Gestionar libros",
+    "Mostrar libro",
+    "Ocultar libro",
+    "Sin automático",
+    "Automático",
+    "No hay libros visibles",
+    "Repetir: sí",
+    "Repetir: no",
+    "Escuchar palabra",
+    "Reproducción en pausa",
+    "Solo letra",
+    "Aves",
+    "Juguetes",
+    "Vehículos",
+    "Hora de dormir",
+    "Palabra",
+    "Gestionar",
 ];
 Ui_en :: (at: s32) -> string {
     if at < 48 { return ui_en_0[at - 0] }
     if at < 96 { return ui_en_48[at - 48] }
     if at < 144 { return ui_en_96[at - 96] }
     if at < 192 { return ui_en_144[at - 144] }
-    if at < 197 { return ui_en_192[at - 192] }
+    if at < 214 { return ui_en_192[at - 192] }
     return ""
 }
 Ui_de :: (at: s32) -> string {
@@ -644,7 +695,7 @@ Ui_de :: (at: s32) -> string {
     if at < 96 { return ui_de_48[at - 48] }
     if at < 144 { return ui_de_96[at - 96] }
     if at < 192 { return ui_de_144[at - 144] }
-    if at < 197 { return ui_de_192[at - 192] }
+    if at < 214 { return ui_de_192[at - 192] }
     return ""
 }
 Ui_es :: (at: s32) -> string {
@@ -652,7 +703,7 @@ Ui_es :: (at: s32) -> string {
     if at < 96 { return ui_es_48[at - 48] }
     if at < 144 { return ui_es_96[at - 96] }
     if at < 192 { return ui_es_144[at - 144] }
-    if at < 197 { return ui_es_192[at - 192] }
+    if at < 214 { return ui_es_192[at - 192] }
     return ""
 }
 Tr :: (text: string) -> string {

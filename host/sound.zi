@@ -36,6 +36,8 @@ SoundSpec :: struct {
     LoadStream :: (rate: u32, bits: u32, channels: u32) -> SoundStream #foreign sound_raylib "LoadAudioStream";
     StreamValid :: (stream: SoundStream) -> bool #foreign sound_raylib "IsAudioStreamValid";
     PlayStream :: (stream: SoundStream) #foreign sound_raylib "PlayAudioStream";
+    PauseStream :: (stream: SoundStream) #foreign sound_raylib "PauseAudioStream";
+    ResumeStream :: (stream: SoundStream) #foreign sound_raylib "ResumeAudioStream";
     StreamProcessed :: (stream: SoundStream) -> bool #foreign sound_raylib "IsAudioStreamProcessed";
     UpdateStream :: (stream: SoundStream, data: *void, frames: s32) #foreign sound_raylib "UpdateAudioStream";
     SOUND_BLOCK :: 2048
@@ -58,7 +60,10 @@ SoundSpec :: struct {
         PlayStream(sound_stream)
         return cast(u32)1
     }
-    SoundPause :: (device: u32, paused: s32) { unused device; unused paused }
+    SoundPause :: (device: u32, paused: s32) {
+        unused device
+        if paused != 0 { PauseStream(sound_stream) } else { ResumeStream(sound_stream) }
+    }
     // Copies the samples, as SDL does, before returning.
     SoundQueue :: (device: u32, data: *u8, length: u32) -> s32 {
         unused device
@@ -79,7 +84,7 @@ SoundSpec :: struct {
     }
     // Once a frame: the next queued block, or silence once it has played.
     SoundPump :: () {
-        if sound_device == cast(u32)0 { return }
+        if sound_device == cast(u32)0 || sound_paused { return }
         while StreamProcessed(sound_stream) {
             for at: cast(s32)0..SOUND_BLOCK * 2 - 1 {
                 if sound_queue_at < sound_queue.count {
@@ -118,6 +123,7 @@ SOUND_SLOTS :: 8
 sound_device: u32;
 sound_unavailable: bool;
 sound_muted: bool;
+sound_paused: bool;
 sound_names: [SOUND_SLOTS]string;
 sound_data: [SOUND_SLOTS]string;
 sound_samples: [AUDIO_LIMIT * 2]u8;
@@ -178,7 +184,14 @@ SoundQueueSamples :: (samples: string) {
 
 // Narration may contain a whole word and its spelling; keep the short cue
 // limit for the other games and clear the previous voice on every turn.
-SoundStop :: () { if sound_device != cast(u32)0 { SoundClear(sound_device) } }
+SoundSetPaused :: (paused: bool) {
+    sound_paused = paused
+    if sound_device != cast(u32)0 { SoundPause(sound_device, ifx paused then 1 else 0) }
+}
+SoundStop :: () {
+    if sound_device != cast(u32)0 { SoundClear(sound_device) }
+    SoundSetPaused(false)
+}
 SoundBusy :: () -> bool {
     return !sound_muted && sound_device != cast(u32)0 && SoundQueued(sound_device) > cast(u32)0
 }
