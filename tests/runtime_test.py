@@ -310,7 +310,8 @@ def dinosaur_masks(dino, size):
     index = dino * 4 + size - 1
     width, height = table("DINO_WIDTH")[index], table("DINO_HEIGHT")[index]
     masks = []
-    for mask in (6 + index * 2, 7 + index * 2):
+    scene_count = int(re.search(r'SCENE_COUNT :: (\d+)', source)[1])
+    for mask in (scene_count + index * 2, scene_count + 1 + index * 2):
         text = "".join(chunks[str(chunk)] for chunk in range(starts[mask], starts[mask + 1]))
         bits, ink, at = [], False, 0
         while at < len(text):
@@ -501,8 +502,8 @@ def ui(binary):
             desktop.click(30, 40)
             colors = desktop.capture("paint-colors")
             assert len(colors.crop((256, 122, 308, 150)).getcolors(1 << 20)) >= 3, "crayon swatches are missing"
-            assert colors.getpixel((282, 136)) == (192, 192, 192), "the last crayon is not its solid color"
-            desktop.click(282, 136)
+            assert colors.getpixel((284, 155)) == (60, 60, 60), "the last crayon is not dark charcoal"
+            desktop.click(284, 155)
             desktop.click(71, 13)
             desktop.capture("paint-colored")
             desktop.click(30, 65)

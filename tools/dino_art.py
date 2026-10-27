@@ -42,6 +42,9 @@ PALM_OUTLINES = {
         '125,96 174,96 78,473 15,467',
     ],
 }
+# Remaining narrow breaks are at small palm trunk/leaf joins. Reinforce only
+# these joins, preserving the white interiors of the other tiny fronds.
+PALM_JOINS = {1: [(269, 316, 8), (371, 348, 10), (843, 284, 8), (857, 283, 12)]}
 
 
 def palm_outlines(index):
@@ -54,6 +57,12 @@ def palm_outlines(index):
         '<use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#ink" '
         'clip-path="url(#palm-outlines)" fill="#000" stroke="#000" stroke-width="1.6" '
         'stroke-linejoin="round" stroke-linecap="round"/>\n'
+        + ('<defs><clipPath id="palm-joins">' + ''.join(
+            f'<circle cx="{x}" cy="{y}" r="{radius}"/>'
+            for x, y, radius in PALM_JOINS[index]) + '</clipPath></defs>\n'
+           '<use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#ink" '
+           'clip-path="url(#palm-joins)" fill="#000" stroke="#000" stroke-width="4" '
+           'stroke-linejoin="round" stroke-linecap="round"/>\n' if index in PALM_JOINS else '')
     )
 
 potrace = ctypes.CDLL('libpotrace.so.0')

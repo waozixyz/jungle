@@ -1,8 +1,8 @@
 #import, file "../../retro/language.zi";
 #import "std/utf8"
-// Coloring Book: a 1:1 play-alike of Bert's Dinosaurs. Pick one of six
+// Coloring Book: a 1:1 play-alike of Bert's Dinosaurs. Pick one of twelve
 // scenes, drag any of twelve dinosaurs in four sizes (hold right or press
-// Mirror to mirror), fill regions with thirty crayon colors, write an
+// Mirror to mirror), fill regions with forty-two crayon colors, write an
 // eight-line story, and keep the whole picture in one of six slots.
 #import "app_context"
 #import "app_protocol"
@@ -55,7 +55,7 @@ PRINT_VIEW :: 10
 SLOT_COUNT :: 6
 UNDO_STEPS :: 8
 
-scene_names: [6]string = .["Scene 1", "Scene 2", "Scene 3", "Scene 4", "Scene 5", "Scene 6"];
+scene_names: [12]string = .["Scene 1", "Scene 2", "Scene 3", "Scene 4", "Scene 5", "Scene 6", "Meadow", "Forest", "Desert", "Snowy hills", "Pond", "Farmyard"];
 dino_names: [30]string = .["TYRANNOSAURUS", "STEGOSAURUS", "TRICERATOPS", "ANATOSAURUS", "BRACHIOSAURUS", "DIPLODOCUS", "PARASAUROLOPHUS", "DEINONYCHUS", "PROTOCERATOPS", "PTERANODON", "STRACOSAURUS", "CORYTHOSAURUS", "Cat", "Dog", "Butterfly", "Child", "Astronaut", "Farmer", "Rabbit", "Elephant", "Lion", "Doctor", "Firefighter", "Cook", "Crate", "Campfire", "Tent", "Tree", "Rock", "Barrel"];
 dino_short: [30]string = .["T-REX", "STEGO", "TRIKE", "Duckbill", "BRACHIO", "DIPLO", "PARA", "RAPTOR", "PROTO", "PTERANODON", "STRACO", "CORY", "Cat", "Dog", "Butterfly", "Child", "Astronaut", "Farmer", "Rabbit", "Elephant", "Lion", "Doctor", "Firefighter", "Cook", "Crate", "Campfire", "Tent", "Tree", "Rock", "Barrel"];
 button_names: [7]string = .["Image", "Color", "Story", "Erase", "Save", "Print", "Undo"];
@@ -73,6 +73,7 @@ canvas_can_fill: bool;
 grab_x: s32;
 grab_y: s32;
 dino_page: s32;
+scene_page: s32;
 stencil_category: s32;
 category_starts: [4]s32 = .[0, 12, 18, 24];
 category_counts: [4]s32 = .[12, 6, 6, 6];
@@ -469,19 +470,27 @@ CancelButton :: () -> bool {
 
 ScenePicker :: () {
     DialogBack("Choose a scene")
-    for index: cast(s32)0..SCENE_COUNT - 1 {
-        x := 20 + (index % 3) * 94
-        y := 30 + (index / 3) * 74
-        press := RetroTap(60 + index, x, y, 90, 70, scene_names[index])
-        BookBox(x, y, 90, 70, ifx press.down then cast(u32)0xdcebdcff else cast(u32)0xf7f1e3ff, 0xdacdb5ff, 4.0)
+    for offset: cast(s32)0..5 {
+        index := scene_page * 6 + offset
+        if index >= SCENE_COUNT { continue }
+        x := 20 + (offset % 3) * 94
+        y := 30 + (offset / 3) * 68
+        press := RetroTap(60 + offset, x, y, 90, 64, scene_names[index])
+        BookBox(x, y, 90, 64, ifx press.down then cast(u32)0xdcebdcff else cast(u32)0xf7f1e3ff, 0xdacdb5ff, 4.0)
         number := FormatInteger(index + 1, digits_a[:])
         RetroSprite(Join(ART, Join("scene", Join(number, "-thumb.jpg"))), x + 13, y + 3, 64, 48, -1, true)
-        BookText(x + 2, y + 54, 86, 15, scene_names[index], 10)
+        BookText(x + 2, y + 51, 86, 12, scene_names[index], 10)
         if press.clicked {
             OpenScene(index)
             return
         }
     }
+    pages := (SCENE_COUNT + 5) / 6
+    if scene_page > 0 && BookButton(196, 20, 173, 62, 14, "Previous") { scene_page -= 1; Sound("click") }
+    if scene_page < pages - 1 && BookButton(197, 150, 173, 62, 14, "Next") { scene_page += 1; Sound("click") }
+    page_digits: [24]u8
+    number := FormatInteger(scene_page + 1, digits_a[:])
+    BookText(85, 173, 62, 14, Join(number, " / ", FormatInteger(pages, page_digits[:])), 10)
     if CancelButton() && scene < 0 && undo_count == 0 { GameHome() }
 }
 
@@ -557,25 +566,25 @@ SizePicker :: () {
 
 ColorPicker :: () {
     DialogBack("Choose a color")
-    for index: cast(s32)0..29 {
-        x := 20 + (index % 6) * 48
-        y := 30 + (index / 6) * 24
-        press := RetroTap(130 + index, x, y, 44, 20, "Color")
-        chosen := index == crayon
-        if chosen { BookBox(x - 2, y - 2, 48, 24, 0x2e6956ff, 0x2e6956ff, 5.0) }
-        BookBox(x, y, 44, 20, paint_colors[16 + index], ifx chosen then cast(u32)0xfffcf3ff else cast(u32)0x8a7a66ff, 4.0)
+    for index: cast(s32)0..CRAYON_COUNT - 1 {
+        color := crayon_order[index]
+        x := 20 + (index % 7) * 41
+        y := 31 + (index / 7) * 23
+        press := RetroTap(130 + index, x, y, 37, 18, "Color")
+        chosen := color == 16 + crayon
+        if chosen { BookBox(x - 2, y - 2, 41, 22, 0x2e6956ff, 0x2e6956ff, 5.0) }
+        BookBox(x, y, 37, 18, paint_colors[color], ifx chosen then cast(u32)0xfffcf3ff else cast(u32)0x8a7a66ff, 4.0)
         if press.clicked {
-            crayon = index
+            crayon = color - 16
             Sound("click")
             view = MAIN
             return
         }
     }
-    BookLabel(20, 176, "Click outside to cancel", BLACK)
     pointer := SamplePointer()
     x := RetroPointX(pointer.x)
     y := RetroPointY(pointer.y)
-    inside := x >= 20 && x < 304 && y >= 30 && y < 146
+    inside := x >= 18 && x < 305 && y >= 29 && y < 166
     if pointer.released && !inside { view = MAIN }
     unused CancelButton()
 }

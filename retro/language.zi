@@ -9,7 +9,7 @@ LanguageCode :: () -> string {
 LanguageSet :: (code: string) {
     language = ifx code == "de" then 1 else ifx code == "es" then 2 else 0
 }
-UI_COUNT :: 249
+UI_COUNT :: 255
 ui_en_0: [48]string = .[
     "Picture Book",
     "Animal Counting",
@@ -260,7 +260,7 @@ ui_en_192: [48]string = .[
     "Play again",
     "Pictures",
 ];
-ui_en_240: [9]string = .[
+ui_en_240: [15]string = .[
     "Peek",
     "All pieces",
     "Edge pieces",
@@ -270,6 +270,12 @@ ui_en_240: [9]string = .[
     "Could not save puzzle",
     "Player 1",
     "Player 2",
+    "Meadow",
+    "Forest",
+    "Desert",
+    "Snowy hills",
+    "Pond",
+    "Farmyard",
 ];
 ui_de_0: [48]string = .[
     "Bilderbuch",
@@ -521,7 +527,7 @@ ui_de_192: [48]string = .[
     "Noch einmal",
     "Bilder",
 ];
-ui_de_240: [9]string = .[
+ui_de_240: [15]string = .[
     "Nachsehen",
     "Alle Teile",
     "Randteile",
@@ -531,6 +537,12 @@ ui_de_240: [9]string = .[
     "Speichern fehlgeschlagen",
     "Spieler 1",
     "Spieler 2",
+    "Wiese",
+    "Wald",
+    "Wüste",
+    "Schneehügel",
+    "Teich",
+    "Bauernhof",
 ];
 ui_es_0: [48]string = .[
     "Libro ilustrado",
@@ -782,7 +794,7 @@ ui_es_192: [48]string = .[
     "Jugar otra vez",
     "Imágenes",
 ];
-ui_es_240: [9]string = .[
+ui_es_240: [15]string = .[
     "Mirar",
     "Todas las piezas",
     "Piezas del borde",
@@ -792,6 +804,12 @@ ui_es_240: [9]string = .[
     "No se pudo guardar",
     "Jugador 1",
     "Jugador 2",
+    "Pradera",
+    "Bosque",
+    "Desierto",
+    "Colinas nevadas",
+    "Estanque",
+    "Granja",
 ];
 Ui_en :: (at: s32) -> string {
     if at < 48 { return ui_en_0[at - 0] }
@@ -799,7 +817,7 @@ Ui_en :: (at: s32) -> string {
     if at < 144 { return ui_en_96[at - 96] }
     if at < 192 { return ui_en_144[at - 144] }
     if at < 240 { return ui_en_192[at - 192] }
-    if at < 249 { return ui_en_240[at - 240] }
+    if at < 255 { return ui_en_240[at - 240] }
     return ""
 }
 Ui_de :: (at: s32) -> string {
@@ -808,7 +826,7 @@ Ui_de :: (at: s32) -> string {
     if at < 144 { return ui_de_96[at - 96] }
     if at < 192 { return ui_de_144[at - 144] }
     if at < 240 { return ui_de_192[at - 192] }
-    if at < 249 { return ui_de_240[at - 240] }
+    if at < 255 { return ui_de_240[at - 240] }
     return ""
 }
 Ui_es :: (at: s32) -> string {
@@ -817,7 +835,7 @@ Ui_es :: (at: s32) -> string {
     if at < 144 { return ui_es_96[at - 96] }
     if at < 192 { return ui_es_144[at - 144] }
     if at < 240 { return ui_es_192[at - 192] }
-    if at < 249 { return ui_es_240[at - 240] }
+    if at < 255 { return ui_es_240[at - 240] }
     return ""
 }
 Tr :: (text: string) -> string {

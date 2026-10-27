@@ -5,6 +5,7 @@
 #import, file "../games/paint/paint_canvas.zi";
 #import, file "../games/paint/paint_pages.zi";
 #import, file "../games/paint/paint_picture.zi";
+#import, file "../games/paint/paint_palette.zi";
 #import, file "../host/platform.zi";
 #import, file "../host/jungle_text.zi";
 
@@ -27,13 +28,22 @@ Blank :: () {
 }
 
 PalmFillStaysInside :: (scene: s32, x: s32, y: s32, left: s32, top: s32, right: s32, bottom: s32) -> bool {
-    if !SceneOpen(scene) || CanvasColorAt(x, y) != PAPER { return false }
-    if CanvasFill(x, y, 30) < 20 { return false }
+    if !SceneOpen(scene) || CanvasColorAt(x, y) != PAPER {
+        Report(Cat("palm seed is not paper: ", NumberText(scene), " ", NumberText(x), ",", NumberText(y), "\n"))
+        return false
+    }
+    if CanvasFill(x, y, 30) < 20 {
+        Report(Cat("palm region too small: ", NumberText(scene), " ", NumberText(x), ",", NumberText(y), "\n"))
+        return false
+    }
     for at: cast(s32)0..CANVAS_PIXELS - 1 {
         if canvas[at] != 30 { continue }
         px := at % CANVAS_WIDTH
         py := at / CANVAS_WIDTH
-        if px < left || px >= right || py < top || py >= bottom { return false }
+        if px < left || px >= right || py < top || py >= bottom {
+            Report(Cat("palm fill escaped: ", NumberText(scene), " ", NumberText(x), ",", NumberText(y), "\n"))
+            return false
+        }
     }
     return true
 }
@@ -42,6 +52,19 @@ PalmFillStaysInside :: (scene: s32, x: s32, y: s32, left: s32, top: s32, right: 
 main :: (argc: s32, argv: **u8) -> s32 {
     unused argc
     unused argv
+    // Every visible swatch is distinct, selectable paint, never outline ink
+    // or legacy pure black. Charcoal must remain visibly lighter than ink.
+    for index: cast(s32)0..CRAYON_COUNT - 1 {
+        color := crayon_order[index]
+        if color < 16 || color >= PAINT_COLORS || paint_colors[color] == paint_colors[INK] {
+            return PaintFail("crayons", "a selectable color hides the outlines")
+        }
+        for earlier: cast(s32)0..index - 1 {
+            if paint_colors[color] == paint_colors[crayon_order[earlier]] {
+                return PaintFail("crayons", "two visible swatches repeat a color")
+            }
+        }
+    }
     for scene: cast(s32)0..SCENE_COUNT - 1 {
         if !SceneOpen(scene) { return PaintFail("scene", "did not open") }
         ink := InkCount()
@@ -68,6 +91,10 @@ main :: (argc: s32, argv: **u8) -> s32 {
        !PalmFillStaysInside(0, 290, 313, 280, 300, 300, 340) ||
        !PalmFillStaysInside(0, 350, 354, 342, 322, 365, 370) ||
        !PalmFillStaysInside(0, 863, 350, 850, 335, 875, 365) ||
+       !PalmFillStaysInside(0, 275, 323, 265, 310, 290, 338) ||
+       !PalmFillStaysInside(0, 362, 347, 350, 332, 375, 360) ||
+       !PalmFillStaysInside(0, 804, 286, 785, 270, 848, 312) ||
+       !PalmFillStaysInside(0, 865, 274, 855, 259, 914, 287) ||
        !PalmFillStaysInside(4, 250, 80, 160, 40, 360, 170) ||
        !PalmFillStaysInside(4, 65, 105, 0, 50, 165, 220) ||
        !PalmFillStaysInside(4, 105, 205, 85, 180, 135, 245) ||

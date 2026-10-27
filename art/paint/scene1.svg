@@ -4,4 +4,6 @@
 <!-- Reinforce palm outlines and narrow joins for reliable bucket fills. -->
 <defs><clipPath id="palm-outlines"><polygon points="0,0 385,0 385,120 345,247 245,291 0,215"/><polygon points="720,0 960,0 960,245 848,245 770,200 720,145"/><polygon points="132,89 167,88 98,440 38,453"/><polygon points="891,80 925,80 960,321 960,366 922,332"/><polygon points="265,268 321,268 321,341 265,341"/><polygon points="330,288 389,288 389,371 330,371"/><polygon points="710,311 777,311 777,426 710,426"/><polygon points="777,229 921,229 921,394 777,394"/></clipPath></defs>
 <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#ink" clip-path="url(#palm-outlines)" fill="#000" stroke="#000" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+<defs><clipPath id="palm-joins"><circle cx="269" cy="316" r="8"/><circle cx="371" cy="348" r="10"/><circle cx="843" cy="284" r="8"/><circle cx="857" cy="283" r="12"/></clipPath></defs>
+<use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#ink" clip-path="url(#palm-joins)" fill="#000" stroke="#000" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
 </svg>

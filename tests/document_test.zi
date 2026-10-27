@@ -57,7 +57,7 @@ main :: () -> s32 {
     if PictureLoad(Cat(original, "x")) || PictureText() != original { return 6 }
     bad: Vec(u8)
     BuilderPrint(*bad, "%", original)
-    bad[PICTURE_HEADER.count] = #char "9"
+    bad[PICTURE_HEADER.count] = #char "z"
     if PictureLoad(BuilderFinish(bad)) || scene != 3 { return 7 }
     // Black paint remains paint; it must not become an immutable outline.
     for at: cast(s32)0..CANVAS_PIXELS - 1 { canvas[at] = cast(u8)BLACK_PAINT }
@@ -86,6 +86,15 @@ main :: () -> s32 {
     ClearStory()
     if !PictureLoad(accented) || StoryText() != "üßñá\n\n\n\n\n\n\n\n" { return 10 }
     if PictureText() != accented { return 11 }
+    // Both pages of backgrounds and every new paint index survive saving.
+    for chosen: cast(s32)0..SCENE_COUNT - 1 {
+        scene = chosen
+        crayon = CHARCOAL_PAINT - 16
+        unused SceneOpen(chosen)
+        for color: cast(s32)16..PAINT_COLORS - 1 { canvas[color] = cast(u8)color }
+        saved := PictureText()
+        if !PictureLoad(saved) || scene != chosen || crayon != CHARCOAL_PAINT - 16 || PictureText() != saved { return 16 }
+    }
     Report("local document test passed\n")
     return 0
 }

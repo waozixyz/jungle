@@ -1,11 +1,22 @@
-// The crayons: thirty colors from index 16, the last fifteen the blends of
-// gray with the first fifteen. The first sixteen EGA entries preserve
-// earlier saves without recoloring; index 0 is the black of lines. Index
-// 46 is black paint that older pictures may hold, which is not a line.
+// Keep every existing color index unchanged so saved pictures retain their
+// colors. Index 0 is outline ink; 46 is legacy black paint. New crayons are
+// appended, with charcoal visibly lighter than the outlines.
 PAINT_CODES :: "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_"
-PAINT_COLORS :: 47
+PAINT_COLORS :: 64
 BLACK_PAINT :: 46
-paint_colors: [47]u32 = .[
+CHARCOAL_PAINT :: 63
+CRAYON_COUNT :: 42
+// Hue families run down the columns, from pastels to deeper shades. The
+// last row holds paper, cream, skin tones, grays and near-black charcoal.
+crayon_order: [42]s32 = .[
+    47, 48, 49, 50, 51, 52, 53,
+    27, 54, 29, 21, 19, 17, 20,
+    28, 24, 59, 22, 34, 32, 35,
+    26, 25, 60, 23, 57, 18, 61,
+    42, 40, 44, 38, 55, 33, 56,
+    30, 58, 62, 39, 45, 16, CHARCOAL_PAINT
+];
+paint_colors: [64]u32 = .[
     0x000000ff, 0x0000aaff, 0x00aa00ff, 0x00aaaaff,
     0xaa0000ff, 0xaa00aaff, 0xaa5500ff, 0xaaaaaaff,
     0x555555ff, 0x5555ffff, 0x55ff55ff, 0x55ffffff,
@@ -16,7 +27,11 @@ paint_colors: [47]u32 = .[
     0x828282ff, 0x4141c0ff, 0x4141a2ff, 0x4192a2ff, 0x9a41a6ff,
     0x41a269ff, 0x419241ff, 0x417941ff, 0xa27941ff, 0x926941ff,
     0x824141ff, 0xc04141ff, 0xaa4141ff, 0xb8b85fff, 0xc0c0c0ff,
-    0x000000ff
+    0x000000ff,
+    0xf7b5b5ff, 0xffd1a8ff, 0xfff4a3ff, 0xbce5adff,
+    0xb6e6edff, 0xb9c9f6ff, 0xe2b9edff, 0xff8b32ff,
+    0x5bc9b9ff, 0xee7fbaff, 0x247980ff, 0xfff3d6ff,
+    0xe3bd36ff, 0x6f782eff, 0x653969ff, 0xd5ab7cff, 0x3c3c3cff
 ];
 
 PaintIndex :: (byte: u8) -> s32 {
