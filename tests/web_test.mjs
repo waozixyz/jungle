@@ -2,6 +2,7 @@
 import {spawn} from 'node:child_process';
 import {readFile,writeFile,mkdtemp,rm,mkdir} from 'node:fs/promises';
 import {createServer} from 'node:http';
+import {createHash} from 'node:crypto';
 import {join,resolve,extname} from 'node:path';
 import {tmpdir} from 'node:os';
 import {setTimeout as delay} from 'node:timers/promises';
@@ -13,7 +14,12 @@ const hasNumbers=(await readFile('games/catalog.txt','utf8')).includes('jungle-n
 const visibleGames=catalog-Number(hasABC&&hasNumbers);
 const rowY=(i,count=visibleGames)=>Math.round((112+(693-164)/count*(i+0.5))*(844/693));
 const mime={'.html':'text/html','.js':'text/javascript','.wasm':'application/wasm','.json':'application/json','.webmanifest':'application/manifest+json','.ico':'image/x-icon','.xml':'application/xml','.jpg':'image/jpeg','.png':'image/png','.wav':'audio/wav'};
-const server=createServer(async(req,res)=>{try{let file=resolve(root,'.'+decodeURIComponent(new URL(req.url,'http://localhost').pathname));if(!file.startsWith(root+'/')&&file!==root)throw Error();if(file===root||file.endsWith('/'))file=join(file,'index.html');const data=await readFile(file);res.writeHead(200,{'Content-Type':mime[extname(file)]||'application/octet-stream'});res.end(data)}catch{res.writeHead(404);res.end()}});
+let stalePictureRequests=0;
+const server=createServer(async(req,res)=>{try{const request=new URL(req.url,'http://localhost');let file=resolve(root,'.'+decodeURIComponent(request.pathname));if(!file.startsWith(root+'/')&&file!==root)throw Error();if(file===root||file.endsWith('/'))file=join(file,'index.html');
+ // An old, cacheable URL deliberately serves a previous picture. A new
+ // deployment must request its revision rather than reuse that cache entry.
+ if(request.pathname==='/assets/jungle-book/pages/tiger.jpg'&&!request.searchParams.has('v')){file=join(root,'assets/jungle-book/pages/cow.jpg');stalePictureRequests++}
+ const data=await readFile(file);res.writeHead(200,{'Content-Type':mime[extname(file)]||'application/octet-stream','Cache-Control':'public, max-age=14400'});res.end(data)}catch{res.writeHead(404);res.end()}});
 await new Promise(r=>server.listen(0,'127.0.0.1',r));
 const url=process.argv[2]||'http://127.0.0.1:'+server.address().port;
 const env={...process.env};for(const name of ['DISPLAY','WAYLAND_DISPLAY','XAUTHORITY','DBUS_SESSION_BUS_ADDRESS','SESSION_MANAGER'])delete env[name];env.YUE_DESKTOP_RECOVERY='0';env.TMPDIR='/tmp';
@@ -33,6 +39,13 @@ try{
  await command('Runtime.enable');await command('Page.enable');await command('Page.addScriptToEvaluateOnNewDocument',{source:'performance.setResourceTimingBufferSize(5000);window.jungleTestVoices=[];const jungleOriginalPlay=HTMLMediaElement.prototype.play;HTMLMediaElement.prototype.play=function(){window.jungleTestVoices.push(this.src);window.jungleTestAudio=this;return jungleOriginalPlay.apply(this,arguments)}'});await command('Emulation.setDeviceMetricsOverride',{width:1280,height:800,deviceScaleFactor:1,mobile:false});await command('Page.navigate',{url});
  let ready=false;while(Date.now()<deadline){if(await evaluate('typeof Module!=="undefined"&&Module.FS&&document.getElementById("loading").style.display==="none"')){ready=true;break}if(diagnostics.length)throw Error(JSON.stringify(diagnostics));await delay(250)}
  if(!ready)throw Error('Browser startup timeout '+JSON.stringify(diagnostics)+' '+await evaluate('JSON.stringify({url:location.href,title:document.title,text:document.body?.innerText?.slice(0,500)})'));await delay(1000);
+ const expectedTiger=createHash('sha256').update(await readFile(join(root,'assets/jungle-book/pages/tiger.jpg'))).digest('hex');
+ const actualTiger=await evaluate('(async()=>Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256",Module.FS.readFile("/assets/jungle-book/pages/tiger.jpg")))).map(byte=>byte.toString(16).padStart(2,"0")).join(""))()');
+ if(actualTiger!==expectedTiger)throw Error('A cached picture from an earlier release replaced the current tiger');
+ const revision=await evaluate('buildRevision');
+ if(!/^[a-f0-9]{40}$/.test(revision))throw Error('Browser build revision is missing');
+ const unversioned=await evaluate('performance.getEntriesByType("resource").map(entry=>new URL(entry.name)).filter(url=>(url.pathname.startsWith("/assets/")&&/\\.(png|jpg)$/.test(url.pathname)||["/jungle.js","/jungle.wasm","/images.json"].includes(url.pathname))&&url.searchParams.get("v")!=='+JSON.stringify(revision)+').map(url=>url.pathname)');
+ if(unversioned.length||stalePictureRequests)throw Error('A deployment reused unversioned cached resources: '+JSON.stringify(unversioned));
  await mkdir('build/tests/web',{recursive:true});
  const captures=new Map();
  async function pagePixels(trimBottom=0){const {w,h}=await evaluate('({w:Module.canvas.clientWidth,h:Module.canvas.clientHeight})');return (await command('Page.captureScreenshot',{format:'png',clip:{x:0,y:56,width:w,height:h-56-trimBottom,scale:1}})).result.data}
