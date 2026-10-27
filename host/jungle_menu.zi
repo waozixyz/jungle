@@ -8,6 +8,9 @@
 #import "kryon/title_bar_props"
 #import "kryon/dropdown_props"
 #import "kryon/title_bar_widget"
+#import "kryon/scroll_props"
+#import "kryon/scroll_widget"
+#import "kryon/tree"
 SoundOnIcon :: #import "mingcute/mingcute_regular_volume";
 SoundOffIcon :: #import "mingcute/mingcute_regular_volume_off";
 #import, file "../retro/retro.zi";
@@ -35,6 +38,8 @@ menu_portrait: bool;
 menu_learning: bool;
 menu_lesson_choice: s32;
 menu_root_choice: s32;
+menu_root_scroll: s32;
+menu_lesson_scroll: s32;
 GAME_BAR_HEIGHT :: 56
 ABC_SPEED_KEY :: 10001
 abc_title_speed: s32 = 1;
@@ -137,12 +142,21 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
     } else {
         for index: cast(s32)0..source_count - 1 {
             if combined && index == numbers { continue }
-            order[game_count] = index
+            position := game_count
+            while position > 0 && games[order[position - 1]].age > games[index].age {
+                order[position] = order[position - 1]; position -= 1
+            }
+            order[position] = index
             game_count += 1
         }
     }
     visible_choice := ifx menu_learning then menu_lesson_choice else menu_root_choice
     if visible_choice < 0 || visible_choice >= game_count { visible_choice = 0 }
+    if key == KEY_UP || key == KEY_DOWN {
+        step: s32 = ifx key == KEY_UP then game_count - 1 else 1
+        visible_choice = (visible_choice + step) % game_count
+        action.navigated = true
+    }
     RetroBegin(session, bounds, font, now, key, BLACK)
     retro.y = bounds.y
     menu_height = cast(s32)(bounds.height / retro.scale)
@@ -165,42 +179,67 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
         ifx menu_learning then "Choose a book" else "Choose a little adventure", ifx menu_portrait then 8 else 7)
     action.language_changed = LanguageFlags()
     row_height: s32 = ifx menu_portrait then (menu_height - 164) / game_count else (menu_height - 95) / game_count
-    if !menu_portrait && row_height > 35 { row_height = 35 }
+    if menu_portrait && row_height < 88 { row_height = 88 }
+    if !menu_portrait { row_height = 35 }
     row_top: s32 = ifx menu_portrait then 112 else 67
-    activated: s32 = -1
-    for slot: cast(s32)0..game_count - 1 {
-        index := order[slot]
-        group := combined && !menu_learning && index == abc
-        title := ifx group then "ABC + 123" else games[index].title
-        about := ifx group then "Letters and numbers" else games[index].about
-        y := row_top + slot * row_height
-        h := row_height - 4
-        press := RetroTap(100 + slot, 22, y, 276, h, title)
-        if press.down { visible_choice = slot }
-        selected := slot == visible_choice
-        BookBox(22, y, 276, h, ifx selected then cast(u32)0xe5eee1ff else cast(u32)0xf7f1e3ff,
-            ifx selected then cast(u32)0x2e6956ff else cast(u32)0xdacdb5ff, 4.0)
-        picture: s32 = ifx menu_portrait then 68 else 29
-        if picture > h - 8 { picture = h - 8 }
-        if picture < 1 { picture = 1 }
-        image_y := y + (h - picture) / 2
-        BookPicture(ifx group then "assets/jungle/covers/abc-123.png" else games[index].icon, 25, image_y, picture, picture)
-        text_x := 25 + picture + 9
-        if h >= 54 {
-            text_y := y + (h - 42) / 2
-            BookText(text_x, text_y, 259 - text_x, 26, title, 17, TextAlign.TextAlignStart)
-            BookText(text_x, text_y + 28, 259 - text_x, 14, about, 10, TextAlign.TextAlignStart)
-        } else {
-            title_size := (h - 8) * 3 / 5
-            if title_size > 17 { title_size = 17 }
-            BookText(text_x, y + 4, 259 - text_x, h - 8, title, title_size, TextAlign.TextAlignStart)
-        }
-        badge_height: s32 = ifx h < 24 then 13 else 15
-        BookBox(267, y + (h - badge_height) / 2, 24, badge_height, 0xeee4cfff, 0xd6c6a8ff, 5.0)
-        BookText(267, y + (h - badge_height) / 2, 24, badge_height, Cat(NumberText(games[index].age), "+"), 9)
-        if press.clicked { activated = slot }
-    }
     footer: s32 = ifx menu_portrait then menu_height - 50 else menu_height - 26
+    list_height := footer - row_top - 8
+    offset := ifx menu_learning then menu_lesson_scroll else menu_root_scroll
+    if action.navigated {
+        top := cast(s32)(cast(float32)(visible_choice * row_height) * retro.scale)
+        bottom := cast(s32)(cast(float32)((visible_choice + 1) * row_height) * retro.scale)
+        extent := cast(s32)(cast(float32)list_height * retro.scale)
+        if top < offset { offset = top }
+        if bottom > offset + extent { offset = bottom - extent }
+    }
+    scrolled := Scroll(session, ScrollProps.{.key = ifx menu_learning then cast(u64)7002 else cast(u64)7001,
+        .bounds = RetroRect(22, row_top, 276, list_height), .scale = retro.scale,
+        .content_height = cast(s32)(cast(float32)(game_count * row_height) * retro.scale),
+        .scroll_offset = offset, .keep_scrollbar = true})
+    if menu_learning { menu_lesson_scroll = scrolled.scroll_offset }
+    else { menu_root_scroll = scrolled.scroll_offset }
+    saved_y := retro.y
+    retro.y -= cast(float32)scrolled.scroll_offset
+    row_width := ifx scrolled.frame.clip.width > 0.0 then cast(s32)(scrolled.frame.clip.width / retro.scale) else 276
+    row_right := 22 + row_width
+    badge_x := row_right - 31
+    activated: s32 = -1
+    if scrolled.opened {
+        for slot: cast(s32)0..game_count - 1 {
+            index := order[slot]
+            group := combined && !menu_learning && index == abc
+            title := ifx group then "ABC + 123" else games[index].title
+            about := ifx group then "Letters and numbers" else games[index].about
+            y := row_top + slot * row_height
+            h := row_height - 4
+            press := RetroTap(100 + slot, 22, y, row_width, h, title)
+            if press.down { visible_choice = slot }
+            selected := slot == visible_choice
+            BookBox(22, y, row_width, h, ifx selected then cast(u32)0xe5eee1ff else cast(u32)0xf7f1e3ff,
+                ifx selected then cast(u32)0x2e6956ff else cast(u32)0xdacdb5ff, 4.0)
+            picture: s32 = ifx menu_portrait then 68 else 29
+            if picture > h - 8 { picture = h - 8 }
+            if picture < 1 { picture = 1 }
+            image_y := y + (h - picture) / 2
+            BookPicture(ifx group then "assets/jungle/covers/abc-123.png" else games[index].icon, 25, image_y, picture, picture)
+            text_x := 25 + picture + 9
+            if h >= 54 {
+                text_y := y + (h - 42) / 2
+                BookText(text_x, text_y, row_right - 39 - text_x, 26, title, 17, TextAlign.TextAlignStart)
+                BookText(text_x, text_y + 28, row_right - 39 - text_x, 14, about, 10, TextAlign.TextAlignStart)
+            } else {
+                title_size := (h - 8) * 3 / 5
+                if title_size > 17 { title_size = 17 }
+                BookText(text_x, y + 4, row_right - 39 - text_x, h - 8, title, title_size, TextAlign.TextAlignStart)
+            }
+            badge_height: s32 = ifx h < 24 then 13 else 15
+            BookBox(badge_x, y + (h - badge_height) / 2, 24, badge_height, 0xeee4cfff, 0xd6c6a8ff, 5.0)
+            BookText(badge_x, y + (h - badge_height) / 2, 24, badge_height, Cat(NumberText(games[index].age), "+"), 9)
+            if press.clicked { activated = slot }
+        }
+        unused End(session)
+    }
+    retro.y = saved_y
     footer_height: s32 = ifx menu_portrait then 36 else 14
     BookText(24, footer + (footer_height - 10) / 2, 150, 10, ifx message != "" then message else "Arrows + Enter", 8, TextAlign.TextAlignStart)
     sound := RetroTap(500, 182, footer, 116, footer_height, ifx sound_muted then "Sound off · F10" else "Sound on · F10")
@@ -208,11 +247,6 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
         0xd6c6a8ff, 4.0)
     BookText(182, footer, 116, footer_height, ifx sound_muted then "Sound off · F10" else "Sound on · F10", 8)
     if sound.clicked || key == 299 { action.sound_toggle = true }
-    if key == KEY_UP || key == KEY_DOWN {
-        step: s32 = ifx key == KEY_UP then game_count - 1 else 1
-        visible_choice = (visible_choice + step) % game_count
-        action.navigated = true
-    }
     if key == KEY_ENTER { activated = visible_choice }
     if key >= 49 && key < 49 + game_count { activated = key - 49 }
     if menu_learning { menu_lesson_choice = visible_choice }

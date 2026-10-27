@@ -1,0 +1,85 @@
+// A free tabletop: persistent centers, stacking order and shape-aware picking.
+#import, file "puzzle.zi";
+
+TableBounds :: struct { x: s32; y: s32; width: s32; height: s32 }
+TablePoint :: struct { x: s32; y: s32 }
+
+TableCenter :: (p: Puzzle, piece: s32, area: TableBounds) -> TablePoint {
+    return TablePoint.{area.x + p.loose_x[piece] * area.width / 10000,
+        area.y + p.loose_y[piece] * area.height / 10000}
+}
+
+TablePosition :: (p: *Puzzle, piece: s32, area: TableBounds, x: s32, y: s32, cell: s32) {
+    // Keep the entire shape reachable after a drop or a window resize.
+    mx := cell * 3 / 4 + 2; my := mx
+    if mx > area.width / 2 { mx = area.width / 2 }
+    if my > area.height / 2 { my = area.height / 2 }
+    cx := x; cy := y
+    if cx < area.x + mx { cx = area.x + mx }
+    if cx > area.x + area.width - mx { cx = area.x + area.width - mx }
+    if cy < area.y + my { cy = area.y + my }
+    if cy > area.y + area.height - my { cy = area.y + area.height - my }
+    previous := TableCenter(p.*, piece, area)
+    if p.loose_x[piece] != 0 && previous.x == cx && previous.y == cy { return }
+    p.loose_x[piece] = (cx - area.x) * 10000 / area.width
+    p.loose_y[piece] = (cy - area.y) * 10000 / area.height
+}
+
+TableScatter :: (p: *Puzzle, area: TableBounds, pile: TableBounds, cell: s32) -> bool {
+    count := PuzzleCount(p.*)
+    cols: s32 = 1
+    while cols * cols * pile.height < count * pile.width { cols += 1 }
+    rows := (count + cols - 1) / cols
+    margin := cell * 3 / 5
+    across := pile.width - margin * 2; down := pile.height - margin * 2
+    if across < 1 { across = 1 }; if down < 1 { down = 1 }
+    changed := false
+    for i: cast(s32)0..count - 1 {
+        piece := p.order[i]
+        if p.loose_x[piece] != 0 { continue }
+        // Shuffled identities, irregular centers and overlapping tabs give the
+        // table a scattered feel; no slots or thumbnails change a piece's size.
+        hash := (piece * 67 + p.scene * 31 + i * 17 + 13) % 101
+        x := pile.x + margin + ifx cols > 1 then (i % cols) * across / (cols - 1) else across / 2
+        y := pile.y + margin + ifx rows > 1 then (i / cols) * down / (rows - 1) else down / 2
+        x += (hash % 19 - 9) * cell / 40
+        y += (hash % 23 - 11) * cell / 45
+        TablePosition(p, piece, area, x, y, cell)
+        changed = true
+    }
+    return changed
+}
+
+TableFront :: (p: *Puzzle, piece: s32) {
+    total := PuzzleCount(p.*)
+    at: s32 = 0
+    while at < total && p.order[at] != piece { at += 1 }
+    if at == total { return }
+    while at < total - 1 { p.order[at] = p.order[at + 1]; at += 1 }
+    p.order[total - 1] = piece
+}
+
+// Samples of the exact rounded tab used by tools/jigsaw_art.py. Interpolation
+// lets a press in a transparent socket reach the piece underneath it.
+tab_curve: [17]float32 = .[0.0, 0.0692, 0.107, 0.1365, 0.1597, 0.1775, 0.19, 0.1975,
+    0.2, 0.1975, 0.19, 0.1775, 0.1597, 0.1365, 0.107, 0.0692, 0.0];
+
+TableBump :: (at: float32) -> float32 {
+    if at <= 0.32 || at >= 0.68 { return 0.0 }
+    position := (at - 0.32) * (16.0 / 0.36)
+    i := cast(s32)position
+    if i > 15 { i = 15 }
+    return tab_curve[i] + (tab_curve[i + 1] - tab_curve[i]) * (position - cast(float32)i)
+}
+
+TableHit :: (p: Puzzle, piece: s32, center: TablePoint, cell: s32, x: s32, y: s32) -> bool {
+    u := cast(float32)(x - center.x) / cast(float32)cell + 0.5
+    v := cast(float32)(y - center.y) / cast(float32)cell + 0.5
+    n := grid_sizes[p.level]; row := piece / n; col := piece % n
+    sign: float32 = ifx (row + col) % 2 == 0 then -1.0 else 1.0
+    left: float32 = ifx col == 0 then 0.0 else -sign * TableBump(1.0 - v)
+    right: float32 = 1.0 + ifx col == n - 1 then 0.0 else sign * TableBump(v)
+    top: float32 = ifx row == 0 then 0.0 else -sign * TableBump(u)
+    bottom: float32 = 1.0 + ifx row == n - 1 then 0.0 else sign * TableBump(1.0 - u)
+    return u >= left && u <= right && v >= top && v <= bottom
+}

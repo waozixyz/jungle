@@ -116,6 +116,12 @@ class Desktop:
         time.sleep(.18)
         self.alive()
 
+    def game(self, title):
+        rows = [line.split('|') for line in (ROOT/'games/catalog.txt').read_text().splitlines() if '|' in line]
+        rows.sort(key=lambda row: int(row[4]))
+        rows = [row for row in rows if row[1] != '123 Book']
+        self.key(str(next(i+1 for i,row in enumerate(rows) if row[1] == title)))
+
     def click(self, x, y, button=1):
         run(["xdotool", "mousemove", "--window", self.window,
              str(round(x * self.scale + self.left)),
@@ -389,23 +395,21 @@ def ui(binary):
             desktop.key("Escape")
             desktop.key("Escape")
             print("local UI test: 123 opens directly into learning and reaches ten", flush=True)
-            desktop.key("3")
+            desktop.game("Animal Counting")
             counting = desktop.capture("counting")
             assert counting.getpixel((0, 0)) == (227, 236, 228), "counting did not render its book background"
             progress = data / "games/jungle.animals/progress.txt"
             previous = 0
             for answer_index in range(6):
                 counting = desktop.capture("counting")
-                # At the first level all animals fit on one centered row.
-                # Count separated painted groups, excluding the frame and answer.
-                columns = []
-                for x in range(26, 204):
-                    painted = any(counting.getpixel((x, y)) != (247, 241, 227) for y in range(72, 134))
-                    if painted and (not columns or x > columns[-1][-1] + 1):
-                        columns.append([x])
-                    elif painted:
-                        columns[-1].append(x)
-                answer = len([group for group in columns if len(group) >= 3])
+                # Count occupied dice cells, keeping the group frame outside
+                # the samples. This observes the real painted animal pictures.
+                answer = 0
+                for x,y in ((83,72),(125,72),(83,114),(125,114),(104,93)):
+                    cell = counting.crop((x,y,x+19,y+19))
+                    pixels = cell.get_flattened_data() if hasattr(cell, 'get_flattened_data') else cell.getdata()
+                    if any(max(abs(a-b) for a,b in zip(color,(233,240,227))) > 8 for color in pixels):
+                        answer += 1
                 assert 1 <= answer <= 4, "counting did not render its watercolor animals"
                 assert answer != previous, "counting repeated a question"
                 previous = answer
@@ -421,10 +425,11 @@ def ui(binary):
             desktop.key("Escape")
             desktop.key("Up")
             desktop.key("Up")
+            desktop.key("Up")
             returned = desktop.capture("menu-return")
             assert ImageChops.difference(menu, returned).getbbox() is None, "counting did not return home"
             print("local UI test: watercolor counting artwork, questions, ladder and progress", flush=True)
-            desktop.key("4")
+            desktop.game("Coloring Book")
             desktop.capture("paint-main")
             desktop.click(30, 15)
             scenes = desktop.capture("paint-scenes")
@@ -564,7 +569,7 @@ def ui(binary):
         with Desktop(binary, data, extra) as desktop:
             restarted = desktop.capture("restart-menu")
             assert ImageChops.difference(muted_menu, restarted).getbbox() is None, "mute setting did not survive restart"
-            desktop.key("4")
+            desktop.game("Coloring Book")
             desktop.capture("paint-recovered")
             assert (data / "games/jungle.paint/working.txt").read_bytes() == before
             print("local UI test: working picture recovers after restart", flush=True)

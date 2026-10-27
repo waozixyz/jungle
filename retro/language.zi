@@ -9,7 +9,7 @@ LanguageCode :: () -> string {
 LanguageSet :: (code: string) {
     language = ifx code == "de" then 1 else ifx code == "es" then 2 else 0
 }
-UI_COUNT :: 214
+UI_COUNT :: 249
 ui_en_0: [48]string = .[
     "Picture Book",
     "Animal Counting",
@@ -210,7 +210,7 @@ ui_en_144: [48]string = .[
     "Pause",
     "Try another letter",
 ];
-ui_en_192: [22]string = .[
+ui_en_192: [48]string = .[
     "Hear number",
     "Speed",
     "Slow",
@@ -233,6 +233,43 @@ ui_en_192: [22]string = .[
     "Bedtime",
     "Word audio",
     "Manage",
+    "Jigsaw Puzzles",
+    "Pictures, piece by piece",
+    "Choose your puzzle",
+    "Tiger stream",
+    "Duck pond",
+    "Meadow train",
+    "Previous picture",
+    "Next picture",
+    "Pieces",
+    "Solo",
+    "Team",
+    "Competition",
+    "A quiet puzzle at your own pace",
+    "Two players, one minute each",
+    "Peek allowed",
+    "No peeking",
+    "Lock on",
+    "Lock off",
+    "Start puzzle",
+    "Resume puzzle",
+    "Puzzle piece",
+    "Puzzle table",
+    "Beautifully done!",
+    "A lovely picture, piece by piece",
+    "Play again",
+    "Pictures",
+];
+ui_en_240: [9]string = .[
+    "Peek",
+    "All pieces",
+    "Edge pieces",
+    "Next player",
+    "Save puzzle",
+    "Puzzle saved",
+    "Could not save puzzle",
+    "Player 1",
+    "Player 2",
 ];
 ui_de_0: [48]string = .[
     "Bilderbuch",
@@ -434,7 +471,7 @@ ui_de_144: [48]string = .[
     "Pause",
     "Wähle einen anderen Buchstaben",
 ];
-ui_de_192: [22]string = .[
+ui_de_192: [48]string = .[
     "Zahl hören",
     "Tempo",
     "Langsam",
@@ -457,6 +494,43 @@ ui_de_192: [22]string = .[
     "Schlafenszeit",
     "Wort anhören",
     "Verwalten",
+    "Puzzles",
+    "Bilder, Teil für Teil",
+    "Wähle dein Puzzle",
+    "Tiger am Bach",
+    "Ententeich",
+    "Zug auf der Wiese",
+    "Voriges Bild",
+    "Nächstes Bild",
+    "Teile",
+    "Allein",
+    "Zusammen",
+    "Wettbewerb",
+    "In deinem eigenen Tempo puzzeln",
+    "Zwei Spieler, je eine Minute",
+    "Nachsehen erlaubt",
+    "Nicht nachsehen",
+    "Teile fest",
+    "Teile beweglich",
+    "Puzzle starten",
+    "Weiterpuzzeln",
+    "Puzzleteil",
+    "Puzzletisch",
+    "Wunderbar gemacht!",
+    "Ein schönes Bild, Teil für Teil",
+    "Noch einmal",
+    "Bilder",
+];
+ui_de_240: [9]string = .[
+    "Nachsehen",
+    "Alle Teile",
+    "Randteile",
+    "Nächster Spieler",
+    "Puzzle speichern",
+    "Puzzle gespeichert",
+    "Speichern fehlgeschlagen",
+    "Spieler 1",
+    "Spieler 2",
 ];
 ui_es_0: [48]string = .[
     "Libro ilustrado",
@@ -658,7 +732,7 @@ ui_es_144: [48]string = .[
     "Pausa",
     "Elige otra letra",
 ];
-ui_es_192: [22]string = .[
+ui_es_192: [48]string = .[
     "Escuchar número",
     "Velocidad",
     "Lento",
@@ -681,13 +755,51 @@ ui_es_192: [22]string = .[
     "Hora de dormir",
     "Palabra",
     "Gestionar",
+    "Rompecabezas",
+    "Imágenes, pieza a pieza",
+    "Elige tu rompecabezas",
+    "Tigre junto al arroyo",
+    "Estanque de patos",
+    "Tren por el campo",
+    "Imagen anterior",
+    "Imagen siguiente",
+    "Piezas",
+    "Solo",
+    "En equipo",
+    "Competición",
+    "Un rompecabezas a tu ritmo",
+    "Dos jugadores, un minuto por turno",
+    "Se permite mirar",
+    "Sin mirar",
+    "Fijar piezas",
+    "Piezas móviles",
+    "Empezar",
+    "Continuar",
+    "Pieza",
+    "Mesa de rompecabezas",
+    "¡Qué bien lo has hecho!",
+    "Una bella imagen, pieza a pieza",
+    "Jugar otra vez",
+    "Imágenes",
+];
+ui_es_240: [9]string = .[
+    "Mirar",
+    "Todas las piezas",
+    "Piezas del borde",
+    "Siguiente jugador",
+    "Guardar",
+    "Rompecabezas guardado",
+    "No se pudo guardar",
+    "Jugador 1",
+    "Jugador 2",
 ];
 Ui_en :: (at: s32) -> string {
     if at < 48 { return ui_en_0[at - 0] }
     if at < 96 { return ui_en_48[at - 48] }
     if at < 144 { return ui_en_96[at - 96] }
     if at < 192 { return ui_en_144[at - 144] }
-    if at < 214 { return ui_en_192[at - 192] }
+    if at < 240 { return ui_en_192[at - 192] }
+    if at < 249 { return ui_en_240[at - 240] }
     return ""
 }
 Ui_de :: (at: s32) -> string {
@@ -695,7 +807,8 @@ Ui_de :: (at: s32) -> string {
     if at < 96 { return ui_de_48[at - 48] }
     if at < 144 { return ui_de_96[at - 96] }
     if at < 192 { return ui_de_144[at - 144] }
-    if at < 214 { return ui_de_192[at - 192] }
+    if at < 240 { return ui_de_192[at - 192] }
+    if at < 249 { return ui_de_240[at - 240] }
     return ""
 }
 Ui_es :: (at: s32) -> string {
@@ -703,7 +816,8 @@ Ui_es :: (at: s32) -> string {
     if at < 96 { return ui_es_48[at - 48] }
     if at < 144 { return ui_es_96[at - 96] }
     if at < 192 { return ui_es_144[at - 144] }
-    if at < 214 { return ui_es_192[at - 192] }
+    if at < 240 { return ui_es_192[at - 192] }
+    if at < 249 { return ui_es_240[at - 240] }
     return ""
 }
 Tr :: (text: string) -> string {

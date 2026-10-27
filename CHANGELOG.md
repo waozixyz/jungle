@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.9
+
+- Add Jigsaw Puzzles, inspired by Jigsaw Puzzle Mania on the Amiga, with three new watercolor scenes and six sizes from 4 to 64 interlocking pieces.
+- Include solo play, shared one-minute turns, competition scores, picture peeking, piece locking, edge filtering and saved puzzles in English, German and Spanish.
+- Scatter full-size jigsaw pieces freely across the table. Drag them without changing size, leave them anywhere and resume their saved positions.
+- Arrange the game menu by age and let its game list scroll while the title, language and sound controls stay in place.
+- Arrange counting animals in clear dice-style groups of up to five, with a separate group for the remainder.
+
 ## 0.1.8
 
 - Give the existing animals softer cartoon shapes, calm natural poses and gazes toward their surroundings, including their counting pictures, book covers and opening artwork.

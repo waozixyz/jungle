@@ -50,7 +50,7 @@ for language in ("en", "de", "es"):
                 returned = desktop.capture("returned-" + name + "-" + language)
                 assert ImageChops.difference(hub, returned).getbbox() is None, "Back did not return directly to the book choice"
             desktop.key("Escape")
-            desktop.key("4")
+            desktop.game("Coloring Book")
             desktop.wait_scene_picker("combined-coloring")
             desktop.click(52, 58)
             working = data / "games/jungle.paint/working.txt"

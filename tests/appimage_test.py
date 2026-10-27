@@ -23,6 +23,8 @@ with tempfile.TemporaryDirectory(prefix='jungle-appimage-') as temporary:
     app = folder / 'squashfs-root/AppRun'
     env['JUNGLE_TEST_BINARY'] = str(app)
     subprocess.run(['python3', str(ROOT / 'tests/learning_menu_test.py')], cwd=ROOT, env=env, check=True)
+    subprocess.run(['python3', str(ROOT / 'tests/menu_ui_test.py')], cwd=ROOT, env=env, check=True)
+    subprocess.run(['python3', str(ROOT / 'tests/jigsaw_ui_test.py')], cwd=ROOT, env=env, check=True)
     with Desktop(app, data) as desktop:
         desktop.key('1')
         desktop.wait_book('appimage-books')

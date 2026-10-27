@@ -14,7 +14,7 @@ CFLAGS_ZI = -std=c11 -O2 -ffunction-sections -fdata-sections -I'$(TOOLCHAIN)/inc
 # The app as it is installed: the program, its menu assets and the games.
 APP := build/app
 COUNT_PICTURES := $(addprefix assets/jungle-book/items/,$(addsuffix .png,tiger frog butterfly ladybug snail elephant giraffe monkey panda lion zebra crocodile parrot toucan rabbit cat dog sheep))
-GAMES := $(APP)/games/jungle-book.zx $(APP)/games/jungle-abc.zx $(APP)/games/jungle-numbers.zx $(APP)/games/animal-count.zx $(APP)/games/dino-paint.zx
+GAMES := $(APP)/games/jungle-book.zx $(APP)/games/jungle-abc.zx $(APP)/games/jungle-numbers.zx $(APP)/games/animal-count.zx $(APP)/games/dino-paint.zx $(APP)/games/jungle-jigsaw.zx
 
 .PHONY: all run art sounds test test-ui install locales web
 
@@ -105,6 +105,12 @@ $(APP)/games/dino-paint.zx: $(wildcard games/paint/*.zi retro/*.zi) $(shell find
 	'$(ZIRANC)' bundle --root games/paint $(MODULES) --define KRYON_HOSTED_UI \
 		--asset-dir assets=build/stage/dino-paint/assets --entry dino_paint:main -o $@ games/paint/dino_paint.zi
 
+# New jigsaw pictures and complementary piece atlases, shared by every host.
+$(APP)/games/jungle-jigsaw.zx: $(wildcard games/jigsaw/*.zi retro/*.zi) $(shell find assets/jigsaw -type f)
+	mkdir -p $(APP)/games
+	'$(ZIRANC)' bundle --root games/jigsaw $(MODULES) --define KRYON_HOSTED_UI \
+		--asset-dir assets/jigsaw=assets/jigsaw --entry jungle_jigsaw:main -o $@ games/jigsaw/jungle_jigsaw.zi
+
 # Menu pixel art from SVG, Picture Book raster cartoons, then Dino Colors'
 # vector art traced from its generated sheets and compiled into masks.
 # games/paint/paint_pages.zi and its pictures are committed, so a fresh
@@ -138,7 +144,8 @@ build/tests/%: tests/%_test.zi $(wildcard games/*/*.zi host/*.zi retro/*.zi) bui
 		build/ziran/libziran.a -Wl,--gc-sections -lm -lpthread $(TEST_LIBS) -o $@
 
 # Questions, painting and PNG pictures, then every game opened in the app.
-test: build/tests/paint build/tests/png build/tests/progress build/tests/document build/tests/counting build/tests/abc build/tests/numbers build/tests/printing build/tests/audio build/tests/voice build/tests/book_preferences all
+test: build/tests/paint build/tests/png build/tests/progress build/tests/document build/tests/counting build/tests/abc build/tests/numbers build/tests/printing build/tests/audio build/tests/voice build/tests/book_preferences build/tests/jigsaw all
+	build/tests/jigsaw
 	build/tests/paint
 	build/tests/progress
 	build/tests/document
@@ -160,11 +167,14 @@ test: build/tests/paint build/tests/png build/tests/progress build/tests/documen
 	python3 tests/language_test.py
 	python3 tests/abc_audio_test.py
 	python3 tests/numbers_audio_test.py
+	python3 tests/jigsaw_art_test.py
 	python3 tests/brand_metadata_test.py
 
 # Actual input and rendering on a private display; requires Xvfb, xdotool,
 # ImageMagick and Pillow. Never uses the inherited desktop or owner saves.
 test-ui: all
+	python3 tests/menu_ui_test.py
+	python3 tests/jigsaw_ui_test.py
 	python3 tests/runtime_test.py --ui
 	python3 tests/book_ui_test.py
 	python3 tests/book_additions_ui_test.py

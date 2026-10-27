@@ -1,0 +1,53 @@
+// Recognizable groups of at most five, without giving away the answer.
+CountPoint :: struct { x: s32; y: s32 }
+CountGroupLayout :: struct {
+    groups: s32
+    x: s32
+    y: s32
+    edge: s32
+    gap: s32
+    across: bool
+    inset: s32
+    cell: s32
+}
+
+CountGroupAmount :: (total: s32, group: s32) -> s32 {
+    amount := total - group * 5
+    if amount < 0 { return 0 }
+    return ifx amount > 5 then 5 else amount
+}
+
+CountSpot :: (amount: s32, index: s32) -> CountPoint {
+    if amount == 1 { return CountPoint.{1,1} }
+    if amount == 2 { return ifx index == 0 then CountPoint.{0,0} else CountPoint.{2,2} }
+    if amount == 3 { return CountPoint.{index,index} }
+    if amount == 5 && index == 4 { return CountPoint.{1,1} }
+    return CountPoint.{(index % 2) * 2, (index / 2) * 2}
+}
+
+CountLayout :: (total: s32, x: s32, y: s32, width: s32, height: s32) -> CountGroupLayout {
+    layout: CountGroupLayout
+    if total < 1 || total > 10 { return layout }
+    layout.groups = (total + 4) / 5
+    margin := height / 16
+    if width / 16 < margin { margin = width / 16 }
+    if margin > 8 { margin = 8 }
+    if margin < 2 { margin = 2 }
+    w := width - margin * 2; h := height - margin * 2
+    layout.gap = margin * 2
+    layout.edge = ifx w < h then w else h
+    if layout.groups == 2 {
+        wide := (w - layout.gap) / 2
+        if h < wide { wide = h }
+        tall := (h - layout.gap) / 2
+        if w < tall { tall = w }
+        layout.across = wide >= tall
+        layout.edge = ifx layout.across then wide else tall
+    }
+    group_width := ifx layout.across then layout.edge * layout.groups + layout.gap * (layout.groups - 1) else layout.edge
+    group_height := ifx layout.across then layout.edge else layout.edge * layout.groups + layout.gap * (layout.groups - 1)
+    layout.x = x + (width - group_width) / 2; layout.y = y + (height - group_height) / 2
+    layout.inset = layout.edge / 12
+    layout.cell = (layout.edge - layout.inset * 2) / 3
+    return layout
+}

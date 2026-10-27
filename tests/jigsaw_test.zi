@@ -1,0 +1,62 @@
+#import, file "../games/jigsaw/puzzle.zi";
+#import, file "../host/platform.zi";
+#import, file "../host/jungle_text.zi";
+#import, file "../games/jigsaw/table.zi";
+
+#program_export
+main :: () -> s32 {
+    for level: cast(s32)0..PUZZLE_LEVELS - 1 {
+        p := PuzzleNew(2, level, 2, 12345)
+        n := grid_sizes[level]
+        seen: [64]bool
+        moved: bool
+        edges: s32
+        for i: cast(s32)0..PuzzleCount(p) - 1 {
+            if p.order[i] < 0 || p.order[i] >= n*n || seen[p.order[i]] { return 1 }
+            seen[p.order[i]] = true
+            if p.order[i] != i { moved = true }
+            if PuzzleEdge(p, i) { edges += 1 }
+        }
+        if !moved || edges != n * 4 - 4 { return 2 }
+        area := TableBounds.{0, 0, 1000, 700}
+        if !TableScatter(*p, area, TableBounds.{500, 40, 460, 600}, 400/n) { return 16 }
+        if TableScatter(*p, area, TableBounds.{500, 40, 460, 600}, 400/n) { return 17 }
+        piece := p.order[0]
+        at := TableCenter(p, piece, area)
+        if !TableHit(p, piece, at, 400/n, at.x, at.y) { return 18 }
+        TableFront(*p, piece)
+        if p.order[n*n-1] != piece { return 19 }
+        TablePosition(*p, piece, area, 300, 270, 400/n)
+        at = TableCenter(p, piece, area)
+        if at.x != 300 || at.y != 269 { return 20 }
+        if PuzzlePlace(*p, -1) || PuzzlePlace(*p, n*n) { return 3 }
+        if !PuzzlePlace(*p, 0) || PuzzlePlace(*p, 0) || PuzzlePlaced(p) != 1 { return 4 }
+        PuzzleTick(*p, 59)
+        if p.player != 0 { return 5 }
+        PuzzleTick(*p, 1)
+        if p.player != 1 || p.turn != 0 || p.elapsed != 60 { return 6 }
+        if !PuzzlePlace(*p, 1) || PuzzleScore(p, 0) != 1 || PuzzleScore(p, 1) != 1 { return 7 }
+        PuzzlePass(*p)
+        if p.player != 0 { return 8 }
+        copy: Puzzle
+        serialized := PuzzleText(p)
+        if !PuzzleRead(serialized, *copy) || PuzzleText(copy) != serialized { return 9 }
+        before := PuzzleText(copy)
+        if PuzzleRead("jigsaw 1 0 99 0 0 0 0 1 1 0 0", *copy) || PuzzleText(copy) != before { return 10 }
+        if PuzzleRead(serialized[:serialized.count / 2], *copy) || PuzzleText(copy) != before { return 11 }
+        if PuzzleRead(Cat(serialized, "garbage"), *copy) { return 12 }
+        for i: cast(s32)2..n*n - 1 { unused PuzzlePlace(*p, i) }
+        elapsed := p.elapsed
+        PuzzleTick(*p, 30)
+        if PuzzlePlaced(p) != n*n || p.elapsed != elapsed { return 13 }
+    }
+    p := PuzzleNew(0, 0, 0, 23)
+    PuzzleTick(*p, 61); PuzzlePass(*p)
+    if p.player != 0 || p.elapsed != 61 { return 14 }
+    if PuzzleRead("jigsaw 1 0 0 0 0 0 0 1 1 0 0 0 0 0 2 0 3\n", *p) { return 15 }
+    if !PuzzleRead("jigsaw 1 0 0 0 0 10 0 1 1 1 3 0 2 0 1 0 0\n", *p) || PuzzlePlaced(p) != 1 || p.loose_x[0] != 0 { return 21 }
+    if TableHit(p, 0, TablePoint.{100,100}, 100, 145,100) { return 22 }
+    if !TableHit(p, 1, TablePoint.{100,100}, 100, 45,100) { return 23 }
+    Report("local jigsaw test: all six sizes, shuffle, edges, scoring, turns, completion and atomic save validation passed\n")
+    return 0
+}
