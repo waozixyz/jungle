@@ -61,7 +61,7 @@ def main():
                 lambda match:match[1]+match[2]+'?v='+revision+match[3],html)
     (OUT/'index.html').write_text(html)
     shutil.copy2(ROOT/'LICENSE',OUT/'LICENSE')
-    for name in ('robots.txt','sitemap.xml'):
+    for name in ('robots.txt','sitemap.xml','funding.json'):
         shutil.copy2(ROOT/'web'/name,OUT/name)
     manifest=json.loads((ROOT/'web/site.webmanifest').read_text())
     for icon in manifest['icons']:icon['src']+='?v='+revision

@@ -1,0 +1,62 @@
+{
+  "version": "v1.1.0",
+  "entity": {
+    "type": "individual",
+    "role": "owner",
+    "name": "waozi",
+    "email": "martin@waozi.xyz",
+    "description": "Independent developer in Paraguay. I make Jungle Academy and the open-source Ziran language and Kryon UI toolkit it is built with.",
+    "webpageUrl": {
+      "url": "https://jungle.waozi.xyz"
+    }
+  },
+  "projects": [
+    {
+      "guid": "jungle-academy",
+      "name": "Jungle Academy",
+      "description": "A free, open-source learning app for babies and toddlers: 21 illustrated picture books, letters and numbers with spoken narration in English, German and Spanish, animal counting, a coloring book and jigsaw puzzles. No ads, no accounts, no tracking; the Android app asks for no permissions at all. It runs in the browser, on Android and on Linux.",
+      "webpageUrl": {
+        "url": "https://jungle.waozi.xyz"
+      },
+      "repositoryUrl": {
+        "url": "https://github.com/waozixyz/jungle",
+        "wellKnown": "https://github.com/waozixyz/jungle/blob/master/.well-known/funding-manifest-urls"
+      },
+      "licenses": ["spdx:BSD-3-Clause"],
+      "tags": ["education", "children", "learning", "games", "privacy", "offline", "multilingual", "android", "linux", "web"]
+    }
+  ],
+  "funding": {
+    "channels": [
+      {
+        "guid": "bank",
+        "type": "bank",
+        "address": "",
+        "description": "Direct bank transfer to the developer in Paraguay. Email martin@waozi.xyz for details."
+      }
+    ],
+    "plans": [
+      {
+        "guid": "developer-yearly",
+        "status": "active",
+        "name": "One year of development",
+        "description": "Part-time work on Jungle Academy for a year: new books and games, more languages, accessibility and an F-Droid release.",
+        "amount": 10000,
+        "currency": "USD",
+        "frequency": "yearly",
+        "channels": ["bank"]
+      },
+      {
+        "guid": "goodwill",
+        "status": "active",
+        "name": "Any amount",
+        "description": "Pay what you like to support the project.",
+        "amount": 0,
+        "currency": "USD",
+        "frequency": "one-time",
+        "channels": ["bank"]
+      }
+    ],
+    "history": []
+  }
+}
