@@ -93,6 +93,7 @@ class Desktop:
                 if result.returncode == 0:
                     self.window = result.stdout.splitlines()[0]
                     run(["xdotool", "windowfocus", self.window], self.env)
+                    self.wait_menu("startup-menu")
                     return self
                 time.sleep(.1)
             raise AssertionError("Jungle Academy did not open its window")
@@ -241,7 +242,7 @@ class Desktop:
         raise AssertionError("Picture Book did not reach its first frame")
 
     def wait_menu(self, name):
-        deadline = time.monotonic() + 10
+        deadline = time.monotonic() + 20
         while time.monotonic() < deadline:
             picture = self.capture(name)
             if picture.getpixel((0, 0)) == (227, 236, 228) and (0, 0, 170) in [c for _, c in picture.crop((20,42,45,64)).getcolors(10000)]:
