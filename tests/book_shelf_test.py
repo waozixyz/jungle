@@ -15,15 +15,18 @@ with tempfile.TemporaryDirectory(prefix='jungle-responsive-') as directory:
             desktop.resize(mw,mh)
             menu=desktop.capture_actual(f'menu-thumbnail-bounds-{mw}')
             fit=min(mw/320,mh/200); portrait=mh>mw
-            # Landscape rows squeeze below 35 once four games share the list.
-            rh=(int(mh/fit)-164)//GAMES if portrait else min(35,(int(mh/fit)-95)//GAMES)
+            # Cards keep their readable size inside the scrolling game list.
+            rh=max(88,(int(mh/fit)-164)//GAMES) if portrait else 35
             start=112 if portrait else 67
+            list_bottom=int(mh/fit)-(58 if portrait else 34)
             left=(mw-320*fit)/2
             gap=menu.crop((round(left+26*fit),round((start+rh-1)*fit),round(left+90*fit),round((start+rh-1)*fit)+1))
             assert all(min(color)>180 and color[0]>=color[1]>=color[2] for _,color in gap.getcolors(100000)), 'Thumbnail overflowed its title-screen row'
             # Every row keeps its text out of the padding and the next card.
             for row in range(GAMES):
                 for top,bottom in [(start+row*rh-2,start+row*rh+2), (start+(row+1)*rh-4,start+(row+1)*rh)]:
+                    if top < start or bottom > list_bottom:
+                        continue  # The scroll viewport clips this boundary.
                     band=menu.crop((round(left+100*fit),round(top*fit),round(left+259*fit),round(bottom*fit)))
                     assert (62,51,42) not in {color for _,color in band.getcolors(100000)}, 'Menu lettering escaped its row'
 
