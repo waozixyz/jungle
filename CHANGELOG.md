@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.11
+
+- Load each website update with fresh pictures, covers, icons and game code, even when the browser has cached an earlier release.
+
 ## 0.1.10
 
 - Give the animals more varied, forward and three-quarter poses with calm gazes just past the viewer, including farm animals and their matching counting pictures.

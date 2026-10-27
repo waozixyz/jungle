@@ -1,6 +1,7 @@
 """Build the real Jungle game modules with Kryon's compiled Canvas host."""
 import os
 import json
+import re
 from pathlib import Path
 import shutil
 import subprocess
@@ -54,10 +55,17 @@ def main():
          '--js-library',ziran/'web/ziran_web.js','--embed-file',str(kryon/'assets/fonts/LiberationSans-Regular.ttf')+'@/kryon-font.ttf',
          '-sEXPORTED_RUNTIME_METHODS=FS,addRunDependency,removeRunDependency','-sASYNCIFY','-sALLOW_MEMORY_GROWTH=1','-sINITIAL_MEMORY=67108864','-sMAXIMUM_MEMORY=536870912',
          '-sSTACK_SIZE=8388608','-sENVIRONMENT=web','-sFORCE_FILESYSTEM=1','-lidbfs.js','-o',OUT/'jungle.js'],env=env)
-    shutil.copy2(ROOT/'web/index.html',OUT/'index.html')
+    revision=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip()
+    html=(ROOT/'web/index.html').read_text().replace('__JUNGLE_BUILD_REVISION__',revision)
+    html=re.sub(r'((?:src|href)=")(/?(?:assets/[^"?]+|favicon\.ico|site\.webmanifest|jungle\.js))(")',
+                lambda match:match[1]+match[2]+'?v='+revision+match[3],html)
+    (OUT/'index.html').write_text(html)
     shutil.copy2(ROOT/'LICENSE',OUT/'LICENSE')
-    for name in ('site.webmanifest','robots.txt','sitemap.xml'):
+    for name in ('robots.txt','sitemap.xml'):
         shutil.copy2(ROOT/'web'/name,OUT/name)
+    manifest=json.loads((ROOT/'web/site.webmanifest').read_text())
+    for icon in manifest['icons']:icon['src']+='?v='+revision
+    (OUT/'site.webmanifest').write_text(json.dumps(manifest,indent=2)+'\n')
     shutil.copy2(ROOT/'assets/jungle/icons/favicon.ico',OUT/'favicon.ico')
     for name in ('jungle','jungle-book','abc','numbers','animal-count','dino-paint','jigsaw'):
         source=ROOT/'assets'/name
@@ -75,7 +83,6 @@ def main():
     for path in OUT.rglob('*'):
         if path.is_file() and path.stat().st_size > 25*1024*1024:
             raise SystemExit('Cloudflare Pages asset exceeds 25 MiB: '+str(path.relative_to(OUT)))
-    revision=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip()
     (OUT/'version.json').write_text(json.dumps({'version':(ROOT/'VERSION').read_text().strip(),'revision':revision}))
     print('Built browser game and separate picture/audio assets in build/web',flush=True)
 
