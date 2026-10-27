@@ -459,8 +459,8 @@ DialogBack :: (title: string, wide: bool = false) {
 }
 
 CancelButton :: () -> bool {
-    pressed := BookButton(19, 234, 173, 64, 14, "Back")
-    if pressed || (retro.key == KEY_ESCAPE) {
+    // The shared title-bar Back arrow reaches dialogs as Escape.
+    if retro.key == KEY_ESCAPE {
         Sound("click")
         view = MAIN
         return true
@@ -585,7 +585,8 @@ ColorPicker :: () {
     x := RetroPointX(pointer.x)
     y := RetroPointY(pointer.y)
     inside := x >= 18 && x < 305 && y >= 29 && y < 166
-    if pointer.released && !inside { view = MAIN }
+    // A title-bar click is handled once through Escape on the next frame.
+    if pointer.released && !inside && y >= 0 { view = MAIN }
     unused CancelButton()
 }
 
