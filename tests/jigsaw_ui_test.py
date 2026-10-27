@@ -42,12 +42,19 @@ for language in ('en', 'de', 'es'):
         with Desktop(Path(os.environ.get('JUNGLE_TEST_BINARY', ROOT/'build/app/jungle')), data, screen_size='1280x1100') as desktop:
             desktop.resize(960,600)
             desktop.game('Jigsaw Puzzles')
-            desktop.capture('jigsaw-setup-'+language)
+            desktop.wait_jigsaw_setup('jigsaw-setup-'+language)
             desktop.key('Return')
             deadline = time.monotonic()+20
-            while not progress.exists() and time.monotonic() < deadline:
+            ready = False
+            while time.monotonic() < deadline:
+                if progress.exists():
+                    try:
+                        ready = all(x > 0 and y > 0 for x,y in saved(progress)[3])
+                    except (ValueError,AssertionError):
+                        ready = False
+                    if ready: break
                 desktop.alive(); time.sleep(.1)
-            assert progress.exists(), 'Puzzle did not start/save'
+            assert ready, 'Puzzle did not reach its scattered table and save'
             # A loose drop stays where it was left and retains the grab offset.
             s,w,h,bx,by,size,tx,ty,tw,th = geometry(960,600)
             values,owners,order,positions = saved(progress)
@@ -108,7 +115,7 @@ for language in ('en', 'de', 'es'):
             desktop.capture('jigsaw-resume-'+language)
             # Resume survives leaving the bundle and reopening it.
             desktop.key('Escape'); desktop.game('Jigsaw Puzzles')
-            desktop.capture('jigsaw-reopened-'+language)
+            desktop.wait_jigsaw_setup('jigsaw-reopened-'+language)
             assert sum(owner > 0 for owner in saved(progress)[1]) == 4
             if language == 'en':
                 # Exercise the largest hosted frame and the optional rules.
