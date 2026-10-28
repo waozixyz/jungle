@@ -1,4 +1,4 @@
-"""Build the real Jungle game modules with Kryon's compiled Canvas host."""
+"""Build Jungle's native DOM default and its Canvas comparison edition."""
 import os
 import json
 import re
@@ -22,6 +22,19 @@ def package(name):
     command = ['ziran','pkg','path',name]
     if not (ROOT/'ziran.local.toml').exists():command.append('--locked')
     return Path(subprocess.check_output(command,cwd=ROOT,text=True).strip())
+
+
+def write_pages(out, revision):
+    html=(ROOT/'web/index.html').read_text().replace('__JUNGLE_BUILD_REVISION__',revision)
+    html=re.sub(r'((?:src|href)=\")(/?(?:assets/[^\"?]+|favicon\.ico|site\.webmanifest|(?:jungle(?:-dom)?|asset-packs)\.js))(\")',
+                lambda match:match[1]+match[2]+'?v='+revision+match[3],html)
+    html=re.sub(r'((?:src|href)=\")/(?!/)',r'\1',html)
+    (out/'index.html').write_text(html)
+    # Keep the old DOM URL and every renderer on the same canonical app URL.
+    (out/'dom.html').write_text(html)
+    canvas_html=html.replace(' data-backend="dom"',' data-backend="canvas"')
+    canvas_html=canvas_html.replace('src="jungle-dom.js?','src="jungle.js?')
+    (out/'canvas.html').write_text(canvas_html)
 
 
 def build(out):
@@ -76,15 +89,7 @@ def build(out):
     compile_runtime(dom_gen,True)
     link_runtime(out/'jungle-dom.js',dom_gen)
     revision=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip()
-    html=(ROOT/'web/index.html').read_text().replace('__JUNGLE_BUILD_REVISION__',revision)
-    html=re.sub(r'((?:src|href)=")(/?(?:assets/[^"?]+|favicon\.ico|site\.webmanifest|(?:jungle(?:-dom)?|asset-packs)\.js))(")',
-                lambda match:match[1]+match[2]+'?v='+revision+match[3],html)
-    html=re.sub(r'((?:src|href)=")/(?!/)',r'\1',html)
-    (out/'index.html').write_text(html)
-    dom_html=html.replace('<html lang="en">','<html lang="en" data-backend="dom">')
-    dom_html=dom_html.replace('https://jungle.waozi.xyz/','https://jungle.waozi.xyz/dom.html')
-    dom_html=dom_html.replace('src="jungle.js?','src="jungle-dom.js?')
-    (out/'dom.html').write_text(dom_html)
+    write_pages(out,revision)
     shutil.copy2(ROOT/'LICENSE',out/'LICENSE')
     for name in ('robots.txt','sitemap.xml','funding.json'):
         shutil.copy2(ROOT/'web'/name,out/name)

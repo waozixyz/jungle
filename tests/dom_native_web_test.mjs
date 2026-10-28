@@ -52,7 +52,7 @@ try{
  }
  async function key(key){
   // App-level shortcuts are tested with no native control holding focus.
-  if(page==='dom.html'&&(key==='Enter'||key===' '))await evaluate('document.activeElement?.blur()');
+  if(key==='Enter'||key===' ')await evaluate('if(document.documentElement.dataset.backend==="dom")document.activeElement?.blur()');
   const code=key==='Enter'?13:key==='Escape'?27:key===' '?32:key.startsWith('Arrow')?({ArrowLeft:37,ArrowUp:38,ArrowRight:39,ArrowDown:40}[key]):key.toUpperCase().charCodeAt(0);
   await command('Input.dispatchKeyEvent',{type:'keyDown',key,windowsVirtualKeyCode:code});
   await delay(80);

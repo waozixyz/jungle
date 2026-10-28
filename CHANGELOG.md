@@ -2,6 +2,8 @@
 
 ## 0.1.18
 
+- The browser game now opens with sharp native HTML text and controls by default.
+
 - Offer a native DOM browser edition with sharp HTML text, real buttons, CSS styling and correctly placed pictures, alongside Canvas.
 - Compare both browser editions with per-activity CPU, memory and frame-cadence reports for desktop and phone layouts.
 

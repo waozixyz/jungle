@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-backend="dom">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content">
@@ -199,12 +199,12 @@ if(new URLSearchParams(location.search).has('metrics')){
    +'DOM '+document.getElementsByTagName('*').length+' nodes · Kryon '+document.querySelectorAll('[data-kryon-id]').length+' · mutations '+window.jungleMetrics.mutations+'\n'
    +'rAF is callback cadence, not render FPS\nCPU / RAM: performance.html';
   const link=document.createElement('a');
-  link.href=(other==='dom'?'dom.html':'.')+'?metrics=1';
+  link.href=(other==='dom'?'dom.html':'canvas.html')+'?metrics=1';
   link.textContent='Open '+other+' edition';
   panel.append(document.createElement('br'),link);
  },500);
 }
 </script>
-<script src="jungle.js" defer></script>
+<script src="jungle-dom.js" defer></script>
 </body>
 </html>

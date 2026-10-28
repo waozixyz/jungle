@@ -52,7 +52,7 @@ def staff_visible(picture):
     # There is one caption band below the score, never a stack of verses.
     assert p['lyrics_y'] >= p['guide_y'] + p['gap'] * 10
     crop = picture.crop((p['lyrics_x'],56+p['lyrics_y'],p['lyrics_x']+p['lyrics_width'],56+p['lyrics_y']+p['lyrics_height']))
-    assert sum(max(c)<155 for c in crop.get_flattened_data()) > 10
+    assert sum(max(c)<155 for c in crop.getdata()) > 10
 
 
 for language in ('en','de','es'):
