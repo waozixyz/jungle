@@ -172,6 +172,7 @@ test: build/tests/paint build/tests/png build/tests/progress build/tests/documen
 	python3 tests/numbers_audio_test.py
 	python3 tests/jigsaw_art_test.py
 	python3 tests/brand_metadata_test.py
+	python3 tests/asset_packs_test.py
 
 # Actual input and rendering on a private display; requires Xvfb, xdotool,
 # ImageMagick and Pillow. Never uses the inherited desktop or owner saves.

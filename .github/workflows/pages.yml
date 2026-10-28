@@ -78,11 +78,10 @@ jobs:
           python3 tests/jigsaw_ui_test.py
           python3 tests/abc_sequence_ui_test.py
           python3 tests/playback_ui_test.py
-          python3 tests/asset_packs_test.py
           python3 tools/build_web.py
           node tests/asset_packs_test.mjs
-          python3 tools/build_itch.py
-          node tests/web_test.mjs
+          python3 tools/prepare_itch.py
+          python3 tools/test_itch_web.py
           node tests/jigsaw_web_test.mjs
       - name: Save private test captures on failure
         if: failure()

@@ -43,10 +43,13 @@
 <div id="loading" role="status"><img id="brand-logo" src="/assets/jungle/branding/logo.png" alt="Jungle Academy"><p id="status">Opening your books…</p></div>
 <textarea id="mobile-input" disabled aria-label="Story text" autocapitalize="sentences" autocomplete="off" spellcheck="false"></textarea>
 <section id="print-sheet"><img id="print-picture" alt="Your dinosaur picture"><pre id="print-story"></pre></section>
+<script src="asset-packs.js"></script>
 <script>
 const buildRevision='__JUNGLE_BUILD_REVISION__';
 function assetUrl(path){
- const url=new URL(path,location.href);url.searchParams.set('v',buildRevision);return url.href;
+ const url=new URL(path,location.href);
+ if(!/^packs\/[a-f0-9]{64}\.zip$/.test(path))url.searchParams.set('v',buildRevision);
+ return url.href;
 }
 const siteCopy={
  en:{title:'Jungle Academy — Gentle learning for little ones',description:'Learn letters and numbers, explore watercolor picture books, count up to twenty, and draw and color. Play in English, German and Spanish.',opening:'Opening your books…',error:'The game could not open. Please reload to try again.',locale:'en_GB',alt:'A young tiger with an open storybook, the Jungle Academy icon',canvas:'Jungle Academy learning games',story:'Story text'},
@@ -86,6 +89,32 @@ window.cancelAnimationFrame=id=>{const entry=pendingFrames.get(id);if(entry){pen
 document.addEventListener('visibilitychange',scheduleHiddenFrames);
 const imageLoads=new Map();
 let imagePaths=new Set();
+let assetPacks;
+async function assetBytes(path){
+ if(assetPacks&&Object.hasOwn(assetPacks.manifest.files,path))return assetPacks.read(path);
+ return new Uint8Array(await fetchResource(path,response=>response.arrayBuffer()));
+}
+function packedAudio(path){
+ const audio=new Audio();audio.junglePath=path;audio.jungleLoading=false;
+ const play=audio.play.bind(audio),pause=audio.pause.bind(audio),remove=audio.removeAttribute.bind(audio);
+ let generation=0,url;
+ audio.play=async()=>{
+  if(url)return play();
+  const request=++generation;audio.jungleLoading=true;
+  try{
+   const bytes=await assetBytes(path);
+   if(request!==generation)return;
+   url=URL.createObjectURL(new Blob([bytes],{type:'audio/wav'}));audio.src=url;
+   return await play();
+  }finally{if(request===generation)audio.jungleLoading=false}
+ };
+ audio.pause=()=>{++generation;audio.jungleLoading=false;pause()};
+ audio.removeAttribute=name=>{
+  if(name==='src'){++generation;audio.jungleLoading=false;if(url)URL.revokeObjectURL(url);url=undefined}
+  return remove(name);
+ };
+ return audio;
+}
 function unavailableImage(path,error){imagePaths.delete(path);console.warn('Picture unavailable:',path,error)}
 async function fetchResource(path,read){
  for(let attempt=0;attempt<3;attempt++){
@@ -102,8 +131,7 @@ async function fetchResource(path,read){
 async function loadImage(path){
  if(Module.FS.analyzePath('/'+path).exists)return;
  if(imageLoads.has(path))return imageLoads.get(path);
- const request=fetchResource(path,response=>response.arrayBuffer()).then(buffer=>{
-  const bytes=new Uint8Array(buffer);
+ const request=assetBytes(path).then(bytes=>{
   Module.FS.mkdirTree('/'+path.substring(0,path.lastIndexOf('/')));
   Module.FS.writeFile('/'+path,bytes);
  });
@@ -112,6 +140,7 @@ async function loadImage(path){
 }
 var Module={canvas:document.getElementById('canvas'),locateFile:assetUrl,print:console.log,printErr:console.error,
  jungleLanguage:updateSiteLanguage,
+ jungleAudio:packedAudio,
  jungleImageReady(path){
   if(Module.FS.analyzePath('/'+path).exists)return true;
   if(imagePaths.has(path)&&!imageLoads.has(path))void loadImage(path).catch(error=>unavailableImage(path,error));
@@ -119,7 +148,8 @@ var Module={canvas:document.getElementById('canvas'),locateFile:assetUrl,print:c
  },
  preRun:[function(){
   Module.addRunDependency('menu-pictures');
-  fetchResource('images.json',response=>response.json()).then(async paths=>{
+  Promise.all([fetchResource('images.json',response=>response.json()),fetchResource('asset-packs.json',response=>response.json())]).then(async([paths,manifest])=>{
+   assetPacks=new JungleAssetPacks(manifest,path=>fetchResource(path,response=>response.arrayBuffer()));
    imagePaths=new Set(paths);
    // Open once the menu's own pictures are here, with bounded parallel
    // downloads. Each game's pictures load when it first shows them

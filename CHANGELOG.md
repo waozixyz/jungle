@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.16
+
+- Play the complete browser edition on itch.io, with pictures and narration packed below its file-count and download-size limits.
+- Load small groups of pictures and sounds as needed, preserving their original quality in every language.
+
 ## 0.1.15
 
 - Start the 123 Book playing and repeating automatically; swipe across a page to move between numbers while keeping the current Play/Pause choice.

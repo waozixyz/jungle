@@ -6,7 +6,9 @@ import {createHash} from 'node:crypto';
 import {join,resolve,extname} from 'node:path';
 import {tmpdir} from 'node:os';
 import {setTimeout as delay} from 'node:timers/promises';
-const root=resolve('build/web'),profile=await mkdtemp('/tmp/jungle-web-');
+const root=resolve(process.env.JUNGLE_WEB_ROOT||'build/web'),prefix='/embed/jungle/',profile=await mkdtemp('/tmp/jungle-web-');
+const packManifest=JSON.parse(await readFile(join(root,'asset-packs.json'),'utf8'));
+const bookSoundPacks=[...new Set(Object.entries(packManifest.files).filter(([path])=>path.startsWith('assets/jungle-book/sounds/')).map(([,entry])=>entry.pack))];
 const catalog=(await readFile('games/catalog.txt','utf8')).split('\n').filter(l=>l.includes('|')).length;
 const hasABC=(await readFile('games/catalog.txt','utf8')).includes('jungle-abc.zx|');
 const hasNumbers=(await readFile('games/catalog.txt','utf8')).includes('jungle-numbers.zx|');
@@ -15,7 +17,7 @@ const visibleGames=catalog-Number(hasABC&&hasNumbers);
 const rowY=(i,count=visibleGames)=>Math.round((112+(693-164)/count*(i+0.5))*(844/693));
 const mime={'.html':'text/html','.js':'text/javascript','.wasm':'application/wasm','.json':'application/json','.webmanifest':'application/manifest+json','.ico':'image/x-icon','.xml':'application/xml','.jpg':'image/jpeg','.png':'image/png','.wav':'audio/wav'};
 let stalePictureRequests=0,transientPictureFailures=0,transientListFailures=0;
-const server=createServer(async(req,res)=>{try{const request=new URL(req.url,'http://localhost');let file=resolve(root,'.'+decodeURIComponent(request.pathname));if(!file.startsWith(root+'/')&&file!==root)throw Error();if(file===root||file.endsWith('/'))file=join(file,'index.html');
+const server=createServer(async(req,res)=>{try{const request=new URL(req.url,'http://localhost');if(!request.pathname.startsWith(prefix))throw Error('Outside embed path');request.pathname=request.pathname.slice(prefix.length-1);let file=resolve(root,'.'+decodeURIComponent(request.pathname));if(!file.startsWith(root+'/')&&file!==root)throw Error();if(file===root||file.endsWith('/'))file=join(file,'index.html');
  // A brief CDN/network failure must recover while the opening screen stays up.
  if(request.pathname==='/images.json'&&transientListFailures++===0){res.writeHead(503);res.end('Temporary picture list failure');return}
  if(request.pathname==='/assets/jungle/covers/book.jpg'&&request.searchParams.has('v')&&transientPictureFailures++===0){res.writeHead(503);res.end('Temporary picture failure');return}
@@ -24,7 +26,7 @@ const server=createServer(async(req,res)=>{try{const request=new URL(req.url,'ht
  if(request.pathname==='/assets/jungle/covers/book.jpg'&&!request.searchParams.has('v')){file=join(root,'assets/jungle/covers/abc.jpg');stalePictureRequests++}
  const data=await readFile(file);res.writeHead(200,{'Content-Type':mime[extname(file)]||'application/octet-stream','Cache-Control':'public, max-age=14400'});res.end(data)}catch{res.writeHead(404);res.end()}});
 await new Promise(r=>server.listen(0,'127.0.0.1',r));
-const url=process.argv[2]||'http://127.0.0.1:'+server.address().port;
+const url=process.argv[2]||'http://127.0.0.1:'+server.address().port+prefix;
 const env={...process.env};for(const name of ['DISPLAY','WAYLAND_DISPLAY','XAUTHORITY','DBUS_SESSION_BUS_ADDRESS','SESSION_MANAGER'])delete env[name];env.YUE_DESKTOP_RECOVERY='0';env.TMPDIR='/tmp';
 const browser=spawn(process.env.CHROMIUM||'chromium',['--headless','--no-sandbox','--disable-gpu','--disable-webgl','--disable-dev-shm-usage','--no-first-run','--no-default-browser-check','--window-size=960,600','--remote-debugging-port=0','--user-data-dir='+profile,'about:blank'],{env,stdio:['ignore','ignore','pipe']});
 let stderr='',socket,diagnostics=[];browser.stderr.on('data',d=>stderr=(stderr+d).slice(-4000));
@@ -39,7 +41,7 @@ try{
  async function evaluate(expression){const r=await command('Runtime.evaluate',{expression,returnByValue:true,awaitPromise:true});if(r.result?.exceptionDetails)throw Error(JSON.stringify(r.result.exceptionDetails));return r.result?.result?.value}
  async function key(key,code=key){await command('Input.dispatchKeyEvent',{type:'keyDown',key,code,windowsVirtualKeyCode:key==='Enter'?13:key==='Escape'?27:key.startsWith('Arrow')?({ArrowLeft:37,ArrowUp:38,ArrowRight:39,ArrowDown:40}[key]):key.charCodeAt(0)});await delay(100);await command('Input.dispatchKeyEvent',{type:'keyUp',key,code});await delay(250)}
  async function click(x,y){const b=await evaluate('(()=>{let b=document.getElementById("canvas").getBoundingClientRect();return {x:b.x,y:b.y,w:b.width,h:b.height}})()');x=b.x+x*b.w/320;y=b.y+y*b.h/200;await command('Input.dispatchMouseEvent',{type:'mousePressed',x,y,button:'left',clickCount:1});await delay(80);await command('Input.dispatchMouseEvent',{type:'mouseReleased',x,y,button:'left',clickCount:1});await delay(400)}
- await command('Runtime.enable');await command('Network.enable');await command('Network.setBlockedURLs',{urls:['*/assets/jungle/covers/paint.jpg*']});await command('Page.enable');await command('Page.addScriptToEvaluateOnNewDocument',{source:'performance.setResourceTimingBufferSize(5000);window.jungleTestVoices=[];const jungleOriginalPlay=HTMLMediaElement.prototype.play;HTMLMediaElement.prototype.play=function(){window.jungleTestVoices.push(this.src);window.jungleTestAudio=this;return jungleOriginalPlay.apply(this,arguments)}'});await command('Emulation.setDeviceMetricsOverride',{width:1280,height:800,deviceScaleFactor:1,mobile:false});await command('Page.navigate',{url});
+ await command('Runtime.enable');await command('Network.enable');await command('Network.setBlockedURLs',{urls:['*/assets/jungle/covers/paint.jpg*']});await command('Page.enable');await command('Page.addScriptToEvaluateOnNewDocument',{source:'performance.setResourceTimingBufferSize(5000);window.jungleTestVoices=[];Object.defineProperty(HTMLMediaElement.prototype,"junglePath",{get(){return this.dataset.junglePath},set(path){this.dataset.junglePath=path;window.jungleTestRequestedAudio=this}});const jungleOriginalPlay=HTMLMediaElement.prototype.play;HTMLMediaElement.prototype.play=function(){window.jungleTestVoices.push(this.junglePath||this.src);window.jungleTestAudio=this;return jungleOriginalPlay.apply(this,arguments)}'});await command('Emulation.setDeviceMetricsOverride',{width:1280,height:800,deviceScaleFactor:1,mobile:false});await command('Page.navigate',{url});
  let ready=false;while(Date.now()<deadline){if(await evaluate('typeof Module!=="undefined"&&Module.FS&&document.getElementById("loading").style.display==="none"')){ready=true;break}if(diagnostics.length)throw Error(JSON.stringify(diagnostics));await delay(250)}
  if(!ready)throw Error('Browser startup timeout '+JSON.stringify(diagnostics)+' '+await evaluate('JSON.stringify({url:location.href,title:document.title,text:document.body?.innerText?.slice(0,500)})'));await delay(1000);
  if(!process.argv[2]&&(transientListFailures<2||transientPictureFailures<2))throw Error('Startup did not retry the temporary picture list/image failures');
@@ -52,7 +54,7 @@ try{
  if(actualTiger!==expectedTiger)throw Error('A cached picture from an earlier release replaced the current Picture Book cover');
  const revision=await evaluate('buildRevision');
  if(!/^[a-f0-9]{40}$/.test(revision))throw Error('Browser build revision is missing');
- const unversioned=await evaluate('performance.getEntriesByType("resource").map(entry=>new URL(entry.name)).filter(url=>(url.pathname.startsWith("/assets/")&&/\\.(png|jpg)$/.test(url.pathname)||["/jungle.js","/jungle.wasm","/images.json"].includes(url.pathname))&&url.searchParams.get("v")!=='+JSON.stringify(revision)+').map(url=>url.pathname)');
+ const unversioned=await evaluate('performance.getEntriesByType("resource").map(entry=>new URL(entry.name)).filter(url=>(url.pathname.includes("/assets/")&&/\\.(png|jpg)$/.test(url.pathname)||["jungle.js","jungle.wasm","images.json","asset-packs.js","asset-packs.json"].some(name=>url.pathname.endsWith("/"+name)))&&url.searchParams.get("v")!=='+JSON.stringify(revision)+').map(url=>url.pathname)');
  if(unversioned.length||stalePictureRequests)throw Error('A deployment reused unversioned cached resources: '+JSON.stringify(unversioned));
  await mkdir('build/tests/web',{recursive:true});
  const captures=new Map();
@@ -65,14 +67,14 @@ try{
  }
  async function resize(width,height,mobile=false){await command('Emulation.setDeviceMetricsOverride',{width,height,deviceScaleFactor:1,mobile});await command('Emulation.setTouchEmulationEnabled',{enabled:mobile,maxTouchPoints:1});await delay(500);const box=await evaluate('({w:Module.canvas.clientWidth,h:Module.canvas.clientHeight})');if(box.w!==width||box.h!==height)throw Error('Canvas did not resize to the viewport '+JSON.stringify(box))}
  async function waitPage(name){const until=Date.now()+15000;const path='/assets/jungle-book/pages/'+name+'.jpg';while(Date.now()<until){if(await evaluate('Module.FS.analyzePath('+JSON.stringify(path)+').exists'))return;await delay(100)}throw Error('Page image did not load: '+name)}
- async function waitResource(fragment){const until=Date.now()+12000;while(Date.now()<until){if(await evaluate('performance.getEntriesByType("resource").some(e=>e.name.includes('+JSON.stringify(fragment)+'))'))return;await delay(100)}throw Error('Missing lesson audio/image resource: '+fragment)}
+ async function waitResource(fragment){const until=Date.now()+12000;while(Date.now()<until){if(await evaluate('[...imageLoads.keys(),...window.jungleTestVoices].some(name=>name.includes('+JSON.stringify(fragment)+'))'))return;await delay(100)}throw Error('Missing lesson audio/image resource: '+fragment)}
  async function waitSpoken(fragment){const until=Date.now()+12000;while(Date.now()<until){if(await evaluate('window.jungleTestVoices.some(path=>path.includes('+JSON.stringify(fragment)+'))'))return;await delay(100)}throw Error('Missing actual playback: '+fragment)}
  async function swipe(x,y,xx,yy){await command('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x,y}]});for(let i=1;i<=6;i++){await delay(35);await command('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:x+(xx-x)*i/6,y:y+(yy-y)*i/6}]})}await command('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});await delay(350)}
  const missing=await evaluate('Array.from(imagePaths).filter(path=>/^assets\\/jungle\\/([^/]+|covers\\/[^/]+|branding\\/[^/]+)$/.test(path)&&!Module.FS.analyzePath("/"+path).exists).length');if(missing)throw Error('Opening screen cleared before the menu pictures loaded: '+missing);await shot('menu');
- holdAudio=true;await command('Fetch.enable',{patterns:[{urlPattern:'*jungle-book/sounds/*.wav*',requestStage:'Request'}]});
+ holdAudio=true;await command('Fetch.enable',{patterns:bookSoundPacks.map(pack=>({urlPattern:'*/'+pack+'*',requestStage:'Request'}))});
  await pixelClick(400,330);await shot('books');if(pausedAudio.length)throw Error('Opening Picture Book skipped the category list');await key('0','Digit0');await waitPage('carrot');await delay(300);const first=await shot('vegetables-desktop',true,64);
  await key(' ','Space');const pausedBook=await pagePixels();await delay(6500);if(pausedBook!==await pagePixels())throw Error('Space did not hold the picture book');
- await pixelClick(780,762);if(await evaluate('window.jungleTestAudio.paused'))throw Error('Hear word remained silent while the book was paused');await key(' ','Space');
+ await pixelClick(780,762);if(!await evaluate('window.jungleTestRequestedAudio?.jungleLoading||!window.jungleTestRequestedAudio?.paused'))throw Error('Hear word did not start while the book was paused');await key(' ','Space');
  // Compare page content independently of transport-button antialiasing.
  await pixelClick(1188,712);const second=await shot('vegetables-next',true,64);if(first===second)throw Error('Page navigation froze under stalled narration');
  await pixelClick(92,712);const restored=await shot('vegetables-restored',true,64);if(restored!==first)throw Error('Back page failed under stalled narration');
@@ -103,7 +105,7 @@ try{
  if(await evaluate('document.documentElement.lang')!=='es')throw Error('Website metadata did not follow the selected language');
  if(!(await evaluate('document.querySelector("meta[name=description]").content')).startsWith('Aprende'))throw Error('Spanish website description is missing');
  if(hasABC){
-  const resources=()=>evaluate('performance.getEntriesByType("resource").map(e=>e.name)');
+  const resources=()=>evaluate('[...imageLoads.keys(),...window.jungleTestVoices]');
   await pixelClick(195,rowY(1),true);await shot('letters-numbers-hub');await pixelClick(195,rowY(0,2),true);await shot('abc-letters-phone');
   await waitResource('/abc/sounds/es/letters/0061.wav');
   // Switch to a separate private tab: narration and progression must continue
@@ -135,7 +137,7 @@ try{
  if(hasNumbers){
   await pixelClick(195,rowY(1),true);await pixelClick(195,rowY(1,2),true);const numbersLearn=await shot('numbers-learn-phone');await waitResource('/numbers/sounds/es/1.wav');
   await waitSpoken('/numbers/sounds/es/2.wav');
-  const numberImages=await evaluate('performance.getEntriesByType("resource").map(e=>e.name)');if(!numberImages.some(path=>path.includes('/jungle-book/counting/')))throw Error('123 did not load the small counting pictures');
+  const numberImages=await evaluate('[...imageLoads.keys(),...window.jungleTestVoices]');if(!numberImages.some(path=>path.includes('/jungle-book/counting/')))throw Error('123 did not load the small counting pictures');
   if(numberImages.some(path=>path.includes('/jungle-book/items/')))throw Error('123 loaded full-size counting pictures');
   await key('0');await waitResource('/numbers/sounds/es/10.wav');if(numbersLearn===await shot('numbers-ten-phone'))throw Error('123 did not open directly into learning');
   await waitSpoken('/numbers/sounds/es/11.wav');await key(' ','Space');await evaluate('window.jungleTestVoices=[]');await delay(4500);if(await evaluate('window.jungleTestVoices.length'))throw Error('Paused number autoplay kept speaking');await shot('numbers-autoplay-paused-phone');

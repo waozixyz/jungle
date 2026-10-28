@@ -5,9 +5,12 @@ import re
 from pathlib import Path
 import shutil
 import subprocess
+import tempfile
+import time
+
+from asset_packs import pack_assets, validate_distribution
 
 ROOT = Path(__file__).resolve().parents[1]
-OUT = ROOT / 'build/web'
 GEN = ROOT / 'build/web-c'
 
 
@@ -21,7 +24,7 @@ def package(name):
     return Path(subprocess.check_output(command,cwd=ROOT,text=True).strip())
 
 
-def main():
+def build(out):
     ziran = package('ziran')
     kryon = package('kryon')
     mingcute = package('mingcute')
@@ -29,7 +32,7 @@ def main():
     emcc = Path(os.environ.get('EMCC', shutil.which('emcc') or str(Path.home()/'emsdk/upstream/emscripten/emcc')))
     if not emcc.is_file():raise SystemExit('Emscripten is required: set EMCC to the installed emcc executable')
     GEN.mkdir(parents=True,exist_ok=True)
-    OUT.mkdir(parents=True,exist_ok=True)
+    out.mkdir(parents=True,exist_ok=True)
     modules=[]
     for path in [kryon/'src/ui',kryon/'src/backend',ziran/'std',ROOT/'web',ROOT/'host']:
         modules += ['--module-path',str(path)]
@@ -54,39 +57,56 @@ def main():
     run([emcc,'-O2','-I'+str(ziran/'include'),*includes,*cfiles,
          '--js-library',ziran/'web/ziran_web.js','--embed-file',str(kryon/'assets/fonts/LiberationSans-Regular.ttf')+'@/kryon-font.ttf',
          '-sEXPORTED_RUNTIME_METHODS=FS,addRunDependency,removeRunDependency','-sASYNCIFY','-sALLOW_MEMORY_GROWTH=1','-sINITIAL_MEMORY=67108864','-sMAXIMUM_MEMORY=536870912',
-         '-sSTACK_SIZE=8388608','-sENVIRONMENT=web','-sFORCE_FILESYSTEM=1','-lidbfs.js','-o',OUT/'jungle.js'],env=env)
+         '-sSTACK_SIZE=8388608','-sENVIRONMENT=web','-sFORCE_FILESYSTEM=1','-lidbfs.js','-o',out/'jungle.js'],env=env)
     revision=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip()
     html=(ROOT/'web/index.html').read_text().replace('__JUNGLE_BUILD_REVISION__',revision)
-    html=re.sub(r'((?:src|href)=")(/?(?:assets/[^"?]+|favicon\.ico|site\.webmanifest|jungle\.js))(")',
+    html=re.sub(r'((?:src|href)=")(/?(?:assets/[^"?]+|favicon\.ico|site\.webmanifest|(?:jungle|asset-packs)\.js))(")',
                 lambda match:match[1]+match[2]+'?v='+revision+match[3],html)
-    (OUT/'index.html').write_text(html)
-    shutil.copy2(ROOT/'LICENSE',OUT/'LICENSE')
+    html=re.sub(r'((?:src|href)=")/(?!/)',r'\1',html)
+    (out/'index.html').write_text(html)
+    shutil.copy2(ROOT/'LICENSE',out/'LICENSE')
     for name in ('robots.txt','sitemap.xml','funding.json'):
-        shutil.copy2(ROOT/'web'/name,OUT/name)
+        shutil.copy2(ROOT/'web'/name,out/name)
     manifest=json.loads((ROOT/'web/site.webmanifest').read_text())
-    for icon in manifest['icons']:icon['src']+='?v='+revision
-    (OUT/'site.webmanifest').write_text(json.dumps(manifest,indent=2)+'\n')
-    shutil.copy2(ROOT/'assets/jungle/icons/favicon.ico',OUT/'favicon.ico')
+    for name in ('id','start_url','scope'):manifest[name]='./'
+    for icon in manifest['icons']:icon['src']=icon['src'].lstrip('/')+'?v='+revision
+    (out/'site.webmanifest').write_text(json.dumps(manifest,indent=2)+'\n')
+    shutil.copy2(ROOT/'assets/jungle/icons/favicon.ico',out/'favicon.ico')
+    shutil.copy2(ROOT/'web/asset-packs.js',out/'asset-packs.js')
+    files = {}
     for name in ('jungle','jungle-book','abc','numbers','animal-count','dino-paint','jigsaw'):
         source=ROOT/'assets'/name
-        shutil.copytree(source,OUT/'assets'/name,dirs_exist_ok=True,
-                        ignore=shutil.ignore_patterns('*.speech.json','voice-*'))
+        for path in source.rglob('*'):
+            if path.is_file() and not path.name.endswith('.speech.json') and not path.name.startswith('voice-'):
+                files[path.relative_to(ROOT).as_posix()] = path
     # Animal Counting reuses the book's corresponding watercolor pictures.
-    import sys
-    sys.path.insert(0,str(ROOT/'tools'))
-    from book_catalog import NAMES
-    pictures=OUT/'assets/animal-count/pictures';pictures.mkdir(parents=True,exist_ok=True)
     animals=('tiger','frog','butterfly','ladybug','snail','elephant','giraffe','monkey','panda','lion','zebra','crocodile','parrot','toucan','rabbit','cat','dog','sheep')
-    for name in animals:shutil.copy2(ROOT/'assets/jungle-book/counting'/f'{name}.png',pictures/f'{name}.png')
-    # Do not retain the old cover name in a reused output directory: browser
-    # content filters can classify count.png as a tracking image.
-    (OUT/'assets/jungle/covers/count.png').unlink(missing_ok=True)
-    images=sorted(str(p.relative_to(OUT)) for p in (OUT/'assets').rglob('*') if p.suffix in ('.png','.jpg'))
-    (OUT/'images.json').write_text(json.dumps(images))
-    for path in OUT.rglob('*'):
-        if path.is_file() and path.stat().st_size > 25*1024*1024:
-            raise SystemExit('Cloudflare Pages asset exceeds 25 MiB: '+str(path.relative_to(OUT)))
-    (OUT/'version.json').write_text(json.dumps({'version':(ROOT/'VERSION').read_text().strip(),'revision':revision}))
-    print('Built browser game and separate picture/audio assets in build/web',flush=True)
+    for name in animals:files[f'assets/animal-count/pictures/{name}.png']=ROOT/'assets/jungle-book/counting'/f'{name}.png'
+    files.pop('assets/jungle/covers/count.png', None)
+    images=sorted(name for name in files if Path(name).suffix in ('.png','.jpg'))
+    # Browser branding must work before the runtime starts. Keep the small
+    # menu directly addressable; pack all game pictures and sounds.
+    for name in list(files):
+        if name.startswith('assets/jungle/') and Path(name).suffix != '.wav':
+            target=out/name;target.parent.mkdir(parents=True,exist_ok=True)
+            shutil.copy2(files.pop(name),target)
+    manifest=pack_assets(files,out)
+    (out/'images.json').write_text(json.dumps(images))
+    (out/'version.json').write_text(json.dumps({'version':(ROOT/'VERSION').read_text().strip(),'revision':revision}))
+    count,total=validate_distribution(out)
+    print(f'Built {len(manifest["files"])} packed assets in {len(manifest["packs"])} ZIP packs; distribution: {count} files, {total/1_000_000:.1f} MB',flush=True)
+
+
+def main():
+    # Fresh staging excludes obsolete assets; retain the last successful build.
+    (ROOT/'build').mkdir(exist_ok=True)
+    with tempfile.TemporaryDirectory(prefix='web-stage-',dir=ROOT/'build') as stage:
+        build(Path(stage))
+        destination=ROOT/'build/web'
+        if destination.exists():
+            previous=ROOT/'backup/web-builds'/str(time.time_ns())
+            previous.parent.mkdir(parents=True,exist_ok=True)
+            destination.rename(previous)
+        Path(stage).rename(destination)
 
 if __name__=='__main__':main()
