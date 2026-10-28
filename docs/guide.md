@@ -236,6 +236,32 @@ secret `CLOUDFLARE_API_TOKEN` grants Pages Edit for the hosting account and
 DNS Edit for `waozi.xyz`; credentials are never stored in this repository.
 Browser saves stay on that browser in IndexedDB. Menu images load first; book pictures and narration load as needed. Browser printing opens the browser print dialog.
 
+The same browser edition works on itch.io and other static hosts. Run
+`python3 tools/prepare_itch.py` after `make web` for `build/itch-web` and the
+ready-to-upload `build/jungle-html5.zip`; `index.html` is at the ZIP's root.
+The build rejects more than 1,000 files, over 500 MB total, long paths or files
+over Cloudflare's stricter 25 MiB limit before either host receives an update.
+
+Game pictures and sounds travel in ordinary ZIP asset packs, grouped by
+activity/directory and language, split at 4 MiB of source data. An individual
+large picture stays whole. `asset-packs.json` maps each original path to a
+pack, byte offset, compressed length, original size, ZIP method and SHA-256.
+The browser fetches a pack when an asset is needed and decodes only that entry
+with its built-in decompressor. WAV compression is lossless; pictures keep
+their original resolution, format and bytes. Duplicate contents share an
+entry, and content-named packs remain cacheable across releases. The pack cache
+holds at most 16 MiB; simultaneous reads share downloads and failed downloads
+can retry. Pack and entry hashes reject damaged content. Menu pictures and
+browser icons remain directly accessible for startup and sharing.
+
+The archives can be opened by any standard ZIP reader on desktop or mobile;
+the current runtime integration is for browser hosting. APK, AppImage and
+portable game bundles retain their existing packaging. No service worker,
+HTTP Range support, external asset server or atlas coordinate changes are
+needed. `tests/asset_packs_test.py` verifies portable archives and upload gates;
+`tests/asset_packs_test.mjs` compares every shipped asset with its source bytes
+and exercises integrity failures, retry, deduplication and cache limits.
+
 Linux releases include `jungle-vVERSION-x86_64.AppImage`. Make it executable and
 open it; it includes the pictures, narration, fonts and desktop runtime libraries.
 On systems without FUSE, use `APPIMAGE_EXTRACT_AND_RUN=1` when launching it.

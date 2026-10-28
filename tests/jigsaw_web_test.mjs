@@ -5,7 +5,7 @@ import {createServer} from 'node:http';
 import {resolve,join,extname} from 'node:path';
 import {setTimeout as delay} from 'node:timers/promises';
 
-const root=resolve('build/web'),profile=await mkdtemp('/tmp/jungle-jigsaw-web-');
+const root=resolve(process.env.JUNGLE_WEB_ROOT||'build/web'),profile=await mkdtemp('/tmp/jungle-jigsaw-web-');
 const mime={'.html':'text/html','.js':'text/javascript','.wasm':'application/wasm','.json':'application/json','.png':'image/png','.jpg':'image/jpeg','.wav':'audio/wav'};
 const server=createServer(async(req,res)=>{
  try{let file=resolve(root,'.'+decodeURIComponent(new URL(req.url,'http://localhost').pathname));

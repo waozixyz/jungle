@@ -129,7 +129,7 @@ PlayAudio :: (path: string, narration: bool) {
     if web_muted || path == "" { return }
     scope := WebScope()
     defer WebEnd(scope)
-    audio := WebNew1(WebGetObject(WebGlobal, WebName("Audio")), WebText(path))
+    audio := WebAsObject(WebCall1(WebModule, WebName("jungleAudio"), WebText(path)))
     if audio == 0 { return }
     web_audio = WebKeep(audio)
     web_narration = narration
@@ -145,6 +145,7 @@ VoiceState :: () -> string {
     scope := WebScope()
     defer WebEnd(scope)
     if WebGetObject(web_audio, WebName("error")) != 0 { return "idle" }
+    if WebAsBool(WebGet(web_audio, WebName("jungleLoading"))) { return "loading" }
     if WebAsBool(WebGet(web_audio, WebName("ended"))) { return "ended" }
     if WebAsBool(WebGet(web_audio, WebName("paused"))) { return "idle" }
     if WebGetNumber(web_audio, WebName("readyState")) < 3.0 { return "loading" }
