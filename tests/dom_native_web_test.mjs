@@ -7,6 +7,7 @@ import {setTimeout as delay} from 'node:timers/promises';
 
 const root=resolve(process.env.JUNGLE_WEB_ROOT||'build/web');
 const page=process.env.JUNGLE_WEB_PAGE||'dom.html';
+await mkdir('backup/dom-visual',{recursive:true});
 const profile=await mkdtemp('/tmp/jungle-piano-web-');
 const mime={'.html':'text/html','.js':'text/javascript','.wasm':'application/wasm','.json':'application/json','.png':'image/png','.jpg':'image/jpeg','.wav':'audio/wav'};
 const server=createServer(async(req,res)=>{
