@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.20
+
+- Make Hot, Cold and Wet easier to recognize in Feelings, with distinct poses, gaze and expressions while keeping the same watercolor boy.
+
 ## 0.1.19
 
 - Reduce browser Picture Book and Jigsaw photo downloads with full-resolution WebP images.
