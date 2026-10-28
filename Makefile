@@ -15,6 +15,11 @@ CFLAGS_ZI = -std=c11 -O2 -ffunction-sections -fdata-sections -I'$(TOOLCHAIN)/inc
 APP := build/app
 COUNT_PICTURES := $(addprefix assets/jungle-book/counting/,$(addsuffix .png,tiger frog butterfly ladybug snail elephant giraffe monkey panda lion zebra crocodile parrot toucan rabbit cat dog sheep))
 GAMES := $(APP)/games/jungle-book.zx $(APP)/games/jungle-abc.zx $(APP)/games/jungle-numbers.zx $(APP)/games/animal-count.zx $(APP)/games/dino-paint.zx $(APP)/games/jungle-jigsaw.zx $(APP)/games/jungle-piano.zx
+KRYON_SOURCES = $(wildcard $(KRYON)/src/ui/*.zi $(KRYON)/src/backend/*.zi)
+
+# A package update can change hosted widget records as well as rendering.
+# Rebuild the host and bundles together instead of mixing their layouts.
+$(APP)/jungle $(GAMES): ziran.lock $(KRYON_SOURCES)
 
 .PHONY: all run art sounds test test-ui install locales web
 
@@ -111,7 +116,7 @@ $(APP)/games/jungle-piano.zx: $(wildcard games/piano/*.zi retro/*.zi) $(wildcard
 	'$(ZIRANC)' bundle --root games/piano $(MODULES) --define KRYON_HOSTED_UI \
 		--asset-dir assets/piano=assets/piano --entry jungle_piano:main -o $@ games/piano/jungle_piano.zi
 
-# New jigsaw pictures and complementary piece atlases, shared by every host.
+# Full pictures only: every host clips its own interlocking puzzle pieces.
 $(APP)/games/jungle-jigsaw.zx: $(wildcard games/jigsaw/*.zi retro/*.zi) $(shell find assets/jigsaw -type f)
 	mkdir -p $(APP)/games
 	'$(ZIRANC)' bundle --root games/jigsaw $(MODULES) --define KRYON_HOSTED_UI \

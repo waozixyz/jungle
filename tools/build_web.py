@@ -9,6 +9,7 @@ import tempfile
 import time
 
 from asset_packs import pack_assets, validate_distribution
+from web_images import prepare_web_images
 
 ROOT = Path(__file__).resolve().parents[1]
 GEN = ROOT / 'build/web-c'
@@ -116,7 +117,12 @@ def build(out):
         if name.startswith('assets/jungle/') and Path(name).suffix != '.wav':
             target=out/name;target.parent.mkdir(parents=True,exist_ok=True)
             shutil.copy2(files.pop(name),target)
-    manifest=pack_assets(files,out)
+    single_files={name for name in files if str(Path(name).parent)=='assets/jigsaw'}
+    files,archive_names,encodings=prepare_web_images(files,ROOT/'work/web-image-cache')
+    manifest=pack_assets(files,out,archive_names=archive_names,single_files=single_files)
+    for name,encoding in encodings.items():
+        manifest['files'][name]={**manifest['files'][name],**encoding}
+    (out/'asset-packs.json').write_text(json.dumps(manifest,separators=(',',':'))+'\n')
     (out/'images.json').write_text(json.dumps(images))
     (out/'version.json').write_text(json.dumps({'version':(ROOT/'VERSION').read_text().strip(),'revision':revision,
         'runtimes':{'canvas':(out/'jungle.js').stat().st_size,'dom':(out/'jungle-dom.js').stat().st_size}}))

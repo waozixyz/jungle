@@ -9,7 +9,7 @@ LanguageCode :: () -> string {
 LanguageSet :: (code: string) {
     language = ifx code == "de" then 1 else ifx code == "es" then 2 else 0
 }
-UI_COUNT :: 312
+UI_COUNT :: 318
 ui_en_0: [48]string = .[
     "Picture Book",
     "Animal Counting",
@@ -310,7 +310,7 @@ ui_en_240: [48]string = .[
     "When they find a little grain",
     "They are all happy",
 ];
-ui_en_288: [24]string = .[
+ui_en_288: [30]string = .[
     "All my little goslings",
     "Waddling across the ground",
     "Searching in the puddle",
@@ -335,6 +335,12 @@ ui_en_288: [24]string = .[
     "Choose song",
     "Choose a song",
     "Public-domain songs",
+    "Lesson",
+    "Listen first",
+    "Your turn: press the lit key",
+    "Hold the key",
+    "Let go now",
+    "Hold a little longer",
 ];
 ui_de_0: [48]string = .[
     "Bilderbuch",
@@ -636,7 +642,7 @@ ui_de_240: [48]string = .[
     "Finden sie ein Körnchen",
     "Sind sie alle froh",
 ];
-ui_de_288: [24]string = .[
+ui_de_288: [30]string = .[
     "Alle meine Gänschen",
     "Watscheln durch den Grund",
     "Suchen in dem Tümpel",
@@ -661,6 +667,12 @@ ui_de_288: [24]string = .[
     "Lied auswählen",
     "Wähle ein Lied",
     "Gemeinfreie Lieder",
+    "Lernen",
+    "Höre zuerst zu",
+    "Du bist dran: leuchtende Taste",
+    "Taste gedrückt halten",
+    "Jetzt loslassen",
+    "Etwas länger halten",
 ];
 ui_es_0: [48]string = .[
     "Libro ilustrado",
@@ -962,7 +974,7 @@ ui_es_240: [48]string = .[
     "Cuando encuentran un granito",
     "Todos están contentos",
 ];
-ui_es_288: [24]string = .[
+ui_es_288: [30]string = .[
     "Todos mis gansitos",
     "Caminan por el campo",
     "Buscan en el charco",
@@ -987,6 +999,12 @@ ui_es_288: [24]string = .[
     "Elegir canción",
     "Elige una canción",
     "Canciones de dominio público",
+    "Lección",
+    "Escucha primero",
+    "Tu turno: pulsa la tecla iluminada",
+    "Mantén pulsada la tecla",
+    "Suelta ahora",
+    "Mantén un poco más",
 ];
 Ui_en :: (at: s32) -> string {
     if at < 48 { return ui_en_0[at - 0] }
@@ -995,7 +1013,7 @@ Ui_en :: (at: s32) -> string {
     if at < 192 { return ui_en_144[at - 144] }
     if at < 240 { return ui_en_192[at - 192] }
     if at < 288 { return ui_en_240[at - 240] }
-    if at < 312 { return ui_en_288[at - 288] }
+    if at < 318 { return ui_en_288[at - 288] }
     return ""
 }
 Ui_de :: (at: s32) -> string {
@@ -1005,7 +1023,7 @@ Ui_de :: (at: s32) -> string {
     if at < 192 { return ui_de_144[at - 144] }
     if at < 240 { return ui_de_192[at - 192] }
     if at < 288 { return ui_de_240[at - 240] }
-    if at < 312 { return ui_de_288[at - 288] }
+    if at < 318 { return ui_de_288[at - 288] }
     return ""
 }
 Ui_es :: (at: s32) -> string {
@@ -1015,7 +1033,7 @@ Ui_es :: (at: s32) -> string {
     if at < 192 { return ui_es_144[at - 144] }
     if at < 240 { return ui_es_192[at - 192] }
     if at < 288 { return ui_es_240[at - 240] }
-    if at < 312 { return ui_es_288[at - 288] }
+    if at < 318 { return ui_es_288[at - 288] }
     return ""
 }
 Tr :: (text: string) -> string {

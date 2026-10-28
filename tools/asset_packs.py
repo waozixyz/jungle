@@ -13,13 +13,21 @@ import zipfile
 PACK_BYTES = 4 * 1024 * 1024
 
 
-def pack_assets(files, output, max_bytes=PACK_BYTES):
+def pack_assets(files, output, max_bytes=PACK_BYTES, *, archive_names=None, single_files=()):
     """Pack {relative path: source Path}, grouping by directory and size.
 
     Each payload is stored once, even when multiple game paths use it. Packs
     have stable timestamps and content-addressed names for browser/CDN caches.
     """
     output = Path(output)
+    archive_names = archive_names or {}
+    stored_to_logical = {archive_names.get(name, name): name for name in files}
+    if len(stored_to_logical) != len(files):
+        raise ValueError('Duplicate stored asset path')
+    for name in stored_to_logical:
+        path = Path(name)
+        if path.is_absolute() or '..' in path.parts or str(path) != name:
+            raise ValueError('Unsafe stored asset path: '+name)
     directory = output / 'packs'
     directory.mkdir(parents=True, exist_ok=True)
     manifest = {'format': 1, 'packs': {}, 'files': {}}
@@ -33,10 +41,10 @@ def pack_assets(files, output, max_bytes=PACK_BYTES):
         with zipfile.ZipFile(buffer, 'w', compression=zipfile.ZIP_DEFLATED,
                              compresslevel=6) as archive:
             for name, data in pending:
-                entry = zipfile.ZipInfo(name, date_time=(1980, 1, 1, 0, 0, 0))
+                entry = zipfile.ZipInfo(archive_names.get(name, name), date_time=(1980, 1, 1, 0, 0, 0))
                 # PNG/JPEG already have compression; WAV compresses losslessly.
-                entry.compress_type = (zipfile.ZIP_STORED if Path(name).suffix
-                                       in ('.png', '.jpg', '.ico') else zipfile.ZIP_DEFLATED)
+                entry.compress_type = (zipfile.ZIP_STORED if Path(entry.filename).suffix
+                                       in ('.png', '.jpg', '.webp', '.ico') else zipfile.ZIP_DEFLATED)
                 archive.writestr(entry, data)
         payload = buffer.getvalue()
         digest = hashlib.sha256(payload).hexdigest()
@@ -47,7 +55,7 @@ def pack_assets(files, output, max_bytes=PACK_BYTES):
             for entry in archive.infolist():
                 offset = entry.header_offset
                 name_size, extra_size = struct.unpack_from('<HH', payload, offset + 26)
-                manifest['files'][entry.filename] = {
+                manifest['files'][stored_to_logical[entry.filename]] = {
                     'pack': name, 'offset': offset + 30 + name_size + extra_size,
                     'length': entry.compress_size, 'size': entry.file_size,
                     'method': entry.compress_type,
@@ -66,7 +74,7 @@ def pack_assets(files, output, max_bytes=PACK_BYTES):
             continue
         # Keep languages and activity directories separate, then split large
         # directories. No pack exceeds max_bytes except one oversized asset.
-        next_group = str(path.parent)
+        next_group = name if name in single_files else str(path.parent)
         if next_group != group or size + len(data) > max_bytes:
             flush()
             size = 0

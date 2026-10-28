@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.1.19
+
+- Reduce browser Picture Book and Jigsaw photo downloads with full-resolution WebP images.
+- Make Coloring Book people easier to draw and color, with simpler outlines and larger clear spaces.
+- Remove unused legacy counting pictures so the current artwork is the only art shipped in the app.
+
+- Create Jigsaw pieces directly from each full picture on desktop, Android and the web, removing large pre-cut downloads while preserving the interlocking shapes and saved puzzles.
+
+- Add optional piano lessons that play a short phrase, then help your child repeat it with a filling hold bar and a clear release cue.
+- Recommend guided piano for ages five and up, while keeping Practice, Listen and Free play available.
+
 ## 0.1.18
 
 - The browser game now opens with sharp native HTML text and controls by default.

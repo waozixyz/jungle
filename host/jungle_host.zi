@@ -39,6 +39,39 @@
 #import, file "printing.zi";
 
 #import, file "../retro/language.zi";
+#import, file "../games/piano/keyboard.zi";
+
+#if #defined(ANDROID_BUILD) {
+    PianoAndroid :: #import "kryon/raylib_runtime";
+} else {
+    piano_sdl :: #system_library "SDL2";
+    PianoSdlKeys :: (count: *s32) -> *u8 #foreign piano_sdl "SDL_GetKeyboardState";
+    PianoSdlScan :: (key: s32) -> s32 #foreign piano_sdl "SDL_GetScancodeFromKey";
+    PianoSdlFocus :: () -> *void #foreign piano_sdl "SDL_GetKeyboardFocus";
+}
+piano_host_held: [PIANO_SHORTCUTS + 1]u8;
+
+// Only the active app's focused host supplies piano shortcuts.
+PianoHeldKeys :: () -> string {
+    #if #defined(ANDROID_BUILD) {
+        focused := PianoAndroid.RaylibFocused()
+        for at: cast(s32)0..PIANO_SHORTCUTS - 1 {
+            piano_host_held[at] = ifx focused && PianoAndroid.RaylibKeyDown(PianoShortcutCode(at)) then cast(u8)49 else cast(u8)48
+        }
+    } else {
+        count: s32
+        state := PianoSdlKeys(*count)
+        focused := PianoSdlFocus() != null
+        for at: cast(s32)0..PIANO_SHORTCUTS - 1 {
+            code := PianoShortcutCode(at)
+            if code >= 65 && code <= 90 { code += 32 }
+            scan := PianoSdlScan(code)
+            piano_host_held[at] = ifx focused && state != null && scan >= 0 && scan < count && state[scan] != cast(u8)0 then cast(u8)49 else cast(u8)48
+        }
+    }
+    piano_host_held[PIANO_SHORTCUTS] = 0
+    return TextUntilNul(piano_host_held[:])
+}
 
 GAME_LIMIT :: 8
 FONT :: "assets/jungle/font.png"
@@ -112,7 +145,7 @@ Reply :: (text: string) -> HostValue {
 
 GameAllows :: (context: *void, name: string) -> bool {
     return name == "jungle.language" || name == "jungle.voice" || name == "jungle.voice-state" || name == "jungle.voice-control" || name == "jungle.sound" || name == "jungle.home" || name == "jungle.canvas" ||
-        name == "jungle.export" || name == "jungle.print" || name == "jungle.secondary" || BundleAppAllows(context, name)
+        name == "jungle.export" || name == "jungle.print" || name == "jungle.secondary" || name == "jungle.piano-held" || BundleAppAllows(context, name)
 }
 
 // A Dino Colors picture as a PNG file in the game's folder. Older pictures
@@ -174,6 +207,7 @@ GameServices :: (context: *void, module: *u8, function: *u8,
             result.* = Reply(ifx game_secondary_down then "down" else "up")
             return 1
         }
+        if service == "jungle.piano-held" { result.* = Reply(PianoHeldKeys()); return 1 }
         if service == "jungle.canvas" {
             result.* = Reply(WriteCanvas(request))
             return 1

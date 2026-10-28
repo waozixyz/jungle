@@ -22,6 +22,7 @@ Counting :: #import, file "../games/animal/animal_count.zi";
 Paint :: #import, file "../games/paint/dino_paint.zi";
 Jigsaw :: #import, file "../games/jigsaw/jungle_jigsaw.zi";
 Piano :: #import, file "../games/piano/jungle_piano.zi";
+PianoKeys :: #import, file "../games/piano/keyboard.zi";
 #import, file "../host/jungle_menu.zi";
 #import, file "../host/jungle_text.zi";
 #import, file "../host/canvas_png.zi";
@@ -36,7 +37,7 @@ web_games: [7]Game = .[
     Game.{.title = "Animal Counting", .about = "Count the animals", .age = 4, .icon = "assets/jungle/covers/counting.jpg"},
     Game.{.title = "Coloring Book", .about = "Draw and color", .age = 5, .icon = "assets/jungle/covers/paint.jpg"},
     Game.{.title = "Jigsaw Puzzles", .about = "Pictures, piece by piece", .age = 3, .icon = "assets/jungle/covers/jigsaw.jpg"},
-    Game.{.title = "Little Piano", .about = "Colors, keys and songs", .age = 3, .icon = "assets/jungle/covers/piano.jpg"},
+    Game.{.title = "Little Piano", .about = "Colors, keys and songs", .age = 5, .icon = "assets/jungle/covers/piano.jpg"},
 ];
 active_game: s32 = -1;
 selected: s32;
@@ -211,8 +212,17 @@ WebPrint :: (png: string, story: string) -> string {
     return ifx WebFailed() then "failed" else "printed"
 }
 
+web_piano_held: [22]u8;
+
 #program_export
 WebService :: (name: string, request: string) -> string {
+    if name == "jungle.piano-held" {
+        for at: cast(s32)0..PianoKeys.PIANO_SHORTCUTS - 1 {
+            web_piano_held[at] = ifx IsKeyDown(PianoKeys.PianoShortcutCode(at)) then cast(u8)49 else cast(u8)48
+        }
+        web_piano_held[PianoKeys.PIANO_SHORTCUTS] = 0
+        return TextFromBytes(web_piano_held[:PianoKeys.PIANO_SHORTCUTS])
+    }
     if name == "jungle.image" {
         scope := WebScope()
         defer WebEnd(scope)

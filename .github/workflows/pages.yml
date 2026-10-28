@@ -76,11 +76,13 @@ jobs:
           python3 tests/learning_menu_test.py
           python3 tests/menu_ui_test.py
           python3 tests/jigsaw_ui_test.py
+          python3 tests/jigsaw_sizes_ui_test.py
           python3 tests/piano_ui_test.py
           python3 tests/abc_sequence_ui_test.py
           python3 tests/playback_ui_test.py
           python3 tools/build_web.py
           node tests/asset_packs_test.mjs
+          python3 tests/web_images_test.py
           python3 tools/prepare_itch.py
           python3 tools/test_itch_web.py
           JUNGLE_WEB_PAGE=canvas.html node tests/jigsaw_web_test.mjs

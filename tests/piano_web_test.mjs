@@ -7,6 +7,8 @@ import {setTimeout as delay} from 'node:timers/promises';
 
 const root=resolve(process.env.JUNGLE_WEB_ROOT||'build/web');
 const page=process.env.JUNGLE_WEB_PAGE||'index.html';
+const menu=(await readFile('games/catalog.txt','utf8')).trim().split('\n').map(l=>l.split('|')).filter(r=>r[1]!=='123 Book').sort((a,b)=>Number(a[4])-Number(b[4]));
+const pianoEntry=String(menu.findIndex(r=>r[1]==='Little Piano')+1);
 const profile=await mkdtemp('/tmp/jungle-piano-web-');
 const mime={'.html':'text/html','.js':'text/javascript','.wasm':'application/wasm','.json':'application/json','.png':'image/png','.jpg':'image/jpeg','.wav':'audio/wav'};
 const server=createServer(async(req,res)=>{
@@ -87,10 +89,10 @@ try{
   const w=Math.min(width-2*pad,1000),h=Math.min(height-2*pad,660),left=Math.floor((width-w)/2),top=Math.floor((height-h)/2),rail=Math.max(12,Math.floor(w/30));
   const x=left+rail,kw=w-rail*2,keyWidth=Math.max(36,Math.floor(kw/22));
   let kh=Math.min(230,Math.floor(h*.36));if(width<500&&h<560)kh=Math.floor(h*.29);if(h<360)kh=Math.floor(h*.26);
-  const y=top+h-22-kh,controls=y-(h<360?30:40)-12;
+  const y=top+h-22-kh,cw=Math.min(kw,620),rh=h<360?30:40,controls=y-(cw<500?rh*2+6:rh)-12;
   return {x,y:y+56,kh,keyWidth,controls:controls+56,top:top+56,h,title:top+8+56};
  }
- await key('4');await key('1');await key('w');await key('2');
+ await key(pianoEntry);await key('1');await key('w');await key('2');
  let notes=await evaluate('pianoAudio.map(note=>note.path)');
  if(JSON.stringify(notes)!==JSON.stringify([60,61,62].map(p=>'assets/piano/sounds/'+p+'.wav')))throw Error('Wrong fixed shortcut pitches: '+JSON.stringify(notes));
  if(await evaluate('pianoAudio.some(note=>note.volume!==.25)'))throw Error('Piano bypassed quiet gain');
@@ -105,6 +107,24 @@ try{
  notes=await evaluate('pianoAudio.map(note=>Number(note.path.match(/(\\d+)\\.wav$/)[1]))');
  if(JSON.stringify(notes)!==JSON.stringify([...white,...black]))throw Error('37-key geometry/audio mismatch '+JSON.stringify(notes));
  await mkdir('build/tests/web',{recursive:true});
+ // Optional phrase lessons demonstrate before accepting input. A short tap
+ // retries the same note; a complete hold/release moves to the next pitch.
+ await evaluate('pianoAudio=[]');await click(370,p.controls+20);
+ await waitFor('pianoAudio.length===6','Lesson did not demonstrate its first phrase',10000);
+ await waitFor('pianoElement.paused','Lesson demonstration did not release its last note');await delay(350);
+ await evaluate('pianoAudio=[]');await key('2');
+ if(await evaluate('pianoAudio.length'))throw Error('Lesson accepted the wrong first pitch');
+ await key('1');await key('2');
+ if(await evaluate('pianoAudio.length!==1'))throw Error('An early release passed the lesson note');
+ await command('Input.dispatchKeyEvent',{type:'keyDown',key:'1',windowsVirtualKeyCode:49});await delay(420);
+ if(await evaluate('document.documentElement.dataset.backend==="dom"')&&!await evaluate('document.body.innerText.includes("Let go now")'))throw Error('Missing exact release cue');
+ await writeFile('build/tests/web/piano-lesson-release-'+page+'.png',Buffer.from((await command('Page.captureScreenshot',{format:'png'})).data,'base64'));
+ await command('Input.dispatchKeyEvent',{type:'keyUp',key:'1',windowsVirtualKeyCode:49});await delay(100);await key('2');
+ if(await evaluate('!pianoAudio.at(-1)?.path.endsWith("/62.wav")'))throw Error('Holding and releasing did not advance the lesson');
+ await click(480,p.title+16);await evaluate('pianoAudio=[]');await key('Escape');
+ await waitFor('pianoAudio.length>0','Cancelling the song chooser stranded the lesson');
+ await key('Enter');
+
  for(let song=0;song<5;song++){
   await click(480,p.title+16);
   if(song===0)await writeFile('build/tests/web/piano-chooser-'+page+'.png',Buffer.from((await command('Page.captureScreenshot',{format:'png'})).data,'base64'));
@@ -129,7 +149,7 @@ try{
  if(await evaluate('pianoAudio.length'))throw Error('Muted piano played audio');
  await click(930,25);await key('3');await waitFor('pianoAudio.length===1','Unmuting did not restore audio');
  await key('Escape');if(!(await evaluate('pianoElement.paused')))throw Error('Leaving piano did not stop audio');
- await key('4');
+ await key(pianoEntry);
  await command('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});await delay(500);
  const phone=layout(390,844);
  await evaluate('pianoAudio=[]');

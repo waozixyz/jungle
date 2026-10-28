@@ -1,5 +1,6 @@
 // A free tabletop: persistent centers, stacking order and shape-aware picking.
 #import, file "puzzle.zi";
+#import "kryon/geometry"
 
 TableBounds :: struct { x: s32; y: s32; width: s32; height: s32 }
 TablePoint :: struct { x: s32; y: s32 }
@@ -70,6 +71,37 @@ TableBump :: (at: float32) -> float32 {
     i := cast(s32)position
     if i > 15 { i = 15 }
     return tab_curve[i] + (tab_curve[i + 1] - tab_curve[i]) * (position - cast(float32)i)
+}
+
+PUZZLE_OUTLINE_POINTS :: 72
+
+// A piece is a window onto the original picture, not a separate bitmap.
+// Its outline uses exactly the same interpolated tab curve as hit testing.
+PuzzleOutline :: (p: Puzzle, piece: s32, points: []Vector2) -> []Vector2 {
+    if points.count < PUZZLE_OUTLINE_POINTS || piece < 0 || piece >= PuzzleCount(p) { return points[:0] }
+    n := grid_sizes[p.level]; row := piece / n; col := piece % n
+    cell := 1200 / n; pad := cell / 4; tile := cell + pad * 2
+    sign: s32 = ifx (row + col) % 2 == 0 then -1 else 1
+    count: s32
+    for edge: cast(s32)0..3 {
+        side := sign
+        if (edge == 0 && row == 0) || (edge == 1 && col == n - 1) ||
+            (edge == 2 && row == n - 1) || (edge == 3 && col == 0) { side = 0 }
+        steps: s32 = ifx side == 0 then 1 else 18
+        for step: cast(s32)0..steps - 1 {
+            t: float32 = ifx step == 0 then 0.0 else 0.32 + cast(float32)(step - 1) * (0.36 / 16.0)
+            bump := cast(float32)side * TableBump(t)
+            x: float32; y: float32
+            if edge == 0 { x = t; y = -bump }
+            if edge == 1 { x = 1.0 + bump; y = t }
+            if edge == 2 { x = 1.0 - t; y = 1.0 + bump }
+            if edge == 3 { x = -bump; y = 1.0 - t }
+            points[count] = Vector2.{(x * cast(float32)cell + cast(float32)pad) / cast(float32)tile,
+                (y * cast(float32)cell + cast(float32)pad) / cast(float32)tile}
+            count += 1
+        }
+    }
+    return points[:count]
 }
 
 TableHit :: (p: Puzzle, piece: s32, center: TablePoint, cell: s32, x: s32, y: s32) -> bool {

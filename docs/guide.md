@@ -118,8 +118,10 @@ All controls are available in English, German and Spanish.
 
 The three original puzzle pictures were made with Codex's built-in imagegen
 tool. Full-size originals and their prompts live in `art/generated/jigsaw`;
-`python3 tools/jigsaw_art.py` makes the high-resolution pictures and smooth,
-complementary piece atlases in `assets/jigsaw`. No artwork, sound or program
+`python3 tools/jigsaw_art.py` prepares the three high-resolution pictures in
+`assets/jigsaw`. Every host generates the interlocking piece outlines at runtime
+and clips the original picture without distorting it. No pre-cut piece atlases
+or separate picture for each difficulty are shipped. No artwork, sound or program
 code from the Amiga archive is shipped in this mode.
 
 ## Little Piano
@@ -131,7 +133,11 @@ Twinkle Twinkle Little Star, Mary Had a Little Lamb, Frère Jacques or Hot Cross
 Buns, using traditional public-domain melodies. A real treble staff shows
 beamed eighth notes, quarters, half notes and whole notes, with just the current
 lyric line underneath. Practice waits for the matching note; Listen plays the
-selected song; Free play opens the full keyboard. The 1–8 and A S D F G H J K
+selected song; Free play opens the full keyboard. The optional **Lesson** mode
+plays one lyric phrase first, then waits for your child to repeat it. A filling
+bar guides the held note and says when to let go. An early release gently asks
+for a longer hold; completing a phrase moves to the next demonstration. The
+guided piano is recommended for ages five and up. The 1–8 and A S D F G H J K
 shortcuts always address C4–C5; W E T Y U play its black keys. Slow, Normal and
 Fast change only the tempo.
 
@@ -141,7 +147,7 @@ the binary WAV assets with `python3 tools/piano_sounds.py`.
 ## Build and run
 
 The main game list is ordered by age, from Picture Book (2+) through Coloring
-Book (5+). ABC + 123 and Jigsaw Puzzles are both 3+. Scroll the game list with
+Book and Little Piano (5+). ABC + 123 and Jigsaw Puzzles are both 3+. Scroll the game list with
 the mouse wheel, the scrollbar or a finger; the title, language flags and
 sound control stay in place. Arrow keys reveal the selected row.
 
@@ -278,8 +284,13 @@ activity/directory and language, split at 4 MiB of source data. An individual
 large picture stays whole. `asset-packs.json` maps each original path to a
 pack, byte offset, compressed length, original size, ZIP method and SHA-256.
 The browser fetches a pack when an asset is needed and decodes only that entry
-with its built-in decompressor. WAV compression is lossless; pictures keep
-their original resolution, format and bytes. Duplicate contents share an
+with its built-in decompressor. WAV compression is lossless. Web builds use
+reviewed quality-90 WebP derivatives for Picture Book and Jigsaw photos only,
+at their original dimensions, retaining the original whenever WebP would be
+larger. Android and Linux keep their canonical JPEG pictures. Coloring Book
+keeps its SVG/PNG artwork and masks on every platform. The seek index keeps
+stable game paths and source fingerprints while ZIP entries use their actual
+WebP filenames. Duplicate contents share an
 entry, and content-named packs remain cacheable across releases. The pack cache
 holds at most 16 MiB; simultaneous reads share downloads and failed downloads
 can retry. Pack and entry hashes reject damaged content. Menu pictures and
