@@ -112,7 +112,9 @@ try{
    console.log(`${backend} ${viewport.name} ${activity} ${phase}: CPU ${row.cpu_percent.toFixed(1)}%, RSS ${row.mean_rss_mib.toFixed(1)} MiB, rAF p95 ${row.raf_p95_ms?.toFixed(1)} ms`);
   }
  }
- const payload={backend,browser:version.Browser,os:platform()+' '+release(),cpu_model:cpus()[0]?.model,logical_cpus:cpus().length,host_ram_gib:totalmem()/1073741824,host_load:loadavg(),flags:flags.filter(f=>!f.startsWith('--user-data-dir')),method:'Sequential private headless Chromium, software graphics, fresh profile per backend run, cache-disabled page navigations; CPU100%=one core; RSS sums processes and includes shared pages; PSS apportions shared pages; rAF is callback cadence, not application render FPS.',results};
+ const build=JSON.parse(await readFile(join(root,'version.json'),'utf8'));
+ const runtime={js_bytes:(await readFile(join(root,backend==='dom'?'jungle-dom.js':'jungle.js'))).length,wasm_bytes:(await readFile(join(root,backend==='dom'?'jungle-dom.wasm':'jungle.wasm'))).length};
+ const payload={backend,build,runtime,browser:version.Browser,os:platform()+' '+release(),cpu_model:cpus()[0]?.model,logical_cpus:cpus().length,host_ram_gib:totalmem()/1073741824,host_load:loadavg(),flags:flags.filter(f=>!f.startsWith('--user-data-dir')),method:'Sequential private headless Chromium, software graphics, fresh profile per backend run, cache-disabled page navigations; CPU100%=one core; RSS sums processes and includes shared pages; PSS apportions shared pages; rAF is callback cadence, not application render FPS.',results};
  await writeFile(join(output,`performance-${backend}.json`),JSON.stringify(payload,null,2)+'\n');
 }finally{
  try{await browserRpc?.call('Browser.close')}catch{}
