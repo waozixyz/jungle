@@ -7,7 +7,7 @@ import {cpus,platform,release,totalmem,loadavg} from 'node:os';
 import {setTimeout as delay} from 'node:timers/promises';
 const args=new Map();for(let i=2;i<process.argv.length;i++)if(process.argv[i].startsWith('--'))args.set(process.argv[i],process.argv[++i]);
 const root=resolve(args.get('--root')||'build/web'),backend=args.get('--backend')||'canvas',seconds=Number(args.get('--seconds')||3);
-const page=backend==='dom'?'dom.html':'index.html',output=resolve(args.get('--output')||'backup/browser-benchmarks');
+const page=backend==='dom'?'dom.html':'canvas.html',output=resolve(args.get('--output')||'backup/browser-benchmarks');
 await mkdir(output,{recursive:true});
 const profile=await mkdtemp('/tmp/jungle-benchmark-');
 const mime={'.html':'text/html','.js':'text/javascript','.wasm':'application/wasm','.json':'application/json','.png':'image/png','.jpg':'image/jpeg','.wav':'audio/wav'};

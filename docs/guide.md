@@ -157,9 +157,10 @@ make install    # ~/.local/bin/jungle and a menu entry
 make web        # Canvas and semantic-DOM browser games in build/web
 ```
 
-The browser edition has two complete runtimes: `build/web/index.html` uses
-Canvas and `build/web/dom.html` uses native HTML text, buttons, images and CSS for the interface,
-with bounded Canvas tiles for custom drawing and texture effects. Append
+The browser edition has two complete runtimes: `build/web/index.html` and
+`build/web/dom.html` use native HTML text, buttons, images and CSS for the interface,
+with bounded Canvas tiles for custom drawing and texture effects.
+`build/web/canvas.html` retains the Canvas comparison edition. Append
 `?metrics=1` to either page for live FPS, frame p95, JS heap, DOM-node,
 Kryon-element and mutation counters. Run `python3 tools/measure_web.py` after
 a web build for three runs of every activity, both idle and active, at desktop
@@ -259,8 +260,9 @@ retain their original authorship.
 Pushes to `master` run the Linux tests and private browser tests for both
 editions in GitHub Actions, then publish the same tested website artifact to
 Cloudflare Pages. The deployment verifies its revision on `jungle.waozi.xyz`.
-The Canvas edition is at `/`; the semantic-DOM edition is at `/dom.html`; the
-benchmark is at `/performance-report.md`. The repository
+The native DOM edition is the default at `/`, with `/dom.html` retained as an
+alias. The Canvas comparison is at `/canvas.html`; the interactive benchmark
+is at `/performance.html`. All editions share the root canonical URL. The repository
 secret `CLOUDFLARE_API_TOKEN` grants Pages Edit for the hosting account and
 DNS Edit for `waozi.xyz`; credentials are never stored in this repository.
 Browser saves stay on that browser in IndexedDB. Menu images load first; book pictures and narration load as needed. Browser printing opens the browser print dialog.

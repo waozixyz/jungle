@@ -49,7 +49,7 @@ def main():
     if match:
         width, height, x, y = map(int, match.groups())
     receipts = []
-    for index, (backend, page) in enumerate((('canvas', 'index.html'), ('dom', 'dom.html'))):
+    for index, (backend, page) in enumerate((('canvas', 'canvas.html'), ('dom', 'dom.html'))):
         url = f'http://127.0.0.1:{server.server_port}/{page}?metrics=1'
         profile = work / (backend + '-live')
         class_name = 'JungleCanvasComparison' if backend == 'canvas' else 'JungleDomComparison'
