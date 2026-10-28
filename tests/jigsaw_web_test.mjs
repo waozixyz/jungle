@@ -82,5 +82,5 @@ try{
  if(errors.length)throw Error(JSON.stringify(errors));
  console.log('local jigsaw browser test: real touch drags, taps, completion, IndexedDB reload and resume passed');
 }finally{
- if(socket)socket.close();browser.kill('SIGTERM');await new Promise(r=>{if(browser.exitCode!==null)r();else browser.once('exit',r)});server.close();await rm(profile,{recursive:true,force:true});
+ if(socket)socket.close();browser.kill('SIGTERM');await new Promise(r=>{if(browser.exitCode!==null)r();else browser.once('exit',r)});server.close();await rm(profile,{recursive:true,force:true,maxRetries:20,retryDelay:150});
 }
