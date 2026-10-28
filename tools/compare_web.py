@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
-"""Open the local Canvas and DOM editions in two owner-requested windows.
+"""Keep a local server alive for two owner-requested comparison windows.
 
-The supervisor, HTTP server and isolated browser profiles belong to this
-launch. It never attaches to, captures or sends input to existing windows.
+Browser launchers can hand off to an existing Chromium process and exit.
+Their exit must never stop the server or close an owner's comparison window.
 """
 from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 import json
-import os
 from pathlib import Path
 import re
 import shutil
@@ -18,6 +17,15 @@ import time
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def windows_for(class_name):
+    try:
+        result = subprocess.run(['xdotool', 'search', '--onlyvisible', '--class', class_name],
+                                capture_output=True, text=True, timeout=3)
+        return result.stdout.split() if result.returncode == 0 else []
+    except (OSError, subprocess.TimeoutExpired):
+        return []
+
+
 def main():
     web = ROOT / 'build/web'
     assert (web / 'dom.html').is_file(), 'Build both web editions first'
@@ -25,9 +33,11 @@ def main():
     assert browser, 'Chromium is required for the live comparison'
     work = ROOT / 'work/web-comparison'
     work.mkdir(parents=True, exist_ok=True)
+
     class Handler(SimpleHTTPRequestHandler):
         def log_message(self, *args):
             pass
+
     server = ThreadingHTTPServer(('127.0.0.1', 0), partial(Handler, directory=str(web)))
     server.daemon_threads = True
     threading.Thread(target=server.serve_forever, daemon=True).start()
@@ -38,29 +48,30 @@ def main():
         match = re.search(r' connected (\d+)x(\d+)\+(\d+)\+(\d+)', bounds.stdout)
     if match:
         width, height, x, y = map(int, match.groups())
-    children = []
     receipts = []
-    try:
-        for index, (backend, page) in enumerate((('canvas', 'index.html'), ('dom', 'dom.html'))):
-            url = f'http://127.0.0.1:{server.server_port}/{page}?metrics=1'
-            profile = work / backend
+    for index, (backend, page) in enumerate((('canvas', 'index.html'), ('dom', 'dom.html'))):
+        url = f'http://127.0.0.1:{server.server_port}/{page}?metrics=1'
+        profile = work / (backend + '-live')
+        class_name = 'JungleCanvasComparison' if backend == 'canvas' else 'JungleDomComparison'
+        try:
             child = subprocess.Popen([browser, '--no-first-run', '--no-default-browser-check',
                 '--disable-extensions', '--renderer-process-limit=2',
-                '--user-data-dir=' + str(profile), '--new-window',
+                '--user-data-dir=' + str(profile), '--class=' + class_name, '--new-window',
                 f'--window-position={x + index * (width // 2)},{y + 28}',
                 f'--window-size={width // 2},{height - 60}', url])
-            children.append(child)
-            receipts.append({'backend': backend, 'url': url, 'pid': child.pid})
             time.sleep(1)
+            receipts.append({'backend': backend, 'url': url, 'launcher_pid': child.pid,
+                             'class': class_name, 'windows': windows_for(class_name)})
+        except OSError as error:
+            print(backend + ' launch failed: ' + str(error), flush=True)
+    try:
         (work / 'live.json').write_text(json.dumps(receipts, indent=2) + '\n')
-        print(json.dumps({'windows': receipts}), flush=True)
-        while any(child.poll() is None for child in children):
-            time.sleep(1)
-    finally:
-        server.shutdown()
-        for child in children:
-            if child.poll() is None:
-                child.terminate()
+    except OSError as error:
+        print('Could not save comparison receipt: ' + str(error), flush=True)
+    print(json.dumps({'windows': receipts}), flush=True)
+    # Keep this supervised app and its server alive independently of browser
+    # wrapper PIDs. Do not terminate or send input to any browser window.
+    threading.Event().wait()
 
 
 if __name__ == '__main__':
