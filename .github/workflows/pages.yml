@@ -133,10 +133,18 @@ jobs:
               'canvas.html':['data-backend="canvas"','jungle.js?v='+os.environ['GITHUB_SHA']],
               'performance-report.md':['# Jungle Canvas / DOM performance','CPU ratio DOM/Canvas'],
           }.items():
-              request=urllib.request.Request('https://jungle.waozi.xyz/'+path+'?run='+os.environ['GITHUB_RUN_ID'],headers={'User-Agent':'Jungle-deployment-verification'})
-              with urllib.request.urlopen(request,timeout=15) as response:text=response.read().decode()
-              missing=[check for check in checks if check not in text]
-              if missing:raise SystemExit('Deployed '+path+' is missing '+repr(missing))
+              # Pages can reach an edge at different times after version.json.
+              # Require every page's exact revision, allowing propagation first.
+              for attempt in range(20):
+                  try:
+                      request=urllib.request.Request('https://jungle.waozi.xyz/'+path+'?run='+os.environ['GITHUB_RUN_ID'],headers={'User-Agent':'Jungle-deployment-verification','Cache-Control':'no-cache'})
+                      with urllib.request.urlopen(request,timeout=15) as response:text=response.read().decode()
+                      missing=[check for check in checks if check not in text]
+                      if not missing:break
+                      problem='missing '+repr(missing)
+                  except Exception as error:problem=str(error)
+                  time.sleep(3)
+              else:raise SystemExit('Deployed '+path+' could not be verified: '+problem)
               print('Verified deployed '+path)
           PY
       - name: Install itch.io Butler
