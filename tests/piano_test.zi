@@ -1,0 +1,75 @@
+#import, file "../games/piano/song.zi";
+#import, file "../games/piano/keyboard.zi";
+#import, file "../games/piano/catalog.zi";
+#import, file "../games/piano/layout.zi";
+
+#program_export
+main :: () -> s32 {
+    if PIANO_KEYS != 37 || PIANO_HIGH - PIANO_LOW != 36 { return 1 }
+    if piano_white[0] != 48 || piano_white[21] != 84 { return 2 }
+    for at: cast(s32)0..PIANO_BLACK_KEYS - 1 {
+        if piano_black[at] != piano_white[piano_black_after[at]] + 1 { return 3 }
+        if PianoWhiteIndex(piano_black[at]) != -1 { return 4 }
+    }
+    expected_counts: [5]s32 = .[108,42,26,32,17]
+    expected_ticks: [5]s32 = .[160,96,64,64,32]
+    for song: cast(s32)0..PIANO_SONGS - 1 {
+        if !PianoSelectSong(song) || PianoNoteCount() != expected_counts[song] { return 5 }
+        lesson := PianoNew()
+        if !lesson.practicing || lesson.shown != -1 || lesson.speed != 1 { return 6 }
+        if PianoTry(*lesson, 49) || lesson.next != 0 { return 7 }
+        total: s32
+        ticks: s32
+        for verse: cast(s32)0..PianoVerses() - 1 {
+            for phrase: cast(s32)0..PianoPhrases() - 1 {
+                if PianoWordsAt(verse, phrase).count == 0 { return 8 }
+                if PianoPhraseTicks(phrase) % (PianoMeter() * 2) != 0 { return 9 }
+                for offset: cast(s32)0..PianoPhraseCount(phrase) - 1 {
+                    at := verse * PianoVerseNotes() + PianoPhraseStart(phrase) + offset
+                    if at != total || PianoWhiteIndex(PianoPitchAt(at)) < 0 { return 10 }
+                    if PianoVerseAt(at) != verse || PianoPhraseAt(at) != phrase { return 11 }
+                    if !PianoTry(*lesson, PianoPitchAt(at)) || lesson.next != at + 1 { return 12 }
+                    ticks += PianoLengthAt(at); total += 1
+                }
+            }
+        }
+        if total != expected_counts[song] || ticks != expected_ticks[song] { return 13 }
+        if PianoTry(*lesson, 60) { return 14 }
+        for speed: cast(s32)0..2 {
+            lesson.speed = speed; PianoListen(*lesson, 10.0)
+            now: float64 = 10.0
+            for at: cast(s32)0..PianoNoteCount() - 1 {
+                if PianoTick(*lesson, now) != PianoPitchAt(at) || lesson.shown != at { return 15 }
+                if PianoTry(*lesson, PianoPitchAt(at)) { return 16 }
+                if PianoTick(*lesson, now + 0.01) != -1 { return 17 }
+                if PianoTick(*lesson, lesson.gate) != -2 || lesson.sounding { return 18 }
+                if PianoTick(*lesson, lesson.due - 0.001) != -1 { return 19 }
+                now = lesson.due
+            }
+            if PianoTick(*lesson, now) != -2 || lesson.listening { return 20 }
+            if PianoTick(*lesson, now + 30.0) != -1 { return 21 }
+            PianoPractice(*lesson)
+            if lesson.next != 0 || lesson.speed != speed || !lesson.practicing { return 22 }
+        }
+        // Same physical shortcuts and scientific pitch in every song.
+        if PianoKeyboardPitch(49) != 60 || PianoKeyboardPitch(56) != 72 { return 23 }
+        if PianoKeyboardPitch(87) != 61 || PianoKeyboardPitch(119) != 61 || PianoKeyboardPitch(75) != 72 { return 24 }
+        if PianoKeyboardPitch(32) != -1 || PianoKeyboardPitch(57) != -1 { return 25 }
+    }
+    unused PianoSelectSong(0)
+    if PianoLengthAt(10) != 4 || PianoLengthAt(15) != 4 || PianoLengthAt(26) != 4 { return 26 }
+    unused PianoSelectSong(3)
+    if PianoPitchAt(27) != 55 || PianoPitchAt(30) != 55 { return 27 }
+    widths: [4]s32 = .[960,390,320,844]
+    heights: [4]s32 = .[544,788,512,334]
+    for at: cast(s32)0..3 {
+        p := PianoMeasure(widths[at], heights[at])
+        gap := PianoStaffGap(p)
+        if PianoStaffY(p, 7) - PianoStaffY(p, 9) != gap { return 28 }
+        if PianoStaffY(p, 7) <= PianoStaffY(p, 8) { return 29 }
+        if PianoStaffX(p, 0, 16, 8) <= p.guide_x || PianoStaffX(p, 14, 16, 8) >= p.guide_x + p.guide_width { return 30 }
+        if p.lyrics_height < 22 || p.guide_y + p.guide_height > p.lyrics_y { return 31 }
+        if PianoKeyWidth(p) < 36 { return 32 }
+    }
+    return 0
+}

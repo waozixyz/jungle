@@ -31,7 +31,8 @@ def build(out):
     compiler = ziran/'build/bin/ziran'
     emcc = Path(os.environ.get('EMCC', shutil.which('emcc') or str(Path.home()/'emsdk/upstream/emscripten/emcc')))
     if not emcc.is_file():raise SystemExit('Emscripten is required: set EMCC to the installed emcc executable')
-    GEN.mkdir(parents=True,exist_ok=True)
+    shutil.rmtree(GEN,ignore_errors=True)
+    GEN.mkdir(parents=True)
     out.mkdir(parents=True,exist_ok=True)
     modules=[]
     for path in [kryon/'src/ui',kryon/'src/backend',ziran/'std',ROOT/'web',ROOT/'host']:
@@ -46,24 +47,44 @@ def build(out):
         'app_context:AppAssetPathHost':'jungle_web:WebAsset',
         'app_context:AppKeyboardHost':'jungle_web:WebKeyboard',
     }
-    args=[compiler,'build','--target=c','--entry','canvas_app_run:main','--define','PLATFORM_WEB','--root',ROOT/'web',*modules]
-    for source,target in bindings.items():args += ['--bind',source+'='+target]
-    args += ['-o',GEN,kryon/'src/backend/canvas_app_run.zi',kryon/'src/backend/canvas_raster.zi',ROOT/'web/jungle_web.zi']
-    run(args)
+    def compile_runtime(output,semantic_dom):
+        entry='dom_app_run:main' if semantic_dom else 'canvas_app_run:main'
+        sources=[kryon/'src/backend/canvas_app_run.zi',kryon/'src/backend/canvas_raster.zi']
+        if semantic_dom:sources.append(kryon/'src/backend/dom_app_run.zi')
+        sources.append(ROOT/'web/jungle_web.zi')
+        args=[compiler,'build','--target=c','--entry',entry,'--define','PLATFORM_WEB','--root',ROOT/'web',*modules]
+        for source,target in bindings.items():args += ['--bind',source+'='+target]
+        args += ['-o',output,*sources]
+        run(args)
+
+    def link_runtime(output,generated):
+        files=sorted(generated.rglob('*.c'))
+        includes=[]
+        for directory in sorted({path.parent for path in files}):includes += ['-iquote',directory]
+        run([emcc,'-O2','-I'+str(ziran/'include'),*includes,*files,
+             '--js-library',ziran/'web/ziran_web.js','--embed-file',str(kryon/'assets/fonts/LiberationSans-Regular.ttf')+'@/kryon-font.ttf',
+             '-sEXPORTED_RUNTIME_METHODS=FS,HEAPU8,addRunDependency,removeRunDependency','-sASYNCIFY','-sALLOW_MEMORY_GROWTH=1',
+             '-sINITIAL_MEMORY=67108864','-sMAXIMUM_MEMORY=536870912','-sSTACK_SIZE=8388608','-sENVIRONMENT=web',
+             '-sFORCE_FILESYSTEM=1','-lidbfs.js','-o',output],env=env)
+
     env=os.environ.copy();env['EM_CACHE']=str(ROOT/'build/emscripten-cache');env['EMCC_CORES']='2'
-    cfiles=sorted(GEN.rglob('*.c'))
-    includes=[]
-    for directory in sorted({p.parent for p in cfiles}):includes += ['-iquote',directory]
-    run([emcc,'-O2','-I'+str(ziran/'include'),*includes,*cfiles,
-         '--js-library',ziran/'web/ziran_web.js','--embed-file',str(kryon/'assets/fonts/LiberationSans-Regular.ttf')+'@/kryon-font.ttf',
-         '-sEXPORTED_RUNTIME_METHODS=FS,addRunDependency,removeRunDependency','-sASYNCIFY','-sALLOW_MEMORY_GROWTH=1','-sINITIAL_MEMORY=67108864','-sMAXIMUM_MEMORY=536870912',
-         '-sSTACK_SIZE=8388608','-sENVIRONMENT=web','-sFORCE_FILESYSTEM=1','-lidbfs.js','-o',out/'jungle.js'],env=env)
+    compile_runtime(GEN,False)
+    link_runtime(out/'jungle.js',GEN)
+    dom_gen=ROOT/'build/web-dom-c'
+    shutil.rmtree(dom_gen,ignore_errors=True)
+    dom_gen.mkdir(parents=True)
+    compile_runtime(dom_gen,True)
+    link_runtime(out/'jungle-dom.js',dom_gen)
     revision=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip()
     html=(ROOT/'web/index.html').read_text().replace('__JUNGLE_BUILD_REVISION__',revision)
-    html=re.sub(r'((?:src|href)=")(/?(?:assets/[^"?]+|favicon\.ico|site\.webmanifest|(?:jungle|asset-packs)\.js))(")',
+    html=re.sub(r'((?:src|href)=")(/?(?:assets/[^"?]+|favicon\.ico|site\.webmanifest|(?:jungle(?:-dom)?|asset-packs)\.js))(")',
                 lambda match:match[1]+match[2]+'?v='+revision+match[3],html)
     html=re.sub(r'((?:src|href)=")/(?!/)',r'\1',html)
     (out/'index.html').write_text(html)
+    dom_html=html.replace('<html lang="en">','<html lang="en" data-backend="dom">')
+    dom_html=dom_html.replace('https://jungle.waozi.xyz/','https://jungle.waozi.xyz/dom.html')
+    dom_html=dom_html.replace('src="jungle.js?','src="jungle-dom.js?')
+    (out/'dom.html').write_text(dom_html)
     shutil.copy2(ROOT/'LICENSE',out/'LICENSE')
     for name in ('robots.txt','sitemap.xml','funding.json'):
         shutil.copy2(ROOT/'web'/name,out/name)
@@ -74,7 +95,7 @@ def build(out):
     shutil.copy2(ROOT/'assets/jungle/icons/favicon.ico',out/'favicon.ico')
     shutil.copy2(ROOT/'web/asset-packs.js',out/'asset-packs.js')
     files = {}
-    for name in ('jungle','jungle-book','abc','numbers','animal-count','dino-paint','jigsaw'):
+    for name in ('jungle','jungle-book','abc','numbers','animal-count','dino-paint','jigsaw','piano'):
         source=ROOT/'assets'/name
         for path in source.rglob('*'):
             if path.is_file() and not path.name.endswith('.speech.json') and not path.name.startswith('voice-'):
@@ -92,7 +113,8 @@ def build(out):
             shutil.copy2(files.pop(name),target)
     manifest=pack_assets(files,out)
     (out/'images.json').write_text(json.dumps(images))
-    (out/'version.json').write_text(json.dumps({'version':(ROOT/'VERSION').read_text().strip(),'revision':revision}))
+    (out/'version.json').write_text(json.dumps({'version':(ROOT/'VERSION').read_text().strip(),'revision':revision,
+        'runtimes':{'canvas':(out/'jungle.js').stat().st_size,'dom':(out/'jungle-dom.js').stat().st_size}}))
     count,total=validate_distribution(out)
     print(f'Built {len(manifest["files"])} packed assets in {len(manifest["packs"])} ZIP packs; distribution: {count} files, {total/1_000_000:.1f} MB',flush=True)
 

@@ -160,7 +160,8 @@ GameServices :: (context: *void, module: *u8, function: *u8,
             return 1
         }
         if service == "jungle.sound" {
-            SoundPlayFile(BundleReadAsset(game.app.app.bundle, request))
+            if request == "" { SoundStop() }
+            else { SoundPlayFile(BundleReadAsset(game.app.app.bundle, request)) }
             result.* = Reply("played")
             return 1
         }

@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.1.18
+
+- Offer a native DOM browser edition with sharp HTML text, real buttons, CSS styling and correctly placed pictures, alongside Canvas.
+- Compare both browser editions with per-activity CPU, memory and frame-cadence reports for desktop and phone layouts.
+
+- Add Vacation, Sports, Beach, Weather and Feelings picture books, with 31 new watercolor scenes and English, German and Spanish words and narration.
+- Show hot and cold, wet and dry, tired and rested, hunger, thirst, happiness and sadness through clear everyday scenes without text in the artwork.
+- Match Sports and Feelings to Body Parts and Family, with the same natural watercolor people and a consistent child and mother across the scenes.
+- Give Little Piano a fixed, accurately tuned 37-key C3–C6 keyboard, a five-song public-domain chooser, proper treble notation and only the current lyric line beneath the score.
+
 ## 0.1.17
 
 - Correct the zebra to four legs in Picture Book and counting games.

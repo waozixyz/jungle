@@ -28,11 +28,11 @@ jobs:
       MAGICK_THREAD_LIMIT: '1'
     defaults:
       run:
-        working-directory: waozixyz/jungle
+        working-directory: waozixyz/learning/jungle
     steps:
       - uses: actions/checkout@v7
         with:
-          path: waozixyz/jungle
+          path: waozixyz/learning/jungle
       - name: Read locked dependencies
         id: deps
         run: |
@@ -114,8 +114,8 @@ jobs:
           name: release-ui-failure
           retention-days: 1
           path: |
-            waozixyz/jungle/build/tests/ui/*.png
-            waozixyz/jungle/build/tests/ui/*.log
+            waozixyz/learning/jungle/build/tests/ui/*.png
+            waozixyz/learning/jungle/build/tests/ui/*.log
           if-no-files-found: ignore
       - name: Publish this version once its download is verified
         if: github.ref == 'refs/heads/master'

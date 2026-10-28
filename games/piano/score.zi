@@ -1,0 +1,137 @@
+#import "kryon/geometry"
+#import "kryon/drawing_props"
+#import, file "../../retro/retro.zi";
+#import, file "keyboard.zi";
+#import "kryon/svg_icon_props"
+#import "kryon/svg_icon_widget"
+#import "std/format"
+#import, file "../../retro/book_theme.zi";
+#import, file "song.zi";
+#import, file "layout.zi";
+#import, file "symbols.zi";
+
+PianoSymbol :: (symbol: s32, x: float32, y: float32, gap: float32, ink: u32) {
+    edge := piano_symbol_edges[symbol] * gap
+    left := x - piano_symbol_x[symbol] * edge
+    top := y - piano_symbol_y[symbol] * edge
+    SvgIcon(retro.session, SvgIconProps.{.shape = PianoSymbolShape(symbol), .color = ColorFromPacked(ink),
+        .bounds = Rectangle.{retro.x + left * retro.scale, retro.y + top * retro.scale, edge * retro.scale, edge * retro.scale}})
+}
+
+PianoBeam :: (x0: s32, y0: s32, x1: s32, y1: s32, gap: s32) {
+    edge := cast(float32)(x1 - x0)
+    rise := cast(float32)(y1 - y0) * 24.0 / edge
+    thickness := cast(float32)gap * 0.45 * 24.0 / edge
+    shape: Vec(u8)
+    BuilderPrint(*shape, "F:M0,12L24,%L24,%L0,%Z", 12.0 + rise, 12.0 + rise + thickness, 12.0 + thickness)
+    SvgIcon(retro.session, SvgIconProps.{.shape = BuilderFinish(shape), .color = ColorFromPacked(0x3e332aff),
+        .bounds = Rectangle.{retro.x + cast(float32)x0 * retro.scale, retro.y + (cast(float32)y0 - edge * 0.5) * retro.scale,
+            edge * retro.scale, edge * retro.scale}})
+}
+
+PianoStaffRender :: (p: PianoLayout, verse: s32, phrase: s32, active: s32, colors: []u32) {
+    first := verse * PianoVerseNotes() + PianoPhraseStart(phrase)
+    count := PianoPhraseCount(phrase)
+    ticks := PianoPhraseTicks(phrase)
+    bar_ticks := PianoMeter() * 2
+    gap := PianoStaffGap(p)
+    xs: [16]s32
+    ys: [16]s32
+    whites: [16]s32
+    times: [16]s32
+    stems: [16]s32
+    directions: [16]s32
+    beamed: [16]bool
+    ends: [16]s32
+    tick: s32
+    ink: u32 = 0x3e332aff
+    for offset: cast(s32)0..count - 1 {
+        at := first + offset
+        whites[offset] = PianoWhiteIndex(PianoPitchAt(at))
+        xs[offset] = PianoStaffX(p, tick, ticks, bar_ticks)
+        ys[offset] = PianoStaffY(p, whites[offset])
+        times[offset] = tick
+        directions[offset] = ifx whites[offset] >= 13 then -1 else 1
+        stems[offset] = ys[offset] - directions[offset] * gap * 7 / 2
+        if at == active {
+            BookBox(xs[offset] - gap, p.guide_y + gap / 2, gap * 2 + 1, gap * 9, 0x2e6956ff, 0, cast(float32)gap * 0.5)
+            BookBox(xs[offset] - gap + 2, p.guide_y + gap / 2 + 2, gap * 2 - 3, gap * 9 - 4,
+                colors[whites[offset] % 7], 0, cast(float32)gap * 0.4)
+        }
+        tick += PianoLengthAt(at)
+    }
+    for line: cast(s32)0..4 {
+        BookBox(p.guide_x, p.guide_y + gap * (2 + line), p.guide_width, 1, 0xa89b81ff)
+    }
+    PianoSymbol(PIANO_SYMBOL_CLEF, cast(float32)p.guide_x + cast(float32)gap * 0.6,
+        cast(float32)(p.guide_y + gap * 5), cast(float32)gap, ink)
+    PianoSymbol(ifx PianoMeter() == 2 then PIANO_SYMBOL_TWO else PIANO_SYMBOL_FOUR,
+        cast(float32)p.guide_x + cast(float32)gap * 4.75,
+        cast(float32)(p.guide_y + gap * 3), cast(float32)gap, ink)
+    PianoSymbol(PIANO_SYMBOL_FOUR, cast(float32)p.guide_x + cast(float32)gap * 4.75,
+        cast(float32)(p.guide_y + gap * 5), cast(float32)gap, ink)
+    bar := bar_ticks
+    while bar < ticks {
+        x := PianoStaffX(p, bar, ticks, bar_ticks) - PianoStaffUnit(p, ticks, bar_ticks) / 2 - gap / 2
+        BookBox(x, p.guide_y + gap * 2, 1, gap * 4 + 1, ink)
+        bar += bar_ticks
+    }
+    BookBox(p.guide_x + p.guide_width - 1, p.guide_y + gap * 2, 1, gap * 4 + 1, ink)
+    // Consecutive eighth notes share a beam within each half-bar group.
+    offset: s32
+    while offset < count {
+        if PianoLengthAt(first + offset) != 1 { offset += 1; continue }
+        last := offset + 1
+        while last < count && PianoLengthAt(first + last) == 1 && times[last] / 4 == times[offset] / 4 { last += 1 }
+        last -= 1
+        if last > offset {
+            direction: s32 = ifx whites[offset] + whites[last] >= 26 then -1 else 1
+            level := ys[offset]
+            if direction > 0 && ys[last] < level { level = ys[last] }
+            if direction < 0 && ys[last] > level { level = ys[last] }
+            end_y := level - direction * gap * 7 / 2
+            slope := (ys[offset] - ys[last]) / 2
+            if slope > gap { slope = gap }
+            if slope < -gap { slope = -gap }
+            start_y := end_y + slope
+            for at: cast(s32)offset..last {
+                directions[at] = direction
+                stems[at] = start_y + (xs[at] - xs[offset]) * (end_y - start_y) / (xs[last] - xs[offset])
+                beamed[at] = true
+            }
+            ends[offset] = last
+        }
+        offset = last + 1
+    }
+    for at: cast(s32)0..count - 1 {
+        x := xs[at]; y := ys[at]
+        length := PianoLengthAt(first + at)
+        if length != 8 {
+            stem_x := x + directions[at] * (gap * 3 / 5 - 1)
+            top := ifx stems[at] < y then stems[at] else y
+            height := ifx stems[at] < y then y - stems[at] else stems[at] - y
+            BookBox(stem_x, top, ifx gap < 9 then 1 else 2, height, ink)
+            if length == 1 && !beamed[at] {
+                PianoSymbol(ifx directions[at] > 0 then PIANO_SYMBOL_FLAG else PIANO_SYMBOL_FLAG_DOWN,
+                    cast(float32)stem_x, cast(float32)stems[at], cast(float32)gap, ink)
+            }
+        }
+        ledger: s32 = 7
+        while ledger >= whites[at] {
+            BookBox(x - gap, PianoStaffY(p, ledger), gap * 2 + 1, 1, ink)
+            ledger -= 2
+        }
+        ledger = 19
+        while ledger <= whites[at] {
+            BookBox(x - gap, PianoStaffY(p, ledger), gap * 2 + 1, 1, ink)
+            ledger += 2
+        }
+        symbol: s32 = ifx length == 8 then PIANO_SYMBOL_WHOLE else ifx length == 4 then PIANO_SYMBOL_HALF else PIANO_SYMBOL_BLACK
+        PianoSymbol(symbol, cast(float32)x, cast(float32)y, cast(float32)gap, ink)
+        if ends[at] > at {
+            last := ends[at]
+            dx := directions[at] * (gap * 3 / 5 - 1)
+            PianoBeam(xs[at] + dx, stems[at], xs[last] + dx, stems[last], gap)
+        }
+    }
+}

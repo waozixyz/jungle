@@ -26,7 +26,7 @@ const server=createServer(async(req,res)=>{try{const request=new URL(req.url,'ht
  if(request.pathname==='/assets/jungle/covers/book.jpg'&&!request.searchParams.has('v')){file=join(root,'assets/jungle/covers/abc.jpg');stalePictureRequests++}
  const data=await readFile(file);res.writeHead(200,{'Content-Type':mime[extname(file)]||'application/octet-stream','Cache-Control':'public, max-age=14400'});res.end(data)}catch{res.writeHead(404);res.end()}});
 await new Promise(r=>server.listen(0,'127.0.0.1',r));
-const url=process.argv[2]||'http://127.0.0.1:'+server.address().port+prefix;
+const url=process.argv[2]||'http://127.0.0.1:'+server.address().port+prefix+(process.env.JUNGLE_WEB_PAGE||'');
 const env={...process.env};for(const name of ['DISPLAY','WAYLAND_DISPLAY','XAUTHORITY','DBUS_SESSION_BUS_ADDRESS','SESSION_MANAGER'])delete env[name];env.YUE_DESKTOP_RECOVERY='0';env.TMPDIR='/tmp';
 const browser=spawn(process.env.CHROMIUM||'chromium',['--headless','--no-sandbox','--disable-gpu','--disable-webgl','--disable-dev-shm-usage','--no-first-run','--no-default-browser-check','--window-size=960,600','--remote-debugging-port=0','--user-data-dir='+profile,'about:blank'],{env,stdio:['ignore','ignore','pipe']});
 let stderr='',socket,diagnostics=[];browser.stderr.on('data',d=>stderr=(stderr+d).slice(-4000));
@@ -39,7 +39,7 @@ try{
  let sequence=0;let holdAudio=false;const pausedAudio=[];const pending=new Map();socket.onmessage=e=>{const m=JSON.parse(e.data);if(m.method==='Fetch.requestPaused'){if(holdAudio)pausedAudio.push(m.params.requestId);else void command('Fetch.continueRequest',{requestId:m.params.requestId})}if(m.method==='Runtime.exceptionThrown')diagnostics.push(m.params);if(m.method==='Runtime.consoleAPICalled'&&m.params.type==='error')diagnostics.push(m.params.args.map(a=>a.value||a.description));if(pending.has(m.id)){pending.get(m.id)(m);pending.delete(m.id)}};
  async function command(method,params={}){const id=++sequence;const result=new Promise(r=>pending.set(id,r));socket.send(JSON.stringify({id,method,params}));return result}
  async function evaluate(expression){const r=await command('Runtime.evaluate',{expression,returnByValue:true,awaitPromise:true});if(r.result?.exceptionDetails)throw Error(JSON.stringify(r.result.exceptionDetails));return r.result?.result?.value}
- async function key(key,code=key){await command('Input.dispatchKeyEvent',{type:'keyDown',key,code,windowsVirtualKeyCode:key==='Enter'?13:key==='Escape'?27:key.startsWith('Arrow')?({ArrowLeft:37,ArrowUp:38,ArrowRight:39,ArrowDown:40}[key]):key.charCodeAt(0)});await delay(100);await command('Input.dispatchKeyEvent',{type:'keyUp',key,code});await delay(250)}
+ async function key(key,code=key){if(process.env.JUNGLE_WEB_PAGE==='dom.html'&&(key==='Enter'||key===' '))await evaluate('document.activeElement?.blur()');await command('Input.dispatchKeyEvent',{type:'keyDown',key,code,windowsVirtualKeyCode:key==='Enter'?13:key==='Escape'?27:key.startsWith('Arrow')?({ArrowLeft:37,ArrowUp:38,ArrowRight:39,ArrowDown:40}[key]):key.charCodeAt(0)});await delay(100);await command('Input.dispatchKeyEvent',{type:'keyUp',key,code});await delay(250)}
  async function click(x,y){const b=await evaluate('(()=>{let b=document.getElementById("canvas").getBoundingClientRect();return {x:b.x,y:b.y,w:b.width,h:b.height}})()');x=b.x+x*b.w/320;y=b.y+y*b.h/200;await command('Input.dispatchMouseEvent',{type:'mousePressed',x,y,button:'left',clickCount:1});await delay(80);await command('Input.dispatchMouseEvent',{type:'mouseReleased',x,y,button:'left',clickCount:1});await delay(400)}
  await command('Runtime.enable');await command('Network.enable');await command('Network.setBlockedURLs',{urls:['*/assets/jungle/covers/paint.jpg*']});await command('Page.enable');await command('Page.addScriptToEvaluateOnNewDocument',{source:'performance.setResourceTimingBufferSize(5000);window.jungleTestVoices=[];Object.defineProperty(HTMLMediaElement.prototype,"junglePath",{get(){return this.dataset.junglePath},set(path){this.dataset.junglePath=path;window.jungleTestRequestedAudio=this}});const jungleOriginalPlay=HTMLMediaElement.prototype.play;HTMLMediaElement.prototype.play=function(){window.jungleTestVoices.push(this.junglePath||this.src);window.jungleTestAudio=this;return jungleOriginalPlay.apply(this,arguments)}'});await command('Emulation.setDeviceMetricsOverride',{width:1280,height:800,deviceScaleFactor:1,mobile:false});await command('Page.navigate',{url});
  let ready=false;while(Date.now()<deadline){if(await evaluate('typeof Module!=="undefined"&&Module.FS&&document.getElementById("loading").style.display==="none"')){ready=true;break}if(diagnostics.length)throw Error(JSON.stringify(diagnostics));await delay(250)}
@@ -147,7 +147,8 @@ try{
   await evaluate('window.jungleTestVoices=[]');await key(' ','Space');await waitSpoken('/numbers/sounds/es/1.wav');
   await pixelClick(34,28,true);await key('Escape');await shot('menu-after-numbers-phone');
  }
- const countingRow=3;
+ const countingRow=(await readFile('games/catalog.txt','utf8')).split('\n').filter(line=>line.includes('|'))
+  .map(line=>line.split('|')).filter(row=>row[1]!=='123 Book').sort((a,b)=>Number(a[4])-Number(b[4])).findIndex(row=>row[1]==='Animal Counting');
  await pixelClick(195,rowY(countingRow),true);await shot('counting-phone');
  let counted=false;for(let n=1;n<=4;n++){
   await pixelClick(78,796,true);const index=n-1;await pixelClick(78+(index%3)*116,628+Math.floor(index/3)*56,true);await pixelClick(310,796,true);

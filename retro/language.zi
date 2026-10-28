@@ -9,7 +9,7 @@ LanguageCode :: () -> string {
 LanguageSet :: (code: string) {
     language = ifx code == "de" then 1 else ifx code == "es" then 2 else 0
 }
-UI_COUNT :: 255
+UI_COUNT :: 312
 ui_en_0: [48]string = .[
     "Picture Book",
     "Animal Counting",
@@ -260,7 +260,7 @@ ui_en_192: [48]string = .[
     "Play again",
     "Pictures",
 ];
-ui_en_240: [15]string = .[
+ui_en_240: [48]string = .[
     "Peek",
     "All pieces",
     "Edge pieces",
@@ -276,6 +276,65 @@ ui_en_240: [15]string = .[
     "Snowy hills",
     "Pond",
     "Farmyard",
+    "Vacation",
+    "Sports",
+    "Beach",
+    "Weather",
+    "Feelings",
+    "Little Piano",
+    "Colors, keys and songs",
+    "Alle meine Entchen",
+    "Practice",
+    "Listen",
+    "Stop",
+    "Free play",
+    "Find the matching color and number",
+    "Listen and watch the keys",
+    "Make your own music",
+    "You played the whole song!",
+    "Piano key",
+    "Rest",
+    "All my little ducklings",
+    "Swimming on the lake",
+    "Little heads under water",
+    "Little tails up high",
+    "Long bar: hold. Rest: wait. Keys: 1-8 or A S D F G H J K",
+    "Previous phrase",
+    "Next phrase",
+    "All my little doves",
+    "Cooing on the roof",
+    "One flies up into the sky",
+    "All the others follow",
+    "All my little chickens",
+    "Scratching in the straw",
+    "When they find a little grain",
+    "They are all happy",
+];
+ui_en_288: [24]string = .[
+    "All my little goslings",
+    "Waddling across the ground",
+    "Searching in the puddle",
+    "Growing plump and round",
+    "Twinkle, Twinkle, Little Star",
+    "Twinkle, twinkle, little star",
+    "How I wonder what you are",
+    "Up above the world so high",
+    "Like a diamond in the sky",
+    "Mary Had a Little Lamb",
+    "Mary had a little lamb",
+    "Little lamb, little lamb",
+    "Its fleece was white as snow",
+    "Frère Jacques",
+    "Brother John",
+    "Are you sleeping?",
+    "Morning bells are ringing",
+    "Ding, ding, dong",
+    "Hot Cross Buns",
+    "Hot cross buns",
+    "One a penny, two a penny",
+    "Choose song",
+    "Choose a song",
+    "Public-domain songs",
 ];
 ui_de_0: [48]string = .[
     "Bilderbuch",
@@ -527,7 +586,7 @@ ui_de_192: [48]string = .[
     "Noch einmal",
     "Bilder",
 ];
-ui_de_240: [15]string = .[
+ui_de_240: [48]string = .[
     "Nachsehen",
     "Alle Teile",
     "Randteile",
@@ -543,6 +602,65 @@ ui_de_240: [15]string = .[
     "Schneehügel",
     "Teich",
     "Bauernhof",
+    "Urlaub",
+    "Sport",
+    "Strand",
+    "Wetter",
+    "Gefühle",
+    "Kleines Klavier",
+    "Farben, Tasten und Lieder",
+    "Alle meine Entchen",
+    "Üben",
+    "Anhören",
+    "Stopp",
+    "Frei spielen",
+    "Finde die passende Farbe und Zahl",
+    "Höre zu und schau auf die Tasten",
+    "Mach deine eigene Musik",
+    "Du hast das ganze Lied gespielt!",
+    "Klaviertaste",
+    "Pause",
+    "Alle meine Entchen",
+    "Schwimmen auf dem See",
+    "Köpfchen in das Wasser",
+    "Schwänzchen in die Höh",
+    "Langer Balken: halten. Pause: warten. Tasten: 1-8 oder A S D F G H J K",
+    "Vorherige Zeile",
+    "Nächste Zeile",
+    "Alle meine Täubchen",
+    "Gurren auf dem Dach",
+    "Fliegt eins in die Lüfte",
+    "Fliegen alle nach",
+    "Alle meine Hühnchen",
+    "Scharren in dem Stroh",
+    "Finden sie ein Körnchen",
+    "Sind sie alle froh",
+];
+ui_de_288: [24]string = .[
+    "Alle meine Gänschen",
+    "Watscheln durch den Grund",
+    "Suchen in dem Tümpel",
+    "Werden kugelrund",
+    "Funkle, funkle, kleiner Stern",
+    "Funkle, funkle, kleiner Stern",
+    "Ich frage mich, was du wohl bist",
+    "Hoch über der weiten Welt",
+    "Wie ein Diamant am Himmel",
+    "Mary und ihr kleines Lamm",
+    "Mary hatte ein kleines Lamm",
+    "Kleines Lamm, kleines Lamm",
+    "Sein Fell war weiß wie Schnee",
+    "Bruder Jakob",
+    "Bruder Jakob",
+    "Schläfst du noch?",
+    "Die Morgenglocken läuten",
+    "Ding, ding, dong",
+    "Warme Brötchen",
+    "Warme Brötchen",
+    "Eins für einen, zwei für einen",
+    "Lied auswählen",
+    "Wähle ein Lied",
+    "Gemeinfreie Lieder",
 ];
 ui_es_0: [48]string = .[
     "Libro ilustrado",
@@ -794,7 +912,7 @@ ui_es_192: [48]string = .[
     "Jugar otra vez",
     "Imágenes",
 ];
-ui_es_240: [15]string = .[
+ui_es_240: [48]string = .[
     "Mirar",
     "Todas las piezas",
     "Piezas del borde",
@@ -810,6 +928,65 @@ ui_es_240: [15]string = .[
     "Colinas nevadas",
     "Estanque",
     "Granja",
+    "Vacaciones",
+    "Deportes",
+    "Playa",
+    "Tiempo",
+    "Sensaciones",
+    "Pequeño piano",
+    "Colores, teclas y canciones",
+    "Todos mis patitos",
+    "Practicar",
+    "Escuchar",
+    "Parar",
+    "Tocar libremente",
+    "Busca el color y el número",
+    "Escucha y mira las teclas",
+    "Crea tu propia música",
+    "¡Has tocado toda la canción!",
+    "Tecla de piano",
+    "Silencio",
+    "Todos mis patitos",
+    "Nadan en el lago",
+    "Cabecitas bajo el agua",
+    "Colitas hacia arriba",
+    "Barra larga: mantener. Silencio: esperar. Teclas: 1-8 o A S D F G H J K",
+    "Frase anterior",
+    "Frase siguiente",
+    "Todas mis palomitas",
+    "Arrullan en el tejado",
+    "Una vuela hacia el cielo",
+    "Las demás la siguen",
+    "Todos mis pollitos",
+    "Escarban en la paja",
+    "Cuando encuentran un granito",
+    "Todos están contentos",
+];
+ui_es_288: [24]string = .[
+    "Todos mis gansitos",
+    "Caminan por el campo",
+    "Buscan en el charco",
+    "Se ponen gorditos y redondos",
+    "Brilla, brilla, estrellita",
+    "Brilla, brilla, pequeña estrella",
+    "Me pregunto qué serás",
+    "Tan arriba de este mundo",
+    "Como un diamante en el cielo",
+    "Mary y su corderito",
+    "Mary tenía un corderito",
+    "Corderito, corderito",
+    "Su lana era blanca como nieve",
+    "Fray Jacobo",
+    "Hermano Juan",
+    "¿Sigues durmiendo?",
+    "Suenan las campanas de la mañana",
+    "Din, din, don",
+    "Panecillos calientes",
+    "Panecillos calientes",
+    "Uno por un penique, dos por un penique",
+    "Elegir canción",
+    "Elige una canción",
+    "Canciones de dominio público",
 ];
 Ui_en :: (at: s32) -> string {
     if at < 48 { return ui_en_0[at - 0] }
@@ -817,7 +994,8 @@ Ui_en :: (at: s32) -> string {
     if at < 144 { return ui_en_96[at - 96] }
     if at < 192 { return ui_en_144[at - 144] }
     if at < 240 { return ui_en_192[at - 192] }
-    if at < 255 { return ui_en_240[at - 240] }
+    if at < 288 { return ui_en_240[at - 240] }
+    if at < 312 { return ui_en_288[at - 288] }
     return ""
 }
 Ui_de :: (at: s32) -> string {
@@ -826,7 +1004,8 @@ Ui_de :: (at: s32) -> string {
     if at < 144 { return ui_de_96[at - 96] }
     if at < 192 { return ui_de_144[at - 144] }
     if at < 240 { return ui_de_192[at - 192] }
-    if at < 255 { return ui_de_240[at - 240] }
+    if at < 288 { return ui_de_240[at - 240] }
+    if at < 312 { return ui_de_288[at - 288] }
     return ""
 }
 Ui_es :: (at: s32) -> string {
@@ -835,7 +1014,8 @@ Ui_es :: (at: s32) -> string {
     if at < 144 { return ui_es_96[at - 96] }
     if at < 192 { return ui_es_144[at - 144] }
     if at < 240 { return ui_es_192[at - 192] }
-    if at < 255 { return ui_es_240[at - 240] }
+    if at < 288 { return ui_es_240[at - 240] }
+    if at < 312 { return ui_es_288[at - 288] }
     return ""
 }
 Tr :: (text: string) -> string {

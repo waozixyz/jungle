@@ -19,15 +19,15 @@ returns home from its first screen. The sound button at the top right mutes
 or unmutes every game.
 Accented German and Spanish letters work in Dino stories, saves and exports.
 
-**Picture Book** has twenty-one organized books: Wild animals (15 pictures), Garden
+**Picture Book** has twenty-six organized books: Wild animals (15 pictures), Garden
 (10), Fruits (16), Farm (20), Kitchen (8), Bathroom (8), Bedroom (8),
-Living room (8), Nature (8), Vegetables (16), Family (8), Body Parts (10), Breakfast (6), Lunch (6), Dinner (6), Clothing (12), Seasons (4), Birds (6), Toys (6), Vehicles (6), and Bedtime (6). Browse the framed book list through Nature, Food, Home and Family tabs. Every page is one gentle watercolor
+Living room (8), Nature (8), Vegetables (16), Family (8), Body Parts (10), Breakfast (6), Lunch (6), Dinner (6), Clothing (12), Seasons (4), Birds (6), Toys (6), Vehicles (6), Bedtime (6), Vacation (6), Sports (6), Beach (6), Weather (6), and Feelings (10). Browse the framed book list through Nature, Food, Home and Family tabs. Every page is one gentle watercolor
 scene in the style of the title-screen covers: each animal, food or thing sits
 in its own setting, so no two pages share a background. Breakfast pages are
 drawn in morning light, Lunch at midday and Dinner in the evening. The scene
 fills the page and its word sits on a label at the bottom. Choose **Simple** to hear each word once with
 its picture, or **Spelling** to hear the word, its letters and the word again.
-The selected mode is remembered. Every one of the 180 pictures has names and
+The selected mode is remembered. Every one of the 211 distinct picture words has names and
 both kinds of narration in English, German and Spanish, including correctly
 spaced accented letters. Each cover lists its page count. Narration is read only when played.
 Browser pictures load before the opening screen clears. Simple pages stay open at least six seconds; spelling pages at least twelve.
@@ -122,6 +122,22 @@ tool. Full-size originals and their prompts live in `art/generated/jigsaw`;
 complementary piece atlases in `assets/jigsaw`. No artwork, sound or program
 code from the Amiga archive is shipped in this mode.
 
+## Little Piano
+
+A fixed chromatic C3–C6 keyboard provides 37 keys with the same pitches,
+layout and A4 = 440 Hz tuning for every song. Smaller screens scroll across
+that same keyboard. Tap the song title to choose Alle meine Entchen,
+Twinkle Twinkle Little Star, Mary Had a Little Lamb, Frère Jacques or Hot Cross
+Buns, using traditional public-domain melodies. A real treble staff shows
+beamed eighth notes, quarters, half notes and whole notes, with just the current
+lyric line underneath. Practice waits for the matching note; Listen plays the
+selected song; Free play opens the full keyboard. The 1–8 and A S D F G H J K
+shortcuts always address C4–C5; W E T Y U play its black keys. Slow, Normal and
+Fast change only the tempo.
+
+Listening and playing share the same quiet triangle-wave tones. Regenerate
+the binary WAV assets with `python3 tools/piano_sounds.py`.
+
 ## Build and run
 
 The main game list is ordered by age, from Picture Book (2+) through Coloring
@@ -138,8 +154,19 @@ make run
 make test       # counting, complete saves, painting, PNGs and printing
 make test-ui    # real keyboard/mouse play on a separate virtual display
 make install    # ~/.local/bin/jungle and a menu entry
-make web        # browser game in build/web (requires Emscripten)
+make web        # Canvas and semantic-DOM browser games in build/web
 ```
+
+The browser edition has two complete runtimes: `build/web/index.html` uses
+Canvas and `build/web/dom.html` uses native HTML text, buttons, images and CSS for the interface,
+with bounded Canvas tiles for custom drawing and texture effects. Append
+`?metrics=1` to either page for live FPS, frame p95, JS heap, DOM-node,
+Kryon-element and mutation counters. Run `python3 tools/measure_web.py` after
+a web build for three runs of every activity, both idle and active, at desktop
+and phone sizes. The HTML report at `build/web/performance.html` and complete
+JSON include browser process CPU, RSS/PSS, JS/Wasm heaps, rAF cadence, long tasks
+and native DOM counts. The samples use isolated headless Chromium with software
+graphics; rAF cadence is not application rendering FPS.
 
 The tests need ImageMagick, Python's Pillow package and Ghostscript. UI tests
 also need Xvfb and xdotool.
@@ -229,9 +256,11 @@ retain their original authorship.
 
 ## Website deployment
 
-Pushes to `master` run the Linux tests and a private browser test in GitHub
-Actions, then publish the same tested website artifact to Cloudflare Pages.
-The deployment verifies its revision on `jungle.waozi.xyz`. The repository
+Pushes to `master` run the Linux tests and private browser tests for both
+editions in GitHub Actions, then publish the same tested website artifact to
+Cloudflare Pages. The deployment verifies its revision on `jungle.waozi.xyz`.
+The Canvas edition is at `/`; the semantic-DOM edition is at `/dom.html`; the
+benchmark is at `/performance-report.md`. The repository
 secret `CLOUDFLARE_API_TOKEN` grants Pages Edit for the hosting account and
 DNS Edit for `waozi.xyz`; credentials are never stored in this repository.
 Browser saves stay on that browser in IndexedDB. Menu images load first; book pictures and narration load as needed. Browser printing opens the browser print dialog.

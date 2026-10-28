@@ -5,12 +5,12 @@ import {createServer} from 'node:http';
 import {resolve,join,extname} from 'node:path';
 import {setTimeout as delay} from 'node:timers/promises';
 
-const root=resolve(process.env.JUNGLE_WEB_ROOT||'build/web'),profile=await mkdtemp('/tmp/jungle-jigsaw-web-');
+const root=resolve(process.env.JUNGLE_WEB_ROOT||'build/web'),page=process.env.JUNGLE_WEB_PAGE||'',profile=await mkdtemp('/tmp/jungle-jigsaw-web-');
 const mime={'.html':'text/html','.js':'text/javascript','.wasm':'application/wasm','.json':'application/json','.png':'image/png','.jpg':'image/jpeg','.wav':'audio/wav'};
 const server=createServer(async(req,res)=>{
  try{let file=resolve(root,'.'+decodeURIComponent(new URL(req.url,'http://localhost').pathname));
   if(file!==root&&!file.startsWith(root+'/'))throw Error('path');if(file===root)file=join(root,'index.html');
-  res.writeHead(200,{'Content-Type':mime[extname(file)]||'application/octet-stream'});res.end(await readFile(file));
+  const data=await readFile(file);res.writeHead(200,{'Content-Type':mime[extname(file)]||'application/octet-stream'});res.end(data);
  }catch{res.writeHead(404);res.end()}
 });
 await new Promise(r=>server.listen(0,'127.0.0.1',r));
@@ -48,7 +48,7 @@ try{
  await command('Runtime.enable');await command('Page.enable');
  await command('Page.addScriptToEvaluateOnNewDocument',{source:'window.jungleTestDocument=crypto.randomUUID()'});
  await command('Emulation.setDeviceMetricsOverride',{width:960,height:600,deviceScaleFactor:1,mobile:false});
- await command('Page.navigate',{url:'http://127.0.0.1:'+server.address().port});await ready();
+ await command('Page.navigate',{url:'http://127.0.0.1:'+server.address().port+(page?'/'+page:'')});await ready();
  // Wheel the age-ordered list to the 5+ coloring entry, with header fixed.
  await command('Input.dispatchMouseEvent',{type:'mouseWheel',x:500,y:350,deltaX:0,deltaY:900});await delay(500);
  await click(450,440);await key('Escape');

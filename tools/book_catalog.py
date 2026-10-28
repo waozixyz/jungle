@@ -55,6 +55,10 @@ ADDED = ("apple", "pear", "orange", "strawberry", "grapes", "pineapple", "waterm
 import json
 from pathlib import Path
 EXPANSION = json.loads(Path(__file__).with_name("book_expansion.json").read_text())
+OUTDOOR = json.loads(Path(__file__).with_name("outdoor_books.json").read_text())
+EXPANSION["extra"].update(OUTDOOR["books"])
+EXPANSION["words"].update(OUTDOOR["words"])
+EXPANSION["titles"].update(OUTDOOR["titles"])
 _original = dict(BOOKS)
 BOOKS = tuple((category, _original.get(category, ()) + tuple(extra)) for category, extra in EXPANSION["extra"].items())
 WORDS.update((name, tuple(words)) for name, words in EXPANSION["words"].items())
@@ -62,10 +66,10 @@ TITLES = EXPANSION["titles"]
 PAGE_NAMES = tuple(name for _, names in BOOKS for name in names)
 NAMES = tuple(dict.fromkeys(PAGE_NAMES))
 BOOK_GROUPS = (
-    ("Nature", ("jungle", "garden", "farm", "nature", "seasons", "birds")),
+    ("Nature", ("jungle", "garden", "farm", "nature", "seasons", "birds", "weather", "beach")),
     ("Food", ("fruits", "vegetables", "breakfast", "lunch", "dinner")),
-    ("Home", ("kitchen", "bathroom", "bedroom", "living-room", "toys", "vehicles", "bedtime")),
-    ("Family", ("family", "body", "clothing")),
+    ("Home", ("kitchen", "bathroom", "bedroom", "living-room", "toys", "vehicles", "bedtime", "vacation")),
+    ("Family", ("family", "body", "clothing", "sports", "feelings")),
 )
 LETTERS = {
     "de": dict(zip("abcdefghijklmnopqrstuvwxyz", ("a", "be", "ze", "de", "e", "ef", "ge", "ha", "i", "jot", "ka", "el", "em", "en", "o", "pe", "ku", "er", "es", "te", "u", "fau", "we", "iks", "ypsilon", "zett")), ä="ä", ö="ö", ü="ü", ß="Eszett"),

@@ -90,7 +90,7 @@ def main():
                     assert .3 < seconds < 60 and abs(seconds - receipt["duration"]) < .001
                     assert any(voice.readframes(voice.getnframes())), (name, language, simple)
                 assert path.read_bytes()[36:40] == b"data"
-    for name in ("book", "counting", "paint"):
+    for name in ("book", "counting", "paint", "piano"):
         with Image.open(ROOT / f"assets/jungle/covers/{name}.jpg") as cover:
             assert cover.size == (420, 420) and cover.format == "JPEG"
     with Image.open(ROOT / "assets/animal-count/background.png") as background:

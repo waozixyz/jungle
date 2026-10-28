@@ -1,0 +1,116 @@
+{
+  "range": {"low_midi": 48, "high_midi": 84},
+  "songs": [
+    {
+      "id": "entchen", "title": ["Alle meine Entchen", "Alle meine Entchen", "Mis pequeños patitos"],
+      "meter": 2, "verses": 4, "public_domain": true,
+      "source": "https://www.liederprojekt.org/lied30250-Alle_meine_Entchen.html",
+      "origin": "Traditional melody; first verse Ernst Anschütz (1780-1861). C-major monophonic transcription; no third-party recording or arrangement included.",
+      "phrases": [
+        [[60,1],[62,1],[64,1],[65,1],[67,2],[67,2]],
+        [[69,1],[69,1],[69,1],[69,1],[67,4]],
+        [[69,1],[69,1],[69,1],[69,1],[67,4]],
+        [[65,1],[65,1],[65,1],[65,1],[64,2],[64,2]],
+        [[67,1],[67,1],[67,1],[67,1],[60,4]]
+      ],
+      "lyrics": [
+        ["All my little ducklings", "Alle meine Entchen", "Mis pequeños patitos"],
+        ["Swimming on the lake", "Schwimmen auf dem See", "Nadan en el lago"],
+        ["Swimming on the lake", "Schwimmen auf dem See", "Nadan en el lago"],
+        ["Little heads under water", "Köpfchen in das Wasser", "Meten la cabecita en el agua"],
+        ["Little tails up high", "Schwänzchen in die Höh", "Y levantan la colita"],
+        ["All my little doves", "Alle meine Täubchen", "Mis pequeñas palomas"],
+        ["Cooing on the roof", "Gurren auf dem Dach", "Arrullan en el tejado"],
+        ["Cooing on the roof", "Gurren auf dem Dach", "Arrullan en el tejado"],
+        ["One flies up into the sky", "Fliegt eins in die Lüfte", "Una vuela hacia el cielo"],
+        ["All the others follow", "Fliegen alle nach", "Todas las demás la siguen"],
+        ["All my little chickens", "Alle meine Hühnchen", "Mis pequeñas gallinas"],
+        ["Scratching in the straw", "Scharren in dem Stroh", "Escarban en la paja"],
+        ["Scratching in the straw", "Scharren in dem Stroh", "Escarban en la paja"],
+        ["When they find a little grain", "Finden sie ein Körnchen", "Cuando encuentran un granito"],
+        ["They are all happy", "Sind sie alle froh", "Todas se ponen contentas"],
+        ["All my little goslings", "Alle meine Gänschen", "Mis pequeños gansitos"],
+        ["Waddling across the ground", "Watscheln durch den Grund", "Caminan por el suelo"],
+        ["Waddling across the ground", "Watscheln durch den Grund", "Caminan por el suelo"],
+        ["Searching in the puddle", "Suchen in dem Tümpel", "Buscan en el charco"],
+        ["Growing plump and round", "Werden kugelrund", "Y se ponen redonditos"]
+      ]
+    },
+    {
+      "id": "twinkle", "title": ["Twinkle, Twinkle, Little Star", "Funkle, funkle, kleiner Stern", "Brilla, brilla, estrellita"],
+      "meter": 4, "verses": 1, "public_domain": true,
+      "source": "https://en.wikipedia.org/wiki/Twinkle,_Twinkle,_Little_Star",
+      "origin": "Anonymous French melody published in 1761; Jane Taylor's first verse published in 1806 (1783-1824). App-written German/Spanish captions and C-major melody transcription.",
+      "phrases": [
+        [[60,2],[60,2],[67,2],[67,2],[69,2],[69,2],[67,4]],
+        [[65,2],[65,2],[64,2],[64,2],[62,2],[62,2],[60,4]],
+        [[67,2],[67,2],[65,2],[65,2],[64,2],[64,2],[62,4]],
+        [[67,2],[67,2],[65,2],[65,2],[64,2],[64,2],[62,4]],
+        [[60,2],[60,2],[67,2],[67,2],[69,2],[69,2],[67,4]],
+        [[65,2],[65,2],[64,2],[64,2],[62,2],[62,2],[60,4]]
+      ],
+      "lyrics": [
+        ["Twinkle, twinkle, little star", "Funkle, funkle, kleiner Stern", "Brilla, brilla, pequeña estrella"],
+        ["How I wonder what you are", "Ich frage mich, was du wohl bist", "Me pregunto qué serás"],
+        ["Up above the world so high", "Hoch über der weiten Welt", "Tan arriba de este mundo"],
+        ["Like a diamond in the sky", "Wie ein Diamant am Himmel", "Como un diamante en el cielo"],
+        ["Twinkle, twinkle, little star", "Funkle, funkle, kleiner Stern", "Brilla, brilla, pequeña estrella"],
+        ["How I wonder what you are", "Ich frage mich, was du wohl bist", "Me pregunto qué serás"]
+      ]
+    },
+    {
+      "id": "mary", "title": ["Mary Had a Little Lamb", "Mary und ihr kleines Lamm", "Mary y su corderito"],
+      "meter": 4, "verses": 1, "public_domain": true,
+      "source": "https://blog.library.si.edu/blog/2010/09/01/mary-had-a-little-lamb/",
+      "origin": "Sarah Josepha Hale's poem published in 1830 (1788-1879); traditional nineteenth-century melody. App-written German/Spanish captions and monophonic transcription.",
+      "phrases": [
+        [[64,2],[62,2],[60,2],[62,2],[64,2],[64,2],[64,4]],
+        [[62,2],[62,2],[62,4],[64,2],[67,2],[67,4]],
+        [[64,2],[62,2],[60,2],[62,2],[64,2],[64,2],[64,2],[64,2]],
+        [[62,2],[62,2],[64,2],[62,2],[60,8]]
+      ],
+      "lyrics": [
+        ["Mary had a little lamb", "Mary hatte ein kleines Lamm", "Mary tenía un corderito"],
+        ["Little lamb, little lamb", "Kleines Lamm, kleines Lamm", "Corderito, corderito"],
+        ["Mary had a little lamb", "Mary hatte ein kleines Lamm", "Mary tenía un corderito"],
+        ["Its fleece was white as snow", "Sein Fell war weiß wie Schnee", "Su lana era blanca como nieve"]
+      ]
+    },
+    {
+      "id": "frere", "title": ["Frère Jacques", "Bruder Jakob", "Fray Jacobo"],
+      "meter": 4, "verses": 1, "public_domain": true,
+      "source": "https://en.wikipedia.org/wiki/Fr%C3%A8re_Jacques",
+      "origin": "Traditional French round, melody published by 1811 and text/music together by 1860. App-written translated captions and C-major melody transcription, including the original low G3.",
+      "phrases": [
+        [[60,2],[62,2],[64,2],[60,2]], [[60,2],[62,2],[64,2],[60,2]],
+        [[64,2],[65,2],[67,4]], [[64,2],[65,2],[67,4]],
+        [[67,1],[69,1],[67,1],[65,1],[64,2],[60,2]],
+        [[67,1],[69,1],[67,1],[65,1],[64,2],[60,2]],
+        [[60,2],[55,2],[60,4]], [[60,2],[55,2],[60,4]]
+      ],
+      "lyrics": [
+        ["Brother John", "Bruder Jakob", "Hermano Juan"], ["Brother John", "Bruder Jakob", "Hermano Juan"],
+        ["Are you sleeping?", "Schläfst du noch?", "¿Sigues durmiendo?"], ["Are you sleeping?", "Schläfst du noch?", "¿Sigues durmiendo?"],
+        ["Morning bells are ringing", "Die Morgenglocken läuten", "Suenan las campanas de la mañana"],
+        ["Morning bells are ringing", "Die Morgenglocken läuten", "Suenan las campanas de la mañana"],
+        ["Ding, ding, dong", "Ding, ding, dong", "Din, din, don"], ["Ding, ding, dong", "Ding, ding, dong", "Din, din, don"]
+      ]
+    },
+    {
+      "id": "buns", "title": ["Hot Cross Buns", "Warme Brötchen", "Panecillos calientes"],
+      "meter": 4, "verses": 1, "public_domain": true,
+      "source": "https://en.wikipedia.org/wiki/Hot_Cross_Buns_(song)",
+      "origin": "Traditional English street cry/nursery melody documented in the eighteenth century. App-written translated captions and monophonic transcription.",
+      "phrases": [
+        [[64,2],[62,2],[60,4]], [[64,2],[62,2],[60,4]],
+        [[60,1],[60,1],[60,1],[60,1],[62,1],[62,1],[62,1],[62,1]],
+        [[64,2],[62,2],[60,4]]
+      ],
+      "lyrics": [
+        ["Hot cross buns", "Warme Brötchen", "Panecillos calientes"], ["Hot cross buns", "Warme Brötchen", "Panecillos calientes"],
+        ["One a penny, two a penny", "Eins für einen, zwei für einen", "Uno por un penique, dos por un penique"],
+        ["Hot cross buns", "Warme Brötchen", "Panecillos calientes"]
+      ]
+    }
+  ]
+}

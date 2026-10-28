@@ -15,7 +15,8 @@ babies and toddlers.
 ## Little discoveries, every day
 
 - **Picture Book:** Explore 21 illustrated books filled with animals, food,
-  family, seasons and familiar things. Listen to each word or hear it spelled
+  family, seasons, vacation, sports, the beach, weather and feelings. Learn hot
+  and cold, wet and dry, tired and rested through gentle scenes. Listen to each word or hear it spelled
   out, and turn the pages together. Discover Birds, Toys, Vehicles and Bedtime,
   hide unwanted books, and choose which books play automatically.
 - **ABC + 123:** Hear letter names, explore optional illustrated word examples,
@@ -26,6 +27,10 @@ babies and toddlers.
 - **Coloring Book:** Choose a scene, add dinosaurs, animals, people and objects,
   and make a picture with crayons. Save your creations, write a story, and
   export or print them.
+- **Little Piano:** Play a fixed 37-key C3–C6 keyboard with the same quiet,
+  accurately tuned notes for every song. Tap the song title to choose among five
+  public-domain children's melodies. Follow a real treble score with only the
+  current lyric line below it, or choose Listen and Free play.
 - **Jigsaw Puzzles:** Put together three new watercolor scenes in six sizes,
   from 4 to 64 interlocking pieces. Play alone or take turns together, peek at
   the picture, sort edge pieces and come back to your saved puzzle.
