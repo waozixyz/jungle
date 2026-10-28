@@ -78,7 +78,10 @@ jobs:
           python3 tests/jigsaw_ui_test.py
           python3 tests/abc_sequence_ui_test.py
           python3 tests/playback_ui_test.py
+          python3 tests/asset_packs_test.py
           python3 tools/build_web.py
+          node tests/asset_packs_test.mjs
+          python3 tools/build_itch.py
           node tests/web_test.mjs
           node tests/jigsaw_web_test.mjs
       - name: Save private test captures on failure
@@ -116,29 +119,6 @@ jobs:
               time.sleep(3)
           else:raise SystemExit('The exact deployed revision is not yet verified on jungle.waozi.xyz')
           print('Verified deployed Jungle version '+data['version'])
-          PY
-      - name: Prepare the browser edition for itch.io's embedded path
-        if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
-        run: |
-          python3 - <<'PY'
-          import json, re, shutil
-          from pathlib import Path
-          root = Path('build/itch-web')
-          shutil.copytree('build/web', root)
-          index = root / 'index.html'
-          html = re.sub(r'((?:src|href)=")/(?!/)', r'\1', index.read_text())
-          index.write_text(html)
-          manifest_path = root / 'site.webmanifest'
-          manifest = json.loads(manifest_path.read_text())
-          for name in ('id', 'start_url', 'scope'):
-              manifest[name] = './'
-          for icon in manifest['icons']:
-              icon['src'] = icon['src'].lstrip('/')
-          manifest_path.write_text(json.dumps(manifest, indent=2) + '\n')
-          for name in re.findall(r'(?:src|href)="([^"?#]+)', html):
-              if ':' not in name and not name.startswith('#'):
-                  assert not name.startswith('/'), f'Root-relative embed asset: {name}'
-                  assert (root / name).is_file(), f'Missing embed asset: {name}'
           PY
       - name: Install itch.io Butler
         if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
