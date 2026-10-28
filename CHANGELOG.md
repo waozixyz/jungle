@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.17
+
+- Correct the zebra to four legs in Picture Book and counting games.
+- Give the snail a natural body and tentacles without cartoon eyes, with matching counting pictures.
+
 ## 0.1.16
 
 - Play the complete browser edition on itch.io, with pictures and narration packed below its file-count and download-size limits.
