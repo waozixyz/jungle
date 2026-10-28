@@ -25,6 +25,8 @@
 piano_lesson: PianoLesson;
 piano_layout: PianoLayout;
 piano_held: [PIANO_KEYS]bool;
+piano_shortcut_held: [PIANO_SHORTCUTS]bool;
+piano_wait_shortcut_release: bool;
 piano_choosing: bool;
 piano_scroll: s32;
 piano_previous_key_width: s32;
@@ -48,9 +50,49 @@ PianoSound :: (pitch: s32) {
 
 PianoPlay :: (pitch: s32) {
     if piano_lesson.listening || pitch < PIANO_LOW || pitch > PIANO_HIGH { return }
+    if piano_lesson.teaching && !PianoLessonPress(*piano_lesson, pitch, retro.now) { return }
     PianoSound(pitch)
     piano_flash = pitch; piano_flash_until = retro.now + 0.25
     unused PianoTry(*piano_lesson, pitch)
+}
+
+PianoRelease :: (pitch: s32) {
+    if piano_lesson.teaching && piano_lesson.holding && piano_lesson.held_pitch == pitch {
+        PianoSound(-1)
+        unused PianoLessonRelease(*piano_lesson, pitch, retro.now)
+    }
+}
+
+PianoShortcuts :: () {
+    held := AppService("jungle.piano-held", "")
+    // A menu number can still be held while the piano opens. It becomes a
+    // playable note only after the player releases it and presses it again.
+    if piano_wait_shortcut_release {
+        any_down := false
+        for at: cast(s32)0..PIANO_SHORTCUTS - 1 {
+            piano_shortcut_held[at] = held.count == PIANO_SHORTCUTS && held[at] == cast(u8)49
+            if piano_shortcut_held[at] { any_down = true }
+        }
+        if !any_down { piano_wait_shortcut_release = false }
+        return
+    }
+    for at: cast(s32)0..PIANO_SHORTCUTS - 1 {
+        down := held.count == PIANO_SHORTCUTS && held[at] == cast(u8)49
+        pitch := PianoKeyboardPitch(PianoShortcutCode(at))
+        if down && !piano_shortcut_held[at] { PianoPlay(pitch) }
+        if !down && piano_shortcut_held[at] { PianoRelease(pitch) }
+        piano_shortcut_held[at] = down
+    }
+    // A complete press/release inside one host frame still plays in ordinary
+    // Practice/Free play. Lessons require an actual sustained key-down.
+    pitch := PianoKeyboardPitch(retro.key)
+    if pitch >= 0 && !piano_lesson.teaching {
+        found := false
+        for at: cast(s32)0..PIANO_SHORTCUTS - 1 {
+            if piano_shortcut_held[at] && PianoKeyboardPitch(PianoShortcutCode(at)) == pitch { found = true }
+        }
+        if !found { PianoPlay(pitch) }
+    }
 }
 
 PianoShade :: (x: s32, y: s32, width: s32, height: s32, top: u32, bottom: u32, edge: u32, radius: float32) {
@@ -65,7 +107,7 @@ PianoButton :: (id: s32, x: s32, y: s32, width: s32, height: s32, label: string,
     BookBox(x, y + ifx press.down then 2 else 0, width, height,
         ifx selected then cast(u32)0xd9e5cfff else cast(u32)0xfff3d9ff,
         ifx selected then cast(u32)0x658166ff else cast(u32)0xc89c69ff, 9.0)
-    BookText(x + 5, y, width - 10, height, label, 15)
+    BookText(x + 5, y, width - 10, height, label, ifx width < 110 then 12 else 15)
     return press.clicked
 }
 
@@ -73,10 +115,12 @@ OpenPianoPhrase :: (phrase: s32) {
     if phrase < 0 || phrase >= PianoPhrases() * PianoVerses() { return }
     PianoSound(-1)
     piano_free_play = false
+    teaching := piano_lesson.teaching
     PianoPractice(*piano_lesson)
     piano_verse = phrase / PianoPhrases()
     piano_phrase = phrase % PianoPhrases()
     piano_lesson.next = piano_verse * PianoVerseNotes() + PianoPhraseStart(piano_phrase)
+    if teaching { PianoLearn(*piano_lesson, retro.now, piano_lesson.next) }
 }
 
 PianoCabinet :: () {
@@ -99,6 +143,40 @@ PianoGuide :: () {
     PianoStaffRender(piano_layout, piano_verse, piano_phrase, active, piano_colors[:])
 }
 
+PianoCloseChooser :: () {
+    piano_choosing = false
+    if piano_lesson.teaching { PianoLearn(*piano_lesson, retro.now, piano_lesson.first) }
+}
+
+PianoLessonGuide :: () {
+    p := piano_layout
+    label := "Find the matching color and number"
+    progress: float64
+    ready := false
+    if piano_lesson.teaching {
+        label = "Listen first"
+        if piano_lesson.complete { label = "You played the whole song!"; progress = 1.0; ready = true }
+        else if piano_lesson.practicing {
+            label = ifx retro.now < piano_lesson.retry_until then "Hold a little longer" else "Your turn: press the lit key"
+            if piano_lesson.holding {
+                progress = PianoLessonProgress(piano_lesson, retro.now)
+                ready = progress >= 1.0
+                label = ifx ready then "Let go now" else "Hold the key"
+            }
+        } else if piano_lesson.sounding {
+            length := piano_lesson.gate - piano_lesson.note_started
+            if length > 0.0 { progress = (retro.now - piano_lesson.note_started) / length }
+            if progress > 1.0 { progress = 1.0 }
+        }
+    } else if piano_lesson.listening { label = "Listen and watch the keys" }
+    if piano_free_play { label = "Make your own music" }
+    x := p.player_x + 16; y := p.player_y + 36; width := p.player_width - 32
+    BookBox(x, y, width, 22, 0xf1ecdcff, 0xd3c5a7ff, 6.0)
+    if progress > 0.0 { BookBox(x + 1, y + 1, cast(s32)(cast(float64)(width - 2) * progress), 20,
+        ifx ready then cast(u32)0xb5d6aaff else cast(u32)0xdbe8cdff, 0, 5.0) }
+    BookText(x + 4, y, width - 8, 22, label, ifx width > 500 then 15 else 12)
+}
+
 PianoPlayer :: () {
     p := piano_layout
     BookBox(p.player_x - 5, p.player_y - 4, p.player_width + 10, p.player_height + 10, 0x997044ff, 0, 14.0)
@@ -106,10 +184,11 @@ PianoPlayer :: () {
     title := RetroTap(22, p.player_x + 42, p.player_y + 3, p.player_width - 84, 32, "Choose song")
     BookText(p.player_x + 42, p.player_y + 3, p.player_width - 102, 32, PianoTitle(), 18)
     BookText(p.player_x + p.player_width - 64, p.player_y + 3, 22, 32, "v", 16)
-    if title.clicked { PianoSound(-1); piano_lesson.listening = false; piano_choosing = true }
+    if title.clicked { PianoSound(-1); piano_lesson.listening = false; piano_lesson.holding = false; piano_choosing = true }
+    PianoLessonGuide()
     if piano_free_play {
-        BookText(p.player_x + 15, p.player_y + 42, p.player_width - 30,
-            p.player_height - 52, "Make your own music", 28)
+        BookText(p.player_x + 15, p.player_y + 70, p.player_width - 30,
+            p.player_height - 80, "Make your own music", 28)
     } else {
         previous := RetroTap(20, p.player_x + 5, p.player_y + 3, 36, 32, "Previous phrase")
         next := RetroTap(21, p.player_x + p.player_width - 41, p.player_y + 3, 36, 32, "Next phrase")
@@ -137,12 +216,16 @@ PianoChooser :: () {
         if PianoButton(300 + song, x, p.top + 70 + song * row, width, row - 6,
             piano_song_titles[song], song == piano_song) {
             PianoSound(-1)
+            teaching := piano_lesson.teaching
+            speed := piano_lesson.speed
             unused PianoSelectSong(song)
             piano_lesson = PianoNew(); piano_phrase = 0; piano_verse = 0
+            piano_lesson.speed = speed
+            if teaching { PianoLearn(*piano_lesson, retro.now) }
             piano_free_play = false; piano_flash = -1; piano_choosing = false
         }
     }
-    if PianoButton(310, x, p.top + p.height - 40, width, 30, "Cancel") { piano_choosing = false }
+    if PianoButton(310, x, p.top + p.height - 40, width, 30, "Cancel") { PianoCloseChooser() }
 }
 
 PianoKeyboard :: () {
@@ -170,6 +253,8 @@ PianoKeyboard :: () {
         x := p.keys_x + white * key_width
         press := RetroTap(100 + pitch, x, p.keys_y, key_width - 2, p.keys_height, Cat(Tr("Piano key"), " ", PianoName(pitch), NumberText(pitch / 12 - 1)))
         if (press.down || press.clicked) && !piano_held[pitch - PIANO_LOW] && !scrolled.frame.drag_moving { PianoPlay(pitch) }
+        if piano_held[pitch - PIANO_LOW] && !press.down { PianoRelease(pitch) }
+        if press.clicked && !press.down { PianoRelease(pitch) }
         piano_held[pitch - PIANO_LOW] = press.down
         lit := target == pitch || (piano_flash == pitch && retro.now < piano_flash_until)
         down: s32 = ifx press.down then 3 else 0
@@ -191,6 +276,8 @@ PianoKeyboard :: () {
         height := p.keys_height * 57 / 100
         press := RetroTap(100 + pitch, x, p.keys_y, width, height, Cat(Tr("Piano key"), " ", PianoName(pitch), NumberText(pitch / 12 - 1)))
         if (press.down || press.clicked) && !piano_held[pitch - PIANO_LOW] && !scrolled.frame.drag_moving { PianoPlay(pitch) }
+        if piano_held[pitch - PIANO_LOW] && !press.down { PianoRelease(pitch) }
+        if press.clicked && !press.down { PianoRelease(pitch) }
         piano_held[pitch - PIANO_LOW] = press.down
         lit := piano_flash == pitch && retro.now < piano_flash_until
         down: s32 = ifx press.down then 3 else 0
@@ -210,6 +297,8 @@ GameMain :: () -> s32 {
         piano_lesson = PianoNew(); piano_phrase = 0; piano_verse = 0; piano_flash = -1; piano_free_play = false
         unused PianoSelectSong(0); piano_choosing = false; piano_scroll = 0; piano_previous_view_width = 0
         for at: cast(s32)0..PIANO_KEYS - 1 { piano_held[at] = false }
+        for at: cast(s32)0..PIANO_SHORTCUTS - 1 { piano_shortcut_held[at] = false }
+        piano_wait_shortcut_release = true
         AppIdentity("jungle.piano"); AppDescribe("Little Piano", "")
         return APP_PROTOCOL
     }
@@ -224,43 +313,63 @@ GameMain :: () -> s32 {
     BookBox(0, 0, cast(s32)bounds.width, cast(s32)bounds.height, 0xe5eddfff)
     key := retro.key
     if key == KEY_ESCAPE {
-        if piano_choosing { piano_choosing = false; return 0 }
+        if piano_choosing { PianoCloseChooser(); return 0 }
         PianoSound(-1); GameHome(); return 0
     }
     if piano_choosing { PianoChooser(); return 0 }
     if key == 32 {
-        if piano_lesson.listening { piano_lesson.listening = false; PianoSound(-1) }
+        if piano_lesson.listening {
+            piano_lesson.listening = false; PianoSound(-1)
+            if piano_lesson.teaching { PianoPractice(*piano_lesson) }
+        }
         else { piano_free_play = false; PianoListen(*piano_lesson, retro.now) }
     }
     if key == KEY_ENTER { piano_free_play = false; PianoSound(-1); PianoPractice(*piano_lesson) }
     if key == KEY_LEFT { OpenPianoPhrase(piano_verse * PianoPhrases() + piano_phrase - 1) }
     if key == KEY_RIGHT { OpenPianoPhrase(piano_verse * PianoPhrases() + piano_phrase + 1) }
-    pitch := PianoKeyboardPitch(key)
-    if pitch >= 0 { PianoPlay(pitch) }
+    PianoShortcuts()
     event := PianoTick(*piano_lesson, retro.now)
     if event != -1 { PianoSound(event) }
     if piano_lesson.practicing { piano_phrase = PianoPhraseAt(piano_lesson.next); piano_verse = PianoVerseAt(piano_lesson.next) }
-    if piano_lesson.listening { piano_phrase = PianoPhraseAt(piano_lesson.shown); piano_verse = PianoVerseAt(piano_lesson.shown) }
+    if piano_lesson.listening {
+        shown := ifx piano_lesson.shown >= 0 then piano_lesson.shown else piano_lesson.first
+        piano_phrase = PianoPhraseAt(shown); piano_verse = PianoVerseAt(shown)
+    }
     PianoCabinet()
     p := piano_layout
-    speed_width: s32 = ifx p.controls_width < 500 then 56 else 72
-    button := (p.controls_width - speed_width - 18) / 3
-    if PianoButton(10, p.controls_x, p.controls_y, button, p.controls_height, "Practice", piano_lesson.practicing) {
+    compact := p.controls_width < 500
+    row_height := ifx compact then (p.controls_height - 6) / 2 else p.controls_height
+    speed_width: s32 = ifx compact then (p.controls_width - 12) / 3 else 72
+    button := ifx compact then (p.controls_width - 6) / 2 else (p.controls_width - speed_width - 24) / 4
+    if PianoButton(10, p.controls_x, p.controls_y, button, row_height, "Practice", piano_lesson.practicing && !piano_lesson.teaching) {
+        piano_lesson.teaching = false
         OpenPianoPhrase(0)
     }
-    if PianoButton(11, p.controls_x + button + 6, p.controls_y, button, p.controls_height,
+    if PianoButton(14, p.controls_x + button + 6, p.controls_y, button, row_height, "Lesson", piano_lesson.teaching) {
+        PianoSound(-1); piano_free_play = false
+        first := piano_verse * PianoVerseNotes() + PianoPhraseStart(piano_phrase)
+        PianoLearn(*piano_lesson, retro.now, first)
+    }
+    action_y := p.controls_y + ifx compact then row_height + 6 else 0
+    action_width := ifx compact then speed_width else button
+    action_x := p.controls_x + ifx compact then 0 else (button + 6) * 2
+    if PianoButton(11, action_x, action_y, action_width, row_height,
         ifx piano_lesson.listening then "Stop" else "Listen", piano_lesson.listening) {
-        if piano_lesson.listening { piano_lesson.listening = false; PianoSound(-1) }
+        if piano_lesson.listening {
+            piano_lesson.listening = false; PianoSound(-1)
+            if piano_lesson.teaching { PianoPractice(*piano_lesson) }
+        }
         else { piano_free_play = false; PianoListen(*piano_lesson, retro.now) }
     }
-    if PianoButton(12, p.controls_x + (button + 6) * 2, p.controls_y, button, p.controls_height,
+    if PianoButton(12, action_x + action_width + 6, action_y, action_width, row_height,
         "Free play", piano_free_play) {
-        PianoSound(-1); piano_free_play = true; piano_lesson.listening = false; piano_lesson.practicing = false
+        PianoSound(-1); piano_free_play = true; piano_lesson.listening = false; piano_lesson.practicing = false; piano_lesson.teaching = false; piano_lesson.holding = false
     }
-    if PianoButton(13, p.controls_x + p.controls_width - speed_width, p.controls_y, speed_width, p.controls_height,
+    if PianoButton(13, p.controls_x + p.controls_width - speed_width, action_y, speed_width, row_height,
         ifx piano_lesson.speed == 0 then "Slow" else ifx piano_lesson.speed == 1 then "Normal" else "Fast") {
         piano_lesson.speed = (piano_lesson.speed + 1) % 3
-        if piano_lesson.listening { PianoSound(-1); PianoListen(*piano_lesson, retro.now) }
+        if piano_lesson.teaching { PianoSound(-1); PianoLearn(*piano_lesson, retro.now, piano_lesson.first) }
+        else if piano_lesson.listening { PianoSound(-1); PianoListen(*piano_lesson, retro.now) }
     }
     PianoPlayer()
     PianoKeyboard()

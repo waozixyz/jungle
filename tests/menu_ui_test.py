@@ -25,10 +25,12 @@ with tempfile.TemporaryDirectory(prefix='jungle-menu-') as temporary:
         scrolled=desktop.capture('age-menu-scrolled')
         assert ImageChops.difference(initial.crop((0,0,320,64)),scrolled.crop((0,0,320,64))).getbbox() is None,'Scrolling moved the heading or language flags'
         assert ImageChops.difference(initial.crop((0,174,320,200)),scrolled.crop((0,174,320,200))).getbbox() is None,'Scrolling moved the footer'
-        desktop.click(150,146)
+        # Coloring is followed by the new 5+ piano recommendation.
+        desktop.click(150,112)
         desktop.wait_scene_picker('age-menu-scrolled-coloring')
         desktop.key('Escape')
         # Arrow navigation reveals the first row again inside the container.
+        desktop.key('Down')
         desktop.key('Down')
         desktop.capture('age-menu-keyboard-top')
         desktop.key('Return')

@@ -26,6 +26,9 @@ choose_mode: s32;
 choose_peek: bool = true;
 choose_lock: bool = true;
 selected_piece: s32 = -1;
+piece_outline_level: s32 = -1;
+piece_outline_counts: [64]s32;
+piece_outlines: [64 * PUZZLE_OUTLINE_POINTS]Vector2;
 edges_only: bool;
 peek_until: float64;
 last_tick: float64;
@@ -55,7 +58,6 @@ table_width: s32;
 table_height: s32;
 
 PicturePath :: (scene: s32) -> string { return Cat("assets/jigsaw/", scene_files[scene], ".jpg") }
-AtlasPath :: () -> string { return Cat("assets/jigsaw/", scene_files[puzzle.scene], "-", NumberText(grid_sizes[puzzle.level]), ".png") }
 
 PuzzleButton :: (id: s32, x: s32, y: s32, width: s32, height: s32, label: string, chosen: bool = false) -> bool {
     press := RetroTap(id, x, y, width, height, label)
@@ -156,11 +158,21 @@ DrawPiece :: (piece: s32, cx: s32, cy: s32, cell: s32, tint: u32 = 0) {
     source_cell := 1200 / n
     source_tile := source_cell + source_cell / 4 * 2
     span := cast(s32)(cast(float32)cell * cast(float32)source_tile / cast(float32)source_cell)
-    path := AtlasPath()
+    path := PicturePath(puzzle.scene)
     if !RetroImageReady(path) { return }
+    if piece_outline_level != puzzle.level {
+        for at: cast(s32)0..PuzzleCount(puzzle) - 1 {
+            first := at * PUZZLE_OUTLINE_POINTS
+            piece_outline_counts[at] = cast(s32)PuzzleOutline(puzzle, at,
+                piece_outlines[first:first + PUZZLE_OUTLINE_POINTS]).count
+        }
+        piece_outline_level = puzzle.level
+    }
+    first := piece * PUZZLE_OUTLINE_POINTS
     Image(retro.session, ImageProps.{.asset_path = path, .alt_text = Tr("Puzzle piece"),
-        .source = Rectangle.{cast(float32)(piece % n * source_tile), cast(float32)(piece / n * source_tile), cast(float32)source_tile, cast(float32)source_tile},
-        .bounds = RetroRect(cx - span / 2, cy - span / 2, span, span), .fit = ImageFit.ImageFitStretch, .smooth = true, .tint = tint})
+        .source = Rectangle.{cast(float32)(piece % n * source_cell - source_cell / 4), cast(float32)(piece / n * source_cell - source_cell / 4), cast(float32)source_tile, cast(float32)source_tile},
+        .bounds = RetroRect(cx - span / 2, cy - span / 2, span, span), .fit = ImageFit.ImageFitStretch,
+        .clip_polygon = piece_outlines[first:first + piece_outline_counts[piece]], .smooth = true, .tint = tint})
 }
 
 PieceVisible :: (piece: s32) -> bool {

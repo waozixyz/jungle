@@ -1,3 +1,5 @@
+#import "kryon/image"
+#import "kryon/geometry"
 #import, file "../games/jigsaw/puzzle.zi";
 #import, file "../host/platform.zi";
 #import, file "../host/jungle_text.zi";
@@ -29,6 +31,47 @@ main :: () -> s32 {
         TablePosition(*p, piece, area, 300, 270, 400/n)
         at = TableCenter(p, piece, area)
         if at.x != 300 || at.y != 269 { return 20 }
+        outline: [PUZZLE_OUTLINE_POINTS]Vector2
+        for piece: cast(s32)0..PuzzleCount(p) - 1 {
+            shape := PuzzleOutline(p,piece,outline[:])
+            if shape.count < 3 || shape.count > PUZZLE_OUTLINE_POINTS { return 24 }
+            triangles: [(PUZZLE_OUTLINE_POINTS-2)*3]s32
+            triangle_count := ImagePolygonTriangulate(shape,triangles[:])
+            if triangle_count < 3 || triangle_count % 3 != 0 { return 27 }
+            polygon_area: float32; triangle_area: float32
+            previous := shape[shape.count-1]
+            for at: cast(s64)0..shape.count-1 { next := shape[at]; polygon_area += previous.x*next.y-next.x*previous.y; previous = next }
+            for at: cast(s32)0..triangle_count/3-1 {
+                a := shape[triangles[at*3]]; b := shape[triangles[at*3+1]]; c := shape[triangles[at*3+2]]
+                cross := ImagePolygonCross(a,b,c)
+                triangle_area += ifx cross < 0.0 then -cross else cross
+            }
+            if polygon_area < 0.0 { polygon_area = -polygon_area }
+            difference := polygon_area-triangle_area
+            if difference < -0.0001 || difference > 0.0001 { return 28 }
+            for at: cast(s64)0..shape.count - 1 {
+                point := shape[at]
+                if point.x < 0.0 || point.x > 1.0 || point.y < 0.0 || point.y > 1.0 { return 25 }
+            }
+            // Polygon sampling and the original independent hit formula must
+            // agree, including sockets and tabs outside the square cell.
+            source_cell := 1200 / n; pad := source_cell / 4; tile := source_cell + pad * 2
+            for yy: cast(s32)-4..24 {
+                for xx: cast(s32)-4..24 {
+                    x := xx * 50 + 13; y := yy * 50 + 11
+                    u := (cast(float32)x / 1000.0 * cast(float32)source_cell + cast(float32)pad) / cast(float32)tile
+                    v := (cast(float32)y / 1000.0 * cast(float32)source_cell + cast(float32)pad) / cast(float32)tile
+                    inside := false; previous := shape[shape.count - 1]
+                    for at: cast(s64)0..shape.count - 1 {
+                        next := shape[at]
+                        if (previous.y > v) != (next.y > v) &&
+                            u < (next.x - previous.x) * (v - previous.y) / (next.y - previous.y) + previous.x { inside = !inside }
+                        previous = next
+                    }
+                    if inside != TableHit(p,piece,TablePoint.{500,500},1000,x,y) { return 26 }
+                }
+            }
+        }
         if PuzzlePlace(*p, -1) || PuzzlePlace(*p, n*n) { return 3 }
         if !PuzzlePlace(*p, 0) || PuzzlePlace(*p, 0) || PuzzlePlaced(p) != 1 { return 4 }
         PuzzleTick(*p, 59)

@@ -71,5 +71,44 @@ main :: () -> s32 {
         if p.lyrics_height < 22 || p.guide_y + p.guide_height > p.lyrics_y { return 31 }
         if PianoKeyWidth(p) < 36 { return 32 }
     }
+    // Every song and tempo alternates demonstration/repeat, and a short tap
+    // cannot pass a note. The student's turn starts only after the phrase.
+    for song: cast(s32)0..PIANO_SONGS - 1 {
+        unused PianoSelectSong(song)
+        for speed: cast(s32)0..2 {
+            lesson := PianoNew(); lesson.speed = speed
+            now: float64 = 100.0
+            PianoLearn(*lesson, now)
+            for phrase: cast(s32)0..PianoPhrases() * PianoVerses() - 1 {
+                if !lesson.listening || lesson.practicing || !lesson.teaching { return 33 }
+                first := lesson.first; end := lesson.end
+                if PianoLessonPress(*lesson, PianoPitchAt(first), now) { return 34 }
+                for at: cast(s32)first..end - 1 {
+                    now = lesson.due
+                    if PianoTick(*lesson, now) != PianoPitchAt(at) { return 35 }
+                    if PianoTick(*lesson, lesson.gate) != -2 { return 36 }
+                }
+                now = lesson.due
+                if PianoTick(*lesson, now) != -2 || !lesson.practicing || lesson.next != first { return 37 }
+                for at: cast(s32)first..end - 1 {
+                    pitch := PianoPitchAt(at)
+                    if PianoLessonPress(*lesson, pitch + 1, now) || lesson.next != at { return 38 }
+                    if !PianoLessonPress(*lesson, pitch, now) { return 39 }
+                    duration := lesson.held_duration
+                    if PianoLessonProgress(lesson, now + duration * 0.5) < 0.49 { return 40 }
+                    if PianoLessonRelease(*lesson, pitch, now + duration * 0.1) || lesson.next != at { return 41 }
+                    now += duration
+                    if !PianoLessonPress(*lesson, pitch, now) { return 42 }
+                    if PianoLessonProgress(lesson, now + duration) < 0.9999 { return 43 }
+                    if PianoLessonRelease(*lesson, pitch + 1, now + duration) || !lesson.holding { return 44 }
+                    if !PianoLessonRelease(*lesson, pitch, now + duration + 0.01) || lesson.holding { return 45 }
+                    now += duration + 0.02
+                }
+            }
+            if !lesson.complete || lesson.listening || lesson.practicing { return 46 }
+            PianoPractice(*lesson)
+            if lesson.teaching || lesson.complete || !lesson.practicing { return 47 }
+        }
+    }
     return 0
 }

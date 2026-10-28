@@ -14,10 +14,8 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def main():
-    for number in range(1, 25):
-        with Image.open(ROOT / f"assets/animal-count/items/animal-{number}.png") as sprite:
-            assert sprite.size == (24, 20)
-            assert sprite.getbbox(), f"native sprite {number} is empty"
+    assert not (ROOT/'assets/animal-count/items').exists(), 'Unused legacy sprites must not ship'
+    assert not (ROOT/'assets/animal-count/background.png').exists(), 'Unused legacy background must not ship'
     with Image.open(ROOT / "assets/animal-count/font.png") as font:
         assert font.size == (128, 48), "counting needs the original 8-pixel font"
     with Image.open(ROOT / "assets/jungle-book/font.png") as font:
@@ -93,8 +91,6 @@ def main():
     for name in ("book", "counting", "paint", "piano"):
         with Image.open(ROOT / f"assets/jungle/covers/{name}.jpg") as cover:
             assert cover.size == (420, 420) and cover.format == "JPEG"
-    with Image.open(ROOT / "assets/animal-count/background.png") as background:
-        assert background.size == (320, 200)
     art = ROOT / "assets/dino-paint/art"
     assert not (ROOT / "assets/dino-paint/crayons").exists(), "crayons are drawn as color boxes"
     for number in range(1, 13):
@@ -140,7 +136,7 @@ def main():
             assert .1 < sound.getnframes() / sound.getframerate() < .2
     with wave.open(str(ROOT / "assets/animal-count/sounds/reward.wav")) as reward:
         assert .2 < reward.getnframes() / reward.getframerate() < .5
-    print("local asset test: watercolor scene pages, cut-outs, native sprites, opaque dinosaur bodies, BIOS font, VGA crayons, voices and brief feedback passed")
+    print("local asset test: watercolor scene pages, cut-outs, current artwork only, opaque dinosaur bodies, BIOS font, VGA crayons, voices and brief feedback passed")
 
 
 if __name__ == "__main__":

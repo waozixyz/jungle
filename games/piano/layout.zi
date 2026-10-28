@@ -52,6 +52,7 @@ PianoMeasure :: (width: s32, height: s32) -> PianoLayout {
     p.controls_width = p.keys_width
     if p.controls_width > 620 { p.controls_width = 620 }
     p.controls_x = (width - p.controls_width) / 2
+    if p.controls_width < 500 { p.controls_height = p.controls_height * 2 + 6 }
     p.controls_y = p.keys_y - p.controls_height - 12
     p.player_x = p.left + rail + 8
     p.player_width = p.keys_width - 16
@@ -63,7 +64,7 @@ PianoMeasure :: (width: s32, height: s32) -> PianoLayout {
     p.lyrics_y = p.player_y + p.player_height - p.lyrics_height - 9
     p.guide_x = p.player_x + 16
     p.guide_width = p.player_width - 32
-    header: s32 = ifx p.player_height < 180 then 34 else 42
+    header: s32 = (ifx p.player_height < 180 then 34 else 42) + 26
     available := p.lyrics_y - p.player_y - header - 6
     gap := available / 10
     if p.guide_width / 20 < gap { gap = p.guide_width / 20 }

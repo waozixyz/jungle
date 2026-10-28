@@ -47,7 +47,9 @@ try{
   return {cpu:[...cpuSeen.values()].reduce((a,b)=>a+b,0),rss,pss:pssAvailable?pss:null};
  }
  async function metrics(){return Object.fromEntries((await command('Performance.getMetrics')).metrics.map(m=>[m.name,m.value]))}
- const allCases=[['menu',null],['picture-book','1'],['abc','2'],['numbers','2'],['jigsaw','3'],['piano','4'],['counting','5'],['coloring','6']];
+ const menu=(await readFile('games/catalog.txt','utf8')).trim().split('\n').map(l=>l.split('|')).filter(r=>r[1]!=='123 Book').sort((a,b)=>Number(a[4])-Number(b[4]));
+ const entry=title=>String(menu.findIndex(r=>r[1]===title)+1);
+ const allCases=[['menu',null],['picture-book',entry('Picture Book')],['abc',entry('ABC Book')],['numbers',entry('ABC Book')],['jigsaw',entry('Jigsaw Puzzles')],['piano',entry('Little Piano')],['counting',entry('Animal Counting')],['coloring',entry('Coloring Book')]];
  const cases=args.has('--activity')?allCases.filter(c=>c[0]===args.get('--activity')):allCases;
  const allViewports=[{name:'desktop',width:960,height:600},{name:'phone',width:390,height:844}];
  const viewports=args.has('--viewport')?allViewports.filter(v=>v.name===args.get('--viewport')):allViewports;

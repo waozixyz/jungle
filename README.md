@@ -27,10 +27,12 @@ babies and toddlers.
 - **Coloring Book:** Choose a scene, add dinosaurs, animals, people and objects,
   and make a picture with crayons. Save your creations, write a story, and
   export or print them.
-- **Little Piano:** Play a fixed 37-key C3–C6 keyboard with the same quiet,
+- **Little Piano (5+):** Play a fixed 37-key C3–C6 keyboard with the same quiet,
   accurately tuned notes for every song. Tap the song title to choose among five
   public-domain children's melodies. Follow a real treble score with only the
-  current lyric line below it, or choose Listen and Free play.
+  current lyric line below it. Optional lessons play a short phrase for your child
+  to repeat, with a filling bar showing how long to hold each key and when to
+  let go. Practice, Listen and Free play remain available.
 - **Jigsaw Puzzles:** Put together three new watercolor scenes in six sizes,
   from 4 to 64 interlocking pieces. Play alone or take turns together, peek at
   the picture, sort edge pieces and come back to your saved puzzle.

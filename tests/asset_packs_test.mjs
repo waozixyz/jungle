@@ -14,7 +14,13 @@ for(const path of paths){
  const actual=await loader.read(path);
  let source=path;
  if(path.startsWith('assets/animal-count/pictures/'))source=path.replace('assets/animal-count/pictures/','assets/jungle-book/counting/');
- assert.deepEqual(Buffer.from(actual),await readFile(source),path);
+ const entry=manifest.files[path],original=await readFile(source);
+ if(entry.encoding==='webp'){
+  assert.equal(await JungleAssetPacks.hash(original),entry.source_sha256,path);
+  assert.equal(Buffer.from(actual).subarray(0,4).toString(),'RIFF',path);
+  assert.equal(Buffer.from(actual).subarray(8,12).toString(),'WEBP',path);
+  assert.equal(entry.quality,90);assert.ok(actual.length<original.length);
+ }else assert.deepEqual(Buffer.from(actual),original,path);
  assert.ok(loader.bytes<=loader.cacheBytes);
 }
 loader.cache.clear();loader.bytes=0;
@@ -55,4 +61,4 @@ assert.equal(stopped.plays,0,'A stopped clip played when its download finished')
 globalThis.assetBytes=async()=>new Uint8Array([1,2,3]);
 const resumed=packedAudio('resumed.wav');await resumed.play();resumed.pause();await resumed.play();
 assert.equal(resumed.plays,2);assert.equal(resumed.jungleLoading,false);resumed.removeAttribute('src');
-console.log(`local asset reader test: all ${paths.length} assets match source bytes; integrity, retry, concurrent fetches and memory cap passed`);
+console.log(`local asset reader test: all ${paths.length} original or reviewed WebP assets verified; integrity, retry, concurrent fetches and memory cap passed`);

@@ -1,7 +1,8 @@
 """Exercise the fixed piano and song chooser on an owned private Xvfb."""
 from pathlib import Path
 import tempfile
-from runtime_test import Desktop, ROOT
+import time
+from runtime_test import Desktop, ROOT, run
 
 GREEN = (46, 105, 86)
 
@@ -18,6 +19,8 @@ def layout(width, height):
     if body_height < 360: keys_height = body_height * 26 // 100
     keys_y = top + body_height - 22 - keys_height
     controls_height = 30 if body_height < 360 else 40
+    controls_width = min(keys_width,620)
+    if controls_width < 500: controls_height = controls_height * 2 + 6
     controls_y = keys_y - controls_height - 12
     player_x, player_width = keys_x + 8, keys_width - 16
     player_y = top + 8
@@ -26,7 +29,7 @@ def layout(width, height):
     lyrics_height = 22 if player_height < 180 else 32
     lyrics_y = player_y + player_height - lyrics_height - 9
     guide_x, guide_width = player_x + 16, player_width - 32
-    header = 34 if player_height < 180 else 42
+    header = (34 if player_height < 180 else 42) + 26
     available = lyrics_y - player_y - header - 6
     gap = max(4, min(14, available // 10, guide_width // 20))
     guide_y = player_y + header + (available - gap * 10) // 2
@@ -88,4 +91,20 @@ for language in ('en','de','es'):
                 assert baseline.crop(box).tobytes()==selected.crop(box).tobytes(), 'Song remapped the keyboard'
             desktop.key('Escape'); desktop.game('Little Piano')
             assert target(desktop.capture_actual('piano-reopen-'+language))
+            if language == 'en':
+                p=layout(960,600)
+                desktop.click_actual(370,56+p['controls_y']+20)
+                time.sleep(4.0)
+                desktop.key('1');desktop.key('2')
+                assert target(desktop.capture_actual('piano-lesson-early-release')), 'Early release passed a lesson note'
+                run(['xdotool','keydown','1'],desktop.env)
+                try:
+                    time.sleep(.42)
+                    held=desktop.capture_actual('piano-lesson-hold')
+                    x=p['player_x']+p['player_width']-22;y=56+p['player_y']+40
+                    assert held.getpixel((x,y)) == (181,214,170), 'Hold bar did not fill to the release cue'
+                finally:
+                    run(['xdotool','keyup','1'],desktop.env)
+                assert target(desktop.capture_actual('piano-lesson-released'),1), 'A full keyboard hold/release did not advance'
+
 print('local piano UI test: three languages, four sizes, single caption, five-song selector, fixed keyboard, black-key overlap and practice passed')
