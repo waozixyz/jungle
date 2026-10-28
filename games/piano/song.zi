@@ -1,0 +1,89 @@
+#import, file "keyboard.zi";
+#import, file "catalog.zi";
+
+piano_song: s32;
+PianoSelectSong :: (song: s32) -> bool {
+    if song < 0 || song >= PIANO_SONGS { return false }
+    piano_song = song
+    return true
+}
+PianoVerseNotes :: () -> s32 { return piano_song_counts[piano_song] }
+PianoVerses :: () -> s32 { return piano_song_verses[piano_song] }
+PianoNoteCount :: () -> s32 { return PianoVerseNotes() * PianoVerses() }
+PianoPhrases :: () -> s32 { return piano_song_phrases[piano_song] }
+PianoMeter :: () -> s32 { return piano_song_meters[piano_song] }
+PianoTitle :: () -> string { return piano_song_titles[piano_song] }
+PianoPhraseStart :: (phrase: s32) -> s32 { return PianoSongStart(piano_song, phrase) }
+PianoPhraseCount :: (phrase: s32) -> s32 { return PianoSongCount(piano_song, phrase) }
+PianoWordsAt :: (verse: s32, phrase: s32) -> string {
+    return PianoSongWords(piano_song, verse * PianoPhrases() + phrase)
+}
+PianoPhraseAt :: (step: s32) -> s32 {
+    if step >= PianoNoteCount() { return PianoPhrases() - 1 }
+    step %= PianoVerseNotes()
+    for phrase: cast(s32)0..PianoPhrases() - 2 {
+        if step < PianoPhraseStart(phrase + 1) { return phrase }
+    }
+    return PianoPhrases() - 1
+}
+PianoVerseAt :: (step: s32) -> s32 {
+    if step < 0 { return 0 }
+    if step >= PianoNoteCount() { return PianoVerses() - 1 }
+    return step / PianoVerseNotes()
+}
+PianoPitchAt :: (step: s32) -> s32 { return PianoSongPitch(piano_song, step % PianoVerseNotes()) }
+PianoLengthAt :: (step: s32) -> s32 { return PianoSongLength(piano_song, step % PianoVerseNotes()) }
+PianoRestAt :: (step: s32) -> s32 { return 0 }
+PianoPhraseTicks :: (phrase: s32) -> s32 {
+    total: s32
+    first := PianoPhraseStart(phrase)
+    for at: cast(s32)0..PianoPhraseCount(phrase) - 1 { total += PianoLengthAt(first + at) }
+    return total
+}
+PianoLesson :: struct {
+    next: s32
+    shown: s32
+    practicing: bool
+    listening: bool
+    sounding: bool
+    speed: s32
+    due: float64
+    gate: float64
+}
+PianoNew :: () -> PianoLesson {
+    return PianoLesson.{.shown = -1, .practicing = true, .speed = 1}
+}
+PianoBeat :: (speed: s32) -> float64 {
+    return ifx speed == 0 then 0.5 else ifx speed == 2 then 0.3 else 0.375
+}
+PianoPractice :: (lesson: *PianoLesson) {
+    lesson.* = PianoLesson.{.shown = -1, .practicing = true, .speed = lesson.speed}
+}
+PianoListen :: (lesson: *PianoLesson, now: float64) {
+    lesson.* = PianoLesson.{.shown = -1, .speed = lesson.speed, .listening = true, .due = now}
+}
+PianoTry :: (lesson: *PianoLesson, pitch: s32) -> bool {
+    if !lesson.practicing || lesson.next >= PianoNoteCount() || PianoPitchAt(lesson.next) != pitch { return false }
+    lesson.shown = lesson.next
+    lesson.next += 1
+    return true
+}
+// -1 means no event, -2 releases the sound; notes are absolute MIDI pitches.
+// A delayed frame never emits a burst of missed notes.
+PianoTick :: (lesson: *PianoLesson, now: float64) -> s32 {
+    if !lesson.listening { return -1 }
+    if now >= lesson.due {
+        if lesson.next >= PianoNoteCount() {
+            lesson.listening = false; lesson.sounding = false; lesson.shown = -1
+            return -2
+        }
+        at := lesson.next
+        lesson.shown = at; lesson.next += 1; lesson.sounding = true
+        beat := PianoBeat(lesson.speed)
+        lesson.gate = now + cast(float64)PianoLengthAt(at) * beat * 0.92
+        lesson.due = now + cast(float64)PianoLengthAt(at) * beat
+        return PianoPitchAt(at)
+    }
+    if lesson.sounding && now >= lesson.gate { lesson.sounding = false; return -2 }
+    return -1
+}

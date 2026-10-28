@@ -19,12 +19,16 @@ with tempfile.TemporaryDirectory(prefix="jungle-new-books-") as temporary:
             desktop.key("1")
             desktop.wait_book(f"new-books-{language}-shelf")
             desktop.key("s")
-            for category in ("clothing", "seasons", "birds", "toys", "vehicles", "bedtime"):
+            for category in ("clothing", "seasons", "birds", "toys", "vehicles", "bedtime", "vacation", "sports", "beach", "weather", "feelings"):
                 category_index = [name for name, _ in BOOKS].index(category)
                 select_book(desktop, category_index)
                 first = desktop.capture(f"new-books-{language}-{category}-first")
+                previous = first
                 for page in range(1, len(dict(BOOKS)[category])):
                     desktop.key("Right")
+                    current = desktop.capture(f"new-books-{language}-{category}-{page}")
+                    assert different(previous, current, SCENE), f"{category} page {page} did not change its scene"
+                    previous = current
                     if language == "de" and category == "clothing" and page == 4:
                         desktop.capture_actual("new-books-de-skirt")
                 last = desktop.capture(f"new-books-{language}-{category}-last")
@@ -39,4 +43,4 @@ with tempfile.TemporaryDirectory(prefix="jungle-new-books-") as temporary:
                 assert different(first, spelling, LABEL), f"{category} did not show its spelling"
                 desktop.key("Escape")
                 desktop.key("s")
-        print(f"local UI test: {language} Clothing, Seasons, Birds, Toys, Vehicles and Bedtime, all pages, spelling and finish screens passed", flush=True)
+        print(f"local UI test: {language} all eleven added books, every page, spelling and finish screens passed", flush=True)

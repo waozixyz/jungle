@@ -1,0 +1,93 @@
+#import, file "keyboard.zi";
+
+PianoLayout :: struct {
+    left: s32
+    top: s32
+    width: s32
+    height: s32
+    player_x: s32
+    player_y: s32
+    player_width: s32
+    player_height: s32
+    keys_x: s32
+    keys_y: s32
+    keys_width: s32
+    keys_height: s32
+    controls_x: s32
+    controls_y: s32
+    controls_width: s32
+    controls_height: s32
+    guide_y: s32
+    guide_height: s32
+    guide_x: s32
+    guide_width: s32
+    lyrics_x: s32
+    lyrics_y: s32
+    lyrics_width: s32
+    lyrics_height: s32
+}
+
+PianoMeasure :: (width: s32, height: s32) -> PianoLayout {
+    pad := width / 24
+    if height / 24 < pad { pad = height / 24 }
+    if pad < 8 { pad = 8 }
+    if pad > 28 { pad = 28 }
+    p: PianoLayout
+    p.width = width - pad * 2
+    if p.width > 1000 { p.width = 1000 }
+    p.height = height - pad * 2
+    if p.height > 660 { p.height = 660 }
+    p.left = (width - p.width) / 2
+    p.top = (height - p.height) / 2
+    rail := p.width / 30
+    if rail < 12 { rail = 12 }
+    p.keys_x = p.left + rail
+    p.keys_width = p.width - rail * 2
+    p.keys_height = p.height * 36 / 100
+    if width < 500 && p.height < 560 { p.keys_height = p.height * 29 / 100 }
+    if p.height < 360 { p.keys_height = p.height * 26 / 100 }
+    if p.keys_height > 230 { p.keys_height = 230 }
+    p.keys_y = p.top + p.height - 22 - p.keys_height
+    p.controls_height = ifx p.height < 360 then 30 else 40
+    p.controls_width = p.keys_width
+    if p.controls_width > 620 { p.controls_width = 620 }
+    p.controls_x = (width - p.controls_width) / 2
+    p.controls_y = p.keys_y - p.controls_height - 12
+    p.player_x = p.left + rail + 8
+    p.player_width = p.keys_width - 16
+    p.player_y = p.top + 8
+    p.player_height = p.controls_y - p.player_y - 12
+    p.lyrics_x = p.player_x + 16
+    p.lyrics_width = p.player_width - 32
+    p.lyrics_height = ifx p.player_height < 180 then 22 else 32
+    p.lyrics_y = p.player_y + p.player_height - p.lyrics_height - 9
+    p.guide_x = p.player_x + 16
+    p.guide_width = p.player_width - 32
+    header: s32 = ifx p.player_height < 180 then 34 else 42
+    available := p.lyrics_y - p.player_y - header - 6
+    gap := available / 10
+    if p.guide_width / 20 < gap { gap = p.guide_width / 20 }
+    if gap > 14 { gap = 14 }
+    if gap < 4 { gap = 4 }
+    p.guide_height = gap * 10
+    p.guide_y = p.player_y + header + (available - p.guide_height) / 2
+    return p
+}
+
+PianoKeyWidth :: (p: PianoLayout) -> s32 {
+    width := p.keys_width / PIANO_WHITE_KEYS
+    return ifx width < 36 then 36 else width
+}
+PianoStaffGap :: (p: PianoLayout) -> s32 { return p.guide_height / 10 }
+PianoStaffUnit :: (p: PianoLayout, ticks: s32, bar_ticks: s32) -> s32 {
+    bars := (ticks - 1) / bar_ticks
+    return (p.guide_width - PianoStaffGap(p) * (7 + bars)) / ticks
+}
+PianoStaffX :: (p: PianoLayout, tick: s32, ticks: s32, bar_ticks: s32) -> s32 {
+    gap := PianoStaffGap(p)
+    return p.guide_x + gap * 6 + (tick * 2 + 1) * PianoStaffUnit(p, ticks, bar_ticks) / 2 + tick / bar_ticks * gap
+}
+// E4 (white-key index 9) is the bottom line; C4 is a ledger line below it.
+PianoStaffY :: (p: PianoLayout, white: s32) -> s32 {
+    return p.guide_y + PianoStaffGap(p) * 6 - (white - 9) * PianoStaffGap(p) / 2
+}

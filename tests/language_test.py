@@ -19,7 +19,7 @@ def main():
     # Every visible fixed message, including errors and legacy game dialogs,
     # must have both translations. Technical strings and scientific short
     # names are explicitly outside this message inventory.
-    for source in ("games/paint/dino_paint.zi", "games/animal/animal_count.zi", "games/abc/jungle_abc.zi", "games/numbers/jungle_numbers.zi", "games/jigsaw/jungle_jigsaw.zi", "host/desktop.zi", "host/jungle_host.zi", "src/app.zi"):
+    for source in ("games/paint/dino_paint.zi", "games/animal/animal_count.zi", "games/abc/jungle_abc.zi", "games/numbers/jungle_numbers.zi", "games/jigsaw/jungle_jigsaw.zi", "games/piano/jungle_piano.zi", "games/piano/song.zi", "games/piano/catalog.zi", "host/desktop.zi", "host/jungle_host.zi", "src/app.zi"):
         text = (ROOT / source).read_text()
         for value in re.findall(r'"([^"\n]*)"', text):
             if " " not in value or not value.strip() or value.startswith(("assets/", "paint", "skill ", " runs here", ":", "jungle:")):
@@ -27,8 +27,8 @@ def main():
             if value in ("FILE|TITLE|ABOUT|ICON|AGE", "Jungle Academy", "jungle --check", "COUNTING", " / ", "  ·  ", " : ") or "\\" in value:
                 continue
             assert value in rows, (source, "untranslated message", value)
-    assert len(BOOKS) == 21 and len(NAMES) == len(set(NAMES)) == 180
-    assert dict((name, len(words)) for name, words in BOOKS) == dict(jungle=15, garden=10, fruits=16, farm=20, kitchen=8, bathroom=8, bedroom=8, **{"living-room":8}, nature=8, vegetables=16, family=8, breakfast=6, lunch=6, dinner=6, body=10, clothing=12, seasons=4, birds=6, toys=6, vehicles=6, bedtime=6)
+    assert len(BOOKS) == 26 and len(NAMES) == len(set(NAMES)) == 211
+    assert dict((name, len(words)) for name, words in BOOKS) == dict(jungle=15, garden=10, fruits=16, farm=20, kitchen=8, bathroom=8, bedroom=8, **{"living-room":8}, nature=8, vegetables=16, family=8, breakfast=6, lunch=6, dinner=6, body=10, clothing=12, seasons=4, birds=6, toys=6, vehicles=6, bedtime=6, vacation=6, sports=6, beach=6, weather=6, feelings=10)
     assert set(NAMES) == set(WORDS)
     generated = (ROOT / "games/book/book_pages.zi").read_text()
     voices = (ROOT / "games/book/book_voice.zi").read_text()

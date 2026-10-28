@@ -450,9 +450,10 @@ def ui(binary):
                 desktop.key("Return")
             assert progress.read_text().split()[1:] == ["1", "6", "0", "0"], "six misses did not move down"
             desktop.key("Escape")
-            desktop.key("Up")
-            desktop.key("Up")
-            desktop.key("Up")
+            visible = [row.split("|") for row in (ROOT / "games/catalog.txt").read_text().splitlines() if "|" in row and "|123 Book|" not in row]
+            visible.sort(key=lambda row: int(row[4]))
+            counting_index = next(i for i,row in enumerate(visible) if row[1] == "Animal Counting")
+            for _ in range(counting_index): desktop.key("Up")
             returned = desktop.capture("menu-return")
             assert ImageChops.difference(menu, returned).getbbox() is None, "counting did not return home"
             print("local UI test: watercolor counting artwork, questions, ladder and progress", flush=True)

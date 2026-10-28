@@ -1,0 +1,273 @@
+// A small wooden toy piano with a song player on its music stand.
+#import "app_context"
+#import "app_protocol"
+#import "kryon/text_align"
+#import "kryon/box_widget"
+#import "kryon/box_props"
+#import "kryon/drawing_props"
+#import "kryon/geometry"
+#import "kryon/svg_icon_props"
+#import "kryon/svg_icon_widget"
+#import, file "../../retro/language.zi";
+#import, file "../../retro/retro.zi";
+#import, file "../../retro/game.zi";
+#import, file "../../retro/book_theme.zi";
+#import, file "../../host/jungle_text.zi";
+#import, file "song.zi";
+#import, file "keyboard.zi";
+#import, file "catalog.zi";
+#import, file "layout.zi";
+#import, file "score.zi";
+#import "kryon/scroll_widget"
+#import "kryon/scroll_props"
+#import "kryon/tree"
+
+piano_lesson: PianoLesson;
+piano_layout: PianoLayout;
+piano_held: [PIANO_KEYS]bool;
+piano_choosing: bool;
+piano_scroll: s32;
+piano_previous_key_width: s32;
+piano_previous_view_width: s32;
+piano_flash: s32 = -1;
+piano_flash_until: float64;
+piano_phrase: s32;
+piano_verse: s32;
+piano_free_play: bool;
+piano_colors: [7]u32 = .[0xe9aaa0ff,0xefc59bff,0xe9d99aff,0xb5cda2ff,0xa7cbd1ff,0xb9b9d9ff,0xd5b4cfff];
+piano_names: [12]string = .["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
+
+PianoName :: (pitch: s32) -> string {
+    if language == 1 && pitch % 12 == 11 { return "H" }
+    return piano_names[pitch % 12]
+}
+
+PianoSound :: (pitch: s32) {
+    unused AppService("jungle.sound", ifx pitch < 0 then "" else Cat("assets/piano/sounds/", NumberText(pitch), ".wav"))
+}
+
+PianoPlay :: (pitch: s32) {
+    if piano_lesson.listening || pitch < PIANO_LOW || pitch > PIANO_HIGH { return }
+    PianoSound(pitch)
+    piano_flash = pitch; piano_flash_until = retro.now + 0.25
+    unused PianoTry(*piano_lesson, pitch)
+}
+
+PianoShade :: (x: s32, y: s32, width: s32, height: s32, top: u32, bottom: u32, edge: u32, radius: float32) {
+    unused Box(retro.session, BoxProps.{.bounds = RetroRect(x, y, width, height),
+        .fill = ColorFromPacked(top), .fill_bottom = ColorFromPacked(bottom), .has_fill_bottom = true,
+        .border = ColorFromPacked(edge), .radius = radius})
+}
+
+PianoButton :: (id: s32, x: s32, y: s32, width: s32, height: s32, label: string, selected: bool = false) -> bool {
+    press := RetroTap(id, x, y, width, height, label)
+    BookBox(x, y + 3, width, height, 0x926540ff, 0, 9.0)
+    BookBox(x, y + ifx press.down then 2 else 0, width, height,
+        ifx selected then cast(u32)0xd9e5cfff else cast(u32)0xfff3d9ff,
+        ifx selected then cast(u32)0x658166ff else cast(u32)0xc89c69ff, 9.0)
+    BookText(x + 5, y, width - 10, height, label, 15)
+    return press.clicked
+}
+
+OpenPianoPhrase :: (phrase: s32) {
+    if phrase < 0 || phrase >= PianoPhrases() * PianoVerses() { return }
+    PianoSound(-1)
+    piano_free_play = false
+    PianoPractice(*piano_lesson)
+    piano_verse = phrase / PianoPhrases()
+    piano_phrase = phrase % PianoPhrases()
+    piano_lesson.next = piano_verse * PianoVerseNotes() + PianoPhraseStart(piano_phrase)
+}
+
+PianoCabinet :: () {
+    p := piano_layout
+    // Rounded cheeks and a light wooden lip keep the instrument simple.
+    BookBox(p.left + 5, p.top + 37, p.width - 10, p.height - 30, 0xc5c7b4ff, 0, 20.0)
+    BookBox(p.left, p.top + 26, p.width, p.height - 26, 0x93653fff, 0x7d5638ff, 18.0)
+    PianoShade(p.left + 4, p.top + 28, p.width - 8, p.height - 34,
+        0xe4b77dff, 0xc99459ff, 0xd1a26bff, 14.0)
+    BookBox(p.left + 9, p.top + 30, p.width - 18, 5, 0xf4d2a0ff, 0, 3.0)
+    BookBox(p.keys_x - 5, p.keys_y - 8, p.keys_width + 10, p.keys_height + 12, 0x77583dff, 0, 7.0)
+    PianoShade(p.left + 6, p.keys_y + p.keys_height + 4, p.width - 12, 13,
+        0xedc18aff, 0xc28b52ff, 0xc5925eff, 5.0)
+}
+
+PianoGuide :: () {
+    active: s32 = -1
+    if piano_lesson.practicing { active = piano_lesson.next }
+    if piano_lesson.listening && piano_lesson.sounding { active = piano_lesson.shown }
+    PianoStaffRender(piano_layout, piano_verse, piano_phrase, active, piano_colors[:])
+}
+
+PianoPlayer :: () {
+    p := piano_layout
+    BookBox(p.player_x - 5, p.player_y - 4, p.player_width + 10, p.player_height + 10, 0x997044ff, 0, 14.0)
+    BookBox(p.player_x, p.player_y, p.player_width, p.player_height, 0xfffbedff, 0xead6b1ff, 11.0)
+    title := RetroTap(22, p.player_x + 42, p.player_y + 3, p.player_width - 84, 32, "Choose song")
+    BookText(p.player_x + 42, p.player_y + 3, p.player_width - 102, 32, PianoTitle(), 18)
+    BookText(p.player_x + p.player_width - 64, p.player_y + 3, 22, 32, "v", 16)
+    if title.clicked { PianoSound(-1); piano_lesson.listening = false; piano_choosing = true }
+    if piano_free_play {
+        BookText(p.player_x + 15, p.player_y + 42, p.player_width - 30,
+            p.player_height - 52, "Make your own music", 28)
+    } else {
+        previous := RetroTap(20, p.player_x + 5, p.player_y + 3, 36, 32, "Previous phrase")
+        next := RetroTap(21, p.player_x + p.player_width - 41, p.player_y + 3, 36, 32, "Next phrase")
+        BookText(p.player_x + 5, p.player_y + 3, 36, 32, "<", 23)
+        BookText(p.player_x + p.player_width - 41, p.player_y + 3, 36, 32, ">", 23)
+        if previous.clicked { OpenPianoPhrase(piano_verse * PianoPhrases() + piano_phrase - 1) }
+        if next.clicked { OpenPianoPhrase(piano_verse * PianoPhrases() + piano_phrase + 1) }
+        PianoGuide()
+        BookText(p.lyrics_x, p.lyrics_y, p.lyrics_width, p.lyrics_height,
+            PianoWordsAt(piano_verse, piano_phrase), 21)
+    }
+}
+
+PianoChooser :: () {
+    p := piano_layout
+    BookBox(p.left, p.top, p.width, p.height, 0xfffbedff, 0xc89c69ff, 14.0)
+    BookText(p.left + 14, p.top + 8, p.width - 28, 32, "Choose a song", 23)
+    BookText(p.left + 14, p.top + 40, p.width - 28, 23, "Public-domain songs", 14)
+    row := (p.height - 118) / PIANO_SONGS
+    if row > 64 { row = 64 }
+    width := p.width - 32
+    if width > 620 { width = 620 }
+    x := p.left + (p.width - width) / 2
+    for song: cast(s32)0..PIANO_SONGS - 1 {
+        if PianoButton(300 + song, x, p.top + 70 + song * row, width, row - 6,
+            piano_song_titles[song], song == piano_song) {
+            PianoSound(-1)
+            unused PianoSelectSong(song)
+            piano_lesson = PianoNew(); piano_phrase = 0; piano_verse = 0
+            piano_free_play = false; piano_flash = -1; piano_choosing = false
+        }
+    }
+    if PianoButton(310, x, p.top + p.height - 40, width, 30, "Cancel") { piano_choosing = false }
+}
+
+PianoKeyboard :: () {
+    p := piano_layout
+    key_width := PianoKeyWidth(p)
+    // Only a viewport resize can choose the initial middle-octave view.
+    // Selecting a song never moves or remaps any key.
+    if piano_previous_view_width == 0 || (piano_previous_key_width * PIANO_WHITE_KEYS <= piano_previous_view_width && key_width * PIANO_WHITE_KEYS > p.keys_width) {
+        piano_scroll = ifx key_width * PIANO_WHITE_KEYS > p.keys_width then key_width * 7 else 0
+    }
+    piano_previous_key_width = key_width; piano_previous_view_width = p.keys_width
+    scrolled := Scroll(retro.session, ScrollProps.{.key = cast(u64)700,
+        .bounds = RetroRect(p.keys_x, p.keys_y, p.keys_width, p.keys_height + 12),
+        .scale = 1.0, .horizontal = true, .content_width = key_width * PIANO_WHITE_KEYS,
+        .scroll_offset = piano_scroll, .keep_scrollbar = true})
+    piano_scroll = scrolled.scroll_offset
+    if !scrolled.opened { return }
+    saved_x := retro.x
+    retro.x -= cast(float32)piano_scroll
+    target: s32 = -1
+    if piano_lesson.practicing && piano_lesson.next < PianoNoteCount() { target = PianoPitchAt(piano_lesson.next) }
+    if piano_lesson.listening && piano_lesson.sounding && piano_lesson.shown >= 0 { target = PianoPitchAt(piano_lesson.shown) }
+    for white: cast(s32)0..PIANO_WHITE_KEYS - 1 {
+        pitch := piano_white[white]
+        x := p.keys_x + white * key_width
+        press := RetroTap(100 + pitch, x, p.keys_y, key_width - 2, p.keys_height, Cat(Tr("Piano key"), " ", PianoName(pitch), NumberText(pitch / 12 - 1)))
+        if (press.down || press.clicked) && !piano_held[pitch - PIANO_LOW] && !scrolled.frame.drag_moving { PianoPlay(pitch) }
+        piano_held[pitch - PIANO_LOW] = press.down
+        lit := target == pitch || (piano_flash == pitch && retro.now < piano_flash_until)
+        down: s32 = ifx press.down then 3 else 0
+        BookBox(x, p.keys_y + 3, key_width - 2, p.keys_height - 1, 0xc8b99cff, 0, 5.0)
+        PianoShade(x, p.keys_y + down, key_width - 2, p.keys_height - 9,
+            ifx lit then piano_colors[white % 7] else cast(u32)0xfffff7ff,
+            ifx lit then piano_colors[white % 7] else cast(u32)0xf3edddff, 0xe7dbc4ff, 5.0)
+        sticker_y := p.keys_y + p.keys_height * 73 / 100 + down
+        sticker_height := p.keys_height / 5
+        if sticker_height < 20 { sticker_height = 20 }
+        BookBox(x + 3, sticker_y, key_width - 8, sticker_height, piano_colors[white % 7], 0, 5.0)
+        BookText(x + 2, sticker_y, key_width - 6, sticker_height,
+            Cat(PianoName(pitch), NumberText(pitch / 12 - 1)), 15, TextAlign.TextAlignCenter, false)
+    }
+    for black: cast(s32)0..PIANO_BLACK_KEYS - 1 {
+        pitch := piano_black[black]
+        width := key_width * 3 / 5
+        x := p.keys_x + (piano_black_after[black] + 1) * key_width - width / 2
+        height := p.keys_height * 57 / 100
+        press := RetroTap(100 + pitch, x, p.keys_y, width, height, Cat(Tr("Piano key"), " ", PianoName(pitch), NumberText(pitch / 12 - 1)))
+        if (press.down || press.clicked) && !piano_held[pitch - PIANO_LOW] && !scrolled.frame.drag_moving { PianoPlay(pitch) }
+        piano_held[pitch - PIANO_LOW] = press.down
+        lit := piano_flash == pitch && retro.now < piano_flash_until
+        down: s32 = ifx press.down then 3 else 0
+        BookBox(x + 2, p.keys_y + 4, width, height, 0xb2a58eff, 0, 4.0)
+        BookBox(x, p.keys_y + down, width, height - 1, 0x38342eff, 0, 4.0)
+        PianoShade(x + 2, p.keys_y + down + 1, width - 4, height - 11,
+            ifx lit then cast(u32)0x9fb8b6ff else cast(u32)0x666053ff,
+            ifx lit then cast(u32)0x789692ff else cast(u32)0x49433aff, 0, 3.0)
+    }
+    retro.x = saved_x
+    unused End(retro.session)
+}
+
+GameMain :: () -> s32 {
+    mode := AppMode()
+    if mode == APP_IDENTIFY {
+        piano_lesson = PianoNew(); piano_phrase = 0; piano_verse = 0; piano_flash = -1; piano_free_play = false
+        unused PianoSelectSong(0); piano_choosing = false; piano_scroll = 0; piano_previous_view_width = 0
+        for at: cast(s32)0..PIANO_KEYS - 1 { piano_held[at] = false }
+        AppIdentity("jungle.piano"); AppDescribe("Little Piano", "")
+        return APP_PROTOCOL
+    }
+    if mode == APP_SAVE { PianoSound(-1); return 0 }
+    if mode != APP_FRAME { return 0 }
+    GameLanguage()
+    bounds := AppBounds()
+    RetroBegin(AppSession(), bounds, "assets/jungle/font.png", AppNow(), AppKey(), BLACK)
+    retro.x = bounds.x; retro.y = bounds.y; retro.scale = 1.0
+    piano_layout = PianoMeasure(cast(s32)bounds.width, cast(s32)bounds.height)
+    BookPalette()
+    BookBox(0, 0, cast(s32)bounds.width, cast(s32)bounds.height, 0xe5eddfff)
+    key := retro.key
+    if key == KEY_ESCAPE {
+        if piano_choosing { piano_choosing = false; return 0 }
+        PianoSound(-1); GameHome(); return 0
+    }
+    if piano_choosing { PianoChooser(); return 0 }
+    if key == 32 {
+        if piano_lesson.listening { piano_lesson.listening = false; PianoSound(-1) }
+        else { piano_free_play = false; PianoListen(*piano_lesson, retro.now) }
+    }
+    if key == KEY_ENTER { piano_free_play = false; PianoSound(-1); PianoPractice(*piano_lesson) }
+    if key == KEY_LEFT { OpenPianoPhrase(piano_verse * PianoPhrases() + piano_phrase - 1) }
+    if key == KEY_RIGHT { OpenPianoPhrase(piano_verse * PianoPhrases() + piano_phrase + 1) }
+    pitch := PianoKeyboardPitch(key)
+    if pitch >= 0 { PianoPlay(pitch) }
+    event := PianoTick(*piano_lesson, retro.now)
+    if event != -1 { PianoSound(event) }
+    if piano_lesson.practicing { piano_phrase = PianoPhraseAt(piano_lesson.next); piano_verse = PianoVerseAt(piano_lesson.next) }
+    if piano_lesson.listening { piano_phrase = PianoPhraseAt(piano_lesson.shown); piano_verse = PianoVerseAt(piano_lesson.shown) }
+    PianoCabinet()
+    p := piano_layout
+    speed_width: s32 = ifx p.controls_width < 500 then 56 else 72
+    button := (p.controls_width - speed_width - 18) / 3
+    if PianoButton(10, p.controls_x, p.controls_y, button, p.controls_height, "Practice", piano_lesson.practicing) {
+        OpenPianoPhrase(0)
+    }
+    if PianoButton(11, p.controls_x + button + 6, p.controls_y, button, p.controls_height,
+        ifx piano_lesson.listening then "Stop" else "Listen", piano_lesson.listening) {
+        if piano_lesson.listening { piano_lesson.listening = false; PianoSound(-1) }
+        else { piano_free_play = false; PianoListen(*piano_lesson, retro.now) }
+    }
+    if PianoButton(12, p.controls_x + (button + 6) * 2, p.controls_y, button, p.controls_height,
+        "Free play", piano_free_play) {
+        PianoSound(-1); piano_free_play = true; piano_lesson.listening = false; piano_lesson.practicing = false
+    }
+    if PianoButton(13, p.controls_x + p.controls_width - speed_width, p.controls_y, speed_width, p.controls_height,
+        ifx piano_lesson.speed == 0 then "Slow" else ifx piano_lesson.speed == 1 then "Normal" else "Fast") {
+        piano_lesson.speed = (piano_lesson.speed + 1) % 3
+        if piano_lesson.listening { PianoSound(-1); PianoListen(*piano_lesson, retro.now) }
+    }
+    PianoPlayer()
+    PianoKeyboard()
+    return 0
+}
+
+#if !#defined(PLATFORM_WEB) {
+    #program_export
+    main :: () -> s32 { return GameMain() }
+}

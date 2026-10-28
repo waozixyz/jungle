@@ -22,11 +22,11 @@ jobs:
       CHROMIUM: google-chrome
     defaults:
       run:
-        working-directory: waozixyz/jungle
+        working-directory: waozixyz/learning/jungle
     steps:
       - uses: actions/checkout@v7
         with:
-          path: waozixyz/jungle
+          path: waozixyz/learning/jungle
       - name: Read locked dependencies
         id: deps
         run: |
@@ -76,6 +76,7 @@ jobs:
           python3 tests/learning_menu_test.py
           python3 tests/menu_ui_test.py
           python3 tests/jigsaw_ui_test.py
+          python3 tests/piano_ui_test.py
           python3 tests/abc_sequence_ui_test.py
           python3 tests/playback_ui_test.py
           python3 tools/build_web.py
@@ -83,6 +84,12 @@ jobs:
           python3 tools/prepare_itch.py
           python3 tools/test_itch_web.py
           node tests/jigsaw_web_test.mjs
+          JUNGLE_WEB_PAGE=dom.html node tests/jigsaw_web_test.mjs
+          node tests/piano_web_test.mjs
+          JUNGLE_WEB_PAGE=dom.html node tests/piano_web_test.mjs
+          JUNGLE_WEB_PAGE=dom.html node tests/web_test.mjs
+          node tests/dom_native_web_test.mjs
+          python3 tools/measure_web.py
       - name: Save private test captures on failure
         if: failure()
         continue-on-error: true
@@ -91,9 +98,9 @@ jobs:
           name: website-ui-failure
           retention-days: 1
           path: |
-            waozixyz/jungle/build/tests/ui/*.png
-            waozixyz/jungle/build/tests/ui/*.log
-            waozixyz/jungle/build/tests/web/*.png
+            waozixyz/learning/jungle/build/tests/ui/*.png
+            waozixyz/learning/jungle/build/tests/ui/*.log
+            waozixyz/learning/jungle/build/tests/web/*.png
           if-no-files-found: ignore
       - name: Publish the tested website
         if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
@@ -118,6 +125,15 @@ jobs:
               time.sleep(3)
           else:raise SystemExit('The exact deployed revision is not yet verified on jungle.waozi.xyz')
           print('Verified deployed Jungle version '+data['version'])
+          for path,checks in {
+              'dom.html':['data-backend="dom"','jungle-dom.js?v='+os.environ['GITHUB_SHA']],
+              'performance-report.md':['# Jungle Canvas / DOM performance','CPU ratio DOM/Canvas'],
+          }.items():
+              request=urllib.request.Request('https://jungle.waozi.xyz/'+path+'?run='+os.environ['GITHUB_RUN_ID'],headers={'User-Agent':'Jungle-deployment-verification'})
+              with urllib.request.urlopen(request,timeout=15) as response:text=response.read().decode()
+              missing=[check for check in checks if check not in text]
+              if missing:raise SystemExit('Deployed '+path+' is missing '+repr(missing))
+              print('Verified deployed '+path)
           PY
       - name: Install itch.io Butler
         if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
