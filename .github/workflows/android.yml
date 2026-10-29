@@ -81,6 +81,13 @@ jobs:
           "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'ndk;28.2.13676358' 'build-tools;36.0.0' 'platforms;android-36' 'cmake;3.22.1'
       - name: Build both ARM architectures in one APK
         run: python3 tools/build_android.py --release --abi universal
+      # Only a Google Play edition may hold a Google library, in its build
+      # files as in its APK. Composite actions start at the workspace root.
+      - name: Keep Google libraries out of the APK and its build files
+        uses: kryonlabs/kryon/.github/actions/google-free@7217475dfa7f462939e47e3f0bc918aef248b179
+        with:
+          source: waozixyz/learning/jungle
+          packages: waozixyz/learning/jungle/build/android/JungleAcademy-universal-release-unsigned.apk
       - name: Sign and verify the download
         env:
           KEYSTORE: ${{ secrets.JUNGLE_ANDROID_KEYSTORE }}
