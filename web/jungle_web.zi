@@ -297,7 +297,11 @@ JungleMain :: () -> s64 {
         if action.navigated { PlayAudio("assets/jungle/sounds/select.wav", false) }
         if action.game >= 0 { OpenGame(action.game) }
     } else {
-        if key == 299 { ToggleAudio(); Runner.canvas_app_key = 0 }
+        if key == 299 {
+            ToggleAudio()
+            Runner.canvas_app_key = 0
+            key = 0
+        }
         if web_back_pending && key == 0 { key = 256; Runner.canvas_app_key = 256; web_back_pending = false }
         if web_speed_pending && key == 0 { key = ABC_SPEED_KEY; Runner.canvas_app_key = key; web_speed_pending = false }
         full_bounds := Runner.canvas_app_bounds

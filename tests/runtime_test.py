@@ -189,7 +189,7 @@ class Desktop:
         picture = Image.open(path).convert("RGB")
         # Jungle opens windowed at a default integral scale.
         if header is None:
-            header = 56 if picture.height > 56 and picture.getpixel((0,55)) in ((218,205,181), (213,225,231)) else 0
+            header = 56 if picture.height > 56 and picture.getpixel((0,55)) in ((218,205,181), (213,225,231), (203,218,219)) else 0
         scale = min(picture.width / 320, (picture.height - header) / 200)
         left = (picture.width - 320 * scale) / 2
         top = header + (picture.height - header - 200 * scale) / 2

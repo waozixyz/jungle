@@ -8,11 +8,21 @@ import shutil
 import subprocess
 import urllib.request
 
+from shared_assets import StageReleaseApp
+
 ROOT = Path(__file__).resolve().parents[1]
 TOOL_URL = 'https://github.com/linuxdeploy/linuxdeploy/releases/download/1-alpha-20251107-1/linuxdeploy-x86_64.AppImage'
 TOOL_SHA256 = 'c20cd71e3a4e3b80c3483cef793cda3f4e990aca14014d23c544ca3ce1270b4d'
 RUNTIME_URL = 'https://github.com/AppImage/type2-runtime/releases/download/20251108/runtime-x86_64'
 RUNTIME_SHA256 = '2fca8b443c92510f1483a883f60061ad09b46b978b2631c807cd873a47ec260d'
+# Speech clips are Ogg Vorbis, decoded by libvorbisfile (host/sound.zi);
+# the AppImage carries it and the two small libraries it needs.
+VORBIS_LIBRARIES = ('libvorbisfile.so.3', 'libvorbis.so.0', 'libogg.so.0')
+
+
+def system_library(listing, name):
+    return next(line.split(' => ')[1] for line in listing.splitlines()
+                if line.strip().startswith(name + ' ') and 'x86-64' in line)
 
 
 def main():
@@ -29,7 +39,7 @@ def main():
     appdir = ROOT / 'build/AppDir'
     if appdir.exists(): shutil.rmtree(appdir)
     payload = appdir / 'usr/lib/jungle'
-    shutil.copytree(ROOT / 'build/app', payload)
+    StageReleaseApp(ROOT / 'build/app', payload)
     bindir = appdir / 'usr/bin'
     bindir.mkdir(parents=True)
     (bindir / 'jungle').symlink_to('../lib/jungle/jungle')
@@ -46,17 +56,21 @@ def main():
     for license in (kryon / 'assets/fonts').glob('*LICENSE*'):
         shutil.copy2(license, docs / ('font-' + license.name))
     apprun = ROOT / 'packaging/AppRun'
-    libraries = subprocess.check_output(['ldconfig', '-p'], text=True)
-    pixbuf = next(line.split(' => ')[1] for line in libraries.splitlines()
-                  if 'libgdk_pixbuf-2.0.so.0 ' in line and 'x86-64' in line)
+    ldconfig = shutil.which('ldconfig') or '/sbin/ldconfig'
+    libraries = subprocess.check_output([ldconfig, '-p'], text=True)
+    pixbuf = system_library(libraries, 'libgdk_pixbuf-2.0.so.0')
+    vorbisfile = system_library(libraries, VORBIS_LIBRARIES[0])
     env = os.environ.copy()
     env.update(APPIMAGE_EXTRACT_AND_RUN='1', ARCH='x86_64', VERSION=(ROOT / 'VERSION').read_text().strip(),
                OMP_NUM_THREADS='1')
     # GdkPixbuf is loaded at runtime for JPEG pages; it is not in ldd output.
     subprocess.run([str(tool), '--appdir', str(appdir), '--deploy-deps-only', str(payload / 'jungle'),
-                    '--library', pixbuf, '--desktop-file', str(ROOT / 'packaging/xyz.waozi.jungle.desktop'),
+                    '--library', pixbuf, '--library', vorbisfile, '--desktop-file', str(ROOT / 'packaging/xyz.waozi.jungle.desktop'),
                     '--icon-file', str(ROOT / 'assets/jungle/icons/icon-512.png'), '--icon-filename', 'xyz.waozi.jungle',
                     '--custom-apprun', str(apprun)], env=env, check=True)
+    missing = [name for name in VORBIS_LIBRARIES if not (appdir / 'usr/lib' / name).exists()]
+    if missing:
+        raise SystemExit('AppImage is missing the speech decoder: ' + ', '.join(missing))
     # Keep the distribution copyright notices for each bundled library.
     notices = docs / 'bundled-licenses'
     notices.mkdir()

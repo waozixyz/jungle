@@ -55,7 +55,7 @@ jobs:
       - name: Install build tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y libsdl2-dev libcairo2-dev libfreetype-dev libfontconfig-dev libpango1.0-dev python3-pil xvfb xdotool imagemagick ghostscript
+          sudo apt-get install -y libsdl2-dev libcairo2-dev libfreetype-dev libfontconfig-dev libpango1.0-dev libvorbisfile3 ffmpeg python3-pil xvfb xdotool imagemagick ghostscript
       - name: Build compiler and select locked source directories
         run: |
           make -j2 -C "$GITHUB_WORKSPACE/ziranlang/ziran" all

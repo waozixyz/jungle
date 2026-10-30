@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.21
+
+- Make Jungle a much smaller download by sharing pictures, fonts and narration clips across activities.
+- Keep spoken words and spelling sequences in English, German and Spanish, with compressed narration and the same playback controls.
+- Offer normal, F-Droid and Google Play Android downloads. Browser narration requires Vorbis support, including Safari 18.4 or later.
+
 ## 0.1.20
 
 - Make Hot, Cold and Wet easier to recognize in Feelings, with distinct poses, gaze and expressions while keeping the same watercolor boy.

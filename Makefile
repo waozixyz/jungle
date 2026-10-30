@@ -9,11 +9,17 @@ MODULES = --module-path '$(KRYON)/src/ui' --module-path '$(KRYON)/src/backend' \
 	--module-path 'kryon=$(KRYON)/src/ui' --module-path 'kryon=$(KRYON)/src/backend' \
 	--module-path 'mingcute=$(MINGCUTE)/src' \
 	--module-path 'std=$(TOOLCHAIN)/std' --module-path '$(TOOLCHAIN)/std'
-DESKTOP_LIBS = $$(pkg-config --libs sdl2 cairo freetype2 fontconfig pangocairo) -ldl -lm -lpthread
+# Speech clips are Ogg Vorbis (host/sound.zi DecodeSpeech). The versioned name
+# links the runtime library without its development package.
+DESKTOP_LIBS = $$(pkg-config --libs sdl2 cairo freetype2 fontconfig pangocairo) -l:libvorbisfile.so.3 -ldl -lm -lpthread
 CFLAGS_ZI = -std=c11 -O2 -ffunction-sections -fdata-sections -I'$(TOOLCHAIN)/include'
 # The app as it is installed: the program, its menu assets and the games.
 APP := build/app
-COUNT_PICTURES := $(addprefix assets/jungle-book/counting/,$(addsuffix .png,tiger frog butterfly ladybug snail elephant giraffe monkey panda lion zebra crocodile parrot toucan rabbit cat dog sheep))
+# Installed shared assets, their manifest and each game's staged bundle files.
+SHARED := $(APP)/assets/shared-assets.txt $(APP)/assets/speech.txt
+STAGED_GAMES := jungle-book jungle-abc jungle-numbers animal-count dino-paint jungle-shapes jungle-hide-seek jungle-drums jungle-garden
+# Folders too: removing a file changes its folder's time, so staging reruns.
+SHARED_SOURCES := $(shell find assets/jungle assets/jungle-book $(addprefix assets/,abc numbers animal-count dino-paint shapes hide_seek drums garden) 2>/dev/null)
 GAMES := $(APP)/games/jungle-book.zx $(APP)/games/jungle-abc.zx $(APP)/games/jungle-numbers.zx $(APP)/games/animal-count.zx $(APP)/games/dino-paint.zx $(APP)/games/jungle-jigsaw.zx $(APP)/games/jungle-piano.zx
 KRYON_SOURCES = $(wildcard $(KRYON)/src/ui/*.zi $(KRYON)/src/backend/*.zi)
 
@@ -29,7 +35,7 @@ web:
 locales:
 	python3 tools/locales.py
 
-all: $(APP)/jungle $(GAMES) $(APP)/games/catalog.txt $(APP)/assets/jungle/font.png $(APP)/assets/jungle-book/font.png
+all: $(APP)/jungle $(GAMES) $(APP)/games/catalog.txt $(SHARED)
 
 run: all
 	$(APP)/jungle
@@ -50,63 +56,47 @@ $(APP)/games/catalog.txt: games/catalog.txt
 	mkdir -p $(APP)/games
 	cp $< $@
 
-$(APP)/assets/jungle/font.png: $(shell find assets/jungle -type f)
-	mkdir -p $(APP)/assets
-	rm -rf $(APP)/assets/jungle
-	cp -r assets/jungle $(APP)/assets/jungle
+# Picture Book artwork, fonts and identical pictures ship once, installed
+# beside the app; the manifest names them for every host. Narration ships
+# once too, as Ogg Vorbis speech clips (needs ffmpeg with libvorbis) that
+# assets/speech.txt composes into every narration path. Each game's bundle
+# carries only its own pictures and effects. Staging synchronizes every
+# folder, so assets removed from assets/ leave the app and bundles too.
+# The manifest and each GAME.files listing change only when their contents
+# do, so an unrelated asset change rebuilds no bundle.
+build/stage/.shared-assets: tools/shared_assets.py tools/speech_manifest.py tools/speech_codec.py tools/book_speech.py tools/book_catalog.py $(SHARED_SOURCES)
+	python3 tools/shared_assets.py
 
-# Each game is its own bundle, carrying only its own pictures and sounds.
-# Narration stays beside the installed book and is read only when played.
-$(APP)/assets/jungle-book/font.png: $(shell find assets/jungle-book -type f)
-	mkdir -p $(APP)/assets
-	cp -r assets/jungle-book $(APP)/assets/
-	find $(APP)/assets/jungle-book -type f -name '*.speech.json' -delete
-	find $(APP)/assets/jungle-book -type d -name letters -exec rm -r {} +
+$(SHARED) $(addprefix build/stage/,$(addsuffix .files,$(STAGED_GAMES))): build/stage/.shared-assets
+	@test -e $@ || python3 tools/shared_assets.py
 
-$(APP)/games/jungle-book.zx: $(wildcard games/book/*.zi retro/*.zi) $(shell find assets/jungle-book -type f)
-	rm -rf build/stage/jungle-book
-	mkdir -p build/stage/jungle-book/assets $(APP)/games
-	cp -r assets/jungle-book build/stage/jungle-book/assets/
-	find build/stage/jungle-book/assets -type f -name '*.speech.json' -delete
-	find build/stage/jungle-book/assets -type d -name letters -exec rm -r {} +
-	rm -r build/stage/jungle-book/assets/jungle-book/sounds
+$(APP)/games/jungle-book.zx: $(wildcard games/book/*.zi retro/*.zi) build/stage/jungle-book.files
+	mkdir -p $(APP)/games
 	'$(ZIRANC)' bundle --root games/book $(MODULES) --define KRYON_HOSTED_UI \
 		--asset-dir assets=build/stage/jungle-book/assets --entry jungle_book:main -o $@ games/book/jungle_book.zi
 
-# ABC Book draws the book's installed watercolor pictures and narration, so
-# its bundle carries only its own quiet sounds.
-$(APP)/games/jungle-abc.zx: $(wildcard games/abc/*.zi retro/*.zi) $(shell find assets/abc -type f)
-	rm -rf build/stage/jungle-abc
-	mkdir -p build/stage/jungle-abc/assets $(APP)/games
-	cp -r assets/abc build/stage/jungle-abc/assets/
-	find build/stage/jungle-abc/assets -type f -name '*.speech.json' -delete
+# ABC Book draws the installed watercolor pictures and narration, so its
+# bundle carries only its own quiet sounds and letters.
+$(APP)/games/jungle-abc.zx: $(wildcard games/abc/*.zi retro/*.zi) build/stage/jungle-abc.files
+	mkdir -p $(APP)/games
 	'$(ZIRANC)' bundle --root games/abc $(MODULES) --define KRYON_HOSTED_UI \
 		--asset-dir assets=build/stage/jungle-abc/assets --entry jungle_abc:main -o $@ games/abc/jungle_abc.zi
 
-# 123 Book draws the book's installed watercolor pictures, so its bundle
-# carries only its own quiet sounds and questions.
-$(APP)/games/jungle-numbers.zx: $(wildcard games/numbers/*.zi retro/*.zi) $(shell find assets/numbers -type f)
-	rm -rf build/stage/jungle-numbers
-	mkdir -p build/stage/jungle-numbers/assets $(APP)/games
-	cp -r assets/numbers build/stage/jungle-numbers/assets/
-	find build/stage/jungle-numbers/assets -type f -name '*.speech.json' -delete
+# 123 Book draws the installed watercolor pictures, so its bundle carries
+# only its own quiet sounds and questions.
+$(APP)/games/jungle-numbers.zx: $(wildcard games/numbers/*.zi retro/*.zi) build/stage/jungle-numbers.files
+	mkdir -p $(APP)/games
 	'$(ZIRANC)' bundle --root games/numbers $(MODULES) --define KRYON_HOSTED_UI \
 		--asset-dir assets=build/stage/jungle-numbers/assets --entry jungle_numbers:main -o $@ games/numbers/jungle_numbers.zi
 
-$(APP)/games/animal-count.zx: $(wildcard games/animal/*.zi retro/*.zi) $(shell find assets/animal-count -type f) $(COUNT_PICTURES)
-	rm -rf build/stage/animal-count
-	mkdir -p build/stage/animal-count/assets $(APP)/games
-	cp -r assets/animal-count build/stage/animal-count/assets/
-	mkdir -p build/stage/animal-count/assets/animal-count/pictures
-	cp $(COUNT_PICTURES) build/stage/animal-count/assets/animal-count/pictures/
+# Animal Counting draws the installed counting pictures through aliases.
+$(APP)/games/animal-count.zx: $(wildcard games/animal/*.zi retro/*.zi) build/stage/animal-count.files
+	mkdir -p $(APP)/games
 	'$(ZIRANC)' bundle --root games/animal $(MODULES) --define KRYON_HOSTED_UI \
 		--asset-dir assets=build/stage/animal-count/assets --entry animal_count:main -o $@ games/animal/animal_count.zi
 
-$(APP)/games/dino-paint.zx: $(wildcard games/paint/*.zi retro/*.zi) $(shell find assets/dino-paint -type f)
-	rm -rf build/stage/dino-paint
-	mkdir -p build/stage/dino-paint/assets $(APP)/games
-	cp -r assets/dino-paint build/stage/dino-paint/assets/
-	find build/stage/dino-paint/assets -type f -name 'voice-*' -delete
+$(APP)/games/dino-paint.zx: $(wildcard games/paint/*.zi retro/*.zi) build/stage/dino-paint.files
+	mkdir -p $(APP)/games
 	'$(ZIRANC)' bundle --root games/paint $(MODULES) --define KRYON_HOSTED_UI \
 		--asset-dir assets=build/stage/dino-paint/assets --entry dino_paint:main -o $@ games/paint/dino_paint.zi
 
@@ -148,7 +138,7 @@ build/tools/%: tools/%.zi $(wildcard tools/*.zi) build/ziran/libziran.a
 	$${CC:-cc} $(CFLAGS_ZI) $$(find build/tools/$*-c -type d -printf ' -iquote %p') $$(find build/tools/$*-c -name '*.c') \
 		build/ziran/libziran.a -Wl,--gc-sections -lm -lpthread $(TEST_LIBS) -o $@
 
-build/tests/voice: TEST_LIBS = $(DESKTOP_LIBS)
+build/tests/voice build/tests/speech_codec: TEST_LIBS = $(DESKTOP_LIBS)
 
 build/tests/%: tests/%_test.zi $(wildcard games/*/*.zi host/*.zi retro/*.zi) build/ziran/libziran.a
 	rm -rf build/tests/$*-c
@@ -170,7 +160,7 @@ test: build/tests/paint build/tests/png build/tests/progress build/tests/documen
 	build/tests/numbers
 	build/tests/audio
 	build/tests/book_preferences
-	SDL_AUDIODRIVER=dummy build/tests/voice
+	cd $(APP) && SDL_AUDIODRIVER=dummy ../tests/voice
 	build/tests/png build/tests/check.png
 	test "$$(convert build/tests/check.png -format '%w %h %[pixel:p{0,0}] %[pixel:p{2,1}]' info:)" = "3 2 srgb(170,0,0) srgb(255,255,85)"
 	rm -rf build/tests/data
@@ -181,6 +171,10 @@ test: build/tests/paint build/tests/png build/tests/progress build/tests/documen
 	python3 tests/paint_choices_ui_test.py
 	python3 tests/export_test.py
 	python3 tests/assets_test.py
+	python3 tests/shared_assets_test.py
+	python3 tests/speech_manifest_test.py
+	python3 tests/speech_codec_test.py
+	python3 tests/speech_playback_test.py
 	python3 tests/language_test.py
 	python3 tests/abc_audio_test.py
 	python3 tests/numbers_audio_test.py
@@ -209,10 +203,18 @@ DATA_DIR ?= $(if $(XDG_DATA_HOME),$(XDG_DATA_HOME),$(HOME)/.local/share)
 
 # The program finds assets/ and games/ beside itself.
 install: all
-	mkdir -p '$(LIB_DIR)/assets' '$(LIB_DIR)/games' '$(BIN_DIR)' '$(DATA_DIR)/applications' \
-		'$(DATA_DIR)/icons/hicolor/64x64/apps'
-	cp -r $(APP)/assets/. '$(LIB_DIR)/assets/'
-	cp $(APP)/games/*.zx $(APP)/games/catalog.txt '$(LIB_DIR)/games/'
+	mkdir -p '$(LIB_DIR)' '$(BIN_DIR)' '$(DATA_DIR)/applications' '$(DATA_DIR)/icons/hicolor/64x64/apps'
+	@# Replace the app's own assets/ and games/ whole, so removed files do not
+	@# linger; saves live in the data folder and are never touched.
+	rm -rf '$(LIB_DIR)/assets.new' '$(LIB_DIR)/games.new' '$(LIB_DIR)/assets.old' '$(LIB_DIR)/games.old'
+	cp -r $(APP)/assets '$(LIB_DIR)/assets.new'
+	mkdir '$(LIB_DIR)/games.new'
+	cp $(APP)/games/*.zx $(APP)/games/catalog.txt '$(LIB_DIR)/games.new/'
+	@for folder in assets games; do \
+		if [ -e '$(LIB_DIR)/'$$folder ]; then mv '$(LIB_DIR)/'$$folder '$(LIB_DIR)/'$$folder.old; fi; \
+		mv '$(LIB_DIR)/'$$folder.new '$(LIB_DIR)/'$$folder; \
+		rm -rf '$(LIB_DIR)/'$$folder.old; \
+	done
 	install -m 0755 $(APP)/jungle '$(LIB_DIR)/jungle.new'
 	mv -f '$(LIB_DIR)/jungle.new' '$(LIB_DIR)/jungle'
 	ln -sfn '$(LIB_DIR)/jungle' '$(BIN_DIR)/jungle'

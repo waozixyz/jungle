@@ -42,9 +42,9 @@ def pack_assets(files, output, max_bytes=PACK_BYTES, *, archive_names=None, sing
                              compresslevel=6) as archive:
             for name, data in pending:
                 entry = zipfile.ZipInfo(archive_names.get(name, name), date_time=(1980, 1, 1, 0, 0, 0))
-                # PNG/JPEG already have compression; WAV compresses losslessly.
+                # PNG/JPEG/Ogg already have compression; WAV compresses losslessly.
                 entry.compress_type = (zipfile.ZIP_STORED if Path(entry.filename).suffix
-                                       in ('.png', '.jpg', '.webp', '.ico') else zipfile.ZIP_DEFLATED)
+                                       in ('.png', '.jpg', '.webp', '.ico', '.ogg') else zipfile.ZIP_DEFLATED)
                 archive.writestr(entry, data)
         payload = buffer.getvalue()
         digest = hashlib.sha256(payload).hexdigest()

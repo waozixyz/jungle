@@ -1,5 +1,10 @@
-// Exercise the real SDL queue with a private dummy audio device, no window.
+// Exercise the real SDL queue with a private dummy audio device, no window,
+// from an installed app folder with its assets/speech.txt. With arguments,
+// voice PATH OUT writes ComposeVoice's samples of narration PATH to OUT, for
+// tests/speech_playback_test.py; it exits 2 when ComposeVoice refuses PATH
+// and 5 when the speech index is refused.
 #import "std/file"
+#import "std/byte_text_linux"
 #import, file "../host/sound.zi";
 #import, file "../host/audio_samples.zi";
 #import, file "../host/platform.zi";
@@ -9,10 +14,16 @@ CloseAudio :: (device: u32) #foreign voice_sdl "SDL_CloseAudioDevice";
 WaitAudio :: (milliseconds: u32) #foreign voice_sdl "SDL_Delay";
 
 #program_export
-main :: () -> s32 {
-    wave, found := ReadEntireFile("assets/jungle-book/sounds/butterfly.wav")
-    if !found { return 1 }
-    SoundVoice(wave)
+main :: (argc: s32, argv: **u8) -> s32 {
+    if argc != 1 && argc != 3 { return 3 }
+    if !SpeechLoadShipped() { return 5 }
+    if argc == 3 {
+        pcm: Vec(u8)
+        if !ComposeVoice(TextFromCString(argv[1]), *pcm) { return ifx pcm.count == 0 then 2 else 4 }
+        return ifx WriteEntireFile(TextFromCString(argv[2]), BuilderFinish(pcm)) then 0 else 3
+    }
+    if SoundSpeech("assets/missing.wav") || SoundSpeech("") { return 12 }
+    if !SoundSpeech("assets/jungle-book/sounds/butterfly.wav") { return 1 }
     if sound_device == cast(u32)0 { return 2 }
     defer { CloseAudio(sound_device) }
     // More than three seconds must reach SDL, rather than being clipped by
@@ -20,17 +31,21 @@ main :: () -> s32 {
     if Queued(sound_device) <= cast(u32)(AUDIO_LIMIT * 2) { return 3 }
     SoundMuted(true)
     if Queued(sound_device) != cast(u32)0 { return 4 }
+    // Muted narration is not even composed.
+    if !SoundSpeech("assets/jungle-book/sounds/butterfly.wav") || Queued(sound_device) != cast(u32)0 { return 13 }
     SoundMuted(false)
-    SoundVoice(wave)
+    if !SoundSpeech("assets/jungle-book/sounds/butterfly.wav") { return 5 }
     if Queued(sound_device) <= cast(u32)(AUDIO_LIMIT * 2) { return 5 }
+    // Leaving a page sends an empty request, which the host plays as no WAV.
     SoundVoice("")
     if Queued(sound_device) != cast(u32)0 { return 6 }
-    long_wave, long_found := ReadEntireFile("assets/jungle-book/sounds/de/spelling/butterfly.wav")
-    if !long_found || long_wave.count <= cast(s64)(AUDIO_RATE * 20 * 2 + 44) { return 7 }
-    SoundVoice(long_wave)
+    long_pcm: Vec(u8)
+    if !ComposeVoice("assets/jungle-book/sounds/de/spelling/butterfly.wav", *long_pcm) { return 7 }
+    if long_pcm.count <= cast(s64)(AUDIO_RATE * 20 * 2) { return 7 }
+    if !SoundSpeech("assets/jungle-book/sounds/de/spelling/butterfly.wav") { return 7 }
     // Allow half a second for the dummy device to consume queued samples;
     // the complete 27-second German spelling must reach SDL.
-    if cast(s64)Queued(sound_device) < long_wave.count - 44 - cast(s64)AUDIO_RATE { return 8 }
+    if cast(s64)Queued(sound_device) < long_pcm.count - cast(s64)AUDIO_RATE { return 8 }
     SoundSetPaused(true)
     before := Queued(sound_device)
     WaitAudio(cast(u32)160)
@@ -39,7 +54,7 @@ main :: () -> s32 {
     WaitAudio(cast(u32)160)
     if sound_paused || Queued(sound_device) >= before { return 10 }
     SoundVoice("")
-    if sound_paused { return 11 }
-    Report("local narration test: complete voice, pause/resume preserves audio position, mute and leaving clear playback\n")
+    if sound_paused || Queued(sound_device) != cast(u32)0 { return 11 }
+    Report("local narration test: composed voices reach SDL whole, pause/resume preserves audio position, mute and leaving clear playback\n")
     return 0
 }
