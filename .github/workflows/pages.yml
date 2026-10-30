@@ -69,18 +69,22 @@ jobs:
           PY
       - name: Build and run local tests
         run: |
+          mkdir -p work/b work/w
+          export TMPDIR="$PWD/work/b"
+          export YUE_DESKTOP_RECOVERY=0 SDL_AUDIODRIVER=dummy
+          unset DISPLAY WAYLAND_DISPLAY XAUTHORITY DBUS_SESSION_BUS_ADDRESS SESSION_MANAGER
           make -j2 all
           make test
+          make test-ui
           python3 tests/book_shelf_test.py
-          python3 tests/book_additions_ui_test.py
-          python3 tests/learning_menu_test.py
-          python3 tests/menu_ui_test.py
-          python3 tests/jigsaw_ui_test.py
-          python3 tests/jigsaw_sizes_ui_test.py
-          python3 tests/piano_ui_test.py
-          python3 tests/abc_sequence_ui_test.py
-          python3 tests/playback_ui_test.py
           python3 tools/build_web.py
+          JUNGLE_WEB_PAGE=dom.html node tests/book_browser_interaction_test.mjs
+          JUNGLE_WEB_PAGE=canvas.html node tests/book_browser_interaction_test.mjs
+          for page in dom.html canvas.html; do
+            for lang in en de es; do
+              JUNGLE_TEST_LANG="$lang" JUNGLE_WEB_PAGE="$page" node tests/new_activities_web_test.mjs
+            done
+          done
           python3 tests/speech_playback_test.py
           node tests/asset_packs_test.mjs
           python3 tests/web_images_test.py
@@ -90,6 +94,9 @@ jobs:
           JUNGLE_WEB_PAGE=dom.html node tests/jigsaw_web_test.mjs
           JUNGLE_WEB_PAGE=canvas.html node tests/piano_web_test.mjs
           JUNGLE_WEB_PAGE=dom.html node tests/piano_web_test.mjs
+          JUNGLE_WEB_PAGE=canvas.html node tests/paint_layers_web_test.mjs
+          JUNGLE_WEB_PAGE=dom.html node tests/paint_layers_web_test.mjs
+          JUNGLE_WEB_PAGE=canvas.html node tests/web_test.mjs
           JUNGLE_WEB_PAGE=dom.html node tests/web_test.mjs
           node tests/dom_native_web_test.mjs
           python3 tools/measure_web.py
@@ -104,6 +111,8 @@ jobs:
             waozixyz/learning/jungle/build/tests/ui/*.png
             waozixyz/learning/jungle/build/tests/ui/*.log
             waozixyz/learning/jungle/build/tests/web/*.png
+            waozixyz/learning/jungle/backup/**/*.png
+            waozixyz/learning/jungle/backup/**/*.log
           if-no-files-found: ignore
       - name: Publish the tested website
         if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'

@@ -73,7 +73,7 @@ PianoHeldKeys :: () -> string {
     return TextUntilNul(piano_host_held[:])
 }
 
-GAME_LIMIT :: 8
+GAME_LIMIT :: 16
 FONT :: "assets/jungle/font.png"
 // Canvas pictures kept on disk: a page chooser shows six at once.
 CANVAS_KEEP :: 24
@@ -345,7 +345,7 @@ ClearCanvases :: (folder: string) {
 // The book's pictures and narration ship beside the app once and are shared
 // by every game that draws them, instead of packing them into each bundle.
 SharedBookAssets :: (bundle: string) -> bool {
-    return bundle == "jungle-book.zx" || bundle == "jungle-abc.zx" || bundle == "jungle-numbers.zx"
+    return bundle == "jungle-matching.zx" || bundle == "jungle-hide-seek.zx" || bundle == "jungle-book.zx" || bundle == "jungle-abc.zx" || bundle == "jungle-numbers.zx"
 }
 
 OpenGame :: (index: s32) -> bool {

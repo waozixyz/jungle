@@ -14,6 +14,115 @@ stamp: [CANVAS_PIXELS]bool;
 stamp_body: [CANVAS_PIXELS]bool;
 fill_stack: [CANVAS_PIXELS]s32;
 
+// Objects keep their own paint; 255 is transparent, never a crayon. The
+// composite and owner map are cached, and change only on edits. Two full
+// canvases of object pixels allow dozens of small objects without unbounded
+// mobile memory or documents (even worst-case runs fit below 16 MiB).
+LAYER_LIMIT :: 32
+LAYER_PIXELS :: CANVAS_PIXELS * 2
+TRANSPARENT :: 255
+PaintLayer :: struct { x: s32; y: s32; w: s32; h: s32; start: s32; pixels: []u8; }
+layers: [LAYER_LIMIT]PaintLayer;
+layer_order: [LAYER_LIMIT]s32;
+layer_count: s32;
+layer_pixels: s32;
+layer_storage: [2][CANVAS_PIXELS]u8;
+base: [CANVAS_PIXELS]u8;
+owner: [CANVAS_PIXELS]u8;
+
+CanvasLayersClear :: () {
+    for at: cast(s32)0..LAYER_LIMIT - 1 { layers[at] = PaintLayer.{} }
+    layer_count = 0
+    layer_pixels = 0
+}
+
+CanvasBlank :: () {
+    CanvasLayersClear()
+    for at: cast(s32)0..CANVAS_PIXELS - 1 { canvas[at] = cast(u8)PAPER }
+}
+
+// Overlay only the intersecting rectangle, retaining real transparency.
+CanvasOverlay :: (id: s32, left: s32, top: s32, right: s32, bottom: s32) {
+    object := *layers[id]
+    x0 := ifx left > object.x then left else object.x
+    y0 := ifx top > object.y then top else object.y
+    x1 := ifx right < object.x + object.w then right else object.x + object.w
+    y1 := ifx bottom < object.y + object.h then bottom else object.y + object.h
+    for y: y0..y1 - 1 {
+        for x: x0..x1 - 1 {
+            pixel := object.pixels[(y - object.y) * object.w + x - object.x]
+            if pixel == cast(u8)TRANSPARENT { continue }
+            at := y * CANVAS_WIDTH + x
+            canvas[at] = pixel
+            owner[at] = cast(u8)(id + 1)
+        }
+    }
+}
+
+CanvasObjectAt :: (x: s32, y: s32) -> s32 {
+    if layer_count == 0 || x < 0 || y < 0 || x >= CANVAS_WIDTH || y >= CANVAS_HEIGHT { return -1 }
+    return cast(s32)owner[y * CANVAS_WIDTH + x] - 1
+}
+
+CanvasEraseObject :: (x: s32, y: s32) -> bool {
+    id := CanvasObjectAt(x, y)
+    if id < 0 { return false }
+    object := layers[id]
+    left := object.x; top := object.y
+    right := left + object.w; bottom := top + object.h
+    layer_pixels -= object.w * object.h
+    order: s32 = 0
+    while layer_order[order] != id { order += 1 }
+    for at: order..layer_count - 2 { layer_order[at] = layer_order[at + 1] }
+    layer_count -= 1
+    layers[id] = PaintLayer.{}
+    for py: top..bottom - 1 {
+        for px: left..right - 1 {
+            at := py * CANVAS_WIDTH + px
+            canvas[at] = base[at]
+            owner[at] = 0
+        }
+    }
+    for at: cast(s32)0..layer_count - 1 { CanvasOverlay(layer_order[at], left, top, right, bottom) }
+    return true
+}
+
+// Find a free contiguous interval in the fixed arena. Refuse a fragmented
+// arena gracefully rather than evicting or flattening an existing object.
+CanvasLayerSpace :: (pixels: s32) -> s32 {
+    for bank: cast(s32)0..1 {
+        start := bank * CANVAS_PIXELS
+        changed := true
+        while changed {
+            changed = false
+            for at: cast(s32)0..layer_count - 1 {
+                object := *layers[layer_order[at]]
+                end := object.start + object.w * object.h
+                if start < end && start + pixels > object.start { start = end; changed = true }
+            }
+            if start + pixels > (bank + 1) * CANVAS_PIXELS { break }
+        }
+        if start + pixels <= (bank + 1) * CANVAS_PIXELS { return start }
+    }
+    return -1
+}
+
+CanvasCanStamp :: (dino: s32, size: s32, x: s32, y: s32) -> bool {
+    if dino < 0 || dino >= DINO_COUNT || size < 1 || size > DINO_SIZES || layer_count >= LAYER_LIMIT { return false }
+    w := DinoWidth(dino, size); h := DinoHeight(dino, size)
+    if x < 0 || y < 0 || x + w > CANVAS_WIDTH || y + h > CANVAS_HEIGHT { return false }
+    return CanvasLayerSpace(w * h) >= 0
+}
+
+CanvasPaintPixel :: (at: s32, color: u8) {
+    canvas[at] = color
+    if layer_count == 0 { return }
+    id := cast(s32)owner[at] - 1
+    if id < 0 { base[at] = color; return }
+    object := *layers[id]
+    object.pixels[(at / CANVAS_WIDTH - object.y) * object.w + at % CANVAS_WIDTH - object.x] = color
+}
+
 // Masks in paint_pages.zi's order: the scenes, then ink and body for each
 // dinosaur size.
 SceneMask :: (scene: s32) -> s32 { return scene }
@@ -51,6 +160,7 @@ ReadMask :: (index: s32, mask: []bool, count: s32) -> bool {
 SceneOpen :: (scene: s32) -> bool {
     if scene < 0 || scene >= SCENE_COUNT { return false }
     if !ReadMask(SceneMask(scene), stamp[:], CANVAS_PIXELS) { return false }
+    CanvasLayersClear()
     for at: cast(s32)0..CANVAS_PIXELS - 1 { canvas[at] = cast(u8)(ifx stamp[at] then INK else PAPER) }
     return true
 }
@@ -59,22 +169,35 @@ SceneOpen :: (scene: s32) -> bool {
 // white body replaces the lines and colors beneath it, and scenery outside
 // its outline stays.
 CanvasStampDino :: (dino: s32, size: s32, x: s32, y: s32, flip: bool) {
-    if dino < 0 || dino >= DINO_COUNT || size < 1 || size > DINO_SIZES { return }
+    if !CanvasCanStamp(dino, size, x, y) { return }
     w := DinoWidth(dino, size)
     h := DinoHeight(dino, size)
     if !ReadMask(InkMask(dino, size), stamp[:], w * h) ||
     !ReadMask(InkMask(dino, size) + 1, stamp_body[:], w * h) { return }
+    if layer_count == 0 {
+        for at: cast(s32)0..CANVAS_PIXELS - 1 { base[at] = canvas[at]; owner[at] = 0 }
+    }
+    id: s32 = 0
+    while layers[id].pixels.count != 0 { id += 1 }
+    object := *layers[id]
+    object.x = x; object.y = y; object.w = w; object.h = h
+    object.start = CanvasLayerSpace(w * h)
+    object.pixels = layer_storage[object.start / CANVAS_PIXELS][object.start % CANVAS_PIXELS:object.start % CANVAS_PIXELS + w * h]
     for ty: cast(s32)0..h - 1 {
-        py := y + ty
-        if py < 0 || py >= CANVAS_HEIGHT { continue }
         for tx: cast(s32)0..w - 1 {
-            px := x + tx
-            if px < 0 || px >= CANVAS_WIDTH { continue }
             source := ty * w + (ifx flip then w - 1 - tx else tx)
-            if stamp[source] { canvas[py * CANVAS_WIDTH + px] = cast(u8)INK }
-            else if stamp_body[source] { canvas[py * CANVAS_WIDTH + px] = cast(u8)PAPER }
+            pixel := cast(u8)(ifx stamp[source] then INK else ifx stamp_body[source] then PAPER else TRANSPARENT)
+            object.pixels[ty * w + tx] = pixel
+            if pixel != cast(u8)TRANSPARENT {
+                at := (y + ty) * CANVAS_WIDTH + x + tx
+                canvas[at] = pixel
+                owner[at] = cast(u8)(id + 1)
+            }
         }
     }
+    layer_order[layer_count] = id
+    layer_count += 1
+    layer_pixels += w * h
 }
 
 CanvasText :: () -> string {
@@ -98,23 +221,24 @@ CanvasFill :: (x: s32, y: s32, color: s32) -> s32 {
     changed: s32 = 0
     count: s32 = 1
     fill_stack[0] = start
-    canvas[start] = paint
+    region := ifx layer_count == 0 then cast(u8)0 else owner[start]
+    CanvasPaintPixel(start, paint)
     while count > 0 {
         count -= 1
         at := fill_stack[count]
         changed += 1
         column := at % CANVAS_WIDTH
-        if column > 0 && canvas[at - 1] == target {
-            canvas[at - 1] = paint; fill_stack[count] = at - 1; count += 1
+        if column > 0 && canvas[at - 1] == target && (layer_count == 0 || owner[at - 1] == region) {
+            CanvasPaintPixel(at - 1, paint); fill_stack[count] = at - 1; count += 1
         }
-        if column < CANVAS_WIDTH - 1 && canvas[at + 1] == target {
-            canvas[at + 1] = paint; fill_stack[count] = at + 1; count += 1
+        if column < CANVAS_WIDTH - 1 && canvas[at + 1] == target && (layer_count == 0 || owner[at + 1] == region) {
+            CanvasPaintPixel(at + 1, paint); fill_stack[count] = at + 1; count += 1
         }
-        if at >= CANVAS_WIDTH && canvas[at - CANVAS_WIDTH] == target {
-            canvas[at - CANVAS_WIDTH] = paint; fill_stack[count] = at - CANVAS_WIDTH; count += 1
+        if at >= CANVAS_WIDTH && canvas[at - CANVAS_WIDTH] == target && (layer_count == 0 || owner[at - CANVAS_WIDTH] == region) {
+            CanvasPaintPixel(at - CANVAS_WIDTH, paint); fill_stack[count] = at - CANVAS_WIDTH; count += 1
         }
-        if at < CANVAS_PIXELS - CANVAS_WIDTH && canvas[at + CANVAS_WIDTH] == target {
-            canvas[at + CANVAS_WIDTH] = paint; fill_stack[count] = at + CANVAS_WIDTH; count += 1
+        if at < CANVAS_PIXELS - CANVAS_WIDTH && canvas[at + CANVAS_WIDTH] == target && (layer_count == 0 || owner[at + CANVAS_WIDTH] == region) {
+            CanvasPaintPixel(at + CANVAS_WIDTH, paint); fill_stack[count] = at + CANVAS_WIDTH; count += 1
         }
     }
     return changed

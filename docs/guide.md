@@ -19,22 +19,23 @@ returns home from its first screen. The sound button at the top right mutes
 or unmutes every game.
 Accented German and Spanish letters work in Dino stories, saves and exports.
 
-**Picture Book** has twenty-six organized books: Wild animals (15 pictures), Garden
+**Picture Book** has thirty-two organized books: Wild animals (15 pictures), Garden
 (10), Fruits (16), Farm (20), Kitchen (8), Bathroom (8), Bedroom (8),
-Living room (8), Nature (8), Vegetables (16), Family (8), Body Parts (10), Breakfast (6), Lunch (6), Dinner (6), Clothing (12), Seasons (4), Birds (6), Toys (6), Vehicles (6), Bedtime (6), Vacation (6), Sports (6), Beach (6), Weather (6), and Feelings (10). Browse the framed book list through Nature, Food, Home and Family tabs. Every page is one gentle watercolor
+Living room (8), Nature (8), Vegetables (16), Family (8), Body Parts (10), Breakfast (8), Lunch (8), Dinner (8), Clothing (12), Seasons (4), Birds (6), Toys (9), Vehicles (6), Bedtime (6), Vacation (6), Sports (7), Beach (6), Weather (6), Feelings (10), Tropical Fruits (8), Gardening (7), School (8), Water Animals (8), Drinks (8), and Actions (8). Browse the framed book list through Nature, Food, Home and Family tabs. Every page is one gentle watercolor
 scene in the style of the title-screen covers: each animal, food or thing sits
 in its own setting, so no two pages share a background. Breakfast pages are
 drawn in morning light, Lunch at midday and Dinner in the evening. The scene
 fills the page and its word sits on a label at the bottom. Choose **Simple** to hear each word once with
 its picture, or **Spelling** to hear the word, its letters and the word again.
-The selected mode is remembered. Every one of the 211 distinct picture words has names and
+The selected mode is remembered. Every one of the 284 distinct picture words has names and
 both kinds of narration in English, German and Spanish, including correctly
-spaced accented letters. Each cover lists its page count. Narration is read only when played.
+spaced accented letters. Each cover lists its page count. Manually selected pages
+speak even when automatic page turns are paused; Hear word repeats the current word.
 Browser pictures load before the opening screen clears. Simple pages stay open at least six seconds; spelling pages at least twelve.
 Both wait until three seconds after their recording finishes. Tap the right
 side of a page or swipe left for the next page; tap the left side or swipe
 right for the previous one. Arrows and Enter turn pages too. The back arrow in
-the title bar, or Escape, returns to the books. Each book ends after its final
+the title bar, Escape or right-click returns to the books. Each book ends after its final
 picture and shows the next book on the shelf, which opens by itself after a
 few seconds; All books returns to the book choices. Back from the first
 picture stays there. **Space** or the visible **Play/Pause** button pauses
@@ -47,8 +48,9 @@ on the shelf offers independent **Hide book** and **In autoplay / Skip autoplay*
 choices. Hidden books disappear from the shelf and automatic reading; a book
 excluded from autoplay remains available to read manually. All choices are
 remembered, and selecting no books for autoplay stops at the finish screen.
-Birds, Toys, Vehicles and Bedtime each have six pages; familiar pictures can
-appear in more than one book without duplicating their recordings.
+Each subject belongs to only one of the 284 pages, so playing every book never
+repeats a subject. Sports includes badminton, while Actions explores cooking,
+cleaning, reading, drawing, singing, washing hands, brushing teeth and watering plants.
 
 **ABC + 123** combines the letter and number books in one menu entry.
 Choose **ABC Book** or **123 Book** inside it; Back returns to that choice.
@@ -83,9 +85,12 @@ answer brings one of the original praises, from GOOD JOB to AWESOME.
 **Coloring Book** plays like Bert's Dinosaurs. Pick one of twelve scenes across two pages, place
 any of twelve dinosaurs, six animals, six people or six objects in four sizes, then fill
 the picture with forty-two crayon buttons. You can write an eight-line story
-and keep the whole picture and story in one of six slots. Undo takes back the
-last dinosaur, fill or erase. The working picture recovers when you reopen the
-game. Scenes and dinosaurs are smooth vector line art in `art/paint`, painted
+and keep the whole picture and story in one of six slots. Undo takes back a
+placement, fill or object erasure. The working picture and up to eight undo
+steps recover when you reopen the game or reload the browser page. Choose
+**Erase**, then tap an object to remove it; the background and other objects
+stay intact. **New picture** keeps the confirmed start-over action separate.
+Scenes and dinosaurs are smooth vector line art in `art/paint`, painted
 on a 960 by 720 picture. The tools have icons; on a tall screen they sit in
 two rows below the picture. Paper galleries and native lettering match the
 book theme. New pictures choose a background first. Choose Dinosaurs, Animals, People or Objects at the top of the stencil gallery. Dinosaur selection has no voiceover or voice controls. Quiet sound
@@ -94,8 +99,11 @@ effects follow the shared mute setting.
 A new stencil starts as a green dashed placement box with a move badge.
 The stencil appears on the paper after you place it. Drag it onto the picture and release. Press **Mirror**, or hold
 the right mouse button while releasing the left, to mirror the dinosaur.
-Its white body replaces the lines and colors beneath it;
-scenery outside its outline stays in place. Undo restores the covered artwork.
+Its white body covers the lines and colors beneath it, which stay in their own
+layers. Erasing the object reveals that artwork again, and Undo restores the
+object with its colors. Older flattened saves retain their appearance; objects
+added before layers were saved cannot be removed individually. Newly added
+objects on those pictures are independent.
 
 **Jigsaw Puzzles** takes inspiration from Artworx's 1990 Amiga game Jigsaw
 Puzzle Mania. Choose Tiger stream, Duck pond or Meadow train, with 4, 9, 16,
@@ -144,6 +152,33 @@ Fast change only the tempo.
 Listening and playing share the same quiet triangle-wave tones. Regenerate
 the binary WAV assets with `python3 tools/piano_sounds.py`.
 
+## Five more little adventures
+
+**Shapes & Sorting (2+)** starts with large shape targets. Tap an item and its
+matching home, or drag it. A moving demonstration and highlighted home show the
+way; Show me replays the guide. Switch to colors or sizes whenever the child is ready.
+
+**Matching Pairs (2+)** begins with two pairs face up. After discovering a pair,
+try optional memory rounds with two, three or four hidden pairs. Harder puzzles
+offer six, eight or ten pairs and a short preview. Hints remain available, and
+there is no time limit for solving a puzzle.
+
+**Hide & Seek (2+)** offers three levels: Peekaboo introduces friendly animals,
+Find gives a position clue, and Remember briefly shows four friends before hiding
+them and asking for one by name. Show again repeats the preview without changing
+progress. Choose a level at any time; each round mixes the hiding places.
+
+**Little Drums (2+)** opens as an instrument playground. Tap the big drum, little
+drum, shaker or bell directly to make a quiet sound; empty space on the playmat
+does nothing. Listen & Copy starts with two hits and gradually offers longer
+patterns. Copy the order at your own pace; replay and free play are always available.
+
+
+These ages are flexible guides. Each activity remembers its own learning state,
+uses English, German or Spanish, and shares the title bar's Back and sound controls.
+The menu supports Home/End, arrows and Enter for every row; number keys select
+only the first nine rows.
+
 ## Build and run
 
 The main game list is ordered by age, from Picture Book (2+) through Coloring
@@ -159,6 +194,9 @@ make            # build/app: the program, its assets and the game bundles
 make run
 make test       # counting, complete saves, painting, PNGs and printing
 make test-ui    # real keyboard/mouse play on a separate virtual display
+python3 tests/new_activities_ui_test.py # four new activities, three languages/sizes
+node tests/new_activities_web_test.mjs  # private DOM browser interaction
+JUNGLE_WEB_PAGE=canvas.html node tests/new_activities_web_test.mjs
 make install    # ~/.local/bin/jungle and a menu entry
 make web        # Canvas and semantic-DOM browser games in build/web
 ```

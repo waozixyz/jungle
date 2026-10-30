@@ -9,15 +9,16 @@ const args=new Map();for(let i=2;i<process.argv.length;i++)if(process.argv[i].st
 const root=resolve(args.get('--root')||'build/web'),backend=args.get('--backend')||'canvas',seconds=Number(args.get('--seconds')||3);
 const page=backend==='dom'?'dom.html':'canvas.html',output=resolve(args.get('--output')||'backup/browser-benchmarks');
 await mkdir(output,{recursive:true});
-const profile=await mkdtemp('/tmp/jungle-benchmark-');
+await mkdir('work/w',{recursive:true});await mkdir('work/b',{recursive:true});
+const profile=await mkdtemp(resolve('work/w/p-'));
 const mime={'.html':'text/html','.js':'text/javascript','.wasm':'application/wasm','.json':'application/json','.png':'image/png','.jpg':'image/jpeg','.wav':'audio/wav'};
 let responseBytes=0,requests=0;
 const server=createServer(async(req,res)=>{try{const f=resolve(root,'.'+decodeURIComponent(new URL(req.url,'http://localhost').pathname));if(!f.startsWith(root+'/'))throw Error('path');const data=await readFile(f);responseBytes+=data.length;requests++;res.writeHead(200,{'Content-Type':mime[extname(f)]||'application/octet-stream','Cache-Control':'no-store'});res.end(data)}catch{res.writeHead(404);res.end()}});
 await new Promise(r=>server.listen(0,'127.0.0.1',r));
-const env={...process.env,YUE_DESKTOP_RECOVERY:'0',TMPDIR:'/tmp'};
+const env={...process.env,YUE_DESKTOP_RECOVERY:'0',TMPDIR:resolve('work/b')};
 for(const k of ['DISPLAY','WAYLAND_DISPLAY','XAUTHORITY','GDK_DISPLAY','DBUS_SESSION_BUS_ADDRESS','SESSION_MANAGER'])delete env[k];
 const browserPath=process.env.CHROMIUM||'chromium';
-const flags=['--headless','--no-sandbox','--disable-gpu','--disable-webgl','--disable-dev-shm-usage','--no-first-run','--no-default-browser-check','--enable-precise-memory-info','--remote-debugging-port=0','--user-data-dir='+profile,'about:blank'];
+const flags=['--headless','--mute-audio','--no-sandbox','--disable-gpu','--disable-webgl','--disable-dev-shm-usage','--no-first-run','--no-default-browser-check','--enable-precise-memory-info','--remote-debugging-port=0','--user-data-dir='+profile,'about:blank'];
 const browser=spawn(browserPath,flags,{env,stdio:['ignore','ignore','pipe']});
 let stderr='',pageRpc,browserRpc;const diagnostics=[];browser.stderr.on('data',d=>stderr=(stderr+d).slice(-3000));
 async function rpc(url,onEvent=()=>{}){
@@ -35,7 +36,7 @@ try{
  const command=pageRpc.call;
  async function evaluate(expression){const r=await command('Runtime.evaluate',{expression,returnByValue:true,awaitPromise:true});if(r.exceptionDetails)throw Error(JSON.stringify(r.exceptionDetails));return r.result.value}
  async function waitFor(expr,label){const end=Date.now()+45000;while(Date.now()<end){if(diagnostics.length)throw Error(JSON.stringify(diagnostics));if(await evaluate(expr))return;await delay(80)}throw Error(label)}
- async function key(k){await evaluate('document.activeElement?.blur()');const code=k==='Enter'?13:k==='Escape'?27:k===' '?32:k.startsWith('Arrow')?({ArrowLeft:37,ArrowUp:38,ArrowRight:39,ArrowDown:40}[k]):k.toUpperCase().charCodeAt(0);await command('Input.dispatchKeyEvent',{type:'keyDown',key:k,windowsVirtualKeyCode:code});await delay(35);await command('Input.dispatchKeyEvent',{type:'keyUp',key:k,windowsVirtualKeyCode:code})}
+ async function key(k){await evaluate('document.activeElement?.blur()');const code=k==='Home'?36:k==='Enter'?13:k==='Escape'?27:k===' '?32:k.startsWith('Arrow')?({ArrowLeft:37,ArrowUp:38,ArrowRight:39,ArrowDown:40}[k]):k.toUpperCase().charCodeAt(0);await command('Input.dispatchKeyEvent',{type:'keyDown',key:k,code:/^[0-9]$/.test(k)?'Digit'+k:k,windowsVirtualKeyCode:code});await delay(35);await command('Input.dispatchKeyEvent',{type:'keyUp',key:k,code:/^[0-9]$/.test(k)?'Digit'+k:k,windowsVirtualKeyCode:code})}
  async function click(x,y){await command('Input.dispatchMouseEvent',{type:'mousePressed',x,y,button:'left',clickCount:1});await delay(40);await command('Input.dispatchMouseEvent',{type:'mouseReleased',x,y,button:'left',clickCount:1})}
  async function drag(x,y,tx,ty){await command('Input.dispatchMouseEvent',{type:'mouseMoved',x,y});await command('Input.dispatchMouseEvent',{type:'mousePressed',x,y,button:'left',clickCount:1});for(let n=1;n<=6;n++){await command('Input.dispatchMouseEvent',{type:'mouseMoved',x:x+(tx-x)*n/6,y:y+(ty-y)*n/6,button:'left',buttons:1});await delay(12)}await command('Input.dispatchMouseEvent',{type:'mouseReleased',x:tx,y:ty,button:'left',clickCount:1})}
  await command('Runtime.enable');await command('Page.enable');await command('Network.enable');await command('Network.setCacheDisabled',{cacheDisabled:true});await command('Performance.enable');
@@ -48,7 +49,7 @@ try{
  }
  async function metrics(){return Object.fromEntries((await command('Performance.getMetrics')).metrics.map(m=>[m.name,m.value]))}
  const menu=(await readFile('games/catalog.txt','utf8')).trim().split('\n').map(l=>l.split('|')).filter(r=>r[1]!=='123 Book').sort((a,b)=>Number(a[4])-Number(b[4]));
- const entry=title=>String(menu.findIndex(r=>r[1]===title)+1);
+ const entry=title=>{const index=menu.findIndex(r=>r[1]===title);if(index<0)throw Error('Missing benchmark catalog entry '+title);return index};
  const allCases=[['menu',null],['picture-book',entry('Picture Book')],['abc',entry('ABC Book')],['numbers',entry('ABC Book')],['jigsaw',entry('Jigsaw Puzzles')],['piano',entry('Little Piano')],['counting',entry('Animal Counting')],['coloring',entry('Coloring Book')]];
  const cases=args.has('--activity')?allCases.filter(c=>c[0]===args.get('--activity')):allCases;
  const allViewports=[{name:'desktop',width:960,height:600},{name:'phone',width:390,height:844}];
@@ -63,12 +64,17 @@ try{
   await waitFor('typeof Module!=="undefined"&&Module.FS&&document.getElementById("loading").style.display==="none"','Menu startup timeout');
   await waitFor(backend==='dom'?'document.querySelectorAll("[data-kryon-paint=span]").length>5':'Module.canvas.width>0','First rendered frame');
   const startupMs=performance.now()-navigation,startupBytes=responseBytes;await delay(250);
-  if(entry){await key(entry);await delay(350)}
+  if(entry!==null){await key('Home');for(let n=0;n<entry;n++)await key('ArrowDown');await key('Enter');await delay(350)}
   if(activity==='picture-book'){await key('1');await waitFor('Module.FS.analyzePath("/assets/jungle-book/pages/tiger.jpg").exists','Book image missing');await key(' ')}
   if(activity==='abc'){await key('1');await delay(250);await key(' ')}
   if(activity==='numbers'){await key('2');await delay(250);await key(' ')}
   if(activity==='jigsaw'){await key('Enter');await delay(300)}
   if(activity==='coloring'){const scale=Math.min(viewport.width/320,(viewport.height-56)/200),offset=(viewport.height-56-200*scale)/2;await click(52*scale,56+offset+58*scale);await delay(200);await key('Escape');await delay(250)}
+  const expectedTitle={ 'picture-book':'Picture Book',abc:'ABC Book',numbers:'123 Book',jigsaw:'Jigsaw Puzzles',piano:'Little Piano',counting:'Animal Counting',coloring:'Coloring Book'}[activity];
+  if(backend==='dom'&&expectedTitle){
+   const title=JSON.stringify(expectedTitle);
+   await waitFor(`[...document.querySelectorAll('[data-kryon-paint=span]')].some(e=>e.textContent.trim()===${title}&&e.getBoundingClientRect().top<56)`, 'Wrong benchmark activity '+activity);
+  }
   const gameReadyMs=performance.now()-navigation;
   // Keep actual screenshots, not just a status flag, for each explored activity.
   await writeFile(join(output,`${backend}-${viewport.name}-${activity}.png`),Buffer.from((await command('Page.captureScreenshot',{format:'png'})).data,'base64'));

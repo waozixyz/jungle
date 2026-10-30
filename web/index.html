@@ -37,6 +37,11 @@
 <style>
 *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;background:#e3ece4;font-family:system-ui,sans-serif;color:#3e332a}body{display:flex;align-items:center;justify-content:center}#canvas-frame{width:100%;height:100%;display:flex;align-items:center;justify-content:center}canvas{display:block;width:100%;height:100%;touch-action:none;outline:none}body{height:var(--app-height,100dvh)}#canvas-frame{padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}#mobile-input{position:fixed;bottom:0;left:0;width:1px;height:1px;padding:0;border:0;opacity:.01;font-size:16px}#loading{position:absolute;inset:0;display:grid;place-content:center;text-align:center;padding:2rem;background:#e3ece4;pointer-events:none}#brand-logo{display:block;width:min(80vw,440px);height:auto;margin:0 auto 1rem}#loading strong{font-size:clamp(1.5rem,4vw,2.5rem);font-weight:500}#loading p{font-size:1rem}#print-sheet{display:none}@media print{body{display:block;background:white}#canvas-frame,body{height:var(--app-height,100dvh)}#canvas-frame{padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}#mobile-input{position:fixed;bottom:0;left:0;width:1px;height:1px;padding:0;border:0;opacity:.01;font-size:16px}#loading{display:none!important}#print-sheet{display:block;padding:1cm;color:black}#print-picture{width:100%;image-rendering:auto}#print-story{white-space:pre-wrap;font:16px/1.5 system-ui,sans-serif}}
 #performance-panel{position:fixed;top:8px;left:8px;z-index:4;max-width:min(320px,70vw);padding:8px 10px;border:1px solid #789a80;border-radius:8px;background:rgba(38,52,41,.86);color:#f4f8f2;font:12px/1.45 system-ui,sans-serif;pointer-events:none;white-space:pre-line}#performance-panel a{color:#d8ecdf;pointer-events:auto}#performance-panel[hidden]{display:none}@media print{#performance-panel{display:none}}
+/* The transparent Book page is a gesture surface. Its native focus ring
+   crosses the illustration and caption; transport buttons keep their rings. */
+#kryon-dom-root button[aria-label="Swipe to turn the page"],
+#kryon-dom-root button[aria-label="Wischen zum Umblättern"],
+#kryon-dom-root button[aria-label="Desliza para pasar la página"]{outline:none}
 </style>
 </head>
 <body>

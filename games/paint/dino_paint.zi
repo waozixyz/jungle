@@ -28,6 +28,7 @@
 PictureIcon :: #import "mingcute/mingcute_regular_pic";
 BucketIcon :: #import "mingcute/mingcute_regular_paint";
 PencilIcon :: #import "mingcute/mingcute_regular_pencil";
+NewIcon :: #import "mingcute/mingcute_regular_file_new";
 EraserIcon :: #import "mingcute/mingcute_regular_eraser";
 SaveIcon :: #import "mingcute/mingcute_regular_save";
 PrintIcon :: #import "mingcute/mingcute_regular_print";
@@ -53,18 +54,20 @@ OVERWRITE :: 9
 PRINT_VIEW :: 10
 
 SLOT_COUNT :: 6
-UNDO_STEPS :: 8
+WORKING :: "working.txt"
+WORKING_HISTORY :: "working-undo.txt"
 
 scene_names: [12]string = .["Scene 1", "Scene 2", "Scene 3", "Scene 4", "Scene 5", "Scene 6", "Meadow", "Forest", "Desert", "Snowy hills", "Pond", "Farmyard"];
 dino_names: [30]string = .["TYRANNOSAURUS", "STEGOSAURUS", "TRICERATOPS", "ANATOSAURUS", "BRACHIOSAURUS", "DIPLODOCUS", "PARASAUROLOPHUS", "DEINONYCHUS", "PROTOCERATOPS", "PTERANODON", "STRACOSAURUS", "CORYTHOSAURUS", "Cat", "Dog", "Butterfly", "Child", "Astronaut", "Farmer", "Rabbit", "Elephant", "Lion", "Doctor", "Firefighter", "Cook", "Crate", "Campfire", "Tent", "Tree", "Rock", "Barrel"];
 dino_short: [30]string = .["T-REX", "STEGO", "TRIKE", "Duckbill", "BRACHIO", "DIPLO", "PARA", "RAPTOR", "PROTO", "PTERANODON", "STRACO", "CORY", "Cat", "Dog", "Butterfly", "Child", "Astronaut", "Farmer", "Rabbit", "Elephant", "Lion", "Doctor", "Firefighter", "Cook", "Crate", "Campfire", "Tent", "Tree", "Rock", "Barrel"];
-button_names: [7]string = .["Image", "Color", "Story", "Erase", "Save", "Print", "Undo"];
+button_names: [8]string = .["Image", "Color", "Story", "Erase", "Save", "Print", "Undo", "New picture"];
 size_names: [4]string = .["Small", "Medium", "Large", "Huge"];
 
 view: s32 = MAIN;
 dino: s32 = -1;
 size: s32 = 2;
 placing: bool;
+erasing: bool;
 placement_flip: bool;
 placement_x: s32;
 placement_y: s32;
@@ -85,11 +88,6 @@ story_column: s32;
 canvas_name: [32]u8;
 digits_a: [24]u8;
 dirty: bool = true;
-undo_canvas: [UNDO_STEPS][CANVAS_PIXELS]u8;
-undo_stories: [UNDO_STEPS][STORY_LINES][STORY_COLUMNS + 1]u8;
-undo_scenes: [UNDO_STEPS]s32;
-undo_count: s32;
-undo_next: s32;
 slot: s32 = -1;
 pending_slot: s32 = -1;
 saving: bool = true;
@@ -117,9 +115,36 @@ Keep :: (name: string, bytes: []u8) {
     bytes[count] = 0
 }
 
-SaveSlot :: () -> bool {
-    if !initialized { return true }
-    return DocumentWrite("working.txt", PictureText())
+// Persist an edit on the following frame so decoding/erasing and encoding
+// a large picture never share one VM frame. APP_SAVE still flushes on exit.
+working_save_pending: bool;
+WorkingPictureKeep :: () { working_save_pending = true }
+
+// The working picture, then its undo history, which names that exact
+// picture: if only the picture is written, the history no longer matches it
+// and is dropped on reading, so no step can be undone twice.
+WorkingPictureSave :: () -> bool {
+    if !initialized || working_history_start || history_loading { return true }
+    working := PictureText()
+    if !DocumentWrite(WORKING, working) { return false }
+    if HistoryBoundTo(working) { return true }
+    // Built in place, so its storage is released after writing.
+    text: Vec(u8)
+    HistoryAppend(*text, working)
+    if !DocumentWrite(WORKING_HISTORY, TextView(VecSlice(text, 0, text.count))) { return false }
+    HistorySaved(working)
+    return true
+}
+
+// The working picture and, when it still belongs to it, its undo history.
+working_history_start: bool;
+working_loaded: string;
+
+WorkingPictureLoad :: () {
+    HistoryClear()
+    working := DocumentRead(WORKING)
+    // Its history is read and matched to it on the next frame.
+    if PictureLoad(working) { working_loaded = OwnedText(working); working_history_start = true }
 }
 
 Notice :: (text: string) { status = text; status_until = retro.now + 3.0 }
@@ -130,7 +155,7 @@ StoreSlot :: (index: s32) -> bool {
     slot = index
     slot_previews_ready[index] = false
     Notice("Picture and story saved")
-    unused SaveSlot()
+    WorkingPictureKeep()
     return true
 }
 
@@ -138,37 +163,20 @@ LoadSlot :: (index: s32) -> bool {
     if !PictureLoad(DocumentRead(SlotFile(index))) { Notice("Empty or damaged save"); return false }
     slot = index
     placing = false
-    undo_count = 0
-    undo_next = 0
+    erasing = false
+    HistoryClear()
     story_row = 0
     story_column = 0
     dirty = true
-    unused SaveSlot()
+    WorkingPictureKeep()
     Notice("Picture and story loaded")
     return true
 }
 
-PushUndo :: () {
-    undo_scenes[undo_next] = scene
-    for row: cast(s32)0..STORY_LINES - 1 {
-        for column: cast(s32)0..STORY_COLUMNS { undo_stories[undo_next][row][column] = story[row][column] }
-    }
-    for at: cast(s32)0..CANVAS_PIXELS - 1 { undo_canvas[undo_next][at] = canvas[at] }
-    undo_next = (undo_next + 1) % UNDO_STEPS
-    if undo_count < UNDO_STEPS { undo_count += 1 }
-}
-
 Undo :: () {
-    if undo_count == 0 { return }
-    undo_next = (undo_next + UNDO_STEPS - 1) % UNDO_STEPS
-    undo_count -= 1
-    scene = undo_scenes[undo_next]
-    for row: cast(s32)0..STORY_LINES - 1 {
-        for column: cast(s32)0..STORY_COLUMNS { story[row][column] = undo_stories[undo_next][row][column] }
-    }
-    for at: cast(s32)0..CANVAS_PIXELS - 1 { canvas[at] = undo_canvas[undo_next][at] }
+    if !HistoryUndo() { return }
     dirty = true
-    unused SaveSlot()
+    WorkingPictureKeep()
     Sound("undo")
 }
 
@@ -176,14 +184,15 @@ OpenScene :: (index: s32) {
     scene = index
     unused SceneOpen(index)
     placing = false
-    undo_count = 0
+    erasing = false
+    HistoryClear()
     dirty = true
     view = PICK_DINO
     ClearStory()
     story_row = 0
     story_column = 0
     slot = -1
-    unused SaveSlot()
+    WorkingPictureKeep()
     Sound("open")
 }
 
@@ -267,7 +276,7 @@ ToolShape :: (index: s32) -> string {
     if index == 4 { return SaveIcon.Shape }
     if index == 5 { return PrintIcon.Shape }
     if index == 6 { return ifx placing then MirrorIcon.Shape else UndoIcon.Shape }
-    return UndoIcon.Shape
+    return NewIcon.Shape
 }
 
 // A rounded tool with its icon above its name.
@@ -363,18 +372,20 @@ MainView :: () {
     LayoutMain()
     bounds := AppBounds()
     BookBox(0, 0, cast(s32)bounds.width, cast(s32)bounds.height, 0xe3ece4ff)
-    for index: cast(s32)0..6 {
+    for index: cast(s32)0..7 {
         mirror := placing && index == 6
         label := ifx mirror then "Mirror" else button_names[index]
-        if ToolButton(20 + index, tool_x[index], tool_y[index], tool_w, tool_h, ToolShape(index), label, mirror && placement_flip) {
+        if ToolButton(20 + index, tool_x[index], tool_y[index], tool_w, tool_h, ToolShape(index), label, (mirror && placement_flip) || (index == 3 && erasing)) {
             if mirror { placement_flip = !placement_flip; Sound("click"); return }
             placing = false
             dragging = false
             Sound("click")
+            if index == 0 || index == 1 || index == 7 { erasing = false }
             if index == 0 { view = ifx scene < 0 then PICK_SCENE else PICK_DINO }
             if index == 1 { view = PICK_COLOR }
             if index == 2 { view = STORY }
-            if index == 3 { view = CONFIRM_ERASE }
+            if index == 3 { erasing = !erasing; canvas_can_fill = false }
+            if index == 7 { view = CONFIRM_ERASE }
             if index == 4 {
                 // Painting may have evicted the previous temporary images.
                 for slot_index: cast(s32)0..SLOT_COUNT - 1 { slot_previews_ready[slot_index] = false }
@@ -425,30 +436,47 @@ MainView :: () {
         PlacementBox(PictureRect(placement_x, placement_y, w, h), flip)
         if !dragging { PictureNote("Drag the stencil, then let go") }
         if pointer.released && dragging {
-            PushUndo()
+            if !CanvasCanStamp(dino, size, placement_x, placement_y) {
+                dragging = false
+                Notice("Picture is full. Erase an object first")
+                return
+            }
+            HistoryPush()
             CanvasStampDino(dino, size, placement_x, placement_y, flip)
             placing = false
             dragging = false
             dirty = true
-            unused SaveSlot()
+            WorkingPictureKeep()
             Sound("fill")
         }
     } else {
         if SamplePointer().pressed { canvas_can_fill = true }
         if press.clicked && canvas_can_fill {
             canvas_can_fill = false
+            if erasing {
+                if CanvasObjectAt(x, y) >= 0 {
+                    HistoryPush()
+                    if CanvasEraseObject(x, y) {
+                        dirty = true
+                        WorkingPictureKeep()
+                        Sound("clear")
+                    }
+                }
+                return
+            }
             fill := 16 + crayon
-            if scene >= 0 && CanvasColorAt(x, y) >= 0 && CanvasColorAt(x, y) != fill {
-            PushUndo()
+            if scene >= 0 && CanvasColorAt(x, y) > INK && CanvasColorAt(x, y) != fill {
+            HistoryPush()
             if CanvasFill(x, y, fill) > 0 {
                 dirty = true
-                unused SaveSlot()
+                WorkingPictureKeep()
                 Sound("fill")
             }
         }
     }
     }
-    if retro.key == KEY_ESCAPE { unused SaveSlot(); GameHome() }
+    if retro.key == KEY_ESCAPE { WorkingPictureKeep(); GameHome() }
+    if erasing { PictureNote("Tap an object to erase") }
     if retro.now < status_until { PictureNote(status) }
 }
 
@@ -491,7 +519,7 @@ ScenePicker :: () {
     page_digits: [24]u8
     number := FormatInteger(scene_page + 1, digits_a[:])
     BookText(85, 173, 62, 14, Join(number, " / ", FormatInteger(pages, page_digits[:])), 10)
-    if CancelButton() && scene < 0 && undo_count == 0 { GameHome() }
+    if CancelButton() && scene < 0 && history_count == 0 { GameHome() }
 }
 
 DinoPicker :: () {
@@ -646,7 +674,7 @@ StoryView :: () {
     if done || key == KEY_ENTER || key == KEY_ESCAPE || view == MAIN {
         AppKeyboard(false)
         view = MAIN
-        unused SaveSlot()
+        WorkingPictureKeep()
     }
 }
 
@@ -671,12 +699,12 @@ ConfirmView :: () {
     BookText(200, 132, 80, 20, "No", 13)
     yes := RetroTap(150, 40, 50, 80, 120, "Yes").clicked
     if yes {
-        PushUndo()
-        for at: cast(s32)0..CANVAS_PIXELS - 1 { canvas[at] = cast(u8)PAPER }
+        HistoryPush()
+        CanvasBlank()
         scene = -1
         ClearStory()
         dirty = true
-        unused SaveSlot()
+        WorkingPictureKeep()
         Sound("clear")
         view = PICK_SCENE
         return
@@ -692,15 +720,19 @@ ConfirmView :: () {
 // after that slot is saved.
 slot_previews: [SLOT_COUNT][32]u8;
 slot_previews_ready: [SLOT_COUNT]bool;
+slot_preview_created: bool;
 
 SlotPreview :: (index: s32, saved: string) -> string {
-    if !slot_previews_ready[index] {
+    if !slot_previews_ready[index] && !slot_preview_created {
+        slot_preview_created = true
         slot_previews_ready[index] = true
         slot_previews[index][0] = 0
-        // Only current saves carry pixel runs a preview can be made from.
+        // Both current formats start with the flattened display runs.
         pixels := PICTURE_HEADER.count + 3 + cast(s64)PICTURE_STORY
-        if saved.count > pixels + 1 && saved[:PICTURE_HEADER.count] == PICTURE_HEADER {
-            made := GameCanvas(Join(PICTURE_RUNS, saved[pixels:saved.count - 1]))
+        if PictureValid(saved) {
+            nothing: []u8
+            used := PictureRunsScan(saved[pixels:], nothing, CANVAS_PIXELS)
+            made := GameCanvas(Join(PICTURE_RUNS, saved[pixels:pixels + used]))
             if made != "" { Keep(made, slot_previews[index][:]) }
         }
     }
@@ -708,6 +740,8 @@ SlotPreview :: (index: s32, saved: string) -> string {
 }
 
 SaveLoadView :: () {
+    // Validate and render at most one saved preview per VM frame.
+    slot_preview_created = false
     DialogBack(ifx saving then "Save picture and story" else "Load picture and story")
     if BookButton(200, 20, 28, 128, 20, "Save", saving) { saving = true }
     if BookButton(201, 168, 28, 128, 20, "Load", !saving) { saving = false }
@@ -773,11 +807,14 @@ GameMain :: () -> s32 {
     mode := AppMode()
     if mode == APP_IDENTIFY {
         initialized = false
+        working_history_start = false
+        working_save_pending = false
+        history_loading = false
+        erasing = false
         view = MAIN
         placing = false
         dragging = false
-        undo_count = 0
-        undo_next = 0
+        HistoryClear()
         scene = -1
         crayon = 14
         dino = -1
@@ -787,12 +824,25 @@ GameMain :: () -> s32 {
         AppDescribe("Coloring Book", "")
         return APP_PROTOCOL
     }
-    if mode == APP_SAVE { return ifx SaveSlot() then 0 else 1 }
+    if mode == APP_SAVE { return ifx WorkingPictureSave() then 0 else 1 }
     if mode != APP_FRAME { return 0 }
     GameLanguage()
+    if (working_history_start || history_loading) && AppKey() == KEY_ESCAPE { GameHome(); return 0 }
+    if working_save_pending && initialized && !working_history_start && !history_loading {
+        working_save_pending = false
+        unused WorkingPictureSave()
+        return 0
+    }
+    if initialized && working_history_start {
+        working_history_start = false
+        HistoryLoadBegin(DocumentRead(WORKING_HISTORY), working_loaded)
+        working_loaded = ""
+        return 0
+    }
+    if history_loading { HistoryLoadStep(); return 0 }
     if !initialized {
-        for at: cast(s32)0..CANVAS_PIXELS - 1 { canvas[at] = cast(u8)PAPER }
-        unused PictureLoad(DocumentRead("working.txt"))
+        CanvasBlank()
+        WorkingPictureLoad()
         if scene < 0 { view = PICK_SCENE }
         initialized = true
     }

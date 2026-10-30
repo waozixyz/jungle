@@ -1,0 +1,37 @@
+{
+  "subject": "sleeping",
+  "prompt": "Use case: precise-object-edit. Edit this one new Jungle Academy Sleeping picture. Remove the tiger from the bed and remove the little rabbit ornament from the bedside table. Naturally fill the former tiger area with the existing pillow and rumpled bedding, and fill the rabbit area with plain wooden tabletop. Preserve the same sleeping child, face, closed eyes, hands, pose, all other bedding, room layout, lamp, window, soft watercolor rendering, colors, illumination, square framing and feathered cream paper edges. Keep the sleeping child as the single focal subject. No animals, animal toys, animal ornaments, extra characters, text or added objects. Make only these two local removals.",
+  "tool": "built-in image_gen",
+  "reference_images": [
+    "assets/jungle-book/pages/sleeping.jpg (v1; retained at backup/book-unique-expansion/sleeping-v1.jpg)"
+  ],
+  "source": "/home/wao/.codex/generated_images/01a189c7-1044-7a72-9b39-569eaf3b5231/exec-c34df34a-d8ba-40db-8780-96d2bd567c96.png",
+  "original": "backup/book-unique-expansion/sleeping.png",
+  "page": "assets/jungle-book/pages/sleeping.jpg",
+  "dimensions": [
+    1254,
+    1254
+  ],
+  "source_sha256": "f5613482925cb096b36b5c1098674997e64dcda1240ebb0dceb1d039f705873b",
+  "page_sha256": "ab00e05d7ac8faf9a8f5c21ebeb69a34c10cb52ebfdd8413b4e4218cd15df1db",
+  "history": [
+    {
+      "subject": "sleeping",
+      "prompt": "Create ONE square 1254x1254 toddler picture-book page, one picture per image, never a grid. Soft cartoonish 2D storybook watercolor on warm cream paper matching art/generated/title-covers.png: simplified rounded forms, smooth washes, delicate botanical accents, gentle earthy colors. One large instantly recognizable subject inside its own complete distinct physical setting; nothing floats. All four edges and corners fade to clean warm ivory paper with corner RGB above 190. No legible text, letters, numbers, brands, watermark, border, panels or grid. Scene: The child peacefully asleep in bed under a blanket, eyes gently closed, night light glow, a calm bedroom. Same recurring child and rendering as pages.tennis / pages.swimming in tools/book_prompts.json; use outdoor_books.json people_style_references. Calm natural proportions, correct hands, no text. Image 1 tiger cover is watercolor style only; image 2 is approved human style only. Muted earthy greens blues browns light orange. Natural human anatomy, calm face. Child sleeps securely resting in bed.",
+      "tool": "built-in image_gen",
+      "reference_images": [
+        "art/generated/title-covers.png",
+        "assets/jungle-book/pages/mother.jpg"
+      ],
+      "source": "/home/wao/.codex/generated_images/01a18d98-b1ec-72a1-b118-8931d3e68558/exec-a32b7e2a-790c-4477-a801-84a8a0062e9f.png",
+      "original": "backup/book-unique-expansion/sleeping.png",
+      "page": "assets/jungle-book/pages/sleeping.jpg",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "source_sha256": "7e40ebd9540783e29f3f56b1e192d7246fb8cc384e92a5e0559ffae42931b1cd",
+      "page_sha256": "b2115f2fb013bf3d2cfc938beaed66b4a61e3c10b127ae53629b819b7f0ca3ba"
+    }
+  ]
+}

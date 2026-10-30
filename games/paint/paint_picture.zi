@@ -38,7 +38,7 @@ PictureRunsAppend :: (text: *Vec(u8), pixels: []u8) {
         color := pixels[at]
         end := at + 1
         while end < pixels.count && pixels[end] == color { end += 1 }
-        unused VecPush(text.*, PAINT_CODES[color])
+        unused VecPush(text.*, ifx color == cast(u8)255 then #char "~" else PAINT_CODES[color])
         RunNumberAppend(text, end - at)
         at = end
     }
@@ -47,11 +47,17 @@ PictureRunsAppend :: (text: *Vec(u8), pixels: []u8) {
 // Fills every pixel from the runs at the start of text. Returns how many
 // bytes the runs took, or -1 when they are damaged or do not fill exactly.
 PictureRunsRead :: (text: string, pixels: []u8) -> s64 {
+    return PictureRunsScan(text, pixels, pixels.count)
+}
+
+// Like PictureRunsRead for total pixels, but writes them only when pixels
+// holds them, so checking a picture costs one step per run, not per pixel.
+PictureRunsScan :: (text: string, pixels: []u8, total: s64, transparent: bool = false) -> s64 {
     at: s64 = 0
     filled: s64 = 0
-    while filled < pixels.count {
+    while filled < total {
         if at >= text.count { return -1 }
-        color := PaintIndex(text[at])
+        color := ifx transparent && text[at] == #char "~" then 255 else PaintIndex(text[at])
         if color < 0 { return -1 }
         at += 1
         length: s64 = 0
@@ -65,8 +71,10 @@ PictureRunsRead :: (text: string, pixels: []u8) -> s64 {
             shift += 5
             if digit < 32 { break }
         }
-        if length <= 0 || filled + length > pixels.count { return -1 }
-        for offset: cast(s64)0..length - 1 { pixels[filled + offset] = cast(u8)color }
+        if length <= 0 || filled + length > total { return -1 }
+        if pixels.count == total {
+            for offset: cast(s64)0..length - 1 { pixels[filled + offset] = cast(u8)color }
+        }
         filled += length
     }
     return at

@@ -17,10 +17,10 @@ CFLAGS_ZI = -std=c11 -O2 -ffunction-sections -fdata-sections -I'$(TOOLCHAIN)/inc
 APP := build/app
 # Installed shared assets, their manifest and each game's staged bundle files.
 SHARED := $(APP)/assets/shared-assets.txt $(APP)/assets/speech.txt
-STAGED_GAMES := jungle-book jungle-abc jungle-numbers animal-count dino-paint jungle-shapes jungle-hide-seek jungle-drums jungle-garden
+STAGED_GAMES := jungle-book jungle-abc jungle-numbers animal-count dino-paint jungle-shapes jungle-hide-seek jungle-drums
 # Folders too: removing a file changes its folder's time, so staging reruns.
-SHARED_SOURCES := $(shell find assets/jungle assets/jungle-book $(addprefix assets/,abc numbers animal-count dino-paint shapes hide_seek drums garden) 2>/dev/null)
-GAMES := $(APP)/games/jungle-book.zx $(APP)/games/jungle-abc.zx $(APP)/games/jungle-numbers.zx $(APP)/games/animal-count.zx $(APP)/games/dino-paint.zx $(APP)/games/jungle-jigsaw.zx $(APP)/games/jungle-piano.zx
+SHARED_SOURCES := $(shell find assets/jungle assets/jungle-book $(addprefix assets/,abc numbers animal-count dino-paint shapes hide_seek drums) 2>/dev/null)
+GAMES := $(APP)/games/jungle-drums.zx $(APP)/games/jungle-hide-seek.zx $(APP)/games/jungle-matching.zx $(APP)/games/jungle-shapes.zx $(APP)/games/jungle-book.zx $(APP)/games/jungle-abc.zx $(APP)/games/jungle-numbers.zx $(APP)/games/animal-count.zx $(APP)/games/dino-paint.zx $(APP)/games/jungle-jigsaw.zx $(APP)/games/jungle-piano.zx
 KRYON_SOURCES = $(wildcard $(KRYON)/src/ui/*.zi $(KRYON)/src/backend/*.zi)
 
 # A package update can change hosted widget records as well as rendering.
@@ -64,7 +64,7 @@ $(APP)/games/catalog.txt: games/catalog.txt
 # folder, so assets removed from assets/ leave the app and bundles too.
 # The manifest and each GAME.files listing change only when their contents
 # do, so an unrelated asset change rebuilds no bundle.
-build/stage/.shared-assets: tools/shared_assets.py tools/speech_manifest.py tools/speech_codec.py tools/book_speech.py tools/book_catalog.py $(SHARED_SOURCES)
+build/stage/.shared-assets: tools/shared_assets.py tools/speech_manifest.py tools/speech_codec.py tools/book_speech.py tools/book_catalog.py tools/book_expansion.json tools/outdoor_books.json tools/book_learning_expansion.json tools/book_unique_expansion.json $(SHARED_SOURCES)
 	python3 tools/shared_assets.py
 
 $(SHARED) $(addprefix build/stage/,$(addsuffix .files,$(STAGED_GAMES))): build/stage/.shared-assets
@@ -112,6 +112,26 @@ $(APP)/games/jungle-jigsaw.zx: $(wildcard games/jigsaw/*.zi retro/*.zi) $(shell 
 	'$(ZIRANC)' bundle --root games/jigsaw $(MODULES) --define KRYON_HOSTED_UI \
 		--asset-dir assets/jigsaw=assets/jigsaw --entry jungle_jigsaw:main -o $@ games/jigsaw/jungle_jigsaw.zi
 
+$(APP)/games/jungle-shapes.zx: $(wildcard games/shapes/*.zi retro/*.zi) build/stage/jungle-shapes.files
+	mkdir -p $(APP)/games
+	'$(ZIRANC)' bundle --root games/shapes $(MODULES) --define KRYON_HOSTED_UI \
+		--asset-dir assets=build/stage/jungle-shapes/assets --entry jungle_shapes:main -o $@ games/shapes/jungle_shapes.zi
+
+$(APP)/games/jungle-matching.zx: $(wildcard games/matching/*.zi retro/*.zi) $(shell find assets/matching -type f 2>/dev/null)
+	mkdir -p $(APP)/games
+	'$(ZIRANC)' bundle --root games/matching $(MODULES) --define KRYON_HOSTED_UI \
+		--entry jungle_matching:main -o $@ games/matching/jungle_matching.zi
+
+$(APP)/games/jungle-hide-seek.zx: $(wildcard games/hide_seek/*.zi retro/*.zi) build/stage/jungle-hide-seek.files
+	mkdir -p $(APP)/games
+	'$(ZIRANC)' bundle --root games/hide_seek $(MODULES) --define KRYON_HOSTED_UI \
+		--asset-dir assets=build/stage/jungle-hide-seek/assets --entry jungle_hide_seek:main -o $@ games/hide_seek/jungle_hide_seek.zi
+
+$(APP)/games/jungle-drums.zx: $(wildcard games/drums/*.zi retro/*.zi) build/stage/jungle-drums.files
+	mkdir -p $(APP)/games
+	'$(ZIRANC)' bundle --root games/drums $(MODULES) --define KRYON_HOSTED_UI \
+		--asset-dir assets=build/stage/jungle-drums/assets --entry jungle_drums:main -o $@ games/drums/jungle_drums.zi
+
 # Menu pixel art from SVG, Picture Book raster cartoons, then Dino Colors'
 # vector art traced from its generated sheets and compiled into masks.
 # games/paint/paint_pages.zi and its pictures are committed, so a fresh
@@ -148,14 +168,21 @@ build/tests/%: tests/%_test.zi $(wildcard games/*/*.zi host/*.zi retro/*.zi) bui
 		build/ziran/libziran.a -Wl,--gc-sections -lm -lpthread $(TEST_LIBS) -o $@
 
 # Questions, painting and PNG pictures, then every game opened in the app.
-test: build/tests/paint build/tests/png build/tests/progress build/tests/document build/tests/counting build/tests/abc build/tests/numbers build/tests/printing build/tests/audio build/tests/voice build/tests/book_preferences build/tests/jigsaw build/tests/piano all
+test: build/tests/counting_exercises build/tests/paint_layers build/tests/drums build/tests/hide_seek build/tests/matching build/tests/shapes build/tests/paint build/tests/paint_history build/tests/png build/tests/progress build/tests/document build/tests/counting build/tests/abc build/tests/numbers build/tests/printing build/tests/audio build/tests/voice build/tests/book_preferences build/tests/jigsaw build/tests/piano all
+	build/tests/shapes
+	build/tests/matching
+	build/tests/hide_seek
+	build/tests/drums
 	build/tests/piano
 	python3 tests/piano_audio_test.py
 	build/tests/jigsaw
 	build/tests/paint
 	build/tests/progress
 	build/tests/document
+	build/tests/paint_history
+	build/tests/paint_layers
 	build/tests/counting
+	build/tests/counting_exercises
 	build/tests/abc
 	build/tests/numbers
 	build/tests/audio
@@ -174,10 +201,14 @@ test: build/tests/paint build/tests/png build/tests/progress build/tests/documen
 	python3 tests/shared_assets_test.py
 	python3 tests/speech_manifest_test.py
 	python3 tests/speech_codec_test.py
+	python3 tests/book_unique_catalog_test.py
+	python3 tests/book_unique_art_test.py
+	python3 tests/book_expansion_test.py
 	python3 tests/language_test.py
 	python3 tests/abc_audio_test.py
 	python3 tests/numbers_audio_test.py
 	python3 tests/jigsaw_art_test.py
+	python3 tests/activity_covers_test.py
 	python3 tests/brand_metadata_test.py
 	python3 tests/asset_packs_test.py
 	python3 tests/android_editions_test.py
@@ -185,6 +216,12 @@ test: build/tests/paint build/tests/png build/tests/progress build/tests/documen
 # Actual input and rendering on a private display; requires Xvfb, xdotool,
 # ImageMagick and Pillow. Never uses the inherited desktop or owner saves.
 test-ui: all
+	python3 tests/counting_exercises_test.py
+	python3 tests/jigsaw_sizes_ui_test.py
+	python3 tests/book_interaction_test.py
+	python3 tests/drums_playground_test.py
+	python3 tests/new_activities_ui_test.py
+	python3 tests/hide_seek_levels_test.py
 	python3 tests/piano_ui_test.py
 	python3 tests/menu_ui_test.py
 	python3 tests/jigsaw_ui_test.py
@@ -195,6 +232,8 @@ test-ui: all
 	python3 tests/abc_sequence_ui_test.py
 	python3 tests/playback_ui_test.py
 	python3 tests/slot_preview_test.py
+	python3 tests/paint_layers_test.py
+	python3 tests/paint_history_test.py
 	python3 tests/language_ui_test.py
 
 BIN_DIR ?= $(HOME)/.local/bin

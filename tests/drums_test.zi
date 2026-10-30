@@ -1,0 +1,108 @@
+#import, file "../games/drums/drums.zi";
+
+FinishDemo :: (d: *Drums, now: float64) -> bool {
+    t := now
+    for i: cast(s32)0..d.length - 1 {
+        t += 1.0
+        if DrumsTick(d, t) != d.pattern[i] { return false }
+        if DrumsChoose(d, d.pattern[0]) != DRUMS_IGNORED { return false }
+    }
+    if DrumsTick(d, t + 0.74) != -1 || d.phase != DRUMS_DEMO { return false }
+    if DrumsTick(d, t + 0.76) != -1 || d.phase != DRUMS_TURN { return false }
+    return true
+}
+
+Solve :: (d: *Drums) -> bool {
+    for i: cast(s32)0..d.length - 1 {
+        wanted := ifx i == d.length - 1 then DRUMS_COMPLETE else DRUMS_HIT
+        if DrumsChoose(d, d.pattern[i]) != wanted { return false }
+    }
+    return d.phase == DRUMS_DONE
+}
+
+#program_export
+main :: () -> s32 {
+    d := DrumsNew()
+    if d.mode != DRUMS_FREE || d.length != 2 || DrumsChoose(*d, 3) != DRUMS_HIT { return 1 }
+    if DrumsChoose(*d, -1) != DRUMS_IGNORED || DrumsChoose(*d, 4) != DRUMS_IGNORED { return 2 }
+    seen: [4]bool
+    for length: cast(s32)2..5 {
+        for seed: cast(s32)0..250 {
+            d = DrumsNew(); d.length = length
+            DrumsStart(*d, seed * 7919, 0.0)
+            again := DrumsNew(); again.length = length
+            DrumsStart(*again, seed * 7919, 0.0)
+            if d.length != length || d.phase != DRUMS_DEMO { return 3 }
+            for i: cast(s32)0..length - 1 {
+                if d.pattern[i] < 0 || d.pattern[i] >= 4 || d.pattern[i] != again.pattern[i] { return 4 }
+                seen[d.pattern[i]] = true
+            }
+        }
+    }
+    for pad: cast(s32)0..3 { if !seen[pad] { return 5 } }
+    d = DrumsNew(); DrumsStart(*d, -2147483647, 100.0)
+    if DrumsTick(*d, 100.0) != -1 || DrumsChoose(*d, 0) != DRUMS_IGNORED { return 10 }
+    if DrumsTick(*d, 1000.0) != d.pattern[0] { return 11 }
+    // Repeated or nearby frames cannot release a backlog after a long stall.
+    if DrumsTick(*d, 1000.0) != -1 || DrumsTick(*d, 1000.1) != -1 || d.demo_index != 1 { return 12 }
+    if DrumsTick(*d, 1001.0) != d.pattern[1] || d.phase != DRUMS_DEMO { return 13 }
+    if DrumsChoose(*d, 0) != DRUMS_IGNORED { return 14 }
+    if DrumsTick(*d, 2000.0) != -1 || d.phase != DRUMS_TURN { return 15 }
+    if DrumsChoose(*d, d.pattern[0]) != DRUMS_HIT || d.copied != 1 { return 16 }
+    wrong := (d.pattern[1] + 1) % 4
+    if DrumsChoose(*d, wrong) != DRUMS_RETRY || d.copied != 0 || d.wins != 0 || d.phase != DRUMS_TURN { return 17 }
+    if !Solve(*d) || d.wins != 1 { return 18 }
+    if DrumsChoose(*d, 0) != DRUMS_IGNORED || d.wins != 1 { return 19 }
+    // Replay is the same pattern and gives no success until copied again.
+    first := d.pattern[0]; second := d.pattern[1]
+    DrumsReplay(*d, 0.0)
+    if d.pattern[0] != first || d.pattern[1] != second || !FinishDemo(*d, 0.0) { return 20 }
+    if !Solve(*d) || d.wins != 2 { return 21 }
+    DrumsStart(*d, 42, 0.0)
+    if d.length != 3 || d.wins != 0 { return 22 }
+    for round: cast(s32)0..11 {
+        if !FinishDemo(*d, 0.0) || !Solve(*d) { return 23 }
+        DrumsStart(*d, round + 100, 0.0)
+    }
+    if d.length != 5 { return 24 }
+    // Easy/free exits a demonstration immediately, and resets no progress.
+    DrumsFree(*d)
+    if DrumsTick(*d, 100.0) != -1 || DrumsChoose(*d, 0) != DRUMS_HIT || d.length != 5 { return 25 }
+    DrumsStart(*d, 3, 100.0)
+    if DrumsTick(*d, 0.0) != -1 || DrumsTick(*d, 0.1) != -1 || DrumsTick(*d, 0.4) < 0 { return 26 }
+    // Saves are tiny, strict, versioned and atomic on rejection.
+    for length: cast(s32)2..5 {
+        for wins: cast(s32)0..2 {
+            d.length = length; d.wins = wins
+            loaded := DrumsNew()
+            if !DrumsRead(DrumsSaveText(d), *loaded) || loaded.length != length || loaded.wins != wins { return 30 }
+            if loaded.mode != DRUMS_FREE || loaded.phase != DRUMS_READY || loaded.copied != 0 { return 31 }
+        }
+    }
+    bad: [15]string = .["", "drums 2 2 0\n", "drums 1 1 0\n", "drums 1 6 0\n", "drums 1 2 3\n", "drums 1 2 -1\n", "drums 1 2 0 junk", "drums 1 2 0\n\n", "drums 1 2 0x", "drums 1 x 0\n", "drums 1 2 x\n", "drums 1 20 0", "drums 1 2", "drums 1 2 0 ", "drums 1 2 0\0"]
+    for text: bad {
+        loaded := DrumsNew(); loaded.length = 4; loaded.wins = 1
+        if DrumsRead(text, *loaded) || loaded.length != 4 || loaded.wins != 1 { return 32 }
+    }
+    // Touch targets fit phone portrait, landscape and desktop game bounds.
+    widths: [4]s32 = .[400, 780, 1000, 320]
+    heights: [4]s32 = .[450, 280, 600, 240]
+    for i: cast(s32)0..3 {
+        g := DrumsGrid(widths[i], heights[i]); rows := 4 / g.columns
+        if g.edge < 80 || g.left < 0 || g.top < 0 { return 40 }
+        if g.left + g.columns * g.edge + (g.columns - 1) * 14 > widths[i] { return 41 }
+        if g.top + rows * g.edge + (rows - 1) * 14 > heights[i] { return 42 }
+    }
+    // Presses cover each whole illustration, but transparent corners and the
+    // area outside it cannot become instrument hits at any rendered scale.
+    for pad: cast(s32)0..3 {
+        body_x := cast(s32)(ifx pad == 2 then 50 else 70)
+        if !DrumsBodyHit(pad, 20, 30, 100, 100, body_x, 80) { return 50 + pad }
+        if DrumsBodyHit(pad, 20, 30, 100, 100, 24, 34) { return 54 + pad }
+        if DrumsBodyHit(pad, 20, 30, 100, 100, 115, 124) { return 58 + pad }
+        if DrumsBodyHit(pad, 20, 30, 100, 100, 19, 80) || DrumsBodyHit(pad, 20, 30, 100, 100, 121, 80) { return 62 + pad }
+        scaled_x := cast(s32)(ifx pad == 2 then 59 else 71)
+        if !DrumsBodyHit(pad, 41, 62, 61, 47, scaled_x, 85) { return 66 + pad }
+    }
+    return 0
+}

@@ -27,7 +27,7 @@ for language in ('en', 'de', 'es'):
         with Desktop(ROOT / 'build/app/jungle', data, screen_size='1800x1200') as desktop:
             run(['xdotool','windowmove',desktop.window,'0','0'],desktop.env)
             desktop.resize(960,600)
-            desktop.key('2'); desktop.key('1')
+            desktop.game('ABC Book'); desktop.key('1')
             a = desktop.capture_actual('alphabet-sequence-a-' + language)
             region = (100,160,860,380)
             assert vivid(a.crop(region)) < 100, 'Alphabet default still shows a word example'

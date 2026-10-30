@@ -17,7 +17,7 @@ for language in ("en", "de", "es"):
             path.write_text(content)
         with Desktop(Path(os.environ.get("JUNGLE_TEST_BINARY", ROOT / "build/app/jungle")), data) as desktop:
             desktop.capture("combined-main-" + language)
-            desktop.key("2")
+            desktop.game("ABC Book")
             hub = desktop.capture("combined-books-" + language)
             for choice, name in (("1", "letters"), ("2", "numbers")):
                 desktop.key(choice)
@@ -64,7 +64,7 @@ for language in ("en", "de", "es"):
             desktop.key("Escape")  # Close the stencil picker.
             desktop.key("Escape")  # Leave the picture directly.
             desktop.wait_menu("after-coloring-home")
-            desktop.key("2")
+            desktop.game("ABC Book")
             deadline = time.monotonic() + 20
             while ImageChops.difference(hub, desktop.capture("after-coloring-exit")).getbbox() is not None:
                 assert time.monotonic() < deadline, "Coloring Back did not return directly to the book choice"

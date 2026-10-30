@@ -10,7 +10,7 @@ import json
 from math import ceil
 import sys
 from PIL import Image
-from book_catalog import BOOKS, BOOK_GROUPS, NAMES, PAGE_NAMES, WORDS, LANGUAGES, narration, voice_path, TITLES
+from book_catalog import BOOKS, BOOK_GROUPS, NAMES, PAGE_NAMES, PENDING_MEDIA, WORDS, LANGUAGES, narration, voice_path, TITLES
 
 ROOT = Path(__file__).resolve().parents[1]
 SCENES = ROOT / "assets/jungle-book/pages"
@@ -18,8 +18,11 @@ SCENES = ROOT / "assets/jungle-book/pages"
 
 def main():
     catalog_only = "--catalog-only" in sys.argv
+    # While new art and speech are being made, only those exact subjects may be absent.
+    pending = set(PENDING_MEDIA) if "--pending-media" in sys.argv else set()
+    assert catalog_only or not pending, "--pending-media only regenerates the catalog sources"
     previews = ROOT / "assets/jungle-book/previews"
-    missing = [name for name in NAMES if not (SCENES / (name + ".jpg")).exists()]
+    missing = [name for name in NAMES if name not in pending and not (SCENES / (name + ".jpg")).exists()]
     assert not missing, "pages without a scene: " + ", ".join(missing)
     starts = []
     index = 0
@@ -69,7 +72,11 @@ def main():
             paths = [voice_path(name, language, simple) for name in PAGE_NAMES]
             durations = []
             for name, path in zip(PAGE_NAMES, paths):
-                receipt = json.loads((ROOT / path).with_suffix(".speech.json").read_text())
+                receipt_path = (ROOT / path).with_suffix(".speech.json")
+                if name in pending and not receipt_path.exists():
+                    durations.append(0.0)
+                    continue
+                receipt = json.loads(receipt_path.read_text())
                 assert receipt["text"] == narration(name, language, simple), (name, language, simple)
                 durations.append(receipt["duration"])
             for start in range(0, len(paths), 48):

@@ -44,7 +44,7 @@ FORMAT = 1
 HEADER = f"#jungle-shared-assets-{FORMAT}\n"
 # Activities whose narration is recorded per language, as FOLDER/LANGUAGE/
 # NAME.wav beside its receipt. Their other sounds are effects and stay WAV.
-NARRATED = ('assets/drums/sounds', 'assets/garden/sounds', 'assets/hide_seek/sounds', 'assets/shapes/sounds')
+NARRATED = ('assets/animal-count/sounds', 'assets/drums/sounds', 'assets/hide_seek/sounds', 'assets/shapes/sounds')
 
 # Installed beside the app: the menu's own files and the Picture Book.
 INSTALLED = ('assets/jungle', 'assets/jungle-book')
@@ -73,7 +73,6 @@ GAMES = {
     'jungle-shapes': {'folders': ('assets/shapes',)},
     'jungle-hide-seek': {'folders': ('assets/hide_seek',)},
     'jungle-drums': {'folders': ('assets/drums',)},
-    'jungle-garden': {'folders': ('assets/garden',)},
 }
 
 
@@ -90,7 +89,8 @@ def Shipped(name):
     and ABC Book carries its own spoken letters, so the book's copies do not."""
     path = Path(name)
     book_letters = name.startswith('assets/jungle-book/') and 'letters' in path.parts[:-1]
-    return not path.name.endswith('.speech.json') and not book_letters
+    book_narration = name.startswith('assets/jungle-book/sounds/') and path.suffix.lower() == '.wav'
+    return not path.name.endswith('.speech.json') and not book_letters and not book_narration
 
 
 def Folder(source):

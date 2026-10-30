@@ -1,0 +1,117 @@
+// The working picture's undo history: eight steps survive their text form
+// in order, consumed steps stay consumed, and a damaged, oversized or stale
+// history is refused whole, without changing the picture or the history.
+#import, file "../games/paint/paint_document.zi";
+#import, file "../games/paint/paint_canvas.zi";
+#import, file "../games/paint/paint_pages.zi";
+#import, file "../games/paint/paint_picture.zi";
+#import, file "../games/paint/paint_palette.zi";
+#import "std/byte_text_linux"
+#import "std/text_buffer"
+#import, file "../host/platform.zi";
+#import, file "../host/jungle_text.zi";
+
+states: [12]string;
+
+// A distinct picture for each step: its scene, a painted band and a story.
+Paint :: (step: s32) {
+    scene = ifx step == 5 then -1 else step % SCENE_COUNT
+    for at: cast(s32)0..CANVAS_PIXELS - 1 { canvas[at] = cast(u8)PAPER }
+    for at: cast(s32)0..CANVAS_WIDTH * 20 - 1 { canvas[step * CANVAS_WIDTH * 20 + at] = cast(u8)(16 + step) }
+    ClearStory()
+    story[0][0] = cast(u8)(#char "A" + step)
+    story[7][37] = cast(u8)(#char "a" + step)
+}
+
+Replace :: (text: string, at: s64, byte: u8) -> string {
+    copy: Vec(u8)
+    BuilderPrint(*copy, "%", text)
+    copy[at] = byte
+    return BuilderFinish(copy)
+}
+
+kept: string;
+
+// The refused history leaves the picture, states[10], and all eight steps
+// as they were.
+Refused :: (saved: string, working: string) -> bool {
+    if HistoryLoad(saved, working) { return false }
+    return PictureText() == states[10] && history_count == 8 && HistoryText(states[10]) == kept
+}
+
+#program_export
+main :: () -> s32 {
+    crayon = 29
+    HistoryClear()
+    if HistoryUndo() { return 1 }
+    for step: cast(s32)0..10 {
+        Paint(step)
+        states[step] = PictureText()
+        if step < 10 { HistoryPush() }
+    }
+    // Ten changes keep only the newest eight steps.
+    if history_count != 8 { return 2 }
+    working := states[10]
+    saved := HistoryText(working)
+    if HistoryText(working) != saved { return 3 }
+    HistoryClear()
+    if !HistoryLoad(saved, working) || history_count != 8 || PictureText() != working { return 4 }
+    if !HistoryBoundTo(working) || HistoryBoundTo(states[9]) { return 5 }
+    if HistoryText(working) != saved { return 6 }
+    // Damaged, oversized and stale histories are refused whole.
+    kept = saved
+    header := HISTORY_HEADER.count
+    if !Refused(saved, states[9]) { return 7 }
+    if !Refused(Replace(saved, 0, #char "X"), working) { return 8 }
+    if !Refused(Cat(saved, "x"), working) { return 9 }
+    count_at := header
+    while saved[count_at] != cast(u8)10 { count_at += 1 }
+    count_at += 1
+    if saved[count_at] != #char "8" || saved[count_at + 1] != cast(u8)10 { return 10 }
+    if !Refused(Replace(saved, count_at, #char "9"), working) { return 11 }
+    if !Refused(Replace(saved, count_at, #char "7"), working) { return 12 }
+    if !Refused(Cat(saved[:count_at], "08", saved[count_at + 1:]), working) { return 13 }
+    // Any change to the picture's length or hash, or to a step, is refused.
+    if !Refused(Replace(saved, header, ifx saved[header] == #char "9" then #char "8" else #char "9"), working) { return 14 }
+    if !Refused(Replace(saved, count_at - 2, ifx saved[count_at - 2] == #char "0" then #char "1" else #char "0"), working) { return 15 }
+    last_step := saved.count - 3
+    if !Refused(Replace(saved, last_step, #char "!"), working) { return 16 }
+    if !Refused(Replace(saved, count_at + 2, #char "0"), working) { return 17 }
+    // Every cut through the header and first step, then a spread to the end.
+    for cut: cast(s64)0..saved.count - 1 {
+        if cut < count_at + 400 || cut % 97 == 0 || cut > saved.count - 4 {
+            if HistoryLoad(saved[:cut], working) || history_count != 8 { return 18 }
+        }
+    }
+    if PictureText() != working || HistoryText(working) != saved { return 18 }
+    if !Refused("", working) { return 19 }
+    // Undo restores the newest steps in order, scene, story and pixels,
+    // keeping the chosen crayon.
+    crayon = 12
+    for step: cast(s32)0..2 {
+        if !HistoryUndo() || crayon != 12 { return 20 }
+        crayon = 29
+        if PictureText() != states[9 - step] { return 21 }
+        crayon = 12
+    }
+    crayon = 29
+    // The consumed steps stay consumed after the next reading.
+    picture := PictureText()
+    partial := HistoryText(picture)
+    HistoryClear()
+    if !HistoryLoad(partial, picture) || history_count != 5 || PictureText() != picture { return 22 }
+    for step: cast(s32)3..7 {
+        if !HistoryUndo() || PictureText() != states[9 - step] { return 23 }
+    }
+    if history_count != 0 || HistoryUndo() || PictureText() != states[2] { return 24 }
+    // An exhausted history is kept as empty, and still names its picture.
+    empty := HistoryText(states[2])
+    Paint(1)
+    HistoryPush()
+    if !HistoryLoad(empty, states[2]) || history_count != 0 || HistoryLoad(empty, states[3]) { return 25 }
+    // A picture saved before histories existed opens with none.
+    HistoryClear()
+    if HistoryLoad("", states[2]) || HistoryLoad(states[2], states[2]) || history_count != 0 { return 26 }
+    Report("local paint history test passed\n")
+    return 0
+}

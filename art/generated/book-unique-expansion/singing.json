@@ -1,0 +1,18 @@
+{
+  "subject": "singing",
+  "prompt": "Create ONE square 1254x1254 toddler picture-book page, one picture per image, never a grid. Soft cartoonish 2D storybook watercolor on warm cream paper matching art/generated/title-covers.png: simplified rounded forms, smooth washes, delicate botanical accents, gentle earthy colors. One large instantly recognizable subject inside its own complete distinct physical setting; nothing floats. All four edges and corners fade to clean warm ivory paper with corner RGB above 190. No legible text, letters, numbers, brands, watermark, border, panels or grid. Scene: The child singing happily with mouth gently open and hands relaxed in a sunny room; soft music notes are allowed only if they read as part of the scene, no text. Same recurring child and rendering as pages.tennis / pages.swimming in tools/book_prompts.json; use outdoor_books.json people_style_references. Calm natural proportions, correct hands, no text. Image 1 tiger cover watercolor style only; image 2 illustration style only, DO NOT copy adult woman. Main character must be a young CHILD aged 5 with short hair and orange shirt, child proportions. No animals. Natural hands and calm face, mouth naturally open singing, no lettering or music symbols. Muted earthy greens blues browns light orange.",
+  "tool": "built-in image_gen",
+  "reference_images": [
+    "art/generated/title-covers.png",
+    "assets/jungle-book/pages/mother.jpg"
+  ],
+  "source": "/home/wao/.codex/generated_images/01a18d98-b1ec-72a1-b118-8931d3e68558/exec-39f5303a-e57e-4795-a1cd-68f500424713.png",
+  "original": "backup/book-unique-expansion/singing.png",
+  "page": "assets/jungle-book/pages/singing.jpg",
+  "dimensions": [
+    1254,
+    1254
+  ],
+  "source_sha256": "d0919b283c91a5d6bbb7b988da62ffe8e34a6b148cb768f8fa0d5974525c0567",
+  "page_sha256": "a835b3203f4141a54b9fbe187f1788abe978775dde3f0451e3122e2156ca9205"
+}

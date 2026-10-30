@@ -1,0 +1,327 @@
+// Matching Pairs: tap two cards with the same animal. Easy cards stay face up;
+// memory rounds grow gently from two to ten pairs and can be chosen freely.
+#import "kryon/app_context"
+#import "kryon/app_protocol"
+#import "kryon/geometry"
+#import "kryon/svg_icon_props"
+#import "kryon/svg_icon_widget"
+#import "kryon/drawing_props"
+#import "kryon/text_align"
+Leaf :: #import "mingcute/mingcute_filled_leaf";
+Heart :: #import "mingcute/mingcute_filled_heart";
+Eye :: #import "mingcute/mingcute_regular_eye";
+Again :: #import "mingcute/mingcute_regular_refresh_2";
+#import, file "matching.zi";
+#import, file "../../retro/retro.zi";
+#import, file "../../retro/game.zi";
+#import, file "../../retro/book_theme.zi";
+#import, file "../../host/jungle_text.zi";
+#import, file "../../retro/language.zi";
+
+SAVE_FILE :: "matching.txt"
+// How long a miss stays visible before its cards are let go.
+MISS_SECONDS :: 1.6
+FLIP_SECONDS :: 0.24
+PREVIEW_SECONDS :: 2.5
+MATCH_KEY_PAGE_UP :: 266
+MATCH_KEY_PAGE_DOWN :: 267
+pair_rings: [4]u32 = .[0xa9cf9bff, 0x9cc3d9ff, 0xf0bf9aff, 0xc9b6dcff];
+pair_fills: [4]u32 = .[0xeef6e8ff, 0xe9f2f7ff, 0xfbefe4ff, 0xf3edf8ff];
+
+game: Matching;
+loaded: bool;
+miss_until: float64;
+preview_until: float64;
+shown_face: [MATCH_MAX_CARDS]bool;
+flip_at: [MATCH_MAX_CARDS]float64;
+card_columns: s32;
+focus_card: s32;
+keyboard_active: bool;
+view_width: s32;
+view_height: s32;
+view_scale: float32;
+
+Words :: (en: string, de: string, es: string) -> string { return MatchingWords(en, de, es) }
+
+Save :: () -> bool { return DocumentWrite(SAVE_FILE, MatchingText(game)) }
+
+Seed :: () -> s32 { return cast(s32)(cast(s64)(retro.now * 1000.0) % 2147483646) }
+
+StartRound :: (mode: s32) {
+    CancelPreview()
+    game = MatchingNew(mode, Seed(), game.rounds)
+    miss_until = 0.0
+    focus_card = 0
+    BeginPreview()
+    for i: cast(s32)0..MATCH_MAX_CARDS - 1 { shown_face[i] = CardVisible(i); flip_at[i] = -10.0 }
+    unused Save()
+}
+
+PreviewActive :: () -> bool {
+    return retro.now < preview_until && preview_until - retro.now <= PREVIEW_SECONDS * 2.0
+}
+
+BeginPreview :: () {
+    preview_until = ifx MatchingPreviewMode(game) then retro.now + PREVIEW_SECONDS else 0.0
+}
+
+CancelPreview :: () { preview_until = 0.0 }
+
+CardVisible :: (card: s32) -> bool {
+    return MatchingFaceUp(game, card) || (MatchingPreviewMode(game) && PreviewActive())
+}
+
+ItemPath :: (animal: s32) -> string { return Cat("assets/jungle-book/items/", match_animals[animal], ".png") }
+SayAnimal :: (card: s32) {
+    unused AppService("jungle.voice", Cat("assets/jungle-book/sounds/", LanguageCode(), "/simple/", MatchingAnimalName(game, card), ".wav"))
+}
+
+Icon :: (shape: string, x: s32, y: s32, edge: s32, color: u32) {
+    SvgIcon(retro.session, SvgIconProps.{.bounds = RetroRect(x, y, edge, edge), .shape = shape, .color = ColorFromPacked(color)})
+}
+
+CardBack :: (x: s32, y: s32, width: s32, height: s32) {
+    radius := cast(float32)height / 9.0
+    BookBox(x, y, width, height, 0x8fb381ff, 0x6c9160ff, radius)
+    inset := height / 12
+    if width > inset * 2 {
+        BookBox(x + inset, y + inset, width - inset * 2, height - inset * 2, 0xa9c79aff, 0, radius * 0.6)
+        edge := height * 45 / 100
+        if edge > width - inset * 2 { edge = width - inset * 2 }
+        Icon(Leaf.Shape, x + (width - edge) / 2, y + (height - edge) / 2, edge, 0xf4f0deff)
+    }
+}
+
+CardFace :: (card: s32, x: s32, y: s32, width: s32, height: s32) {
+    radius := cast(float32)height / 9.0
+    matched := game.matched[card]
+    slot := MatchingPairSlot(game, card) % 4
+    BookBox(x, y, width, height, ifx matched then pair_fills[slot] else cast(u32)0xfffcf3ff,
+        ifx matched then pair_rings[slot] else cast(u32)0xdacdb5ff, radius)
+    inset := height / 10
+    if width > inset * 2 { BookPicture(ItemPath(game.animals[card]), x + inset, y + inset, width - inset * 2, height - inset * 2) }
+    if matched && width > height / 2 {
+        badge := height / 5
+        BookBox(x + width - badge - inset / 2, y + inset / 2, badge, badge, pair_rings[slot], 0, cast(float32)badge / 2.0)
+        Icon(Heart.Shape, x + width - badge - inset / 2 + badge / 5, y + inset / 2 + badge / 5, badge * 3 / 5, 0xfffcf3ff)
+    }
+}
+
+DrawCard :: (card: s32, x: s32, y: s32, edge: s32) {
+    up := CardVisible(card)
+    if up != shown_face[card] { shown_face[card] = up; flip_at[card] = retro.now }
+    // A soft glow marks the chosen card, a found pair or a miss being shown.
+    if game.matched[card] {
+        BookBox(x - 5, y - 5, edge + 10, edge + 10, pair_rings[MatchingPairSlot(game, card) % 4], 0, cast(float32)edge / 8.0)
+    } else if card == game.first && game.second < 0 {
+        BookBox(x - 6, y - 6, edge + 12, edge + 12, 0xf2d48aff, 0xd9a441ff, cast(float32)edge / 8.0)
+    } else if card == game.first || card == game.second {
+        BookBox(x - 5, y - 5, edge + 10, edge + 10, 0xe8dcc6ff, 0, cast(float32)edge / 8.0)
+    }
+    BookBox(x + 2, y + 4, edge, edge, 0x70593c22, 0, cast(float32)edge / 9.0)
+    turned := retro.now - flip_at[card]
+    if turned >= 0.0 && turned < FLIP_SECONDS {
+        // The card narrows to its edge showing the old side, then opens on the new one.
+        half := turned / FLIP_SECONDS * 2.0
+        width := cast(s32)(cast(float64)edge * (ifx half < 1.0 then 1.0 - half else half - 1.0))
+        if width < 2 { width = 2 }
+        face := ifx half < 1.0 then !up else up
+        if face { CardFace(card, x + (edge - width) / 2, y, width, edge) } else { CardBack(x + (edge - width) / 2, y, width, edge) }
+        return
+    }
+    if up { CardFace(card, x, y, edge, edge) } else { CardBack(x, y, edge, edge) }
+}
+
+ChooseCard :: (card: s32) {
+    result := MatchingChoose(*game, card)
+    if result == MATCH_IGNORED { return }
+    if result == MATCH_MISS { miss_until = retro.now + MISS_SECONDS }
+    // Every chosen animal says its name.
+    SayAnimal(card)
+    if result == MATCH_PAIR { unused Save() }
+}
+
+Prompt :: () -> string {
+    if MatchingDone(game) { return Words("All pairs found!", "Alle Paare gefunden!", "¡Encontraste todas las parejas!") }
+    if game.second >= 0 { return Words("Not the same. Look again!", "Nicht gleich. Schau noch einmal!", "No son iguales. ¡Mira otra vez!") }
+    if MatchingHidden(game) { return Words("Turn two cards to find a pair", "Dreh zwei Karten um und finde ein Paar", "Gira dos cartas y encuentra una pareja") }
+    return Words("Tap two animals that are the same", "Tippe auf zwei gleiche Tiere", "Toca dos animales iguales")
+}
+
+PreviewPrompt :: (second: bool) -> string {
+    if second { return Words("Then find the pairs!", "Dann finde die Paare!", "¡Luego encuentra las parejas!") }
+    return Words("Look at the cards!", "Schau dir die Karten an!", "¡Mira las cartas!")
+}
+
+ModeLabel :: (mode: s32) -> string {
+    if mode == 0 { return Words("Easy", "Leicht", "Fácil") }
+    return Cat(NumberText(MatchingPairs(mode)), " ", Words("pairs", "Paare", "parejas"))
+}
+
+ModeName :: (mode: s32) -> string {
+    if mode == 0 { return Words("Easy: cards face up", "Leicht: Karten offen", "Fácil: cartas boca arriba") }
+    return Cat(Words("Memory", "Gedächtnis", "Memoria"), ": ", ModeLabel(mode))
+}
+
+ActionButton :: (id: s32, x: s32, y: s32, width: s32, height: s32, label: string, shape: string, chosen: bool = false) -> bool {
+    press := RetroTap(id, x, y, width, height, label)
+    BookBox(x, y, width, height, ifx chosen || press.down then cast(u32)0xdcebdcff else cast(u32)0xf3ecdcff,
+        ifx chosen then cast(u32)0x2e6956ff else cast(u32)0xdacdb5ff, 6.0)
+    edge := height - 26
+    if edge > 4 { Icon(shape, x + (width - edge) / 2, y + 4, edge, 0x2e6956ff) }
+    BookText(x + 2, y + height - 20, width - 4, 17, label, 12, TextAlign.TextAlignCenter, false)
+    return press.clicked
+}
+
+ArrowButton :: (id: s32, x: s32, y: s32, edge: s32, label: string, glyph: string) -> bool {
+    press := RetroTap(id, x, y, edge, edge, label)
+    BookBox(x, y, edge, edge, ifx press.down then cast(u32)0xdcebdcff else cast(u32)0xf3ecdcff, 0xdacdb5ff, 8.0)
+    BookText(x, y + 12, edge, 24, glyph, 22, TextAlign.TextAlignCenter, false)
+    return press.clicked
+}
+
+LevelButton :: (x: s32, y: s32, width: s32, height: s32) {
+    BookBox(x, y, width, height, 0xdcebdcff, 0x2e6956ff, 10.0)
+    shape := ifx game.mode == 0 then Eye.Shape else Leaf.Shape
+    Icon(shape, x + 12, y + (height - 22) / 2, 22, 0x2e6956ff)
+    BookText(x + 40, y + 6, width - 50, height - 12, ModeName(game.mode), 14, TextAlign.TextAlignCenter, false)
+}
+
+Board :: (top: s32, bottom: s32) {
+    margin: s32 = 16
+    gap: s32 = 14
+    width := view_width - margin * 2
+    height := bottom - top
+    grid := MatchingGrid(game.cards, width, height, gap)
+    card_columns = grid.columns
+    // Cards stay big enough to tap but never larger than a friendly picture.
+    if grid.edge > 220 { grid.edge = 220 }
+    span_x := grid.columns * grid.edge + (grid.columns - 1) * gap
+    span_y := grid.rows * grid.edge + (grid.rows - 1) * gap
+    left := margin + (width - span_x) / 2
+    above := top + (height - span_y) / 2
+    for card: cast(s32)0..game.cards - 1 {
+        x := left + card % grid.columns * (grid.edge + gap)
+        y := above + card / grid.columns * (grid.edge + gap)
+        if keyboard_active && card == focus_card {
+            BookBox(x - 6, y - 6, grid.edge + 12, grid.edge + 12, 0x2e6956ff, 0x1f4b3eff, cast(float32)grid.edge / 7.0)
+        }
+        if RetroTap(100 + card, x, y, grid.edge, grid.edge, Words("Card", "Karte", "Carta")).clicked && !PreviewActive() { ChooseCard(card) }
+        DrawCard(card, x, y, grid.edge)
+    }
+}
+
+ControlRows :: () -> s32 { return ifx view_width < 560 then 2 else 1 }
+
+MoveFocus :: (step: s32) {
+    if game.cards <= 0 { return }
+    keyboard_active = true
+    focus_card = (focus_card + step + game.cards) % game.cards
+}
+
+SelectLevel :: (step: s32) {
+    keyboard_active = true
+    StartRound((game.mode + step + MATCH_MODES) % MATCH_MODES)
+}
+
+Controls :: (y: s32, height: s32) {
+    gap: s32 = 8
+    two := ControlRows() == 2
+    row_height := ifx two then (height - gap) / 2 else height
+    previous := Words("Previous level", "Vorherige Stufe", "Nivel anterior")
+    next := Words("Next level", "Nächste Stufe", "Nivel siguiente")
+    new_cards := Words("New cards", "Neue Karten", "Cartas nuevas")
+    if two {
+        selector_width := view_width - 32
+        x: s32 = 16
+        if ArrowButton(10, x, y, 52, previous, "<") { SelectLevel(-1) }
+        x += 52 + gap
+        LevelButton(x, y, selector_width - 120, row_height)
+        x += selector_width - 120 + gap
+        if ArrowButton(11, x, y, 52, next, ">") { SelectLevel(1) }
+        y += row_height + gap
+        action_width: s32 = 150
+        if action_width > view_width - 32 { action_width = view_width - 32 }
+        x = 16 + (view_width - 32 - action_width) / 2
+        if ActionButton(20, x, y, action_width, row_height, new_cards, Again.Shape) { StartRound(game.mode) }
+    } else {
+        selector_width := view_width - 180
+        if selector_width > 360 { selector_width = 360 }
+        x: s32 = 16
+        if ArrowButton(10, x, y, 52, previous, "<") { SelectLevel(-1) }
+        x += 52 + gap
+        LevelButton(x, y, selector_width - 120, row_height)
+        x += selector_width - 120 + gap
+        if ArrowButton(11, x, y, 52, next, ">") { SelectLevel(1) }
+        x += 52 + gap
+        action_width := view_width - 32 - x
+        if action_width > 150 { action_width = 150 }
+        if ActionButton(20, x, y, action_width, row_height, new_cards, Again.Shape) { StartRound(game.mode) }
+    }
+}
+
+Celebrate :: (top: s32) {
+    for i: cast(s32)0..4 {
+        edge: s32 = 18
+        x := view_width / 2 - 2 * 30 + i * 30 - edge / 2
+        lift := cast(s32)(4.0 * cast(float32)((cast(s64)(retro.now * 3.0) + cast(s64)i) % 2))
+        Icon(Heart.Shape, x, top - lift, edge, pair_rings[i % 4])
+    }
+}
+
+GameMain :: () -> s32 {
+    mode := AppMode()
+    if mode == APP_IDENTIFY {
+        loaded = false
+        AppIdentity("jungle.matching"); AppDescribe("Matching Pairs", "")
+        return APP_PROTOCOL
+    }
+    if mode == APP_SAVE { return ifx !loaded || Save() then 0 else 1 }
+    if mode != APP_FRAME { return 0 }
+    GameLanguage()
+    bounds := AppBounds()
+    view_scale = bounds.width / 360.0
+    if bounds.height / 640.0 < view_scale { view_scale = bounds.height / 640.0 }
+    if bounds.width > bounds.height { view_scale = bounds.height / 520.0; if bounds.width / 960.0 < view_scale { view_scale = bounds.width / 960.0 } }
+    if view_scale > 1.6 { view_scale = 1.6 }
+    if view_scale < 0.5 { view_scale = 0.5 }
+    retro = Retro.{.session = AppSession(), .x = bounds.x, .y = bounds.y, .scale = view_scale, .now = AppNow(), .key = AppKey()}
+    view_width = cast(s32)(bounds.width / view_scale); view_height = cast(s32)(bounds.height / view_scale)
+    BookPalette(); BookBox(0, 0, view_width, view_height, 0xfffcf3ff)
+    if !loaded {
+        // A missing or damaged save starts the easy round again.
+        if !MatchingRead(DocumentRead(SAVE_FILE), *game) { game = MatchingNew(0, Seed()) }
+        else if MatchingDone(game) { game = MatchingNew(game.mode, Seed(), game.rounds) }
+        BeginPreview()
+        for i: cast(s32)0..MATCH_MAX_CARDS - 1 { shown_face[i] = CardVisible(i); flip_at[i] = -10.0 }
+        loaded = true
+    }
+    if retro.key == KEY_ESCAPE { CancelPreview(); unused Save(); GameHome(); return 0 }
+    if game.second >= 0 && (retro.now >= miss_until || miss_until - retro.now > MISS_SECONDS * 2.0) { MatchingSettle(*game) }
+    if retro.key == MATCH_KEY_PAGE_UP { SelectLevel(-1) }
+    if retro.key == MATCH_KEY_PAGE_DOWN { SelectLevel(1) }
+    if retro.key == KEY_LEFT { MoveFocus(-1) }
+    if retro.key == KEY_RIGHT { MoveFocus(1) }
+    if retro.key == KEY_UP { MoveFocus(-card_columns) }
+    if retro.key == KEY_DOWN { MoveFocus(card_columns) }
+    if retro.key == KEY_ENTER && !PreviewActive() {
+        if MatchingDone(game) { StartRound(game.mode) } else { ChooseCard(focus_card) }
+    }
+    controls_height: s32 = ifx ControlRows() == 2 then 124 else 66
+    controls_y := view_height - controls_height - 12
+    if MatchingDone(game) { Celebrate(46) }
+    if PreviewActive() {
+        BookText(16, 8, view_width - 32, 28, PreviewPrompt(false), 20, TextAlign.TextAlignCenter, false)
+        BookText(16, 36, view_width - 32, 22, PreviewPrompt(true), 14, TextAlign.TextAlignCenter, false)
+    } else {
+        BookText(16, 10, view_width - 32, 32, Prompt(), 20, TextAlign.TextAlignCenter, false)
+    }
+    Board(70, controls_y - 14)
+    Controls(controls_y, controls_height)
+    return 0
+}
+
+#if !#defined(PLATFORM_WEB) {
+    #program_export
+    main :: () -> s32 { return GameMain() }
+}

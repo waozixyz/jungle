@@ -13,7 +13,7 @@ import re
 import sys
 import wave
 
-from book_catalog import LANGUAGES, NAMES, WORDS
+from book_catalog import LANGUAGES, NAMES, WORDS, voice_path
 from book_speech import read_clip
 
 
@@ -110,16 +110,14 @@ def _book_voices(clips, voices, root):
     recorded_spelling = 0
     for language_index, language in enumerate(LANGUAGES):
         for name in NAMES:
-            simple = root / f'assets/jungle-book/sounds/{language}/simple/{name}.wav'
+            simple = root / voice_path(name, language, True)
             simple_clip, _ = _whole_clip(simple, language, root)
             _add_clip(clips, simple_clip, None)
             voices[_relative(simple, root)] = [_segment(simple_clip)]
             simple_start, simple_frames, simple_digest = _trimmed_range(simple, root)
             assert simple_digest == simple_clip['sha256'], simple
 
-            spelling = root / f'assets/jungle-book/sounds/{language}/spelling/{name}.wav'
-            if language == 'en':
-                spelling = root / f'assets/jungle-book/sounds/{name}.wav'
+            spelling = root / voice_path(name, language, False)
             receipt, digest = _receipt(spelling)
             if 'PCM assembly' not in receipt.get('method', ''):
                 whole_clip, _ = _whole_clip(spelling, language, root)

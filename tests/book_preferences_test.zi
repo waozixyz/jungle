@@ -1,6 +1,30 @@
 #import, file "../games/book/book_preferences.zi";
 #import, file "../games/book/book_pages.zi";
 
+ClearChoices :: () {
+    for at: cast(s32)0..CATEGORY_COUNT - 1 {
+        hidden_books[at] = false
+        excluded_books[at] = false
+    }
+}
+
+// Follow autoplay from one book until it returns there. Reports how many pages
+// one pass reads, or -1 when a book repeats early or a skipped book is opened.
+PlayAllPages :: (start: s32) -> s32 {
+    seen: [CATEGORY_COUNT]bool
+    seen[start] = true
+    pages := category_counts[start]
+    current := start
+    for step: cast(s32)1..CATEGORY_COUNT + 1 {
+        current = NextBookCategory(current, true)
+        if current == start { return pages }
+        if current < 0 || seen[current] || !BookAllowed(current, true) { return -1 }
+        seen[current] = true
+        pages += category_counts[current]
+    }
+    return -1
+}
+
 #program_export
 main :: () -> s32 {
     first := shelf_order[0]
@@ -22,5 +46,65 @@ main :: () -> s32 {
     for at: cast(s32)0..CATEGORY_COUNT - 1 { hidden_books[at] = true }
     if NextBookCategory(first) != -1 || BookAllowed(first) { return 7 }
     if BookAllowed(-1) || BookAllowed(CATEGORY_COUNT) { return 8 }
+
+    // Saved slots stay put and the appended book takes the first new slot.
+    last: s32 = 31
+    if CATEGORY_COUNT != 32 || category_ids[30] != "drinks" || category_ids[last] != "actions" { return 9 }
+    if shelf_order[CATEGORY_COUNT - 1] != last || category_groups[last] != 3 { return 10 }
+
+    // From any book, one pass reads every page of every book exactly once.
+    ClearChoices()
+    total: s32 = 0
+    for at: cast(s32)0..CATEGORY_COUNT - 1 { total += category_counts[at] }
+    if total != 284 { return 11 }
+    for at: cast(s32)0..CATEGORY_COUNT - 1 {
+        if PlayAllPages(at) != total { return 12 }
+    }
+    for at: cast(s32)0..total - 1 {
+        for other: cast(s32)at + 1..total - 1 {
+            if page_paths(at) == page_paths(other) { return 13 }
+            if page_names_en(at) == page_names_en(other) { return 14 }
+            if page_names_de(at) == page_names_de(other) { return 15 }
+            if page_names_es(at) == page_names_es(other) { return 16 }
+        }
+    }
+
+    // The shelf's end wraps to its start, through the last slot and around it.
+    if NextBookCategory(shelf_order[CATEGORY_COUNT - 2], true) != last { return 17 }
+    if NextBookCategory(last, true) != first || NextBookCategory(last) != first { return 18 }
+    excluded_books[last] = true
+    if NextBookCategory(shelf_order[CATEGORY_COUNT - 2], true) != first { return 19 }
+    if NextBookCategory(shelf_order[CATEGORY_COUNT - 2]) != last { return 20 }
+    if BookAllowed(last, true) || !BookAllowed(last) { return 21 }
+    if PlayAllPages(first) != total - category_counts[last] { return 22 }
+    ClearChoices()
+    hidden_books[last] = true
+    if NextBookCategory(shelf_order[CATEGORY_COUNT - 2]) != first || BookAllowed(last) { return 23 }
+    // Leaving a book that became hidden during play still moves forward.
+    if NextBookCategory(last, true) != first { return 24 }
+
+    // Hidden and skipped choices anywhere leave the remaining pass intact.
+    ClearChoices()
+    hidden_books[first] = true
+    excluded_books[30] = true
+    hidden_books[last] = true
+    excluded_books[second] = true
+    expected := total - category_counts[first] - category_counts[30] - category_counts[last] - category_counts[second]
+    if PlayAllPages(third) != expected { return 25 }
+
+    // Only the last slot selected: it repeats, and every other book leads to it.
+    for at: cast(s32)0..CATEGORY_COUNT - 1 { excluded_books[at] = true; hidden_books[at] = false }
+    excluded_books[last] = false
+    if NextBookCategory(last, true) != last || NextBookCategory(first, true) != last { return 26 }
+
+    // A save from before this book has no document for it and starts visible;
+    // older slots keep their saved choices and the new slot stores its own.
+    ClearChoices()
+    LoadBookChoice(30, "yes", "yes")
+    LoadBookChoice(last, "", "")
+    if !hidden_books[30] || !excluded_books[30] || hidden_books[last] || excluded_books[last] { return 27 }
+    if !BookAllowed(last, true) { return 28 }
+    LoadBookChoice(last, "no", "yes")
+    if hidden_books[last] || !excluded_books[last] || hidden_books[30] != true { return 29 }
     return 0
 }

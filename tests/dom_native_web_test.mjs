@@ -5,10 +5,11 @@ import {createServer} from 'node:http';
 import {resolve,join,extname} from 'node:path';
 import {setTimeout as delay} from 'node:timers/promises';
 
+await mkdir('work/w',{recursive:true});await mkdir('work/b',{recursive:true});
 const root=resolve(process.env.JUNGLE_WEB_ROOT||'build/web');
 const page=process.env.JUNGLE_WEB_PAGE||'dom.html';
 await mkdir('backup/dom-visual',{recursive:true});
-const profile=await mkdtemp('/tmp/jungle-piano-web-');
+const profile=await mkdtemp(resolve('work/w/p-'));
 const mime={'.html':'text/html','.js':'text/javascript','.wasm':'application/wasm','.json':'application/json','.png':'image/png','.jpg':'image/jpeg','.wav':'audio/wav'};
 const server=createServer(async(req,res)=>{
  try{
@@ -19,9 +20,9 @@ const server=createServer(async(req,res)=>{
  }catch{res.writeHead(404);res.end()}
 });
 await new Promise(r=>server.listen(0,'127.0.0.1',r));
-const env={...process.env,YUE_DESKTOP_RECOVERY:'0',TMPDIR:'/tmp'};
+const env={...process.env,YUE_DESKTOP_RECOVERY:'0',TMPDIR:resolve('work/b')};
 for(const key of ['DISPLAY','WAYLAND_DISPLAY','XAUTHORITY','DBUS_SESSION_BUS_ADDRESS','SESSION_MANAGER'])delete env[key];
-const browser=spawn(process.env.CHROMIUM||'chromium',['--headless','--no-sandbox','--disable-gpu','--disable-webgl','--disable-dev-shm-usage','--no-first-run','--no-default-browser-check','--remote-debugging-port=0','--user-data-dir='+profile,'about:blank'],{env,stdio:['ignore','ignore','pipe']});
+const browser=spawn(process.env.CHROMIUM||'chromium',['--headless','--mute-audio','--no-sandbox','--disable-gpu','--disable-webgl','--disable-dev-shm-usage','--no-first-run','--no-default-browser-check','--remote-debugging-port=0','--user-data-dir='+profile,'about:blank'],{env,stdio:['ignore','ignore','pipe']});
 let socket,stderr='',errors=[];
 browser.stderr.on('data',data=>stderr=(stderr+data).slice(-3000));
 try{

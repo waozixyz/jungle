@@ -1,0 +1,239 @@
+// A directly playable illustrated instrument playground.
+// The host supplies the shared Back/sound title bar.
+#import "kryon/app_context"
+#import "kryon/app_protocol"
+#import "kryon/geometry"
+#import "kryon/drawing_props"
+#import "kryon/text_align"
+#import "kryon/shape_props"
+#import "kryon/shape_widget"
+#import "kryon/svg_icon_props"
+#import "kryon/svg_icon_widget"
+Play :: #import "mingcute/mingcute_filled_play";
+Replay :: #import "mingcute/mingcute_regular_refresh_2";
+Next :: #import "mingcute/mingcute_regular_arrow_right";
+Music :: #import "mingcute/mingcute_regular_music_2";
+Ear :: #import "mingcute/mingcute_regular_ear";
+Star :: #import "mingcute/mingcute_filled_star";
+#import, file "drums.zi";
+#import, file "../../retro/retro.zi";
+#import, file "../../retro/game.zi";
+#import, file "../../retro/book_theme.zi";
+#import, file "../../retro/language.zi";
+#import, file "../../host/jungle_text.zi";
+
+DRUMS_SAVE :: "drums.txt"
+drums: Drums;
+drums_loaded: bool;
+drums_width: s32;
+drums_height: s32;
+drums_down: [4]bool;
+drums_glow: [4]float64;
+drums_retry_until: float64;
+drums_explaining: bool;
+drums_explain_started: float64;
+drums_sounds: [4]string = .["low_drum", "small_drum", "shaker", "bell"];
+drums_pictures: [4]string = .[
+    "assets/drums/pictures/big-drum.png", "assets/drums/pictures/little-drum.png",
+    "assets/drums/pictures/shaker.png", "assets/drums/pictures/bell.png"
+];
+drums_picture_sizes: [4]s32 = .[100, 56, 50, 48];
+
+DrumsText :: (en: string, de: string, es: string) -> string {
+    if language == 1 { return de }
+    if language == 2 { return es }
+    return en
+}
+
+DrumsSave :: () -> bool { return DocumentWrite(DRUMS_SAVE, DrumsSaveText(drums)) }
+DrumsSeed :: () -> s32 { return cast(s32)(cast(s64)(retro.now * 1000.0) % 2147483646) }
+
+DrumsSay :: (cue: string) {
+    unused AppService("jungle.voice", Cat("assets/drums/sounds/", LanguageCode(), "/", cue, ".wav"))
+}
+
+DrumsExplain :: () {
+    drums_explaining = true; drums_explain_started = retro.now
+    drums.phase = DRUMS_READY; drums.copied = 0
+    DrumsSay("copy")
+}
+
+DrumsSound :: (pad: s32) {
+    GameSound(Cat("assets/drums/sounds/", drums_sounds[pad], ".wav"))
+    drums_glow[pad] = retro.now + 0.75
+}
+
+DrumsIcon :: (shape: string, x: s32, y: s32, edge: s32, color: u32 = 0x41644fff) {
+    SvgIcon(retro.session, SvgIconProps.{.bounds = RetroRect(x, y, edge, edge), .shape = shape, .color = ColorFromPacked(color)})
+}
+
+DrumsCircle :: (x: s32, y: s32, radius: s32, color: u32) {
+    Circle(retro.session, CircleProps.{.center = Vector2.{.x = retro.x + cast(float32)x * retro.scale,
+        .y = retro.y + cast(float32)y * retro.scale}, .radius = cast(float32)radius * retro.scale, .fill = ColorFromPacked(color)})
+}
+
+DrumsPadName :: (pad: s32) -> string {
+    if pad == 0 { return DrumsText("Big drum", "Große Trommel", "Tambor grande") }
+    if pad == 1 { return DrumsText("Little drum", "Kleine Trommel", "Tambor pequeño") }
+    if pad == 2 { return DrumsText("Shaker", "Rassel", "Sonajero") }
+    return DrumsText("Bell", "Glocke", "Campana")
+}
+
+DrumsButton :: (id: s32, x: s32, y: s32, width: s32, label: string, icon: string, chosen: bool = false) -> bool {
+    press := RetroTap(id, x, y, width, 44, label)
+    BookBox(x, y, width, 44,
+        ifx chosen || press.down then cast(u32)0xdcebdcff else cast(u32)0xfaf3e5ff,
+        ifx chosen then cast(u32)0x73997fff else cast(u32)0xdacdb5ff, 14.0)
+    DrumsIcon(icon, x + 8, y + 12, 20)
+    BookText(x + 32, y, width - 38, 44, label, 13, TextAlign.TextAlignCenter, false)
+    return press.clicked
+}
+
+DrumsPrompt :: () -> string {
+    if drums.mode == DRUMS_FREE { return DrumsText("Tap and make music", "Tippe und mach Musik", "Toca y haz música") }
+    if drums.phase == DRUMS_DEMO { return DrumsText("Listen and watch", "Hör zu und schau hin", "Escucha y mira") }
+    if drums_explaining { return DrumsText("Listen, then play along", "Hör zu und spiel mit", "Escucha y toca después") }
+    if drums.phase == DRUMS_DONE { return DrumsText("Lovely! Another little rhythm?", "Schön! Noch ein kleiner Rhythmus?", "¡Muy bien! ¿Otro ritmo?") }
+    if retro.now < drums_retry_until { return DrumsText("Let's try again, from the start", "Noch einmal, von vorn", "Probemos otra vez, desde el principio") }
+    return DrumsText("Your turn", "Du bist dran", "Tu turno")
+}
+
+DrumsControls :: () {
+    width := (drums_width - 38) / 2
+    if DrumsButton(10, 12, 8, width, DrumsText("Free Play", "Freies Spiel", "Juego libre"), Music.Shape, drums.mode == DRUMS_FREE) {
+        DrumsFree(*drums); drums_explaining = false; unused AppService("jungle.voice", ""); DrumsSay("free")
+    }
+    if DrumsButton(11, 26 + width, 8, width, DrumsText("Listen & Copy", "Hören & Nachspielen", "Escucha e imita"), Ear.Shape, drums.mode == DRUMS_COPY) {
+        entering := drums.mode != DRUMS_COPY
+        if entering { DrumsStart(*drums, DrumsSeed(), retro.now); unused DrumsSave() }
+        else { DrumsReplay(*drums, retro.now) }
+        drums_explaining = false
+        drums_retry_until = 0.0; unused AppService("jungle.voice", "")
+        if entering { DrumsExplain() }
+    }
+    y := drums_height - 62
+    if drums.mode == DRUMS_FREE {
+        if DrumsButton(12, (drums_width - 150) / 2, y, 150, DrumsText("Hear", "Anhören", "Escuchar"), Play.Shape) { DrumsSay("free") }
+    } else {
+        width = (drums_width - 56) / 3
+        if DrumsButton(13, 12, y, width, DrumsText("Replay", "Noch mal", "Repetir"), Replay.Shape) {
+            DrumsReplay(*drums, retro.now); drums_explaining = false; drums_retry_until = 0.0; unused AppService("jungle.voice", "")
+        }
+        if DrumsButton(14, 24 + width, y, width, DrumsText("2 sounds", "2 Klänge", "2 sonidos"), Music.Shape) {
+            drums.length = 2; drums.wins = 0; DrumsStart(*drums, DrumsSeed(), retro.now)
+            unused DrumsSave(); drums_explaining = false; drums_retry_until = 0.0; unused AppService("jungle.voice", "")
+        }
+        if drums.phase == DRUMS_DONE {
+            if DrumsButton(15, 36 + width * 2, y, width, DrumsText("Next", "Weiter", "Siguiente"), Next.Shape, true) {
+                DrumsStart(*drums, DrumsSeed(), retro.now); unused DrumsSave(); drums_retry_until = 0.0
+            }
+        } else if DrumsButton(16, 36 + width * 2, y, width, DrumsText("Hear", "Anhören", "Escuchar"), Play.Shape) {
+            DrumsExplain()
+        }
+    }
+}
+
+DrumsMat :: () {
+    mat_height := drums_height - 198
+    BookBox(10, 118, drums_width - 20, mat_height, 0xe4eddcff, 0xc4d3b7ff, 30.0)
+    BookBox(20, 128, drums_width - 40, mat_height - 20, 0xf1f5e7ff, 0, 24.0)
+    DrumsCircle(36, 146, 24, 0xd7e5c7ff)
+    DrumsCircle(46, 168, 14, 0xcfe0beff)
+    DrumsCircle(drums_width - 38, drums_height - 80, 25, 0xd7e5c7ff)
+    DrumsCircle(drums_width - 60, drums_height - 62, 15, 0xcfe0beff)
+}
+
+DrumsSlot :: (pad: s32, grid: DrumsLayout) -> DrumsPlace {
+    slot := ifx grid.columns == 2 then (ifx pad < 2 then pad + 2 else pad - 2) else pad
+    x := grid.left + slot % grid.columns * (grid.edge + 14)
+    y := 142 + grid.top + slot / grid.columns * (grid.edge + 14)
+    return DrumsPlace.{.x = x, .y = y}
+}
+
+DrumsInstrument :: (pad: s32, x: s32, y: s32, edge: s32) {
+    size := edge * drums_picture_sizes[pad] / 100
+    bottom := y + edge * 79 / 100
+    picture_x := x + (edge - size) / 2
+    picture_y := bottom - size + (ifx retro.now < drums_glow[pad] then 4 else 0)
+    press := RetroTap(100 + pad, picture_x, picture_y, size, size, DrumsPadName(pad))
+    point_x := RetroPointX(press.x); point_y := RetroPointY(press.y)
+    semantic := press.clicked && press.x == 0.0 && press.y == 0.0
+    pointer := DrumsBodyHit(pad, picture_x, picture_y, size, size, point_x, point_y) &&
+        (press.down || press.clicked)
+    touched := (semantic || pointer) && !drums_down[pad]
+    drums_down[pad] = press.down
+    if touched {
+        result := DrumsChoose(*drums, pad)
+        if result != DRUMS_IGNORED { DrumsSound(pad) }
+        if result == DRUMS_RETRY { drums_retry_until = retro.now + 1.4 }
+        if result == DRUMS_COMPLETE { unused DrumsSave() }
+    }
+
+    center_x := picture_x + size / 2; center_y := picture_y + size / 2
+    if retro.now < drums_glow[pad] {
+        DrumsCircle(center_x, center_y, size * 63 / 100, 0xf6d98d59)
+        DrumsCircle(center_x, center_y, size * 55 / 100, 0xf9e9b366)
+        DrumsIcon(Music.Shape, center_x - 11, picture_y - 28, 22, 0x8d6d3fff)
+    }
+    RetroSprite(drums_pictures[pad], picture_x, picture_y, size, size, -1, true)
+    label_height := ifx edge / 7 < 20 then 20 else edge / 7
+    BookText(x + 4, y + edge * 81 / 100, edge - 8, label_height, DrumsPadName(pad), 16,
+        TextAlign.TextAlignCenter, false)
+}
+
+GameMain :: () -> s32 {
+    mode := AppMode()
+    if mode == APP_IDENTIFY {
+        drums_loaded = false
+        AppIdentity("jungle.drums"); AppDescribe("Little Drums", "")
+        return APP_PROTOCOL
+    }
+    if mode == APP_SAVE { return ifx !drums_loaded || DrumsSave() then 0 else 1 }
+    if mode != APP_FRAME { return 0 }
+    GameLanguage()
+    bounds := AppBounds()
+    scale := bounds.width / 400.0
+    if bounds.height / 700.0 < scale { scale = bounds.height / 700.0 }
+    if bounds.width > bounds.height { scale = bounds.height / 520.0; if bounds.width / 780.0 < scale { scale = bounds.width / 780.0 } }
+    if scale > 1.6 { scale = 1.6 }
+    if scale < 0.5 { scale = 0.5 }
+    retro = Retro.{.session = AppSession(), .x = bounds.x, .y = bounds.y, .scale = scale, .now = AppNow(), .key = AppKey()}
+    drums_width = cast(s32)(bounds.width / scale); drums_height = cast(s32)(bounds.height / scale)
+    BookPalette(); DrumsMat()
+    if !drums_loaded {
+        if !DrumsRead(DocumentRead(DRUMS_SAVE), *drums) { drums = DrumsNew() }
+        for i: cast(s32)0..3 { drums_down[i] = false; drums_glow[i] = -1.0 }
+        drums_retry_until = 0.0; drums_explaining = false; drums_loaded = true; DrumsSay("free")
+    }
+    if retro.key == KEY_ESCAPE { unused DrumsSave(); GameHome(); return 0 }
+    DrumsControls()
+    if drums_explaining {
+        state := AppService("jungle.voice-state", "")
+        // Missing narration or mute cannot strand the game. The host reports
+        // idle in those cases; a short grace period allows playback to start.
+        if retro.now - drums_explain_started > 0.4 && state != "playing" && state != "loading" {
+            drums_explaining = false; DrumsReplay(*drums, retro.now)
+        }
+    }
+    emitted := DrumsTick(*drums, retro.now)
+    if emitted >= 0 { DrumsSound(emitted) }
+    BookText(16, 58, drums_width - 32, 28, DrumsPrompt(), 20, TextAlign.TextAlignCenter, false)
+    if drums.mode == DRUMS_COPY {
+        for i: cast(s32)0..drums.length - 1 {
+            x := drums_width / 2 + (i * 2 - drums.length + 1) * 14
+            shown := ifx drums.phase == DRUMS_DEMO then drums.demo_index > i else drums.copied > i
+            DrumsCircle(x, 100, 7, ifx shown then cast(u32)0x8fb391ff else cast(u32)0xd9e3cdff)
+        }
+        if drums.phase == DRUMS_DONE { DrumsIcon(Star.Shape, drums_width / 2 - 12, 88, 24, 0xd1a65aff) }
+    }
+    grid := DrumsGrid(drums_width, drums_height - 216)
+    for pad: cast(s32)0..3 {
+        place := DrumsSlot(pad, grid); DrumsInstrument(pad, place.x, place.y, grid.edge)
+    }
+    return 0
+}
+
+#if !#defined(PLATFORM_WEB) {
+    #program_export
+    main :: () -> s32 { return GameMain() }
+}

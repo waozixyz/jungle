@@ -1,0 +1,293 @@
+{
+  "replacements": {
+    "birds": {
+      "parrot": "owl",
+      "toucan": "kingfisher",
+      "duck": "penguin",
+      "hen": "eagle",
+      "goose": "swan",
+      "rooster": "flamingo"
+    },
+    "water-animals": {
+      "duck": "stingray",
+      "frog": "seal"
+    },
+    "gardening": {
+      "flower": "hose"
+    },
+    "fruits": {
+      "banana": "apricot",
+      "mango": "plum",
+      "coconut": "raspberry",
+      "pineapple": "blackberry"
+    },
+    "bedroom": {
+      "teddy": "dresser",
+      "book": "laundry_basket"
+    },
+    "bedtime": {
+      "bed": "toothpaste",
+      "pillow": "slippers",
+      "blanket": "bathrobe",
+      "teddy": "pajamas",
+      "book": "sleeping",
+      "moon": "stars"
+    },
+    "nature": {
+      "sun": "waterfall",
+      "cloud": "forest",
+      "rain": "rock"
+    },
+    "breakfast": {
+      "milk": "pancakes"
+    },
+    "lunch": {
+      "water": "hummus"
+    },
+    "vacation": {
+      "backpack": "binoculars"
+    }
+  },
+  "canonical_homes": {
+    "parrot": "jungle",
+    "toucan": "jungle",
+    "duck": "farm",
+    "hen": "farm",
+    "goose": "farm",
+    "rooster": "farm",
+    "frog": "garden",
+    "flower": "garden",
+    "banana": "tropical-fruits",
+    "mango": "tropical-fruits",
+    "coconut": "tropical-fruits",
+    "pineapple": "tropical-fruits",
+    "teddy": "toys",
+    "book": "school",
+    "backpack": "school",
+    "bed": "bedroom",
+    "pillow": "bedroom",
+    "blanket": "bedroom",
+    "moon": "nature",
+    "sun": "weather",
+    "cloud": "weather",
+    "rain": "weather",
+    "milk": "drinks",
+    "water": "drinks"
+  },
+  "append": {
+    "sports": [
+      "badminton"
+    ]
+  },
+  "books": {
+    "actions": [
+      "cooking",
+      "cleaning",
+      "reading",
+      "drawing",
+      "singing",
+      "washing_hands",
+      "brushing_teeth",
+      "watering_plants"
+    ]
+  },
+  "titles": {
+    "actions": [
+      "Actions",
+      "Tätigkeiten",
+      "Acciones"
+    ]
+  },
+  "words": {
+    "owl": [
+      "Owl",
+      "Eule",
+      "Búho"
+    ],
+    "kingfisher": [
+      "Kingfisher",
+      "Eisvogel",
+      "Martín pescador"
+    ],
+    "penguin": [
+      "Penguin",
+      "Pinguin",
+      "Pingüino"
+    ],
+    "eagle": [
+      "Eagle",
+      "Adler",
+      "Águila"
+    ],
+    "swan": [
+      "Swan",
+      "Schwan",
+      "Cisne"
+    ],
+    "flamingo": [
+      "Flamingo",
+      "Flamingo",
+      "Flamenco"
+    ],
+    "stingray": [
+      "Stingray",
+      "Rochen",
+      "Raya"
+    ],
+    "seal": [
+      "Seal",
+      "Robbe",
+      "Foca"
+    ],
+    "hose": [
+      "Hose",
+      "Gartenschlauch",
+      "Manguera"
+    ],
+    "apricot": [
+      "Apricot",
+      "Aprikose",
+      "Albaricoque"
+    ],
+    "plum": [
+      "Plum",
+      "Pflaume",
+      "Ciruela"
+    ],
+    "raspberry": [
+      "Raspberry",
+      "Himbeere",
+      "Frambuesa"
+    ],
+    "blackberry": [
+      "Blackberry",
+      "Brombeere",
+      "Mora"
+    ],
+    "dresser": [
+      "Dresser",
+      "Kommode",
+      "Cómoda"
+    ],
+    "laundry_basket": [
+      "Laundry basket",
+      "Wäschekorb",
+      "Cesto de ropa"
+    ],
+    "toothpaste": [
+      "Toothpaste",
+      "Zahnpasta",
+      "Pasta de dientes"
+    ],
+    "slippers": [
+      "Slippers",
+      "Hausschuhe",
+      "Pantuflas"
+    ],
+    "bathrobe": [
+      "Bathrobe",
+      "Bademantel",
+      "Albornoz"
+    ],
+    "pajamas": [
+      "Pajamas",
+      "Schlafanzug",
+      "Pijama"
+    ],
+    "sleeping": [
+      "Sleeping",
+      "Schlafen",
+      "Dormir"
+    ],
+    "stars": [
+      "Stars",
+      "Sterne",
+      "Estrellas"
+    ],
+    "waterfall": [
+      "Waterfall",
+      "Wasserfall",
+      "Cascada"
+    ],
+    "forest": [
+      "Forest",
+      "Wald",
+      "Bosque"
+    ],
+    "rock": [
+      "Rock",
+      "Stein",
+      "Piedra"
+    ],
+    "pancakes": [
+      "Pancakes",
+      "Pfannkuchen",
+      "Tortitas"
+    ],
+    "hummus": [
+      "Hummus",
+      "Hummus",
+      "Hummus"
+    ],
+    "binoculars": [
+      "Binoculars",
+      "Fernglas",
+      "Prismáticos"
+    ],
+    "cooking": [
+      "Cooking",
+      "Kochen",
+      "Cocinar"
+    ],
+    "cleaning": [
+      "Cleaning",
+      "Putzen",
+      "Limpiar"
+    ],
+    "reading": [
+      "Reading",
+      "Lesen",
+      "Leer"
+    ],
+    "drawing": [
+      "Drawing",
+      "Malen",
+      "Dibujar"
+    ],
+    "singing": [
+      "Singing",
+      "Singen",
+      "Cantar"
+    ],
+    "washing_hands": [
+      "Washing hands",
+      "Hände waschen",
+      "Lavarse las manos"
+    ],
+    "brushing_teeth": [
+      "Brushing teeth",
+      "Zähne putzen",
+      "Cepillarse los dientes"
+    ],
+    "watering_plants": [
+      "Watering plants",
+      "Pflanzen gießen",
+      "Regar las plantas"
+    ],
+    "badminton": [
+      "Badminton",
+      "Badminton",
+      "Bádminton"
+    ]
+  },
+  "label_changes": {
+    "lettuce": {
+      "de": "Kopfsalat"
+    }
+  },
+  "voice_stems": {
+    "lettuce": {
+      "de": "lettuce_kopfsalat"
+    }
+  }
+}

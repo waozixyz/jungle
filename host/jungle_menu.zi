@@ -133,7 +133,7 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
     }
     combined := abc >= 0 && numbers >= 0
     if !combined { menu_learning = false }
-    order: [8]s32
+    order: [16]s32
     game_count: s32 = 0
     if menu_learning {
         order[0] = abc
@@ -155,6 +155,10 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
     if key == KEY_UP || key == KEY_DOWN {
         step: s32 = ifx key == KEY_UP then game_count - 1 else 1
         visible_choice = (visible_choice + step) % game_count
+        action.navigated = true
+    }
+    if key == 268 || key == 269 {
+        visible_choice = ifx key == 268 then 0 else game_count - 1
         action.navigated = true
     }
     RetroBegin(session, bounds, font, now, key, BLACK)
@@ -248,7 +252,7 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
     BookText(182, footer, 116, footer_height, ifx sound_muted then "Sound off · F10" else "Sound on · F10", 8)
     if sound.clicked || key == 299 { action.sound_toggle = true }
     if key == KEY_ENTER { activated = visible_choice }
-    if key >= 49 && key < 49 + game_count { activated = key - 49 }
+    if key >= 49 && key <= 57 && key < 49 + game_count { activated = key - 49 }
     if menu_learning { menu_lesson_choice = visible_choice }
     else { menu_root_choice = visible_choice; choice.* = order[visible_choice] }
     if activated >= 0 {

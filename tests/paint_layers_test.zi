@@ -1,0 +1,118 @@
+// Pure model contract for independent objects and atomic version 3 records.
+#import, file "../games/paint/paint_document.zi";
+#import, file "../games/paint/paint_canvas.zi";
+#import, file "../games/paint/paint_picture.zi";
+#import, file "../host/platform.zi";
+#import, file "../host/jungle_text.zi";
+
+Fail :: (step: s32) -> s32 { Report(Cat("paint layers failed at ", NumberText(step), "\n")); return step }
+
+BodySeed :: (id: s32) -> s32 {
+    object := *layers[id]
+    for at: cast(s32)0..object.w * object.h - 1 {
+        if object.pixels[at] == cast(u8)PAPER && owner[(object.y + at / object.w) * CANVAS_WIDTH + object.x + at % object.w] == cast(u8)(id + 1) { return at }
+    }
+    return -1
+}
+
+#program_export
+main :: () -> s32 {
+    scene = 0
+    if !SceneOpen(0) || CanvasFill(1, 1, 22) <= 0 { return Fail(1) }
+    background := CanvasText()
+    flattened := PictureText()
+    CanvasStampDino(24, 2, 220, 170, false)
+    seed := BodySeed(0)
+    if seed < 0 || CanvasFill(220 + seed % layers[0].w, 170 + seed / layers[0].w, 30) <= 0 { return Fail(2) }
+    first := CanvasText()
+    first_record := PictureText()
+    HistoryClear()
+    HistoryPush()
+    CanvasStampDino(24, 2, 235, 185, true)
+    seed = BodySeed(1)
+    x := 235 + seed % layers[1].w; y := 185 + seed / layers[1].w
+    if seed < 0 || CanvasFill(x, y, 40) <= 0 { return Fail(3) }
+    both := CanvasText()
+    record := PictureText()
+    if !PictureValid(record) || !PictureLoad(record) || layer_count != 2 || CanvasText() != both { return Fail(4) }
+    HistoryPush()
+    if !CanvasEraseObject(x, y) || CanvasText() != first || layer_count != 1 { return Fail(5) }
+    working := PictureText()
+    history := HistoryText(working)
+    HistoryClear()
+    if !PictureLoad(working) || !HistoryLoad(history, working) || !HistoryUndo() || CanvasText() != both || layer_count != 2 { return Fail(6) }
+    if !CanvasEraseObject(x, y) || CanvasText() != first { return Fail(7) }
+    seed = BodySeed(0)
+    if !CanvasEraseObject(220 + seed % layers[0].w, 170 + seed / layers[0].w) || CanvasText() != background { return Fail(8) }
+    if CanvasEraseObject(1, 1) || CanvasEraseObject(-1, 1) { return Fail(9) }
+    // Legacy flattened pixels are an honest base, with new erasable objects.
+    if !PictureLoad(flattened) || CanvasText() != background || layer_count != 0 { return Fail(10) }
+    CanvasStampDino(24, 2, 220, 170, false)
+    if !PictureLoad(first_record) || CanvasText() != first { return Fail(11) }
+    // Actual transparency wins over bounding boxes at every pixel, including
+    // holes which reveal the lower object. No fill changes hidden paint.
+    CanvasStampDino(14, 1, 220, 170, false)
+    holes: s32 = 0
+    for at: cast(s32)0..layers[1].w * layers[1].h - 1 {
+        if layers[1].pixels[at] == cast(u8)TRANSPARENT {
+            px := layers[1].x + at % layers[1].w; py := layers[1].y + at / layers[1].w
+            if CanvasObjectAt(px, py) == 0 { holes += 1 }
+        }
+    }
+    if holes == 0 { return Fail(12) }
+    current := PictureText()
+    for cut: cast(s64)0..current.count - 1 {
+        if cut < 340 || cut % 4096 == 0 || cut > current.count - 5 {
+            if PictureLoad(current[:cut]) || PictureText() != current { return Fail(13) }
+        }
+    }
+    if PictureLoad(Cat(current, "x")) || PictureText() != current { return Fail(14) }
+    // Deferred UI restore exposes no partial history and changes no picture.
+    HistoryClear()
+    for step: cast(s32)0..HISTORY_STEPS - 1 { HistoryPush() }
+    deferred := HistoryText(current)
+    HistoryClear()
+    HistoryLoadBegin(deferred, current)
+    for step: cast(s32)0..HISTORY_STEPS - 1 {
+        if !history_loading || history_count != 0 || PictureText() != current { return Fail(22) }
+        HistoryLoadStep()
+    }
+    HistoryLoadStep()
+    if history_loading || history_count != HISTORY_STEPS || !HistoryBoundTo(current) { return Fail(23) }
+    // Malformed layer metadata/runs must leave the entire live picture intact.
+    prefix: Vec(u8)
+    BuilderPrint(*prefix, "%", current[:PICTURE_HEADER.count + 3 + cast(s64)PICTURE_STORY])
+    PictureRunsAppend(*prefix, canvas[:]); BuilderPrint(*prefix, "\n")
+    PictureRunsAppend(*prefix, base[:]); BuilderPrint(*prefix, "\n")
+    head := BuilderFinish(prefix)
+    invalid: [10]string = .[
+        "33\n", "1\n0 0 0 1 0\n~1\n", "1\n959 0 2 1 0\n~2\n",
+        "1\n0 719 1 2 0\n~2\n", "1\n0 0 1 1 2764800\n~1\n",
+        "1\n0 0 1 1 0\n!1\n", "1\n0 0 1 1 0\n~2\n",
+        "1\n0 0 1 1 0\n~0\n", "2\n0 0 1 1 0\n~1\n0 0 1 1 0\n~1\n",
+        "1\n0 0 1 2 691199\n~2\n"
+    ]
+    for damaged: invalid {
+        bad := Cat(head, damaged)
+        if PictureValid(bad) || PictureLoad(bad) || PictureText() != current { return Fail(21) }
+    }
+    // Count limit: thirty-two small objects; the next placement is refused.
+    unused SceneOpen(0)
+    for index: cast(s32)0..LAYER_LIMIT - 1 {
+        if !CanvasCanStamp(24, 1, 0, 0) { return Fail(15) }
+        CanvasStampDino(24, 1, 0, 0, false)
+    }
+    full := PictureText()
+    if layer_count != LAYER_LIMIT || CanvasCanStamp(24, 1, 0, 0) { return Fail(16) }
+    CanvasStampDino(24, 1, 0, 0, false)
+    if PictureText() != full || !PictureLoad(full) || layer_count != LAYER_LIMIT { return Fail(17) }
+    if CanvasCanStamp(24, 1, -1, 0) || CanvasCanStamp(24, 1, 959, 719) || CanvasCanStamp(-1, 1, 0, 0) { return Fail(18) }
+    // Pixel budget: full-sized objects stop without losing older objects.
+    unused SceneOpen(0)
+    while CanvasCanStamp(0, 4, 0, 0) { CanvasStampDino(0, 4, 0, 0, false) }
+    if layer_count < 2 || layer_pixels > LAYER_PIXELS { return Fail(19) }
+    full = PictureText()
+    if !PictureValid(full) || !PictureLoad(full) || PictureText() != full { return Fail(20) }
+    Report("local paint layers model test passed: overlap, paint, transparency, undo/reload, legacy, 32 objects and pixel budget\n")
+    return 0
+}

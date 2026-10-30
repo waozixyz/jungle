@@ -12,6 +12,7 @@
 STORY_LINES :: 8
 STORY_COLUMNS :: 38
 PICTURE_HEADER :: "JUNGLE PICTURE 2\n"
+LAYER_HEADER :: "JUNGLE PICTURE 3\n"
 // Version 1 kept 240 by 180 pixels, one letter each, then a line mask.
 OLD_HEADER :: "JUNGLE PICTURE 1\n"
 PICTURE_STORY :: STORY_LINES * (STORY_COLUMNS + 1)
@@ -40,7 +41,7 @@ PictureText :: () -> string {
     if scene < -1 || scene >= SCENE_COUNT { return "" }
     text: Vec(u8)
     metadata: [3]u8 = .[ifx scene < 0 then #char "-" else PAINT_CODES[scene], PAINT_CODES[crayon], cast(u8)10]
-    BuilderPrint(*text, "%", PICTURE_HEADER)
+    BuilderPrint(*text, "%", ifx layer_count > 0 then LAYER_HEADER else PICTURE_HEADER)
     BuilderPrint(*text, "%", TextView(metadata[:]))
     for row: cast(s32)0..STORY_LINES - 1 {
         for column: cast(s32)0..STORY_COLUMNS - 1 {
@@ -51,6 +52,16 @@ PictureText :: () -> string {
     }
     PictureRunsAppend(*text, canvas[:])
     unused VecPush(text, cast(u8)10)
+    if layer_count > 0 {
+        PictureRunsAppend(*text, base[:])
+        BuilderPrint(*text, "\n%\n", layer_count)
+        for at: cast(s32)0..layer_count - 1 {
+            object := *layers[layer_order[at]]
+            BuilderPrint(*text, "% % % % %\n", object.x, object.y, object.w, object.h, object.start)
+            PictureRunsAppend(*text, object.pixels)
+            unused VecPush(text, cast(u8)10)
+        }
+    }
     return BuilderFinish(text)
 }
 
@@ -117,6 +128,7 @@ PictureLoad :: (saved: string) -> bool {
             old_pixels[at] = byte - #char "a"
         }
         Enlarge()
+        CanvasLayersClear()
         scene = 0
         crayon = 14
         ClearStory()
@@ -125,7 +137,13 @@ PictureLoad :: (saved: string) -> bool {
     }
     header := PICTURE_HEADER.count
     pixels := header + 3 + cast(s64)PICTURE_STORY
-    if saved.count <= pixels || !StoryValid(saved, header) { return false }
+    if saved.count <= pixels || saved.count > DOCUMENT_LIMIT || !StoryValid(saved, header) { return false }
+    if saved[:header] == LAYER_HEADER {
+        if !PictureValid(saved) { return false }
+        unused LayerRecord(saved, true)
+        StoryLoad(saved, header)
+        return true
+    }
     if saved[:header] == OLD_HEADER {
         if !OldPixelsValid(saved, pixels) { return false }
         Enlarge()
@@ -134,7 +152,313 @@ PictureLoad :: (saved: string) -> bool {
         used := PictureRunsRead(saved[pixels:], loaded[:])
         if used < 0 || pixels + used + 1 != saved.count || saved[saved.count - 1] != cast(u8)10 { return false }
     }
+    CanvasLayersClear()
     StoryLoad(saved, header)
     for at: cast(s32)0..CANVAS_PIXELS - 1 { canvas[at] = loaded[at] }
     return true
+}
+
+// Whether saved is a whole current picture record, checked run by run
+// without reading its pixels.
+PictureValid :: (saved: string) -> bool {
+    header := PICTURE_HEADER.count
+    pixels := header + 3 + cast(s64)PICTURE_STORY
+    if saved.count <= pixels || saved.count > DOCUMENT_LIMIT || !StoryValid(saved, header) { return false }
+    if saved[:header] == LAYER_HEADER { return LayerRecord(saved, false) }
+    if saved[:header] != PICTURE_HEADER { return false }
+    nothing: []u8
+    used := PictureRunsScan(saved[pixels:], nothing, CANVAS_PIXELS)
+    return used >= 0 && pixels + used + 1 == saved.count && saved[saved.count - 1] == cast(u8)10
+}
+
+// Version 3 starts with the same flattened runs for previews/export, then
+// the independent background and ordered objects. Objects are raster layers:
+// no file paths, external assets or stencil IDs are trusted on load. Bounds,
+// count, total pixels, palette and all delimiters are checked before commit.
+LayerRecord :: (saved: string, load: bool) -> bool {
+    at := PICTURE_HEADER.count + 3 + cast(s64)PICTURE_STORY
+    nothing: []u8
+    used := PictureRunsScan(saved[at:], nothing, CANVAS_PIXELS)
+    if used < 0 { return false }
+    at += used
+    if at >= saved.count || saved[at] != cast(u8)10 { return false }
+    at += 1
+    base_start := at
+    used = PictureRunsScan(saved[at:], nothing, CANVAS_PIXELS)
+    if used < 0 { return false }
+    at += used
+    if at >= saved.count || saved[at] != cast(u8)10 { return false }
+    at += 1
+    count := HistoryNumber(saved, *at, cast(u8)10, LAYER_LIMIT)
+    if count <= 0 { return false }
+    if load {
+        CanvasLayersClear()
+        unused PictureRunsRead(saved[base_start:], base[:])
+        for pixel: cast(s32)0..CANVAS_PIXELS - 1 { canvas[pixel] = base[pixel]; owner[pixel] = 0 }
+    }
+    total: s64 = 0
+    starts: [LAYER_LIMIT]s64
+    ends: [LAYER_LIMIT]s64
+    for index: cast(s32)0..cast(s32)count - 1 {
+        x := HistoryNumber(saved, *at, #char " ", CANVAS_WIDTH - 1)
+        y := HistoryNumber(saved, *at, #char " ", CANVAS_HEIGHT - 1)
+        w := HistoryNumber(saved, *at, #char " ", CANVAS_WIDTH)
+        h := HistoryNumber(saved, *at, #char " ", CANVAS_HEIGHT)
+        start := HistoryNumber(saved, *at, cast(u8)10, LAYER_PIXELS - 1)
+        if x < 0 || y < 0 || w <= 0 || h <= 0 || x + w > CANVAS_WIDTH || y + h > CANVAS_HEIGHT { return false }
+        if start < 0 || start % CANVAS_PIXELS + w * h > CANVAS_PIXELS { return false }
+        for earlier: cast(s32)0..index - 1 {
+            if start < ends[earlier] && start + w * h > starts[earlier] { return false }
+        }
+        starts[index] = start; ends[index] = start + w * h
+        total += w * h
+        if total > LAYER_PIXELS { return false }
+        output: []u8
+        if load {
+            object := *layers[index]
+            object.x = cast(s32)x; object.y = cast(s32)y
+            object.w = cast(s32)w; object.h = cast(s32)h
+            object.start = cast(s32)start
+            object.pixels = layer_storage[start / CANVAS_PIXELS][start % CANVAS_PIXELS:start % CANVAS_PIXELS + w * h]
+            output = object.pixels
+        }
+        used = PictureRunsScan(saved[at:], output, w * h, true)
+        if used < 0 { return false }
+        at += used
+        if at >= saved.count || saved[at] != cast(u8)10 { return false }
+        at += 1
+        if load {
+            layer_order[index] = index
+            layer_count += 1
+            layer_pixels += cast(s32)(w * h)
+            CanvasOverlay(index, cast(s32)x, cast(s32)y, cast(s32)(x + w), cast(s32)(y + h))
+        }
+    }
+    return at == saved.count
+}
+
+// The working picture's undo history: up to eight earlier states, kept in
+// its own document beside the working picture. It names the exact working
+// picture it belongs to by length and FNV-1a hash, so a history never
+// reaches another picture, a slot or an older working picture. Then come
+// the steps, oldest first, each its byte count and a whole picture record
+// from PictureText; Undo restores the newest. Picture state added to
+// PictureText, PictureValid and PictureLoad, such as object layers, is kept
+// in every step as well. Steps stay in their text form, so keeping and
+// checking them fits within one frame's steps.
+HISTORY_HEADER :: "JUNGLE UNDO 1\n"
+HISTORY_STEPS :: 8
+// The most any app document may hold.
+DOCUMENT_LIMIT :: 16777216
+
+history_records: [HISTORY_STEPS]string;
+history_count: s32;
+history_next: s32;
+// Whether the history differs from the document last written or read.
+history_changed: bool = true;
+history_bound: u64;
+history_bound_count: s64 = -1;
+
+HistoryClear :: () {
+    for at: cast(s32)0..HISTORY_STEPS - 1 { history_records[at] = "" }
+    history_count = 0
+    history_next = 0
+    history_changed = true
+}
+
+// Keeps the current picture as the newest step, dropping the oldest of
+// eight.
+HistoryPush :: () {
+    record := PictureText()
+    bytes := record.count + 256
+    for step: cast(s32)0..history_count - 1 { bytes += history_records[(history_next - 1 - step + HISTORY_STEPS) % HISTORY_STEPS].count + 16 }
+    while history_count > 0 && bytes > DOCUMENT_LIMIT {
+        oldest := (history_next - history_count + HISTORY_STEPS) % HISTORY_STEPS
+        bytes -= history_records[oldest].count + 16
+        history_records[oldest] = ""
+        history_count -= 1
+    }
+    history_records[history_next] = record
+    history_next = (history_next + 1) % HISTORY_STEPS
+    if history_count < HISTORY_STEPS { history_count += 1 }
+    history_changed = true
+}
+
+// Returns the picture to its newest step, keeping the chosen crayon; false
+// when none is left.
+HistoryUndo :: () -> bool {
+    if history_count == 0 { return false }
+    at := (history_next + HISTORY_STEPS - 1) % HISTORY_STEPS
+    chosen := crayon
+    if !PictureLoad(history_records[at]) { return false }
+    crayon = chosen
+    history_records[at] = ""
+    history_next = at
+    history_count -= 1
+    history_changed = true
+    return true
+}
+
+PictureHash :: (text: string) -> u64 {
+    hash: u64 = cast(u64)14695981039346656037
+    for at: cast(s64)0..text.count - 1 { hash = (hash ^ cast(u64)text[at]) * cast(u64)1099511628211 }
+    return hash
+}
+
+HexDigits :: (value: u64, digits: []u8) -> string {
+    for at: cast(s32)0..15 {
+        digits[15 - at] = PAINT_CODES[cast(s64)((value >> cast(u64)(at * 4)) & cast(u64)15)]
+    }
+    return TextView(digits[:16])
+}
+
+// A copy of text to keep past the next DocumentRead, whose reply a compiled
+// browser host stores in the space it reuses for that read; "" when there is
+// no room for it.
+OwnedText :: (text: string) -> string {
+    bytes: Vec(u8)
+    if !BuilderAppend(bytes, text) { return "" }
+    return BuilderFinish(bytes)
+}
+
+// Whether working is the picture the history was last written or read for.
+HistoryBoundTo :: (working: string) -> bool {
+    return !history_changed && history_bound_count == working.count && history_bound == PictureHash(working)
+}
+
+HistoryAppend :: (text: *Vec(u8), working: string) {
+    digits: [16]u8
+    BuilderPrint(text, "%", HISTORY_HEADER)
+    BuilderPrint(text, "% %\n%\n", working.count, HexDigits(PictureHash(working), digits[:]), history_count)
+    for step: cast(s32)0..history_count - 1 {
+        record := history_records[(history_next - history_count + step + HISTORY_STEPS) % HISTORY_STEPS]
+        BuilderPrint(text, "%\n%", record.count, record)
+    }
+}
+
+HistoryText :: (working: string) -> string {
+    text: Vec(u8)
+    HistoryAppend(*text, working)
+    return BuilderFinish(text)
+}
+
+// Records that the history document now holds this history for working.
+HistorySaved :: (working: string) {
+    history_bound = PictureHash(working)
+    history_bound_count = working.count
+    history_changed = false
+}
+
+// A decimal number at text[at.*] up to limit, without leading zeros and
+// followed by end; -1 when damaged.
+HistoryNumber :: (text: string, at: *s64, end: u8, limit: s64) -> s64 {
+    value: s64 = 0
+    start := at.*
+    while at.* < text.count && text[at.*] >= #char "0" && text[at.*] <= #char "9" {
+        if at.* - start >= 9 { return -1 }
+        value = value * 10 + cast(s64)(text[at.*] - #char "0")
+        at.* += 1
+    }
+    digits := at.* - start
+    if digits == 0 || (digits > 1 && text[start] == #char "0") || value > limit { return -1 }
+    if at.* >= text.count || text[at.*] != end { return -1 }
+    at.* += 1
+    return value
+}
+
+// Replaces the history with saved when it is whole and belongs to exactly
+// this working picture. Otherwise leaves the history as it was and returns
+// false. The current picture is never changed.
+HistoryLoad :: (saved: string, working: string) -> bool {
+    header := HISTORY_HEADER.count
+    if saved.count > DOCUMENT_LIMIT || saved.count < header || saved[:header] != HISTORY_HEADER { return false }
+    at: s64 = header
+    if HistoryNumber(saved, *at, #char " ", DOCUMENT_LIMIT) != working.count { return false }
+    digits: [16]u8
+    if at + 17 > saved.count || saved[at:at + 16] != HexDigits(PictureHash(working), digits[:]) ||
+        saved[at + 16] != cast(u8)10 { return false }
+    at += 17
+    count := HistoryNumber(saved, *at, cast(u8)10, HISTORY_STEPS)
+    if count < 0 { return false }
+    // Check every step before keeping any of them.
+    starts: [HISTORY_STEPS]s64
+    ends: [HISTORY_STEPS]s64
+    for step: cast(s32)0..cast(s32)count - 1 {
+        size := HistoryNumber(saved, *at, cast(u8)10, DOCUMENT_LIMIT)
+        if size <= 0 || at + size > saved.count || !PictureValid(saved[at:at + size]) { return false }
+        starts[step] = at
+        ends[step] = at + size
+        at += size
+    }
+    if at != saved.count { return false }
+    kept := OwnedText(saved)
+    if kept.count != saved.count { return false }
+    HistoryClear()
+    for step: cast(s32)0..cast(s32)count - 1 { history_records[step] = kept[starts[step]:ends[step]] }
+    history_count = cast(s32)count
+    history_next = history_count % HISTORY_STEPS
+    HistorySaved(working)
+    return true
+}
+
+// UI restore checks one earlier record per frame. Only the fully checked
+// history becomes visible; damaged records never expose partial Undo steps.
+history_loading: bool;
+history_pending: string;
+history_pending_at: s64;
+history_pending_count: s32;
+history_pending_step: s32;
+history_pending_hash: u64;
+history_pending_size: s64;
+history_pending_records: [HISTORY_STEPS]string;
+
+HistoryLoadBegin :: (saved: string, working: string) {
+    history_loading = false
+    history_pending = ""
+    header := HISTORY_HEADER.count
+    if saved.count > DOCUMENT_LIMIT || saved.count < header || saved[:header] != HISTORY_HEADER { return }
+    at: s64 = header
+    if HistoryNumber(saved, *at, #char " ", DOCUMENT_LIMIT) != working.count { return }
+    digits: [16]u8
+    hash := PictureHash(working)
+    if at + 17 > saved.count || saved[at:at + 16] != HexDigits(hash, digits[:]) || saved[at + 16] != cast(u8)10 { return }
+    at += 17
+    count := HistoryNumber(saved, *at, cast(u8)10, HISTORY_STEPS)
+    if count < 0 { return }
+    // Its records stay slices of this text after the frame's reply is gone.
+    history_pending = OwnedText(saved)
+    if history_pending.count != saved.count { history_pending = ""; return }
+    history_pending_at = at
+    history_pending_count = cast(s32)count
+    history_pending_step = 0
+    history_pending_hash = hash
+    history_pending_size = working.count
+    history_loading = true
+}
+
+HistoryLoadStep :: () {
+    if !history_loading { return }
+    if history_pending_step < history_pending_count {
+        size := HistoryNumber(history_pending, *history_pending_at, cast(u8)10, DOCUMENT_LIMIT)
+        if size <= 0 || history_pending_at + size > history_pending.count {
+            history_loading = false; history_pending = ""; return
+        }
+        if !PictureValid(history_pending[history_pending_at:history_pending_at + size]) { history_loading = false; history_pending = ""; return }
+        history_pending_records[history_pending_step] = history_pending[history_pending_at:history_pending_at + size]
+        history_pending_at += size
+        history_pending_step += 1
+        return
+    }
+    if history_pending_at == history_pending.count {
+        HistoryClear()
+        for step: cast(s32)0..history_pending_count - 1 { history_records[step] = history_pending_records[step] }
+        history_count = history_pending_count
+        history_next = history_count % HISTORY_STEPS
+        history_bound = history_pending_hash
+        history_bound_count = history_pending_size
+        history_changed = false
+    }
+    for step: cast(s32)0..HISTORY_STEPS - 1 { history_pending_records[step] = "" }
+    history_loading = false
+    history_pending = ""
 }
