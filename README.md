@@ -41,7 +41,7 @@ babies and toddlers.
 - **Jigsaw Puzzles:** Put together three new watercolor scenes in six sizes,
   from 4 to 64 interlocking pieces. Play alone or take turns together, peek at
   the picture, sort edge pieces and come back to your saved puzzle.
-- **Shapes & Sorting (2+):** Follow a moving demonstration to match shapes,
+- **Shapes & Sorting (2+):** Watch a hand press, drag and release a matching shape,
   then explore colors and sizes.
 - **Matching Pairs (2+):** Begin with two visible pairs; try hidden cards and
   puzzles with up to ten pairs when ready.

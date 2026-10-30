@@ -60,17 +60,24 @@ main :: () -> s32 {
     for at: cast(s32)0..5 { lesson.items[at] = at % 3; lesson.placed[at] = -1 }
     lesson.selected = 0; lesson.hint = -1
     saved_lesson := ShapesSaveText(lesson)
-    first := ShapesGuide(lesson, 3.0)
+    first := ShapesGuide(lesson, 0.0)
     if first.item != 0 || first.target != 1 || !first.visible || first.travel != 0.0 { return 50 }
-    if ShapesGuide(lesson, 2.9).visible || ShapesGuide(lesson, -1.0).visible { return 51 }
-    middle := ShapesGuide(lesson, 4.7)
+    if ShapesGuide(lesson, 5.3).visible || ShapesGuide(lesson, -1.0).visible { return 51 }
+    middle := ShapesGuide(lesson, 2.7)
     if !middle.visible || middle.travel < 0.49 || middle.travel > 0.51 { return 52 }
-    if ShapesGuide(lesson, 6.0).travel != 1.0 || ShapesGuide(lesson, 7.0).travel != 0.0 { return 53 }
+    if ShapesGuide(lesson, 4.0).travel != 1.0 || ShapesGuide(lesson, 10.0).visible || !ShapesGuide(lesson, 22.0).visible { return 53 }
+    if ShapesGuide(lesson, 0.3).phase != SHAPES_GUIDE_APPROACH ||
+        ShapesGuide(lesson, 0.9).phase != SHAPES_GUIDE_PRESS ||
+        ShapesGuide(lesson, 1.4).phase != SHAPES_GUIDE_LIFT ||
+        ShapesGuide(lesson, 2.7).phase != SHAPES_GUIDE_DRAG ||
+        ShapesGuide(lesson, 4.0).phase != SHAPES_GUIDE_RELEASE ||
+        ShapesGuide(lesson, 4.8).phase != SHAPES_GUIDE_FADE ||
+        ShapesGuide(lesson, 6.0).phase != SHAPES_GUIDE_TURN { return 63 }
     if !ShapesSelect(*lesson, 2) { return 54 }
     selected := ShapesGuide(lesson, 4.0)
     if selected.item != 2 || selected.target != 0 { return 55 }
     if ShapesDrop(*lesson, 0) != SHAPES_PLACED { return 56 }
-    next := ShapesGuide(lesson, 3.0)
+    next := ShapesGuide(lesson, 0.0)
     if next.item != 0 || next.target != 1 { return 57 }
     for frame: cast(s32)0..1000 {
         unused ShapesGuide(lesson, cast(float32)frame / 10.0)
@@ -79,7 +86,7 @@ main :: () -> s32 {
         lesson.placed[0] != -1 || lesson.placed[1] != -1 || lesson.placed[3] != -1 ||
         lesson.placed[4] != -1 || lesson.placed[5] != -1 || ShapesSaveText(lesson) != saved_lesson { return 58 }
     lesson.selected = -1
-    if ShapesGuide(lesson, 3.0).item != 0 { return 59 }
+    if ShapesGuide(lesson, 0.0).item != 0 { return 59 }
     for at: cast(s32)0..lesson.item_count - 1 { lesson.placed[at] = ShapesTargetFor(lesson, at) }
     finished := ShapesGuide(lesson, 100.0)
     if finished.visible || finished.item != -1 || finished.target != -1 { return 60 }
@@ -187,7 +194,7 @@ main :: () -> s32 {
                 ShapesStart(*board)
                 for at: cast(s32)0..items - 1 {
                     unused ShapesSelect(*board, at)
-                    path := ShapesGuide(board, 3.0)
+                    path := ShapesGuide(board, 0.0)
                     start := ShapesGuideRect(board, layout, path)
                     if start.x != layout.items[at].x || start.y != layout.items[at].y ||
                         start.width != layout.items[at].width || start.height != layout.items[at].height { return 61 }

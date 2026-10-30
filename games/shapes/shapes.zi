@@ -115,30 +115,48 @@ ShapesDone :: (s: Shapes) -> bool { return ShapesNextItem(s) < 0 }
 
 // A demonstration is only a suggestion. It never selects or places a piece,
 // counts a miss, advances a round, or writes progress.
+SHAPES_GUIDE_APPROACH :: 0
+SHAPES_GUIDE_PRESS :: 1
+SHAPES_GUIDE_LIFT :: 2
+SHAPES_GUIDE_DRAG :: 3
+SHAPES_GUIDE_RELEASE :: 4
+SHAPES_GUIDE_FADE :: 5
+SHAPES_GUIDE_TURN :: 6
+
 ShapesGuideState :: struct {
     item: s32
     target: s32
     visible: bool
     travel: float32
+    phase: s32
+    hand_alpha: float32
+    approach: float32
+    lift: float32
 }
 
-ShapesGuide :: (s: Shapes, idle_seconds: float32) -> ShapesGuideState {
+// One 5.2 second example, then a long, quiet turn for the child. Negative
+// elapsed values are the grace period after real input. This is pure state:
+// no game selection, drop, score, round or persistence is changed.
+ShapesGuide :: (s: Shapes, elapsed: float32) -> ShapesGuideState {
     guide: ShapesGuideState
-    guide.item = -1; guide.target = -1
+    guide.item = -1; guide.target = -1; guide.phase = SHAPES_GUIDE_TURN
     item := s.selected
     if item < 0 || item >= s.item_count { item = ShapesNextItem(s) }
     else if s.placed[item] >= 0 { item = ShapesNextItem(s) }
     if item < 0 { return guide }
     guide.item = item
     guide.target = ShapesTargetFor(s, item)
-    if guide.target < 0 || idle_seconds < 3.0 { return guide }
-    guide.visible = true
-    // Hold at the piece, move slowly, pause at home, then repeat.
-    elapsed := idle_seconds - 3.0
-    phase := elapsed - cast(float32)(cast(s64)(elapsed / 4.0)) * 4.0
-    guide.travel = (phase - 0.7) / 2.0
-    if guide.travel < 0.0 { guide.travel = 0.0 }
-    if guide.travel > 1.0 { guide.travel = 1.0 }
+    if guide.target < 0 || elapsed < 0.0 { return guide }
+    time := elapsed - cast(float32)(cast(s64)(elapsed / 22.0)) * 22.0
+    if time >= 5.2 { return guide }
+    guide.visible = true; guide.hand_alpha = 1.0
+    guide.phase = SHAPES_GUIDE_APPROACH
+    guide.approach = 1.0 - time / 0.6
+    if time >= 0.6 { guide.phase = SHAPES_GUIDE_PRESS; guide.approach = 0.0 }
+    if time >= 1.2 { guide.phase = SHAPES_GUIDE_LIFT; guide.lift = (time - 1.2) / 0.5 }
+    if time >= 1.7 { guide.phase = SHAPES_GUIDE_DRAG; guide.lift = 1.0; guide.travel = (time - 1.7) / 2.0 }
+    if time >= 3.7 { guide.phase = SHAPES_GUIDE_RELEASE; guide.travel = 1.0; guide.lift = 1.0 - (time - 3.7) / 0.8 }
+    if time >= 4.5 { guide.phase = SHAPES_GUIDE_FADE; guide.lift = 0.0; guide.hand_alpha = 1.0 - (time - 4.5) / 0.7 }
     return guide
 }
 
@@ -358,7 +376,7 @@ ShapesHomeParts :: (home: ShapesRect, per: s32) -> ShapesHome {
     return parts
 }
 
-// Interpolating complete rectangles keeps the ghost inside both orientations
+// Interpolating complete rectangles keeps the demonstrated piece inside both orientations
 // and lets it shrink into the next empty slot rather than cover the emblem.
 ShapesGuideRect :: (s: Shapes, layout: ShapesLayout, guide: ShapesGuideState) -> ShapesRect {
     if guide.item < 0 || guide.target < 0 { return ShapesRect.{} }

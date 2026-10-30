@@ -155,8 +155,9 @@ the binary WAV assets with `python3 tools/piano_sounds.py`.
 ## Five more little adventures
 
 **Shapes & Sorting (2+)** starts with large shape targets. Tap an item and its
-matching home, or drag it. A moving demonstration and highlighted home show the
-way; Show me replays the guide. Switch to colors or sizes whenever the child is ready.
+matching home, or drag it. A whole pointing hand presses a piece, lifts it, drags it into its matching
+empty slot and lets go, then pauses for the child. Show me replays the example;
+any real input cancels it immediately. Quiet idle help returns after a longer pause. Switch to colors or sizes whenever the child is ready.
 
 **Matching Pairs (2+)** begins with two pairs face up. After discovering a pair,
 try optional memory rounds with two, three or four hidden pairs. Harder puzzles
