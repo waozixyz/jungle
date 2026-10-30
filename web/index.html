@@ -97,6 +97,96 @@ async function assetBytes(path){
  if(assetPacks&&Object.hasOwn(assetPacks.manifest.files,path))return assetPacks.read(path);
  return new Uint8Array(await fetchResource(path,response=>response.arrayBuffer()));
 }
+// Narration ships as Ogg Vorbis speech clips; assets/speech.txt
+// (tools/shared_assets.py SpeechIndexText) composes each narration path from
+// clip ranges and silences. Clips are checked like the native hosts'
+// SpeechPreflight before they are decoded, and the composed samples play as
+// one WAV through the same Audio element as every other sound.
+const speechRate=22050,speechLimit=speechRate*60,speechBytes=524288;
+let speechIndex;
+function parseSpeech(text){
+ const lines=text.split('\n'),clips=[],voices=new Map(),number=/^(?:0|[1-9][0-9]{0,8})$/;
+ const invalid=()=>{throw Error('Invalid speech index')};
+ if(lines[0]!=='#jungle-speech-1'||lines.pop()!=='')invalid();
+ const safe=(path,suffix)=>path.startsWith('assets/')&&path.endsWith(suffix)&&!/[\x00-\x20\x7f\\|]/.test(path)&&path.split('/').every(part=>part&&part!=='.'&&part!=='..');
+ let previous='';
+ for(const line of lines.slice(1)){
+  const fields=line.split('|');
+  if(fields.length!==3)invalid();
+  const [kind,path,value]=fields;
+  if(kind==='clip'&&!voices.size&&safe(path,'.ogg')&&path.startsWith('assets/speech/')&&path>previous&&number.test(value)&&+value>0&&+value<=speechLimit){clips.push({path,frames:+value})}
+  else if(kind==='voice'&&safe(path,'.wav')&&(!voices.size||path>previous)){
+   let total=0;
+   const segments=value.split(' ').map(token=>{
+    const parts=token.split(':');
+    if(!(parts.length===1||parts.length===3)||!parts.every(part=>number.test(part)))invalid();
+    const [clip,start,frames]=parts.length===1?[-1,0,+parts[0]]:parts.map(Number);
+    if(frames<1||(clip>=0&&(clip>=clips.length||start+frames>clips[clip].frames)))invalid();
+    total+=frames;return {clip,start,frames};
+   });
+   if(total>speechLimit)invalid();
+   voices.set(path,segments);
+  }else invalid();
+  previous=path;
+ }
+ return {clips,voices};
+}
+function speech(){
+ speechIndex??=assetBytes('assets/speech.txt').then(bytes=>parseSpeech(new TextDecoder('utf-8',{fatal:true}).decode(bytes)))
+  .catch(error=>{speechIndex=undefined;throw error});
+ return speechIndex;
+}
+// Whether BYTES is one whole Ogg Vorbis stream of exactly FRAMES mono frames
+// at speechRate, read from its pages before any decoder allocates for it.
+function speechPreflight(bytes,frames){
+ if(bytes.length<1||bytes.length>speechBytes||frames<1||frames>speechLimit)return false;
+ const view=new DataView(bytes.buffer,bytes.byteOffset,bytes.byteLength);
+ let at=0,serial,granule,first;
+ while(at<bytes.length){
+  if(bytes.length-at<27||view.getUint32(at)!==0x4f676753||bytes[at+4]!==0)return false;
+  const flags=bytes[at+5],segments=bytes[at+26],body=at+27+segments;
+  if(serial===undefined)serial=view.getUint32(at+14,true);else if(view.getUint32(at+14,true)!==serial)return false;
+  if(Boolean(flags&2)!==(at===0)||body>bytes.length)return false;
+  let size=0;for(let index=0;index<segments;index++)size+=bytes[at+27+index];
+  first??=bytes.subarray(body,body+(segments?bytes[at+27]:0));
+  granule=view.getBigInt64(at+6,true);at=body+size;
+  if(at>bytes.length||Boolean(flags&4)!==(at===bytes.length))return false;
+ }
+ return first.length>=30&&first[0]===1&&String.fromCharCode(...first.subarray(1,7))==='vorbis'&&first[11]===1&&
+  new DataView(first.buffer,first.byteOffset+12,4).getUint32(0,true)===speechRate&&granule===BigInt(frames);
+}
+async function speechClip(clip){
+ const bytes=await assetBytes(clip.path);
+ if(!speechPreflight(bytes,clip.frames))throw Error('Malformed speech clip: '+clip.path);
+ const audio=await new OfflineAudioContext(1,1,speechRate).decodeAudioData(bytes.slice().buffer);
+ if(audio.sampleRate!==speechRate||audio.numberOfChannels!==1||audio.length!==clip.frames)throw Error('Malformed speech clip: '+clip.path);
+ return audio.getChannelData(0);
+}
+// The bytes of sound PATH: a WAV composed from speech clips for narration,
+// otherwise the packed file. Null once CURRENT() turns false.
+async function soundBytes(path,current){
+ const index=await speech();
+ const segments=index.voices.get(path);
+ if(!segments)return assetBytes(path);
+ let frames=0;for(const segment of segments)frames+=segment.frames;
+ const bytes=new Uint8Array(44+frames*2),view=new DataView(bytes.buffer),decoded=new Map();
+ [[0,'RIFF'],[8,'WAVE'],[12,'fmt '],[36,'data']].forEach(([at,text])=>[...text].forEach((letter,index)=>bytes[at+index]=letter.charCodeAt(0)));
+ [[4,36+frames*2,4],[16,16,4],[20,1,2],[22,1,2],[24,speechRate,4],[28,speechRate*2,4],[32,2,2],[34,16,2],[40,frames*2,4]]
+  .forEach(([at,value,size])=>size===4?view.setUint32(at,value,true):view.setUint16(at,value,true));
+ let at=44;
+ for(const segment of segments){
+  if(segment.clip>=0){
+   if(!decoded.has(segment.clip))decoded.set(segment.clip,await speechClip(index.clips[segment.clip]));
+   if(!current())return null;
+   const samples=decoded.get(segment.clip);
+   for(let frame=0;frame<segment.frames;frame++){
+    view.setInt16(at+frame*2,Math.max(-32768,Math.min(32767,Math.round(samples[segment.start+frame]*32768))),true);
+   }
+  }
+  at+=segment.frames*2;
+ }
+ return bytes;
+}
 function packedAudio(path){
  const audio=new Audio();audio.junglePath=path;audio.jungleLoading=false;
  const play=audio.play.bind(audio),pause=audio.pause.bind(audio),remove=audio.removeAttribute.bind(audio);
@@ -105,7 +195,7 @@ function packedAudio(path){
   if(url)return play();
   const request=++generation;audio.jungleLoading=true;
   try{
-   const bytes=await assetBytes(path);
+   const bytes=await soundBytes(path,()=>request===generation);
    if(request!==generation)return;
    url=URL.createObjectURL(new Blob([bytes],{type:'audio/wav'}));audio.src=url;
    return await play();
