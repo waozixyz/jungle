@@ -33,6 +33,7 @@ book_scroll: s32;
 book_tab: s32;
 voice_idle_started: float64;
 voice_pending: bool;
+manual_narration: bool;
 simple: bool = true;
 settings_loaded: bool;
 swipe_tracking: bool;
@@ -43,6 +44,7 @@ repeat_all: bool = true;
 playback_speed: s32 = 1;
 paused_at: float64;
 managing_books: bool;
+secondary_back_was_down: bool;
 SaveBookChoice :: (index: s32) {
     unused DocumentWrite(Join("hidden-", category_ids[index], ".txt"), ifx hidden_books[index] then "yes" else "no")
     unused DocumentWrite(Join("skip-", category_ids[index], ".txt"), ifx excluded_books[index] then "yes" else "no")
@@ -120,6 +122,7 @@ Turn :: (step: s32) {
     paused_at = retro.now
     voice_idle_started = 0.0
     voice_pending = true
+    manual_narration = true
 }
 
 OpenBook :: () {
@@ -132,6 +135,7 @@ OpenBook :: () {
     page_started = retro.now
     voice_idle_started = 0.0
     voice_pending = true
+    manual_narration = true
     paused_at = retro.now
 }
 
@@ -208,8 +212,8 @@ BookShelf :: () {
     view_top := book_padding + tab_height
     view_height := shelf_view_height - tab_height
     scrolled := Scroll(retro.session, ScrollProps.{.key = cast(u64)600,
-        .bounds = RetroRect(book_padding, view_top, book_width - book_padding * 2, view_height),
-        .scale = 1.0, .content_height = content_height, .scroll_offset = book_scroll, .keep_scrollbar = true})
+            .bounds = RetroRect(book_padding, view_top, book_width - book_padding * 2, view_height),
+            .scale = 1.0, .content_height = content_height, .scroll_offset = book_scroll, .keep_scrollbar = true})
     book_scroll = scrolled.scroll_offset
     if scrolled.opened {
         saved_y := retro.y
@@ -278,11 +282,25 @@ BookShelf :: () {
     if retro.key >= 49 && retro.key <= 57 && retro.key < 49 + CATEGORY_COUNT { category = retro.key - 49; OpenBook() }
     if retro.key == 48 && CATEGORY_COUNT >= 10 { category = 9; OpenBook() }
     if retro.key == KEY_ENTER && !handled && !managing_books { OpenBook() }
-    if retro.key == KEY_ESCAPE { GameHome() }
+    if retro.key == KEY_ESCAPE { PictureBookBack() }
 }
 
 // The scenes fade into this paper, so a page reaches every edge of the screen.
 PagePaper :: () { BookBox(0, 0, book_width, book_height, 0xfcf2d4ff) }
+
+PictureBookBack :: () {
+    if !choosing_category || finished {
+        choosing_category = true
+        finished = false
+        swipe_tracking = false
+        voice_pending = false
+        manual_narration = false
+        unused AppService("jungle.voice", "")
+    } else if managing_books {
+        managing_books = false
+        book_scroll = 0
+    } else { GameHome() }
+}
 
 // A whole scene as large as the page allows; its faded edges meet the paper,
 // so nothing of the picture is cut off.
@@ -315,7 +333,8 @@ PlaybackControls :: (can_hear: bool = true) {
         BookBox(x + button, y + 10, 1, 22, 0xdacdb5ff)
         if PlaybackAction(63, x + button, y, width - button, "Hear word") {
             unused AppService("jungle.voice", PageVoice())
-            voice_pending = false; page_started = retro.now; paused_at = retro.now; voice_idle_started = 0.0
+            voice_pending = false; manual_narration = false
+            page_started = retro.now; paused_at = retro.now; voice_idle_started = 0.0
         }
     }
 }
@@ -371,7 +390,7 @@ FinishedBook :: () {
     button_width := (text_width - book_gap) / 2
     all_books := TouchButton(40, text_x, text_y + 124, button_width, 52, "All books")
     next_book := TouchButton(41, text_x + button_width + book_gap, text_y + 124, button_width, 52, "Read this book", true)
-    if all_books || retro.key == KEY_ESCAPE { choosing_category = true; finished = false }
+    if all_books || retro.key == KEY_ESCAPE { PictureBookBack() }
     else if next_book || retro.key == KEY_ENTER || retro.key == KEY_RIGHT || (automatic && retro.now - finished_started >= FINISHED_SECONDS) {
         category = next_category
         OpenBook()
@@ -423,15 +442,14 @@ ReadingPage :: () {
         swipe_tracking = false
     }
     if !touch.down && !touch.released { swipe_tracking = false }
-    tapped := touch.clicked && !moved
+    // Keyboard activation has no page point. Raw Enter/Space below
+    // owns its meaning; only a pointer release can choose a page side.
+    tapped := touch.clicked && touch.released && !moved
     back_side := tapped && touch.x < retro.x + cast(float32)(book_width / 3)
     if back_side || retro.key == KEY_LEFT || direction == SwipeDirection.SwipeRight { Turn(-1) }
     else if tapped || retro.key == KEY_RIGHT || retro.key == KEY_ENTER || direction == SwipeDirection.SwipeLeft { Turn(1) }
     if retro.key == KEY_ESCAPE {
-        choosing_category = true
-        swipe_tracking = false
-        voice_pending = false
-        unused AppService("jungle.voice", "")
+        PictureBookBack()
     }
     PlaybackControls()
 }
@@ -443,7 +461,9 @@ GameMain :: () -> s32 {
         finished = false
         settings_loaded = false
         voice_pending = false
+        manual_narration = false
         swipe_tracking = false
+        secondary_back_was_down = false
         page = 0
         category = 0
         book_scroll = 0
@@ -461,8 +481,7 @@ GameMain :: () -> s32 {
         simple = DocumentRead("mode.txt") != "spelling"
         repeat_all = DocumentRead("repeat.txt") != "off"
         for index: cast(s32)0..CATEGORY_COUNT - 1 {
-            hidden_books[index] = DocumentRead(Join("hidden-", category_ids[index], ".txt")) == "yes"
-            excluded_books[index] = DocumentRead(Join("skip-", category_ids[index], ".txt")) == "yes"
+            LoadBookChoice(index, DocumentRead(Join("hidden-", category_ids[index], ".txt")), DocumentRead(Join("skip-", category_ids[index], ".txt")))
         }
         settings_loaded = true
     }
@@ -470,6 +489,9 @@ GameMain :: () -> s32 {
     bounds := AppBounds()
     RetroBegin(AppSession(), bounds, FONT, now, AppKey(), BLACK)
     ResponsiveBook(bounds)
+    secondary_down := GameSecondaryDown()
+    if secondary_down && !secondary_back_was_down { PictureBookBack() }
+    secondary_back_was_down = secondary_down
     if retro.key == 10001 { playback_speed = (playback_speed + 1) % 3 }
     if retro.key == 32 && !choosing_category { TogglePlayback() }
     if playing && !voice_pending && !choosing_category && !finished && !swipe_tracking {
@@ -484,8 +506,9 @@ GameMain :: () -> s32 {
     else { ReadingPage() }
     if voice_pending && !choosing_category && !finished {
         unused AppService("jungle.voice", PageVoice())
-        if !playing { unused AppService("jungle.voice-control", "pause") }
+        if !playing && !manual_narration { unused AppService("jungle.voice-control", "pause") }
         voice_pending = false
+        manual_narration = false
     }
     return 0
 }

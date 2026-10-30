@@ -10,7 +10,8 @@ import wave
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'tools'))
 import shared_assets
-from book_catalog import LANGUAGES, NAMES, voice_path
+from book_catalog import LANGUAGES, LETTERS, NAMES, LEARNING, UNIQUE, voice_path
+from book_speech import read_clip
 import speech_codec
 import speech_manifest
 
@@ -41,12 +42,43 @@ def language_for(name):
     return next(part for part in parts if part in LANGUAGES)
 
 
+def verify_legacy_lettuce():
+    path = ROOT / 'assets/jungle-book/sounds/de/spelling/lettuce.wav'
+    receipt = json.loads(path.with_suffix('.speech.json').read_text())
+    assert 'PCM assembly' in receipt['method'], path
+    assert hashlib.sha256(path.read_bytes()).hexdigest() == receipt['sha256'], path
+    phrases = receipt['text'].split('. ')
+    word = phrases[0]
+    assert phrases[-1] == word + '.', receipt['text']
+    letters = [letter for letter in word.lower() if not letter.isspace()]
+    expected_text = f'{word}. ' + '. '.join(LETTERS['de'][letter] for letter in letters) + f'. {word}.'
+    assert receipt['text'] == expected_text, (receipt['text'], expected_text)
+
+    sources = [f'assets/jungle-book/sounds/de/letters/{ord(letter):04x}.wav'
+               for letter in letters]
+    assert [entry['path'] for entry in receipt['sources']] == ['assets/jungle-book/sounds/de/simple/lettuce.wav', *sources], path
+    parts = []
+    for entry, letter in zip(receipt['sources'], (None, *letters)):
+        source = ROOT / entry['path']
+        data, source_hash = read_clip(source)
+        assert source_hash == entry['sha256'], entry['path']
+        parts.append(data)
+        if letter is None:
+            parts.append(bytes(22050 // 2 * 2))
+        else:
+            parts.append(bytes(22050 // 4 * 2))
+    parts.extend((bytes(22050 // 4 * 2), parts[0]))
+    with wave.open(str(path)) as voice:
+        assert (voice.getnchannels(), voice.getsampwidth(), voice.getframerate()) == (1, 2, 22050), path
+        assert voice.readframes(voice.getnframes()) == b''.join(parts), path
+
+
 def real_catalog_test():
     manifest = speech_manifest.BuildSpeechManifest()
     assert manifest['counts'] == {
-        'assembled_lessons': 507, 'recorded_spelling_lessons': 126,
+        'assembled_lessons': 726, 'recorded_spelling_lessons': 126,
         'alphabet_letters': 83, 'recorded_voices': 63,
-        'clips': 910, 'voices': 1412,
+        'clips': 1130, 'voices': 1850,
     }
     speech_manifest.ValidateSpeechManifest(manifest)
     book_voices = {voice_path(name, language, simple)
@@ -59,7 +91,13 @@ def real_catalog_test():
                  for path in (ROOT / 'assets/animal-count/sounds').glob('question-*.wav')}
     assert set(manifest['voices']) == book_voices | alphabet | numbers | questions
 
-    assembled = recorded_spelling = 0
+    new_lessons = {voice_path(name, language, False)
+                   for language in LANGUAGES
+                   for name in (*LEARNING['words'], *UNIQUE['words'])}
+    new_lessons.update(voice_path(name, language, False)
+                       for name, languages in UNIQUE['voice_stems'].items()
+                       for language in languages)
+    assembled = recorded_spelling = original_assembled = new_assembled = 0
     for path in sorted((ROOT / 'assets/jungle-book/sounds').glob('**/*.speech.json')):
         voice = Path(str(path)[:-len('.speech.json')] + '.wav')
         name = voice.relative_to(ROOT).as_posix()
@@ -74,16 +112,24 @@ def real_catalog_test():
             assert segments[0]['frames'] == len(pcm(voice)) // 2, name
             continue
         assembled += 1
+        if name in new_lessons:
+            new_assembled += 1
+        else:
+            original_assembled += 1
         assert any('silence' in segment for segment in segments), name
         assert pcm(voice) == rebuild(manifest, segments), name
-    assert assembled == 507, assembled
+    assert assembled == 726, assembled
+    assert original_assembled == 506, original_assembled
+    assert new_assembled == 220, new_assembled
     assert recorded_spelling == 126, recorded_spelling
+    verify_legacy_lettuce()
+    assert original_assembled + 1 == 507
 
     letters = {name for name in manifest['clips'] if '/letters/' in name}
-    assert len(letters) == 88
+    assert len(letters) == 89
     assert sum(name.startswith('assets/jungle-book/sounds/en/letters/') for name in letters) == 26
     assert sum(name.startswith('assets/jungle-book/sounds/de/letters/') for name in letters) == 30
-    assert sum(name.startswith('assets/jungle-book/sounds/es/letters/') for name in letters) == 32
+    assert sum(name.startswith('assets/jungle-book/sounds/es/letters/') for name in letters) == 33
     for name in alphabet:
         segment = manifest['voices'][name][0]
         assert segment['start'] == 0
@@ -196,7 +242,7 @@ def staging_test():
 def main():
     rejection_test(real_catalog_test())
     staging_test()
-    print('local speech manifest test: 507 exact lessons, 126 whole recordings, 83 shared letters, 88 language clips passed')
+    print('local speech manifest test: 726 exact active lessons (506 original + 220 new), one preserved original lesson, 126 whole recordings, 83 alphabet voices, 89 letter clips passed')
 
 
 if __name__ == '__main__':

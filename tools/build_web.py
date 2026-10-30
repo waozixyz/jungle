@@ -9,7 +9,7 @@ import tempfile
 import time
 
 from asset_packs import pack_assets, validate_distribution
-from shared_assets import SPEECH_INDEX, Speech, SpeechIndexText, WebAliases, WriteIfChanged
+from shared_assets import SPEECH_INDEX, Shipped, Speech, SpeechIndexText, WebAliases, WriteIfChanged
 from web_images import prepare_web_images
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -105,7 +105,7 @@ def build(out):
     for name in ('jungle','jungle-book','abc','numbers','animal-count','dino-paint','jigsaw','piano','shapes','hide_seek','drums','garden'):
         source=ROOT/'assets'/name
         for path in source.rglob('*'):
-            if path.is_file() and not path.name.endswith('.speech.json') and not path.name.startswith('voice-'):
+            if path.is_file() and Shipped(path.relative_to(ROOT).as_posix()) and not path.name.startswith('voice-'):
                 files[path.relative_to(ROOT).as_posix()] = path
     # Native hosts' manifest aliases, such as Animal Counting's pictures, name
     # the same bytes, so the packs store each picture once.

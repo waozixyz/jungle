@@ -21,14 +21,22 @@ def main():
     # names are explicitly outside this message inventory.
     for source in ("games/paint/dino_paint.zi", "games/animal/animal_count.zi", "games/abc/jungle_abc.zi", "games/numbers/jungle_numbers.zi", "games/jigsaw/jungle_jigsaw.zi", "games/piano/jungle_piano.zi", "games/piano/song.zi", "games/piano/catalog.zi", "host/desktop.zi", "host/jungle_host.zi", "src/app.zi"):
         text = (ROOT / source).read_text()
+        # Inline Words("en", "de", "es") wording must match its registered
+        # row; its German and Spanish literals are translations, not keys.
+        translated = set()
+        for english, german, spanish in re.findall(r'Words\("([^"\n]*)",\s*"([^"\n]*)",\s*"([^"\n]*)"\)', text):
+            assert rows.get(english) == [german, spanish], (source, "inline wording differs", english)
+            translated.update((german, spanish))
         for value in re.findall(r'"([^"\n]*)"', text):
+            if value in translated and value not in rows:
+                continue
             if " " not in value or not value.strip() or value.startswith(("assets/", "paint", "skill ", " runs here", ":", "jungle:")):
                 continue
             if value in ("FILE|TITLE|ABOUT|ICON|AGE", "Jungle Academy", "jungle --check", "COUNTING", " / ", "  ·  ", " : ") or "\\" in value:
                 continue
             assert value in rows, (source, "untranslated message", value)
-    assert len(BOOKS) == 26 and len(NAMES) == len(set(NAMES)) == 211
-    assert dict((name, len(words)) for name, words in BOOKS) == dict(jungle=15, garden=10, fruits=16, farm=20, kitchen=8, bathroom=8, bedroom=8, **{"living-room":8}, nature=8, vegetables=16, family=8, breakfast=6, lunch=6, dinner=6, body=10, clothing=12, seasons=4, birds=6, toys=6, vehicles=6, bedtime=6, vacation=6, sports=6, beach=6, weather=6, feelings=10)
+    assert len(BOOKS) == 32 and len(NAMES) == len(set(NAMES)) == 284
+    assert dict((name, len(words)) for name, words in BOOKS) == dict(jungle=15, garden=10, fruits=16, farm=20, kitchen=8, bathroom=8, bedroom=8, **{"living-room":8}, nature=8, vegetables=16, family=8, breakfast=8, lunch=8, dinner=8, body=10, clothing=12, seasons=4, birds=6, toys=9, vehicles=6, bedtime=6, vacation=6, sports=7, beach=6, weather=6, feelings=10, **{"tropical-fruits":8, "gardening":7, "school":8, "water-animals":8, "drinks":8, "actions":8})
     assert set(NAMES) == set(WORDS)
     generated = (ROOT / "games/book/book_pages.zi").read_text()
     voices = (ROOT / "games/book/book_voice.zi").read_text()

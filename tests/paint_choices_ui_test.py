@@ -33,8 +33,8 @@ with tempfile.TemporaryDirectory(prefix="jungle-paint-choices-") as temporary:
             assert working.read_bytes()[len(PICTURE_HEADER)] == ord(DIGITS[index]), 'The scene page selected a different background'
             desktop.key('Escape')
             if index < 11:
-                # Reopen the gallery through New picture, using Erase.
-                desktop.click(30, 87)
+                # Reopen the gallery through the confirmed New picture tool.
+                desktop.click(30, 185)
                 desktop.capture('paint-new-picture-confirm')
                 desktop.click(104, 130)
                 desktop.capture('paint-next-background')

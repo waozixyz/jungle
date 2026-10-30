@@ -1,0 +1,398 @@
+// Shapes & Sorting: tap a shape, then tap its home (or drag it there).
+// Shapes first, then colors, then sizes; one kind of sorting per round.
+#import "kryon/app_context"
+#import "kryon/app_protocol"
+#import "kryon/geometry"
+#import "kryon/drawing_props"
+#import "kryon/shape_props"
+#import "kryon/shape_widget"
+#import "kryon/svg_icon_props"
+#import "kryon/svg_icon_widget"
+#import "kryon/text_align"
+ShapesRefreshIcon :: #import "mingcute/mingcute_regular_refresh_1";
+ShapesDemoIcon :: #import "mingcute/mingcute_regular_play";
+#import, file "shapes.zi";
+#import, file "../../retro/retro.zi";
+#import, file "../../retro/game.zi";
+#import, file "../../retro/book_theme.zi";
+#import, file "../../retro/language.zi";
+#import, file "../../host/jungle_text.zi";
+
+SOUNDS :: "assets/shapes/sounds/"
+INK :: 0x3e332aff
+GREEN :: 0x2e6956ff
+CARD :: 0xfffcf3ff
+CARD_EDGE :: 0xdacdb5ff
+HOME :: 0xf3ecdcff
+HOLE :: 0xe4d8c1ff
+HOLE_EDGE :: 0xb59f7cff
+LEAF :: 0x6f9f7cff
+WOOD :: 0xd29a5cff
+color_fills: [3]u32 = .[0xd8705aff, 0xe9bf4fff, 0x5f93c6ff];
+color_tints: [3]u32 = .[0xf7e1d9ff, 0xf9edc8ff, 0xdde9f3ff];
+value_clips: [8]string = .["circle", "square", "triangle", "red", "yellow", "blue", "small", "big"];
+
+game: Shapes;
+loaded: bool;
+layout: ShapesLayout;
+view_width: s32;
+view_height: s32;
+done_until: float64;
+placed_target: s32 = -1;
+placed_until: float64;
+drag_item: s32 = -1;
+drag_x: s32;
+drag_y: s32;
+drag_start_x: s32;
+drag_start_y: s32;
+drag_moved: bool;
+guide_since: float64;
+guide: ShapesGuideState;
+
+// Replay starts at the source; ordinary interaction gives the child time.
+GuideRestart :: (demo: bool = false) {
+    guide_since = retro.now - (ifx demo then 3.0 else 0.0)
+}
+
+// This game's own words in English, German and Spanish.
+ShapesText :: (en: string, de: string, es: string) -> string {
+    if language == 1 { return de }
+    if language == 2 { return es }
+    return en
+}
+
+ValueIndex :: (mode: s32, value: s32) -> s32 {
+    if mode == SHAPES_MODE_COLOR { return 3 + value }
+    if mode == SHAPES_MODE_SIZE { return 6 + value }
+    return value
+}
+
+ValueName :: (mode: s32, value: s32) -> string {
+    at := ValueIndex(mode, value)
+    if at == 0 { return ShapesText("Circle", "Kreis", "Círculo") }
+    if at == 1 { return ShapesText("Square", "Quadrat", "Cuadrado") }
+    if at == 2 { return ShapesText("Triangle", "Dreieck", "Triángulo") }
+    if at == 3 { return ShapesText("Red", "Rot", "Rojo") }
+    if at == 4 { return ShapesText("Yellow", "Gelb", "Amarillo") }
+    if at == 5 { return ShapesText("Blue", "Blau", "Azul") }
+    if at == 6 { return ShapesText("Small", "Klein", "Pequeño") }
+    return ShapesText("Big", "Groß", "Grande")
+}
+
+ModeName :: (mode: s32) -> string {
+    if mode == SHAPES_MODE_COLOR { return ShapesText("Colors", "Farben", "Colores") }
+    if mode == SHAPES_MODE_SIZE { return ShapesText("Sizes", "Größen", "Tamaños") }
+    return ShapesText("Shapes", "Formen", "Formas")
+}
+
+PromptText :: () -> string {
+    if ShapesDone(game) { return ShapesText("All sorted!", "Alles sortiert!", "¡Todo ordenado!") }
+    return ShapesText("Tap a piece, then its home.", "Tippe ein Teil an, dann sein Haus.", "Toca una pieza y luego su casa.")
+}
+
+Voice :: (clip: string) {
+    unused AppService("jungle.voice", Cat(SOUNDS, LanguageCode(), "/", clip, ".wav"))
+}
+
+SayPrompt :: () {
+    if ShapesDone(game) { Voice("done"); return }
+    Voice(ifx game.mode == SHAPES_MODE_COLOR then "colors" else ifx game.mode == SHAPES_MODE_SIZE then "sizes" else "shapes")
+}
+
+SayValue :: (item: s32) {
+    if item >= 0 && item < game.item_count { Voice(value_clips[ValueIndex(game.mode, game.items[item])]) }
+}
+
+Save :: () -> bool { return DocumentWrite("shapes.txt", ShapesSaveText(game)) }
+
+// What an item looks like: in each kind of sorting only that one feature
+// changes, so Shapes never needs colors.
+ItemKind :: (mode: s32, value: s32) -> s32 { return ifx mode == SHAPES_MODE_SHAPE then value else SHAPE_CIRCLE }
+ItemFill :: (mode: s32, value: s32) -> u32 {
+    if mode == SHAPES_MODE_COLOR { return color_fills[value] }
+    return ifx mode == SHAPES_MODE_SIZE then cast(u32)WOOD else cast(u32)LEAF
+}
+ItemRadius :: (mode: s32, value: s32, edge: s32) -> s32 {
+    return ifx mode == SHAPES_MODE_SIZE && value == SHAPE_SMALL then edge * 19 / 100 else edge * 36 / 100
+}
+
+ViewPoint :: (x: float32, y: float32) -> Vector2 {
+    return Vector2.{retro.x + x * retro.scale, retro.y + y * retro.scale}
+}
+
+// An upright triangle fitting the same square as a circle of radius r.
+DrawTriangle :: (cx: s32, cy: s32, r: s32, inset: s32, fill: u32) {
+    x := cast(float32)cx
+    y := cast(float32)cy + cast(float32)r * 0.15
+    reach := cast(float32)r * 1.15 - cast(float32)(inset * 2)
+    if reach <= 0.0 { return }
+    unused Triangle(retro.session, TriangleProps.{.first = ViewPoint(x, y - reach),
+        .second = ViewPoint(x + reach * 0.866, y + reach * 0.5), .third = ViewPoint(x - reach * 0.866, y + reach * 0.5),
+        .color = ColorFromPacked(fill)})
+}
+
+DrawShape :: (kind: s32, cx: s32, cy: s32, r: s32, fill: u32, inset: s32 = 0) {
+    if r - inset < 2 { return }
+    if kind == SHAPE_CIRCLE {
+        unused Circle(retro.session, CircleProps.{.center = ViewPoint(cast(float32)cx, cast(float32)cy),
+            .radius = cast(float32)(r - inset) * retro.scale, .fill = ColorFromPacked(fill)})
+    } else if kind == SHAPE_SQUARE {
+        side := r * 17 / 10 - inset * 2
+        BookBox(cx - side / 2, cy - side / 2, side, side, fill, 0, cast(float32)(r - inset) / 5.0)
+    } else { DrawTriangle(cx, cy, r, inset, fill) }
+}
+
+// A shape-sorter hole: an outline with a soft hollow inside.
+DrawHole :: (kind: s32, cx: s32, cy: s32, r: s32) {
+    edge := r / 9
+    if edge < 2 { edge = 2 }
+    DrawShape(kind, cx, cy, r, HOLE_EDGE)
+    DrawShape(kind, cx, cy, r, HOLE, edge)
+}
+
+DrawItem :: (value: s32, area: ShapesRect) {
+    r := ItemRadius(game.mode, value, area.width)
+    DrawShape(ItemKind(game.mode, value), area.x + area.width / 2, area.y + area.height / 2, r, ItemFill(game.mode, value))
+}
+
+Drop :: (target: s32) {
+    result := ShapesDrop(*game, target)
+    GuideRestart(result == SHAPES_MISSED)
+    if result == SHAPES_PLACED {
+        placed_target = target
+        placed_until = retro.now + 0.6
+        if ShapesDone(game) {
+            GameSound(Cat(SOUNDS, "complete.wav"))
+            Voice("done")
+            done_until = retro.now + 2.6
+        } else { GameSound(Cat(SOUNDS, "place.wav")) }
+    } else if result == SHAPES_MISSED { SayValue(game.selected) }
+}
+
+TargetAt :: (x: s32, y: s32) -> s32 {
+    for t: cast(s32)0..game.target_count - 1 {
+        home := layout.targets[t]
+        if x >= home.x && x < home.x + home.width && y >= home.y && y < home.y + home.height { return t }
+    }
+    return -1
+}
+
+ModeIcon :: (mode: s32, box: ShapesRect) {
+    cx := box.x + box.width / 2
+    cy := box.y + box.height / 2
+    step := box.width * 30 / 100
+    r := box.width * 12 / 100
+    for at: cast(s32)0..2 {
+        x := cx + (at - 1) * step
+        if mode == SHAPES_MODE_SHAPE { DrawShape(at, x, cy, r, LEAF) }
+        if mode == SHAPES_MODE_COLOR { DrawShape(SHAPE_CIRCLE, x, cy, r, color_fills[at]) }
+    }
+    if mode == SHAPES_MODE_SIZE {
+        DrawShape(SHAPE_CIRCLE, cx - step * 3 / 4, cy + r / 2, r * 6 / 10, WOOD)
+        DrawShape(SHAPE_CIRCLE, cx + step / 3, cy, r * 3 / 2, WOOD)
+    }
+}
+
+ButtonRow :: () {
+    for at: cast(s32)0..SHAPES_BUTTONS - 1 {
+        box := layout.buttons[at]
+        label := ShapesText("Show me", "Zeig's mir", "Muéstrame")
+        if at == 3 { label = ShapesText("New round", "Neue Runde", "Nueva ronda") }
+        if at < SHAPES_MODES { label = ModeName(at) }
+        chosen := at == game.mode
+        press := RetroTap(10 + at, box.x, box.y, box.width, box.height, label)
+        BookBox(box.x, box.y, box.width, box.height, ifx chosen || press.down then cast(u32)0xdcebdcff else cast(u32)HOME,
+            ifx chosen then cast(u32)GREEN else cast(u32)CARD_EDGE, 10.0)
+        if at < SHAPES_MODES { ModeIcon(at, box) }
+        else {
+            edge: s32 = 26
+            SvgIcon(retro.session, SvgIconProps.{.bounds = RetroRect(box.x + (box.width - edge) / 2, box.y + 7, edge, edge),
+                .shape = ifx at == 3 then ShapesRefreshIcon.Shape else ShapesDemoIcon.Shape, .color = ColorFromPacked(INK)})
+            BookText(box.x + 2, box.y + 36, box.width - 4, 20, label, 12, TextAlign.TextAlignCenter, false)
+        }
+        if !press.clicked { continue }
+        GuideRestart(true)
+        if at < SHAPES_MODES {
+            unused ShapesChooseMode(*game, at)
+            done_until = 0.0; drag_item = -1
+            unused Save()
+            SayPrompt()
+        } else if at == 3 {
+            ShapesReplay(*game)
+            done_until = 0.0; drag_item = -1
+            unused Save()
+        } else { Voice("show_me") }
+    }
+}
+
+Homes :: () {
+    per := game.item_count / game.target_count
+    glow := cast(s64)(retro.now * 2.5) % 2 == 0
+    for t: cast(s32)0..game.target_count - 1 {
+        home := layout.targets[t]
+        value := game.targets[t]
+        press := RetroTap(30 + t, home.x, home.y, home.width, home.height, ValueName(game.mode, value))
+        guided := guide.visible && guide.target == t && drag_item < 0
+        if game.hint == t || guided {
+            BookBox(home.x - 5, home.y - 5, home.width + 10, home.height + 10,
+                ifx glow then cast(u32)0xbfdcc4ff else cast(u32)0xd6e8d6ff, 0, 16.0)
+        }
+        fill: u32 = ifx game.mode == SHAPES_MODE_COLOR then color_tints[value] else cast(u32)HOME
+        if press.down || (placed_target == t && retro.now < placed_until) { fill = 0xdcebdcff }
+        BookBox(home.x, home.y, home.width, home.height, fill, ifx game.hint == t || guided then cast(u32)GREEN else cast(u32)0xbba98bff, 14.0)
+        parts := ShapesHomeParts(home, per)
+        e := parts.emblem
+        r := e.width * 42 / 100
+        cx := e.x + e.width / 2
+        cy := e.y + e.height / 2
+        if game.mode == SHAPES_MODE_SHAPE { DrawHole(value, cx, cy, r) }
+        else if game.mode == SHAPES_MODE_COLOR { DrawShape(SHAPE_CIRCLE, cx, cy, r, color_fills[value]) }
+        else { DrawHole(SHAPE_CIRCLE, cx, cy, ifx value == SHAPE_SMALL then r / 2 else r) }
+        slot: s32 = 0
+        for at: cast(s32)0..game.item_count - 1 {
+            if game.placed[at] != t || slot >= per { continue }
+            DrawItem(game.items[at], parts.slots[slot])
+            slot += 1
+        }
+        if press.clicked && drag_item < 0 { Drop(t) }
+    }
+}
+
+Tray :: () {
+    tray := layout.tray
+    BookBox(tray.x, tray.y, tray.width, tray.height, 0xd8b78aff, 0xb59f7cff, 14.0)
+    BookBox(tray.x + 5, tray.y + 5, tray.width - 10, tray.height - 10, 0xf7f1e3ff, CARD_EDGE, 10.0)
+    for at: cast(s32)0..game.item_count - 1 {
+        if game.placed[at] >= 0 { continue }
+        card := layout.items[at]
+        press := RetroTap(20 + at, card.x, card.y, card.width, card.height, ValueName(game.mode, game.items[at]), true)
+        px := RetroPointX(press.x)
+        py := RetroPointY(press.y)
+        if (press.down || press.clicked) && drag_item < 0 {
+            GuideRestart()
+            if ShapesSelect(*game, at) { SayValue(at) }
+            drag_item = ifx press.down then at else -1
+            drag_start_x = px; drag_start_y = py; drag_x = px; drag_y = py; drag_moved = false
+        }
+        if drag_item == at {
+            if press.down {
+                drag_x = px; drag_y = py
+                if px - drag_start_x > 10 || drag_start_x - px > 10 || py - drag_start_y > 10 || drag_start_y - py > 10 { drag_moved = true }
+            } else {
+                if drag_moved {
+                    target := TargetAt(drag_x, drag_y)
+                    if target >= 0 { Drop(target) }
+                }
+                drag_item = -1
+            }
+        }
+        lifted := drag_item == at && drag_moved
+        chosen := game.selected == at
+        if chosen && !lifted { BookBox(card.x + 3, card.y + 5, card.width, card.height, 0x70593c33, 0, 14.0) }
+        BookBox(card.x, card.y - (ifx chosen && !lifted then 3 else 0), card.width, card.height,
+            ifx lifted then cast(u32)0xf1ebdfff else cast(u32)CARD, ifx chosen then cast(u32)GREEN else cast(u32)CARD_EDGE, 14.0)
+        if !lifted { DrawItem(game.items[at], ShapesRect.{card.x, card.y - (ifx chosen then 3 else 0), card.width, card.height}) }
+    }
+}
+
+DrawGuide :: () {
+    if drag_item >= 0 || !guide.visible || ShapesDone(game) { return }
+    source := layout.items[guide.item]
+    end := guide; end.travel = 1.0
+    destination := ShapesGuideRect(game, layout, end)
+    sx := source.x + source.width / 2
+    sy := source.y + source.height / 2
+    dx := destination.x + destination.width / 2
+    dy := destination.y + destination.height / 2
+    // Dots connect the actual piece to its actual slot, including downward
+    // routes on portrait phones. Decorative shapes never take a tap.
+    for dot: cast(s32)1..12 {
+        DrawShape(SHAPE_CIRCLE, sx + (dx - sx) * dot / 13, sy + (dy - sy) * dot / 13, 3, 0x6f9f7caa)
+    }
+    ghost := ShapesGuideRect(game, layout, guide)
+    cx := ghost.x + ghost.width / 2
+    cy := ghost.y + ghost.height / 2
+    value := game.items[guide.item]
+    r := ItemRadius(game.mode, value, ghost.width)
+    DrawShape(ItemKind(game.mode, value), cx, cy, r + 4, 0xfffcf3dd)
+    DrawShape(ItemKind(game.mode, value), cx, cy, r, (ItemFill(game.mode, value) & 0xffffff00) | 0x99)
+    // A little fingertip follows the ghost: watch it, then try the same move.
+    DrawShape(SHAPE_CIRCLE, cx + r / 2, cy + r / 2, 7, GREEN)
+    DrawShape(SHAPE_CIRCLE, cx + r / 2, cy + r / 2, 4, CARD)
+}
+
+Keys :: () {
+    key := retro.key
+    if key == KEY_LEFT || key == KEY_RIGHT {
+        at := game.selected
+        for step: cast(s32)1..game.item_count {
+            next := ifx key == KEY_RIGHT then (at + step) % game.item_count else (at + game.item_count - step) % game.item_count
+            if game.placed[next] < 0 { unused ShapesSelect(*game, next); GuideRestart(); SayValue(next); break }
+        }
+    }
+    if key >= 49 && key < 49 + game.target_count { Drop(key - 49) }
+}
+
+GameMain :: () -> s32 {
+    mode := AppMode()
+    if mode == APP_IDENTIFY {
+        loaded = false; done_until = 0.0; drag_item = -1
+        AppIdentity("jungle.shapes"); AppDescribe("Shapes & Sorting", "")
+        return APP_PROTOCOL
+    }
+    if mode == APP_SAVE { return ifx !loaded || Save() then 0 else 1 }
+    if mode != APP_FRAME { return 0 }
+    GameLanguage()
+    bounds := AppBounds()
+    scale := bounds.width / 360.0
+    if bounds.height / 640.0 < scale { scale = bounds.height / 640.0 }
+    if bounds.width > bounds.height {
+        scale = bounds.height / 420.0
+        if bounds.width / 720.0 < scale { scale = bounds.width / 720.0 }
+    }
+    if scale > 1.6 { scale = 1.6 }
+    if scale < 0.1 { scale = 0.1 }
+    retro = Retro.{.session = AppSession(), .x = bounds.x, .y = bounds.y, .scale = scale, .now = AppNow(), .key = AppKey()}
+    view_width = cast(s32)(bounds.width / scale); view_height = cast(s32)(bounds.height / scale)
+    BookPalette(); BookBox(0, 0, view_width, view_height, CARD)
+    if !loaded {
+        if !ShapesRead(DocumentRead("shapes.txt"), *game) { game = ShapesNew() }
+        loaded = true
+        GuideRestart(true)
+        Voice("show_me")
+    }
+    if retro.key == KEY_ESCAPE { unused Save(); GameHome(); return 0 }
+    if done_until > 0.0 && (retro.now >= done_until || retro.now < done_until - 10.0) {
+        done_until = 0.0
+        if ShapesFinish(*game) == 2 { SayPrompt() }
+        GuideRestart(true)
+        unused Save()
+    }
+    layout = ShapesArrange(view_width, view_height, game.item_count, game.target_count)
+    ButtonRow()
+    guide = ShapesGuide(game, cast(float32)(retro.now - guide_since))
+    helper := layout.prompt
+    hop: s32 = ifx retro.now < placed_until then 3 else 0
+    BookPicture("assets/jungle-book/items/tiger.png", helper.x, helper.y - hop, 34, 34)
+    BookText(layout.prompt.x + 38, layout.prompt.y, layout.prompt.width - 38, layout.prompt.height, PromptText(), 18,
+        TextAlign.TextAlignCenter, false)
+    Tray()
+    Homes()
+    if !ShapesDone(game) { Keys() }
+    // Selection/drop can change during this frame; never demonstrate a stale route.
+    guide = ShapesGuide(game, cast(float32)(retro.now - guide_since))
+    DrawGuide()
+    if drag_item >= 0 && drag_moved {
+        edge := layout.items[drag_item].width
+        lifted := ShapesRect.{drag_x - edge / 2, drag_y - edge / 2, edge, edge}
+        BookBox(lifted.x + 4, lifted.y + 6, edge, edge, 0x70593c44, 0, 14.0)
+        BookBox(lifted.x, lifted.y, edge, edge, CARD, GREEN, 14.0)
+        DrawItem(game.items[drag_item], lifted)
+    }
+    return 0
+}
+
+#if !#defined(PLATFORM_WEB) {
+    #program_export
+    main :: () -> s32 { return GameMain() }
+}

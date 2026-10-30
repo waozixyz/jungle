@@ -124,7 +124,10 @@ class Desktop:
         rows = [line.split('|') for line in (ROOT/'games/catalog.txt').read_text().splitlines() if '|' in line]
         rows.sort(key=lambda row: int(row[4]))
         rows = [row for row in rows if row[1] != '123 Book']
-        self.key(str(next(i+1 for i,row in enumerate(rows) if row[1] == title)))
+        self.key('Home')
+        for _ in range(next(i for i,row in enumerate(rows) if row[1] == title)):
+            self.key('Down')
+        self.key('Return')
 
     def click(self, x, y, button=1):
         run(["xdotool", "mousemove", "--window", self.window,
@@ -270,7 +273,7 @@ CANVAS = (960, 720)
 
 def read_picture(path):
     data = path.read_bytes()
-    assert data.startswith(PICTURE_HEADER), "save is not a complete picture"
+    assert data.startswith((PICTURE_HEADER, b"JUNGLE PICTURE 3\n")), "save is not a complete picture"
     head = len(PICTURE_HEADER)
     story = data[head + 3:head + 3 + 8 * 39].decode("ascii").splitlines()
     return data, story
@@ -289,7 +292,7 @@ def run_number(text, at):
 
 def picture_runs(data):
     """A saved picture's (crayon index, run length) pairs."""
-    text = data[len(PICTURE_HEADER) + 3 + 8 * 39:-1].decode("ascii")
+    text = data[len(PICTURE_HEADER) + 3 + 8 * 39:].split(b"\n", 1)[0].decode("ascii")
     at = 0
     while at < len(text):
         color = DIGITS.index(text[at])
@@ -398,7 +401,7 @@ def ui(binary):
             desktop.key("Escape")
             desktop.capture("menu-book-return")
             print("local UI test: Picture Book categories, pages and English names", flush=True)
-            desktop.key("2")
+            desktop.game("ABC Book")
             desktop.key("1")
             abc = desktop.capture("abc-learn")
             assert abc.getpixel((0, 0)) == (227, 236, 228), "ABC Book lost its cream background"
@@ -409,7 +412,7 @@ def ui(binary):
             desktop.key("Escape")
             desktop.capture("menu-abc-return")
             print("local UI test: ABC opens directly into learning", flush=True)
-            desktop.key("2")
+            desktop.game("ABC Book")
             desktop.key("2")
             numbers = desktop.capture("numbers-learn")
             assert numbers.getpixel((0, 0)) == (227, 236, 228), "123 Book lost its cream background"
@@ -432,8 +435,8 @@ def ui(binary):
                 # Count occupied dice cells, keeping the group frame outside
                 # the samples. This observes the real painted animal pictures.
                 answer = 0
-                for x,y in ((83,72),(125,72),(83,114),(125,114),(104,93)):
-                    cell = counting.crop((x,y,x+19,y+19))
+                for x,y in ((91,89),(127,89),(91,125),(127,125),(109,107)):
+                    cell = counting.crop((x,y,x+13,y+13))
                     pixels = cell.get_flattened_data() if hasattr(cell, 'get_flattened_data') else cell.getdata()
                     if any(max(abs(a-b) for a,b in zip(color,(233,240,227))) > 8 for color in pixels):
                         answer += 1
@@ -529,8 +532,8 @@ def ui(binary):
             (OUTPUT / "saved-picture.txt").write_bytes(stored)
             assert story[0].rstrip() == "Roar (and friend)!", repr(story)
             assert story[1].rstrip() == "Second line", repr(story)
-            desktop.click(30, 90)
-            desktop.capture("paint-erase")
+            desktop.click(30, 185)
+            desktop.capture("paint-new-picture")
             desktop.click(80, 85)
             desktop.key("Escape")  # Dismiss the new-background chooser before loading.
             desktop.click(30, 110)

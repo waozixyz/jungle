@@ -1,8 +1,25 @@
 # Changelog
 
-## [Unreleased]
+## 0.1.22
 
+Released 2026-10-30.
+
+- Give the four new activities their own illustrated menu covers.
+
+- Add Shapes & Sorting, Matching Pairs, Hide & Seek and Little Drums with gentle starting modes, optional progression and English, German and Spanish menus.
+- Make every activity reachable with Home/End and arrow navigation while preserving ABC + 123 and existing saved progress.
+- Add Tropical Fruits, Gardening, School, Water Animals and Drinks picture books, more meals, and unicorn, wooden train and toy piano pages in English, German and Spanish.
+- Give all 284 Picture Book subjects one home across 32 books, replacing repeated pages with new scenes instead of showing a subject twice.
+- Add Badminton to Sports and a new Actions book with cooking, cleaning, reading, drawing, singing, washing hands, brushing teeth and watering plants.
+- Guide Shapes & Sorting with a moving demonstration and highlighted homes; offer harder Matching Pairs puzzles with six, eight or ten pairs.
+- Add counting ranges up to five, ten or twenty and simple addition and subtraction, including zero.
+- Offer three Hide & Seek levels, from peekaboo and finding clues to remembering four hidden friends, with a Show again hint.
+- Make Little Drums an illustrated instrument playground, with drums, a shaker and a bell to tap directly and optional rhythm copying.
+- Speak manually selected Picture Book pages while autoplay is paused, and let right-click return to the books.
 - Correct browser page turns so clicks choose the previous or next page by their position.
+- Keep Picture Book keyboard controls on the selected page and remove the browser focus lines that crossed its illustration and caption.
+- Keep up to eight undo steps for the active Coloring Book picture when reopening the activity or restarting the app.
+- Keep newly placed Coloring Book objects separate, so Erase removes one object without damaging the background or other objects; erasing can be undone. Move confirmed start-over to New picture.
 
 ## 0.1.21
 

@@ -1,13 +1,14 @@
 // Private headless browser check for compressed narration playback.
 import {spawn} from 'node:child_process';
-import {readFile,mkdtemp,rm} from 'node:fs/promises';
+import {readFile,mkdtemp,rm,mkdir} from 'node:fs/promises';
 import {createServer} from 'node:http';
 import {extname,join,resolve} from 'node:path';
 import {setTimeout as delay} from 'node:timers/promises';
 
+await mkdir('work/w',{recursive:true});await mkdir('work/b',{recursive:true});
 const root=resolve(process.env.JUNGLE_WEB_ROOT||'build/web');
 const page=process.env.JUNGLE_WEB_PAGE||'index.html';
-const profile=await mkdtemp('/tmp/jungle-speech-web-');
+const profile=await mkdtemp(resolve('work/w/p-'));
 const mime={'.html':'text/html','.js':'text/javascript','.wasm':'application/wasm','.json':'application/json',
   '.png':'image/png','.jpg':'image/jpeg','.wav':'audio/wav','.ogg':'audio/ogg'};
 const requested=[];
@@ -24,7 +25,7 @@ const server=createServer(async(request,response)=>{
   }
 });
 await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
-const env={...process.env,YUE_DESKTOP_RECOVERY:'0',TMPDIR:'/tmp'};
+const env={...process.env,YUE_DESKTOP_RECOVERY:'0',TMPDIR:resolve('work/b')};
 for(const name of ['DISPLAY','WAYLAND_DISPLAY','XAUTHORITY','DBUS_SESSION_BUS_ADDRESS','SESSION_MANAGER'])delete env[name];
 const browser=spawn(process.env.CHROMIUM||'chromium',['--headless','--no-sandbox','--disable-gpu','--disable-webgl',
   '--disable-dev-shm-usage','--mute-audio','--autoplay-policy=no-user-gesture-required','--no-first-run','--no-default-browser-check','--remote-debugging-port=0',
@@ -123,6 +124,8 @@ URL.revokeObjectURL=url=>{window.speechTest.revoked++;return revokeObjectURL(url
   await waitFor('typeof Module!=="undefined"&&Module.FS&&document.getElementById("loading").style.display==="none"','Startup timed out');
 
   const index=await evaluate('(async()=>await (await fetch("asset-packs.json")).json())()');
+  const bookWavs=Object.keys(index.files).filter(path=>path.startsWith('assets/jungle-book/sounds/')&&path.toLowerCase().endsWith('.wav'));
+  if(bookWavs.length) throw Error('Web index contains Book narration WAVs: '+JSON.stringify(bookWavs));
   const speechEntry=index.files['assets/speech.txt'];
   const lesson='assets/jungle-book/sounds/airplane.wav';
   if(!speechEntry||!Object.keys(index.files).some(path=>path.startsWith('assets/speech/')&&path.endsWith('.ogg')))

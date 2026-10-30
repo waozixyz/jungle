@@ -18,7 +18,9 @@ def browser_environment():
     env = dict(os.environ)
     for key in ('DISPLAY','WAYLAND_DISPLAY','XAUTHORITY','GDK_DISPLAY','DBUS_SESSION_BUS_ADDRESS','SESSION_MANAGER'):
         env.pop(key, None)
-    env.update(YUE_DESKTOP_RECOVERY='0', TMPDIR='/tmp')
+    scratch = ROOT / 'work/b'
+    scratch.mkdir(parents=True, exist_ok=True)
+    env.update(YUE_DESKTOP_RECOVERY='0', TMPDIR=str(scratch))
     return env
 
 

@@ -1,4 +1,4 @@
-// A compiled browser launcher for the same three Jungle game modules.
+// A compiled browser launcher for the same Jungle activity modules.
 #import "app_context"
 #import "app_protocol"
 #import "session"
@@ -22,6 +22,10 @@ Counting :: #import, file "../games/animal/animal_count.zi";
 Paint :: #import, file "../games/paint/dino_paint.zi";
 Jigsaw :: #import, file "../games/jigsaw/jungle_jigsaw.zi";
 Piano :: #import, file "../games/piano/jungle_piano.zi";
+Shapes :: #import, file "../games/shapes/jungle_shapes.zi";
+Matching :: #import, file "../games/matching/jungle_matching.zi";
+HideSeek :: #import, file "../games/hide_seek/jungle_hide_seek.zi";
+Drums :: #import, file "../games/drums/jungle_drums.zi";
 PianoKeys :: #import, file "../games/piano/keyboard.zi";
 #import, file "../host/jungle_menu.zi";
 #import, file "../host/jungle_text.zi";
@@ -30,7 +34,7 @@ PianoKeys :: #import, file "../games/piano/keyboard.zi";
 #import, file "../games/paint/paint_picture.zi";
 #import, file "../retro/language.zi";
 
-web_games: [7]Game = .[
+web_games: [11]Game = .[
     Game.{.title = "Picture Book", .about = "Pictures and words", .age = 2, .icon = "assets/jungle/covers/book.jpg"},
     Game.{.title = "ABC Book", .about = "Letters and sounds", .age = 3, .icon = "assets/jungle/covers/abc.jpg"},
     Game.{.title = "123 Book", .about = "Numbers and quantities", .age = 3, .icon = "assets/jungle/covers/numbers.jpg"},
@@ -38,6 +42,10 @@ web_games: [7]Game = .[
     Game.{.title = "Coloring Book", .about = "Draw and color", .age = 5, .icon = "assets/jungle/covers/paint.jpg"},
     Game.{.title = "Jigsaw Puzzles", .about = "Pictures, piece by piece", .age = 3, .icon = "assets/jungle/covers/jigsaw.jpg"},
     Game.{.title = "Little Piano", .about = "Colors, keys and songs", .age = 5, .icon = "assets/jungle/covers/piano.jpg"},
+    Game.{.title = "Shapes & Sorting", .about = "Shapes, colors and sizes", .age = 2, .icon = "assets/jungle/covers/shapes.jpg"},
+    Game.{.title = "Matching Pairs", .about = "Find friendly animal pairs", .age = 2, .icon = "assets/jungle/covers/matching.jpg"},
+    Game.{.title = "Hide & Seek", .about = "Peek, find and discover", .age = 2, .icon = "assets/jungle/covers/hide-seek.jpg"},
+    Game.{.title = "Little Drums", .about = "Tap, listen and copy", .age = 2, .icon = "assets/jungle/covers/drums.jpg"},
 ];
 active_game: s32 = -1;
 selected: s32;
@@ -55,6 +63,10 @@ canvas_sequence: s32;
 export_pixels: [CANVAS_PIXELS]u8;
 
 GamePrefix :: () -> string {
+    if active_game == 10 { return "jungle.drums/" }
+    if active_game == 9 { return "jungle.hide_seek/" }
+    if active_game == 8 { return "jungle.matching/" }
+    if active_game == 7 { return "jungle.shapes/" }
     if active_game == 6 { return "jungle.piano/" }
     if active_game == 5 { return "jungle.jigsaw/" }
     if active_game == 0 { return "jungle.book/" }
@@ -65,6 +77,10 @@ GamePrefix :: () -> string {
 }
 
 RunGame :: () -> s32 {
+    if active_game == 10 { return Drums.GameMain() }
+    if active_game == 9 { return HideSeek.GameMain() }
+    if active_game == 8 { return Matching.GameMain() }
+    if active_game == 7 { return Shapes.GameMain() }
     if active_game == 0 { return Book.GameMain() }
     if active_game == 1 { return ABC.GameMain() }
     if active_game == 2 { return Numbers.GameMain() }

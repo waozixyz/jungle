@@ -19,7 +19,7 @@ with tempfile.TemporaryDirectory(prefix='jungle-playback-') as temporary:
     with Desktop(binary, data) as desktop:
         run(['xdotool', 'windowmove', desktop.window, '0', '0'], desktop.env)
         desktop.resize(960, 600)
-        desktop.key('1')
+        desktop.game("Picture Book")
         desktop.key('1')
         before = desktop.capture_actual('playback-book-before-pause')
         desktop.key('space')
@@ -51,7 +51,7 @@ with tempfile.TemporaryDirectory(prefix='jungle-playback-') as temporary:
         assert (choices / 'skip-jungle.txt').read_text() == 'yes'
         desktop.click_actual(773, 526)
         desktop.key('Escape')
-        desktop.key('2')
+        desktop.game("ABC Book")
         desktop.key('2')
         number_one = desktop.capture_actual('playback-number-one')
         time.sleep(4.7)

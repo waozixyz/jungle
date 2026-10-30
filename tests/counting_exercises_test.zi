@@ -1,0 +1,64 @@
+#import, file "../games/animal/counting_exercises.zi";
+#import, file "../games/animal/counting_progress.zi";
+#import, file "../games/animal/counting.zi";
+#import, file "../host/platform.zi";
+
+#program_export
+main :: () -> s32 {
+    zero_seen := false
+    results: [6]bool
+    for mode: cast(s32)0..2 {
+        for bound: cast(s32)0..4 {
+            limits: [5]s32 = .[5,10,20,0,-1]
+            limit := limits[bound]
+            lowest := false; highest := false
+            for seed: cast(s32)-1000..1000 {
+                e := CountExerciseNew(mode, limit, seed)
+                again := CountExerciseNew(mode, limit, seed)
+                if e.mode != again.mode || e.left != again.left || e.right != again.right || e.result != again.result { return 1 }
+                if mode == COUNT_MODE {
+                    max := ifx limit < 1 then 5 else limit
+                    if e.result == 1 { lowest = true }
+                    if e.result == max { highest = true }
+                    if e.left != e.result || e.result < 1 || e.result > max || e.right != 0 { return 2 }
+                } else {
+                    if e.left < 1 || e.left > 5 || e.right < 1 || e.right > 5 || e.result < 0 || e.result > 5 { return 3 }
+                    if mode == COUNT_ADD && (e.result != e.left + e.right || e.result < 2) { return 4 }
+                    if mode == COUNT_SUBTRACT {
+                        if e.result != e.left - e.right || e.right > e.left { return 5 }
+                        if e.result == 0 { zero_seen = true }
+                    }
+                    results[e.result] = true
+                }
+            }
+            if mode == COUNT_MODE && (!lowest || !highest) { return 12 }
+        }
+    }
+    extremes: [2]s32 = .[-2147483648,2147483647]
+    for seed: extremes {
+        for mode: cast(s32)0..2 {
+            e := CountExerciseNew(mode,20,seed)
+            if e.result < 0 || e.result > (ifx mode == 0 then 20 else 5) { return 13 }
+        }
+    }
+    if !zero_seen { return 6 }
+    for r: cast(s32)0..5 { if !results[r] { return 7 } }
+    for mode: cast(s32)0..2 {
+        limits: [4]s32 = .[0,5,10,20]
+        for limit: limits {
+            o := CountOptionsRead(CountOptionsText(CountOptions.{mode,limit}))
+            if o.mode != mode || o.limit != limit { return 8 }
+        }
+    }
+    bad: [9]string = .["", "counting1 3 5\n", "counting1 1 6\n", "counting1 -1 20\n", "counting1 1 5x", "counting1 1", "counting1 999999999999999999 5\n", "counting1 1 5\nextra", "animal 2 4 0 0\n"]
+    for text: bad {
+        o := CountOptionsRead(text)
+        if o.mode != 0 || o.limit != 0 { return 9 }
+    }
+    CountProgressRead("animal 7 123 4 2\n")
+    if level != 7 || count != 123 || right_run != 4 || miss_run != 2 { return 10 }
+    CountProgressRead("animal 0 9 0 0\n")
+    if level != 7 || count != 123 { return 11 }
+    Report("local counting exercises unit: deterministic bounds, arithmetic, zero, options validation and legacy fixture passed\n")
+    return 0
+}

@@ -40,6 +40,7 @@ def fake_tree(root):
     write(root, 'assets/jungle-book/previews/bedtime.jpg', b'cover')
     write(root, 'assets/jungle-book/sounds/en/tiger.wav', b'tiger voice')
     write(root, 'assets/jungle-book/sounds/en/tiger.speech.json', b'{}')
+    write(root, 'assets/jungle-book/sounds/de/simple/lettuce.wav', b'retired voice')
     write(root, 'assets/jungle-book/sounds/en/letters/0061.wav', b'a')
     for name in shared_assets.COUNTING:
         write(root, f'assets/jungle-book/counting/{name}.png', name.encode())
@@ -91,6 +92,7 @@ def staging_test():
         app, stage = root / 'app', root / 'stage'
         # Stale files from an earlier build, including renamed artwork.
         write(app, 'assets/jungle-book/pages/old.jpg', b'old')
+        write(app, 'assets/jungle-book/sounds/de/simple/lettuce.wav', b'old retired voice')
         write(app, 'assets/jungle-book/previews/bedtime.jpg', b'cover')
         write(stage, 'jungle-book/assets/jungle-book/pages/tiger.jpg', b'tiger page')
         write(stage, 'animal-count/assets/animal-count/pictures/tiger.png', b'tiger')
@@ -111,6 +113,9 @@ def staging_test():
         assert (app / shared_assets.MANIFEST).stat().st_mtime_ns == 1
         assert all((stage / (name + '.files')).stat().st_mtime_ns == 1 for name in listings)
         assert (app / shared_assets.MANIFEST).read_text() == text
+        assert (root / 'source/assets/jungle-book/sounds/de/simple/lettuce.wav').read_bytes() == b'retired voice'
+        assert not (app / 'assets/jungle-book/sounds/de/simple/lettuce.wav').exists()
+        assert not any(name.endswith('.wav') and name.startswith('assets/jungle-book/sounds/') for name in web)
         shared, parsed = manifest(app / shared_assets.MANIFEST)
         assert shared == list(shared_assets.SHARED)
         expected = {f'assets/animal-count/pictures/{name}.png': f'assets/jungle-book/counting/{name}.png'
@@ -125,7 +130,7 @@ def staging_test():
                          'assets/jungle/icons/icon-64.png', 'assets/jungle/sounds/select.wav',
                          'assets/jungle-book/pages/tiger.jpg', 'assets/jungle-book/pages/lion.jpg',
                          'assets/jungle-book/items/tiger.png',
-                         'assets/jungle-book/previews/bedroom.jpg', 'assets/jungle-book/sounds/en/tiger.wav',
+                         'assets/jungle-book/previews/bedroom.jpg',
                          *{f'assets/jungle-book/counting/{name}.png' for name in shared_assets.COUNTING}}, files
         staged = {path.relative_to(stage).as_posix() for path in stage.rglob('*') if path.is_file()}
         assert staged == {'.shared-assets', 'speech-manifest.json', *{name + '.files' for name in bundles},
@@ -192,7 +197,9 @@ def real_tree_test():
                 sounds += 1
     assert sounds > 150
     book_sounds = [path for path in shared_assets.Folder('assets/jungle-book') if '/sounds/' in path]
-    assert book_sounds and all(path in installed for path in book_sounds)
+    assert all(path in installed for path in book_sounds)
+    assert not any(path.startswith('assets/jungle-book/sounds/') and path.endswith('.wav') for path in installed)
+    assert (ROOT / 'assets/jungle-book/sounds/de/simple/lettuce.wav').is_file()
     # Original artwork bytes are never changed, only copied or aliased.
     for path, source in installed.items():
         assert source == shared_assets.ROOT / path
@@ -220,7 +227,8 @@ def make_test():
         write(root, 'assets/jigsaw/tiger.jpg', b'jigsaw')
         (root / 'tools').mkdir()
         for name in ('shared_assets.py', 'speech_codec.py', 'book_speech.py', 'book_catalog.py',
-                     'book_expansion.json', 'outdoor_books.json'):
+                     'book_expansion.json', 'book_learning_expansion.json', 'outdoor_books.json',
+                     'book_unique_expansion.json'):
             shutil.copy2(ROOT / 'tools' / name, root / 'tools' / name)
         (root / 'tools/speech_manifest.py').write_text(SPEECH_STUB)
         shutil.copy2(ROOT / 'Makefile', root / 'Makefile')
@@ -237,6 +245,11 @@ def make_test():
         listing = root / 'build/stage/jungle-numbers.files'
         assert page.exists() and staged.exists()
         assert 'shared_assets.py' not in make(), 'staging reran with nothing changed'
+        for name in ('book_expansion.json', 'outdoor_books.json', 'book_learning_expansion.json', 'book_unique_expansion.json'):
+            time.sleep(.05)
+            (root / 'tools' / name).touch()
+            assert 'shared_assets.py' in make(), f'{name} did not rerun staging'
+            assert 'shared_assets.py' not in make(), f'{name} caused repeated staging'
         os.utime(listing, ns=(1, 1))
         # File times use the kernel's coarse clock; step past the last stamp.
         time.sleep(.05)

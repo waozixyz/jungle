@@ -24,6 +24,7 @@ InkCount :: () -> s32 {
 }
 
 Blank :: () {
+    CanvasLayersClear()
     for at: cast(s32)0..CANVAS_PIXELS - 1 { canvas[at] = cast(u8)PAPER }
 }
 
@@ -136,6 +137,7 @@ main :: (argc: s32, argv: **u8) -> s32 {
             // Its white interior must erase both; transparent scenery and
             // everything outside its bounds must survive.
             for mirror: cast(s32)0..1 {
+                CanvasLayersClear()
                 for at: cast(s32)0..CANVAS_PIXELS - 1 { canvas[at] = cast(u8)(ifx at % 2 == 0 then INK else 17) }
                 x := CANVAS_WIDTH - w
                 CanvasStampDino(dino, size, x, 0, mirror == 1)

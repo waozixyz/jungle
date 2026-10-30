@@ -60,6 +60,7 @@ main :: () -> s32 {
     bad[PICTURE_HEADER.count] = #char "z"
     if PictureLoad(BuilderFinish(bad)) || scene != 3 { return 7 }
     // Black paint remains paint; it must not become an immutable outline.
+    CanvasLayersClear()
     for at: cast(s32)0..CANVAS_PIXELS - 1 { canvas[at] = cast(u8)BLACK_PAINT }
     black := PictureText()
     if !PictureLoad(black) || CanvasFill(0, 0, 44) != CANVAS_PIXELS { return 8 }

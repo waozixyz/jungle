@@ -1,0 +1,219 @@
+// Matching Pairs rules and validated saves, without drawing.
+// Mode 0 shows every card face up; modes 1 to 6 are memory rounds with two,
+// three, four, six, eight or ten face-down pairs. A miss stays visible until the screen
+// settles it, and nothing is ever counted against the player.
+#import "std/format"
+#import, file "../../host/jungle_text.zi";
+#import, file "../../retro/language.zi";
+
+MATCH_ANIMALS :: 22
+MATCH_MODES :: 7
+MATCH_MAX_CARDS :: 20
+MATCH_MAX_ROUNDS :: 100000
+
+// What choosing a card did.
+MATCH_IGNORED :: 0
+MATCH_FIRST :: 1
+MATCH_PAIR :: 2
+MATCH_MISS :: 3
+
+match_animals: [22]string = .["tiger", "frog", "butterfly", "ladybug", "snail", "elephant", "giraffe",
+    "monkey", "panda", "lion", "zebra", "crocodile", "parrot", "toucan", "rabbit", "cat", "dog", "sheep",
+    "duck", "hen", "pig", "cow"];
+match_mode_pairs: [7]s32 = .[2, 2, 3, 4, 6, 8, 10];
+
+Matching :: struct {
+    mode: s32
+    // Finished rounds; the first one offers the memory rounds.
+    rounds: s32
+    cards: s32
+    animals: [20]s32
+    matched: [20]bool
+    // The card chosen first, and the second card of a miss being shown.
+    first: s32
+    second: s32
+}
+
+MatchingPairs :: (mode: s32) -> s32 {
+    if mode < 0 || mode >= MATCH_MODES { return match_mode_pairs[0] }
+    return match_mode_pairs[mode]
+}
+
+MatchingHidden :: (m: Matching) -> bool { return m.mode > 0 }
+
+// The larger memory rounds get one friendly look before play begins.
+MatchingPreviewMode :: (m: Matching) -> bool {
+    return m.mode >= 4 && m.mode < MATCH_MODES
+}
+
+MatchingRandom :: (random: *s64) -> s64 {
+    random.* = (random.* * 48271) % 2147483647
+    return random.*
+}
+
+// A new round in `mode`: `pairs` different animals, each on exactly two
+// cards, in a shuffled order that depends only on `seed`.
+MatchingNew :: (mode: s32, seed: s32, rounds: s32 = 0) -> Matching {
+    m := Matching.{.mode = mode, .rounds = rounds, .first = -1, .second = -1}
+    if m.mode < 0 || m.mode >= MATCH_MODES { m.mode = 0 }
+    if m.rounds < 0 || m.rounds > MATCH_MAX_ROUNDS { m.rounds = 0 }
+    pairs := MatchingPairs(m.mode)
+    m.cards = pairs * 2
+    random: s64 = cast(s64)(seed & 0x7fffffff) % 2147483646 + 1
+    pool: [22]s32
+    for i: cast(s32)0..MATCH_ANIMALS - 1 { pool[i] = i }
+    for i: cast(s32)0..pairs - 1 {
+        j := i + cast(s32)(MatchingRandom(*random) % cast(s64)(MATCH_ANIMALS - i))
+        swap := pool[i]; pool[i] = pool[j]; pool[j] = swap
+        m.animals[i * 2] = pool[i]; m.animals[i * 2 + 1] = pool[i]
+    }
+    i := m.cards - 1
+    while i > 0 {
+        j := cast(s32)(MatchingRandom(*random) % cast(s64)(i + 1))
+        swap := m.animals[i]; m.animals[i] = m.animals[j]; m.animals[j] = swap
+        i -= 1
+    }
+    return m
+}
+
+MatchingFaceUp :: (m: Matching, card: s32) -> bool {
+    if card < 0 || card >= m.cards { return false }
+    return !MatchingHidden(m) || m.matched[card] || card == m.first || card == m.second
+}
+
+MatchingDone :: (m: Matching) -> bool {
+    if m.cards <= 0 { return false }
+    for i: cast(s32)0..m.cards - 1 { if !m.matched[i] { return false } }
+    return true
+}
+
+MatchingFound :: (m: Matching) -> s32 {
+    found: s32
+    for i: cast(s32)0..m.cards - 1 { if m.matched[i] { found += 1 } }
+    return found / 2
+}
+
+MatchingResolving :: (m: Matching) -> bool { return m.second >= 0 }
+
+// Chooses a card. Matched cards, the card already chosen and every tap while
+// a miss is still showing are ignored.
+MatchingChoose :: (m: *Matching, card: s32) -> s32 {
+    if card < 0 || card >= m.cards || m.matched[card] || m.second >= 0 || card == m.first { return MATCH_IGNORED }
+    if m.first < 0 { m.first = card; return MATCH_FIRST }
+    if m.animals[m.first] == m.animals[card] {
+        m.matched[m.first] = true; m.matched[card] = true
+        m.first = -1
+        if MatchingDone(m.*) && m.rounds < MATCH_MAX_ROUNDS { m.rounds += 1 }
+        return MATCH_PAIR
+    }
+    m.second = card
+    return MATCH_MISS
+}
+
+// Ends a miss: both cards are let go, and in memory rounds only the
+// unmatched ones turn back over.
+MatchingSettle :: (m: *Matching) {
+    if m.second < 0 { return }
+    m.first = -1; m.second = -1
+}
+
+// Which of the round's pairs a card belongs to, in order of first appearance,
+// so each found pair can wear its own gentle color.
+MatchingPairSlot :: (m: Matching, card: s32) -> s32 {
+    if card < 0 || card >= m.cards { return 0 }
+    slot: s32
+    for i: cast(s32)0..m.cards - 1 {
+        if m.animals[i] == m.animals[card] { return slot }
+        if MatchingFirstCard(m, m.animals[i]) == i { slot += 1 }
+    }
+    return slot
+}
+
+MatchingFirstCard :: (m: Matching, animal: s32) -> s32 {
+    for i: cast(s32)0..m.cards - 1 { if m.animals[i] == animal { return i } }
+    return -1
+}
+
+MatchingAnimalName :: (m: Matching, card: s32) -> string {
+    if card < 0 || card >= m.cards { return match_animals[0] }
+    return match_animals[m.animals[card]]
+}
+
+// Only the mode, finished rounds and the cards are kept; a showing miss or
+// a half-chosen pair never is.
+MatchingText :: (m: Matching) -> string {
+    text := Cat("matching 1 ", NumberText(m.mode), " ", NumberText(m.rounds), " ", NumberText(m.cards))
+    for i: cast(s32)0..m.cards - 1 { text = Cat(text, " ", NumberText(m.animals[i])) }
+    for i: cast(s32)0..m.cards - 1 { text = Cat(text, " ", ifx m.matched[i] then "1" else "0") }
+    return Cat(text, "\n")
+}
+
+MatchingRead :: (text: string, result: *Matching) -> bool {
+    if text.count < 11 || text[:11] != "matching 1 " { return false }
+    at: s64 = 11
+    header: [3]s32
+    for i: cast(s32)0..2 {
+        header[i] = ReadWhole(text, *at)
+        if header[i] < 0 || at >= text.count || text[at] != #char " " { return false }
+        at += 1
+    }
+    if header[0] < 0 || header[0] >= MATCH_MODES || header[1] < 0 || header[1] > MATCH_MAX_ROUNDS ||
+        header[2] != MatchingPairs(header[0]) * 2 { return false }
+    m := Matching.{.mode = header[0], .rounds = header[1], .cards = header[2], .first = -1, .second = -1}
+    copies: [22]s32
+    for i: cast(s32)0..m.cards * 2 - 1 {
+        value := ReadWhole(text, *at)
+        if value < 0 { return false }
+        if i < m.cards {
+            if value >= MATCH_ANIMALS { return false }
+            m.animals[i] = value; copies[value] += 1
+        } else {
+            if value > 1 { return false }
+            m.matched[i - m.cards] = value == 1
+        }
+        if i < m.cards * 2 - 1 {
+            if at >= text.count || text[at] != #char " " { return false }
+            at += 1
+        }
+    }
+    if at < text.count && text[at] == #char "\n" { at += 1 }
+    if at != text.count { return false }
+    for i: cast(s32)0..m.cards - 1 {
+        if copies[m.animals[i]] != 2 { return false }
+        for j: cast(s32)0..m.cards - 1 {
+            if j != i && m.animals[j] == m.animals[i] && m.matched[j] != m.matched[i] { return false }
+        }
+    }
+    result.* = m
+    return true
+}
+
+// Square cards in the most generous grid that fits `width` by `height`.
+MatchGrid :: struct {
+    columns: s32
+    rows: s32
+    edge: s32
+}
+
+MatchingGrid :: (cards: s32, width: s32, height: s32, gap: s32) -> MatchGrid {
+    best := MatchGrid.{.columns = 1, .rows = 1, .edge = 0}
+    if cards <= 0 { return best }
+    for columns: cast(s32)1..cards {
+        rows := (cards + columns - 1) / columns
+        // Only full rows, so no card is left sitting alone.
+        if cards % columns != 0 && columns < cards { continue }
+        edge := (width - gap * (columns - 1)) / columns
+        tall := (height - gap * (rows - 1)) / rows
+        if tall < edge { edge = tall }
+        if edge > best.edge { best = MatchGrid.{.columns = columns, .rows = rows, .edge = edge} }
+    }
+    if best.edge < 0 { best.edge = 0 }
+    return best
+}
+
+// Game-local English, German and Spanish wording.
+MatchingWords :: (en: string, de: string, es: string) -> string {
+    if language == 1 { return de }
+    if language == 2 { return es }
+    return en
+}

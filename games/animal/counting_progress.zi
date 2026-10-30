@@ -8,8 +8,10 @@ CountSave :: () -> bool {
         " ", NumberText(right_run), " ", NumberText(miss_run), "\n"))
 }
 
-CountLoad :: () {
-    text := DocumentRead("progress.txt")
+CountLoad :: () { CountProgressRead(DocumentRead("progress.txt")) }
+
+// Parse the legacy record without changing its representation.
+CountProgressRead :: (text: string) {
     if text.count < 7 || text[:7] != "animal " { return }
     at: s64 = 7
     values: [4]s32

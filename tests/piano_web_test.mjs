@@ -5,11 +5,13 @@ import {createServer} from 'node:http';
 import {resolve,join,extname} from 'node:path';
 import {setTimeout as delay} from 'node:timers/promises';
 
+await mkdir('work/w',{recursive:true});await mkdir('work/b',{recursive:true});
 const root=resolve(process.env.JUNGLE_WEB_ROOT||'build/web');
 const page=process.env.JUNGLE_WEB_PAGE||'index.html';
 const menu=(await readFile('games/catalog.txt','utf8')).trim().split('\n').map(l=>l.split('|')).filter(r=>r[1]!=='123 Book').sort((a,b)=>Number(a[4])-Number(b[4]));
-const pianoEntry=String(menu.findIndex(r=>r[1]==='Little Piano')+1);
-const profile=await mkdtemp('/tmp/jungle-piano-web-');
+const pianoEntry=menu.findIndex(r=>r[1]==='Little Piano');
+if(pianoEntry<0)throw Error('Little Piano missing from catalog');
+const profile=await mkdtemp(resolve('work/w/p-'));
 const mime={'.html':'text/html','.js':'text/javascript','.wasm':'application/wasm','.json':'application/json','.png':'image/png','.jpg':'image/jpeg','.wav':'audio/wav'};
 const server=createServer(async(req,res)=>{
  try{
@@ -20,9 +22,9 @@ const server=createServer(async(req,res)=>{
  }catch{res.writeHead(404);res.end()}
 });
 await new Promise(r=>server.listen(0,'127.0.0.1',r));
-const env={...process.env,YUE_DESKTOP_RECOVERY:'0',TMPDIR:'/tmp'};
+const env={...process.env,YUE_DESKTOP_RECOVERY:'0',TMPDIR:resolve('work/b')};
 for(const key of ['DISPLAY','WAYLAND_DISPLAY','XAUTHORITY','DBUS_SESSION_BUS_ADDRESS','SESSION_MANAGER'])delete env[key];
-const browser=spawn(process.env.CHROMIUM||'chromium',['--headless','--no-sandbox','--disable-gpu','--disable-webgl','--disable-dev-shm-usage','--no-first-run','--no-default-browser-check','--remote-debugging-port=0','--user-data-dir='+profile,'about:blank'],{env,stdio:['ignore','ignore','pipe']});
+const browser=spawn(process.env.CHROMIUM||'chromium',['--headless','--mute-audio','--no-sandbox','--disable-gpu','--disable-webgl','--disable-dev-shm-usage','--no-first-run','--no-default-browser-check','--remote-debugging-port=0','--user-data-dir='+profile,'about:blank'],{env,stdio:['ignore','ignore','pipe']});
 let socket,stderr='',errors=[];
 browser.stderr.on('data',data=>stderr=(stderr+data).slice(-3000));
 try{
@@ -55,7 +57,7 @@ try{
  async function key(key){
   // App-level shortcuts are tested with no native control holding focus.
   if(key==='Enter'||key===' ')await evaluate('if(document.documentElement.dataset.backend==="dom")document.activeElement?.blur()');
-  const code=key==='Enter'?13:key==='Escape'?27:key===' '?32:key.toUpperCase().charCodeAt(0);
+  const code=key==='Home'?36:key==='ArrowDown'?40:key==='Enter'?13:key==='Escape'?27:key===' '?32:key.toUpperCase().charCodeAt(0);
   await command('Input.dispatchKeyEvent',{type:'keyDown',key,windowsVirtualKeyCode:code});
   await delay(80);
   await command('Input.dispatchKeyEvent',{type:'keyUp',key,windowsVirtualKeyCode:code});await delay(180);
@@ -92,7 +94,7 @@ try{
   const y=top+h-22-kh,cw=Math.min(kw,620),rh=h<360?30:40,controls=y-(cw<500?rh*2+6:rh)-12;
   return {x,y:y+56,kh,keyWidth,controls:controls+56,top:top+56,h,title:top+8+56};
  }
- await key(pianoEntry);await key('1');await key('w');await key('2');
+ await key('Home');for(let i=0;i<pianoEntry;i++)await key('ArrowDown');await key('Enter');await key('1');await key('w');await key('2');
  let notes=await evaluate('pianoAudio.map(note=>note.path)');
  if(JSON.stringify(notes)!==JSON.stringify([60,61,62].map(p=>'assets/piano/sounds/'+p+'.wav')))throw Error('Wrong fixed shortcut pitches: '+JSON.stringify(notes));
  if(await evaluate('pianoAudio.some(note=>note.volume!==.25)'))throw Error('Piano bypassed quiet gain');
@@ -106,7 +108,7 @@ try{
  for(let n=0;n<black.length;n++)await click(p.x+(after[n]+1)*p.keyWidth,p.y+20);
  notes=await evaluate('pianoAudio.map(note=>Number(note.path.match(/(\\d+)\\.wav$/)[1]))');
  if(JSON.stringify(notes)!==JSON.stringify([...white,...black]))throw Error('37-key geometry/audio mismatch '+JSON.stringify(notes));
- await mkdir('build/tests/web',{recursive:true});
+ await mkdir('backup/catalog-ui-integration/web',{recursive:true});
  // Optional phrase lessons demonstrate before accepting input. A short tap
  // retries the same note; a complete hold/release moves to the next pitch.
  await evaluate('pianoAudio=[]');await click(370,p.controls+20);
@@ -116,18 +118,18 @@ try{
  if(await evaluate('pianoAudio.length'))throw Error('Lesson accepted the wrong first pitch');
  await key('1');await key('2');
  if(await evaluate('pianoAudio.length!==1'))throw Error('An early release passed the lesson note');
- await command('Input.dispatchKeyEvent',{type:'keyDown',key:'1',windowsVirtualKeyCode:49});await delay(420);
+ await command('Input.dispatchKeyEvent',{type:'keyDown',key:'1',code:'Digit1',windowsVirtualKeyCode:49});await delay(420);
  if(await evaluate('document.documentElement.dataset.backend==="dom"')&&!await evaluate('document.body.innerText.includes("Let go now")'))throw Error('Missing exact release cue');
- await writeFile('build/tests/web/piano-lesson-release-'+page+'.png',Buffer.from((await command('Page.captureScreenshot',{format:'png'})).data,'base64'));
- await command('Input.dispatchKeyEvent',{type:'keyUp',key:'1',windowsVirtualKeyCode:49});await delay(100);await key('2');
- if(await evaluate('!pianoAudio.at(-1)?.path.endsWith("/62.wav")'))throw Error('Holding and releasing did not advance the lesson');
+ await writeFile('backup/catalog-ui-integration/web/piano-lesson-release-'+page+'.png',Buffer.from((await command('Page.captureScreenshot',{format:'png'})).data,'base64'));
+ await command('Input.dispatchKeyEvent',{type:'keyUp',key:'1',code:'Digit1',windowsVirtualKeyCode:49});await delay(100);await key('2');
+ if(await evaluate('!pianoAudio.at(-1)?.path.endsWith("/62.wav")'))throw Error('Holding and releasing did not advance the lesson '+JSON.stringify(await evaluate('({audio:pianoAudio,text:document.body.innerText})')));
  await click(480,p.title+16);await evaluate('pianoAudio=[]');await key('Escape');
  await waitFor('pianoAudio.length>0','Cancelling the song chooser stranded the lesson');
  await key('Enter');
 
  for(let song=0;song<5;song++){
   await click(480,p.title+16);
-  if(song===0)await writeFile('build/tests/web/piano-chooser-'+page+'.png',Buffer.from((await command('Page.captureScreenshot',{format:'png'})).data,'base64'));
+  if(song===0)await writeFile('backup/catalog-ui-integration/web/piano-chooser-'+page+'.png',Buffer.from((await command('Page.captureScreenshot',{format:'png'})).data,'base64'));
   const row=Math.min(64,Math.floor((p.h-118)/5));
   await click(480,p.top+70+song*row+(row-6)/2);
   await evaluate('pianoAudio=[]');await click(p.x+7.5*p.keyWidth,p.y+p.kh*.85);
@@ -144,12 +146,12 @@ try{
  if(JSON.stringify(played.map(n=>Number(n.path.match(/(\d+)\.wav$/)[1])))!==JSON.stringify(expected))throw Error('Selected melody changed '+JSON.stringify(played));
  if(played[3].time-played[2].time<1100)throw Error('Half note ended early');
  if(!(await evaluate('pianoElement.paused')))throw Error('Last note never stopped');
- await writeFile('build/tests/web/piano-score-'+page+'.png',Buffer.from((await command('Page.captureScreenshot',{format:'png'})).data,'base64'));
+ await writeFile('backup/catalog-ui-integration/web/piano-score-'+page+'.png',Buffer.from((await command('Page.captureScreenshot',{format:'png'})).data,'base64'));
  await click(930,25);await evaluate('pianoAudio=[]');await key('3');
  if(await evaluate('pianoAudio.length'))throw Error('Muted piano played audio');
  await click(930,25);await key('3');await waitFor('pianoAudio.length===1','Unmuting did not restore audio');
  await key('Escape');if(!(await evaluate('pianoElement.paused')))throw Error('Leaving piano did not stop audio');
- await key(pianoEntry);
+ await key('Home');for(let i=0;i<pianoEntry;i++)await key('ArrowDown');await key('Enter');
  await command('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});await delay(500);
  const phone=layout(390,844);
  await evaluate('pianoAudio=[]');
@@ -167,7 +169,7 @@ try{
  await command('Input.dispatchMouseEvent',{type:'mouseWheel',x:phone.x+100,y:phone.y+30,deltaX:0,deltaY:-3000});await delay(800);
  await evaluate('pianoAudio=[]');await click(phone.x+18,phone.y+phone.kh*.85);
  if(await evaluate('pianoAudio.at(-1)?.path')!=='assets/piano/sounds/48.wav')throw Error('Phone cannot reach fixed low C3');
- await writeFile('build/tests/web/piano-'+page+'.png',Buffer.from((await command('Page.captureScreenshot',{format:'png'})).data,'base64'));
+ await writeFile('backup/catalog-ui-integration/web/piano-'+page+'.png',Buffer.from((await command('Page.captureScreenshot',{format:'png'})).data,'base64'));
  if(errors.length)throw Error(JSON.stringify(errors));
  console.log('local piano browser test ('+page+'): 37 accurate physical keys, five-song selection without remapping, complete selected melody, held notes, quiet gain, touch, mute and back passed');
 }finally{

@@ -1,0 +1,46 @@
+// Pure exercises and validated options; the original automatic ladder is separate.
+#import, file "../../host/jungle_text.zi";
+COUNT_MODE :: 0
+COUNT_ADD :: 1
+COUNT_SUBTRACT :: 2
+CountExercise :: struct { mode: s32; left: s32; right: s32; result: s32 }
+CountOptions :: struct { mode: s32; limit: s32 }
+
+CountExerciseNew :: (mode: s32, limit: s32, seed: s32) -> CountExercise {
+    bits := cast(u32)seed
+    bits ^= bits << 13
+    bits ^= bits >> 17
+    bits ^= bits << 5
+    n := cast(s32)(bits & cast(u32)0x7fffffff)
+    if mode == COUNT_ADD {
+        left := 1 + n % 4
+        right := 1 + (n / 4) % (5 - left)
+        return CountExercise.{COUNT_ADD, left, right, left + right}
+    }
+    if mode == COUNT_SUBTRACT {
+        left := 1 + n % 5
+        right := 1 + (n / 5) % left
+        return CountExercise.{COUNT_SUBTRACT, left, right, left - right}
+    }
+    if limit < 1 || limit > 20 { limit = 5 }
+    amount := 1 + n % limit
+    return CountExercise.{COUNT_MODE, amount, 0, amount}
+}
+
+CountOptionsRead :: (text: string) -> CountOptions {
+    fallback := CountOptions.{COUNT_MODE, 0}
+    if text.count < 12 || text[:10] != "counting1 " { return fallback }
+    at: s64 = 10
+    mode := ReadWhole(text, *at)
+    if at >= text.count || text[at] != #char " " { return fallback }
+    at += 1
+    limit := ReadWhole(text, *at)
+    if at < text.count && text[at] == #char "\n" { at += 1 }
+    if at != text.count || mode < 0 || mode > 2 { return fallback }
+    if limit != 0 && limit != 5 && limit != 10 && limit != 20 { return fallback }
+    return CountOptions.{mode, limit}
+}
+
+CountOptionsText :: (options: CountOptions) -> string {
+    return Cat("counting1 ", NumberText(options.mode), " ", NumberText(options.limit), "\n")
+}

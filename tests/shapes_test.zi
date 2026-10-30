@@ -1,0 +1,229 @@
+#import, file "../games/shapes/shapes.zi";
+#import, file "../host/jungle_text.zi";
+
+Inside :: (r: ShapesRect, width: s32, height: s32) -> bool {
+    return r.width > 0 && r.height > 0 && r.x >= 0 && r.y >= 0 && r.x + r.width <= width && r.y + r.height <= height
+}
+
+Within :: (r: ShapesRect, outer: ShapesRect) -> bool {
+    return r.width > 0 && r.height > 0 && r.x >= outer.x && r.y >= outer.y &&
+        r.x + r.width <= outer.x + outer.width && r.y + r.height <= outer.y + outer.height
+}
+
+Apart :: (a: ShapesRect, b: ShapesRect) -> bool {
+    return a.x + a.width <= b.x || b.x + b.width <= a.x || a.y + a.height <= b.y || b.y + b.height <= a.y
+}
+
+// Every item has exactly one home and every home is used equally.
+Solvable :: (s: Shapes) -> bool {
+    if s.target_count < 2 || s.target_count > SHAPES_MAX_TARGETS { return false }
+    if s.item_count < s.target_count || s.item_count > SHAPES_MAX_ITEMS || s.item_count % s.target_count != 0 { return false }
+    limit: s32 = ifx s.mode == SHAPES_MODE_SIZE then 2 else 3
+    for t: cast(s32)0..s.target_count - 1 {
+        if s.targets[t] < 0 || s.targets[t] >= limit { return false }
+        for u: cast(s32)0..s.target_count - 1 { if t != u && s.targets[t] == s.targets[u] { return false } }
+        found: s32
+        for at: cast(s32)0..s.item_count - 1 { if s.items[at] == s.targets[t] { found += 1 } }
+        if found != s.item_count / s.target_count { return false }
+    }
+    for at: cast(s32)0..s.item_count - 1 { if s.placed[at] != -1 || ShapesTargetFor(s, at) < 0 { return false } }
+    return s.selected == 0 && s.misses == 0 && s.hint == -1
+}
+
+// Sorts the whole round, missing `misses` times first.
+Solve :: (s: *Shapes, misses: s32) -> bool {
+    wrong := misses
+    guard: s32
+    while !ShapesDone(s.*) && guard < 40 {
+        guard += 1
+        item := s.selected
+        if item < 0 { return false }
+        right := ShapesTargetFor(s.*, item)
+        if wrong > 0 {
+            other := (right + 1) % s.target_count
+            if ShapesDrop(s, other) != SHAPES_MISSED || s.hint != right || s.selected != item || s.placed[item] != -1 { return false }
+            wrong -= 1
+            continue
+        }
+        if ShapesDrop(s, right) != SHAPES_PLACED || s.placed[item] != right { return false }
+    }
+    return ShapesDone(s.*)
+}
+
+#program_export
+main :: () -> s32 {
+    // Explicit mixed board: guidance follows the chosen piece, not the first
+    // home or a presumed left-to-right route. Watching cannot play the game.
+    lesson: Shapes
+    lesson.target_count = 3; lesson.item_count = 6
+    lesson.targets[0] = SHAPE_TRIANGLE; lesson.targets[1] = SHAPE_CIRCLE; lesson.targets[2] = SHAPE_SQUARE
+    for at: cast(s32)0..5 { lesson.items[at] = at % 3; lesson.placed[at] = -1 }
+    lesson.selected = 0; lesson.hint = -1
+    saved_lesson := ShapesSaveText(lesson)
+    first := ShapesGuide(lesson, 3.0)
+    if first.item != 0 || first.target != 1 || !first.visible || first.travel != 0.0 { return 50 }
+    if ShapesGuide(lesson, 2.9).visible || ShapesGuide(lesson, -1.0).visible { return 51 }
+    middle := ShapesGuide(lesson, 4.7)
+    if !middle.visible || middle.travel < 0.49 || middle.travel > 0.51 { return 52 }
+    if ShapesGuide(lesson, 6.0).travel != 1.0 || ShapesGuide(lesson, 7.0).travel != 0.0 { return 53 }
+    if !ShapesSelect(*lesson, 2) { return 54 }
+    selected := ShapesGuide(lesson, 4.0)
+    if selected.item != 2 || selected.target != 0 { return 55 }
+    if ShapesDrop(*lesson, 0) != SHAPES_PLACED { return 56 }
+    next := ShapesGuide(lesson, 3.0)
+    if next.item != 0 || next.target != 1 { return 57 }
+    for frame: cast(s32)0..1000 {
+        unused ShapesGuide(lesson, cast(float32)frame / 10.0)
+    }
+    if lesson.selected != 0 || lesson.misses != 0 || lesson.hint != -1 || lesson.placed[2] != 0 ||
+        lesson.placed[0] != -1 || lesson.placed[1] != -1 || lesson.placed[3] != -1 ||
+        lesson.placed[4] != -1 || lesson.placed[5] != -1 || ShapesSaveText(lesson) != saved_lesson { return 58 }
+    lesson.selected = -1
+    if ShapesGuide(lesson, 3.0).item != 0 { return 59 }
+    for at: cast(s32)0..lesson.item_count - 1 { lesson.placed[at] = ShapesTargetFor(lesson, at) }
+    finished := ShapesGuide(lesson, 100.0)
+    if finished.visible || finished.item != -1 || finished.target != -1 { return 60 }
+    s := ShapesNew()
+    if s.mode != SHAPES_MODE_SHAPE || s.target_count != 2 || s.item_count != 2 || !Solvable(s) { return 1 }
+
+    // Every kind, level and many rounds give a fair, deterministic round.
+    for mode: cast(s32)0..SHAPES_MODES - 1 {
+        for level: cast(s32)0..SHAPES_LEVELS - 1 {
+            pairs_seen: [3]bool
+            for round: cast(s32)0..60 {
+                r: Shapes
+                r.mode = mode; r.levels[mode] = level; r.round = round
+                ShapesStart(*r)
+                if !Solvable(r) { return 2 }
+                again: Shapes
+                again.mode = mode; again.levels[mode] = level; again.round = round
+                ShapesStart(*again)
+                for at: cast(s32)0..SHAPES_MAX_ITEMS - 1 { if again.items[at] != r.items[at] { return 3 } }
+                if mode != SHAPES_MODE_SIZE && r.target_count == 2 { pairs_seen[3 - r.targets[0] - r.targets[1]] = true }
+            }
+            // Two-home rounds of shapes and colors show every pair over time.
+            if mode != SHAPES_MODE_SIZE && level < 2 && (!pairs_seen[0] || !pairs_seen[1] || !pairs_seen[2]) { return 4 }
+        }
+    }
+    if ShapesTargetCount(SHAPES_MODE_SHAPE, 3) != 3 || ShapesTargetCount(SHAPES_MODE_SIZE, 3) != 2 { return 5 }
+
+    // Choosing, missing and placing.
+    s = ShapesNew()
+    if ShapesSelect(*s, 5) || ShapesSelect(*s, -1) || !ShapesSelect(*s, 1) || s.selected != 1 { return 6 }
+    if ShapesDrop(*s, 7) != SHAPES_IGNORED || ShapesDrop(*s, -1) != SHAPES_IGNORED { return 7 }
+    right := ShapesTargetFor(s, 1)
+    if ShapesDrop(*s, 1 - right) != SHAPES_MISSED || s.misses != 1 || s.hint != right || s.selected != 1 { return 8 }
+    if ShapesDrop(*s, right) != SHAPES_PLACED || s.hint != -1 || s.selected != 0 || ShapesInTarget(s, right) != 1 { return 9 }
+    if ShapesSelect(*s, 1) { return 10 }
+    if ShapesFinish(*s) != 0 || s.round != 0 { return 11 }
+    if ShapesDrop(*s, ShapesTargetFor(s, 0)) != SHAPES_PLACED || !ShapesDone(s) || s.selected != -1 { return 12 }
+    if ShapesDrop(*s, 0) != SHAPES_IGNORED { return 13 }
+
+    // Two clean rounds move up a level, through all four, then to colors,
+    // then sizes, then back to shapes; levels are kept per kind.
+    s = ShapesNew()
+    for step: cast(s32)0..SHAPES_LEVELS * 2 - 1 {
+        if !Solve(*s, 0) { return 14 }
+        change := ShapesFinish(*s)
+        expected: s32 = ifx step % 2 == 0 then 0 else ifx step < SHAPES_LEVELS * 2 - 1 then 1 else 2
+        if change != expected { return 15 }
+        if !Solvable(s) { return 16 }
+    }
+    if s.mode != SHAPES_MODE_COLOR || s.levels[0] != 3 || s.levels[1] != 0 || s.target_count != 2 { return 17 }
+    for step: cast(s32)0..SHAPES_LEVELS * 2 * 2 - 1 { if !Solve(*s, 0) { return 18 }; unused ShapesFinish(*s) }
+    if s.mode != SHAPES_MODE_SHAPE || s.levels[1] != 3 || s.levels[2] != 3 { return 19 }
+
+    // A single miss pauses the climb; hard rounds step back gently.
+    s = ShapesNew()
+    s.levels[0] = 2; ShapesStart(*s)
+    if !Solve(*s, 0) || ShapesFinish(*s) != 0 || s.clean_run != 1 { return 20 }
+    if !Solve(*s, 1) || ShapesFinish(*s) != 0 || s.clean_run != 0 || s.levels[0] != 2 { return 21 }
+    if !Solve(*s, 3) || ShapesFinish(*s) != 0 || s.miss_run != 1 { return 22 }
+    if !Solve(*s, 3) || ShapesFinish(*s) != -1 || s.levels[0] != 1 || s.miss_run != 0 { return 23 }
+    s.levels[0] = 0; ShapesStart(*s)
+    for step: cast(s32)0..5 { if !Solve(*s, 4) || ShapesFinish(*s) != 0 || s.levels[0] != 0 { return 24 } }
+
+    // Choosing a kind or a new round keeps every level.
+    s.levels[1] = 2
+    if !ShapesChooseMode(*s, SHAPES_MODE_COLOR) || s.mode != 1 || s.target_count != 3 || !Solvable(s) { return 25 }
+    if ShapesChooseMode(*s, 3) || ShapesChooseMode(*s, -1) || s.mode != 1 { return 26 }
+    before := s.round
+    ShapesReplay(*s)
+    if s.round != before + 1 || s.levels[1] != 2 || !Solvable(s) { return 27 }
+
+    // Saves bring back the kind, levels and round; bad saves are refused.
+    s.levels[2] = 1; s.clean_run = 1; s.round = 99999; ShapesStart(*s)
+    text := ShapesSaveText(s)
+    if text != "shapes 1 1 0 2 1 1 0 99999\n" { return 28 }
+    loaded: Shapes
+    if !ShapesRead(text, *loaded) || loaded.mode != 1 || loaded.levels[1] != 2 || loaded.levels[2] != 1 ||
+        loaded.clean_run != 1 || loaded.round != 99999 || !Solvable(loaded) { return 29 }
+    for at: cast(s32)0..SHAPES_MAX_ITEMS - 1 { if loaded.items[at] != s.items[at] { return 30 } }
+    ShapesReplay(*loaded)
+    if loaded.round != 0 { return 31 }
+    bad: [12]string = .["", "shapes 1", "shapes 2 0 0 0 0 0 0 0\n", "shapes 1 3 0 0 0 0 0 0\n", "shapes 1 0 4 0 0 0 0 0\n",
+        "shapes 1 0 0 0 0 2 0 0\n", "shapes 1 0 0 0 0 0 2 0\n", "shapes 1 0 0 0 0 0 0 100000\n", "shapes 1 0 0 0 0 0 0\n",
+        "shapes 1 0 0 0 0 0 0 0", "shapes 1 -1 0 0 0 0 0 0\n", "shapes 1 0 0 0 0 0 0 0x\n"]
+    kept := loaded
+    for line: bad {
+        if ShapesRead(line, *loaded) { return 32 }
+        if loaded.round != kept.round || loaded.mode != kept.mode { return 33 }
+    }
+
+    // Phone portrait, landscape and desktop: everything on screen, nothing
+    // overlapping, and cards large enough for small fingers.
+    widths: [7]s32 = .[360, 360, 480, 720, 2000, 1100, 1600]
+    heights: [7]s32 = .[640, 1400, 860, 420, 420, 700, 1000]
+    for screen: cast(s32)0..6 {
+        width := widths[screen]; height := heights[screen]
+        for mode: cast(s32)0..SHAPES_MODES - 1 {
+            for level: cast(s32)0..SHAPES_LEVELS - 1 {
+                targets := ShapesTargetCount(mode, level)
+                per := ShapesPerTarget(mode, level)
+                items := targets * per
+                layout := ShapesArrange(width, height, items, targets)
+                board: Shapes
+                board.mode = mode; board.levels[mode] = level
+                ShapesStart(*board)
+                for at: cast(s32)0..items - 1 {
+                    unused ShapesSelect(*board, at)
+                    path := ShapesGuide(board, 3.0)
+                    start := ShapesGuideRect(board, layout, path)
+                    if start.x != layout.items[at].x || start.y != layout.items[at].y ||
+                        start.width != layout.items[at].width || start.height != layout.items[at].height { return 61 }
+                    for step: cast(s32)0..20 {
+                        path.travel = cast(float32)step / 20.0
+                        if !Inside(ShapesGuideRect(board, layout, path), width, height) { return 62 }
+                    }
+                    path.travel = 1.0
+                    parts := ShapesHomeParts(layout.targets[path.target], per)
+                    end := ShapesGuideRect(board, layout, path)
+                    slot := parts.slots[ShapesInTarget(board, path.target)]
+                    if end.x != slot.x || end.y != slot.y || end.width != slot.width || end.height != slot.height { return 63 }
+                    unused ShapesDrop(*board, path.target)
+                }
+                for at: cast(s32)0..SHAPES_BUTTONS - 1 {
+                    if !Inside(layout.buttons[at], width, height) || layout.buttons[at].width < 44 { return 40 }
+                    if at > 0 && !Apart(layout.buttons[at - 1], layout.buttons[at]) { return 41 }
+                }
+                if !Inside(layout.prompt, width, height) || !Inside(layout.tray, width, height) { return 42 }
+                for at: cast(s32)0..items - 1 {
+                    if !Within(layout.items[at], layout.tray) || layout.items[at].width < 56 { return 43 }
+                    for other: cast(s32)0..at - 1 { if !Apart(layout.items[at], layout.items[other]) { return 44 } }
+                }
+                for t: cast(s32)0..targets - 1 {
+                    home := layout.targets[t]
+                    if !Inside(home, width, height) || !Apart(home, layout.tray) || home.width < 80 || home.height < 70 { return 45 }
+                    for other: cast(s32)0..t - 1 { if !Apart(home, layout.targets[other]) { return 46 } }
+                    parts := ShapesHomeParts(home, per)
+                    if !Within(parts.emblem, home) || parts.emblem.width < 24 { return 47 }
+                    for slot: cast(s32)0..per - 1 {
+                        if !Within(parts.slots[slot], home) || !Apart(parts.slots[slot], parts.emblem) || parts.slots[slot].width < 14 { return 48 }
+                        for other: cast(s32)0..slot - 1 { if !Apart(parts.slots[slot], parts.slots[other]) { return 49 } }
+                    }
+                }
+            }
+        }
+    }
+    return 0
+}

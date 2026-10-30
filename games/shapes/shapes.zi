@@ -1,0 +1,373 @@
+// Shapes & Sorting rules: one attribute per round, gentle progression by
+// success, validated saves and a screen layout that always fits.
+#import "std/format"
+#import, file "../../host/jungle_text.zi";
+
+SHAPES_MODE_SHAPE :: 0
+SHAPES_MODE_COLOR :: 1
+SHAPES_MODE_SIZE :: 2
+SHAPES_MODES :: 3
+SHAPES_LEVELS :: 4
+SHAPES_MAX_ITEMS :: 6
+SHAPES_MAX_TARGETS :: 3
+SHAPES_ROUNDS :: 100000
+
+// Values of the sorted attribute: shapes, colors or sizes.
+SHAPE_CIRCLE :: 0
+SHAPE_SQUARE :: 1
+SHAPE_TRIANGLE :: 2
+SHAPE_RED :: 0
+SHAPE_YELLOW :: 1
+SHAPE_BLUE :: 2
+SHAPE_SMALL :: 0
+SHAPE_BIG :: 1
+
+// What a drop did.
+SHAPES_IGNORED :: 0
+SHAPES_PLACED :: 1
+SHAPES_MISSED :: 2
+
+// Two clean rounds move up a level; two hard rounds move gently back.
+SHAPES_STEP_RUN :: 2
+
+// Items per home at each level; shapes and colors use three homes from level 2.
+sort_per_target: [4]s32 = .[1, 2, 1, 2];
+size_per_target: [4]s32 = .[1, 2, 2, 3];
+
+Shapes :: struct {
+    mode: s32
+    levels: [3]s32
+    clean_run: s32
+    miss_run: s32
+    round: s32
+    // The current round, rebuilt from mode, level and round.
+    target_count: s32
+    targets: [3]s32
+    item_count: s32
+    items: [6]s32
+    // The home holding each item, or -1 while it waits in the tray.
+    placed: [6]s32
+    selected: s32
+    misses: s32
+    // The right home after a miss, or -1.
+    hint: s32
+}
+
+ShapesTargetCount :: (mode: s32, level: s32) -> s32 {
+    if mode == SHAPES_MODE_SIZE || level < 2 { return 2 }
+    return 3
+}
+
+ShapesPerTarget :: (mode: s32, level: s32) -> s32 {
+    if mode == SHAPES_MODE_SIZE { return size_per_target[level] }
+    return sort_per_target[level]
+}
+
+ShapesRandom :: (state: *s64, below: s32) -> s32 {
+    state.* = (state.* * 48271) % 2147483647
+    return cast(s32)(state.* % cast(s64)below)
+}
+
+ShapesStart :: (s: *Shapes) {
+    level := s.levels[s.mode]
+    s.target_count = ShapesTargetCount(s.mode, level)
+    s.item_count = s.target_count * ShapesPerTarget(s.mode, level)
+    random: s64 = (cast(s64)s.round * 7919 + cast(s64)s.mode * 104729 + cast(s64)level * 31) % 2147483646 + 1
+    values: [3]s32 = .[0, 1, 2]
+    total: s32 = ifx s.mode == SHAPES_MODE_SIZE then 2 else 3
+    i := total - 1
+    while i > 0 {
+        j := ShapesRandom(*random, i + 1)
+        swap := values[i]; values[i] = values[j]; values[j] = swap
+        i -= 1
+    }
+    for t: cast(s32)0..SHAPES_MAX_TARGETS - 1 { s.targets[t] = ifx t < s.target_count then values[t] else 0 }
+    for at: cast(s32)0..SHAPES_MAX_ITEMS - 1 {
+        s.items[at] = ifx at < s.item_count then s.targets[at % s.target_count] else 0
+        s.placed[at] = -1
+    }
+    i = s.item_count - 1
+    while i > 0 {
+        j := ShapesRandom(*random, i + 1)
+        swap := s.items[i]; s.items[i] = s.items[j]; s.items[j] = swap
+        i -= 1
+    }
+    s.selected = 0; s.misses = 0; s.hint = -1
+}
+
+ShapesNew :: () -> Shapes {
+    s: Shapes
+    ShapesStart(*s)
+    return s
+}
+
+ShapesTargetFor :: (s: Shapes, item: s32) -> s32 {
+    for t: cast(s32)0..s.target_count - 1 { if s.targets[t] == s.items[item] { return t } }
+    return -1
+}
+
+ShapesNextItem :: (s: Shapes) -> s32 {
+    for at: cast(s32)0..s.item_count - 1 { if s.placed[at] < 0 { return at } }
+    return -1
+}
+
+ShapesDone :: (s: Shapes) -> bool { return ShapesNextItem(s) < 0 }
+
+// A demonstration is only a suggestion. It never selects or places a piece,
+// counts a miss, advances a round, or writes progress.
+ShapesGuideState :: struct {
+    item: s32
+    target: s32
+    visible: bool
+    travel: float32
+}
+
+ShapesGuide :: (s: Shapes, idle_seconds: float32) -> ShapesGuideState {
+    guide: ShapesGuideState
+    guide.item = -1; guide.target = -1
+    item := s.selected
+    if item < 0 || item >= s.item_count { item = ShapesNextItem(s) }
+    else if s.placed[item] >= 0 { item = ShapesNextItem(s) }
+    if item < 0 { return guide }
+    guide.item = item
+    guide.target = ShapesTargetFor(s, item)
+    if guide.target < 0 || idle_seconds < 3.0 { return guide }
+    guide.visible = true
+    // Hold at the piece, move slowly, pause at home, then repeat.
+    elapsed := idle_seconds - 3.0
+    phase := elapsed - cast(float32)(cast(s64)(elapsed / 4.0)) * 4.0
+    guide.travel = (phase - 0.7) / 2.0
+    if guide.travel < 0.0 { guide.travel = 0.0 }
+    if guide.travel > 1.0 { guide.travel = 1.0 }
+    return guide
+}
+
+ShapesInTarget :: (s: Shapes, target: s32) -> s32 {
+    count: s32
+    for at: cast(s32)0..s.item_count - 1 { if s.placed[at] == target { count += 1 } }
+    return count
+}
+
+ShapesSelect :: (s: *Shapes, item: s32) -> bool {
+    if item < 0 || item >= s.item_count || s.placed[item] >= 0 { return false }
+    if s.selected != item { s.hint = -1 }
+    s.selected = item
+    return true
+}
+
+// Puts the chosen item in a home. A miss keeps it chosen and shows its home.
+ShapesDrop :: (s: *Shapes, target: s32) -> s32 {
+    item := s.selected
+    if item < 0 || item >= s.item_count || s.placed[item] >= 0 || target < 0 || target >= s.target_count { return SHAPES_IGNORED }
+    if s.items[item] != s.targets[target] {
+        s.misses += 1
+        s.hint = ShapesTargetFor(s.*, item)
+        return SHAPES_MISSED
+    }
+    s.placed[item] = target
+    s.hint = -1
+    s.selected = ShapesNextItem(s.*)
+    return SHAPES_PLACED
+}
+
+// After a sorted round: 1 a level up, 2 the next kind of sorting, -1 a level
+// back, 0 the same level; the next round is ready either way.
+ShapesFinish :: (s: *Shapes) -> s32 {
+    if !ShapesDone(s.*) { return 0 }
+    change: s32 = 0
+    level := s.levels[s.mode]
+    if s.misses == 0 {
+        s.miss_run = 0
+        s.clean_run += 1
+        if s.clean_run >= SHAPES_STEP_RUN {
+            s.clean_run = 0
+            if level < SHAPES_LEVELS - 1 { s.levels[s.mode] = level + 1; change = 1 }
+            else { s.mode = (s.mode + 1) % SHAPES_MODES; change = 2 }
+        }
+    } else if s.misses >= 2 && s.misses * 2 >= s.item_count {
+        s.clean_run = 0
+        s.miss_run += 1
+        if s.miss_run >= SHAPES_STEP_RUN {
+            s.miss_run = 0
+            if level > 0 { s.levels[s.mode] = level - 1; change = -1 }
+        }
+    } else { s.clean_run = 0 }
+    s.round = (s.round + 1) % SHAPES_ROUNDS
+    ShapesStart(s)
+    return change
+}
+
+// A fresh round of the same kind and level.
+ShapesReplay :: (s: *Shapes) {
+    s.round = (s.round + 1) % SHAPES_ROUNDS
+    ShapesStart(s)
+}
+
+ShapesChooseMode :: (s: *Shapes, mode: s32) -> bool {
+    if mode < 0 || mode >= SHAPES_MODES { return false }
+    s.mode = mode; s.clean_run = 0; s.miss_run = 0
+    ShapesReplay(s)
+    return true
+}
+
+ShapesSaveText :: (s: Shapes) -> string {
+    text: Vec(u8)
+    BuilderPrint(*text, "shapes 1 % % % % % % %\n", s.mode, s.levels[0], s.levels[1], s.levels[2],
+        s.clean_run, s.miss_run, s.round)
+    return BuilderFinish(text)
+}
+
+ShapesRead :: (text: string, result: *Shapes) -> bool {
+    if text.count < 9 || text[:9] != "shapes 1 " { return false }
+    at: s64 = 9
+    values: [7]s32
+    for field: cast(s32)0..6 {
+        values[field] = ReadWhole(text, *at)
+        if values[field] < 0 || at >= text.count { return false }
+        if field < 6 && text[at] != #char " " { return false }
+        if field == 6 && text[at] != #char "\n" { return false }
+        at += 1
+    }
+    if values[0] >= SHAPES_MODES || values[1] >= SHAPES_LEVELS || values[2] >= SHAPES_LEVELS ||
+        values[3] >= SHAPES_LEVELS || values[4] >= SHAPES_STEP_RUN || values[5] >= SHAPES_STEP_RUN ||
+        values[6] >= SHAPES_ROUNDS { return false }
+    s: Shapes
+    s.mode = values[0]
+    s.levels[0] = values[1]; s.levels[1] = values[2]; s.levels[2] = values[3]
+    s.clean_run = values[4]; s.miss_run = values[5]; s.round = values[6]
+    ShapesStart(*s)
+    result.* = s
+    return true
+}
+
+ShapesRect :: struct {
+    x: s32
+    y: s32
+    width: s32
+    height: s32
+}
+
+// Five round buttons (three kinds of sorting, a new round, hear again), a
+// spoken-prompt line, the tray of items and the homes.
+SHAPES_BUTTONS :: 5
+
+ShapesLayout :: struct {
+    buttons: [5]ShapesRect
+    prompt: ShapesRect
+    tray: ShapesRect
+    items: [6]ShapesRect
+    targets: [3]ShapesRect
+}
+
+ShapesArrange :: (width: s32, height: s32, item_count: s32, target_count: s32) -> ShapesLayout {
+    layout: ShapesLayout
+    margin: s32 = 14
+    gap: s32 = 12
+    button := (width - margin * 2 - gap * (SHAPES_BUTTONS - 1)) / SHAPES_BUTTONS
+    if button > 84 { button = 84 }
+    button_height: s32 = 60
+    row := button * SHAPES_BUTTONS + gap * (SHAPES_BUTTONS - 1)
+    for at: cast(s32)0..SHAPES_BUTTONS - 1 {
+        layout.buttons[at] = ShapesRect.{(width - row) / 2 + at * (button + gap), margin, button, button_height}
+    }
+    layout.prompt = ShapesRect.{margin, margin + button_height + 6, width - margin * 2, 30}
+    area_y := layout.prompt.y + layout.prompt.height + 8
+    area_height := height - area_y - margin
+    area_width := width - margin * 2
+    targets: ShapesRect
+    if height >= width {
+        layout.tray = ShapesRect.{margin, area_y, area_width, area_height * 42 / 100}
+        targets = ShapesRect.{margin, area_y + layout.tray.height + gap * 2, area_width, area_height - layout.tray.height - gap * 2}
+        target_width := (targets.width - gap * (target_count - 1)) / target_count
+        target_height := targets.height
+        if target_width > 240 { target_width = 240 }
+        if target_height > target_width * 3 / 2 { target_height = target_width * 3 / 2 }
+        across := target_width * target_count + gap * (target_count - 1)
+        for t: cast(s32)0..target_count - 1 {
+            layout.targets[t] = ShapesRect.{targets.x + (targets.width - across) / 2 + t * (target_width + gap),
+                targets.y + (targets.height - target_height) / 2, target_width, target_height}
+        }
+    } else {
+        layout.tray = ShapesRect.{margin, area_y, (area_width - gap * 2) * 52 / 100, area_height}
+        targets = ShapesRect.{layout.tray.x + layout.tray.width + gap * 2, area_y,
+            area_width - layout.tray.width - gap * 2, area_height}
+        target_height := (targets.height - gap * (target_count - 1)) / target_count
+        target_width := targets.width
+        if target_width > 420 { target_width = 420 }
+        if target_height > 220 { target_height = 220 }
+        down := target_height * target_count + gap * (target_count - 1)
+        for t: cast(s32)0..target_count - 1 {
+            layout.targets[t] = ShapesRect.{targets.x + (targets.width - target_width) / 2,
+                targets.y + (targets.height - down) / 2 + t * (target_height + gap), target_width, target_height}
+        }
+    }
+    // The grid of tray cards with the largest cards that fit.
+    best: s32 = 0
+    best_columns: s32 = 1
+    for columns: cast(s32)1..item_count {
+        rows := (item_count + columns - 1) / columns
+        edge := (layout.tray.width - gap * (columns - 1)) / columns
+        tall := (layout.tray.height - gap * (rows - 1)) / rows
+        if tall < edge { edge = tall }
+        if edge > best { best = edge; best_columns = columns }
+    }
+    if best > 150 { best = 150 }
+    if best < 1 { best = 1 }
+    rows := (item_count + best_columns - 1) / best_columns
+    grid_width := best * best_columns + gap * (best_columns - 1)
+    grid_height := best * rows + gap * (rows - 1)
+    for at: cast(s32)0..item_count - 1 {
+        layout.items[at] = ShapesRect.{layout.tray.x + (layout.tray.width - grid_width) / 2 + at % best_columns * (best + gap),
+            layout.tray.y + (layout.tray.height - grid_height) / 2 + at / best_columns * (best + gap), best, best}
+    }
+    return layout
+}
+
+// A home shows what it takes (its emblem) and the items already inside.
+ShapesHome :: struct {
+    emblem: ShapesRect
+    slots: [3]ShapesRect
+}
+
+ShapesHomeParts :: (home: ShapesRect, per: s32) -> ShapesHome {
+    parts: ShapesHome
+    pad := home.height / 12
+    if home.width / 12 < pad { pad = home.width / 12 }
+    if pad < 4 { pad = 4 }
+    if per < 1 { per = 1 }
+    inside := ShapesRect.{home.x + pad, home.y + pad, home.width - pad * 2, home.height - pad * 2}
+    slots: ShapesRect
+    if inside.width > inside.height * 3 / 2 {
+        edge := inside.height
+        parts.emblem = ShapesRect.{inside.x, inside.y, edge, edge}
+        slots = ShapesRect.{inside.x + edge + pad, inside.y, inside.width - edge - pad, inside.height}
+    } else {
+        edge := inside.height * 55 / 100
+        if edge > inside.width { edge = inside.width }
+        parts.emblem = ShapesRect.{inside.x + (inside.width - edge) / 2, inside.y, edge, edge}
+        slots = ShapesRect.{inside.x, inside.y + edge + pad, inside.width, inside.height - edge - pad}
+    }
+    slot := (slots.width - pad * (per - 1)) / per
+    if slot > slots.height { slot = slots.height }
+    if slot < 1 { slot = 1 }
+    across := slot * per + pad * (per - 1)
+    for at: cast(s32)0..per - 1 {
+        parts.slots[at] = ShapesRect.{slots.x + (slots.width - across) / 2 + at * (slot + pad),
+            slots.y + (slots.height - slot) / 2, slot, slot}
+    }
+    return parts
+}
+
+// Interpolating complete rectangles keeps the ghost inside both orientations
+// and lets it shrink into the next empty slot rather than cover the emblem.
+ShapesGuideRect :: (s: Shapes, layout: ShapesLayout, guide: ShapesGuideState) -> ShapesRect {
+    if guide.item < 0 || guide.target < 0 { return ShapesRect.{} }
+    source := layout.items[guide.item]
+    parts := ShapesHomeParts(layout.targets[guide.target], s.item_count / s.target_count)
+    destination := parts.slots[ShapesInTarget(s, guide.target)]
+    t := guide.travel * guide.travel * (3.0 - 2.0 * guide.travel)
+    return ShapesRect.{source.x + cast(s32)(cast(float32)(destination.x - source.x) * t),
+        source.y + cast(s32)(cast(float32)(destination.y - source.y) * t),
+        source.width + cast(s32)(cast(float32)(destination.width - source.width) * t),
+        source.height + cast(s32)(cast(float32)(destination.height - source.height) * t)}
+}

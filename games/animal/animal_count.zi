@@ -13,6 +13,7 @@
 #import, file "counting.zi";
 #import, file "counting_progress.zi";
 #import, file "counting_layout.zi";
+#import, file "counting_exercises.zi";
 #import, file "../../host/jungle_text.zi";
 
 FONT :: "assets/animal-count/font.png"
@@ -45,8 +46,41 @@ Number :: (value: s32) -> string {
 
 Sound :: (name: string) { GameSound(Join(SOUNDS, name, ".wav")) }
 
+options: CountOptions;
+exercise: CountExercise;
+
+CountWords :: (en: string, de: string, es: string) -> string {
+    return ifx language == 1 then de else ifx language == 2 then es else en
+}
+
+CountPrompt :: () -> string {
+    if options.mode == COUNT_ADD { return CountWords("How many together?", "Wie viele zusammen?", "¿Cuántos en total?") }
+    if options.mode == COUNT_SUBTRACT { return CountWords("How many stay?", "Wie viele bleiben?", "¿Cuántos quedan?") }
+    return HOW_MANY
+}
+
+CountVoice :: (clip: string) {
+    unused AppService("jungle.voice", Cat(SOUNDS, LanguageCode(), "/", clip, ".wav"))
+}
+
+CountSay :: () {
+    if options.mode == COUNT_MODE {
+        unused AppService("jungle.voice", Cat(SOUNDS, "question-", LanguageCode(), ".wav"))
+    } else { CountVoice(ifx options.mode == COUNT_ADD then "add" else "subtract") }
+}
+
+CountSettingsSave :: () -> bool { return DocumentWrite("counting-options.txt", CountOptionsText(options)) }
+
 NextNumber :: () {
-    NextCount()
+    if options.mode == COUNT_MODE && options.limit == 0 {
+        NextCount()
+        exercise = CountExercise.{COUNT_MODE, number, 0, number}
+    } else {
+        exercise = CountExerciseNew(options.mode, options.limit, cast(s32)(RandomNext() & cast(u32)0x7fffffff))
+        number = exercise.result
+        item = RandomNumber(18) - 1
+    }
+    CountSay()
     typed_count = 0
     typed[0] = 0
     typed[1] = 0
@@ -62,96 +96,102 @@ ItemPath :: (which: s32) -> string {
 touch_key: s32;
 keypad_labels: [12]string = .["1","2","3","4","5","6","7","8","9","<","0","OK"];
 
-CountingGroups :: (x: s32, y: s32, width: s32, height: s32) {
-    layout := CountLayout(number, x, y, width, height)
+// The same groups of five serve counting, joining and animals leaving.
+CountingGroups :: (amount: s32, x: s32, y: s32, width: s32, height: s32, leaving: bool = false) {
+    layout := CountLayout(amount, x, y, width, height)
     for group: cast(s32)0..layout.groups - 1 {
         gx := layout.x + (group % layout.columns) * (layout.edge + layout.gap)
         gy := layout.y + (group / layout.columns) * (layout.edge + layout.gap)
-        BookBox(gx, gy, layout.edge, layout.edge, 0xe9f0e3ff, 0xc8d7bdff, 6.0)
-        amount := CountGroupAmount(number, group)
-        for index: cast(s32)0..amount - 1 {
-            spot := CountSpot(amount, index)
+        BookBox(gx, gy, layout.edge, layout.edge, ifx leaving then cast(u32)0xf1e9ddff else cast(u32)0xe9f0e3ff, 0xc8d7bdff, 6.0)
+        size := CountGroupAmount(amount, group)
+        for index: cast(s32)0..size - 1 {
+            spot := CountSpot(size, index)
             inset := layout.cell / 12
             if inset < 1 { inset = 1 }
-            BookPicture(ItemPath(item), gx + layout.inset + spot.x * layout.cell + inset,
-                gy + layout.inset + spot.y * layout.cell + inset, layout.cell - inset * 2, layout.cell - inset * 2)
+            px := gx + layout.inset + spot.x * layout.cell + inset
+            py := gy + layout.inset + spot.y * layout.cell + inset
+            edge := layout.cell - inset * 2
+            BookPicture(ItemPath(item), px, py, edge, edge)
+            if leaving { BookBox(px, py, edge, edge, 0xfffcf390) }
         }
     }
+    if amount == 0 { BookBox(x + width / 4, y + height / 4, width / 2, height / 2, 0xe9f0e3ff, 0xc8d7bdff, 6.0) }
 }
 
-CountingBookView :: () {
-    BookPaper()
-    BookText(24, 16, 272, 24, HOW_MANY, 18)
-    BookBox(22, 58, 276, 90, 0xf7f1e3ff, 0xdacdb5ff, 5.0)
-    CountingGroups(24, 60, 180, 86)
-    BookText(210, 89, 18, 28, "=", 20)
-    BookBox(232, 85, 56, 38, 0xfffcf3ff, 0xbba98bff, 6.0)
-    answer := ifx typed_count > 0 then TextView(typed[:typed_count]) else ""
-    BookText(234, 85, 52, 38, answer, 25)
-    if typed_count == 0 { BookBox(258, 94, 1, 20, 0xbba98bff) }
-    for index: cast(s32)0..7 {
-        BookBox(24 + index * 8, 155, 5, 5,
-            ifx index < count % 8 then cast(u32)0x2e6956ff else cast(u32)0xe5d9c3ff, 0, 3.0)
+CountControls :: (width: s32, compact: bool) {
+    bh: s32 = ifx compact then 18 else 30
+    bw := (width - 48) / 3
+    labels: [3]string = .[CountWords("Count", "Zählen", "Contar"), CountWords("Add · to 5", "Plus · bis 5", "Sumar · hasta 5"), CountWords("Subtract · to 5", "Minus · bis 5", "Restar · hasta 5")]
+    for m: cast(s32)0..2 {
+        if BookButton(400 + m, 20 + m * (bw + 4), 14, bw, bh, labels[m], options.mode == m) {
+            options.mode = m
+            unused CountSettingsSave()
+            NextNumber()
+            state_until = -10.0
+        }
     }
-    BookText(96, 152, 194, 14, "Type a number, then Enter", 8)
-    if retro.now < state_until { BookText(84, 173, 210, 14, state_message, 10) }
+    if options.mode == COUNT_MODE {
+        ranges: [4]s32 = .[0,5,10,20]
+        rw := (width - 52) / 4
+        for r: cast(s32)0..3 {
+            label := ifx r == 0 then CountWords("Auto", "Auto", "Auto") else Cat("1–", NumberText(ranges[r]))
+            if BookButton(410 + r, 20 + r * (rw + 4), 18 + bh, rw, bh, label, options.limit == ranges[r]) {
+                options.limit = ranges[r]
+                unused CountSettingsSave()
+                NextNumber()
+                state_until = -10.0
+            }
+        }
+    } else {
+        BookText(20, 18 + bh, width - 40, bh, CountWords("Pictures · within 5", "Bilder · bis 5", "Dibujos · hasta 5"), 11)
+    }
 }
-
 
 CountingView :: () {
     touch_key = 0
-    if AppBounds().width >= AppBounds().height { CountingBookView(); return }
     bounds := AppBounds()
-    width := cast(s32)bounds.width
-    height := cast(s32)bounds.height
-    retro.x = bounds.x
-    retro.y = bounds.y
-    retro.scale = 1.0
-    padding: s32 = 24
-    gap: s32 = 8
-    portrait := height > width
+    portrait := bounds.height > bounds.width
+    width: s32 = 320
+    height: s32 = ifx portrait then 540 else 200
+    scale := bounds.width / cast(float32)width
+    if bounds.height / cast(float32)height < scale { scale = bounds.height / cast(float32)height }
+    retro.scale = scale
+    retro.x = bounds.x + (bounds.width - cast(float32)width * scale) / 2.0
+    retro.y = bounds.y + (bounds.height - cast(float32)height * scale) / 2.0
     BookPaperSized(width, height)
-    BookText(padding, padding, width - padding * 2, 44, HOW_MANY, 25)
-    key_width := width - padding * 2
-    key_height: s32 = 48
-    key_x := padding
-    key_y := height - padding - key_height * 4 - gap * 3
-    animal_x := padding
-    animal_y := padding + 88
-    animal_width := width - padding * 2
-    animal_height := key_y - animal_y - 70
-    if !portrait {
-        key_width = width / 3
-        if key_width > 360 { key_width = 360 }
-        if key_width < 230 { key_width = 230 }
-        key_x = width - padding - key_width
-        key_y = (height - key_height * 4 - gap * 3) / 2 + 40
-        if key_y + key_height * 4 + gap * 3 > height - padding { key_y = height - padding - key_height * 4 - gap * 3 }
-        animal_width = key_x - padding * 2
-        animal_height = height - animal_y - padding - 30
+    CountControls(width, !portrait)
+    BookText(20, ifx portrait then 84 else 55, 280, 20, CountPrompt(), 14)
+    ax: s32 = 20
+    ay: s32 = ifx portrait then 110 else 79
+    aw: s32 = ifx portrait then 280 else 190
+    ah: s32 = ifx portrait then 190 else 72
+    if options.mode == COUNT_MODE { CountingGroups(number, ax, ay, aw, ah) }
+    else {
+        half := (aw - 24) / 2
+        first := ifx options.mode == COUNT_ADD then exercise.left else exercise.result
+        CountingGroups(first, ax, ay, half, ah)
+        BookText(ax + half, ay + ah / 2 - 12, 24, 24, ifx options.mode == COUNT_ADD then "+" else "→", 18)
+        CountingGroups(exercise.right, ax + half + 24, ay, half, ah, options.mode == COUNT_SUBTRACT)
+        if options.mode == COUNT_SUBTRACT {
+            BookText(ax + half + 24, ay + ah - 12, half, 14, CountWords("Leaving", "Gehen weg", "Se van"), 8)
+        }
     }
-    if animal_height < 70 { animal_height = 70 }
-    BookBox(animal_x, animal_y, animal_width, animal_height, 0xf7f1e3ff, 0xdacdb5ff, 8.0)
-    CountingGroups(animal_x, animal_y, animal_width, animal_height)
-    answer := ifx typed_count > 0 then TextView(typed[:typed_count]) else ""
-    BookBox(key_x, key_y - 56, key_width, 48, 0xfffcf3ff, 0xbba98bff, 6.0)
-    BookText(key_x, key_y - 56, key_width, 48, answer, 34)
-    if typed_count == 0 { BookBox(key_x + key_width / 2, key_y - 44, 1, 24, 0xbba98bff) }
-    touch_key = 0
-    button_width := (key_width - gap * 2) / 3
+    kx: s32 = ifx portrait then 24 else 222
+    ky: s32 = ifx portrait then 350 else 105
+    kw: s32 = ifx portrait then 272 else 76
+    kh: s32 = ifx portrait then 34 else 15
+    gap: s32 = ifx portrait then 6 else 3
+    answer := ifx typed_count > 0 then TextView(typed[:typed_count]) else "?"
+    BookBox(kx, ky - 27, kw, 24, 0xfffcf3ff, 0xbba98bff, 4.0)
+    BookText(kx, ky - 27, kw, 24, answer, 18)
+    bw := (kw - gap * 2) / 3
     for index: cast(s32)0..11 {
-        x := key_x + (index % 3) * (button_width + gap)
-        y := key_y + (index / 3) * (key_height + gap)
-        press := RetroTap(320 + index, x, y, button_width, key_height, keypad_labels[index])
-        BookBox(x, y, button_width, key_height, ifx press.down then cast(u32)0xdcebdcff else cast(u32)0xf3ecdcff, 0xdacdb5ff, 7.0)
-        BookText(x, y, button_width, key_height, keypad_labels[index], 24)
-        if press.clicked {
+        if BookButton(320 + index, kx + index % 3 * (bw + gap), ky + index / 3 * (kh + gap), bw, kh, keypad_labels[index]) {
             touch_key = ifx index < 9 then 49 + index else ifx index == 9 then KEY_BACKSPACE else ifx index == 10 then 48 else KEY_ENTER
         }
     }
-    if retro.now < state_until {
-        BookText(animal_x, height - padding - 26, animal_width, 26, state_message, 18)
-    }
+    if retro.now < state_until { BookText(20, height - 43, ifx portrait then 280 else 190, 16, state_message, 10) }
+    if BookButton(420, 20, height - 25, ifx portrait then 280 else 190, 17, CountWords("Hear again", "Noch einmal hören", "Escuchar otra vez")) { CountSay() }
 }
 
 CountingReward :: () {
@@ -173,12 +213,13 @@ GameMain :: () -> s32 {
         AppDescribe("Animal Counting", "")
         return APP_PROTOCOL
     }
-    if mode == APP_SAVE { return ifx !loaded || CountSave() then 0 else 1 }
+    if mode == APP_SAVE { return ifx !loaded || (CountSave() && CountSettingsSave()) then 0 else 1 }
     if mode != APP_FRAME { return 0 }
     GameLanguage()
     now := AppNow()
     if !loaded {
         CountLoad()
+        options = CountOptionsRead(DocumentRead("counting-options.txt"))
         random_state = cast(u32)(cast(u64)(now * 1000.0) & cast(u64)0x7fffffff) | cast(u32)1
         NextNumber()
         loaded = true
@@ -205,7 +246,13 @@ GameMain :: () -> s32 {
     if key == KEY_ENTER && typed_count > 0 {
         answer: s32 = cast(s32)(typed[0] - #char "0")
         if typed_count == 2 { answer = answer * 10 + cast(s32)(typed[1] - #char "0") }
-        if CountAnswer(answer) {
+        // Fixed exercises share rewards/count totals, preserving Auto's exact ladder.
+        saved_level := level; saved_right := right_run; saved_miss := miss_run
+        correct := CountAnswer(answer)
+        if options.mode != COUNT_MODE || options.limit != 0 {
+            level = saved_level; right_run = saved_right; miss_run = saved_miss
+        }
+        if correct {
             state_message = YOU_GOT_IT
             state_until = retro.now + 1.0
             Sound(Join("right-", Number((count - 1) % 8)))
@@ -217,6 +264,7 @@ GameMain :: () -> s32 {
                 Sound("reward")
             }
             NextNumber()
+            if answer == 0 { CountVoice("zero") }
         } else {
             state_message = TRY_AGAIN
             state_until = retro.now + 1.5

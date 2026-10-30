@@ -8,6 +8,12 @@ BookAllowed :: (index: s32, automatic: bool = false) -> bool {
     return index >= 0 && index < CATEGORY_COUNT && !hidden_books[index] && (!automatic || !excluded_books[index])
 }
 
+// A missing document is an empty string, so a newly added book starts visible.
+LoadBookChoice :: (index: s32, hidden: string, skipped: string) {
+    hidden_books[index] = hidden == "yes"
+    excluded_books[index] = skipped == "yes"
+}
+
 NextBookCategory :: (category: s32, automatic: bool = false) -> s32 {
     current: s32 = 0
     for slot: cast(s32)0..CATEGORY_COUNT - 1 {

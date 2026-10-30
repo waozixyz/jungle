@@ -9,7 +9,7 @@ LanguageCode :: () -> string {
 LanguageSet :: (code: string) {
     language = ifx code == "de" then 1 else ifx code == "es" then 2 else 0
 }
-UI_COUNT :: 318
+UI_COUNT :: 346
 ui_en_0: [48]string = .[
     "Picture Book",
     "Animal Counting",
@@ -310,7 +310,7 @@ ui_en_240: [48]string = .[
     "When they find a little grain",
     "They are all happy",
 ];
-ui_en_288: [30]string = .[
+ui_en_288: [48]string = .[
     "All my little goslings",
     "Waddling across the ground",
     "Searching in the puddle",
@@ -341,6 +341,36 @@ ui_en_288: [30]string = .[
     "Hold the key",
     "Let go now",
     "Hold a little longer",
+    "Shapes & Sorting",
+    "Shapes, colors and sizes",
+    "Matching Pairs",
+    "Find friendly animal pairs",
+    "Hide & Seek",
+    "Peek, find and discover",
+    "Little Drums",
+    "Tap, listen and copy",
+    "Grow a Garden",
+    "Plant, water and grow",
+    "Tropical Fruits",
+    "Gardening",
+    "School",
+    "Water Animals",
+    "Drinks",
+    "New picture",
+    "Tap an object to erase",
+    "Picture is full. Erase an object first",
+];
+ui_en_336: [10]string = .[
+    "How many together?",
+    "How many stay?",
+    "Count",
+    "Add · to 5",
+    "Subtract · to 5",
+    "Auto",
+    "Pictures · within 5",
+    "Leaving",
+    "Hear again",
+    "Actions",
 ];
 ui_de_0: [48]string = .[
     "Bilderbuch",
@@ -642,7 +672,7 @@ ui_de_240: [48]string = .[
     "Finden sie ein Körnchen",
     "Sind sie alle froh",
 ];
-ui_de_288: [30]string = .[
+ui_de_288: [48]string = .[
     "Alle meine Gänschen",
     "Watscheln durch den Grund",
     "Suchen in dem Tümpel",
@@ -673,6 +703,36 @@ ui_de_288: [30]string = .[
     "Taste gedrückt halten",
     "Jetzt loslassen",
     "Etwas länger halten",
+    "Formen und Sortieren",
+    "Formen, Farben und Größen",
+    "Paare finden",
+    "Finde freundliche Tierpaare",
+    "Verstecken",
+    "Schauen, suchen und entdecken",
+    "Kleine Trommeln",
+    "Spielen, hören und nachmachen",
+    "Mein kleiner Garten",
+    "Pflanzen, gießen und wachsen",
+    "Tropische Früchte",
+    "Gärtnern",
+    "Schule",
+    "Wassertiere",
+    "Getränke",
+    "Neues Bild",
+    "Tippe auf ein Objekt zum Löschen",
+    "Das Bild ist voll. Lösche zuerst ein Objekt",
+];
+ui_de_336: [10]string = .[
+    "Wie viele zusammen?",
+    "Wie viele bleiben?",
+    "Zählen",
+    "Plus · bis 5",
+    "Minus · bis 5",
+    "Auto",
+    "Bilder · bis 5",
+    "Gehen weg",
+    "Noch einmal hören",
+    "Tätigkeiten",
 ];
 ui_es_0: [48]string = .[
     "Libro ilustrado",
@@ -974,7 +1034,7 @@ ui_es_240: [48]string = .[
     "Cuando encuentran un granito",
     "Todos están contentos",
 ];
-ui_es_288: [30]string = .[
+ui_es_288: [48]string = .[
     "Todos mis gansitos",
     "Caminan por el campo",
     "Buscan en el charco",
@@ -1005,6 +1065,36 @@ ui_es_288: [30]string = .[
     "Mantén pulsada la tecla",
     "Suelta ahora",
     "Mantén un poco más",
+    "Formas y clasificación",
+    "Formas, colores y tamaños",
+    "Encuentra parejas",
+    "Encuentra parejas de animales",
+    "El escondite",
+    "Mira, busca y descubre",
+    "Pequeños tambores",
+    "Toca, escucha y repite",
+    "Cultiva un jardín",
+    "Planta, riega y crece",
+    "Frutas tropicales",
+    "Jardinería",
+    "Escuela",
+    "Animales acuáticos",
+    "Bebidas",
+    "Dibujo nuevo",
+    "Toca un objeto para borrarlo",
+    "El dibujo está lleno. Borra un objeto primero",
+];
+ui_es_336: [10]string = .[
+    "¿Cuántos en total?",
+    "¿Cuántos quedan?",
+    "Contar",
+    "Sumar · hasta 5",
+    "Restar · hasta 5",
+    "Auto",
+    "Dibujos · hasta 5",
+    "Se van",
+    "Escuchar otra vez",
+    "Acciones",
 ];
 Ui_en :: (at: s32) -> string {
     if at < 48 { return ui_en_0[at - 0] }
@@ -1013,7 +1103,8 @@ Ui_en :: (at: s32) -> string {
     if at < 192 { return ui_en_144[at - 144] }
     if at < 240 { return ui_en_192[at - 192] }
     if at < 288 { return ui_en_240[at - 240] }
-    if at < 318 { return ui_en_288[at - 288] }
+    if at < 336 { return ui_en_288[at - 288] }
+    if at < 346 { return ui_en_336[at - 336] }
     return ""
 }
 Ui_de :: (at: s32) -> string {
@@ -1023,7 +1114,8 @@ Ui_de :: (at: s32) -> string {
     if at < 192 { return ui_de_144[at - 144] }
     if at < 240 { return ui_de_192[at - 192] }
     if at < 288 { return ui_de_240[at - 240] }
-    if at < 318 { return ui_de_288[at - 288] }
+    if at < 336 { return ui_de_288[at - 288] }
+    if at < 346 { return ui_de_336[at - 336] }
     return ""
 }
 Ui_es :: (at: s32) -> string {
@@ -1033,7 +1125,8 @@ Ui_es :: (at: s32) -> string {
     if at < 192 { return ui_es_144[at - 144] }
     if at < 240 { return ui_es_192[at - 192] }
     if at < 288 { return ui_es_240[at - 240] }
-    if at < 318 { return ui_es_288[at - 288] }
+    if at < 336 { return ui_es_288[at - 288] }
+    if at < 346 { return ui_es_336[at - 336] }
     return ""
 }
 Tr :: (text: string) -> string {

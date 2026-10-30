@@ -1,0 +1,153 @@
+// Little Drums' rules contain no clock, sound or UI effects.
+#import, file "../../host/jungle_text.zi";
+
+DRUMS_PADS :: 4
+DRUMS_FREE :: 0
+DRUMS_COPY :: 1
+DRUMS_READY :: 0
+DRUMS_DEMO :: 1
+DRUMS_TURN :: 2
+DRUMS_DONE :: 3
+DRUMS_IGNORED :: 0
+DRUMS_HIT :: 1
+DRUMS_RETRY :: 2
+DRUMS_COMPLETE :: 3
+DRUMS_GAP :: 0.75
+
+Drums :: struct {
+    mode: s32
+    length: s32
+    wins: s32
+    pattern: [5]s32
+    phase: s32
+    demo_index: s32
+    copied: s32
+    next_hit: float64
+    last_time: float64
+}
+
+DrumsNew :: () -> Drums { return Drums.{.length = 2} }
+
+DrumsRandom :: (seed: *s64) -> s32 {
+    seed.* = seed.* * 48271 % 2147483647
+    return cast(s32)(seed.* % DRUMS_PADS)
+}
+
+// Start with two sounds. Two completed patterns offer the next length,
+// up to five; replaying a pattern never changes its difficulty.
+DrumsStart :: (d: *Drums, seed: s32, now: float64) {
+    if d.length < 2 || d.length > 5 { d.length = 2; d.wins = 0 }
+    if d.wins >= 2 { if d.length < 5 { d.length += 1 }; d.wins = 0 }
+    random: s64 = cast(s64)(seed & 0x7fffffff) % 2147483646 + 1
+    for i: cast(s32)0..d.length - 1 { d.pattern[i] = DrumsRandom(*random) }
+    d.mode = DRUMS_COPY
+    DrumsReplay(d, now)
+}
+
+DrumsReplay :: (d: *Drums, now: float64) {
+    if d.mode != DRUMS_COPY { return }
+    d.phase = DRUMS_DEMO; d.demo_index = 0; d.copied = 0
+    d.next_hit = now + 0.35; d.last_time = now
+}
+
+DrumsFree :: (d: *Drums) {
+    d.mode = DRUMS_FREE; d.phase = DRUMS_READY; d.copied = 0
+}
+
+// Emits at most one sound. Schedule from the actual emission time rather
+// than a stale deadline: slow frames cannot cause a rapid catch-up burst.
+// The final note gets its full quiet gap before input is enabled.
+DrumsTick :: (d: *Drums, now: float64) -> s32 {
+    if d.mode != DRUMS_COPY || d.phase != DRUMS_DEMO { return -1 }
+    if now < d.last_time { d.next_hit = now + 0.35 }
+    d.last_time = now
+    if now < d.next_hit { return -1 }
+    if d.demo_index >= d.length { d.phase = DRUMS_TURN; return -1 }
+    pad := d.pattern[d.demo_index]
+    d.demo_index += 1; d.next_hit = now + DRUMS_GAP
+    return pad
+}
+
+DrumsChoose :: (d: *Drums, pad: s32) -> s32 {
+    if pad < 0 || pad >= DRUMS_PADS { return DRUMS_IGNORED }
+    if d.mode == DRUMS_FREE { return DRUMS_HIT }
+    if d.phase != DRUMS_TURN { return DRUMS_IGNORED }
+    if pad != d.pattern[d.copied] {
+        d.copied = 0
+        return DRUMS_RETRY
+    }
+    d.copied += 1
+    if d.copied < d.length { return DRUMS_HIT }
+    d.phase = DRUMS_DONE
+    if d.wins < 2 { d.wins += 1 }
+    return DRUMS_COMPLETE
+}
+
+// Persist only learning progress. Every opening is Free Play, with no
+// half-played demonstrations or unfinished gestures restored.
+DrumsSaveText :: (d: Drums) -> string {
+    return Cat("drums 1 ", NumberText(d.length), " ", NumberText(d.wins), "\n")
+}
+
+DrumsRead :: (text: string, result: *Drums) -> bool {
+    if text.count != 11 && text.count != 12 { return false }
+    if text[:8] != "drums 1 " || text[9] != #char " " { return false }
+    if text.count == 12 && text[11] != #char "\n" { return false }
+    length := cast(s32)(text[8]) - cast(s32)(#char "0")
+    wins := cast(s32)(text[10]) - cast(s32)(#char "0")
+    if length < 2 || length > 5 || wins < 0 || wins > 2 { return false }
+    result.* = Drums.{.length = length, .wins = wins}
+    return true
+}
+
+// A 16×16 summary of each transparent PNG's alpha coverage. Presses use the
+// sprite's full bounds for capture, then this body mask rejects empty corners.
+DRUMS_BIG_MASK: [16]u16 = .[
+    0x07e0, 0x1ff8, 0x3ffc, 0x3ffc, 0x1ffc, 0x1ffc, 0x1ff8, 0x1ff8,
+    0x0ff0, 0x07e0, 0x07e0, 0x07e0, 0x0ff0, 0x0ff0, 0x0ff0, 0x03c0
+];
+DRUMS_LITTLE_MASK: [16]u16 = .[
+    0x0000, 0x1ff0, 0x3ffc, 0x7ffe, 0x7ffe, 0x7fff, 0x7fff, 0x7fff,
+    0x7fff, 0x7ffe, 0x3ffe, 0x3ffe, 0x3ffc, 0x1ffc, 0x0ff8, 0x03e0
+];
+DRUMS_SHAKER_MASK: [16]u16 = .[
+    0x0000, 0x1800, 0x7c3c, 0x7e7e, 0x7e7f, 0xff7f, 0x7fff, 0x7e7e,
+    0x3e7c, 0x0e78, 0x0770, 0x07e0, 0x07e0, 0x07e0, 0x00c0, 0x0000
+];
+DRUMS_BELL_MASK: [16]u16 = .[
+    0x03c0, 0x03c0, 0x03c0, 0x03c0, 0x03c0, 0x03c0, 0x03c0, 0x03c0,
+    0x07e0, 0x07e0, 0x07f0, 0x0ff0, 0x1ff8, 0x1ff8, 0x1ff8, 0x07e0
+];
+
+DrumsMaskRow :: (pad: s32, row: s32) -> u16 {
+    if pad == 0 { return DRUMS_BIG_MASK[row] }
+    if pad == 1 { return DRUMS_LITTLE_MASK[row] }
+    if pad == 2 { return DRUMS_SHAKER_MASK[row] }
+    return DRUMS_BELL_MASK[row]
+}
+
+DrumsBodyHit :: (pad: s32, x: s32, y: s32, width: s32, height: s32,
+        point_x: s32, point_y: s32) -> bool {
+    if pad < 0 || pad >= DRUMS_PADS || width <= 0 || height <= 0 { return false }
+    if point_x < x || point_y < y || point_x >= x + width || point_y >= y + height { return false }
+    cell_x := ((point_x - x) * 32 + width) / (width * 2)
+    cell_y := ((point_y - y) * 32 + height) / (height * 2)
+    row := DrumsMaskRow(pad, cell_y)
+    return ((cast(u32)row >> cast(u32)(15 - cell_x)) & cast(u32)1) != cast(u32)0
+}
+
+DrumsLayout :: struct { columns: s32; edge: s32; left: s32; top: s32 }
+DrumsPlace :: struct { x: s32; y: s32 }
+
+DrumsGrid :: (width: s32, height: s32) -> DrumsLayout {
+    columns: s32 = ifx width > height * 2 then 4 else 2
+    rows := 4 / columns
+    edge := (width - 32 - (columns - 1) * 14) / columns
+    tall := (height - (rows - 1) * 14) / rows
+    if tall < edge { edge = tall }
+    if edge > 250 { edge = 250 }
+    if edge < 0 { edge = 0 }
+    return DrumsLayout.{.columns = columns, .edge = edge,
+        .left = (width - columns * edge - (columns - 1) * 14) / 2,
+        .top = (height - rows * edge - (rows - 1) * 14) / 2}
+}

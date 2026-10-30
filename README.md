@@ -14,18 +14,23 @@ babies and toddlers.
 
 ## Little discoveries, every day
 
-- **Picture Book:** Explore 21 illustrated books filled with animals, food,
+- **Picture Book:** Explore 32 illustrated books filled with animals, food,
   family, seasons, vacation, sports, the beach, weather and feelings. Learn hot
   and cold, wet and dry, tired and rested through gentle scenes. Listen to each word or hear it spelled
   out, and turn the pages together. Discover Birds, Toys, Vehicles and Bedtime,
-  hide unwanted books, and choose which books play automatically.
+  hide unwanted books, and choose which books play automatically. New books
+  explore tropical fruits, gardening, school, water animals, drinks and everyday
+  actions. Across 284 pages, every subject appears only once; Sports now includes
+  badminton, and Actions includes cooking, cleaning, washing hands and more.
 - **ABC + 123:** Hear letter names, explore optional illustrated word examples,
   and discover the numbers one to twenty with watercolor animals. Both books
   offer Play/Pause and repeat; examples can stay visible while only the letter is spoken.
-- **Animal Counting:** Count up to twenty animals in clear groups of five and practice choosing
-  the right number as the game gently adjusts its difficulty.
+- **Animal Counting:** Count animals in clear groups of five. Follow the gentle
+  automatic progression, choose a range up to five, ten or twenty, or try simple
+  addition and subtraction within five.
 - **Coloring Book:** Choose a scene, add dinosaurs, animals, people and objects,
-  and make a picture with crayons. Save your creations, write a story, and
+  and make a picture with crayons. Erase individual newly placed objects while
+  keeping the rest of the picture. Save your creations, write a story, and
   export or print them.
 - **Little Piano (5+):** Play a fixed 37-key C3–C6 keyboard with the same quiet,
   accurately tuned notes for every song. Tap the song title to choose among five
@@ -36,6 +41,14 @@ babies and toddlers.
 - **Jigsaw Puzzles:** Put together three new watercolor scenes in six sizes,
   from 4 to 64 interlocking pieces. Play alone or take turns together, peek at
   the picture, sort edge pieces and come back to your saved puzzle.
+- **Shapes & Sorting (2+):** Follow a moving demonstration to match shapes,
+  then explore colors and sizes.
+- **Matching Pairs (2+):** Begin with two visible pairs; try hidden cards and
+  puzzles with up to ten pairs when ready.
+- **Hide & Seek (2+):** Choose peekaboo, finding clues or a memory challenge with
+  four hiding places. Show the friends again whenever needed.
+- **Little Drums (2+):** Tap illustrated drums, a shaker and a bell on a shared
+  playmat, then try copying short rhythms.
 
 ## A look inside
 
@@ -54,7 +67,8 @@ sound control help keep the experience simple.
 
 Choose **English, Deutsch or Español** from the title screen. Picture Book,
 letters and numbers include spoken narration in all three languages. Coloring
-Book keeps your work when you leave, and saved pictures can be opened again.
+Book keeps your work and up to eight undo steps when you leave, and saved
+pictures can be opened again.
 Browser saves stay in that browser.
 
 Narration uses Ogg Vorbis. The browser edition needs a modern browser with
