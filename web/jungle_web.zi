@@ -15,6 +15,7 @@
 #import "std/byte_text_linux"
 #import "std/web"
 Runner :: #import "canvas_app_run";
+Raster :: #import "canvas_raster";
 Book :: #import, file "../games/book/jungle_book.zi";
 ABC :: #import, file "../games/abc/jungle_abc.zi";
 Numbers :: #import, file "../games/numbers/jungle_numbers.zi";
@@ -242,7 +243,8 @@ WebService :: (name: string, request: string) -> string {
     if name == "jungle.image" {
         scope := WebScope()
         defer WebEnd(scope)
-        return ifx WebAsBool(WebCall1(WebModule, WebName("jungleImageReady"), WebText(request))) then "ready" else "pending"
+        if !WebAsBool(WebCall1(WebModule, WebName("jungleImageReady"), WebText(request))) { return "pending" }
+        return ifx Raster.ImageWidth(request) > 0 then "ready" else "pending"
     }
     if name == "jungle.voice-state" { return VoiceState() }
     if name == "jungle.voice-control" {

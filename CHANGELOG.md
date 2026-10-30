@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.24
+
+Released 2026-10-30.
+
+- Keep the Coloring Book picture and tools visible while saving edits or reopening saved Undo history.
+- Show stencil Previous and Next buttons only when another page is available in the chosen category.
+
 ## 0.1.23
 
 Released 2026-10-30.
