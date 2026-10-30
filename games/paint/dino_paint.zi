@@ -86,6 +86,7 @@ stencil_categories: [4]string = .["Dinosaurs", "Animals", "People", "Objects"];
 story_row: s32;
 story_column: s32;
 canvas_name: [32]u8;
+canvas_shown_name: [32]u8;
 digits_a: [24]u8;
 dirty: bool = true;
 slot: s32 = -1;
@@ -120,6 +121,10 @@ Keep :: (name: string, bytes: []u8) {
 working_save_pending: bool;
 WorkingPictureKeep :: () { working_save_pending = true }
 
+// One frame of bookkeeping keeps the submitted page, but neither serializes it
+// in the same frame as an edit nor accepts a new edit while its save settles.
+working_bookkeeping: bool;
+
 // The working picture, then its undo history, which names that exact
 // picture: if only the picture is written, the history no longer matches it
 // and is dropped on reading, so no step can be undone twice.
@@ -139,6 +144,10 @@ WorkingPictureSave :: () -> bool {
 // The working picture and, when it still belongs to it, its undo history.
 working_history_start: bool;
 working_loaded: string;
+WORKING_CANVAS_IDLE :: 0
+WORKING_CANVAS_WAIT :: 1
+WORKING_CANVAS_MAKE :: 2
+working_canvas_state: s32 = WORKING_CANVAS_IDLE;
 
 WorkingPictureLoad :: () {
     HistoryClear()
@@ -200,6 +209,12 @@ MakeCanvas :: () {
     if !dirty { return }
     made := GameCanvas(CanvasText())
     if made != "" {
+        // Keep the last complete picture beneath its replacement while the
+        // browser installs the new image in its drawing surface.
+        {
+            previous := TextUntilNul(canvas_name[:])
+            if previous != "" && RetroImageReady(previous) { Keep(previous, canvas_shown_name[:]) }
+        }
         Keep(made, canvas_name[:])
         dirty = false
     }
@@ -372,45 +387,30 @@ MainView :: () {
     LayoutMain()
     bounds := AppBounds()
     BookBox(0, 0, cast(s32)bounds.width, cast(s32)bounds.height, 0xe3ece4ff)
+    chosen_tool: s32 = -1
     for index: cast(s32)0..7 {
         mirror := placing && index == 6
         label := ifx mirror then "Mirror" else button_names[index]
-        if ToolButton(20 + index, tool_x[index], tool_y[index], tool_w, tool_h, ToolShape(index), label, (mirror && placement_flip) || (index == 3 && erasing)) {
-            if mirror { placement_flip = !placement_flip; Sound("click"); return }
-            placing = false
-            dragging = false
-            Sound("click")
-            if index == 0 || index == 1 || index == 7 { erasing = false }
-            if index == 0 { view = ifx scene < 0 then PICK_SCENE else PICK_DINO }
-            if index == 1 { view = PICK_COLOR }
-            if index == 2 { view = STORY }
-            if index == 3 { erasing = !erasing; canvas_can_fill = false }
-            if index == 7 { view = CONFIRM_ERASE }
-            if index == 4 {
-                // Painting may have evicted the previous temporary images.
-                for slot_index: cast(s32)0..SLOT_COUNT - 1 { slot_previews_ready[slot_index] = false }
-                view = SAVE_LOAD
-                saving = true
-            }
-            if index == 5 { view = PRINT_VIEW }
-            if index == 6 { Undo() }
-            return
-        }
+        pressed := ToolButton(20 + index, tool_x[index], tool_y[index], tool_w, tool_h, ToolShape(index), label, (mirror && placement_flip) || (index == 3 && erasing))
+        if pressed && !working_bookkeeping { chosen_tool = index }
     }
     // The chosen crayon, as a dot on the Color tool.
     dot := Clamp(tool_h / 4, 8, 24)
     BookBox(tool_x[1] + tool_w - dot - tool_h / 10, tool_y[1] + tool_h / 10, dot, dot,
         paint_colors[16 + crayon], 0x3e332aff, cast(float32)(dot / 2))
-    if scene >= 0 { MakeCanvas() }
+    if scene >= 0 && (!working_bookkeeping || working_canvas_state == WORKING_CANVAS_MAKE) { MakeCanvas() }
     frame := Clamp(canvas_w / 120, 3, 8)
     BookBox(canvas_x - frame, canvas_y - frame, canvas_w + frame * 2, canvas_h + frame * 2,
         0xfffcf3ff, 0x704d36ff, cast(float32)(frame * 2))
     name := TextUntilNul(canvas_name[:])
-    if scene >= 0 && name != "" {
-        RetroSprite(name, canvas_x, canvas_y, canvas_w, canvas_h, -1, true)
-    } else {
-        BookBox(canvas_x, canvas_y, canvas_w, canvas_h, 0xffffffff)
+    shown := TextUntilNul(canvas_shown_name[:])
+    if scene >= 0 && shown != "" {
+        RetroSprite(shown, canvas_x, canvas_y, canvas_w, canvas_h, -1, true)
     }
+    if scene >= 0 && name != "" && name != shown {
+        RetroSprite(name, canvas_x, canvas_y, canvas_w, canvas_h, -1, true)
+    }
+    if scene < 0 || (name == "" && shown == "") { BookBox(canvas_x, canvas_y, canvas_w, canvas_h, 0xffffffff) }
     press := RetroTap(40, canvas_x, canvas_y, canvas_w, canvas_h, "Picture", true)
     x := PictureX(press.x)
     y := PictureY(press.y)
@@ -422,7 +422,7 @@ MainView :: () {
         pointer := SamplePointer()
         x = PictureX(pointer.x)
         y = PictureY(pointer.y)
-        if pointer.pressed && x >= placement_x && x < placement_x + w &&
+        if !working_bookkeeping && chosen_tool < 0 && pointer.pressed && x >= placement_x && x < placement_x + w &&
         y >= placement_y && y < placement_y + h {
             dragging = true
             grab_x = x - placement_x
@@ -435,7 +435,7 @@ MainView :: () {
         flip := placement_flip || GameSecondaryDown()
         PlacementBox(PictureRect(placement_x, placement_y, w, h), flip)
         if !dragging { PictureNote("Drag the stencil, then let go") }
-        if pointer.released && dragging {
+        if !working_bookkeeping && chosen_tool < 0 && pointer.released && dragging {
             if !CanvasCanStamp(dino, size, placement_x, placement_y) {
                 dragging = false
                 Notice("Picture is full. Erase an object first")
@@ -450,8 +450,8 @@ MainView :: () {
             Sound("fill")
         }
     } else {
-        if SamplePointer().pressed { canvas_can_fill = true }
-        if press.clicked && canvas_can_fill {
+        if !working_bookkeeping && chosen_tool < 0 && SamplePointer().pressed { canvas_can_fill = true }
+        if !working_bookkeeping && chosen_tool < 0 && press.clicked && canvas_can_fill {
             canvas_can_fill = false
             if erasing {
                 if CanvasObjectAt(x, y) >= 0 {
@@ -474,6 +474,28 @@ MainView :: () {
             }
         }
     }
+    }
+    if chosen_tool >= 0 {
+        mirror := placing && chosen_tool == 6
+        if mirror { placement_flip = !placement_flip; Sound("click"); return }
+        placing = false
+        dragging = false
+        Sound("click")
+        if chosen_tool == 0 || chosen_tool == 1 || chosen_tool == 7 { erasing = false }
+        if chosen_tool == 0 { view = ifx scene < 0 then PICK_SCENE else PICK_DINO }
+        if chosen_tool == 1 { view = PICK_COLOR }
+        if chosen_tool == 2 { view = STORY }
+        if chosen_tool == 3 { erasing = !erasing; canvas_can_fill = false }
+        if chosen_tool == 4 {
+            // Painting may have evicted the previous temporary images.
+            for slot_index: cast(s32)0..SLOT_COUNT - 1 { slot_previews_ready[slot_index] = false }
+            view = SAVE_LOAD
+            saving = true
+        }
+        if chosen_tool == 5 { view = PRINT_VIEW }
+        if chosen_tool == 6 { Undo() }
+        if chosen_tool == 7 { view = CONFIRM_ERASE }
+        return
     }
     if retro.key == KEY_ESCAPE { WorkingPictureKeep(); GameHome() }
     if erasing { PictureNote("Tap an object to erase") }
@@ -554,10 +576,9 @@ DinoPicker :: () {
             return
         }
     }
-    up := BookButton(196, 22, 173, 78, 14, "Previous")
-    down := BookButton(197, 106, 173, 78, 14, "Next")
-    if up && (dino_page > 0) { dino_page -= 1 }
-    if down && (dino_page < (category_counts[stencil_category] + 5) / 6 - 1) { dino_page += 1 }
+    if dino_page > 0 && BookButton(196, 22, 173, 78, 14, "Previous") { dino_page -= 1; return }
+    if dino_page < (category_counts[stencil_category] + 5) / 6 - 1 &&
+    BookButton(197, 106, 173, 78, 14, "Next") { dino_page += 1; return }
     unused CancelButton()
 }
 
@@ -809,6 +830,8 @@ GameMain :: () -> s32 {
         initialized = false
         working_history_start = false
         working_save_pending = false
+        working_bookkeeping = false
+        working_canvas_state = WORKING_CANVAS_IDLE
         history_loading = false
         erasing = false
         view = MAIN
@@ -819,6 +842,8 @@ GameMain :: () -> s32 {
         crayon = 14
         dino = -1
         canvas_name[0] = 0
+        canvas_shown_name[0] = 0
+        dirty = true
         ClearStory()
         AppIdentity("jungle.paint")
         AppDescribe("Coloring Book", "")
@@ -827,22 +852,33 @@ GameMain :: () -> s32 {
     if mode == APP_SAVE { return ifx WorkingPictureSave() then 0 else 1 }
     if mode != APP_FRAME { return 0 }
     GameLanguage()
-    if (working_history_start || history_loading) && AppKey() == KEY_ESCAPE { GameHome(); return 0 }
+    working_bookkeeping = false
+    history_begin := false
+    if (working_history_start || history_loading) && AppKey() == KEY_ESCAPE { GameHome() }
     if working_save_pending && initialized && !working_history_start && !history_loading {
         working_save_pending = false
+        working_bookkeeping = true
         unused WorkingPictureSave()
-        return 0
     }
     if initialized && working_history_start {
-        working_history_start = false
-        HistoryLoadBegin(DocumentRead(WORKING_HISTORY), working_loaded)
-        working_loaded = ""
-        return 0
+        working_bookkeeping = true
+        if working_canvas_state == WORKING_CANVAS_WAIT {
+            working_canvas_state = WORKING_CANVAS_MAKE
+        } else if working_canvas_state == WORKING_CANVAS_MAKE {
+            working_canvas_state = WORKING_CANVAS_IDLE
+            working_history_start = false
+            HistoryLoadBegin(DocumentRead(WORKING_HISTORY), working_loaded)
+            working_loaded = ""
+            history_begin = true
+        }
     }
-    if history_loading { HistoryLoadStep(); return 0 }
+    if history_loading && !history_begin { HistoryLoadStep(); working_bookkeeping = true }
+    else if history_loading { working_bookkeeping = true }
     if !initialized {
         CanvasBlank()
         WorkingPictureLoad()
+        working_bookkeeping = true
+        if working_history_start { working_canvas_state = WORKING_CANVAS_WAIT }
         if scene < 0 { view = PICK_SCENE }
         initialized = true
     }
@@ -858,6 +894,7 @@ GameMain :: () -> s32 {
     else if view == SAVE_LOAD { SaveLoadView() }
     else if view == OVERWRITE { OverwriteView() }
     else if view == PRINT_VIEW { PrintView() }
+    working_bookkeeping = false
     return 0
 }
 
