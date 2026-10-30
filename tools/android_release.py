@@ -12,6 +12,8 @@ import re
 import subprocess
 import zipfile
 
+from shared_assets import CatalogGames
+
 ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -22,7 +24,13 @@ def build_tools():
     return tools
 
 
-def verify(apk):
+def OutputName(version, edition):
+    """The stable download name; the normal edition keeps its historic name."""
+    suffix = '' if edition == 'direct' else '-' + edition
+    return f'jungle-v{version}{suffix}.apk'
+
+
+def verify(apk, edition='direct'):
     version = (ROOT / 'VERSION').read_text().strip()
     major, minor, patch = map(int, version.split('.'))
     tools = build_tools()
@@ -41,8 +49,9 @@ def verify(apk):
         names = archive.namelist()
         abis = sorted(p.split('/')[1] for p in names if re.fullmatch(r'lib/[^/]+/libmain\.so', p))
         assert abis == ['arm64-v8a', 'armeabi-v7a'], 'Both ARM architectures are required'
-        for game in (ROOT / 'build/app/games').iterdir():
-            assert archive.read('assets/games/' + game.name) == game.read_bytes(), game.name
+        assert archive.read('assets/games/catalog.txt') == (ROOT / 'build/app/games/catalog.txt').read_bytes()
+        for game in CatalogGames(ROOT / 'build/app'):
+            assert archive.read('assets/games/' + game) == (ROOT / 'build/app/games' / game).read_bytes(), game
     return hashlib.sha256(Path(apk).read_bytes()).hexdigest()
 
 
@@ -53,9 +62,10 @@ def main():
     parser.add_argument('--keystore', type=Path)
     parser.add_argument('--password-file', type=Path)
     parser.add_argument('--output', type=Path, default=ROOT / 'build/downloads')
+    parser.add_argument('--edition', choices=('direct', 'fdroid', 'gplay'), default='direct')
     args = parser.parse_args()
     if args.action == 'verify':
-        print(verify(args.apk))
+        print(verify(args.apk, args.edition))
         return
     assert args.keystore and args.password_file, 'Signing needs the release keystore and its password file'
     args.output.mkdir(parents=True, exist_ok=True)
@@ -63,18 +73,18 @@ def main():
     tools = build_tools()
     aligned = args.output / 'aligned-unsigned.apk'
     temporary = args.output / 'jungle.new.apk'
-    target = args.output / f'jungle-v{version}.apk'
+    target = args.output / OutputName(version, args.edition)
     try:
         subprocess.run([str(tools / 'zipalign'), '-P', '16', '-f', '4', str(args.apk.resolve()), str(aligned)], check=True)
         subprocess.run([str(tools / 'apksigner'), 'sign', '--alignment-preserved', '--ks', str(args.keystore.resolve(strict=True)),
                         '--ks-key-alias', 'jungle', '--ks-pass', 'file:' + str(args.password_file.resolve(strict=True)),
                         '--out', str(temporary), str(aligned)], check=True)
-        digest = verify(temporary)
+        digest = verify(temporary, args.edition)
         temporary.replace(target)
     finally:
         aligned.unlink(missing_ok=True)
         temporary.unlink(missing_ok=True)
-    print(f'Jungle Academy {version}: {target.name} signed and verified ({digest})')
+    print(f'Jungle Academy {version} ({args.edition}): {target.name} signed and verified ({digest})')
 
 
 if __name__ == '__main__':

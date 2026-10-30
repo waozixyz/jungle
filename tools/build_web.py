@@ -9,6 +9,7 @@ import tempfile
 import time
 
 from asset_packs import pack_assets, validate_distribution
+from shared_assets import SPEECH_INDEX, Speech, SpeechIndexText, WebAliases, WriteIfChanged
 from web_images import prepare_web_images
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -101,14 +102,22 @@ def build(out):
     shutil.copy2(ROOT/'assets/jungle/icons/favicon.ico',out/'favicon.ico')
     shutil.copy2(ROOT/'web/asset-packs.js',out/'asset-packs.js')
     files = {}
-    for name in ('jungle','jungle-book','abc','numbers','animal-count','dino-paint','jigsaw','piano'):
+    for name in ('jungle','jungle-book','abc','numbers','animal-count','dino-paint','jigsaw','piano','shapes','hide_seek','drums','garden'):
         source=ROOT/'assets'/name
         for path in source.rglob('*'):
             if path.is_file() and not path.name.endswith('.speech.json') and not path.name.startswith('voice-'):
                 files[path.relative_to(ROOT).as_posix()] = path
-    # Animal Counting reuses the book's corresponding watercolor pictures.
-    animals=('tiger','frog','butterfly','ladybug','snail','elephant','giraffe','monkey','panda','lion','zebra','crocodile','parrot','toucan','rabbit','cat','dog','sheep')
-    for name in animals:files[f'assets/animal-count/pictures/{name}.png']=ROOT/'assets/jungle-book/counting'/f'{name}.png'
+    # Native hosts' manifest aliases, such as Animal Counting's pictures, name
+    # the same bytes, so the packs store each picture once.
+    files.update(WebAliases())
+    # Narration ships as the native hosts' Ogg Vorbis clips and speech index,
+    # never as the WAVs they compose.
+    speech,speech_files=Speech()
+    for name in set(speech['clips'])|set(speech['voices']):files.pop(name,None)
+    files.update(speech_files)
+    index=ROOT/'work/web-speech'/Path(SPEECH_INDEX).name
+    WriteIfChanged(index,SpeechIndexText(speech))
+    files[SPEECH_INDEX]=index
     files.pop('assets/jungle/covers/count.png', None)
     images=sorted(name for name in files if Path(name).suffix in ('.png','.jpg'))
     # Browser branding must work before the runtime starts. Keep the small

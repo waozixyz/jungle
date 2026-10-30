@@ -18,6 +18,14 @@ if (kryonDir == null || ziranDir == null || raylibDir == null) {
 def androidAbis = (project.findProperty('app.abis') ?:
     System.getenv('KRYON_ANDROID_ABIS') ?: 'arm64-v8a').split(',').toList()
 def appCodegen = envOrProp('KRYON_PROJECT_CODEGEN', 'app.codegen') ?: 'c99'
+// One app, three editions: direct (the normal APK), fdroid or gplay. Only
+// gplay applies Kryon's external Play additions; it also needs Android 6.
+def appEdition = (project.findProperty('app.edition') ?: 'direct').toString()
+if (!(appEdition in ['direct', 'fdroid', 'gplay'])) {
+    throw new GradleException('app.edition must be direct, fdroid or gplay')
+}
+def googlePlay = appEdition == 'gplay'
+def requestedMinSdk = Integer.parseInt((project.findProperty('app.minSdk') ?: '21').toString())
 
 android {
     namespace 'xyz.waozi.jungle'
@@ -26,7 +34,7 @@ android {
 
     defaultConfig {
         applicationId 'xyz.waozi.jungle'
-        minSdk Integer.parseInt((project.findProperty('app.minSdk') ?: '21').toString())
+        minSdk googlePlay ? Math.max(requestedMinSdk, 23) : requestedMinSdk
         targetSdk 36
         // tools/build_android.py passes Jungle's VERSION.
         versionCode Integer.parseInt((project.findProperty('app.versionCode') ?: '1').toString())
@@ -41,7 +49,8 @@ android {
                 arguments '-DKRYON_DIR=' + kryonDir,
                     '-DZIRAN_DIR=' + ziranDir,
                     '-DRAYLIB_DIR=' + raylibDir,
-                    '-DAPP_CODEGEN=' + appCodegen
+                    '-DAPP_CODEGEN=' + appCodegen,
+                    '-DAPP_EDITION=' + appEdition
             }
         }
     }
@@ -54,7 +63,7 @@ android {
     }
 
     // The installed app's games/ and assets/, staged by tools/build_android.py.
-    sourceSets.main.assets.srcDir "${rootProject.projectDir}/../build/android/assets"
+    sourceSets.main.assets.srcDir "${rootProject.projectDir}/../build/android/package"
 
     if (appCodegen == 'zx') {
         sourceSets.main.assets.srcDir "${rootProject.projectDir}/../build/android/zx-assets"
@@ -67,4 +76,8 @@ android {
             minifyEnabled false
         }
     }
+}
+
+if (googlePlay) {
+    apply from: new File(kryonDir, 'templates/android-gplay.gradle')
 }

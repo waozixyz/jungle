@@ -1,0 +1,24 @@
+// The host's DecodeSpeech on one encoded clip, for tests/speech_codec_test.py:
+// speech_codec ENCODED FRAMES OUT writes its samples to OUT, and exits 2
+// when DecodeSpeech refuses the clip. Without OUT it runs only the
+// SpeechPreflight every platform's decoder waits for.
+#import "std/file"
+#import "std/byte_text_linux"
+#import "std/text_tools"
+#import, file "../host/sound.zi";
+
+#program_export
+main :: (argc: s32, argv: **u8) -> s32 {
+    if argc != 3 && argc != 4 { return 3 }
+    encoded, found := ReadEntireFile(TextFromCString(argv[1]))
+    if !found { return 3 }
+    frames, ok := TextInteger(TextFromCString(argv[2]))
+    if !ok { return 3 }
+    if argc == 3 {
+        descriptor := cast(*TextDescriptor)(*encoded)
+        return ifx SpeechPreflight(BytesFromPointer(descriptor.data, cast(u64)encoded.count), frames) then 0 else 2
+    }
+    pcm: Vec(u8)
+    if !DecodeSpeech(encoded, frames, *pcm) { return ifx pcm.count == 0 then 2 else 4 }
+    return ifx WriteEntireFile(TextFromCString(argv[3]), BuilderFinish(pcm)) then 0 else 3
+}

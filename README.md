@@ -57,6 +57,9 @@ letters and numbers include spoken narration in all three languages. Coloring
 Book keeps your work when you leave, and saved pictures can be opened again.
 Browser saves stay in that browser.
 
+Narration uses Ogg Vorbis. The browser edition needs a modern browser with
+Vorbis support, including Safari 18.4 or later.
+
 ## Build and contribute
 
 Jungle Academy is open source, made with [Ziran](https://github.com/ziranlang/ziran)

@@ -233,6 +233,12 @@ on OpenRouter, using Gemini TTS's Kore voice with gentle delivery and slower,
 pitch-preserving playback. Each WAV has a `.speech.json` with the literal word,
 spelling, model, voice, speed, measured duration and checksum. No network or
 credential is needed while playing.
+The original WAVs and their provenance stay in the source tree. Downloads share
+artwork and narration clips, encoded as mono 22,050 Hz Ogg Vorbis at quality 4.
+Spelled lessons are assembled before playback from their word and letter clips
+with the original sample ranges and pauses. Building these derivatives needs
+FFmpeg with its libvorbis encoder. The browser edition requires a modern browser
+with Vorbis support, including Safari 18.4 or later.
 Coloring Book' scenes and dinosaurs are traced from
 the original Bert's Dinosaurs artwork into `assets/dino-paint/art` and
 `games/paint/paint_pages.zi`. `make sounds` makes the beeps. Both tools are

@@ -1,6 +1,6 @@
 name: Desktop and Android release
 
-# Every release includes a tested Linux AppImage and a signed Android APK.
+# Every release includes a tested Linux AppImage and three signed Android APKs.
 # Both downloads stay in this job until verified, then publish together.
 # No artifact-storage transfer is required between build jobs.
 # A version that is already published is never replaced.
@@ -18,7 +18,7 @@ concurrency:
 
 jobs:
   apk:
-    name: Linux AppImage and signed Android APK
+    name: Linux AppImage and signed Android editions
     runs-on: ubuntu-24.04
     timeout-minutes: 90
     env:
@@ -60,7 +60,7 @@ jobs:
       - name: Install build tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y libsdl2-dev libcairo2-dev libfreetype-dev libfontconfig-dev libpango1.0-dev libgdk-pixbuf-2.0-0 python3-pil imagemagick xvfb xdotool
+          sudo apt-get install -y libsdl2-dev libcairo2-dev libfreetype-dev libfontconfig-dev libpango1.0-dev libgdk-pixbuf-2.0-0 libvorbisfile3 ffmpeg python3-pil imagemagick xvfb xdotool
       - name: Build compiler and select locked source directories
         run: |
           make -j2 -C "$GITHUB_WORKSPACE/ziranlang/ziran" all
@@ -79,16 +79,27 @@ jobs:
       - name: Install the pinned Android SDK tools
         run: |
           "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'ndk;28.2.13676358' 'build-tools;36.0.0' 'platforms;android-36' 'cmake;3.22.1'
-      - name: Build both ARM architectures in one APK
-        run: python3 tools/build_android.py --release --abi universal
-      # Only a Google Play edition may hold a Google library, in its build
-      # files as in its APK. Composite actions start at the workspace root.
-      - name: Keep Google libraries out of the APK and its build files
-        uses: kryonlabs/kryon/.github/actions/google-free@7217475dfa7f462939e47e3f0bc918aef248b179
+      - name: Build each edition with both ARM architectures
+        run: |
+          for edition in direct fdroid gplay; do
+            python3 tools/build_android.py --release --abi universal --edition "$edition"
+          done
+      # Composite actions start at the workspace root. The direct and F-Droid
+      # builds read Jungle's Gradle files; gplay applies Kryon's external file.
+      - name: Keep Google libraries out of the normal and F-Droid builds
+        uses: kryonlabs/kryon/.github/actions/google-free@edffc8bf8086e4015d2b499d9afce394e45503e8
         with:
           source: waozixyz/learning/jungle
-          packages: waozixyz/learning/jungle/build/android/JungleAcademy-universal-release-unsigned.apk
-      - name: Sign and verify the download
+          packages: |
+            waozixyz/learning/jungle/build/android/JungleAcademy-universal-release-unsigned.apk
+            waozixyz/learning/jungle/build/android/JungleAcademy-universal-fdroid-release-unsigned.apk
+      - name: Require the Google Play edition to carry Play Billing
+        uses: kryonlabs/kryon/.github/actions/google-free@edffc8bf8086e4015d2b499d9afce394e45503e8
+        with:
+          source: ''
+          expect-google: 'true'
+          packages: waozixyz/learning/jungle/build/android/JungleAcademy-universal-gplay-release-unsigned.apk
+      - name: Sign and verify every Android edition
         env:
           KEYSTORE: ${{ secrets.JUNGLE_ANDROID_KEYSTORE }}
           PASSWORD: ${{ secrets.JUNGLE_ANDROID_KEYSTORE_PASSWORD }}
@@ -99,8 +110,16 @@ jobs:
           trap 'rm -f "$RUNNER_TEMP/jungle-release.p12" "$RUNNER_TEMP/jungle-password"' EXIT
           printf '%s' "$KEYSTORE" | base64 -d > "$RUNNER_TEMP/jungle-release.p12"
           printf '%s' "$PASSWORD" > "$RUNNER_TEMP/jungle-password"
-          python3 tools/android_release.py sign build/android/JungleAcademy-universal-release-unsigned.apk \
-            --keystore "$RUNNER_TEMP/jungle-release.p12" --password-file "$RUNNER_TEMP/jungle-password"
+          for edition in direct fdroid gplay; do
+            case "$edition" in
+              direct) suffix='' ;;
+              *) suffix="-$edition" ;;
+            esac
+            python3 tools/android_release.py sign \
+              "build/android/JungleAcademy-universal${suffix}-release-unsigned.apk" \
+              --edition "$edition" \
+              --keystore "$RUNNER_TEMP/jungle-release.p12" --password-file "$RUNNER_TEMP/jungle-password"
+          done
       - name: Release notes
         env:
           VERSION: ${{ steps.deps.outputs.version }}
@@ -141,7 +160,12 @@ jobs:
           if [ "$state" = missing ]; then
             gh release create "$tag" --draft --target "$GITHUB_SHA" --title "Jungle Academy $VERSION" --notes-file build/release-notes.md
           fi
-          gh release upload "$tag" "build/downloads/jungle-v$VERSION.apk" "build/downloads/jungle-v$VERSION-x86_64.AppImage" "build/downloads/jungle-v$VERSION-x86_64.AppImage.sha256" --clobber
+          gh release upload "$tag" \
+            "build/downloads/jungle-v$VERSION.apk" \
+            "build/downloads/jungle-v$VERSION-fdroid.apk" \
+            "build/downloads/jungle-v$VERSION-gplay.apk" \
+            "build/downloads/jungle-v$VERSION-x86_64.AppImage" \
+            "build/downloads/jungle-v$VERSION-x86_64.AppImage.sha256" --clobber
           gh release edit "$tag" --draft=false --latest
       - name: Install itch.io Butler
         if: github.ref == 'refs/heads/master'
@@ -153,7 +177,7 @@ jobs:
           unzip -q "$RUNNER_TEMP/butler.zip" -d "$RUNNER_TEMP/butler"
           chmod +x "$RUNNER_TEMP/butler/butler"
           echo "$RUNNER_TEMP/butler" >> "$GITHUB_PATH"
-      - name: Publish the verified Android and Linux downloads to itch.io
+      - name: Publish the verified normal Android and Linux downloads to itch.io
         if: github.ref == 'refs/heads/master'
         env:
           BUTLER_API_KEY: ${{ secrets.ITCH_API_KEY }}
@@ -162,6 +186,8 @@ jobs:
           set -euo pipefail
           test -n "$BUTLER_API_KEY" || { echo '::error::Set the ITCH_API_KEY repository secret to enable automatic itch.io updates.'; exit 1; }
           test -f "build/downloads/jungle-v$VERSION.apk"
+          test -f "build/downloads/jungle-v$VERSION-fdroid.apk"
+          test -f "build/downloads/jungle-v$VERSION-gplay.apk"
           test -f "build/downloads/jungle-v$VERSION-x86_64.AppImage"
           butler push "build/downloads/jungle-v$VERSION.apk" waozi/jungle:android --userversion "$VERSION"
           butler push "build/downloads/jungle-v$VERSION-x86_64.AppImage" waozi/jungle:linux --userversion "$VERSION"

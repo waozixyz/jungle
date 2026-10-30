@@ -16,6 +16,7 @@ with tempfile.TemporaryDirectory(prefix='asset-pack-test-',dir=ROOT/'build') as 
     for name, data in {'images/a.png': b'\x89PNG'+bytes(range(256))*8,
                        'sounds/en/a.wav': b'RIFF'+b'hello world'*2048,
                        'sounds/es/a.wav': b'RIFF'+b'hola mundo'*2048,
+                       'speech/es/a.ogg': b'OggS'+b'hola mundo'*2048,
                        'images/alias.png': b'\x89PNG'+bytes(range(256))*8,
                        'words/niño.txt': 'niño'.encode(),
                        'words/empty.txt': b''}.items():
@@ -37,6 +38,8 @@ with tempfile.TemporaryDirectory(prefix='asset-pack-test-',dir=ROOT/'build') as 
         with zipfile.ZipFile(root/'one'/entry['pack']) as archive:
             assert archive.testzip() is None
     assert methods=={0,8}
+    # Encoded speech is stored as it is, yet still checked like every file.
+    assert first['files']['speech/es/a.ogg']['method']==0 and first['files']['sounds/es/a.wav']['method']==8
     validate_distribution(root/'one')
     try:
         pack_assets({'../outside': inputs['images/a.png']}, root/'bad')
