@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Release paths build all three Android editions without shipping stale games."""
 from pathlib import Path
+import json
 import subprocess
 import sys
 import tempfile
@@ -104,7 +105,9 @@ def release_gate_test():
     assert android_release.OutputName('0.1.3', 'gplay') == 'jungle-v0.1.3-gplay.apk'
     workflow = (ROOT / '.github/workflows/android.yml').read_text()
     assert 'libvorbisfile3 ffmpeg python3-pil' in workflow
-    assert workflow.count('google-free@5427f011d20ad9a67abd734c6a7985650e9d5bf3') == 2
+    lock = json.loads((ROOT / 'ziran.lock').read_text())
+    kryon = next(package['commit'] for package in lock['packages'] if package['name'] == 'kryon')
+    assert workflow.count('kryonlabs/kryon/.github/actions/google-free@' + kryon) == 2
     assert "expect-google: 'true'" in workflow
     assert 'JungleAcademy-universal-release-unsigned.apk' in workflow
     assert 'JungleAcademy-universal-fdroid-release-unsigned.apk' in workflow
