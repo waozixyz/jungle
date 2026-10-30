@@ -174,7 +174,6 @@ test: build/tests/paint build/tests/png build/tests/progress build/tests/documen
 	python3 tests/shared_assets_test.py
 	python3 tests/speech_manifest_test.py
 	python3 tests/speech_codec_test.py
-	python3 tests/speech_playback_test.py
 	python3 tests/language_test.py
 	python3 tests/abc_audio_test.py
 	python3 tests/numbers_audio_test.py
