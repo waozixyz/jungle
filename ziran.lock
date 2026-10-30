@@ -2,14 +2,6 @@
   "format": 1,
   "packages": [
     {
-      "commit": "edffc8bf8086e4015d2b499d9afce394e45503e8",
-      "dependencies": {"raylib": "p5a77c9c35110e925"},
-      "id": "p13e45c6bd7dbca34",
-      "name": "kryon",
-      "ref": "master",
-      "url": "https://github.com/kryonlabs/kryon.git"
-    },
-    {
       "commit": "fafa2cea97d0cb379d832086ba45a989fa6f9c8e",
       "dependencies": {},
       "id": "p5a77c9c35110e925",
@@ -17,6 +9,14 @@
       "ref": "fafa2cea97d0cb379d832086ba45a989fa6f9c8e",
       "source": true,
       "url": "https://github.com/raysan5/raylib.git"
+    },
+    {
+      "commit": "0e1a62a1f998c49fc20099d9734ce35374b75f75",
+      "dependencies": {"raylib": "p5a77c9c35110e925"},
+      "id": "p8d3fea2efca0add1",
+      "name": "kryon",
+      "ref": "master",
+      "url": "https://github.com/kryonlabs/kryon.git"
     },
     {
       "commit": "9cc6872f75447c3a24c16764f9829d0f58751cb0",
@@ -28,7 +28,7 @@
     }
   ],
   "root": {
-    "dependencies": {"kryon": "p13e45c6bd7dbca34", "mingcute": "pe1027b9d16704793"},
+    "dependencies": {"kryon": "p8d3fea2efca0add1", "mingcute": "pe1027b9d16704793"},
     "name": "Jungle"
   },
   "toolchain": {

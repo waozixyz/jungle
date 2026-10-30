@@ -1,5 +1,9 @@
 # Changelog
 
+## [Unreleased]
+
+- Correct browser page turns so clicks choose the previous or next page by their position.
+
 ## 0.1.21
 
 - Make Jungle a much smaller download by sharing pictures, fonts and narration clips across activities.

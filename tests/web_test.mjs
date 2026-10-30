@@ -7,8 +7,6 @@ import {join,resolve,extname} from 'node:path';
 import {tmpdir} from 'node:os';
 import {setTimeout as delay} from 'node:timers/promises';
 const root=resolve(process.env.JUNGLE_WEB_ROOT||'build/web'),prefix='/embed/jungle/',profile=await mkdtemp('/tmp/jungle-web-');
-const packManifest=JSON.parse(await readFile(join(root,'asset-packs.json'),'utf8'));
-const bookSoundPacks=[...new Set(Object.entries(packManifest.files).filter(([path])=>path.startsWith('assets/jungle-book/sounds/')).map(([,entry])=>entry.pack))];
 const catalog=(await readFile('games/catalog.txt','utf8')).split('\n').filter(l=>l.includes('|')).length;
 const hasABC=(await readFile('games/catalog.txt','utf8')).includes('jungle-abc.zx|');
 const hasNumbers=(await readFile('games/catalog.txt','utf8')).includes('jungle-numbers.zx|');
@@ -36,7 +34,7 @@ try{
  if(!port)throw Error('Private Chromium did not expose a test port: '+stderr);
  const pages=await(await fetch('http://127.0.0.1:'+port+'/json/list')).json();
  socket=new WebSocket(pages.find(p=>p.type==='page').webSocketDebuggerUrl);await new Promise((r,j)=>{socket.onopen=r;socket.onerror=j});
- let sequence=0;let holdAudio=false;const pausedAudio=[];const pending=new Map();socket.onmessage=e=>{const m=JSON.parse(e.data);if(m.method==='Fetch.requestPaused'){if(holdAudio)pausedAudio.push(m.params.requestId);else void command('Fetch.continueRequest',{requestId:m.params.requestId})}if(m.method==='Runtime.exceptionThrown')diagnostics.push(m.params);if(m.method==='Runtime.consoleAPICalled'&&m.params.type==='error')diagnostics.push(m.params.args.map(a=>a.value||a.description));if(pending.has(m.id)){pending.get(m.id)(m);pending.delete(m.id)}};
+ let sequence=0;const pending=new Map();socket.onmessage=e=>{const m=JSON.parse(e.data);if(m.method==='Runtime.exceptionThrown')diagnostics.push(m.params);if(m.method==='Runtime.consoleAPICalled'&&m.params.type==='error')diagnostics.push(m.params.args.map(a=>a.value||a.description));if(pending.has(m.id)){pending.get(m.id)(m);pending.delete(m.id)}};
  async function command(method,params={}){const id=++sequence;const result=new Promise(r=>pending.set(id,r));socket.send(JSON.stringify({id,method,params}));return result}
  async function evaluate(expression){const r=await command('Runtime.evaluate',{expression,returnByValue:true,awaitPromise:true});if(r.result?.exceptionDetails)throw Error(JSON.stringify(r.result.exceptionDetails));return r.result?.result?.value}
  async function key(key,code=key){if(key==='Enter'||key===' ')await evaluate('if(document.documentElement.dataset.backend==="dom")document.activeElement?.blur()');await command('Input.dispatchKeyEvent',{type:'keyDown',key,code,windowsVirtualKeyCode:key==='Enter'?13:key==='Escape'?27:key.startsWith('Arrow')?({ArrowLeft:37,ArrowUp:38,ArrowRight:39,ArrowDown:40}[key]):key.charCodeAt(0)});await delay(100);await command('Input.dispatchKeyEvent',{type:'keyUp',key,code});await delay(250)}
@@ -71,8 +69,11 @@ try{
  async function waitSpoken(fragment){const until=Date.now()+12000;while(Date.now()<until){if(await evaluate('window.jungleTestVoices.some(path=>path.includes('+JSON.stringify(fragment)+'))'))return;await delay(100)}throw Error('Missing actual playback: '+fragment)}
  async function swipe(x,y,xx,yy){await command('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x,y}]});for(let i=1;i<=6;i++){await delay(35);await command('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:x+(xx-x)*i/6,y:y+(yy-y)*i/6}]})}await command('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});await delay(350)}
  const missing=await evaluate('Array.from(imagePaths).filter(path=>/^assets\\/jungle\\/([^/]+|covers\\/[^/]+|branding\\/[^/]+)$/.test(path)&&!Module.FS.analyzePath("/"+path).exists).length');if(missing)throw Error('Opening screen cleared before the menu pictures loaded: '+missing);await shot('menu');
- holdAudio=true;await command('Fetch.enable',{patterns:bookSoundPacks.map(pack=>({urlPattern:'*/'+pack+'*',requestStage:'Request'}))});
- await pixelClick(400,330);await shot('books');if(pausedAudio.length)throw Error('Opening Picture Book skipped the category list');await key('0','Digit0');await waitPage('carrot');await delay(300);const first=await shot('vegetables-desktop',true,64);
+ await evaluate(`(()=>{const original=soundBytes;let holding=true,release;const released=new Promise(resolve=>release=resolve);const held=[];window.jungleTestHeldNarration=[];window.HoldNarrationForTest=()=>{soundBytes=async(path,current)=>{const index=await speech();if(!holding||!index.voices.has(path))return original(path,current);window.jungleTestHeldNarration.push(path);const request=(async()=>{await released;return current()?original(path,current):null})();held.push(request);return request};window.jungleTestReleaseNarration=async()=>{holding=false;release();await Promise.allSettled(held)}}})()`);
+ await evaluate('window.HoldNarrationForTest()');
+ await pixelClick(400,330);await shot('books');if(await evaluate('window.jungleTestHeldNarration.length'))throw Error('Opening Picture Book skipped the category list');await key('0','Digit0');await waitPage('carrot');await delay(300);const first=await shot('vegetables-desktop',true,64);
+ const heldNarration=Date.now()+12000;while(Date.now()<heldNarration){if(await evaluate('window.jungleTestHeldNarration.length'))break;await delay(100)}
+ if(!await evaluate('window.jungleTestHeldNarration.length'))throw Error('Picture Book narration did not reach the soundBytes boundary');
  await key(' ','Space');const pausedBook=await pagePixels();await delay(6500);if(pausedBook!==await pagePixels())throw Error('Space did not hold the picture book');
  await pixelClick(780,762);if(!await evaluate('window.jungleTestRequestedAudio?.jungleLoading||!window.jungleTestRequestedAudio?.paused'))throw Error('Hear word did not start while the book was paused');await key(' ','Space');
  // Compare page content independently of transport-button antialiasing.
@@ -82,7 +83,7 @@ try{
  await pixelClick(333,700,true);const phoneSecond=await shot('vegetables-phone-next',true,64);if(phoneFirst===phoneSecond)throw Error('Touch Next failed');
  await swipe(320,350,45,350);const swiped=await shot('vegetables-phone-swipe',true,64);if(swiped===phoneSecond)throw Error('Touch swipe did not turn the page');
  await swipe(45,350,320,350);const swipedBack=await pagePixels(64);if(swipedBack!==phoneSecond)throw Error('Reverse touch swipe lost its page');
- holdAudio=false;for(const requestId of pausedAudio)await command('Fetch.continueRequest',{requestId});await command('Fetch.disable');
+ await evaluate('window.jungleTestReleaseNarration()');
  await pixelClick(34,28,true);await shot('books-phone');
  await pixelClick(195,343,true);const fromCover=await shot('vegetables-cover-touch',true);await pixelClick(34,28,true);await key('0','Digit0');const directCover=await pagePixels();if(fromCover!==directCover)throw Error('Vegetables cover opened the wrong book');await pixelClick(34,28,true);
  await swipe(90,620,90,160);await shot('books-touch-scroll');
