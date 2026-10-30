@@ -9,6 +9,8 @@
 #import "kryon/svg_icon_props"
 #import "kryon/svg_icon_widget"
 #import "kryon/text_align"
+#import "kryon/pointer_input"
+ShapesHandIcon :: #import "mingcute/mingcute_filled_hand_finger";
 ShapesRefreshIcon :: #import "mingcute/mingcute_regular_refresh_1";
 ShapesDemoIcon :: #import "mingcute/mingcute_regular_play";
 #import, file "shapes.zi";
@@ -51,7 +53,7 @@ guide: ShapesGuideState;
 
 // Replay starts at the source; ordinary interaction gives the child time.
 GuideRestart :: (demo: bool = false) {
-    guide_since = retro.now - (ifx demo then 3.0 else 0.0)
+    guide_since = retro.now + (ifx demo then 0.0 else 12.0)
 }
 
 // This game's own words in English, German and Spanish.
@@ -221,9 +223,11 @@ ButtonRow :: () {
             ShapesReplay(*game)
             done_until = 0.0; drag_item = -1
             unused Save()
-        } else { Voice("show_me") }
+        } else { PlayDragTutorialNarration() }
     }
 }
+
+PlayDragTutorialNarration :: () { Voice("tutorial_drag") }
 
 Homes :: () {
     per := game.item_count / game.target_count
@@ -232,7 +236,7 @@ Homes :: () {
         home := layout.targets[t]
         value := game.targets[t]
         press := RetroTap(30 + t, home.x, home.y, home.width, home.height, ValueName(game.mode, value))
-        guided := guide.visible && guide.target == t && drag_item < 0
+        guided := guide.visible && guide.phase >= SHAPES_GUIDE_RELEASE && guide.target == t && drag_item < 0
         if game.hint == t || guided {
             BookBox(home.x - 5, home.y - 5, home.width + 10, home.height + 10,
                 ifx glow then cast(u32)0xbfdcc4ff else cast(u32)0xd6e8d6ff, 0, 16.0)
@@ -291,34 +295,47 @@ Tray :: () {
         if chosen && !lifted { BookBox(card.x + 3, card.y + 5, card.width, card.height, 0x70593c33, 0, 14.0) }
         BookBox(card.x, card.y - (ifx chosen && !lifted then 3 else 0), card.width, card.height,
             ifx lifted then cast(u32)0xf1ebdfff else cast(u32)CARD, ifx chosen then cast(u32)GREEN else cast(u32)CARD_EDGE, 14.0)
-        if !lifted { DrawItem(game.items[at], ShapesRect.{card.x, card.y - (ifx chosen then 3 else 0), card.width, card.height}) }
+        if !lifted && !(guide.visible && guide.item == at && guide.phase >= SHAPES_GUIDE_LIFT) { DrawItem(game.items[at], ShapesRect.{card.x, card.y - (ifx chosen then 3 else 0), card.width, card.height}) }
     }
+}
+
+GuideLabel :: () -> string {
+    if !guide.visible { return ShapesText("Your turn", "Du bist dran", "Tu turno") }
+    if guide.phase == SHAPES_GUIDE_APPROACH { return ShapesText("Watch", "Schau zu", "Mira") }
+    if guide.phase == SHAPES_GUIDE_PRESS { return ShapesText("Press", "Drücken", "Presiona") }
+    if guide.phase <= SHAPES_GUIDE_DRAG { return ShapesText("Drag", "Ziehen", "Arrastra") }
+    return ShapesText("Let go", "Loslassen", "Suelta")
 }
 
 DrawGuide :: () {
     if drag_item >= 0 || !guide.visible || ShapesDone(game) { return }
-    source := layout.items[guide.item]
-    end := guide; end.travel = 1.0
-    destination := ShapesGuideRect(game, layout, end)
-    sx := source.x + source.width / 2
-    sy := source.y + source.height / 2
-    dx := destination.x + destination.width / 2
-    dy := destination.y + destination.height / 2
-    // Dots connect the actual piece to its actual slot, including downward
-    // routes on portrait phones. Decorative shapes never take a tap.
-    for dot: cast(s32)1..12 {
-        DrawShape(SHAPE_CIRCLE, sx + (dx - sx) * dot / 13, sy + (dy - sy) * dot / 13, 3, 0x6f9f7caa)
-    }
-    ghost := ShapesGuideRect(game, layout, guide)
-    cx := ghost.x + ghost.width / 2
-    cy := ghost.y + ghost.height / 2
+    piece := ShapesGuideRect(game, layout, guide)
+    cx := piece.x + piece.width / 2
+    cy := piece.y + piece.height / 2
+    lift := cast(s32)(guide.lift * 12.0)
     value := game.items[guide.item]
-    r := ItemRadius(game.mode, value, ghost.width)
-    DrawShape(ItemKind(game.mode, value), cx, cy, r + 4, 0xfffcf3dd)
-    DrawShape(ItemKind(game.mode, value), cx, cy, r, (ItemFill(game.mode, value) & 0xffffff00) | 0x99)
-    // A little fingertip follows the ghost: watch it, then try the same move.
-    DrawShape(SHAPE_CIRCLE, cx + r / 2, cy + r / 2, 7, GREEN)
-    DrawShape(SHAPE_CIRCLE, cx + r / 2, cy + r / 2, 4, CARD)
+    r := ItemRadius(game.mode, value, piece.width)
+    // The piece is opaque and attached at the fingertip throughout the hold.
+    // Only its drawing moves: its real tray item remains available for input.
+    if guide.phase >= SHAPES_GUIDE_LIFT {
+        DrawShape(ItemKind(game.mode, value), cx + 4, cy + 6, r, 0x70593c44)
+        DrawShape(ItemKind(game.mode, value), cx, cy - lift, r, ItemFill(game.mode, value))
+    }
+    if guide.phase == SHAPES_GUIDE_PRESS {
+        unused Circle(retro.session, CircleProps.{.center = ViewPoint(cast(float32)cx, cast(float32)cy),
+            .radius = cast(float32)(r + 10) * retro.scale, .fill = ColorFromPacked(0x6f9f7c44)})
+    }
+    // MingCute's whole pointing hand: tip is (9.5,2) in its 24-unit viewbox.
+    // A cream silhouette on a dark hand stays legible over every piece color.
+    edge: s32 = 76
+    hx := cx - edge * 95 / 240 + cast(s32)(guide.approach * 18.0)
+    hy := cy - lift - edge * 2 / 24 + cast(s32)(guide.approach * 38.0)
+    if guide.phase == SHAPES_GUIDE_FADE { hy += cast(s32)((1.0 - guide.hand_alpha) * 26.0) }
+    alpha := cast(u32)(guide.hand_alpha * 255.0)
+    SvgIcon(retro.session, SvgIconProps.{.bounds = RetroRect(hx - 2, hy - 2, edge + 4, edge + 4),
+        .shape = ShapesHandIcon.Shape, .color = ColorFromPacked(0x3e332a00 | alpha)})
+    SvgIcon(retro.session, SvgIconProps.{.bounds = RetroRect(hx, hy, edge, edge),
+        .shape = ShapesHandIcon.Shape, .color = ColorFromPacked(0xfffcf300 | alpha)})
 }
 
 Keys :: () {
@@ -359,7 +376,7 @@ GameMain :: () -> s32 {
         if !ShapesRead(DocumentRead("shapes.txt"), *game) { game = ShapesNew() }
         loaded = true
         GuideRestart(true)
-        Voice("show_me")
+        PlayDragTutorialNarration()
     }
     if retro.key == KEY_ESCAPE { unused Save(); GameHome(); return 0 }
     if done_until > 0.0 && (retro.now >= done_until || retro.now < done_until - 10.0) {
@@ -369,12 +386,14 @@ GameMain :: () -> s32 {
         unused Save()
     }
     layout = ShapesArrange(view_width, view_height, game.item_count, game.target_count)
+    pointer := SamplePointer()
+    if pointer.down || pointer.pressed || retro.key != 0 { GuideRestart() }
     ButtonRow()
     guide = ShapesGuide(game, cast(float32)(retro.now - guide_since))
     helper := layout.prompt
     hop: s32 = ifx retro.now < placed_until then 3 else 0
     BookPicture("assets/jungle-book/items/tiger.png", helper.x, helper.y - hop, 34, 34)
-    BookText(layout.prompt.x + 38, layout.prompt.y, layout.prompt.width - 38, layout.prompt.height, PromptText(), 18,
+    BookText(layout.prompt.x + 38, layout.prompt.y, layout.prompt.width - 38, layout.prompt.height, ifx ShapesDone(game) then PromptText() else GuideLabel(), 18,
         TextAlign.TextAlignCenter, false)
     Tray()
     Homes()

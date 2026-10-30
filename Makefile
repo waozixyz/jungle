@@ -200,6 +200,7 @@ test: build/tests/counting_exercises build/tests/paint_layers build/tests/drums 
 	python3 tests/assets_test.py
 	python3 tests/shared_assets_test.py
 	python3 tests/speech_manifest_test.py
+	python3 tests/shapes_tutorial_audio_test.py
 	python3 tests/speech_codec_test.py
 	python3 tests/book_unique_catalog_test.py
 	python3 tests/book_unique_art_test.py
@@ -216,6 +217,7 @@ test: build/tests/counting_exercises build/tests/paint_layers build/tests/drums 
 # Actual input and rendering on a private display; requires Xvfb, xdotool,
 # ImageMagick and Pillow. Never uses the inherited desktop or owner saves.
 test-ui: all
+	python3 tests/shapes_guidance_test.py
 	python3 tests/counting_exercises_test.py
 	python3 tests/jigsaw_sizes_ui_test.py
 	python3 tests/book_interaction_test.py

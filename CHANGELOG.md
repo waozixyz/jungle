@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.23
+
+Released 2026-10-30.
+
+- Show a full hand pressing, lifting, dragging and releasing a sorting piece, then pause for the child to try.
+
 ## 0.1.22
 
 Released 2026-10-30.

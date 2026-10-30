@@ -47,7 +47,8 @@ try{
  async function command(method,params={}){
   const id=++sequence,promise=new Promise(resolve=>pending.set(id,resolve));
   socket.send(JSON.stringify({id,method,params}));
-  const reply=await promise;if(reply.error)throw Error(JSON.stringify(reply.error));return reply.result;
+  let timer;const deadline=new Promise((_,reject)=>timer=setTimeout(()=>reject(Error('CDP timed out '+method)),15000));
+  let reply;try{reply=await Promise.race([promise,deadline])}finally{clearTimeout(timer);pending.delete(id)}if(reply.error)throw Error(JSON.stringify(reply.error));return reply.result;
  }
  async function evaluate(expression){
   const result=await command('Runtime.evaluate',{expression,returnByValue:true,awaitPromise:true});
@@ -97,12 +98,72 @@ try{
   }
   // Genuine touches exercise mode/action dispatch on the same 400x700 content.
   if(name==='shapes'){
+   const phaseWords={en:['Watch','Press','Drag','Drag','Let go','Let go','Your turn'],de:['Schau zu','Drücken','Ziehen','Ziehen','Loslassen','Loslassen','Du bist dran'],es:['Mira','Presiona','Arrastra','Arrastra','Suelta','Suelta','Tu turno']}[language];
+   async function touch(type,x,y){await command('Input.dispatchTouchEvent',{type,touchPoints:type==='touchEnd'?[]:[{x,y,id:1}]});await delay(100)}
+   // Both orientations, every mode: let one complete example play without
+   // giving it input, then cancel Show me with real mouse/key/touch contacts.
+   for(const width of [400,960]){
+    const height=width===400?756:600;
+    await command('Emulation.setDeviceMetricsOverride',{width,height,deviceScaleFactor:1,mobile:false});await delay(300);
+    const scale=width===400?Math.min(width/360,(height-56)/640):Math.min(width/720,(height-56)/420,1.6);
+    const w=Math.floor(width/scale),button=Math.min(84,Math.floor((w-76)/5)),left=Math.floor((w-5*button-48)/2);
+    const point=(index)=>[(left+index*(button+12)+button/2)*scale,56+44*scale];
+    for(let mode=0;mode<3;mode++){
+     await click(...point(mode));
+     await key('Escape');const beforeDemo=await saved(name);await open(title);
+     await click(...point(4));const started=Date.now();
+     const times=[350,850,1450,2350,4050,4850,5600];
+     for(let phase=0;phase<times.length;phase++){
+      await delay(Math.max(0,started+times[phase]-Date.now()));
+      if(page==='dom.html'&&!await evaluate(`document.getElementById('kryon-dom-root').textContent.includes(${JSON.stringify(phaseWords[phase])})`))throw Error('Missing sorting tutorial phase '+phaseWords[phase]);
+      await shot(`tutorial-${width}-${mode}-${phase}`);
+     }
+     await key('Escape');
+     if(JSON.stringify(await saved(name))!==JSON.stringify(beforeDemo))throw Error('Tutorial advanced real progress');
+     await open(title);await click(...point(4));await key('a');await shot(`tutorial-key-cancel-${width}-${mode}`);
+     await click(...point(4));await touch('touchStart',8,height-8);await shot(`tutorial-touch-cancel-${width}-${mode}`);await touch('touchEnd',8,height-8);
+     if(page==='dom.html'&&!await evaluate(`document.getElementById('kryon-dom-root').textContent.includes(${JSON.stringify(phaseWords[6])})`))throw Error('Touch did not cancel demonstration');
+     await click(...point(4));
+     await command('Input.dispatchMouseEvent',{type:'mousePressed',x:8,y:height-8,button:'left',clickCount:1});await delay(100);
+     await shot(`tutorial-mouse-cancel-${width}-${mode}`);
+     await command('Input.dispatchMouseEvent',{type:'mouseReleased',x:8,y:height-8,button:'left',clickCount:1});
+     // Pixel assertions cover Canvas as well as DOM semantics. The playing
+     // area must be identical to the quiet child turn for every cancellation;
+     // a moving hand must actually change that area during demonstration.
+     const prefix=`backup/new-activities-web/${page}-${language}-`;
+     const visual=spawnSync('python3',['-c',`
+import sys
+from PIL import Image, ImageChops
+prefix,width,mode=sys.argv[1],int(sys.argv[2]),sys.argv[3]
+def board(suffix):
+ p=Image.open(prefix+suffix+'.png').convert('RGB')
+ return p.crop((0,210,p.width,p.height))
+turn=board(f'tutorial-{width}-{mode}-6')
+for kind in ['key','touch','mouse']:
+ difference=ImageChops.difference(turn,board(f'tutorial-{kind}-cancel-{width}-{mode}'))
+ # Subpixel rounded-edge antialiasing may differ by up to 8/255.
+ samples=difference.get_flattened_data() if hasattr(difference,'get_flattened_data') else difference.getdata()
+ assert not any(max(pixel)>8 for pixel in samples), f'{kind} left the tutorial visible'
+assert ImageChops.difference(board(f'tutorial-{width}-{mode}-1'),board(f'tutorial-{width}-{mode}-3')).getbbox(), 'No visible hand movement'
+`,prefix,String(width),String(mode)],{encoding:'utf8',timeout:15000});
+     if(visual.status!==0)throw Error('Tutorial rendering/cancellation '+visual.stderr);
+     console.log(`local ${page} ${language} tutorial ${width} mode=${mode}: phases, no progress, input cancellation`);
+    }
+   }
+   await command('Emulation.setDeviceMetricsOverride',{width:400,height:756,deviceScaleFactor:1,mobile:false});await delay(300);
    await click(200,56+44);
    // Finish the two-item size round through actual pointer contacts.
    // A gentle miss is allowed; try both homes for each remaining item.
    for(let item=0;item<2;item++){
-    await click(item?288:112,56+235);
-    await click(112,56+530);await click(288,56+530);
+    if(item===0){await click(112,56+235);await click(112,56+530);await click(288,56+530)}
+    else {
+     // Try both homes with a held drag: the first may be a gentle miss.
+     for(const home of [112,288]){
+      await touch('touchStart',288,56+235);
+      for(let step=1;step<=6;step++)await touch('touchMove',288+(home-288)*step/6,56+235+295*step/6);
+      await touch('touchEnd',home,56+530);await delay(180);
+     }
+    }
    }
    await delay(2900);
   }
