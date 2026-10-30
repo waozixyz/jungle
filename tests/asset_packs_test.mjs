@@ -14,6 +14,11 @@ for(const path of paths){
  const actual=await loader.read(path);
  let source=path;
  if(path.startsWith('assets/animal-count/pictures/'))source=path.replace('assets/animal-count/pictures/','assets/jungle-book/counting/');
+ else if(path==='assets/speech.txt')source='work/web-speech/speech.txt';
+ else if(path.startsWith('assets/speech/')){
+  assert.match(path,/^assets\/speech\/(?:en|de|es)\/[0-9a-f]{64}\.ogg$/);
+  source=path.replace('assets/speech/','work/speech-codec/');
+ }
  const entry=manifest.files[path],original=await readFile(source);
  if(entry.encoding==='webp'){
   assert.equal(await JungleAssetPacks.hash(original),entry.source_sha256,path);
@@ -53,12 +58,12 @@ globalThis.Audio=class {
  removeAttribute(name){delete this[name]}
 };
 let release;
-globalThis.assetBytes=()=>new Promise(resolve=>{release=resolve});
+ globalThis.soundBytes=()=>new Promise(resolve=>{release=resolve});
 const stopped=packedAudio('stopped.wav'),playing=stopped.play();
 assert.equal(stopped.jungleLoading,true);
 stopped.pause();stopped.removeAttribute('src');release(new Uint8Array([1,2,3]));await playing;
 assert.equal(stopped.plays,0,'A stopped clip played when its download finished');
-globalThis.assetBytes=async()=>new Uint8Array([1,2,3]);
+ globalThis.soundBytes=async()=>new Uint8Array([1,2,3]);
 const resumed=packedAudio('resumed.wav');await resumed.play();resumed.pause();await resumed.play();
 assert.equal(resumed.plays,2);assert.equal(resumed.jungleLoading,false);resumed.removeAttribute('src');
-console.log(`local asset reader test: all ${paths.length} original or reviewed WebP assets verified; integrity, retry, concurrent fetches and memory cap passed`);
+console.log(`local asset reader test: all ${paths.length} original, generated speech or reviewed WebP assets verified; integrity, retry, concurrent fetches and memory cap passed`);
