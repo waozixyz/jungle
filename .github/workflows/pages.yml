@@ -81,6 +81,7 @@ jobs:
           python3 tests/abc_sequence_ui_test.py
           python3 tests/playback_ui_test.py
           python3 tools/build_web.py
+          python3 tests/speech_playback_test.py
           node tests/asset_packs_test.mjs
           python3 tests/web_images_test.py
           python3 tools/prepare_itch.py
