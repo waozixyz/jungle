@@ -39,6 +39,24 @@ OLD_ORDER = list(range(12)) + [12, 13, 14, 18, 19, 20, 15, 16, 17, 21, 22, 23] +
 
 
 class PaintCatalogTest(unittest.TestCase):
+    def test_catalog_without_native_tracing_library(self):
+        script = f'''
+import ctypes, sys
+sys.path.insert(0, {str(ROOT / 'tools')!r})
+original = ctypes.CDLL
+def load(name, *args, **kwargs):
+    if name == 'libpotrace.so.0':
+        raise OSError('native tracer unavailable in this build-only environment')
+    return original(name, *args, **kwargs)
+ctypes.CDLL = load
+import dino_art
+from paint_catalog import BuildPaintCatalog
+library = BuildPaintCatalog()
+assert len(library['stencils']) == 46 and len(library['scenes']) == 24
+'''
+        subprocess.run([sys.executable, '-c', script], cwd=ROOT, check=True,
+                       capture_output=True, text=True)
+
     @classmethod
     def setUpClass(cls):
         cls.metadata = json.loads(catalog.METADATA.read_text())
