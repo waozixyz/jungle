@@ -19,15 +19,15 @@ returns home from its first screen. The sound button at the top right mutes
 or unmutes every game.
 Accented German and Spanish letters work in Dino stories, saves and exports.
 
-**Picture Book** has thirty-two organized books: Wild animals (15 pictures), Garden
+**Picture Book** has thirty-five organized books: Wild animals (15 pictures), Garden
 (10), Fruits (16), Farm (20), Kitchen (8), Bathroom (8), Bedroom (8),
-Living room (8), Nature (8), Vegetables (16), Family (8), Body Parts (10), Breakfast (8), Lunch (8), Dinner (8), Clothing (12), Seasons (4), Birds (6), Toys (9), Vehicles (6), Bedtime (6), Vacation (6), Sports (7), Beach (6), Weather (6), Feelings (10), Tropical Fruits (8), Gardening (7), School (8), Water Animals (8), Drinks (8), and Actions (8). Browse the framed book list through Animals, Nature, Food, Home and Family tabs. Every page is one gentle watercolor
+Living room (8), Nature (8), Vegetables (16), Family (8), Body Parts (10), Breakfast (8), Lunch (8), Dinner (8), Clothing (12), Seasons (4), Birds (6), Toys (9), Vehicles (6), Bedtime (6), Vacation (6), Sports (7), Beach (6), Weather (6), Feelings (10), Tropical Fruits (8), Gardening (7), School (8), Water Animals (8), Drinks (8), Actions (8), Desert Animals (6), Insects (6), and People at Work (6). Browse the framed book list through Animals, Nature, Food, Home and Family tabs. Every page is one gentle watercolor
 scene in the style of the title-screen covers: each animal, food or thing sits
 in its own setting, so no two pages share a background. Breakfast pages are
 drawn in morning light, Lunch at midday and Dinner in the evening. The scene
 fills the page and its word sits on a label at the bottom. Choose **Simple** to hear each word once with
 its picture, or **Spelling** to hear the word, its letters and the word again.
-The selected mode is remembered. Every one of the 284 distinct picture words has names and
+The selected mode is remembered. Every one of the 302 distinct picture words has names and
 both kinds of narration in English, German and Spanish, including correctly
 spaced accented letters. Each cover lists its page count. Manually selected pages
 speak even when automatic page turns are paused; Hear word repeats the current word.
@@ -48,7 +48,7 @@ on the shelf offers independent **Hide book** and **In autoplay / Skip autoplay*
 choices. Hidden books disappear from the shelf and automatic reading; a book
 excluded from autoplay remains available to read manually. All choices are
 remembered, and selecting no books for autoplay stops at the finish screen.
-Each subject belongs to only one of the 284 pages, so playing every book never
+Each subject belongs to only one of the 302 pages, so playing every book never
 repeats a subject. Sports includes badminton, while Actions explores cooking,
 cleaning, reading, drawing, singing, washing hands, brushing teeth and watering plants.
 
@@ -82,7 +82,9 @@ The groups adapt to the available space. Its counting rules follow Animal Math. 
 back down, the same number never comes twice, and every eighth right
 answer brings one of the original praises, from GOOD JOB to AWESOME.
 
-**Coloring Book** offers 24 starting scenes in Nature, Places and Adventures.
+**Coloring Book** offers 26 starting scenes: fourteen Nature scenes, six Places
+and six Adventures, including Village square and Treehouse clearing. The scene
+picker fits inside the book paper on small screens and stays compact on desktop.
 Choose any of 46 stencils from Dinosaurs, Animals, People and Objects. It appears
 in the scene: drag its body to move it, its corner to resize it, or the dot above
 it to rotate freely. Press **Place** to add it, or **Cancel** to discard the preview.
@@ -173,10 +175,13 @@ try optional memory rounds with two, three or four hidden pairs. Harder puzzles
 offer six, eight or ten pairs and a short preview. Hints remain available, and
 there is no time limit for solving a puzzle.
 
-**Hide & Seek (2+)** offers three levels: Peekaboo introduces friendly animals,
-Find gives a position clue, and Remember briefly shows four friends before hiding
-them and asking for one by name. Show again repeats the preview without changing
-progress. House and yard scenes give each basket, bush, table and tree a grounded place. Completed rounds continue from Peekaboo to Find to Remember, then offer another round. Choose a level at any time; each round mixes the hiding places.
+**Hide & Seek (2+)** keeps every friend completely hidden until you find it.
+Tap a basket, bush, table or tree to look there; one place in each scene is empty.
+Friends stay visible once found, and a short position phrase describes where
+they were hiding without announcing an animal to look for. The cottage yard,
+fenced garden, cozy house and farm courtyard have their own natural arrangements.
+After finding every friend, continue to the next scene or start another round.
+Earlier saved progress is kept.
 
 **Music Room (2+)** opens into a music room. Tap the big drum, little drum,
 shaker, bell, xylophone, guitar, cymbal or tambourine where they stand around

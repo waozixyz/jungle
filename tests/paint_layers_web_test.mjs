@@ -121,7 +121,15 @@ const dimensionsFile=await open('games/paint/paint_pages.zi','r'),dimensionBytes
 await dimensionsFile.read(dimensionBytes,0,4096,0);await dimensionsFile.close();
 const dimensions=name=>dimensionBytes.toString().match(new RegExp(name+':[^=]+=[^\\[]*\\[([^\\]]+)'))[1].split(',').map(Number);
 const stencilWidths=dimensions('DINO_WIDTH'),stencilHeights=dimensions('DINO_HEIGHT');
-function sceneFirst(index=0,width=960,total=600){const h=total-56,p=h<440?8:16,g=h<440?6:10,c=width<600?2:3,rows=6/c,gy=p+30+g+44+g,fy=h-p-44,cw=Math.floor((width-2*p-g*(c-1))/c),ch=Math.floor((fy-g-gy-g*(rows-1))/rows);return {x:p+index%c*(cw+g)+cw/2,y:56+gy+Math.floor(index/c)*(ch+g)+ch/2}}
+function sceneFirst(index=0,width=960,total=600){
+ const h=total-56,fit=Math.max(1000,Math.min(Math.floor(width*1000/320),Math.floor(h*1000/200)));
+ let p=Math.floor(14*fit/1000)+12;
+ if(width-2*p>1040)p=Math.floor((width-1040)/2);
+ const top=Math.floor(12*fit/1000)+12,g=h<440?6:10,c=width-2*p<600?2:3,rows=6/c;
+ const gy=top+30+g+44+g,fy=h-top-44,cw=Math.floor((width-2*p-g*(c-1))/c);
+ const ch=Math.max(80,Math.min(220,Math.floor((fy-g-gy-g*(rows-1))/rows)));
+ return {x:p+index%c*(cw+g)+cw/2,y:56+gy+Math.floor(index/c)*(ch+g)+ch/2}
+}
 
 async function run(input){
  const touch=input==='touch',profile=await mkdtemp(resolve('work/w/p-'));

@@ -74,10 +74,25 @@ def geometry(width, height, copying=False):
 
 
 def instruments(size, copying=False):
-    _, _, _, wide, fit, left, top = geometry(*size, copying=copying)
+    _, width, height, wide, fit, left, top = geometry(*size, copying=copying)
     prefix = 'LANDSCAPE' if wide else 'PORTRAIT'
-    return [(left + x * fit // 1000, top + y * fit // 1000, edge * fit // 1000)
-            for x, y, edge in zip(positions(prefix + '_X'), positions(prefix + '_Y'), positions(prefix + '_EDGE'))]
+    places = [(left + x * fit // 1000, top + y * fit // 1000, edge * fit // 1000)
+              for x, y, edge in zip(positions(prefix + '_X'), positions(prefix + '_Y'), positions(prefix + '_EDGE'))]
+    if not wide:
+        room_top = 112 if copying else 60
+        room_height = height - room_top - (72 if copying else 8)
+        cover = max(width - 18, room_height - 2)
+        art_fit = cover * 1000 // 1254
+        art_y = room_top + 1 + (room_height - 2 - 1254 * art_fit // 1000) // 2
+        window_bottom = min(room_top + room_height - 1,
+                            art_y + 60 * art_fit // 1000 + 310 * art_fit // 1000)
+        for pad, base in ((2, 91), (3, 95)):
+            x, y, edge = places[pad]
+            shelf_height = (edge * 8 // 10 + 10) // 3
+            shelf_y = max(y + edge * base // 100,
+                          window_bottom + 12 + shelf_height * 140 // 724)
+            places[pad] = x, shelf_y - edge * base // 100, edge
+    return places
 
 
 def actual_point(size, x, y):

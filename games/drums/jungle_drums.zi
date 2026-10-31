@@ -150,12 +150,13 @@ DrumsRoom :: (room: DrumsLayout) {
     }
     // Soft daylight, a window and a rounded woven rug make a room even when
     // its optional watercolor background has not finished loading.
-    window_x := drums_width * 44 / 100
-    window_width := drums_width * 19 / 100
-    BookBox(window_x, top + 12, window_width, height * 25 / 100, 0xb7cfc9ff, 0xa1b7adff, 8.0)
-    BookBox(window_x + 6, top + 18, window_width - 12, height * 25 / 100 - 12, 0xe4f1e4ff, 0, 5.0)
-    BookBox(window_x + window_width / 2 - 2, top + 15, 4, height * 25 / 100 - 6, 0xb7c6b3ff)
-    BookBox(window_x + 3, top + height * 13 / 100, window_width - 6, 4, 0xb7c6b3ff)
+    window := DrumsRoomWindow(room)
+    if window.width > 12 && window.height > 12 {
+        BookBox(window.x, window.y, window.width, window.height, 0xb7cfc9ff, 0xa1b7adff, 8.0)
+        BookBox(window.x + 6, window.y + 6, window.width - 12, window.height - 12, 0xe4f1e4ff, 0, 5.0)
+        BookBox(window.x + window.width / 2 - 2, window.y + 3, 4, window.height - 6, 0xb7c6b3ff)
+        BookBox(window.x + 3, window.y + window.height * 48 / 100, window.width - 6, 4, 0xb7c6b3ff)
+    }
     BookBox(drums_width * 13 / 100, top + height * 65 / 100, drums_width * 74 / 100, height * 30 / 100, 0xaac2adff, 0x92ad98ff, 55.0)
     BookBox(drums_width * 16 / 100, top + height * 68 / 100, drums_width * 68 / 100, height * 24 / 100, 0xc5d5bbff, 0, 44.0)
     background := "assets/drums/pictures/room.png"

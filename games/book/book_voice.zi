@@ -249,7 +249,7 @@ voice_paths_en_spelling_192: [48]string = .[
     "assets/jungle-book/sounds/banana.wav",
     "assets/jungle-book/sounds/coconut.wav",
 ];
-voice_paths_en_spelling_240: [44]string = .[
+voice_paths_en_spelling_240: [48]string = .[
     "assets/jungle-book/sounds/pineapple.wav",
     "assets/jungle-book/sounds/papaya.wav",
     "assets/jungle-book/sounds/guava.wav",
@@ -294,6 +294,26 @@ voice_paths_en_spelling_240: [44]string = .[
     "assets/jungle-book/sounds/washing_hands.wav",
     "assets/jungle-book/sounds/brushing_teeth.wav",
     "assets/jungle-book/sounds/watering_plants.wav",
+    "assets/jungle-book/sounds/camel.wav",
+    "assets/jungle-book/sounds/fennec_fox.wav",
+    "assets/jungle-book/sounds/meerkat.wav",
+    "assets/jungle-book/sounds/desert_tortoise.wav",
+];
+voice_paths_en_spelling_288: [14]string = .[
+    "assets/jungle-book/sounds/gecko.wav",
+    "assets/jungle-book/sounds/scorpion.wav",
+    "assets/jungle-book/sounds/beetle.wav",
+    "assets/jungle-book/sounds/moth.wav",
+    "assets/jungle-book/sounds/cricket.wav",
+    "assets/jungle-book/sounds/cicada.wav",
+    "assets/jungle-book/sounds/stick_insect.wav",
+    "assets/jungle-book/sounds/firefly.wav",
+    "assets/jungle-book/sounds/firefighter.wav",
+    "assets/jungle-book/sounds/doctor.wav",
+    "assets/jungle-book/sounds/teacher.wav",
+    "assets/jungle-book/sounds/farmer.wav",
+    "assets/jungle-book/sounds/builder.wav",
+    "assets/jungle-book/sounds/baker.wav",
 ];
 VoicePath_en_spelling :: (at: s32) -> string {
     if at < 48 { return voice_paths_en_spelling_0[at - 0] }
@@ -301,7 +321,8 @@ VoicePath_en_spelling :: (at: s32) -> string {
     if at < 144 { return voice_paths_en_spelling_96[at - 96] }
     if at < 192 { return voice_paths_en_spelling_144[at - 144] }
     if at < 240 { return voice_paths_en_spelling_192[at - 192] }
-    if at < 284 { return voice_paths_en_spelling_240[at - 240] }
+    if at < 288 { return voice_paths_en_spelling_240[at - 240] }
+    if at < 302 { return voice_paths_en_spelling_288[at - 288] }
     return ""
 }
 voice_seconds_en_spelling_0: [48]float64 = .[
@@ -554,7 +575,7 @@ voice_seconds_en_spelling_192: [48]float64 = .[
     8.475918,
     8.914512,
 ];
-voice_seconds_en_spelling_240: [44]float64 = .[
+voice_seconds_en_spelling_240: [48]float64 = .[
     9.510703,
     8.383492,
     7.033878,
@@ -599,6 +620,26 @@ voice_seconds_en_spelling_240: [44]float64 = .[
     16.027619,
     17.982585,
     18.589705,
+    7.670295,
+    13.454739,
+    10.045034,
+    18.560091,
+];
+voice_seconds_en_spelling_288: [14]float64 = .[
+    7.335556,
+    11.157506,
+    8.958231,
+    6.921723,
+    9.623311,
+    8.097506,
+    16.132063,
+    9.786395,
+    14.999274,
+    8.545850,
+    9.885488,
+    8.659048,
+    8.717506,
+    7.404036,
 ];
 VoiceSeconds_en_spelling :: (at: s32) -> float64 {
     if at < 48 { return voice_seconds_en_spelling_0[at - 0] }
@@ -606,7 +647,8 @@ VoiceSeconds_en_spelling :: (at: s32) -> float64 {
     if at < 144 { return voice_seconds_en_spelling_96[at - 96] }
     if at < 192 { return voice_seconds_en_spelling_144[at - 144] }
     if at < 240 { return voice_seconds_en_spelling_192[at - 192] }
-    if at < 284 { return voice_seconds_en_spelling_240[at - 240] }
+    if at < 288 { return voice_seconds_en_spelling_240[at - 240] }
+    if at < 302 { return voice_seconds_en_spelling_288[at - 288] }
     return 0.0
 }
 voice_paths_en_simple_0: [48]string = .[
@@ -859,7 +901,7 @@ voice_paths_en_simple_192: [48]string = .[
     "assets/jungle-book/sounds/en/simple/banana.wav",
     "assets/jungle-book/sounds/en/simple/coconut.wav",
 ];
-voice_paths_en_simple_240: [44]string = .[
+voice_paths_en_simple_240: [48]string = .[
     "assets/jungle-book/sounds/en/simple/pineapple.wav",
     "assets/jungle-book/sounds/en/simple/papaya.wav",
     "assets/jungle-book/sounds/en/simple/guava.wav",
@@ -904,6 +946,26 @@ voice_paths_en_simple_240: [44]string = .[
     "assets/jungle-book/sounds/en/simple/washing_hands.wav",
     "assets/jungle-book/sounds/en/simple/brushing_teeth.wav",
     "assets/jungle-book/sounds/en/simple/watering_plants.wav",
+    "assets/jungle-book/sounds/en/simple/camel.wav",
+    "assets/jungle-book/sounds/en/simple/fennec_fox.wav",
+    "assets/jungle-book/sounds/en/simple/meerkat.wav",
+    "assets/jungle-book/sounds/en/simple/desert_tortoise.wav",
+];
+voice_paths_en_simple_288: [14]string = .[
+    "assets/jungle-book/sounds/en/simple/gecko.wav",
+    "assets/jungle-book/sounds/en/simple/scorpion.wav",
+    "assets/jungle-book/sounds/en/simple/beetle.wav",
+    "assets/jungle-book/sounds/en/simple/moth.wav",
+    "assets/jungle-book/sounds/en/simple/cricket.wav",
+    "assets/jungle-book/sounds/en/simple/cicada.wav",
+    "assets/jungle-book/sounds/en/simple/stick_insect.wav",
+    "assets/jungle-book/sounds/en/simple/firefly.wav",
+    "assets/jungle-book/sounds/en/simple/firefighter.wav",
+    "assets/jungle-book/sounds/en/simple/doctor.wav",
+    "assets/jungle-book/sounds/en/simple/teacher.wav",
+    "assets/jungle-book/sounds/en/simple/farmer.wav",
+    "assets/jungle-book/sounds/en/simple/builder.wav",
+    "assets/jungle-book/sounds/en/simple/baker.wav",
 ];
 VoicePath_en_simple :: (at: s32) -> string {
     if at < 48 { return voice_paths_en_simple_0[at - 0] }
@@ -911,7 +973,8 @@ VoicePath_en_simple :: (at: s32) -> string {
     if at < 144 { return voice_paths_en_simple_96[at - 96] }
     if at < 192 { return voice_paths_en_simple_144[at - 144] }
     if at < 240 { return voice_paths_en_simple_192[at - 192] }
-    if at < 284 { return voice_paths_en_simple_240[at - 240] }
+    if at < 288 { return voice_paths_en_simple_240[at - 240] }
+    if at < 302 { return voice_paths_en_simple_288[at - 288] }
     return ""
 }
 voice_seconds_en_simple_0: [48]float64 = .[
@@ -1164,7 +1227,7 @@ voice_seconds_en_simple_192: [48]float64 = .[
     1.396735,
     1.428707,
 ];
-voice_seconds_en_simple_240: [44]float64 = .[
+voice_seconds_en_simple_240: [48]float64 = .[
     1.310431,
     1.516417,
     1.239546,
@@ -1209,6 +1272,26 @@ voice_seconds_en_simple_240: [44]float64 = .[
     1.798458,
     1.877868,
     2.031973,
+    1.226485,
+    2.025986,
+    1.552517,
+    2.038912,
+];
+voice_seconds_en_simple_288: [14]float64 = .[
+    1.156009,
+    1.515646,
+    1.357460,
+    1.308209,
+    1.192109,
+    1.315420,
+    2.024490,
+    1.638458,
+    1.717596,
+    1.276553,
+    1.235420,
+    1.400000,
+    1.277415,
+    1.078095,
 ];
 VoiceSeconds_en_simple :: (at: s32) -> float64 {
     if at < 48 { return voice_seconds_en_simple_0[at - 0] }
@@ -1216,7 +1299,8 @@ VoiceSeconds_en_simple :: (at: s32) -> float64 {
     if at < 144 { return voice_seconds_en_simple_96[at - 96] }
     if at < 192 { return voice_seconds_en_simple_144[at - 144] }
     if at < 240 { return voice_seconds_en_simple_192[at - 192] }
-    if at < 284 { return voice_seconds_en_simple_240[at - 240] }
+    if at < 288 { return voice_seconds_en_simple_240[at - 240] }
+    if at < 302 { return voice_seconds_en_simple_288[at - 288] }
     return 0.0
 }
 voice_paths_de_spelling_0: [48]string = .[
@@ -1469,7 +1553,7 @@ voice_paths_de_spelling_192: [48]string = .[
     "assets/jungle-book/sounds/de/spelling/banana.wav",
     "assets/jungle-book/sounds/de/spelling/coconut.wav",
 ];
-voice_paths_de_spelling_240: [44]string = .[
+voice_paths_de_spelling_240: [48]string = .[
     "assets/jungle-book/sounds/de/spelling/pineapple.wav",
     "assets/jungle-book/sounds/de/spelling/papaya.wav",
     "assets/jungle-book/sounds/de/spelling/guava.wav",
@@ -1514,6 +1598,26 @@ voice_paths_de_spelling_240: [44]string = .[
     "assets/jungle-book/sounds/de/spelling/washing_hands.wav",
     "assets/jungle-book/sounds/de/spelling/brushing_teeth.wav",
     "assets/jungle-book/sounds/de/spelling/watering_plants.wav",
+    "assets/jungle-book/sounds/de/spelling/camel.wav",
+    "assets/jungle-book/sounds/de/spelling/fennec_fox.wav",
+    "assets/jungle-book/sounds/de/spelling/meerkat.wav",
+    "assets/jungle-book/sounds/de/spelling/desert_tortoise.wav",
+];
+voice_paths_de_spelling_288: [14]string = .[
+    "assets/jungle-book/sounds/de/spelling/gecko.wav",
+    "assets/jungle-book/sounds/de/spelling/scorpion.wav",
+    "assets/jungle-book/sounds/de/spelling/beetle.wav",
+    "assets/jungle-book/sounds/de/spelling/moth.wav",
+    "assets/jungle-book/sounds/de/spelling/cricket.wav",
+    "assets/jungle-book/sounds/de/spelling/cicada.wav",
+    "assets/jungle-book/sounds/de/spelling/stick_insect.wav",
+    "assets/jungle-book/sounds/de/spelling/firefly.wav",
+    "assets/jungle-book/sounds/de/spelling/firefighter.wav",
+    "assets/jungle-book/sounds/de/spelling/doctor.wav",
+    "assets/jungle-book/sounds/de/spelling/teacher.wav",
+    "assets/jungle-book/sounds/de/spelling/farmer.wav",
+    "assets/jungle-book/sounds/de/spelling/builder.wav",
+    "assets/jungle-book/sounds/de/spelling/baker.wav",
 ];
 VoicePath_de_spelling :: (at: s32) -> string {
     if at < 48 { return voice_paths_de_spelling_0[at - 0] }
@@ -1521,7 +1625,8 @@ VoicePath_de_spelling :: (at: s32) -> string {
     if at < 144 { return voice_paths_de_spelling_96[at - 96] }
     if at < 192 { return voice_paths_de_spelling_144[at - 144] }
     if at < 240 { return voice_paths_de_spelling_192[at - 192] }
-    if at < 284 { return voice_paths_de_spelling_240[at - 240] }
+    if at < 288 { return voice_paths_de_spelling_240[at - 240] }
+    if at < 302 { return voice_paths_de_spelling_288[at - 288] }
     return ""
 }
 voice_seconds_de_spelling_0: [48]float64 = .[
@@ -1774,7 +1879,7 @@ voice_seconds_de_spelling_192: [48]float64 = .[
     8.556463,
     11.875556,
 ];
-voice_seconds_de_spelling_240: [44]float64 = .[
+voice_seconds_de_spelling_240: [48]float64 = .[
     7.876054,
     8.657778,
     7.568980,
@@ -1819,6 +1924,26 @@ voice_seconds_de_spelling_240: [44]float64 = .[
     14.505533,
     14.306984,
     16.809025,
+    6.793787,
+    14.177143,
+    13.168435,
+    19.975329,
+];
+voice_seconds_de_spelling_288: [14]float64 = .[
+    7.055057,
+    10.260454,
+    6.807846,
+    6.744172,
+    7.196190,
+    8.366848,
+    14.335646,
+    14.612925,
+    15.986667,
+    6.592381,
+    8.290113,
+    11.038639,
+    13.071202,
+    8.165986,
 ];
 VoiceSeconds_de_spelling :: (at: s32) -> float64 {
     if at < 48 { return voice_seconds_de_spelling_0[at - 0] }
@@ -1826,7 +1951,8 @@ VoiceSeconds_de_spelling :: (at: s32) -> float64 {
     if at < 144 { return voice_seconds_de_spelling_96[at - 96] }
     if at < 192 { return voice_seconds_de_spelling_144[at - 144] }
     if at < 240 { return voice_seconds_de_spelling_192[at - 192] }
-    if at < 284 { return voice_seconds_de_spelling_240[at - 240] }
+    if at < 288 { return voice_seconds_de_spelling_240[at - 240] }
+    if at < 302 { return voice_seconds_de_spelling_288[at - 288] }
     return 0.0
 }
 voice_paths_de_simple_0: [48]string = .[
@@ -2079,7 +2205,7 @@ voice_paths_de_simple_192: [48]string = .[
     "assets/jungle-book/sounds/de/simple/banana.wav",
     "assets/jungle-book/sounds/de/simple/coconut.wav",
 ];
-voice_paths_de_simple_240: [44]string = .[
+voice_paths_de_simple_240: [48]string = .[
     "assets/jungle-book/sounds/de/simple/pineapple.wav",
     "assets/jungle-book/sounds/de/simple/papaya.wav",
     "assets/jungle-book/sounds/de/simple/guava.wav",
@@ -2124,6 +2250,26 @@ voice_paths_de_simple_240: [44]string = .[
     "assets/jungle-book/sounds/de/simple/washing_hands.wav",
     "assets/jungle-book/sounds/de/simple/brushing_teeth.wav",
     "assets/jungle-book/sounds/de/simple/watering_plants.wav",
+    "assets/jungle-book/sounds/de/simple/camel.wav",
+    "assets/jungle-book/sounds/de/simple/fennec_fox.wav",
+    "assets/jungle-book/sounds/de/simple/meerkat.wav",
+    "assets/jungle-book/sounds/de/simple/desert_tortoise.wav",
+];
+voice_paths_de_simple_288: [14]string = .[
+    "assets/jungle-book/sounds/de/simple/gecko.wav",
+    "assets/jungle-book/sounds/de/simple/scorpion.wav",
+    "assets/jungle-book/sounds/de/simple/beetle.wav",
+    "assets/jungle-book/sounds/de/simple/moth.wav",
+    "assets/jungle-book/sounds/de/simple/cricket.wav",
+    "assets/jungle-book/sounds/de/simple/cicada.wav",
+    "assets/jungle-book/sounds/de/simple/stick_insect.wav",
+    "assets/jungle-book/sounds/de/simple/firefly.wav",
+    "assets/jungle-book/sounds/de/simple/firefighter.wav",
+    "assets/jungle-book/sounds/de/simple/doctor.wav",
+    "assets/jungle-book/sounds/de/simple/teacher.wav",
+    "assets/jungle-book/sounds/de/simple/farmer.wav",
+    "assets/jungle-book/sounds/de/simple/builder.wav",
+    "assets/jungle-book/sounds/de/simple/baker.wav",
 ];
 VoicePath_de_simple :: (at: s32) -> string {
     if at < 48 { return voice_paths_de_simple_0[at - 0] }
@@ -2131,7 +2277,8 @@ VoicePath_de_simple :: (at: s32) -> string {
     if at < 144 { return voice_paths_de_simple_96[at - 96] }
     if at < 192 { return voice_paths_de_simple_144[at - 144] }
     if at < 240 { return voice_paths_de_simple_192[at - 192] }
-    if at < 284 { return voice_paths_de_simple_240[at - 240] }
+    if at < 288 { return voice_paths_de_simple_240[at - 240] }
+    if at < 302 { return voice_paths_de_simple_288[at - 288] }
     return ""
 }
 voice_seconds_de_simple_0: [48]float64 = .[
@@ -2384,7 +2531,7 @@ voice_seconds_de_simple_192: [48]float64 = .[
     1.517460,
     1.514014,
 ];
-voice_seconds_de_simple_240: [44]float64 = .[
+voice_seconds_de_simple_240: [48]float64 = .[
     1.476508,
     1.436961,
     1.358005,
@@ -2429,6 +2576,26 @@ voice_seconds_de_simple_240: [44]float64 = .[
     1.433696,
     1.555057,
     1.554921,
+    1.317460,
+    2.117188,
+    1.557234,
+    2.196417,
+];
+voice_seconds_de_simple_288: [14]float64 = .[
+    1.186848,
+    1.636417,
+    1.314331,
+    1.191882,
+    1.117370,
+    1.394467,
+    1.754014,
+    1.477506,
+    1.633968,
+    1.151837,
+    1.316009,
+    1.594512,
+    1.557506,
+    1.315057,
 ];
 VoiceSeconds_de_simple :: (at: s32) -> float64 {
     if at < 48 { return voice_seconds_de_simple_0[at - 0] }
@@ -2436,7 +2603,8 @@ VoiceSeconds_de_simple :: (at: s32) -> float64 {
     if at < 144 { return voice_seconds_de_simple_96[at - 96] }
     if at < 192 { return voice_seconds_de_simple_144[at - 144] }
     if at < 240 { return voice_seconds_de_simple_192[at - 192] }
-    if at < 284 { return voice_seconds_de_simple_240[at - 240] }
+    if at < 288 { return voice_seconds_de_simple_240[at - 240] }
+    if at < 302 { return voice_seconds_de_simple_288[at - 288] }
     return 0.0
 }
 voice_paths_es_spelling_0: [48]string = .[
@@ -2689,7 +2857,7 @@ voice_paths_es_spelling_192: [48]string = .[
     "assets/jungle-book/sounds/es/spelling/banana.wav",
     "assets/jungle-book/sounds/es/spelling/coconut.wav",
 ];
-voice_paths_es_spelling_240: [44]string = .[
+voice_paths_es_spelling_240: [48]string = .[
     "assets/jungle-book/sounds/es/spelling/pineapple.wav",
     "assets/jungle-book/sounds/es/spelling/papaya.wav",
     "assets/jungle-book/sounds/es/spelling/guava.wav",
@@ -2734,6 +2902,26 @@ voice_paths_es_spelling_240: [44]string = .[
     "assets/jungle-book/sounds/es/spelling/washing_hands.wav",
     "assets/jungle-book/sounds/es/spelling/brushing_teeth.wav",
     "assets/jungle-book/sounds/es/spelling/watering_plants.wav",
+    "assets/jungle-book/sounds/es/spelling/camel.wav",
+    "assets/jungle-book/sounds/es/spelling/fennec_fox.wav",
+    "assets/jungle-book/sounds/es/spelling/meerkat.wav",
+    "assets/jungle-book/sounds/es/spelling/desert_tortoise.wav",
+];
+voice_paths_es_spelling_288: [14]string = .[
+    "assets/jungle-book/sounds/es/spelling/gecko.wav",
+    "assets/jungle-book/sounds/es/spelling/scorpion.wav",
+    "assets/jungle-book/sounds/es/spelling/beetle.wav",
+    "assets/jungle-book/sounds/es/spelling/moth.wav",
+    "assets/jungle-book/sounds/es/spelling/cricket.wav",
+    "assets/jungle-book/sounds/es/spelling/cicada.wav",
+    "assets/jungle-book/sounds/es/spelling/stick_insect.wav",
+    "assets/jungle-book/sounds/es/spelling/firefly.wav",
+    "assets/jungle-book/sounds/es/spelling/firefighter.wav",
+    "assets/jungle-book/sounds/es/spelling/doctor.wav",
+    "assets/jungle-book/sounds/es/spelling/teacher.wav",
+    "assets/jungle-book/sounds/es/spelling/farmer.wav",
+    "assets/jungle-book/sounds/es/spelling/builder.wav",
+    "assets/jungle-book/sounds/es/spelling/baker.wav",
 ];
 VoicePath_es_spelling :: (at: s32) -> string {
     if at < 48 { return voice_paths_es_spelling_0[at - 0] }
@@ -2741,7 +2929,8 @@ VoicePath_es_spelling :: (at: s32) -> string {
     if at < 144 { return voice_paths_es_spelling_96[at - 96] }
     if at < 192 { return voice_paths_es_spelling_144[at - 144] }
     if at < 240 { return voice_paths_es_spelling_192[at - 192] }
-    if at < 284 { return voice_paths_es_spelling_240[at - 240] }
+    if at < 288 { return voice_paths_es_spelling_240[at - 240] }
+    if at < 302 { return voice_paths_es_spelling_288[at - 288] }
     return ""
 }
 voice_seconds_es_spelling_0: [48]float64 = .[
@@ -2994,7 +3183,7 @@ voice_seconds_es_spelling_192: [48]float64 = .[
     8.757052,
     6.076961,
 ];
-voice_seconds_es_spelling_240: [44]float64 = .[
+voice_seconds_es_spelling_240: [48]float64 = .[
     7.076463,
     8.126757,
     8.831156,
@@ -3039,6 +3228,26 @@ voice_seconds_es_spelling_240: [44]float64 = .[
     18.500499,
     23.223492,
     18.465533,
+    9.025986,
+    7.543946,
+    9.999728,
+    21.282177,
+];
+voice_seconds_es_spelling_288: [14]float64 = .[
+    6.101134,
+    12.340045,
+    12.354104,
+    8.585578,
+    8.233152,
+    9.110612,
+    14.095420,
+    12.682222,
+    9.437460,
+    9.201995,
+    9.199229,
+    10.319819,
+    13.876145,
+    9.611837,
 ];
 VoiceSeconds_es_spelling :: (at: s32) -> float64 {
     if at < 48 { return voice_seconds_es_spelling_0[at - 0] }
@@ -3046,7 +3255,8 @@ VoiceSeconds_es_spelling :: (at: s32) -> float64 {
     if at < 144 { return voice_seconds_es_spelling_96[at - 96] }
     if at < 192 { return voice_seconds_es_spelling_144[at - 144] }
     if at < 240 { return voice_seconds_es_spelling_192[at - 192] }
-    if at < 284 { return voice_seconds_es_spelling_240[at - 240] }
+    if at < 288 { return voice_seconds_es_spelling_240[at - 240] }
+    if at < 302 { return voice_seconds_es_spelling_288[at - 288] }
     return 0.0
 }
 voice_paths_es_simple_0: [48]string = .[
@@ -3299,7 +3509,7 @@ voice_paths_es_simple_192: [48]string = .[
     "assets/jungle-book/sounds/es/simple/banana.wav",
     "assets/jungle-book/sounds/es/simple/coconut.wav",
 ];
-voice_paths_es_simple_240: [44]string = .[
+voice_paths_es_simple_240: [48]string = .[
     "assets/jungle-book/sounds/es/simple/pineapple.wav",
     "assets/jungle-book/sounds/es/simple/papaya.wav",
     "assets/jungle-book/sounds/es/simple/guava.wav",
@@ -3344,6 +3554,26 @@ voice_paths_es_simple_240: [44]string = .[
     "assets/jungle-book/sounds/es/simple/washing_hands.wav",
     "assets/jungle-book/sounds/es/simple/brushing_teeth.wav",
     "assets/jungle-book/sounds/es/simple/watering_plants.wav",
+    "assets/jungle-book/sounds/es/simple/camel.wav",
+    "assets/jungle-book/sounds/es/simple/fennec_fox.wav",
+    "assets/jungle-book/sounds/es/simple/meerkat.wav",
+    "assets/jungle-book/sounds/es/simple/desert_tortoise.wav",
+];
+voice_paths_es_simple_288: [14]string = .[
+    "assets/jungle-book/sounds/es/simple/gecko.wav",
+    "assets/jungle-book/sounds/es/simple/scorpion.wav",
+    "assets/jungle-book/sounds/es/simple/beetle.wav",
+    "assets/jungle-book/sounds/es/simple/moth.wav",
+    "assets/jungle-book/sounds/es/simple/cricket.wav",
+    "assets/jungle-book/sounds/es/simple/cicada.wav",
+    "assets/jungle-book/sounds/es/simple/stick_insect.wav",
+    "assets/jungle-book/sounds/es/simple/firefly.wav",
+    "assets/jungle-book/sounds/es/simple/firefighter.wav",
+    "assets/jungle-book/sounds/es/simple/doctor.wav",
+    "assets/jungle-book/sounds/es/simple/teacher.wav",
+    "assets/jungle-book/sounds/es/simple/farmer.wav",
+    "assets/jungle-book/sounds/es/simple/builder.wav",
+    "assets/jungle-book/sounds/es/simple/baker.wav",
 ];
 VoicePath_es_simple :: (at: s32) -> string {
     if at < 48 { return voice_paths_es_simple_0[at - 0] }
@@ -3351,7 +3581,8 @@ VoicePath_es_simple :: (at: s32) -> string {
     if at < 144 { return voice_paths_es_simple_96[at - 96] }
     if at < 192 { return voice_paths_es_simple_144[at - 144] }
     if at < 240 { return voice_paths_es_simple_192[at - 192] }
-    if at < 284 { return voice_paths_es_simple_240[at - 240] }
+    if at < 288 { return voice_paths_es_simple_240[at - 240] }
+    if at < 302 { return voice_paths_es_simple_288[at - 288] }
     return ""
 }
 voice_seconds_es_simple_0: [48]float64 = .[
@@ -3604,7 +3835,7 @@ voice_seconds_es_simple_192: [48]float64 = .[
     1.355011,
     1.232517,
 ];
-voice_seconds_es_simple_240: [44]float64 = .[
+voice_seconds_es_simple_240: [48]float64 = .[
     1.359592,
     1.473469,
     1.677460,
@@ -3649,6 +3880,26 @@ voice_seconds_es_simple_240: [44]float64 = .[
     2.359909,
     2.596961,
     2.074649,
+    1.560000,
+    1.198639,
+    1.711927,
+    2.593696,
+];
+voice_seconds_es_simple_288: [14]float64 = .[
+    1.230703,
+    1.756916,
+    1.830884,
+    1.394512,
+    1.317415,
+    1.476961,
+    2.032925,
+    1.635510,
+    1.437052,
+    1.436190,
+    1.554875,
+    1.475828,
+    1.953878,
+    1.395964,
 ];
 VoiceSeconds_es_simple :: (at: s32) -> float64 {
     if at < 48 { return voice_seconds_es_simple_0[at - 0] }
@@ -3656,6 +3907,7 @@ VoiceSeconds_es_simple :: (at: s32) -> float64 {
     if at < 144 { return voice_seconds_es_simple_96[at - 96] }
     if at < 192 { return voice_seconds_es_simple_144[at - 144] }
     if at < 240 { return voice_seconds_es_simple_192[at - 192] }
-    if at < 284 { return voice_seconds_es_simple_240[at - 240] }
+    if at < 288 { return voice_seconds_es_simple_240[at - 240] }
+    if at < 302 { return voice_seconds_es_simple_288[at - 288] }
     return 0.0
 }

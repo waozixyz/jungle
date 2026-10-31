@@ -47,19 +47,19 @@ main :: () -> s32 {
     if NextBookCategory(first) != -1 || BookAllowed(first) { return 7 }
     if BookAllowed(-1) || BookAllowed(CATEGORY_COUNT) { return 8 }
 
-    // Saved slots stay put and the appended book takes the first new slot.
-    last: s32 = 31
-    if CATEGORY_COUNT != 32 || category_ids[30] != "drinks" || category_ids[last] != "actions" { return 9 }
+    // Saved slots stay put and the newest appended book takes the final new slot.
+    last: s32 = 34
+    if CATEGORY_COUNT != 35 || category_ids[30] != "drinks" || category_ids[31] != "actions" || category_ids[last] != "people-at-work" { return 9 }
     if shelf_order[CATEGORY_COUNT - 1] != last || category_groups[last] != BOOK_GROUP_COUNT - 1 { return 10 }
 
     if BOOK_GROUP_COUNT != 5 || book_groups[0] != "Animals" || book_groups[1] != "Nature" { return 11 }
-    if group_counts[0] != 4 || group_counts[1] != 6 || category_groups[0] != 0 || category_groups[1] != 1 { return 12 }
+    if group_counts[0] != 5 || group_counts[1] != 7 || category_groups[0] != 0 || category_groups[1] != 1 { return 12 }
 
     // From any book, one pass reads every page of every book exactly once.
     ClearChoices()
     total: s32 = 0
     for at: cast(s32)0..CATEGORY_COUNT - 1 { total += category_counts[at] }
-    if total != 284 { return 11 }
+    if total != 302 { return 11 }
     for at: cast(s32)0..CATEGORY_COUNT - 1 {
         if PlayAllPages(at) != total { return 12 }
     }

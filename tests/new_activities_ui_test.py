@@ -83,14 +83,28 @@ def main():
                         for i in pair: click(left+i%cols*(edge+14)+edge/2,above+i//cols*(edge+14)+edge/2)
                         assert save()[9:13].count('1')==2,save()
                     elif name=='hide_seek':
-                        before=d.capture_actual(f'{name}-{lang}-before')
-                        # Every peekaboo place is a target, so reveal the first.
-                        click(w/6,h/2)
-                        after=d.capture_actual(f'{name}-{lang}-peek')
-                        assert ImageChops.difference(before,after).getbbox(), 'Peek did not reveal'
-                        # Level 2, Find, is the middle of the numbered level row.
-                        click(w/2,h-107)
-                        assert save()[2]=='1',save()
+                        # Friends start fully hidden; only one place is empty,
+                        # so looking at the first two places finds a friend.
+                        # An empty look changes nothing in the scene.
+                        stage=(round(12*s),round(56+84*s),round((w-12)*s),round(56+(h-90)*s))
+                        path=data/f'games/jungle.{name}/{name}.txt'
+                        counted=lambda: int(path.read_text().split()[3]) if path.exists() else 0
+                        found=0
+                        for place in range(2):
+                            if place: d.key('Right')
+                            before=d.capture_actual(f'{name}-{lang}-look{place}-before').crop(stage)
+                            count=counted(); d.key('Return'); time.sleep(.75)
+                            after=d.capture_actual(f'{name}-{lang}-look{place}').crop(stage)
+                            assert counted()-count in (0,1), ('one look counted twice',save())
+                            if counted()>count:
+                                found+=1
+                                assert ImageChops.difference(before,after).getbbox(), 'Found friend did not appear'
+                            elif not found:
+                                assert not ImageChops.difference(before,after).getbbox(), 'Empty place revealed something'
+                        assert found>=1 and save()[2]=='1' and save()[4]=='0', save()
+                        # The one action, Hide again, keeps the counts.
+                        kept=save(); click(w/2,h-45)
+                        assert save()==kept, save()
                     elif name=='drums':
                         click(w/4,h/2); click(w*3/4,36)
                         time.sleep(.2)

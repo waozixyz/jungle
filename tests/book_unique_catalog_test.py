@@ -44,6 +44,9 @@ HOMES = {'jungle': ('parrot', 'toucan'), 'farm': ('duck', 'hen', 'goose', 'roost
          'weather': ('sun', 'cloud', 'rain'), 'drinks': ('milk', 'water')}
 ACTIONS = ('cooking', 'cleaning', 'reading', 'drawing', 'singing', 'washing_hands', 'brushing_teeth',
            'watering_plants')
+DESERT_ANIMALS = ('camel', 'fennec_fox', 'meerkat', 'desert_tortoise', 'gecko', 'scorpion')
+INSECTS = ('beetle', 'moth', 'cricket', 'cicada', 'stick_insect', 'firefly')
+PEOPLE_AT_WORK = ('firefighter', 'doctor', 'teacher', 'farmer', 'builder', 'baker')
 LABELS = """
 owl Owl|Eule|Búho
 kingfisher Kingfisher|Eisvogel|Martín pescador
@@ -81,6 +84,24 @@ washing_hands Washing hands|Hände waschen|Lavarse las manos
 brushing_teeth Brushing teeth|Zähne putzen|Cepillarse los dientes
 watering_plants Watering plants|Pflanzen gießen|Regar las plantas
 badminton Badminton|Badminton|Bádminton
+camel Camel|Kamel|Camello
+fennec_fox Fennec fox|Wüstenfuchs|Fénec
+meerkat Meerkat|Erdmännchen|Suricata
+desert_tortoise Desert tortoise|Wüstenschildkröte|Tortuga del desierto
+gecko Gecko|Gecko|Geco
+scorpion Scorpion|Skorpion|Escorpión
+beetle Beetle|Käfer|Escarabajo
+moth Moth|Motte|Polilla
+cricket Cricket|Grille|Grillo
+cicada Cicada|Zikade|Cigarra
+stick_insect Stick insect|Stabschrecke|Insecto palo
+firefly Firefly|Glühwürmchen|Luciérnaga
+firefighter Firefighter|Feuerwehrmann|Bombero
+doctor Doctor|Arzt|Médico
+teacher Teacher|Lehrer|Maestro
+farmer Farmer|Landwirt|Granjero
+builder Builder|Bauarbeiter|Constructor
+baker Baker|Bäcker|Panadero
 """
 
 
@@ -113,7 +134,7 @@ class CatalogTest(unittest.TestCase):
     def test_exact_shape_and_uniqueness(self):
         catalog = BuildUniqueBookCatalog()
         self.assertEqual(catalog['books'], BOOKS)
-        self.assertEqual((len(BOOKS), len(PAGE_NAMES), len(set(PAGE_NAMES)), len(NAMES)), (32, 284, 284, 284))
+        self.assertEqual((len(BOOKS), len(PAGE_NAMES), len(set(PAGE_NAMES)), len(NAMES)), (35, 302, 302, 302))
         self.assertEqual(set(PAGE_NAMES), set(NAMES))
         self.assertEqual(set(NAMES), set(WORDS))
         for at, language in enumerate(LANGUAGES):
@@ -125,16 +146,28 @@ class CatalogTest(unittest.TestCase):
         self.assertEqual(NAMES[:248], LEGACY_NAMES)
         self.assertEqual(NAMES[248:], tuple(expected_labels()))
         self.assertEqual(tuple(category for category, _ in BOOKS)[:31], LEGACY_IDS)
-        self.assertEqual((len(LEGACY_IDS), LEGACY_IDS[30], BOOKS[31][0]), (31, 'drinks', 'actions'))
+        self.assertEqual((len(LEGACY_IDS), LEGACY_IDS[30], BOOKS[31][0]),
+                         (31, 'drinks', 'actions'))
+        self.assertEqual(tuple(category for category, _ in BOOKS)[31:],
+                         ('actions', 'desert-animals', 'insects', 'people-at-work'))
 
     def test_exact_replacements_and_additions(self):
         self.assertEqual(UNIQUE['replacements'], REPLACED)
         self.assertEqual(sum(map(len, REPLACED.values())), 27)
         books = dict(BOOKS)
         self.assertEqual(books['actions'], ACTIONS)
+        self.assertEqual(books['desert-animals'], DESERT_ANIMALS)
+        self.assertEqual(books['insects'], INSECTS)
+        self.assertEqual(books['people-at-work'], PEOPLE_AT_WORK)
         self.assertEqual(books['sports'][-1], 'badminton')
-        self.assertEqual(dict(BOOK_GROUPS)['Family'][-1], 'actions')
+        self.assertEqual(dict(BOOK_GROUPS)['Animals'][-1], 'desert-animals')
+        self.assertEqual(dict(BOOK_GROUPS)['Nature'][-1], 'insects')
+        self.assertEqual(dict(BOOK_GROUPS)['Family'][-1], 'people-at-work')
         self.assertEqual(TITLES['actions'], ['Actions', 'Tätigkeiten', 'Acciones'])
+        self.assertEqual(TITLES['desert-animals'], ['Desert Animals', 'Wüstentiere', 'Animales del desierto'])
+        self.assertEqual(TITLES['insects'], ['Insects', 'Insekten', 'Insectos'])
+        self.assertEqual(TITLES['people-at-work'],
+                         ['People at Work', 'Menschen bei der Arbeit', 'Personas en el trabajo'])
         for category, members in book_catalog._legacy_books:
             swaps = REPLACED.get(category, {})
             kept = tuple(swaps.get(name, name) for name in members)
@@ -261,13 +294,13 @@ class GeneratedRouteTest(unittest.TestCase):
         cls.voices = (ROOT / 'games/book/book_voice.zi').read_text()
 
     def test_page_tables_follow_the_catalog(self):
-        self.assertIn('CATEGORY_COUNT :: 32\n', self.pages)
+        self.assertIn('CATEGORY_COUNT :: 35\n', self.pages)
         ids = json.loads('[' + re.search(r'^category_ids:.*?\.\[(.*)\];', self.pages, re.M)[1] + ']')
         self.assertEqual(ids, [category for category, _ in BOOKS])
         counts = re.search(r'^category_counts:.*?\.\{(.*)\};', self.pages, re.M)[1]
         self.assertEqual([int(count) for count in counts.split(',')], [len(names) for _, names in BOOKS])
         order = re.search(r'^shelf_order:.*?\.\[(.*)\];', self.pages, re.M)[1]
-        self.assertEqual(sorted(int(at) for at in order.split(',')), list(range(32)))
+        self.assertEqual(sorted(int(at) for at in order.split(',')), list(range(35)))
         self.assertEqual(table(self.pages, 'page_paths'), [f'assets/jungle-book/pages/{name}.jpg' for name in PAGE_NAMES])
         for at, language in enumerate(LANGUAGES):
             self.assertEqual(table(self.pages, f'page_names_{language}'), [WORDS[name][at] for name in PAGE_NAMES])
@@ -281,10 +314,12 @@ class GeneratedRouteTest(unittest.TestCase):
 
     def test_shelf_title_is_translated(self):
         rows = json.loads((ROOT / 'locales/ui.json').read_text())
-        self.assertEqual(rows['Actions'], ['Tätigkeiten', 'Acciones'])
+        for category in ('actions', 'desert-animals', 'insects', 'people-at-work'):
+            self.assertEqual(rows[TITLES[category][0]], list(TITLES[category][1:]))
         language = (ROOT / 'retro/language.zi').read_text()
-        for label in TITLES['actions']:
-            self.assertIn(json.dumps(label, ensure_ascii=False), language)
+        for category in ('actions', 'desert-animals', 'insects', 'people-at-work'):
+            for label in TITLES[category]:
+                self.assertIn(json.dumps(label, ensure_ascii=False), language)
 
 
 class PlayAllModelTest(unittest.TestCase):

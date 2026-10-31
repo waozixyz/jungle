@@ -118,10 +118,18 @@ try{
  if(await evaluate('pianoAudio.length'))throw Error('Lesson accepted the wrong first pitch');
  await key('1');await key('2');
  if(await evaluate('pianoAudio.length!==1'))throw Error('An early release passed the lesson note');
- await command('Input.dispatchKeyEvent',{type:'keyDown',key:'1',code:'Digit1',windowsVirtualKeyCode:49});await delay(420);
- if(await evaluate('document.documentElement.dataset.backend==="dom"')&&!await evaluate('document.body.innerText.includes("Let go now")'))throw Error('Missing exact release cue');
+ const domLesson=await evaluate('document.documentElement.dataset.backend==="dom"');
+ await command('Input.dispatchKeyEvent',{type:'keyDown',key:'1',code:'Digit1',windowsVirtualKeyCode:49});
+ if(domLesson){
+  await waitFor('document.body.innerText.includes("Let go now")','Missing exact release cue');
+  await evaluate('new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve(true))))');
+  if(!await evaluate('document.body.innerText.includes("Let go now")'))throw Error('Release cue did not remain visible for two frames');
+ }else await delay(420);
  await writeFile('backup/catalog-ui-integration/web/piano-lesson-release-'+page+'.png',Buffer.from((await command('Page.captureScreenshot',{format:'png'})).data,'base64'));
- await command('Input.dispatchKeyEvent',{type:'keyUp',key:'1',code:'Digit1',windowsVirtualKeyCode:49});await delay(100);await key('2');
+ await command('Input.dispatchKeyEvent',{type:'keyUp',key:'1',code:'Digit1',windowsVirtualKeyCode:49});
+ if(domLesson)await waitFor('document.body.innerText.includes("Your turn: press the lit key")','The valid hold did not reach the next lesson note');
+ else await delay(100);
+ await key('2');
  if(await evaluate('!pianoAudio.at(-1)?.path.endsWith("/62.wav")'))throw Error('Holding and releasing did not advance the lesson '+JSON.stringify(await evaluate('({audio:pianoAudio,text:document.body.innerText})')));
  await click(480,p.title+16);await evaluate('pianoAudio=[]');await key('Escape');
  await waitFor('pianoAudio.length>0','Cancelling the song chooser stranded the lesson');

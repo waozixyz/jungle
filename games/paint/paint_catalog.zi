@@ -55,15 +55,15 @@ PaintStencilAt :: (category: s32, offset: s32) -> s32 {
     return paint_stencil_order[paint_stencil_category_starts[category] + offset]
 }
 
-PAINT_SCENE_COUNT :: 24
+PAINT_SCENE_COUNT :: 26
 PAINT_SCENE_CATEGORY_COUNT :: 3
-paint_scene_order: [24]s32 = .[0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 13, 14, 15, 11, 16, 17, 18, 19, 1, 20, 21, 22, 23];
-paint_scene_category_starts: [3]s32 = .[0, 14, 19];
-paint_scene_category_counts: [3]s32 = .[14, 5, 5];
-paint_scene_category_for_index: [24]s32 = .[0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2];
-paint_scene_labels_en: [24]string = .["Jungle clearing", "Volcano valley", "Waterfall", "Jungle river", "Island beach", "Mountain lake", "Meadow", "Forest", "Desert", "Snowy hills", "Pond", "Farmyard", "Flower garden", "Apple orchard", "Autumn woodland", "Spring stream", "Playground", "Town park", "Cozy room", "Schoolyard", "Castle courtyard", "Moon", "Under the sea", "Pirate cove"];
-paint_scene_labels_de: [24]string = .["Dschungellichtung", "Vulkantal", "Wasserfall", "Dschungelfluss", "Inselstrand", "Bergsee", "Wiese", "Wald", "Wüste", "Schneehügel", "Teich", "Bauernhof", "Blumengarten", "Apfelgarten", "Herbstwald", "Frühlingsbach", "Spielplatz", "Stadtpark", "Gemütliches Zimmer", "Schulhof", "Burghof", "Mond", "Unter Wasser", "Piratenbucht"];
-paint_scene_labels_es: [24]string = .["Claro de la selva", "Valle volcánico", "Cascada", "Río de la selva", "Playa de la isla", "Lago de montaña", "Pradera", "Bosque", "Desierto", "Colinas nevadas", "Estanque", "Granja", "Jardín de flores", "Huerto de manzanos", "Bosque otoñal", "Arroyo primaveral", "Parque infantil", "Parque urbano", "Habitación acogedora", "Patio de la escuela", "Patio del castillo", "Luna", "Bajo el mar", "Cala pirata"];
+paint_scene_order: [26]s32 = .[0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 13, 14, 15, 11, 16, 17, 18, 19, 24, 1, 20, 21, 22, 23, 25];
+paint_scene_category_starts: [3]s32 = .[0, 14, 20];
+paint_scene_category_counts: [3]s32 = .[14, 6, 6];
+paint_scene_category_for_index: [26]s32 = .[0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 1, 2];
+paint_scene_labels_en: [26]string = .["Jungle clearing", "Volcano valley", "Waterfall", "Jungle river", "Island beach", "Mountain lake", "Meadow", "Forest", "Desert", "Snowy hills", "Pond", "Farmyard", "Flower garden", "Apple orchard", "Autumn woodland", "Spring stream", "Playground", "Town park", "Cozy room", "Schoolyard", "Castle courtyard", "Moon", "Under the sea", "Pirate cove", "Village square", "Treehouse clearing"];
+paint_scene_labels_de: [26]string = .["Dschungellichtung", "Vulkantal", "Wasserfall", "Dschungelfluss", "Inselstrand", "Bergsee", "Wiese", "Wald", "Wüste", "Schneehügel", "Teich", "Bauernhof", "Blumengarten", "Apfelgarten", "Herbstwald", "Frühlingsbach", "Spielplatz", "Stadtpark", "Gemütliches Zimmer", "Schulhof", "Burghof", "Mond", "Unter Wasser", "Piratenbucht", "Dorfplatz", "Baumhauslichtung"];
+paint_scene_labels_es: [26]string = .["Claro de la selva", "Valle volcánico", "Cascada", "Río de la selva", "Playa de la isla", "Lago de montaña", "Pradera", "Bosque", "Desierto", "Colinas nevadas", "Estanque", "Granja", "Jardín de flores", "Huerto de manzanos", "Bosque otoñal", "Arroyo primaveral", "Parque infantil", "Parque urbano", "Habitación acogedora", "Patio de la escuela", "Patio del castillo", "Luna", "Bajo el mar", "Cala pirata", "Plaza del pueblo", "Claro con casa del árbol"];
 
 PaintSceneLabel :: (index: s32) -> string {
     if index < 0 || index >= PAINT_SCENE_COUNT { return "" }

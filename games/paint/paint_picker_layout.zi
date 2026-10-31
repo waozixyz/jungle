@@ -1,0 +1,34 @@
+// Pixel-sized scene controls live inside the scaled book's paper, not its frame.
+ScenePickerLayout :: struct {
+    width: s32; height: s32; padding: s32; top: s32; gap: s32
+    columns: s32; rows: s32; tab_columns: s32
+    tab_y: s32; tab_width: s32; grid_y: s32
+    card_width: s32; card_height: s32; footer_y: s32; footer_width: s32
+}
+
+ScenePickerBounds :: (width: s32, height: s32, categories: s32 = 3) -> ScenePickerLayout {
+    fit := width * 1000 / 320
+    tall := height * 1000 / 200
+    if tall < fit { fit = tall }
+    if fit < 1000 { fit = 1000 }
+    l: ScenePickerLayout
+    l.width = width; l.height = height
+    l.gap = ifx height < 440 then 6 else 10
+    l.padding = 14 * fit / 1000 + 12
+    l.top = 12 * fit / 1000 + 12
+    // Wide desktop windows keep a readable, centered six-card library.
+    if width - l.padding * 2 > 1040 { l.padding = (width - 1040) / 2 }
+    usable := width - l.padding * 2
+    l.columns = ifx usable < 600 then 2 else 3
+    l.rows = 6 / l.columns
+    l.tab_columns = categories
+    l.tab_y = l.top + 30 + l.gap
+    l.tab_width = (usable - l.gap * (categories - 1)) / categories
+    l.grid_y = l.tab_y + 44 + l.gap
+    l.footer_y = height - l.top - 44
+    l.footer_width = (usable - l.gap * 2) / 3
+    l.card_width = (usable - l.gap * (l.columns - 1)) / l.columns
+    l.card_height = (l.footer_y - l.gap - l.grid_y - l.gap * (l.rows - 1)) / l.rows
+    if l.card_height > 220 { l.card_height = 220 }
+    return l
+}

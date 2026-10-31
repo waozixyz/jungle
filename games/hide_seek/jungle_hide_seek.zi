@@ -1,8 +1,7 @@
 // Hide & Seek: friendly animals hide in a basket, behind a bush, under a
-// table or up in a tree. Three levels: Peekaboo reveals every friend in
-// turn; Find speaks where to look, and a tap on an empty place only makes
-// the right place glow; Remember shows four friends, hides them, then asks
-// for one by name, with their hiding places shown again on request.
+// table or up in a tree, in four different scenes. Nothing shows where they
+// are: the child looks behind each hiding place to find them all, then the
+// friends hide again in the next scene.
 #import "kryon/app_context"
 #import "kryon/app_protocol"
 #import "kryon/geometry"
@@ -14,12 +13,8 @@
 #import "kryon/svg_icon_widget"
 #import "kryon/drawing_props"
 #import "kryon/text_align"
-Leaf :: #import "mingcute/mingcute_filled_leaf";
 Heart :: #import "mingcute/mingcute_filled_heart";
-Eye :: #import "mingcute/mingcute_regular_eye";
-EyeClose :: #import "mingcute/mingcute_regular_eye_close";
 Search :: #import "mingcute/mingcute_regular_search";
-Bulb :: #import "mingcute/mingcute_regular_bulb";
 Again :: #import "mingcute/mingcute_regular_refresh_2";
 Next :: #import "mingcute/mingcute_regular_arrow_right";
 Volume :: #import "mingcute/mingcute_regular_volume";
@@ -32,34 +27,30 @@ Volume :: #import "mingcute/mingcute_regular_volume";
 
 SAVE_FILE :: "hide_seek.txt"
 REVEAL_SECONDS :: 0.6
-// Remembering friends stay in view this long before they hide.
-PREVIEW_SECONDS :: 3.5
-// A queued cue waits this long at most for the one before it to finish.
+// An empty place wiggles briefly and the card says to keep looking.
+WIGGLE_SECONDS :: 0.45
+NOTE_SECONDS :: 1.8
+// A queued prompt waits this long at most for the answer before it.
 VOICE_WAIT_SECONDS :: 6.0
-KEY_PAGE_UP :: 266
-KEY_PAGE_DOWN :: 267
 
 game: HideSeek;
 loaded: bool;
 reveal_at: [4]float64;
-// When the remembered friends last came out and went back into hiding.
-show_at: float64;
-preview_until: float64;
-// Capture the name before a round transition changes the animal array.
-voice_name: string;
+looked_at: [4]float64;
+// The last empty look or find, for the prompt card's short note.
+note_at: float64;
+note_kind: s32;
+note_found: bool;
 prompt_pending: bool;
 voice_after: float64;
 focus_place: s32;
 keyboard_active: bool;
-place_columns: s32;
 view_width: s32;
 view_height: s32;
 view_scale: float32;
-scene_index: s32;
 round_serial: s32;
 completed_at: float64;
 input_guard: bool;
-preview_guard: bool;
 
 Words :: (en: string, de: string, es: string) -> string { return HideSeekWords(en, de, es) }
 
@@ -68,104 +59,48 @@ Save :: () -> bool { return DocumentWrite(SAVE_FILE, HideSeekText(game)) }
 Seed :: () -> s32 { return cast(s32)(cast(s64)(retro.now * 1000.0) % 2147483646) }
 
 ItemPath :: (animal: s32) -> string { return Cat("assets/jungle-book/items/", hide_animals[animal], ".png") }
-SmallPath :: (animal: s32) -> string { return Cat("assets/jungle-book/counting/", hide_animals[animal], ".png") }
-NamePath :: (place: s32) -> string {
-    at := ifx place < 0 || place >= game.places then 0 else place
-    return HideSeekNamePath(game.animals[at], LanguageCode())
-}
 CuePath :: (cue: string) -> string { return HideSeekCuePath(cue, LanguageCode()) }
 
-Say :: (path: string, then: s32 = -1) {
+// Speaks one cue. Friends are never named: the game only says
+// "Peekaboo! Who is hiding?" and, once a friend is found, where it was.
+Say :: (path: string) {
     unused AppService("jungle.voice", path)
-    voice_name = ifx then >= 0 then NamePath(then) else ""
     prompt_pending = false
     voice_after = retro.now + 0.35
 }
 
-// Stops whatever was being said and anything queued after it.
 Hush :: () {
-    voice_name = ""
     prompt_pending = false
     unused AppService("jungle.voice", "")
 }
 
-// A second cue follows once the first has finished speaking.
+// A new round's prompt follows once the last answer has finished speaking.
 SayQueued :: () {
-    if (voice_name.count == 0 && !prompt_pending) || retro.now < voice_after { return }
+    if !prompt_pending || retro.now < voice_after { return }
     state := AppService("jungle.voice-state", "")
-    if state == "playing" || state == "paused" {
-        if retro.now - voice_after <= VOICE_WAIT_SECONDS { return }
-        voice_name = ""
-    }
-    if voice_name.count > 0 {
-        unused AppService("jungle.voice", voice_name)
-        voice_name = ""
-        voice_after = retro.now + 0.35
-        return
-    }
-    if prompt_pending { prompt_pending = false; SayPrompt() }
+    if (state == "playing" || state == "paused") && retro.now - voice_after <= VOICE_WAIT_SECONDS { return }
+    SayPrompt()
 }
 
-// Speaks what this round is about: peekaboo, where to look, or which
-// friend to remember.
-SayPrompt :: () {
-    kind := HideSeekKind(game, game.target)
-    if !HideSeekTargeted(game) { Say(CuePath("peekaboo")); return }
-    if HideSeekDone(game) { Say(CuePath(HideSeekCue(kind, false)), game.target); return }
-    if HideSeekRemembering(game) {
-        if game.preview { Say(CuePath("peekaboo")) } else { Say(NamePath(game.target)) }
-        return
-    }
-    Say(CuePath(HideSeekCue(kind, true)))
-}
-
-PreviewActive :: () -> bool { return game.preview }
-
-// The friends come out to be remembered; taps wait until they hide.
-BeginPreview :: () {
-    if !game.preview { return }
-    show_at = retro.now
-    preview_until = retro.now + PREVIEW_SECONDS
-}
-
-// Ends a preview once its time is up, or at once if the clock jumped.
-SettlePreview :: () {
-    if !game.preview { return }
-    if retro.now < preview_until && preview_until - retro.now <= PREVIEW_SECONDS * 2.0 { return }
-    HideSeekPreviewEnd(*game)
-    preview_until = 0.0
-    if !prompt_pending { SayPrompt() }
-}
-
-ShowAgain :: () {
-    if !HideSeekShowAgain(*game) { return }
-    Hush()
-    BeginPreview()
-}
+SayPrompt :: () { Say(CuePath("peekaboo")) }
 
 ResetMotion :: () {
-    for i: cast(s32)0..HIDE_MAX_PLACES - 1 { reveal_at[i] = -10.0 }
-    show_at = -10.0; preview_until = 0.0
+    for i: cast(s32)0..HIDE_MAX_PLACES - 1 { reveal_at[i] = -10.0; looked_at[i] = -10.0 }
+    note_at = -10.0
     completed_at = -1.0
     input_guard = true
-    preview_guard = false
     round_serial = (round_serial + 1) % 10000
     focus_place = 0
-    if focus_place >= game.places { focus_place = 0 }
 }
 
-// A fresh round on this level, or another level keeping all progress.
-StartRound :: (mode: s32, automatic: bool = false) {
+// The friends hide again in the next scene, keeping every count.
+StartRound :: (automatic: bool = false) {
     if !automatic { Hush() }
-    if automatic { game = HideSeekAdvance(game, Seed()) }
-    else if mode == game.mode { game = HideSeekNext(game, Seed()) }
-    else { game = HideSeekLevel(game, mode, Seed()) }
-    scene_index = (scene_index + 1) % 4
+    game = HideSeekNext(game, Seed())
     ResetMotion()
-    BeginPreview()
     unused Save()
-    // The scene changes promptly, while the previous answer and captured
-    // animal name finish speaking before this round's prompt.
+    // The scene changes promptly, while the last answer finishes speaking
+    // before this round's prompt.
     if automatic { prompt_pending = true } else { SayPrompt() }
 }
 
@@ -173,24 +108,8 @@ Icon :: (shape: string, x: s32, y: s32, edge: s32, color: u32) {
     SvgIcon(retro.session, SvgIconProps.{.bounds = RetroRect(x, y, edge, edge), .shape = shape, .color = ColorFromPacked(color)})
 }
 
-Animal :: (animal: s32, small: bool, x: s32, y: s32, edge: s32) {
-    BookPicture(ifx small then SmallPath(animal) else ItemPath(animal), x, y, edge, edge)
-}
-
-Round :: (x: float32, y: float32, edge: float32, fill: u32) {
-    BookBox(cast(s32)x, cast(s32)y, cast(s32)edge, cast(s32)edge, fill, 0, edge / 2.0)
-}
-
 Shadow :: (cx: s32, ground: s32, width: s32) {
     BookBox(cx - width / 2, ground - width / 14, width, width / 7, 0x6f8a5a2e, 0, cast(float32)width / 14.0)
-}
-
-Mix :: (from: float32, to: float32, p: float32) -> float32 { return from + (to - from) * p }
-
-// A slow rise and fall between 0 and 1, so a hint breathes gently.
-Breath :: (speed: float64) -> float32 {
-    phase := retro.now * speed - cast(float64)cast(s64)(retro.now * speed)
-    return cast(float32)(ifx phase < 0.5 then phase * 2.0 else 2.0 - phase * 2.0)
 }
 
 // How far a reveal has gone, eased so friends settle softly.
@@ -201,11 +120,19 @@ Progress :: (at: float64, seconds: float64) -> float32 {
     return cast(float32)(1.0 - (1.0 - t) * (1.0 - t))
 }
 
+// A small fading side-to-side shake after looking somewhere empty.
+Wiggle :: (at: float64, size: s32) -> s32 {
+    t := (retro.now - at) / WIGGLE_SECONDS
+    if t < 0.0 || t >= 1.0 { return 0 }
+    amount := cast(s32)(cast(float64)size * 0.035 * (1.0 - t))
+    return ifx cast(s32)(t * 6.0) % 2 == 0 then amount else -amount
+}
+
 // Draw the existing bitmap with its painted feet on the support. The
 // transparent padding differs between animals; supports are measured at
 // paws/claws in the unchanged 420px originals, rather than dangling tails.
-AnimalGrounded :: (animal: s32, small: bool, cx: s32, base: s32, edge: s32) {
-    Animal(animal, small, cx - edge / 2, base - edge * hide_animal_feet[animal] / 420, edge)
+AnimalGrounded :: (animal: s32, cx: s32, base: s32, edge: s32) {
+    BookPicture(ItemPath(animal), cx - edge / 2, base - edge * hide_animal_feet[animal] / 420, edge, edge)
 }
 
 PropPath :: (kind: s32) -> string {
@@ -213,81 +140,38 @@ PropPath :: (kind: s32) -> string {
     return Cat("assets/hide_seek/props/", names[kind], ".png")
 }
 
-// A source crop and its destination use the same scale. Restoring the lower
-// foreground never squeezes a prop or changes the animal's proportions.
-PropFront :: (path: string, art: HideSeekArt) {
-    source_y := art.front
-    source_x := art.front_x
-    x := art.x + art.edge * source_x / HIDE_PROP_PIXELS
-    y := art.y + art.edge * source_y / HIDE_PROP_PIXELS
-    width := art.x + art.edge * art.front_right / HIDE_PROP_PIXELS - x
-    height := art.y + art.edge - y
-    if height <= 0 || !RetroImageReady(path) { return }
-    Image(retro.session, ImageProps.{.asset_path = path,
-        .source = .{cast(float32)source_x, cast(float32)source_y, cast(float32)(art.front_right - source_x), cast(float32)(HIDE_PROP_PIXELS - source_y)},
-        .bounds = RetroRect(x, y, width, height), .fit = ImageFit.ImageFitContain, .smooth = true})
-}
-
-PlaceArt :: (kind: s32, cx: s32, ground: s32, s: float32, animal: s32, peek: s32, p: float32, small: bool) {
-    art := HideSeekArtLayout(kind, cx, ground, cast(s32)s, p, animal)
-    path := PropPath(kind)
-    Shadow(cx, ground, cast(s32)(s * 0.82))
-    if peek == HIDE_NO_PEEK { BookPicture(path, art.x, art.y, art.edge, art.edge); return }
-    // Basket back/rim and tree branch stay behind the friend; their lower
-    // foreground is restored after it. Bush/table keep the whole cover in
-    // front while their friend comes around its edge or out from a table leg.
-    if art.front > 0 || art.front_x > 0 || art.front_right < HIDE_PROP_PIXELS { BookPicture(path, art.x, art.y, art.edge, art.edge) }
-    AnimalGrounded(animal, small, art.animal_cx, art.animal_base, art.animal_edge)
-    PropFront(path, art)
-}
-
-Basket :: (cx: s32, ground: s32, s: float32, animal: s32, peek: s32, p: float32, small: bool) {
-    PlaceArt(HIDE_BASKET, cx, ground, s, animal, peek, p, small)
-}
-Bush :: (cx: s32, ground: s32, s: float32, animal: s32, peek: s32, p: float32, small: bool) {
-    PlaceArt(HIDE_BUSH, cx, ground, s, animal, peek, p, small)
-}
-Table :: (cx: s32, ground: s32, s: float32, animal: s32, peek: s32, p: float32, small: bool) {
-    PlaceArt(HIDE_TABLE, cx, ground, s, animal, peek, p, small)
-}
-Tree :: (cx: s32, ground: s32, s: float32, animal: s32, peek: s32, p: float32, small: bool) {
-    PlaceArt(HIDE_TREE, cx, ground, s, animal, peek, p, small)
-}
-
-DrawPlace :: (kind: s32, cx: s32, ground: s32, s: float32, animal: s32, peek: s32, p: float32, small: bool = false) {
-    if kind == HIDE_BUSH { Bush(cx, ground, s, animal, peek, p, small); return }
-    if kind == HIDE_TABLE { Table(cx, ground, s, animal, peek, p, small); return }
-    if kind == HIDE_TREE { Tree(cx, ground, s, animal, peek, p, small); return }
-    Basket(cx, ground, s, animal, peek, p, small)
+// The prop is always drawn whole and unchanged. A found friend stands
+// behind it (in the basket, behind the bush, under the table) or sits in
+// front on the tree's branch; a hiding friend is not drawn at all.
+DrawPlace :: (kind: s32, cx: s32, ground: s32, size: s32, animal: s32, peek: s32, p: float32, toward: s32) {
+    art := HideSeekArtLayout(kind, cx, ground, size, p, animal, toward)
+    Shadow(cx, ground, size * 82 / 100)
+    shown := peek == HIDE_SHOWN && animal >= 0 && animal < HIDE_ANIMALS
+    if shown && art.behind { AnimalGrounded(animal, art.animal_cx, art.animal_base, art.animal_edge) }
+    BookPicture(PropPath(kind), art.x, art.y, art.edge, art.edge)
+    if shown && !art.behind { AnimalGrounded(animal, art.animal_cx, art.animal_base, art.animal_edge) }
 }
 
 LookPlace :: (place: s32) {
     result := HideSeekTap(*game, place)
-    if result == HIDE_IGNORED {
+    if result == HIDE_EMPTY {
+        // Not here: the place wiggles quietly. No hint, no friend's name.
+        looked_at[place] = retro.now
+        note_at = retro.now; note_found = false
         return
     }
-    if result == HIDE_EMPTY || result == HIDE_OTHER {
-        // Not here: highlight the named friend's prop and repeat the cue.
-        SayPrompt()
-        return
-    }
-    if result == HIDE_AGAIN { Say(NamePath(place)); return }
+    if result != HIDE_REVEALED { return }
     reveal_at[place] = retro.now
-    Say(CuePath(HideSeekCue(HideSeekKind(game, place), false)), place)
+    note_at = retro.now; note_found = true; note_kind = HideSeekKind(game, place)
+    Say(CuePath(HideSeekCue(note_kind)))
     if HideSeekDone(game) && completed_at < 0.0 { completed_at = retro.now }
     unused Save()
 }
 
-// Reveal motion belongs solely to the cover; the bitmap anchor is fixed.
-PlaceMotion :: (place: s32) -> float32 {
-    if game.revealed[place] { return Progress(reveal_at[place], REVEAL_SECONDS) }
-    if game.preview { return Progress(show_at, REVEAL_SECONDS) }
-    return 0.0
-}
-
 ScenePath :: () -> string {
     names: [4]string = .["cottage-yard", "fenced-garden", "cozy-house", "farm-courtyard"]
-    return Cat("assets/hide_seek/scenes/", names[scene_index], ".png")
+    at := ifx game.scene < 0 || game.scene >= HIDE_SCENES then 0 else game.scene
+    return Cat("assets/hide_seek/scenes/", names[at], ".png")
 }
 
 Scene :: (top: s32, bottom: s32) {
@@ -300,127 +184,76 @@ Scene :: (top: s32, bottom: s32) {
         Image(retro.session, ImageProps.{.asset_path = path, .bounds = RetroRect(margin, top, width, height),
             .fit = ImageFit.ImageFitCover, .smooth = true, .radius = 12.0 * retro.scale})
     }
-    place_columns = ifx width < height && game.places > 2 then 2 else game.places
-    hint := HideSeekTargeted(game) && HideSeekHint(game) && !HideSeekDone(game) && !game.preview
+    done := HideSeekDone(game)
+    // Places come back to front, so nearer props cover farther ones.
     for place: cast(s32)0..game.places - 1 {
-        at := HideSeekSceneLayout(width, height, game.places, place)
-        cx := margin + at.cx; ground := top + at.ground
-        x := margin + at.x; y := top + at.y
-        if hint && place == game.target {
-            Shadow(cx, ground, at.size + 12)
-            BookBox(cx - at.size / 2, ground - 8, at.size, 13, 0xf3d48599, 0, 6.0)
-        }
+        at := HideSeekRoundLayout(game, width, height, place)
+        cx := margin + at.cx + Wiggle(looked_at[place], at.size); ground := top + at.ground
         label := Words("Hiding place", "Versteck", "Escondite")
-        press := RetroTap(100 + round_serial * 4 + place, x, y, at.width, at.height, label)
-        if press.clicked && !input_guard && !preview_guard { focus_place = place; keyboard_active = false; LookPlace(place) }
-        peek := HideSeekPeek(game, place)
-        p := PlaceMotion(place)
-        DrawPlace(HideSeekKind(game, place), cx, ground, cast(float32)at.size, game.animals[place], peek, p)
-        if game.revealed[place] && HideSeekDone(game) {
+        press := RetroTap(100 + round_serial * 4 + place, margin + at.x, top + at.y, at.width, at.height, label)
+        if press.clicked && !input_guard { focus_place = place; keyboard_active = false; LookPlace(place) }
+        p := ifx game.revealed[place] then Progress(reveal_at[place], REVEAL_SECONDS) else cast(float32)0.0
+        DrawPlace(at.kind, cx, ground, at.size, game.animals[place], HideSeekPeek(game, place), p, at.toward)
+        if game.revealed[place] && done {
             edge := at.size / 8
-            Icon(Heart.Shape, cx - edge / 2, y - edge / 2, edge, 0xe4a77fff)
+            Icon(Heart.Shape, cx - edge / 2, top + at.y - edge / 2, edge, 0xe4a77fff)
         }
     }
 }
 
 PromptWords :: () -> string {
     if HideSeekDone(game) { return Words("Well done! Next adventure...", "Gut gemacht! Weiter geht's...", "¡Muy bien! Otra aventura...") }
-    if !HideSeekTargeted(game) { return Words("Peekaboo! Who is hiding?", "Kuckuck! Wer versteckt sich da?", "¡Cucú! ¿Quién se esconde?") }
-    kind := HideSeekKind(game, game.target)
-    if HideSeekDone(game) { return HideSeekPlaceWords(kind) }
-    if HideSeekRemembering(game) {
-        if game.preview { return Words("Look and remember!", "Schau und merk dir!", "¡Mira y recuerda!") }
-        return HideSeekWhereWords(game.animals[game.target])
+    if retro.now - note_at < NOTE_SECONDS {
+        if note_found { return HideSeekPlaceWords(note_kind) }
+        return Words("Not here. Keep looking!", "Hier nicht. Such weiter!", "¡Aquí no! Sigue buscando.")
     }
-    return HideSeekLookWords(kind)
+    return Words("Peekaboo! Who is hiding?", "Kuckuck! Wer versteckt sich da?", "¡Cucú! ¿Quién se esconde?")
 }
 
-// The prompt card: what to do, in words and a little picture; a tap
-// speaks it again.
+// The prompt card: what to do and one dot for each hiding friend, filled
+// once found; it never shows who hides or where. A tap says it again.
 Prompt :: (y: s32, height: s32) {
     width := view_width - 32
     if width > 560 { width = 560 }
     x := (view_width - width) / 2
-    kind := HideSeekKind(game, game.target)
     text := PromptWords()
     press := RetroTap(10, x, y, width, height, text)
     BookBox(x, y, width, height, ifx press.down then cast(u32)0xf3ecdcff else cast(u32)0xfffcf3ff, 0xdacdb5ff, 12.0)
     edge := height - 16
     Icon(Volume.Shape, x + 12, y + (height - edge / 2) / 2, edge / 2, 0x2e6956ff)
     picture := x + 12 + edge / 2 + 8
-    if HideSeekRemembering(game) && game.preview {
-        Icon(Eye.Shape, picture + edge / 6, y + 8 + edge / 6, edge * 2 / 3, 0x6c9160ff)
-    } else if HideSeekRemembering(game) && !HideSeekDone(game) {
-        // The friend to find, so the question needs no reading.
-        Animal(game.animals[game.target], false, picture, y + 8, edge)
-    } else if HideSeekTargeted(game) {
-        // A small picture of the friend in its place shows the position word.
-        mini := cast(float32)(edge) / 1.3
-        DrawPlace(kind, picture + edge / 2, y + height - 6, mini, game.animals[game.target], HIDE_SHOWN, 1.0, true)
-    } else { Icon(EyeClose.Shape, picture + edge / 6, y + 8 + edge / 6, edge * 2 / 3, 0x6c9160ff) }
+    Icon(Search.Shape, picture + edge / 6, y + 8 + edge / 6, edge * 2 / 3, 0x6c9160ff)
+    friends := HideSeekFriends(game)
+    found := HideSeekFound(game)
+    dot: s32 = 14
+    dots := friends * (dot + 6)
+    for i: cast(s32)0..friends - 1 {
+        BookBox(x + width - 12 - dots + i * (dot + 6), y + (height - dot) / 2, dot, dot,
+            ifx i < found then cast(u32)0xe4a77fff else cast(u32)0xf1e6d2ff, 0xd4b896ff, cast(float32)dot / 2.0)
+    }
     left := picture + edge + 8
-    BookText(left, y, x + width - left - 10, height, text, 20, TextAlign.TextAlignCenter, false)
-    if press.clicked { SayPrompt() }
+    BookText(left, y, x + width - left - 16 - dots, height, text, 20, TextAlign.TextAlignCenter, false)
+    if press.clicked && !input_guard { SayPrompt() }
 }
 
-Button :: (id: s32, x: s32, y: s32, width: s32, height: s32, label: string, shape: string, chosen: bool, number: s32 = 0) -> bool {
+Button :: (id: s32, x: s32, y: s32, width: s32, height: s32, label: string, shape: string, chosen: bool) -> bool {
     press := RetroTap(id, x, y, width, height, label)
     BookBox(x, y, width, height, ifx chosen || press.down then cast(u32)0xdcebdcff else cast(u32)0xf3ecdcff,
         ifx chosen then cast(u32)0x2e6956ff else cast(u32)0xdacdb5ff, 6.0)
     edge := height - 26
     if edge > 4 { Icon(shape, x + (width - edge) / 2, y + 4, edge, 0x2e6956ff) }
-    if number > 0 {
-        // Levels carry their number in a round badge.
-        badge: s32 = 20
-        BookBox(x + 5, y + 5, badge, badge, ifx chosen then cast(u32)0xfffcf3ff else cast(u32)0xe6dcc8ff,
-            ifx chosen then cast(u32)0x2e6956ff else cast(u32)0, 10.0)
-        BookText(x + 5, y + 5, badge, badge, NumberText(number), 13, TextAlign.TextAlignCenter, false, false)
-    }
     BookText(x + 2, y + height - 20, width - 4, 17, label, 12, TextAlign.TextAlignCenter, false)
     return press.clicked && !input_guard
 }
 
-ControlRows :: () -> s32 { return ifx view_width < 560 then 2 else 1 }
-
-LevelShape :: (level: s32) -> string {
-    if level == HIDE_FIND { return Search.Shape }
-    if level == HIDE_REMEMBER { return Bulb.Shape }
-    return EyeClose.Shape
-}
-
-// The three levels, then help for this round and the next round. A narrow
-// window keeps the levels in their own row.
+// One action: the friends hide again in the next scene.
 Controls :: (y: s32, height: s32) {
-    gap: s32 = 8
-    two := ControlRows() == 2
-    row_height := ifx two then (height - gap) / 2 else height
-    remembering := HideSeekRemembering(game)
-    count: s32 = ifx two then 3 else (ifx remembering then 5 else 4)
-    each := (view_width - 32 - gap * (count - 1)) / count
-    if each > 150 { each = 150 }
-    x := (view_width - (each * count + gap * (count - 1))) / 2
-    for level: cast(s32)0..HIDE_MODES - 1 {
-        if Button(20 + level, x, y, each, row_height, HideSeekLevelWords(level), LevelShape(level), game.mode == level, level + 1) {
-            if game.mode != level { StartRound(level) }
-        }
-        x += each + gap
-    }
-    if two {
-        y += row_height + gap
-        actions: s32 = ifx remembering then 2 else 1
-        each = (view_width - 32 - gap * (actions - 1)) / actions
-        if each > 190 { each = 190 }
-        x = (view_width - (each * actions + gap * (actions - 1))) / 2
-    }
+    each := view_width - 32
+    if each > 190 { each = 190 }
+    x := (view_width - each) / 2
     done := HideSeekDone(game)
-    if remembering {
-        help := Words("Show again", "Zeig nochmal", "Ver otra vez")
-        if Button(24, x, y, each, row_height, help, Eye.Shape, game.preview) { ShowAgain() }
-        x += each + gap
-    }
-    targeted := HideSeekTargeted(game)
-    label := ifx targeted then Words("Next", "Weiter", "Otro") else Words("Hide again", "Nochmal", "Otra vez")
-    if Button(23, x, y, each, row_height, label, ifx targeted then Next.Shape else Again.Shape, done) { StartRound(game.mode) }
+    label := ifx done then Words("Next", "Weiter", "Otro") else Words("Hide again", "Nochmal", "Otra vez")
+    if Button(23, x, y, each, height, label, ifx done then Next.Shape else Again.Shape, done) { StartRound() }
 }
 
 MoveFocus :: (step: s32) {
@@ -449,52 +282,39 @@ GameMain :: () -> s32 {
     view_width = cast(s32)(bounds.width / view_scale); view_height = cast(s32)(bounds.height / view_scale)
     BookPalette(); BookBox(0, 0, view_width, view_height, 0xfffcf3ff)
     if !loaded {
-        // A missing or damaged save starts with peekaboo; a remembering
-        // round always begins with its full preview.
+        // Any earlier level, including Peekaboo and Remember saves, loads
+        // as this game with its counts; a damaged save starts fresh.
         saved_mode: s32; saved_rounds: s32; saved_remembered: s32
         if !HideSeekRead(DocumentRead(SAVE_FILE), *saved_mode, *saved_rounds, *saved_remembered) {
-            saved_mode = HIDE_PEEKABOO; saved_rounds = 0; saved_remembered = 0
+            saved_rounds = 0; saved_remembered = 0
         }
-        game = HideSeekNew(saved_mode, Seed(), saved_rounds, -1, saved_remembered)
-        scene_index = (Seed() & 0x7fffffff) % 4
-        focus_place = 0; keyboard_active = false
+        game = HideSeekNew(HIDE_FIND, Seed(), saved_rounds, -1, saved_remembered)
+        keyboard_active = false
         ResetMotion()
-        voice_name = ""
         prompt_pending = false
         loaded = true
-        BeginPreview()
         SayPrompt()
     }
-    if retro.key == KEY_ESCAPE { Hush(); preview_until = 0.0; unused Save(); GameHome(); return 0 }
+    if retro.key == KEY_ESCAPE { Hush(); unused Save(); GameHome(); return 0 }
     input := CaptureFrameInput(retro.session)
-    // A press begun during the preview belongs to that preview, even if
-    // native key-repeat events arrive after the covers close. Likewise a
-    // held pointer must release without clicking a new scene's prop.
-    input_guard = input.available && HideSeekInputGuard(input_guard, false, input.pointer.down,
+    // A held pointer or key must release before it can look in the new
+    // scene's places.
+    input_guard = input.available && HideSeekInputGuard(input_guard, input.pointer.down,
         input.pointer.released, (input.keys[KEY_ENTER] & cast(u8)FrameKeyHeld) != 0)
-    preview_guard = input.available && HideSeekInputGuard(preview_guard, game.preview, input.pointer.down,
-        input.pointer.released, (input.keys[KEY_ENTER] & cast(u8)FrameKeyHeld) != 0)
-    SettlePreview()
     advanced := completed_at >= 0.0 && HideSeekAdvanceReady(game, retro.now - completed_at)
-    if advanced { StartRound(game.mode, true) }
+    if advanced { StartRound(true) }
     key := ifx input_guard || advanced then 0 else retro.key
     // Native repeats of a held activation must not solve the next round.
     if key == KEY_ENTER && input.available && (input.keys[KEY_ENTER] & cast(u8)FrameKeyPressed) == 0 { key = 0 }
-    if key >= 49 && key <= 51 && key - 49 != game.mode { StartRound(key - 49) }
-    if key == KEY_PAGE_UP { StartRound((game.mode + HIDE_MODES - 1) % HIDE_MODES) }
-    if key == KEY_PAGE_DOWN { StartRound((game.mode + 1) % HIDE_MODES) }
-    if key == KEY_LEFT { MoveFocus(-1) }
-    if key == KEY_RIGHT { MoveFocus(1) }
-    if key == KEY_UP { MoveFocus(-place_columns) }
-    if key == KEY_DOWN { MoveFocus(place_columns) }
-    // Space asks for help: the friends again, or the prompt again.
-    if key == 32 { if HideSeekRemembering(game) { ShowAgain() } else { SayPrompt() } }
-    if key == KEY_ENTER && !preview_guard {
-        if HideSeekDone(game) { StartRound(game.mode) }
+    if key == KEY_LEFT || key == KEY_UP { MoveFocus(-1) }
+    if key == KEY_RIGHT || key == KEY_DOWN { MoveFocus(1) }
+    if key == 32 { SayPrompt() }
+    if key == KEY_ENTER {
+        if HideSeekDone(game) { StartRound() }
         else { keyboard_active = true; LookPlace(focus_place) }
     }
     SayQueued()
-    controls_height: s32 = ifx ControlRows() == 2 then 124 else 66
+    controls_height: s32 = 66
     controls_y := view_height - controls_height - 12
     prompt_height: s32 = 64
     Prompt(10, prompt_height)

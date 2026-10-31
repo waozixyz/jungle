@@ -120,6 +120,7 @@ main :: () -> s32 {
         shaker := DrumsRoomPlace(2, room); tamb := DrumsRoomPlace(7, room)
         if guitar.edge * 10 < big.edge * 14 || shaker.edge * 10 > big.edge * 4 { return 48 }
         if tamb.y < room.room_top + room.room_height / 2 { return 49 }
+        if !room.wide && big.y < room.room_top + room.room_height / 2 { return 92 }
         copy_room := DrumsRoomLayout(widths[i], heights[i], true)
         if copy_room.room_top != 112 || (mode == 0 && (room.room_top != 60 || copy_room.room_height >= room.room_height)) { return 90 }
         for pad: cast(s32)2..3 {
@@ -128,6 +129,16 @@ main :: () -> s32 {
             if shelf.y != picture.y + picture.edge * base / 100 { return 45 }
             if shelf.x > picture.x + picture.edge / 2 || shelf.x + shelf.edge < picture.x + picture.edge / 2 { return 46 }
             if DrumsLabelY(pad, picture) < shelf.y + 6 { return 47 }
+            window := DrumsRoomWindow(room)
+            if window.x < 9 || window.y < room.room_top + 1 ||
+                window.x + window.width > room.width - 9 ||
+                window.y + window.height > room.room_top + room.room_height - 1 { return 94 }
+            shelf_width := shelf.edge + 10
+            shelf_height := shelf_width / 3
+            shelf_top := shelf.y - shelf_height * 140 / 724
+            shelf_bottom := shelf.y + shelf_height * 447 / 724
+            if shelf_bottom > window.y && shelf_top < window.y + window.height &&
+                shelf.x + shelf_width > window.x && shelf.x - 5 < window.x + window.width { return 93 }
         }
     }
     }

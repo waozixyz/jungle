@@ -107,11 +107,11 @@ NAMES = LEGACY_NAMES + tuple(UNIQUE["words"])
 # A changed label records its speech under a new name; old recordings stay intact.
 PENDING_MEDIA = tuple(UNIQUE["words"]) + tuple(UNIQUE["voice_stems"])
 BOOK_GROUPS = (
-    ("Animals", ("jungle", "farm", "birds", "water-animals")),
-    ("Nature", ("garden", "nature", "seasons", "weather", "beach", "gardening")),
+    ("Animals", ("jungle", "farm", "birds", "water-animals", "desert-animals")),
+    ("Nature", ("garden", "nature", "seasons", "weather", "beach", "gardening", "insects")),
     ("Food", ("fruits", "vegetables", "breakfast", "lunch", "dinner", "tropical-fruits", "drinks")),
     ("Home", ("kitchen", "bathroom", "bedroom", "living-room", "toys", "vehicles", "bedtime", "vacation", "school")),
-    ("Family", ("family", "body", "clothing", "sports", "feelings", "actions")),
+    ("Family", ("family", "body", "clothing", "sports", "feelings", "actions", "people-at-work")),
 )
 
 

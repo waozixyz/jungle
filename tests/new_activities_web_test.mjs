@@ -79,10 +79,10 @@ try{
   throw Error(description);
  }
  await command('Runtime.enable');await command('Page.enable');
- await command('Page.addScriptToEvaluateOnNewDocument',{source:`window.drumsAudio=[];window.drumsPlayed=[];window.drumsClicks=[];
+ await command('Page.addScriptToEvaluateOnNewDocument',{source:`window.drumsAudio=[];window.drumsPlayed=[];window.drumsClicks=[];window.jungleVoices=[];
  document.addEventListener('click',event=>{const label=event.target.getAttribute?.('aria-label');if(label)drumsClicks.push({label,detail:event.detail})},true);
  const originalPlay=HTMLMediaElement.prototype.play;
- HTMLMediaElement.prototype.play=function(){const result=originalPlay.apply(this,arguments),path=this.junglePath;
+ HTMLMediaElement.prototype.play=function(){const result=originalPlay.apply(this,arguments),path=this.junglePath;if(path)jungleVoices.push(path);
   if(path?.startsWith('assets/drums/sounds/')){drumsAudio.push(path);Promise.resolve(result).then(()=>setTimeout(()=>drumsPlayed.push({path,ok:!this.paused&&!this.muted&&this.volume>0&&this.currentTime>0&&this.readyState>=2,volume:this.volume,time:this.currentTime,duration:this.duration}),100)).catch(error=>drumsPlayed.push({path,ok:false,error:String(error)}))}
   return result;
  };`});
@@ -187,35 +187,57 @@ assert ImageChops.difference(board(f'tutorial-{width}-{mode}-1'),board(f'tutoria
     if(outlined.length)throw Error('Hiding places still have focus rectangles '+JSON.stringify(outlined));
    }
 
-   const state=async()=>{const text=(await saved(name))[0];return text?text.trim().split(/\s+/).slice(2).map(Number):[0,0,0]};
-   // Actual grounded scene coordinates, with two/three Peekaboo places and
-   // four Remember places. No hidden target or game state is injected.
-   function placePoint(count,index){
-    const w=376,h=468,columns=2,column=index%columns,row=Math.trunc(index/columns),slot=Math.trunc(w/columns);
-    let cx=slot*column+Math.trunc(slot/2),ground=Math.trunc(h*(column%2===0?82:90)/100),limit=Math.trunc(h*.55);
-    if(count>2){ground=Math.trunc(h*(row===0?53:92)/100);cx+=row===0?-Math.trunc(slot/16):Math.trunc(slot/16);limit=Math.trunc(h*.27)}
-    const size=Math.min(Math.trunc(slot*.64),limit,230,Math.trunc((ground-12)*100/160));
-    return [12+cx,56+84+ground-size*.45];
+   const state=async()=>{const text=(await saved(name))[0];return text?text.trim().split(/\s+/).slice(2).map(Number):[1,0,0]};
+   const voices=async()=>evaluate('jungleVoices.splice(0)');
+   const prompt='assets/hide_seek/sounds/'+language+'/peekaboo.wav';
+   const answers=['in','behind','under','up'].map(cue=>'assets/hide_seek/sounds/'+language+'/'+cue+'.wav');
+   // Only the generic prompt and a found friend's place are ever spoken:
+   // never a friend's name, and never a hint toward where one hides.
+   const spoken=async()=>{const heard=await voices();if(heard.some(path=>path!==prompt&&!answers.includes(path)))throw Error('Hide & Seek spoke a name or hint '+JSON.stringify(heard));return heard};
+   const picture=async()=>(await command('Page.captureScreenshot',{format:'png'})).data;
+   await delay(600);await spoken();
+   const start=await state();
+   // Every friend starts fully hidden: a still scene before any look.
+   const still=await picture();await delay(900);
+   if(await picture()!==still)throw Error('A hiding place moved or peeked before any look');
+   // Look at each place by keyboard. An empty place stays silent and shows
+   // nothing once its wiggle and note settle; a found friend is answered
+   // once with its place. A finished round moves on by itself.
+   let found=0,advanced=false;
+   for(let place=0;place<3&&!advanced;place++){
+    if(place)await key('ArrowRight');
+    const before=await state(),shot=await picture();
+    await key('Enter');
+    const now=await state(),heard=await spoken();
+    if(now[0]!==1||now[2]!==start[2])throw Error('Hide & Seek changed level or old counts '+now);
+    if(now[1]===before[1]+1){
+     found++;
+     if(heard.length!==1||!answers.includes(heard[0]))throw Error('Found friend was not answered once with its place '+JSON.stringify(heard));
+     const until=Date.now()+4500;
+     while(Date.now()<until&&!advanced){await delay(200);if((await spoken()).includes(prompt))advanced=true}
+    }else if(now[1]===before[1]){
+     if(heard.length)throw Error('An empty place spoke '+JSON.stringify(heard));
+     await delay(2000);
+     if(await picture()!==shot)throw Error('An empty place revealed or hinted at something');
+    }else throw Error('One look counted twice '+now);
    }
-   for(const count of [2,3]){
-    if((await state())[0]!==0)break;
-    for(let i=0;i<count;i++)await click(...placePoint(count,i));
-   }
-   const findDeadline=Date.now()+6000;
-   while((await state())[0]===0&&Date.now()<findDeadline)await delay(100);
-   if((await state())[0]!==1)throw Error('Peekaboo did not continue to Find');
-   for(let i=0;i<2;i++)await click(...placePoint(2,i));
-   const deadline=Date.now()+6000;
-   while((await state())[0]!==2&&Date.now()<deadline)await delay(100);
-   const before=await state();if(before[0]!==2||before[1]!==1)throw Error('Find did not continue to Remember '+before);
+   if(!found||!advanced)throw Error('Hide & Seek round never completed and moved on '+found);
+   if((await state())[1]!==start[1]+found)throw Error('Found friends were not counted '+(await state()));
+   // A held Enter looks once at most; its repeats never solve the round.
+   const held=await state();
    await command('Input.dispatchKeyEvent',{type:'keyDown',key:'Enter',windowsVirtualKeyCode:13});
-   await delay(4200);
+   await delay(600);
    for(let i=0;i<4;i++)await key('ArrowRight');
-   if(JSON.stringify(await state())!==JSON.stringify(before))throw Error('Held preview activation leaked into Remember');
+   const after=await state();
    await command('Input.dispatchKeyEvent',{type:'keyUp',key:'Enter',windowsVirtualKeyCode:13});await delay(200);
-   for(let i=0;i<4;i++)await click(...placePoint(4,i));
-   const after=await state();if(after[0]!==2||after[2]!==before[2]+1)throw Error('Remember did not accept one fresh answer '+after);
-   console.log('local Peekaboo '+page+' '+language+': grounded places, automatic levels, held-key preview guard and fresh answer passed');
+   if(after[0]!==1||after[1]-held[1]>1||after[2]!==held[2])throw Error('Held Enter looked more than once '+after);
+   await spoken();
+   // The one action, Hide again, moves to a new scene and keeps the counts.
+   const counts=await state(),scene=await picture();
+   await click(200,56+655);await delay(400);
+   if(JSON.stringify(await state())!==JSON.stringify(counts)||await picture()===scene)throw Error('Hide again did not start a new scene');
+   if(!(await spoken()).includes(prompt))throw Error('A new scene did not ask who is hiding');
+   console.log('local Hide & Seek '+page+' '+language+': hidden until found, silent empty places, place-only answers, automatic next scene, held Enter and Hide again passed');
   }
   if(name==='drums'){
    const names={en:['Big drum','Little drum','Shaker','Bell','Xylophone','Guitar','Cymbal','Tambourine'],de:['Große Trommel','Kleine Trommel','Rassel','Glocke','Xylofon','Gitarre','Becken','Tamburin'],es:['Tambor grande','Tambor pequeño','Sonajero','Campana','Xilófono','Guitarra','Platillo','Pandereta']}[language];
@@ -236,6 +258,14 @@ assert ImageChops.difference(board(f'tutorial-{width}-{mode}-1'),board(f'tutoria
     const w=Math.trunc(width/scale),h=Math.trunc(body/scale),roomWide=w>h,sw=roomWide?800:400,sh=roomWide?410:624;
     const available=h-68,fit=Math.min(Math.trunc((w-24)*1000/sw),Math.trunc(available*1000/sh)),left=Math.trunc((w-Math.trunc(sw*fit/1000))/2),top=60+Math.trunc((available-Math.trunc(sh*fit/1000))/2),prefix=roomWide?'LANDSCAPE':'PORTRAIT';
     const places=sounds.map((_,i)=>({x:left+Math.trunc(positions[prefix+'_X'][i]*fit/1000),y:top+Math.trunc(positions[prefix+'_Y'][i]*fit/1000),edge:Math.trunc(positions[prefix+'_EDGE'][i]*fit/1000)}));
+    if(!roomWide){
+     const artFit=Math.trunc(Math.max(w-18,available-2)*1000/1254),artY=61+Math.trunc((available-2-Math.trunc(1254*artFit/1000))/2);
+     const windowBottom=Math.min(60+available-1,artY+Math.trunc(60*artFit/1000)+Math.trunc(310*artFit/1000));
+     for(const [pad,base] of [[2,91],[3,95]]){
+      const p=places[pad],shelfHeight=Math.trunc((Math.trunc(p.edge*8/10)+10)/3);
+      p.y=Math.max(p.y,windowBottom+12+Math.trunc(shelfHeight*140/724)-Math.trunc(p.edge*base/100));
+     }
+    }
     const point=(x,y)=>({x:x*scale,y:56+y*scale});
     async function tap(p){if(!touch)return click(p.x,p.y);await command('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[p]});await delay(80);await command('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});await delay(180)}
     if(Math.max(...places.map(p=>p.y))-Math.min(...places.map(p=>p.y))<110)throw Error('Music room collapsed into a row');
@@ -266,7 +296,7 @@ assert ImageChops.difference(board(f'tutorial-{width}-{mode}-1'),board(f'tutoria
   if(name==='matching'&&before[0].trim().split(' ').slice(9,13).filter(x=>x==='1').length!==2)throw Error('Matching pair failed '+before);
   if(name==='garden'&&!before[0].startsWith('garden 1 5 '))throw Error('Garden touches failed '+before);
   if(name==='shapes'&&(!before[0].startsWith('shapes 1 2 ')||Number(before[0].trim().split(' ')[8])<=1))throw Error('Shapes mode failed '+before);
-  if(name==='hide_seek'&&!before[0].startsWith('hideseek 2 2 1 1'))throw Error('Hide mode failed '+before);
+  if(name==='hide_seek'&&!/^hideseek 2 1 [1-9]\d* 0\n?$/.test(before[0]))throw Error('Hide & Seek save failed '+before);
   await open(title);await key('Escape');
   if(JSON.stringify(await saved(name))!==JSON.stringify(before))throw Error('Browser resume changed '+name);
   await open(title);
