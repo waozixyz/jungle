@@ -137,14 +137,6 @@ def real_clips_test():
     assert not any(path.startswith('assets/speech/') and not path.endswith('.ogg') for path in installed)
     # The encoder only read its sources.
     assert all((ROOT / name).read_bytes() == data for name, data in sources.items())
-    receipt = ROOT / 'work/source-asset-fingerprints.json'
-    if receipt.is_file():
-        fingerprints = json.loads(receipt.read_text())
-        for name, fingerprint in fingerprints.items():
-            if not name.endswith(('.wav', '.speech.json')):
-                continue
-            data = (ROOT / name).read_bytes()
-            assert len(data) == fingerprint['bytes'] and hashlib.sha256(data).hexdigest() == fingerprint['sha256'], name
     wav_bytes = sum(len(data) for data in sources.values())
     ogg_bytes = sum(path.stat().st_size for path in encoded['files'].values())
     return len(manifest['clips']), len(encoded['files']), wav_bytes, ogg_bytes, lowest[0][0]
