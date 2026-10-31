@@ -6,6 +6,10 @@ import vm from 'node:vm';
 import {deflateRawSync} from 'node:zlib';
 import {resolve,join} from 'node:path';
 const root=resolve(process.env.JUNGLE_WEB_ROOT||'build/web');
+// Both editions ship the same composed-speech index and Ogg clips. Compare
+// against the native payload, which travels with the frozen CI build, rather
+// than the encoder's disposable work cache on the original build machine.
+const app=resolve(process.env.JUNGLE_APP_ROOT||'build/app');
 vm.runInThisContext(await readFile('web/asset-packs.js','utf8'));
 // Tiny ordinary ZIP fixture: exercise both native formats independently of the
 // existing distribution, including Chrome 101's constructor-present rejection.
@@ -46,10 +50,10 @@ for(const path of paths){
  const actual=await loader.read(path);
  let source=path;
  if(path.startsWith('assets/animal-count/pictures/'))source=path.replace('assets/animal-count/pictures/','assets/jungle-book/counting/');
- else if(path==='assets/speech.txt')source='work/web-speech/speech.txt';
+ else if(path==='assets/speech.txt')source=join(app,path);
  else if(path.startsWith('assets/speech/')){
   assert.match(path,/^assets\/speech\/(?:en|de|es)\/[0-9a-f]{64}\.ogg$/);
-  source=path.replace('assets/speech/','work/speech-codec/');
+  source=join(app,path);
  }
  const entry=manifest.files[path],original=await readFile(source);
  if(entry.encoding==='webp'){
