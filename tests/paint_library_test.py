@@ -507,12 +507,51 @@ def responsive_scenes(data):
             actual = desktop.capture_actual('responsive-scenes')
             assert actual.size == size
             rects = scene_layout(desktop)
-            boxes = sum(rects.values(), [])
+            boxes = rects['category'] + rects['previous'] + rects['next']
             for i, (x, y, w, h) in enumerate(boxes):
                 assert w >= 44 and h >= 44, ('small scene target', size)
                 assert 0 <= x < x + w <= size[0] and 56 <= y < y + h <= size[1]
                 for a, b, c, d in boxes[i+1:]:
                     assert x + w <= a or a + c <= x or y + h <= b or b + d <= y
+            view_y, view_height, view_width = rects['viewport']
+            assert 56 <= view_y and view_y + view_height <= size[1]
+            assert view_width >= 44 and view_height >= 80
+            view_left, view_right = rects['tile'][0][0], rects['tile'][-1][0] + rects['tile'][-1][2]
+            scroll = rects['scroll']
+            for i, (x, y, w, h) in enumerate(rects['tile']):
+                assert w >= 44 and h >= 80, ('small scene card', size, i)
+                assert 0 <= x < x + w <= size[0]
+                for a, b, c, d in rects['tile'][i+1:]:
+                    assert x + w <= a or a + c <= x or y + h <= b or b + d <= y
+                offsets = range(scroll['max'] + 1)
+                assert any(view_y <= y - offset and y - offset + h <= view_y + view_height
+                           for offset in offsets), ('unreachable scene card', size, i)
+            for x, y, w, h in boxes:
+                assert (y + h <= view_y or view_y + view_height <= y or
+                        x + w <= view_left or view_right <= x), 'fixed control overlaps clipped grid'
+            if scroll['max']:
+                assert scroll['content_height'] > view_height
+                for _ in range(2):
+                    scene_click(desktop, 'next')
+                saved = choices(folder)
+                before_scroll = desktop.capture_actual('responsive-scenes-grid-before')
+                scroll_x = (view_left + view_right) // 2
+                run(['xdotool', 'mousemove', '--window', desktop.window,
+                     str(scroll_x), str(view_y + view_height // 2),
+                     'click', '--repeat', '50', '--delay', '15', '5'], desktop.env)
+                time.sleep(.3)
+                scrolled = desktop.capture_actual('responsive-scenes-grid-scroll')
+                assert before_scroll.crop((view_left, view_y, view_right, view_y + view_height)).tobytes() != \
+                    scrolled.crop((view_left, view_y, view_right, view_y + view_height)).tobytes(), \
+                    'scene grid scroll did not move clipped cards'
+                scene_click(desktop, 'tile', 5, scroll_offset=scroll['max'])
+                assert choices(folder) == saved, 'scrolled phantom scene hit the footer'
+                run(['xdotool', 'mousemove', '--window', desktop.window,
+                     str(scroll_x), str(view_y + view_height // 2),
+                     'click', '--repeat', '50', '--delay', '15', '4'], desktop.env)
+                time.sleep(.3)
+                for _ in range(2):
+                    scene_click(desktop, 'previous')
             for category, name in enumerate(('nature', 'places', 'adventures')):
                 scene_click(desktop, 'category', category)
                 scene_click(desktop, 'previous')  # first page or inactive
@@ -531,17 +570,27 @@ def responsive_scenes(data):
                 scene_click(desktop, 'next')
                 assert choices(folder) == saved, 'Next active on final scene page'
                 if count % 6:
-                    scene_click(desktop, 'tile', 5)
+                    if scroll['max']:
+                        run(['xdotool', 'mousemove', '--window', desktop.window,
+                             str((view_left + view_right) // 2),
+                             str(view_y + view_height // 2),
+                             'click', '--repeat', '50', '--delay', '15', '5'], desktop.env)
+                        time.sleep(.3)
+                    scene_click(desktop, 'tile', 5, scroll_offset=scroll['max'])
                     assert choices(folder) == saved, 'phantom scene tile selected'
             scene_click(desktop, 'category', 0)
         # Even a very short landscape retains full-size targets via page scroll.
         desktop.resize(844, 280)
         desktop.capture_actual('responsive-scenes-short')
+        short = scene_layout(desktop)
+        page = short['page_scroll']
+        assert page['content_height'] == 500 and page['max'] == 276
+        next_x, next_y, next_w, next_h = short['next'][0]
+        assert next_y + next_h - page['max'] >= 56
         run(['xdotool', 'mousemove', '--window', desktop.window, '400', '180',
              'click', '--repeat', '35', '--delay', '15', '5'], desktop.env)
         time.sleep(.3)
-        # Content bottom is 500, viewport is 224: footer center is 242.
-        desktop.click_actual(700, 242)
+        desktop.click_actual(next_x + next_w // 2, next_y + next_h // 2 - page['max'])
         assert choices(folder)[6] == 1, 'short landscape footer not reachable'
         desktop.resize(390, 844)
         desktop.capture_actual('responsive-scenes-resize')

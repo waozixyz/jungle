@@ -197,6 +197,9 @@ assert ImageChops.difference(board(f'tutorial-{width}-{mode}-1'),board(f'tutoria
    // never a friend's name, and never a hint toward where one hides.
    const spoken=async()=>{const heard=await voices();if(heard.some(path=>path!==prompt&&!answers.includes(path)))throw Error('Hide & Seek spoke a name or hint '+JSON.stringify(heard));return heard};
    const picture=async()=>(await command('Page.captureScreenshot',{format:'png'})).data;
+   // The prompt deliberately says to keep looking after an empty look.
+   // Compare the hiding scene itself, where every friend must stay hidden.
+   const scenePicture=async()=>(await command('Page.captureScreenshot',{format:'png',clip:{x:12,y:140,width:376,height:526,scale:1}})).data;
    await delay(600);await spoken();
    const start=await state();
    // Every friend starts fully hidden: a still scene before any look.
@@ -208,7 +211,7 @@ assert ImageChops.difference(board(f'tutorial-{width}-{mode}-1'),board(f'tutoria
    let found=0,advanced=false;
    for(let place=0;place<3&&!advanced;place++){
     if(place)await key('ArrowRight');
-    const before=await state(),shot=await picture();
+    const before=await state(),shot=await scenePicture();
     await key('Enter');
     const now=await state(),heard=await spoken();
     if(now[0]!==1||now[2]!==start[2])throw Error('Hide & Seek changed level or old counts '+now);
@@ -220,7 +223,14 @@ assert ImageChops.difference(board(f'tutorial-{width}-{mode}-1'),board(f'tutoria
     }else if(now[1]===before[1]){
      if(heard.length)throw Error('An empty place spoke '+JSON.stringify(heard));
      await delay(2000);
-     if(await picture()!==shot)throw Error('An empty place revealed or hinted at something');
+     const after=await scenePicture();
+     if(after!==shot){
+      const prefix='backup/new-activities-web/'+page+'-'+language+'-empty-place';
+      await writeFile(prefix+'-before.png',Buffer.from(shot,'base64'));
+      await writeFile(prefix+'-after.png',Buffer.from(after,'base64'));
+      await writeFile(prefix+'-screen.png',Buffer.from(await picture(),'base64'));
+      throw Error('An empty place revealed or hinted at something');
+     }
     }else throw Error('One look counted twice '+now);
    }
    if(!found||!advanced)throw Error('Hide & Seek round never completed and moved on '+found);
