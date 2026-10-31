@@ -1,4 +1,4 @@
-"""Build Jungle's native DOM default and its Canvas comparison edition."""
+"""Build Jungle's WebAssembly Canvas and DOM browser editions."""
 import os
 import json
 import re
@@ -32,11 +32,11 @@ def write_pages(out, revision):
                 lambda match:match[1]+match[2]+'?v='+revision+match[3],html)
     html=re.sub(r'((?:src|href)=\")/(?!/)',r'\1',html)
     (out/'index.html').write_text(html)
-    # Keep the old DOM URL and every renderer on the same canonical app URL.
-    (out/'dom.html').write_text(html)
-    canvas_html=html.replace(' data-backend="dom"',' data-backend="canvas"')
-    canvas_html=canvas_html.replace('src="jungle-dom.js?','src="jungle.js?')
-    (out/'canvas.html').write_text(canvas_html)
+    # Each explicit renderer URL keeps its identity when the default changes.
+    for backend,runtime in (('dom','jungle-dom.js'),('canvas','jungle.js')):
+        profile=re.sub(r' data-backend="(?:dom|canvas)"',f' data-backend="{backend}"',html,count=1)
+        profile=re.sub(r'src="jungle(?:-dom)?\.js\?',f'src="{runtime}?',profile,count=1)
+        (out/(backend+'.html')).write_text(profile)
 
 
 def build(out):

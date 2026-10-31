@@ -3,7 +3,7 @@
 import argparse
 from collections import defaultdict
 from datetime import datetime, timezone
-import html
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -35,29 +35,58 @@ def aggregate(runs):
         row['runs'] = len(samples)
         for key, value in samples[0].items():
             values = [sample[key] for sample in samples]
-            if isinstance(value, (int,float)) and all(v is not None for v in values):
-                row[key] = statistics.mean(values)
-                if key in ('cpu_percent','mean_rss_mib','raf_p95_ms'):
+            if isinstance(value, bool):
+                row[key] = all(values)
+            elif isinstance(value, (int,float)) and all(v is not None for v in values):
+                row[key] = statistics.median(values)
+                if key in ('cpu_percent','mean_rss_mib','mean_pss_mib','raf_p95_ms'):
                     row[key+'_min'] = min(values)
                     row[key+'_max'] = max(values)
                     row[key+'_stdev'] = statistics.stdev(values) if len(values)>1 else 0
             elif key not in row and value is None:
                 row[key] = None
+            elif isinstance(value, str) and len(set(values)) == 1:
+                row[key] = value
         rows.append(row)
     return rows
+
+
+def fingerprints(root):
+    """Bounded reads identify the frozen artifacts, including uncommitted fixes."""
+    result = {}
+    for name in ('version.json','canvas.html','dom.html','jungle.js','jungle-dom.js','jungle.wasm','jungle-dom.wasm'):
+        digest = hashlib.sha256()
+        with (root/name).open('rb') as source:
+            for chunk in iter(lambda:source.read(1024*1024), b''):
+                digest.update(chunk)
+        result[name] = digest.hexdigest()
+    return result
+
+
+def validate_pair(canvas, dom, seconds):
+    keyed = lambda run: {(r['viewport'],r['activity'],r['phase']):r for r in run['results']}
+    left, right = keyed(canvas), keyed(dom)
+    assert len(left) == len(right) == 32 and left.keys() == right.keys(), 'Incomplete backend comparison'
+    for identity, c in left.items():
+        d = right[identity]
+        expected = max(1,int(seconds)) if c['phase'] == 'active' else 0
+        assert c['actions'] == d['actions'] == expected, f'Unequal workload: {identity}'
+        if c['activity'] == 'coloring' and c['phase'] == 'active':
+            assert c['picture_pixels_changed'] and d['picture_pixels_changed'], 'No coloring edit'
+            assert c['picture_sha256'] == d['picture_sha256'], f'Different coloring results: {identity}'
 
 
 def markdown_report(payload):
     lines = ['# Jungle Canvas / DOM performance', '',
         f"{payload['runs_per_backend']} runs per backend, {payload['seconds_per_phase']} seconds per phase, desktop 960×600 and phone 390×844. Every activity has idle and active samples.", '',
-        payload['method'], '', 'CPU is percent of one logical core; 100% means one full core. Aggregate RSS includes shared pages once per process; PSS apportions shared pages. rAF p95 measures browser animation callback cadence, not application rendering FPS.', '',
+        payload['method'], '', 'Values are medians across repeated runs. CPU is percent of one logical core; 100% means one full core. Aggregate RSS includes shared pages once per process; PSS apportions shared pages. rAF p95 measures browser animation callback cadence, not application rendering FPS.', '',
         '| Viewport | Activity | Phase | Backend | CPU % | RSS MiB | PSS MiB | JS heap MiB | rAF p95 ms | Long tasks |',
         '|---|---|---|---|---:|---:|---:|---:|---:|---:|']
     for row in payload['results']:
         f=lambda k: 'unknown' if row.get(k) is None else f"{row[k]:.1f}"
         lines.append('| '+' | '.join((row['viewport'],row['activity'],row['phase'],row['backend'],*(f(k) for k in ('cpu_percent','mean_rss_mib','mean_pss_mib','js_heap_mib','raf_p95_ms','long_tasks'))))+' |')
     means={backend:statistics.mean(r['cpu_percent'] for r in payload['results'] if r['backend']==backend and r['phase']=='active') for backend in ('canvas','dom')}
-    lines += ['',f"CPU ratio DOM/Canvas (mean across active activities and viewports): {means['dom']/max(means['canvas'],.01):.2f}×.",'','The DOM edition uses native positioned HTML text, buttons, images and CSS. Canvas tiles are reserved for custom drawing, texture effects and icons. Both editions run the same Jungle app logic. The complete raw results, sample ranges, browser version and machine details are in performance.json.','']
+    lines += ['',f"CPU ratio DOM/Canvas (mean of per-case medians across active activities and viewports): {means['dom']/max(means['canvas'],.01):.2f}×.",'','The DOM edition uses native positioned HTML text, buttons, images and CSS. Canvas tiles are reserved for custom drawing, texture effects and icons. Both editions run the same Jungle app logic. The complete raw results, sample ranges, browser version and machine details are in performance.json.','']
     return '\n'.join(lines)
 
 
@@ -69,7 +98,7 @@ def html_report(payload):
 <label>Viewport<select id="viewport"><option>desktop</option><option>phone</option></select></label>
 <label>Workload<select id="phase"><option>active</option><option>idle</option></select></label>
 <div class="wrap"><table><thead><tr><th>Activity</th><th>Canvas CPU %</th><th>DOM CPU %</th><th>Canvas RAM PSS MiB</th><th>DOM RAM PSS MiB</th><th>Canvas rAF p95 ms</th><th>DOM rAF p95 ms</th><th>DOM native text / buttons / images</th></tr></thead><tbody id="rows"></tbody></table></div>
-<p><small>CPU100% = one logical core. RAM uses proportional set size (PSS), which apportions shared pages; aggregate RSS is also available in the JSON and Markdown report. rAF is browser callback cadence, not actual application render FPS. Values are means; JSON includes run ranges and standard deviations. Software graphics in private headless Chromium do not predict hardware-accelerated phone performance.</small></p>
+<p><small>CPU100% = one logical core. RAM uses proportional set size (PSS), which apportions shared pages; aggregate RSS is also available in the JSON and Markdown report. rAF is browser callback cadence, not actual application render FPS. Values are medians; JSON includes run ranges and standard deviations. Software graphics in private headless Chromium do not predict hardware-accelerated phone performance.</small></p>
 <details><summary>Method, environment and raw results</summary><pre id="environment"></pre><p><a href="performance.json">Download complete JSON</a> · <a href="performance-report.md">Markdown report</a></p></details>
 <script>const data='''+data+''';const sourceLink=document.getElementById('source'),methodText=document.getElementById('method'),summaryText=document.getElementById('summary'),environmentText=document.getElementById('environment'),viewSelect=document.getElementById('viewport'),phaseSelect=document.getElementById('phase'),rowsBody=document.getElementById('rows');sourceLink.href='https://github.com/waozixyz/jungle/commit/'+data.build.revision;sourceLink.textContent='Jungle '+data.build.version+' · tested source revision';methodText.textContent=data.method;summaryText.textContent=data.runs_per_backend+' runs per backend · '+data.seconds_per_phase+' seconds per phase · '+data.results.length+' activity / viewport / phase / backend comparisons';environmentText.textContent=JSON.stringify(data.environment,null,2);function render(){const subset=data.results.filter(r=>r.viewport===viewSelect.value&&r.phase===phaseSelect.value);rowsBody.replaceChildren();for(const name of [...new Set(subset.map(r=>r.activity))]){const c=subset.find(r=>r.activity===name&&r.backend==='canvas'),d=subset.find(r=>r.activity===name&&r.backend==='dom');if(!c||!d)continue;const tr=document.createElement('tr');for(const value of [name,c.cpu_percent.toFixed(1),d.cpu_percent.toFixed(1),c.mean_pss_mib?.toFixed(1),d.mean_pss_mib?.toFixed(1),c.raf_p95_ms?.toFixed(1),d.raf_p95_ms?.toFixed(1),[d.native_text_nodes,d.native_buttons,d.native_images].map(Math.round).join(' / ')]){const td=document.createElement('td');td.textContent=value??'unknown';tr.append(td)}rowsBody.append(tr)}}viewSelect.onchange=phaseSelect.onchange=render;render();</script>'''
 
@@ -83,17 +112,22 @@ def main():
     args=parser.parse_args()
     assert args.runs>=1 and args.seconds>=1
     args.output.mkdir(parents=True,exist_ok=True)
+    artifacts=fingerprints(args.root)
     runs=[]
     for index in range(args.runs):
+        pair={}
         # Alternate the backend order to reduce warm-up and order bias.
         for backend in (('canvas','dom') if index%2==0 else ('dom','canvas')):
             subprocess.run(['node','tests/web_performance_test.mjs','--root',str(args.root),'--backend',backend,'--seconds',str(args.seconds),'--output',str(args.output)],cwd=ROOT,env=browser_environment(),check=True)
             run=json.loads((args.output/f'performance-{backend}.json').read_text())
+            assert artifacts == fingerprints(args.root), 'Tested build changed during measurement'
             (args.output/f'performance-{backend}-run-{index+1}.json').write_text(json.dumps(run,indent=2)+'\n')
             runs.append(run)
+            pair[backend]=run
+        validate_pair(pair['canvas'],pair['dom'],args.seconds)
     first=runs[0]
-    payload={'build':first['build'],'runtime_sizes':{r['backend']:r['runtime'] for r in runs},'generated_utc':datetime.now(timezone.utc).isoformat(),'generated_unix':time.time(),'runs_per_backend':args.runs,'seconds_per_phase':args.seconds,'method':first['method'],'environment':{k:first[k] for k in ('browser','os','cpu_model','logical_cpus','host_ram_gib','flags')},'results':aggregate(runs)}
-    for directory in (args.output,args.root):
+    payload={'build':first['build'],'build_artifacts_sha256':artifacts,'aggregation':'median across repeated runs','runtime_sizes':{r['backend']:r['runtime'] for r in runs},'generated_utc':datetime.now(timezone.utc).isoformat(),'generated_unix':time.time(),'runs_per_backend':args.runs,'seconds_per_phase':args.seconds,'method':first['method'],'environment':{k:first[k] for k in ('browser','os','cpu_model','logical_cpus','host_ram_gib','flags')},'results':aggregate(runs)}
+    for directory in (args.output, args.root):
         (directory/'performance.json').write_text(json.dumps(payload,indent=2)+'\n')
         (directory/'performance-report.md').write_text(markdown_report(payload))
         (directory/'performance.html').write_text(html_report(payload))
