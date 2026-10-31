@@ -268,7 +268,7 @@ async function run(input){
    await command('Page.reload',{ignoreCache:true});await ready(previous);await openPaint();
   }
   const pendingButton=place=>{const c=layout.canvas,bw=Math.min(140,Math.max(44,Math.floor((c.w-18)/2))),x=c.x+Math.floor((c.w-bw*2-6)/2);return {x:x+(place?bw+6:0)+bw/2,y:c.y+c.h-26}};
-  async function resizePending(index,target){
+  async function resizePending(index,target,{exact=true}={}){
    const values=(await text('/kryon-apps/jungle/jungle.paint/choices.txt')).split('\n')[1];
    const width=stencilWidths[index*4+CODES.indexOf(values[3])-1],fullW=stencilWidths[index*4+3],fullH=stencilHeights[index*4+3],c=layout.canvas;
    if(width===target)return;
@@ -284,7 +284,7 @@ async function run(input){
    for(let dy=-4;dy<=4;dy++)for(let dx=-4;dx<=4;dx++){
     const point={x:Math.round(goal.x)+dx,y:Math.round(goal.y)+dy};
     const resized=width*Math.hypot(point.x-center.x,point.y-center.y)/distance;
-    if(Math.floor(resized)===target&&Math.abs(resized-target-.5)<score){end=point;score=Math.abs(resized-target-.5)}
+    if((!exact||Math.floor(resized)===target)&&Math.abs(resized-target-.5)<score){end=point;score=Math.abs(resized-target-.5)}
    }
    if(!end)throw Error(label+': no integer resize endpoint for width '+target);
    await press(corner);await move(end);await lift(end);await frames(4);
@@ -535,7 +535,8 @@ async function run(input){
   await tap(await control('Objects',stencil.category(3)));await stable('Objects');
   await tap(await control('Next',stencil.next));await stable('new object stencils');
   await tap(await control('Ball',stencil.tile(0)));await stable('Ball placement');
-  await resizePending(42,stencilWidths[42*4+3]);
+  // This case checks the remembered Huge preset; no object is committed.
+  await resizePending(42,stencilWidths[42*4+3],{exact:false});
   await tool(6,'Mirror');await frames(8);
   const choiceFile=namespace+'choices.txt',choices=await text(choiceFile),values=choices?.split('\n')[1];
   if(!values||CODES.indexOf(values[0])!==43||CODES.indexOf(values[1])!==3||CODES.indexOf(values[2])!==1||CODES.indexOf(values[3])!==4)throw Error(label+': stencil choices were not saved');
