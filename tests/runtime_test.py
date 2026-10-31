@@ -12,7 +12,9 @@ import time
 
 
 ROOT = Path(__file__).resolve().parents[1]
-OUTPUT = ROOT / "build/tests/ui"
+# CI validation runs groups concurrently, each with its own capture folder.
+OUTPUT = (Path(os.environ["JUNGLE_TEST_OUTPUT"]).resolve()
+          if os.environ.get("JUNGLE_TEST_OUTPUT") else ROOT / "build/tests/ui")
 
 
 def environment():
@@ -75,7 +77,7 @@ class Desktop:
             ready, _, _ = select.select([readfd], [], [], 10)
             assert ready, "private Xvfb did not become ready"
             number = os.read(readfd, 32).decode().strip()
-            assert number.isdigit(), "private Xvfb failed; see build/tests/ui/xvfb.log"
+            assert number.isdigit(), f"private Xvfb failed; see {OUTPUT / 'xvfb.log'}"
             self.env["DISPLAY"] = ":" + number
             self.env["JUNGLE_DATA"] = str(self.data)
             # Capture approval is based on this actual owned server process,
@@ -112,7 +114,7 @@ class Desktop:
         assert b"-displayfd" in command and (self.screen_size + "x24").encode() in command
 
     def alive(self):
-        assert self.app.poll() is None, "Jungle exited; see build/tests/ui/jungle.log"
+        assert self.app.poll() is None, f"Jungle exited; see {OUTPUT / 'jungle.log'}"
 
     def key(self, key):
         run(["xdotool", "windowfocus", self.window], self.env)

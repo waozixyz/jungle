@@ -9,7 +9,8 @@ from PIL import Image
 from runtime_test import (ROOT, environment, DIGITS,
                           dinosaur_masks, picture_pixels, assert_dinosaur)
 from paint_history_test import (Desktop, changed, history, open_paint,
-                                tool, pixel_click, open_slots, stencil_click)
+                                paint_layout, tool, pixel_click, open_slots,
+                                stencil_click)
 
 WORK = ROOT / 'work/paint-layers'
 HEADER = b'JUNGLE PICTURE 3\n0e\n' + (b' ' * 38 + b'\n') * 8
@@ -132,7 +133,8 @@ def ui(language):
         print(f'local portable UI layers ({language}): erase, restart/undo, slots, preview/export and confirmed New picture passed', flush=True)
 
 
-def budget_ui():
+def budget_ui(binary: Path | None = None):
+    binary = binary or ROOT / 'build/app/jungle'
     cases = [('32-small', [(24, 1, 100, 100, 30)] * 32),
              ('large-overlap', [(0, 4, 0, 0, color) for color in (30, 50)] + [(24, 1, 300, 200, 35)] * 8),
              ('full-pixel-cap', [(14, 4, 0, 0, color) for color in (30, 50)])]
@@ -154,7 +156,7 @@ def budget_ui():
             sidecar = (b'JUNGLE UNDO 1\n' + f'{len(initial)} {fnv(initial):016x}\n8\n'.encode() +
                        (str(len(initial)).encode() + b'\n' + initial) * 8)
             (folder / 'working-undo.txt').write_bytes(sidecar)
-            with Desktop(ROOT / 'build/app/jungle', data) as desktop:
+            with Desktop(binary, data) as desktop:
                 desktop.game('Coloring Book')
                 desktop.key('Escape')
                 desktop.wait_menu('layers-budget-immediate-exit-' + name)
@@ -169,6 +171,14 @@ def budget_ui():
                     desktop.drag(72, 14, 102, 14)
                     assert working.read_bytes() == initial
                     assert (folder / 'working-undo.txt').read_bytes() == before_history, 'refused placement pushed history'
+                    canvas_x, canvas_y, canvas_w, canvas_h = paint_layout(desktop)[0]
+                    button_w = max(44, min(140, (canvas_w - 18) // 2))
+                    cancel_x = canvas_x + (canvas_w - button_w * 2 - 6) // 2 + button_w / 2
+                    cancel_y = 56 + canvas_y + canvas_h - 26
+                    desktop.click_actual(cancel_x, cancel_y)
+                    desktop.capture('layers-over-cap-cancelled', header=56)
+                    assert working.read_bytes() == initial
+                    assert (folder / 'working-undo.txt').read_bytes() == before_history, 'cancelled placement pushed history'
                 tool(desktop, 3)
                 pixel_click(desktop, x, y)
                 changed(working, initial)
@@ -182,7 +192,7 @@ def budget_ui():
                 pixel_click(desktop, x, y)
                 filled = working.read_bytes()
                 assert filled != initial, 'large visible fill did not change paint'
-            with Desktop(ROOT / 'build/app/jungle', data) as desktop:
+            with Desktop(binary, data) as desktop:
                 open_main(desktop, 'layers-budget-restart-' + name)
                 assert working.read_bytes() == filled
                 tool(desktop, 6)

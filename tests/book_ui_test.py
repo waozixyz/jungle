@@ -43,15 +43,26 @@ def select_book(desktop, category_index):
     desktop.key("Return")
 
 
+def selected_languages(language=None):
+    """(menu index, language) pairs to sweep; one language keeps its real menu index."""
+    if language is None:
+        return list(enumerate(LANGUAGES))
+    if language not in LANGUAGES:
+        raise ValueError(f"unknown language {language!r}; expected one of {LANGUAGES}")
+    return [(LANGUAGES.index(language), language)]
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--binary", type=Path, default=ROOT / "build/app/jungle")
+    parser.add_argument("--language", choices=LANGUAGES,
+                        help="sweep only this language (default: every language in order)")
     args = parser.parse_args()
     binary = args.binary.resolve()
     ink = (62, 51, 42)
     with tempfile.TemporaryDirectory(prefix="jungle-book-") as temporary:
         data = Path(temporary)
-        for index, language in enumerate(LANGUAGES):
+        for index, language in selected_languages(args.language):
             with Desktop(binary, data) as desktop:
                 desktop.capture(f"{language}-menu-before")
                 desktop.click(55 + index * 100, 51)

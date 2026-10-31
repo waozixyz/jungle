@@ -4,7 +4,7 @@ import time
 import os
 from pathlib import Path
 from PIL import ImageChops
-from runtime_test import Desktop, ROOT, run
+from runtime_test import Desktop, OUTPUT, ROOT, run
 
 
 def changed(a, b, box=None):
@@ -85,5 +85,5 @@ with tempfile.TemporaryDirectory(prefix='jungle-playback-') as temporary:
         desktop.key('space')
         time.sleep(4.7)
         assert changed(twenty, desktop.capture_actual('playback-number-repeat-default'), numeral), 'The number book did not repeat by default'
-        assert 'portable execution failed' not in (ROOT / 'build/tests/ui/jungle.log').read_text()
+        assert 'portable execution failed' not in (OUTPUT / 'jungle.log').read_text()
 print('local playback UI test: saved book choices, default number autoplay/repeat, pause/resume, swipes and numbers through twenty passed')
