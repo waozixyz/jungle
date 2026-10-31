@@ -209,7 +209,7 @@ assert len(library['stencils']) == 46 and len(library['scenes']) == 24
             self.assertTrue(all(size == (960, 720) for size in traced[-12:]))
 
     def test_generated_ziran_helpers_execute_in_every_language(self):
-        # Compile a private Python target to exercise Ziran imports, bounds and
+        # Compile a private C target to exercise Ziran imports, bounds and
         # LanguageCode dispatch without building or launching the application.
         toolchain = Path(subprocess.check_output(['ziran', 'pkg', 'path', 'ziran'],
                                                  cwd=ROOT, text=True).strip())
@@ -252,12 +252,12 @@ assert len(library['stencils']) == 46 and len(library['scenes']) == 24
             lines.extend(['    return 0', '}'])
             entry = directory / 'catalog_probe.zi'
             entry.write_text('\n'.join(lines))
-            subprocess.run([str(toolchain / 'build/bin/ziran'), 'build', '--target=py', '--exe',
+            subprocess.run([str(toolchain / 'build/bin/ziran'), 'build', '--target=c', '--exe',
                             '--root', str(directory), '--module-path', f'std={toolchain / "std"}',
                             '--module-path', str(toolchain / 'std'), '--entry', 'catalog_probe:main',
                             '-o', str(directory / 'out'), str(entry)],
                            cwd=ROOT, env=environment, check=True)
-            subprocess.run([sys.executable, str(directory / 'out')],
+            subprocess.run([str(directory / 'out/catalog_probe')],
                            cwd=ROOT, env=environment, check=True)
 
 
