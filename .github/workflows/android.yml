@@ -8,6 +8,11 @@ on:
   push:
     branches: [master]
   workflow_dispatch:
+    inputs:
+      device_test:
+        description: Build a signed APK for private device validation without publishing
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -17,8 +22,33 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  prepare:
+    name: Decide whether this version needs a release build
+    runs-on: ubuntu-24.04
+    outputs:
+      build: ${{ steps.release.outputs.build }}
+    steps:
+      - uses: actions/checkout@v7
+      - name: Inspect the published version
+        id: release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          DEVICE_TEST: ${{ inputs.device_test == true }}
+        run: |
+          set -euo pipefail
+          version=$(cat VERSION)
+          state=$(gh release view "v$version" --json isDraft --jq .isDraft 2>/dev/null || echo missing)
+          if [ "$state" = false ] && [ "$DEVICE_TEST" != true ]; then
+            echo "Jungle Academy $version is already published; its downloads stay unchanged."
+            echo 'build=false' >> "$GITHUB_OUTPUT"
+          else
+            echo 'build=true' >> "$GITHUB_OUTPUT"
+          fi
   apk:
     name: Linux AppImage and signed Android editions
+    needs: prepare
+    if: needs.prepare.outputs.build == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 90
     env:
@@ -87,14 +117,14 @@ jobs:
       # Composite actions start at the workspace root. The direct and F-Droid
       # builds read Jungle's Gradle files; gplay applies Kryon's external file.
       - name: Keep Google libraries out of the normal and F-Droid builds
-        uses: kryonlabs/kryon/.github/actions/google-free@a5e4a8322b5bab1ba3483a82601028604b86e965
+        uses: kryonlabs/kryon/.github/actions/google-free@849eb903e5b6fb9aed996c530ab82f94c4371ee5
         with:
           source: waozixyz/learning/jungle
           packages: |
             waozixyz/learning/jungle/build/android/JungleAcademy-universal-release-unsigned.apk
             waozixyz/learning/jungle/build/android/JungleAcademy-universal-fdroid-release-unsigned.apk
       - name: Require the Google Play edition to carry Play Billing
-        uses: kryonlabs/kryon/.github/actions/google-free@a5e4a8322b5bab1ba3483a82601028604b86e965
+        uses: kryonlabs/kryon/.github/actions/google-free@849eb903e5b6fb9aed996c530ab82f94c4371ee5
         with:
           source: ''
           expect-google: 'true'
@@ -120,6 +150,14 @@ jobs:
               --edition "$edition" \
               --keystore "$RUNNER_TEMP/jungle-release.p12" --password-file "$RUNNER_TEMP/jungle-password"
           done
+      - name: Save the signed APK for private device validation
+        if: github.event_name == 'workflow_dispatch' && inputs.device_test == true
+        uses: actions/upload-artifact@v4
+        with:
+          name: jungle-device-validation
+          retention-days: 1
+          if-no-files-found: error
+          path: waozixyz/learning/jungle/build/downloads/jungle-v${{ steps.deps.outputs.version }}.apk
       - name: Release notes
         env:
           VERSION: ${{ steps.deps.outputs.version }}
@@ -144,7 +182,7 @@ jobs:
             waozixyz/learning/jungle/build/tests/ui/*.log
           if-no-files-found: ignore
       - name: Publish this version once its download is verified
-        if: github.ref == 'refs/heads/master'
+        if: github.ref == 'refs/heads/master' && inputs.device_test != true
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
@@ -168,7 +206,7 @@ jobs:
             "build/downloads/jungle-v$VERSION-x86_64.AppImage.sha256" --clobber
           gh release edit "$tag" --draft=false --latest
       - name: Install itch.io Butler
-        if: github.ref == 'refs/heads/master'
+        if: github.ref == 'refs/heads/master' && inputs.device_test != true
         run: |
           curl --fail --show-error --location --retry 3 \
             https://broth.itch.zone/butler/linux-amd64/LATEST/archive/default \
@@ -178,7 +216,7 @@ jobs:
           chmod +x "$RUNNER_TEMP/butler/butler"
           echo "$RUNNER_TEMP/butler" >> "$GITHUB_PATH"
       - name: Publish the verified normal Android and Linux downloads to itch.io
-        if: github.ref == 'refs/heads/master'
+        if: github.ref == 'refs/heads/master' && inputs.device_test != true
         env:
           BUTLER_API_KEY: ${{ secrets.ITCH_API_KEY }}
           VERSION: ${{ steps.deps.outputs.version }}
