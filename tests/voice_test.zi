@@ -41,10 +41,12 @@ main :: (argc: s32, argv: **u8) -> s32 {
     if Queued(sound_device) != cast(u32)0 { return 6 }
     long_pcm: Vec(u8)
     if !ComposeVoice("assets/jungle-book/sounds/de/spelling/butterfly.wav", *long_pcm) { return 7 }
-    if long_pcm.count <= cast(s64)(AUDIO_RATE * 20 * 2) { return 7 }
+    // Natural narration can be shorter than the old stretched recordings;
+    // it still must exceed the cue mixer's limit and reach SDL in full.
+    if long_pcm.count <= cast(s64)(AUDIO_LIMIT * 2) { return 7 }
     if !SoundSpeech("assets/jungle-book/sounds/de/spelling/butterfly.wav") { return 7 }
     // Allow half a second for the dummy device to consume queued samples;
-    // the complete 27-second German spelling must reach SDL.
+    // the complete German spelling must reach SDL.
     if cast(s64)Queued(sound_device) < long_pcm.count - cast(s64)AUDIO_RATE { return 8 }
     SoundSetPaused(true)
     before := Queued(sound_device)
