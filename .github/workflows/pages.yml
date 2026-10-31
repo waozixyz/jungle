@@ -95,6 +95,7 @@ jobs:
             waozixyz/learning/jungle/work/ci-validation/*.log
             waozixyz/learning/jungle/work/ci-validation/*/ui/*.png
             waozixyz/learning/jungle/work/ci-validation/*/ui/*.log
+            waozixyz/learning/jungle/build/web/
           if-no-files-found: ignore
       - name: Publish the tested website
         if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
