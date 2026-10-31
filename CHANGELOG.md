@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.31
+
+Released 2026-10-31.
+
+- Keep browser controls responsive while pictures load and after changing language, including Hide & Seek.
+
 ## 0.1.30
 
 Released 2026-10-31.
