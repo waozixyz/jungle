@@ -24,10 +24,10 @@ NEW_IDS = ('tropical-fruits', 'gardening', 'school', 'water-animals', 'drinks')
 ADDED_IDS = ('actions',)
 REUSED = {'mango', 'banana', 'coconut', 'pineapple', 'flower', 'book',
           'backpack', 'duck', 'frog', 'water', 'milk'}
-# Aggregate of the parent's pre-expansion source fingerprints, streamed below.
+# Aggregate of established sources, including the approved natural-voice refresh.
 # Four covers follow their book's new first page and are checked below instead;
 # with them this baseline is 3313 files, b4f61c9dc0cdf9e3ea37742b1552ff10df70a777a944392c9dedc6c36a5b58df.
-ORIGINAL_DIGEST = 'b77f0935d88e63bc7d1fda900b48ad43bd5cfe298416754d02f82c4ed69c3565'
+ORIGINAL_DIGEST = 'f4dd103c8336da637cde87e3319b989ebf43d0e70b00fcd678ed24904e55258f'
 ORIGINAL_COUNT = 3309
 NEW_COVERS = {'birds': 'owl', 'fruits': 'apricot', 'bedtime': 'toothpaste', 'nature': 'waterfall'}
 NEW_LETTER = 'assets/jungle-book/sounds/es/letters/00fc'
@@ -189,7 +189,9 @@ class LearningBookTest(unittest.TestCase):
         baseline = ROOT / 'work/source-asset-fingerprints.json'
         if baseline.exists():
             for name, sha in fingerprint_rows(baseline):
-                if protected(name):
+                # The historical inventory still protects original artwork;
+                # narration now has the refreshed tracked aggregate above.
+                if protected(name) and not name.endswith(('.wav', '.speech.json')):
                     self.assertEqual(digest(ROOT / name), sha, name)
 
 

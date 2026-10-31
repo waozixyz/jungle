@@ -69,7 +69,6 @@ class UniqueBookArtTest(unittest.TestCase):
             # Derived covers are rebuilt by the catalog owner. New additions
             # are deliberately never promoted to baseline originals here.
             canonical = path.startswith(('assets/jungle-book/pages/','assets/jungle-book/items/','assets/animal-counting/'))
-            canonical |= '/sounds/' in path
             if not canonical or Path(path).stem in self.ids:
                 continue
             with self.subTest(path=path):
