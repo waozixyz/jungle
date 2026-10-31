@@ -261,7 +261,9 @@ var Module={canvas:document.getElementById('canvas'),locateFile:assetUrl,print:c
    // downloads. Each game's pictures load when it first shows them
    // (jungleImageReady), so opening never downloads every puzzle and page.
    // A blocked optional picture must not prevent the game from starting.
-   const menu=paths.filter(path=>/^assets\/jungle\/([^/]+|covers\/[^/]+|branding\/[^/]+)$/.test(path));
+   // Story letters use the shared bitmap atlases. Load these tiny fonts
+   // before typing can draw them; they do not request lazy images themselves.
+   const menu=paths.filter(path=>/^assets\/jungle\/([^/]+|covers\/[^/]+|branding\/[^/]+)$/.test(path)||path.endsWith('/font.png'));
    let next=0;
    await Promise.all(Array.from({length:8},async()=>{while(next<menu.length){const path=menu[next++];try{await loadImage(path)}catch(error){unavailableImage(path,error)}}}));
    Module.removeRunDependency('menu-pictures');

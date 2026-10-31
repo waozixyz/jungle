@@ -1,5 +1,9 @@
 # Changelog
 
+## [Unreleased]
+
+- Show typed Story letters correctly in the browser Coloring Book.
+
 ## 0.1.26
 
 Released 2026-10-31.
