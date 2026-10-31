@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/en/simple/snail.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/snail.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Snail.",
-  "instructions": "Speak English gently and clearly for a young child. Speak only the supplied text. Pronounce spelling letters individually with pauses. A single word must be said exactly once, without introduction or repetition.",
-  "duration": 2.0421315192743763,
-  "sha256": "062d8200c3f0a2e8205a41b8c51b753a13f8ecf3fd46d285cf77d3d57bc5d850",
-  "request_sha256": "833445f8fda95145865604e3d734383243e562fea691eb40288a112e1a63524e"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 1.4,
+  "sha256": "ebac49d6cfa412f201e3f583758b5ccedff9855775e43a6c91fdbdfa76bce42f",
+  "request_sha256": "6f972128f00d40cb830064ae753a77e33ce447ad9197947fee26eb5458b3ab3d"
 }

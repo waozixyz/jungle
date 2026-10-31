@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/en/simple/baby.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/baby.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Baby.",
-  "instructions": "Speak English gently and clearly for a small child. Say only each supplied word once. No introduction, repetition, music or sound effects.",
-  "duration": 1.7805895691609976,
-  "sha256": "fce63cd48b608ee40e46088ac67fa1cbe2dd1ca81b9139d2d2edc6b92950a42c",
-  "request_sha256": "7c2681ed9e0fe7dda027a0bc868516d304a371127ed866d4861066da0295fa66"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 1.0770975056689343,
+  "sha256": "2e815a85538c47c2783f1e04e91be552106c9d463e2af631b3467c71cc958390",
+  "request_sha256": "36a331f1024773e5223b4d17acb1a40ba15442cf6e1c1f35e1b9c077a9b1dc2b"
 }

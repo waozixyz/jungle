@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/es/simple/bread.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/es/simple/bread.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Pan.",
-  "instructions": "Speak Spanish gently and clearly for a small child. Say only each supplied word once. No introduction, repetition, music or sound effects.",
-  "duration": 1.4813605442176871,
-  "sha256": "09440ebe7de63cd7d573320996339c57fb5de6b31395e2804172af3362965a4e",
-  "request_sha256": "fb1a81cddeee37e2c15c8992387846479f3a993acc8587e7d19e15911e0ff706"
+  "instructions": "Habla español de manera cálida, clara y natural, como una persona adulta amable que habla con un niño. Usa un ritmo normal de conversación, pronunciación nítida y frases fluidas. No alargues vocales, separes sílabas, susurres, cantes ni añadas pausas exageradas. Di únicamente el texto proporcionado. Pronuncia cada palabra aislada una sola vez.",
+  "duration": 1.52,
+  "sha256": "b6b76444e1aaee5165076ea1212960aefd77e64f1bb68fb1dfd4658f31041b60",
+  "request_sha256": "8d2485c9ca75ca7d699960d1af64b55e235284a282dcedc47e95a91fceba5e03"
 }

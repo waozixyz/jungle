@@ -1,11 +1,11 @@
 {
   "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/flowerpot.wav",
-  "model": "google/gemini-3.1-flash-tts-preview",
+  "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Flowerpot.",
-  "instructions": "Speak only the supplied word or phrase, clearly and warmly for a toddler in its own language. Natural gentle unhurried pronunciation, no introductory words, no additional text or sounds.",
-  "duration": 1.9835374149659863,
-  "sha256": "52f321e5c24367fd9a7b871f5e518184a6bd3b05a54d913be6438bf38f57c8e4",
-  "request_sha256": "4626b09d3b9c875905e4b0f49958f9b159ed6ca8cf5c2cead73435a4778c379a"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 1.7510657596371881,
+  "sha256": "fdcbe00068155b2b7269a9a74825dbe4b44bdc8f9f7cff147d8f28a5177da860",
+  "request_sha256": "bbd1c384c2b81138d3e997be06db9c66df9090bb9e56b84667e226f6bbc33f19"
 }

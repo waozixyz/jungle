@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/duck.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/duck.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Duck. D. U. C. K. Duck.",
-  "instructions": "Speak English gently and clearly for a young child. Speak only the supplied text. Pronounce spelling letters individually with pauses. A single word must be said exactly once, without introduction or repetition.",
-  "duration": 10.133968253968254,
-  "sha256": "9d1d308bcaac5285a45c62d4a0d574335901d6ad1a88cd3d51ed1792065d1e3f",
-  "request_sha256": "e957c887b7d9ff974e1f4abcdfd6d3a2cf624ad5ac207ffec5ae0d3072dba69f"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 6.23437641723356,
+  "sha256": "d786843f404472c17493e2094511cd05d66cc07aa00f875a340042251f9192f4",
+  "request_sha256": "37ea5464f4b78e2ab83ff3f0c8f5a4d6f1a8ee6dc15d620877ee2d19683102c9"
 }

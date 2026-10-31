@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/es/simple/butter.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/es/simple/butter.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Mantequilla.",
-  "instructions": "Speak Spanish gently and clearly for a small child. Say only each supplied word once. No introduction, repetition, music or sound effects.",
-  "duration": 2.4820408163265304,
-  "sha256": "0d7dc3942af9f47bfb846be80afdeae839d977808323f7e279809c523a7cccd1",
-  "request_sha256": "3ddbe180abdf7f2375bd86399f8383911e2c7752256ceb8d6844748c80b6a202"
+  "instructions": "Habla español de manera cálida, clara y natural, como una persona adulta amable que habla con un niño. Usa un ritmo normal de conversación, pronunciación nítida y frases fluidas. No alargues vocales, separes sílabas, susurres, cantes ni añadas pausas exageradas. Di únicamente el texto proporcionado. Pronuncia cada palabra aislada una sola vez.",
+  "duration": 1.837233560090703,
+  "sha256": "46f47f3929e62096bb4be1b9bb7f6f0fff502c09e1dad5e62bc0db2099ffcf90",
+  "request_sha256": "4dffc49caaf2142d560e498a48752051bfc994b1ca45a6e883481c9e13050d81"
 }

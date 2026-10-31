@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/en/simple/water.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/water.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Water.",
-  "instructions": "Speak English gently and clearly for a small child. Say only each supplied word once. No introduction, repetition, music or sound effects.",
-  "duration": 1.6815873015873015,
-  "sha256": "1f82efcdad3c6153b9841164e760dd2c667fe272ca98e94aca7a2faf6d9b8a03",
-  "request_sha256": "5d355daa70abdb307bfc19eb47117e54a8d17163738cc5cdce441c04755fe2bb"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 1.4775963718820861,
+  "sha256": "3a9a5a79b8779ffc5035835903d15b195fa498082495139430f4c96e72fe58fd",
+  "request_sha256": "0a3aa998c306e31371bc0d16647ccee8a8e6b3cf22e4683e18f7a6df4abd64c1"
 }

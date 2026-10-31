@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/goose.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/goose.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Goose. G. O. O. S. E. Goose.",
-  "instructions": "Speak English gently and clearly for a young child. Speak only the supplied text. Pronounce spelling letters individually with pauses. A single word must be said exactly once, without introduction or repetition.",
-  "duration": 10.633015873015873,
-  "sha256": "c4f2cbeb1222c9d2803bd6e93202783fcebfbb1572291529ac4e325b6ccf0f5d",
-  "request_sha256": "eff6fe8a0722d41d0824177b9cb6bbd4e3a30544eaf7d34f5812a15c52d240b4"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 6.1177777777777775,
+  "sha256": "957d0717f5619946a9329e5e88047e983d3176d2ea40e71439ad7b225e720f9e",
+  "request_sha256": "853155614e796566b3c58d4c59880910cbce666b64c387e4a086fd4adc2d79be"
 }

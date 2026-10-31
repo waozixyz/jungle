@@ -1,11 +1,11 @@
 {
   "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/de/simple/dumplings.wav",
-  "model": "google/gemini-3.1-flash-tts-preview",
+  "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Teigtaschen.",
-  "instructions": "Speak only the supplied word or phrase, clearly and warmly for a toddler in its own language. Natural gentle unhurried pronunciation, no introductory words, no additional text or sounds.",
-  "duration": 1.6282086167800454,
-  "sha256": "c5f32c79922432ef5111e119f953a6fa88c2b0a89f6d958f327a8593c53abf99",
-  "request_sha256": "16744c4a52f0e9f9db171dd6f2f965d729995e3ef949956e8e45e4b9e7369081"
+  "instructions": "Sprich Deutsch warm, klar und natürlich, wie eine freundliche erwachsene Person mit einem Kind. Normales Gesprächstempo, deutliche Aussprache und flüssige Sätze. Keine gedehnten Vokale, getrennten Silben, übertriebenen Pausen, kein Flüstern oder Singen. Sprich nur den vorgegebenen Text. Einzelne Wörter genau einmal aussprechen.",
+  "duration": 1.7548299319727891,
+  "sha256": "436dcf1b296cf45d1083c8238285d2652b65a86d93845eec03c9454a4dc81903",
+  "request_sha256": "d4bd8847e6a4859a629de5bc641f8677e28cb5960c1a67f86c7c7203949cdf8d"
 }

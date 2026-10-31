@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/en/simple/butterfly.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/butterfly.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Butterfly.",
-  "instructions": "Speak English gently and clearly for a young child. Speak only the supplied text. Pronounce spelling letters individually with pauses. A single word must be said exactly once, without introduction or repetition.",
-  "duration": 2.2831292517006805,
-  "sha256": "72b47a10f2f9c1292472b42d896a119f5bf3a0cd53f2c7b061712ff74aee260b",
-  "request_sha256": "bb69d09315ec4ce6958b784dcbd4e567807999d5ed916f6f5aca667026a6238b"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 1.6379591836734695,
+  "sha256": "f38eb089fbab5a9cd213f52a9077fdcbc78e1d33624e90da91b17e776ad688a8",
+  "request_sha256": "e78016b787b5534396e24ba3ded707f948e8e1f667b5dc21f04f65423f7f5e51"
 }

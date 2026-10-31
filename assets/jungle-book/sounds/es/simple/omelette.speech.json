@@ -1,11 +1,11 @@
 {
   "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/es/simple/omelette.wav",
-  "model": "google/gemini-3.1-flash-tts-preview",
+  "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Tortilla.",
-  "instructions": "Speak only the supplied word or phrase, clearly and warmly for a toddler in its own language. Natural gentle unhurried pronunciation, no introductory words, no additional text or sounds.",
-  "duration": 1.5216326530612245,
-  "sha256": "f381239b00fcd6337b9d30100cd38b7e5944f9eed4346314808a886affa5c2ec",
-  "request_sha256": "4bcbf286b0e518ab64eb1aa180fd77c4a7a1f600be54d4431e4e4ace20ab1904"
+  "instructions": "Habla español de manera cálida, clara y natural, como una persona adulta amable que habla con un niño. Usa un ritmo normal de conversación, pronunciación nítida y frases fluidas. No alargues vocales, separes sílabas, susurres, cantes ni añadas pausas exageradas. Di únicamente el texto proporcionado. Pronuncia cada palabra aislada una sola vez.",
+  "duration": 1.5982766439909297,
+  "sha256": "fd8110f60f468f0b6448bb2200f5479e56a8882b70ecb6d5972e52e4a803dc47",
+  "request_sha256": "e32ccd4c0c4199ba0ac2e37be4d907fe597eaf11dbe9f86ac2f13f04462266d8"
 }

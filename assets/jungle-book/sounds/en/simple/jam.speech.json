@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/en/simple/jam.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/jam.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Jam.",
-  "instructions": "Speak English gently and clearly for a small child. Say only each supplied word once. No introduction, repetition, music or sound effects.",
-  "duration": 1.7816326530612245,
-  "sha256": "6c3e01328c5e7e3b76381af9681d8c14d38ecbcc3f1c5c9ecd512e6f90dd0424",
-  "request_sha256": "a6c5eb81d23055eaddc721c976d8d72d0161b0a86983609ede63c27c58d9295e"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 1.4770068027210885,
+  "sha256": "fcdbc3498746c8250897610fc439646ebab7f23a126f17a8c6964522fecea04f",
+  "request_sha256": "e9c9c270cbda0e36e60079cba3e608bfb01bc08cec578741597897fee3b5e49b"
 }

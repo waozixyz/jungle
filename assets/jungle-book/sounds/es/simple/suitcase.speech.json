@@ -2,10 +2,10 @@
   "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/es/simple/suitcase.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Maleta.",
-  "instructions": "Speak only the exact supplied Spanish word or short phrase once, using natural Spanish pronunciation. Warm, calm and clear, for a toddler picture book. No added words, letter spelling, music or sound effects.",
-  "duration": 2.0820861678004534,
-  "sha256": "383a30961c01c0105df6ee65918de67e2b5024f6e5ca99ef933234d9e019762c",
-  "request_sha256": "4c424ce7e06c3edbc8ea82a26defb7025a376409efa92d1bda839b90269c03fa"
+  "instructions": "Habla español de manera cálida, clara y natural, como una persona adulta amable que habla con un niño. Usa un ritmo normal de conversación, pronunciación nítida y frases fluidas. No alargues vocales, separes sílabas, susurres, cantes ni añadas pausas exageradas. Di únicamente el texto proporcionado. Pronuncia cada palabra aislada una sola vez.",
+  "duration": 1.306031746031746,
+  "sha256": "92ffd43953aa8bc7dadbc603bcc4ef9d8a916617ad3024222334d539fd22e0d9",
+  "request_sha256": "70d7864397d8a17d9c78d5f4cc47652fd65fb3a419d8596c2b519bd99d6e8ab8"
 }

@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/es/simple/eggs.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/es/simple/eggs.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Huevos.",
-  "instructions": "Speak Spanish gently and clearly for a small child. Say only each supplied word once. No introduction, repetition, music or sound effects.",
-  "duration": 1.782358276643991,
-  "sha256": "d595a9d80ec8e85a75c07651f6b3e0745358511381fbed99c149d6408a209623",
-  "request_sha256": "39cf290a4644733ae333d633a038f7a8c6aa8000a209747a280ca2f98e214e91"
+  "instructions": "Habla español de manera cálida, clara y natural, como una persona adulta amable que habla con un niño. Usa un ritmo normal de conversación, pronunciación nítida y frases fluidas. No alargues vocales, separes sílabas, susurres, cantes ni añadas pausas exageradas. Di únicamente el texto proporcionado. Pronuncia cada palabra aislada una sola vez.",
+  "duration": 1.355328798185941,
+  "sha256": "57e16f8f8128b1231a22d4db58488c8d47514d31690f2447f47f6b327b4e84d6",
+  "request_sha256": "33610635762a2844b24bda90e75608fe2ab67805fa797fc7005d24450be03ce8"
 }

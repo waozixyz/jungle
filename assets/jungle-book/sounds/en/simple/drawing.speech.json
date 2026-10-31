@@ -2,10 +2,10 @@
   "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/drawing.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Drawing.",
-  "instructions": "Speak only the supplied word or short phrase, in clear natural English, gently and unhurriedly for a toddler picture book. No greeting, commentary or extra words. Use the same calm clear voice throughout.",
-  "duration": 1.9840362811791383,
-  "sha256": "7399b298b7f5b0b4bf1f24f7df9ca2521e21da60f243198e049be7b87ff1e4a4",
-  "request_sha256": "396b4c083c26ea56cfc061924f630f8fdfbdb3fd0ae28b14b053c624b9da2fa8"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 1.311156462585034,
+  "sha256": "dfc3c80b4d126673dcdb1caed08a31172fcfcb6fd286f70a9c15dbe3fb1c7725",
+  "request_sha256": "f867a07d649b034f9be50bef43e4862a038a0d401ec153e1883999810b6f7530"
 }

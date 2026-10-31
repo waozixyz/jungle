@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/en/simple/bicycle.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/bicycle.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Bicycle.",
-  "instructions": "Speak only the supplied English word in a calm, warm, clear voice for a toddler's first-word picture book. Natural gentle articulation, no extra words, no music.",
-  "duration": 1.934829931972789,
-  "sha256": "3961840a6a76a99846c6c98b4f4ad45d9c2ff6c343b17e43edc90e682d183259",
-  "request_sha256": "7da67b9aae91983747a881c3c6268a9016ce5d5ecb21b0f6a5032568383632e3"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 1.2764625850340137,
+  "sha256": "fc50f08df7377efc66158d5b6d3b25704b6926acdf3af3512bcbb186adbde632",
+  "request_sha256": "dd6a11928340d31ef1459ac75b323d09f25ca3109863bf84c26d85e91a560ff0"
 }

@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/en/simple/pasta.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/pasta.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Pasta.",
-  "instructions": "Speak English gently and clearly for a small child. Say only each supplied word once. No introduction, repetition, music or sound effects.",
-  "duration": 2.033333333333333,
-  "sha256": "1eb179cef49d27ba09ae85cc0ef63d39cb700f3e93bb670c5223c0f56a29c362",
-  "request_sha256": "f78d6badf38378b10fef97bb2af0e416c5cda97288567cdaf93c01791a56f589"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 1.3936054421768707,
+  "sha256": "297c69e095eafdc6b2b40bbd850bb6d62434415bb7d9f439e10549a9b428c531",
+  "request_sha256": "ff6df96c93d01ff2ec2d7ef586f1ef91a337d2f7f20aecc3554c992cd3ad2aed"
 }

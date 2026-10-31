@@ -2,10 +2,10 @@
   "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/swimming.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Swimming.",
-  "instructions": "Speak only the exact supplied English word or short phrase once, using natural English pronunciation. Warm, calm and clear, for a toddler picture book. No added words, letter spelling, music or sound effects.",
-  "duration": 1.686031746031746,
-  "sha256": "0e62ee7b95d5fba5166b5defa9a4ce8e9b51bf741ff30d24a335a3f590d64396",
-  "request_sha256": "654c237385a72280997bd09492971c414de93d967ab7ef8501e63c02c2c69e79"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 1.56,
+  "sha256": "6bd5fb1eb064ebfb57d1adb3cadbd94dd53e5f19cc52fc50cca5ec510099d38a",
+  "request_sha256": "1aec63dccc27370a9a4b1f68d53d2ecdee292df55b8263900569d713528fd303"
 }

@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/en/simple/cucumber.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/cucumber.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Cucumber.",
-  "instructions": "Speak English gently and clearly for a small child. Say only the supplied word once. No introduction, repetition, music or sound effects.",
-  "duration": 2.083628117913832,
-  "sha256": "fcfee79aaed61c3e72d5c264b2a6c49cd7678012b61419a4278e861faf04c54b",
-  "request_sha256": "10a911194cbde35796131052a5cbd3461186524b48501db586bde2219e5927bb"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 1.4389569160997733,
+  "sha256": "a8e509efa7e2c676d208153e0fa5fec5c4b2c66db3421eeac9c5b90d6f197223",
+  "request_sha256": "28bbf538b6fe4df671aad092af5be2e1e2dba307c3b1cc1d474e375ac525114c"
 }

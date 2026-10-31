@@ -2,10 +2,10 @@
   "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/de/simple/hummus.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Hummus.",
-  "instructions": "Speak only the supplied word or short phrase, in clear natural German, gently and unhurriedly for a toddler picture book. No greeting, commentary or extra words. Pronounce even internationally shared words in German. Use the same calm clear voice throughout.",
-  "duration": 1.5342857142857143,
-  "sha256": "8086feac42e1a0195fc199ff25f5c5c7c5846405b2c026a477086cc075a6dcdb",
-  "request_sha256": "559e4dff3886612344cd4c0a932fa0d84dd31ac0361a93da3570ea0ea0274544"
+  "instructions": "Sprich Deutsch warm, klar und natürlich, wie eine freundliche erwachsene Person mit einem Kind. Normales Gesprächstempo, deutliche Aussprache und flüssige Sätze. Keine gedehnten Vokale, getrennten Silben, übertriebenen Pausen, kein Flüstern oder Singen. Sprich nur den vorgegebenen Text. Einzelne Wörter genau einmal aussprechen.",
+  "duration": 1.24,
+  "sha256": "65127e229e450a915139c60dbc3ae217b025462d092f26fe326d865a577f174d",
+  "request_sha256": "6d73b8022a5b2d8e34eceb0f25bd850d74628dfff45001eae95028dc4485ca09"
 }

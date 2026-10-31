@@ -1,11 +1,11 @@
 {
   "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/es/simple/seedling.wav",
-  "model": "google/gemini-3.1-flash-tts-preview",
+  "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
-  "text": "Pl\u00e1ntula.",
-  "instructions": "Speak only the supplied word or phrase, clearly and warmly for a toddler in its own language. Natural gentle unhurried pronunciation, no introductory words, no additional text or sounds.",
-  "duration": 1.432108843537415,
-  "sha256": "1bf254f75798620168d4581925a9319843e689d40cb0ee448c876f6b8d2003ef",
-  "request_sha256": "7aa581f9c779c2cba3ed35cfc6b203729c4bb6fe488fa4d86395578b4ec56fc5"
+  "speed": 1.0,
+  "text": "Plántula.",
+  "instructions": "Habla español de manera cálida, clara y natural, como una persona adulta amable que habla con un niño. Usa un ritmo normal de conversación, pronunciación nítida y frases fluidas. No alargues vocales, separes sílabas, susurres, cantes ni añadas pausas exageradas. Di únicamente el texto proporcionado. Pronuncia cada palabra aislada una sola vez.",
+  "duration": 1.5552834467120182,
+  "sha256": "c265072cceb012e7b2f18f848893fd438cd717a6f7c9905747d5c2a5ce1dca1f",
+  "request_sha256": "9e59482b45b93568c86bdccdeef451d90930e6a6ab270d90549809fdd80df540"
 }

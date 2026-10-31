@@ -1,11 +1,11 @@
 {
   "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/seedling.wav",
-  "model": "google/gemini-3.1-flash-tts-preview",
+  "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Seedling.",
-  "instructions": "Speak only the supplied word or phrase, clearly and warmly for a toddler in its own language. Natural gentle unhurried pronunciation, no introductory words, no additional text or sounds.",
-  "duration": 1.6229931972789116,
-  "sha256": "c0df04c5ca2e47016ae0c5708153aa9969ee812e4473d80c3d3e31ae25e055f3",
-  "request_sha256": "0ff0899f4d412a1738518af8f160ffcf5d751892676b5256ad5117b29d5a2fcb"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 1.5136961451247166,
+  "sha256": "81994a3e87d4e377c283df275f191ce6f04e8683900062096f91d2b1bf918dcc",
+  "request_sha256": "7c3ad947d1c6c0674f8bee2faf69758d86b4963cd939fe30ba3ee7e6cec377c1"
 }

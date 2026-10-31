@@ -1,11 +1,11 @@
 {
   "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/es/simple/fish.wav",
-  "model": "google/gemini-3.1-flash-tts-preview",
+  "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Pescado.",
-  "instructions": "Speak only the supplied word or phrase, clearly and warmly for a toddler in its own language. Natural gentle unhurried pronunciation, no introductory words, no additional text or sounds.",
-  "duration": 1.6814965986394559,
-  "sha256": "5e1df26d2fb8aad0a672f61466a747cc5bcce6a949c235dc28b7755f3f807f72",
-  "request_sha256": "50713a5fbd65bc7b1c98f5e472a776bacd75a6b06a1cc2065feb5f9e81afa79e"
+  "instructions": "Habla español de manera cálida, clara y natural, como una persona adulta amable que habla con un niño. Usa un ritmo normal de conversación, pronunciación nítida y frases fluidas. No alargues vocales, separes sílabas, susurres, cantes ni añadas pausas exageradas. Di únicamente el texto proporcionado. Pronuncia cada palabra aislada una sola vez.",
+  "duration": 1.51578231292517,
+  "sha256": "6f0e448d4e5d282a63d7c346eed51e1152076381a005373f4d667e619f02a4eb",
+  "request_sha256": "325112c2438be898750c9379917c0e20816b91844f2c65c5b0efe17990307093"
 }

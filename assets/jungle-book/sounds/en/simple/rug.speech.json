@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/en/simple/rug.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/rug.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Rug.",
-  "instructions": "Speak English gently and clearly for a small child. Say only the supplied word or literal letter-name once. No introduction, repetition, music or sound effects. Letter names are written phonetically for correct pronunciation.",
-  "duration": 2.0963265306122447,
-  "sha256": "7173723111d2eef8532b042781635f84568a329924dae870b132e0769a6f9363",
-  "request_sha256": "4bf5ef1e6a3a847a01dceea18af7dd78f55c394d052451b189f8c5df885ce1b6"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 1.2,
+  "sha256": "ba11e2c97bf5dc8f8fd194e3a6a3f79030e7d7cd4e004cfcb507a15fe8e8e4f4",
+  "request_sha256": "610f993ed228f7e9b15989c480af4f2b2194ee868254f9838dd7ab3d9dff3d96"
 }

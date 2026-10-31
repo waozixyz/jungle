@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/strawberry.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/strawberry.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Strawberry. S. T. R. A. W. B. E. R. R. Y. Strawberry.",
-  "instructions": "Speak English gently and clearly for a young child. Speak only the supplied text. Pronounce spelling letters individually with pauses. A single word must be said exactly once, without introduction or repetition.",
-  "duration": 18.873015873015873,
-  "sha256": "b015d6e7359177348f4f21655422482dd2215799af9e48f89890465a1fc75aad",
-  "request_sha256": "8127923009967e1732fbe4a933e9a329e7ef5c87e1ea40cafd8603d8ca23c24c"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 10.35687074829932,
+  "sha256": "ad2517217f3793ae03b1f3abd5b01e8e1286ff82f76929ee896bb82167e53584",
+  "request_sha256": "bf9868b084945145b81568e57d14273af004c845cc5c8fa4e7a22f96a2731ea2"
 }

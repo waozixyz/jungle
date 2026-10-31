@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/en/simple/potato.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/potato.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Potato.",
-  "instructions": "Speak English gently and clearly for a small child. Say only the supplied word once. No introduction, repetition, music or sound effects.",
-  "duration": 2.0844444444444443,
-  "sha256": "a6bf44b74247f972e10545bd615ae994c66ca82272bac95205ea02ff448d9d24",
-  "request_sha256": "e4b0ba5b61176b0786fcd96581194bf2dd54b09b91dc89d89053844ca0bc2c9d"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 1.3169614512471655,
+  "sha256": "7accc9eca1d1ab433f6fff94ce0feaae44db6c30a2b6f4ce67cf97c8e8e55ed6",
+  "request_sha256": "4663df13b0f36697f133b0cb205b8401ee2fd26efa04693e09dda5f33cd6e536"
 }

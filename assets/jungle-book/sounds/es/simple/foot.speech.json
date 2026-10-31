@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/es/simple/foot.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/es/simple/foot.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Pie.",
-  "instructions": "Speak Spanish gently and clearly for a small child. Say only each supplied word once. No introduction, repetition, music or sound effects.",
-  "duration": 1.378639455782313,
-  "sha256": "feaf03aef156327d4adda36e287bc1cfcd3be80e127e3e32ab04e8158722286f",
-  "request_sha256": "e6a46d95c53724dcb4e528fdb3b6ee54ad2406908ebe96b9476e8b591f1691b7"
+  "instructions": "Habla español de manera cálida, clara y natural, como una persona adulta amable que habla con un niño. Usa un ritmo normal de conversación, pronunciación nítida y frases fluidas. No alargues vocales, separes sílabas, susurres, cantes ni añadas pausas exageradas. Di únicamente el texto proporcionado. Pronuncia cada palabra aislada una sola vez.",
+  "duration": 0.9976417233560091,
+  "sha256": "8578ca597ba8a91f8e419adba5b530a590456310d7f1773276c743fc26c45bd3",
+  "request_sha256": "0f34d8b950de25b49ec2728bc918b09552fadfc58e797de6c9f45eeb8436c101"
 }

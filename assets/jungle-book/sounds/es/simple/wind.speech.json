@@ -2,10 +2,10 @@
   "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/es/simple/wind.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Viento.",
-  "instructions": "Speak only the exact supplied Spanish word or short phrase once, using natural Spanish pronunciation. Warm, calm and clear, for a toddler picture book. No added words, letter spelling, music or sound effects.",
-  "duration": 1.8815419501133788,
-  "sha256": "53c8cb4256842b49a5e73a1612fb56d8506df2ad4afea6838b9c6279eb63bfea",
-  "request_sha256": "ddf02bf857b43cc31faf6c0f1f9d271a7aac82d9b016af478f54ba0ed7aae904"
+  "instructions": "Habla español de manera cálida, clara y natural, como una persona adulta amable que habla con un niño. Usa un ritmo normal de conversación, pronunciación nítida y frases fluidas. No alargues vocales, separes sílabas, susurres, cantes ni añadas pausas exageradas. Di únicamente el texto proporcionado. Pronuncia cada palabra aislada una sola vez.",
+  "duration": 1.5126984126984127,
+  "sha256": "57b80f2e5822fdbc51d5c875bbde91e1a2a5781e6c1b2b1086acc43c7882a938",
+  "request_sha256": "455a571d89bbd27d9154f57576918f87ecfcfd1e667ae6606b3c7938ccb4dddd"
 }

@@ -1,11 +1,11 @@
 {
   "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/de/simple/scissors.wav",
-  "model": "google/gemini-3.1-flash-tts-preview",
+  "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Schere.",
-  "instructions": "Speak only the supplied word or phrase, clearly and warmly for a toddler in its own language. Natural gentle unhurried pronunciation, no introductory words, no additional text or sounds.",
-  "duration": 1.5257596371882085,
-  "sha256": "05cc5116b3d30f392be29969b4fa3f69a2980dc38288c67affa2066c1f53027b",
-  "request_sha256": "32106170b3449ce5c19d1b512d6919435b35a05d1327eb5387699ab57b372da7"
+  "instructions": "Sprich Deutsch warm, klar und natürlich, wie eine freundliche erwachsene Person mit einem Kind. Normales Gesprächstempo, deutliche Aussprache und flüssige Sätze. Keine gedehnten Vokale, getrennten Silben, übertriebenen Pausen, kein Flüstern oder Singen. Sprich nur den vorgegebenen Text. Einzelne Wörter genau einmal aussprechen.",
+  "duration": 1.3991836734693877,
+  "sha256": "2e4ee45c3a3d0226148d48df1de30567cd5fa8649f50bb21dc63a87cc61904e1",
+  "request_sha256": "93670dfc3e0d1adc91ffb3289cf8c9ec4ba9c2e16cef1736218e75b1873b73ab"
 }

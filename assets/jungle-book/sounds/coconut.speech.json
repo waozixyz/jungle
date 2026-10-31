@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/coconut.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/coconut.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Coconut. C. O. C. O. N. U. T. Coconut.",
-  "instructions": "Speak in clear, gentle American English for a young child learning words. Read the word, pause, spell each individual letter name slowly with a clear pause between letters, then pause and repeat the word. Read exactly the input. Do not add any extra words. No music or sound effects.",
-  "duration": 12.777369614512471,
-  "sha256": "614eb2b848eb4a907df0ea9d8691409c29d5a34b4230987d7e6b2dc317c8639d",
-  "request_sha256": "fbd6ca67ea6d9fd213fd72c3b96f2a74815a2498f830101cb23ed1d111299eab"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 8.914512471655328,
+  "sha256": "2f7aeb3003fd187a32bba4defadbca43903f28d79de40c04e94b7a4693b597ec",
+  "request_sha256": "5a645f9725a51043db30653c4c843f6d5b1355f252e68d7d64a0d04c3f5ce87f"
 }

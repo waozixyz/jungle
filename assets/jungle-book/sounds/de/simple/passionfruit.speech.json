@@ -1,11 +1,11 @@
 {
   "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/de/simple/passionfruit.wav",
-  "model": "google/gemini-3.1-flash-tts-preview",
+  "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Passionsfrucht.",
-  "instructions": "Speak only the supplied word or phrase, clearly and warmly for a toddler in its own language. Natural gentle unhurried pronunciation, no introductory words, no additional text or sounds.",
-  "duration": 2.0339229024943313,
-  "sha256": "140b98679af94325e5f394520eef32c1cd6e58ee2f1c607ecc452623a5e4f1f5",
-  "request_sha256": "67490e59116bb39a352df26cdbee3463cfec41db78552bdc8d872b87baf2ce6a"
+  "instructions": "Sprich Deutsch warm, klar und natürlich, wie eine freundliche erwachsene Person mit einem Kind. Normales Gesprächstempo, deutliche Aussprache und flüssige Sätze. Keine gedehnten Vokale, getrennten Silben, übertriebenen Pausen, kein Flüstern oder Singen. Sprich nur den vorgegebenen Text. Einzelne Wörter genau einmal aussprechen.",
+  "duration": 1.599637188208617,
+  "sha256": "fcbe5ae0bb377e0dbfa6847e40a1cca6b97d5d96063f00c32bf58ee32055cc99",
+  "request_sha256": "1f35edf881db343ec3b2fc2dca19c50217d88ee75df201386409dc1afb3b6c1d"
 }

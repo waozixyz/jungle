@@ -2,10 +2,10 @@
   "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/es/simple/backpack.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Mochila.",
-  "instructions": "Speak only the exact supplied Spanish word or short phrase once, using natural Spanish pronunciation. Warm, calm and clear, for a toddler picture book. No added words, letter spelling, music or sound effects.",
-  "duration": 1.883764172335601,
-  "sha256": "456720dc00a88b98a4b41667478a1356f4d3fad72f4d7c374999f35145013173",
-  "request_sha256": "0dcffbf637aed923fd3d5dd5e79f2aa68deddb1e007bac0f60bb66bc4ee3dcc7"
+  "instructions": "Habla español de manera cálida, clara y natural, como una persona adulta amable que habla con un niño. Usa un ritmo normal de conversación, pronunciación nítida y frases fluidas. No alargues vocales, separes sílabas, susurres, cantes ni añadas pausas exageradas. Di únicamente el texto proporcionado. Pronuncia cada palabra aislada una sola vez.",
+  "duration": 1.3545578231292517,
+  "sha256": "c8eb7e864b7555c4d5b091159b4219a81fdef02bef034400236462e2539c8710",
+  "request_sha256": "343321278a2a455730dede494b8f06da03ffed48d5b781d1b925e64c3c69cff4"
 }

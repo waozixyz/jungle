@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/en/simple/lasagne.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/lasagne.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Lasagne.",
-  "instructions": "Speak English gently and clearly for a small child. Say only each supplied word once. No introduction, repetition, music or sound effects.",
-  "duration": 2.184671201814059,
-  "sha256": "af3f9b1154d2cfd3deb7ad371f9f79647b1b944deb3acfbfc62ac7b23321a2b9",
-  "request_sha256": "d2be147d08ba5b0ffa151b9ffdf5ecc250ba74597a6952a0209391ea11686750"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 1.5951927437641724,
+  "sha256": "7c2bfc2b21efdd3919d6abee6ab6f6734276cdfe2e3a3b3b0c94685ea51456a1",
+  "request_sha256": "59f2715555f4087cfe8b2b45933e52070972a54bf84cd3dbfd1a90fa8aef72bf"
 }

@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/lion.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/lion.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Lion. L. I. O. N. Lion.",
-  "instructions": "Speak in clear, gentle American English for a young child learning words. Read the word, pause, spell each individual letter name slowly with a clear pause between letters, then pause and repeat the word. Read exactly the input. Do not add any extra words. No music or sound effects.",
-  "duration": 10.22798185941043,
-  "sha256": "79fcccfd4e84c365f66b6ee5f9c99a67e2a4f2f61027251251c1072cff87bc87",
-  "request_sha256": "4bf5f8ceedc776b63a42416321f8b346e6de38da3367f8e7e053e3f95935bd77"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 6.476961451247165,
+  "sha256": "24918bb922cfb7b556e2684a80f42fe024149df2e258dd60461aaee37c4b1ccc",
+  "request_sha256": "05f73cb1c26f8fe1558cac295a059200e91104c62bc1d657c580d5f83e65ac76"
 }

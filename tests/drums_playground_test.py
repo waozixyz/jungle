@@ -9,12 +9,14 @@ import argparse
 import importlib.util
 import hashlib
 import ctypes
+import json
 from pathlib import Path
 import re
 import struct
 import subprocess
 import tempfile
 import time
+import wave
 
 from PIL import Image, ImageChops
 import runtime_test as rt
@@ -35,18 +37,20 @@ PRESERVED = {'assets/drums/pictures/bell.png': 'f14c6aebe01fc8453d646cb39cf132d0
  'assets/drums/pictures/xylophone.png': '56e319a468ea65388aea3bc07a5d969b0d897e9f490a450c6c6ca97e8e367cdd',
  'assets/drums/sounds/bell.wav': 'cb68ccc0ecc4e016794a3795189cf1cf39fe549a21c961e55c2d1ee72f50ef22',
  'assets/drums/sounds/cymbal.wav': '4272a4c49c06ddbf64d55e6d5f72a03e3ce43eb608a88c1e9af7bb3ce42bc88b',
- 'assets/drums/sounds/de/copy.wav': '3a26a4e3a6643b95734b19225e5ba9c9676a748d6174878869f8b55bf5172ab0',
- 'assets/drums/sounds/de/free.wav': '5ad5811a49fb3f9149bbd07a3cb3e267f712d4edc4e65550805bcae1562e0b4d',
- 'assets/drums/sounds/en/copy.wav': '9b526ee2442e8e67aac8a76f0b92ab416296d1d5fd6fad064ea97a7625f0c8c3',
- 'assets/drums/sounds/en/free.wav': 'd8b8f9bcff651352de211f060269eda64bdfd4b4b3d5c2423f989cde04c1686d',
- 'assets/drums/sounds/es/copy.wav': 'b3e8590570daccca609f18477e56d6209504fe12b0d386383b1290261c8d2435',
- 'assets/drums/sounds/es/free.wav': '653c70f1d0d61373679592bf4cbe03909c8150f81e61b7dba5ee6fe33f96686d',
  'assets/drums/sounds/guitar.wav': 'ff189dc2a23ec021c7696b0a3f75e9c9989de29d138f208bbfff26dc8611a01b',
  'assets/drums/sounds/low_drum.wav': '76cd52a2f9b7552dc204cca91487b2632b8601b6498eed64fbc212887177f491',
  'assets/drums/sounds/shaker.wav': '0e028a0e36ca763fc9e19d76364bb278d27f47b7ca30eaeef7cc52a77a02d288',
  'assets/drums/sounds/small_drum.wav': '65b5b4c573a5a8cc29b7eeafb0ade57d4e2960982a42df7d8180098a9c8aeac8',
  'assets/drums/sounds/tambourine.wav': '5c79ad3e49a8bf17354bcdf50e7c80c37579a7f9d5856f8ea70e84871d2205bd',
  'assets/drums/sounds/xylophone.wav': 'ca96f37c0c6a2f0bf270775e21077c5561284e8805ab46f6ec7492ee4b77e9ec'}
+VOICE_TEXT = {
+    ('de', 'copy'): 'Hör zu und spiele die gleichen Klänge. Tippe auf Noch mal, um sie wieder zu hören.',
+    ('de', 'free'): 'Tippe auf die Trommeln und mach Musik.',
+    ('en', 'copy'): 'Listen, then play the same sounds. Tap replay to listen again.',
+    ('en', 'free'): 'Tap the drums and make music.',
+    ('es', 'copy'): 'Escucha y toca los mismos sonidos. Toca repetir para escuchar otra vez.',
+    ('es', 'free'): 'Toca los tambores y haz música.',
+}
 MODEL = (rt.ROOT / 'games/drums/drums.zi').read_text()
 
 
@@ -471,6 +475,14 @@ def main():
     audio.validate()
     for path, expected in PRESERVED.items():
         assert hashlib.sha256((rt.ROOT / path).read_bytes()).hexdigest() == expected, (path, 'original bytes changed')
+    for (language, cue), text in VOICE_TEXT.items():
+        path = rt.ROOT / 'assets/drums/sounds' / language / (cue + '.wav')
+        receipt = json.loads(path.with_suffix('.speech.json').read_text())
+        assert receipt['text'] == text and receipt['speed'] == 1.0, (path, 'natural-speed words changed')
+        assert hashlib.sha256(path.read_bytes()).hexdigest() == receipt['sha256'], (path, 'voice provenance differs')
+        with wave.open(str(path), 'rb') as clip:
+            assert (clip.getnchannels(), clip.getsampwidth(), clip.getframerate()) == (1, 2, 22050)
+            assert abs(clip.getnframes() / clip.getframerate() - receipt['duration']) < 1 / 22050
     source = (rt.ROOT / 'games/drums/jungle_drums.zi').read_text()
     routes = re.search(r'drums_sounds:.*?= \.\[(.*?)\];', source, re.S)[1]
     assert tuple(re.findall(r'"([a-z_]+)"', routes)) == SOUNDS

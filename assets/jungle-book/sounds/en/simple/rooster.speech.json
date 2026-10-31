@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/en/simple/rooster.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/rooster.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Rooster.",
-  "instructions": "Speak English gently and clearly for a small child. Say only the supplied word or literal letter-name once. No introduction, repetition, music or sound effects. Letter names are written phonetically for correct pronunciation.",
-  "duration": 1.8827664399092972,
-  "sha256": "c16cb5aa9edbc4efa92041469f626ff56139d35d5301b0bcc842c34603ba5ca7",
-  "request_sha256": "b53111c552426e8b4691d53549e2cbe725b7087dde7e76146dc10cb41c91f04b"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 1.4273015873015873,
+  "sha256": "5b20cc7c40db049492804796f120d3e399eeef9b1b05e18f8741ffc784555bf5",
+  "request_sha256": "0bb6a9f2f9e92ed368418c75617a30b66b1cdbdf52272539ea952d672c2cbb39"
 }

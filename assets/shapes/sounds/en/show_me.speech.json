@@ -2,10 +2,10 @@
   "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/shapes/sounds/en/show_me.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Tap a shape. Then tap its matching home.",
-  "instructions": "Speak only the supplied text, clearly and warmly for a toddler. Use the language of the text, natural gentle unhurried pronunciation, no additional words or sounds.",
-  "duration": 6.634285714285714,
-  "sha256": "01936ad6f93848eb4919620e07f9f21343dd63d1425ba6829cf773b8267d7123",
-  "request_sha256": "637935bdb1c7014db627ef909fac4ed62341c05e5c72e76a1a7fe310282f27ff"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 4.1184580498866215,
+  "sha256": "709879e30570f55540260cd071f26896da2efec38cddd441c03e2af96ce5684f",
+  "request_sha256": "442b83d6eb2f99a67d24e630a1b85a43771bc8c61a96bbefeebb044f184dc7bc"
 }

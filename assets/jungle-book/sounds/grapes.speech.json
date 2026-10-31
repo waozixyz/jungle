@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/grapes.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/grapes.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Grapes. G. R. A. P. E. S. Grapes.",
-  "instructions": "Speak English gently and clearly for a young child. Speak only the supplied text. Pronounce spelling letters individually with pauses. A single word must be said exactly once, without introduction or repetition.",
-  "duration": 12.227301587301588,
-  "sha256": "b838756aa9a171f25c2d8c380895cc711ccdb3e07fc22fe705cb95954214c841",
-  "request_sha256": "93bc5620987a234eea6c6c66ba589f34a9f216a87765bbd9a3f960edf965b943"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 6.628798185941043,
+  "sha256": "eb0556c89a3aed57ae831f9163baa90b0aa6472d59016a62dec05057c5468cb9",
+  "request_sha256": "f302fe0b93034556487637386cfc645204368746b975277c5689254e161d8689"
 }

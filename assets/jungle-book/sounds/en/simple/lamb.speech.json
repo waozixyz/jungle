@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/en/simple/lamb.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/lamb.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Lamb.",
-  "instructions": "Speak English gently and clearly for a small child. Say only the supplied word or literal letter-name once. No introduction, repetition, music or sound effects. Letter names are written phonetically for correct pronunciation.",
-  "duration": 1.8349206349206348,
-  "sha256": "e5232799cd4bc7a000f8c6c65386da2d14d747c862b657789213db0af876013f",
-  "request_sha256": "11774d90a92d6031c1026273b982b7d5d052565b4a4c04f2397196670d6f9b9e"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 1.47718820861678,
+  "sha256": "e7a5f73b55017cfcdf2eee276c7e5d43c5001a8315d8969c9b42227b9785f2bd",
+  "request_sha256": "f54c4823ef563bb20b1659a77d08b4d724801dd6003b9f65f500d872167f861e"
 }

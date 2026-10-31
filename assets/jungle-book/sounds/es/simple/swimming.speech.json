@@ -2,10 +2,10 @@
   "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/es/simple/swimming.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Nadar.",
-  "instructions": "Speak only the exact supplied Spanish word or short phrase once, using natural Spanish pronunciation. Warm, calm and clear, for a toddler picture book. No added words, letter spelling, music or sound effects.",
-  "duration": 1.7296145124716553,
-  "sha256": "1e1a81999abf4fb0a93c14eccef00c51b57c05626adaa1e2f095387636941c8a",
-  "request_sha256": "8e61cf07da8f672a9fbf2d83fc136b1d2fc327e66f78d0b8b81e645bedaaaaac"
+  "instructions": "Habla español de manera cálida, clara y natural, como una persona adulta amable que habla con un niño. Usa un ritmo normal de conversación, pronunciación nítida y frases fluidas. No alargues vocales, separes sílabas, susurres, cantes ni añadas pausas exageradas. Di únicamente el texto proporcionado. Pronuncia cada palabra aislada una sola vez.",
+  "duration": 1.3174603174603174,
+  "sha256": "aa558b9415e3fc8a59a56420a8c643dafb5b1a65801137493127846cbcf88096",
+  "request_sha256": "8ac3b033cc2be6f1da1ceea9cb10d28ce22d3986024d2f4eedb067597b7d0b32"
 }

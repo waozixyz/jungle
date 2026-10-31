@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/de/simple/family.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/de/simple/family.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Familie.",
-  "instructions": "Speak German gently and clearly for a small child. Say only each supplied word once. No introduction, repetition, music or sound effects.",
-  "duration": 2.184716553287982,
-  "sha256": "5b3f14837a6fb18b0e25f702fd4fd83bb7deea6f5743bd75104a2bbc584978a7",
-  "request_sha256": "1bc4ba13b6788acbff199deb5c1b23e50bdd2ef0495a65e4ba7cfc84cb3792f2"
+  "instructions": "Sprich Deutsch warm, klar und natürlich, wie eine freundliche erwachsene Person mit einem Kind. Normales Gesprächstempo, deutliche Aussprache und flüssige Sätze. Keine gedehnten Vokale, getrennten Silben, übertriebenen Pausen, kein Flüstern oder Singen. Sprich nur den vorgegebenen Text. Einzelne Wörter genau einmal aussprechen.",
+  "duration": 1.36,
+  "sha256": "4c5c8bc0d8bf98f828ac408cf7dc32026a1a1c4a876a008c4e2e281045dd0f94",
+  "request_sha256": "4bf77047343ec9ae26650a1092b083279e66bbec21bc1b44b9a5b580731932fa"
 }

@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/en/simple/dress.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/dress.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Dress.",
-  "instructions": "Speak English gently and clearly for a young child. Speak only the supplied text. Pronounce spelling letters individually with pauses. A single word must be said exactly once, without introduction or repetition.",
-  "duration": 1.7900680272108844,
-  "sha256": "2a4e99957d4eb2ff68ae6ec176060c32f8a2b0506ef7c7cff6ec11049412d73b",
-  "request_sha256": "5e67b608f715f21beaa17be64fe888725494fa215f50bff5fa39006812dfb581"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 1.435827664399093,
+  "sha256": "1766f681cbe477509ff94e4f9f5254516471f93770947ae1b90f674ff06ace20",
+  "request_sha256": "6ebf8ceeae81531f94657c46b5da04276e6be64829ff825950af8a196cf83c61"
 }

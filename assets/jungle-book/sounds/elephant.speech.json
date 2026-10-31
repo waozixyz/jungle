@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/elephant.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/elephant.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Elephant. E. L. E. P. H. A. N. T. Elephant.",
-  "instructions": "Speak in clear, gentle American English for a young child learning words. Read the word, pause, spell each individual letter name slowly with a clear pause between letters, then pause and repeat the word. Read exactly the input. Do not add any extra words. No music or sound effects.",
-  "duration": 16.882086167800452,
-  "sha256": "2768c9995912b92fb30f82d8c1a3137cae5c5b51bb4560fc4a44f215d77cf95b",
-  "request_sha256": "5b3b06914e3fe3c02f9a99402e47b7f0407e18e941e756960a5f7279d0a8a8f3"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 9.074557823129252,
+  "sha256": "a6250790bbe7492bdc22aa93803417607dd0e09ee61869a07bad9da6c2f47f26",
+  "request_sha256": "7bd59f2fdf590c3b7148cd5f684e81978548dd9bee23c03ac2e2d46582caddc6"
 }

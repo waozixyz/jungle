@@ -2,10 +2,10 @@
   "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/flamingo.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Flamingo.",
-  "instructions": "Speak only the supplied word or short phrase, in clear natural English, gently and unhurriedly for a toddler picture book. No greeting, commentary or extra words. Use the same calm clear voice throughout.",
-  "duration": 2.3779591836734695,
-  "sha256": "0c177883776778f561b65af0100a3e40ad63eedc6d4ffb97b9a5f0d44e44e898",
-  "request_sha256": "8bc82cea062ce31d16eac5d4fb881afb5839f4d1886c53908c03b0d64c739b1e"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 1.64,
+  "sha256": "94fffc38db539435c70c4d2cb47a569213d2f92b8639b95cbd4f57923a785572",
+  "request_sha256": "e791f39b2e00c7e668fc9ced14b161d28895d9fe7b79d937bb578687808960e4"
 }

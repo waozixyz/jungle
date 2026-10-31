@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/en/simple/avocado.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/avocado.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Avocado.",
-  "instructions": "Speak English gently and clearly for a small child. Say only the supplied word or literal letter-name once. No introduction, repetition, music or sound effects. Letter names are written phonetically for correct pronunciation.",
-  "duration": 2.2387301587301587,
-  "sha256": "7a9209aa73a4221f1c6f9ad91d7b7cf24c11231c4be4040d494f8b7b8ce25a7e",
-  "request_sha256": "747af4484bb957309063e1f49de552aec4fee6d44c3dcf2e5d48acdf76734836"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 1.5974149659863945,
+  "sha256": "27e0cc3a3bf79fad8864714f092277c705f3812e08d3c0cfc21a71e2281b86e8",
+  "request_sha256": "15acaa15e609aadbadebcb951663482da414ac5cdff0550f12e5a88081eab8d8"
 }

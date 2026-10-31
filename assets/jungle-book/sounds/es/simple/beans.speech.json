@@ -1,11 +1,11 @@
 {
   "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/es/simple/beans.wav",
-  "model": "google/gemini-3.1-flash-tts-preview",
+  "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Frijoles.",
-  "instructions": "Speak only the supplied word or phrase, clearly and warmly for a toddler in its own language. Natural gentle unhurried pronunciation, no introductory words, no additional text or sounds.",
-  "duration": 2.0337414965986396,
-  "sha256": "3a6426c70eebc66ac5f40ff71e5c456fe37b389b44518b01120b7f2eed5d09aa",
-  "request_sha256": "bd6ec02ee169be975a2f2225fba722e5f70b5169791cd1ff76dde3e4abf33f11"
+  "instructions": "Habla español de manera cálida, clara y natural, como una persona adulta amable que habla con un niño. Usa un ritmo normal de conversación, pronunciación nítida y frases fluidas. No alargues vocales, separes sílabas, susurres, cantes ni añadas pausas exageradas. Di únicamente el texto proporcionado. Pronuncia cada palabra aislada una sola vez.",
+  "duration": 1.6738321995464853,
+  "sha256": "2734ab3ee962a0f3f43a8983b60a3691b2cb63608ac9f437103973418575c80f",
+  "request_sha256": "6679f871ee3bbf3bb3eaf2eb149d2f690e85e4d99a837c8964a9f9239c9b2a30"
 }

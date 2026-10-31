@@ -2,10 +2,10 @@
   "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/rock.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Rock.",
-  "instructions": "Speak only the supplied word or short phrase, in clear natural English, gently and unhurriedly for a toddler picture book. No greeting, commentary or extra words. Use the same calm clear voice throughout.",
-  "duration": 1.6754648526077098,
-  "sha256": "357742f3766eafd6dc7b06a2249da604c430037b5f572e1bc2e0db41288a1272",
-  "request_sha256": "d779fad1c7dbd6b4975b3d82c76ec00ce6931b9a98b77396c691ae38fd3a5d08"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 1.235419501133787,
+  "sha256": "03f8849bced4378b83caacb9b45eb168b44c19e0f8c96adb4685867153242314",
+  "request_sha256": "4b26f9f077b75a1ea0dde2807d0648fb77bd8862898e04f42283a890d7f82375"
 }

@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/es/simple/tooth.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/es/simple/tooth.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Diente.",
-  "instructions": "Speak Spanish gently and clearly for a small child. Say only each supplied word once. No introduction, repetition, music or sound effects.",
-  "duration": 1.9184580498866213,
-  "sha256": "75fb0fe04bd634d3e1d9950acc641b0efebf660e789c9df3555166e3623f70ff",
-  "request_sha256": "9b7a50929a8fee9e3b3709ef2d53b987b497e18f251f733e2cdc7b157090d2e5"
+  "instructions": "Habla español de manera cálida, clara y natural, como una persona adulta amable que habla con un niño. Usa un ritmo normal de conversación, pronunciación nítida y frases fluidas. No alargues vocales, separes sílabas, susurres, cantes ni añadas pausas exageradas. Di únicamente el texto proporcionado. Pronuncia cada palabra aislada una sola vez.",
+  "duration": 1.430249433106576,
+  "sha256": "737163c6975e9e109e5198d94c1073fd8d9028031a9e62a4d3d8bc1fe5dea64d",
+  "request_sha256": "0d513916c9507fcb6118d56c4a6bea03fec0f86d21e517c2bb13559ed280c05a"
 }

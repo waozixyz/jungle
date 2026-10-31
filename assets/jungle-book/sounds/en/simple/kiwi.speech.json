@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/en/simple/kiwi.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/kiwi.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Kiwi.",
-  "instructions": "Speak English gently and clearly for a small child. Say only the supplied word or literal letter-name once. No introduction, repetition, music or sound effects. Letter names are written phonetically for correct pronunciation.",
-  "duration": 1.7385941043083901,
-  "sha256": "090893ecc8554219f25f38fe85427c92128cec622903f01ce8ef6349c93a7e95",
-  "request_sha256": "a6a2d2d87bf5f77a8c89263fa870bf0968860a8e3c527dd288d16e9f530d641b"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 1.116326530612245,
+  "sha256": "de2221f33a0f2d61df3dd4dca4f991ad117ebf777144f887b2fa6ccec8e82ce1",
+  "request_sha256": "2698fbd15a0082f76c88d502d6dc9a94385a091914ed63466d520242a0403751"
 }

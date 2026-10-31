@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/en/simple/leg.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/leg.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Leg.",
-  "instructions": "Speak English gently and clearly for a small child. Say only each supplied word once. No introduction, repetition, music or sound effects.",
-  "duration": 1.638639455782313,
-  "sha256": "dbf1843e19fbe645fbb39d201c13a725c3620c474722da223eef9680057b2764",
-  "request_sha256": "e8f979046cdb0c46417a8ad5d85a4500ca079eb89288fbbcd04b3bb012b35d71"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 1.32,
+  "sha256": "c160082b987241715e8a8795d90da130c8363e58feb713517c9b102e7c1bbe2e",
+  "request_sha256": "04cc3229e8cfc59c9db4ba70718cba15ce1999826452af317cbb1a7a3ac8168a"
 }

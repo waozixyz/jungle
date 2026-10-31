@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/es/simple/mother.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/es/simple/mother.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Madre.",
-  "instructions": "Speak Spanish gently and clearly for a small child. Say only each supplied word once. No introduction, repetition, music or sound effects.",
-  "duration": 1.787891156462585,
-  "sha256": "b6c99e62d8bc603890121200cb5a94fe5b4119f932fd9aade016c3464bd387e8",
-  "request_sha256": "3fd3c45d0db60930fe0eb1b446b9e6cc36059dcb9091159d5bf3729aba4a4f1b"
+  "instructions": "Habla español de manera cálida, clara y natural, como una persona adulta amable que habla con un niño. Usa un ritmo normal de conversación, pronunciación nítida y frases fluidas. No alargues vocales, separes sílabas, susurres, cantes ni añadas pausas exageradas. Di únicamente el texto proporcionado. Pronuncia cada palabra aislada una sola vez.",
+  "duration": 1.5533333333333332,
+  "sha256": "dacfb4bb924c8c32137be20d082f64308887d7471b8dc876578cc4a3d0f3db16",
+  "request_sha256": "6cead4420d7e5e42a8bd07af787d3e0ac1f75e2edc033476c72266c4bc40b877"
 }

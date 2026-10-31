@@ -1,11 +1,11 @@
 {
   "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/animal-count/sounds/en/add.wav",
-  "model": "google/gemini-3.1-flash-tts-preview",
+  "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "How many animals altogether?",
-  "instructions": "Speak only the supplied text clearly and warmly for a toddler, naturally in its own language. Gentle unhurried delivery, no introductory or additional words or sounds.",
-  "duration": 2.890975056689342,
-  "sha256": "29c6c9c6824236e76d1d605566e310ff2c0de5be4d247331942dd978672b08b6",
-  "request_sha256": "92f25e9ed87dbfadaa39e0049cf4bc9387aaac32b5559d0b6d6fcfbdd2db7066"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 2.4350566893424035,
+  "sha256": "3b2e4d33c95b46d07fabb386db1b5537b15c0e19aae666d839fce8e66790ab29",
+  "request_sha256": "d3581a209baf77efc7579d3ba2ee916fa1ba11c9b1971c97be8050f6b9ae26ec"
 }

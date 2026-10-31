@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/horse.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/horse.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Horse. H. O. R. S. E. Horse.",
-  "instructions": "Speak in clear, gentle American English for a young child learning words. Read the word, pause, spell each individual letter name slowly with a clear pause between letters, then pause and repeat the word. Read exactly the input. Do not add any extra words. No music or sound effects.",
-  "duration": 11.43124716553288,
-  "sha256": "9dacf038da3322dc175c9cc6e28546a69a9a3001abdaddf45d19b16ae753bf1a",
-  "request_sha256": "8d1c3f202e53d69420ef4286f96f50018518b421cbcdd2b911472ab18f599546"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 6.9170068027210885,
+  "sha256": "9efd3e68b32ae0c9e1a4f267ac3429958a3bd6163049abe5f10c465e90da0d40",
+  "request_sha256": "5a2f146f6b3ed1e76019f378402cd4dd1a44047ed991b67de3669d7820b1ac0c"
 }

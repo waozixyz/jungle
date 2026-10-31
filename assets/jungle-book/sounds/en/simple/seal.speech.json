@@ -2,10 +2,10 @@
   "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/seal.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Seal.",
-  "instructions": "Speak only the supplied word or short phrase, in clear natural English, gently and unhurriedly for a toddler picture book. No greeting, commentary or extra words. Use the same calm clear voice throughout.",
-  "duration": 1.6347392290249434,
-  "sha256": "3080ae0b96dd659afbbb8ad34dcbf3acdd161db6098b41196b414e23dc2cfa22",
-  "request_sha256": "9191b250236eff6903ab379ce0b57b7ce77ac80b5186b85c832006758b008778"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 1.36,
+  "sha256": "7e3f8ec4f4f91bc0116e06018bf4029eb47d76ee78ee930e6a7c939dff01f131",
+  "request_sha256": "cc49d87cfab8d7191ee1e14809d3f567c12b65a9ea2db93a72149f45edf19c51"
 }

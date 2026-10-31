@@ -2,10 +2,10 @@
   "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/stars.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Stars.",
-  "instructions": "Speak only the supplied word or short phrase, in clear natural English, gently and unhurriedly for a toddler picture book. No greeting, commentary or extra words. Use the same calm clear voice throughout.",
-  "duration": 2.3390022675736963,
-  "sha256": "41a1c214bbef3c2ff73554dafec7f0ff4d7a3eae8d30dd5ad3deb20f16cc5ebf",
-  "request_sha256": "817dee50d2232c6fca5d862801dd300e0a43ab1cffaba12e4c07483b1dfe1889"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 1.56,
+  "sha256": "db07831ee5f817b5a301aac52c4b7a12db41b3d2a0c95a23dd0be8c618fad628",
+  "request_sha256": "dedbd3f6271339efcbf09a1fa47bfdc8635e3398c2fe5471ca557dfd33d9888a"
 }

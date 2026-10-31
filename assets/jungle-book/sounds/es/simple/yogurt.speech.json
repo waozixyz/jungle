@@ -1,11 +1,11 @@
 {
   "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/es/simple/yogurt.wav",
-  "model": "google/gemini-3.1-flash-tts-preview",
+  "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Yogur.",
-  "instructions": "Speak only the supplied word or phrase, clearly and warmly for a toddler in its own language. Natural gentle unhurried pronunciation, no introductory words, no additional text or sounds.",
-  "duration": 1.4843083900226757,
-  "sha256": "458e9bd002e4b9d76b4868592fdb53ca568f22f3f2052b74a0f293d9f0213e25",
-  "request_sha256": "25c310e8de5721c92aa6a18aad856cf2295d8628fc3c9523e7f675069ab287cf"
+  "instructions": "Habla español de manera cálida, clara y natural, como una persona adulta amable que habla con un niño. Usa un ritmo normal de conversación, pronunciación nítida y frases fluidas. No alargues vocales, separes sílabas, susurres, cantes ni añadas pausas exageradas. Di únicamente el texto proporcionado. Pronuncia cada palabra aislada una sola vez.",
+  "duration": 1.3554195011337868,
+  "sha256": "65ee4f19becd30f8fab0eec55ac82a2166f660ea7b79467556cfe8b8cec332d0",
+  "request_sha256": "b579da1628e85c012a74361ba372995f11c364a9e661b75440c322f39daaa069"
 }

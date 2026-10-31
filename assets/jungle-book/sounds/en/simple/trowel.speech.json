@@ -1,11 +1,11 @@
 {
   "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/trowel.wav",
-  "model": "google/gemini-3.1-flash-tts-preview",
+  "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Trowel.",
-  "instructions": "Speak only the supplied word or phrase, clearly and warmly for a toddler in its own language. Natural gentle unhurried pronunciation, no introductory words, no additional text or sounds.",
-  "duration": 1.5886621315192744,
-  "sha256": "ff2c5c18504da01ecbd3043947e70bb23204b1902130bc6a0b27fabb242a1b45",
-  "request_sha256": "7f61c6d3bcc39d1fb4b01ed00baca66919f671198018d461213fba985d8ca261"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 1.2370068027210885,
+  "sha256": "d4444bea83c80c443f97cb7e3c215faf172b67d66eb1b2619d624e89da522392",
+  "request_sha256": "2e0536d0537092ebb1c3cb77f1874846845489f1d5fb3f31309c565595cce67b"
 }

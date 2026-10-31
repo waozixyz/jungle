@@ -1,11 +1,11 @@
 {
   "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/animal-count/sounds/en/zero.wav",
-  "model": "google/gemini-3.1-flash-tts-preview",
+  "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Zero.",
-  "instructions": "Speak only the supplied text clearly and warmly for a toddler, naturally in its own language. Gentle unhurried delivery, no introductory or additional words or sounds.",
-  "duration": 1.5351473922902494,
-  "sha256": "0985792d3aa8ec4d9ada6e5f03318a74ab775f7835ca6bd4f6e53a1e86f145b7",
-  "request_sha256": "f72214bd4ee176a208a295a1ee9d5f4ddbc103f3c1d6de7089b1e582bb613fbf"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 1.4364625850340136,
+  "sha256": "784bb560c412b4d5a7dcf001ecba3ecc55ff6e93510937c084eb8d5f9b7c0d2c",
+  "request_sha256": "9f04ab3e01ffdb3b99a7f6bd036c842f0bf4493ef965bc5cbc52ac502ff274fb"
 }

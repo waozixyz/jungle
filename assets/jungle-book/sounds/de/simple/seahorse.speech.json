@@ -1,11 +1,11 @@
 {
   "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/de/simple/seahorse.wav",
-  "model": "google/gemini-3.1-flash-tts-preview",
+  "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Seepferdchen.",
-  "instructions": "Speak only the supplied word or phrase, clearly and warmly for a toddler in its own language. Natural gentle unhurried pronunciation, no introductory words, no additional text or sounds.",
-  "duration": 1.9745578231292518,
-  "sha256": "6fd4af940129bd689986d5913e0fad999caf6a49f848015b5b9f8c06ca2f13d5",
-  "request_sha256": "5bdb3b7a5a928b27c19f23707dd3f9aec6e8b5c8f6d4df9bcc3c66fa04330d0c"
+  "instructions": "Sprich Deutsch warm, klar und natürlich, wie eine freundliche erwachsene Person mit einem Kind. Normales Gesprächstempo, deutliche Aussprache und flüssige Sätze. Keine gedehnten Vokale, getrennten Silben, übertriebenen Pausen, kein Flüstern oder Singen. Sprich nur den vorgegebenen Text. Einzelne Wörter genau einmal aussprechen.",
+  "duration": 1.8777777777777778,
+  "sha256": "908ea42261f51d422f9fc9724dddc81daf197036ce70212b221d2f5a6db1b35d",
+  "request_sha256": "6502079ce90a9f8c613b0ffa29ea0c31b903cb084334a3bd60cd83670da9a66a"
 }

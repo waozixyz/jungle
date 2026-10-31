@@ -1,11 +1,11 @@
 {
   "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/dolphin.wav",
-  "model": "google/gemini-3.1-flash-tts-preview",
+  "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Dolphin.",
-  "instructions": "Speak only the supplied word or phrase, clearly and warmly for a toddler in its own language. Natural gentle unhurried pronunciation, no introductory words, no additional text or sounds.",
-  "duration": 1.6714739229024944,
-  "sha256": "624f173ecc9f95ebfdbf792f9acac5389f210e78ae2b0345d089c855d068a6d9",
-  "request_sha256": "ec2721503bfce97ff195260ac457871b9bfa0e62122d982ed7e565b66988d062"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 1.3175056689342404,
+  "sha256": "63f3a36b8fa1cacc0ad9e8728e8b9f7a3b3525f4b063d2b01e971c3aec3d6674",
+  "request_sha256": "d08ba66a031b4f5250ee78ca2a2761b5da907da773f7735ee3a502c2c8754f51"
 }

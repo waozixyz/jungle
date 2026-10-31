@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/en/simple/llama.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/llama.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Llama.",
-  "instructions": "Speak English gently and clearly for a small child. Say only the supplied word or literal letter-name once. No introduction, repetition, music or sound effects. Letter names are written phonetically for correct pronunciation.",
-  "duration": 1.6866666666666668,
-  "sha256": "925d61f97854ee3ab9f7a56f663eabac356ef11a8a581665e118713ed03eb2dd",
-  "request_sha256": "eebb26c1d25a2db60e1cb3d82b9b72726f43008fbfe7bd279797ce51031f16fe"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 1.4374149659863946,
+  "sha256": "076c63ee3e533e54a87d3f535e201e628ce3c6e153fea8417c6755f9b171f2ce",
+  "request_sha256": "c587853a06174705de6e973b3ff1fdf42716381a5e5de691fbcb08fa1e9e5a4c"
 }

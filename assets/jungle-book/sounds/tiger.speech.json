@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/tiger.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/tiger.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Tiger. T. I. G. E. R. Tiger.",
-  "instructions": "Speak in clear, gentle American English for a young child learning words. Read the word, pause, spell each individual letter name slowly with a clear pause between letters, then pause and repeat the word. Read exactly the input. Do not add any extra words. No music or sound effects.",
-  "duration": 10.829206349206348,
-  "sha256": "209990206df685b192dea405346fe83d85c09c62d6f54647d13425ef6190956c",
-  "request_sha256": "cade06c78c3340d5e33ecbabb651f1a7451aa9ac3caf0f049fbb12b5ab8df46d"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 6.956780045351474,
+  "sha256": "f95b1509207022a78f24d0be5c976982f6c70ceed644ce6741e1b143500eeda9",
+  "request_sha256": "74fef6a954be4a3e1189b7bc3311c9a58ed7360b375b2a5ff64b09ea99bbd269"
 }

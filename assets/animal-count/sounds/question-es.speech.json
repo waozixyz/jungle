@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/animal-count/sounds/question-es.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/animal-count/sounds/question-es.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.85,
-  "text": "\u00bfCu\u00e1ntos animales hay?",
-  "instructions": "Speak Spanish gently and clearly for a small child. Say only the supplied question, once. No introduction, music or sound effects.",
-  "duration": 3.1808616780045353,
-  "sha256": "e35db527d2b5a1160fa6b11c7181b43e80ad0b5756a46c6285c1a035e38415f7",
-  "request_sha256": "bc9c10bf3584ff5a775ec0c10cfd6d9ed66935a88e22ffa032434d529139f824"
+  "speed": 1.0,
+  "text": "¿Cuántos animales hay?",
+  "instructions": "Habla español de manera cálida, clara y natural, como una persona adulta amable que habla con un niño. Usa un ritmo normal de conversación, pronunciación nítida y frases fluidas. No alargues vocales, separes sílabas, susurres, cantes ni añadas pausas exageradas. Di únicamente el texto proporcionado. Pronuncia cada palabra aislada una sola vez.",
+  "duration": 2.27718820861678,
+  "sha256": "eaab2c5c454ea0bcf0b3ab5bac0b108f0e5349dbc8fed2abe5c2a88e574238d1",
+  "request_sha256": "2695de6db34479a1361141c59a6e747f144dfc39393d9c01055af3d43cfc144e"
 }

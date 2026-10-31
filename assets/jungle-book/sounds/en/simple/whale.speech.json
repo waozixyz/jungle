@@ -1,11 +1,11 @@
 {
   "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/whale.wav",
-  "model": "google/gemini-3.1-flash-tts-preview",
+  "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Whale.",
-  "instructions": "Speak only the supplied word or phrase, clearly and warmly for a toddler in its own language. Natural gentle unhurried pronunciation, no introductory words, no additional text or sounds.",
-  "duration": 1.5319274376417233,
-  "sha256": "233e08112e2ca7f64c20416db6f6ad7a0724e666738b8f06164bde4f76090d9a",
-  "request_sha256": "7a99235a047e384bdb52b2636ed6bff3ff4900ad9e78ecd62865d3669925ff0d"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 1.3554648526077098,
+  "sha256": "861c8a4550ce3b93d82ede404915833d383962bc54d32fb6075f99aacfc471fa",
+  "request_sha256": "8c0f34e364123a7a2e1f43e895cc8b90028c3afd82427c1199a69ae7c3a13a35"
 }

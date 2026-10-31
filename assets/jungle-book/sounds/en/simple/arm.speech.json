@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/en/simple/arm.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/arm.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Arm.",
-  "instructions": "Speak English gently and clearly for a small child. Say only each supplied word once. No introduction, repetition, music or sound effects.",
-  "duration": 1.5304308390022676,
-  "sha256": "497b131cee29b0829ab9b684a81b5a0ca3fe78ba0582d14cb27a7e1e39599734",
-  "request_sha256": "5326413463715b16778cdfc7f0fd026e9e1c078b465d82388bcf1a777efcdd4c"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 1.1564172335600906,
+  "sha256": "3d718975fec123eb292f5187037a7d9367769abf2dfbd3bc78cf8014e8209e93",
+  "request_sha256": "5e4b5337da2be759cc7b37e29752486d96ac0110c1d08fb2c498a88c72fc8fb6"
 }

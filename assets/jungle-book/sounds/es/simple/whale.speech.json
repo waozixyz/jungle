@@ -1,11 +1,11 @@
 {
   "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/es/simple/whale.wav",
-  "model": "google/gemini-3.1-flash-tts-preview",
+  "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Ballena.",
-  "instructions": "Speak only the supplied word or phrase, clearly and warmly for a toddler in its own language. Natural gentle unhurried pronunciation, no introductory words, no additional text or sounds.",
-  "duration": 1.4873469387755103,
-  "sha256": "0b6d71039734f5ee8b53f02759519e4ff409fd5fc623136065c9be7cc7b92182",
-  "request_sha256": "db0f6308692432df98c28bf09e871ca0b9eee228a3de946f3340b1d4e1474e1e"
+  "instructions": "Habla español de manera cálida, clara y natural, como una persona adulta amable que habla con un niño. Usa un ritmo normal de conversación, pronunciación nítida y frases fluidas. No alargues vocales, separes sílabas, susurres, cantes ni añadas pausas exageradas. Di únicamente el texto proporcionado. Pronuncia cada palabra aislada una sola vez.",
+  "duration": 1.4398639455782314,
+  "sha256": "bf3fa481a12f9e5e1ea262014305b5409b923994cff08deec5c63799140ac83e",
+  "request_sha256": "c568777589ecd84e751e5cdc16d23ef1ebd3f779eafa7a63bc087f3c7d2721ec"
 }

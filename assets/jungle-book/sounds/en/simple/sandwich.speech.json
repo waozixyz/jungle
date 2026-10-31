@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/en/simple/sandwich.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/sandwich.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Sandwich.",
-  "instructions": "Speak English gently and clearly for a small child. Say only each supplied word once. No introduction, repetition, music or sound effects.",
-  "duration": 2.1284807256235827,
-  "sha256": "ba0cc871a5a73dba66f7a147f79b04118023c5b268c1d9db9b5b1c6e0cadb6fd",
-  "request_sha256": "f1491dce08f45d6aeaf2c01db506e83634f1c91106f2a4ddfd0137a6772cb170"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 1.5112925170068028,
+  "sha256": "3b0640f13a45821df1498e91a23c75e0d301b1cbd1a9978bc0f2dea0040faf3f",
+  "request_sha256": "eaf95a3cc9726675392dc04c10011fd27a555837c3da19e675251cab3cee0c65"
 }

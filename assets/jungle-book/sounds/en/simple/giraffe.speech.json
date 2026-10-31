@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/en/simple/giraffe.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/giraffe.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Giraffe.",
-  "instructions": "Speak English gently and clearly for a young child. Speak only the supplied text. Pronounce spelling letters individually with pauses. A single word must be said exactly once, without introduction or repetition.",
-  "duration": 2.0882539682539685,
-  "sha256": "33d83a3224927ed3809ede848bed667bf8b945a1c81b35b1076c0c757392b1bf",
-  "request_sha256": "bcc50a875df3e5b15086caf5b4e259fbc71c2d293a12bc48b29b0d0d0b301dc8"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 1.5185487528344672,
+  "sha256": "c9b93de8337ea5b616c1d735789633aeb91ae032148e62fb5227fc56a56884f7",
+  "request_sha256": "f8883f9de64d531578aef066f5fab73b1038221d2d094cc59d4554a95843023f"
 }

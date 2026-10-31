@@ -1,11 +1,11 @@
 {
   "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/es/simple/octopus.wav",
-  "model": "google/gemini-3.1-flash-tts-preview",
+  "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Pulpo.",
-  "instructions": "Speak only the supplied word or phrase, clearly and warmly for a toddler in its own language. Natural gentle unhurried pronunciation, no introductory words, no additional text or sounds.",
-  "duration": 1.477641723356009,
-  "sha256": "34979e9e2e3624ebf92811663a825f883c557b69982f1a78adec64f4e0682cdb",
-  "request_sha256": "dc602477599bbfc0340b3ecc0908542b8a70c357e2b70c221fea594c857a5c24"
+  "instructions": "Habla español de manera cálida, clara y natural, como una persona adulta amable que habla con un niño. Usa un ritmo normal de conversación, pronunciación nítida y frases fluidas. No alargues vocales, separes sílabas, susurres, cantes ni añadas pausas exageradas. Di únicamente el texto proporcionado. Pronuncia cada palabra aislada una sola vez.",
+  "duration": 1.5537414965986394,
+  "sha256": "383e41da6facb2ad9aa5fcbf438f5aca026c4d0a4d33f097d29a6547a2b2ef10",
+  "request_sha256": "b97122e437e0f26d25d6a5390cd4bf4d454b5be21c31e441ea4fe0fca4f3e593"
 }

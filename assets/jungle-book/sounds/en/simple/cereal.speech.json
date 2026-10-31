@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/en/simple/cereal.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/cereal.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Cereal.",
-  "instructions": "Speak English gently and clearly for a small child. Say only each supplied word once. No introduction, repetition, music or sound effects.",
-  "duration": 1.9318820861678005,
-  "sha256": "7201d74b6d35a18cb5e55abfbba49d125deac2357ffcf8a9ce4b433304234815",
-  "request_sha256": "1050c7f6134ca7f55d82268311d979135eb8f583f70e3e9008067f00d90986fd"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 1.72,
+  "sha256": "762ed6b8d1e35d28373b80529fda9b56d7778fa2c9e557d1b42ed94dde71560c",
+  "request_sha256": "577c5cdcd2a1f99a92031d5d0fcfb4646ade8e1fa7e8af638be8bbf939b1f65c"
 }

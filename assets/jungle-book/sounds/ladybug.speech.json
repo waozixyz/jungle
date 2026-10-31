@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/ladybug.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/ladybug.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Ladybug. L. A. D. Y. B. U. G. Ladybug.",
-  "instructions": "Speak in clear, gentle American English for a young child learning words. Read the word, pause, spell each individual letter name slowly with a clear pause between letters, then pause and repeat the word. Read exactly the input. Do not add any extra words. No music or sound effects.",
-  "duration": 13.923265306122449,
-  "sha256": "437c482e11543ed4261fdf02a38e55f92d9934e2e6a4c63cbf6819727a9414ad",
-  "request_sha256": "55713e28ccdb600cbe0e618723da726785368a237c3d0cafcdfa40e3403cbed1"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 6.591836734693878,
+  "sha256": "df49b64256632c07a49997adbae378d9775bfb8b05fd83e3ffa7ba6d734515a4",
+  "request_sha256": "6628a426d9506d315c0b6fce554c77e6a757e09a33f2dc082904dc1ff5d089a9"
 }

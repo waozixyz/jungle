@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/numbers/sounds/en/12.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/numbers/sounds/en/12.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Twelve.",
-  "instructions": "Speak English gently and clearly for a small child. Say only the supplied number name exactly once. No introduction, repetition, music or sound effects.",
-  "duration": 1.936734693877551,
-  "sha256": "82072c1d00d7d57922f4ec21bfaa6ed4921449645318cbf2845a9f5cc84be7b0",
-  "request_sha256": "cce5acdc728da5ba788dc4f8e2bc50a3db7f7f22ff92712d49132e606891f16e"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 1.4780498866213152,
+  "sha256": "508fe0923216abd63c6c9ed8d410c64f066d19e7f86bd5f5a76fca789098323c",
+  "request_sha256": "54e906b24c69f1357ecfa730b988b4cf847fcad4caac4535193928aa244cd3cf"
 }

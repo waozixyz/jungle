@@ -1,11 +1,11 @@
 {
   "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/es/simple/seahorse.wav",
-  "model": "google/gemini-3.1-flash-tts-preview",
+  "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Caballito de mar.",
-  "instructions": "Speak only the supplied word or phrase, clearly and warmly for a toddler in its own language. Natural gentle unhurried pronunciation, no introductory words, no additional text or sounds.",
-  "duration": 2.229251700680272,
-  "sha256": "95ce4eb279568144c8bb5daa0ec5b01d4e37713af4882b1e6dcb7d05f7565c30",
-  "request_sha256": "a53da71e29bb17411916b1d3ccc79ff03a422b77e8da5d1e289409a3f472983d"
+  "instructions": "Habla español de manera cálida, clara y natural, como una persona adulta amable que habla con un niño. Usa un ritmo normal de conversación, pronunciación nítida y frases fluidas. No alargues vocales, separes sílabas, susurres, cantes ni añadas pausas exageradas. Di únicamente el texto proporcionado. Pronuncia cada palabra aislada una sola vez.",
+  "duration": 1.836825396825397,
+  "sha256": "ff1868b20f95bff46e410bc701fcbd32c7ee8e00d5e14ec6b8979760c155db7d",
+  "request_sha256": "38f2389888fc43ae62bbb84339a846cfe5e4c95caa8c9d3ad8fdb356dce947d0"
 }

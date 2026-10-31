@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/en/simple/kite.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/kite.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Kite.",
-  "instructions": "Speak only the supplied English word in a calm, warm, clear voice for a toddler's first-word picture book. Natural gentle articulation, no extra words, no music.",
-  "duration": 1.478140589569161,
-  "sha256": "b93b86aa63ffa84383b1da3bd818fbf97cc08b7a500e540d13619d010f6eaaa1",
-  "request_sha256": "8ba424241297dcd6cdb76a348ab95428798b8fb7b647f6cab69e0a82ceb386ce"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 1.1880725623582766,
+  "sha256": "db109fab988649021fa24d8b0988838287ca326e4cfa607ee154d91c13d3f971",
+  "request_sha256": "91d5673ab723395c90fd1cdba9be5a98800c798db64be1e41b5a0d65552ba178"
 }

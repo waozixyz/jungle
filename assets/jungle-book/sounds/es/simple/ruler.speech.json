@@ -1,11 +1,11 @@
 {
   "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/es/simple/ruler.wav",
-  "model": "google/gemini-3.1-flash-tts-preview",
+  "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Regla.",
-  "instructions": "Speak only the supplied word or phrase, clearly and warmly for a toddler in its own language. Natural gentle unhurried pronunciation, no introductory words, no additional text or sounds.",
-  "duration": 1.3801814058956916,
-  "sha256": "2f36db49ec3eac7ea462093f0779d06b0155cb5ad41c3ac9d1f19ac583b796c2",
-  "request_sha256": "0fb0133302fd2e40438fca2aff210bb80af0fba247d89935c0fa8286bf48bbe2"
+  "instructions": "Habla español de manera cálida, clara y natural, como una persona adulta amable que habla con un niño. Usa un ritmo normal de conversación, pronunciación nítida y frases fluidas. No alargues vocales, separes sílabas, susurres, cantes ni añadas pausas exageradas. Di únicamente el texto proporcionado. Pronuncia cada palabra aislada una sola vez.",
+  "duration": 1.0780498866213153,
+  "sha256": "3933cbf1a2a95a67cbbfab5cfeff5fb08b42ffe9b4ff3d4513e9cca9a3325941",
+  "request_sha256": "3682ea0eabb495c1308a4d1c0aeea1e1d69b96c32ffccd76f8fbe07af2eae38e"
 }

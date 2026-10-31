@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/en/simple/onion.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/onion.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Onion.",
-  "instructions": "Speak English gently and clearly for a small child. Say only the supplied word once. No introduction, repetition, music or sound effects.",
-  "duration": 1.785170068027211,
-  "sha256": "43d8eb3745c8ccbe2e93670fd0c5dbad46b7cf5c9833120cb5c3e0a1228a4097",
-  "request_sha256": "29f897e2ab5d41b86a4dd32af35395a758ceda2ca8a11fd243b59867553b2d82"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 1.3600453514739228,
+  "sha256": "8848f12d9c604af1ff39339e3573b9b011ecdce031f30cb78c93ab052a154d35",
+  "request_sha256": "e54e0f85ce689a63ac429446041336d6520a1393967d39a29e0d0f166a2ca868"
 }

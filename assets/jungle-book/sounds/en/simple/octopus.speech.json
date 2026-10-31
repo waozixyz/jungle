@@ -1,11 +1,11 @@
 {
   "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/octopus.wav",
-  "model": "google/gemini-3.1-flash-tts-preview",
+  "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Octopus.",
-  "instructions": "Speak only the supplied word or phrase, clearly and warmly for a toddler in its own language. Natural gentle unhurried pronunciation, no introductory words, no additional text or sounds.",
-  "duration": 1.821360544217687,
-  "sha256": "237a4126c48c69bd3981c849d89ca3434005718cfb43314db2bec6056ac600de",
-  "request_sha256": "480926db8729b0a77acd2f79e0de007188c8cd1cb6b52ba1846665b3f856b79f"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 1.5947845804988663,
+  "sha256": "99ed4f5fa80925b719613bc17dbfafa7c9d2656afd186fc5517b8481db3279d5",
+  "request_sha256": "9d9b8504101f88d668ecbca13fad915a75ca23ceb3c695378da2b25943b7e7d4"
 }

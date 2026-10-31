@@ -2,10 +2,10 @@
   "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/de/simple/running.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Laufen.",
-  "instructions": "Speak only the exact supplied German word or short phrase once, using natural German pronunciation. Warm, calm and clear, for a toddler picture book. No added words, letter spelling, music or sound effects.",
-  "duration": 1.930249433106576,
-  "sha256": "eb6a48ae288b0e2c810675ed6336e1c04b42fc46011544a364c6ec26a674a381",
-  "request_sha256": "795f276f931f645f59d2378d9c25e997551eb59cd0b6888f76b9ef1eb36541e6"
+  "instructions": "Sprich Deutsch warm, klar und natürlich, wie eine freundliche erwachsene Person mit einem Kind. Normales Gesprächstempo, deutliche Aussprache und flüssige Sätze. Keine gedehnten Vokale, getrennten Silben, übertriebenen Pausen, kein Flüstern oder Singen. Sprich nur den vorgegebenen Text. Einzelne Wörter genau einmal aussprechen.",
+  "duration": 1.0760997732426303,
+  "sha256": "39865185d5096875cf52b1442817cabaed74619a7abbef752facde9e63842495",
+  "request_sha256": "74efacc8f6784577f063f81c47e31af361d54e8df169985629ee4558af82cc7f"
 }

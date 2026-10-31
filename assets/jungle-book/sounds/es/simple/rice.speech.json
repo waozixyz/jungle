@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/es/simple/rice.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/es/simple/rice.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Arroz.",
-  "instructions": "Speak Spanish gently and clearly for a small child. Say only each supplied word once. No introduction, repetition, music or sound effects.",
-  "duration": 2.132471655328798,
-  "sha256": "8a0ee3f9ddf5f857d904afd575a05ffa2101cc169754481b190850028dd9572e",
-  "request_sha256": "f5f3991840c0b410f074f801ead7db304509bd3a34923a922b4db61095df4fc8"
+  "instructions": "Habla español de manera cálida, clara y natural, como una persona adulta amable que habla con un niño. Usa un ritmo normal de conversación, pronunciación nítida y frases fluidas. No alargues vocales, separes sílabas, susurres, cantes ni añadas pausas exageradas. Di únicamente el texto proporcionado. Pronuncia cada palabra aislada una sola vez.",
+  "duration": 1.6343764172335602,
+  "sha256": "10b23d24c577810956c40b39db3d9e9d843156112309c28454b9b068848bfe7e",
+  "request_sha256": "16bd421ea318cc7448790820265413c3834b9be774322ed755eb717a0c071e42"
 }

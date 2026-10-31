@@ -1,11 +1,11 @@
 {
   "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/es/simple/porridge.wav",
-  "model": "google/gemini-3.1-flash-tts-preview",
+  "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Gachas.",
-  "instructions": "Speak only the supplied word or phrase, clearly and warmly for a toddler in its own language. Natural gentle unhurried pronunciation, no introductory words, no additional text or sounds.",
-  "duration": 1.6714739229024944,
-  "sha256": "c377bed464a4c443278263191d50b10a46728f7b42d0462b0a73ebf9d0857c70",
-  "request_sha256": "00db21b1e54c5e7c72dc629e07aa972d400964ae975b47cada7bb5c9141d7b15"
+  "instructions": "Habla español de manera cálida, clara y natural, como una persona adulta amable que habla con un niño. Usa un ritmo normal de conversación, pronunciación nítida y frases fluidas. No alargues vocales, separes sílabas, susurres, cantes ni añadas pausas exageradas. Di únicamente el texto proporcionado. Pronuncia cada palabra aislada una sola vez.",
+  "duration": 1.5164172335600907,
+  "sha256": "5c1444465fecb4dbb17069e26a7a97400621746661fb1370ffd4ab12833328ac",
+  "request_sha256": "51d5885f7a68030deb725ba4fef1208e2f89387743150ffc1ddecd27933f02fc"
 }

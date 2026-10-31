@@ -1,11 +1,11 @@
 {
   "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/es/simple/dumplings.wav",
-  "model": "google/gemini-3.1-flash-tts-preview",
+  "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Empanadillas.",
-  "instructions": "Speak only the supplied word or phrase, clearly and warmly for a toddler in its own language. Natural gentle unhurried pronunciation, no introductory words, no additional text or sounds.",
-  "duration": 2.183718820861678,
-  "sha256": "754e16f3f7116408a31da3dc551017f192cba16d6719c1db2feb21e8e7d9af29",
-  "request_sha256": "c5aefd2fe69fc4d9b38f18093e41569a04e0179aac10d1939b0910cb5d302859"
+  "instructions": "Habla español de manera cálida, clara y natural, como una persona adulta amable que habla con un niño. Usa un ritmo normal de conversación, pronunciación nítida y frases fluidas. No alargues vocales, separes sílabas, susurres, cantes ni añadas pausas exageradas. Di únicamente el texto proporcionado. Pronuncia cada palabra aislada una sola vez.",
+  "duration": 1.8377777777777777,
+  "sha256": "664344af1d08e9c7578af7c92964245becd8309f961ff0313b86a560f1ca2de8",
+  "request_sha256": "55053d0631ad5afb194a14620cf97f94d81ec172e248b92a8447f0c90226808c"
 }

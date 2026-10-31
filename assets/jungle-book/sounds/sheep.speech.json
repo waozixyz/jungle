@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/sheep.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/sheep.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Sheep. S. H. E. E. P. Sheep.",
-  "instructions": "Speak in clear, gentle American English for a young child learning words. Read the word, pause, spell each individual letter name slowly with a clear pause between letters, then pause and repeat the word. Read exactly the input. Do not add any extra words. No music or sound effects.",
-  "duration": 10.729342403628118,
-  "sha256": "fe8a6c73cf8a4bc4a7797199ce87d6615cf91b5918410138b838981e3ecaad59",
-  "request_sha256": "31a02d800217c032fcb08342385e4f33221169592340a4987d1488347c8d2c62"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 5.996009070294784,
+  "sha256": "00ff6feed1a4cb442633a424c9cb021f854975c9fb8a92879243ef2a1f821426",
+  "request_sha256": "828cd1e132fe73ce3a170fbc774a163f3f5b4c2fa7695c28bee749ba87787fe0"
 }

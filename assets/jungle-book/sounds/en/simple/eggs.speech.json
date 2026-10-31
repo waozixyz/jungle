@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/en/simple/eggs.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/eggs.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Eggs.",
-  "instructions": "Speak English gently and clearly for a small child. Say only each supplied word once. No introduction, repetition, music or sound effects.",
-  "duration": 1.734421768707483,
-  "sha256": "ea9f2009a176a3e7232b2c52d6aac52d474ca66bfb7a112c16c9c7142a29c7fa",
-  "request_sha256": "c4ba9b29e6ca9e8dc76531710a24fbcc092ce723bf9bec646a6d9a987d7f165b"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 1.1527437641723357,
+  "sha256": "0c127933de809d102f98a4f8951fb5ea84fdfe05d079c1581c5cd0eb1c2d0033",
+  "request_sha256": "a4e1431c0355b693e7612833fde4ea7913264a2d3241e0dc780f25188d9af193"
 }

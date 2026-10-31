@@ -1,11 +1,11 @@
 {
   "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/de/simple/tea.wav",
-  "model": "google/gemini-3.1-flash-tts-preview",
+  "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Tee.",
-  "instructions": "Speak only the supplied word or phrase, clearly and warmly for a toddler in its own language. Natural gentle unhurried pronunciation, no introductory words, no additional text or sounds.",
-  "duration": 1.3717913832199546,
-  "sha256": "ef4d02b2c0ea7079db79c706785f10bc020392922dd092e2a7d8ab05fc82cd8d",
-  "request_sha256": "e46df7ecd57518ed3877c602d2475cb6cf465fbf6f8f61f4e13a35bbf3529126"
+  "instructions": "Sprich Deutsch warm, klar und natürlich, wie eine freundliche erwachsene Person mit einem Kind. Normales Gesprächstempo, deutliche Aussprache und flüssige Sätze. Keine gedehnten Vokale, getrennten Silben, übertriebenen Pausen, kein Flüstern oder Singen. Sprich nur den vorgegebenen Text. Einzelne Wörter genau einmal aussprechen.",
+  "duration": 1.157596371882086,
+  "sha256": "d31dc521028840cc4d7e9a2ab9fc92f05f8f5372f0040e0072e272a1bb8d8bbc",
+  "request_sha256": "4f30d9c865f6c649365bb090613df6e9a2636d21bb66d95c4d47f277974a9942"
 }

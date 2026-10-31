@@ -1,11 +1,11 @@
 {
   "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/de/simple/papaya.wav",
-  "model": "google/gemini-3.1-flash-tts-preview",
+  "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Papaya.",
-  "instructions": "Speak only the supplied word or phrase, clearly and warmly for a toddler in its own language. Natural gentle unhurried pronunciation, no introductory words, no additional text or sounds.",
-  "duration": 1.5297505668934241,
-  "sha256": "2fec02b0214325b93863abf660e4132f5864d28a7b9068ec22c0ce27245d2b11",
-  "request_sha256": "1f16c462c461fdeee6f5c1e0df03b2eb989c3b42e56bcbd615ab908f6ef90d11"
+  "instructions": "Sprich Deutsch warm, klar und natürlich, wie eine freundliche erwachsene Person mit einem Kind. Normales Gesprächstempo, deutliche Aussprache und flüssige Sätze. Keine gedehnten Vokale, getrennten Silben, übertriebenen Pausen, kein Flüstern oder Singen. Sprich nur den vorgegebenen Text. Einzelne Wörter genau einmal aussprechen.",
+  "duration": 1.4369614512471656,
+  "sha256": "f12c84e055f19af2a38ddaa0ff100fe52dd2554d7dc174724cc456f70eb61f1d",
+  "request_sha256": "e5025364d74eb5b8aba4f2b78e283a84bc1f8d1e2207b4c8bd416d66c94431c1"
 }

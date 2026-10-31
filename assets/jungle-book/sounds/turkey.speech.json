@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/turkey.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/turkey.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Turkey. T. U. R. K. E. Y. Turkey.",
-  "instructions": "Speak English gently and clearly for a young child. Speak only the supplied text. Pronounce spelling letters individually with pauses. A single word must be said exactly once, without introduction or repetition.",
-  "duration": 11.790430839002267,
-  "sha256": "6ff6a9603dda81c3d021bd2b55a6a1dc6949795ee2c8a0a28241c622bce0e4c6",
-  "request_sha256": "ea5c4d535b799534dc763031e53b596a4c16a092af84110018f21b88cf6982e2"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 6.795963718820862,
+  "sha256": "d19ef73b8ad6ac80b4c6e921542d3c889d25d47198bd85c2c839e4e40197cdd9",
+  "request_sha256": "dfbc03c65631fd2273a03d37c82e1ae4879b52dd821dcd70542b069e1442ee54"
 }

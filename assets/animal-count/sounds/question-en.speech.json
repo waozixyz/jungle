@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/animal-count/sounds/question-en.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/animal-count/sounds/question-en.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.85,
+  "speed": 1.0,
   "text": "How many animals?",
-  "instructions": "Speak English gently and clearly for a small child. Say only the supplied question, once. No introduction, music or sound effects.",
-  "duration": 2.8505668934240362,
-  "sha256": "2b5ebbda7c0781f27ab70124f7a1650ba9f485743be2c002ac0b54e4e19ba8b4",
-  "request_sha256": "9a835c0359a06342e2cb6bdafdf7b7544be36d5a4353c0bd2dd3c30f78a0cccd"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 1.916734693877551,
+  "sha256": "b2459625ca5820b69bba695eb75f053163de27690dafce0a332cf14b5ff6c6b5",
+  "request_sha256": "015f58423092a8f2289433519d47c5fb8b0069829761a8cfa68153864cbf202a"
 }

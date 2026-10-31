@@ -1,11 +1,11 @@
 {
   "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/de/simple/goldfish.wav",
-  "model": "google/gemini-3.1-flash-tts-preview",
+  "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Goldfisch.",
-  "instructions": "Speak only the supplied word or phrase, clearly and warmly for a toddler in its own language. Natural gentle unhurried pronunciation, no introductory words, no additional text or sounds.",
-  "duration": 1.9184580498866213,
-  "sha256": "380526c9a2cb5eff439b3af4f3283beb7b53a2df51516676f0b6da72a4cfa06a",
-  "request_sha256": "98c87a8e65dff073f88cc3a3e3b41052882591d4a97dce3ec6aebbfa6dd71dfa"
+  "instructions": "Sprich Deutsch warm, klar und natürlich, wie eine freundliche erwachsene Person mit einem Kind. Normales Gesprächstempo, deutliche Aussprache und flüssige Sätze. Keine gedehnten Vokale, getrennten Silben, übertriebenen Pausen, kein Flüstern oder Singen. Sprich nur den vorgegebenen Text. Einzelne Wörter genau einmal aussprechen.",
+  "duration": 1.2690249433106575,
+  "sha256": "238467673f7b9130f410309f6d3fafa6c65fa1598a159bb81fa1c891fe42cd18",
+  "request_sha256": "b329c4ff7d0aab60f186f1fc0f4b5ced6f03851a06585556c3d441d0a464849f"
 }
