@@ -1,8 +1,10 @@
 """Orchestration tests for tools/run_ci_validation.py; fake commands only, no app or browser."""
 import collections
 import io
+import json
 import os
 from pathlib import Path
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -79,15 +81,46 @@ class Schedule(unittest.TestCase):
         doubled = self.groups + (rcv.Group("again", (rcv.book("de"),)),)
         self.assertTrue(rcv.coverage_problems(doubled, self.recipe, rcv.book_languages()))
 
-    def test_browser_matrix_keeps_every_gate_with_painting_first(self):
-        browser = next(group for group in self.groups if group.name == "browser")
-        actual = [step.label() for step in browser.steps]
+    def test_browser_gates_are_partitioned_with_nothing_lost(self):
+        by_name = {group.name: group for group in self.groups}
+        packaging = rcv.packaging_group()
+        browser = [step.label() for step in by_name["browser"].steps]
+        moved = ["python3 tools/prepare_itch.py", "python3 tools/test_itch_web.py", "python3 tools/measure_web.py"]
+        self.assertEqual(collections.Counter(browser + moved), collections.Counter(OLD_BROWSER_GATES))
         painting = [gate for gate in OLD_BROWSER_GATES if "tests/paint_layers_web_test.mjs" in gate]
-        self.assertEqual(collections.Counter(actual), collections.Counter(OLD_BROWSER_GATES))
-        self.assertEqual(actual, painting + [gate for gate in OLD_BROWSER_GATES if gate not in painting])
-        self.assertEqual(browser.tmpdir, "work/b")
-        others = [step for group in self.groups if group.name != "browser" for step in group.steps]
-        self.assertTrue(all(step.recipe for step in others), "non-browser groups run only test-ui lines")
+        self.assertEqual(browser, painting + [gate for gate in OLD_BROWSER_GATES if gate not in painting + moved])
+        self.assertEqual([step.label() for step in by_name["performance"].steps], moved[2:])
+        self.assertEqual([step.label() for step in packaging.steps], moved[:2])
+        self.assertEqual(by_name["browser"].tmpdir, "work/b")
+        short = {by_name["browser"].tmpdir, by_name["performance"].tmpdir, packaging.tmpdir}
+        self.assertEqual(len(short), 3, "groups that may overlap never share a browser scratch folder")
+        self.assertTrue(all(len(folder) <= len("work/b") for folder in short))
+        others = [step for group in self.groups if group.name not in ("browser", "performance") for step in group.steps]
+        self.assertTrue(all(step.recipe for step in others), "other groups run only test-ui lines")
+
+    def test_hide_seek_is_its_own_group_and_covered_once(self):
+        by_name = {group.name: group for group in self.groups}
+        self.assertEqual([step.recipe for step in by_name["hide-seek"].steps], ["python3 tests/hide_seek_levels_test.py"])
+        self.assertNotIn("tests/hide_seek_levels_test.py", [step.argv[1] for step in by_name["activities"].steps])
+
+    def test_every_group_is_on_exactly_one_lane(self):
+        packaging = rcv.packaging_group()
+        self.assertEqual(rcv.plan_problems(self.groups, packaging), [])
+        self.assertEqual(rcv.coverage_problems((*self.groups, packaging), self.recipe, rcv.book_languages()), [])
+        self.assertEqual(len(rcv.CI_LANES), 4)
+        lanes = [("a", ("browser", "browser"))] + list(rcv.CI_LANES[1:])
+        self.assertIn("CI lane group not in the schedule or repeated: browser", rcv.plan_problems(self.groups, packaging, lanes))
+        self.assertIn("group on no CI lane: browser", rcv.plan_problems(self.groups, packaging, rcv.CI_LANES[1:]))
+        on_lane = [("a", ("browser", rcv.PACKAGING))] + list(rcv.CI_LANES[1:])
+        self.assertIn(f"CI lane group not in the schedule or repeated: {rcv.PACKAGING}",
+                      rcv.plan_problems(self.groups, packaging, on_lane))
+
+    def test_a_lost_or_reordered_browser_gate_is_reported(self):
+        packaging = rcv.packaging_group()
+        fewer = tuple(group for group in self.groups if group.name != "performance")
+        self.assertIn("browser gate not scheduled: python3 tools/measure_web.py", rcv.plan_problems(fewer, packaging))
+        reordered = rcv.Group(rcv.PACKAGING, tuple(reversed(packaging.steps)))
+        self.assertTrue(any("prepare the embed package" in problem for problem in rcv.plan_problems(self.groups, reordered)))
 
     def test_paint_group_starts_first(self):
         first = self.groups[0]
@@ -205,6 +238,239 @@ class Scheduler(unittest.TestCase):
     def test_only_full_success_is_success(self):
         self.assertEqual(self.run_groups(groups_of(("a", 1), ("b", 1)), FakeLaunch(fail={("fake", "b", "0")}))[0], 1)
         self.assertEqual(self.run_groups(groups_of(("a", 2), ("b", 1)), FakeLaunch())[0], 0)
+
+
+class FrozenRun(unittest.TestCase):
+    """--group's run: a restored app must be reused, and packaging must have its benchmark."""
+    def setUp(self):
+        self.temporary = tempfile.TemporaryDirectory()
+        self.root = Path(self.temporary.name)
+        self.app, self.web = self.root / "app", self.root / "web"
+        (self.app / "games").mkdir(parents=True)
+        (self.app / "jungle").write_text("one")
+        self.web.mkdir()
+        self.prepare = rcv.Group("prepare", (rcv.Step(("make", "all")),))
+
+    def tearDown(self):
+        self.temporary.cleanup()
+
+    def run_frozen(self, stages, launch, **options):
+        output = io.StringIO()
+        code = rcv.RunFrozen(stages, launch, console=rcv.Console(output), prepare=self.prepare,
+                             app=self.app, web=self.web, **options)
+        return code, output.getvalue()
+
+    def rebuild(self):
+        replacement = self.app / "jungle.new"
+        replacement.write_text("two")
+        replacement.replace(self.app / "jungle")
+
+    def test_one_group_runs_after_the_prepare_in_order(self):
+        launch = FakeLaunch()
+        groups = groups_of(("a", 2))
+        code, _ = self.run_frozen(((groups, 1),), launch, restored=True)
+        self.assertEqual(code, 0)
+        self.assertEqual(launch.ran, [("make", "all"), ("fake", "a", "0"), ("fake", "a", "1")])
+
+    def test_a_missing_restored_build_runs_nothing(self):
+        (self.app / "jungle").unlink()
+        launch = FakeLaunch()
+        code, output = self.run_frozen((((), 1),), launch, restored=True)
+        self.assertEqual((code, launch.ran), (1, []))
+        self.assertIn("no restored build", output)
+
+    def test_a_rebuild_during_prepare_fails_only_a_restored_run(self):
+        ran = []
+
+        def launch(group, step):
+            ran.append(step.argv)
+            if group.name == "prepare":
+                self.rebuild()
+            return 0
+        groups = groups_of(("a", 1))
+        code, output = self.run_frozen(((groups, 1),), launch, restored=True)
+        self.assertEqual((code, ran), (1, [("make", "all")]))
+        self.assertIn("rebuilt, not reused", output)
+        self.assertEqual(self.run_frozen(((groups, 1),), launch)[0], 0)
+
+    def test_a_rebuild_during_a_group_fails(self):
+        def launch(group, step):
+            if group.name != "prepare":
+                self.rebuild()
+            return 0
+        code, output = self.run_frozen(((groups_of(("a", 1)), 1),), launch, restored=True)
+        self.assertEqual(code, 1)
+        self.assertIn("changed while tests ran", output)
+
+    def test_a_failed_stage_stops_later_stages(self):
+        first, second = groups_of(("a", 1)), groups_of(("b", 1))
+        launch = FakeLaunch(fail={("fake", "a", "0")})
+        code, _ = self.run_frozen(((first, 2), (second, 1)), launch)
+        self.assertEqual(code, 1)
+        self.assertNotIn(("fake", "b", "0"), launch.ran)
+
+    def test_packaging_never_runs_without_this_builds_benchmark(self):
+        write_build(self.web)
+        launch = FakeLaunch()
+        packaging = rcv.packaging_group()
+        code, output = self.run_frozen((((packaging,), 1),), launch, restored=True)
+        self.assertEqual((code, launch.ran), (1, [("make", "all")]))
+        self.assertIn("packaging needs this build's benchmark", output)
+        overlay = self.root / "overlay"
+        write_overlay(overlay, self.web)
+        rcv.apply_performance_overlay(overlay, self.web, REVISION)
+        launch = FakeLaunch()
+        self.assertEqual(self.run_frozen((((packaging,), 1),), launch, restored=True)[0], 0)
+        self.assertEqual(launch.ran, [("make", "all"), *rcv.ITCH_STEPS])
+
+    def test_running_one_group_keeps_other_groups_results(self):
+        work = self.root / "work"
+        (work / "paint/ui").mkdir(parents=True)
+        (work / "paint/ui/capture.png").write_text("kept")
+        (work / "paint.log").write_text("kept")
+        (work / "performance/ui").mkdir(parents=True)
+        (work / "performance/ui/old.png").write_text("stale")
+        (work / "performance.log").write_text("stale")
+        rcv.clear_group(rcv.Group("performance", ()), work)
+        self.assertEqual((work / "paint/ui/capture.png").read_text(), "kept")
+        self.assertEqual((work / "paint.log").read_text(), "kept")
+        self.assertFalse((work / "performance").exists())
+        self.assertFalse((work / "performance.log").exists())
+
+
+REVISION = "a" * 40
+
+
+def write_build(web, revision=REVISION):
+    web.mkdir(parents=True, exist_ok=True)
+    (web / "version.json").write_text(json.dumps({"version": "0.1.31", "revision": revision}))
+    for name in ("canvas.html", "dom.html", "jungle.js", "jungle-dom.js", "jungle.wasm", "jungle-dom.wasm"):
+        (web / name).write_text(name)
+
+
+def write_overlay(folder, web):
+    import measure_web
+    folder.mkdir(parents=True, exist_ok=True)
+    payload = {"build": json.loads((web / "version.json").read_text()),
+               "build_artifacts_sha256": measure_web.fingerprints(web)}
+    (folder / "performance.json").write_text(json.dumps(payload))
+    (folder / "performance.html").write_text("benchmark page")
+    (folder / "performance-report.md").write_text("benchmark report")
+
+
+class PerformanceOverlay(unittest.TestCase):
+    def setUp(self):
+        self.temporary = tempfile.TemporaryDirectory()
+        self.root = Path(self.temporary.name)
+        self.web, self.overlay = self.root / "web", self.root / "overlay"
+        write_build(self.web)
+        write_overlay(self.overlay, self.web)
+        self.before = sorted(path.name for path in self.web.iterdir())
+
+    def tearDown(self):
+        self.temporary.cleanup()
+
+    def assert_refused(self, message, revision=REVISION):
+        with self.assertRaisesRegex(ValueError, message):
+            rcv.apply_performance_overlay(self.overlay, self.web, revision)
+        self.assertEqual(sorted(path.name for path in self.web.iterdir()), self.before, "a refused overlay writes nothing")
+
+    def test_a_matching_overlay_is_copied_and_then_complete(self):
+        self.assertEqual(rcv.performance_problem(self.web), "performance.html is missing")
+        rcv.apply_performance_overlay(self.overlay, self.web, REVISION)
+        self.assertEqual((self.web / "performance.html").read_text(), "benchmark page")
+        self.assertEqual(sorted(set(path.name for path in self.web.iterdir()) - set(self.before)),
+                         sorted(rcv.PERFORMANCE_FILES))
+        self.assertIsNone(rcv.performance_problem(self.web, REVISION))
+
+    def test_another_revision_is_refused(self):
+        self.assert_refused("not " + "b" * 40, "b" * 40)
+
+    def test_a_benchmark_of_another_build_is_refused(self):
+        write_build(self.web, "b" * 40)
+        self.assert_refused("measured another build", "b" * 40)
+
+    def test_changed_core_files_are_refused(self):
+        (self.web / "jungle.wasm").write_text("different")
+        self.assert_refused("fingerprints differ")
+
+    def test_only_the_three_regular_files_are_accepted(self):
+        (self.overlay / "index.html").write_text("replaced")
+        self.assert_refused("must hold exactly")
+        (self.overlay / "index.html").unlink()
+        (self.overlay / "performance.html").unlink()
+        self.assert_refused("must hold exactly")
+        (self.overlay / "performance.html").symlink_to(self.web / "dom.html")
+        self.assert_refused("not a regular file")
+
+    def test_the_command_refuses_before_any_group_starts(self):
+        result = subprocess.run([sys.executable, "tools/run_ci_validation.py", "--group", "no-such-group"], cwd=ROOT,
+                                capture_output=True, text=True, timeout=60)
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("unknown group no-such-group", result.stdout)
+
+
+class GroupCommand(unittest.TestCase):
+    """The real command in a private root: fake make, python3 and node record what they ran."""
+    def setUp(self):
+        self.temporary = tempfile.TemporaryDirectory()
+        self.root = Path(self.temporary.name)
+        (self.root / "tools").mkdir()
+        for name in ("run_ci_validation.py", "measure_web.py"):
+            shutil.copy(ROOT / "tools" / name, self.root / "tools" / name)
+        (self.root / "tools/book_catalog.py").write_text(f"LANGUAGES = {rcv.book_languages()!r}\n")
+        shutil.copy(ROOT / "Makefile", self.root / "Makefile")
+        (self.root / "build/app").mkdir(parents=True)
+        (self.root / "build/app/jungle").write_text("restored")
+        self.record = self.root / "ran.txt"
+        fake = self.root / "fake-bin"
+        fake.mkdir()
+        for tool in ("make", "python3", "node"):
+            (fake / tool).write_text(f'#!/bin/sh\necho "{tool} $*" >> "{self.record}"\necho "output of {tool} $*"\n')
+            (fake / tool).chmod(0o755)
+        self.env = {"PATH": f"{fake}{os.pathsep}{os.environ['PATH']}", "DISPLAY": ":0"}
+
+    def tearDown(self):
+        self.temporary.cleanup()
+
+    def command(self, *args):
+        return subprocess.run([sys.executable, str(self.root / "tools/run_ci_validation.py"), *args], cwd=self.root,
+                              env=self.env, capture_output=True, text=True, timeout=60)
+
+    def test_sequential_groups_keep_each_others_logs_and_run_only_their_own_steps(self):
+        first = self.command("--group", "hide-seek")
+        self.assertEqual(first.returncode, 0, first.stdout + first.stderr)
+        capture = self.root / "work/ci-validation/hide-seek/ui/capture.png"
+        capture.write_text("kept")
+        second = self.command("--group", "activities")
+        self.assertEqual(second.returncode, 0, second.stdout + second.stderr)
+        self.assertEqual(capture.read_text(), "kept")
+        self.assertIn("tests/hide_seek_levels_test.py", (self.root / "work/ci-validation/hide-seek.log").read_text())
+        self.assertIn("tests/drums_playground_test.py", (self.root / "work/ci-validation/activities.log").read_text())
+        ran = self.record.read_text().splitlines()
+        self.assertEqual(ran.count("make all"), 2)
+        self.assertEqual(ran.count("python3 tests/hide_seek_levels_test.py"), 1)
+        self.assertEqual(len(ran), 2 + 1 + 4)
+
+    def test_a_group_without_a_restored_build_or_benchmark_runs_nothing(self):
+        refused = self.command("--group", rcv.PACKAGING)
+        self.assertEqual(refused.returncode, 1)
+        self.assertIn("packaging needs this build's benchmark", refused.stdout)
+        self.assertEqual(self.record.read_text().splitlines(), ["make all"])
+        (self.root / "build/app/jungle").unlink()
+        self.assertEqual(self.command("--group", "paint").returncode, 1)
+
+    def test_apply_performance_needs_the_exact_revision(self):
+        web, overlay = self.root / "build/web", self.root / "overlay"
+        write_build(web)
+        write_overlay(overlay, web)
+        self.assertEqual(self.command("--apply-performance", str(overlay)).returncode, 2)
+        self.assertEqual(self.command("--apply-performance", str(overlay), "--revision", "b" * 40).returncode, 1)
+        self.assertFalse((web / "performance.json").exists())
+        applied = self.command("--apply-performance", str(overlay), "--revision", REVISION)
+        self.assertEqual(applied.returncode, 0, applied.stdout + applied.stderr)
+        self.assertTrue((web / "performance.json").exists())
+        self.assertFalse(self.record.exists(), "applying the benchmark runs no build or test")
 
 
 class Isolation(unittest.TestCase):
@@ -336,19 +602,43 @@ with open({str(self.record)!r}, "a") as f: f.write(f"end {{sys.argv[1]}} {{time.
         self.assertEqual(rcv.resolve_real_make(str(self.real.parent), self.bin), str(self.real.resolve()))
 
 
+MASTER_ONLY = "github.ref == 'refs/heads/master' && github.event_name != 'pull_request'"
+RUN_GROUP = "python3 tools/run_ci_validation.py --group "
+
+
+def lines_of(step):
+    return step.get("run", "").splitlines()
+
+
+def named(steps, name):
+    return next(step for step in steps if step.get("name") == name)
+
+
+def commands(steps):
+    return [line.strip() for step in steps for line in lines_of(step)]
+
+
 class Workflow(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        if yaml is None:
+            raise unittest.SkipTest("PyYAML is not installed")
+        cls.text = (ROOT / ".github/workflows/pages.yml").read_text()
+        cls.workflow = yaml.safe_load(cls.text)
+        cls.jobs = cls.workflow["jobs"]
+
+    def steps(self, job):
+        return self.jobs[job]["steps"]
+
     def test_runner_and_this_test_compile(self):
         for path in ("tools/run_ci_validation.py", "tests/ci_validation_test.py", "tests/book_ui_test.py",
                      "tests/runtime_test.py"):
             compile((ROOT / path).read_text(), path, "exec")  # syntax only; writes no bytecode
 
-    @unittest.skipIf(yaml is None, "PyYAML is not installed")
     def test_public_benchmark_verification_matches_the_generated_page(self):
         import ast
         import measure_web
-        workflow = yaml.safe_load((ROOT / ".github/workflows/pages.yml").read_text())
-        steps = workflow["jobs"]["test-build"]["steps"]
-        script = next(step["run"] for step in steps if step.get("name") == "Verify public version")
+        script = named(self.steps("publish"), "Verify public version")["run"]
         script = script.split("python3 - <<'PY'\n", 1)[1].rsplit("\nPY", 1)[0]
         page_checks = next(node for node in ast.walk(ast.parse(script))
                           if isinstance(node, ast.Dict) and any(
@@ -361,44 +651,170 @@ class Workflow(unittest.TestCase):
         for marker in markers:
             self.assertIn(marker, page)
 
-    @unittest.skipIf(yaml is None, "PyYAML is not installed")
-    def test_one_job_builds_once_then_runs_the_validation(self):
-        workflow = yaml.safe_load((ROOT / ".github/workflows/pages.yml").read_text())
-        self.assertEqual(list(workflow["jobs"]), ["test-build"])
-        steps = workflow["jobs"]["test-build"]["steps"]
+    def test_the_jobs_run_in_a_gated_chain_on_standard_machines(self):
+        self.assertEqual(list(self.jobs), ["build", "validate", "package", "publish"])
+        self.assertEqual(self.jobs["validate"]["needs"], "build")
+        self.assertEqual(self.jobs["package"]["needs"], ["build", "validate"])
+        self.assertEqual(self.jobs["publish"]["needs"], "package")
+        self.assertEqual(self.jobs["publish"]["if"], MASTER_ONLY)
+        for job in ("build", "validate", "package"):
+            self.assertNotIn("if", self.jobs[job], "every revision runs the same gates, pull requests too")
+        for name, job in self.jobs.items():
+            self.assertEqual(job["runs-on"], "ubuntu-latest", name)
+            self.assertNotIn("continue-on-error", job, name)
+            self.assertNotIn("permissions", job, name)
+        self.assertEqual(self.workflow["permissions"], {"contents": "read"})
+
+    def test_secrets_exist_only_in_the_publish_job(self):
+        for job in ("build", "validate", "package"):
+            self.assertNotIn("secrets.", yaml.safe_dump(self.jobs[job]), job)
+        self.assertNotIn("secrets.", yaml.safe_dump(self.workflow.get("env", {})))
+        self.assertEqual(self.text.count("secrets."), 2)
+
+    def test_the_build_job_builds_once_before_uploading_the_shared_build(self):
+        steps = self.steps("build")
         names = [step.get("name") for step in steps]
-        self.assertLess(names.index("Check the validation schedule"),
-                        names.index("Build compiler and select locked source directories"))
-        build = steps[names.index("Build and run local tests")]["run"].splitlines()
-        commands = [line for line in build if line.startswith(("make", "python3", "node"))]
-        self.assertEqual(commands, ["make -j2 all", "make test", "python3 tools/build_web.py"])
-        self.assertNotIn("continue-on-error", steps[names.index("Build and run local tests")])
-        artifact_index = names.index("Preserve the browser build for diagnosis")
-        validation_index = names.index("Validate browser and desktop interactions")
-        self.assertLess(names.index("Build and run local tests"), artifact_index)
-        self.assertLess(artifact_index, validation_index)
-        self.assertLess(validation_index, names.index("Publish the tested website"))
-        artifact = steps[artifact_index]
-        self.assertEqual(artifact["uses"], "actions/upload-artifact@v4")
+        schedule_check = named(steps, "Check the validation schedule and shared build contract")
+        self.assertEqual(lines_of(schedule_check), ["python3 tests/ci_validation_test.py", "python3 tests/ci_artifacts_test.py"])
+        order = ["Check the validation schedule and shared build contract", "Build compiler",
+                 "Select the compiler and locked source directories", "Build and run local tests",
+                 "Preserve the browser build for diagnosis", "Pack the shared build", "Upload the shared build"]
+        self.assertEqual(sorted(order, key=names.index), order)
+        build = [line for line in lines_of(named(steps, "Build and run local tests")) if line.startswith(("make", "python3", "node"))]
+        self.assertEqual(build, ["make -j2 all", "make test", "python3 tools/build_web.py"])
+        self.assertNotIn("continue-on-error", named(steps, "Build and run local tests"))
+        artifact = named(steps, "Preserve the browser build for diagnosis")
         self.assertEqual(artifact["with"]["path"], "waozixyz/learning/jungle/build/web/")
         self.assertTrue(artifact["continue-on-error"])
-        validation = steps[validation_index]
-        self.assertNotIn("continue-on-error", validation)
-        self.assertNotIn("if", validation)
-        self.assertEqual([line for line in validation["run"].splitlines()
-                          if line.startswith(("make", "python3", "node"))],
-                         ["python3 tools/run_ci_validation.py"])
-        all_commands = [line for step in steps for line in step.get("run", "").splitlines()]
-        self.assertEqual(all_commands.count("python3 tools/build_web.py"), 1)
-        self.assertEqual(all_commands.count("python3 tools/run_ci_validation.py"), 1)
-        capture = steps[names.index("Save private test captures on failure")]
-        self.assertEqual(capture["if"], "failure()")
-        self.assertIn("waozixyz/learning/jungle/work/ci-validation/*.log", capture["with"]["path"])
-        publishing = names[names.index("Publish the tested website"):]
-        self.assertEqual(publishing, ["Publish the tested website", "Verify public version", "Install itch.io Butler",
-                                      "Publish the tested browser edition to itch.io"])
-        for step in steps[names.index("Publish the tested website"):]:
-            self.assertEqual(step["if"], "github.ref == 'refs/heads/master' && github.event_name != 'pull_request'")
+        self.assertEqual(artifact["with"]["name"], "browser-build-${{ github.sha }}")
+        self.assertNotIn("continue-on-error", named(steps, "Upload the shared build"))
+        everywhere = [line for job in self.jobs for line in commands(self.steps(job))]
+        for command in ("make -j2 all", "make test", "python3 tools/build_web.py"):
+            self.assertEqual(everywhere.count(command), 1, command)
+        self.assertEqual([uses for job in self.jobs for uses in
+                          [step.get("uses", "") for step in self.steps(job)] if "setup-emsdk" in uses],
+                         ["emscripten-core/setup-emsdk@v15"])
+        self.assertEqual(sum("make -j2 -C" in line for line in everywhere), 1, "only the build job builds the compiler")
+
+    def test_every_job_uses_the_exact_candidate_and_locked_sources(self):
+        for job in self.jobs:
+            checkout = self.steps(job)[0]
+            self.assertTrue(checkout["uses"].startswith("actions/checkout@"), job)
+            self.assertEqual(checkout["with"], {"ref": "${{ github.sha }}", "path": "waozixyz/learning/jungle"}, job)
+        for job in ("build", "validate", "package"):
+            used = {step["with"].get("repository"): step["with"]["ref"] for step in self.steps(job)
+                    if step.get("uses", "").startswith("actions/checkout@") and "repository" in step["with"]}
+            self.assertEqual(used, {"ziranlang/ziran": "${{ steps.deps.outputs.ziran }}",
+                                    "kryonlabs/kryon": "${{ steps.deps.outputs.kryon }}"}, job)
+            self.assertIn('echo "$GITHUB_WORKSPACE/ziranlang/ziran/build/bin" >> "$GITHUB_PATH"', commands(self.steps(job)))
+            self.assertIn('echo "ZIRAN_ROOT=$GITHUB_WORKSPACE/ziranlang/ziran" >> "$GITHUB_ENV"', commands(self.steps(job)))
+
+    def test_the_matrix_assigns_every_group_exactly_once(self):
+        strategy = self.jobs["validate"]["strategy"]
+        self.assertEqual(strategy["max-parallel"], 4)
+        self.assertIs(strategy["fail-fast"], False)
+        lanes = tuple((entry["lane"], tuple(json.loads(entry["groups"]))) for entry in strategy["matrix"]["include"])
+        self.assertEqual(lanes, rcv.CI_LANES)
+        self.assertEqual(list(strategy["matrix"]), ["include"])
+        assigned = [name for _, names in lanes for name in names]
+        self.assertEqual(collections.Counter(assigned), collections.Counter(group.name for group in rcv.schedule()))
+
+    def test_each_group_is_its_own_visible_step_in_lane_order(self):
+        steps = self.steps("validate")
+        runs = [step for step in steps if step.get("run", "").startswith(RUN_GROUP)]
+        names = [step["run"][len(RUN_GROUP):] for step in runs]
+        self.assertEqual(collections.Counter(names), collections.Counter(group.name for group in rcv.schedule()))
+        for step, name in zip(runs, names):
+            self.assertEqual(step["name"], f"Validate {name}")
+            self.assertEqual(step["if"], f"contains(fromJSON(matrix.groups), '{name}')")
+            self.assertNotIn("continue-on-error", step)
+        for _, lane in rcv.CI_LANES:
+            self.assertEqual([name for name in names if name in lane], list(lane))
+        self.assertEqual(names[0], "hide-seek", "the short gate reports first")
+        self.assertNotIn(rcv.PACKAGING, names)
+
+    def test_lanes_restore_the_shared_build_before_any_group(self):
+        for job in ("validate", "package"):
+            steps = self.steps(job)
+            names = [step.get("name") for step in steps]
+            download = named(steps, "Download the shared build")
+            self.assertEqual(download["uses"], "actions/download-artifact@v4")
+            self.assertEqual(download["with"], {"name": "ci-build-${{ github.sha }}",
+                                                "path": "waozixyz/learning/jungle/work/ci-artifacts"})
+            restore = named(steps, "Restore the shared build")
+            self.assertEqual(lines_of(restore), ['python3 tools/ci_artifacts.py restore --kind build --revision "$GITHUB_SHA" '
+                                                 '--archive work/ci-artifacts/ci-build.tar.gz --toolchain "$ZIRAN_ROOT"'])
+            self.assertLess(names.index("Select the compiler and locked source directories"), names.index("Download the shared build"))
+            self.assertLess(names.index("Download the shared build"), names.index("Restore the shared build"))
+            first_group = min(index for index, step in enumerate(steps) if step.get("run", "").startswith(RUN_GROUP))
+            self.assertLess(names.index("Restore the shared build"), first_group)
+            checkouts = [index for index, step in enumerate(steps) if step.get("uses", "").startswith("actions/checkout@")]
+            self.assertLess(max(checkouts), names.index("Restore the shared build"), "outputs are refreshed after all sources")
+
+    def test_shared_outputs_are_short_lived_and_stored_uncompressed(self):
+        for job, name, archive in (("build", "Upload the shared build", "work/ci-build.tar.gz"),
+                                   ("package", "Upload the tested website", "work/ci-web.tar.gz")):
+            upload = named(self.steps(job), name)["with"]
+            self.assertEqual(upload["retention-days"], 1)
+            self.assertEqual(upload["compression-level"], 0)
+            self.assertEqual(upload["if-no-files-found"], "error")
+            self.assertEqual(upload["path"], "waozixyz/learning/jungle/" + archive)
+        pack = lines_of(named(self.steps("build"), "Pack the shared build"))
+        self.assertEqual(pack, ['python3 tools/ci_artifacts.py pack --kind build --revision "$GITHUB_SHA" '
+                                '--output work/ci-build.tar.gz --toolchain "$ZIRAN_ROOT"'])
+
+    def test_only_the_benchmark_lane_uploads_only_the_benchmark_at_its_end(self):
+        steps = self.steps("validate")
+        upload = named(steps, "Upload the benchmark of the shared build")
+        self.assertEqual(upload["if"], "contains(fromJSON(matrix.groups), 'performance')")
+        self.assertEqual(upload["with"]["retention-days"], 1)
+        self.assertEqual(upload["with"]["if-no-files-found"], "error")
+        self.assertEqual(sorted(path.rsplit("/", 1)[1] for path in upload["with"]["path"].splitlines()), sorted(rcv.PERFORMANCE_FILES))
+        groups = max(index for index, step in enumerate(steps) if step.get("run", "").startswith(RUN_GROUP))
+        self.assertGreater(steps.index(upload), groups)
+
+    def test_the_package_job_tests_the_benchmarked_build_once(self):
+        steps = self.steps("package")
+        order = ["Restore the shared build", "Download the benchmark of the shared build",
+                 "Add the benchmark to the tested website", "Prepare and test the embed edition",
+                 "Pack the tested website", "Upload the tested website"]
+        names = [step.get("name") for step in steps]
+        self.assertEqual(sorted(order, key=names.index), order)
+        self.assertEqual(lines_of(named(steps, "Add the benchmark to the tested website")),
+                         ['python3 tools/run_ci_validation.py --apply-performance work/ci-artifacts/performance --revision "$GITHUB_SHA"'])
+        self.assertEqual(lines_of(named(steps, "Prepare and test the embed edition")), [RUN_GROUP + rcv.PACKAGING])
+        self.assertEqual(lines_of(named(steps, "Pack the tested website")),
+                         ['python3 tools/ci_artifacts.py pack --kind web --revision "$GITHUB_SHA" --output work/ci-web.tar.gz'])
+        self.assertFalse([step for step in steps if "if" in step and step["if"] != "failure()"])
+
+    def test_publishing_uses_only_the_tested_website(self):
+        steps = self.steps("publish")
+        names = [step.get("name") for step in steps]
+        self.assertEqual(names[names.index("Download the tested website"):],
+                         ["Download the tested website", "Restore the tested website", "Publish the tested website",
+                          "Verify public version", "Install itch.io Butler", "Publish the tested browser edition to itch.io"])
+        self.assertEqual(named(steps, "Download the tested website")["with"]["name"], "ci-web-${{ github.sha }}")
+        self.assertEqual(lines_of(named(steps, "Restore the tested website")),
+                         ['python3 tools/ci_artifacts.py restore --kind web --revision "$GITHUB_SHA" --archive work/ci-artifacts/ci-web.tar.gz'])
+        lines = commands(steps)
+        self.assertIn('npx --yes wrangler@4.152.0 pages deploy build/web --project-name jungle --branch master --commit-hash "$GITHUB_SHA"', lines)
+        self.assertIn('butler push build/itch-web waozi/jungle:html5 --userversion "$(cat VERSION)"', lines)
+        self.assertIn("python3 tools/connect_domain.py", lines)
+        for line in lines:
+            self.assertFalse(line.startswith(("make", "python3 tests/", RUN_GROUP)), line)
+        self.assertFalse([step for step in steps if "repository" in step.get("with", {})], "publishing needs no compiler")
+        self.assertFalse([step for step in steps if "continue-on-error" in step])
+
+    def test_failure_captures_stay_private_to_each_failed_job(self):
+        for job in ("build", "validate", "package"):
+            capture = named(self.steps(job), "Save private test captures on failure")
+            self.assertEqual(capture["if"], "failure()")
+            self.assertTrue(capture["continue-on-error"])
+            self.assertEqual(capture["with"]["name"], "website-ui-failure-${{ github.job }}-${{ strategy.job-index }}")
+            self.assertEqual(capture["with"]["retention-days"], 1)
+            paths = capture["with"]["path"]
+            self.assertIn("waozixyz/learning/jungle/work/ci-validation/*.log", paths)
+            self.assertIn("waozixyz/learning/jungle/work/hide-seek-levels/ui/*", paths)
 
 
 if __name__ == "__main__":

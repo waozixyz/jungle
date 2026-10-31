@@ -13,6 +13,9 @@
 #import "kryon/svg_icon_widget"
 #import "kryon/drawing_props"
 #import "kryon/text_align"
+#import "kryon/text_props"
+#import "kryon/text_widget"
+#import "std/utf8"
 Heart :: #import "mingcute/mingcute_filled_heart";
 Search :: #import "mingcute/mingcute_regular_search";
 Again :: #import "mingcute/mingcute_regular_refresh_2";
@@ -210,6 +213,19 @@ PromptWords :: () -> string {
     return Words("Peekaboo! Who is hiding?", "Kuckuck! Wer versteckt sich da?", "¡Cucú! ¿Quién se esconde?")
 }
 
+// The card's words stay readable on a narrow phone: they wrap onto a second
+// line at the usual size instead of shrinking onto one tiny line, and only
+// shrink if even two lines could not hold them.
+PromptText :: (x: s32, y: s32, width: s32, height: s32, text: string) {
+    font: s32 = 20
+    length := Count(text)
+    if length > 0 && length * font * 3 > width * 10 { font = width * 10 / (length * 3) }
+    if font < 12 { font = 12 }
+    Text(retro.session, TextProps.{.bounds = RetroRect(x, y, width, height), .text = text,
+        .font = cast(s32)(cast(float32)font * retro.scale), .align = TextAlign.TextAlignCenter,
+        .vertical_align = TextAlign.TextAlignCenter, .wrap = TextWrap.TextWrapAuto})
+}
+
 // The prompt card: what to do and one dot for each hiding friend, filled
 // once found; it never shows who hides or where. A tap says it again.
 Prompt :: (y: s32, height: s32) {
@@ -232,7 +248,7 @@ Prompt :: (y: s32, height: s32) {
             ifx i < found then cast(u32)0xe4a77fff else cast(u32)0xf1e6d2ff, 0xd4b896ff, cast(float32)dot / 2.0)
     }
     left := picture + edge + 8
-    BookText(left, y, x + width - left - 16 - dots, height, text, 20, TextAlign.TextAlignCenter, false)
+    PromptText(left, y, x + width - left - 16 - dots, height, text)
     if press.clicked && !input_guard { SayPrompt() }
 }
 

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Focused rules and private-host verification for Hide & Seek levels."""
+import os
 from pathlib import Path
 import re
 import subprocess
@@ -14,7 +15,10 @@ import runtime_test as rt
 sys.path.insert(0, str(rt.ROOT / "tools"))
 from book_catalog import WORDS  # noqa: E402
 
-rt.OUTPUT = rt.ROOT / "work/hide-seek-levels/ui"
+# CI validation passes each group its own capture folder; keep failing
+# captures there so they reach the uploaded artifacts.
+rt.OUTPUT = (Path(os.environ["JUNGLE_TEST_OUTPUT"]).resolve() if os.environ.get("JUNGLE_TEST_OUTPUT")
+             else rt.ROOT / "work/hide-seek-levels/ui")
 BINARY = rt.ROOT / "build/app/jungle"
 MODEL = rt.ROOT / "games/hide_seek/hide_seek.zi"
 SCREEN = rt.ROOT / "games/hide_seek/jungle_hide_seek.zi"
@@ -294,13 +298,16 @@ def look_everywhere(screen, label):
         before = stage(screen, f"{label}-before-{place}")
         d.key("Return")
         time.sleep(.75)
-        after = stage(screen, f"{label}-after-{place}")
+        # One actual frame serves both the scene and the completion words,
+        # well inside the completed round's automatic advance.
+        frame = screen.capture(f"{label}-after-{place}")
+        after = stage_crop(screen, frame)
         state = saved(data)
         assert state[0] == 1 and state[2] == remembered and state[1] in (found + count, found + count + 1), (label, state)
         if state[1] == found + count + 1:
             count += 1
             assert changed(before, after), (label, "a found friend did not appear")
-            if completion_visible(screen):
+            if completion_visible(screen, frame):
                 return found + count, after
         else:
             assert not changed(before, after), (label, "an empty place revealed or hinted at something")
@@ -419,9 +426,8 @@ def language_pass(language, temporary):
     print(f"local hide & seek UI: {language} old save, hidden-until-found, empty looks, 4 scenes x 2 orientations, auto/manual next, held input and reopen passed", flush=True)
 
 
-def completion_visible(screen):
-    # Read the actual rendered completion words on this private window only.
-    image = screen.capture("completion-probe")
+def completion_visible(screen, image):
+    # Read the actual rendered completion words in this private window's frame.
     scale = geometry(*screen.size)[0]
     crop = image.crop((0, 56, image.width, round(56 + 84 * scale)))
     # OCR uses only this owned private capture and disposable project work.

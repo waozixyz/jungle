@@ -1,21 +1,26 @@
 #!/usr/bin/env python3
 """Run Jungle's post-build native UI and browser gates, at most two at a time.
 
-GitHub CI runs this once, after the one shared `make all`, `make test` and
-`tools/build_web.py`. It runs every `make test-ui` recipe line and every
-browser gate the workflow used to run one after another, as disjoint groups
-with at most two test subprocesses at once. Each group gets its own capture
-folder, scratch and XDG directories under work/ci-validation. Lazy `make`
-calls from tests go through a reentrant lock, so no two builds write the
-same outputs, and the installed app must stay byte-for-byte the build that
-was tested. Success means every gate passed; after a failure, commands
-already running finish and nothing new starts.
+It runs every `make test-ui` recipe line and every browser gate exactly once,
+as disjoint groups with at most two test subprocesses at once. Each group gets
+its own capture folder, scratch and XDG directories under work/ci-validation.
+Lazy `make` calls from tests go through a reentrant lock, so no two builds
+write the same outputs, and the installed app must stay byte-for-byte the
+build that was tested. Success means every gate passed; after a failure,
+commands already running finish and nothing new starts.
+
+Without arguments, all groups run here and the embed package gate follows them.
+GitHub CI instead restores one shared build on four machines and runs one
+group at a time with --group NAME, as CI_LANES assigns them; the package job
+then applies the benchmark with --apply-performance and runs --group packaging.
+The whole plan is checked before anything is selected.
 """
 from __future__ import annotations
 
 import argparse
 import collections
 import dataclasses
+import json
 import os
 from pathlib import Path
 import shlex
@@ -29,7 +34,19 @@ import time
 ROOT = Path(__file__).resolve().parents[1]
 WORK = ROOT / "work/ci-validation"
 BIN = ROOT / "work/ci-bin"
+APP = ROOT / "build/app"
+WEB = ROOT / "build/web"
 MAX_WORKERS = 2
+PACKAGING = "packaging"
+# The GitHub validation machines; pages.yml lists the same groups in the same
+# order. Each machine runs one group process at a time.
+CI_LANES = (("a", ("browser",)),
+            ("b", ("performance", "paint")),
+            ("c", ("hide-seek", "activities", "book-en")),
+            ("d", ("book-de", "book-es", "books", "navigation")))
+PERFORMANCE_FILES = ("performance.html", "performance.json", "performance-report.md")
+BENCHMARK = ("python3", "tools/measure_web.py")
+ITCH_STEPS = (("python3", "tools/prepare_itch.py"), ("python3", "tools/test_itch_web.py"))
 BOOK_RECIPE = "python3 tests/book_ui_test.py"
 # Environment of the PATH make wrapper (see MAKE_WRAPPER).
 REAL_MAKE, MAKE_LOCK, LOCK_HELD = "JUNGLE_CI_REAL_MAKE", "JUNGLE_CI_MAKE_LOCK", "JUNGLE_CI_MAKE_LOCK_HELD"
@@ -69,7 +86,7 @@ def web(script: str, page: str | None = None, **env: str) -> Step:
 
 
 def browser_steps() -> tuple[Step, ...]:
-    """All original browser gates, painting first; prepare_itch stays before test_itch."""
+    """All original browser gates, painting first; schedule() partitions them."""
     steps = [web("tests/paint_layers_web_test.mjs", "canvas.html"),
              web("tests/paint_layers_web_test.mjs", "dom.html"),
              web("tests/book_browser_interaction_test.mjs", "dom.html"),
@@ -91,16 +108,21 @@ def browser_steps() -> tuple[Step, ...]:
 
 
 def schedule() -> tuple[Group, ...]:
-    """Groups in start order: a free slot takes the next one."""
+    """Groups in start order: a free slot takes the next one.
+
+    Every group here may run at once; packaging_group() runs after all of them.
+    """
     def group(name, *commands, tmpdir=None):
         return Group(name, tuple(native(c) if isinstance(c, str) else c for c in commands), tmpdir)
     return (
         group("paint", "python3 tests/slot_preview_test.py", "python3 tests/paint_layers_test.py",
               "python3 tests/paint_history_test.py", "python3 tests/paint_library_test.py",
               "python3 tests/language_ui_test.py"),
+        group("hide-seek", "python3 tests/hide_seek_levels_test.py"),
         # Chromium's singleton socket must fit a Unix socket path, so the
-        # browser group keeps the short TMPDIR the workflow always used.
-        Group("browser", browser_steps(), tmpdir="work/b"),
+        # browser groups keep short TMPDIRs like the one the workflow always used.
+        Group("browser", tuple(step for step in browser_steps()
+                               if step.argv != BENCHMARK and step.argv not in ITCH_STEPS), tmpdir="work/b"),
         group("book-en", book("en")),
         group("book-de", book("de")),
         group("navigation", "python3 tests/menu_ui_test.py", "python3 tests/runtime_test.py --ui",
@@ -108,11 +130,16 @@ def schedule() -> tuple[Group, ...]:
               "python3 tests/jigsaw_sizes_ui_test.py", "python3 tests/jigsaw_ui_test.py"),
         group("book-es", book("es")),
         group("activities", "python3 tests/shapes_guidance_test.py", "python3 tests/counting_exercises_test.py",
-              "python3 tests/drums_playground_test.py", "python3 tests/new_activities_ui_test.py",
-              "python3 tests/hide_seek_levels_test.py"),
+              "python3 tests/drums_playground_test.py", "python3 tests/new_activities_ui_test.py"),
         group("books", "python3 tests/book_interaction_test.py", "python3 tests/book_additions_ui_test.py",
               "python3 tests/abc_sequence_ui_test.py", "python3 tests/playback_ui_test.py"),
+        Group("performance", (Step(BENCHMARK),), tmpdir="work/p"),
     )
+
+
+def packaging_group() -> Group:
+    """The embed package and its nested-URL test, on the benchmarked build."""
+    return Group(PACKAGING, tuple(Step(argv) for argv in ITCH_STEPS), tmpdir="work/i")
 
 
 def test_ui_recipe(makefile: str) -> tuple[list[str], list[str]]:
@@ -161,6 +188,23 @@ def coverage_problems(groups, recipe, languages) -> list[str]:
     expected = collections.Counter(recipe)
     problems += [f"test-ui line not scheduled: {line}" for line in expected - covered]
     problems += [f"scheduled line not in test-ui: {line}" for line in covered - expected]
+    return problems
+
+
+def plan_problems(groups, packaging, lanes=CI_LANES) -> list[str]:
+    """Every browser gate runs once, and every validation group on exactly one machine."""
+    problems = []
+    actual = collections.Counter(step.label() for group in (*groups, packaging)
+                                 for step in group.steps if step.recipe is None)
+    expected = collections.Counter(step.label() for step in browser_steps())
+    problems += [f"browser gate not scheduled: {label}" for label in expected - actual]
+    problems += [f"step not in the browser gates: {label}" for label in actual - expected]
+    if [step.argv for step in packaging.steps] != list(ITCH_STEPS):
+        problems.append(f"{packaging.name} must prepare the embed package and then test it")
+    assigned = collections.Counter(name for _, names in lanes for name in names)
+    known = collections.Counter(group.name for group in groups)
+    problems += [f"group on no CI lane: {name}" for name in known - assigned]
+    problems += [f"CI lane group not in the schedule or repeated: {name}" for name in assigned - known]
     return problems
 
 
@@ -359,6 +403,99 @@ def app_snapshot(app: Path) -> dict[str, tuple[int, int, int]]:
     return snapshot
 
 
+def tool_module(name: str):
+    sys.path.insert(0, str(ROOT / "tools"))
+    try:
+        return __import__(name)
+    finally:
+        sys.path.pop(0)
+
+
+def benchmark_problem(payload, web_root: Path, revision: str | None = None) -> str | None:
+    """Why this benchmark does not describe exactly the build in web_root, if so."""
+    try:
+        build = json.loads((web_root / "version.json").read_text())
+        if revision is not None and build.get("revision") != revision:
+            return f"the build is {build.get('revision')}, not {revision}"
+        if not isinstance(payload, dict) or payload.get("build") != build:
+            return f"it measured another build: {payload.get('build') if isinstance(payload, dict) else payload}"
+        if payload.get("build_artifacts_sha256") != tool_module("measure_web").fingerprints(web_root):
+            return "its core file fingerprints differ from the build"
+    except (OSError, ValueError) as error:
+        return f"it cannot be checked: {error}"
+    return None
+
+
+def performance_problem(web_root: Path, revision: str | None = None) -> str | None:
+    """Why web_root does not hold its own complete benchmark, if so."""
+    for name in PERFORMANCE_FILES:
+        if (web_root / name).is_symlink() or not (web_root / name).is_file():
+            return f"{name} is missing"
+    try:
+        payload = json.loads((web_root / "performance.json").read_text())
+    except (OSError, ValueError) as error:
+        return f"performance.json cannot be read: {error}"
+    return benchmark_problem(payload, web_root, revision)
+
+
+def apply_performance_overlay(source: Path, web_root: Path, revision: str) -> None:
+    """Copy the benchmark lane's three files in, once they prove they measured this build."""
+    found = sorted(path.name for path in source.iterdir())
+    if found != sorted(PERFORMANCE_FILES):
+        raise ValueError(f"the benchmark overlay must hold exactly {sorted(PERFORMANCE_FILES)}, not {found}")
+    for name in PERFORMANCE_FILES:
+        if (source / name).is_symlink() or not (source / name).is_file():
+            raise ValueError(f"the benchmark overlay's {name} is not a regular file")
+    problem = benchmark_problem(json.loads((source / "performance.json").read_text()), web_root, revision)
+    if problem:
+        raise ValueError(f"the benchmark overlay does not match the tested build: {problem}")
+    for name in PERFORMANCE_FILES:
+        temporary = web_root / f".{name}.tmp"
+        shutil.copyfile(source / name, temporary)
+        temporary.replace(web_root / name)
+
+
+def RunFrozen(stages, launch, *, console: Console, prepare: Group, app: Path = APP, web: Path = WEB,
+              restored: bool = False) -> int:
+    """Prepare once, then run stages in order, failing if the tested app ever changes.
+
+    stages holds (groups, max_workers) pairs. A restored shared build must exist
+    and stay untouched by the lazy prepare, so a lane tests what the build job made.
+    """
+    start = app_snapshot(app)
+    if restored and "jungle" not in start:
+        console.line(f"::error title=CI validation::no restored build in {app}")
+        return 1
+    if RunCIValidation((prepare,), launch, console=console, max_workers=1):
+        return 1
+    before = app_snapshot(app)
+    if restored and before != start:
+        changed = sorted(set(start.items()) ^ set(before.items()))
+        console.line(f"::error title=CI validation::the restored app was rebuilt, not reused: {changed}")
+        return 1
+    for groups, workers in stages:
+        if any(group.name == PACKAGING for group in groups):
+            problem = performance_problem(web)
+            if problem:
+                console.line(f"::error title=CI validation::packaging needs this build's benchmark: {problem}")
+                return 1
+        code = RunCIValidation(groups, launch, console=console, max_workers=workers)
+        after = app_snapshot(app)
+        if before != after:
+            changed = sorted(set(before.items()) ^ set(after.items()))
+            console.line(f"::error title=CI validation::the tested app changed while tests ran: {changed}")
+            return 1
+        if code:
+            return code
+    return 0
+
+
+def clear_group(group: Group, work: Path = WORK) -> None:
+    """Forget only this group's earlier run; other groups' captures and logs stay."""
+    shutil.rmtree(work / group.name, ignore_errors=True)
+    (work / f"{group.name}.log").unlink(missing_ok=True)
+
+
 def book_languages() -> tuple[str, ...]:
     sys.path.insert(0, str(ROOT / "tools"))
     try:
@@ -371,39 +508,52 @@ def book_languages() -> tuple[str, ...]:
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     parser.add_argument("--list", action="store_true", help="print the checked schedule and exit")
+    parser.add_argument("--group", metavar="NAME", help="run one group, keeping other groups' results")
+    parser.add_argument("--apply-performance", metavar="DIR", type=Path,
+                        help="check the benchmark lane's files against build/web, copy them in and exit")
+    parser.add_argument("--revision", help="the exact build revision --apply-performance requires")
     args = parser.parse_args(argv)
     prerequisites, recipe = test_ui_recipe((ROOT / "Makefile").read_text())
-    groups = schedule()
-    problems = coverage_problems(groups, recipe, book_languages())
+    groups, packaging = schedule(), packaging_group()
+    plan = (*groups, packaging)
+    problems = coverage_problems(plan, recipe, book_languages()) + plan_problems(groups, packaging)
     for problem in problems:
         print(f"::error title=CI validation schedule::{problem}", flush=True)
     if problems:
         return 2
+    if args.apply_performance:
+        if not args.revision:
+            parser.error("--apply-performance needs --revision")
+        try:
+            apply_performance_overlay(args.apply_performance, WEB, args.revision)
+        except (OSError, ValueError) as error:
+            print(f"::error title=CI validation::{error}", flush=True)
+            return 1
+        print(f"Applied the benchmark of the tested build {args.revision}", flush=True)
+        return 0
     if args.list:
-        for group in groups:
+        for group in plan:
             print(group.name)
             for step in group.steps:
                 print("  " + step.label())
         return 0
+    selected = [group for group in plan if group.name == args.group]
+    if args.group and not selected:
+        print(f"::error title=CI validation::unknown group {args.group}; choose from {[g.name for g in plan]}", flush=True)
+        return 2
     real_make = resolve_real_make()
-    if WORK.exists():
+    if selected:
+        clear_group(selected[0])
+    elif WORK.exists():
         shutil.rmtree(WORK)
-    WORK.mkdir(parents=True)
+    WORK.mkdir(parents=True, exist_ok=True)
     write_make_wrapper()
     console = Console()
     launch = Launcher(console, real_make)
     # make test-ui's own prerequisites, once, before any test starts.
     prepare = Group("prepare", (Step(("make", *prerequisites)),))
-    if RunCIValidation((prepare,), launch, console=console, max_workers=1):
-        return 1
-    before = app_snapshot(ROOT / "build/app")
-    code = RunCIValidation(groups, launch, console=console)
-    after = app_snapshot(ROOT / "build/app")
-    if before != after:
-        changed = sorted(set(before.items()) ^ set(after.items()))
-        console.line(f"::error title=CI validation::the tested app changed while tests ran: {changed}")
-        return 1
-    return code
+    stages = ((selected, 1),) if selected else ((groups, MAX_WORKERS), ((packaging,), 1))
+    return RunFrozen(stages, launch, console=console, prepare=prepare, restored=bool(selected))
 
 
 if __name__ == "__main__":

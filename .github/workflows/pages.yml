@@ -13,21 +13,31 @@ concurrency:
   group: jungle-${{ github.ref }}
   cancel-in-progress: false
 
+env:
+  MAKEFLAGS: -j2
+  CHROMIUM: google-chrome
+  YUE_DESKTOP_RECOVERY: '0'
+  SDL_AUDIODRIVER: dummy
+
+defaults:
+  run:
+    working-directory: waozixyz/learning/jungle
+
+# One build, four validation machines, one package, then publication. Every
+# later job restores the build job's exact outputs. The groups and lanes are
+# checked against tools/run_ci_validation.py by tests/ci_validation_test.py.
 jobs:
-  test-build:
-    name: Test and publish Jungle
+  build:
+    name: Build Jungle
     runs-on: ubuntu-latest
-    env:
-      MAKEFLAGS: -j2
-      CHROMIUM: google-chrome
-    defaults:
-      run:
-        working-directory: waozixyz/learning/jungle
     steps:
-      - uses: actions/checkout@v7
+      - &checkout-jungle
+        uses: actions/checkout@v7
         with:
+          ref: ${{ github.sha }}
           path: waozixyz/learning/jungle
-      - name: Read locked dependencies
+      - &read-locks
+        name: Read locked dependencies
         id: deps
         run: |
           python3 - <<'PY' >> "$GITHUB_OUTPUT"
@@ -36,31 +46,39 @@ jobs:
           print('ziran='+lock['toolchain']['commit'])
           print('kryon='+next(p['commit'] for p in lock['packages'] if p['name']=='kryon'))
           PY
-      - uses: actions/checkout@v7
+      - &checkout-ziran
+        uses: actions/checkout@v7
         with:
           repository: ziranlang/ziran
           ref: ${{ steps.deps.outputs.ziran }}
           path: ziranlang/ziran
-      - uses: actions/checkout@v7
+      - &checkout-kryon
+        uses: actions/checkout@v7
         with:
           repository: kryonlabs/kryon
           ref: ${{ steps.deps.outputs.kryon }}
           path: kryonlabs/kryon
-      - uses: actions/setup-node@v6
+      - &setup-node
+        uses: actions/setup-node@v6
         with:
           node-version: '22'
       - uses: emscripten-core/setup-emsdk@v15
         with:
           version: '6.0.6'
-      - name: Install build tools
+      - &install-tools
+        name: Install build tools
         run: |
           sudo apt-get update
           sudo apt-get install -y libsdl2-dev libcairo2-dev libfreetype-dev libfontconfig-dev libpango1.0-dev libvorbisfile3 ffmpeg python3-pil python3-numpy xvfb xdotool imagemagick ghostscript tesseract-ocr tesseract-ocr-deu tesseract-ocr-spa
-      - name: Check the validation schedule
-        run: python3 tests/ci_validation_test.py
-      - name: Build compiler and select locked source directories
+      - name: Check the validation schedule and shared build contract
         run: |
-          make -j2 -C "$GITHUB_WORKSPACE/ziranlang/ziran" all
+          python3 tests/ci_validation_test.py
+          python3 tests/ci_artifacts_test.py
+      - name: Build compiler
+        run: make -j2 -C "$GITHUB_WORKSPACE/ziranlang/ziran" all
+      - &select-sources
+        name: Select the compiler and locked source directories
+        run: |
           echo "$GITHUB_WORKSPACE/ziranlang/ziran/build/bin" >> "$GITHUB_PATH"
           echo "ZIRAN_ROOT=$GITHUB_WORKSPACE/ziranlang/ziran" >> "$GITHUB_ENV"
           python3 - <<'PY'
@@ -73,7 +91,6 @@ jobs:
         run: |
           mkdir -p work/b work/w
           export TMPDIR="$PWD/work/b"
-          export YUE_DESKTOP_RECOVERY=0 SDL_AUDIODRIVER=dummy
           unset DISPLAY WAYLAND_DISPLAY XAUTHORITY DBUS_SESSION_BUS_ADDRESS SESSION_MANAGER
           make -j2 all
           make test
@@ -84,33 +101,171 @@ jobs:
         with:
           name: browser-build-${{ github.sha }}
           retention-days: 1
+          overwrite: true
           path: waozixyz/learning/jungle/build/web/
-      - name: Validate browser and desktop interactions
-        run: |
-          export TMPDIR="$PWD/work/b"
-          export YUE_DESKTOP_RECOVERY=0 SDL_AUDIODRIVER=dummy
-          unset DISPLAY WAYLAND_DISPLAY XAUTHORITY DBUS_SESSION_BUS_ADDRESS SESSION_MANAGER
-          python3 tools/run_ci_validation.py
-      - name: Save private test captures on failure
+      - name: Pack the shared build
+        run: python3 tools/ci_artifacts.py pack --kind build --revision "$GITHUB_SHA" --output work/ci-build.tar.gz --toolchain "$ZIRAN_ROOT"
+      - name: Upload the shared build
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-build-${{ github.sha }}
+          retention-days: 1
+          compression-level: 0
+          overwrite: true
+          if-no-files-found: error
+          path: waozixyz/learning/jungle/work/ci-build.tar.gz
+      - &save-captures
+        name: Save private test captures on failure
         if: failure()
         continue-on-error: true
         uses: actions/upload-artifact@v4
         with:
-          name: website-ui-failure
+          name: website-ui-failure-${{ github.job }}-${{ strategy.job-index }}
           retention-days: 1
+          overwrite: true
           path: |
             waozixyz/learning/jungle/build/tests/ui/*.png
             waozixyz/learning/jungle/build/tests/ui/*.log
             waozixyz/learning/jungle/build/tests/web/*.png
             waozixyz/learning/jungle/backup/**/*.png
             waozixyz/learning/jungle/backup/**/*.log
+            waozixyz/learning/jungle/work/hide-seek-levels/ui/*
             waozixyz/learning/jungle/work/ci-validation/*.log
             waozixyz/learning/jungle/work/ci-validation/*/ui/*.png
             waozixyz/learning/jungle/work/ci-validation/*/ui/*.log
-            waozixyz/learning/jungle/build/web/
           if-no-files-found: ignore
+
+  validate:
+    name: Validate lane ${{ matrix.lane }}
+    needs: build
+    runs-on: ubuntu-latest
+    strategy:
+      # Every lane reports its own result; publication still needs all of them.
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        include:
+          - lane: a
+            groups: '["browser"]'
+          - lane: b
+            groups: '["performance", "paint"]'
+          - lane: c
+            groups: '["hide-seek", "activities", "book-en"]'
+          - lane: d
+            groups: '["book-de", "book-es", "books", "navigation"]'
+    steps:
+      - *checkout-jungle
+      - *read-locks
+      - *checkout-ziran
+      - *checkout-kryon
+      - *setup-node
+      - *install-tools
+      - *select-sources
+      - &download-build
+        name: Download the shared build
+        uses: actions/download-artifact@v4
+        with:
+          name: ci-build-${{ github.sha }}
+          path: waozixyz/learning/jungle/work/ci-artifacts
+      - &restore-build
+        name: Restore the shared build
+        run: python3 tools/ci_artifacts.py restore --kind build --revision "$GITHUB_SHA" --archive work/ci-artifacts/ci-build.tar.gz --toolchain "$ZIRAN_ROOT"
+      - name: Validate hide-seek
+        if: contains(fromJSON(matrix.groups), 'hide-seek')
+        run: python3 tools/run_ci_validation.py --group hide-seek
+      - name: Validate browser
+        if: contains(fromJSON(matrix.groups), 'browser')
+        run: python3 tools/run_ci_validation.py --group browser
+      - name: Validate performance
+        if: contains(fromJSON(matrix.groups), 'performance')
+        run: python3 tools/run_ci_validation.py --group performance
+      - name: Validate paint
+        if: contains(fromJSON(matrix.groups), 'paint')
+        run: python3 tools/run_ci_validation.py --group paint
+      - name: Validate activities
+        if: contains(fromJSON(matrix.groups), 'activities')
+        run: python3 tools/run_ci_validation.py --group activities
+      - name: Validate book-en
+        if: contains(fromJSON(matrix.groups), 'book-en')
+        run: python3 tools/run_ci_validation.py --group book-en
+      - name: Validate book-de
+        if: contains(fromJSON(matrix.groups), 'book-de')
+        run: python3 tools/run_ci_validation.py --group book-de
+      - name: Validate book-es
+        if: contains(fromJSON(matrix.groups), 'book-es')
+        run: python3 tools/run_ci_validation.py --group book-es
+      - name: Validate books
+        if: contains(fromJSON(matrix.groups), 'books')
+        run: python3 tools/run_ci_validation.py --group books
+      - name: Validate navigation
+        if: contains(fromJSON(matrix.groups), 'navigation')
+        run: python3 tools/run_ci_validation.py --group navigation
+      - name: Upload the benchmark of the shared build
+        if: contains(fromJSON(matrix.groups), 'performance')
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-performance-${{ github.sha }}
+          retention-days: 1
+          overwrite: true
+          if-no-files-found: error
+          path: |
+            waozixyz/learning/jungle/build/web/performance.json
+            waozixyz/learning/jungle/build/web/performance.html
+            waozixyz/learning/jungle/build/web/performance-report.md
+      - *save-captures
+
+  package:
+    name: Package and test the embed edition
+    needs: [build, validate]
+    runs-on: ubuntu-latest
+    steps:
+      - *checkout-jungle
+      - *read-locks
+      - *checkout-ziran
+      - *checkout-kryon
+      - *setup-node
+      - *install-tools
+      - *select-sources
+      - *download-build
+      - *restore-build
+      - name: Download the benchmark of the shared build
+        uses: actions/download-artifact@v4
+        with:
+          name: ci-performance-${{ github.sha }}
+          path: waozixyz/learning/jungle/work/ci-artifacts/performance
+      - name: Add the benchmark to the tested website
+        run: python3 tools/run_ci_validation.py --apply-performance work/ci-artifacts/performance --revision "$GITHUB_SHA"
+      - name: Prepare and test the embed edition
+        run: python3 tools/run_ci_validation.py --group packaging
+      - name: Pack the tested website
+        run: python3 tools/ci_artifacts.py pack --kind web --revision "$GITHUB_SHA" --output work/ci-web.tar.gz
+      - name: Upload the tested website
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-web-${{ github.sha }}
+          retention-days: 1
+          compression-level: 0
+          overwrite: true
+          if-no-files-found: error
+          path: waozixyz/learning/jungle/work/ci-web.tar.gz
+      - *save-captures
+
+  publish:
+    name: Publish the tested website
+    needs: package
+    if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - *checkout-jungle
+      - *setup-node
+      - name: Download the tested website
+        uses: actions/download-artifact@v4
+        with:
+          name: ci-web-${{ github.sha }}
+          path: waozixyz/learning/jungle/work/ci-artifacts
+      - name: Restore the tested website
+        run: python3 tools/ci_artifacts.py restore --kind web --revision "$GITHUB_SHA" --archive work/ci-artifacts/ci-web.tar.gz
       - name: Publish the tested website
-        if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
         env:
           CLOUDFLARE_ACCOUNT_ID: '244fef03abd1e471baed2ec35c59e9e7'
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -119,7 +274,6 @@ jobs:
           npx --yes wrangler@4.152.0 pages deploy build/web --project-name jungle --branch master --commit-hash "$GITHUB_SHA"
           python3 tools/connect_domain.py
       - name: Verify public version
-        if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
         run: |
           python3 - <<'PY'
           import json,os,time,urllib.request
@@ -153,7 +307,6 @@ jobs:
               print('Verified deployed '+path)
           PY
       - name: Install itch.io Butler
-        if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
         run: |
           curl --fail --show-error --location --retry 3 \
             https://broth.itch.zone/butler/linux-amd64/LATEST/archive/default \
@@ -163,7 +316,6 @@ jobs:
           chmod +x "$RUNNER_TEMP/butler/butler"
           echo "$RUNNER_TEMP/butler" >> "$GITHUB_PATH"
       - name: Publish the tested browser edition to itch.io
-        if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
         env:
           BUTLER_API_KEY: ${{ secrets.ITCH_API_KEY }}
         run: |
