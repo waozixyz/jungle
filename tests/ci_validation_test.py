@@ -79,9 +79,12 @@ class Schedule(unittest.TestCase):
         doubled = self.groups + (rcv.Group("again", (rcv.book("de"),)),)
         self.assertTrue(rcv.coverage_problems(doubled, self.recipe, rcv.book_languages()))
 
-    def test_browser_matrix_is_the_old_workflow_in_order(self):
+    def test_browser_matrix_keeps_every_gate_with_painting_first(self):
         browser = next(group for group in self.groups if group.name == "browser")
-        self.assertEqual([step.label() for step in browser.steps], OLD_BROWSER_GATES)
+        actual = [step.label() for step in browser.steps]
+        painting = [gate for gate in OLD_BROWSER_GATES if "tests/paint_layers_web_test.mjs" in gate]
+        self.assertEqual(collections.Counter(actual), collections.Counter(OLD_BROWSER_GATES))
+        self.assertEqual(actual, painting + [gate for gate in OLD_BROWSER_GATES if gate not in painting])
         self.assertEqual(browser.tmpdir, "work/b")
         others = [step for group in self.groups if group.name != "browser" for step in group.steps]
         self.assertTrue(all(step.recipe for step in others), "non-browser groups run only test-ui lines")

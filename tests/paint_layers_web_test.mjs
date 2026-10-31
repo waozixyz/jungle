@@ -77,6 +77,29 @@ function stencilLayout(width=960,totalHeight=600){
   next:center(width-pad-footerW,footerY,footerW,44),previous:center(pad,footerY,footerW,44)};
 }
 const stencil=stencilLayout();
+// Main's toolbar changes to three columns below the picture in portrait,
+// and two columns on short landscape screens. Match native LayoutMain.
+function toolbarPoint(index,width,totalHeight){
+ const height=totalHeight-56,pad=Math.max(6,Math.min(20,Math.floor(Math.min(width,height)/40))),gap=Math.max(4,Math.min(10,Math.floor(Math.min(width,height)/80)));
+ let tw,th,columns,left,top;
+ if(height>width){
+  columns=3;left=pad;tw=Math.floor((width-pad*2-gap*2)/3);th=Math.max(44,Math.min(110,Math.floor(tw*3/4)));
+  let cw=width-pad*2,ch=Math.floor(cw*3/4);const room=height-pad*3-gap*2-th*3;
+  if(ch>room){ch=room;cw=Math.floor(room*4/3)}
+  const below=pad+ch+pad;
+  top=below+Math.floor((height-pad-below-th*3-gap*2)/2);
+ }else{
+  columns=height<440?2:1;const rows=columns===2?5:9;
+  th=Math.floor((height-pad*2-gap*(rows-1))/rows);tw=Math.max(64,Math.min(Math.floor(th*5/2),Math.floor(width/(columns===2?8:5))));
+  const rail=tw*columns+gap*(columns-1),room=height-pad*2;
+  let cw=width-pad*3-rail,ch=Math.floor(cw*3/4);
+  if(ch>room){ch=room;cw=Math.floor(room*4/3)}
+  left=Math.floor((width-rail-pad-cw)/2);
+  const cy=pad+Math.floor((room-ch)/2);
+  top=cy+Math.floor((ch-th*rows-gap*(rows-1))/2);
+ }
+ return {x:left+index%columns*(tw+gap)+tw/2,y:56+top+Math.floor(index/columns)*(th+gap)+th/2};
+}
 // Paint's landscape layout in a 960 by 600 page whose title bar is 56 high.
 const layout=(()=>{
  const width=960,height=544,pad=Math.min(20,Math.max(6,Math.floor(height/40))),gap=Math.min(10,Math.max(4,Math.floor(height/80)));
@@ -218,7 +241,10 @@ async function run(input){
    return point;
   }
   const toolLabels=()=>evaluate(`[...document.querySelectorAll('#kryon-dom-root button')].map(e=>e.getAttribute('aria-label')).filter(n=>${JSON.stringify(TOOLS.concat('Mirror'))}.includes(n))`);
-  async function tool(index,name=TOOLS[index]){await tap(await control(name,layout.tool(index)))}
+  async function tool(index,name=TOOLS[index]){
+   const size=await evaluate('({width:innerWidth,height:innerHeight})');
+   await tap(await control(name,toolbarPoint(index,size.width,size.height)));
+  }
   async function key(name){
    const code={Home:36,ArrowDown:40,Enter:13,Escape:27}[name];await evaluate('document.activeElement?.blur()');
    await command('Input.dispatchKeyEvent',{type:'keyDown',key:name,windowsVirtualKeyCode:code});await frames(2);
@@ -317,7 +343,7 @@ async function run(input){
    if(await pickerChoices()!==partial)throw Error(label+': nonexistent destination/item changed choices');
    await tap(points.tile(3));await frames(4);
    const selected=await pickerChoices(),values=selected?.split('\n')[1];
-   if(CODES.indexOf(values?.[0])!==[34,38,42,46][category]||CODES.indexOf(values?.[1])!==category||CODES.indexOf(values?.[2])!==(category===0?2:1))throw Error(label+': mobile partial-page selection failed');
+   if(CODES.indexOf(values?.[0])!==[34,38,42,46][category]||CODES.indexOf(values?.[1])!==category||CODES.indexOf(values?.[2])!==(category===0?2:1))throw Error(label+': mobile partial-page selection failed '+JSON.stringify({width,height,category,values}));
    await key('Escape');await tool(0);await stable('reopened stencil picker');
    const wide=width<600?960:390,tall=width<600?600:844;
    await command('Emulation.setDeviceMetricsOverride',{width:wide,height:tall,deviceScaleFactor:1,mobile:false});await frames(8);
@@ -509,7 +535,7 @@ async function run(input){
  }catch(error){
   if(socket?.readyState===WebSocket.OPEN){
    await mkdir('build/tests/web',{recursive:true});
-   const id=Math.random();socket.send(JSON.stringify({id,method:'Page.captureScreenshot',params:{format:'png'}}));
+   const id=2147483647;socket.send(JSON.stringify({id,method:'Page.captureScreenshot',params:{format:'png'}}));
    const shot=await Promise.race([new Promise(r=>socket.addEventListener('message',e=>{const m=JSON.parse(e.data);if(m.id===id)r(m.result?.data)})),delay(3000)]);
    if(shot)await writeFile(`build/tests/web/paint-layers-failure-${(page||'index').replace('.html','')}-${input}.png`,Buffer.from(shot,'base64'));
   }
