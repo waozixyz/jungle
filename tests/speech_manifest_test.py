@@ -184,6 +184,7 @@ def staging_test():
             'assets/animal-count/font.png': b'counting font',
             'assets/hide_seek/scenes/cottage-yard.png': b'grounded shared scene',
             'assets/hide_seek/props/basket.png': b'watercolor shared prop',
+            'assets/dino-paint/art/scene1-thumb.jpg': b'shared coloring preview',
         }
         for name, data in files.items():
             path = source / name
