@@ -94,7 +94,9 @@ try{
  const rows=(await readFile('games/catalog.txt','utf8')).trim().split('\n').map(x=>x.split('|')).sort((a,b)=>Number(a[4])-Number(b[4])).filter(x=>x[1]!=='123 Book');
  async function open(title){const index=rows.findIndex(r=>r[1]===title);if(index<0)throw Error('Missing required activity '+title);await key('Home');for(let i=0;i<index;i++)await key('ArrowDown');await key('Enter');await delay(500)}
  async function saved(name){return evaluate(`(()=>{const fs=Module.FS;const paths=[];function scan(p){for(const n of fs.readdir(p)){if(n==='.'||n==='..')continue;const a=p+'/'+n;try{if(fs.isDir(fs.stat(a).mode))scan(a);else if(a.endsWith('/${name}.txt')&&a.includes('jungle.${name}'))paths.push(a)}catch{}}}scan('/kryon-apps/jungle');return paths.map(p=>fs.readFile(p,{encoding:'utf8'}))})()`)}
- async function shot(name){if(!keepCaptures)return;await writeFile('backup/new-activities-web/'+page+'-'+language+'-'+name+'.png',Buffer.from((await command('Page.captureScreenshot',{format:'png'})).data,'base64'))}
+ // Tutorial pixel assertions require their input images even when optional
+ // diagnostic captures are disabled.
+ async function shot(name,required=false){if(!keepCaptures&&!required)return;await writeFile('backup/new-activities-web/'+page+'-'+language+'-'+name+'.png',Buffer.from((await command('Page.captureScreenshot',{format:'png'})).data,'base64'))}
  const wanted=process.env.JUNGLE_WEB_ACTIVITY||'';
  const activities=[['shapes','Shapes & Sorting'],['matching','Matching Pairs'],['hide_seek','Hide & Seek'],['drums','Music Room'],['garden','Grow a Garden']].filter(([name,title])=>(name!=='garden'||rows.some(r=>r[1]===title))&&(!wanted||name===wanted));
  for(const [name,title] of activities){
@@ -123,16 +125,16 @@ try{
      for(let phase=0;phase<times.length;phase++){
       await delay(Math.max(0,started+times[phase]-Date.now()));
       if(page==='dom.html'&&!await evaluate(`document.getElementById('kryon-dom-root').textContent.includes(${JSON.stringify(phaseWords[phase])})`))throw Error('Missing sorting tutorial phase '+phaseWords[phase]);
-      await shot(`tutorial-${width}-${mode}-${phase}`);
+      await shot(`tutorial-${width}-${mode}-${phase}`,true);
      }
      await key('Escape');
      if(JSON.stringify(await saved(name))!==JSON.stringify(beforeDemo))throw Error('Tutorial advanced real progress');
-     await open(title);await click(...point(4));await key('a');await shot(`tutorial-key-cancel-${width}-${mode}`);
-     await click(...point(4));await touch('touchStart',8,height-8);await shot(`tutorial-touch-cancel-${width}-${mode}`);await touch('touchEnd',8,height-8);
+     await open(title);await click(...point(4));await key('a');await shot(`tutorial-key-cancel-${width}-${mode}`,true);
+     await click(...point(4));await touch('touchStart',8,height-8);await shot(`tutorial-touch-cancel-${width}-${mode}`,true);await touch('touchEnd',8,height-8);
      if(page==='dom.html'&&!await evaluate(`document.getElementById('kryon-dom-root').textContent.includes(${JSON.stringify(phaseWords[6])})`))throw Error('Touch did not cancel demonstration');
      await click(...point(4));
      await command('Input.dispatchMouseEvent',{type:'mousePressed',x:8,y:height-8,button:'left',clickCount:1});await delay(100);
-     await shot(`tutorial-mouse-cancel-${width}-${mode}`);
+     await shot(`tutorial-mouse-cancel-${width}-${mode}`,true);
      await command('Input.dispatchMouseEvent',{type:'mouseReleased',x:8,y:height-8,button:'left',clickCount:1});
      // Pixel assertions cover Canvas as well as DOM semantics. The playing
      // area must be identical to the quiet child turn for every cancellation;
