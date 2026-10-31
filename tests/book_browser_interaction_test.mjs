@@ -1,3 +1,4 @@
+import {bookIds,pageCounts,bookPosition} from './book_web_geometry.mjs';
 // Private CDP scaffolding shared with paint_layers_web_test.mjs.
 import {spawn} from 'node:child_process';
 import {readFile,writeFile,mkdtemp,rm,mkdir} from 'node:fs/promises';
@@ -9,9 +10,6 @@ import {setTimeout as delay} from 'node:timers/promises';
 const root=resolve(process.env.JUNGLE_WEB_ROOT||'build/web'),page=process.env.JUNGLE_WEB_PAGE||'dom.html';
 const inputs=['mouse','touch'];
 await mkdir('work/w',{recursive:true});await mkdir('work/b',{recursive:true});await mkdir('backup/book-browser-controls',{recursive:true});
-const catalog=await readFile('games/book/book_pages.zi','utf8');
-const bookIds=JSON.parse('['+catalog.match(/category_ids:.*?= \.\[(.*?)\];/)[1]+']');
-const pageCounts=catalog.match(/category_counts:.*?= \.\{(.*?)\};/)[1].split(',').map(Number);
 const vegetableCount=pageCounts[bookIds.indexOf('vegetables')];
 const mime={'.html':'text/html','.js':'text/javascript','.wasm':'application/wasm','.json':'application/json','.png':'image/png','.jpg':'image/jpeg','.webp':'image/webp','.wav':'audio/wav','.zip':'application/zip'};
 const server=createServer(async(req,res)=>{
@@ -123,14 +121,14 @@ async function run(input){
   const menuScale=Math.min(1280/320,675/200);await click(Math.trunc((1280-320*menuScale)/2)+254*menuScale,54*menuScale);
   if(await evaluate('document.documentElement.lang')!=='es')throw Error('Spanish flag did not select es');
   await evaluate('document.activeElement?.blur()');await key('Home');for(let n=0;n<bookIndex;n++)await key('ArrowDown');await key('Enter');
-  async function category(group,index){await click(55+group*294+143,133);await evaluate('document.activeElement?.blur()');for(let n=0;n<index;n++)await key('ArrowRight');await clear();await key('Enter');await spoken('category opening');await key(' ','Space')}
+  async function category(id){const {x,y,index}=bookPosition(id,1280,675);await click(x,y);await evaluate('document.activeElement?.blur()');for(let n=0;n<index;n++)await key('ArrowRight');await clear();await key('Enter');await spoken('category opening');await until(()=>evaluate('window.jungleTestRequestedAudio?.currentTime>0.05'),'decoded category opening '+id);await key(' ','Space')}
   async function expectVoice(fragment){await until(async()=>(await voices()).some(p=>p.includes(fragment)),fragment);await until(()=>evaluate('window.jungleTestRequestedAudio?.currentTime>0.05'),'decoded '+fragment)}
-  await category(3,5);
+  await category('actions');
   const actions=['cooking','cleaning','reading','drawing','singing','washing_hands','brushing_teeth','watering_plants'];
   for(let n=0;n<actions.length;n++){if(n){await clear();await key('ArrowRight')}await expectVoice('/es/simple/'+actions[n]+'.wav');await shot('actions-'+n)}
-  await key('Escape');await category(3,3);for(let n=0;n<6;n++){await clear();await key('ArrowRight')}await expectVoice('/es/simple/badminton.wav');await shot('badminton');
-  await key('Escape');await category(0,5);await clear();await key('ArrowRight');await key('ArrowRight');await expectVoice('/es/simple/penguin.wav');await shot('pinguino');
-  await key('Escape');await key('d');await category(0,5);await clear();await key('ArrowRight');await key('ArrowRight');await expectVoice('/es/spelling/penguin.wav');await shot('pinguino-spelling');
+  await key('Escape');await category('sports');for(let n=0;n<6;n++){await clear();await key('ArrowRight')}await expectVoice('/es/simple/badminton.wav');await shot('badminton');
+  await key('Escape');await category('birds');await clear();await key('ArrowRight');await key('ArrowRight');await expectVoice('/es/simple/penguin.wav');await shot('pinguino');
+  await key('Escape');await key('d');await category('birds');await clear();await key('ArrowRight');await key('ArrowRight');await expectVoice('/es/spelling/penguin.wav');await shot('pinguino-spelling');
   await key('Escape');await key('Escape');
   console.log('local Book '+label+': manual narration, focused keyboard, Hear word/mute, secondary hierarchy passed');
  }catch(error){

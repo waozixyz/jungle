@@ -1,3 +1,4 @@
+import {bookPosition} from './book_web_geometry.mjs';
 // Private headless browser; never attaches to the owner's desktop/profile.
 import {spawn} from 'node:child_process';
 import {readFile,writeFile,mkdtemp,rm,mkdir} from 'node:fs/promises';
@@ -87,20 +88,15 @@ try{
  await pixelClick(195,343,true);const fromCover=await shot('vegetables-cover-touch',true);await pixelClick(34,28,true);await key('0','Digit0');const directCover=await pagePixels();if(fromCover!==directCover)throw Error('Vegetables cover opened the wrong book');await pixelClick(34,28,true);
  await swipe(90,620,90,160);await shot('books-touch-scroll');
  for(const [w,h,mobile] of [[320,568,true],[844,390,true],[768,1024,true],[1920,1080,false],[390,844,true]]){await resize(w,h,mobile);await shot('shelf-'+w+'-'+h)}
- await pixelClick(280,159,true);await shot('family-tab-phone');await pixelClick(195,239,true);await delay(500);await shot('family-book-phone');await waitPage('mother');await pixelClick(34,28,true);await pixelClick(195,343,true);await delay(500);await shot('body-parts-phone');
- await waitPage('head');
- await pixelClick(34,28,true);await pixelClick(195,447,true);await waitPage('shirt');await shot('clothing-phone');
- await pixelClick(34,28,true);await pixelClick(110,107,true);await pixelClick(195,655,true);await waitPage('spring');await shot('seasons-phone');
- await pixelClick(34,28,true);await pixelClick(280,107,true);
- for(const [name,y,image] of [['breakfast',447,'bread'],['lunch',551,'sandwich'],['dinner',655,'roast_chicken']]){
-  await pixelClick(195,y,true);await delay(500);await shot(name+'-phone');
-  await waitPage(image);
-  await pixelClick(34,28,true);
+ async function selectBook(id){const {x,y,index}=bookPosition(id,390,844);await pixelClick(x,y,true);for(let i=0;i<index;i++)await key('ArrowRight','ArrowRight');await evaluate('window.jungleTestVoices=[]');await key('Enter','Enter')}
+ for(const [id,image] of [['family','mother'],['body','head'],['clothing','shirt'],['seasons','spring'],['breakfast','bread'],['lunch','sandwich'],['dinner','roast_chicken']]){
+  await selectBook(id);await waitPage(image);await shot(id+'-phone');await pixelClick(34,28,true);
  }
- for(const [slot,name,voice] of [[4,'toys','teddy'],[5,'vehicles','car'],[6,'bedtime','toothpaste']]){
-  await pixelClick(110,159,true);for(let i=0;i<slot;i++)await key('ArrowRight','ArrowRight');await evaluate('window.jungleTestVoices=[]');await key('Enter','Enter');await waitSpoken('/simple/'+voice+'.wav');await shot('new-book-'+name);await pixelClick(34,28,true);
+ for(const [name,voice] of [['toys','teddy'],['vehicles','car'],['bedtime','toothpaste'],['birds','owl']]){
+  await selectBook(name);await waitSpoken('/simple/'+voice+'.wav');await shot('new-book-'+name);await pixelClick(34,28,true);
  }
- await pixelClick(110,107,true);for(let i=0;i<5;i++)await key('ArrowRight','ArrowRight');await evaluate('window.jungleTestVoices=[]');await key('Enter','Enter');await waitSpoken('/simple/owl.wav');await shot('new-book-birds');await pixelClick(34,28,true);
+ if(process.env.JUNGLE_BOOK_ONLY){if(diagnostics.length)throw Error(JSON.stringify(diagnostics));console.log('local browser Book-only test passed at '+url)}
+ else {
  await pixelClick(34,28,true);await shot('restored-menu-phone');await pixelClick(325,102,true);if(await evaluate('Module.FS.readFile("/kryon-apps/jungle/settings/language.txt",{encoding:"utf8"})')!=="es")throw Error('Spanish flag did not persist');
  if(await evaluate('document.documentElement.lang')!=='es')throw Error('Website metadata did not follow the selected language');
  if(!(await evaluate('document.querySelector("meta[name=description]").content')).startsWith('Aprende'))throw Error('Spanish website description is missing');
@@ -223,4 +219,5 @@ try{
  if(await evaluate('Module.FS.readFile("/kryon-apps/jungle/settings/language.txt",{encoding:"utf8"})')!=="es")throw Error('Language did not survive reload');
  if(diagnostics.length)throw Error(JSON.stringify(diagnostics));
  console.log('local browser test: four new books, Space pause, letter-only examples and autoplay, number autoplay, category navigation, touch controls, stencils and accented saves passed at '+url);
+ }
 }finally{if(socket)socket.close();browser.kill('SIGTERM');await new Promise(r=>{if(browser.exitCode!==null||browser.signalCode!==null)r();else browser.once('exit',r)});await new Promise(r=>server.close(r));await rm(profile,{recursive:true,force:true,maxRetries:20,retryDelay:100})}

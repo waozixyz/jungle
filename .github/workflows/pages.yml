@@ -75,11 +75,11 @@ jobs:
           unset DISPLAY WAYLAND_DISPLAY XAUTHORITY DBUS_SESSION_BUS_ADDRESS SESSION_MANAGER
           make -j2 all
           make test
-          make test-ui
-          python3 tests/book_shelf_test.py
           python3 tools/build_web.py
           JUNGLE_WEB_PAGE=dom.html node tests/book_browser_interaction_test.mjs
           JUNGLE_WEB_PAGE=canvas.html node tests/book_browser_interaction_test.mjs
+          make test-ui
+          python3 tests/book_shelf_test.py
           for page in dom.html canvas.html; do
             for lang in en de es; do
               JUNGLE_TEST_LANG="$lang" JUNGLE_WEB_PAGE="$page" node tests/new_activities_web_test.mjs
