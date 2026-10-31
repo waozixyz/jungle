@@ -69,8 +69,10 @@ def web(script: str, page: str | None = None, **env: str) -> Step:
 
 
 def browser_steps() -> tuple[Step, ...]:
-    """The browser gates in the workflow's original order (prepare_itch before test_itch)."""
-    steps = [web("tests/book_browser_interaction_test.mjs", "dom.html"),
+    """All original browser gates, painting first; prepare_itch stays before test_itch."""
+    steps = [web("tests/paint_layers_web_test.mjs", "canvas.html"),
+             web("tests/paint_layers_web_test.mjs", "dom.html"),
+             web("tests/book_browser_interaction_test.mjs", "dom.html"),
              web("tests/book_browser_interaction_test.mjs", "canvas.html"),
              Step(("python3", "tests/book_shelf_test.py"))]
     steps += [web("tests/new_activities_web_test.mjs", page, JUNGLE_TEST_LANG=language)
@@ -81,7 +83,7 @@ def browser_steps() -> tuple[Step, ...]:
               Step(("python3", "tools/prepare_itch.py")),
               Step(("python3", "tools/test_itch_web.py"))]
     steps += [web(f"tests/{name}.mjs", page)
-              for name in ("jigsaw_web_test", "piano_web_test", "paint_layers_web_test", "web_test")
+              for name in ("jigsaw_web_test", "piano_web_test", "web_test")
               for page in ("canvas.html", "dom.html")]
     steps += [Step(("node", "tests/dom_native_web_test.mjs")),
               Step(("python3", "tools/measure_web.py"))]
