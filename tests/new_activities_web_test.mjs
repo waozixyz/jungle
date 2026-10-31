@@ -82,7 +82,7 @@ try{
  await command('Page.addScriptToEvaluateOnNewDocument',{source:`window.drumsAudio=[];window.drumsPlayed=[];window.drumsClicks=[];window.jungleVoices=[];
  document.addEventListener('click',event=>{const label=event.target.getAttribute?.('aria-label');if(label)drumsClicks.push({label,detail:event.detail})},true);
  const originalPlay=HTMLMediaElement.prototype.play;
- HTMLMediaElement.prototype.play=function(){const result=originalPlay.apply(this,arguments),path=this.junglePath;if(path)jungleVoices.push(path);
+ HTMLMediaElement.prototype.play=function(){const result=originalPlay.apply(this,arguments),path=this.junglePath;if(path&&window.jungleVoiceActivity==='hide_seek'&&!path.startsWith('assets/jungle/sounds/'))jungleVoices.push(path);
   if(path?.startsWith('assets/drums/sounds/')){drumsAudio.push(path);Promise.resolve(result).then(()=>setTimeout(()=>drumsPlayed.push({path,ok:!this.paused&&!this.muted&&this.volume>0&&this.currentTime>0&&this.readyState>=2,volume:this.volume,time:this.currentTime,duration:this.duration}),100)).catch(error=>drumsPlayed.push({path,ok:false,error:String(error)}))}
   return result;
  };`});
@@ -100,6 +100,8 @@ try{
  const wanted=process.env.JUNGLE_WEB_ACTIVITY||'';
  const activities=[['shapes','Shapes & Sorting'],['matching','Matching Pairs'],['hide_seek','Hide & Seek'],['drums','Music Room'],['garden','Grow a Garden']].filter(([name,title])=>(name!=='garden'||rows.some(r=>r[1]===title))&&(!wanted||name===wanted));
  for(const [name,title] of activities){
+  // Scope narration to this activity; menu effects belong to navigation.
+  await evaluate('window.jungleVoiceActivity='+JSON.stringify(name)+';jungleVoices=[]');
   await open(title);await shot(name+'-phone');
   if(page!=='canvas.html'){
    const labels=await evaluate(`[...document.querySelectorAll('#kryon-dom-root button')].map(e=>e.getAttribute('aria-label'))`);
