@@ -1,6 +1,8 @@
 # Changelog
 
-## [Unreleased]
+## 0.1.27
+
+Released 2026-10-31.
 
 - Speak clearly at a natural pace across all activities in English, German and Spanish.
 - Restore Android game startup and touch input.
