@@ -281,7 +281,7 @@ def stage(screen, name):
     return stage_crop(screen, screen.capture(name))
 
 
-def look_everywhere(screen, label):
+def look_everywhere(screen, label, hold_next=False):
     """Every friend starts fully hidden. Looking at each place by keyboard
     reveals only a friend that is there; an empty place shows nothing new
     once its wiggle settles. Stops as soon as all friends are found."""
@@ -307,7 +307,20 @@ def look_everywhere(screen, label):
         if state[1] == found + count + 1:
             count += 1
             assert changed(before, after), (label, "a found friend did not appear")
-            if completion_visible(screen, frame):
+            # Arm the held-key scenario before OCR. On a slow runner, OCR
+            # can outlast the 2.5-second celebration; a press afterward would
+            # legitimately find a friend in the already-started next round.
+            # A repeat look at this already-found place is harmless while
+            # unfinished; on completion this press starts the next round.
+            if hold_next:
+                rt.run(["xdotool", "keydown", "Return"], d.env)
+            completed = False
+            try:
+                completed = completion_visible(screen, frame)
+            finally:
+                if hold_next and not completed:
+                    rt.run(["xdotool", "keyup", "Return"], d.env)
+            if completed:
                 return found + count, after
         else:
             assert not changed(before, after), (label, "an empty place revealed or hinted at something")
@@ -394,8 +407,7 @@ def language_pass(language, temporary):
             assert saved(data) == [1, found, remembered], saved(data)
             # Hold Enter on a completed round: it starts the next scene, and
             # the held key must not look in any of the new places.
-            found, _ = look_everywhere(screen, f"held-{size[0]}")
-            rt.run(["xdotool", "keydown", "Return"], d.env)
+            found, _ = look_everywhere(screen, f"held-{size[0]}", hold_next=True)
             try:
                 time.sleep(.8)
                 held = stage(screen, "held-new-round")
