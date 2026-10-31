@@ -88,7 +88,8 @@ class Schedule(unittest.TestCase):
         moved = ["python3 tools/prepare_itch.py", "python3 tools/test_itch_web.py", "python3 tools/measure_web.py"]
         self.assertEqual(collections.Counter(browser + moved), collections.Counter(OLD_BROWSER_GATES))
         painting = [gate for gate in OLD_BROWSER_GATES if "tests/paint_layers_web_test.mjs" in gate]
-        self.assertEqual(browser, painting + [gate for gate in OLD_BROWSER_GATES if gate not in painting + moved])
+        fast = ["node tests/asset_packs_test.mjs", "python3 tests/web_images_test.py"]
+        self.assertEqual(browser, fast + painting + [gate for gate in OLD_BROWSER_GATES if gate not in fast + painting + moved])
         self.assertEqual([step.label() for step in by_name["performance"].steps], moved[2:])
         self.assertEqual([step.label() for step in packaging.steps], moved[:2])
         self.assertEqual(by_name["browser"].tmpdir, "work/b")

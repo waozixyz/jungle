@@ -86,8 +86,10 @@ def web(script: str, page: str | None = None, **env: str) -> Step:
 
 
 def browser_steps() -> tuple[Step, ...]:
-    """All original browser gates, painting first; schedule() partitions them."""
-    steps = [web("tests/paint_layers_web_test.mjs", "canvas.html"),
+    """All original browser gates; check asset prerequisites before slow UI work."""
+    steps = [Step(("node", "tests/asset_packs_test.mjs")),
+             Step(("python3", "tests/web_images_test.py")),
+             web("tests/paint_layers_web_test.mjs", "canvas.html"),
              web("tests/paint_layers_web_test.mjs", "dom.html"),
              web("tests/book_browser_interaction_test.mjs", "dom.html"),
              web("tests/book_browser_interaction_test.mjs", "canvas.html"),
@@ -95,8 +97,6 @@ def browser_steps() -> tuple[Step, ...]:
     steps += [web("tests/new_activities_web_test.mjs", page, JUNGLE_TEST_LANG=language)
               for page in ("dom.html", "canvas.html") for language in ("en", "de", "es")]
     steps += [Step(("python3", "tests/speech_playback_test.py")),
-              Step(("node", "tests/asset_packs_test.mjs")),
-              Step(("python3", "tests/web_images_test.py")),
               Step(("python3", "tools/prepare_itch.py")),
               Step(("python3", "tools/test_itch_web.py"))]
     steps += [web(f"tests/{name}.mjs", page)
