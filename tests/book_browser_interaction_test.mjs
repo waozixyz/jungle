@@ -68,6 +68,13 @@ async function run(input){
   await command('Page.navigate',{url:'http://127.0.0.1:'+server.address().port+'/'+page});
   await until(()=>evaluate('typeof Module!=="undefined"&&!!Module.FS&&document.getElementById("loading").style.display==="none"'),'startup',45000);
   console.log(label+': startup');await key('Home');for(let n=0;n<bookIndex;n++)await key('ArrowDown');await key('Enter');
+  // Exercise the actual browser decoder: short single-page Vorbis streams can
+  // lose a priming block even though a native decoder reads their full length.
+  if(input==='mouse'&&page==='dom.html'){
+   const count=await evaluate('(async()=> (await speech()).clips.length)()');
+   for(let at=0;at<count;at+=32)await evaluate(`(async()=>{for(const clip of (await speech()).clips.slice(${at},${at+32}))await speechClip(clip)})()`);
+   console.log(label+': all '+count+' speech clips decode to their exact sample counts');
+  }
   // Stall real canonical Ogg lookup at the existing logical voice boundary.
   // Only the newest manual turn may play when these requests are released.
   await evaluate(`(()=>{const original=soundBytes;let release;const released=new Promise(r=>release=r);window.held=[];let holding=true;soundBytes=async(path,current)=>{const index=await speech();if(!holding||!index.voices.has(path))return original(path,current);window.held.push(path);await released;return current()?original(path,current):null};window.releaseHeld=()=>{holding=false;release()}})()`);
