@@ -202,14 +202,15 @@ make install    # ~/.local/bin/jungle and a menu entry
 make web        # Canvas and semantic-DOM browser games in build/web
 ```
 
-The browser edition has two complete runtimes: `build/web/index.html` and
-`build/web/dom.html` use native HTML text, buttons, images and CSS for the interface,
-with bounded Canvas tiles for custom drawing and texture effects.
-`build/web/canvas.html` retains the Canvas comparison edition. Append
-`?metrics=1` to either page for live FPS, frame p95, JS heap, DOM-node,
+Both browser editions compile the game logic to WebAssembly. The default at
+`build/web/index.html` draws through Canvas, as does `build/web/canvas.html`.
+`build/web/dom.html` uses native HTML text, buttons, images and CSS for the
+interface, with bounded Canvas tiles for custom drawing and texture effects.
+Append `?metrics=1` to either edition for live frame timing, JS heap, DOM-node,
 Kryon-element and mutation counters. Run `python3 tools/measure_web.py` after
-a web build for three runs of every activity, both idle and active, at desktop
-and phone sizes. The HTML report at `build/web/performance.html` and complete
+a web build for three runs of representative activities, both idle and active,
+with desktop mouse and emulated phone touch. Coloring must change its saved
+picture during the active workload. The HTML report at `build/web/performance.html` and complete
 JSON include browser process CPU, RSS/PSS, JS/Wasm heaps, rAF cadence, long tasks
 and native DOM counts. The samples use isolated headless Chromium with software
 graphics; rAF cadence is not application rendering FPS.
@@ -311,9 +312,9 @@ retain their original authorship.
 Pushes to `master` run the Linux tests and private browser tests for both
 editions in GitHub Actions, then publish the same tested website artifact to
 Cloudflare Pages. The deployment verifies its revision on `jungle.waozi.xyz`.
-The native DOM edition is the default at `/`, with `/dom.html` retained as an
-alias. The Canvas comparison is at `/canvas.html`; the interactive benchmark
-is at `/performance.html`. All editions share the root canonical URL. The repository
+The WebAssembly Canvas edition is the default at `/`, also available at
+`/canvas.html`. The native DOM edition remains at `/dom.html`. The build generates
+its interactive benchmark at `build/web/performance.html`. All editions share the root canonical URL. The repository
 secret `CLOUDFLARE_API_TOKEN` grants Pages Edit for the hosting account and
 DNS Edit for `waozi.xyz`; credentials are never stored in this repository.
 Browser saves stay on that browser in IndexedDB. Menu images load first; book pictures and narration load as needed. Browser printing opens the browser print dialog.

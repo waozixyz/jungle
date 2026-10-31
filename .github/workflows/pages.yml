@@ -138,10 +138,10 @@ jobs:
           else:raise SystemExit('The exact deployed revision is not yet verified on jungle.waozi.xyz')
           print('Verified deployed Jungle version '+data['version'])
           for path,checks in {
-              '':['data-backend="dom"','jungle-dom.js?v='+os.environ['GITHUB_SHA']],
+              '':['data-backend="canvas"','jungle.js?v='+os.environ['GITHUB_SHA']],
               'dom.html':['data-backend="dom"','jungle-dom.js?v='+os.environ['GITHUB_SHA']],
               'canvas.html':['data-backend="canvas"','jungle.js?v='+os.environ['GITHUB_SHA']],
-              'performance-report.md':['# Jungle Canvas / DOM performance','CPU ratio DOM/Canvas'],
+              'performance.html':['Jungle Canvas / DOM performance','Download complete JSON'],
           }.items():
               # Pages can reach an edge at different times after version.json.
               # Require every page's exact revision, allowing propagation first.

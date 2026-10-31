@@ -1,5 +1,9 @@
 # Changelog
 
+## [Unreleased]
+
+- Use the WebAssembly Canvas edition by default for faster browser play.
+
 ## 0.1.24
 
 Released 2026-10-30.
