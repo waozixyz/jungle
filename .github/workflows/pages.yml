@@ -78,6 +78,18 @@ jobs:
           make -j2 all
           make test
           python3 tools/build_web.py
+      - name: Preserve the browser build for diagnosis
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-build-${{ github.sha }}
+          retention-days: 1
+          path: waozixyz/learning/jungle/build/web/
+      - name: Validate browser and desktop interactions
+        run: |
+          export TMPDIR="$PWD/work/b"
+          export YUE_DESKTOP_RECOVERY=0 SDL_AUDIODRIVER=dummy
+          unset DISPLAY WAYLAND_DISPLAY XAUTHORITY DBUS_SESSION_BUS_ADDRESS SESSION_MANAGER
           python3 tools/run_ci_validation.py
       - name: Save private test captures on failure
         if: failure()

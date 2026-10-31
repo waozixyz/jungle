@@ -371,9 +371,26 @@ class Workflow(unittest.TestCase):
                         names.index("Build compiler and select locked source directories"))
         build = steps[names.index("Build and run local tests")]["run"].splitlines()
         commands = [line for line in build if line.startswith(("make", "python3", "node"))]
-        self.assertEqual(commands, ["make -j2 all", "make test", "python3 tools/build_web.py",
-                                    "python3 tools/run_ci_validation.py"])
+        self.assertEqual(commands, ["make -j2 all", "make test", "python3 tools/build_web.py"])
         self.assertNotIn("continue-on-error", steps[names.index("Build and run local tests")])
+        artifact_index = names.index("Preserve the browser build for diagnosis")
+        validation_index = names.index("Validate browser and desktop interactions")
+        self.assertLess(names.index("Build and run local tests"), artifact_index)
+        self.assertLess(artifact_index, validation_index)
+        self.assertLess(validation_index, names.index("Publish the tested website"))
+        artifact = steps[artifact_index]
+        self.assertEqual(artifact["uses"], "actions/upload-artifact@v4")
+        self.assertEqual(artifact["with"]["path"], "waozixyz/learning/jungle/build/web/")
+        self.assertTrue(artifact["continue-on-error"])
+        validation = steps[validation_index]
+        self.assertNotIn("continue-on-error", validation)
+        self.assertNotIn("if", validation)
+        self.assertEqual([line for line in validation["run"].splitlines()
+                          if line.startswith(("make", "python3", "node"))],
+                         ["python3 tools/run_ci_validation.py"])
+        all_commands = [line for step in steps for line in step.get("run", "").splitlines()]
+        self.assertEqual(all_commands.count("python3 tools/build_web.py"), 1)
+        self.assertEqual(all_commands.count("python3 tools/run_ci_validation.py"), 1)
         capture = steps[names.index("Save private test captures on failure")]
         self.assertEqual(capture["if"], "failure()")
         self.assertIn("waozixyz/learning/jungle/work/ci-validation/*.log", capture["with"]["path"])
