@@ -1,7 +1,10 @@
 # Changelog
 
-## [Unreleased]
+## 0.1.28
 
+Released 2026-10-31.
+
+- Keep Picture Book page timing in step with the refreshed natural narration.
 - Keep short spoken letter clips complete in browser spelling lessons.
 
 ## 0.1.27
