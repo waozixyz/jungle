@@ -43,7 +43,9 @@ try{
  if(!process.argv[2]&&(transientListFailures<2||transientPictureFailures<2))throw Error('Startup did not retry the temporary picture list/image failures');
  if(await evaluate('Module.FS.analyzePath("/assets/jungle/covers/paint.jpg").exists||imagePaths.has("assets/jungle/covers/paint.jpg")'))throw Error('The deliberately blocked optional cover was not skipped');
  if(!(await evaluate('Module.FS.analyzePath("/assets/jungle/covers/counting.jpg").exists'))||await evaluate('imagePaths.has("assets/jungle/covers/count.png")'))throw Error('Counting still uses the content-blocked cover filename');
- // Only the menu's pictures load before opening; a game's load when it shows them.
+ // Menu pictures and the tiny bitmap fonts load before opening. Other game
+ // pictures stay lazy; Story must be able to paint its first typed letter.
+ if(!await evaluate('Module.FS.analyzePath("/assets/dino-paint/font.png").exists'))throw Error('Story font was not loaded before typing');
  if(await evaluate('Module.FS.analyzePath("/assets/jigsaw/tiger-stream-8.png").exists||Module.FS.analyzePath("/assets/jungle-book/pages/tiger.jpg").exists'))throw Error('Startup downloaded game pictures before the menu needed them');
  const expectedTiger=createHash('sha256').update(await readFile(join(root,'assets/jungle/covers/book.jpg'))).digest('hex');
  const actualTiger=await evaluate('(async()=>Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256",Module.FS.readFile("/assets/jungle/covers/book.jpg")))).map(byte=>byte.toString(16).padStart(2,"0")).join(""))()');
@@ -180,6 +182,19 @@ try{
  await command('Input.insertText',{text:'Niño, piña'});await delay(500);await shot('story-phone');await legacy(266,180);
  await paintTool(4);await legacy(253,38);await legacy(60,80);
  const story=await paintText('slot-0.txt');if(!story?.includes('Niño, piña'))throw Error('Mobile story lost accented text');
+ // Desktop typing takes the canvas keypress route, without the phone editor.
+ await resize(1280,800,false);await pixelClick(159,270);
+ await pixelClick(82,56+54*3.72); // Start of the second story line.
+ await evaluate('document.getElementById("mobile-input").blur();Module.canvas.focus()');
+ for(const text of 'Desktop ñ'){
+  await command('Input.dispatchKeyEvent',{type:'keyDown',key:text,text,unmodifiedText:text});await delay(80);
+  await command('Input.dispatchKeyEvent',{type:'keyUp',key:text});
+ }
+ await delay(400);await shot('story-desktop');
+ if(await evaluate('document.body.innerText.includes("Missing image")'))throw Error('Desktop story displayed missing-image placeholders');
+ await key('Enter');
+ if(!(await paintText('working.txt'))?.includes('Desktop ñ'))throw Error('Desktop story did not save typed letters');
+ await resize(390,844,true);
  for(const [category,name,dropX] of [[1,'animals',310],[2,'people',430],[3,'objects',550]]){
   await paintTool(0);await stencilCategory(category);await shot('stencils-'+name);await stencilFirst();
   await placeStencil(name,dropX);
