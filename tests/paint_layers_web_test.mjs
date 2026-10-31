@@ -287,7 +287,12 @@ async function run(input){
     if((!exact||Math.floor(resized)===target)&&Math.abs(resized-target-.5)<score){end=point;score=Math.abs(resized-target-.5)}
    }
    if(!end)throw Error(label+': no integer resize endpoint for width '+target);
+   if(dom){
+    await control('Resize stencil',corner);
+    await evaluate('window.junglePaintPointerTrace=[]');
+   }
    await press(corner);await move(end);await lift(end);await frames(4);
+   if(dom)console.log(label+': resize pointer delivery '+JSON.stringify({index,width,target,corner,end,trace:await evaluate('window.junglePaintPointerTrace')}));
   }
   // Every pointer release keeps the new stencil outside the saved document.
   async function place(at,{picking=false,mirror=false,secondary=false,watch=false}={}){
@@ -316,7 +321,13 @@ async function run(input){
   }
 
   await command('Runtime.enable');await command('Page.enable');
-  await command('Page.addScriptToEvaluateOnNewDocument',{source:'window.jungleTestDocuments=[];window.jungleTestDocument=crypto.randomUUID();window.jungleTestDocuments.push(window.jungleTestDocument)'});
+  await command('Page.addScriptToEvaluateOnNewDocument',{source:`window.jungleTestDocuments=[];window.jungleTestDocument=crypto.randomUUID();window.jungleTestDocuments.push(window.jungleTestDocument);
+   window.junglePaintPointerTrace=[];
+   for(const type of ['mousedown','mousemove','mouseup','touchstart','touchmove','touchend'])document.addEventListener(type,event=>{
+    const p=event.touches?.[0]||event.changedTouches?.[0]||event;
+    junglePaintPointerTrace.push({type,x:p.clientX,y:p.clientY,buttons:event.buttons,label:event.target.closest?.('[aria-label]')?.getAttribute('aria-label')});
+    if(junglePaintPointerTrace.length>16)junglePaintPointerTrace.shift();
+   },true);`});
   await command('Emulation.setDeviceMetricsOverride',{width:960,height:600,deviceScaleFactor:1,mobile:false});
   if(touch)await command('Emulation.setTouchEmulationEnabled',{enabled:true,maxTouchPoints:1});
   await command('Page.navigate',{url:'http://127.0.0.1:'+server.address().port+(page?'/'+page:'')});await ready();
