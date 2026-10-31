@@ -343,6 +343,25 @@ class Workflow(unittest.TestCase):
             compile((ROOT / path).read_text(), path, "exec")  # syntax only; writes no bytecode
 
     @unittest.skipIf(yaml is None, "PyYAML is not installed")
+    def test_public_benchmark_verification_matches_the_generated_page(self):
+        import ast
+        import measure_web
+        workflow = yaml.safe_load((ROOT / ".github/workflows/pages.yml").read_text())
+        steps = workflow["jobs"]["test-build"]["steps"]
+        script = next(step["run"] for step in steps if step.get("name") == "Verify public version")
+        script = script.split("python3 - <<'PY'\n", 1)[1].rsplit("\nPY", 1)[0]
+        page_checks = next(node for node in ast.walk(ast.parse(script))
+                          if isinstance(node, ast.Dict) and any(
+                              isinstance(key, ast.Constant) and key.value == "performance.html"
+                              for key in node.keys))
+        markers = ast.literal_eval(next(value for key, value in zip(page_checks.keys, page_checks.values)
+                                       if isinstance(key, ast.Constant) and key.value == "performance.html"))
+        page = measure_web.html_report({})
+        self.assertGreaterEqual(len(markers), 2)
+        for marker in markers:
+            self.assertIn(marker, page)
+
+    @unittest.skipIf(yaml is None, "PyYAML is not installed")
     def test_one_job_builds_once_then_runs_the_validation(self):
         workflow = yaml.safe_load((ROOT / ".github/workflows/pages.yml").read_text())
         self.assertEqual(list(workflow["jobs"]), ["test-build"])
