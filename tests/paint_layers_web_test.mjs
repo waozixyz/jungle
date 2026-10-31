@@ -271,8 +271,23 @@ async function run(input){
   async function resizePending(index,target){
    const values=(await text('/kryon-apps/jungle/jungle.paint/choices.txt')).split('\n')[1];
    const width=stencilWidths[index*4+CODES.indexOf(values[3])-1],fullW=stencilWidths[index*4+3],fullH=stencilHeights[index*4+3],c=layout.canvas;
-   const center=layout.point(480,360),corner={x:Math.min(c.x+c.w-22,center.x+width*c.w/W/2),y:Math.min(c.y+c.h-74,center.y+width*fullH/fullW*c.h/H/2)};
-   await press(corner);await move({x:center.x+(corner.x-center.x)*(target+.1)/width,y:center.y+(corner.y-center.y)*(target+.1)/width});await lift({x:center.x+(corner.x-center.x)*(target+.1)/width,y:center.y+(corner.y-center.y)*(target+.1)/width});await frames(4);
+   if(width===target)return;
+   // PlacementView uses the bounds' center (half a pixel for odd dimensions)
+   // and an integer handle. Choose an integer pointer endpoint in the middle
+   // of the target width's truncation interval, not on its rounding boundary.
+   const height=Math.ceil(width*fullH/fullW-.0001);
+   const center={x:c.x+(480+width%2/2)*c.w/W,y:c.y+(360+height%2/2)*c.h/H};
+   const corner={x:Math.floor(Math.max(c.x+22,Math.min(c.x+c.w-22,center.x+width*c.w/W/2))),y:Math.floor(Math.max(c.y+22,Math.min(c.y+c.h-74,center.y+width*fullH/fullW*c.h/H/2)))};
+   const distance=Math.hypot(corner.x-center.x,corner.y-center.y),ratio=(target+.5)/width;
+   const goal={x:center.x+(corner.x-center.x)*ratio,y:center.y+(corner.y-center.y)*ratio};
+   let end,score=Infinity;
+   for(let dy=-4;dy<=4;dy++)for(let dx=-4;dx<=4;dx++){
+    const point={x:Math.round(goal.x)+dx,y:Math.round(goal.y)+dy};
+    const resized=width*Math.hypot(point.x-center.x,point.y-center.y)/distance;
+    if(Math.floor(resized)===target&&Math.abs(resized-target-.5)<score){end=point;score=Math.abs(resized-target-.5)}
+   }
+   if(!end)throw Error(label+': no integer resize endpoint for width '+target);
+   await press(corner);await move(end);await lift(end);await frames(4);
   }
   // Every pointer release keeps the new stencil outside the saved document.
   async function place(at,{picking=false,mirror=false,secondary=false,watch=false}={}){
