@@ -6,10 +6,7 @@ import time
 from pathlib import Path
 from PIL import Image, ImageChops
 
-from runtime_test import ROOT, Desktop, environment, run
-
-
-OUTPUT = ROOT / "build/tests/ui"
+from runtime_test import OUTPUT, ROOT, Desktop, environment, run
 
 
 def BuildBookTestApp() -> Path:

@@ -56,6 +56,8 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y libsdl2-dev libcairo2-dev libfreetype-dev libfontconfig-dev libpango1.0-dev libvorbisfile3 ffmpeg python3-pil python3-numpy xvfb xdotool imagemagick ghostscript tesseract-ocr tesseract-ocr-deu tesseract-ocr-spa
+      - name: Check the validation schedule
+        run: python3 tests/ci_validation_test.py
       - name: Build compiler and select locked source directories
         run: |
           make -j2 -C "$GITHUB_WORKSPACE/ziranlang/ziran" all
@@ -76,30 +78,7 @@ jobs:
           make -j2 all
           make test
           python3 tools/build_web.py
-          JUNGLE_WEB_PAGE=dom.html node tests/book_browser_interaction_test.mjs
-          JUNGLE_WEB_PAGE=canvas.html node tests/book_browser_interaction_test.mjs
-          make test-ui
-          python3 tests/book_shelf_test.py
-          for page in dom.html canvas.html; do
-            for lang in en de es; do
-              JUNGLE_TEST_LANG="$lang" JUNGLE_WEB_PAGE="$page" node tests/new_activities_web_test.mjs
-            done
-          done
-          python3 tests/speech_playback_test.py
-          node tests/asset_packs_test.mjs
-          python3 tests/web_images_test.py
-          python3 tools/prepare_itch.py
-          python3 tools/test_itch_web.py
-          JUNGLE_WEB_PAGE=canvas.html node tests/jigsaw_web_test.mjs
-          JUNGLE_WEB_PAGE=dom.html node tests/jigsaw_web_test.mjs
-          JUNGLE_WEB_PAGE=canvas.html node tests/piano_web_test.mjs
-          JUNGLE_WEB_PAGE=dom.html node tests/piano_web_test.mjs
-          JUNGLE_WEB_PAGE=canvas.html node tests/paint_layers_web_test.mjs
-          JUNGLE_WEB_PAGE=dom.html node tests/paint_layers_web_test.mjs
-          JUNGLE_WEB_PAGE=canvas.html node tests/web_test.mjs
-          JUNGLE_WEB_PAGE=dom.html node tests/web_test.mjs
-          node tests/dom_native_web_test.mjs
-          python3 tools/measure_web.py
+          python3 tools/run_ci_validation.py
       - name: Save private test captures on failure
         if: failure()
         continue-on-error: true
@@ -113,6 +92,9 @@ jobs:
             waozixyz/learning/jungle/build/tests/web/*.png
             waozixyz/learning/jungle/backup/**/*.png
             waozixyz/learning/jungle/backup/**/*.log
+            waozixyz/learning/jungle/work/ci-validation/*.log
+            waozixyz/learning/jungle/work/ci-validation/*/ui/*.png
+            waozixyz/learning/jungle/work/ci-validation/*/ui/*.log
           if-no-files-found: ignore
       - name: Publish the tested website
         if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'

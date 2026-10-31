@@ -5,7 +5,7 @@ import shutil
 import tempfile
 import time
 
-from runtime_test import Desktop, ROOT
+from runtime_test import Desktop, OUTPUT, ROOT
 
 sizes = (2, 3, 4, 5, 6, 8)
 output = ROOT/'backup/jigsaw-runtime'
@@ -30,7 +30,7 @@ with tempfile.TemporaryDirectory(prefix='jungle-jigsaw-sizes-') as temporary:
                 vivid = sum(count for count, color in colors or []
                             if max(color)-min(color)>45)
                 assert vivid > 1000, (scene, n, 'Pieces did not show the full-color source picture')
-                shutil.copy2(ROOT/'build/tests/ui'/f'{name}.png', output/f'{scene}-{n}.png')
+                shutil.copy2(OUTPUT/f'{name}.png', output/f'{scene}-{n}.png')
                 receipts.append({'scene': scene, 'grid': n, 'pieces': n*n, 'vivid_pixels': vivid})
                 desktop.key('Escape')
                 desktop.key('Down')
