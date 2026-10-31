@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.29
+
+Released 2026-10-31.
+
+- Make the stencil resize and rotation handles follow mouse drags in the DOM browser edition.
+
 ## 0.1.28
 
 Released 2026-10-31.
