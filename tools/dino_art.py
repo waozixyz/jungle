@@ -10,6 +10,7 @@ art/paint/sceneN.svg, black lines on white paper at 960 by 720. The SVGs
 are the only source for every size tools/paint_pages.py makes.
 """
 from collections import deque
+from functools import cache
 import ctypes
 import json
 from pathlib import Path
@@ -65,7 +66,6 @@ def palm_outlines(index):
            'stroke-linejoin="round" stroke-linecap="round"/>\n' if index in PALM_JOINS else '')
     )
 
-potrace = ctypes.CDLL('libpotrace.so.0')
 WORD = ctypes.c_ulong
 WORD_BITS = ctypes.sizeof(WORD) * 8
 
@@ -105,14 +105,23 @@ class State(ctypes.Structure):
     _fields_ = [('status', ctypes.c_int), ('plist', ctypes.POINTER(Path_)), ('priv', ctypes.c_void_p)]
 
 
-potrace.potrace_param_default.restype = ctypes.POINTER(Param)
-potrace.potrace_trace.restype = ctypes.POINTER(State)
-potrace.potrace_trace.argtypes = [ctypes.POINTER(Param), ctypes.POINTER(Bitmap)]
 POTRACE_CURVETO = 1
+
+
+@cache
+def _potrace():
+    # Catalog validation and art fixtures do not trace images. Load the
+    # optional native tracer only when artwork is actually regenerated.
+    library = ctypes.CDLL('libpotrace.so.0')
+    library.potrace_param_default.restype = ctypes.POINTER(Param)
+    library.potrace_trace.restype = ctypes.POINTER(State)
+    library.potrace_trace.argtypes = [ctypes.POINTER(Param), ctypes.POINTER(Bitmap)]
+    return library
 
 
 def trace(mask, scale_x=1.0, scale_y=1.0):
     """Outline a 1-bit image's set pixels as even-odd SVG path data, y down."""
+    potrace = _potrace()
     width, height = mask.size
     dy = (width + WORD_BITS - 1) // WORD_BITS
     rows = numpy.zeros((height, dy * WORD_BITS), dtype=numpy.uint8)
