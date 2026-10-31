@@ -94,9 +94,10 @@ try{
   if(activity==='numbers'){await key('2');await delay(250);await key(' ')}
   if(activity==='jigsaw'){await key('Enter');await waitFor('Module.FS.analyzePath("/kryon-apps/jungle/jungle.jigsaw/puzzle.txt").exists','Puzzle did not start')}
   if(activity==='piano'){await key('1');await waitFor('bench.audio.some(p=>p.startsWith("assets/piano/sounds/"))','Piano did not play')}
-  if(activity==='coloring'){const scale=Math.min(viewport.width/320,(viewport.height-56)/200),offset=(viewport.height-56-200*scale)/2;
+  if(activity==='counting'){await key('1');await delay(250)}
+  if(activity==='coloring'){
    if(captures)await writeFile(join(output,`${backend}-${viewport.name}-coloring-choice.png`),Buffer.from((await command('Page.captureScreenshot',{format:'png'})).data,'base64'));
-   await click((viewport.width-320*scale)/2+52*scale,56+offset+58*scale);await waitFor('Module.FS.analyzePath("/kryon-apps/jungle/jungle.paint/working.txt").exists','Scene did not open');await key('Escape');await delay(250)}
+   const scene=firstScene(viewport.width,viewport.height);await click(scene.x,scene.y);await waitFor('Module.FS.analyzePath("/kryon-apps/jungle/jungle.paint/working.txt").exists','Scene did not open');await key('Escape');await delay(250)}
   if(expectedTitle&&backend==='dom')await waitFor(visibleTitle(expectedTitle),'Wrong benchmark activity '+activity);
   // Canvas draws atlas glyphs, so verify real game reads rather than fillText.
   const documentGame={'picture-book':'book',abc:'abc',numbers:'numbers',counting:'animals',coloring:'paint',jigsaw:'jigsaw'}[activity];
@@ -161,4 +162,11 @@ try{
  if(browser.exitCode===null)browser.kill('SIGTERM');
  await new Promise(r=>{if(browser.exitCode!==null)r();else browser.once('exit',r)});
  await new Promise(r=>server.close(r));await rm(profile,{recursive:true,force:true,maxRetries:20,retryDelay:150});
+}
+
+function firstScene(width,total){
+ const height=total-56<300?500:Math.max(300,total-56),pad=height<440?8:16,gap=height<440?6:10;
+ const columns=width<600?2:3,rows=6/columns,grid=pad+30+gap+44+gap,footer=height-pad-44;
+ const cardWidth=Math.floor((width-pad*2-gap*(columns-1))/columns),cardHeight=Math.max(80,Math.floor((footer-gap-grid-gap*(rows-1))/rows));
+ return {x:pad+Math.floor(cardWidth/2),y:56+grid+Math.floor(cardHeight/2)};
 }
