@@ -1,5 +1,9 @@
 # Changelog
 
+## [Unreleased]
+
+- Keep short spoken letter clips complete in browser spelling lessons.
+
 ## 0.1.27
 
 Released 2026-10-31.

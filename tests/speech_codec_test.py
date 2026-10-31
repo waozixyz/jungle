@@ -105,7 +105,7 @@ def real_clips_test():
     speech_codec.ValidateEncodedSpeech(shipped, encoded['files'])
     assert encoded['encoding'] == dict(speech_codec.SETTINGS, encoder=speech_codec.Encoder())
     assert speech_codec.SETTINGS == {'codec': 'vorbis', 'container': 'ogg', 'quality': 4,
-                                     'channels': 1, 'sample_rate': RATE}
+                                     'channels': 1, 'sample_rate': RATE, 'page_duration_us': 20000}
     units = {(clip['language'], clip['sha256']) for clip in manifest['clips'].values()}
     assert len(encoded['files']) == len(units)
     languages = {}

@@ -27,7 +27,8 @@ import wave
 ROOT = Path(__file__).resolve().parents[1]
 SHIPPED = 'assets/speech'
 FORMAT = 'jungle-speech-encoded-1'
-SETTINGS = {'codec': 'vorbis', 'container': 'ogg', 'quality': 4, 'channels': 1, 'sample_rate': 22050}
+SETTINGS = {'codec': 'vorbis', 'container': 'ogg', 'quality': 4, 'channels': 1,
+            'sample_rate': 22050, 'page_duration_us': 20000}
 MAX_FRAMES = 22050 * 60
 WORKERS = 2
 _ENCODER = {}
@@ -155,6 +156,10 @@ def _encode(source, clip, cache):
         subprocess.run([_ENCODER['program'], '-nostdin', '-v', 'error', '-y', '-i', str(source),
                         '-map', '0:a:0', '-c:a', 'libvorbis', '-q:a', str(SETTINGS['quality']),
                         '-fflags', '+bitexact', '-flags:a', '+bitexact', '-map_metadata', '-1',
+                        # A short recording must have a non-final audio page.
+                        # Otherwise FFmpeg-based browser decoders can trim a
+                        # priming block again at EOF and lose its final samples.
+                        '-page_duration', str(SETTINGS['page_duration_us']),
                         '-f', 'ogg', str(temporary)], check=True)
         data = temporary.read_bytes()
         encoded_frames = OggVorbisFrames(data)
