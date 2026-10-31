@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- Keep Android game assets and saves inside the app’s private storage.
+
 - Show typed Story letters correctly in the browser Coloring Book.
 
 ## 0.1.26
