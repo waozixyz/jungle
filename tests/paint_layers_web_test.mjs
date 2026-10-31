@@ -349,19 +349,55 @@ async function run(input){
   paintSentinel=find((x,y)=>blank.base[y*W+x]===0,20,20,940,700);
 
   // Pagination describes a real destination, including after changing category.
+  const paginationLabels=()=>evaluate(`[...document.querySelectorAll('#kryon-dom-root button')].map(e=>e.getAttribute('aria-label')).filter(name=>name==='Previous'||name==='Next')`);
   const galleryPages=async expected=>{
    if(!dom)return;
-   const actual=await evaluate(`[...document.querySelectorAll('#kryon-dom-root button')].map(e=>e.getAttribute('aria-label')).filter(name=>name==='Previous'||name==='Next')`);
+   const actual=await paginationLabels();
    if(JSON.stringify(actual)!==JSON.stringify(expected))throw Error(label+': stencil pagination '+JSON.stringify(actual)+' expected '+JSON.stringify(expected));
   };
   // Real mouse/touch selection at phone and landscape sizes. DOM geometry is
   // read from the rendered controls; Canvas uses the same hit points and proves
   // each hit by the independently persisted stencil/category/page choices.
   const pickerChoices=()=>text('/kryon-apps/jungle/jungle.paint/choices.txt');
+  const PAGES=[3,2,2,2];
+  // The DOM page republishes the picker for a while after a change or resize:
+  // thumbnails arrive and renumber the controls. A press and release
+  // straddling such a republish gets no browser click, and a busy runner
+  // stretches it past any fixed frame count. So each input waits until this
+  // viewport's Previous/Next are in place and the published tree, every
+  // picture loaded, holds still.
+  const pickerTree=`(()=>{const root=document.querySelector('#kryon-dom-root');return root?[...root.querySelectorAll('[data-kryon-index]')].map(e=>e.getAttribute('data-kryon-index')+':'+(e.getAttribute('aria-label')||e.tagName)).join('|')+'#'+[...root.querySelectorAll('img')].filter(i=>!i.complete).length:null})()`;
+  async function pickerSettled(points,what){
+   if(!dom)return;
+   await until(async()=>{
+    const before=await evaluate(pickerTree);
+    const placed=await evaluate(`[...document.querySelectorAll('#kryon-dom-root button')].filter(e=>['Previous','Next'].includes(e.getAttribute('aria-label'))).map(e=>{const r=e.getBoundingClientRect(),p=e.getAttribute('aria-label')==='Next'?${JSON.stringify(points.next)}:${JSON.stringify(points.previous)};return p.x>=r.left&&p.x<r.right&&p.y>=r.top&&p.y<r.bottom})`);
+    await frames(3);
+    return before!==null&&before.endsWith('#0')&&placed.length>0&&placed.every(Boolean)&&before===await evaluate(pickerTree);
+   },what+': the stencil picker kept republishing');
+  }
+  // The app's own acknowledgement of a picker input: its persisted category
+  // and page and, on the DOM page, the Previous/Next that page has.
+  async function pickerPage(category,page,points,what){
+   const controls=[...(page>0?['Previous']:[]),...(page<PAGES[category]-1?['Next']:[])];let last;
+   try{
+    await until(async()=>{
+     const values=(await pickerChoices())?.split('\n')[1];
+     last={category:CODES.indexOf(values?.[1]),page:CODES.indexOf(values?.[2]),controls:dom?await paginationLabels():null};
+     return last.category===category&&last.page===page&&(!dom||JSON.stringify(last.controls)===JSON.stringify(controls));
+    },what);
+   }catch(error){
+    if(errors.length)throw error;
+    throw Error(label+': '+what+' '+JSON.stringify(last)+' expected '+JSON.stringify({category,page,controls}));
+   }
+   await pickerSettled(points,what);
+  }
   for(const [n,[width,height]] of [[390,844],[400,756],[420,700],[844,390],[960,600]].entries()){
    await command('Emulation.setDeviceMetricsOverride',{width,height,deviceScaleFactor:1,mobile:false});await frames(8);
-   const points=stencilLayout(width,height),category=n%4;
+   const points=stencilLayout(width,height),category=n%4,at=' at '+width+'x'+height;
+   await pickerSettled(points,'resized picker'+at);
    await tap(await control(['Dinosaurs','Animals','People','Objects'][category],points.category(category)));await frames(4);
+   await pickerPage(category,0,points,'category '+category+at);
    if(dom){
     const boxes=await evaluate(`[...document.querySelectorAll('#kryon-dom-root button')].map(e=>{const r=e.getBoundingClientRect();return {name:e.getAttribute('aria-label'),x:r.x,y:r.y,w:r.width,h:r.height}}).filter(r=>r.y>=56)`);
     if(boxes.length!==11)throw Error(label+': missing responsive picker controls '+JSON.stringify(boxes));
@@ -370,41 +406,52 @@ async function run(input){
      for(const b of boxes.slice(i+1))if(r.x<b.x+b.w&&b.x<r.x+r.w&&r.y<b.y+b.h&&b.y<r.y+r.h)throw Error(label+': overlapping mobile controls');
     }
    }
-   for(let page=0;page<(category===0?2:1);page++){await tap(await control('Next',points.next));await frames(4)}
+   for(let page=0;page<(category===0?2:1);page++){
+    await tap(await control('Next',points.next));await frames(4);
+    await pickerPage(category,page+1,points,'Next to page '+(page+1)+at);
+   }
    await galleryPages(['Previous']);
    const partial=await pickerChoices();
    await tap(points.next);await tap(points.tile(5));await frames(4);
    if(await pickerChoices()!==partial)throw Error(label+': nonexistent destination/item changed choices');
-   await tap(points.tile(3));await frames(4);
-   const selected=await pickerChoices(),values=selected?.split('\n')[1];
-   if(CODES.indexOf(values?.[0])!==[34,38,42,46][category]||CODES.indexOf(values?.[1])!==category||CODES.indexOf(values?.[2])!==(category===0?2:1))throw Error(label+': mobile partial-page selection failed '+JSON.stringify({width,height,category,values}));
+   await tap(points.tile(3));
+   const last=PAGES[category]-1,stencilAt=[34,38,42,46][category];let selected,values;
+   try{
+    // Choosing a stencil leaves the picker for its in-scene placement.
+    await until(async()=>{selected=await pickerChoices();values=selected?.split('\n')[1];return CODES.indexOf(values?.[0])===stencilAt&&(!dom||!(await paginationLabels()).length)},'tile');
+   }catch(error){if(errors.length)throw error}
+   if(CODES.indexOf(values?.[0])!==stencilAt||CODES.indexOf(values?.[1])!==category||CODES.indexOf(values?.[2])!==last)throw Error(label+': mobile partial-page selection failed '+JSON.stringify({width,height,category,values}));
    await key('Escape');await tool(0);await stable('reopened stencil picker');
    const wide=width<600?960:390,tall=width<600?600:844;
    await command('Emulation.setDeviceMetricsOverride',{width:wide,height:tall,deviceScaleFactor:1,mobile:false});await frames(8);
    if(await pickerChoices()!==selected)throw Error(label+': resize changed selected stencil/page');
+   await pickerSettled(stencilLayout(wide,tall),'resized selected page at '+wide+'x'+tall);
    await tap(stencilLayout(wide,tall).tile(3));await frames(4);
+   if(dom)await until(async()=>!(await paginationLabels()).length,'resized tile did not open its placement');
    if(await pickerChoices()!==selected)throw Error(label+': resized tile selected another stencil');
    await key('Escape');await tool(0);await stable('same stencil page');
   }
   await command('Emulation.setDeviceMetricsOverride',{width:960,height:600,deviceScaleFactor:1,mobile:false});await frames(8);
+  await pickerSettled(stencil,'resized picker at 960x600');
   await tap(await control('Dinosaurs',stencil.category(0)));await frames(4);
+  await pickerPage(0,0,stencil,'first dinosaur page at 960x600');
   if(digest(await saved())!==digest(blank)||await steps()!==0)throw Error(label+': responsive browsing changed picture');
   await galleryPages(['Next']);
   let gallery=await screen();
   await tap(await control('Next',stencil.next));
-  await settled(gallery,'second dinosaur page');await galleryPages(['Previous','Next']);
+  await settled(gallery,'second dinosaur page');await pickerPage(0,1,stencil,'second dinosaur page');await galleryPages(['Previous','Next']);
   gallery=await screen();
   await tap(await control('Next',stencil.next));
-  await settled(gallery,'last dinosaur page');await galleryPages(['Previous']);
+  await settled(gallery,'last dinosaur page');await pickerPage(0,2,stencil,'last dinosaur page');await galleryPages(['Previous']);
   gallery=await screen();
   await tap(await control('Previous',stencil.previous));
-  await settled(gallery,'middle dinosaur page');
+  await settled(gallery,'middle dinosaur page');await pickerPage(0,1,stencil,'middle dinosaur page');
   gallery=await screen();
   await tap(await control('Previous',stencil.previous));
-  await settled(gallery,'first dinosaur page');await galleryPages(['Next']);
+  await settled(gallery,'first dinosaur page');await pickerPage(0,0,stencil,'first dinosaur page');await galleryPages(['Next']);
   for(const [name,index] of [['Animals',1],['People',2],['Objects',3]]){
    await tap(await control(name,stencil.category(index)));
-   await stable(name+' gallery');await galleryPages(['Next']);
+   await stable(name+' gallery');await pickerPage(index,0,stencil,name+' gallery');await galleryPages(['Next']);
   }
   if(digest(await saved())!==digest(blank)||await steps()!==0)throw Error(label+': browsing stencils changed the picture');
 
