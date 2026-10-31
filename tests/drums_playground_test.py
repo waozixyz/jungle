@@ -400,15 +400,36 @@ def inspect_scene(desktop, probe, language, size):
     return picture
 
 
-def exercise_copy(desktop, probe, save, size):
-    # Mute the optional spoken explanation, then use Replay after unmuting.
-    # Include any first demo note already queued during the replay click.
+def wait_copy_turn(desktop, probe, size):
+    # Observe the actual phase instead of racing the automatic demonstration.
+    scale, width, *_ = geometry(*size)
+    path = probe.path.parent / 'copy-prompt.png'
+    deadline = time.monotonic() + 25
+    prompt = ''
+    while time.monotonic() < deadline:
+        image = desktop.capture_actual('copy-phase')
+        image.crop((round(16 * scale), round(56 + 58 * scale),
+                    round((width - 16) * scale), round(56 + 86 * scale))).save(path)
+        result = subprocess.run(['tesseract', str(path), 'stdout', '--psm', '7'],
+                                check=True, capture_output=True, text=True, timeout=10)
+        prompt = re.sub('[^a-z]', '', result.stdout.lower())
+        if prompt == 'yourturn':
+            return
+        time.sleep(.1)
+    raise AssertionError(('copy did not reach the response phase', prompt))
+
+
+def exercise_copy(desktop, probe, save, size, replay_delay=0):
+    # Finish the muted automatic demonstration before unmuting. Otherwise its
+    # first note can race the Replay click and be counted as part of Replay.
     _, width, height, *_ = geometry(*size)
     desktop.click_actual(size[0] - 34, 28)
     desktop.click_actual(*actual_point(size, width * 3 // 4, 30))
     assert save.read_text() == 'drums 1 5 1\n', 'copy reset legacy progress'
+    wait_copy_turn(desktop, probe, size)
     desktop.click_actual(size[0] - 34, 28)
     probe.entries()
+    time.sleep(replay_delay)
     desktop.click_actual(*actual_point(size, 60, height - 40))
     # Five demo notes followed by the final full quiet gap; timing is allowed
     # to slow down under Xvfb, but never to skip or duplicate an emission.
@@ -421,7 +442,8 @@ def exercise_copy(desktop, probe, save, size):
     reverse = {value: pad for pad, name in enumerate(SOUNDS) for value in [probe.expected[name]]}
     assert all(entry in reverse for entry in entries), ('copy queued non-instrument PCM', entries)
     pattern = [reverse[entry] for entry in entries]
-    time.sleep(.9)
+    wait_copy_turn(desktop, probe, size)
+    probe.silent('copy demonstration finished before response')
     for pad in pattern:
         desktop.click_actual(*body_point(size, pad, copying=True))
         probe.expect(pad, 'copy response')
@@ -438,6 +460,8 @@ def exercise_copy(desktop, probe, save, size):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--audio-only', action='store_true')
+    parser.add_argument('--binary', type=Path, default=rt.ROOT / 'build/app/jungle')
+    parser.add_argument('--copy-only', action='store_true', help='exercise the copy response with delayed Replay input')
     parser.add_argument('--visual-only', action='store_true', help='targeted scene/8-pointer rerun after decoration-only changes')
     parser.add_argument('--keep-preview', action='store_true', help='keep one scene PNG for a final visual review; caller removes them')
     args = parser.parse_args()
@@ -490,10 +514,15 @@ def main():
             save.parent.mkdir(parents=True)
             save.write_text('drums 1 5 1\n')
             env = {'LD_PRELOAD': str(probe.library), 'JUNGLE_TEST_AUDIO_QUEUE': str(probe.path)}
-            with rt.Desktop(rt.ROOT / 'build/app/jungle', data, extra_env=env, screen_size='1280x1100') as desktop:
+            with rt.Desktop(args.binary.resolve(), data, extra_env=env, screen_size='1280x1100') as desktop:
                 desktop.game(TITLE)
                 # No unsolicited opening narration may block the first hit.
                 probe.entries()
+                if args.copy_only:
+                    desktop.resize(960, 600)
+                    exercise_copy(desktop, probe, save, (960, 600), replay_delay=.4)
+                    print('local copy response: actual turn phase, delayed Replay and exact five-note PCM passed', flush=True)
+                    return
                 for size in ((400, 756), (960, 600)):
                     captures[language, size] = (inspect_scene if args.visual_only else exercise_scene)(desktop, probe, language, size)
                 assert save.read_text() == 'drums 1 5 1\n', 'free hits changed legacy progress'
