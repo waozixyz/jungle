@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Rebuild Little Drums' four quiet, deterministic percussion samples.
+"""Rebuild Music Room' four quiet, deterministic percussion samples.
 
 Only the Python standard library is needed. No recording or runtime network
 dependency. Run from any directory: python3 games/drums/generate_sounds.py.

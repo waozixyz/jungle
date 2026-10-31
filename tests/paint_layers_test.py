@@ -210,13 +210,15 @@ def placement_ui():
         folder.mkdir(parents=True)
         working = folder / 'working.txt'
         working.write_bytes(original)
+        (folder / 'choices.txt').write_bytes(b'JUNGLE PAINT CHOICES 1\n10040000')
         with Desktop(ROOT / 'build/app/jungle', data) as desktop:
             open_main(desktop, 'layers-legacy-placement')
             tool(desktop, 0)
             stencil_click(desktop)
-            desktop.click(280, 90)
             desktop.capture('layers-huge-placement', header=56)
-            desktop.drag(72, 14, 102, 14)
+            assert working.read_bytes() == original, 'preview changed the legacy picture'
+            from paint_library_test import placement_click
+            placement_click(desktop)
             placed = changed(working, original)
             x, y = assert_dinosaur(original, placed)
             assert placed.startswith(b'JUNGLE PICTURE 3\n')

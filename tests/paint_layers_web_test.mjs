@@ -3,7 +3,7 @@
 // upper object erased without touching the one below or the paper, and Undo
 // across hard reloads. Never attaches to the owner's desktop or profile.
 import {spawn} from 'node:child_process';
-import {readFile,writeFile,mkdtemp,rm,mkdir} from 'node:fs/promises';
+import {readFile,writeFile,mkdtemp,rm,mkdir,open} from 'node:fs/promises';
 import {createServer} from 'node:http';
 import {createHash} from 'node:crypto';
 import {resolve,join,extname} from 'node:path';
@@ -28,7 +28,7 @@ if(paintIndex<0)throw Error('No Coloring Book in this build');
 
 const WORKING='/kryon-apps/jungle/jungle.paint/working.txt',HISTORY='/kryon-apps/jungle/jungle.paint/working-undo.txt';
 const CODES='0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_',W=960,H=720,PAPER=15,CLEAR=255;
-const TOOLS=['Image','Color','Story','Erase','Gallery','Print','Undo','New picture','Rotate'];
+const TOOLS=['Image','Color','Story','Erase','Gallery','Print','Undo','New picture','Select'];
 // The saved picture: crayon, composed pixels, scene below the objects and
 // the objects from the bottom up.
 function picture(text){
@@ -92,6 +92,13 @@ const layout=(()=>{
   dialog:(x,y,w,h)=>({x:rx+(x+w/2)*scale,y:ry+(y+h/2)*scale})
  };
 })();
+
+// Only the small dimension header is needed, never the embedded mask bodies.
+const dimensionsFile=await open('games/paint/paint_pages.zi','r'),dimensionBytes=Buffer.alloc(4096);
+await dimensionsFile.read(dimensionBytes,0,4096,0);await dimensionsFile.close();
+const dimensions=name=>dimensionBytes.toString().match(new RegExp(name+':[^=]+=[^\\[]*\\[([^\\]]+)'))[1].split(',').map(Number);
+const stencilWidths=dimensions('DINO_WIDTH'),stencilHeights=dimensions('DINO_HEIGHT');
+function sceneFirst(index=0,width=960,total=600){const h=total-56,p=h<440?8:16,g=h<440?6:10,c=width<600?2:3,rows=6/c,gy=p+30+g+44+g,fy=h-p-44,cw=Math.floor((width-2*p-g*(c-1))/c),ch=Math.floor((fy-g-gy-g*(rows-1))/rows);return {x:p+index%c*(cw+g)+cw/2,y:56+gy+Math.floor(index/c)*(ch+g)+ch/2}}
 
 async function run(input){
  const touch=input==='touch',profile=await mkdtemp(resolve('work/w/p-'));
@@ -234,47 +241,36 @@ async function run(input){
    const previous=await evaluate('window.jungleTestDocument');
    await command('Page.reload',{ignoreCache:true});await ready(previous);await openPaint();
   }
-  // A placement through the real picker, which a new scene opens itself: the
-  // stencil starts in the upper left, follows the pointer while held and
-  // lands where it is let go. A secondary mouse click during the drag
-  // leaves the drag to the primary button and the stencil unmirrored.
- async function place(at,{picking=false,mirror=false,secondary=false,watch=false}={}){
-   let before=await screen();
-   if(!picking){await tool(0);before=await settled(before,'stencil picker')}
-   // The picker keeps the last category, so choosing it again may change nothing.
-   await tap(await control('Objects',stencil.category(3)));await stable('Objects');before=await screen();
-   await tap(await control('Crate',stencil.tile(0)));before=await settled(before,'size picker');
-   await tap(await control('Small',layout.dialog(24,40,64,120)));await settled(before,'placement');
-   if(dom){
-    if((await toolLabels())[6]!=='Mirror')throw Error(label+': Undo is not Mirror while placing');
-    const box=await evaluate(`(()=>{const r=document.querySelector('#kryon-dom-root [aria-label="Picture"]').getBoundingClientRect();return {x:r.left,y:r.top,w:r.width,h:r.height}})()`),want=layout.canvas;
-    if(Math.abs(box.x-want.x)>1||Math.abs(box.y-want.y)>1||Math.abs(box.w-want.w)>1||Math.abs(box.h-want.h)>1)throw Error(label+': layout differs from the page '+JSON.stringify(box));
-   }
+  const pendingButton=place=>{const c=layout.canvas,bw=Math.min(140,Math.max(44,Math.floor((c.w-18)/2))),x=c.x+Math.floor((c.w-bw*2-6)/2);return {x:x+(place?bw+6:0)+bw/2,y:c.y+c.h-26}};
+  async function resizePending(index,target){
+   const values=(await text('/kryon-apps/jungle/jungle.paint/choices.txt')).split('\n')[1];
+   const width=stencilWidths[index*4+CODES.indexOf(values[3])-1],fullW=stencilWidths[index*4+3],fullH=stencilHeights[index*4+3],c=layout.canvas;
+   const center=layout.point(480,360),corner={x:Math.min(c.x+c.w-22,center.x+width*c.w/W/2),y:Math.min(c.y+c.h-74,center.y+width*fullH/fullW*c.h/H/2)};
+   await press(corner);await move({x:center.x+(corner.x-center.x)*(target+.1)/width,y:center.y+(corner.y-center.y)*(target+.1)/width});await lift({x:center.x+(corner.x-center.x)*(target+.1)/width,y:center.y+(corner.y-center.y)*(target+.1)/width});await frames(4);
+  }
+  // Every pointer release keeps the new stencil outside the saved document.
+  async function place(at,{picking=false,mirror=false,secondary=false,watch=false}={}){
+   if(!picking){await tool(0);await stable('stencil picker')}
+   await tap(await control('Objects',stencil.category(3)));await stable('Objects');
+   await tap(await control('Crate',stencil.tile(0)));await stable('in-scene placement');
+   await resizePending(24,232);
    const stepsBefore=await steps(),pictureBefore=await saved();
-   if(mirror){await tool(6,'Mirror');await frames(4);if(!touch){await tool(6,'Mirror');await frames(4)}}
-   if(await steps()!==stepsBefore||digest(await saved())!==digest(pictureBefore))throw Error(label+': Mirror changed the picture');
-   // The Small crate's size, grabbed inside its box.
-   const grab={x:40,y:40},w=232,h=180,center=(x,y)=>layout.point(x+w/2,y+h/2);
-   const from=center(0,0),to=center(at.x,at.y),oldFrom=await area(from),oldTo=await area(to);
-   await press(layout.point(grab.x,grab.y));
-   for(let step=1;step<=8;step++){
-    const point=layout.point(grab.x+at.x*step/8,grab.y+at.y*step/8);await move(point);
-    if(step===4&&secondary&&!touch){
-     await command('Input.dispatchMouseEvent',{type:'mousePressed',...point,button:'right',buttons:3,clickCount:1});await frames(3);
-     await command('Input.dispatchMouseEvent',{type:'mouseReleased',...point,button:'right',buttons:1,clickCount:1});await frames(2);
-    }
-   }
-   await until(async()=>await area(from)!==oldFrom&&await area(to)!==oldTo,'the stencil did not follow the drag');
-   const drop=layout.point(grab.x+at.x,grab.y+at.y);
-  const placeEdit=async()=>{
-   if(mirror&&!touch){await command('Input.dispatchMouseEvent',{type:'mousePressed',...drop,button:'right',buttons:3,clickCount:1});await frames(3);await command('Input.dispatchMouseEvent',{type:'mouseReleased',...drop,button:'left',buttons:2,clickCount:1});await frames(3);await command('Input.dispatchMouseEvent',{type:'mouseReleased',...drop,button:'right',buttons:0,clickCount:1});await frames(2)}
-   else await lift(drop);
-   await until(async()=>(await saved()).objects.length===pictureBefore.objects.length+1&&await steps()===stepsBefore+1,'the stencil was not placed');
-  };
-  if(watch)await observe('stencil placement',placeEdit);else await placeEdit();
+   const values=(await text('/kryon-apps/jungle/jungle.paint/choices.txt')).split('\n')[1];
+   if(Boolean(CODES.indexOf(values[4]))!==mirror){await tool(6,'Mirror');await frames(4)}
+   const w=232,h=Math.ceil(232*stencilHeights[24*4+3]/stencilWidths[24*4+3]-.0001),start=layout.point(480,360),drop=layout.point(at.x+Math.floor(w/2),at.y+Math.floor(h/2));
+   await press(start);
+   for(let step=1;step<=8;step++)await move({x:start.x+(drop.x-start.x)*step/8,y:start.y+(drop.y-start.y)*step/8});
+   if(secondary&&!touch){await command('Input.dispatchMouseEvent',{type:'mousePressed',...drop,button:'right',buttons:3,clickCount:1});await frames(3);await command('Input.dispatchMouseEvent',{type:'mouseReleased',...drop,button:'right',buttons:1,clickCount:1})}
+   if(await steps()!==stepsBefore||digest(await saved())!==digest(pictureBefore))throw Error(label+': preview changed the picture');
+   const placeEdit=async()=>{
+    await lift(drop);await frames(4);
+    if(await steps()!==stepsBefore||digest(await saved())!==digest(pictureBefore))throw Error(label+': pointer release placed the stencil');
+    await tap(await control('Place',pendingButton(true)));
+    await until(async()=>(await saved()).objects.length===pictureBefore.objects.length+1&&await steps()===stepsBefore+1,'Place did not commit one stencil');
+   };
+   if(watch)await observe('stencil placement',placeEdit);else await placeEdit();
    const after=await saved(),object=after.objects.at(-1);
-   if(Math.abs(object.x-at.x)>1||Math.abs(object.y-at.y)>1||object.w!==w||object.h!==h)throw Error(label+': stencil landed at '+object.x+','+object.y);
-   if(dom&&(await toolLabels())[6]!=='Undo')throw Error(label+': Mirror stayed after placing');
+   if(Math.abs(object.x-at.x)>1||Math.abs(object.y-at.y)>1||object.w!==w||object.h!==h)throw Error(label+': stencil bounds '+JSON.stringify({x:object.x,y:object.y,w:object.w,h:object.h}));
    return after;
   }
 
@@ -286,7 +282,7 @@ async function run(input){
   await openPaint();
   // A fresh picture: the first scene, which opens the stencil picker.
   const opening=await screen();
-  await tap(await control('Jungle clearing',layout.dialog(20,51,90,56)));
+  await tap(await control('Jungle clearing',sceneFirst()));
   await until(async()=>(await saved())!==null&&await steps()===0,'the scene did not open');
   await settled(opening,'stencil picker');
   const blank=await saved();if(blank.objects.length)throw Error(label+': new scene has objects');
@@ -322,13 +318,13 @@ async function run(input){
    await tap(points.tile(3));await frames(4);
    const selected=await pickerChoices(),values=selected?.split('\n')[1];
    if(CODES.indexOf(values?.[0])!==[34,38,42,46][category]||CODES.indexOf(values?.[1])!==category||CODES.indexOf(values?.[2])!==(category===0?2:1))throw Error(label+': mobile partial-page selection failed');
-   await key('Escape');
+   await key('Escape');await tool(0);await stable('reopened stencil picker');
    const wide=width<600?960:390,tall=width<600?600:844;
    await command('Emulation.setDeviceMetricsOverride',{width:wide,height:tall,deviceScaleFactor:1,mobile:false});await frames(8);
    if(await pickerChoices()!==selected)throw Error(label+': resize changed selected stencil/page');
    await tap(stencilLayout(wide,tall).tile(3));await frames(4);
    if(await pickerChoices()!==selected)throw Error(label+': resized tile selected another stencil');
-   await key('Escape');
+   await key('Escape');await tool(0);await stable('same stencil page');
   }
   await command('Emulation.setDeviceMetricsOverride',{width:960,height:600,deviceScaleFactor:1,mobile:false});await frames(8);
   await tap(await control('Dinosaurs',stencil.category(0)));await frames(4);
@@ -379,19 +375,35 @@ async function run(input){
   if(b.objects.length!==2||B.pixels.some((v,i)=>v!==flipped[i]))throw Error(label+': Mirror did not flip the stencil');
   if(b.objects[0].pixels.some((v,i)=>v!==filled.objects[0].pixels[i]))throw Error(label+': placing over an object changed it');
 
-  // Rotate the top object, preserving its paint, all other objects and paper.
-  // Bare paper is a no-op. The rotated edit and Undo survive a hard reload.
+  // Select is a no-op; dragging the above-center handle rotates freely.
   const rotateAt=find((x,y)=>ownerAt(b,x,y)===1,B.x,B.y,B.x+B.w,B.y+B.h);
   const bareAt=find((x,y)=>ownerAt(b,x,y)<0,700,20,950,240);
   await tool(8);await tap(layout.point(bareAt.x,bareAt.y));await frames(12);
-  if(digest(await saved())!==digest(b)||await steps()!==3)throw Error(label+': rotating bare paper changed the picture');
-  await observe('rotate',async()=>{
-   await tap(layout.point(rotateAt.x,rotateAt.y));
-   await until(async()=>digest(await saved())!==digest(b)&&await steps()===4,'Rotate did not change the object');
+  if(digest(await saved())!==digest(b)||await steps()!==3)throw Error(label+': selecting bare paper changed the picture');
+  await tap(layout.point(rotateAt.x,rotateAt.y));await frames(10);
+  if(digest(await saved())!==digest(b)||await steps()!==3)throw Error(label+': selecting an object changed its pixels or Undo');
+  let lx=B.w,ly=B.h,rx=0,by=0;
+  for(let y=0;y<B.h;y++)for(let x=0;x<B.w;x++)if(B.pixels[y*B.w+x]!==CLEAR){lx=Math.min(lx,x);ly=Math.min(ly,y);rx=Math.max(rx,x+1);by=Math.max(by,y+1)}
+  const bounds={x:B.x+lx,y:B.y+ly,w:rx-lx,h:by-ly};
+  const sx=layout.canvas.w/W,sy=layout.canvas.h/H;
+  const center={x:layout.canvas.x+(bounds.x+bounds.w/2)*sx,y:layout.canvas.y+(bounds.y+bounds.h/2)*sy};
+  const handle={x:center.x,y:Math.max(68,layout.canvas.y+bounds.y*sy-24)},radius=center.y-handle.y;
+  await observe('free rotate preview and release',async()=>{
+   await press(handle);
+   for(let n=1;n<=8;n++){
+    const angle=37*n/8*Math.PI/180;
+    await move({x:center.x+radius*Math.sin(angle),y:center.y-radius*Math.cos(angle)});
+    if(digest(await saved())!==digest(b)||await steps()!==3)throw Error(label+': held preview changed saved pixels or Undo');
+   }
+   const angle=37*Math.PI/180;
+   await lift({x:center.x+radius*Math.sin(angle),y:center.y-radius*Math.cos(angle)});
+   await until(async()=>digest(await saved())!==digest(b)&&await steps()===4,'Handle release did not rotate the selected object');
   });
   const rotated=await saved(),R=rotated.objects[1];
-  if(R.w!==B.h||R.h!==B.w||rotated.base.some((v,i)=>v!==b.base[i])||rotated.objects[0].pixels.some((v,i)=>v!==b.objects[0].pixels[i]))throw Error(label+': Rotate changed other layers or dimensions');
-  for(let py=0;py<R.h;py++)for(let px=0;px<R.w;px++)if(R.pixels[py*R.w+px]!==B.pixels[(B.h-1-px)*B.w+py])throw Error(label+': Rotate lost object paint');
+  const theta=37*Math.PI/180,expectedW=bounds.w*Math.cos(theta)+bounds.h*Math.sin(theta),expectedH=bounds.w*Math.sin(theta)+bounds.h*Math.cos(theta);
+  if(Math.abs(R.w-expectedW)>4||Math.abs(R.h-expectedH)>4||R.w===B.h&&R.h===B.w)throw Error(label+': free rotation snapped or warped its bounds');
+  if(rotated.base.some((v,i)=>v!==b.base[i])||rotated.objects[0].pixels.some((v,i)=>v!==b.objects[0].pixels[i]))throw Error(label+': free rotation changed another layer');
+  if(!R.pixels.includes(CLEAR)||R.pixels.some(value=>value!==CLEAR&&!B.pixels.includes(value)))throw Error(label+': rotation lost alpha or invented paint colors');
   await persisted(digest(rotated),4,'the rotated picture');await reload();
   await persisted(digest(rotated),4,'rotation after reload');await tool(6);
   await until(async()=>digest(await saved())===digest(b)&&await steps()===3,'Undo did not restore the rotated object');
@@ -466,7 +478,7 @@ async function run(input){
   await key('Escape');await stable('leave gallery');
   await tool(7);await stable('New confirmation');
   await tap(await control('Yes',layout.dialog(40,50,80,120)));await stable('scene categories');
-  await tap(await control('Waterfall',layout.dialog(114,51,90,56)));
+  await tap(await control('Waterfall',sceneFirst(1)));
   await until(async()=>(await galleryIndex())?.count===3,'New picture did not create a new gallery entry');
   await key('Escape');await stable('new scene');
   const newPicture=await saved();if(digest(newPicture)===done)throw Error(label+': new scene did not open');
@@ -481,8 +493,8 @@ async function run(input){
   await tool(0);await stable('remembered stencil picker');
   await tap(await control('Objects',stencil.category(3)));await stable('Objects');
   await tap(await control('Next',stencil.next));await stable('new object stencils');
-  await tap(await control('Ball',stencil.tile(0)));await stable('Ball sizes');
-  await tap(await control('Huge',layout.dialog(234,40,64,120)));await stable('Ball placement');
+  await tap(await control('Ball',stencil.tile(0)));await stable('Ball placement');
+  await resizePending(42,stencilWidths[42*4+3]);
   await tool(6,'Mirror');await frames(8);
   const choiceFile=namespace+'choices.txt',choices=await text(choiceFile),values=choices?.split('\n')[1];
   if(!values||CODES.indexOf(values[0])!==43||CODES.indexOf(values[1])!==3||CODES.indexOf(values[2])!==1||CODES.indexOf(values[3])!==4)throw Error(label+': stencil choices were not saved');
@@ -491,7 +503,7 @@ async function run(input){
   if(await text(choiceFile)!==choices)throw Error(label+': reload changed choices');
   await tool(0);await stable('restored stencil page');
   await tap(await control('Ball',stencil.tile(0)));await stable('restored selected stencil');
-  await key('Escape');await key('Escape');await stable('return from restored picker');
+  await key('Escape');await stable('cancel restored pending stencil');
   if(errors.length)throw Error(JSON.stringify(errors));
   console.log(`local paint layers ${label}: continuous rendering, placement, Mirror, fill, overlap erase, rotation and Undo across reloads, gallery copies/New/open, and remembered stencil choices passed`);
  }catch(error){

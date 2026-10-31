@@ -29,7 +29,8 @@ babies and toddlers.
   automatic progression, choose a range up to five, ten or twenty, or try simple
   addition and subtraction within five.
 - **Coloring Book:** Choose a scene, add dinosaurs, animals, people and objects,
-  and make a picture with crayons. Erase individual newly placed objects while
+  then move, resize and freely rotate each stencil before pressing Place.
+  Make a picture with crayons. Erase individual newly placed objects while
   keeping the rest of the picture. Save your creations, write a story, and
   export or print them.
 - **Little Piano (5+):** Play a fixed 37-key C3–C6 keyboard with the same quiet,
@@ -47,7 +48,7 @@ babies and toddlers.
   puzzles with up to ten pairs when ready.
 - **Hide & Seek (2+):** Choose peekaboo, finding clues or a memory challenge with
   four hiding places. Show the friends again whenever needed.
-- **Little Drums (2+):** Tap illustrated drums, a shaker and a bell on a shared
+- **Music Room (2+):** Tap illustrated drums, a shaker and a bell on a shared
   playmat, then try copying short rhythms.
 
 ## A look inside

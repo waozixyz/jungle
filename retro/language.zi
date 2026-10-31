@@ -9,7 +9,7 @@ LanguageCode :: () -> string {
 LanguageSet :: (code: string) {
     language = ifx code == "de" then 1 else ifx code == "es" then 2 else 0
 }
-UI_COUNT :: 356
+UI_COUNT :: 368
 ui_en_0: [48]string = .[
     "Picture Book",
     "Animal Counting",
@@ -347,7 +347,6 @@ ui_en_288: [48]string = .[
     "Find friendly animal pairs",
     "Hide & Seek",
     "Peek, find and discover",
-    "Little Drums",
     "Tap, listen and copy",
     "Grow a Garden",
     "Plant, water and grow",
@@ -359,9 +358,9 @@ ui_en_288: [48]string = .[
     "New picture",
     "Tap an object to erase",
     "Picture is full. Erase an object first",
-];
-ui_en_336: [20]string = .[
     "How many together?",
+];
+ui_en_336: [32]string = .[
     "How many stay?",
     "Count",
     "Add · to 5",
@@ -381,6 +380,19 @@ ui_en_336: [20]string = .[
     "Save a copy",
     "Slots",
     "Well done! Next adventure...",
+    "Music Room",
+    "Select",
+    "Tap an object to select",
+    "Drag the dot to rotate",
+    "Choose a lesson",
+    "Lessons",
+    "Counting · Auto",
+    "Count · 1-5",
+    "Count · 1-10",
+    "Count · 1-20",
+    "Place",
+    "Resize stencil",
+    "Rotate stencil",
 ];
 ui_de_0: [48]string = .[
     "Bilderbuch",
@@ -719,7 +731,6 @@ ui_de_288: [48]string = .[
     "Finde freundliche Tierpaare",
     "Verstecken",
     "Schauen, suchen und entdecken",
-    "Kleine Trommeln",
     "Spielen, hören und nachmachen",
     "Mein kleiner Garten",
     "Pflanzen, gießen und wachsen",
@@ -731,9 +742,9 @@ ui_de_288: [48]string = .[
     "Neues Bild",
     "Tippe auf ein Objekt zum Löschen",
     "Das Bild ist voll. Lösche zuerst ein Objekt",
-];
-ui_de_336: [20]string = .[
     "Wie viele zusammen?",
+];
+ui_de_336: [32]string = .[
     "Wie viele bleiben?",
     "Zählen",
     "Plus · bis 5",
@@ -753,6 +764,19 @@ ui_de_336: [20]string = .[
     "Kopie speichern",
     "Speicherplätze",
     "Gut gemacht! Weiter geht's...",
+    "Musikzimmer",
+    "Auswählen",
+    "Tippe auf ein Objekt zum Auswählen",
+    "Ziehe den Punkt zum Drehen",
+    "Wähle eine Lektion",
+    "Lektionen",
+    "Zählen · Auto",
+    "Zählen · 1-5",
+    "Zählen · 1-10",
+    "Zählen · 1-20",
+    "Platzieren",
+    "Schablonengröße ändern",
+    "Schablone drehen",
 ];
 ui_es_0: [48]string = .[
     "Libro ilustrado",
@@ -1091,7 +1115,6 @@ ui_es_288: [48]string = .[
     "Encuentra parejas de animales",
     "El escondite",
     "Mira, busca y descubre",
-    "Pequeños tambores",
     "Toca, escucha y repite",
     "Cultiva un jardín",
     "Planta, riega y crece",
@@ -1103,9 +1126,9 @@ ui_es_288: [48]string = .[
     "Dibujo nuevo",
     "Toca un objeto para borrarlo",
     "El dibujo está lleno. Borra un objeto primero",
-];
-ui_es_336: [20]string = .[
     "¿Cuántos en total?",
+];
+ui_es_336: [32]string = .[
     "¿Cuántos quedan?",
     "Contar",
     "Sumar · hasta 5",
@@ -1125,6 +1148,19 @@ ui_es_336: [20]string = .[
     "Guardar una copia",
     "Casillas",
     "¡Muy bien! Otra aventura...",
+    "Sala de música",
+    "Seleccionar",
+    "Toca un objeto para seleccionarlo",
+    "Arrastra el punto para girar",
+    "Elige una lección",
+    "Lecciones",
+    "Contar · Auto",
+    "Contar · 1-5",
+    "Contar · 1-10",
+    "Contar · 1-20",
+    "Colocar",
+    "Cambiar tamaño de plantilla",
+    "Girar plantilla",
 ];
 Ui_en :: (at: s32) -> string {
     if at < 48 { return ui_en_0[at - 0] }
@@ -1134,7 +1170,7 @@ Ui_en :: (at: s32) -> string {
     if at < 240 { return ui_en_192[at - 192] }
     if at < 288 { return ui_en_240[at - 240] }
     if at < 336 { return ui_en_288[at - 288] }
-    if at < 356 { return ui_en_336[at - 336] }
+    if at < 368 { return ui_en_336[at - 336] }
     return ""
 }
 Ui_de :: (at: s32) -> string {
@@ -1145,7 +1181,7 @@ Ui_de :: (at: s32) -> string {
     if at < 240 { return ui_de_192[at - 192] }
     if at < 288 { return ui_de_240[at - 240] }
     if at < 336 { return ui_de_288[at - 288] }
-    if at < 356 { return ui_de_336[at - 336] }
+    if at < 368 { return ui_de_336[at - 336] }
     return ""
 }
 Ui_es :: (at: s32) -> string {
@@ -1156,7 +1192,7 @@ Ui_es :: (at: s32) -> string {
     if at < 240 { return ui_es_192[at - 192] }
     if at < 288 { return ui_es_240[at - 240] }
     if at < 336 { return ui_es_288[at - 288] }
-    if at < 356 { return ui_es_336[at - 336] }
+    if at < 368 { return ui_es_336[at - 336] }
     return ""
 }
 Tr :: (text: string) -> string {

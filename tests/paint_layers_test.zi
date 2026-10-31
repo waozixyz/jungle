@@ -36,7 +36,7 @@ RotationTests :: () -> s32 {
     CanvasBlank()
     HistoryClear()
     bare := PictureText()
-    if CanvasRotateObject(100, 100) || CanvasRotateObject(-1, 0) || CanvasRotateObject(960, 720) || PictureText() != bare || history_count != 0 { return 30 }
+    if CanvasRotateObject(100, 100, 90.0) || CanvasRotateObject(-1, 0, 90.0) || CanvasRotateObject(960, 720, 90.0) || PictureText() != bare || history_count != 0 { return 30 }
     canvas[101 * CANVAS_WIDTH + 100] = cast(u8)23
     canvas[100 * CANVAS_WIDTH + 102] = cast(u8)24
     TestLayer(100, 100, 3, 2, cast(u8)20)
@@ -48,22 +48,22 @@ RotationTests :: () -> s32 {
     CanvasOverlay(0, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
     before := PictureText()
     HistoryPush()
-    if CanvasRotateObject(900, 700) || history_count != 1 || PictureText() != before { return 50 }
-    if !CanvasRotateObject(100, 100) || history_count != 1 { return 31 }
+    if CanvasRotateObject(900, 700, 90.0) || history_count != 1 || PictureText() != before { return 50 }
+    if !CanvasRotateObject(100, 100, 90.0) || history_count != 1 { return 31 }
     expected: [6]u8 = .[19, 16, 255, 17, 21, 18]
     if layers[0].x != 100 || layers[0].y != 100 || layers[0].w != 2 || layers[0].h != 3 || layer_pixels != 6 { return 32 }
     for at: cast(s32)0..5 { if layers[0].pixels[at] != expected[at] { return 33 } }
     if CanvasObjectAt(100, 101) != -1 || CanvasColorAt(100, 101) != 23 || CanvasColorAt(102, 100) != 24 || PictureRunsText(base[:]) != background { return 34 }
     rotated := PictureText()
     if !PictureValid(rotated) || !PictureLoad(rotated) || PictureText() != rotated || !HistoryUndo() || PictureText() != before { return 35 }
-    for turn: cast(s32)0..3 { if !CanvasRotateObject(layers[0].x, layers[0].y) { return 36 } }
+    for turn: cast(s32)0..3 { if !CanvasRotateObject(layers[0].x, layers[0].y, 90.0) { return 36 } }
     if PictureText() != before { return 37 }
     // Mixed parity and a genuine center offset must also have no drift.
     CanvasBlank()
     TestLayer(400, 300, 4, 3, cast(u8)25)
     before = PictureText()
-    if !CanvasRotateObject(400, 300) || layers[0].x != 401 || layers[0].y != 299 { return 38 }
-    for turn: cast(s32)0..2 { if !CanvasRotateObject(layers[0].x, layers[0].y) { return 39 } }
+    if !CanvasRotateObject(400, 300, 90.0) || layers[0].x != 401 || layers[0].y != 299 { return 38 }
+    for turn: cast(s32)0..2 { if !CanvasRotateObject(layers[0].x, layers[0].y, 90.0) { return 39 } }
     if PictureText() != before { return 40 }
     // Transparent upper pixels select the lower owner; opaque pixels select
     // only the top owner. Neither rotation can flatten or reorder layers.
@@ -71,17 +71,17 @@ RotationTests :: () -> s32 {
     layers[1].pixels[0] = cast(u8)TRANSPARENT
     canvas[300 * CANVAS_WIDTH + 400] = cast(u8)25
     owner[300 * CANVAS_WIDTH + 400] = 1
-    if !CanvasRotateObject(400, 300) || layers[0].w != 3 || layers[1].w != 3 || layers[1].pixels[1] != cast(u8)30 { return 41 }
+    if !CanvasRotateObject(400, 300, 90.0) || layers[0].w != 3 || layers[1].w != 3 || layers[1].pixels[1] != cast(u8)30 { return 41 }
     lower := PictureRunsText(layers[0].pixels)
-    if !CanvasRotateObject(401, 300) || layers[1].w != 2 || PictureRunsText(layers[0].pixels) != lower || layer_order[0] != 0 || layer_order[1] != 1 { return 42 }
+    if !CanvasRotateObject(401, 300, 90.0) || layers[1].w != 2 || PictureRunsText(layers[0].pixels) != lower || layer_order[0] != 0 || layer_order[1] != 1 { return 42 }
     for at: cast(s32)0..CANVAS_PIXELS - 1 { if base[at] != cast(u8)PAPER { return 43 } }
     // Clamp either end without cropping a single source pixel.
     CanvasBlank()
     TestLayer(0, 0, 4, 2, cast(u8)26)
-    if !CanvasRotateObject(0, 0) || layers[0].x != 1 || layers[0].y != 0 || layers[0].w * layers[0].h != 8 { return 44 }
+    if !CanvasRotateObject(0, 0, 90.0) || layers[0].x != 1 || layers[0].y != 0 || layers[0].w * layers[0].h != 8 { return 44 }
     CanvasBlank()
     TestLayer(956, 718, 4, 2, cast(u8)26)
-    if !CanvasRotateObject(956, 718) || layers[0].x != 957 || layers[0].y != 716 || layers[0].w * layers[0].h != 8 { return 45 }
+    if !CanvasRotateObject(956, 718, 90.0) || layers[0].x != 957 || layers[0].y != 716 || layers[0].w * layers[0].h != 8 { return 45 }
     // Both arena banks occupied: rotation must reuse its own interval. The
     // widest possible Huge raster fits instead of clipping at 720 pixels.
     CanvasBlank()
@@ -89,10 +89,11 @@ RotationTests :: () -> s32 {
     TestLayer(0, 0, 960, 720, cast(u8)23)
     for at: cast(s32)0..CANVAS_PIXELS - 1 { layers[1].pixels[at] = cast(u8)(16 + (at % 31)) }
     start := layers[1].start
-    if !CanvasRotateObject(0, 0) || layers[1].w != 540 || layers[1].h != 720 || layers[1].x != 210 || layers[1].y != 0 || layers[1].start != start || layer_pixels != CANVAS_PIXELS + 540 * 720 { return 46 }
+    if !CanvasRotateObject(0, 0, 90.0) || layers[1].w != 540 || layers[1].h != 720 || layers[1].x != 210 || layers[1].y != 0 || layers[1].start != start || layer_pixels != CANVAS_PIXELS + 540 * 720 { return 46 }
+    // Exact rational pixel-centre fixture for the 3/4 automatic fit.
     for py: cast(s32)0..719 {
         for px: cast(s32)0..539 {
-            source := (719 - px * 720 / 540) * 960 + py * 960 / 720
+            source := (719 - (4 * px + 1) / 3) * 960 + (4 * py + 2) / 3
             if layers[1].pixels[py * 540 + px] != cast(u8)(16 + source % 31) { return 47 }
         }
     }
@@ -101,17 +102,105 @@ RotationTests :: () -> s32 {
     if !PictureValid(rotated) || !PictureLoad(rotated) || PictureText() != rotated { return 49 }
     CanvasBlank()
     TestLayer(0, 0, 960, 1, cast(u8)24)
-    if !CanvasRotateObject(0, 0) || layers[0].w != 1 || layers[0].h != 720 || layer_pixels != 720 { return 51 }
+    if !CanvasRotateObject(0, 0, 90.0) || layers[0].w != 1 || layers[0].h != 720 || layer_pixels != 720 { return 51 }
     for at: cast(s32)0..719 { if layers[0].pixels[at] != cast(u8)24 { return 52 } }
     // An actual Huge stencil retains its painted body through automatic fit.
     CanvasBlank()
     CanvasStampDino(5, 4, 0, 0, false)
     seed := BodySeed(0)
     if seed < 0 || CanvasFill(seed % layers[0].w, seed / layers[0].w, 30) <= 0 { return 53 }
-    if !CanvasRotateObject(seed % layers[0].w, seed / layers[0].w) || layers[0].w != 411 || layers[0].h != 720 { return 54 }
+    if !CanvasRotateObject(seed % layers[0].w, seed / layers[0].w, 90.0) || layers[0].w <= 0 || layers[0].h > 720 || layers[0].w > 960 { return 54 }
     painted: s32 = 0
     for at: cast(s32)0..layers[0].w * layers[0].h - 1 { if layers[0].pixels[at] == cast(u8)30 { painted += 1 } }
     if painted == 0 || !PictureValid(PictureText()) { return 55 }
+    // Non-right angles grow transparent corners and keep all other layers,
+    // the background, persistence and Undo independent of preparation.
+    CanvasBlank()
+    HistoryClear()
+    TestLayer(330, 260, 60, 30, cast(u8)29)
+    TestLayer(350, 270, 20, 20, cast(u8)32)
+    before = PictureText()
+    lower = PictureRunsText(layers[0].pixels)
+    prepared := CanvasRotationPrepare(1, 37.0)
+    if !prepared.valid || !prepared.changed || prepared.w == 20 || PictureText() != before || history_count != 0 { return 56 }
+    // Canceling or merely selecting/preparing changes neither image nor Undo.
+    if CanvasObjectAt(355, 275) != 1 || CanvasObjectAt(335, 265) != 0 || PictureText() != before { return 57 }
+    HistoryPush()
+    if !CanvasRotationCommit(prepared) || history_count != 1 || layers[1].w != 29 || layers[1].h != 29 { return 58 }
+    if layers[1].pixels[0] != cast(u8)TRANSPARENT || CanvasObjectAt(layers[1].x, layers[1].y) != 0 ||
+        PictureRunsText(layers[0].pixels) != lower || layer_order[0] != 0 || layer_order[1] != 1 { return 59 }
+    rotated = PictureText()
+    if !PictureValid(rotated) || !PictureLoad(rotated) || PictureText() != rotated || !HistoryUndo() || PictureText() != before { return 60 }
+    // Full circles and a zero-distance drag are true no-ops.
+    prepared = CanvasRotationPrepare(1, 360.0)
+    if !prepared.valid || prepared.changed || CanvasRotationCommit(prepared) || PictureText() != before { return 61 }
+    prepared = CanvasRotationPrepare(1, 0.0)
+    if prepared.changed || CanvasRotationCommit(prepared) || PictureText() != before { return 62 }
+    original := layers[1]
+    original_bounds := CanvasObjectBounds(1)
+    original_pixels: [400]u8
+    for at: cast(s32)0..399 { original_pixels[at] = original.pixels[at] }
+    original.pixels = original_pixels[:]
+    for angle: cast(s32)1..12 {
+        prepared = CanvasRotationPrepareFrom(1, cast(float32)angle * 13.25, original_bounds, original)
+        if !CanvasRotationCommit(prepared) || !PictureValid(PictureText()) { return 67 }
+    }
+    prepared = CanvasRotationPrepareFrom(1, 360.0, original_bounds, original)
+    if !CanvasRotationCommit(prepared) || PictureText() != before { return 68 }
+    // The selection rectangle follows alpha rather than transparent padding.
+    CanvasBlank()
+    TestLayer(100, 100, 10, 10, cast(u8)TRANSPARENT)
+    for y: cast(s32)2..7 { for x: cast(s32)3..6 { layers[0].pixels[y * 10 + x] = cast(u8)38 } }
+    CanvasOverlay(0, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
+    extent := CanvasObjectBounds(0)
+    if extent.x != 103 || extent.y != 102 || extent.w != 4 || extent.h != 6 || CanvasObjectAt(100, 100) != -1 || CanvasObjectAt(103, 102) != 0 { return 63 }
+    if !CanvasRotateObject(103, 102, 45.0) || layers[0].x < 0 || layers[0].y < 0 || !PictureValid(PictureText()) { return 64 }
+    // Arbitrary angles at both edges fit inside the page without clipping.
+    for corner: cast(s32)0..1 {
+        CanvasBlank()
+        TestLayer(corner * 920, corner * 700, 40, 20, cast(u8)41)
+        if !CanvasRotateObject(corner * 920, corner * 700, -23.5) { return 65 }
+        object := *layers[0]
+        if object.x < 0 || object.y < 0 || object.x + object.w > CANVAS_WIDTH || object.y + object.h > CANVAS_HEIGHT || !PictureValid(PictureText()) { return 66 }
+    }
+    return 0
+}
+
+PlacementTests :: () -> s32 {
+    CanvasBlank(); HistoryClear()
+    original := PictureText()
+    for degrees: cast(s32)0..359 {
+        plan := CanvasPlacement(0, -400, 1200, 960, cast(float32)degrees, true)
+        if !plan.valid || plan.x < 0 || plan.y < 0 || plan.x + plan.w > CANVAS_WIDTH || plan.y + plan.h > CANVAS_HEIGHT { return 70 }
+    }
+    if CanvasPlacement(-1, 0, 0, 100, 0.0, false).valid || CanvasPlacement(0, 0, 0, 0, 0.0, false).valid { return 71 }
+    // Preparing a non-right angle at a continuous size changes no document or Undo.
+    plan := CanvasPlacement(0, 480, 360, 237, 37.0, true)
+    if !CanvasPlacementPrepare(plan) || PictureText() != original || history_count != 0 || layer_count != 0 { return 72 }
+    HistoryPush()
+    if !CanvasPlacementCommit(plan) || layer_count != 1 || history_count != 1 { return 73 }
+    if layers[0].w != plan.w || layers[0].h != plan.h || !PictureValid(PictureText()) { return 74 }
+    ink: s32 = 0; paper: s32 = 0; clear: s32 = 0
+    for pixel: layers[0].pixels {
+        if pixel == cast(u8)INK { ink += 1 }
+        else if pixel == cast(u8)PAPER { paper += 1 }
+        else if pixel == cast(u8)TRANSPARENT { clear += 1 }
+        else { return 75 }
+    }
+    if ink == 0 || paper == 0 || clear == 0 { return 76 }
+    if !HistoryUndo() || PictureText() != original { return 77 }
+    // At 1:1 scale the prepared path is exactly the existing mask stamp.
+    plan = CanvasPlacement(24, 480, 360, DinoWidth(24, 4), 0.0, true)
+    if !CanvasPlacementPrepare(plan) || !CanvasPlacementCommit(plan) { return 78 }
+    expected := PictureText()
+    CanvasBlank()
+    CanvasStampDino(24, 4, plan.x, plan.y, true)
+    if PictureText() != expected { return 79 }
+    // A full document refuses another object without losing its earlier pixels.
+    while CanvasCanStamp(24, 1, 0, 0) { CanvasStampDino(24, 1, 0, 0, false) }
+    before := PictureText()
+    plan = CanvasPlacement(24, 480, 360, 960, 20.0, false)
+    if plan.valid || CanvasPlacementPrepare(plan) || PictureText() != before { return 80 }
     return 0
 }
 
@@ -213,6 +302,8 @@ main :: () -> s32 {
     if layer_count < 2 || layer_pixels > LAYER_PIXELS { return Fail(19) }
     full = PictureText()
     if !PictureValid(full) || !PictureLoad(full) || PictureText() != full { return Fail(20) }
+    placement := PlacementTests()
+    if placement != 0 { return Fail(placement) }
     rotation := RotationTests()
     if rotation != 0 { return Fail(rotation) }
     Report("local paint layers model test passed: overlap, paint, transparency, undo/reload, legacy, 32 objects, pixel budget and rotation\n")

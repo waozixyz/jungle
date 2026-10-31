@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Exercise only Little Drums in the real host on an owned private Xvfb.
+"""Exercise only Music Room in the real host on an owned private Xvfb.
 
 The fixture copies the existing binary and our bundle, never source files or
 the project's catalog. The owner's app and installed saves are untouched.
@@ -47,7 +47,7 @@ def main():
         if manifest.exists():
             shutil.copy2(manifest, fixture / "assets/shared-assets.txt")
         shutil.copy2(ROOT / "build/app/games/jungle-drums.zx", fixture / "games/jungle-drums.zx")
-        (fixture / "games/catalog.txt").write_text("jungle-drums.zx|Little Drums|Tap and play|music|1\n")
+        (fixture / "games/catalog.txt").write_text("jungle-drums.zx|Music Room|Tap and play|music|1\n")
         for language in ("en", "de", "es"):
             data = fixture / ("data-" + language)
             data.mkdir()

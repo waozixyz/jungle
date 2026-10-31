@@ -1,5 +1,6 @@
 #import, file "../../retro/language.zi";
 #import "std/utf8"
+#import "std/math"
 // Coloring Book: choose a scene, place and rotate independent stencils,
 // fill regions, write a story, and keep pictures in the gallery.
 #import "app_context"
@@ -12,6 +13,8 @@
 #import "box_widget"
 #import "image_props"
 #import "image_widget"
+#import "shape_props"
+#import "shape_widget"
 #import "svg_icon_props"
 #import "svg_icon_widget"
 #import, file "../../retro/retro.zi";
@@ -59,7 +62,7 @@ SLOT_COUNT :: 6
 WORKING :: "working.txt"
 WORKING_HISTORY :: "working-undo.txt"
 
-button_names: [9]string = .["Image", "Color", "Story", "Erase", "Gallery", "Print", "Undo", "New picture", "Rotate"];
+button_names: [9]string = .["Image", "Color", "Story", "Erase", "Gallery", "Print", "Undo", "New picture", "Select"];
 size_names: [4]string = .["Small", "Medium", "Large", "Huge"];
 
 view: s32 = MAIN;
@@ -68,6 +71,20 @@ size: s32 = 2;
 placing: bool;
 erasing: bool;
 rotating: bool;
+selected_object: s32 = -1;
+selection_bounds: PaintExtent;
+selection_source_bounds: PaintExtent;
+selection_source: PaintLayer;
+selection_pixels: [CANVAS_PIXELS]u8;
+selection_degrees: float32;
+rotation_drag: bool;
+rotation_degrees: float32;
+rotation_start: float32;
+rotation_width: s32;
+rotation_height: s32;
+selection_below: string;
+selection_image: string;
+selection_above: string;
 placement_flip: bool;
 placement_x: s32;
 placement_y: s32;
@@ -415,6 +432,279 @@ PlacementBox :: (area: Rectangle, flip: bool) {
     }
 }
 
+placement_width: s32;
+placement_degrees: float32;
+placement_gesture: s32;
+placement_start_width: s32;
+placement_start_angle: float32;
+placement_pointer_angle: float32;
+placement_resize_distance: float32;
+placement_canvas_w: s32;
+placement_canvas_h: s32;
+
+PlacementBegin :: () {
+    placing = true; dragging = false; placement_gesture = 0
+    placement_degrees = 0.0; placement_width = DinoWidth(dino, size)
+    placement_x = CANVAS_WIDTH / 2; placement_y = CANVAS_HEIGHT / 2
+    canvas_can_fill = false; rotating = false; SelectionClear()
+    placement_canvas_w = 0; placement_canvas_h = 0
+}
+
+PlacementControl :: (id: s32, x: s32, y: s32, width: s32, label: string) -> bool {
+    press := RetroTap(id, x, y, width, 44, label)
+    BookBox(x, y, width, 44, ifx press.down then cast(u32)0xdcebdcff else cast(u32)0xfffcf3ff, 0x2e6956ff, 8.0)
+    BookText(x + 4, y, width - 8, 44, label, 18)
+    return press.clicked
+}
+
+PlacementView :: (chosen_tool: s32) {
+    pointer := SamplePointer()
+    if placement_canvas_w != canvas_w || placement_canvas_h != canvas_h {
+        placement_gesture = 0; dragging = false
+        placement_canvas_w = canvas_w; placement_canvas_h = canvas_h
+    }
+    if retro.key == KEY_ESCAPE {
+        placing = false; dragging = false; placement_gesture = 0; canvas_can_fill = false
+        return
+    }
+    plan := CanvasPlacement(dino, placement_x, placement_y, placement_width, placement_degrees, placement_flip)
+    area := PictureRect(plan.x, plan.y, plan.w, plan.h)
+    center := Vector2.{area.x + area.width / 2.0, area.y + area.height / 2.0}
+    hw := cast(float32)DinoWidth(dino, DINO_SIZES) * plan.scale * cast(float32)canvas_w / cast(float32)CANVAS_WIDTH / 2.0
+    hh := cast(float32)DinoHeight(dino, DINO_SIZES) * plan.scale * cast(float32)canvas_h / cast(float32)CANVAS_HEIGHT / 2.0
+    handle := SelectionPoint(0.0, -hh - 30.0, center, plan.degrees)
+    corner := SelectionPoint(hw, hh, center, plan.degrees)
+    handle.x = cast(float32)Clamp(cast(s32)(handle.x - retro.x), canvas_x + 22, canvas_x + canvas_w - 22) + retro.x
+    handle.y = cast(float32)Clamp(cast(s32)(handle.y - retro.y), canvas_y + 22, canvas_y + canvas_h - 74) + retro.y
+    corner.x = cast(float32)Clamp(cast(s32)(corner.x - retro.x), canvas_x + 22, canvas_x + canvas_w - 22) + retro.x
+    corner.y = cast(float32)Clamp(cast(s32)(corner.y - retro.y), canvas_y + 22, canvas_y + canvas_h - 74) + retro.y
+    button_y := canvas_y + canvas_h - 48
+    button_w := Clamp((canvas_w - 18) / 2, 44, 140)
+    button_x := canvas_x + (canvas_w - button_w * 2 - 6) / 2
+    // Ignore the button strip when starting a canvas gesture.
+    if !working_bookkeeping && chosen_tool < 0 && pointer.pressed && pointer.y < retro.y + cast(float32)button_y {
+        dx := pointer.x - handle.x; dy := pointer.y - handle.y
+        rx := pointer.x - corner.x; ry := pointer.y - corner.y
+        if dx * dx + dy * dy <= 22.0 * 22.0 {
+            placement_gesture = 2
+            placement_start_angle = placement_degrees
+            placement_pointer_angle = cast(float32)(Atan2(cast(float64)(pointer.y - center.y), cast(float64)(pointer.x - center.x)) * 57.29577951308232)
+        } else if rx * rx + ry * ry <= 22.0 * 22.0 {
+            placement_gesture = 3; placement_start_width = placement_width
+            placement_resize_distance = rx * rx + ry * ry
+            dx = pointer.x - center.x; dy = pointer.y - center.y
+            placement_resize_distance = dx * dx + dy * dy
+            if placement_resize_distance < 1.0 { placement_resize_distance = 1.0 }
+        } else if pointer.x >= area.x && pointer.x < area.x + area.width && pointer.y >= area.y && pointer.y < area.y + area.height {
+            placement_gesture = 1; dragging = true
+            grab_x = PictureX(pointer.x) - placement_x; grab_y = PictureY(pointer.y) - placement_y
+        }
+    }
+    if placement_gesture == 1 {
+        placement_x = PictureX(pointer.x) - grab_x; placement_y = PictureY(pointer.y) - grab_y
+    } else if placement_gesture == 2 {
+        angle := cast(float32)(Atan2(cast(float64)(pointer.y - center.y), cast(float64)(pointer.x - center.x)) * 57.29577951308232)
+        placement_degrees = placement_start_angle + angle - placement_pointer_angle
+    } else if placement_gesture == 3 {
+        dx := pointer.x - center.x; dy := pointer.y - center.y
+        ratio := cast(float32)Sqrt(cast(float64)((dx * dx + dy * dy) / placement_resize_distance))
+        placement_width = Clamp(cast(s32)(cast(float32)placement_start_width * ratio), 48, CANVAS_WIDTH)
+    }
+    if pointer.released {
+        placement_gesture = 0; dragging = false
+        // Preserve the v1 size choice using the nearest of its four presets.
+        closest: s32 = CANVAS_WIDTH
+        for at: cast(s32)1..DINO_SIZES {
+            delta := DinoWidth(dino, at) - placement_width
+            if delta < 0 { delta = -delta }
+            if delta < closest { closest = delta; size = at }
+        }
+        ChoicesSave()
+    }
+    plan = CanvasPlacement(dino, placement_x, placement_y, placement_width, placement_degrees, placement_flip)
+    placement_x = plan.x + plan.w / 2; placement_y = plan.y + plan.h / 2
+    area = PictureRect(plan.x, plan.y, plan.w, plan.h)
+    center = Vector2.{area.x + area.width / 2.0, area.y + area.height / 2.0}
+    hw = cast(float32)DinoWidth(dino, DINO_SIZES) * plan.scale * cast(float32)canvas_w / cast(float32)CANVAS_WIDTH / 2.0
+    hh = cast(float32)DinoHeight(dino, DINO_SIZES) * plan.scale * cast(float32)canvas_h / cast(float32)CANVAS_HEIGHT / 2.0
+    corners: [4]Vector2 = .[SelectionPoint(-hw, -hh, center, plan.degrees), SelectionPoint(hw, -hh, center, plan.degrees),
+        SelectionPoint(-hw, hh, center, plan.degrees), SelectionPoint(hw, hh, center, plan.degrees)]
+    quad := corners
+    if placement_flip { quad[0] = corners[1]; quad[1] = corners[0]; quad[2] = corners[3]; quad[3] = corners[2] }
+    number := FormatInteger(dino + 1, digits_a[:])
+    Image(retro.session, ImageProps.{.asset_path = Join(ART, Join("dino", number, "-preview.png")),
+        .bounds = PictureRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT), .mesh = ImageMesh.{.columns = 2, .rows = 2, .points = quad[:]}})
+    SelectionLine(corners[0], corners[1]); SelectionLine(corners[1], corners[3])
+    SelectionLine(corners[3], corners[2]); SelectionLine(corners[2], corners[0])
+    SelectionLine(SelectionPoint(0.0, -hh, center, plan.degrees), handle)
+    unused RetroTap(604, cast(s32)(handle.x - retro.x) - 22, cast(s32)(handle.y - retro.y) - 22, 44, 44, "Rotate stencil")
+    unused RetroTap(605, cast(s32)(corner.x - retro.x) - 22, cast(s32)(corner.y - retro.y) - 22, 44, 44, "Resize stencil")
+    Fill(Rectangle.{handle.x - 22.0, handle.y - 22.0, 44.0, 44.0}, 0x2e6956ff, 22.0)
+    Fill(Rectangle.{corner.x - 22.0, corner.y - 22.0, 44.0, 44.0}, 0xfffcf3ff, 8.0)
+    SvgIcon(retro.session, SvgIconProps.{.bounds = Rectangle.{handle.x - 12.0, handle.y - 12.0, 24.0, 24.0}, .shape = RotateIcon.Shape, .color = ColorFromPacked(0xfffcf3ff)})
+    BookText(cast(s32)(corner.x - retro.x) - 18, cast(s32)(corner.y - retro.y) - 22, 36, 44, "+", 26)
+    if PlacementControl(602, button_x, button_y, button_w, "Cancel") {
+        placing = false; dragging = false; placement_gesture = 0; canvas_can_fill = false; return
+    }
+    if PlacementControl(603, button_x + button_w + 6, button_y, button_w, "Place") && !working_bookkeeping {
+        if !CanvasPlacementPrepare(plan) { Notice("Picture is full. Erase an object first"); return }
+        HistoryPush()
+        if CanvasPlacementCommit(plan) {
+            placing = false; dragging = false; placement_gesture = 0; dirty = true; canvas_can_fill = false
+            WorkingPictureKeep(); Sound("fill")
+        }
+    }
+}
+
+SelectionClear :: () {
+    selected_object = -1; rotation_drag = false; rotation_degrees = 0.0; selection_degrees = 0.0
+    selection_below = ""; selection_image = ""; selection_above = ""
+}
+
+// Cache three ordinary images once, keeping the selected object between its
+// original neighbours even while it turns. No raster work happens on moves.
+SelectionImage :: (w: s32, h: s32, pixels: []u8) -> string {
+    request: Vec(u8)
+    BuilderPrint(*request, "% %\n", w, h)
+    PictureRunsAppend(*request, pixels)
+    name := AppService("jungle.paint-preview", BuilderFinish(request))
+    if name.count < 8 || name[:7] != "canvas-" { return "" }
+    #if #defined(PLATFORM_WEB) {
+        return AppAssetPath(name)
+    }
+    return name
+}
+
+SelectionSplit :: (id: s32, above: bool) -> string {
+    for at: cast(s32)0..CANVAS_PIXELS - 1 { rotate_pixels[at] = ifx above then cast(u8)TRANSPARENT else base[at] }
+    passed := false
+    for at: cast(s32)0..layer_count - 1 {
+        other := layer_order[at]
+        if other == id { passed = true; continue }
+        if passed != above { continue }
+        object := *layers[other]
+        for y: cast(s32)0..object.h - 1 {
+            for x: cast(s32)0..object.w - 1 {
+                pixel := object.pixels[y * object.w + x]
+                if pixel != cast(u8)TRANSPARENT { rotate_pixels[(object.y + y) * CANVAS_WIDTH + object.x + x] = pixel }
+            }
+        }
+    }
+    return SelectionImage(CANVAS_WIDTH, CANVAS_HEIGHT, rotate_pixels[:])
+}
+
+SelectionChoose :: (id: s32) {
+    SelectionClear()
+    if id < 0 { return }
+    selected_object = id
+    selection_bounds = CanvasObjectBounds(id)
+    selection_source_bounds = selection_bounds
+    object := *layers[id]
+    selection_source = object.*
+    for at: cast(s32)0..object.w * object.h - 1 { selection_pixels[at] = object.pixels[at] }
+    selection_source.pixels = selection_pixels[:object.w * object.h]
+    selection_image = SelectionImage(object.w, object.h, object.pixels)
+    selection_below = SelectionSplit(id, false)
+    selection_above = SelectionSplit(id, true)
+}
+
+SelectionPoint :: (dx: float32, dy: float32, center: Vector2, degrees: float32) -> Vector2 {
+    sine := SineDegrees(degrees); cosine := CosineDegrees(degrees)
+    return Vector2.{center.x + dx * cosine - dy * sine, center.y + dx * sine + dy * cosine}
+}
+
+SelectionLine :: (start: Vector2, end: Vector2) {
+    unused Line(retro.session, LineProps.{.start = start, .end = end, .thickness = 2.0, .color = ColorFromPacked(0x2e6956ff)})
+}
+
+// Keep the above-centre dot reachable when the object touches the page top.
+SelectionHandle :: (area: Rectangle) -> Vector2 {
+    top := area.y - 24.0
+    if top < retro.y + 12.0 { top = retro.y + 12.0 }
+    return Vector2.{area.x + area.width / 2.0, top}
+}
+
+SelectionView :: (chosen_tool: s32) {
+    pointer := SamplePointer()
+    if chosen_tool >= 0 || retro.key == KEY_ESCAPE { rotation_drag = false; rotation_degrees = 0.0; return }
+    if selected_object >= 0 && layers[selected_object].pixels.count == 0 { SelectionClear() }
+    if rotation_drag && (rotation_width != canvas_w || rotation_height != canvas_h) { rotation_drag = false; rotation_degrees = 0.0 }
+    if !working_bookkeeping && pointer.pressed && !rotation_drag {
+        grabbed := false
+        if selected_object >= 0 {
+            area := PictureRect(selection_bounds.x, selection_bounds.y, selection_bounds.w, selection_bounds.h)
+            handle := SelectionHandle(area)
+            dx := pointer.x - handle.x; dy := pointer.y - handle.y
+            if dx * dx + dy * dy <= 22.0 * 22.0 && selection_image != "" && selection_below != "" && selection_above != "" {
+                rotation_drag = true; grabbed = true
+                rotation_width = canvas_w; rotation_height = canvas_h
+                rotation_start = cast(float32)(Atan2(cast(float64)(pointer.y - area.y - area.height / 2.0),
+                    cast(float64)(pointer.x - area.x - area.width / 2.0)) * 57.29577951308232)
+            }
+        }
+        if !grabbed {
+            x := PictureX(pointer.x); y := PictureY(pointer.y)
+            if pointer.x >= retro.x + cast(float32)canvas_x && pointer.y >= retro.y + cast(float32)canvas_y &&
+                x >= 0 && y >= 0 && x < CANVAS_WIDTH && y < CANVAS_HEIGHT { SelectionChoose(CanvasObjectAt(x, y)) }
+        }
+    }
+    if selected_object < 0 { return }
+    extent := selection_bounds
+    area := PictureRect(extent.x, extent.y, extent.w, extent.h)
+    center := Vector2.{area.x + area.width / 2.0, area.y + area.height / 2.0}
+    if rotation_drag {
+        dx := pointer.x - center.x; dy := pointer.y - center.y
+        if dx * dx + dy * dy > 16.0 {
+            angle := cast(float32)(Atan2(cast(float64)dy, cast(float64)dx) * 57.29577951308232)
+            rotation_degrees = angle - rotation_start
+        }
+        if pointer.released {
+            prepared := CanvasRotationPrepareFrom(selected_object, selection_degrees + rotation_degrees, selection_source_bounds, selection_source)
+            if prepared.valid && prepared.changed {
+                HistoryPush()
+                if CanvasRotationCommit(prepared) { dirty = true; WorkingPictureKeep(); Sound("click") }
+                selection_degrees += rotation_degrees
+                selection_degrees -= cast(float32)FloorInteger((selection_degrees + 180.0) / 360.0) * 360.0
+                selection_bounds = CanvasObjectBounds(selected_object)
+                rotation_drag = false; rotation_degrees = 0.0
+            } else { rotation_drag = false; rotation_degrees = 0.0 }
+        } else if !pointer.down { rotation_drag = false; rotation_degrees = 0.0 }
+    }
+    extent = selection_bounds
+    area = PictureRect(extent.x, extent.y, extent.w, extent.h)
+    center = Vector2.{area.x + area.width / 2.0, area.y + area.height / 2.0}
+    degrees := ifx rotation_drag then selection_degrees + rotation_degrees else 0.0
+    plan := CanvasRotation(selected_object, degrees, selection_source_bounds)
+    scale := ifx rotation_drag && plan.valid then plan.scale else 1.0
+    if rotation_drag && plan.valid {
+        preview := PictureRect(plan.x, plan.y, plan.w, plan.h)
+        center = Vector2.{preview.x + preview.width / 2.0, preview.y + preview.height / 2.0}
+        Image(retro.session, ImageProps.{.asset_path = selection_below, .bounds = PictureRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)})
+        object := *selection_source
+        across := cast(float32)canvas_w / cast(float32)CANVAS_WIDTH * scale
+        down := cast(float32)canvas_h / cast(float32)CANVAS_HEIGHT * scale
+        left := -(cast(float32)(selection_source_bounds.x - object.x) + cast(float32)selection_source_bounds.w / 2.0) * across
+        top := -(cast(float32)(selection_source_bounds.y - object.y) + cast(float32)selection_source_bounds.h / 2.0) * down
+        right := left + cast(float32)object.w * across
+        bottom := top + cast(float32)object.h * down
+        quad: [4]Vector2 = .[SelectionPoint(left, top, center, degrees), SelectionPoint(right, top, center, degrees),
+            SelectionPoint(left, bottom, center, degrees), SelectionPoint(right, bottom, center, degrees)]
+        Image(retro.session, ImageProps.{.asset_path = selection_image, .bounds = PictureRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT),
+            .mesh = ImageMesh.{.columns = 2, .rows = 2, .points = quad[:]}})
+        Image(retro.session, ImageProps.{.asset_path = selection_above, .bounds = PictureRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)})
+    }
+    if rotation_drag { area = PictureRect(selection_source_bounds.x, selection_source_bounds.y, selection_source_bounds.w, selection_source_bounds.h) }
+    half_w := area.width * scale / 2.0; half_h := area.height * scale / 2.0
+    corners: [4]Vector2 = .[SelectionPoint(-half_w, -half_h, center, degrees), SelectionPoint(half_w, -half_h, center, degrees),
+        SelectionPoint(half_w, half_h, center, degrees), SelectionPoint(-half_w, half_h, center, degrees)]
+    for at: cast(s32)0..3 { SelectionLine(corners[at], corners[(at + 1) % 4]) }
+    top := SelectionPoint(0.0, -half_h, center, degrees)
+    handle := ifx rotation_drag then SelectionPoint(0.0, -half_h - 24.0, center, degrees) else SelectionHandle(area)
+    SelectionLine(top, handle)
+    unused Circle(retro.session, CircleProps.{.center = handle, .radius = 9.0, .fill = ColorFromPacked(0x2e6956ff)})
+    unused Circle(retro.session, CircleProps.{.center = handle, .radius = 5.0, .fill = ColorFromPacked(0xfffcf3ff)})
+}
+
 // A short message across the bottom of the picture.
 PictureNote :: (text: string) {
     note_h := Clamp(canvas_h / 10, 18, 44)
@@ -456,51 +746,15 @@ MainView :: () {
     x := PictureX(press.x)
     y := PictureY(press.y)
     if placing {
-        // A retained box starts in the upper left. Grab anywhere inside it,
-        // drag within the paper, then release to replace the artwork below.
-        w := DinoWidth(dino, size)
-        h := DinoHeight(dino, size)
-        pointer := SamplePointer()
-        x = PictureX(pointer.x)
-        y = PictureY(pointer.y)
-        if !working_bookkeeping && chosen_tool < 0 && pointer.pressed && x >= placement_x && x < placement_x + w &&
-        y >= placement_y && y < placement_y + h {
-            dragging = true
-            grab_x = x - placement_x
-            grab_y = y - placement_y
-        }
-        if dragging {
-            placement_x = Clamp(x - grab_x, 0, CANVAS_WIDTH - w)
-            placement_y = Clamp(y - grab_y, 0, CANVAS_HEIGHT - h)
-        }
-        flip := placement_flip || GameSecondaryDown()
-        PlacementBox(PictureRect(placement_x, placement_y, w, h), flip)
-        if !dragging { PictureNote("Drag the stencil, then let go") }
-        if !working_bookkeeping && chosen_tool < 0 && pointer.released && dragging {
-            if !CanvasCanStamp(dino, size, placement_x, placement_y) {
-                dragging = false
-                Notice("Picture is full. Erase an object first")
-                return
-            }
-            HistoryPush()
-            CanvasStampDino(dino, size, placement_x, placement_y, flip)
-            placing = false
-            dragging = false
-            dirty = true
-            WorkingPictureKeep()
-            Sound("fill")
-        }
+        PlacementView(chosen_tool)
+        if retro.key == KEY_ESCAPE { return }
+    } else if rotating {
+        canvas_can_fill = false
+        SelectionView(chosen_tool)
     } else {
         if !working_bookkeeping && chosen_tool < 0 && SamplePointer().pressed { canvas_can_fill = true }
         if !working_bookkeeping && chosen_tool < 0 && press.clicked && canvas_can_fill {
             canvas_can_fill = false
-            if rotating {
-                if CanvasObjectAt(x, y) >= 0 {
-                    HistoryPush()
-                    if CanvasRotateObject(x, y) { dirty = true; WorkingPictureKeep(); Sound("click") }
-                }
-                return
-            }
             if erasing {
                 if CanvasObjectAt(x, y) >= 0 {
                     HistoryPush()
@@ -526,9 +780,10 @@ MainView :: () {
     if chosen_tool >= 0 {
         mirror := placing && chosen_tool == 6
         if mirror { placement_flip = !placement_flip; ChoicesSave(); Sound("click"); return }
-        if chosen_tool == 8 && placing { Notice("Place the stencil first"); return }
+        if placing { Notice("Place the stencil first"); return }
         placing = false
         dragging = false
+        SelectionClear()
         Sound("click")
         if chosen_tool != 8 { rotating = false }
         if chosen_tool == 0 || chosen_tool == 1 || chosen_tool == 7 || chosen_tool == 8 { erasing = false }
@@ -547,8 +802,9 @@ MainView :: () {
         if chosen_tool == 8 { rotating = !rotating; canvas_can_fill = false }
         return
     }
-    if retro.key == KEY_ESCAPE { WorkingPictureKeep(); GameHome() }
-    if rotating { PictureNote("Tap an object to rotate") }
+    if retro.key == KEY_ESCAPE { SelectionClear(); WorkingPictureKeep(); GameHome() }
+    if rotating && selected_object < 0 { PictureNote("Tap an object to select") }
+    if rotating && selected_object >= 0 && !rotation_drag { PictureNote("Drag the dot to rotate") }
     if erasing { PictureNote("Tap an object to erase") }
     if retro.now < status_until { PictureNote(status) }
 }
@@ -570,34 +826,6 @@ CancelButton :: () -> bool {
     return false
 }
 
-ScenePicker :: () {
-    DialogBack("Choose a scene")
-    for category: cast(s32)0..PAINT_SCENE_CATEGORY_COUNT - 1 {
-        if BookButton(520 + category, 20 + category * 95, 30, 90, 17, PaintSceneCategoryLabel(category), scene_category == category) {
-            scene_category = category; scene_page = 0; ChoicesSave(); return
-        }
-    }
-    count := paint_scene_category_counts[scene_category]
-    for offset: cast(s32)0..5 {
-        index := PaintSceneAt(scene_category, scene_page * 6 + offset)
-        if index < 0 { continue }
-        x := 20 + (offset % 3) * 94
-        y := 51 + (offset / 3) * 60
-        press := RetroTap(60 + offset, x, y, 90, 56, PaintSceneLabel(index))
-        BookBox(x, y, 90, 56, ifx press.down || index == last_scene then cast(u32)0xdcebdcff else cast(u32)0xf7f1e3ff, 0xdacdb5ff, 4.0)
-        number := FormatInteger(index + 1, digits_a[:])
-        RetroSprite(Join(ART, Join("scene", Join(number, "-thumb.jpg"))), x + 21, y + 2, 48, 36, -1, true)
-        BookText(x + 2, y + 39, 86, 14, PaintSceneLabel(index), 9)
-        if press.clicked { OpenScene(index); return }
-    }
-    pages := (count + 5) / 6
-    if scene_page > 0 && BookButton(196, 20, 173, 62, 14, "Previous") { scene_page -= 1; ChoicesSave(); Sound("click") }
-    if scene_page < pages - 1 && BookButton(197, 150, 173, 62, 14, "Next") { scene_page += 1; ChoicesSave(); Sound("click") }
-    page_digits: [24]u8
-    number := FormatInteger(scene_page + 1, digits_a[:])
-    BookText(85, 173, 62, 14, Join(number, " / ", FormatInteger(pages, page_digits[:])), 10)
-    if CancelButton() && scene < 0 && history_count == 0 { GameHome() }
-}
 
 #import "tree"
 #import "scroll_widget"
@@ -688,12 +916,12 @@ StencilPickerContent :: (l: StencilPickerLayout) {
             x + (l.card_width - dw) / 2, y + 5 + (image_height - dh) / 2, dw, dh, -1, true)
         BookText(x + 6, y + l.card_height - 28, l.card_width - 12, 24, PaintStencilShortLabel(index), 18)
         if press.clicked {
-            dino = index; ChoicesSave(); Sound("click"); view = PICK_SIZE; break
+            dino = index; ChoicesSave(); Sound("click"); PlacementBegin(); view = MAIN; break
         }
     }
     retro.y = saved_y
     if scroll_grid { unused End(retro.session) }
-    if view == PICK_SIZE { return }
+    if view == MAIN { return }
     pages := (paint_stencil_category_counts[stencil_category] + 5) / 6
     if dino_page > 0 && StencilPickerButton(196, l.padding, l.footer_y, l.footer_width, "Previous") {
         dino_page -= 1; stencil_picker_scroll = 0; ChoicesSave(); return
@@ -706,6 +934,104 @@ StencilPickerContent :: (l: StencilPickerLayout) {
     BookText(l.padding + l.footer_width + l.gap, l.footer_y, l.footer_width, 44,
         Join(number, " / ", FormatInteger(pages, page_digits[:])), 18)
     unused CancelButton()
+}
+
+
+scene_picker_scroll: s32;
+scene_picker_page_scroll: s32;
+
+ScenePickerBounds :: (width: s32, height: s32) -> StencilPickerLayout {
+    l := StencilPickerBounds(width, height)
+    // Three scene categories remain visible together at phone widths.
+    l.tab_columns = PAINT_SCENE_CATEGORY_COUNT
+    l.tab_width = (width - l.padding * 2 - l.gap * (l.tab_columns - 1)) / l.tab_columns
+    l.grid_y = l.tab_y + 44 + l.gap
+    l.card_height = (l.footer_y - l.gap - l.grid_y - l.gap * (l.rows - 1)) / l.rows
+    return l
+}
+
+ScenePickerContent :: (l: StencilPickerLayout) {
+    BookPaperSized(l.width, l.height)
+    BookText(l.padding, l.padding, l.width - l.padding * 2, 30, "Choose a scene", 20)
+    for category: cast(s32)0..PAINT_SCENE_CATEGORY_COUNT - 1 {
+        if StencilPickerButton(520 + category, l.padding + category * (l.tab_width + l.gap),
+            l.tab_y, l.tab_width, PaintSceneCategoryLabel(category), scene_category == category) {
+            if scene_category != category {
+                scene_category = category; scene_page = 0; scene_picker_scroll = 0; ChoicesSave()
+            }
+            return
+        }
+    }
+    grid_height := l.footer_y - l.gap - l.grid_y
+    scroll_grid := l.card_height < 80
+    saved_y := retro.y
+    if scroll_grid {
+        l.card_height = 80
+        scrolled := Scroll(retro.session, ScrollProps.{.key = cast(u64)592,
+            .bounds = RetroRect(l.padding, l.grid_y, l.width - l.padding * 2, grid_height),
+            .scale = 1.0, .content_height = l.rows * (l.card_height + l.gap) - l.gap,
+            .scroll_offset = scene_picker_scroll, .keep_scrollbar = true})
+        if !scrolled.opened { unused CancelButton(); return }
+        scene_picker_scroll = scrolled.scroll_offset
+        retro.y -= cast(float32)scene_picker_scroll
+    } else { scene_picker_scroll = 0 }
+    for offset: cast(s32)0..5 {
+        index := PaintSceneAt(scene_category, scene_page * 6 + offset)
+        if index < 0 { continue }
+        x := l.padding + (offset % l.columns) * (l.card_width + l.gap)
+        y := l.grid_y + (offset / l.columns) * (l.card_height + l.gap)
+        press := RetroTap(60 + offset, x, y, l.card_width, l.card_height, PaintSceneLabel(index))
+        BookBox(x, y, l.card_width, l.card_height,
+            ifx press.down || index == last_scene then cast(u32)0xdcebdcff else cast(u32)0xf7f1e3ff,
+            ifx index == last_scene then cast(u32)0x2e6956ff else cast(u32)0xdacdb5ff, 6.0)
+        number := FormatInteger(index + 1, digits_a[:])
+        image_height := l.card_height - 34
+        dw := l.card_width - 16
+        dh := dw * 3 / 4
+        if dh > image_height { dh = image_height; dw = dh * 4 / 3 }
+        RetroSprite(Join(ART, Join("scene", number, "-thumb.jpg")),
+            x + (l.card_width - dw) / 2, y + 5 + (image_height - dh) / 2, dw, dh, -1, true)
+        BookText(x + 6, y + l.card_height - 28, l.card_width - 12, 24, PaintSceneLabel(index), 18)
+        if press.clicked { OpenScene(index); break }
+    }
+    retro.y = saved_y
+    if scroll_grid { unused End(retro.session) }
+    if view != PICK_SCENE { return }
+    pages := (paint_scene_category_counts[scene_category] + 5) / 6
+    if scene_page > 0 && StencilPickerButton(196, l.padding, l.footer_y, l.footer_width, "Previous") {
+        scene_page -= 1; scene_picker_scroll = 0; ChoicesSave(); Sound("click"); return
+    }
+    if scene_page < pages - 1 && StencilPickerButton(197, l.width - l.padding - l.footer_width, l.footer_y, l.footer_width, "Next") {
+        scene_page += 1; scene_picker_scroll = 0; ChoicesSave(); Sound("click"); return
+    }
+    page_digits: [24]u8
+    number := FormatInteger(scene_page + 1, digits_a[:])
+    BookText(l.padding + l.footer_width + l.gap, l.footer_y, l.footer_width, 44,
+        Join(number, " / ", FormatInteger(pages, page_digits[:])), 18)
+    if CancelButton() && scene < 0 && history_count == 0 { GameHome() }
+}
+
+ScenePicker :: () {
+    bounds := AppBounds()
+    retro.x = bounds.x; retro.y = bounds.y; retro.scale = 1.0
+    width := cast(s32)bounds.width
+    height := cast(s32)bounds.height
+    if height < 300 {
+        BookPaperSized(width, height)
+        scrolled := Scroll(retro.session, ScrollProps.{.key = cast(u64)593,
+            .bounds = RetroRect(0, 0, width, height), .scale = 1.0,
+            .content_height = 500, .scroll_offset = scene_picker_page_scroll, .keep_scrollbar = true})
+        scene_picker_page_scroll = scrolled.scroll_offset
+        if scrolled.opened {
+            retro.y -= cast(float32)scene_picker_page_scroll
+            ScenePickerContent(ScenePickerBounds(width, 500))
+            retro.y = bounds.y
+            unused End(retro.session)
+        }
+    } else {
+        scene_picker_page_scroll = 0
+        ScenePickerContent(ScenePickerBounds(width, height))
+    }
 }
 
 DinoPicker :: () {
@@ -1042,6 +1368,7 @@ GameMain :: () -> s32 {
         history_loading = false
         erasing = false
         rotating = false
+        SelectionClear()
         view = MAIN
         placing = false
         dragging = false

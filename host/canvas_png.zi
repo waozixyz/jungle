@@ -54,11 +54,13 @@ PngChunkStart :: (length: s32, kind: string) -> s32 {
 // `pixels` holds one palette index per pixel, row by row; palette entries
 // are 0xRRGGBBAA. Returns the file's bytes, or "" when it does not fit.
 PngIndexed :: (width: s32, height: s32, palette: []u32, pixels: []u8) -> string {
-    if !crc_ready { CrcTable() }
-    raw := (width + 1) * height
-    blocks := (raw + STORED_BLOCK - 1) / STORED_BLOCK
-    if width <= 0 || height <= 0 || cast(s64)(width * height) != pixels.count ||
+    if width <= 0 || height <= 0 || cast(s64)width * cast(s64)height != pixels.count ||
     palette.count == 0 || palette.count > 256 { return "" }
+    raw_size := (cast(s64)width + 1) * cast(s64)height
+    if raw_size > PNG_LIMIT - 2048 { return "" }
+    if !crc_ready { CrcTable() }
+    raw := cast(s32)raw_size
+    blocks := (raw + STORED_BLOCK - 1) / STORED_BLOCK
     png_length = 0
     signature: [8]u32 = .[137, 80, 78, 71, 13, 10, 26, 10]
     for byte: signature { PngByte(byte) }
@@ -71,6 +73,13 @@ PngIndexed :: (width: s32, height: s32, palette: []u32, pixels: []u8) -> string 
     start = PngChunkStart(cast(s32)palette.count * 3, "PLTE")
     for color: palette { PngByte(color >> 24); PngByte(color >> 16); PngByte(color >> 8) }
     PngChunkEnd(start)
+    alpha: bool
+    for color: palette { if (color & cast(u32)255) != cast(u32)255 { alpha = true } }
+    if alpha {
+        start = PngChunkStart(cast(s32)palette.count, "tRNS")
+        for color: palette { PngByte(color) }
+        PngChunkEnd(start)
+    }
     // zlib: a header, stored deflate blocks holding every row with a
     // leading "no filter" byte, and the Adler-32 of those rows.
     start = PngChunkStart(2 + 5 * blocks + raw + 4, "IDAT")

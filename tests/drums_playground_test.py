@@ -19,7 +19,7 @@ import time
 from PIL import Image, ImageChops
 import runtime_test as rt
 
-TITLE = 'Little Drums'
+TITLE = 'Music Room'
 SOUNDS = ('big_drum', 'small_drum', 'shaker', 'bell', 'xylophone', 'guitar', 'cymbal', 'tambourine')
 PICTURES = ('big-drum', 'little-drum', 'shaker', 'bell', 'xylophone', 'guitar', 'cymbal', 'tambourine')
 BODY_FRACTIONS = ((.50, .52), (.50, .52), (.32, .52), (.50, .52),
@@ -93,6 +93,7 @@ def changed(before, after):
 
 def art_box(size, pad, labels=False):
     x, y, edge = instruments(size)[pad]
+    if labels and pad == 5: x -= edge // 4
     gap = 28 if labels and pad in (2, 3) else 0
     a = actual_point(size, x - (12 if labels else 0), y + (edge if labels else 0) + gap)
     b = actual_point(size, x + edge + (12 if labels else 0), y + edge + (22 if labels else 0) + gap)
@@ -111,6 +112,7 @@ def assert_room(picture, size, language):
         # a detailed room background cannot masquerade as a missing overlay.
         with Image.open(rt.ROOT / 'assets/drums/pictures' / f'{PICTURES[pad]}.png') as source:
             expected = source.convert('RGBA').resize(crop.size, Image.Resampling.LANCZOS)
+            if pad == 7: expected = expected.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
         error = []
         stride = max(2, crop.width // 18)
         for py in range(stride, crop.height - stride, stride):
@@ -250,16 +252,42 @@ def assert_supports(picture, size):
         x, y, edge = instruments(size)[pad]
         base = 95 if pad == 3 else 91
         shelf_y = y + edge * base // 100
-        # Top and bevel plus the bracket below the left end of each plank.
-        left = x + edge // 10
-        near(left + edge * 4 // 10, shelf_y + 3, (201, 165, 119))
-        near(left + edge * 4 // 10, shelf_y + 7, (148, 112, 76))
-        near(left + 7, shelf_y + 18, (136, 99, 66))
+        width = edge * 8 // 10 + 10
+        height = width // 3
+        left = x + edge // 10 - 5
+        top = shelf_y - height * 140 // 724
+        a = actual_point(size, left, top)
+        b = actual_point(size, left + width, top + height)
+        observed = picture.crop((*a, *b)).convert('RGB')
+        with Image.open(rt.ROOT/'assets/drums/pictures/shelf.png') as asset:
+            expected = asset.convert('RGBA').resize(observed.size, Image.Resampling.LANCZOS)
+        errors = []
+        for py in range(expected.height//2, expected.height):
+            for px in range(expected.width):
+                rgba = expected.getpixel((px,py))
+                if rgba[3] > 250:
+                    errors.append(sum(abs(a-b) for a,b in zip(observed.getpixel((px,py)),rgba[:3]))/3)
+        assert len(errors) >= 2 and sum(errors)/len(errors) < 38, ('painted shelf brackets missing or mismatched',pad,errors)
     x, y, edge = instruments(size)[5]
     gx, gy = x + edge // 2, y + edge * 96 // 100
     # Splayed feet are outside the guitar body, visibly supporting it.
+    visible_feet = 0
     for direction in (-1, 1):
-        near(gx + direction * (edge * 30 // 128), gy - edge * 35 // 100 + edge * 30 // 90 + 2, (102, 94, 80))
+        px = gx + direction * (edge * 30 // 128)
+        py = gy - edge * 35 // 100 + edge * 30 // 90 + 2
+        covered = False
+        for pad in (6, 7):
+            ox,oy,oe = instruments(size)[pad]
+            if not (ox <= px < ox+oe and oy <= py < oy+oe): continue
+            with Image.open(rt.ROOT/'assets/drums/pictures'/f'{PICTURES[pad]}.png') as asset:
+                asset=asset.convert('RGBA')
+                sx=min(asset.width-1,int((px-ox)*asset.width/oe))
+                sy=min(asset.height-1,int((py-oy)*asset.height/oe))
+                if pad==7: sx=asset.width-1-sx
+                covered |= asset.getpixel((sx,sy))[3]>120
+        if covered: continue  # A nearer floor instrument can cover one stand foot.
+        near(px, py, (102,94,80));visible_feet+=1
+    assert visible_feet >= 1, 'guitar stand has no visible supporting foot'
     assert instruments(size)[5][2] > instruments(size)[0][2] * 1.4
     assert instruments(size)[2][2] < instruments(size)[0][2] * .4
 

@@ -7,7 +7,7 @@ from PIL import ImageChops
 import runtime_test as rt
 
 rt.OUTPUT = rt.ROOT / 'backup/new-activities-ui'
-TITLES = {'shapes':'Shapes & Sorting','matching':'Matching Pairs','hide_seek':'Hide & Seek','drums':'Little Drums','garden':'Grow a Garden'}
+TITLES = {'shapes':'Shapes & Sorting','matching':'Matching Pairs','hide_seek':'Hide & Seek','drums':'Music Room','garden':'Grow a Garden'}
 
 
 def geometry(name, width, height):

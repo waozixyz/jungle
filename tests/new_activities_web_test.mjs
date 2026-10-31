@@ -96,7 +96,7 @@ try{
  async function saved(name){return evaluate(`(()=>{const fs=Module.FS;const paths=[];function scan(p){for(const n of fs.readdir(p)){if(n==='.'||n==='..')continue;const a=p+'/'+n;try{if(fs.isDir(fs.stat(a).mode))scan(a);else if(a.endsWith('/${name}.txt')&&a.includes('jungle.${name}'))paths.push(a)}catch{}}}scan('/kryon-apps/jungle');return paths.map(p=>fs.readFile(p,{encoding:'utf8'}))})()`)}
  async function shot(name){if(!keepCaptures)return;await writeFile('backup/new-activities-web/'+page+'-'+language+'-'+name+'.png',Buffer.from((await command('Page.captureScreenshot',{format:'png'})).data,'base64'))}
  const wanted=process.env.JUNGLE_WEB_ACTIVITY||'';
- const activities=[['shapes','Shapes & Sorting'],['matching','Matching Pairs'],['hide_seek','Hide & Seek'],['drums','Little Drums'],['garden','Grow a Garden']].filter(([name,title])=>(name!=='garden'||rows.some(r=>r[1]===title))&&(!wanted||name===wanted));
+ const activities=[['shapes','Shapes & Sorting'],['matching','Matching Pairs'],['hide_seek','Hide & Seek'],['drums','Music Room'],['garden','Grow a Garden']].filter(([name,title])=>(name!=='garden'||rows.some(r=>r[1]===title))&&(!wanted||name===wanted));
  for(const [name,title] of activities){
   await open(title);await shot(name+'-phone');
   if(page!=='canvas.html'){
@@ -180,6 +180,11 @@ assert ImageChops.difference(board(f'tutorial-{width}-{mode}-1'),board(f'tutoria
    for(const i of pair)await click(i%2?296:104,i<2?300:491);
   }
   if(name==='hide_seek'){
+   if(page==='dom.html'){
+    const outlined=await evaluate(`(()=>{const places=[...document.querySelectorAll('#kryon-dom-root button')].filter(e=>['Hiding place','Versteck','Escondite'].includes(e.getAttribute('aria-label')));if(!places.length)return ['missing places'];return places.flatMap(e=>{e.focus();return getComputedStyle(e).outlineStyle==='none'?[]:[getComputedStyle(e).outline]})})()`);
+    if(outlined.length)throw Error('Hiding places still have focus rectangles '+JSON.stringify(outlined));
+   }
+
    const state=async()=>{const text=(await saved(name))[0];return text?text.trim().split(/\s+/).slice(2).map(Number):[0,0,0]};
    // Actual grounded scene coordinates, with two/three Peekaboo places and
    // four Remember places. No hidden target or game state is injected.

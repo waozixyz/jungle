@@ -1,0 +1,36 @@
+// Temporary indexed layers for an interactive selection preview. The game
+// owns selection and rotation; both hosts encode the same bounded PNG.
+#import, file "canvas_png.zi";
+#import, file "../games/paint/paint_picture.zi";
+#import, file "../games/paint/paint_palette.zi";
+
+preview_pixels: [CANVAS_PIXELS]u8;
+preview_palette: [256]u32;
+
+PaintPreviewPng :: (request: string) -> string {
+    if request.count < 6 || request.count > CANVAS_PIXELS * 8 { return "" }
+    at: s64
+    width: s32
+    while at < request.count && request[at] >= #char "0" && request[at] <= #char "9" {
+        width = width * 10 + cast(s32)(request[at] - #char "0")
+        if width > CANVAS_WIDTH { return "" }
+        at += 1
+    }
+    if width <= 0 || at >= request.count || request[at] != #char " " { return "" }
+    at += 1
+    height: s32
+    while at < request.count && request[at] >= #char "0" && request[at] <= #char "9" {
+        height = height * 10 + cast(s32)(request[at] - #char "0")
+        if height > CANVAS_WIDTH { return "" }
+        at += 1
+    }
+    if height <= 0 || at >= request.count || request[at] != cast(u8)10 { return "" }
+    at += 1
+    count := width * height
+    if count > CANVAS_PIXELS { return "" }
+    used := PictureRunsScan(request[at:], preview_pixels[:count], count, true)
+    if used < 0 || at + used != request.count { return "" }
+    for index: cast(s32)0..255 { preview_palette[index] = 0 }
+    for index: cast(s64)0..paint_colors.count - 1 { preview_palette[index] = paint_colors[index] }
+    return PngIndexed(width, height, preview_palette[:], preview_pixels[:count])
+}

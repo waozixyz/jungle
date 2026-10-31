@@ -147,25 +147,77 @@ try{
   await evaluate('window.jungleTestVoices=[]');await key(' ','Space');await waitSpoken('/numbers/sounds/es/1.wav');
   await pixelClick(34,28,true);await key('Escape');await shot('menu-after-numbers-phone');
  }
- await openCatalog('Animal Counting');await shot('counting-phone');
+ await openCatalog('Animal Counting');await shot('counting-lessons-phone');
+ await key('1','Digit1');await delay(450);await shot('counting-phone');
  const countScale=Math.min(390/320,788/540),countTop=56+(788-540*countScale)/2;
  async function countKey(index){await pixelClick((67+index%3*92)*countScale,countTop+(367+Math.floor(index/3)*40)*countScale,true)}
  let counted=false;for(let n=1;n<=4;n++){
   await countKey(9);await countKey(n-1);await countKey(11);
   const count=await evaluate('(()=>{try{return Number(Module.FS.readFile("/kryon-apps/jungle/jungle.animals/progress.txt",{encoding:"utf8"}).trim().split(" ")[2])}catch{return 0}})()');if(count>0){counted=true;break}
  }if(!counted)throw Error('Counting touch keypad did not submit an answer');
- await pixelClick(34,28,true);await openCatalog('Coloring Book');await shot('paint-phone');
- const legacy=async(x,y)=>pixelClick(x*390/320,56+(788-390*200/320)/2+y*390/320,true);
- await pixelClick(54,559,true);await legacy(52,58);await legacy(52,58);await legacy(280,90);await pixelClick(242,559,true);await legacy(10,36);
- if(await evaluate('document.activeElement.id')!=='mobile-input')throw Error('Story did not focus mobile text input');
- await command('Input.insertText',{text:'Niño, piña'});await delay(500);await shot('story-phone');await legacy(266,180);await pixelClick(54,630,true);await legacy(50,80);
- const story=await evaluate('Array.from(Module.FS.readFile("/kryon-apps/jungle/jungle.paint/slot-0.txt")).map(b=>String.fromCharCode(b)).join("")');if(!story.includes('Niño, piña'))throw Error('Mobile story lost accented text');
- for(const [category,name,dropX] of [[124,'animals',95],[195,'people',155],[266,'objects',125]]){
-  await pixelClick(54,559,true);await legacy(category,38);await shot('stencils-'+name);await legacy(52,76);await legacy(52,90);
-  await evaluate('Module.stencilBefore=Module.FS.readFile("/kryon-apps/jungle/jungle.paint/working.txt").slice()');
-  await swipe(35,90,dropX,140);await shot('placed-'+name);
-  if(!await evaluate('(()=>{const after=Module.FS.readFile("/kryon-apps/jungle/jungle.paint/working.txt");return after.length!==Module.stencilBefore.length||after.some((b,i)=>b!==Module.stencilBefore[i])})()'))throw Error(name+' stencil did not place');
+ await pixelClick(34,28,true);await pixelClick(34,28,true);await openCatalog('Coloring Book');await shot('paint-phone');
+ // Paint mixes responsive screen coordinates with the book's virtual dialogs.
+ const paintWidth=390,paintHeight=788,paintPad=9,paintGap=4;
+ const paintToolWidth=121,paintToolHeight=90,paintCanvas={x:9,y:65,w:372,h:279};
+ const paintTool=async index=>pixelClick(paintPad+index%3*(paintToolWidth+paintGap)+paintToolWidth/2,
+  56+399+Math.floor(index/3)*(paintToolHeight+paintGap)+paintToolHeight/2,true);
+ const paintPoint=(x,y)=>({x:paintCanvas.x+x*paintCanvas.w/960,y:paintCanvas.y+y*paintCanvas.h/720});
+ const legacy=async(x,y)=>pixelClick(x*paintWidth/320,56+(paintHeight-paintWidth*200/320)/2+y*paintWidth/320,true);
+ const stencilPad=16,stencilGap=10,stencilTabWidth=174,stencilCardHeight=178;
+ const stencilCategory=async index=>pixelClick(stencilPad+index%2*(stencilTabWidth+stencilGap)+stencilTabWidth/2,
+  56+56+Math.floor(index/2)*54+22,true);
+ const stencilFirst=async()=>pixelClick(stencilPad+87,56+164+stencilCardHeight/2,true);
+ const paintPath='/kryon-apps/jungle/jungle.paint/';
+ const paintText=async name=>evaluate(`(()=>{const p=${JSON.stringify(paintPath)}+${JSON.stringify(name)};return Module.FS.analyzePath(p).exists?new TextDecoder('latin1').decode(Module.FS.readFile(p)):null})()`);
+ async function paintChanged(before,what){const until=Date.now()+15000;while(Date.now()<until){const now=await paintText('working.txt');if(now&&now!==before)return now;await delay(100)}throw Error(what+' did not change the working picture')}
+ async function placeStencil(name,dropX=220){
+  const before=await paintText('working.txt');
+  const start=paintPoint(480,360),end=paintPoint(dropX,180);
+  await swipe(start.x,start.y,end.x,end.y);
+  if(await paintText('working.txt')!==before)throw Error('Releasing the stencil committed it');
+  await pixelClick(268,56+9+279-26,true);await paintChanged(before,name+' placement');await shot('placed-'+name);
  }
+ // A new picture must choose its background before the first stencil.
+ await pixelClick(103,56+110+106,true);await stencilFirst();await placeStencil('dinosaur');
+ await paintTool(2);await legacy(10,36);
+ if(await evaluate('document.activeElement.id')!=='mobile-input')throw Error('Story did not focus mobile text input');
+ await command('Input.insertText',{text:'Niño, piña'});await delay(500);await shot('story-phone');await legacy(266,180);
+ await paintTool(4);await legacy(253,38);await legacy(60,80);
+ const story=await paintText('slot-0.txt');if(!story?.includes('Niño, piña'))throw Error('Mobile story lost accented text');
+ for(const [category,name,dropX] of [[1,'animals',310],[2,'people',430],[3,'objects',550]]){
+  await paintTool(0);await stencilCategory(category);await shot('stencils-'+name);await stencilFirst();
+  await placeStencil(name,dropX);
+ }
+ // Select changes no pixels; the above-centre handle turns the last object
+ // through a non-right angle, and only its release commits one Undo step.
+ const selectedText=await paintText('working.txt'),lines=selectedText.split('\n'),objectCount=Number(lines[12]);
+ if(objectCount!==4)throw Error('Responsive stencil placement lost an object: '+objectCount);
+ const [objectX,objectY,objectW,objectH]=lines[13+(objectCount-1)*2].split(' ').map(Number),encoded=lines[14+(objectCount-1)*2];
+ const paintCodes='0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_',objectPixels=new Uint8Array(objectW*objectH);
+ let runAt=0,pixelAt=0;
+ while(pixelAt<objectPixels.length){const color=encoded[runAt]==='~'?255:paintCodes.indexOf(encoded[runAt]);runAt++;let count=0,shift=0,digit;do{digit=paintCodes.indexOf(encoded[runAt++]);count+=(digit&31)*2**shift;shift+=5}while(digit>=32);objectPixels.fill(color,pixelAt,pixelAt+count);pixelAt+=count}
+ let x0=objectW,y0=objectH,x1=0,y1=0,hit,best=Infinity;
+ for(let y=0;y<objectH;y++)for(let x=0;x<objectW;x++)if(objectPixels[y*objectW+x]!==255){x0=Math.min(x0,x);y0=Math.min(y0,y);x1=Math.max(x1,x+1);y1=Math.max(y1,y+1);const distance=(x-objectW/2)**2+(y-objectH/2)**2;if(distance<best){best=distance;hit={x:objectX+x+.5,y:objectY+y+.5}}}
+ await paintTool(8);const objectHit=paintPoint(hit.x,hit.y);await pixelClick(objectHit.x,objectHit.y,true);await delay(900);
+ if(await paintText('working.txt')!==selectedText)throw Error('Select changed the mobile picture');
+ const historyBefore=await paintText('working-undo.txt'),center=paintPoint(objectX+x0+(x1-x0)/2,objectY+y0+(y1-y0)/2);
+ const handle={x:center.x,y:Math.max(68,paintPoint(objectX+x0,objectY+y0).y-24)},radius=center.y-handle.y;
+ await command('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[handle]});await delay(100);
+ let end;
+ for(let step=1;step<=6;step++){const angle=37*Math.PI/180*step/6;end={x:center.x+radius*Math.sin(angle),y:center.y-radius*Math.cos(angle)};await command('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[end]});await delay(70)}
+ await shot('paint-phone-free-rotation-held');
+ if(await paintText('working.txt')!==selectedText||await paintText('working-undo.txt')!==historyBefore)throw Error('Mobile rotation committed while held');
+ await command('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
+ const rotatedText=await paintChanged(selectedText,'free handle rotation');
+ const oldSteps=Number(historyBefore.split('\n')[2]),newSteps=Number((await paintText('working-undo.txt')).split('\n')[2]);
+ if(newSteps!==Math.min(8,oldSteps+1))throw Error('Mobile rotation did not push one Undo');
+ const rotatedBounds=rotatedText.split('\n')[13+(objectCount-1)*2].split(' ').map(Number);
+ if(rotatedBounds[2]===objectH&&rotatedBounds[3]===objectW)throw Error('Mobile handle snapped to 90 degrees');
+ await paintTool(6);await paintChanged(rotatedText,'rotation Undo');
+ if(await paintText('working.txt')!==selectedText)throw Error('Mobile rotation Undo lost paint or layers');
+ // Gallery Slots still reopen the accented picture and its saved preview.
+ await paintTool(4);await legacy(253,38);await legacy(232,38);await legacy(60,80);
+ await delay(500);if(!(await paintText('working.txt')).includes('Niño, piña'))throw Error('Slots Load lost accented story');
  await pixelClick(34,28,true);await shot('menu-after-paint-back');
  await delay(1200);await command('Page.reload');await delay(500);const reloaded=Date.now()+30000;while(Date.now()<reloaded){if(await evaluate('typeof Module!=="undefined"&&Module.FS&&document.getElementById("loading").style.display==="none"'))break;await delay(200)}await delay(500);
  if(await evaluate('Module.FS.readFile("/kryon-apps/jungle/settings/language.txt",{encoding:"utf8"})')!=="es")throw Error('Language did not survive reload');

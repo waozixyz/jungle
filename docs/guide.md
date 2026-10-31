@@ -73,7 +73,7 @@ Swipe left or right across the number or animals to turn pages. Arrow keys
 and number selection also turn pages, keeping the current Play/Pause choice. The title-bar Speed button sets its pace.
 Existing saved progress files are preserved.
 
-**Animal Counting** pairs watercolor animals with a clean answer card on
+**Animal Counting** starts with six lesson choices: automatic counting, 1-5, 1-10, 1-20, addition within five and subtraction within five. The last choice stays selected when you return. Tap a lesson to start; Back returns to the choices. Questions appear on screen without repeating the same voice prompt. It pairs watercolor animals with a clean answer card on
 cream paper, with a touch number pad below the animals on phones or beside
 them on wider screens. Animals sit in familiar dice patterns of up to five;
 six to twenty animals form up to four clearly separated groups of five plus the rest.
@@ -83,15 +83,20 @@ back down, the same number never comes twice, and every eighth right
 answer brings one of the original praises, from GOOD JOB to AWESOME.
 
 **Coloring Book** offers 24 starting scenes in Nature, Places and Adventures.
-Place any of 46 stencils from Dinosaurs, Animals, People and Objects in four
-sizes, then fill the picture with forty-two crayon buttons. The picker remembers
-your stencil, category, page, size and mirror choice. Six large previews appear on each numbered page, in two columns on phones or three on wider screens. Previous and Next appear only when that category has another page. Write an eight-line story
+Choose any of 46 stencils from Dinosaurs, Animals, People and Objects. It appears
+in the scene: drag its body to move it, its corner to resize it, or the dot above
+it to rotate freely. Press **Place** to add it, or **Cancel** to discard the preview.
+Releasing a gesture keeps the preview editable. Fill the picture with forty-two
+crayon buttons. The pickers remember your scene, stencil, category, page, size
+and mirror choice. Both galleries show six large previews on each numbered page,
+in two columns on phones or three on wider screens. Previous and Next appear
+only when that category has another page. Write an eight-line story
 and keep pictures in the thumbnail **Gallery**. Edits save automatically;
 **Save a copy** keeps another version. **Slots** retains the six original slots.
 Undo takes back a placement, fill, rotation or object erasure. The working picture and up to eight undo
 steps recover when you reopen the game or reload the browser page. Choose
 **Erase**, then tap an object to remove it; the background and other objects
-stay intact. **Rotate**, then tap an object, turns it clockwise by a quarter turn
+stay intact. **Select**, then tap an object, shows its outline and a dot above it. Drag that dot to rotate freely through any angle
 with its paint intact. **New picture** starts a separate gallery picture after
 confirmation and a background choice, preserving earlier pictures.
 Scenes and dinosaurs are smooth vector line art in `art/paint`, painted
@@ -173,11 +178,12 @@ Find gives a position clue, and Remember briefly shows four friends before hidin
 them and asking for one by name. Show again repeats the preview without changing
 progress. House and yard scenes give each basket, bush, table and tree a grounded place. Completed rounds continue from Peekaboo to Find to Remember, then offer another round. Choose a level at any time; each round mixes the hiding places.
 
-**Little Drums (2+)** opens into a music room. Tap the big drum, little drum,
+**Music Room (2+)** opens into a music room. Tap the big drum, little drum,
 shaker, bell, xylophone, guitar, cymbal or tambourine where they stand around
 the room to hear their distinct sounds. The guitar rests in a stand, shakers sit on a shelf, and the floor tambourine shakes when tapped. The big drum has a stronger body and attack. Empty space does nothing.
 Listen & Copy starts with two hits and gradually offers longer
 patterns. Copy the order at your own pace; replay and free play are always available.
+
 
 These ages are flexible guides. Each activity remembers its own learning state,
 uses English, German or Spanish, and shares the title bar's Back and sound controls.

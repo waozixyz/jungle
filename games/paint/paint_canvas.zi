@@ -5,6 +5,7 @@
 #import, file "paint_pages.zi";
 #import, file "paint_palette.zi";
 #import, file "paint_picture.zi";
+#import "std/math"
 
 INK :: 0
 PAPER :: 15
@@ -65,45 +66,113 @@ CanvasObjectAt :: (x: s32, y: s32) -> s32 {
     return cast(s32)owner[y * CANVAS_WIDTH + x] - 1
 }
 
-// Rotate only the visible owner, including its hidden paint and transparency.
-// Keep the integer center anchor (x + w/2, y + h/2): unlike repeatedly
-// rounding half-pixel centers down, this restores placement after four turns.
-// A too-tall rotated rectangle fits proportionally inside the canvas, with
-// floor-rounded dimensions (at least one pixel) and nearest indexed samples.
-CanvasRotateObject :: (x: s32, y: s32) -> bool {
-    id := CanvasObjectAt(x, y)
-    if id < 0 { return false }
+// Preparing a rotation never changes the document. The editor can push one
+// Undo record only after it knows a release will actually change pixels.
+PaintRotation :: struct { id: s32; x: s32; y: s32; w: s32; h: s32; start: s32; scale: float32; degrees: float32; valid: bool; changed: bool; }
+PaintExtent :: struct { x: s32; y: s32; w: s32; h: s32; }
+
+CanvasObjectBounds :: (id: s32) -> PaintExtent {
+    result: PaintExtent
+    if id < 0 || id >= LAYER_LIMIT || layers[id].pixels.count == 0 { return result }
     object := *layers[id]
-    old_w := object.w; old_h := object.h
-    w := old_h; h := old_w
-    if h > CANVAS_HEIGHT {
-        w = old_h * CANVAS_HEIGHT / old_w
-        if w < 1 { w = 1 }
-        h = CANVAS_HEIGHT
+    left := object.w; top := object.h; right: s32 = 0; bottom: s32 = 0
+    for y: cast(s32)0..object.h - 1 {
+        for x: cast(s32)0..object.w - 1 {
+            if object.pixels[y * object.w + x] == cast(u8)TRANSPARENT { continue }
+            if x < left { left = x }; if y < top { top = y }
+            if x + 1 > right { right = x + 1 }; if y + 1 > bottom { bottom = y + 1 }
+        }
     }
-    left := object.x + old_w / 2 - w / 2
-    top := object.y + old_h / 2 - h / 2
+    if right <= left || bottom <= top { return result }
+    return PaintExtent.{object.x + left, object.y + top, right - left, bottom - top}
+}
+
+CanvasRotation :: (id: s32, degrees: float32, extent: PaintExtent) -> PaintRotation {
+    result: PaintRotation
+    if id < 0 || id >= LAYER_LIMIT || layers[id].pixels.count == 0 || !Finite32(degrees) { return result }
+    degrees -= cast(float32)FloorInteger((degrees + 180.0) / 360.0) * 360.0
+    if extent.w <= 0 || extent.h <= 0 { return result }
+    sine := SineDegrees(degrees); cosine := CosineDegrees(degrees)
+    across := ifx cosine < 0.0 then -cosine else cosine
+    down := ifx sine < 0.0 then -sine else sine
+    wide := across * cast(float32)extent.w + down * cast(float32)extent.h
+    high := down * cast(float32)extent.w + across * cast(float32)extent.h
+    scale: float32 = 1.0
+    if wide > cast(float32)CANVAS_WIDTH { scale = cast(float32)CANVAS_WIDTH / wide }
+    if high * scale > cast(float32)CANVAS_HEIGHT { scale = cast(float32)CANVAS_HEIGHT / high }
+    w := ifx scale < 1.0 then FloorInteger(wide * scale + 0.0001) else CeilInteger(wide - 0.0001)
+    h := ifx scale < 1.0 then FloorInteger(high * scale + 0.0001) else CeilInteger(high - 0.0001)
+    if w < 1 { w = 1 }; if h < 1 { h = 1 }
+    if w > CANVAS_WIDTH { w = CANVAS_WIDTH }; if h > CANVAS_HEIGHT { h = CANVAS_HEIGHT }
+    left := extent.x + extent.w / 2 - w / 2
+    top := extent.y + extent.h / 2 - h / 2
     if left < 0 { left = 0 }
     if top < 0 { top = 0 }
     if left + w > CANVAS_WIDTH { left = CANVAS_WIDTH - w }
     if top + h > CANVAS_HEIGHT { top = CANVAS_HEIGHT - h }
-    // Sample in the rotated rectangle, then map clockwise back to source.
+    result = PaintRotation.{.id = id, .x = left, .y = top, .w = w, .h = h, .scale = scale, .degrees = degrees,
+        .start = CanvasLayerSpace(w * h, id)}
+    result.valid = result.start >= 0
+    return result
+}
+
+CanvasRotationPrepare :: (id: s32, degrees: float32) -> PaintRotation {
+    extent := CanvasObjectBounds(id)
+    source: PaintLayer
+    if id >= 0 && id < LAYER_LIMIT { source = layers[id] }
+    return CanvasRotationPrepareFrom(id, degrees, extent, source)
+}
+
+// An editor may retain the initial source for successive handle gestures.
+// Resampling that source avoids degrading paint on each small adjustment.
+CanvasRotationPrepareFrom :: (id: s32, degrees: float32, extent: PaintExtent, source: PaintLayer) -> PaintRotation {
+    result := CanvasRotation(id, degrees, extent)
+    if !result.valid { return result }
+    object := *layers[id]
+    if result.degrees == 0.0 {
+        result.x = source.x; result.y = source.y; result.w = source.w; result.h = source.h
+        result.start = CanvasLayerSpace(source.w * source.h, id)
+        result.valid = result.start >= 0
+    }
+    w := result.w; h := result.h
+    sine := SineDegrees(result.degrees); cosine := CosineDegrees(result.degrees)
+    // Inverse sampling preserves indexed colors and transparent cut-outs;
+    // uncovered corners are transparent, never paper or background paint.
     for py: cast(s32)0..h - 1 {
         for px: cast(s32)0..w - 1 {
-            sx := py * old_w / h
-            sy := old_h - 1 - px * old_h / w
-            rotate_pixels[py * w + px] = object.pixels[sy * old_w + sx]
+            dx := (cast(float32)px + 0.5 - cast(float32)w / 2.0) / result.scale
+            dy := (cast(float32)py + 0.5 - cast(float32)h / 2.0) / result.scale
+            sx := extent.x - source.x + FloorInteger(cosine * dx + sine * dy + cast(float32)extent.w / 2.0 + 0.00001)
+            sy := extent.y - source.y + FloorInteger(-sine * dx + cosine * dy + cast(float32)extent.h / 2.0 + 0.00001)
+            pixel := cast(u8)TRANSPARENT
+            if result.degrees == 0.0 { pixel = source.pixels[py * w + px] }
+            else if sx >= 0 && sy >= 0 && sx < source.w && sy < source.h { pixel = source.pixels[sy * source.w + sx] }
+            rotate_pixels[py * w + px] = pixel
         }
     }
-    // The new area cannot grow: reuse the old interval even in a full arena.
-    layer_pixels += w * h - old_w * old_h
-    object.x = left; object.y = top; object.w = w; object.h = h
+    result.changed = result.x != object.x || result.y != object.y || w != object.w || h != object.h
+    if !result.changed {
+        for at: cast(s32)0..w * h - 1 { if rotate_pixels[at] != object.pixels[at] { result.changed = true; break } }
+    }
+    return result
+}
+
+CanvasRotationCommit :: (rotation: PaintRotation) -> bool {
+    if !rotation.valid || !rotation.changed { return false }
+    object := *layers[rotation.id]
+    w := rotation.w; h := rotation.h
+    layer_pixels += w * h - object.w * object.h
+    object.x = rotation.x; object.y = rotation.y; object.w = w; object.h = h; object.start = rotation.start
     offset := object.start % CANVAS_PIXELS
     object.pixels = layer_storage[object.start / CANVAS_PIXELS][offset:offset + w * h]
     for at: cast(s32)0..w * h - 1 { object.pixels[at] = rotate_pixels[at] }
     for at: cast(s32)0..CANVAS_PIXELS - 1 { canvas[at] = base[at]; owner[at] = 0 }
     for at: cast(s32)0..layer_count - 1 { CanvasOverlay(layer_order[at], 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT) }
     return true
+}
+
+CanvasRotateObject :: (x: s32, y: s32, degrees: float32) -> bool {
+    return CanvasRotationCommit(CanvasRotationPrepare(CanvasObjectAt(x, y), degrees))
 }
 
 CanvasEraseObject :: (x: s32, y: s32) -> bool {
@@ -131,13 +200,14 @@ CanvasEraseObject :: (x: s32, y: s32) -> bool {
 
 // Find a free contiguous interval in the fixed arena. Refuse a fragmented
 // arena gracefully rather than evicting or flattening an existing object.
-CanvasLayerSpace :: (pixels: s32) -> s32 {
+CanvasLayerSpace :: (pixels: s32, ignore: s32 = -1) -> s32 {
     for bank: cast(s32)0..1 {
         start := bank * CANVAS_PIXELS
         changed := true
         while changed {
             changed = false
             for at: cast(s32)0..layer_count - 1 {
+                if layer_order[at] == ignore { continue }
                 object := *layers[layer_order[at]]
                 end := object.start + object.w * object.h
                 if start < end && start + pixels > object.start { start = end; changed = true }
@@ -240,6 +310,79 @@ CanvasStampDino :: (dino: s32, size: s32, x: s32, y: s32, flip: bool) {
     layer_order[layer_count] = id
     layer_count += 1
     layer_pixels += w * h
+}
+
+PlacementClamp :: (value: s32, low: s32, high: s32) -> s32 {
+    if value < low { return low }; if value > high { return high }; return value
+}
+
+// New stencils stay outside the document until the explicit Place action.
+PaintPlacement :: struct {
+    dino: s32; x: s32; y: s32; w: s32; h: s32
+    scale: float32; degrees: float32; flip: bool; start: s32; valid: bool
+}
+
+CanvasPlacement :: (dino: s32, cx: s32, cy: s32, width: s32, degrees: float32, flip: bool) -> PaintPlacement {
+    result: PaintPlacement
+    if dino < 0 || dino >= DINO_COUNT || width < 1 || !Finite32(degrees) { return result }
+    sw := DinoWidth(dino, DINO_SIZES); sh := DinoHeight(dino, DINO_SIZES)
+    degrees -= cast(float32)FloorInteger((degrees + 180.0) / 360.0) * 360.0
+    sine := SineDegrees(degrees); cosine := CosineDegrees(degrees)
+    a := ifx cosine < 0.0 then -cosine else cosine
+    b := ifx sine < 0.0 then -sine else sine
+    scale := cast(float32)width / cast(float32)sw
+    wide := a * cast(float32)sw + b * cast(float32)sh
+    high := b * cast(float32)sw + a * cast(float32)sh
+    if wide * scale > cast(float32)CANVAS_WIDTH { scale = cast(float32)CANVAS_WIDTH / wide }
+    if high * scale > cast(float32)CANVAS_HEIGHT { scale = cast(float32)CANVAS_HEIGHT / high }
+    w := PlacementClamp(CeilInteger(wide * scale - 0.0001), 1, CANVAS_WIDTH)
+    h := PlacementClamp(CeilInteger(high * scale - 0.0001), 1, CANVAS_HEIGHT)
+    result = PaintPlacement.{.dino = dino, .x = PlacementClamp(cx - w / 2, 0, CANVAS_WIDTH - w),
+        .y = PlacementClamp(cy - h / 2, 0, CANVAS_HEIGHT - h), .w = w, .h = h,
+        .scale = scale, .degrees = degrees, .flip = flip, .start = CanvasLayerSpace(w * h)}
+    result.valid = layer_count < LAYER_LIMIT && result.start >= 0
+    return result
+}
+
+CanvasPlacementPrepare :: (plan: PaintPlacement) -> bool {
+    if !plan.valid { return false }
+    sw := DinoWidth(plan.dino, DINO_SIZES); sh := DinoHeight(plan.dino, DINO_SIZES)
+    if !ReadMask(InkMask(plan.dino, DINO_SIZES), stamp[:], sw * sh) ||
+       !ReadMask(InkMask(plan.dino, DINO_SIZES) + 1, stamp_body[:], sw * sh) { return false }
+    sine := SineDegrees(plan.degrees); cosine := CosineDegrees(plan.degrees)
+    for y: cast(s32)0..plan.h - 1 {
+        for x: cast(s32)0..plan.w - 1 {
+            dx := (cast(float32)x + 0.5 - cast(float32)plan.w / 2.0) / plan.scale
+            dy := (cast(float32)y + 0.5 - cast(float32)plan.h / 2.0) / plan.scale
+            sx := FloorInteger(cosine * dx + sine * dy + cast(float32)sw / 2.0 + 0.00001)
+            sy := FloorInteger(-sine * dx + cosine * dy + cast(float32)sh / 2.0 + 0.00001)
+            pixel := cast(u8)TRANSPARENT
+            if sx >= 0 && sy >= 0 && sx < sw && sy < sh {
+                if plan.flip { sx = sw - 1 - sx }
+                at := sy * sw + sx
+                pixel = cast(u8)(ifx stamp[at] then INK else ifx stamp_body[at] then PAPER else TRANSPARENT)
+            }
+            rotate_pixels[y * plan.w + x] = pixel
+        }
+    }
+    return true
+}
+
+CanvasPlacementCommit :: (plan: PaintPlacement) -> bool {
+    if !plan.valid || layer_count >= LAYER_LIMIT || CanvasLayerSpace(plan.w * plan.h) != plan.start { return false }
+    if layer_count == 0 {
+        for at: cast(s32)0..CANVAS_PIXELS - 1 { base[at] = canvas[at]; owner[at] = 0 }
+    }
+    id: s32 = 0
+    while layers[id].pixels.count != 0 { id += 1 }
+    object := *layers[id]
+    object.x = plan.x; object.y = plan.y; object.w = plan.w; object.h = plan.h; object.start = plan.start
+    offset := plan.start % CANVAS_PIXELS
+    object.pixels = layer_storage[plan.start / CANVAS_PIXELS][offset:offset + plan.w * plan.h]
+    for at: cast(s32)0..plan.w * plan.h - 1 { object.pixels[at] = rotate_pixels[at] }
+    layer_order[layer_count] = id; layer_count += 1; layer_pixels += plan.w * plan.h
+    CanvasOverlay(id, plan.x, plan.y, plan.x + plan.w, plan.y + plan.h)
+    return true
 }
 
 CanvasText :: () -> string {

@@ -202,84 +202,63 @@ Progress :: (at: float64, seconds: float64) -> float32 {
 }
 
 // Draw the existing bitmap with its painted feet on the support. The
-// transparent padding differs between animals; these are their alpha bases
-// in the unchanged 420px originals, not replacement artwork.
+// transparent padding differs between animals; supports are measured at
+// paws/claws in the unchanged 420px originals, rather than dangling tails.
 AnimalGrounded :: (animal: s32, small: bool, cx: s32, base: s32, edge: s32) {
-    bases: [12]s32 = .[377, 408, 399, 386, 412, 412, 412, 412, 386, 397, 381, 409]
-    Animal(animal, small, cx - edge / 2, base - edge * bases[animal] / 420, edge)
+    Animal(animal, small, cx - edge / 2, base - edge * hide_animal_feet[animal] / 420, edge)
 }
 
-// Covers open, friends never translate or scale during reveal. Completely
-// hidden friends submit no bitmap, so ears/tails cannot leak past a cover.
-Basket :: (cx: s32, ground: s32, s: float32, animal: s32, peek: s32, p: float32, small: bool, lift: s32) {
-    w := cast(s32)(s * 0.82); h := cast(s32)(s * 0.58)
-    left := cx - w / 2; top := ground - h
-    Shadow(cx, ground, w)
-    BookBox(left + 3, top, w - 6, h, 0x987044ff, 0, s * 0.08)
-    if peek == HIDE_SHOWN { AnimalGrounded(animal, small, cx, ground - 3, cast(s32)(s * 0.57)) }
-    front := cast(s32)(cast(float32)h * (1.0 - p * 0.96))
-    BookBox(left, ground - front, w, front + 3, 0xdab47cff, 0xb88b55ff, s * 0.035)
-    for row: cast(s32)1..3 {
-        BookBox(left + 4, ground - front + front * row / 4, w - 8, 2, 0xb98b58ff, 0, 1.0)
-    }
-    for column: cast(s32)1..4 { BookBox(left + w * column / 5, ground - front, 2, front, 0xc29962ff) }
-    BookBox(left - 2, ground - front - 3, w + 4, 6, 0xc8995fff, 0xa97c4bff, 3.0)
+PropPath :: (kind: s32) -> string {
+    names: [4]string = .["basket", "bush", "table", "tree"]
+    return Cat("assets/hide_seek/props/", names[kind], ".png")
 }
 
-Bush :: (cx: s32, ground: s32, s: float32, animal: s32, peek: s32, p: float32, small: bool, lift: s32) {
-    Shadow(cx, ground, cast(s32)(s * 0.95))
-    if peek == HIDE_SHOWN { AnimalGrounded(animal, small, cx, ground - 2, cast(s32)(s * 0.54)) }
-    // The two leafy halves part along the ground, opening a clear doorway.
-    spread := s * (0.18 + p * 0.29)
-    edge := s * (0.56 - p * 0.16)
-    for side: cast(s32)0..1 {
-        x := cast(float32)cx + (ifx side == 0 then -spread else spread) - edge / 2.0
-        Round(x, cast(float32)ground - edge, edge, 0x86ad77ff)
-        Round(x + edge * 0.12, cast(float32)ground - edge * 0.82, edge * 0.72, 0x9bbb87ff)
-        Icon(Leaf.Shape, cast(s32)(x + edge * 0.35), ground - cast(s32)(edge * 0.55), cast(s32)(s * 0.13), 0x668b58ff)
-    }
+// A source crop and its destination use the same scale. Restoring the lower
+// foreground never squeezes a prop or changes the animal's proportions.
+PropFront :: (path: string, art: HideSeekArt) {
+    source_y := art.front
+    source_x := art.front_x
+    x := art.x + art.edge * source_x / HIDE_PROP_PIXELS
+    y := art.y + art.edge * source_y / HIDE_PROP_PIXELS
+    width := art.x + art.edge * art.front_right / HIDE_PROP_PIXELS - x
+    height := art.y + art.edge - y
+    if height <= 0 || !RetroImageReady(path) { return }
+    Image(retro.session, ImageProps.{.asset_path = path,
+        .source = .{cast(float32)source_x, cast(float32)source_y, cast(float32)(art.front_right - source_x), cast(float32)(HIDE_PROP_PIXELS - source_y)},
+        .bounds = RetroRect(x, y, width, height), .fit = ImageFit.ImageFitContain, .smooth = true})
 }
 
-Table :: (cx: s32, ground: s32, s: float32, animal: s32, peek: s32, p: float32, small: bool, lift: s32) {
-    w := cast(s32)(s * 0.93); top := ground - cast(s32)(s * 0.64)
-    left := cx - w / 2; leg := cast(s32)(s * 0.06) + 1
-    Shadow(cx, ground, w)
-    // Back legs and a narrow side edge give the tabletop depth.
-    BookBox(left + 8, top - 7, leg, ground - top, 0x92704cff, 0, 2.0)
-    BookBox(left + w - leg - 8, top - 7, leg, ground - top, 0x92704cff, 0, 2.0)
-    if peek == HIDE_SHOWN { AnimalGrounded(animal, small, cx, ground - 2, cast(s32)(s * 0.55)) }
-    BookBox(left, top, leg, ground - top, 0xb98a5cff, 0, 2.0)
-    BookBox(left + w - leg, top, leg, ground - top, 0xb98a5cff, 0, 2.0)
-    hem := cast(s32)(Mix(cast(float32)(ground - top), s * 0.06, p))
-    BookBox(left - 2, top, w + 4, hem, 0xf3dccbff, 0xe2bba6ff, 3.0)
-    BookBox(left - 5, top - 9, w + 10, 9, 0xd6ad7aff, 0x9c7448ff, 3.0)
-    BookBox(left + 1, top - 14, w - 2, 6, 0xe6c99eff, 0, 2.0)
+PlaceArt :: (kind: s32, cx: s32, ground: s32, s: float32, animal: s32, peek: s32, p: float32, small: bool) {
+    art := HideSeekArtLayout(kind, cx, ground, cast(s32)s, p, animal)
+    path := PropPath(kind)
+    Shadow(cx, ground, cast(s32)(s * 0.82))
+    if peek == HIDE_NO_PEEK { BookPicture(path, art.x, art.y, art.edge, art.edge); return }
+    // Basket back/rim and tree branch stay behind the friend; their lower
+    // foreground is restored after it. Bush/table keep the whole cover in
+    // front while their friend comes around its edge or out from a table leg.
+    if art.front > 0 || art.front_x > 0 || art.front_right < HIDE_PROP_PIXELS { BookPicture(path, art.x, art.y, art.edge, art.edge) }
+    AnimalGrounded(animal, small, art.animal_cx, art.animal_base, art.animal_edge)
+    PropFront(path, art)
 }
 
-Tree :: (cx: s32, ground: s32, s: float32, animal: s32, peek: s32, p: float32, small: bool, lift: s32) {
-    base := ground - cast(s32)(s * 0.59)
-    trunk := cast(s32)(s * 0.13) + 1
-    Shadow(cx, ground, cast(s32)(s * 0.6))
-    BookBox(cx - trunk / 2, ground - cast(s32)(s * 1.04), trunk, cast(s32)(s * 1.04), 0xa27b51ff, 0x86643fff, 4.0)
-    // A visible, level branch supports the entire friend, including feet.
-    BookBox(cx - cast(s32)(s * 0.68), base, cast(s32)(s * 1.36), cast(s32)(s * 0.065) + 1, 0xa27b51ff, 0x86643fff, 3.0)
-    if peek == HIDE_SHOWN { AnimalGrounded(animal, small, cx, base, cast(s32)(s * 0.40)) }
-    edge := s * (0.56 - p * 0.12)
-    spread := s * (0.17 + p * 0.28)
-    for side: cast(s32)0..1 {
-        x := cast(float32)cx + (ifx side == 0 then -spread else spread) - edge / 2.0
-        Round(x, cast(float32)base - edge, edge, 0x86ad77ff)
-        Round(x + edge * 0.13, cast(float32)base - edge * 0.92, edge * 0.7, 0xa2bf8cff)
-    }
-    // The upper crown stays attached to the trunk, above the opening.
-    Round(cast(float32)cx - s * 0.28, cast(float32)base - s * 1.0, s * 0.56, 0x8fb381ff)
+Basket :: (cx: s32, ground: s32, s: float32, animal: s32, peek: s32, p: float32, small: bool) {
+    PlaceArt(HIDE_BASKET, cx, ground, s, animal, peek, p, small)
+}
+Bush :: (cx: s32, ground: s32, s: float32, animal: s32, peek: s32, p: float32, small: bool) {
+    PlaceArt(HIDE_BUSH, cx, ground, s, animal, peek, p, small)
+}
+Table :: (cx: s32, ground: s32, s: float32, animal: s32, peek: s32, p: float32, small: bool) {
+    PlaceArt(HIDE_TABLE, cx, ground, s, animal, peek, p, small)
+}
+Tree :: (cx: s32, ground: s32, s: float32, animal: s32, peek: s32, p: float32, small: bool) {
+    PlaceArt(HIDE_TREE, cx, ground, s, animal, peek, p, small)
 }
 
-DrawPlace :: (kind: s32, cx: s32, ground: s32, s: float32, animal: s32, peek: s32, p: float32, small: bool = false, lift: s32 = 0) {
-    if kind == HIDE_BUSH { Bush(cx, ground, s, animal, peek, p, small, lift); return }
-    if kind == HIDE_TABLE { Table(cx, ground, s, animal, peek, p, small, lift); return }
-    if kind == HIDE_TREE { Tree(cx, ground, s, animal, peek, p, small, lift); return }
-    Basket(cx, ground, s, animal, peek, p, small, lift)
+DrawPlace :: (kind: s32, cx: s32, ground: s32, s: float32, animal: s32, peek: s32, p: float32, small: bool = false) {
+    if kind == HIDE_BUSH { Bush(cx, ground, s, animal, peek, p, small); return }
+    if kind == HIDE_TABLE { Table(cx, ground, s, animal, peek, p, small); return }
+    if kind == HIDE_TREE { Tree(cx, ground, s, animal, peek, p, small); return }
+    Basket(cx, ground, s, animal, peek, p, small)
 }
 
 LookPlace :: (place: s32) {
@@ -300,7 +279,7 @@ LookPlace :: (place: s32) {
 }
 
 // Reveal motion belongs solely to the cover; the bitmap anchor is fixed.
-PlaceMotion :: (place: s32, peek: *s32) -> float32 {
+PlaceMotion :: (place: s32) -> float32 {
     if game.revealed[place] { return Progress(reveal_at[place], REVEAL_SECONDS) }
     if game.preview { return Progress(show_at, REVEAL_SECONDS) }
     return 0.0
@@ -319,7 +298,7 @@ Scene :: (top: s32, bottom: s32) {
     path := ScenePath()
     if RetroImageReady(path) {
         Image(retro.session, ImageProps.{.asset_path = path, .bounds = RetroRect(margin, top, width, height),
-            .fit = ImageFit.ImageFitStretch, .smooth = true, .radius = 12.0 * retro.scale})
+            .fit = ImageFit.ImageFitCover, .smooth = true, .radius = 12.0 * retro.scale})
     }
     place_columns = ifx width < height && game.places > 2 then 2 else game.places
     hint := HideSeekTargeted(game) && HideSeekHint(game) && !HideSeekDone(game) && !game.preview
@@ -331,17 +310,12 @@ Scene :: (top: s32, bottom: s32) {
             Shadow(cx, ground, at.size + 12)
             BookBox(cx - at.size / 2, ground - 8, at.size, 13, 0xf3d48599, 0, 6.0)
         }
-        if keyboard_active && place == focus_place {
-            BookBox(x + 4, y, at.width - 8, at.height, 0, 0x2e6956ff, 14.0)
-        }
         label := Words("Hiding place", "Versteck", "Escondite")
         press := RetroTap(100 + round_serial * 4 + place, x, y, at.width, at.height, label)
         if press.clicked && !input_guard && !preview_guard { focus_place = place; keyboard_active = false; LookPlace(place) }
         peek := HideSeekPeek(game, place)
-        p := PlaceMotion(place, *peek)
-        // Hinting highlights the prop; closed covers never leak animal pixels.
-        visible: s32 = ifx game.revealed[place] || game.preview then HIDE_SHOWN else HIDE_NO_PEEK
-        DrawPlace(HideSeekKind(game, place), cx, ground, cast(float32)at.size, game.animals[place], visible, p)
+        p := PlaceMotion(place)
+        DrawPlace(HideSeekKind(game, place), cx, ground, cast(float32)at.size, game.animals[place], peek, p)
         if game.revealed[place] && HideSeekDone(game) {
             edge := at.size / 8
             Icon(Heart.Shape, cx - edge / 2, y - edge / 2, edge, 0xe4a77fff)
@@ -420,7 +394,8 @@ Controls :: (y: s32, height: s32) {
     gap: s32 = 8
     two := ControlRows() == 2
     row_height := ifx two then (height - gap) / 2 else height
-    count: s32 = ifx two then 3 else 5
+    remembering := HideSeekRemembering(game)
+    count: s32 = ifx two then 3 else (ifx remembering then 5 else 4)
     each := (view_width - 32 - gap * (count - 1)) / count
     if each > 150 { each = 150 }
     x := (view_width - (each * count + gap * (count - 1))) / 2
@@ -432,17 +407,17 @@ Controls :: (y: s32, height: s32) {
     }
     if two {
         y += row_height + gap
-        each = (view_width - 32 - gap) / 2
+        actions: s32 = ifx remembering then 2 else 1
+        each = (view_width - 32 - gap * (actions - 1)) / actions
         if each > 190 { each = 190 }
-        x = (view_width - (each * 2 + gap)) / 2
+        x = (view_width - (each * actions + gap * (actions - 1))) / 2
     }
     done := HideSeekDone(game)
-    remembering := HideSeekRemembering(game)
-    help := ifx remembering then Words("Show again", "Zeig nochmal", "Ver otra vez") else Words("Hear again", "Noch einmal hören", "Escuchar otra vez")
-    if Button(24, x, y, each, row_height, help, ifx remembering then Eye.Shape else Volume.Shape, remembering && game.preview) {
-        if remembering { ShowAgain() } else { SayPrompt() }
+    if remembering {
+        help := Words("Show again", "Zeig nochmal", "Ver otra vez")
+        if Button(24, x, y, each, row_height, help, Eye.Shape, game.preview) { ShowAgain() }
+        x += each + gap
     }
-    x += each + gap
     targeted := HideSeekTargeted(game)
     label := ifx targeted then Words("Next", "Weiter", "Otro") else Words("Hide again", "Nochmal", "Otra vez")
     if Button(23, x, y, each, row_height, label, ifx targeted then Next.Shape else Again.Shape, done) { StartRound(game.mode) }

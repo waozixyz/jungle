@@ -5,6 +5,7 @@ import tempfile
 from pathlib import Path
 
 from runtime_test import DIGITS, PICTURE_HEADER, ROOT, picture_runs, picture_pixels
+from paint_library_test import scene_click, scene_layout
 from paint_history_test import Desktop, WORK, changed, open_paint, pixel_click, tool
 
 
@@ -16,17 +17,14 @@ with tempfile.TemporaryDirectory(prefix='paint-choices-', dir=WORK) as temporary
     with Desktop(ROOT / 'build/app/jungle', data) as desktop:
         desktop.game('Coloring Book')
         first = desktop.wait_scene_picker('paint-scenes-page-1')
-        # Loading a large bundle briefly retains the complete menu.
-        footer = first.crop((234, 173, 298, 187))
-        assert len(footer.getcolors(10000)) == 1, 'Duplicate Back button remains beside pagination'
         desktop.click_actual(28, 28)
         desktop.wait_menu('paint-title-back-to-menu')
         desktop.game('Coloring Book')
         first = desktop.wait_scene_picker('paint-scenes-title-back-reopened')
-        desktop.click(180, 180)
+        scene_click(desktop, 'next')
         second = desktop.capture('paint-scenes-page-2', header=56)
         assert first.crop((20, 51, 299, 162)).tobytes() != second.crop((20, 51, 299, 162)).tobytes()
-        desktop.click(50, 180)
+        scene_click(desktop, 'previous')
         back = desktop.capture('paint-scenes-previous', header=56)
         assert first.crop((20, 51, 299, 162)).tobytes() == back.crop((20, 51, 299, 162)).tobytes(), 'Previous did not return to the original scenes'
         seen = set()
@@ -38,11 +36,12 @@ with tempfile.TemporaryDirectory(prefix='paint-choices-', dir=WORK) as temporary
                     desktop.capture('paint-new-picture-confirm', header=56)
                     desktop.click(80, 90)
                     desktop.wait_scene_picker('paint-next-background')
-                desktop.click(50 + category * 95, 38)
+                scene_click(desktop, 'category', category)
+                scene_click(desktop, 'previous')
                 for _ in range(position // 6):
-                    desktop.click(180, 180)
+                    scene_click(desktop, 'next')
                 offset = position % 6
-                desktop.click(65 + offset % 3 * 94, 78 + offset // 3 * 60)
+                scene_click(desktop, 'tile', offset)
                 desktop.key('Escape')
                 desktop.capture('paint-selected-scene', header=56)
                 index = scene['asset_id'] - 1

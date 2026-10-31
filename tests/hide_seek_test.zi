@@ -48,6 +48,13 @@ main :: () -> s32 {
                 h := HideSeekNew(mode, seed * 7919 + 3, rounds)
                 if !ValidRound(h, seed * 7919 + 3) { return 1 }
                 if !Solvable(h) { return 2 }
+                // Preview end never makes any occupied place fully invisible.
+                hidden := h
+                HideSeekPreviewEnd(*hidden)
+                for place: cast(s32)0..hidden.places - 1 {
+                    expected := ifx HideSeekHides(hidden, place) then HIDE_PEEK else HIDE_NO_PEEK
+                    if HideSeekPeek(hidden, place) != expected { return 2 }
+                }
                 again := HideSeekNew(mode, seed * 7919 + 3, rounds)
                 if again.target != h.target || again.places != h.places { return 3 }
                 for i: cast(s32)0..h.places - 1 {
@@ -133,13 +140,13 @@ main :: () -> s32 {
     for i: cast(s32)0..3 { if HideSeekPeek(r, i) != HIDE_SHOWN || !HideSeekHides(r, i) { return 40 } }
     for i: cast(s32)0..3 { if HideSeekTap(*r, i) != HIDE_IGNORED { return 41 } }
     if HideSeekFound(r) != 0 || HideSeekHint(r) || r.remembered != 8 || r.rounds != 2 { return 41 }
-    // Then they hide completely; a wrong place lets its own friend peek and
-    // makes the named friend glow, never ending the round.
+    // Then every friend keeps a small peek; a wrong place strengthens the
+    // named friend's hint, never ending the round.
     HideSeekPreviewEnd(*r)
-    for i: cast(s32)0..3 { if HideSeekPeek(r, i) != HIDE_NO_PEEK { return 42 } }
+    for i: cast(s32)0..3 { if HideSeekPeek(r, i) != HIDE_PEEK { return 42 } }
     other := (r.target + 2) % 4
     if HideSeekTap(*r, other) != HIDE_OTHER || !r.looked[other] || r.revealed[other] || HideSeekDone(r) { return 43 }
-    if HideSeekPeek(r, other) != HIDE_PEEK || HideSeekPeek(r, r.target) != HIDE_HINT || HideSeekPeek(r, (r.target + 1) % 4) != HIDE_NO_PEEK { return 43 }
+    if HideSeekPeek(r, other) != HIDE_PEEK || HideSeekPeek(r, r.target) != HIDE_HINT || HideSeekPeek(r, (r.target + 1) % 4) != HIDE_PEEK { return 43 }
     if HideSeekTap(*r, other) != HIDE_OTHER || r.remembered != 8 { return 43 }
     // Showing again keeps the answers and hint, and taps wait meanwhile.
     if !HideSeekShowAgain(*r) || !r.preview || !r.looked[other] || r.remembered != 8 { return 44 }
@@ -188,7 +195,7 @@ main :: () -> s32 {
     if HideSeekInputGuard(guard, false, false, false, false) { return 78 }
     if HideSeekInputGuard(false, false, true, false, false) || HideSeekInputGuard(false, false, false, false, true) { return 79 }
     // Geometry is bounded, has real depth, and does not depend on visibility.
-    widths: [2]s32 = .[376, 812]; heights: [2]s32 = .[468, 350]
+    widths: [2]s32 = .[376, 893]; heights: [2]s32 = .[505, 346]
     for orientation: cast(s32)0..1 {
         for count: cast(s32)2..4 {
             last_ground: s32
@@ -199,6 +206,38 @@ main :: () -> s32 {
                 if at.cx <= at.x || at.cx >= at.x + at.width { return 75 }
                 if place > 0 && at.ground == last_ground && count == 2 { return 76 }
                 last_ground = at.ground
+                for kind: cast(s32)0..HIDE_KINDS - 1 {
+                    for animal: cast(s32)0..HIDE_ANIMALS - 1 {
+                        closed := HideSeekArtLayout(kind, at.cx, at.ground, at.size, 0.0, animal)
+                        for frame: cast(s32)0..4 {
+                            art := HideSeekArtLayout(kind, at.cx, at.ground, at.size, cast(float32)frame / 4.0, animal)
+                            if art.edge != closed.edge || art.x != closed.x || art.y != closed.y { return 80 }
+                            if art.animal_edge != closed.animal_edge || art.animal_base != closed.animal_base { return 80 }
+                            if art.x < 0 || art.y < 0 || art.x + art.edge > widths[orientation] { return 81 }
+                            if art.y + art.edge * hide_prop_bases[kind] / HIDE_PROP_PIXELS != at.ground { return 81 }
+                            // Feet stay planted, regardless of padding or tails.
+                            top := art.animal_base - art.animal_edge * hide_animal_feet[animal] / 420
+                            if top < 0 || top + art.animal_edge > heights[orientation] { return 82 }
+                            if art.animal_cx - art.animal_edge / 2 < 0 || art.animal_cx + art.animal_edge / 2 > widths[orientation] { return 82 }
+                            if top + art.animal_edge * hide_animal_feet[animal] / 420 != art.animal_base { return 82 }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Small geometry receipts let the Python real-asset pixel test use the
+    // actual native layout, rather than maintaining a second implementation.
+    for orientation: cast(s32)0..1 {
+        at := HideSeekSceneLayout(widths[orientation], heights[orientation], 4, 0)
+        for kind: cast(s32)0..HIDE_KINDS - 1 {
+            for frame: cast(s32)0..4 {
+                for animal: cast(s32)0..HIDE_ANIMALS - 1 {
+                    art := HideSeekArtLayout(kind, at.cx, at.ground, at.size, cast(float32)frame / 4.0, animal)
+                    print("hide-art % % % % % % % % % % % % % %\n", widths[orientation], heights[orientation], kind, frame, animal,
+                        art.x, art.y, art.edge, art.animal_cx, art.animal_base, art.animal_edge, art.front, art.front_x, art.front_right)
+                }
             }
         }
     }

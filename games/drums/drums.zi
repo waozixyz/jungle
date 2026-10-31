@@ -1,4 +1,4 @@
-// Little Drums' rules contain no clock, sound or UI effects.
+// Music Room' rules contain no clock, sound or UI effects.
 #import, file "../../host/jungle_text.zi";
 
 DRUMS_PADS :: 8
@@ -152,6 +152,7 @@ DrumsBodyHit :: (pad: s32, x: s32, y: s32, width: s32, height: s32,
     if pad < 0 || pad >= DRUMS_PADS || width <= 0 || height <= 0 { return false }
     if point_x < x || point_y < y || point_x >= x + width || point_y >= y + height { return false }
     cell_x := (point_x - x) * 16 / width
+    if pad == 7 { cell_x = 15 - cell_x }
     cell_y := (point_y - y) * 16 / height
     row := DrumsMaskRow(pad, cell_y)
     return ((cast(u32)row >> cast(u32)(15 - cell_x)) & cast(u32)1) != cast(u32)0
@@ -164,10 +165,10 @@ DrumsLayout :: struct { left: s32; top: s32; fit: s32; wide: bool; room_top: s32
 DrumsPlace :: struct { x: s32; y: s32; edge: s32 }
 
 DRUMS_PORTRAIT_X: [8]s32 = .[8, 156, 158, 30, 255, 155, 0, 298];
-DRUMS_PORTRAIT_Y: [8]s32 = .[340, 380, 42, 40, 455, 100, 150, 385];
+DRUMS_PORTRAIT_Y: [8]s32 = .[340, 380, 42, 40, 455, 130, 150, 385];
 DRUMS_PORTRAIT_EDGE: [8]s32 = .[160, 105, 55, 80, 125, 240, 180, 78];
 DRUMS_LANDSCAPE_X: [8]s32 = .[70, 270, 245, 65, 430, 560, 325, 680];
-DRUMS_LANDSCAPE_Y: [8]s32 = .[180, 230, 23, 17, 245, 36, 57, 260];
+DRUMS_LANDSCAPE_Y: [8]s32 = .[180, 230, 23, 17, 245, 58, 57, 260];
 DRUMS_LANDSCAPE_EDGE: [8]s32 = .[160, 104, 52, 78, 125, 235, 180, 78];
 
 DrumsRoomLayout :: (width: s32, height: s32, copying: bool = false) -> DrumsLayout {

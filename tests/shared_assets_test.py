@@ -55,6 +55,7 @@ def fake_tree(root):
     write(root, 'assets/dino-paint/sounds/voice-1.wav', b'voice')
     write(root, 'assets/dino-paint/art/dino1.png', b'dino')
     write(root, 'assets/hide_seek/scenes/cottage-yard.png', b'grounded yard scene')
+    write(root, 'assets/hide_seek/props/basket.png', b'watercolor basket')
 
 
 def manifest(path):
@@ -132,20 +133,24 @@ def staging_test():
                          'assets/jungle-book/pages/tiger.jpg', 'assets/jungle-book/pages/lion.jpg',
                          'assets/jungle-book/items/tiger.png',
                          'assets/hide_seek/scenes/cottage-yard.png',
+                         'assets/hide_seek/props/basket.png', 'assets/dino-paint/art/dino1.png',
                          'assets/jungle-book/previews/bedroom.jpg',
                          *{f'assets/jungle-book/counting/{name}.png' for name in shared_assets.COUNTING}}, files
         # Shared-book activities skip bundle extraction: their new scene must
         # resolve from the installed tree, without another packed copy.
         assert (app / 'assets/hide_seek/scenes/cottage-yard.png').read_bytes() == b'grounded yard scene'
         assert 'assets/hide_seek/scenes/cottage-yard.png' not in bundles['jungle-hide-seek']
+        assert (app / 'assets/dino-paint/art/dino1.png').read_bytes() == b'dino'
+        assert not any(path.startswith('assets/dino-paint/art/') for path in bundles['dino-paint'])
+        assert (app/'assets/hide_seek/props/basket.png').read_bytes() == b'watercolor basket'
+        assert 'assets/hide_seek/props/basket.png' not in bundles['jungle-hide-seek']
         staged = {path.relative_to(stage).as_posix() for path in stage.rglob('*') if path.is_file()}
         assert staged == {'.shared-assets', 'speech-manifest.json', *{name + '.files' for name in bundles},
                           'jungle-abc/assets/abc/sounds/en/letters/0061.wav',
                           'jungle-numbers/assets/numbers/sounds/one.wav',
                           'jungle-numbers/assets/numbers/sounds/two.wav',
                           'animal-count/assets/animal-count/font.png',
-                          'animal-count/assets/animal-count/sounds/right.wav',
-                          'dino-paint/assets/dino-paint/art/dino1.png'}, staged
+                          'animal-count/assets/animal-count/sounds/right.wav'}, staged
         assert (stage / 'jungle-book/assets').is_dir() and not any((stage / 'jungle-book/assets').iterdir())
         # A sound with a picture's bytes keeps its own copy.
         assert (stage / 'animal-count/assets/animal-count/sounds/right.wav').read_bytes() == b'font'
@@ -240,9 +245,11 @@ def make_test():
         shutil.copy2(ROOT / 'Makefile', root / 'Makefile')
 
         def make():
-            return subprocess.run(['make', '--no-print-directory', 'ZIRAN=true', 'build/app/assets/shared-assets.txt',
+            result = subprocess.run(['make', '--no-print-directory', 'ZIRAN=true', 'build/app/assets/shared-assets.txt',
                                    'build/stage/jungle-numbers.files'],
-                                  cwd=root, capture_output=True, text=True, timeout=120, check=True).stdout
+                                  cwd=root, capture_output=True, text=True, timeout=120)
+            assert result.returncode == 0, (result.stdout + '\n' + result.stderr)[-4000:]
+            return result.stdout
 
         assert 'shared_assets.py' in make()
         assert (root / 'build/app/assets/speech.txt').read_text() == shared_assets.SPEECH_HEADER

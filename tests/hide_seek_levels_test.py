@@ -7,7 +7,7 @@ import sys
 import tempfile
 import time
 
-from PIL import Image, ImageChops, ImageDraw
+from PIL import Image, ImageChops, ImageDraw, ImageStat, ImageOps
 
 import runtime_test as rt
 
@@ -33,12 +33,78 @@ WORDS_SHOWN = {
 
 def focused_build():
     subprocess.run(["make", "build/tests/hide_seek"], cwd=rt.ROOT, check=True)
-    subprocess.run([str(rt.ROOT / "build/tests/hide_seek")], cwd=rt.ROOT, check=True)
+    result = subprocess.run([str(rt.ROOT / "build/tests/hide_seek")], cwd=rt.ROOT, check=True, capture_output=True, text=True)
     assert BINARY.exists(), "build the stable host first: make build/app/jungle"
     bundle = rt.ROOT / "build/app/games/jungle-hide-seek.zx"
     assert bundle.exists() and bundle.stat().st_mtime >= max(MODEL.stat().st_mtime, SCREEN.stat().st_mtime), "wait for the parent coordinated app build"
     print("local hide & seek build: rules unit passed; coordinated hosted bundle is current", flush=True)
+    return result.stdout
 
+
+
+def check_art_pixels(receipt):
+    """Real prop/cut-out pixels, driven by native geometry for every animal.
+
+    These asset compositing tests complement the separate actual-host Xvfb
+    suite. They do not claim to be captures of native host rendering.
+    """
+    feet = list(map(int, re.search(r"hide_animal_feet: \[12\]s32 = \.\[(.*?)\];", MODEL.read_text(), re.S).group(1).split(",")))
+    records = [tuple(map(int, line.split()[1:])) for line in receipt.splitlines() if line.startswith("hide-art ")]
+    assert len(records) == 480, len(records)
+    props = [Image.open(rt.ROOT / f"assets/hide_seek/props/{name}.png").convert("RGBA")
+             for name in ("basket", "bush", "table", "tree")]
+    assert all(im.size == (1254, 1254) for im in props)
+    animals = [Image.open(rt.ROOT / f"assets/jungle-book/items/{name}.png").convert("RGBA") for name in ANIMALS]
+    ratios, panels = {}, {}
+    for width, height, kind, frame, animal, x, y, edge, acx, base, ae, front, front_x, front_right in records:
+        prop = props[kind].resize((edge, edge), Image.Resampling.LANCZOS)
+        px, py = x + edge * front_x // 1254, y + edge * front // 1254
+        foreground = Image.new("RGBA", (width, height))
+        foreground.alpha_composite(prop.crop((px-x, py-y, edge*front_right//1254, edge)), (px, py))
+        original = animals[animal]
+        sprite = original.resize((ae, ae), Image.Resampling.LANCZOS)
+        ax, ay = acx - ae // 2, base - ae * feet[animal] // 420
+        assert ax >= 0 and ay >= 0 and ax + ae <= width and ay + ae <= height, (width, kind, ANIMALS[animal], "frame bounds")
+        assert ay + ae * feet[animal] // 420 == base
+        animal_layer = Image.new("RGBA", (width, height))
+        animal_layer.alpha_composite(sprite, (ax, ay))
+        alpha = animal_layer.getchannel("A")
+        visible = ImageChops.multiply(alpha, ImageChops.invert(foreground.getchannel("A")))
+        total = ImageStat.Stat(alpha).sum[0]
+        ratio = ImageStat.Stat(visible).sum[0] / total
+        ratios[width, kind, animal, frame] = ratio
+        assert ratio >= .12, (width, kind, ANIMALS[animal], frame, "peek is too hard to see", ratio)
+        if frame == 0:
+            assert ratio < .85, (width, kind, ANIMALS[animal], "not hidden", ratio)
+        if frame == 4:
+            hidden = ratios[width, kind, animal, 0]
+            assert ratio > hidden + .05, (width, kind, ANIMALS[animal], "reveal did not uncover body", hidden, ratio)
+            assert ratio > .40, (width, kind, ANIMALS[animal], "reveal still obscured", ratio)
+        if frame in (0, 4):
+            picture = Image.new("RGBA", (width, height), "#e5ead5")
+            if front or front_x or front_right < 1254:
+                picture.alpha_composite(prop, (x, y))
+            picture.alpha_composite(animal_layer)
+            picture.alpha_composite(foreground)
+            # Preserve all combinations for parent visual review, without
+            # writing hundreds of individual private PNGs.
+            box = (max(0, min(x, ax)-4), max(0, min(y, ay)-4),
+                   min(width, max(x+edge, ax+ae)+4), min(height, max(y+edge, ay+ae)+4))
+            tile = picture.crop(box).convert("RGB")
+            tile.thumbnail((180, 190))
+            panel = Image.new("RGB", (190, 214), "#fffaf0")
+            panel.paste(tile, ((190-tile.width)//2, 20))
+            ImageDraw.Draw(panel).text((4, 3), f"{ANIMALS[animal]} {'peek' if frame == 0 else 'shown'}", fill="black")
+            panels[width, kind, animal, frame] = panel
+    for width in (376, 893):
+        for kind, name in enumerate(("basket", "bush", "table", "tree")):
+            sheet = Image.new("RGB", (190*6, 214*4), "#fffaf0")
+            for animal in range(12):
+                for state, frame in enumerate((0, 4)):
+                    index = animal*2+state
+                    sheet.paste(panels[width, kind, animal, frame], ((index%6)*190, (index//6)*214))
+            sheet.save(rt.OUTPUT.parent / f"{name}-all-animals-{width}.png")
+    print("local hide & seek asset pixels: 12 animals x 4 props x 2 orientations x 5 reveal frames; partial body, larger reveal, fixed foot supports and bounded images passed", flush=True)
 
 def check_words_and_voices():
     """Remembering names a friend with the picture book's word and clip."""
@@ -72,7 +138,7 @@ def geometry(width, height):
     return scale, int(width / scale), int(height / scale)
 
 
-def layout(width, height):
+def layout(width, height, mode=2):
     """Logical rectangles of the level, help and next buttons and the scene."""
     scale, w, h = geometry(width, height)
     two = w < 560
@@ -80,7 +146,7 @@ def layout(width, height):
     controls_y = h - controls_height - 12
     row = (controls_height - 8) // 2 if two else controls_height
     buttons = {}
-    count = 3 if two else 5
+    count = 3 if two else (5 if mode == 2 else 4)
     each = min(150, (w - 32 - 8 * (count - 1)) // count)
     x = (w - (each * count + 8 * (count - 1))) // 2
     for level in range(3):
@@ -89,10 +155,13 @@ def layout(width, height):
     y = controls_y + row / 2
     if two:
         y += row + 8
-        each = min(190, (w - 32 - 8) // 2)
-        x = (w - (each * 2 + 8)) // 2
-    buttons["help"] = (x + each / 2, y)
-    buttons["next"] = (x + each + 8 + each / 2, y)
+        actions = 2 if mode == 2 else 1
+        each = min(190, (w - 32 - 8 * (actions - 1)) // actions)
+        x = (w - (each * actions + 8 * (actions - 1))) // 2
+    if mode == 2:
+        buttons["help"] = (x + each / 2, y)
+        x += each + 8
+    buttons["next"] = (x + each / 2, y)
     return scale, w, h, buttons, (12, 84, w - 24, controls_y - 12 - 84)
 
 
@@ -145,10 +214,25 @@ class Screen:
         self.d.click_actual(round(x * scale), round(56 + y * scale))
 
     def button(self, name):
-        self.click(*layout(*self.size)[3][name])
+        self.click(*layout(*self.size, mode=saved(self.data)[0])[3][name])
 
     def capture(self, name):
         return self.d.capture_actual(f"hide-{self.language}-{name}-{self.size[0]}")
+
+
+def open_hide_seek(screen):
+    """Open the real game and wait for its actual first frame."""
+    screen.d.game("Hide & Seek")
+    deadline = time.monotonic() + 10
+    while time.monotonic() < deadline:
+        frame = screen.capture("game-open")
+        arrow = frame.crop((16, 16, 42, 42)).convert("RGB")
+        ink = sum(max(color) < 170 for color in arrow.getdata())
+        if ink >= 20:
+            return frame
+        time.sleep(.1)
+    screen.capture("game-open-timeout")
+    raise AssertionError("Hide & Seek did not paint its title-bar Back button")
 
 
 def changed(before, after):
@@ -235,18 +319,48 @@ def geometry_contract(screen):
             assert ground - size * 1.60 >= scene[1]
 
 
+def stage_crop(screen, frame):
+    scale, _, _, _, (x, y, w, h) = layout(*screen.size)
+    return frame.crop((round(x * scale), round(56 + y * scale),
+                       round((x + w) * scale), round(56 + (y + h) * scale)))
+
+
+def no_focus_rectangle(screen):
+    """Arrow navigation must not paint a rectangular selection over the scene."""
+    before = stage_crop(screen, screen.capture("focus-before"))
+    screen.d.key("Right")
+    after = stage_crop(screen, screen.capture("focus-after"))
+    assert not changed(before, after), "keyboard navigation painted over the scene"
+    # Reset the focus without depending on the previous keyboard-active state.
+    screen.button("next")
+
+
 def scene_image_present(screen):
     # A missing hosted asset draws a literal placeholder. Catch that in the
     # actual private raster instead of accepting merely present PNG files.
     frame = screen.capture("scene-loaded")
-    scale, _, _, _, (x, y, w, h) = layout(*screen.size)
-    stage = frame.crop((round(x * scale), round(56 + y * scale),
-                        round((x + w) * scale), round(56 + (y + h) * scale)))
+    stage = stage_crop(screen, frame)
     path = rt.OUTPUT / "scene-probe.png"
     stage.resize((stage.width * 2, stage.height * 2)).save(path)
     words = subprocess.run(["tesseract", str(path), "stdout", "--psm", "11"],
                            capture_output=True, text=True, check=True).stdout.lower()
-    assert "missing image" not in words, "new scene backdrop failed to load in the actual host"
+    assert "missing image" not in words, "scene or hiding-place prop bitmap failed to load in the actual host"
+    # This upper band is above every prop. Compare the actual host raster
+    # with proportional image fitting, so a detailed stretched scene fails.
+    scale = geometry(*screen.size)[0]
+    band = (stage.width // 4, round(12 * scale), stage.width * 3 // 4, round(24 * scale))
+    observed = stage.crop(band).convert('RGB')
+    cover_errors, stretch_errors = [], []
+    for source in (rt.ROOT/'assets/hide_seek/scenes').glob('*.png'):
+        with Image.open(source) as image:
+            image = image.convert('RGB')
+            for target, expected in ((cover_errors, ImageOps.fit(image, stage.size, Image.Resampling.BILINEAR)),
+                                     (stretch_errors, image.resize(stage.size, Image.Resampling.BILINEAR))):
+                difference = ImageChops.difference(observed, expected.crop(band))
+                target.append(sum(ImageStat.Stat(difference).mean) / 3)
+    assert min(cover_errors) < 22, ('backdrop differs from proportional fitting', screen.size, cover_errors)
+    if stage.width > stage.height * 1.3:
+        assert min(cover_errors) + 3 < min(stretch_errors), ('landscape backdrop was stretched', cover_errors, stretch_errors)
     return stage
 
 
@@ -258,7 +372,7 @@ def language_pass(language, temporary, legacy=False):
     save_path(data).write_text("hideseek 1 1 4\n" if legacy else "hideseek 2 0 4 0\n")
     with rt.Desktop(BINARY, data, screen_size="1280x900") as d:
         screen = Screen(d, data, language)
-        d.game("Hide & Seek")
+        open_hide_seek(screen)
         screen.resize(SIZES[0])
         if legacy:
             screen.capture("legacy-find")
@@ -266,7 +380,7 @@ def language_pass(language, temporary, legacy=False):
         d.key("Escape")
         expected_mode = 1 if legacy else 0
         assert saved(data) == [expected_mode, 4, 0], saved(data)
-        d.game("Hide & Seek")
+        open_hide_seek(screen)
         found, remembered = 4, 0
         for size in SIZES:
             screen.resize(size)
@@ -291,6 +405,7 @@ def language_pass(language, temporary, legacy=False):
             assert saved(data) == [2, found, remembered], "preview blocked manual Next"
             screen.button(0)
             assert saved(data) == [0, found, remembered]
+            no_focus_rectangle(screen)
             before = screen.capture("peekaboo-hidden")
             # Keyboard reveals every friend; no count increments in Peekaboo.
             # Three slots are possible. Extra Right/Return cannot count twice.
@@ -364,11 +479,11 @@ def language_pass(language, temporary, legacy=False):
         before = save_path(data).read_text()
         d.key("Escape")
         assert save_path(data).read_text() == before
-        d.game("Hide & Seek")
+        open_hide_seek(screen)
         assert saved(data) == [2, found, remembered]
         screen.capture("reopened-preview")
         d.click_actual(28, 28)
-        d.game("Hide & Seek")
+        open_hide_seek(screen)
         assert saved(data) == [2, found, remembered]
         d.key("Escape")
     print(f"local hide & seek UI: {language} 3 modes x 2 orientations, auto/manual progression, held input, preview/help, old save and reopen passed", flush=True)
@@ -406,9 +521,10 @@ def review_picture():
 
 
 def main():
-    focused_build()
+    receipt = focused_build()
     check_words_and_voices()
     rt.OUTPUT.parent.mkdir(parents=True, exist_ok=True)
+    check_art_pixels(receipt)
     with tempfile.TemporaryDirectory(prefix="data-", dir=rt.OUTPUT.parent) as temporary:
         language_pass("en", temporary, legacy=True)
         language_pass("de", temporary)
