@@ -6,7 +6,7 @@ from PIL import Image
 
 root = Path(__file__).resolve().parents[1]
 records = json.loads((root / 'art/generated/activity-covers/sources.json').read_text())
-names = {'shapes': 'Shapes & Sorting', 'matching': 'Matching Pairs', 'hide-seek': 'Hide & Seek', 'drums': 'Little Drums'}
+names = {'shapes': 'Shapes & Sorting', 'matching': 'Matching Pairs', 'hide-seek': 'Hide & Seek', 'drums': 'Music Room'}
 assert set(records) == set(names)
 hash_file = lambda p: hashlib.sha256(p.read_bytes()).hexdigest()
 for name, title in names.items():

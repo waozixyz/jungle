@@ -164,19 +164,13 @@ DrumsRoom :: (room: DrumsLayout) {
             .bounds = RetroRect(9, top + 1, drums_width - 18, height - 2),
             .fit = ImageFit.ImageFitCover, .smooth = true})
     }
-    // A plank top, darker bevel, grain and two triangular brackets.
+    // A watercolor plank and wooden brackets match the room's joinery.
     for pad: cast(s32)2..3 {
         shelf := DrumsShelfPlace(pad, room)
-        BookBox(shelf.x - 5, shelf.y, shelf.edge + 10, 5, 0xc9a577ff, 0xa17a50ff, 1.0)
-        BookBox(shelf.x - 5, shelf.y + 5, shelf.edge + 10, 5, 0x94704cff)
-        BookBox(shelf.x, shelf.y + 2, shelf.edge - 2, 1, 0xe0bf8eff)
-        for bracket: cast(s32)0..1 {
-            bx := shelf.x + 5 + bracket * (shelf.edge - 16)
-            BookBox(bx, shelf.y + 10, 4, 15, 0x886342ff, 0, 1.0)
-            for step: cast(s32)0..10 {
-                BookBox(bx + step, shelf.y + 21 - step, 3, 3, 0x9d7952ff, 0, 1.0)
-            }
-        }
+        width := shelf.edge + 10
+        height := width / 3
+        BookPicture("assets/drums/pictures/shelf.png", shelf.x - 5,
+            shelf.y - height * 140 / 724, width, height)
     }
     // A-frame stand behind the guitar: two splayed legs and padded cradles.
     guitar := DrumsRoomPlace(5, room)
@@ -227,9 +221,18 @@ DrumsInstrument :: (pad: s32, x: s32, y: s32, edge: s32) {
         DrumsIcon(Music.Shape, center_x - 11, picture_y - 28, 22, 0x8d6d3fff)
     }
     shake: s32 = ifx pad == 7 then DrumsShakeX(retro.now - drums_hit_time[pad]) else 0
-    RetroSprite(drums_pictures[pad], picture_x + shake, picture_y, size, size, -1, true)
+    if pad == 7 && RetroImageReady(drums_pictures[pad]) {
+        rect := RetroRect(picture_x + shake, picture_y, size, size)
+        // Mirror the existing bitmap and its alpha hit mask together.
+        points: [4]Vector2 = .[Vector2.{rect.x + rect.width, rect.y}, Vector2.{rect.x, rect.y},
+            Vector2.{rect.x + rect.width, rect.y + rect.height}, Vector2.{rect.x, rect.y + rect.height}]
+        Image(retro.session, ImageProps.{.asset_path = drums_pictures[pad], .bounds = rect,
+            .smooth = true, .mesh = ImageMesh.{.columns = 2, .rows = 2, .points = points[:]}})
+    } else { RetroSprite(drums_pictures[pad], picture_x + shake, picture_y, size, size, -1, true) }
     label_y := DrumsLabelY(pad, DrumsPlace.{.x = x, .y = y, .edge = edge})
-    BookText(x - 12, label_y, edge + 24, 22, DrumsPadName(pad), 16,
+    label_x := x - 12
+    if pad == 5 { label_x -= edge / 4 }
+    BookText(label_x, label_y, edge + 24, 22, DrumsPadName(pad), 16,
         TextAlign.TextAlignCenter, false)
 }
 
@@ -237,7 +240,7 @@ GameMain :: () -> s32 {
     mode := AppMode()
     if mode == APP_IDENTIFY {
         drums_loaded = false
-        AppIdentity("jungle.drums"); AppDescribe("Little Drums", "")
+        AppIdentity("jungle.drums"); AppDescribe("Music Room", "")
         return APP_PROTOCOL
     }
     if mode == APP_SAVE { return ifx !drums_loaded || DrumsSave() then 0 else 1 }

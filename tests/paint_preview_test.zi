@@ -1,0 +1,21 @@
+#import "std/c_string"
+#import "std/byte_text_linux"
+#import "std/file"
+#import, file "../host/paint_preview.zi";
+#import, file "../games/paint/paint_picture.zi";
+
+#program_export
+main :: (argc: s32, argv: **u8) -> s32 {
+    if argc != 2 { return 1 }
+    invalid: [12]string = .["", "0 1\n~1", "1 0\n~1", "961 1\n~1", "1 961\n~1",
+        "960 960\n~1", "1 1\n~2", "1 1\n~0", "1 1\n~1x", "-1 1\n~1", "1 1\npaint runs\n~1", "1 1\n~1\n"]
+    for request: invalid { if PaintPreviewPng(request) != "" { return 2 } }
+    if PaintPreviewPng("1 1\n~1") == "" { return 3 }
+    pixels: [4]u8 = .[20, 255, 0, 16]
+    request: Vec(u8)
+    BuilderPrint(*request, "2 2\n")
+    PictureRunsAppend(*request, pixels[:])
+    png := PaintPreviewPng(BuilderFinish(request))
+    if png == "" { return 4 }
+    return ifx WriteEntireFile(TextFromCString(argv[1]), png) then 0 else 5
+}

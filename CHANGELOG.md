@@ -1,7 +1,17 @@
 # Changelog
 
-## [Unreleased]
+## 0.1.26
 
+Released 2026-10-31.
+
+- Move, resize and freely rotate a stencil inside the scene before pressing Place; Cancel leaves the picture untouched.
+- Make the starting-scene gallery fit phones with large previews, categories and numbered pages, and open coloring faster.
+- Restore Music Room playback on older browsers that support gzip but not raw-deflate decompression.
+- Select a coloring object and drag its rotation handle freely, with a live preview and Undo.
+- Choose a counting lesson before playing and remove the repeated question voice and Hear again button.
+- Rename Little Drums to Music Room, lower the guitar and mirror the floor tambourine.
+- Match instrument shelves and Hide & Seek props to the watercolor rooms.
+- Keep a recognizable part of hiding animals visible, preserve scene proportions and remove the large focus outline.
 
 ## 0.1.25
 

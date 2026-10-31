@@ -33,6 +33,7 @@
 #import, file "platform.zi";
 #import, file "sound.zi";
 #import, file "canvas_png.zi";
+#import, file "paint_preview.zi";
 #import, file "jungle_text.zi";
 #import, file "jungle_menu.zi";
 #import, file "jungle_progress.zi";
@@ -233,14 +234,18 @@ Reply :: (text: string) -> HostValue {
 
 GameAllows :: (context: *void, name: string) -> bool {
     return name == "jungle.language" || name == "jungle.voice" || name == "jungle.voice-state" || name == "jungle.voice-control" || name == "jungle.sound" || name == "jungle.home" || name == "jungle.canvas" ||
-        name == "jungle.export" || name == "jungle.print" || name == "jungle.secondary" || name == "jungle.piano-held" || BundleAppAllows(context, name)
+        name == "jungle.paint-preview" || name == "jungle.export" || name == "jungle.print" || name == "jungle.secondary" || name == "jungle.piano-held" || BundleAppAllows(context, name)
 }
 
 // A Dino Colors picture as a PNG file in the game's folder. Older pictures
 // beyond CANVAS_KEEP are removed.
-WriteCanvas :: (request: string) -> string {
-    if PictureFromGame(request, canvas_pixels[:]) != request.count { return "" }
-    data := PngIndexed(CANVAS_WIDTH, CANVAS_HEIGHT, paint_colors[:], canvas_pixels[:])
+WriteCanvas :: (request: string, preview: bool = false) -> string {
+    data: string
+    if preview { data = PaintPreviewPng(request) }
+    else {
+        if PictureFromGame(request, canvas_pixels[:]) != request.count { return "" }
+        data = PngIndexed(CANVAS_WIDTH, CANVAS_HEIGHT, paint_colors[:], canvas_pixels[:])
+    }
     if data == "" { return "" }
     canvas_count += 1
     name := Cat("canvas-", NumberText(canvas_count), ".png")
@@ -295,8 +300,8 @@ GameServices :: (context: *void, module: *u8, function: *u8,
             return 1
         }
         if service == "jungle.piano-held" { result.* = Reply(PianoHeldKeys()); return 1 }
-        if service == "jungle.canvas" {
-            result.* = Reply(WriteCanvas(request))
+        if service == "jungle.canvas" || service == "jungle.paint-preview" {
+            result.* = Reply(WriteCanvas(request, service == "jungle.paint-preview"))
             return 1
         }
         if service == "jungle.export" || service == "jungle.print" {

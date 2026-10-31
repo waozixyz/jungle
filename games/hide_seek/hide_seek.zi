@@ -5,7 +5,7 @@
 // tap reveals one.
 // Level 2, find: one friend hides where the spoken prompt says, always
 // showing a little peek, and a tap on an empty place only adds a gentle hint.
-// Level 3, remember: four friends show themselves, then hide completely; the
+// Level 3, remember: four friends show themselves, then leave a small peek; the
 // child finds the one that is named. A wrong place lets its own friend peek
 // out and makes the named friend glow, and the friends can be shown again.
 #import "std/format"
@@ -131,9 +131,9 @@ HideSeekHint :: (h: HideSeek) -> bool {
     return false
 }
 
-// A finding friend always shows a peek, and a stronger one after the child
-// has looked somewhere empty. Remembered friends stay hidden after their
-// preview until the child looks; the named one then glows.
+// Every occupied place leaves a small recognizable peek, including Remember
+// after its preview. Looking somewhere wrong strengthens the target hint;
+// empty Find places never submit an animal.
 HideSeekPeek :: (h: HideSeek, place: s32) -> s32 {
     if !HideSeekHides(h, place) { return HIDE_NO_PEEK }
     if h.revealed[place] { return HIDE_SHOWN }
@@ -141,7 +141,7 @@ HideSeekPeek :: (h: HideSeek, place: s32) -> s32 {
         if h.preview { return HIDE_SHOWN }
         if h.looked[place] { return HIDE_PEEK }
         if place == h.target && HideSeekHint(h) { return HIDE_HINT }
-        return HIDE_NO_PEEK
+        return HIDE_PEEK
     }
     if HideSeekFinding(h) && HideSeekHint(h) { return HIDE_HINT }
     return HIDE_PEEK
@@ -247,6 +247,65 @@ HideSeekSceneLayout :: (width: s32, height: s32, places: s32, place: s32) -> Hid
     return HideSeekPlaceLayout.{.cx = cx, .ground = ground, .size = size,
         .x = slot * column, .y = ground - size * 160 / 100,
         .width = slot, .height = size * 165 / 100}
+}
+
+// Original 420px cut-out foot/claw supports. Monkey and parrot tails extend
+// below their feet, so the alpha bounding-box bottom is not their support.
+hide_animal_feet: [12]s32 = .[377, 408, 399, 386, 342, 412, 412, 412, 386, 397, 381, 352];
+
+// Measured supports in the unchanged square 1254px prop candidates. Layout
+// uses one scale for both axes; reveal moves along a support or changes only
+// the foreground mask. Animal scale and feet height never animate.
+HIDE_PROP_PIXELS :: 1254
+hide_prop_bases: [4]s32 = .[1085, 1120, 1038, 1235];
+HideSeekArt :: struct {
+    x: s32
+    y: s32
+    edge: s32
+    animal_cx: s32
+    animal_base: s32
+    animal_edge: s32
+    // Restore this lower portion of the bitmap in front of the animal.
+    front: s32
+    front_x: s32
+    front_right: s32
+}
+
+HideSeekArtLayout :: (kind: s32, cx: s32, ground: s32, size: s32, progress: float32, animal: s32 = 0) -> HideSeekArt {
+    p := progress
+    if p < 0.0 { p = 0.0 }; if p > 1.0 { p = 1.0 }
+    edge := size * 105 / 100
+    if kind == HIDE_BUSH { edge = size }
+    if kind == HIDE_TREE { edge = size * 135 / 100 }
+    // The frog's face is on its right: peek from that side so its green
+    // haunch cannot disappear into the foliage. Other friends peek left.
+    side: s32 = ifx animal == 0 then 1 else -1
+    x := cx - edge / 2
+    if kind == HIDE_BUSH { x -= side * size * 12 / 100 }
+    y := ground - edge * hide_prop_bases[kind] / HIDE_PROP_PIXELS
+    art := HideSeekArt.{.x = x, .y = y, .edge = edge, .front = 0, .front_right = HIDE_PROP_PIXELS}
+    if kind == HIDE_BASKET {
+        art.animal_cx = cx
+        art.animal_base = y + edge * 860 / HIDE_PROP_PIXELS
+        art.animal_edge = edge * 65 / 100
+        art.front = 560 + cast(s32)(p * 150.0)
+    } else if kind == HIDE_BUSH {
+        art.animal_cx = cx + side * (size * 30 / 100 + cast(s32)(p * cast(float32)size * 0.12))
+        art.animal_base = ground
+        art.animal_edge = size * 50 / 100
+        if side < 0 { art.front_x = cast(s32)(p * 250.0) }
+        else { art.front_right = HIDE_PROP_PIXELS - cast(s32)(p * 250.0) }
+    } else if kind == HIDE_TABLE {
+        art.animal_cx = x + edge * (255 + cast(s32)(p * 365.0)) / HIDE_PROP_PIXELS
+        art.animal_base = ground
+        art.animal_edge = edge * 29 / 100
+    } else {
+        art.animal_cx = x + edge * 450 / HIDE_PROP_PIXELS
+        art.animal_base = y + edge * 705 / HIDE_PROP_PIXELS
+        art.animal_edge = edge * 32 / 100
+        art.front = 530 + cast(s32)(p * 175.0)
+    }
+    return art
 }
 
 // Another level, keeping everything found so far.

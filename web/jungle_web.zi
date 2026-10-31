@@ -1,4 +1,5 @@
 #import, file "../host/audio_levels.zi";
+#import, file "../host/paint_preview.zi";
 // A compiled browser launcher for the same Jungle activity modules.
 #import "app_context"
 #import "app_protocol"
@@ -47,7 +48,7 @@ web_games: [11]Game = .[
     Game.{.title = "Shapes & Sorting", .about = "Shapes, colors and sizes", .age = 2, .icon = "assets/jungle/covers/shapes.jpg"},
     Game.{.title = "Matching Pairs", .about = "Find friendly animal pairs", .age = 2, .icon = "assets/jungle/covers/matching.jpg"},
     Game.{.title = "Hide & Seek", .about = "Peek, find and discover", .age = 2, .icon = "assets/jungle/covers/hide-seek.jpg"},
-    Game.{.title = "Little Drums", .about = "Tap, listen and copy", .age = 2, .icon = "assets/jungle/covers/drums.jpg"},
+    Game.{.title = "Music Room", .about = "Tap, listen and copy", .age = 2, .icon = "assets/jungle/covers/drums.jpg"},
 ];
 active_game: s32 = -1;
 selected: s32;
@@ -181,9 +182,14 @@ ToggleAudio :: () {
     unused Runner.DocumentWriteHost("settings/sound.txt", ifx web_muted then "off" else "quiet")
 }
 
-CanvasImage :: (request: string) -> string {
-    if PictureFromGame(request, export_pixels[:]) != request.count { return "" }
-    data := PngIndexed(CANVAS_WIDTH, CANVAS_HEIGHT, paint_colors[:], export_pixels[:])
+CanvasImage :: (request: string, preview: bool = false) -> string {
+    data: string
+    if preview { data = PaintPreviewPng(request) }
+    else {
+        if PictureFromGame(request, export_pixels[:]) != request.count { return "" }
+        data = PngIndexed(CANVAS_WIDTH, CANVAS_HEIGHT, paint_colors[:], export_pixels[:])
+    }
+    if data == "" { return "" }
     canvas_sequence += 1
     name := Cat("canvas-", NumberText(canvas_sequence), ".png")
     if !WriteEntireFile(Cat("/", name), data) { return "" }
@@ -270,6 +276,7 @@ WebService :: (name: string, request: string) -> string {
         return "played"
     }
     if name == "jungle.canvas" { return CanvasImage(request) }
+    if name == "jungle.paint-preview" { return CanvasImage(request, true) }
     if name == "jungle.export" || name == "jungle.print" { return WebExport(request, name == "jungle.print") }
     return "{\"status\":\"unavailable\"}"
 }

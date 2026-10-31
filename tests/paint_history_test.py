@@ -46,17 +46,6 @@ class Desktop(runtime_test.Desktop):
             runtime_test.OUTPUT = self._old_output
             self._captures.cleanup()
 
-    def wait_scene_picker(self, name):
-        deadline = time.monotonic() + 20
-        while time.monotonic() < deadline:
-            picture = self.capture(name, header=56)
-            colors = picture.crop((42, 54, 88, 86)).getcolors(10000)
-            white = sum(n for n, c in colors if min(c) > 245 and max(c)-min(c) < 6)
-            ink = sum(n for n, c in colors if max(c) < 180 and max(c)-min(c) < 6)
-            if white > 250 and ink > 10:
-                return picture
-            time.sleep(.1)
-        raise AssertionError("Coloring Book did not reach its categorized scene chooser")
 
 
 def paint_layout(desktop):
@@ -248,7 +237,8 @@ def ui():
         with Desktop(binary, data) as desktop:
             desktop.game("Coloring Book")
             desktop.wait_scene_picker("paint-history-scenes")
-            desktop.click(65, 78)
+            from paint_library_test import scene_click
+            scene_click(desktop)
             pictures.append(changed(working, b""))
             desktop.key("Escape")
             desktop.capture("paint-history-main", header=56)

@@ -204,16 +204,17 @@ class Desktop:
             (320, 200), Image.Resampling.NEAREST)
 
     def wait_scene_picker(self, name):
-        # Wait for the actual monochrome background preview before clicking.
-        # The explicit game header also keeps input mapping independent of
-        # backend differences in the title bar's antialiased separator.
+        from PIL import Image
+        from paint_library_test import scene_layout
         deadline = time.monotonic() + 20
         while time.monotonic() < deadline:
             picture = self.capture(name, header=56)
-            tile = picture.crop((42, 54, 88, 86))
-            colors = {color: count for count, color in tile.getcolors(10000)}
-            white = sum(count for color,count in colors.items() if min(color) > 245 and max(color)-min(color) < 6)
-            ink = sum(count for color,count in colors.items() if max(color) < 180 and max(color)-min(color) < 6)
+            x, y, w, h = scene_layout(self)['tile'][0]
+            with Image.open(OUTPUT / (name + ".png")) as actual:
+                tile = actual.convert("RGB").crop((x + 8, y + 8, x + w - 8, y + h - 32)).resize((80, 60))
+            colors = tile.getcolors(4800)
+            white = sum(n for n,c in colors if min(c) > 245 and max(c)-min(c) < 6)
+            ink = sum(n for n,c in colors if max(c) < 180 and max(c)-min(c) < 6)
             if white > 250 and ink > 10:
                 return picture
             time.sleep(.1)
@@ -363,48 +364,56 @@ def assert_dinosaur(before, after, mirror=False):
 def paint_ui(desktop, data):
     """The Coloring Book regression, also callable without unrelated games."""
     from PIL import ImageChops
-    from paint_history_test import open_slots, paint_layout, stencil_click, tool
+    from paint_history_test import open_slots, paint_layout, stencil_click, tool, changed, pixel_click
+    from paint_library_test import scene_click, placement_click
+    folder = data / "games/jungle.paint"
+    folder.mkdir(parents=True, exist_ok=True)
+    # An existing Huge choice must open directly as an editable in-scene preview.
+    (folder / "choices.txt").write_bytes(b"JUNGLE PAINT CHOICES 1\n10040000")
     desktop.game("Coloring Book")
     scenes = desktop.wait_scene_picker("paint-scenes")
     assert scenes.getpixel((5, 5)) == (227, 236, 228), "scene picker did not render its book background"
-    assert len(scenes.crop((42, 54, 88, 86)).getcolors(1 << 20)) > 1, "scene preview has no artwork"
-    desktop.click(65, 78)
+    scene_click(desktop)
     desktop.capture("paint-dinosaurs", header=56)
     stencil_click(desktop)
-    desktop.capture("paint-sizes")
-    desktop.click(280, 90)
-    painting = desktop.capture("paint-placement")
-    working = data / "games/jungle.paint/working.txt"
+    painting = desktop.capture("paint-placement", header=56)
+    working = folder / "working.txt"
     scene_only = working.read_bytes()
-    desktop.click(290, 170)
-    hovering = desktop.capture("paint-placement-waiting")
-    assert working.read_bytes() == scene_only, "clicking outside the box placed a dinosaur"
-    box_edge = [color for _, color in hovering.crop((64, 5, 100, 9)).getcolors(10000)]
-    assert (46, 105, 86) in box_edge, "placement box followed a hovering pointer"
-    desktop.drag(72, 14, 102, 14)
-    placed = desktop.capture("paint-placed")
-    x, y = assert_dinosaur(scene_only, working.read_bytes())
-    assert x > 60 and y == 0, f"the dinosaur did not move with the pointer: {x},{y}"
-    assert ImageChops.difference(painting.crop((64, 6, 315, 194)),
-                                placed.crop((64, 6, 315, 194))).getbbox(), "Huge dinosaur could not be placed"
-    black = dict((color, count) for count, color in placed.crop((64, 6, 315, 194)).getcolors(10000))
-    assert black.get((0, 0, 0), 0) < 20000, "dinosaur outline rendered as a solid rectangle"
-    once = working.read_bytes()
+
+    def move_preview(to_x):
+        cx, cy, cw, ch = paint_layout(desktop)[0]
+        virtual = lambda x, y: ((cx + x * cw / 960 - desktop.left) / desktop.scale,
+                                (56 + cy + y * ch / 720 - desktop.top) / desktop.scale)
+        desktop.drag(*virtual(480, 360), *virtual(to_x, 360))
+
+    move_preview(560)
+    assert working.read_bytes() == scene_only, "releasing a move placed the stencil"
+    placement_click(desktop)
+    once = changed(working, scene_only)
+    placed = desktop.capture("paint-placed", header=56)
+    x, y = assert_dinosaur(scene_only, once)
+    assert x > 150 and y == 0, f"the dinosaur did not move with the pointer: {x},{y}"
+    assert ImageChops.difference(painting, placed).getbbox(), "Huge dinosaur could not be placed"
     tool(desktop, 0)
     stencil_click(desktop)
-    desktop.click(280, 90)
-    desktop.drag(72, 14, 117, 14)
-    time.sleep(.5)
-    assert_dinosaur(once, working.read_bytes())
+    desktop.capture("paint-second-preview", header=56)
+    move_preview(390)
+    assert working.read_bytes() == once, "second gesture release placed the stencil"
+    placement_click(desktop)
+    second = changed(working, once)
+    assert_dinosaur(once, second)
     tool(desktop, 6)
-    assert working.read_bytes() == once, "second placement painted the ground or changed the selected stencil"
+    assert changed(working, second) == once, "second placement changed the scene or selected stencil"
     tool(desktop, 6)
-    assert working.read_bytes() == scene_only, "Undo did not restore covered scene lines and colors"
+    assert changed(working, once) == scene_only, "Undo did not restore covered scene lines and colors"
     tool(desktop, 0)
     stencil_click(desktop)
-    desktop.click(280, 90)
-    desktop.drag(72, 14, 102, 14, mirror=True)
-    desktop.capture("paint-mirrored")
+    desktop.capture("paint-mirror-preview", header=56)
+    tool(desktop, 6)  # Mirror is the Undo-position tool while a preview is pending.
+    move_preview(560)
+    placement_click(desktop)
+    changed(working, scene_only)
+    desktop.capture("paint-mirrored", header=56)
     assert_dinosaur(scene_only, working.read_bytes(), mirror=True)
     tool(desktop, 1)
     desktop.click(8, 160)
@@ -415,7 +424,7 @@ def paint_ui(desktop, data):
     assert len(colors.crop((256, 122, 308, 150)).getcolors(1 << 20)) >= 3, "crayon swatches are missing"
     assert colors.getpixel((284, 155)) == (60, 60, 60), "the last crayon is not dark charcoal"
     desktop.click(284, 155)
-    desktop.click(71, 13)
+    pixel_click(desktop, x + 120, y + 220)
     desktop.capture("paint-colored")
     tool(desktop, 2)
     desktop.capture("paint-story")
@@ -563,7 +572,9 @@ def ui(binary):
             desktop.key("Escape")
             print("local UI test: 123 opens directly into learning and reaches ten", flush=True)
             desktop.game("Animal Counting")
-            counting = desktop.capture("counting")
+            desktop.capture("counting-lessons", header=56)
+            desktop.key("1")
+            counting = desktop.capture("counting", header=56)
             assert counting.getpixel((0, 0)) == (227, 236, 228), "counting did not render its book background"
             progress = data / "games/jungle.animals/progress.txt"
             previous = 0
@@ -572,7 +583,7 @@ def ui(binary):
                 # Count occupied dice cells, keeping the group frame outside
                 # the samples. This observes the real painted animal pictures.
                 answer = 0
-                for x,y in ((91,89),(127,89),(91,125),(127,125),(109,107)):
+                for x,y in ((81,71),(129,71),(81,119),(129,119),(105,95)):
                     cell = counting.crop((x,y,x+13,y+13))
                     pixels = cell.get_flattened_data() if hasattr(cell, 'get_flattened_data') else cell.getdata()
                     if any(max(abs(a-b) for a,b in zip(color,(233,240,227))) > 8 for color in pixels):
@@ -589,6 +600,7 @@ def ui(binary):
                 desktop.key("0")
                 desktop.key("Return")
             assert progress.read_text().split()[1:] == ["1", "6", "0", "0"], "six misses did not move down"
+            desktop.key("Escape")
             desktop.key("Escape")
             visible = [row.split("|") for row in (ROOT / "games/catalog.txt").read_text().splitlines() if "|" in row and "|123 Book|" not in row]
             visible.sort(key=lambda row: int(row[4]))

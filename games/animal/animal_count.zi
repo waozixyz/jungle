@@ -5,8 +5,11 @@
 #import "app_context"
 #import "app_protocol"
 #import "geometry"
+#import "text_align"
 #import "number_text"
 #import "text_buffer"
+#import "kryon/frame_snapshot"
+#import "kryon/input_protocol"
 #import, file "../../retro/retro.zi";
 #import, file "../../retro/game.zi";
 #import, file "../../retro/book_theme.zi";
@@ -48,6 +51,9 @@ Sound :: (name: string) { GameSound(Join(SOUNDS, name, ".wav")) }
 
 options: CountOptions;
 exercise: CountExercise;
+choosing_lesson: bool;
+lesson_cursor: s32;
+lesson_guard: bool;
 
 CountWords :: (en: string, de: string, es: string) -> string {
     return ifx language == 1 then de else ifx language == 2 then es else en
@@ -63,12 +69,6 @@ CountVoice :: (clip: string) {
     unused AppService("jungle.voice", Cat(SOUNDS, LanguageCode(), "/", clip, ".wav"))
 }
 
-CountSay :: () {
-    if options.mode == COUNT_MODE {
-        unused AppService("jungle.voice", Cat(SOUNDS, "question-", LanguageCode(), ".wav"))
-    } else { CountVoice(ifx options.mode == COUNT_ADD then "add" else "subtract") }
-}
-
 CountSettingsSave :: () -> bool { return DocumentWrite("counting-options.txt", CountOptionsText(options)) }
 
 NextNumber :: () {
@@ -80,7 +80,6 @@ NextNumber :: () {
         number = exercise.result
         item = RandomNumber(18) - 1
     }
-    CountSay()
     typed_count = 0
     typed[0] = 0
     typed[1] = 0
@@ -118,33 +117,57 @@ CountingGroups :: (amount: s32, x: s32, y: s32, width: s32, height: s32, leaving
     if amount == 0 { BookBox(x + width / 4, y + height / 4, width / 2, height / 2, 0xe9f0e3ff, 0xc8d7bdff, 6.0) }
 }
 
-CountControls :: (width: s32, compact: bool) {
-    bh: s32 = ifx compact then 18 else 30
-    bw := (width - 48) / 3
-    labels: [3]string = .[CountWords("Count", "Zählen", "Contar"), CountWords("Add · to 5", "Plus · bis 5", "Sumar · hasta 5"), CountWords("Subtract · to 5", "Minus · bis 5", "Restar · hasta 5")]
-    for m: cast(s32)0..2 {
-        if BookButton(400 + m, 20 + m * (bw + 4), 14, bw, bh, labels[m], options.mode == m) {
-            options.mode = m
-            unused CountSettingsSave()
-            NextNumber()
-            state_until = -10.0
-        }
+CountLessonStart :: (lesson: s32) {
+    ranges: [4]s32 = .[0, 5, 10, 20]
+    if lesson < 0 || lesson > 5 { return }
+    options.mode = ifx lesson < 4 then COUNT_MODE else ifx lesson == 4 then COUNT_ADD else COUNT_SUBTRACT
+    if lesson < 4 { options.limit = ranges[lesson] }
+    lesson_cursor = lesson
+    choosing_lesson = false
+    state_until = -10.0
+    praise_until = -10.0
+    unused CountSettingsSave()
+    NextNumber()
+}
+
+CountLessonsView :: (allow_input: bool) {
+    bounds := AppBounds()
+    portrait := bounds.height > bounds.width
+    width: s32 = 320
+    height: s32 = ifx portrait then 540 else 200
+    scale := bounds.width / cast(float32)width
+    if bounds.height / cast(float32)height < scale { scale = bounds.height / cast(float32)height }
+    retro.scale = scale
+    retro.x = bounds.x + (bounds.width - cast(float32)width * scale) / 2.0
+    retro.y = bounds.y + (bounds.height - cast(float32)height * scale) / 2.0
+    BookPaperSized(width, height)
+    BookText(16, 10, width - 32, 30, "Choose a lesson", 22, TextAlign.TextAlignCenter)
+    columns: s32 = ifx portrait then 2 else 3
+    gap: s32 = 10
+    card_w := (width - 32 - (columns - 1) * gap) / columns
+    card_h: s32 = ifx portrait then 132 else 60
+    top: s32 = ifx portrait then 70 else 50
+    labels: [6]string = .[CountWords("Counting · Auto", "Zählen · Auto", "Contar · Auto"),
+        CountWords("Count · 1-5", "Zählen · 1-5", "Contar · 1-5"),
+        CountWords("Count · 1-10", "Zählen · 1-10", "Contar · 1-10"),
+        CountWords("Count · 1-20", "Zählen · 1-20", "Contar · 1-20"),
+        CountWords("Add · to 5", "Plus · bis 5", "Sumar · hasta 5"),
+        CountWords("Subtract · to 5", "Minus · bis 5", "Restar · hasta 5")]
+    chosen: s32 = -1
+    for lesson: cast(s32)0..5 {
+        x := 16 + (lesson % columns) * (card_w + gap)
+        y := top + (lesson / columns) * (card_h + gap)
+        if BookButton(400 + lesson, x, y, card_w, card_h, labels[lesson], lesson == lesson_cursor) && allow_input { chosen = lesson }
     }
-    if options.mode == COUNT_MODE {
-        ranges: [4]s32 = .[0,5,10,20]
-        rw := (width - 52) / 4
-        for r: cast(s32)0..3 {
-            label := ifx r == 0 then CountWords("Auto", "Auto", "Auto") else Cat("1–", NumberText(ranges[r]))
-            if BookButton(410 + r, 20 + r * (rw + 4), 18 + bh, rw, bh, label, options.limit == ranges[r]) {
-                options.limit = ranges[r]
-                unused CountSettingsSave()
-                NextNumber()
-                state_until = -10.0
-            }
-        }
-    } else {
-        BookText(20, 18 + bh, width - 40, bh, CountWords("Pictures · within 5", "Bilder · bis 5", "Dibujos · hasta 5"), 11)
+    if allow_input {
+        if retro.key == KEY_LEFT { lesson_cursor = (lesson_cursor + 5) % 6 }
+        if retro.key == KEY_RIGHT { lesson_cursor = (lesson_cursor + 1) % 6 }
+        if retro.key == KEY_UP { lesson_cursor = (lesson_cursor + 6 - columns) % 6 }
+        if retro.key == KEY_DOWN { lesson_cursor = (lesson_cursor + columns) % 6 }
+        if retro.key == KEY_ENTER { chosen = lesson_cursor }
+        if retro.key >= 49 && retro.key <= 54 { chosen = retro.key - 49 }
     }
+    if chosen >= 0 { CountLessonStart(chosen) }
 }
 
 CountingView :: () {
@@ -159,12 +182,11 @@ CountingView :: () {
     retro.x = bounds.x + (bounds.width - cast(float32)width * scale) / 2.0
     retro.y = bounds.y + (bounds.height - cast(float32)height * scale) / 2.0
     BookPaperSized(width, height)
-    CountControls(width, !portrait)
-    BookText(20, ifx portrait then 84 else 55, 280, 20, CountPrompt(), 14)
+    BookText(20, 15, 280, 24, CountPrompt(), 16)
     ax: s32 = 20
-    ay: s32 = ifx portrait then 110 else 79
+    ay: s32 = ifx portrait then 64 else 55
     aw: s32 = ifx portrait then 280 else 190
-    ah: s32 = ifx portrait then 190 else 72
+    ah: s32 = ifx portrait then 236 else 100
     if options.mode == COUNT_MODE { CountingGroups(number, ax, ay, aw, ah) }
     else {
         half := (aw - 24) / 2
@@ -191,7 +213,6 @@ CountingView :: () {
         }
     }
     if retro.now < state_until { BookText(20, height - 43, ifx portrait then 280 else 190, 16, state_message, 10) }
-    if BookButton(420, 20, height - 25, ifx portrait then 280 else 190, 17, CountWords("Hear again", "Noch einmal hören", "Escuchar otra vez")) { CountSay() }
 }
 
 CountingReward :: () {
@@ -207,6 +228,8 @@ GameMain :: () -> s32 {
     mode := AppMode()
     if mode == APP_IDENTIFY {
         loaded = false
+        choosing_lesson = true
+        lesson_guard = true
         state_until = -10.0
         praise_until = -10.0
         AppIdentity("jungle.animals")
@@ -221,11 +244,29 @@ GameMain :: () -> s32 {
         CountLoad()
         options = CountOptionsRead(DocumentRead("counting-options.txt"))
         random_state = cast(u32)(cast(u64)(now * 1000.0) & cast(u64)0x7fffffff) | cast(u32)1
-        NextNumber()
+        lesson_cursor = 0
+        if options.limit == 5 { lesson_cursor = 1 }
+        if options.limit == 10 { lesson_cursor = 2 }
+        if options.limit == 20 { lesson_cursor = 3 }
+        if options.mode == COUNT_ADD { lesson_cursor = 4 }
+        if options.mode == COUNT_SUBTRACT { lesson_cursor = 5 }
         loaded = true
     }
     RetroBegin(AppSession(), AppBounds(), FONT, now, AppKey(), BLACK)
-    if AppKey() == KEY_ESCAPE { GameHome(); return 0 }
+    if AppKey() == KEY_ESCAPE {
+        if choosing_lesson { GameHome() }
+        else { choosing_lesson = true; lesson_guard = true; unused AppService("jungle.voice", "") }
+        return 0
+    }
+    if choosing_lesson {
+        input := CaptureFrameInput(retro.session)
+        if lesson_guard {
+            lesson_guard = input.available && (input.pointer.down || input.pointer.released ||
+                (input.keys[KEY_ENTER] & cast(u8)FrameKeyHeld) != 0)
+            CountLessonsView(false)
+        } else { CountLessonsView(true) }
+        return 0
+    }
     if now < praise_until { CountingReward(); return 0 }
     CountingView()
     key := ifx touch_key != 0 then touch_key else retro.key
