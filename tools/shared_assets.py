@@ -47,10 +47,11 @@ HEADER = f"#jungle-shared-assets-{FORMAT}\n"
 NARRATED = ('assets/animal-count/sounds', 'assets/drums/sounds', 'assets/hide_seek/sounds', 'assets/shapes/sounds')
 
 # Installed beside the app: the menu's own files and the Picture Book.
-INSTALLED = ('assets/jungle', 'assets/jungle-book')
+INSTALLED = ('assets/jungle', 'assets/jungle-book', 'assets/hide_seek/scenes')
 # Read-only artwork every game may draw from the installed copy.
 SHARED = ('assets/jungle-book/counting/', 'assets/jungle-book/items/',
-          'assets/jungle-book/pages/', 'assets/jungle-book/previews/')
+          'assets/jungle-book/pages/', 'assets/jungle-book/previews/',
+          'assets/hide_seek/scenes/')
 # Only pictures and fonts are aliased. Speech is described separately by
 # SPEECH_MANIFEST: canonical clips ship once, encoded under SHIPPED, and the
 # voice WAVs they represent are omitted.

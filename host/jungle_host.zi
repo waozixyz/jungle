@@ -1,3 +1,4 @@
+#import, file "audio_levels.zi";
 // Jungle Academy's menu, games and services, shared by the desktop and
 // Android hosts. Each game is its own .zx bundle in games/, run through
 // Kryon's app host, with its saves in the person's data folder. Games may ask
@@ -16,6 +17,7 @@
 #import "kryon/tree_input"
 #import "kryon/scroll_device"
 #import "kryon/key_input"
+#import "kryon/frame_snapshot"
 #import "kryon/text_input_props"
 #import "kryon/widget_host"
 #import "kryon/hosted_values"
@@ -279,7 +281,7 @@ GameServices :: (context: *void, module: *u8, function: *u8,
         }
         if service == "jungle.sound" {
             if request == "" { SoundStop() }
-            else { SoundPlayFile(BundleReadAsset(game.app.app.bundle, request)) }
+            else { SoundPlayFile(BundleReadAsset(game.app.app.bundle, request), AudioEffectGain(request)) }
             result.* = Reply("played")
             return 1
         }
@@ -378,11 +380,16 @@ CloseGame :: () {
 // One frame of the open game, as BundleAppFrame, with canvas pictures
 // allowed beside the game's packed files.
 GameFrame :: (bounds: Rectangle, pointer: PointerFrame, secondary: SecondaryPointerFrame, key: s32,
-    modifiers: s32, wheel: float32, typed: string, seconds: float64) -> bool {
+    modifiers: s32, wheel: float32, typed: string, seconds: float64, input: FrameInputSnapshot) -> bool {
     if !game.ready { return false }
     game_secondary_down = secondary.down
     defer { BundleAppFrameAssetsClear() }
     app := *game.app
+    // A hosted game's session is separate from the platform's session. Keep
+    // the same frozen observations available for the complete callback,
+    // including held/released keys across automatic round transitions.
+    if !FrameInputBegin(app.session, input) { return false }
+    defer { FrameInputEnd(app.session) }
     TreePointerUpdate(app.session, pointer)
     TreeSecondaryPointerUpdate(app.session, secondary)
     PointerWheelSend(app.session, pointer.x, pointer.y, wheel)
@@ -404,6 +411,7 @@ GameFrame :: (bounds: Rectangle, pointer: PointerFrame, secondary: SecondaryPoin
     bundle_drawing_app = *game
     WidgetHostBegin(app.session, GameAssetAllowed, GameAssetResolve)
     ok := AppContextRun(app, APP_FRAME)
+    FrameInputEnd(app.session)
     WidgetHostEnd()
     bundle_drawing_app = null
     if !ok { TreeCancel(app.session); game.failed = true; return false }

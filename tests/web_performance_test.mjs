@@ -60,11 +60,12 @@ try{
   return {cpu:[...cpuSeen.values()].reduce((a,b)=>a+b,0),rss,pss:pssAvailable?pss:null};
  }
  async function metrics(){return Object.fromEntries((await command('Performance.getMetrics')).metrics.map(m=>[m.name,m.value]))}
- // Use the tested build's revision, never the concurrently changing source tree.
- const catalog=spawnSync('git',['show',build.revision+':games/catalog.txt'],{encoding:'utf8'});
- if(catalog.status!==0)throw Error('Cannot read catalog for tested build '+catalog.stderr);
- const menu=catalog.stdout.trim().split('\n').map(l=>l.split('|')).filter(r=>r[1]!=='123 Book').sort((a,b)=>Number(a[4])-Number(b[4]));
- const entry=title=>{const index=menu.findIndex(r=>r[1]===title);if(index<0)throw Error('Missing benchmark catalog entry '+title);return index};
+ // A staged manifest also describes uncommitted builds; never read mutable source.
+ let catalogGames;
+ try{const catalog=JSON.parse(await readFile(join(root,'benchmark-catalog.json'),'utf8'));catalogGames=catalog.games;if(!Array.isArray(catalogGames)||!catalogGames.length||catalogGames.some(g=>typeof g.title!=='string'||!Number.isInteger(g.age)))throw Error('Invalid benchmark catalog manifest')}
+ catch(error){if(error.code!=='ENOENT')throw error;const catalog=spawnSync('git',['show',build.revision+':games/catalog.txt'],{encoding:'utf8'});if(catalog.status!==0)throw Error('Cannot read catalog for tested build '+catalog.stderr);catalogGames=catalog.stdout.trim().split('\n').map(l=>l.split('|')).map(r=>({title:r[1],age:Number(r[4])}))}
+ const menu=catalogGames.filter(g=>g.title!=='123 Book').sort((a,b)=>a.age-b.age);
+ const entry=title=>{const index=menu.findIndex(g=>g.title===title);if(index<0)throw Error('Missing benchmark catalog entry '+title);return index};
  const allCases=[['menu',null],['picture-book',entry('Picture Book')],['abc',entry('ABC Book')],['numbers',entry('ABC Book')],['jigsaw',entry('Jigsaw Puzzles')],['piano',entry('Little Piano')],['counting',entry('Animal Counting')],['coloring',entry('Coloring Book')]];
  const cases=args.has('--activity')?allCases.filter(c=>c[0]===args.get('--activity')):allCases;
  const allViewports=[{name:'desktop',width:960,height:600},{name:'phone',width:390,height:844}];

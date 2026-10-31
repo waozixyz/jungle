@@ -1,0 +1,154 @@
+// Gallery persistence only. The caller owns picture decoding, working.txt,
+// working-undo.txt and UI/history. One store owns this document namespace.
+#import, file "paint_gallery.zi";
+#import "std/format"
+#import "std/text_buffer"
+
+GALLERY_INDEX :: "gallery.txt"
+// Same status values as AppContext DocumentStatus. Read replies may borrow
+// storage until the next I/O call. Callbacks must distinguish empty from missing
+// and failed reads. Replace existing documents atomically; a failed new-picture
+// write can leave an orphan. No callback may change the store or reenter it.
+GalleryStoreReadIO :: #type (name: string, status: *s32) -> string;
+GalleryStoreWriteIO :: #type (name: string, text: string) -> bool;
+
+GalleryStore :: struct {
+    gallery: PaintGallery
+    active_ref: s32 // Positive updates in place; legacy refs always fork.
+    ready: bool // A failed load blocks saves, preserving an unreadable index.
+    read: GalleryStoreReadIO
+    write: GalleryStoreWriteIO
+}
+
+GalleryStoreInit :: (state: *GalleryStore, read: GalleryStoreReadIO, write: GalleryStoreWriteIO) {
+    GalleryClear(*state.gallery)
+    state.active_ref = 0
+    state.ready = false
+    state.read = read
+    state.write = write
+}
+
+// Parent supplies stable owned PictureText. Full picture validation/decoding
+// stays in PictureLoad; reject unsupported records before any storage effect.
+GalleryStorePictureHeader :: (picture: string) -> bool {
+    header2 := "JUNGLE PICTURE 2\n"
+    header3 := "JUNGLE PICTURE 3\n"
+    return picture.count > header2.count && (picture[:header2.count] == header2 || picture[:header3.count] == header3)
+}
+
+// Read the index before legacy discovery. A corrupt/empty existing index is
+// never replaced. Import nonempty old slots by reference, including old picture
+// formats which only the parent's PictureLoad understands. No slot is written.
+// working must remain valid through all I/O (copy a DocumentRead reply first).
+GalleryStoreLoad :: (state: *GalleryStore, working: string) -> bool {
+    state.ready = false
+    if state.read == null || state.write == null { return false }
+    parsed: PaintGallery
+    GalleryClear(*parsed)
+    status: s32 = -1
+    index := state.read(GALLERY_INDEX, *status)
+    if status == 1 { if !GalleryRead(index, *parsed) { return false } }
+    else { if status != 0 { return false } }
+    selection := parsed.selected
+    imported: bool
+    for slot: cast(s32)0..GALLERY_LEGACY_SLOTS - 1 {
+        ref := -slot - 1
+        if GalleryFind(*parsed, ref) >= 0 { continue }
+        saved := state.read(GalleryFile(ref), *status)
+        if status != 0 && status != 1 { return false }
+        if status == 1 && saved.count > 0 {
+            if !GalleryAppendLegacy(*parsed, slot) { return false }
+            imported = true
+        }
+    }
+    parsed.selected = selection
+    active: s32 = 0
+    if selection >= 0 && working.count > 0 {
+        saved := state.read(GalleryFile(parsed.refs[selection]), *status)
+        if status != 0 && status != 1 { return false }
+        // Compare immediately, before a write/read can recycle borrowed bytes.
+        if status == 1 && saved == working { active = parsed.refs[selection] }
+    }
+    if imported && !state.write(GALLERY_INDEX, GalleryText(*parsed)) { return false }
+    state.gallery = parsed
+    state.active_ref = active
+    state.ready = true
+    return true
+}
+
+// Immediate in-memory detachment, also useful if PictureLoad succeeded but
+// persisting its selection failed. A later save creates a fresh entry.
+GalleryStoreDetach :: (state: *GalleryStore) {
+    state.active_ref = 0
+    state.gallery.selected = -1
+}
+
+// For New picture, call BEFORE changing the scene; proceed only on success.
+// Persist the unselected index so restart cannot reattach an identical blank
+// picture to the previous entry. A failed write leaves the prior state intact.
+GalleryStoreStartNew :: (state: *GalleryStore) -> bool {
+    if !state.ready || state.write == null || !GalleryValid(*state.gallery) { return false }
+    staged := state.gallery
+    if !GallerySelect(*staged, -1) || !state.write(GALLERY_INDEX, GalleryText(*staged)) { return false }
+    state.gallery = staged
+    state.active_ref = 0
+    return true
+}
+
+// Returns owned bytes suitable for previews or PictureLoad, without selecting
+// anything. No arbitrary caller-supplied names reach the storage callback.
+GalleryStoreRead :: (state: *GalleryStore, index: s32) -> string {
+    if !state.ready || state.read == null || !GalleryValid(*state.gallery) || index < 0 || index >= state.gallery.count { return "" }
+    status: s32 = -1
+    saved := state.read(GalleryFile(state.gallery.refs[index]), *status)
+    if status != 1 || saved.count == 0 { return "" }
+    bytes: Vec(u8)
+    if !BuilderAppend(bytes, saved) { return "" }
+    return BuilderFinish(bytes)
+}
+
+// Call only AFTER PictureLoad accepts GalleryStoreRead's owned result. Pass
+// those exact saved bytes, not reserialized PictureText (legacy can upgrade).
+// Failed selection leaves the previous index and active association intact.
+// If the decoded picture is kept after failure, call GalleryStoreDetach before
+// any autosave, so it cannot update the previously active picture.
+GalleryStoreSelect :: (state: *GalleryStore, index: s32, picture: string) -> bool {
+    if !state.ready || state.read == null || state.write == null || picture.count == 0 || !GalleryValid(*state.gallery) || index < 0 || index >= state.gallery.count { return false }
+    status: s32 = -1
+    saved := state.read(GalleryFile(state.gallery.refs[index]), *status)
+    if status != 1 || saved != picture { return false }
+    staged := state.gallery
+    if !GallerySelect(*staged, index) || !state.write(GALLERY_INDEX, GalleryText(*staged)) { return false }
+    state.gallery = staged
+    state.active_ref = staged.refs[index]
+    return true
+}
+
+// New saves probe even empty orphan files. Picture first, index second: an
+// interrupted/failed index write leaves an orphan which the next save skips.
+// Commit the staged model only after index success; never consume an old ref.
+// copy=true explicitly forks even a positive active picture.
+GalleryStoreSave :: (state: *GalleryStore, picture: string, copy: bool = false) -> bool {
+    if !state.ready || state.read == null || state.write == null || !GalleryValid(*state.gallery) || !GalleryStorePictureHeader(picture) { return false }
+    if !copy && state.active_ref > 0 {
+        index := GalleryFind(*state.gallery, state.active_ref)
+        if index < 0 || index != state.gallery.selected { return false }
+        return state.write(GalleryFile(state.active_ref), picture)
+    }
+    id := GalleryNextID(*state.gallery)
+    status: s32 = -1
+    while id > 0 {
+        unused state.read(GalleryFile(id), *status)
+        if status == 0 { break }
+        if status != 1 { return false }
+        id = GalleryNextID(*state.gallery, id)
+    }
+    if id == 0 { return false }
+    staged := state.gallery
+    if !GalleryAppend(*staged, id) { return false }
+    if !state.write(GalleryFile(id), picture) { return false }
+    if !state.write(GALLERY_INDEX, GalleryText(*staged)) { return false }
+    state.gallery = staged
+    state.active_ref = id
+    return true
+}

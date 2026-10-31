@@ -28,7 +28,7 @@ if(paintIndex<0)throw Error('No Coloring Book in this build');
 
 const WORKING='/kryon-apps/jungle/jungle.paint/working.txt',HISTORY='/kryon-apps/jungle/jungle.paint/working-undo.txt';
 const CODES='0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_',W=960,H=720,PAPER=15,CLEAR=255;
-const TOOLS=['Image','Color','Story','Erase','Save','Print','Undo','New picture'];
+const TOOLS=['Image','Color','Story','Erase','Gallery','Print','Undo','New picture','Rotate'];
 // The saved picture: crayon, composed pixels, scene below the objects and
 // the objects from the bottom up.
 function picture(text){
@@ -66,10 +66,21 @@ function find(test,left=0,top=0,right=W,bottom=H){
  }
  throw Error('No pixel fits');
 }
+// Actual AppBounds pixels for the responsive stencil picker only.
+function stencilLayout(width=960,totalHeight=600){
+ const height=totalHeight-56,pad=height<440?8:16,gap=height<440?6:10,cols=width<600?2:3,tabCols=width<600?2:4;
+ const tabY=pad+30+gap,tabW=Math.floor((width-pad*2-gap*(tabCols-1))/tabCols),gridY=tabY+4/tabCols*(44+gap),footerY=height-pad-44;
+ const cardW=Math.floor((width-pad*2-gap*(cols-1))/cols),cardH=Math.floor((footerY-gap-gridY-gap*(6/cols-1))/(6/cols)),footerW=Math.floor((width-pad*2-gap*2)/3);
+ const center=(x,y,w,h)=>({x:x+w/2,y:56+y+h/2});
+ return {category:i=>center(pad+i%tabCols*(tabW+gap),tabY+Math.floor(i/tabCols)*(44+gap),tabW,44),
+  tile:i=>center(pad+i%cols*(cardW+gap),gridY+Math.floor(i/cols)*(cardH+gap),cardW,cardH),
+  next:center(width-pad-footerW,footerY,footerW,44),previous:center(pad,footerY,footerW,44)};
+}
+const stencil=stencilLayout();
 // Paint's landscape layout in a 960 by 600 page whose title bar is 56 high.
 const layout=(()=>{
  const width=960,height=544,pad=Math.min(20,Math.max(6,Math.floor(height/40))),gap=Math.min(10,Math.max(4,Math.floor(height/80)));
- const toolH=Math.floor((height-pad*2-gap*7)/8),toolW=Math.min(Math.floor(width/5),Math.max(64,Math.floor(toolH*5/2)));
+ const toolH=Math.floor((height-pad*2-gap*8)/9),toolW=Math.min(Math.floor(width/5),Math.max(64,Math.floor(toolH*5/2)));
  let cw=width-pad*3-toolW,ch=Math.floor(cw*3/4);if(ch>height-pad*2){ch=height-pad*2;cw=Math.floor(ch*4/3)}
  const left=Math.floor((width-toolW-pad-cw)/2),cx=left+toolW+pad,cy=pad+Math.floor((height-pad*2-ch)/2);
  const scale=Math.min(960/320,544/200),rx=Math.trunc((960-scale*320)/2),ry=56+Math.trunc((544-scale*200)/2);
@@ -77,7 +88,7 @@ const layout=(()=>{
   canvas:{x:cx,y:56+cy,w:cw,h:ch},
   toolWidth:toolW,toolHeight:toolH,
   point:(x,y)=>({x:cx+(x+0.5)*cw/W,y:56+cy+(y+0.5)*ch/H}),
-  tool:index=>({x:left+toolW/2,y:56+cy+Math.floor((ch-toolH*8-gap*7)/2)+index*(toolH+gap)+toolH/2}),
+  tool:index=>({x:left+toolW/2,y:56+cy+Math.floor((ch-toolH*9-gap*8)/2)+index*(toolH+gap)+toolH/2}),
   dialog:(x,y,w,h)=>({x:rx+(x+w/2)*scale,y:ry+(y+h/2)*scale})
  };
 })();
@@ -215,6 +226,9 @@ async function run(input){
    await settled(before,'Coloring Book did not open');
    dom=await evaluate('!!document.querySelector("#kryon-dom-root button")');
    if(dom!==await evaluate('document.documentElement.dataset.backend==="dom"'))throw Error(label+': wrong renderer');
+   const selection=await evaluate(`({editor:getComputedStyle(document.querySelector('#mobile-input')).userSelect,
+    labels:[...document.querySelectorAll('#kryon-dom-paint span,#kryon-dom-root button,#loading p')].filter(e=>e.textContent).map(e=>getComputedStyle(e).userSelect)})`);
+   if(selection.editor!=='text'||selection.labels.some(value=>value!=='none'))throw Error(label+': accidental label selection or blocked editor '+JSON.stringify(selection));
   }
   async function reload(){
    const previous=await evaluate('window.jungleTestDocument');
@@ -228,8 +242,8 @@ async function run(input){
    let before=await screen();
    if(!picking){await tool(0);before=await settled(before,'stencil picker')}
    // The picker keeps the last category, so choosing it again may change nothing.
-   await tap(await control('Objects',layout.dialog(233,30,67,17)));await stable('Objects');before=await screen();
-   await tap(await control('Crate',layout.dialog(20,51,90,56)));before=await settled(before,'size picker');
+   await tap(await control('Objects',stencil.category(3)));await stable('Objects');before=await screen();
+   await tap(await control('Crate',stencil.tile(0)));before=await settled(before,'size picker');
    await tap(await control('Small',layout.dialog(24,40,64,120)));await settled(before,'placement');
    if(dom){
     if((await toolLabels())[6]!=='Mirror')throw Error(label+': Undo is not Mirror while placing');
@@ -272,7 +286,7 @@ async function run(input){
   await openPaint();
   // A fresh picture: the first scene, which opens the stencil picker.
   const opening=await screen();
-  await tap(await control('Scene 1',layout.dialog(20,30,90,64)));
+  await tap(await control('Jungle clearing',layout.dialog(20,51,90,56)));
   await until(async()=>(await saved())!==null&&await steps()===0,'the scene did not open');
   await settled(opening,'stencil picker');
   const blank=await saved();if(blank.objects.length)throw Error(label+': new scene has objects');
@@ -284,16 +298,57 @@ async function run(input){
    const actual=await evaluate(`[...document.querySelectorAll('#kryon-dom-root button')].map(e=>e.getAttribute('aria-label')).filter(name=>name==='Previous'||name==='Next')`);
    if(JSON.stringify(actual)!==JSON.stringify(expected))throw Error(label+': stencil pagination '+JSON.stringify(actual)+' expected '+JSON.stringify(expected));
   };
+  // Real mouse/touch selection at phone and landscape sizes. DOM geometry is
+  // read from the rendered controls; Canvas uses the same hit points and proves
+  // each hit by the independently persisted stencil/category/page choices.
+  const pickerChoices=()=>text('/kryon-apps/jungle/jungle.paint/choices.txt');
+  for(const [n,[width,height]] of [[390,844],[400,756],[420,700],[844,390],[960,600]].entries()){
+   await command('Emulation.setDeviceMetricsOverride',{width,height,deviceScaleFactor:1,mobile:false});await frames(8);
+   const points=stencilLayout(width,height),category=n%4;
+   await tap(await control(['Dinosaurs','Animals','People','Objects'][category],points.category(category)));await frames(4);
+   if(dom){
+    const boxes=await evaluate(`[...document.querySelectorAll('#kryon-dom-root button')].map(e=>{const r=e.getBoundingClientRect();return {name:e.getAttribute('aria-label'),x:r.x,y:r.y,w:r.width,h:r.height}}).filter(r=>r.y>=56)`);
+    if(boxes.length!==11)throw Error(label+': missing responsive picker controls '+JSON.stringify(boxes));
+    for(const [i,r] of boxes.entries()){
+     if(r.w<44||r.h<44||r.x<0||r.y<56||r.x+r.w>width+1||r.y+r.h>height+1)throw Error(label+': mobile control bounds '+JSON.stringify(r));
+     for(const b of boxes.slice(i+1))if(r.x<b.x+b.w&&b.x<r.x+r.w&&r.y<b.y+b.h&&b.y<r.y+r.h)throw Error(label+': overlapping mobile controls');
+    }
+   }
+   for(let page=0;page<(category===0?2:1);page++){await tap(await control('Next',points.next));await frames(4)}
+   await galleryPages(['Previous']);
+   const partial=await pickerChoices();
+   await tap(points.next);await tap(points.tile(5));await frames(4);
+   if(await pickerChoices()!==partial)throw Error(label+': nonexistent destination/item changed choices');
+   await tap(points.tile(3));await frames(4);
+   const selected=await pickerChoices(),values=selected?.split('\n')[1];
+   if(CODES.indexOf(values?.[0])!==[34,38,42,46][category]||CODES.indexOf(values?.[1])!==category||CODES.indexOf(values?.[2])!==(category===0?2:1))throw Error(label+': mobile partial-page selection failed');
+   await key('Escape');
+   const wide=width<600?960:390,tall=width<600?600:844;
+   await command('Emulation.setDeviceMetricsOverride',{width:wide,height:tall,deviceScaleFactor:1,mobile:false});await frames(8);
+   if(await pickerChoices()!==selected)throw Error(label+': resize changed selected stencil/page');
+   await tap(stencilLayout(wide,tall).tile(3));await frames(4);
+   if(await pickerChoices()!==selected)throw Error(label+': resized tile selected another stencil');
+   await key('Escape');
+  }
+  await command('Emulation.setDeviceMetricsOverride',{width:960,height:600,deviceScaleFactor:1,mobile:false});await frames(8);
+  await tap(await control('Dinosaurs',stencil.category(0)));await frames(4);
+  if(digest(await saved())!==digest(blank)||await steps()!==0)throw Error(label+': responsive browsing changed picture');
   await galleryPages(['Next']);
   let gallery=await screen();
-  await tap(await control('Next',layout.dialog(106,173,78,14)));
-  await settled(gallery,'second dinosaur page');await galleryPages(['Previous']);
+  await tap(await control('Next',stencil.next));
+  await settled(gallery,'second dinosaur page');await galleryPages(['Previous','Next']);
   gallery=await screen();
-  await tap(await control('Previous',layout.dialog(22,173,78,14)));
+  await tap(await control('Next',stencil.next));
+  await settled(gallery,'last dinosaur page');await galleryPages(['Previous']);
+  gallery=await screen();
+  await tap(await control('Previous',stencil.previous));
+  await settled(gallery,'middle dinosaur page');
+  gallery=await screen();
+  await tap(await control('Previous',stencil.previous));
   await settled(gallery,'first dinosaur page');await galleryPages(['Next']);
-  for(const [name,x] of [['Animals',91],['People',162],['Objects',233]]){
-   await tap(await control(name,layout.dialog(x,30,67,17)));
-   await stable(name+' gallery');await galleryPages([]);
+  for(const [name,index] of [['Animals',1],['People',2],['Objects',3]]){
+   await tap(await control(name,stencil.category(index)));
+   await stable(name+' gallery');await galleryPages(['Next']);
   }
   if(digest(await saved())!==digest(blank)||await steps()!==0)throw Error(label+': browsing stencils changed the picture');
 
@@ -323,6 +378,23 @@ async function run(input){
   const flipped=mirrored(crate);
   if(b.objects.length!==2||B.pixels.some((v,i)=>v!==flipped[i]))throw Error(label+': Mirror did not flip the stencil');
   if(b.objects[0].pixels.some((v,i)=>v!==filled.objects[0].pixels[i]))throw Error(label+': placing over an object changed it');
+
+  // Rotate the top object, preserving its paint, all other objects and paper.
+  // Bare paper is a no-op. The rotated edit and Undo survive a hard reload.
+  const rotateAt=find((x,y)=>ownerAt(b,x,y)===1,B.x,B.y,B.x+B.w,B.y+B.h);
+  const bareAt=find((x,y)=>ownerAt(b,x,y)<0,700,20,950,240);
+  await tool(8);await tap(layout.point(bareAt.x,bareAt.y));await frames(12);
+  if(digest(await saved())!==digest(b)||await steps()!==3)throw Error(label+': rotating bare paper changed the picture');
+  await observe('rotate',async()=>{
+   await tap(layout.point(rotateAt.x,rotateAt.y));
+   await until(async()=>digest(await saved())!==digest(b)&&await steps()===4,'Rotate did not change the object');
+  });
+  const rotated=await saved(),R=rotated.objects[1];
+  if(R.w!==B.h||R.h!==B.w||rotated.base.some((v,i)=>v!==b.base[i])||rotated.objects[0].pixels.some((v,i)=>v!==b.objects[0].pixels[i]))throw Error(label+': Rotate changed other layers or dimensions');
+  for(let py=0;py<R.h;py++)for(let px=0;px<R.w;px++)if(R.pixels[py*R.w+px]!==B.pixels[(B.h-1-px)*B.w+py])throw Error(label+': Rotate lost object paint');
+  await persisted(digest(rotated),4,'the rotated picture');await reload();
+  await persisted(digest(rotated),4,'rotation after reload');await tool(6);
+  await until(async()=>digest(await saved())===digest(b)&&await steps()===3,'Undo did not restore the rotated object');
 
   // The eraser removes only the upper object where they overlap.
   const eraseAt=find((x,y)=>ownerAt(b,x,y)===1&&A.pixels[(y-A.y)*A.w+x-A.x]!==CLEAR,B.x,B.y,A.x+A.w,A.y+A.h);
@@ -372,8 +444,56 @@ async function run(input){
   await tool(3);await tap(layout.point(emptyAt.x,emptyAt.y));await frames(12);
   if(digest(await saved())!==done||await steps()!==0)throw Error(label+': an empty Undo or erase changed the picture');
   await persisted(done,0,'the restored scene');
+
+  const namespace='/kryon-apps/jungle/jungle.paint/';
+  const galleryIndex=async()=>{
+   const raw=await text(namespace+'gallery.txt');if(!raw)return null;
+   const lines=raw.trimEnd().split('\n');
+   if(lines[0]!=='JUNGLE GALLERY1')throw Error('Bad gallery header');
+   const [count,next,selected]=lines[1].split(' ').map(Number);
+   const files=lines.slice(2).map(row=>row.slice(row.indexOf(' ')+1));
+   if(files.length!==count)throw Error('Bad gallery count');return {raw,count,next,selected,files};
+  };
+  await until(async()=>(await galleryIndex())?.count===1,'autosave did not create a gallery picture');
+  const originalGallery=await galleryIndex(),firstFile=originalGallery.files[0],firstBytes=await text(namespace+firstFile);
+  if(digest(picture(firstBytes))!==done)throw Error(label+': gallery did not update the active picture');
+  await tool(4);await stable('gallery previews');
+  await tap(await control('Save a copy',layout.dialog(20,29,176,18)));
+  await until(async()=>(await galleryIndex())?.count===2,'gallery copy was not saved');
+  const copyGallery=await galleryIndex(),copyFile=copyGallery.files[1],copyBytes=await text(namespace+copyFile);
+  if(copyBytes!==firstBytes||copyFile===firstFile)throw Error(label+': copy replaced the original');
+  await until(async()=>await stored(namespace+'gallery.txt')===(await galleryIndex()).raw,'gallery index was not stored');
+  await key('Escape');await stable('leave gallery');
+  await tool(7);await stable('New confirmation');
+  await tap(await control('Yes',layout.dialog(40,50,80,120)));await stable('scene categories');
+  await tap(await control('Waterfall',layout.dialog(114,51,90,56)));
+  await until(async()=>(await galleryIndex())?.count===3,'New picture did not create a new gallery entry');
+  await key('Escape');await stable('new scene');
+  const newPicture=await saved();if(digest(newPicture)===done)throw Error(label+': new scene did not open');
+  if(await text(namespace+firstFile)!==firstBytes||await text(namespace+copyFile)!==copyBytes)throw Error(label+': New overwrote previous gallery pictures');
+  await tool(4);await stable('three gallery previews');
+  await tap(await control('Picture 1',layout.dialog(20,51,90,56)));
+  await persisted(done,0,'picture reopened from gallery');
+  if((await galleryIndex()).count!==3)throw Error(label+': opening a gallery picture duplicated it');
+
+  // A category's second page, selected stencil, size and mirror choice survive
+  // reload independently of the saved picture and its background.
+  await tool(0);await stable('remembered stencil picker');
+  await tap(await control('Objects',stencil.category(3)));await stable('Objects');
+  await tap(await control('Next',stencil.next));await stable('new object stencils');
+  await tap(await control('Ball',stencil.tile(0)));await stable('Ball sizes');
+  await tap(await control('Huge',layout.dialog(234,40,64,120)));await stable('Ball placement');
+  await tool(6,'Mirror');await frames(8);
+  const choiceFile=namespace+'choices.txt',choices=await text(choiceFile),values=choices?.split('\n')[1];
+  if(!values||CODES.indexOf(values[0])!==43||CODES.indexOf(values[1])!==3||CODES.indexOf(values[2])!==1||CODES.indexOf(values[3])!==4)throw Error(label+': stencil choices were not saved');
+  await until(async()=>await stored(choiceFile)===choices,'stencil choices were not stored');
+  await reload();await persisted(done,0,'gallery picture after choices reload');
+  if(await text(choiceFile)!==choices)throw Error(label+': reload changed choices');
+  await tool(0);await stable('restored stencil page');
+  await tap(await control('Ball',stencil.tile(0)));await stable('restored selected stencil');
+  await key('Escape');await key('Escape');await stable('return from restored picker');
   if(errors.length)throw Error(JSON.stringify(errors));
-  console.log(`local paint layers ${label}: dragged placement with preview,${touch?'':' secondary click while dragging,'} Mirror, fill, overlap erase, empty erase, Undo after two hard reloads and exhausted Undo passed`);
+  console.log(`local paint layers ${label}: continuous rendering, placement, Mirror, fill, overlap erase, rotation and Undo across reloads, gallery copies/New/open, and remembered stencil choices passed`);
  }catch(error){
   if(socket?.readyState===WebSocket.OPEN){
    await mkdir('build/tests/web',{recursive:true});

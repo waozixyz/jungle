@@ -1,0 +1,7 @@
+// Instrument play is louder than incidental menu/game effects. Both hosts
+// share the same policy; narration retains its separate spoken-word level.
+AudioEffectGain :: (path: string) -> s32 {
+    prefix := "assets/drums/sounds/"
+    if path.count > prefix.count && path[:prefix.count] == prefix { return 65 }
+    return 25
+}

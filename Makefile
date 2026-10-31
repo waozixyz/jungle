@@ -40,7 +40,7 @@ all: $(APP)/jungle $(GAMES) $(APP)/games/catalog.txt $(SHARED)
 run: all
 	$(APP)/jungle
 
-build/ziran/libziran.a:
+build/ziran/libziran.a: ziran.lock
 	$(MAKE) -C '$(TOOLCHAIN)' BUILD_DIR='$(abspath build/ziran)' '$(abspath $@)'
 
 $(APP)/jungle: $(wildcard host/*.zi retro/*.zi games/paint/paint_palette.zi games/paint/paint_picture.zi) build/ziran/libziran.a
@@ -168,11 +168,12 @@ build/tests/%: tests/%_test.zi $(wildcard games/*/*.zi host/*.zi retro/*.zi) bui
 		build/ziran/libziran.a -Wl,--gc-sections -lm -lpthread $(TEST_LIBS) -o $@
 
 # Questions, painting and PNG pictures, then every game opened in the app.
-test: build/tests/counting_exercises build/tests/paint_layers build/tests/drums build/tests/hide_seek build/tests/matching build/tests/shapes build/tests/paint build/tests/paint_history build/tests/png build/tests/progress build/tests/document build/tests/counting build/tests/abc build/tests/numbers build/tests/printing build/tests/audio build/tests/voice build/tests/book_preferences build/tests/jigsaw build/tests/piano all
+test: build/tests/paint_gallery build/tests/paint_gallery_store build/tests/counting_exercises build/tests/paint_layers build/tests/drums build/tests/hide_seek build/tests/matching build/tests/shapes build/tests/paint build/tests/paint_history build/tests/png build/tests/progress build/tests/document build/tests/counting build/tests/abc build/tests/numbers build/tests/printing build/tests/audio build/tests/voice build/tests/book_preferences build/tests/jigsaw build/tests/piano all
 	build/tests/shapes
 	build/tests/matching
 	build/tests/hide_seek
 	build/tests/drums
+	python3 tools/music_room_audio.py --check
 	build/tests/piano
 	python3 tests/piano_audio_test.py
 	build/tests/jigsaw
@@ -181,6 +182,9 @@ test: build/tests/counting_exercises build/tests/paint_layers build/tests/drums 
 	build/tests/document
 	build/tests/paint_history
 	build/tests/paint_layers
+	build/tests/paint_gallery
+	build/tests/paint_gallery_store
+	python3 tests/paint_catalog_test.py
 	build/tests/counting
 	build/tests/counting_exercises
 	build/tests/abc
@@ -236,6 +240,7 @@ test-ui: all
 	python3 tests/slot_preview_test.py
 	python3 tests/paint_layers_test.py
 	python3 tests/paint_history_test.py
+	python3 tests/paint_library_test.py
 	python3 tests/language_ui_test.py
 
 BIN_DIR ?= $(HOME)/.local/bin

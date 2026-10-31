@@ -190,6 +190,65 @@ HideSeekNext :: (h: HideSeek, seed: s32) -> HideSeek {
     return HideSeekNew(h.mode, seed, h.rounds, HideSeekAvoid(h), h.remembered)
 }
 
+// Automatic progression is separate from the manual Next/Replay action.
+// A completed Peekaboo round enters Find, Find enters Remember, and
+// Remember keeps its level with a fresh round. Unfinished rounds never move.
+HIDE_CELEBRATE_SECONDS :: 2.5
+HideSeekAdvanceReady :: (h: HideSeek, elapsed: float64) -> bool {
+    return HideSeekDone(h) && elapsed >= HIDE_CELEBRATE_SECONDS
+}
+
+HideSeekAdvance :: (h: HideSeek, seed: s32) -> HideSeek {
+    if !HideSeekDone(h) { return h }
+    mode := h.mode
+    if mode < HIDE_REMEMBER { mode += 1 }
+    return HideSeekNew(mode, seed, h.rounds, HideSeekAvoid(h), h.remembered)
+}
+
+// A held activation belongs to the preview/round where it began. The
+// release frame stays blocked so Press cannot turn it into a new click.
+HideSeekInputGuard :: (guarded: bool, preview: bool, pointer_down: bool, pointer_released: bool, enter_down: bool) -> bool {
+    if preview && (pointer_down || enter_down) { return true }
+    return guarded && (pointer_down || pointer_released || enter_down)
+}
+
+// Grounded stage geometry, independent of reveal state or time. Back-row
+// places are painted first; each broad hit region encloses its real prop.
+HideSeekPlaceLayout :: struct {
+    cx: s32
+    ground: s32
+    size: s32
+    x: s32
+    y: s32
+    width: s32
+    height: s32
+}
+
+HideSeekSceneLayout :: (width: s32, height: s32, places: s32, place: s32) -> HideSeekPlaceLayout {
+    tall := width < height
+    columns := ifx tall && places > 2 then 2 else places
+    if columns < 1 { columns = 1 }
+    row := place / columns
+    column := place % columns
+    slot := width / columns
+    cx := slot * column + slot / 2
+    ground := height * (ifx column % 2 == 0 then 82 else 90) / 100
+    size := slot * 64 / 100
+    limit := height * 55 / 100
+    if tall && places > 2 {
+        ground = height * (ifx row == 0 then 53 else 92) / 100
+        if row == 0 { cx -= slot / 16 } else { cx += slot / 16 }
+        limit = height * 27 / 100
+    }
+    if size > limit { size = limit }
+    if size > 230 { size = 230 }
+    crown_room := (ground - 12) * 100 / 160
+    if size > crown_room { size = crown_room }
+    return HideSeekPlaceLayout.{.cx = cx, .ground = ground, .size = size,
+        .x = slot * column, .y = ground - size * 160 / 100,
+        .width = slot, .height = size * 165 / 100}
+}
+
 // Another level, keeping everything found so far.
 HideSeekLevel :: (h: HideSeek, mode: s32, seed: s32) -> HideSeek {
     return HideSeekNew(mode, seed, h.rounds, HideSeekAvoid(h), h.remembered)

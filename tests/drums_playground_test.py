@@ -1,278 +1,496 @@
 #!/usr/bin/env python3
-"""Test the illustrated Drums playground on an owned private Xvfb display."""
+"""Exercise eight room instruments and actual native audio on private Xvfb.
+
+--audio-only runs the deterministic sample suite without starting any UI.
+The native probe observes SDL_QueueAudio and forwards to the real SDL backend;
+it records only byte counts and hashes, not private audio or desktop pixels.
+"""
+import argparse
+import importlib.util
+import hashlib
+import ctypes
 from pathlib import Path
+import re
+import struct
+import subprocess
 import tempfile
 import time
 
-from PIL import ImageChops
+from PIL import Image, ImageChops
 import runtime_test as rt
 
-
-rt.OUTPUT = rt.ROOT / 'backup/drums-keyboard'
 TITLE = 'Little Drums'
-PICTURE_SIZES = (1.00, .56, .50, .48)
-BODY_FRACTIONS = ((.50, .52), (.50, .52), (.32, .52), (.50, .52))
+SOUNDS = ('big_drum', 'small_drum', 'shaker', 'bell', 'xylophone', 'guitar', 'cymbal', 'tambourine')
+PICTURES = ('big-drum', 'little-drum', 'shaker', 'bell', 'xylophone', 'guitar', 'cymbal', 'tambourine')
+BODY_FRACTIONS = ((.50, .52), (.50, .52), (.32, .52), (.50, .52),
+                  (.50, .52), (.50, .60), (.50, .35), (.50, .52))
+PRESERVED = {'assets/drums/pictures/bell.png': 'f14c6aebe01fc8453d646cb39cf132d0495b9ebbd6934590b5857a95c1d8856a',
+ 'assets/drums/pictures/big-drum.png': 'bf4d9d5498da047be39e448fd3950a0e6acf02f446f68848f9678b4bd00523d6',
+ 'assets/drums/pictures/cymbal.png': 'c8c20ce23156b3bf1892ffcb606ac1d36d6208c77a00352d6aa6890dbacbd338',
+ 'assets/drums/pictures/guitar.png': 'd72134bf42c860b1402959ff207c134314987907ba7bdf655ab7b08817e28009',
+ 'assets/drums/pictures/little-drum.png': '10b7b94c5f99c03771229bd6be3fe5c69a3940e04d361a21f58bb8967cb45ae3',
+ 'assets/drums/pictures/room.png': '325b08de4857a5cd09a982d7c956100792668b21dfbacb221b74bb719710964b',
+ 'assets/drums/pictures/shaker.png': 'd452203bead14dc3f6b2e2ab56389213e6d5a3d06de0d3fc3673e31fd79cb12c',
+ 'assets/drums/pictures/tambourine.png': 'f5ffec3fa0adc5dab4a64694c8054354b67347aa5b37429e567ab1984db3238b',
+ 'assets/drums/pictures/xylophone.png': '56e319a468ea65388aea3bc07a5d969b0d897e9f490a450c6c6ca97e8e367cdd',
+ 'assets/drums/sounds/bell.wav': 'cb68ccc0ecc4e016794a3795189cf1cf39fe549a21c961e55c2d1ee72f50ef22',
+ 'assets/drums/sounds/cymbal.wav': '4272a4c49c06ddbf64d55e6d5f72a03e3ce43eb608a88c1e9af7bb3ce42bc88b',
+ 'assets/drums/sounds/de/copy.wav': '3a26a4e3a6643b95734b19225e5ba9c9676a748d6174878869f8b55bf5172ab0',
+ 'assets/drums/sounds/de/free.wav': '5ad5811a49fb3f9149bbd07a3cb3e267f712d4edc4e65550805bcae1562e0b4d',
+ 'assets/drums/sounds/en/copy.wav': '9b526ee2442e8e67aac8a76f0b92ab416296d1d5fd6fad064ea97a7625f0c8c3',
+ 'assets/drums/sounds/en/free.wav': 'd8b8f9bcff651352de211f060269eda64bdfd4b4b3d5c2423f989cde04c1686d',
+ 'assets/drums/sounds/es/copy.wav': 'b3e8590570daccca609f18477e56d6209504fe12b0d386383b1290261c8d2435',
+ 'assets/drums/sounds/es/free.wav': '653c70f1d0d61373679592bf4cbe03909c8150f81e61b7dba5ee6fe33f96686d',
+ 'assets/drums/sounds/guitar.wav': 'ff189dc2a23ec021c7696b0a3f75e9c9989de29d138f208bbfff26dc8611a01b',
+ 'assets/drums/sounds/low_drum.wav': '76cd52a2f9b7552dc204cca91487b2632b8601b6498eed64fbc212887177f491',
+ 'assets/drums/sounds/shaker.wav': '0e028a0e36ca763fc9e19d76364bb278d27f47b7ca30eaeef7cc52a77a02d288',
+ 'assets/drums/sounds/small_drum.wav': '65b5b4c573a5a8cc29b7eeafb0ade57d4e2960982a42df7d8180098a9c8aeac8',
+ 'assets/drums/sounds/tambourine.wav': '5c79ad3e49a8bf17354bcdf50e7c80c37579a7f9d5856f8ea70e84871d2205bd',
+ 'assets/drums/sounds/xylophone.wav': 'ca96f37c0c6a2f0bf270775e21077c5561284e8805ab46f6ec7492ee4b77e9ec'}
+MODEL = (rt.ROOT / 'games/drums/drums.zi').read_text()
 
 
-def geometry(width, height):
+def positions(name):
+    return tuple(map(int, re.search(r'DRUMS_' + name + r': \[8\]s32 = \.\[([^]]+)\]', MODEL)[1].split(',')))
+
+
+def geometry(width, height, copying=False):
     height -= 56
     scale = min(width / 400, height / 700) if width <= height else min(height / 520, width / 780)
     scale = max(.5, min(scale, 1.6))
-    virtual_width, virtual_height = int(width / scale), int(height / scale)
-    columns = 4 if virtual_width > virtual_height * 2 else 2
-    rows = 4 // columns
-    edge = min((virtual_width - 32 - (columns - 1) * 14) // columns,
-               (virtual_height - 216 - (rows - 1) * 14) // rows, 250)
-    edge = max(edge, 0)
-    left = (virtual_width - columns * edge - (columns - 1) * 14) // 2
-    top = (virtual_height - 216 - rows * edge - (rows - 1) * 14) // 2
-    return scale, virtual_width, virtual_height, columns, edge, left, top
+    w, h = int(width / scale), int(height / scale)
+    wide = w > h
+    scene_width, scene_height = (800, 410) if wide else (400, 624)
+    room_top = 112 if copying else 60
+    available = h - room_top - (72 if copying else 8)
+    fit = min((w - 24) * 1000 // scene_width, available * 1000 // scene_height)
+    left = (w - scene_width * fit // 1000) // 2
+    top = room_top + (available - scene_height * fit // 1000) // 2
+    return scale, w, h, wide, fit, left, top
 
 
-def instruments(size):
-    width, height = size
-    _, virtual_width, virtual_height, columns, edge, left, top = geometry(width, height)
-    placed = []
-    for pad in range(4):
-        slot = pad + 2 if columns == 2 and pad < 2 else pad - 2 if columns == 2 else pad
-        cell_x = left + slot % columns * (edge + 14)
-        cell_y = 142 + top + slot // columns * (edge + 14)
-        picture_size = int(edge * PICTURE_SIZES[pad])
-        picture_x = cell_x + (edge - picture_size) // 2
-        picture_y = cell_y + edge * 79 // 100 - picture_size
-        placed.append((pad, cell_x, cell_y, edge, picture_x, picture_y, picture_size))
-    return placed
+def instruments(size, copying=False):
+    _, _, _, wide, fit, left, top = geometry(*size, copying=copying)
+    prefix = 'LANDSCAPE' if wide else 'PORTRAIT'
+    return [(left + x * fit // 1000, top + y * fit // 1000, edge * fit // 1000)
+            for x, y, edge in zip(positions(prefix + '_X'), positions(prefix + '_Y'), positions(prefix + '_EDGE'))]
 
 
-def actual_point(width, height, x, y):
-    scale = geometry(width, height)[0]
+def actual_point(size, x, y):
+    scale = geometry(*size)[0]
     return round(x * scale), round(56 + y * scale)
 
 
-def body_point(width, height, pad):
-    item = instruments((width, height))[pad]
-    _, _, _, _, picture_x, picture_y, picture_size = item
-    fraction_x, fraction_y = BODY_FRACTIONS[pad]
-    return actual_point(width, height, picture_x + picture_size * fraction_x,
-                        picture_y + picture_size * fraction_y)
+def body_point(size, pad, copying=False):
+    x, y, edge = instruments(size, copying)[pad]
+    fx, fy = BODY_FRACTIONS[pad]
+    return actual_point(size, x + edge * fx, y + edge * fy)
 
 
 def changed(before, after):
     return ImageChops.difference(before.convert('RGB'), after.convert('RGB')).getbbox()
 
 
-def ink_count(picture, box):
-    crop = picture.crop(box).convert('RGB')
-    pixels = crop.get_flattened_data() if hasattr(crop, 'get_flattened_data') else crop.getdata()
-    return sum(max(color) < 190 for color in pixels)
+def art_box(size, pad, labels=False):
+    x, y, edge = instruments(size)[pad]
+    gap = 28 if labels and pad in (2, 3) else 0
+    a = actual_point(size, x - (12 if labels else 0), y + (edge if labels else 0) + gap)
+    b = actual_point(size, x + edge + (12 if labels else 0), y + edge + (22 if labels else 0) + gap)
+    return *a, *b
 
 
-def landscape_label_clusters(picture):
-    crop_top = int(picture.height * .72)
-    crop_bottom = int(picture.height * .78)
-    occupied = [False] * picture.width
-    for y in range(crop_top, crop_bottom):
-        for x in range(0, picture.width):
-            if max(picture.getpixel((x, y))) < 190:
-                occupied[x] = True
-    clusters = []
-    start = None
-    for x, marked in enumerate(occupied + [False]):
-        if marked and start is None:
-            start = x
-        if not marked and start is not None:
-            if not clusters or start > clusters[-1][2] + 25:
-                clusters.append([start, crop_top, x - 1, crop_top])
-            else:
-                clusters[-1][2] = x - 1
-            start = None
-    for cluster in clusters:
-        for y in range(crop_top, crop_bottom):
-            if any(max(picture.getpixel((x, y))) < 190 for x in range(cluster[0], cluster[2] + 1)):
-                cluster[1] = min(cluster[1], y); cluster[3] = max(cluster[3], y)
-    # Keep text-sized clusters, not single antialiased specks.
-    merged = []
-    for cluster in clusters:
-        if merged and cluster[0] <= merged[-1][2] + 25:
-            merged[-1][0] = min(merged[-1][0], cluster[0]); merged[-1][1] = min(merged[-1][1], cluster[1])
-            merged[-1][2] = max(merged[-1][2], cluster[2]); merged[-1][3] = max(merged[-1][3], cluster[3])
-        else:
-            merged.append(cluster)
-    return [cluster for cluster in merged if cluster[2] - cluster[0] > 15]
+def assert_room(picture, size, language):
+    places = instruments(size)
+    assert max(y for x, y, edge in places) - min(y for x, y, edge in places) > 110, 'instruments collapsed to a row'
+    assert len({edge for x, y, edge in places}) >= 6, 'room became uniform tiles'
+    assert len(picture.getcolors(2_000_000)) > 500, 'room illustration is missing'
+    for pad in range(8):
+        crop = picture.crop(art_box(size, pad)).convert('RGB')
+        assert len(crop.getcolors(1_000_000)) > 200, (language, pad, 'instrument artwork missing')
+        # Match opaque interior pixels against the actual shipped picture so
+        # a detailed room background cannot masquerade as a missing overlay.
+        with Image.open(rt.ROOT / 'assets/drums/pictures' / f'{PICTURES[pad]}.png') as source:
+            expected = source.convert('RGBA').resize(crop.size, Image.Resampling.LANCZOS)
+        error = []
+        stride = max(2, crop.width // 18)
+        for py in range(stride, crop.height - stride, stride):
+            for px in range(stride, crop.width - stride, stride):
+                color = expected.getpixel((px, py))
+                if color[3] > 250:
+                    actual = crop.getpixel((px, py))
+                    error.append(sum(abs(a - b) for a, b in zip(actual, color[:3])) / 3)
+        assert len(error) > 8 and sum(error) / len(error) < 35, (language, pad, 'rendered picture differs or is missing', sum(error) / max(1, len(error)))
+        label = picture.crop(art_box(size, pad, labels=True)).convert('RGB')
+        pixels = label.get_flattened_data() if hasattr(label, 'get_flattened_data') else label.getdata()
+        assert sum(max(color) < 190 for color in pixels) > 10, (language, pad, 'label unreadable')
 
 
-def visible_art_box(picture, label):
-    center_x = (label[0] + label[2]) // 2
-    left = max(0, center_x - 88); right = min(picture.width, center_x + 89)
-    top = int(picture.height * .18); bottom = label[1] - 8
-    found = None
-    for y in range(top, bottom):
-        for x in range(left, right):
-            color = picture.getpixel((x, y))
-            if max(color) - min(color) > 28 or max(color) < 185:
-                if found is None: found = [x, y, x, y]
-                else:
-                    found[0] = min(found[0], x); found[1] = min(found[1], y)
-                    found[2] = max(found[2], x); found[3] = max(found[3], y)
-    assert found is not None, 'illustrated instrument body was not visible above its label'
-    return tuple(found)
+PROBE = r'''
+#define _GNU_SOURCE
+#include <dlfcn.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+int SDL_QueueAudio(uint32_t device, const void *data, uint32_t length) {
+    static int (*real_queue)(uint32_t, const void *, uint32_t);
+    if (!real_queue) real_queue = dlsym(RTLD_NEXT, "SDL_QueueAudio");
+    const unsigned char *bytes = data;
+    uint64_t hash = UINT64_C(14695981039346656037);
+    for (uint32_t i = 0; i < length; i++) { hash ^= bytes[i]; hash *= UINT64_C(1099511628211); }
+    int result = real_queue ? real_queue(device, data, length) : -1;
+    const char *path = getenv("JUNGLE_TEST_AUDIO_QUEUE");
+    FILE *out = path ? fopen(path, "a") : NULL;
+    if (out) { fprintf(out, "%u %016llx %d\n", length, (unsigned long long)hash, result); fclose(out); }
+    return result;
+}
+'''
 
 
-def assert_illustrated(picture, size, name):
-    assert len(picture.getcolors(1_000_000)) > 500, (name, 'playground has too little artwork')
-    if size[0] > size[1]:
-        labels = landscape_label_clusters(picture)
-        assert len(labels) == 4, (name, 'four readable landscape labels were not found', labels)
-        for label in labels:
-            assert ink_count(picture, label) > 20, (name, 'instrument label is unreadable')
-            assert len(picture.crop(visible_art_box(picture, label)).getcolors(200_000)) > 300, (
-                name, 'instrument artwork is missing')
-    else:
-        for pad in (0, 1):
-            item = instruments(size)[pad]
-            _, cell_x, cell_y, edge, picture_x, picture_y, picture_size = item
-            scale = geometry(*size)[0]
-            artwork = (round(picture_x * scale), round(56 + picture_y * scale),
-                       round((picture_x + picture_size) * scale), round(56 + (picture_y + picture_size) * scale))
-            assert len(picture.crop(artwork).getcolors(200_000)) > 300, (name, 'instrument artwork is missing')
-            label = (round((cell_x + 4) * scale), round(56 + (cell_y + edge * .81) * scale),
-                     round((cell_x + edge - 4) * scale), round(56 + (cell_y + edge * .81 + 22) * scale))
-            assert ink_count(picture, label) > 20, (name, 'instrument label is unreadable')
+class NativeAudio:
+    def __init__(self, directory, audio):
+        source, self.library = directory / 'audio_probe.c', directory / 'audio_probe.so'
+        source.write_text(PROBE)
+        subprocess.run(['cc', '-shared', '-fPIC', '-O2', str(source), '-ldl', '-o', str(self.library)], check=True, capture_output=True, timeout=30)
+        self.path = directory / 'queued-audio.txt'
+        self.path.touch()
+        self.offset = 0
+        self.expected = {}
+        for name in SOUNDS:
+            raw = audio.read_pcm(rt.ROOT / 'assets/drums/sounds' / f'{name}.wav')
+            samples = [value[0] for value in struct.iter_unpack('<h', raw)]
+            mixed = bytearray()
+            for i, value in enumerate(samples):
+                value = int(value * 65 / 100)
+                edge = min(i, len(samples) - 1 - i)
+                if edge < 176:
+                    value = int(value * edge / 176)
+                mixed.extend(struct.pack('<h', value))
+            hash_value = 14695981039346656037
+            for byte in mixed:
+                hash_value = ((hash_value ^ byte) * 1099511628211) & ((1 << 64) - 1)
+            values = [value[0] / 32768 for value in struct.iter_unpack('<h', mixed)]
+            rms = (sum(value * value for value in values) / len(values)) ** .5
+            peak = max(map(abs, values))
+            assert (.065 <= rms <= .09 and .48 < peak < .56 if name == 'big_drum' else rms >= .020 and .10 < peak < .35), (name, 'native instrument PCM level', rms, peak)
+            print(f'Expected native {name}: RMS={rms:.4f} peak={peak:.3f}', flush=True)
+            self.expected[name] = (len(mixed), f'{hash_value:016x}')
+
+    def entries(self):
+        with self.path.open() as source:
+            source.seek(self.offset)
+            lines = source.read(8192).splitlines()
+            self.offset = source.tell()
+        entries = []
+        for line in lines:
+            count, fingerprint, result = line.split()
+            assert result == '0', ('SDL rejected queued audio', result)
+            entries.append((int(count), fingerprint))
+        return entries
+
+    def expect(self, pad, context):
+        entries = self.entries()
+        assert entries == [self.expected[SOUNDS[pad]]], (context, SOUNDS[pad], 'actual queued PCM differs', entries)
+
+    def silent(self, context):
+        assert not self.entries(), (context, 'unexpected native sound')
 
 
-def assert_instrument_changed(before, after, size, pad, action):
-    scale = geometry(*size)[0]
-    item = instruments(size)[pad]
-    _, cell_x, cell_y, edge = item[:4]
-    box = (max(0, round((cell_x - 2) * scale)),
-           max(0, round(56 + (cell_y - 2) * scale)),
-           round((cell_x + edge + 2) * scale),
-           round(56 + (cell_y + edge + 2) * scale))
-    assert changed(before.crop(box), after.crop(box)), (pad, action, 'focused keyboard press gave no feedback')
-
-
-def landscape_body_points(picture):
-    labels = landscape_label_clusters(picture)
-    points = []
-    for pad, label in enumerate(labels):
-        box = visible_art_box(picture, label)
-        x = box[0] + int((box[2] - box[0]) * (.30 if pad == 2 else .50))
-        y = box[1] + int((box[3] - box[1]) * .52)
-        points.append((x, y))
-    return points
-
-
-def exercise_scene(desktop, language, size, prefix):
-    width, height = size
+def exercise_scene(desktop, probe, language, size):
     desktop.resize(*size)
-    picture = desktop.capture_actual(f'{prefix}-{language}-{"portrait" if width < height else "landscape"}')
-    assert_illustrated(picture, size, prefix)
-
     time.sleep(.8)
-    quiet = desktop.capture_actual(f'{prefix}-{language}-quiet')
-    points = landscape_body_points(quiet) if width > height else [
-        body_point(width, height, pad) for pad in range(4)
-    ]
-    for pad in range(4):
-        before = desktop.capture_actual(f'{prefix}-{language}-body-{pad}-before')
-        desktop.click_actual(*points[pad])
-        feedback = desktop.capture_actual(f'{prefix}-{language}-body-{pad}-feedback')
-        assert changed(before, feedback), (language, pad, 'instrument body gave no visual feedback')
-
-    if language == 'en':
-        for pad in range(4):
-            desktop.click_actual(*points[pad])
+    label = f'{language}-{size[0]}x{size[1]}'
+    picture = desktop.capture_actual(label)
+    assert_room(picture, size, language)
+    assert_supports(picture, size)
+    probe.entries()
+    for pad in range(8):
+        time.sleep(.8)
+        before = desktop.capture_actual('before')
+        desktop.click_actual(*body_point(size, pad))
+        after = desktop.capture_actual('after')
+        probe.expect(pad, (label, 'pointer'))
+        assert changed(before.crop(art_box(size, pad)), after.crop(art_box(size, pad))), (label, pad, 'no local hit feedback')
+        # Click focus must also operate through the host's semantic keyboard
+        # path. Tab and Shift+Tab make that focus visible on native providers.
+        desktop.key('Tab'); desktop.key('Shift+Tab')
+        for action in ('space', 'Return'):
             time.sleep(.8)
-            desktop.key('Tab'); desktop.key('Shift+Tab'); time.sleep(.3)
-            for action in ('space', 'Return'):
-                before = desktop.capture_actual(f'drums-keyboard-{pad}-{action}-before')
-                desktop.key(action)
-                feedback = desktop.capture_actual(f'drums-keyboard-{pad}-{action}-feedback')
-                assert_instrument_changed(before, feedback, size, pad, action)
-                time.sleep(.8)
-
-
-
-    if width > height:
-        first_art = visible_art_box(quiet, landscape_label_clusters(quiet)[0])
-        art_width = first_art[2] - first_art[0]
-        corner = (max(0, round(first_art[0] - art_width * .26) + 5),
-                  max(0, round(first_art[1] - art_width * .04) + 5))
-    else:
-        item = instruments((width, height))[0]
-        _, _, _, _, picture_x, picture_y, _ = item
-        corner = actual_point(width, height, picture_x + 4, picture_y + 4)
-    desktop.click_actual(*corner)
-    empty = desktop.capture_actual(f'{prefix}-{language}-transparent-corner')
+            desktop.key(action)
+            probe.expect(pad, (label, action))
     time.sleep(.8)
-    harmless = desktop.capture_actual(f'{prefix}-{language}-empty-mat-before')
-    if width > height:
-        desktop.click_actual(width // 2, int(height * .30))
-    else:
-        desktop.click_actual(*actual_point(width, height, width // 2 / geometry(width, height)[0], 136))
-    background = desktop.capture_actual(f'{prefix}-{language}-empty-mat-after')
-    assert changed(harmless, background) is None, (language, 'empty mat or transparent corner played')
+    # Each transparent corner and the empty wall are harmless. They must
+    # not merely play too quietly to notice.
+    for pad, (x, y, edge) in enumerate(instruments(size)):
+        desktop.click_actual(*actual_point(size, x + 1, y + 1))
+        probe.silent((label, pad, 'transparent corner'))
+    desktop.click_actual(*actual_point(size, geometry(*size)[1] - 15, 130))
+    probe.silent((label, 'empty wall'))
+    # The sound button stays in the host's shared titlebar in every locale.
+    desktop.click_actual(size[0] - 34, 28)
+    assert (desktop.data / 'sound.txt').read_text().strip() == 'off'
+    for pad in range(8):
+        desktop.click_actual(*body_point(size, pad))
+        probe.silent((label, pad, 'muted instrument'))
+    desktop.click_actual(size[0] - 34, 28)
+    assert (desktop.data / 'sound.txt').read_text().strip() == 'quiet'
+    desktop.click_actual(*body_point(size, 7))
+    probe.expect(7, (label, 'unmuted'))
+    if language == 'en' and size[0] > size[1]:
+        exercise_shake(desktop, probe, size)
+    time.sleep(.8)
+    print(f'local native room scene: {label}; eight pointer/Space/Enter routes, alpha misses, mute and unmute passed', flush=True)
     return picture
 
 
+def assert_supports(picture, size):
+    def near(x, y, expected, tolerance=65):
+        color = picture.getpixel(actual_point(size, x, y))
+        assert sum(abs(a - b) for a, b in zip(color, expected)) < tolerance, ('support pixel', x, y, color, expected)
+    for pad in (2, 3):
+        x, y, edge = instruments(size)[pad]
+        base = 95 if pad == 3 else 91
+        shelf_y = y + edge * base // 100
+        # Top and bevel plus the bracket below the left end of each plank.
+        left = x + edge // 10
+        near(left + edge * 4 // 10, shelf_y + 3, (201, 165, 119))
+        near(left + edge * 4 // 10, shelf_y + 7, (148, 112, 76))
+        near(left + 7, shelf_y + 18, (136, 99, 66))
+    x, y, edge = instruments(size)[5]
+    gx, gy = x + edge // 2, y + edge * 96 // 100
+    # Splayed feet are outside the guitar body, visibly supporting it.
+    for direction in (-1, 1):
+        near(gx + direction * (edge * 30 // 128), gy - edge * 35 // 100 + edge * 30 // 90 + 2, (102, 94, 80))
+    assert instruments(size)[5][2] > instruments(size)[0][2] * 1.4
+    assert instruments(size)[2][2] < instruments(size)[0][2] * .4
+
+
+def exercise_shake(desktop, probe, size):
+    # Bypass the normal screenshot helper's .25s settling delay: this is a
+    # real rendered animation lasting only .30s, on this harness's own Xvfb.
+    desktop.verify_server()
+    class XImage(ctypes.Structure):
+        _fields_ = [('width', ctypes.c_int), ('height', ctypes.c_int),
+                   ('xoffset', ctypes.c_int), ('format', ctypes.c_int),
+                   ('data', ctypes.c_void_p), ('byte_order', ctypes.c_int),
+                   ('bitmap_unit', ctypes.c_int), ('bitmap_bit_order', ctypes.c_int),
+                   ('bitmap_pad', ctypes.c_int), ('depth', ctypes.c_int),
+                   ('bytes_per_line', ctypes.c_int), ('bits_per_pixel', ctypes.c_int)]
+    xlib = ctypes.CDLL('libX11.so.6')
+    xlib.XOpenDisplay.argtypes = [ctypes.c_char_p]
+    xlib.XOpenDisplay.restype = ctypes.c_void_p
+    xlib.XGetImage.argtypes = [ctypes.c_void_p, ctypes.c_ulong, ctypes.c_int, ctypes.c_int,
+                              ctypes.c_uint, ctypes.c_uint, ctypes.c_ulong, ctypes.c_int]
+    xlib.XGetImage.restype = ctypes.POINTER(XImage)
+    xlib.XDestroyImage.argtypes = [ctypes.POINTER(XImage)]
+    xlib.XCloseDisplay.argtypes = [ctypes.c_void_p]
+    display = xlib.XOpenDisplay(desktop.env['DISPLAY'].encode())
+    assert display
+    def frame():
+        # Read only our verified app window, avoiding process launch delays
+        # that can miss a complete 300ms animation under software rendering.
+        native = xlib.XGetImage(display, int(desktop.window), 0, 0, *size, ctypes.c_ulong(-1).value, 2)
+        assert native
+        try:
+            info = native.contents
+            assert info.bits_per_pixel == 32 and info.byte_order == 0
+            raw = ctypes.string_at(info.data, info.bytes_per_line * info.height)
+            return Image.frombytes('RGB', size, raw, 'raw', 'BGRX', info.bytes_per_line)
+        finally:
+            xlib.XDestroyImage(native)
+    time.sleep(.8)
+    before = frame()
+    x, y, edge = instruments(size)[7]
+    with Image.open(rt.ROOT / 'assets/drums/pictures/tambourine.png') as im:
+        alpha = im.convert('RGBA').getchannel('A')
+    points = []
+    for py in range(25, 75, 5):
+        for px in range(20, 80, 5):
+            if alpha.getpixel((px * alpha.width // 100, py * alpha.height // 100)) > 250:
+                points.append(actual_point(size, x + edge * px / 100, y + edge * py / 100))
+    assert len(points) > 20, 'tambourine tracking mask has no interior points'
+    px, py = body_point(size, 7)
+    probe.entries()
+    rt.run(['xdotool', 'mousemove', '--window', desktop.window, str(px), str(py), 'mousedown', '1'], desktop.env)
+    time.sleep(.04)
+    rt.run(['xdotool', 'mouseup', '1'], desktop.env)
+    frames = []
+    for _ in range(20):
+        time.sleep(.02)
+        frames.append(frame())
+    probe.expect(7, 'anchored shake')
+    radius = max(3, round(3 * geometry(*size)[0]))
+    moved = []
+    for im in frames:
+        candidates = []
+        for dy in range(-2, 3):
+            for dx in range(-radius, radius + 1):
+                error = sum(sum(abs(a - b) for a, b in zip(before.getpixel((px, py)), im.getpixel((px + dx, py + dy)))) for px, py in points)
+                candidates.append((error, abs(dx) + abs(dy), dx, dy))
+        _, _, dx, dy = min(candidates)
+        assert dy == 0, ('tambourine lifted from ground', dx, dy)
+        moved.append(dx)
+    assert any(moved), ('tambourine did not shake', moved)
+    time.sleep(.8)
+    settled = frame()
+    assert before.crop(art_box(size, 7)) == settled.crop(art_box(size, 7)), 'tambourine failed to settle exactly'
+    # Anchor/shadow below the opaque base stays fixed across animation.
+    a = actual_point(size, x + edge * .25, y + edge * .86 + 3)
+    b = actual_point(size, x + edge * .75, y + edge * .86 + 6)
+    moving_frames = [im for im, dx in zip(frames, moved) if dx]
+    assert all(im.crop((*a, *b)) == moving_frames[0].crop((*a, *b)) for im in moving_frames[1:]), 'ground shadow moved'
+    xlib.XCloseDisplay(display)
+    print(f'local tambourine animation: shifts={sorted(set(moved))}, horizontal motion <=3 logical pixels, fixed ground, clean settle passed', flush=True)
+
+
+def inspect_scene(desktop, probe, language, size):
+    """Targeted rerun for decoration changes; hit bounds/audio stay unchanged."""
+    desktop.resize(*size)
+    time.sleep(.8)
+    picture = desktop.capture_actual(f'visual-{language}-{size[0]}x{size[1]}')
+    assert_room(picture, size, language)
+    assert_supports(picture, size)
+    probe.entries()
+    for pad in range(8):
+        desktop.click_actual(*body_point(size, pad))
+        probe.expect(pad, (language, size, 'targeted pointer'))
+        if language == 'en' and size[0] > size[1]:
+            desktop.key('Tab'); desktop.key('Shift+Tab')
+            for action in ('space', 'Return'):
+                desktop.key(action)
+                probe.expect(pad, (language, size, 'targeted new-level ' + action))
+    if language == 'en' and size[0] > size[1]:
+        exercise_shake(desktop, probe, size)
+        desktop.click_actual(size[0] - 34, 28)
+        for pad in range(8):
+            desktop.click_actual(*body_point(size, pad))
+            probe.silent(('targeted new-level mute', pad))
+        desktop.click_actual(size[0] - 34, 28)
+        desktop.click_actual(*body_point(size, 7))
+        probe.expect(7, 'targeted new-level unmute')
+        print('local targeted native level: 8 Space/Enter routes and mute/unmute passed', flush=True)
+    print(f'local targeted room scene: {language} {size}; pictures, labels and 8 native sound routes passed', flush=True)
+    return picture
+
+
+def exercise_copy(desktop, probe, save, size):
+    # Mute the optional spoken explanation, then use Replay after unmuting.
+    # Include any first demo note already queued during the replay click.
+    _, width, height, *_ = geometry(*size)
+    desktop.click_actual(size[0] - 34, 28)
+    desktop.click_actual(*actual_point(size, width * 3 // 4, 30))
+    assert save.read_text() == 'drums 1 5 1\n', 'copy reset legacy progress'
+    desktop.click_actual(size[0] - 34, 28)
+    probe.entries()
+    desktop.click_actual(*actual_point(size, 60, height - 40))
+    # Five demo notes followed by the final full quiet gap; timing is allowed
+    # to slow down under Xvfb, but never to skip or duplicate an emission.
+    entries = probe.entries()
+    deadline = time.monotonic() + 15
+    while len(entries) < 5 and time.monotonic() < deadline:
+        time.sleep(.1)
+        entries += probe.entries()
+    assert len(entries) == 5, ('copy demo did not emit five notes', entries)
+    reverse = {value: pad for pad, name in enumerate(SOUNDS) for value in [probe.expected[name]]}
+    assert all(entry in reverse for entry in entries), ('copy queued non-instrument PCM', entries)
+    pattern = [reverse[entry] for entry in entries]
+    time.sleep(.9)
+    for pad in pattern:
+        desktop.click_actual(*body_point(size, pad, copying=True))
+        probe.expect(pad, 'copy response')
+    assert save.read_text() == 'drums 1 5 2\n', 'copy success did not persist wins'
+    # Next keeps the existing maximum length and consumes the two wins.
+    desktop.click_actual(*actual_point(size, width - 60, height - 40))
+    assert save.read_text() == 'drums 1 5 0\n', 'next pattern lost progression'
+    desktop.click_actual(*actual_point(size, width // 4, 30))
+    probe.entries()
+    desktop.click_actual(*body_point(size, 4))
+    probe.expect(4, 'return to Free Play')
+
+
 def main():
-    orientations = {}
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--audio-only', action='store_true')
+    parser.add_argument('--visual-only', action='store_true', help='targeted scene/8-pointer rerun after decoration-only changes')
+    parser.add_argument('--keep-preview', action='store_true', help='keep one scene PNG for a final visual review; caller removes them')
+    args = parser.parse_args()
+    spec = importlib.util.spec_from_file_location('music_room_audio', rt.ROOT / 'tools/music_room_audio.py')
+    audio = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(audio)
+    audio.validate()
+    for path, expected in PRESERVED.items():
+        assert hashlib.sha256((rt.ROOT / path).read_bytes()).hexdigest() == expected, (path, 'original bytes changed')
+    source = (rt.ROOT / 'games/drums/jungle_drums.zi').read_text()
+    routes = re.search(r'drums_sounds:.*?= \.\[(.*?)\];', source, re.S)[1]
+    assert tuple(re.findall(r'"([a-z_]+)"', routes)) == SOUNDS
+    assert '"Hear"' not in source and 'Tap and make music' not in source
+    work = rt.ROOT / 'work'
+    work.mkdir(exist_ok=True)
+    assert subprocess.run(['git', 'check-ignore', '-q', str(work)], cwd=rt.ROOT).returncode == 0
+    # Verify the exact expected native mixer levels even with --audio-only.
+    with tempfile.TemporaryDirectory(prefix='drums-pcm-', dir=rt.ROOT / 'work') as directory:
+        NativeAudio(Path(directory), audio)
+    if args.audio_only:
+        return
+    # This harness owns every save, probe, log, X display and image. Never
+    # inherit desktop auth/session variables or write to the owner's saves.
+    for name in ('xylophone', 'guitar', 'cymbal', 'tambourine'):
+        text = re.search(r'DRUMS_' + name.upper() + r'_MASK: \[16\]u16 = \.\[(.*?)\];', MODEL, re.S)[1]
+        actual_mask = [int(value.strip(), 16) for value in text.split(',') if value.strip()]
+        with Image.open(rt.ROOT / 'assets/drums/pictures' / f'{name}.png') as image:
+            alpha = image.convert('RGBA').getchannel('A').resize((16, 16), Image.Resampling.BOX)
+        expected_mask = [sum(1 << (15 - x) for x in range(16) if alpha.getpixel((x, y)) > 20) for y in range(16)]
+        assert actual_mask == expected_mask, (name, 'hit shape no longer follows actual picture')
     captures = {}
-    with tempfile.TemporaryDirectory(prefix='jungle-drums-playground-') as temporary:
+    if args.keep_preview:
+        preview = work / 'drums-room-preview'
+        preview.mkdir(exist_ok=True)
+        capture_actual = rt.Desktop.capture_actual
+        def capture_for_review(self, name):
+            picture = capture_actual(self, name)
+            picture.save(preview / 'current.png')
+            return picture
+        rt.Desktop.capture_actual = capture_for_review
+    with tempfile.TemporaryDirectory(prefix='drums-room-test-', dir=work) as temporary:
+        directory = Path(temporary)
+        rt.OUTPUT = directory / 'captures'
+        probe = NativeAudio(directory, audio)
         for language in ('en', 'de', 'es'):
-            data = Path(temporary) / language
+            data = directory / language
             data.mkdir()
             (data / 'language.txt').write_text(language)
             save = data / 'games/jungle.drums/drums.txt'
             save.parent.mkdir(parents=True)
             save.write_text('drums 1 5 1\n')
-            with rt.Desktop(rt.ROOT / 'build/app/jungle', data, screen_size='1280x1100') as desktop:
+            env = {'LD_PRELOAD': str(probe.library), 'JUNGLE_TEST_AUDIO_QUEUE': str(probe.path)}
+            with rt.Desktop(rt.ROOT / 'build/app/jungle', data, extra_env=env, screen_size='1280x1100') as desktop:
                 desktop.game(TITLE)
-                captures[language] = exercise_scene(desktop, language, (400, 756), 'drums')
-                desktop.resize(960, 600)
-                captures[language, 'landscape'] = desktop.capture_actual(f'drums-{language}-landscape-main')
-                assert_illustrated(captures[language, 'landscape'], (960, 600), 'landscape')
-
-                if language == 'en':
-                    virtual_width = geometry(960, 600)[1]
-                    listen = actual_point(960, 600, virtual_width * 3 // 4, 30)
-                    desktop.click_actual(*listen)
-                    copying = desktop.capture_actual('drums-en-copy-mode')
-                    assert changed(captures[language, 'landscape'], copying), 'Listen & Copy did not change the scene'
-                    assert save.read_text() == 'drums 1 5 1\n', 'entering copy changed old progress'
-                    replay = actual_point(960, 600, 60, 480)
-                    desktop.click_actual(*replay)
-                    replaying = desktop.capture_actual('drums-en-replay')
-                    assert desktop.app.poll() is None, 'replay exited Little Drums'
-                    assert changed(copying, replaying), 'replay control gave no scene response'
-                    free = actual_point(960, 600, virtual_width // 4, 30)
-                    desktop.click_actual(*free)
-                    desktop.capture_actual('drums-en-free-returned')
-                    assert save.read_text() == 'drums 1 5 1\n', 'returning to free play changed old progress'
-
-                    desktop.click_actual(913, 28)
-                    assert (data / 'sound.txt').read_text().strip() == 'off', 'mute control did not persist'
-                    desktop.click_actual(913, 28)
-                    assert (data / 'sound.txt').read_text().strip() == 'quiet', 'mute control did not restore sound'
-                    desktop.click_actual(28, 28)
-                    reopened_save = save.read_text()
-                    desktop.game(TITLE)
-                    resumed = desktop.capture_actual('drums-en-reopened')
-                    assert changed(captures['en'], resumed), 'Little Drums did not reopen to its playground'
-                    assert save.read_text() == reopened_save == 'drums 1 5 1\n', 'reopen changed persisted progress'
-                    desktop.key('Escape')
-                    orientations['portrait'] = captures['en']
-                    orientations['landscape'] = captures[language, 'landscape']
-
-    for orientation, english in orientations.items():
-        german = captures['de', 'landscape'] if orientation == 'landscape' else captures['de']
-        spanish = captures['es', 'landscape'] if orientation == 'landscape' else captures['es']
-        assert changed(english, german), (
-            orientation, 'German UI did not render its own readable text')
-        assert changed(english, spanish), (
-            orientation, 'Spanish UI did not render its own readable text')
-
-    print('local drums playground test: four illustrated bodies, focused Space/Enter feedback, transparent misses, modes, mute, saves and EN/DE/ES layouts passed', flush=True)
+                # No unsolicited opening narration may block the first hit.
+                probe.entries()
+                for size in ((400, 756), (960, 600)):
+                    captures[language, size] = (inspect_scene if args.visual_only else exercise_scene)(desktop, probe, language, size)
+                assert save.read_text() == 'drums 1 5 1\n', 'free hits changed legacy progress'
+                if language == 'en' and not args.visual_only:
+                    exercise_copy(desktop, probe, save, (960, 600))
+                desktop.click_actual(28, 28)
+                old = save.read_text()
+                desktop.game(TITLE)
+                desktop.resize(400, 756)
+                probe.entries()
+                desktop.click_actual(*body_point((400, 756), 5))
+                probe.expect(5, (language, 'reopened directly playable'))
+                assert save.read_text() == old, 'reopening changed progress'
+        for size in ((400, 756), (960, 600)):
+            assert changed(captures['en', size], captures['de', size]), ('German text missing', size)
+            assert changed(captures['en', size], captures['es', size]), ('Spanish text missing', size)
+        if args.keep_preview:
+            preview = work / 'drums-room-preview'
+            preview.mkdir(exist_ok=True)
+            captures['en', (960, 600)].save(preview / 'current.png')
+            print(f'Private scene previews for inspection: {preview}', flush=True)
+    if args.visual_only:
+        print('local targeted drums scene test: all 8 pictured bodies, labels and native PCM pointer routes in portrait/landscape EN/DE/ES passed', flush=True)
+    else:
+        print('local drums playground test: 8 pictured instruments; exact native PCM for pointer/Space/Enter; transparent misses; mute; old saves; Copy progression; portrait/landscape EN/DE/ES passed', flush=True)
 
 
 if __name__ == '__main__':

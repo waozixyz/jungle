@@ -2,7 +2,20 @@
 
 ## [Unreleased]
 
-- Use the WebAssembly Canvas edition by default for faster browser play.
+
+## 0.1.25
+
+Released 2026-10-30.
+
+- Use WebAssembly Canvas by default to reduce browser memory use, keeping the DOM edition available.
+- Add sixteen coloring stencils and twelve categorized scenes, remembering stencil and scene choices.
+- Make stencil selection responsive with larger previews, touch controls and numbered pages.
+- Prevent accidental browser text selection outside actual input fields.
+- Keep pictures and stories in an autosaved thumbnail gallery, retaining the six original slots.
+- Rotate placed coloring objects with their paint intact and Undo support.
+- Make Little Drums a music room with eight playable instruments, a stronger big drum, a guitar stand, a shaker shelf and a shaking floor tambourine.
+- Ground Peekaboo hiding places in four house and yard scenes and continue automatically after completed rounds.
+- Separate Animals and Nature on the Picture Book shelf, preserving all book progress.
 
 ## 0.1.24
 

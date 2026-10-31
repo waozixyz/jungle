@@ -1,0 +1,181 @@
+// Pure index: no pictures, paths, storage calls or borrowed strings in state.
+// Positive refs name picture-N.txt; -(slot + 1) retains slot-0.txt..slot-5.txt.
+// Initialize with GalleryClear. Entry order is stable and refs never change.
+#import "std/format"
+
+GALLERY_HEADER :: "JUNGLE GALLERY1\n"
+GALLERY_LIMIT :: 512
+GALLERY_LEGACY_SLOTS :: 6
+GALLERY_MAX_ID :: 2147483646
+GALLERY_TEXT_LIMIT :: 16384
+GALLERY_NAME_LIMIT :: 22
+
+PaintGallery :: struct {
+    refs: [GALLERY_LIMIT]s32
+    count: s32
+    next_id: s32
+    selected: s32 // Zero-based index, -1 only when no entry is selected.
+}
+
+GalleryClear :: (gallery: *PaintGallery) {
+    gallery.count = 0
+    gallery.next_id = 1
+    gallery.selected = -1
+    for index: cast(s32)0..GALLERY_LIMIT - 1 { gallery.refs[index] = 0 }
+}
+
+GalleryRefValid :: (ref: s32) -> bool {
+    return (ref >= -GALLERY_LEGACY_SLOTS && ref <= -1) || (ref > 0 && ref <= GALLERY_MAX_ID)
+}
+
+// Returns owned text, or empty text for an invalid ref. Never accepts a path.
+GalleryFile :: (ref: s32) -> string {
+    if !GalleryRefValid(ref) { return "" }
+    text: Vec(u8)
+    if ref < 0 { BuilderPrint(*text, "slot-%.txt", -ref - 1) }
+    else { BuilderPrint(*text, "picture-%.txt", ref) }
+    return BuilderFinish(text)
+}
+
+// Canonical unsigned decimal followed by exactly delimiter, with no leading
+// zeroes, overflow, signs, whitespace or missing digits. -1 means invalid.
+GalleryNumber :: (text: string, at: *s64, delimiter: u8, maximum: s32) -> s32 {
+    start := at.*
+    value: s32 = 0
+    while at.* < text.count && text[at.*] != delimiter {
+        byte := text[at.*]
+        if byte < #char "0" || byte > #char "9" { return -1 }
+        if at.* > start && text[start] == #char "0" { return -1 }
+        digit := cast(s32)(byte - #char "0")
+        if digit > maximum || value > (maximum - digit) / 10 { return -1 }
+        value = value * 10 + digit
+        at.* += 1
+    }
+    if at.* == start || at.* >= text.count { return -1 }
+    at.* += 1
+    return value
+}
+
+// Inverse safe-name helper: 0 means invalid, including traversal, suffixes,
+// embedded NUL, zero/negative/overlarge picture IDs and noncanonical digits.
+GalleryRef :: (name: string) -> s32 {
+    if name.count < 10 || name.count > GALLERY_NAME_LIMIT || name[name.count - 4:] != ".txt" { return 0 }
+    if name.count == 10 && name[:5] == "slot-" && name[5] >= #char "0" && name[5] <= #char "5" {
+        return -cast(s32)(name[5] - #char "0") - 1
+    }
+    if name.count < 13 || name[:8] != "picture-" { return 0 }
+    at: s64 = 8
+    id := GalleryNumber(name, *at, #char ".", GALLERY_MAX_ID)
+    if id <= 0 || at != name.count - 3 { return 0 }
+    return id
+}
+
+GalleryFind :: (gallery: *PaintGallery, ref: s32) -> s32 {
+    if !GalleryRefValid(ref) || gallery.count < 0 || gallery.count > GALLERY_LIMIT { return -1 }
+    for index: cast(s32)0..gallery.count - 1 { if gallery.refs[index] == ref { return index } }
+    return -1
+}
+
+GalleryValid :: (gallery: *PaintGallery) -> bool {
+    if gallery.count < 0 || gallery.count > GALLERY_LIMIT || gallery.next_id < 1 { return false }
+    if gallery.selected < -1 || gallery.selected >= gallery.count { return false }
+    last_id: s32 = 0
+    legacy_seen: s32 = 0
+    for index: cast(s32)0..gallery.count - 1 {
+        ref := gallery.refs[index]
+        if !GalleryRefValid(ref) || (ref > 0 && ref >= gallery.next_id) { return false }
+        if ref > 0 { if ref <= last_id { return false }; last_id = ref }
+        if ref < 0 {
+            bit := cast(s32)1 << (-ref - 1)
+            if (legacy_seen & bit) != 0 { return false }
+            legacy_seen |= bit
+        }
+    }
+    return true
+}
+
+// Next candidate after a filename already found on disk. No mutation or I/O.
+// The caller must probe availability before writing/appending; interrupted
+// index writes can leave orphan pictures. 0 means full, invalid or exhausted.
+GalleryNextID :: (gallery: *PaintGallery, after: s32 = 0) -> s32 {
+    if !GalleryValid(gallery) || gallery.count == GALLERY_LIMIT || after < 0 || after >= GALLERY_MAX_ID { return 0 }
+    candidate := gallery.next_id
+    if candidate <= after { candidate = after + 1 }
+    return ifx candidate <= GALLERY_MAX_ID then candidate else 0
+}
+
+// Append only a fresh positive ID at/above the counter, then select it.
+// Skipping orphan IDs is allowed. Existing entries can never be overwritten.
+GalleryAppend :: (gallery: *PaintGallery, id: s32) -> bool {
+    if id <= 0 || id > GALLERY_MAX_ID || !GalleryValid(gallery) || gallery.count == GALLERY_LIMIT || id < gallery.next_id { return false }
+    gallery.refs[gallery.count] = id
+    gallery.selected = gallery.count
+    gallery.count += 1
+    gallery.next_id = id + 1
+    return true
+}
+
+// Import only slots whose bytes the caller has found and validated. This
+// records their old filenames; it never copies or rewrites their pictures.
+GalleryAppendLegacy :: (gallery: *PaintGallery, slot: s32) -> bool {
+    if slot < 0 || slot >= GALLERY_LEGACY_SLOTS || !GalleryValid(gallery) || gallery.count == GALLERY_LIMIT { return false }
+    ref := -slot - 1
+    if GalleryFind(gallery, ref) >= 0 { return false }
+    gallery.refs[gallery.count] = ref
+    gallery.selected = gallery.count
+    gallery.count += 1
+    return true
+}
+
+GallerySelect :: (gallery: *PaintGallery, index: s32) -> bool {
+    if !GalleryValid(gallery) || index < -1 || index >= gallery.count { return false }
+    gallery.selected = index
+    return true
+}
+
+// Pointer avoids copying the fixed index for each save/preview. Invalid
+// in-memory state returns empty text. BuilderFinish returns owned text.
+// Format: count next-ID selected-plus-one, then byte-length + safe filename.
+GalleryText :: (gallery: *PaintGallery) -> string {
+    if !GalleryValid(gallery) { return "" }
+    text: Vec(u8)
+    BuilderPrint(*text, "%", GALLERY_HEADER)
+    BuilderPrint(*text, "% % %\n", gallery.count, gallery.next_id, gallery.selected + 1)
+    for index: cast(s32)0..gallery.count - 1 {
+        name := GalleryFile(gallery.refs[index])
+        BuilderPrint(*text, "% %\n", name.count, name)
+    }
+    return BuilderFinish(text)
+}
+
+// Bounded and all-or-nothing, including every unused array cell. A temporary
+// 2 KiB scalar index is committed once; no input strings survive this call.
+GalleryRead :: (text: string, gallery: *PaintGallery) -> bool {
+    if text.count < GALLERY_HEADER.count || text.count > GALLERY_TEXT_LIMIT || text[:GALLERY_HEADER.count] != GALLERY_HEADER { return false }
+    at := GALLERY_HEADER.count
+    parsed: PaintGallery
+    parsed.count = GalleryNumber(text, *at, #char " ", GALLERY_LIMIT)
+    parsed.next_id = GalleryNumber(text, *at, #char " ", GALLERY_MAX_ID + 1)
+    chosen := GalleryNumber(text, *at, cast(u8)10, GALLERY_LIMIT)
+    if parsed.count < 0 || parsed.next_id < 1 || chosen < 0 || chosen > parsed.count { return false }
+    parsed.selected = chosen - 1
+    last_id: s32 = 0
+    legacy_seen: s32 = 0
+    for index: cast(s32)0..parsed.count - 1 {
+        length := GalleryNumber(text, *at, #char " ", GALLERY_NAME_LIMIT)
+        if length < 1 || at + cast(s64)length >= text.count { return false }
+        ref := GalleryRef(text[at:at + cast(s64)length])
+        if ref == 0 || (ref > 0 && ref >= parsed.next_id) || text[at + cast(s64)length] != cast(u8)10 { return false }
+        if ref > 0 { if ref <= last_id { return false }; last_id = ref }
+        if ref < 0 {
+            bit := cast(s32)1 << (-ref - 1)
+            if (legacy_seen & bit) != 0 { return false }
+            legacy_seen |= bit
+        }
+        parsed.refs[index] = ref
+        at += cast(s64)length + 1
+    }
+    if at != text.count { return false }
+    gallery.* = parsed
+    return true
+}

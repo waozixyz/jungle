@@ -1,0 +1,109 @@
+// Pure model tests: no picture imports, filesystem, UI or host effects.
+#import, file "../games/paint/paint_gallery.zi";
+#import "std/format"
+
+Fail :: (step: s32) -> s32 { print("paint gallery failed at %\n", step); return step }
+
+Same :: (a: *PaintGallery, b: *PaintGallery) -> bool {
+    if a.count != b.count || a.next_id != b.next_id || a.selected != b.selected { return false }
+    for index: cast(s32)0..GALLERY_LIMIT - 1 { if a.refs[index] != b.refs[index] { return false } }
+    return true
+}
+
+Refused :: (text: string, gallery: *PaintGallery, kept: *PaintGallery) -> bool {
+    return !GalleryRead(text, gallery) && Same(gallery, kept)
+}
+
+#program_export
+main :: () -> s32 {
+    gallery: PaintGallery
+    GalleryClear(*gallery)
+    if !GalleryValid(*gallery) || gallery.count != 0 || gallery.selected != -1 || GalleryNextID(*gallery) != 1 { return Fail(1) }
+    empty := GalleryText(*gallery)
+    if empty != "JUNGLE GALLERY1\n0 1 0\n" { return Fail(2) }
+    loaded: PaintGallery
+    if !GalleryRead(empty, *loaded) || !Same(*gallery, *loaded) { return Fail(3) }
+    // Import every old slot without assigning it a new file or consuming IDs.
+    for slot: cast(s32)0..5 {
+        if !GalleryAppendLegacy(*gallery, slot) || gallery.refs[slot] != -slot - 1 || GalleryRef(GalleryFile(-slot - 1)) != -slot - 1 { return Fail(4) }
+    }
+    if gallery.next_id != 1 || gallery.count != 6 || GalleryAppendLegacy(*gallery, 0) || GalleryAppendLegacy(*gallery, -1) || GalleryAppendLegacy(*gallery, 6) { return Fail(5) }
+    if GalleryFile(-1) != "slot-0.txt" || GalleryFile(-6) != "slot-5.txt" || GalleryFile(1) != "picture-1.txt" { return Fail(6) }
+    if GalleryFile(0) != "" || GalleryFile(-7) != "" || GalleryFile(GALLERY_MAX_ID + 1) != "" { return Fail(7) }
+    // Orphan probing is caller-owned: skip unavailable 1,2,3 before appending 4.
+    if GalleryNextID(*gallery, 3) != 4 || gallery.next_id != 1 || !GalleryAppend(*gallery, 4) { return Fail(8) }
+    if gallery.refs[6] != 4 || gallery.next_id != 5 || gallery.selected != 6 || GalleryFind(*gallery, 4) != 6 || GalleryFind(*gallery, -4) != 3 || GalleryFind(*gallery, 3) != -1 { return Fail(9) }
+    if GalleryNextID(*gallery) != 5 || GalleryNextID(*gallery, 2) != 5 || GalleryNextID(*gallery, -1) != 0 { return Fail(10) }
+    kept := gallery
+    if GalleryAppend(*gallery, 4) || GalleryAppend(*gallery, 3) || GalleryAppend(*gallery, 0) || GalleryAppend(*gallery, -1) || !Same(*gallery, *kept) { return Fail(11) }
+    if !GallerySelect(*gallery, 0) || gallery.selected != 0 || GallerySelect(*gallery, 7) || GallerySelect(*gallery, -2) || gallery.selected != 0 { return Fail(12) }
+    saved := GalleryText(*gallery)
+    if !GalleryRead(saved, *loaded) || !Same(*gallery, *loaded) || GalleryText(*loaded) != saved { return Fail(13) }
+    if !GallerySelect(*loaded, -1) || !GalleryRead(GalleryText(*loaded), *gallery) || gallery.selected != -1 { return Fail(14) }
+    // A tiny index has explicit lengths, selected-plus-one and a next counter.
+    GalleryClear(*loaded)
+    if !GalleryAppendLegacy(*loaded, 5) || !GalleryAppend(*loaded, 12) { return Fail(15) }
+    sample := "JUNGLE GALLERY1\n2 13 2\n10 slot-5.txt\n14 picture-12.txt\n"
+    if GalleryText(*loaded) != sample || !GalleryRead(sample, *gallery) || !Same(*gallery, *loaded) { return Fail(16) }
+    // Rejection preserves even unused fixed-array cells, not only text output.
+    gallery.refs[GALLERY_LIMIT - 1] = 123456
+    kept = gallery
+    for cut: cast(s64)0..sample.count - 1 { if !Refused(sample[:cut], *gallery, *kept) { return Fail(17) } }
+    invalid: [39]string = .[
+        "", "JUNGLE GALLERY2\n0 1 0\n", "JUNGLE GALLERY1\r\n0 1 0\n",
+        "JUNGLE GALLERY1\n513 514 0\n", "JUNGLE GALLERY1\n-1 1 0\n", "JUNGLE GALLERY1\n00 1 0\n",
+        "JUNGLE GALLERY1\n0 0 0\n", "JUNGLE GALLERY1\n0 01 0\n", "JUNGLE GALLERY1\n0 2147483648 0\n",
+        "JUNGLE GALLERY1\n0 999999999999999999999999 0\n", "JUNGLE GALLERY1\n0 1 1\n", "JUNGLE GALLERY1\n0 1 -1\n",
+        "JUNGLE GALLERY1\n0 1 00\n", "JUNGLE GALLERY1\n0  1 0\n", "JUNGLE GALLERY1\n0 1 0\n\n",
+        "JUNGLE GALLERY1\n1 2 1\n12 picture-1.txt\n", "JUNGLE GALLERY1\n1 2 1\n14 picture-1.txt\n",
+        "JUNGLE GALLERY1\n1 2 1\n013 picture-1.txt\n", "JUNGLE GALLERY1\n1 2 1\n0 \n",
+        "JUNGLE GALLERY1\n1 2 1\n23 picture-1.txt\n", "JUNGLE GALLERY1\n1 2 1\n13 picture-1.txt\r\n",
+        "JUNGLE GALLERY1\n1 1 1\n13 picture-1.txt\n", "JUNGLE GALLERY1\n1 3 1\n13 picture-3.txt\n",
+        "JUNGLE GALLERY1\n1 2 1\n13 picture-0.txt\n", "JUNGLE GALLERY1\n1 2 1\n14 picture-01.txt\n",
+        "JUNGLE GALLERY1\n1 2 1\n14 picture--1.txt\n", "JUNGLE GALLERY1\n1 2 1\n10 slot-6.txt\n",
+        "JUNGLE GALLERY1\n1 2 1\n11 slot-00.txt\n", "JUNGLE GALLERY1\n1 2 1\n13 ../slot-0.txt\n",
+        "JUNGLE GALLERY1\n1 2 1\n13 /slot-000.txt\n", "JUNGLE GALLERY1\n1 2 1\n13 ..\\slot-0.txt\n",
+        "JUNGLE GALLERY1\n1 2 1\n13 PICTURE-1.txt\n", "JUNGLE GALLERY1\n1 2 1\n13 picture-1.exe\n",
+        "JUNGLE GALLERY1\n2 3 1\n13 picture-1.txt\n13 picture-1.txt\n",
+        "JUNGLE GALLERY1\n2 3 1\n10 slot-0.txt\n10 slot-0.txt\n",
+        "JUNGLE GALLERY1\n2 4 1\n13 picture-3.txt\n13 picture-2.txt\n",
+        "JUNGLE GALLERY1\n0 1 0\ntrailing text", "JUNGLE GALLERY1\n1 2 1\n13 picture-1.txt",
+        "JUNGLE GALLERY1\n1 2 2\n13 picture-1.txt\n"
+    ]
+    for text: invalid { if !Refused(text, *gallery, *kept) { return Fail(18) } }
+    names: [16]string = .["slot0.txt", "slot-6.txt", "slot--1.txt", "slot-00.txt", "../slot-0.txt", "picture-0.txt", "picture-01.txt", "picture-+1.txt", "picture-2147483647.txt", "picture-1.txt/", "picture-1.txt.txt", "picture-1.TXT", "picture-1/2.txt", "picture-1\\2.txt", "picture- 1.txt", ""]
+    for name: names { if GalleryRef(name) != 0 { return Fail(19) } }
+    nul: Vec(u8)
+    BuilderPrint(*nul, "%", sample)
+    nul[sample.count - 2] = 0
+    if !Refused(BuilderFinish(nul), *gallery, *kept) { return Fail(20) }
+    oversized: Vec(u8)
+    for index: cast(s32)0..GALLERY_TEXT_LIMIT { unused VecPush(oversized, #char "x") }
+    if !Refused(BuilderFinish(oversized), *gallery, *kept) { return Fail(21) }
+    // Capacity is metadata-only and keeps all six legacy entries, all newer
+    // refs, selection and skipped IDs through a full round-trip.
+    GalleryClear(*gallery)
+    for slot: cast(s32)0..5 { if !GalleryAppendLegacy(*gallery, slot) { return Fail(22) } }
+    while gallery.count < GALLERY_LIMIT {
+        if !GalleryAppend(*gallery, gallery.next_id + 1) { return Fail(23) }
+    }
+    full := GalleryText(*gallery)
+    if full.count > GALLERY_TEXT_LIMIT || !GalleryRead(full, *loaded) || !Same(*gallery, *loaded) { return Fail(24) }
+    kept = gallery
+    if GalleryAppend(*gallery, gallery.next_id) || GalleryAppendLegacy(*gallery, 0) || GalleryNextID(*gallery) != 0 || !Same(*gallery, *kept) { return Fail(25) }
+    // Exhausted counter is representable without signed overflow or ID reuse.
+    GalleryClear(*gallery)
+    if GalleryNextID(*gallery, GALLERY_MAX_ID - 1) != GALLERY_MAX_ID { return Fail(26) }
+    if !GalleryAppend(*gallery, GALLERY_MAX_ID) || gallery.next_id != GALLERY_MAX_ID + 1 || GalleryNextID(*gallery) != 0 || GalleryNextID(*gallery, GALLERY_MAX_ID) != 0 { return Fail(26) }
+    if GalleryRef(GalleryFile(GALLERY_MAX_ID)) != GALLERY_MAX_ID || !GalleryRead(GalleryText(*gallery), *loaded) || !Same(*gallery, *loaded) { return Fail(27) }
+    kept = gallery
+    if GalleryAppend(*gallery, GALLERY_MAX_ID) || GalleryAppend(*gallery, GALLERY_MAX_ID + 1) || !Same(*gallery, *kept) { return Fail(28) }
+    // Refuse corrupt caller-owned structures rather than emitting bad files.
+    loaded.count = GALLERY_LIMIT + 1
+    if GalleryText(*loaded) != "" || GalleryNextID(*loaded) != 0 || GalleryAppend(*loaded, 2) || GallerySelect(*loaded, 0) { return Fail(29) }
+    GalleryClear(*loaded)
+    loaded.next_id = 0
+    if GalleryText(*loaded) != "" || GalleryAppendLegacy(*loaded, 0) { return Fail(30) }
+    print("local paint gallery model test passed: legacy refs, stable IDs, orphan skips, selection, atomic reads, malformed names/counters, 512 entries and exhaustion\n")
+    return 0
+}

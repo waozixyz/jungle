@@ -6,6 +6,7 @@
 #import "kryon/tree_input"
 #import "kryon/key_input"
 #import "kryon/input_protocol"
+#import "kryon/frame_snapshot"
 #import, file "../host/platform.zi";
 #import, file "../host/sound.zi";
 #import, file "../host/jungle_host.zi";
@@ -31,7 +32,7 @@ Frame :: (session: Session, viewport: Rectangle) -> s32 {
     if key == JUNGLE_BACK_KEY { home_requested = true; key = 0 }
     typed: [256]u8
     text := TypedTextTake(session, typed[:])
-    if !GameFrame(viewport, PointerSample(session), SecondaryPointerFrame.{}, key, 0, 0.0, text, JungleSeconds()) {
+    if !GameFrame(viewport, PointerSample(session), SecondaryPointerFrame.{}, key, 0, 0.0, text, JungleSeconds(), CaptureFrameInput(session)) {
         CloseGame()
         message = "THAT GAME STOPPED."
     } else if home_requested {

@@ -3,11 +3,12 @@ CATEGORY_COUNT :: 32
 category_ids: [32]string = .["jungle", "garden", "fruits", "farm", "kitchen", "bathroom", "bedroom", "living-room", "nature", "vegetables", "family", "breakfast", "lunch", "dinner", "body", "clothing", "seasons", "birds", "toys", "vehicles", "bedtime", "vacation", "sports", "beach", "weather", "feelings", "tropical-fruits", "gardening", "school", "water-animals", "drinks", "actions"];
 category_counts: [32]s32 = .{15, 10, 16, 20, 8, 8, 8, 8, 8, 16, 8, 8, 8, 8, 10, 12, 4, 6, 9, 6, 6, 6, 7, 6, 6, 10, 8, 7, 8, 8, 8, 8};
 category_starts: [32]s32 = .[0, 15, 25, 41, 61, 69, 77, 85, 93, 101, 117, 125, 133, 141, 149, 159, 171, 175, 181, 190, 196, 202, 208, 215, 221, 227, 237, 245, 252, 260, 268, 276];
-shelf_order: [32]s32 = .[0, 1, 3, 8, 16, 17, 24, 23, 27, 29, 2, 9, 11, 12, 13, 26, 30, 4, 5, 6, 7, 18, 19, 20, 21, 28, 10, 14, 15, 22, 25, 31];
-book_groups: [4]string = .["Nature","Food","Home","Family"];
-group_starts: [4]s32 = .[0,10,17,26];
-group_counts: [4]s32 = .[10,7,9,6];
-category_groups: [32]s32 = .[0,0,1,0,2,2,2,2,0,1,3,1,1,1,3,3,0,0,2,2,2,2,3,0,0,3,1,0,2,0,1,3];
+BOOK_GROUP_COUNT :: 5
+shelf_order: [32]s32 = .[0, 3, 17, 29, 1, 8, 16, 24, 23, 27, 2, 9, 11, 12, 13, 26, 30, 4, 5, 6, 7, 18, 19, 20, 21, 28, 10, 14, 15, 22, 25, 31];
+book_groups: [5]string = .["Animals","Nature","Food","Home","Family"];
+group_starts: [5]s32 = .[0,4,10,17,26];
+group_counts: [5]s32 = .[4,6,7,9,6];
+category_groups: [32]s32 = .[0,1,2,0,3,3,3,3,1,2,4,2,2,2,4,4,1,0,3,3,3,3,4,1,1,4,2,1,3,0,2,4];
 category_names: [32]string = .["Wild animals", "Garden", "Fruits", "Farm", "Kitchen", "Bathroom", "Bedroom", "Living room", "Nature", "Vegetables", "Family", "Breakfast", "Lunch", "Dinner", "Body Parts", "Clothing", "Seasons", "Birds", "Toys", "Vehicles", "Bedtime", "Vacation", "Sports", "Beach", "Weather", "Feelings", "Tropical Fruits", "Gardening", "School", "Water Animals", "Drinks", "Actions"];
 category_previews: [32]string = .["assets/jungle-book/previews/jungle.jpg", "assets/jungle-book/previews/garden.jpg", "assets/jungle-book/previews/fruits.jpg", "assets/jungle-book/previews/farm.jpg", "assets/jungle-book/previews/kitchen.jpg", "assets/jungle-book/previews/bathroom.jpg", "assets/jungle-book/previews/bedroom.jpg", "assets/jungle-book/previews/living-room.jpg", "assets/jungle-book/previews/nature.jpg", "assets/jungle-book/previews/vegetables.jpg", "assets/jungle-book/previews/family.jpg", "assets/jungle-book/previews/breakfast.jpg", "assets/jungle-book/previews/lunch.jpg", "assets/jungle-book/previews/dinner.jpg", "assets/jungle-book/previews/body.jpg", "assets/jungle-book/previews/clothing.jpg", "assets/jungle-book/previews/seasons.jpg", "assets/jungle-book/previews/birds.jpg", "assets/jungle-book/previews/toys.jpg", "assets/jungle-book/previews/vehicles.jpg", "assets/jungle-book/previews/bedtime.jpg", "assets/jungle-book/previews/vacation.jpg", "assets/jungle-book/previews/sports.jpg", "assets/jungle-book/previews/beach.jpg", "assets/jungle-book/previews/weather.jpg", "assets/jungle-book/previews/feelings.jpg", "assets/jungle-book/previews/tropical-fruits.jpg", "assets/jungle-book/previews/gardening.jpg", "assets/jungle-book/previews/school.jpg", "assets/jungle-book/previews/water-animals.jpg", "assets/jungle-book/previews/drinks.jpg", "assets/jungle-book/previews/actions.jpg"];
 page_paths_0: [48]string = .[

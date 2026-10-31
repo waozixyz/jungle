@@ -49,6 +49,7 @@ def main():
     catalog += f"category_counts: [{len(BOOKS)}]s32 = .{{{counts}}};\n"
     catalog += f"category_starts: [{len(BOOKS)}]s32 = .[" + ", ".join(map(str, starts)) + "];\n"
     groups = BOOK_GROUPS
+    catalog += f"BOOK_GROUP_COUNT :: {len(groups)}\n"
     order = [category for _, members in groups for category in members]
     assert len(order) == len(set(order)) == len(BOOKS) and set(order) == set(dict(BOOKS))
     catalog += f"shelf_order: [{len(BOOKS)}]s32 = .[" + ", ".join(str([c for c, _ in BOOKS].index(c)) for c in order) + "];\n"

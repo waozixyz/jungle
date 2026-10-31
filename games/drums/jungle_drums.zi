@@ -7,9 +7,10 @@
 #import "kryon/text_align"
 #import "kryon/shape_props"
 #import "kryon/shape_widget"
+#import "kryon/image_props"
+#import "kryon/image_widget"
 #import "kryon/svg_icon_props"
 #import "kryon/svg_icon_widget"
-Play :: #import "mingcute/mingcute_filled_play";
 Replay :: #import "mingcute/mingcute_regular_refresh_2";
 Next :: #import "mingcute/mingcute_regular_arrow_right";
 Music :: #import "mingcute/mingcute_regular_music_2";
@@ -27,17 +28,19 @@ drums: Drums;
 drums_loaded: bool;
 drums_width: s32;
 drums_height: s32;
-drums_down: [4]bool;
-drums_glow: [4]float64;
+drums_down: [8]bool;
+drums_glow: [8]float64;
+drums_hit_time: [8]float64;
 drums_retry_until: float64;
 drums_explaining: bool;
 drums_explain_started: float64;
-drums_sounds: [4]string = .["low_drum", "small_drum", "shaker", "bell"];
-drums_pictures: [4]string = .[
+drums_sounds: [8]string = .["big_drum", "small_drum", "shaker", "bell", "xylophone", "guitar", "cymbal", "tambourine"];
+drums_pictures: [8]string = .[
     "assets/drums/pictures/big-drum.png", "assets/drums/pictures/little-drum.png",
-    "assets/drums/pictures/shaker.png", "assets/drums/pictures/bell.png"
+    "assets/drums/pictures/shaker.png", "assets/drums/pictures/bell.png",
+    "assets/drums/pictures/xylophone.png", "assets/drums/pictures/guitar.png",
+    "assets/drums/pictures/cymbal.png", "assets/drums/pictures/tambourine.png"
 ];
-drums_picture_sizes: [4]s32 = .[100, 56, 50, 48];
 
 DrumsText :: (en: string, de: string, es: string) -> string {
     if language == 1 { return de }
@@ -59,6 +62,8 @@ DrumsExplain :: () {
 }
 
 DrumsSound :: (pad: s32) {
+    if pad < 0 || pad >= DRUMS_PADS { return }
+    drums_hit_time[pad] = retro.now
     GameSound(Cat("assets/drums/sounds/", drums_sounds[pad], ".wav"))
     drums_glow[pad] = retro.now + 0.75
 }
@@ -76,7 +81,11 @@ DrumsPadName :: (pad: s32) -> string {
     if pad == 0 { return DrumsText("Big drum", "Große Trommel", "Tambor grande") }
     if pad == 1 { return DrumsText("Little drum", "Kleine Trommel", "Tambor pequeño") }
     if pad == 2 { return DrumsText("Shaker", "Rassel", "Sonajero") }
-    return DrumsText("Bell", "Glocke", "Campana")
+    if pad == 3 { return DrumsText("Bell", "Glocke", "Campana") }
+    if pad == 4 { return DrumsText("Xylophone", "Xylofon", "Xilófono") }
+    if pad == 5 { return DrumsText("Guitar", "Gitarre", "Guitarra") }
+    if pad == 6 { return DrumsText("Cymbal", "Becken", "Platillo") }
+    return DrumsText("Tambourine", "Tamburin", "Pandereta")
 }
 
 DrumsButton :: (id: s32, x: s32, y: s32, width: s32, label: string, icon: string, chosen: bool = false) -> bool {
@@ -90,7 +99,7 @@ DrumsButton :: (id: s32, x: s32, y: s32, width: s32, label: string, icon: string
 }
 
 DrumsPrompt :: () -> string {
-    if drums.mode == DRUMS_FREE { return DrumsText("Tap and make music", "Tippe und mach Musik", "Toca y haz música") }
+    if drums.mode == DRUMS_FREE { return "" }
     if drums.phase == DRUMS_DEMO { return DrumsText("Listen and watch", "Hör zu und schau hin", "Escucha y mira") }
     if drums_explaining { return DrumsText("Listen, then play along", "Hör zu und spiel mit", "Escucha y toca después") }
     if drums.phase == DRUMS_DONE { return DrumsText("Lovely! Another little rhythm?", "Schön! Noch ein kleiner Rhythmus?", "¡Muy bien! ¿Otro ritmo?") }
@@ -112,9 +121,7 @@ DrumsControls :: () {
         if entering { DrumsExplain() }
     }
     y := drums_height - 62
-    if drums.mode == DRUMS_FREE {
-        if DrumsButton(12, (drums_width - 150) / 2, y, 150, DrumsText("Hear", "Anhören", "Escuchar"), Play.Shape) { DrumsSay("free") }
-    } else {
+    if drums.mode == DRUMS_COPY {
         width = (drums_width - 56) / 3
         if DrumsButton(13, 12, y, width, DrumsText("Replay", "Noch mal", "Repetir"), Replay.Shape) {
             DrumsReplay(*drums, retro.now); drums_explaining = false; drums_retry_until = 0.0; unused AppService("jungle.voice", "")
@@ -127,34 +134,78 @@ DrumsControls :: () {
             if DrumsButton(15, 36 + width * 2, y, width, DrumsText("Next", "Weiter", "Siguiente"), Next.Shape, true) {
                 DrumsStart(*drums, DrumsSeed(), retro.now); unused DrumsSave(); drums_retry_until = 0.0
             }
-        } else if DrumsButton(16, 36 + width * 2, y, width, DrumsText("Hear", "Anhören", "Escuchar"), Play.Shape) {
-            DrumsExplain()
         }
     }
 }
 
-DrumsMat :: () {
-    mat_height := drums_height - 198
-    BookBox(10, 118, drums_width - 20, mat_height, 0xe4eddcff, 0xc4d3b7ff, 30.0)
-    BookBox(20, 128, drums_width - 40, mat_height - 20, 0xf1f5e7ff, 0, 24.0)
-    DrumsCircle(36, 146, 24, 0xd7e5c7ff)
-    DrumsCircle(46, 168, 14, 0xcfe0beff)
-    DrumsCircle(drums_width - 38, drums_height - 80, 25, 0xd7e5c7ff)
-    DrumsCircle(drums_width - 60, drums_height - 62, 15, 0xcfe0beff)
-}
+DrumsRoom :: (room: DrumsLayout) {
+    top := room.room_top; height := room.room_height
+    floor := top + height * 43 / 100
+    BookBox(8, top, drums_width - 16, height, 0xf4eddbff, 0xdacdb5ff, 18.0)
+    BookBox(9, floor, drums_width - 18, top + height - floor, 0xdfc7a3ff, 0, 12.0)
+    BookBox(10, floor - 6, drums_width - 20, 8, 0xc2ad8bff)
+    for line: cast(s32)1..4 {
+        y := floor + (top + height - floor) * line / 5
+        BookBox(14, y, drums_width - 28, 1, 0xcdb28bff)
+    }
+    // Soft daylight, a window and a rounded woven rug make a room even when
+    // its optional watercolor background has not finished loading.
+    window_x := drums_width * 44 / 100
+    window_width := drums_width * 19 / 100
+    BookBox(window_x, top + 12, window_width, height * 25 / 100, 0xb7cfc9ff, 0xa1b7adff, 8.0)
+    BookBox(window_x + 6, top + 18, window_width - 12, height * 25 / 100 - 12, 0xe4f1e4ff, 0, 5.0)
+    BookBox(window_x + window_width / 2 - 2, top + 15, 4, height * 25 / 100 - 6, 0xb7c6b3ff)
+    BookBox(window_x + 3, top + height * 13 / 100, window_width - 6, 4, 0xb7c6b3ff)
+    BookBox(drums_width * 13 / 100, top + height * 65 / 100, drums_width * 74 / 100, height * 30 / 100, 0xaac2adff, 0x92ad98ff, 55.0)
+    BookBox(drums_width * 16 / 100, top + height * 68 / 100, drums_width * 68 / 100, height * 24 / 100, 0xc5d5bbff, 0, 44.0)
+    background := "assets/drums/pictures/room.png"
+    if RetroImageReady(background) {
+        Image(retro.session, ImageProps.{.asset_path = background,
+            .bounds = RetroRect(9, top + 1, drums_width - 18, height - 2),
+            .fit = ImageFit.ImageFitCover, .smooth = true})
+    }
+    // A plank top, darker bevel, grain and two triangular brackets.
+    for pad: cast(s32)2..3 {
+        shelf := DrumsShelfPlace(pad, room)
+        BookBox(shelf.x - 5, shelf.y, shelf.edge + 10, 5, 0xc9a577ff, 0xa17a50ff, 1.0)
+        BookBox(shelf.x - 5, shelf.y + 5, shelf.edge + 10, 5, 0x94704cff)
+        BookBox(shelf.x, shelf.y + 2, shelf.edge - 2, 1, 0xe0bf8eff)
+        for bracket: cast(s32)0..1 {
+            bx := shelf.x + 5 + bracket * (shelf.edge - 16)
+            BookBox(bx, shelf.y + 10, 4, 15, 0x886342ff, 0, 1.0)
+            for step: cast(s32)0..10 {
+                BookBox(bx + step, shelf.y + 21 - step, 3, 3, 0x9d7952ff, 0, 1.0)
+            }
+        }
+    }
+    // A-frame stand behind the guitar: two splayed legs and padded cradles.
+    guitar := DrumsRoomPlace(5, room)
+    gx := guitar.x + guitar.edge / 2
+    gy := guitar.y + guitar.edge * 96 / 100
+    for step: cast(s32)0..32 {
+        spread := guitar.edge * step / 128
+        yy := gy - guitar.edge * 35 / 100 + guitar.edge * step / 90
+        BookBox(gx - spread - 3, yy, 6, 5, 0x665e50ff, 0, 2.0)
+        BookBox(gx + spread - 3, yy, 6, 5, 0x665e50ff, 0, 2.0)
+    }
+    BookBox(gx - guitar.edge / 7, gy - 5, guitar.edge * 2 / 7, 5, 0x514b42ff, 0, 2.0)
+    BookBox(gx - guitar.edge / 7, gy - 12, 6, 12, 0x514b42ff, 0, 3.0)
+    BookBox(gx + guitar.edge / 7 - 6, gy - 12, 6, 12, 0x514b42ff, 0, 3.0)
+    // Shadows stay at the floor anchor, including while the tambourine shakes.
+    for pad: cast(s32)0..DRUMS_PADS - 1 {
+        if pad == 2 || pad == 3 { continue }
+        place := DrumsRoomPlace(pad, room)
+        base: s32 = ifx pad == 7 then 86 else ifx pad == 6 then 93 else 97
+        BookBox(place.x + place.edge / 4, place.y + place.edge * base / 100,
+            place.edge / 2, 6, 0x806c4940, 0, 3.0)
+    }
 
-DrumsSlot :: (pad: s32, grid: DrumsLayout) -> DrumsPlace {
-    slot := ifx grid.columns == 2 then (ifx pad < 2 then pad + 2 else pad - 2) else pad
-    x := grid.left + slot % grid.columns * (grid.edge + 14)
-    y := 142 + grid.top + slot / grid.columns * (grid.edge + 14)
-    return DrumsPlace.{.x = x, .y = y}
 }
 
 DrumsInstrument :: (pad: s32, x: s32, y: s32, edge: s32) {
-    size := edge * drums_picture_sizes[pad] / 100
-    bottom := y + edge * 79 / 100
-    picture_x := x + (edge - size) / 2
-    picture_y := bottom - size + (ifx retro.now < drums_glow[pad] then 4 else 0)
+    size := edge
+    picture_x := x
+    picture_y := y
     press := RetroTap(100 + pad, picture_x, picture_y, size, size, DrumsPadName(pad))
     point_x := RetroPointX(press.x); point_y := RetroPointY(press.y)
     semantic := press.clicked && press.x == 0.0 && press.y == 0.0
@@ -175,9 +226,10 @@ DrumsInstrument :: (pad: s32, x: s32, y: s32, edge: s32) {
         DrumsCircle(center_x, center_y, size * 55 / 100, 0xf9e9b366)
         DrumsIcon(Music.Shape, center_x - 11, picture_y - 28, 22, 0x8d6d3fff)
     }
-    RetroSprite(drums_pictures[pad], picture_x, picture_y, size, size, -1, true)
-    label_height := ifx edge / 7 < 20 then 20 else edge / 7
-    BookText(x + 4, y + edge * 81 / 100, edge - 8, label_height, DrumsPadName(pad), 16,
+    shake: s32 = ifx pad == 7 then DrumsShakeX(retro.now - drums_hit_time[pad]) else 0
+    RetroSprite(drums_pictures[pad], picture_x + shake, picture_y, size, size, -1, true)
+    label_y := DrumsLabelY(pad, DrumsPlace.{.x = x, .y = y, .edge = edge})
+    BookText(x - 12, label_y, edge + 24, 22, DrumsPadName(pad), 16,
         TextAlign.TextAlignCenter, false)
 }
 
@@ -199,11 +251,13 @@ GameMain :: () -> s32 {
     if scale < 0.5 { scale = 0.5 }
     retro = Retro.{.session = AppSession(), .x = bounds.x, .y = bounds.y, .scale = scale, .now = AppNow(), .key = AppKey()}
     drums_width = cast(s32)(bounds.width / scale); drums_height = cast(s32)(bounds.height / scale)
-    BookPalette(); DrumsMat()
+    BookPalette()
+    room := DrumsRoomLayout(drums_width, drums_height, drums.mode == DRUMS_COPY)
+    DrumsRoom(room)
     if !drums_loaded {
         if !DrumsRead(DocumentRead(DRUMS_SAVE), *drums) { drums = DrumsNew() }
-        for i: cast(s32)0..3 { drums_down[i] = false; drums_glow[i] = -1.0 }
-        drums_retry_until = 0.0; drums_explaining = false; drums_loaded = true; DrumsSay("free")
+        for i: cast(s32)0..DRUMS_PADS - 1 { drums_down[i] = false; drums_glow[i] = -1.0; drums_hit_time[i] = -1.0 }
+        drums_retry_until = 0.0; drums_explaining = false; drums_loaded = true
     }
     if retro.key == KEY_ESCAPE { unused DrumsSave(); GameHome(); return 0 }
     DrumsControls()
@@ -217,8 +271,8 @@ GameMain :: () -> s32 {
     }
     emitted := DrumsTick(*drums, retro.now)
     if emitted >= 0 { DrumsSound(emitted) }
-    BookText(16, 58, drums_width - 32, 28, DrumsPrompt(), 20, TextAlign.TextAlignCenter, false)
     if drums.mode == DRUMS_COPY {
+        BookText(16, 58, drums_width - 32, 28, DrumsPrompt(), 20, TextAlign.TextAlignCenter, false)
         for i: cast(s32)0..drums.length - 1 {
             x := drums_width / 2 + (i * 2 - drums.length + 1) * 14
             shown := ifx drums.phase == DRUMS_DEMO then drums.demo_index > i else drums.copied > i
@@ -226,9 +280,8 @@ GameMain :: () -> s32 {
         }
         if drums.phase == DRUMS_DONE { DrumsIcon(Star.Shape, drums_width / 2 - 12, 88, 24, 0xd1a65aff) }
     }
-    grid := DrumsGrid(drums_width, drums_height - 216)
-    for pad: cast(s32)0..3 {
-        place := DrumsSlot(pad, grid); DrumsInstrument(pad, place.x, place.y, grid.edge)
+    for pad: cast(s32)0..DRUMS_PADS - 1 {
+        place := DrumsRoomPlace(pad, room); DrumsInstrument(pad, place.x, place.y, place.edge)
     }
     return 0
 }

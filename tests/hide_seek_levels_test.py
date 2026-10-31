@@ -7,14 +7,14 @@ import sys
 import tempfile
 import time
 
-from PIL import ImageChops
+from PIL import Image, ImageChops, ImageDraw
 
 import runtime_test as rt
 
 sys.path.insert(0, str(rt.ROOT / "tools"))
 from book_catalog import WORDS  # noqa: E402
 
-rt.OUTPUT = rt.ROOT / "backup/hide-seek-levels/ui"
+rt.OUTPUT = rt.ROOT / "work/hide-seek-levels/ui"
 BINARY = rt.ROOT / "build/app/jungle"
 MODEL = rt.ROOT / "games/hide_seek/hide_seek.zi"
 SCREEN = rt.ROOT / "games/hide_seek/jungle_hide_seek.zi"
@@ -34,9 +34,10 @@ WORDS_SHOWN = {
 def focused_build():
     subprocess.run(["make", "build/tests/hide_seek"], cwd=rt.ROOT, check=True)
     subprocess.run([str(rt.ROOT / "build/tests/hide_seek")], cwd=rt.ROOT, check=True)
-    subprocess.run(["make", "build/app/games/jungle-hide-seek.zx"], cwd=rt.ROOT, check=True)
     assert BINARY.exists(), "build the stable host first: make build/app/jungle"
-    print("local hide & seek build: rules unit and hosted bundle passed", flush=True)
+    bundle = rt.ROOT / "build/app/games/jungle-hide-seek.zx"
+    assert bundle.exists() and bundle.stat().st_mtime >= max(MODEL.stat().st_mtime, SCREEN.stat().st_mtime), "wait for the parent coordinated app build"
+    print("local hide & seek build: rules unit passed; coordinated hosted bundle is current", flush=True)
 
 
 def check_words_and_voices():
@@ -58,6 +59,9 @@ def check_words_and_voices():
     screen = SCREEN.read_text()
     for code, shown in WORDS_SHOWN.items():
         assert all(text in model or text in screen for text in shown), (code, shown)
+    for name in ("cottage-yard", "fenced-garden", "cozy-house", "farm-courtyard"):
+        path = rt.ROOT / f"assets/hide_seek/scenes/{name}.png"
+        assert path.exists() and min(Image.open(path).size) >= 1024, path
     print("local hide & seek words: friends, prompts and voice clips present in EN/DE/ES", flush=True)
 
 
@@ -92,12 +96,27 @@ def layout(width, height):
     return scale, w, h, buttons, (12, 84, w - 24, controls_y - 12 - 84)
 
 
+def place_layout(width, height, places, place):
+    """Same pure geometry as HideSeekSceneLayout; no time/reveal argument."""
+    _, _, _, _, (left, top, w, h) = layout(width, height)
+    tall = w < h
+    columns = 2 if tall and places > 2 else places
+    column, row = place % columns, place // columns
+    slot = w // columns
+    cx = slot * column + slot // 2
+    ground = h * (82 if column % 2 == 0 else 90) // 100
+    size, limit = slot * 64 // 100, h * 55 // 100
+    if tall and places > 2:
+        ground = h * (53 if row == 0 else 92) // 100
+        cx += -slot // 16 if row == 0 else slot // 16
+        limit = h * 27 // 100
+    size = min(size, limit, 230, (ground - 12) * 100 // 160)
+    return left + cx, top + ground, size
+
+
 def place_center(width, height, places, place):
-    _, w, h, _, (left, top, scene_w, scene_h) = layout(width, height)
-    columns = 2 if places >= 4 and scene_w < scene_h else places
-    rows = (places + columns - 1) // columns
-    slot, row = scene_w // columns, scene_h // rows
-    return left + (place % columns) * slot + slot / 2, top + (place // columns) * row + row / 2
+    cx, ground, size = place_layout(width, height, places, place)
+    return cx, ground - size * .45
 
 
 def save_path(data):
@@ -175,7 +194,6 @@ def remember_round(screen, label):
             time.sleep(PREVIEW_SECONDS + .9)
     else:
         raise AssertionError((label, "named friend never found", saved(data)))
-    time.sleep(.8)
     screen.capture(f"{label}-found")
     return remembered + 1
 
@@ -184,6 +202,7 @@ def find_round(screen, label):
     d, data = screen.d, screen.data
     level, found, remembered = saved(data)
     assert level == 1
+    hidden = screen.capture(f"{label}-hidden")
     for place in range(3):
         if place:
             d.key("Right")
@@ -193,92 +212,208 @@ def find_round(screen, label):
         assert saved(data) == [1, found, remembered], saved(data)
     else:
         raise AssertionError((label, "finding friend never found", saved(data)))
-    screen.capture(f"{label}-found")
+    assert changed(hidden, screen.capture(f"{label}-found")), "Find never revealed its friend"
     return found + 1
+
+
+def wait_state(data, expected, seconds=4):
+    until = time.monotonic() + seconds
+    while time.monotonic() < until:
+        if saved(data) == expected:
+            return
+        time.sleep(.05)
+    raise AssertionError(("automatic progression", saved(data), expected))
+
+
+def geometry_contract(screen):
+    """Every touch center belongs to a bounded stage; props have fixed bases."""
+    _, w, h, _, scene = layout(*screen.size)
+    for count in (2, 3, 4):
+        for place in range(count):
+            cx, ground, size = place_layout(*screen.size, count, place)
+            assert 12 < cx < w - 12 and scene[1] < ground < scene[1] + scene[3]
+            assert ground - size * 1.60 >= scene[1]
+
+
+def scene_image_present(screen):
+    # A missing hosted asset draws a literal placeholder. Catch that in the
+    # actual private raster instead of accepting merely present PNG files.
+    frame = screen.capture("scene-loaded")
+    scale, _, _, _, (x, y, w, h) = layout(*screen.size)
+    stage = frame.crop((round(x * scale), round(56 + y * scale),
+                        round((x + w) * scale), round(56 + (y + h) * scale)))
+    path = rt.OUTPUT / "scene-probe.png"
+    stage.resize((stage.width * 2, stage.height * 2)).save(path)
+    words = subprocess.run(["tesseract", str(path), "stdout", "--psm", "11"],
+                           capture_output=True, text=True, check=True).stdout.lower()
+    assert "missing image" not in words, "new scene backdrop failed to load in the actual host"
+    return stage
 
 
 def language_pass(language, temporary, legacy=False):
     data = Path(temporary) / language
     data.mkdir()
     (data / "language.txt").write_text(language)
-    if legacy:
-        save_path(data).parent.mkdir(parents=True)
-        save_path(data).write_text("hideseek 1 1 4\n")
+    save_path(data).parent.mkdir(parents=True)
+    save_path(data).write_text("hideseek 1 1 4\n" if legacy else "hideseek 2 0 4 0\n")
     with rt.Desktop(BINARY, data, screen_size="1280x900") as d:
         screen = Screen(d, data, language)
         d.game("Hide & Seek")
         screen.resize(SIZES[0])
         if legacy:
-            # The earlier two-mode save opens Find with its three places.
             screen.capture("legacy-find")
             assert save_path(data).read_text() == "hideseek 1 1 4\n", "legacy save changed on load"
-            d.key("Escape")
-            assert saved(data) == [1, 4, 0], saved(data)
-            d.game("Hide & Seek")
-        else:
-            # A fresh child starts on the gentle first level.
-            screen.capture("fresh")
-            d.key("Escape")
-            assert saved(data) == [0, 0, 0], saved(data)
-            d.game("Hide & Seek")
-        level, found, remembered = saved(data)
-
+        d.key("Escape")
+        expected_mode = 1 if legacy else 0
+        assert saved(data) == [expected_mode, 4, 0], saved(data)
+        d.game("Hide & Seek")
+        found, remembered = 4, 0
         for size in SIZES:
             screen.resize(size)
-            # Touch: every level from its numbered button, keeping progress.
+            geometry_contract(screen)
+            # Four consecutive manual rounds exercise the complete scene
+            # rotation. Every actual raster must load its backdrop.
+            stages = []
+            for _ in range(4):
+                screen.button("next")
+                stage = scene_image_present(screen)
+                stages.append(stage.crop((0, 0, stage.width, stage.height // 4)).tobytes())
+            assert len(set(stages)) == 4, "scene rotation repeated a backdrop early"
+            # All manual numbered buttons and keys keep the progress counts.
             for target in (0, 1, 2):
                 screen.button(target)
                 assert saved(data) == [target, found, remembered], (language, size, target, saved(data))
-                screen.capture(f"level{target + 1}")
-            # Keyboard: the number keys choose levels too.
-            d.key("1")
-            assert saved(data)[0] == 0
-            before = screen.capture("peekaboo-before")
-            screen.click(*place_center(*size, 3, 0))
-            time.sleep(.7)
-            assert changed(before, screen.capture("peekaboo-peek")), "Peekaboo tap did not reveal"
-            screen.button("help")  # hears the prompt again
+            # Manual touch controls remain available during a preview.
+            screen.button(1)
+            assert saved(data) == [1, found, remembered], "preview blocked manual level choice"
+            screen.button(2)
             screen.button("next")
-            assert saved(data) == [0, found, remembered], saved(data)
-            d.key("2")
+            assert saved(data) == [2, found, remembered], "preview blocked manual Next"
+            screen.button(0)
+            assert saved(data) == [0, found, remembered]
+            before = screen.capture("peekaboo-hidden")
+            # Keyboard reveals every friend; no count increments in Peekaboo.
+            # Three slots are possible. Extra Right/Return cannot count twice.
+            for place in range(3):
+                if place:
+                    d.key("Right")
+                d.key("Return")
+                assert saved(data)[1:] == [found, remembered]
+                # Once complete, stop before Enter's manual Next shortcut.
+                # A completion changes only the prompt until the timer fires.
+                if completion_visible(screen):
+                    break
+            else:
+                raise AssertionError("Peekaboo never completed")
+            shown = screen.capture("peekaboo-visible")
+            assert changed(before, shown), "Peekaboo did not reveal"
+            wait_state(data, [1, found, remembered])
+            # No new input means no immediate second completion/level skip.
+            time.sleep(.3)
+            assert saved(data) == [1, found, remembered]
             found = find_round(screen, f"find-{size[0]}")
-            assert saved(data) == [1, found, remembered], saved(data)
-            d.key("Return")  # next finding round
-            assert saved(data) == [1, found, remembered], saved(data)
-            d.key("3")
+            # Hold a pointer across the round change, then release it over
+            # the new scene. It must not activate a new round's hiding place.
+            cx, cy = place_center(*size, 4, 0)
+            scale = geometry(*size)[0]
+            rt.run(["xdotool", "mousemove", "--window", d.window, str(round(cx * scale)), str(round(56 + cy * scale))], d.env)
+            rt.run(["xdotool", "mousedown", "1"], d.env)
+            try:
+                wait_state(data, [2, found, remembered])
+                time.sleep(.2)
+            finally:
+                rt.run(["xdotool", "mouseup", "1"], d.env)
+            assert saved(data) == [2, found, remembered]
+            # Remember's full preview, hidden state, hints, help and success.
             remembered = remember_round(screen, f"remember-{size[0]}")
+            completed = screen.capture("remember-complete")
+            time.sleep(2.8)
             assert saved(data) == [2, found, remembered], saved(data)
-            d.key("Return")  # a new remembering round previews again
+            renewed = screen.capture("remember-auto-preview")
+            assert changed(completed, renewed), "Remember never started its new round"
+            # Holding Enter across the transition/preview must not find a friend.
+            rt.run(["xdotool", "keydown", "Return"], d.env)
+            try:
+                time.sleep(PREVIEW_SECONDS + .8)
+                # Visit every target while Enter remains held: this catches
+                # repeat carryover deterministically, not only when focus 0
+                # happened to hide the randomly chosen friend.
+                for _ in range(4):
+                    assert saved(data) == [2, found, remembered], ("held Enter carried over", saved(data))
+                    d.key("Right")
+                assert saved(data) == [2, found, remembered], ("held Enter carried over", saved(data))
+            finally:
+                rt.run(["xdotool", "keyup", "Return"], d.env)
+            # Manual Next can start over without changing level/counts.
+            screen.button("next")
             assert saved(data) == [2, found, remembered], saved(data)
-            screen.capture("remember-next-preview")
-
-        # Leaving mid-preview and reopening restarts the preview fairly with
-        # every count kept.
+            screen.capture("manual-next-preview")
+            # Replay/help starts the preview afresh without counting.
+            screen.button("help")
+            assert saved(data) == [2, found, remembered]
+            d.key("Page_Up")
+            assert saved(data) == [1, found, remembered]
+            # Finish Find then manually Next before the timer: stay on Find.
+            found = find_round(screen, "manual-find")
+            screen.button("next")
+            assert saved(data) == [1, found, remembered]
+            time.sleep(2.8)
+            assert saved(data) == [1, found, remembered], "old completion timer survived manual reset"
+        # Reopen Remember mid-preview; old saves and counts stay compatible.
+        d.key("3")
         before = save_path(data).read_text()
         d.key("Escape")
-        assert save_path(data).read_text() == before, "navigation changed progress"
+        assert save_path(data).read_text() == before
         d.game("Hide & Seek")
-        assert saved(data) == [2, found, remembered], saved(data)
-        screen.resize(SIZES[0])
-        remembered = remember_round(screen, "reopened")
-        # Back from the title bar keeps the level and both counts.
+        assert saved(data) == [2, found, remembered]
+        screen.capture("reopened-preview")
         d.click_actual(28, 28)
         d.game("Hide & Seek")
-        assert saved(data) == [2, found, remembered], saved(data)
-        screen.capture("resumed")
-        d.key("Page_Up")
-        assert saved(data) == [1, found, remembered], saved(data)
+        assert saved(data) == [2, found, remembered]
         d.key("Escape")
-    print(f"local hide & seek UI: {language} levels, touch/keyboard, help, preview, reopen and progress passed", flush=True)
+    print(f"local hide & seek UI: {language} 3 modes x 2 orientations, auto/manual progression, held input, preview/help, old save and reopen passed", flush=True)
+
+
+def completion_visible(screen):
+    # Read the actual rendered completion words on this private window only.
+    image = screen.capture("completion-probe")
+    scale = geometry(*screen.size)[0]
+    crop = image.crop((0, 56, image.width, round(56 + 84 * scale)))
+    # OCR uses only this owned private capture and disposable project work.
+    path = rt.OUTPUT / "prompt-probe.png"
+    crop.resize((crop.width * 3, crop.height * 3)).save(path)
+    result = subprocess.run(["tesseract", str(path), "stdout", "--psm", "6"],
+                            capture_output=True, text=True, check=True).stdout.lower()
+    return any(word in result for word in ("adventure", "gemacht", "aventura"))
+
+
+def review_picture():
+    picks = []
+    for width in (360, 960):
+        for state in ("peekaboo-hidden", "peekaboo-visible", "remember-complete"):
+            path = rt.OUTPUT / f"hide-en-{state}-{width}.png"
+            if path.exists():
+                shot = Image.open(path).convert("RGB")
+                shot.thumbnail((480, 600))
+                panel = Image.new("RGB", (500, 630), "#fffaf0")
+                panel.paste(shot, ((500 - shot.width) // 2, 26))
+                ImageDraw.Draw(panel).text((8, 7), f"{state} {width}", fill="black")
+                picks.append(panel)
+    sheet = Image.new("RGB", (1500, 1260), "#fffaf0")
+    for i, panel in enumerate(picks):
+        sheet.paste(panel, ((i % 3) * 500, (i // 3) * 630))
+    sheet.save(rt.OUTPUT.parent / "review.png")
 
 
 def main():
     focused_build()
     check_words_and_voices()
-    with tempfile.TemporaryDirectory(prefix="hide-seek-levels-") as temporary:
+    rt.OUTPUT.parent.mkdir(parents=True, exist_ok=True)
+    with tempfile.TemporaryDirectory(prefix="data-", dir=rt.OUTPUT.parent) as temporary:
         language_pass("en", temporary, legacy=True)
         language_pass("de", temporary)
         language_pass("es", temporary)
+    review_picture()
     print("local hide & seek levels test: all focused rules and private-host cases passed", flush=True)
 
 

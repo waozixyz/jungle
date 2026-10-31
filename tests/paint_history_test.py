@@ -8,7 +8,133 @@ import tempfile
 import time
 from pathlib import Path
 
-from runtime_test import Desktop, PICTURE_HEADER, ROOT, environment
+import runtime_test
+from runtime_test import PICTURE_HEADER, ROOT, environment
+
+WORK = ROOT / "work/paint-native-tests"
+
+
+class Desktop(runtime_test.Desktop):
+    """Reuse the owned Xvfb harness with disposable captures and logs."""
+    def __enter__(self):
+        WORK.mkdir(parents=True, exist_ok=True)
+        self._captures = tempfile.TemporaryDirectory(prefix="captures-", dir=WORK)
+        self._old_output = runtime_test.OUTPUT
+        runtime_test.OUTPUT = Path(self._captures.name)
+        self.log_tail = ""
+        return super().__enter__()
+
+    def capture(self, name, header=None):
+        picture = super().capture(name, header)
+        from PIL import Image
+        with Image.open(runtime_test.OUTPUT / (name + ".png")) as actual:
+            self.actual_size = actual.size
+        return picture
+
+    def __exit__(self, *args):
+        try:
+            super().__exit__(*args)
+            path = runtime_test.OUTPUT / "jungle.log"
+            if path.exists():
+                with path.open() as stream:
+                    stream.seek(0, 2)
+                    stream.seek(max(0, stream.tell() - 8000))
+                    self.log_tail = stream.read(8000)
+                if args and args[0] is not None and self.log_tail.strip():
+                    print(self.log_tail[-2000:], flush=True)
+        finally:
+            runtime_test.OUTPUT = self._old_output
+            self._captures.cleanup()
+
+    def wait_scene_picker(self, name):
+        deadline = time.monotonic() + 20
+        while time.monotonic() < deadline:
+            picture = self.capture(name, header=56)
+            colors = picture.crop((42, 54, 88, 86)).getcolors(10000)
+            white = sum(n for n, c in colors if min(c) > 245 and max(c)-min(c) < 6)
+            ink = sum(n for n, c in colors if max(c) < 180 and max(c)-min(c) < 6)
+            if white > 250 and ink > 10:
+                return picture
+            time.sleep(.1)
+        raise AssertionError("Coloring Book did not reach its categorized scene chooser")
+
+
+def paint_layout(desktop):
+    """Native LayoutMain geometry, in owned-window pixels below TitleBar."""
+    width, height = desktop.actual_size
+    height -= 56
+    pad = max(6, min(20, min(width, height) // 40))
+    gap = max(4, min(10, min(width, height) // 80))
+    if height > width:
+        tw = (width - pad * 2 - gap * 2) // 3
+        th = max(44, min(110, tw * 3 // 4))
+        cw = width - pad * 2
+        ch = cw * 3 // 4
+        room = height - pad * 3 - gap * 2 - th * 3
+        if ch > room:
+            ch, cw = room, room * 4 // 3
+        cx, cy = (width - cw) // 2, pad
+        below = cy + ch + pad
+        top = below + (height - pad - below - th * 3 - gap * 2) // 2
+        tools = [(pad + i % 3 * (tw + gap), top + i // 3 * (th + gap)) for i in range(9)]
+    else:
+        columns = 2 if height < 440 else 1
+        rows = 5 if columns == 2 else 9
+        th = (height - pad * 2 - gap * (rows - 1)) // rows
+        tw = max(64, min(th * 5 // 2, width // (8 if columns == 2 else 5)))
+        rail = tw * columns + gap * (columns - 1)
+        cw, room = width - pad * 3 - rail, height - pad * 2
+        ch = cw * 3 // 4
+        if ch > room:
+            ch, cw = room, room * 4 // 3
+        left = (width - rail - pad - cw) // 2
+        cx, cy = left + rail + pad, pad + (room - ch) // 2
+        top = cy + (ch - th * rows - gap * (rows - 1)) // 2
+        tools = [(left + i % columns * (tw + gap), top + i // columns * (th + gap)) for i in range(9)]
+    return (cx, cy, cw, ch), [(x + tw / 2, y + th / 2 + 56) for x, y in tools]
+
+
+def stencil_layout(desktop):
+    """Picker hit rectangles in actual window pixels; legacy dialogs stay virtual."""
+    width, total = desktop.actual_size
+    height = total - 56
+    pad, gap = (8, 6) if height < 440 else (16, 10)
+    cols, tab_cols = (2, 2) if width < 600 else (3, 4)
+    rows = 6 // cols
+    tab_y = pad + 30 + gap
+    tab_w = (width - pad * 2 - gap * (tab_cols - 1)) // tab_cols
+    grid_y = tab_y + 4 // tab_cols * (44 + gap)
+    footer_y = height - pad - 44
+    card_w = (width - pad * 2 - gap * (cols - 1)) // cols
+    card_h = (footer_y - gap - grid_y - gap * (rows - 1)) // rows
+    footer_w = (width - pad * 2 - gap * 2) // 3
+    return {
+        'category': [(pad + i % tab_cols * (tab_w + gap), 56 + tab_y + i // tab_cols * (44 + gap), tab_w, 44) for i in range(4)],
+        'tile': [(pad + i % cols * (card_w + gap), 56 + grid_y + i // cols * (card_h + gap), card_w, card_h) for i in range(6)],
+        'previous': [(pad, 56 + footer_y, footer_w, 44)],
+        'next': [(width - pad - footer_w, 56 + footer_y, footer_w, 44)],
+    }
+
+
+def stencil_click(desktop, kind='tile', index=0):
+    x, y, w, h = stencil_layout(desktop)[kind][index]
+    desktop.click_actual(x + w / 2, y + h / 2)
+
+
+def tool(desktop, index):
+    desktop.click_actual(*paint_layout(desktop)[1][index])
+
+
+def pixel_click(desktop, x, y):
+    left, top, width, height = paint_layout(desktop)[0]
+    desktop.click_actual(left + (x + .5) * width / 960, 56 + top + (y + .5) * height / 720)
+
+
+def open_slots(desktop):
+    tool(desktop, 4)
+    desktop.capture("paint-gallery", header=56)
+    desktop.click(250, 38)
+    desktop.capture("paint-slots", header=56)
 
 HEADER = b"JUNGLE UNDO 1\n"
 STEPS = 8
@@ -31,7 +157,7 @@ def fnv(data):
     return value
 
 
-def history(folder):
+def _history(folder):
     """The steps of working-undo.txt, after checking that it names working.txt."""
     saved = (folder / "working-undo.txt").read_bytes()
     working = (folder / "working.txt").read_bytes()
@@ -47,6 +173,19 @@ def history(folder):
         rest = rest[int(size):]
     assert rest == b"" and len(steps) <= STEPS
     return steps
+
+
+def history(folder):
+    # working.txt is atomically replaced before its bound sidecar. Wait for
+    # both documents to settle instead of mistaking that frame for corruption.
+    deadline = time.monotonic() + 10
+    while True:
+        try:
+            return _history(folder)
+        except (FileNotFoundError, AssertionError):
+            if time.monotonic() >= deadline:
+                raise
+            time.sleep(.1)
 
 
 def pure():
@@ -80,7 +219,7 @@ def open_paint(desktop, name):
 
 def undo(desktop, working, expected):
     before = working.read_bytes()
-    desktop.click(30, 160)
+    tool(desktop, 6)
     if scenery(expected) == scenery(before):
         time.sleep(.6)
         assert working.read_bytes() == before, "Undo changed a picture with no history left"
@@ -90,16 +229,17 @@ def undo(desktop, working, expected):
 
 def fill(desktop, working, swatch):
     before = working.read_bytes()
-    desktop.click(30, 40)
+    tool(desktop, 1)
     desktop.capture("paint-history-colors", header=56)
     desktop.click(38 + swatch % 7 * 41, 40 + swatch // 7 * 23)
-    desktop.click(71, 13)
+    pixel_click(desktop, 20, 20)
     return changed(working, before)
 
 
 def ui():
     binary = ROOT / "build/app/jungle"
-    with tempfile.TemporaryDirectory(prefix="jungle-paint-history-") as temporary:
+    WORK.mkdir(parents=True, exist_ok=True)
+    with tempfile.TemporaryDirectory(prefix="history-", dir=WORK) as temporary:
         root = Path(temporary)
         data = root / "data"
         folder = data / "games/jungle.paint"
@@ -108,7 +248,7 @@ def ui():
         with Desktop(binary, data) as desktop:
             desktop.game("Coloring Book")
             desktop.wait_scene_picker("paint-history-scenes")
-            desktop.click(65, 60)
+            desktop.click(65, 78)
             pictures.append(changed(working, b""))
             desktop.key("Escape")
             desktop.capture("paint-history-main", header=56)
@@ -172,7 +312,7 @@ def ui():
         paint = slots / "games/jungle.paint"
         with Desktop(binary, slots) as desktop:
             open_paint(desktop, "paint-history-slots")
-            desktop.click(30, 110)
+            open_slots(desktop)
             desktop.capture("paint-history-save", header=56)
             desktop.click(50, 80)
             deadline = time.monotonic() + 10
@@ -180,7 +320,7 @@ def ui():
                 time.sleep(.1)
             assert scenery((paint / "slot-0.txt").read_bytes()) == scenery(pictures[9])
             assert same(history(paint), pictures[2:9]), "saving a slot changed the history"
-            desktop.click(30, 110)
+            open_slots(desktop)
             desktop.click(210, 38)
             desktop.click(50, 80)
             time.sleep(.6)
