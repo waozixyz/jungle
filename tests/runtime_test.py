@@ -31,7 +31,9 @@ def run(command, env):
 
 
 def check_saves(binary):
-    with tempfile.TemporaryDirectory(prefix="jungle-runtime-") as temporary:
+    work = ROOT / "work/runtime-tests"
+    work.mkdir(parents=True, exist_ok=True)
+    with tempfile.TemporaryDirectory(prefix="jungle-runtime-", dir=work) as temporary:
         data = Path(temporary)
         progress = data / "games/jungle.animals/progress.txt"
         progress.parent.mkdir(parents=True)
@@ -190,6 +192,7 @@ class Desktop:
              self.window, str(path)], self.env)
         from PIL import Image
         picture = Image.open(path).convert("RGB")
+        self.actual_size = picture.size
         # Jungle opens windowed at a default integral scale.
         if header is None:
             header = 56 if picture.height > 56 and picture.getpixel((0,55)) in ((218,205,181), (213,225,231), (203,218,219)) else 0
@@ -207,11 +210,11 @@ class Desktop:
         deadline = time.monotonic() + 20
         while time.monotonic() < deadline:
             picture = self.capture(name, header=56)
-            tile = picture.crop((33, 33, 97, 78))
+            tile = picture.crop((42, 54, 88, 86))
             colors = {color: count for count, color in tile.getcolors(10000)}
             white = sum(count for color,count in colors.items() if min(color) > 245 and max(color)-min(color) < 6)
             ink = sum(count for color,count in colors.items() if max(color) < 180 and max(color)-min(color) < 6)
-            if white > 500 and ink > 20:
+            if white > 250 and ink > 10:
                 return picture
             time.sleep(.1)
         raise AssertionError("Coloring Book did not reach its background chooser")
@@ -357,11 +360,145 @@ def assert_dinosaur(before, after, mirror=False):
     raise AssertionError("placement did not replace exactly the dinosaur body")
 
 
+def paint_ui(desktop, data):
+    """The Coloring Book regression, also callable without unrelated games."""
+    from PIL import ImageChops
+    from paint_history_test import open_slots, paint_layout, stencil_click, tool
+    desktop.game("Coloring Book")
+    scenes = desktop.wait_scene_picker("paint-scenes")
+    assert scenes.getpixel((5, 5)) == (227, 236, 228), "scene picker did not render its book background"
+    assert len(scenes.crop((42, 54, 88, 86)).getcolors(1 << 20)) > 1, "scene preview has no artwork"
+    desktop.click(65, 78)
+    desktop.capture("paint-dinosaurs", header=56)
+    stencil_click(desktop)
+    desktop.capture("paint-sizes")
+    desktop.click(280, 90)
+    painting = desktop.capture("paint-placement")
+    working = data / "games/jungle.paint/working.txt"
+    scene_only = working.read_bytes()
+    desktop.click(290, 170)
+    hovering = desktop.capture("paint-placement-waiting")
+    assert working.read_bytes() == scene_only, "clicking outside the box placed a dinosaur"
+    box_edge = [color for _, color in hovering.crop((64, 5, 100, 9)).getcolors(10000)]
+    assert (46, 105, 86) in box_edge, "placement box followed a hovering pointer"
+    desktop.drag(72, 14, 102, 14)
+    placed = desktop.capture("paint-placed")
+    x, y = assert_dinosaur(scene_only, working.read_bytes())
+    assert x > 60 and y == 0, f"the dinosaur did not move with the pointer: {x},{y}"
+    assert ImageChops.difference(painting.crop((64, 6, 315, 194)),
+                                placed.crop((64, 6, 315, 194))).getbbox(), "Huge dinosaur could not be placed"
+    black = dict((color, count) for count, color in placed.crop((64, 6, 315, 194)).getcolors(10000))
+    assert black.get((0, 0, 0), 0) < 20000, "dinosaur outline rendered as a solid rectangle"
+    once = working.read_bytes()
+    tool(desktop, 0)
+    stencil_click(desktop)
+    desktop.click(280, 90)
+    desktop.drag(72, 14, 117, 14)
+    time.sleep(.5)
+    assert_dinosaur(once, working.read_bytes())
+    tool(desktop, 6)
+    assert working.read_bytes() == once, "second placement painted the ground or changed the selected stencil"
+    tool(desktop, 6)
+    assert working.read_bytes() == scene_only, "Undo did not restore covered scene lines and colors"
+    tool(desktop, 0)
+    stencil_click(desktop)
+    desktop.click(280, 90)
+    desktop.drag(72, 14, 102, 14, mirror=True)
+    desktop.capture("paint-mirrored")
+    assert_dinosaur(scene_only, working.read_bytes(), mirror=True)
+    tool(desktop, 1)
+    desktop.click(8, 160)
+    desktop.capture("paint-color-cancelled")
+    assert working.read_bytes() != scene_only, "color cancel removed the dinosaur"
+    tool(desktop, 1)
+    colors = desktop.capture("paint-colors")
+    assert len(colors.crop((256, 122, 308, 150)).getcolors(1 << 20)) >= 3, "crayon swatches are missing"
+    assert colors.getpixel((284, 155)) == (60, 60, 60), "the last crayon is not dark charcoal"
+    desktop.click(284, 155)
+    desktop.click(71, 13)
+    desktop.capture("paint-colored")
+    tool(desktop, 2)
+    desktop.capture("paint-story")
+    desktop.type("Roar (and friend)!")
+    desktop.type("x")
+    desktop.key("BackSpace")
+    desktop.key("Down")
+    desktop.key("Home")
+    desktop.type("Second line")
+    desktop.key("Return")
+    open_slots(desktop)
+    desktop.capture("paint-save")
+    desktop.click(50, 80)
+    slot = data / "games/jungle.paint/slot-0.txt"
+    stored, story = read_picture(slot)
+    (OUTPUT / "saved-picture.txt").write_bytes(stored)
+    assert story[0].rstrip() == "Roar (and friend)!", repr(story)
+    assert story[1].rstrip() == "Second line", repr(story)
+    tool(desktop, 7)
+    desktop.capture("paint-new-picture")
+    desktop.click(80, 90)
+    desktop.key("Escape")  # Dismiss the new-background chooser before loading.
+    open_slots(desktop)
+    desktop.click(210, 38)
+    desktop.click(50, 80)
+    desktop.capture("paint-loaded")
+    working = data / "games/jungle.paint/working.txt"
+    assert working.read_bytes() == stored, "load lost the scene, story or dinosaur outlines"
+    # Saving over a full slot must wait for an explicit confirmation.
+    tool(desktop, 2)
+    desktop.key("Home")
+    desktop.type("Changed")
+    desktop.key("Return")
+    open_slots(desktop)
+    desktop.click(50, 80)
+    desktop.capture("paint-overwrite")
+    assert slot.read_bytes() == stored, "full slot was overwritten before confirmation"
+    desktop.click(210, 134)
+    desktop.key("Escape")
+    assert slot.read_bytes() == stored, "cancelled overwrite changed the save"
+    open_slots(desktop)
+    desktop.click(50, 80)
+    desktop.click(80, 134)
+    assert slot.read_bytes() != stored, "confirmed overwrite was not stored"
+    tool(desktop, 5)
+    desktop.capture("paint-print")
+    desktop.click(120, 104)
+    desktop.capture("paint-exported")
+    exports = data / "games/jungle.paint/exports"
+    assert len(list(exports.glob("*.png"))) == 1, "Export did not write its PNG"
+    assert len(list(exports.glob("*.txt"))) == 1, "Export did not write its story"
+    assert len(list(exports.glob("*.ps"))) == 1, "Export did not write its print page"
+    shutil.copy2(next(exports.glob("*.png")), OUTPUT / "exported-picture.png")
+    desktop.click(120, 140)
+    desktop.capture("paint-printed")
+    assert (data / "printed.txt").exists(), "Print did not submit the actual page"
+    desktop.key("F10")
+    assert (data / "sound.txt").read_text() == "off\n", "in-game mute did not persist"
+    print("local UI test: dinosaur placement, crayons, edited stories, save/load, overwrite, export and print", flush=True)
+    # On a tall window the nine tools occupy three rows below the picture.
+    desktop.key("Escape")
+    desktop.resize(420, 700)
+    tall = desktop.capture_actual("paint-portrait")
+    width, height = tall.size
+    assert height - 56 > width, f"the window did not turn tall: {tall.size}"
+    (cx, cy, cw, ch), tools = paint_layout(desktop)
+    assert tall.getpixel((round(cx + cw / 2), round(56 + cy + ch / 2))) != (227, 236, 228), "the picture is not across the top"
+    assert all(y > 56 + cy + ch for x, y in tools), "the picture runs into the tools"
+    tool(desktop, 1)
+    shown = {color for _, color in desktop.capture_actual("paint-portrait-colors").getcolors(1 << 20)}
+    crayons = {(0x82, 0x82, 0x82), (0x00, 0x00, 0xff), (0x00, 0xa2, 0xc3), (0xb2, 0x00, 0xcb), (0x00, 0xc3, 0x51),
+               (0xc3, 0x71, 0x00), (0xef, 0xef, 0x3c), (0x41, 0x41, 0xc0), (0x9a, 0x41, 0xa6), (0xc0, 0xc0, 0xc0)}
+    assert len(crayons & shown) == len(crayons), "the Color tool is not below the picture in portrait"
+    print("local UI test: portrait layout puts the tools below the picture", flush=True)
+
+
 def ui(binary):
     for tool in ("Xvfb", "xdotool", "import"):
         assert shutil.which(tool), f"UI tests need {tool}"
     from PIL import Image, ImageChops
-    with tempfile.TemporaryDirectory(prefix="jungle-ui-") as temporary:
+    work = ROOT / "work/runtime-tests"
+    work.mkdir(parents=True, exist_ok=True)
+    with tempfile.TemporaryDirectory(prefix="jungle-ui-", dir=work) as temporary:
         data = Path(temporary)
         fake = data / "bin"
         fake.mkdir()
@@ -460,141 +597,7 @@ def ui(binary):
             returned = desktop.capture("menu-return")
             assert ImageChops.difference(menu, returned).getbbox() is None, "counting did not return home"
             print("local UI test: watercolor counting artwork, questions, ladder and progress", flush=True)
-            desktop.game("Coloring Book")
-            desktop.capture("paint-main")
-            desktop.click(30, 15)
-            scenes = desktop.capture("paint-scenes")
-            assert scenes.getpixel((5, 5)) == (227, 236, 228), "scene picker did not render its book background"
-            assert len(scenes.crop((19, 33, 97, 78)).getcolors(1 << 20)) > 1, "scene preview has no artwork"
-            desktop.click(52, 58)
-            desktop.capture("paint-dinosaurs")
-            desktop.click(52, 58)
-            desktop.capture("paint-sizes")
-            desktop.click(280, 90)
-            painting = desktop.capture("paint-placement")
-            working = data / "games/jungle.paint/working.txt"
-            scene_only = working.read_bytes()
-            desktop.click(290, 170)
-            hovering = desktop.capture("paint-placement-waiting")
-            assert working.read_bytes() == scene_only, "clicking outside the box placed a dinosaur"
-            box_edge = [color for _, color in hovering.crop((64, 5, 100, 9)).getcolors(10000)]
-            assert (46, 105, 86) in box_edge, "placement box followed a hovering pointer"
-            desktop.drag(72, 14, 102, 14)
-            placed = desktop.capture("paint-placed")
-            x, y = assert_dinosaur(scene_only, working.read_bytes())
-            assert x > 60 and y == 0, f"the dinosaur did not move with the pointer: {x},{y}"
-            assert ImageChops.difference(painting.crop((64, 6, 315, 194)),
-                                        placed.crop((64, 6, 315, 194))).getbbox(), "Huge dinosaur could not be placed"
-            black = dict((color, count) for count, color in placed.crop((64, 6, 315, 194)).getcolors(10000))
-            assert black.get((0, 0, 0), 0) < 20000, "dinosaur outline rendered as a solid rectangle"
-            once = working.read_bytes()
-            desktop.click(30, 15)
-            desktop.click(52, 58)
-            desktop.click(280, 90)
-            desktop.drag(72, 14, 117, 14)
-            time.sleep(.5)
-            assert_dinosaur(once, working.read_bytes())
-            desktop.click(30, 160)
-            assert working.read_bytes() == once, "second placement painted the ground or changed the selected stencil"
-            desktop.click(30, 160)
-            assert working.read_bytes() == scene_only, "Undo did not restore covered scene lines and colors"
-            desktop.click(30, 15)
-            desktop.click(52, 58)
-            desktop.click(280, 90)
-            desktop.drag(72, 14, 102, 14, mirror=True)
-            desktop.capture("paint-mirrored")
-            assert_dinosaur(scene_only, working.read_bytes(), mirror=True)
-            desktop.click(30, 40)
-            desktop.click(8, 160)
-            desktop.capture("paint-color-cancelled")
-            assert working.read_bytes() != scene_only, "color cancel removed the dinosaur"
-            desktop.click(30, 40)
-            colors = desktop.capture("paint-colors")
-            assert len(colors.crop((256, 122, 308, 150)).getcolors(1 << 20)) >= 3, "crayon swatches are missing"
-            assert colors.getpixel((284, 155)) == (60, 60, 60), "the last crayon is not dark charcoal"
-            desktop.click(284, 155)
-            desktop.click(71, 13)
-            desktop.capture("paint-colored")
-            desktop.click(30, 65)
-            desktop.capture("paint-story")
-            desktop.type("Roar (and friend)!")
-            desktop.type("x")
-            desktop.key("BackSpace")
-            desktop.key("Down")
-            desktop.key("Home")
-            desktop.type("Second line")
-            desktop.key("Return")
-            desktop.click(30, 110)
-            desktop.capture("paint-save")
-            desktop.click(50, 80)
-            slot = data / "games/jungle.paint/slot-0.txt"
-            stored, story = read_picture(slot)
-            (OUTPUT / "saved-picture.txt").write_bytes(stored)
-            assert story[0].rstrip() == "Roar (and friend)!", repr(story)
-            assert story[1].rstrip() == "Second line", repr(story)
-            desktop.click(30, 185)
-            desktop.capture("paint-new-picture")
-            desktop.click(80, 85)
-            desktop.key("Escape")  # Dismiss the new-background chooser before loading.
-            desktop.click(30, 110)
-            desktop.click(210, 38)
-            desktop.click(50, 80)
-            desktop.capture("paint-loaded")
-            working = data / "games/jungle.paint/working.txt"
-            assert working.read_bytes() == stored, "load lost the scene, story or dinosaur outlines"
-            # Saving over a full slot must wait for an explicit confirmation.
-            desktop.click(30, 65)
-            desktop.key("Home")
-            desktop.type("Changed")
-            desktop.key("Return")
-            desktop.click(30, 110)
-            desktop.click(50, 80)
-            desktop.capture("paint-overwrite")
-            assert slot.read_bytes() == stored, "full slot was overwritten before confirmation"
-            desktop.click(210, 134)
-            desktop.key("Escape")
-            assert slot.read_bytes() == stored, "cancelled overwrite changed the save"
-            desktop.click(30, 110)
-            desktop.click(50, 80)
-            desktop.click(80, 134)
-            assert slot.read_bytes() != stored, "confirmed overwrite was not stored"
-            desktop.click(30, 135)
-            desktop.capture("paint-print")
-            desktop.click(120, 104)
-            desktop.capture("paint-exported")
-            exports = data / "games/jungle.paint/exports"
-            assert len(list(exports.glob("*.png"))) == 1, "Export did not write its PNG"
-            assert len(list(exports.glob("*.txt"))) == 1, "Export did not write its story"
-            assert len(list(exports.glob("*.ps"))) == 1, "Export did not write its print page"
-            shutil.copy2(next(exports.glob("*.png")), OUTPUT / "exported-picture.png")
-            desktop.click(120, 140)
-            desktop.capture("paint-printed")
-            assert (data / "printed.txt").exists(), "Print did not submit the actual page"
-            desktop.key("F10")
-            assert (data / "sound.txt").read_text() == "off\n", "in-game mute did not persist"
-            print("local UI test: dinosaur placement, crayons, edited stories, save/load, overwrite, export and print", flush=True)
-            # On a tall window the picture spans the top and the tools sit in
-            # two rows of four below it; Color is the second tool.
-            desktop.key("Escape")
-            desktop.resize(420, 700)
-            tall = desktop.capture_actual("paint-portrait")
-            width, height = tall.size
-            height -= 56
-            assert height > width, f"the window did not turn tall: {tall.size}"
-            pad, gap = max(6, min(20, width // 40)), max(4, min(10, width // 80))
-            tool_w = (width - pad * 2 - gap * 3) // 4
-            tool_h = max(44, min(110, tool_w * 3 // 4))
-            canvas_h = min((width - pad * 2) * 3 // 4, height - pad * 3 - gap - tool_h * 2)
-            below = pad + canvas_h + pad
-            top = below + (height - pad - below - tool_h * 2 - gap) // 2
-            assert tall.getpixel((width // 2, 56 + pad + canvas_h // 2)) != (227, 236, 228), "the picture is not across the top"
-            assert tall.getpixel((width // 2, 56 + below - pad // 2)) == (227, 236, 228), "the picture runs into the tools"
-            desktop.click_actual(pad + tool_w + gap + tool_w // 2, 56 + top + tool_h // 2)
-            shown = {color for _, color in desktop.capture_actual("paint-portrait-colors").getcolors(1 << 20)}
-            crayons = {(0x82, 0x82, 0x82), (0x00, 0x00, 0xff), (0x00, 0xa2, 0xc3), (0xb2, 0x00, 0xcb), (0x00, 0xc3, 0x51),
-                       (0xc3, 0x71, 0x00), (0xef, 0xef, 0x3c), (0x41, 0x41, 0xc0), (0x9a, 0x41, 0xa6), (0xc0, 0xc0, 0xc0)}
-            assert len(crayons & shown) == len(crayons), "the Color tool is not below the picture in portrait"
-            print("local UI test: portrait layout puts the tools below the picture", flush=True)
+            paint_ui(desktop, data)
         # The complete working picture survives process restart without a slot.
         before = (data / "games/jungle.paint/working.txt").read_bytes()
         with Desktop(binary, data, extra) as desktop:
@@ -620,12 +623,39 @@ def ui(binary):
             print("local UI test: legacy counting migration and read-only validation", flush=True)
 
 
+def focused_paint_ui(binary):
+    global OUTPUT
+    from paint_history_test import Desktop as PaintDesktop, WORK
+    WORK.mkdir(parents=True, exist_ok=True)
+    with tempfile.TemporaryDirectory(prefix="legacy-paint-", dir=WORK) as temporary:
+        data = Path(temporary)
+        fake = data / "bin"
+        fake.mkdir()
+        printer = fake / "lp"
+        printer.write_text("#!/usr/bin/env python3\nimport os,sys\nfrom pathlib import Path\n"
+                           "p=Path(sys.argv[-1]);assert p.read_text().startswith('%!PS')\n"
+                           "Path(os.environ['JUNGLE_PRINTER_LOG']).write_text(str(p))\n")
+        printer.chmod(0o700)
+        extra = {"PATH": str(fake) + os.pathsep + os.environ["PATH"],
+                 "JUNGLE_PRINTER_LOG": str(data / "printed.txt")}
+        with PaintDesktop(binary, data, extra) as desktop:
+            previous_output = OUTPUT
+            try:
+                OUTPUT = Path(desktop._captures.name)
+                paint_ui(desktop, data)
+            finally:
+                OUTPUT = previous_output
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--binary", type=Path, default=ROOT / "build/app/jungle")
     parser.add_argument("--ui", action="store_true")
+    parser.add_argument("--paint-ui", action="store_true", help="run only the Coloring Book UI regression")
     args = parser.parse_args()
     check_saves(args.binary.resolve())
+    if args.paint_ui:
+        focused_paint_ui(args.binary.resolve())
     if args.ui:
         ui(args.binary.resolve())
 

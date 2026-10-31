@@ -24,8 +24,8 @@ Solve :: (d: *Drums) -> bool {
 main :: () -> s32 {
     d := DrumsNew()
     if d.mode != DRUMS_FREE || d.length != 2 || DrumsChoose(*d, 3) != DRUMS_HIT { return 1 }
-    if DrumsChoose(*d, -1) != DRUMS_IGNORED || DrumsChoose(*d, 4) != DRUMS_IGNORED { return 2 }
-    seen: [4]bool
+    if DrumsChoose(*d, -1) != DRUMS_IGNORED || DrumsChoose(*d, 8) != DRUMS_IGNORED { return 2 }
+    seen: [DRUMS_PADS]bool
     for length: cast(s32)2..5 {
         for seed: cast(s32)0..250 {
             d = DrumsNew(); d.length = length
@@ -34,12 +34,12 @@ main :: () -> s32 {
             DrumsStart(*again, seed * 7919, 0.0)
             if d.length != length || d.phase != DRUMS_DEMO { return 3 }
             for i: cast(s32)0..length - 1 {
-                if d.pattern[i] < 0 || d.pattern[i] >= 4 || d.pattern[i] != again.pattern[i] { return 4 }
+                if d.pattern[i] < 0 || d.pattern[i] >= DRUMS_PADS || d.pattern[i] != again.pattern[i] { return 4 }
                 seen[d.pattern[i]] = true
             }
         }
     }
-    for pad: cast(s32)0..3 { if !seen[pad] { return 5 } }
+    for pad: cast(s32)0..DRUMS_PADS - 1 { if !seen[pad] { return 5 } }
     d = DrumsNew(); DrumsStart(*d, -2147483647, 100.0)
     if DrumsTick(*d, 100.0) != -1 || DrumsChoose(*d, 0) != DRUMS_IGNORED { return 10 }
     if DrumsTick(*d, 1000.0) != d.pattern[0] { return 11 }
@@ -49,7 +49,7 @@ main :: () -> s32 {
     if DrumsChoose(*d, 0) != DRUMS_IGNORED { return 14 }
     if DrumsTick(*d, 2000.0) != -1 || d.phase != DRUMS_TURN { return 15 }
     if DrumsChoose(*d, d.pattern[0]) != DRUMS_HIT || d.copied != 1 { return 16 }
-    wrong := (d.pattern[1] + 1) % 4
+    wrong := (d.pattern[1] + 1) % DRUMS_PADS
     if DrumsChoose(*d, wrong) != DRUMS_RETRY || d.copied != 0 || d.wins != 0 || d.phase != DRUMS_TURN { return 17 }
     if !Solve(*d) || d.wins != 1 { return 18 }
     if DrumsChoose(*d, 0) != DRUMS_IGNORED || d.wins != 1 { return 19 }
@@ -84,25 +84,66 @@ main :: () -> s32 {
         loaded := DrumsNew(); loaded.length = 4; loaded.wins = 1
         if DrumsRead(text, *loaded) || loaded.length != 4 || loaded.wins != 1 { return 32 }
     }
-    // Touch targets fit phone portrait, landscape and desktop game bounds.
-    widths: [4]s32 = .[400, 780, 1000, 320]
-    heights: [4]s32 = .[450, 280, 600, 240]
-    for i: cast(s32)0..3 {
-        g := DrumsGrid(widths[i], heights[i]); rows := 4 / g.columns
-        if g.edge < 80 || g.left < 0 || g.top < 0 { return 40 }
-        if g.left + g.columns * g.edge + (g.columns - 1) * 14 > widths[i] { return 41 }
-        if g.top + rows * g.edge + (rows - 1) * 14 > heights[i] { return 42 }
+    // Existing drums 1 saves reopen directly in Free Play with all eight
+    // instruments. No migration or progress reset is necessary.
+    old := DrumsNew()
+    if !DrumsRead("drums 1 5 1\n", *old) || DrumsSaveText(old) != "drums 1 5 1\n" { return 33 }
+    for pad: cast(s32)0..DRUMS_PADS - 1 {
+        if DrumsChoose(*old, pad) != DRUMS_HIT || old.length != 5 || old.wins != 1 { return 34 }
     }
-    // Presses cover each whole illustration, but transparent corners and the
-    // area outside it cannot become instrument hits at any rendered scale.
-    for pad: cast(s32)0..3 {
+    // Scene geometry fits portrait, landscape, desktop, narrow and small
+    // supported game bounds. Sizes and heights must vary: no row or tile mat.
+    widths: [6]s32 = .[400, 780, 1000, 320, 900, 400]
+    heights: [6]s32 = .[700, 520, 700, 600, 520, 590]
+    for mode: cast(s32)0..1 {
+    for i: cast(s32)0..5 {
+        room := DrumsRoomLayout(widths[i], heights[i], mode == 1)
+        min_y := heights[i]; max_y: s32 = 0; min_edge := widths[i]; max_edge: s32 = 0
+        for pad: cast(s32)0..DRUMS_PADS - 1 {
+            place := DrumsRoomPlace(pad, room)
+            if place.edge < 30 || place.x < 8 || place.y < room.room_top { return 40 }
+            if place.x + place.edge > widths[i] - 8 || DrumsLabelY(pad, place) + 22 > room.room_top + room.room_height { return 41 }
+            if place.y < min_y { min_y = place.y }; if place.y > max_y { max_y = place.y }
+            if place.edge < min_edge { min_edge = place.edge }; if place.edge > max_edge { max_edge = place.edge }
+            // The main body of every object is independently reachable, not
+            // covered by any other instrument's rectangular capture region.
+            point_x := place.x + place.edge * (ifx pad == 2 then 32 else 50) / 100; point_y := place.y + place.edge / 2
+            if !DrumsBodyHit(pad, place.x, place.y, place.edge, place.edge, point_x, point_y) { return 42 }
+            for other: cast(s32)0..DRUMS_PADS - 1 {
+                if other == pad { continue }
+                cover := DrumsRoomPlace(other, room)
+                if point_x >= cover.x && point_x < cover.x + cover.edge && point_y >= cover.y && point_y < cover.y + cover.edge { return 43 }
+            }
+        }
+        if max_y - min_y < 110 || max_edge - min_edge < 35 { return 44 }
+        guitar := DrumsRoomPlace(5, room); big := DrumsRoomPlace(0, room)
+        shaker := DrumsRoomPlace(2, room); tamb := DrumsRoomPlace(7, room)
+        if guitar.edge * 10 < big.edge * 14 || shaker.edge * 10 > big.edge * 4 { return 48 }
+        if tamb.y < room.room_top + room.room_height / 2 { return 49 }
+        copy_room := DrumsRoomLayout(widths[i], heights[i], true)
+        if copy_room.room_top != 112 || (mode == 0 && (room.room_top != 60 || copy_room.room_height >= room.room_height)) { return 90 }
+        for pad: cast(s32)2..3 {
+            picture := DrumsRoomPlace(pad, room); shelf := DrumsShelfPlace(pad, room)
+            base: s32 = ifx pad == 3 then 95 else 91
+            if shelf.y != picture.y + picture.edge * base / 100 { return 45 }
+            if shelf.x > picture.x + picture.edge / 2 || shelf.x + shelf.edge < picture.x + picture.edge / 2 { return 46 }
+            if DrumsLabelY(pad, picture) < shelf.y + 6 { return 47 }
+        }
+    }
+    }
+    if DrumsShakeX(-1.0) != 0 || DrumsShakeX(0.0) != 3 || DrumsShakeX(0.05) != -3 ||
+        DrumsShakeX(0.1) != 2 || DrumsShakeX(0.17) != -2 || DrumsShakeX(0.26) != -1 ||
+        DrumsShakeX(0.30) != 0 || DrumsShakeX(2.0) != 0 { return 91 }
+    // No corner is a sound button. Test the exact last pixel too: the old
+    // rounded mask lookup could index row 16 outside the 16-row alpha mask.
+    for pad: cast(s32)0..DRUMS_PADS - 1 {
         body_x := cast(s32)(ifx pad == 2 then 50 else 70)
         if !DrumsBodyHit(pad, 20, 30, 100, 100, body_x, 80) { return 50 + pad }
-        if DrumsBodyHit(pad, 20, 30, 100, 100, 24, 34) { return 54 + pad }
-        if DrumsBodyHit(pad, 20, 30, 100, 100, 115, 124) { return 58 + pad }
-        if DrumsBodyHit(pad, 20, 30, 100, 100, 19, 80) || DrumsBodyHit(pad, 20, 30, 100, 100, 121, 80) { return 62 + pad }
+        if DrumsBodyHit(pad, 20, 30, 100, 100, 20, 30) { return 58 + pad }
+        if DrumsBodyHit(pad, 20, 30, 100, 100, 119, 129) { return 66 + pad }
+        if DrumsBodyHit(pad, 20, 30, 100, 100, 19, 80) || DrumsBodyHit(pad, 20, 30, 100, 100, 121, 80) { return 74 + pad }
         scaled_x := cast(s32)(ifx pad == 2 then 59 else 71)
-        if !DrumsBodyHit(pad, 41, 62, 61, 47, scaled_x, 85) { return 66 + pad }
+        if !DrumsBodyHit(pad, 41, 62, 61, 47, scaled_x, 85) { return 82 + pad }
     }
     return 0
 }

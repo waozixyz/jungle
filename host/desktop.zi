@@ -18,6 +18,7 @@
 #import "tree_input"
 #import "scroll_device"
 #import "key_input"
+#import "frame_snapshot"
 #import "text_input_props"
 #import "widget_host"
 #import "hosted_values"
@@ -86,7 +87,9 @@ DrawMenu :: (session: Session) -> bool {
     return EndDesktopFrame()
 }
 
-DrawGame :: () -> bool {
+DrawGame :: (session: Session) -> bool {
+    if !DesktopFrameInputBegin(session) { return false }
+    defer { FrameInputEnd(session) }
     BeginDesktopFrame()
     viewport := DesktopViewport()
     key := DesktopPressedKey()
@@ -99,7 +102,8 @@ DrawGame :: () -> bool {
         typed_count = TypedTextAppend(typed_bytes[:], typed_count, code)
     }
     ok := GameFrame(viewport, PollPointer(), PollSecondaryPointer(), key, DesktopModifiers(),
-        DesktopWheelMove(), TextView(typed_bytes[:typed_count]), JungleSeconds())
+        DesktopWheelMove(), TextView(typed_bytes[:typed_count]), JungleSeconds(), CaptureFrameInput(session))
+    FrameInputEnd(session)
     if ok {
         unused DesktopCursor(game.app.session)
         ok = EndDesktopFrame()
@@ -141,7 +145,7 @@ main :: (argc: s32, argv: **u8) -> s32 {
     ok := true
     while ok && PollDesktop() {
         if playing {
-            if !DrawGame() {
+            if !DrawGame(session) {
                 CloseGame()
                 message = "THAT GAME STOPPED."
             } else if home_requested {

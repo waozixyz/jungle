@@ -6,9 +6,10 @@ from pathlib import Path
 
 import numpy as np
 from PIL import Image
-from runtime_test import (ROOT, OUTPUT, Desktop, environment, DIGITS,
+from runtime_test import (ROOT, environment, DIGITS,
                           dinosaur_masks, picture_pixels, assert_dinosaur)
-from paint_history_test import changed, history, open_paint, scenery
+from paint_history_test import (Desktop, changed, history, open_paint,
+                                tool, pixel_click, open_slots, stencil_click)
 
 WORK = ROOT / 'work/paint-layers'
 HEADER = b'JUNGLE PICTURE 3\n0e\n' + (b' ' * 38 + b'\n') * 8
@@ -57,29 +58,8 @@ def fixture(objects):
             str(len(objects)).encode() + b'\n' + b''.join(encoded)), canvas, base
 
 
-def pixel_click(desktop, x, y):
-    # MainView's actual picture rectangle, scaled to Desktop's 320x200 view.
-    width, height = desktop.actual_size
-    height -= 56
-    pad = max(6, min(20, min(width, height) // 40))
-    gap = max(4, min(10, min(width, height) // 80))
-    tool_h = (height - pad * 2 - gap * 7) // 8
-    tool_w = max(64, min(tool_h * 5 // 2, width // 5))
-    cw = width - pad * 3 - tool_w
-    ch = cw * 3 // 4
-    if ch > height - pad * 2:
-        ch = height - pad * 2
-        cw = ch * 4 // 3
-    left = (width - tool_w - pad - cw) // 2 + tool_w + pad
-    top = pad + (height - pad * 2 - ch) // 2
-    desktop.click_actual(left + (x + .5) * cw / 960, 56 + top + (y + .5) * ch / 720)
-
-
 def open_main(desktop, name):
     open_paint(desktop, name)
-    # Read dimensions from this owned window's saved capture only.
-    with Image.open(OUTPUT / (name + '.png')) as image:
-        desktop.actual_size = image.size
 
 
 def assert_pixels(path, expected):
@@ -106,7 +86,7 @@ def ui(language):
         with Desktop(ROOT / 'build/app/jungle', data) as desktop:
             open_main(desktop, f'layers-{language}-open')
             assert_pixels(working, both)
-            desktop.click(30, 87)  # selected Erase, with localized cue
+            tool(desktop, 3)  # selected Erase, with localized cue
             desktop.capture(f'layers-{language}-erase-cue', header=56)
             pixel_click(desktop, 20, 20)
             assert working.read_bytes() == initial and not (folder / 'working-undo.txt').exists(), 'empty erase changed history'
@@ -118,10 +98,10 @@ def ui(language):
             desktop.wait_menu(f'layers-{language}-leave')
         with Desktop(ROOT / 'build/app/jungle', data) as desktop:
             open_main(desktop, f'layers-{language}-restart')
-            desktop.click(30, 160)
+            tool(desktop, 6)
             assert_pixels(working, both)
             # Slot loading and export/preview must keep all object pixels.
-            desktop.click(30, 110)
+            open_slots(desktop)
             desktop.capture(f'layers-{language}-slot', header=56)
             previews = list(folder.glob('canvas-*.png'))
             palette = [int(v, 16) for v in __import__('re').findall(r'0x([0-9a-f]{8})', (ROOT / 'games/paint/paint_palette.zi').read_text())]
@@ -131,21 +111,21 @@ def ui(language):
             desktop.click(50, 80)
             assert_pixels(working, both)
             assert history(folder) == []
-            desktop.click(30, 135)
+            tool(desktop, 5)
             desktop.capture(f'layers-{language}-print', header=56)
             desktop.click(120, 104)
             desktop.capture(f'layers-{language}-export', header=56)
             exports = list((folder / 'exports').glob('*.png'))
             assert len(exports) == 1 and np.array_equal(np.asarray(Image.open(exports[0]).convert('RGB')), rgb), 'export lost layers'
             desktop.key('Escape')
-            desktop.click(30, 87)
+            tool(desktop, 3)
             pixel_click(desktop, x, y)
             assert_pixels(working, first)
             pixel_click(desktop, x, y)
             assert_pixels(working, base)
             # New picture retains its separate confirmation and Cancel flow.
             before = working.read_bytes()
-            desktop.click(30, 185)
+            tool(desktop, 7)
             desktop.capture(f'layers-{language}-new-confirm', header=56)
             desktop.click(240, 90)
             assert working.read_bytes() == before, 'cancelled new picture changed paint'
@@ -182,21 +162,21 @@ def budget_ui():
                 open_main(desktop, 'layers-budget-' + name)
                 if name == 'full-pixel-cap':
                     before_history = (folder / 'working-undo.txt').read_bytes()
-                    desktop.click(30, 15)
-                    desktop.click(52, 58)
+                    tool(desktop, 0)
+                    stencil_click(desktop)
                     desktop.click(52, 90)
                     desktop.capture('layers-over-cap-placement', header=56)
                     desktop.drag(72, 14, 102, 14)
                     assert working.read_bytes() == initial
                     assert (folder / 'working-undo.txt').read_bytes() == before_history, 'refused placement pushed history'
-                desktop.click(30, 87)
+                tool(desktop, 3)
                 pixel_click(desktop, x, y)
                 changed(working, initial)
                 assert_pixels(working, after)
-                desktop.click(30, 160)
+                tool(desktop, 6)
                 assert_pixels(working, pixels)
                 # Choose Color to exit erase and fill the visible top object.
-                desktop.click(30, 40)
+                tool(desktop, 1)
                 desktop.capture('layers-budget-colors', header=56)
                 desktop.click(38, 40)
                 pixel_click(desktop, x, y)
@@ -205,20 +185,17 @@ def budget_ui():
             with Desktop(ROOT / 'build/app/jungle', data) as desktop:
                 open_main(desktop, 'layers-budget-restart-' + name)
                 assert working.read_bytes() == filled
-                desktop.click(30, 160)
+                tool(desktop, 6)
                 assert_pixels(working, pixels)
-                desktop.click(30, 87)
+                tool(desktop, 3)
                 pixel_click(desktop, x, y)
                 assert_pixels(working, after)
                 for index in range(6):
                     (folder / f'slot-{index}.txt').write_bytes(initial)
-                desktop.click(30, 110)
+                open_slots(desktop)
                 desktop.capture('layers-heavy-six-previews-' + name, header=56)
                 assert len(list(folder.glob('canvas-*.png'))) >= 6
-            with (OUTPUT / 'jungle.log').open() as stream:
-                stream.seek(0, 2)
-                stream.seek(max(0, stream.tell() - 8000))
-                log = stream.read(8000)
+            log = desktop.log_tail
             assert 'stopped after' not in log.lower() and 'budget' not in log.lower(), log[-2000:]
             print('local portable VM budget: ' + name + ' load/erase/undo/fill/restart passed', flush=True)
 
@@ -235,8 +212,8 @@ def placement_ui():
         working.write_bytes(original)
         with Desktop(ROOT / 'build/app/jungle', data) as desktop:
             open_main(desktop, 'layers-legacy-placement')
-            desktop.click(30, 15)
-            desktop.click(52, 58)
+            tool(desktop, 0)
+            stencil_click(desktop)
             desktop.click(280, 90)
             desktop.capture('layers-huge-placement', header=56)
             desktop.drag(72, 14, 102, 14)
@@ -250,11 +227,11 @@ def placement_ui():
             ink, body = dinosaur_masks(0, 4)
             ys, xs = np.where(body & ~ink)
             pick = len(xs) // 2
-            desktop.click(30, 87)
+            tool(desktop, 3)
             pixel_click(desktop, int(xs[pick]) + x, int(ys[pick]) + y)
             changed(working, placed)
             assert_pixels(working, base)
-            desktop.click(30, 160)
+            tool(desktop, 6)
             assert_pixels(working, picture_pixels(placed))
         print('local portable UI placement: Huge stencil on legacy base, reopen, erase and Undo passed', flush=True)
 

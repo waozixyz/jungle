@@ -29,6 +29,7 @@ layer_pixels: s32;
 layer_storage: [2][CANVAS_PIXELS]u8;
 base: [CANVAS_PIXELS]u8;
 owner: [CANVAS_PIXELS]u8;
+rotate_pixels: [CANVAS_PIXELS]u8;
 
 CanvasLayersClear :: () {
     for at: cast(s32)0..LAYER_LIMIT - 1 { layers[at] = PaintLayer.{} }
@@ -62,6 +63,47 @@ CanvasOverlay :: (id: s32, left: s32, top: s32, right: s32, bottom: s32) {
 CanvasObjectAt :: (x: s32, y: s32) -> s32 {
     if layer_count == 0 || x < 0 || y < 0 || x >= CANVAS_WIDTH || y >= CANVAS_HEIGHT { return -1 }
     return cast(s32)owner[y * CANVAS_WIDTH + x] - 1
+}
+
+// Rotate only the visible owner, including its hidden paint and transparency.
+// Keep the integer center anchor (x + w/2, y + h/2): unlike repeatedly
+// rounding half-pixel centers down, this restores placement after four turns.
+// A too-tall rotated rectangle fits proportionally inside the canvas, with
+// floor-rounded dimensions (at least one pixel) and nearest indexed samples.
+CanvasRotateObject :: (x: s32, y: s32) -> bool {
+    id := CanvasObjectAt(x, y)
+    if id < 0 { return false }
+    object := *layers[id]
+    old_w := object.w; old_h := object.h
+    w := old_h; h := old_w
+    if h > CANVAS_HEIGHT {
+        w = old_h * CANVAS_HEIGHT / old_w
+        if w < 1 { w = 1 }
+        h = CANVAS_HEIGHT
+    }
+    left := object.x + old_w / 2 - w / 2
+    top := object.y + old_h / 2 - h / 2
+    if left < 0 { left = 0 }
+    if top < 0 { top = 0 }
+    if left + w > CANVAS_WIDTH { left = CANVAS_WIDTH - w }
+    if top + h > CANVAS_HEIGHT { top = CANVAS_HEIGHT - h }
+    // Sample in the rotated rectangle, then map clockwise back to source.
+    for py: cast(s32)0..h - 1 {
+        for px: cast(s32)0..w - 1 {
+            sx := py * old_w / h
+            sy := old_h - 1 - px * old_h / w
+            rotate_pixels[py * w + px] = object.pixels[sy * old_w + sx]
+        }
+    }
+    // The new area cannot grow: reuse the old interval even in a full arena.
+    layer_pixels += w * h - old_w * old_h
+    object.x = left; object.y = top; object.w = w; object.h = h
+    offset := object.start % CANVAS_PIXELS
+    object.pixels = layer_storage[object.start / CANVAS_PIXELS][offset:offset + w * h]
+    for at: cast(s32)0..w * h - 1 { object.pixels[at] = rotate_pixels[at] }
+    for at: cast(s32)0..CANVAS_PIXELS - 1 { canvas[at] = base[at]; owner[at] = 0 }
+    for at: cast(s32)0..layer_count - 1 { CanvasOverlay(layer_order[at], 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT) }
+    return true
 }
 
 CanvasEraseObject :: (x: s32, y: s32) -> bool {

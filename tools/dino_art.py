@@ -221,10 +221,22 @@ def scene(sheet, index):
     return trace(ink, SCENE_SIZE[0] / width, SCENE_SIZE[1] / height)
 
 
-def standalone_stencils():
-    """Trace each new stencil from its own generated image."""
+def standalone_stencils(indices=None):
+    """Trace selected one-based asset IDs, or all standalone stencil sources."""
     manifest = json.loads((ROOT / 'tools/coloring_stencils.json').read_text())
-    for item in manifest['stencils']:
+    items = manifest['stencils']
+    if indices is not None:
+        requested = set(indices)
+        unknown = requested - {item['index'] for item in items}
+        if unknown:
+            raise ValueError(f'Unknown stencil asset IDs: {sorted(unknown)}')
+        items = [item for item in items if item['index'] in requested]
+    missing = [str(ROOT / 'art/generated/coloring-stencils' / (item['name'] + '.png'))
+               for item in items
+               if not (ROOT / 'art/generated/coloring-stencils' / (item['name'] + '.png')).is_file()]
+    if missing:
+        raise FileNotFoundError('Missing stencil PNG inputs:\n' + '\n'.join(missing))
+    for item in items:
         index = item['index']
         source = ROOT / 'art/generated/coloring-stencils' / (item['name'] + '.png')
         with Image.open(source) as image:
@@ -251,7 +263,7 @@ def standalone_stencils():
             f'<path d="{ink_path}"/>\n'
             f'<path d="{body_path}" fill="none" stroke="#000" stroke-width="10" '
             f'stroke-linejoin="round"/>\n</g>\n</svg>\n')
-    print(f"Traced {len(manifest['stencils'])} individual animal, people and object stencils.")
+    print(f'Traced {len(items)} individual stencils.')
 
 
 def main():

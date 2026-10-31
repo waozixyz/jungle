@@ -50,7 +50,10 @@ main :: () -> s32 {
     // Saved slots stay put and the appended book takes the first new slot.
     last: s32 = 31
     if CATEGORY_COUNT != 32 || category_ids[30] != "drinks" || category_ids[last] != "actions" { return 9 }
-    if shelf_order[CATEGORY_COUNT - 1] != last || category_groups[last] != 3 { return 10 }
+    if shelf_order[CATEGORY_COUNT - 1] != last || category_groups[last] != BOOK_GROUP_COUNT - 1 { return 10 }
+
+    if BOOK_GROUP_COUNT != 5 || book_groups[0] != "Animals" || book_groups[1] != "Nature" { return 11 }
+    if group_counts[0] != 4 || group_counts[1] != 6 || category_groups[0] != 0 || category_groups[1] != 1 { return 12 }
 
     // From any book, one pass reads every page of every book exactly once.
     ClearChoices()

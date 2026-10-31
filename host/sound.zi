@@ -208,9 +208,9 @@ SoundPlay :: (name: string) {
 }
 
 // A whole WAV file held in memory, such as a game's packed sound.
-SoundPlayFile :: (wave: string) {
+SoundPlayFile :: (wave: string, gain: s32 = 25) {
     if sound_muted || wave.count <= 44 || wave[:4] != "RIFF" || wave[8:12] != "WAVE" || !SoundOpen() { return }
-    SoundQueueSamples(wave[44:])
+    SoundQueueSamples(wave[44:], gain)
 }
 
 // A minute at the shipped quality stays near 400 KB even of noise; nothing
@@ -243,10 +243,10 @@ DecodeSpeech :: (encoded: string, frames: s64, pcm: *Vec(u8)) -> bool {
     return true
 }
 
-SoundQueueSamples :: (samples: string) {
+SoundQueueSamples :: (samples: string, gain: s32 = 25) {
     if sound_muted || samples.count == 0 { return }
     buffer := sound_samples[:]
-    length := AudioMix(samples, 25, buffer)
+    length := AudioMix(samples, gain, buffer)
     if length == 0 { return }
     SoundClear(sound_device)
     unused SoundQueue(sound_device, *buffer[0], cast(u32)length)

@@ -1,9 +1,7 @@
 #import, file "../../retro/language.zi";
 #import "std/utf8"
-// Coloring Book: a 1:1 play-alike of Bert's Dinosaurs. Pick one of twelve
-// scenes, drag any of twelve dinosaurs in four sizes (hold right or press
-// Mirror to mirror), fill regions with forty-two crayon colors, write an
-// eight-line story, and keep the whole picture in one of six slots.
+// Coloring Book: choose a scene, place and rotate independent stencils,
+// fill regions, write a story, and keep pictures in the gallery.
 #import "app_context"
 #import "app_protocol"
 #import "geometry"
@@ -24,19 +22,21 @@
 #import, file "paint_palette.zi";
 #import, file "paint_picture.zi";
 #import, file "paint_document.zi";
+#import, file "paint_catalog.zi";
+#import, file "paint_gallery_store.zi";
 #import "pointer_input"
 PictureIcon :: #import "mingcute/mingcute_regular_pic";
 BucketIcon :: #import "mingcute/mingcute_regular_paint";
 PencilIcon :: #import "mingcute/mingcute_regular_pencil";
 NewIcon :: #import "mingcute/mingcute_regular_file_new";
 EraserIcon :: #import "mingcute/mingcute_regular_eraser";
-SaveIcon :: #import "mingcute/mingcute_regular_save";
 PrintIcon :: #import "mingcute/mingcute_regular_print";
 UndoIcon :: #import "mingcute/mingcute_regular_back_2";
 MirrorIcon :: #import "mingcute/mingcute_regular_flip_horizontal";
 MoveIcon :: #import "mingcute/mingcute_regular_move";
 HappyIcon :: #import "mingcute/mingcute_regular_happy";
 SadIcon :: #import "mingcute/mingcute_regular_sad";
+RotateIcon :: #import "mingcute/mingcute_regular_refresh_2";
 
 FONT :: "assets/dino-paint/font.png"
 SOUNDS :: "assets/dino-paint/sounds/"
@@ -52,15 +52,14 @@ CONFIRM_ERASE :: 6
 SAVE_LOAD :: 8
 OVERWRITE :: 9
 PRINT_VIEW :: 10
+GALLERY :: 11
+TOOL_COUNT :: 9
 
 SLOT_COUNT :: 6
 WORKING :: "working.txt"
 WORKING_HISTORY :: "working-undo.txt"
 
-scene_names: [12]string = .["Scene 1", "Scene 2", "Scene 3", "Scene 4", "Scene 5", "Scene 6", "Meadow", "Forest", "Desert", "Snowy hills", "Pond", "Farmyard"];
-dino_names: [30]string = .["TYRANNOSAURUS", "STEGOSAURUS", "TRICERATOPS", "ANATOSAURUS", "BRACHIOSAURUS", "DIPLODOCUS", "PARASAUROLOPHUS", "DEINONYCHUS", "PROTOCERATOPS", "PTERANODON", "STRACOSAURUS", "CORYTHOSAURUS", "Cat", "Dog", "Butterfly", "Child", "Astronaut", "Farmer", "Rabbit", "Elephant", "Lion", "Doctor", "Firefighter", "Cook", "Crate", "Campfire", "Tent", "Tree", "Rock", "Barrel"];
-dino_short: [30]string = .["T-REX", "STEGO", "TRIKE", "Duckbill", "BRACHIO", "DIPLO", "PARA", "RAPTOR", "PROTO", "PTERANODON", "STRACO", "CORY", "Cat", "Dog", "Butterfly", "Child", "Astronaut", "Farmer", "Rabbit", "Elephant", "Lion", "Doctor", "Firefighter", "Cook", "Crate", "Campfire", "Tent", "Tree", "Rock", "Barrel"];
-button_names: [8]string = .["Image", "Color", "Story", "Erase", "Save", "Print", "Undo", "New picture"];
+button_names: [9]string = .["Image", "Color", "Story", "Erase", "Gallery", "Print", "Undo", "New picture", "Rotate"];
 size_names: [4]string = .["Small", "Medium", "Large", "Huge"];
 
 view: s32 = MAIN;
@@ -68,6 +67,7 @@ dino: s32 = -1;
 size: s32 = 2;
 placing: bool;
 erasing: bool;
+rotating: bool;
 placement_flip: bool;
 placement_x: s32;
 placement_y: s32;
@@ -78,11 +78,10 @@ grab_y: s32;
 dino_page: s32;
 scene_page: s32;
 stencil_category: s32;
-category_starts: [4]s32 = .[0, 12, 18, 24];
-category_counts: [4]s32 = .[12, 6, 6, 6];
-// Keep the original stencil indices while grouping the new pictures with them.
-stencil_order: [30]s32 = .[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,18,19,20,15,16,17,21,22,23,24,25,26,27,28,29];
-stencil_categories: [4]string = .["Dinosaurs", "Animals", "People", "Objects"];
+scene_category: s32;
+last_scene: s32 = -1;
+gallery_store: GalleryStore;
+gallery_page: s32;
 story_row: s32;
 story_column: s32;
 canvas_name: [32]u8;
@@ -95,6 +94,38 @@ saving: bool = true;
 status: string;
 status_until: float64;
 initialized: bool;
+
+// Choices are separate from pictures and Undo: returning to a stencil never
+// changes the scene or artwork already saved in a picture.
+CHOICES :: "choices.txt"
+CHOICES_HEADER :: "JUNGLE PAINT CHOICES 1\n"
+ChoicesSave :: () {
+    values: [8]u8 = .[PAINT_CODES[dino + 1], PAINT_CODES[stencil_category], PAINT_CODES[dino_page],
+        PAINT_CODES[size], PAINT_CODES[ifx placement_flip then 1 else 0], PAINT_CODES[scene_category],
+        PAINT_CODES[scene_page], PAINT_CODES[last_scene + 1]]
+    unused DocumentWrite(CHOICES, Join(CHOICES_HEADER, TextView(values[:])))
+}
+
+ChoicesLoad :: () {
+    dino = -1; stencil_category = 0; dino_page = 0; size = 2
+    placement_flip = false; scene_category = 0; scene_page = 0; last_scene = -1
+    saved := DocumentRead(CHOICES)
+    if saved.count != CHOICES_HEADER.count + 8 || saved[:CHOICES_HEADER.count] != CHOICES_HEADER { return }
+    values: [8]s32
+    for at: cast(s32)0..7 { values[at] = PaintIndex(saved[CHOICES_HEADER.count + at]); if values[at] < 0 { return } }
+    if values[0] > PAINT_STENCIL_COUNT || values[1] >= PAINT_STENCIL_CATEGORY_COUNT ||
+        values[2] >= (paint_stencil_category_counts[values[1]] + 5) / 6 || values[3] < 1 || values[3] > 4 ||
+        values[4] > 1 || values[5] >= PAINT_SCENE_CATEGORY_COUNT ||
+        values[6] >= (paint_scene_category_counts[values[5]] + 5) / 6 || values[7] > PAINT_SCENE_COUNT { return }
+    dino = values[0] - 1; stencil_category = values[1]; dino_page = values[2]; size = values[3]
+    placement_flip = values[4] == 1; scene_category = values[5]; scene_page = values[6]; last_scene = values[7] - 1
+}
+
+GalleryReadDocument :: (name: string, status: *s32) -> string {
+    bytes := DocumentRead(name)
+    status.* = DocumentStatus()
+    return bytes
+}
 
 Join :: (a: string, b: string = "", c: string = "") -> string {
     text: Vec(u8)
@@ -132,13 +163,14 @@ WorkingPictureSave :: () -> bool {
     if !initialized || working_history_start || history_loading { return true }
     working := PictureText()
     if !DocumentWrite(WORKING, working) { return false }
-    if HistoryBoundTo(working) { return true }
+    gallery_saved := scene < 0 || GalleryStoreSave(*gallery_store, working)
+    if HistoryBoundTo(working) { return gallery_saved }
     // Built in place, so its storage is released after writing.
     text: Vec(u8)
     HistoryAppend(*text, working)
     if !DocumentWrite(WORKING_HISTORY, TextView(VecSlice(text, 0, text.count))) { return false }
     HistorySaved(working)
-    return true
+    return gallery_saved
 }
 
 // The working picture and, when it still belongs to it, its undo history.
@@ -151,6 +183,7 @@ working_canvas_state: s32 = WORKING_CANVAS_IDLE;
 
 WorkingPictureLoad :: () {
     HistoryClear()
+    working_loaded = ""
     working := DocumentRead(WORKING)
     // Its history is read and matched to it on the next frame.
     if PictureLoad(working) { working_loaded = OwnedText(working); working_history_start = true }
@@ -170,6 +203,7 @@ StoreSlot :: (index: s32) -> bool {
 
 LoadSlot :: (index: s32) -> bool {
     if !PictureLoad(DocumentRead(SlotFile(index))) { Notice("Empty or damaged save"); return false }
+    GalleryStoreDetach(*gallery_store)
     slot = index
     placing = false
     erasing = false
@@ -191,6 +225,8 @@ Undo :: () {
 
 OpenScene :: (index: s32) {
     scene = index
+    last_scene = index
+    ChoicesSave()
     unused SceneOpen(index)
     placing = false
     erasing = false
@@ -220,15 +256,14 @@ MakeCanvas :: () {
     }
 }
 
-// The main screen is laid out in window pixels: on a wide window the eight
-// tools stand in a rail beside the picture, on a tall one in two rows of
-// four below it. The picture keeps its 4:3 shape.
+// The main screen is laid out in window pixels: on a wide window the nine
+// tools stand beside the picture, or in three rows below a portrait picture. The picture keeps its 4:3 shape.
 canvas_x: s32;
 canvas_y: s32;
 canvas_w: s32 = 1;
 canvas_h: s32 = 1;
-tool_x: [8]s32;
-tool_y: [8]s32;
+tool_x: [TOOL_COUNT]s32;
+tool_y: [TOOL_COUNT]s32;
 tool_w: s32;
 tool_h: s32;
 
@@ -249,34 +284,39 @@ LayoutMain :: () {
     pad := Clamp(shortest / 40, 6, 20)
     gap := Clamp(shortest / 80, 4, 10)
     if height > width {
-        tool_w = (width - pad * 2 - gap * 3) / 4
+        tool_w = (width - pad * 2 - gap * 2) / 3
         tool_h = Clamp(tool_w * 3 / 4, 44, 110)
         canvas_w = width - pad * 2
         canvas_h = canvas_w * 3 / 4
-        room := height - pad * 3 - gap - tool_h * 2
+        room := height - pad * 3 - gap * 2 - tool_h * 3
         if canvas_h > room { canvas_h = room; canvas_w = canvas_h * 4 / 3 }
         canvas_x = (width - canvas_w) / 2
         canvas_y = pad
         below := canvas_y + canvas_h + pad
-        top := below + (height - pad - below - tool_h * 2 - gap) / 2
-        for index: cast(s32)0..7 {
-            tool_x[index] = pad + (index % 4) * (tool_w + gap)
-            tool_y[index] = top + (index / 4) * (tool_h + gap)
+        top := below + (height - pad - below - tool_h * 3 - gap * 2) / 2
+        for index: cast(s32)0..TOOL_COUNT - 1 {
+            tool_x[index] = pad + (index % 3) * (tool_w + gap)
+            tool_y[index] = top + (index / 3) * (tool_h + gap)
         }
     } else {
-        tool_h = (height - pad * 2 - gap * 7) / 8
-        tool_w = Clamp(tool_h * 5 / 2, 64, width / 5)
-        room_w := width - pad * 3 - tool_w
+        // A short landscape phone needs two columns to keep taps generous.
+        columns: s32 = ifx height < 440 then 2 else 1
+        rows: s32 = ifx columns == 2 then 5 else TOOL_COUNT
+        width_parts: s32 = ifx columns == 2 then 8 else 5
+        tool_h = (height - pad * 2 - gap * (rows - 1)) / rows
+        tool_w = Clamp(tool_h * 5 / 2, 64, width / width_parts)
+        rail_w := tool_w * columns + gap * (columns - 1)
+        room_w := width - pad * 3 - rail_w
         room_h := height - pad * 2
         canvas_w = room_w
         canvas_h = canvas_w * 3 / 4
         if canvas_h > room_h { canvas_h = room_h; canvas_w = canvas_h * 4 / 3 }
-        left := (width - tool_w - pad - canvas_w) / 2
-        canvas_x = left + tool_w + pad
+        left := (width - rail_w - pad - canvas_w) / 2
+        canvas_x = left + rail_w + pad
         canvas_y = pad + (room_h - canvas_h) / 2
-        for index: cast(s32)0..7 {
-            tool_x[index] = left
-            tool_y[index] = canvas_y + (canvas_h - tool_h * 8 - gap * 7) / 2 + index * (tool_h + gap)
+        for index: cast(s32)0..TOOL_COUNT - 1 {
+            tool_x[index] = left + (index % columns) * (tool_w + gap)
+            tool_y[index] = canvas_y + (canvas_h - tool_h * rows - gap * (rows - 1)) / 2 + (index / columns) * (tool_h + gap)
         }
     }
     if canvas_w < 1 { canvas_w = 1 }
@@ -288,9 +328,10 @@ ToolShape :: (index: s32) -> string {
     if index == 1 { return BucketIcon.Shape }
     if index == 2 { return PencilIcon.Shape }
     if index == 3 { return EraserIcon.Shape }
-    if index == 4 { return SaveIcon.Shape }
+    if index == 4 { return PictureIcon.Shape }
     if index == 5 { return PrintIcon.Shape }
     if index == 6 { return ifx placing then MirrorIcon.Shape else UndoIcon.Shape }
+    if index == 8 { return RotateIcon.Shape }
     return NewIcon.Shape
 }
 
@@ -388,10 +429,10 @@ MainView :: () {
     bounds := AppBounds()
     BookBox(0, 0, cast(s32)bounds.width, cast(s32)bounds.height, 0xe3ece4ff)
     chosen_tool: s32 = -1
-    for index: cast(s32)0..7 {
+    for index: cast(s32)0..TOOL_COUNT - 1 {
         mirror := placing && index == 6
         label := ifx mirror then "Mirror" else button_names[index]
-        pressed := ToolButton(20 + index, tool_x[index], tool_y[index], tool_w, tool_h, ToolShape(index), label, (mirror && placement_flip) || (index == 3 && erasing))
+        pressed := ToolButton(20 + index, tool_x[index], tool_y[index], tool_w, tool_h, ToolShape(index), label, (mirror && placement_flip) || (index == 3 && erasing) || (index == 8 && rotating))
         if pressed && !working_bookkeeping { chosen_tool = index }
     }
     // The chosen crayon, as a dot on the Color tool.
@@ -453,6 +494,13 @@ MainView :: () {
         if !working_bookkeeping && chosen_tool < 0 && SamplePointer().pressed { canvas_can_fill = true }
         if !working_bookkeeping && chosen_tool < 0 && press.clicked && canvas_can_fill {
             canvas_can_fill = false
+            if rotating {
+                if CanvasObjectAt(x, y) >= 0 {
+                    HistoryPush()
+                    if CanvasRotateObject(x, y) { dirty = true; WorkingPictureKeep(); Sound("click") }
+                }
+                return
+            }
             if erasing {
                 if CanvasObjectAt(x, y) >= 0 {
                     HistoryPush()
@@ -477,27 +525,30 @@ MainView :: () {
     }
     if chosen_tool >= 0 {
         mirror := placing && chosen_tool == 6
-        if mirror { placement_flip = !placement_flip; Sound("click"); return }
+        if mirror { placement_flip = !placement_flip; ChoicesSave(); Sound("click"); return }
+        if chosen_tool == 8 && placing { Notice("Place the stencil first"); return }
         placing = false
         dragging = false
         Sound("click")
-        if chosen_tool == 0 || chosen_tool == 1 || chosen_tool == 7 { erasing = false }
+        if chosen_tool != 8 { rotating = false }
+        if chosen_tool == 0 || chosen_tool == 1 || chosen_tool == 7 || chosen_tool == 8 { erasing = false }
         if chosen_tool == 0 { view = ifx scene < 0 then PICK_SCENE else PICK_DINO }
         if chosen_tool == 1 { view = PICK_COLOR }
         if chosen_tool == 2 { view = STORY }
         if chosen_tool == 3 { erasing = !erasing; canvas_can_fill = false }
         if chosen_tool == 4 {
-            // Painting may have evicted the previous temporary images.
-            for slot_index: cast(s32)0..SLOT_COUNT - 1 { slot_previews_ready[slot_index] = false }
-            view = SAVE_LOAD
-            saving = true
+            GalleryPreviewsClear()
+            gallery_page = ifx gallery_store.gallery.selected >= 0 then gallery_store.gallery.selected / 6 else 0
+            view = GALLERY
         }
         if chosen_tool == 5 { view = PRINT_VIEW }
         if chosen_tool == 6 { Undo() }
         if chosen_tool == 7 { view = CONFIRM_ERASE }
+        if chosen_tool == 8 { rotating = !rotating; canvas_can_fill = false }
         return
     }
     if retro.key == KEY_ESCAPE { WorkingPictureKeep(); GameHome() }
+    if rotating { PictureNote("Tap an object to rotate") }
     if erasing { PictureNote("Tap an object to erase") }
     if retro.now < status_until { PictureNote(status) }
 }
@@ -513,6 +564,7 @@ CancelButton :: () -> bool {
     if retro.key == KEY_ESCAPE {
         Sound("click")
         view = MAIN
+        dirty = true
         return true
     }
     return false
@@ -520,76 +572,175 @@ CancelButton :: () -> bool {
 
 ScenePicker :: () {
     DialogBack("Choose a scene")
-    for offset: cast(s32)0..5 {
-        index := scene_page * 6 + offset
-        if index >= SCENE_COUNT { continue }
-        x := 20 + (offset % 3) * 94
-        y := 30 + (offset / 3) * 68
-        press := RetroTap(60 + offset, x, y, 90, 64, scene_names[index])
-        BookBox(x, y, 90, 64, ifx press.down then cast(u32)0xdcebdcff else cast(u32)0xf7f1e3ff, 0xdacdb5ff, 4.0)
-        number := FormatInteger(index + 1, digits_a[:])
-        RetroSprite(Join(ART, Join("scene", Join(number, "-thumb.jpg"))), x + 13, y + 3, 64, 48, -1, true)
-        BookText(x + 2, y + 51, 86, 12, scene_names[index], 10)
-        if press.clicked {
-            OpenScene(index)
-            return
+    for category: cast(s32)0..PAINT_SCENE_CATEGORY_COUNT - 1 {
+        if BookButton(520 + category, 20 + category * 95, 30, 90, 17, PaintSceneCategoryLabel(category), scene_category == category) {
+            scene_category = category; scene_page = 0; ChoicesSave(); return
         }
     }
-    pages := (SCENE_COUNT + 5) / 6
-    if scene_page > 0 && BookButton(196, 20, 173, 62, 14, "Previous") { scene_page -= 1; Sound("click") }
-    if scene_page < pages - 1 && BookButton(197, 150, 173, 62, 14, "Next") { scene_page += 1; Sound("click") }
+    count := paint_scene_category_counts[scene_category]
+    for offset: cast(s32)0..5 {
+        index := PaintSceneAt(scene_category, scene_page * 6 + offset)
+        if index < 0 { continue }
+        x := 20 + (offset % 3) * 94
+        y := 51 + (offset / 3) * 60
+        press := RetroTap(60 + offset, x, y, 90, 56, PaintSceneLabel(index))
+        BookBox(x, y, 90, 56, ifx press.down || index == last_scene then cast(u32)0xdcebdcff else cast(u32)0xf7f1e3ff, 0xdacdb5ff, 4.0)
+        number := FormatInteger(index + 1, digits_a[:])
+        RetroSprite(Join(ART, Join("scene", Join(number, "-thumb.jpg"))), x + 21, y + 2, 48, 36, -1, true)
+        BookText(x + 2, y + 39, 86, 14, PaintSceneLabel(index), 9)
+        if press.clicked { OpenScene(index); return }
+    }
+    pages := (count + 5) / 6
+    if scene_page > 0 && BookButton(196, 20, 173, 62, 14, "Previous") { scene_page -= 1; ChoicesSave(); Sound("click") }
+    if scene_page < pages - 1 && BookButton(197, 150, 173, 62, 14, "Next") { scene_page += 1; ChoicesSave(); Sound("click") }
     page_digits: [24]u8
     number := FormatInteger(scene_page + 1, digits_a[:])
     BookText(85, 173, 62, 14, Join(number, " / ", FormatInteger(pages, page_digits[:])), 10)
     if CancelButton() && scene < 0 && history_count == 0 { GameHome() }
 }
 
-DinoPicker :: () {
-    DialogBack("Choose a stencil")
+#import "tree"
+#import "scroll_widget"
+#import "scroll_props"
+
+stencil_picker_scroll: s32;
+stencil_picker_page_scroll: s32;
+
+// Six slots are intentional: persisted v1 page choices survive every resize.
+StencilPickerLayout :: struct {
+    width: s32; height: s32; padding: s32; gap: s32
+    columns: s32; rows: s32; tab_columns: s32
+    tab_y: s32; tab_width: s32; grid_y: s32
+    card_width: s32; card_height: s32; footer_y: s32; footer_width: s32
+}
+
+StencilPickerBounds :: (width: s32, height: s32) -> StencilPickerLayout {
+    l: StencilPickerLayout
+    l.width = width; l.height = height
+    l.padding = ifx height < 440 then 8 else 16
+    l.gap = ifx height < 440 then 6 else 10
+    l.columns = ifx width < 600 then 2 else 3
+    l.rows = 6 / l.columns
+    l.tab_columns = ifx width < 600 then 2 else 4
+    l.tab_y = l.padding + 30 + l.gap
+    l.tab_width = (width - l.padding * 2 - l.gap * (l.tab_columns - 1)) / l.tab_columns
+    l.grid_y = l.tab_y + (4 / l.tab_columns) * (44 + l.gap)
+    l.footer_y = height - l.padding - 44
+    l.footer_width = (width - l.padding * 2 - l.gap * 2) / 3
+    l.card_width = (width - l.padding * 2 - l.gap * (l.columns - 1)) / l.columns
+    l.card_height = (l.footer_y - l.gap - l.grid_y - l.gap * (l.rows - 1)) / l.rows
+    return l
+}
+
+StencilPickerButton :: (id: s32, x: s32, y: s32, width: s32, label: string, chosen: bool = false) -> bool {
+    press := RetroTap(id, x, y, width, 44, label)
+    BookBox(x, y, width, 44, ifx chosen || press.down then cast(u32)0xdcebdcff else cast(u32)0xf3ecdcff,
+        ifx chosen then cast(u32)0x2e6956ff else cast(u32)0xdacdb5ff, 6.0)
+    BookText(x + 6, y, width - 12, 44, label, 18)
+    return press.clicked
+}
+
+StencilPickerContent :: (l: StencilPickerLayout) {
+    BookPaperSized(l.width, l.height)
+    BookText(l.padding, l.padding, l.width - l.padding * 2, 30, "Choose a stencil", 20)
     for category: cast(s32)0..3 {
-        if BookButton(500 + category, 20 + category * 71, 30, 67, 17, stencil_categories[category], stencil_category == category) {
-            stencil_category = category; dino_page = 0; return
+        if StencilPickerButton(500 + category,
+            l.padding + (category % l.tab_columns) * (l.tab_width + l.gap),
+            l.tab_y + (category / l.tab_columns) * (44 + l.gap), l.tab_width,
+            PaintStencilCategoryLabel(category), stencil_category == category) {
+            stencil_category = category; dino_page = 0; stencil_picker_scroll = 0; ChoicesSave(); return
         }
     }
-    first := category_starts[stencil_category] + dino_page * 6
+    grid_height := l.footer_y - l.gap - l.grid_y
+    scroll_grid := l.card_height < 80
+    saved_y := retro.y
+    if scroll_grid {
+        l.card_height = 80
+        scrolled := Scroll(retro.session, ScrollProps.{.key = cast(u64)590,
+            .bounds = RetroRect(l.padding, l.grid_y, l.width - l.padding * 2, grid_height),
+            .scale = 1.0, .content_height = l.rows * (l.card_height + l.gap) - l.gap,
+            .scroll_offset = stencil_picker_scroll, .keep_scrollbar = true})
+        if !scrolled.opened { unused CancelButton(); return }
+        stencil_picker_scroll = scrolled.scroll_offset
+        retro.y -= cast(float32)stencil_picker_scroll
+    } else { stencil_picker_scroll = 0 }
+    first := paint_stencil_category_starts[stencil_category] + dino_page * 6
     for offset: cast(s32)0..5 {
         at := first + offset
-        if at >= category_starts[stencil_category] + category_counts[stencil_category] { continue }
-        index := stencil_order[at]
-        x := 20 + (offset % 3) * 94
-        y := 51 + (offset / 3) * 60
-        press := RetroTap(80 + index, x, y, 90, 56, dino_names[index])
-        BookBox(x, y, 90, 56, ifx press.down then cast(u32)0xdcebdcff else cast(u32)0xf7f1e3ff, 0xdacdb5ff, 4.0)
+        if at >= paint_stencil_category_starts[stencil_category] + paint_stencil_category_counts[stencil_category] { continue }
+        index := paint_stencil_order[at]
+        x := l.padding + (offset % l.columns) * (l.card_width + l.gap)
+        y := l.grid_y + (offset / l.columns) * (l.card_height + l.gap)
+        press := RetroTap(80 + index, x, y, l.card_width, l.card_height, PaintStencilLabel(index))
+        chosen := index == dino
+        BookBox(x, y, l.card_width, l.card_height,
+            ifx press.down || chosen then cast(u32)0xdcebdcff else cast(u32)0xf7f1e3ff,
+            ifx chosen then cast(u32)0x2e6956ff else cast(u32)0xdacdb5ff, 6.0)
         number := FormatInteger(index + 1, digits_a[:])
-        fit: float32 = 68.0 / cast(float32)DinoWidth(index, DINO_SIZES)
-        if 34.0 / cast(float32)DinoHeight(index, DINO_SIZES) < fit { fit = 34.0 / cast(float32)DinoHeight(index, DINO_SIZES) }
+        image_height := l.card_height - 34
+        fit := cast(float32)(l.card_width - 16) / cast(float32)DinoWidth(index, DINO_SIZES)
+        if cast(float32)image_height / cast(float32)DinoHeight(index, DINO_SIZES) < fit {
+            fit = cast(float32)image_height / cast(float32)DinoHeight(index, DINO_SIZES)
+        }
         dw := cast(s32)(cast(float32)DinoWidth(index, DINO_SIZES) * fit)
         dh := cast(s32)(cast(float32)DinoHeight(index, DINO_SIZES) * fit)
-        RetroSprite(Join(ART, Join("dino", Join(number, "-thumb.png"))),
-            x + (90 - dw) / 2, y + 3 + (36 - dh) / 2, dw, dh, -1, true)
-        name := dino_short[index]
-        BookText(x + 2, y + 39, 86, 14, name, 10)
+        RetroSprite(Join(ART, Join("dino", number, "-preview.png")),
+            x + (l.card_width - dw) / 2, y + 5 + (image_height - dh) / 2, dw, dh, -1, true)
+        BookText(x + 6, y + l.card_height - 28, l.card_width - 12, 24, PaintStencilShortLabel(index), 18)
         if press.clicked {
-            dino = index
-            Sound("click")
-            view = PICK_SIZE
-            return
+            dino = index; ChoicesSave(); Sound("click"); view = PICK_SIZE; break
         }
     }
-    if dino_page > 0 && BookButton(196, 22, 173, 78, 14, "Previous") { dino_page -= 1; return }
-    if dino_page < (category_counts[stencil_category] + 5) / 6 - 1 &&
-    BookButton(197, 106, 173, 78, 14, "Next") { dino_page += 1; return }
+    retro.y = saved_y
+    if scroll_grid { unused End(retro.session) }
+    if view == PICK_SIZE { return }
+    pages := (paint_stencil_category_counts[stencil_category] + 5) / 6
+    if dino_page > 0 && StencilPickerButton(196, l.padding, l.footer_y, l.footer_width, "Previous") {
+        dino_page -= 1; stencil_picker_scroll = 0; ChoicesSave(); return
+    }
+    if dino_page < pages - 1 && StencilPickerButton(197, l.width - l.padding - l.footer_width, l.footer_y, l.footer_width, "Next") {
+        dino_page += 1; stencil_picker_scroll = 0; ChoicesSave(); return
+    }
+    page_digits: [24]u8
+    number := FormatInteger(dino_page + 1, digits_a[:])
+    BookText(l.padding + l.footer_width + l.gap, l.footer_y, l.footer_width, 44,
+        Join(number, " / ", FormatInteger(pages, page_digits[:])), 18)
     unused CancelButton()
 }
 
+DinoPicker :: () {
+    bounds := AppBounds()
+    retro.x = bounds.x; retro.y = bounds.y; retro.scale = 1.0
+    width := cast(s32)bounds.width
+    height := cast(s32)bounds.height
+    // At unusually short heights even fixed tabs and footer need scrolling.
+    // Keep full-sized controls rather than shrinking their touch targets.
+    if height < 300 {
+        BookPaperSized(width, height)
+        scrolled := Scroll(retro.session, ScrollProps.{.key = cast(u64)591,
+            .bounds = RetroRect(0, 0, width, height), .scale = 1.0,
+            .content_height = 500, .scroll_offset = stencil_picker_page_scroll, .keep_scrollbar = true})
+        stencil_picker_page_scroll = scrolled.scroll_offset
+        if scrolled.opened {
+            retro.y -= cast(float32)stencil_picker_page_scroll
+            StencilPickerContent(StencilPickerBounds(width, 500))
+            retro.y = bounds.y
+            unused End(retro.session)
+        }
+    } else {
+        stencil_picker_page_scroll = 0
+        StencilPickerContent(StencilPickerBounds(width, height))
+    }
+}
+
 SizePicker :: () {
-    DialogBack(Join(Tr("Size: "), Tr(dino_short[dino])))
+    DialogBack(Join(Tr("Size: "), PaintStencilShortLabel(dino)))
     number := FormatInteger(dino + 1, digits_a[:])
     for index: cast(s32)0..3 {
         x: s32 = 24 + index * 70
         y: s32 = 40
         press := RetroTap(110 + index, x, y, 64, 120, size_names[index])
-        BookBox(x, y, 64, 120, ifx press.down then cast(u32)0xdcebdcff else cast(u32)0xf7f1e3ff, 0xdacdb5ff, 4.0)
+        BookBox(x, y, 64, 120, ifx press.down || size == index + 1 then cast(u32)0xdcebdcff else cast(u32)0xf7f1e3ff, 0xdacdb5ff, 4.0)
         fit: float32 = 54.0 / cast(float32)DinoWidth(dino, DINO_SIZES)
         if 94.0 / cast(float32)DinoHeight(dino, DINO_SIZES) < fit { fit = 94.0 / cast(float32)DinoHeight(dino, DINO_SIZES) }
         dw := cast(s32)(cast(float32)DinoWidth(dino, DINO_SIZES) * fit * cast(float32)(index + 1) / 4.0)
@@ -601,7 +752,7 @@ SizePicker :: () {
             size = index + 1
             placing = true
             canvas_can_fill = false
-            placement_flip = false
+            ChoicesSave()
             placement_x = 0
             placement_y = 0
             dragging = false
@@ -720,6 +871,8 @@ ConfirmView :: () {
     BookText(200, 132, 80, 20, "No", 13)
     yes := RetroTap(150, 40, 50, 80, 120, "Yes").clicked
     if yes {
+        if !GalleryStoreStartNew(*gallery_store) { Notice("Could not save gallery"); return }
+        rotating = false
         HistoryPush()
         CanvasBlank()
         scene = -1
@@ -758,6 +911,60 @@ SlotPreview :: (index: s32, saved: string) -> string {
         }
     }
     return TextUntilNul(slot_previews[index][:])
+}
+
+GalleryPreviewsClear :: () {
+    for index: cast(s32)0..SLOT_COUNT - 1 { slot_previews_ready[index] = false; slot_previews[index][0] = 0 }
+}
+
+GalleryView :: () {
+    DialogBack("Gallery")
+    slot_preview_created = false
+    if BookButton(540, 20, 29, 176, 18, "Save a copy") {
+        if scene >= 0 && GalleryStoreSave(*gallery_store, PictureText(), true) {
+            gallery_page = gallery_store.gallery.selected / 6
+            GalleryPreviewsClear()
+            Notice("Picture and story saved")
+        } else { Notice("Could not save gallery") }
+    }
+    if BookButton(541, 210, 29, 86, 18, "Slots") { GalleryPreviewsClear(); saving = true; view = SAVE_LOAD; return }
+    if !gallery_store.ready { BookCentered(92, "Could not read gallery", RED) }
+    else if gallery_store.gallery.count == 0 { BookCentered(92, "Your pictures appear here", BLACK) }
+    else {
+        for offset: cast(s32)0..5 {
+            index := gallery_page * 6 + offset
+            if index >= gallery_store.gallery.count { continue }
+            x := 20 + (offset % 3) * 94
+            y := 51 + (offset / 3) * 60
+            number := FormatInteger(index + 1, digits_a[:])
+            label := Join(Tr("Picture"), " ", number)
+            press := RetroTap(550 + offset, x, y, 90, 56, label)
+            BookBox(x, y, 90, 56, 0xf7f1e3ff,
+                ifx index == gallery_store.gallery.selected then cast(u32)0x2e6956ff else cast(u32)0xdacdb5ff, 4.0)
+            saved := ifx !slot_previews_ready[offset] && !slot_preview_created then GalleryStoreRead(*gallery_store, index) else ""
+            preview := SlotPreview(offset, saved)
+            if preview != "" { RetroSprite(preview, x + 21, y + 2, 48, 36, -1, true) }
+            BookText(x + 2, y + 39, 86, 14, label, 10)
+            if press.clicked {
+                picture := GalleryStoreRead(*gallery_store, index)
+                if PictureLoad(picture) {
+                    if !GalleryStoreSelect(*gallery_store, index, picture) { GalleryStoreDetach(*gallery_store); Notice("Could not save gallery") }
+                    placing = false; dragging = false; erasing = false; rotating = false
+                    HistoryClear(); story_row = 0; story_column = 0; dirty = true
+                    WorkingPictureKeep(); Sound("open"); view = MAIN
+                } else { Notice("Empty or damaged save") }
+                return
+            }
+        }
+        pages := (gallery_store.gallery.count + 5) / 6
+        if gallery_page > 0 && BookButton(196, 20, 173, 78, 14, "Previous") { gallery_page -= 1; GalleryPreviewsClear() }
+        if gallery_page < pages - 1 && BookButton(197, 106, 173, 78, 14, "Next") { gallery_page += 1; GalleryPreviewsClear() }
+        page_digits: [24]u8
+        number := FormatInteger(gallery_page + 1, digits_a[:])
+        BookText(220, 173, 76, 14, Join(number, " / ", FormatInteger(pages, page_digits[:])), 10)
+    }
+    if retro.now < status_until { BookLabel(20, 190, status, RED) }
+    unused CancelButton()
 }
 
 SaveLoadView :: () {
@@ -834,6 +1041,7 @@ GameMain :: () -> s32 {
         working_canvas_state = WORKING_CANVAS_IDLE
         history_loading = false
         erasing = false
+        rotating = false
         view = MAIN
         placing = false
         dragging = false
@@ -877,6 +1085,9 @@ GameMain :: () -> s32 {
     if !initialized {
         CanvasBlank()
         WorkingPictureLoad()
+        ChoicesLoad()
+        GalleryStoreInit(*gallery_store, GalleryReadDocument, DocumentWrite)
+        if !GalleryStoreLoad(*gallery_store, working_loaded) { Notice("Could not read gallery") }
         working_bookkeeping = true
         if working_history_start { working_canvas_state = WORKING_CANVAS_WAIT }
         if scene < 0 { view = PICK_SCENE }
@@ -891,6 +1102,7 @@ GameMain :: () -> s32 {
     else if view == PICK_COLOR { ColorPicker() }
     else if view == STORY { StoryView() }
     else if view == CONFIRM_ERASE { ConfirmView() }
+    else if view == GALLERY { GalleryView() }
     else if view == SAVE_LOAD { SaveLoadView() }
     else if view == OVERWRITE { OverwriteView() }
     else if view == PRINT_VIEW { PrintView() }

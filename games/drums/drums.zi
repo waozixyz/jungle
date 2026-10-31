@@ -1,7 +1,7 @@
 // Little Drums' rules contain no clock, sound or UI effects.
 #import, file "../../host/jungle_text.zi";
 
-DRUMS_PADS :: 4
+DRUMS_PADS :: 8
 DRUMS_FREE :: 0
 DRUMS_COPY :: 1
 DRUMS_READY :: 0
@@ -119,35 +119,98 @@ DRUMS_BELL_MASK: [16]u16 = .[
     0x07e0, 0x07e0, 0x07f0, 0x0ff0, 0x1ff8, 0x1ff8, 0x1ff8, 0x07e0
 ];
 
+DRUMS_XYLOPHONE_MASK: [16]u16 = .[
+    0x0000, 0x0000, 0x0000, 0x0000, 0x3f00, 0x3fe0, 0x7ffe, 0x7fff,
+    0xffff, 0xffff, 0x3fff, 0x3ffe, 0x01fe, 0x0034, 0x0000, 0x0000
+];
+DRUMS_GUITAR_MASK: [16]u16 = .[
+    0x01c0, 0x01c0, 0x01c0, 0x01c0, 0x0180, 0x0180, 0x0180, 0x03c0,
+    0x07e0, 0x07e0, 0x07e0, 0x07e0, 0x0ff0, 0x0ff0, 0x07e0, 0x03c0
+];
+DRUMS_CYMBAL_MASK: [16]u16 = .[
+    0x0000, 0x0180, 0x1ff8, 0x3ffc, 0x3ffc, 0x3ffc, 0x1ff8, 0x03c0,
+    0x01c0, 0x0180, 0x0180, 0x03c0, 0x07e0, 0x0cb0, 0x1818, 0x0000
+];
+DRUMS_TAMBOURINE_MASK: [16]u16 = .[
+    0x0000, 0x0000, 0x0fc0, 0x3ff8, 0x7ffc, 0x7ffe, 0xfffe, 0xffff,
+    0xffff, 0x7fff, 0x3fff, 0x1ffe, 0x0ffc, 0x01f0, 0x0000, 0x0000
+];
+
 DrumsMaskRow :: (pad: s32, row: s32) -> u16 {
     if pad == 0 { return DRUMS_BIG_MASK[row] }
     if pad == 1 { return DRUMS_LITTLE_MASK[row] }
     if pad == 2 { return DRUMS_SHAKER_MASK[row] }
-    return DRUMS_BELL_MASK[row]
+    if pad == 3 { return DRUMS_BELL_MASK[row] }
+    if pad == 4 { return DRUMS_XYLOPHONE_MASK[row] }
+    if pad == 5 { return DRUMS_GUITAR_MASK[row] }
+    if pad == 6 { return DRUMS_CYMBAL_MASK[row] }
+    return DRUMS_TAMBOURINE_MASK[row]
 }
 
 DrumsBodyHit :: (pad: s32, x: s32, y: s32, width: s32, height: s32,
         point_x: s32, point_y: s32) -> bool {
     if pad < 0 || pad >= DRUMS_PADS || width <= 0 || height <= 0 { return false }
     if point_x < x || point_y < y || point_x >= x + width || point_y >= y + height { return false }
-    cell_x := ((point_x - x) * 32 + width) / (width * 2)
-    cell_y := ((point_y - y) * 32 + height) / (height * 2)
+    cell_x := (point_x - x) * 16 / width
+    cell_y := (point_y - y) * 16 / height
     row := DrumsMaskRow(pad, cell_y)
     return ((cast(u32)row >> cast(u32)(15 - cell_x)) & cast(u32)1) != cast(u32)0
 }
 
-DrumsLayout :: struct { columns: s32; edge: s32; left: s32; top: s32 }
-DrumsPlace :: struct { x: s32; y: s32 }
+// Room reference scenes, with objects hanging on the wall, resting on a
+// shelf, and standing at different depths on the floor. These are deliberately
+// separate compositions, rather than a row/grid reflow. Fit includes labels.
+DrumsLayout :: struct { left: s32; top: s32; fit: s32; wide: bool; room_top: s32; room_height: s32 }
+DrumsPlace :: struct { x: s32; y: s32; edge: s32 }
 
-DrumsGrid :: (width: s32, height: s32) -> DrumsLayout {
-    columns: s32 = ifx width > height * 2 then 4 else 2
-    rows := 4 / columns
-    edge := (width - 32 - (columns - 1) * 14) / columns
-    tall := (height - (rows - 1) * 14) / rows
-    if tall < edge { edge = tall }
-    if edge > 250 { edge = 250 }
-    if edge < 0 { edge = 0 }
-    return DrumsLayout.{.columns = columns, .edge = edge,
-        .left = (width - columns * edge - (columns - 1) * 14) / 2,
-        .top = (height - rows * edge - (rows - 1) * 14) / 2}
+DRUMS_PORTRAIT_X: [8]s32 = .[8, 156, 158, 30, 255, 155, 0, 298];
+DRUMS_PORTRAIT_Y: [8]s32 = .[340, 380, 42, 40, 455, 100, 150, 385];
+DRUMS_PORTRAIT_EDGE: [8]s32 = .[160, 105, 55, 80, 125, 240, 180, 78];
+DRUMS_LANDSCAPE_X: [8]s32 = .[70, 270, 245, 65, 430, 560, 325, 680];
+DRUMS_LANDSCAPE_Y: [8]s32 = .[180, 230, 23, 17, 245, 36, 57, 260];
+DRUMS_LANDSCAPE_EDGE: [8]s32 = .[160, 104, 52, 78, 125, 235, 180, 78];
+
+DrumsRoomLayout :: (width: s32, height: s32, copying: bool = false) -> DrumsLayout {
+    wide := width > height
+    scene_width: s32 = ifx wide then 800 else 400
+    scene_height: s32 = ifx wide then 410 else 624
+    top: s32 = ifx copying then 112 else 60
+    available := height - top - (ifx copying then 72 else 8)
+    fit := (width - 24) * 1000 / scene_width
+    tall := available * 1000 / scene_height
+    if tall < fit { fit = tall }
+    if fit < 0 { fit = 0 }
+    return DrumsLayout.{.left = (width - scene_width * fit / 1000) / 2,
+        .top = top + (available - scene_height * fit / 1000) / 2, .fit = fit, .wide = wide,
+        .room_top = top, .room_height = available}
+}
+
+// A short, damped horizontal shake keeps the floor contact height fixed.
+DrumsShakeX :: (elapsed: float64) -> s32 {
+    if elapsed < 0.0 || elapsed >= 0.30 { return 0 }
+    step := cast(s32)(elapsed / 0.05)
+    amount: s32 = ifx step < 2 then 3 else ifx step < 4 then 2 else 1
+    return ifx step % 2 == 0 then amount else -amount
+}
+
+DrumsRoomPlace :: (pad: s32, room: DrumsLayout) -> DrumsPlace {
+    if pad < 0 || pad >= DRUMS_PADS { return DrumsPlace.{} }
+    x := ifx room.wide then DRUMS_LANDSCAPE_X[pad] else DRUMS_PORTRAIT_X[pad]
+    y := ifx room.wide then DRUMS_LANDSCAPE_Y[pad] else DRUMS_PORTRAIT_Y[pad]
+    edge := ifx room.wide then DRUMS_LANDSCAPE_EDGE[pad] else DRUMS_PORTRAIT_EDGE[pad]
+    return DrumsPlace.{.x = room.left + x * room.fit / 1000,
+        .y = room.top + y * room.fit / 1000, .edge = edge * room.fit / 1000}
+}
+
+// Opaque cut-out bases: bell 1196/1254, shaker 1140/1254. A shelf
+// meets those feet/handles, never the text beneath the full image square.
+DrumsShelfPlace :: (pad: s32, room: DrumsLayout) -> DrumsPlace {
+    picture := DrumsRoomPlace(pad, room)
+    base: s32 = ifx pad == 3 then 95 else 91
+    return DrumsPlace.{.x = picture.x + picture.edge / 10,
+        .y = picture.y + picture.edge * base / 100, .edge = picture.edge * 8 / 10}
+}
+
+DrumsLabelY :: (pad: s32, place: DrumsPlace) -> s32 {
+    return place.y + place.edge + (ifx pad == 2 || pad == 3 then 28 else 0)
 }

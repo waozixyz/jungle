@@ -9,6 +9,7 @@ await mkdir('work/w',{recursive:true});await mkdir('work/b',{recursive:true});
 const root=resolve(process.env.JUNGLE_WEB_ROOT||'build/web');
 const page=process.env.JUNGLE_WEB_PAGE||'dom.html';
 const language=process.env.JUNGLE_TEST_LANG||'en';
+const keepCaptures=process.env.JUNGLE_TEST_CAPTURES==='1';
 await mkdir('backup/new-activities-web',{recursive:true});
 const profile=await mkdtemp(resolve('work/w/p-'));
 const mime={'.html':'text/html','.js':'text/javascript','.wasm':'application/wasm','.json':'application/json','.png':'image/png','.jpg':'image/jpeg','.wav':'audio/wav'};
@@ -78,7 +79,13 @@ try{
   throw Error(description);
  }
  await command('Runtime.enable');await command('Page.enable');
- await command('Page.addScriptToEvaluateOnNewDocument',{source:`window.drumsAudio=[];window.drumsClicks=[];document.addEventListener('click',event=>{const label=event.target.getAttribute?.('aria-label');if(label)window.drumsClicks.push({label,detail:event.detail})},true);const originalPlay=HTMLMediaElement.prototype.play;HTMLMediaElement.prototype.play=function(){if(this.junglePath?.startsWith('assets/drums/sounds/'))window.drumsAudio.push(this.junglePath);return originalPlay.apply(this,arguments)}`});
+ await command('Page.addScriptToEvaluateOnNewDocument',{source:`window.drumsAudio=[];window.drumsPlayed=[];window.drumsClicks=[];
+ document.addEventListener('click',event=>{const label=event.target.getAttribute?.('aria-label');if(label)drumsClicks.push({label,detail:event.detail})},true);
+ const originalPlay=HTMLMediaElement.prototype.play;
+ HTMLMediaElement.prototype.play=function(){const result=originalPlay.apply(this,arguments),path=this.junglePath;
+  if(path?.startsWith('assets/drums/sounds/')){drumsAudio.push(path);Promise.resolve(result).then(()=>setTimeout(()=>drumsPlayed.push({path,ok:!this.paused&&!this.muted&&this.volume>0&&this.currentTime>0&&this.readyState>=2,volume:this.volume,time:this.currentTime,duration:this.duration}),100)).catch(error=>drumsPlayed.push({path,ok:false,error:String(error)}))}
+  return result;
+ };`});
  await command('Emulation.setDeviceMetricsOverride',{width:400,height:756,deviceScaleFactor:1,mobile:false});
  await command('Page.navigate',{url:'http://127.0.0.1:'+server.address().port+'/'+page});
  await waitFor('typeof Module!=="undefined"&&Module.FS&&document.getElementById("loading").style.display==="none"','Startup timed out');
@@ -87,7 +94,7 @@ try{
  const rows=(await readFile('games/catalog.txt','utf8')).trim().split('\n').map(x=>x.split('|')).sort((a,b)=>Number(a[4])-Number(b[4])).filter(x=>x[1]!=='123 Book');
  async function open(title){const index=rows.findIndex(r=>r[1]===title);if(index<0)throw Error('Missing required activity '+title);await key('Home');for(let i=0;i<index;i++)await key('ArrowDown');await key('Enter');await delay(500)}
  async function saved(name){return evaluate(`(()=>{const fs=Module.FS;const paths=[];function scan(p){for(const n of fs.readdir(p)){if(n==='.'||n==='..')continue;const a=p+'/'+n;try{if(fs.isDir(fs.stat(a).mode))scan(a);else if(a.endsWith('/${name}.txt')&&a.includes('jungle.${name}'))paths.push(a)}catch{}}}scan('/kryon-apps/jungle');return paths.map(p=>fs.readFile(p,{encoding:'utf8'}))})()`)}
- async function shot(name){await writeFile('backup/new-activities-web/'+page+'-'+language+'-'+name+'.png',Buffer.from((await command('Page.captureScreenshot',{format:'png'})).data,'base64'))}
+ async function shot(name){if(!keepCaptures)return;await writeFile('backup/new-activities-web/'+page+'-'+language+'-'+name+'.png',Buffer.from((await command('Page.captureScreenshot',{format:'png'})).data,'base64'))}
  const wanted=process.env.JUNGLE_WEB_ACTIVITY||'';
  const activities=[['shapes','Shapes & Sorting'],['matching','Matching Pairs'],['hide_seek','Hide & Seek'],['drums','Little Drums'],['garden','Grow a Garden']].filter(([name,title])=>(name!=='garden'||rows.some(r=>r[1]===title))&&(!wanted||name===wanted));
  for(const [name,title] of activities){
@@ -172,26 +179,78 @@ assert ImageChops.difference(board(f'tutorial-{width}-{mode}-1'),board(f'tutoria
    const animals=board.slice(5,9);const pair=animals.map((a,i)=>a===animals[0]?i:-1).filter(i=>i>=0);
    for(const i of pair)await click(i%2?296:104,i<2?300:491);
   }
-  if(name==='hide_seek'){await click(70,400);await click(200,56+593)}
-  if(name==='drums'){
-   await click(100,350);await click(300,92);await click(100,92);
-   if(page==='dom.html'){
-    await evaluate('drumsAudio=[];drumsClicks=[]');
-    const names={en:['Big drum','Little drum','Shaker','Bell'],de:['Große Trommel','Kleine Trommel','Rassel','Glocke'],es:['Tambor grande','Tambor pequeño','Sonajero','Campana']}[language],sounds=['low_drum','small_drum','shaker','bell'];
-    for(let pad=0;pad<4;pad++){
-     if(!await evaluate(`(()=>{const button=[...document.querySelectorAll('#kryon-dom-root button')].find(button=>button.getAttribute('aria-label')==='${names[pad]}');button.focus();return document.activeElement===button})()`))throw Error('Drum button did not take focus '+names[pad]);
-     await shot('keyboard-'+pad+'-space-before');await controlKey(' ');await shot('keyboard-'+pad+'-space-after');
-     let hits=await evaluate('drumsAudio');
-     const clicks=await evaluate('drumsClicks');await evaluate('drumsClicks=[]');
-     if(clicks.length!==1||hits.length!==1||hits[0]!=='assets/drums/sounds/'+sounds[pad]+'.wav')throw Error('Space did not hit '+names[pad]+' once '+JSON.stringify({clicks,hits}));
-     if(!await evaluate(`document.activeElement?.getAttribute('aria-label')==='${names[pad]}'`))throw Error('Space blurred '+names[pad]);
-     await evaluate('drumsAudio=[];drumsClicks=[]');await controlKey('Enter');await shot('keyboard-'+pad+'-enter-after');
-     hits=await evaluate('drumsAudio');
-     const enterClicks=await evaluate('drumsClicks');
-     if(enterClicks.length!==1||hits.length!==1||hits[0]!=='assets/drums/sounds/'+sounds[pad]+'.wav')throw Error('Enter did not hit '+names[pad]+' once '+JSON.stringify({clicks:enterClicks,hits}));
-     await evaluate('drumsAudio=[];drumsClicks=[]');
-    }
+  if(name==='hide_seek'){
+   const state=async()=>{const text=(await saved(name))[0];return text?text.trim().split(/\s+/).slice(2).map(Number):[0,0,0]};
+   // Actual grounded scene coordinates, with two/three Peekaboo places and
+   // four Remember places. No hidden target or game state is injected.
+   function placePoint(count,index){
+    const w=376,h=468,columns=2,column=index%columns,row=Math.trunc(index/columns),slot=Math.trunc(w/columns);
+    let cx=slot*column+Math.trunc(slot/2),ground=Math.trunc(h*(column%2===0?82:90)/100),limit=Math.trunc(h*.55);
+    if(count>2){ground=Math.trunc(h*(row===0?53:92)/100);cx+=row===0?-Math.trunc(slot/16):Math.trunc(slot/16);limit=Math.trunc(h*.27)}
+    const size=Math.min(Math.trunc(slot*.64),limit,230,Math.trunc((ground-12)*100/160));
+    return [12+cx,56+84+ground-size*.45];
    }
+   for(const count of [2,3]){
+    if((await state())[0]!==0)break;
+    for(let i=0;i<count;i++)await click(...placePoint(count,i));
+   }
+   const findDeadline=Date.now()+6000;
+   while((await state())[0]===0&&Date.now()<findDeadline)await delay(100);
+   if((await state())[0]!==1)throw Error('Peekaboo did not continue to Find');
+   for(let i=0;i<2;i++)await click(...placePoint(2,i));
+   const deadline=Date.now()+6000;
+   while((await state())[0]!==2&&Date.now()<deadline)await delay(100);
+   const before=await state();if(before[0]!==2||before[1]!==1)throw Error('Find did not continue to Remember '+before);
+   await command('Input.dispatchKeyEvent',{type:'keyDown',key:'Enter',windowsVirtualKeyCode:13});
+   await delay(4200);
+   for(let i=0;i<4;i++)await key('ArrowRight');
+   if(JSON.stringify(await state())!==JSON.stringify(before))throw Error('Held preview activation leaked into Remember');
+   await command('Input.dispatchKeyEvent',{type:'keyUp',key:'Enter',windowsVirtualKeyCode:13});await delay(200);
+   for(let i=0;i<4;i++)await click(...placePoint(4,i));
+   const after=await state();if(after[0]!==2||after[2]!==before[2]+1)throw Error('Remember did not accept one fresh answer '+after);
+   console.log('local Peekaboo '+page+' '+language+': grounded places, automatic levels, held-key preview guard and fresh answer passed');
+  }
+  if(name==='drums'){
+   const names={en:['Big drum','Little drum','Shaker','Bell','Xylophone','Guitar','Cymbal','Tambourine'],de:['Große Trommel','Kleine Trommel','Rassel','Glocke','Xylofon','Gitarre','Becken','Tamburin'],es:['Tambor grande','Tambor pequeño','Sonajero','Campana','Xilófono','Guitarra','Platillo','Pandereta']}[language];
+   const sounds=['big_drum','small_drum','shaker','bell','xylophone','guitar','cymbal','tambourine'];
+   const model=await readFile('games/drums/drums.zi','utf8'),positions={};
+   for(const [,orientation,part,values] of model.matchAll(/DRUMS_(PORTRAIT|LANDSCAPE)_(X|Y|EDGE): \[8\]s32 = \.\[([^\]]+)\]/g))positions[orientation+'_'+part]=values.split(',').map(Number);
+   const fractions=[[.5,.52],[.5,.52],[.32,.52],[.5,.52],[.5,.52],[.5,.6],[.5,.35],[.5,.52]];
+   const resetAudio=()=>evaluate('drumsAudio=[];drumsPlayed=[];drumsClicks=[]');
+   async function hear(pad){
+    await waitFor('drumsPlayed.length>0','No decoded, playing audio for '+names[pad]);
+    const hits=await evaluate('({calls:drumsAudio,played:drumsPlayed})'),path='assets/drums/sounds/'+sounds[pad]+'.wav';
+    if(hits.calls.length!==1||hits.calls[0]!==path||hits.played.length!==1||hits.played[0].path!==path||!hits.played[0].ok||hits.played[0].volume!==.65)throw Error('Instrument did not play audibly once '+names[pad]+' '+JSON.stringify(hits));
+   }
+   for(const [width,height,touch] of [[400,756,true],[960,600,false]]){
+    await command('Emulation.setDeviceMetricsOverride',{width,height,deviceScaleFactor:1,mobile:touch});
+    await command('Emulation.setTouchEmulationEnabled',{enabled:touch,maxTouchPoints:1});await delay(600);
+    const body=height-56,wide=width>body,scale=Math.max(.5,Math.min(1.6,wide?Math.min(body/520,width/780):Math.min(width/400,body/700)));
+    const w=Math.trunc(width/scale),h=Math.trunc(body/scale),roomWide=w>h,sw=roomWide?800:400,sh=roomWide?410:624;
+    const available=h-68,fit=Math.min(Math.trunc((w-24)*1000/sw),Math.trunc(available*1000/sh)),left=Math.trunc((w-Math.trunc(sw*fit/1000))/2),top=60+Math.trunc((available-Math.trunc(sh*fit/1000))/2),prefix=roomWide?'LANDSCAPE':'PORTRAIT';
+    const places=sounds.map((_,i)=>({x:left+Math.trunc(positions[prefix+'_X'][i]*fit/1000),y:top+Math.trunc(positions[prefix+'_Y'][i]*fit/1000),edge:Math.trunc(positions[prefix+'_EDGE'][i]*fit/1000)}));
+    const point=(x,y)=>({x:x*scale,y:56+y*scale});
+    async function tap(p){if(!touch)return click(p.x,p.y);await command('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[p]});await delay(80);await command('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});await delay(180)}
+    if(Math.max(...places.map(p=>p.y))-Math.min(...places.map(p=>p.y))<110)throw Error('Music room collapsed into a row');
+    for(let pad=0;pad<8;pad++){
+     await resetAudio();const p=places[pad];await tap(point(p.x+p.edge*fractions[pad][0],p.y+p.edge*fractions[pad][1]));await hear(pad);
+     if(page==='dom.html')for(const key of [' ','Enter']){
+      await resetAudio();
+      if(!await evaluate(`(()=>{const b=[...document.querySelectorAll('#kryon-dom-root button')].find(b=>b.getAttribute('aria-label')===${JSON.stringify(names[pad])});if(!b)return false;b.focus();return document.activeElement===b})()`))throw Error('Instrument focus missing '+names[pad]);
+      await controlKey(key);await hear(pad);
+      const clicks=await evaluate('drumsClicks');if(clicks.length!==1)throw Error('Keyboard hit was duplicated '+names[pad]+' '+JSON.stringify(clicks));
+     }
+    }
+    let empty;
+    for(let y=top+3;y<h-80&&!empty;y+=13)for(let x=14;x<w-14;x+=13)if(!places.some(p=>x>=p.x&&x<p.x+p.edge&&y>=p.y&&y<p.y+p.edge)){empty=point(x,y);break}
+    if(!empty)throw Error('No open room space');
+    await resetAudio();await tap(empty);await delay(250);if(await evaluate('drumsAudio.length'))throw Error('Empty room played a sound');
+    await click(width-28,28);await resetAudio();const p=places[0];await tap(point(p.x+p.edge*.5,p.y+p.edge*.52));await delay(250);
+    if(await evaluate('drumsAudio.length'))throw Error('Muted instrument played a sound');await click(width-28,28);
+   }
+   await command('Emulation.setTouchEmulationEnabled',{enabled:false});
+   await command('Emulation.setDeviceMetricsOverride',{width:400,height:756,deviceScaleFactor:1,mobile:false});await delay(400);
+   console.log('local music room '+page+' '+language+': all8 instruments decode and play through touch/mouse, DOM keyboard, empty space and mute on portrait/landscape');
   }
   if(name==='garden'){await click(100,56+572);for(let i=0;i<4;i++)await click(200,56+572)}
   await shot(name+'-played');
@@ -200,7 +259,7 @@ assert ImageChops.difference(board(f'tutorial-{width}-{mode}-1'),board(f'tutoria
   if(name==='matching'&&before[0].trim().split(' ').slice(9,13).filter(x=>x==='1').length!==2)throw Error('Matching pair failed '+before);
   if(name==='garden'&&!before[0].startsWith('garden 1 5 '))throw Error('Garden touches failed '+before);
   if(name==='shapes'&&(!before[0].startsWith('shapes 1 2 ')||Number(before[0].trim().split(' ')[8])<=1))throw Error('Shapes mode failed '+before);
-  if(name==='hide_seek'&&!before[0].startsWith('hideseek 2 1 '))throw Error('Hide mode failed '+before);
+  if(name==='hide_seek'&&!before[0].startsWith('hideseek 2 2 1 1'))throw Error('Hide mode failed '+before);
   await open(title);await key('Escape');
   if(JSON.stringify(await saved(name))!==JSON.stringify(before))throw Error('Browser resume changed '+name);
   await open(title);

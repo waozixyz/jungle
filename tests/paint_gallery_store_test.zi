@@ -1,0 +1,271 @@
+// Entirely private injected I/O: no app host, owner saves, UI or history calls.
+#import, file "../games/paint/paint_gallery_store.zi";
+#import, file "../games/paint/paint_gallery.zi";
+#import "std/format"
+#import "std/text_buffer"
+
+File :: struct { name: string; text: string }
+files: [600]File;
+file_count: s32;
+reply: [16384]u8;
+read_count: s32;
+write_count: s32;
+picture_writes: s32;
+forbidden: bool;
+fail_write: string;
+fail_read: string;
+partial_write: bool;
+
+A :: "JUNGLE PICTURE 2\nfirst picture\n"
+B :: "JUNGLE PICTURE 3\nsecond picture with layers\n"
+C :: "JUNGLE PICTURE 2\nedited picture\n"
+
+Fail :: (step: s32) -> s32 { print("paint gallery storage failed at %\n", step); return step }
+
+CopyText :: (text: string) -> string {
+    bytes: Vec(u8)
+    if !BuilderAppend(bytes, text) { return "" }
+    return BuilderFinish(bytes)
+}
+
+Find :: (name: string) -> s32 {
+    for index: cast(s32)0..file_count - 1 { if files[index].name == name { return index } }
+    return -1
+}
+
+Get :: (name: string) -> string {
+    index := Find(name)
+    return ifx index >= 0 then files[index].text else ""
+}
+
+Put :: (name: string, text: string) {
+    index := Find(name)
+    if index < 0 { index = file_count; file_count += 1 }
+    files[index].name = CopyText(name)
+    files[index].text = CopyText(text)
+}
+
+Reset :: () {
+    file_count = 0
+    read_count = 0
+    write_count = 0
+    picture_writes = 0
+    forbidden = false
+    fail_write = ""
+    fail_read = ""
+    partial_write = false
+    // Sentinels only: neither may be read or written by the module.
+    Put("working.txt", "private draft")
+    Put("working-undo.txt", "private Undo")
+}
+
+Read :: (name: string, status: *s32) -> string {
+    read_count += 1
+    if name != GALLERY_INDEX && GalleryRef(name) == 0 { forbidden = true }
+    // Every read invalidates every previous reply, including missing/error.
+    for at: cast(s64)0..reply.count - 1 { reply[at] = #char "?" }
+    status.* = -1
+    if name == fail_read { return "" }
+    index := Find(name)
+    if index < 0 { status.* = 0; return "" }
+    text := files[index].text
+    if text.count > reply.count { return "" }
+    for at: cast(s64)0..text.count - 1 { reply[at] = text[at] }
+    status.* = 1
+    return TextView(reply[:text.count])
+}
+
+Write :: (name: string, text: string) -> bool {
+    write_count += 1
+    // Slots are strictly read-only; no draft/Undo or arbitrary paths allowed.
+    if name != GALLERY_INDEX && GalleryRef(name) <= 0 { forbidden = true; return false }
+    if name == fail_write {
+        if partial_write && name != GALLERY_INDEX { Put(name, "interrupted picture bytes") }
+        return false
+    }
+    if name != GALLERY_INDEX { picture_writes += 1 }
+    Put(name, text)
+    return true
+}
+
+Safe :: () -> bool {
+    return !forbidden && Get("working.txt") == "private draft" && Get("working-undo.txt") == "private Undo"
+}
+
+Same :: (state: *GalleryStore, index: string, active: s32) -> bool {
+    return GalleryText(*state.gallery) == index && state.active_ref == active
+}
+
+StableSaves :: () -> s32 {
+    Reset()
+    state: GalleryStore
+    GalleryStoreInit(*state, Read, Write)
+    if GalleryStoreSave(*state, A) || write_count != 0 { return Fail(1) }
+    if !GalleryStoreLoad(*state, "") || state.gallery.count != 0 || state.active_ref != 0 || write_count != 0 { return Fail(2) }
+    // All truncated headers and unsupported versions fail before doing I/O.
+    reads := read_count
+    for cut: cast(s64)0..16 { if GalleryStoreSave(*state, A[:cut]) { return Fail(3) } }
+    if GalleryStoreSave(*state, "JUNGLE PICTURE 1\nold") || GalleryStoreSave(*state, "JUNGLE PICTURE 4\nfuture") || read_count != reads || write_count != 0 { return Fail(4) }
+    if !GalleryStoreSave(*state, A) || state.gallery.count != 1 || state.gallery.selected != 0 || state.active_ref != 1 || Get("picture-1.txt") != A { return Fail(5) }
+    index := GalleryText(*state.gallery)
+    if Get(GALLERY_INDEX) != index || !GalleryStoreSave(*state, B) || !Same(*state, index, 1) || Get("picture-1.txt") != B || picture_writes != 2 { return Fail(6) }
+    // Index failure must retain the original active entry and its picture.
+    fail_write = GALLERY_INDEX
+    if GalleryStoreSave(*state, C, true) || !Same(*state, index, 1) || Get(GALLERY_INDEX) != index || Get("picture-1.txt") != B || Get("picture-2.txt") != C { return Fail(7) }
+    fail_write = ""
+    // A cold restart also skips orphan 2, without changing its bytes.
+    restarted: GalleryStore
+    GalleryStoreInit(*restarted, Read, Write)
+    if !GalleryStoreLoad(*restarted, B) || restarted.active_ref != 1 || !GalleryStoreSave(*restarted, A, true) { return Fail(8) }
+    state = restarted
+    if state.active_ref != 3 || state.gallery.count != 2 || state.gallery.refs[1] != 3 || Get("picture-2.txt") != C { return Fail(8) }
+    if !GalleryStoreSave(*state, C) || state.active_ref != 3 || state.gallery.count != 2 || Get("picture-1.txt") != B { return Fail(9) }
+    GalleryStoreDetach(*state)
+    if state.active_ref != 0 || state.gallery.selected != -1 || !GalleryStoreSave(*state, A) || state.active_ref != 4 || state.gallery.count != 3 || Get("picture-3.txt") != C { return Fail(10) }
+    GalleryStoreDetach(*state)
+    index = GalleryText(*state.gallery)
+    disk_index := Get(GALLERY_INDEX)
+    fail_write = "picture-5.txt"
+    if GalleryStoreSave(*state, B) || !Same(*state, index, 0) || Get(GALLERY_INDEX) != disk_index || Find("picture-5.txt") >= 0 { return Fail(11) }
+    // Simulate interrupted picture creation; its partial bytes are protected.
+    partial_write = true
+    if GalleryStoreSave(*state, B) || !Same(*state, index, 0) { return Fail(12) }
+    fail_write = ""
+    partial_write = false
+    if !GalleryStoreSave(*state, B) || state.active_ref != 6 || Get("picture-5.txt") != "interrupted picture bytes" { return Fail(13) }
+    // A failed active update cannot create another gallery entry.
+    index = GalleryText(*state.gallery)
+    fail_write = "picture-6.txt"
+    if GalleryStoreSave(*state, C) || !Same(*state, index, 6) || Get("picture-6.txt") != B { return Fail(14) }
+    fail_write = ""
+    // Empty orphans also exist and must never be overwritten.
+    Put("picture-7.txt", "")
+    GalleryStoreDetach(*state)
+    fail_read = "picture-8.txt"
+    writes := write_count
+    if GalleryStoreSave(*state, C) || write_count != writes { return Fail(15) }
+    fail_read = ""
+    if !GalleryStoreSave(*state, C) || state.active_ref != 8 || Get("picture-7.txt") != "" || !Safe() { return Fail(16) }
+    index = GalleryText(*state.gallery)
+    fail_write = GALLERY_INDEX
+    if GalleryStoreStartNew(*state) || !Same(*state, index, 8) || Get(GALLERY_INDEX) != index { return Fail(17) }
+    fail_write = ""
+    if !GalleryStoreStartNew(*state) || state.active_ref != 0 || state.gallery.selected != -1 { return Fail(18) }
+    GalleryStoreInit(*restarted, Read, Write)
+    if !GalleryStoreLoad(*restarted, C) || restarted.active_ref != 0 || restarted.gallery.selected != -1 || !GalleryStoreSave(*restarted, C) || restarted.active_ref != 9 || Get("picture-8.txt") != C || !Safe() { return Fail(19) }
+    return 0
+}
+
+LoadAndSelect :: () -> s32 {
+    Reset()
+    state: GalleryStore
+    GalleryStoreInit(*state, Read, Write)
+    if !GalleryStoreLoad(*state, "") || !GalleryStoreSave(*state, A) || !GalleryStoreSave(*state, B, true) { return Fail(20) }
+    loaded: GalleryStore
+    GalleryStoreInit(*loaded, Read, Write)
+    if !GalleryStoreLoad(*loaded, B) || loaded.active_ref != 2 || loaded.gallery.selected != 1 { return Fail(21) }
+    // Read returns owned bytes; any subsequent read recycles the fake reply.
+    picture := GalleryStoreRead(*loaded, 0)
+    unused GalleryStoreRead(*loaded, 1)
+    if picture != A || GalleryStoreRead(*loaded, -1) != "" || GalleryStoreRead(*loaded, 2) != "" { return Fail(22) }
+    index := GalleryText(*loaded.gallery)
+    if GalleryStoreSelect(*loaded, 0, B) || GalleryStoreSelect(*loaded, -1, A) || !Same(*loaded, index, 2) { return Fail(23) }
+    fail_write = GALLERY_INDEX
+    if GalleryStoreSelect(*loaded, 0, picture) || !Same(*loaded, index, 2) || Get(GALLERY_INDEX) != index { return Fail(24) }
+    fail_write = ""
+    if !GalleryStoreSelect(*loaded, 0, picture) || loaded.active_ref != 1 || loaded.gallery.selected != 0 || !GalleryStoreSave(*loaded, C) || Get("picture-2.txt") != B { return Fail(25) }
+    if !GalleryStoreLoad(*state, C) || state.active_ref != 1 { return Fail(26) }
+    if !GalleryStoreLoad(*state, B) || state.active_ref != 0 || state.gallery.selected != 0 || !GalleryStoreSave(*state, B) || state.active_ref != 3 || Get("picture-1.txt") != C { return Fail(27) }
+    if !GalleryStoreLoad(*state, "") || state.active_ref != 0 { return Fail(28) }
+    // Corrupt or unreadable index: keep all in-memory entries, refuse writes.
+    index = GalleryText(*state.gallery)
+    invalid: [4]string = .["", "corrupt", "JUNGLE GALLERY1\n1 2 1\n13 ../evil-1.txt\n", "JUNGLE GALLERY1\n0 1 0\nextra"]
+    for broken: invalid {
+        Put(GALLERY_INDEX, broken)
+        writes := write_count
+        if GalleryStoreLoad(*state, B) || state.ready || !Same(*state, index, 0) || GalleryStoreSave(*state, C) || write_count != writes || Get(GALLERY_INDEX) != broken { return Fail(29) }
+    }
+    Put(GALLERY_INDEX, index)
+    fail_read = GALLERY_INDEX
+    writes := write_count
+    if GalleryStoreLoad(*state, B) || write_count != writes || !Same(*state, index, 0) { return Fail(30) }
+    fail_read = ""
+    if !GalleryStoreLoad(*state, B) || state.active_ref != 3 { return Fail(31) }
+    fail_read = "picture-3.txt"
+    if GalleryStoreLoad(*state, B) || state.ready || !Same(*state, index, 3) { return Fail(32) }
+    fail_read = ""
+    // Missing selected picture is retained visibly in the index but unbound.
+    files[Find("picture-3.txt")].name = "missing-test-fixture"
+    if !GalleryStoreLoad(*state, B) || state.active_ref != 0 || GalleryStoreRead(*state, 2) != "" || state.gallery.count != 3 || !Safe() { return Fail(33) }
+    return 0
+}
+
+Legacy :: () -> s32 {
+    Reset()
+    old: [6]string = .["old palette pixels", "JUNGLE PICTURE 1\nlegacy", A, B, "older save", C]
+    for slot: cast(s32)0..5 { Put(GalleryFile(-slot - 1), old[slot]) }
+    state: GalleryStore
+    GalleryStoreInit(*state, Read, Write)
+    fail_write = GALLERY_INDEX
+    if GalleryStoreLoad(*state, "") || state.ready || state.gallery.count != 0 || state.gallery.selected != -1 || picture_writes != 0 || Find(GALLERY_INDEX) >= 0 { return Fail(40) }
+    fail_write = ""
+    if !GalleryStoreLoad(*state, "") || state.gallery.count != 6 || state.gallery.selected != -1 || state.gallery.next_id != 1 || picture_writes != 0 { return Fail(41) }
+    for slot: cast(s32)0..5 {
+        if state.gallery.refs[slot] != -slot - 1 || Get(GalleryFile(-slot - 1)) != old[slot] || GalleryStoreRead(*state, slot) != old[slot] { return Fail(42) }
+    }
+    // Parent has accepted these exact legacy bytes with PictureLoad.
+    if !GalleryStoreSelect(*state, 1, old[1]) || state.active_ref != -2 { return Fail(43) }
+    reloaded: GalleryStore
+    GalleryStoreInit(*reloaded, Read, Write)
+    if !GalleryStoreLoad(*reloaded, old[1]) || reloaded.active_ref != -2 || !GalleryStoreSave(*reloaded, C) || reloaded.active_ref != 1 || reloaded.gallery.count != 7 || Get("slot-1.txt") != old[1] { return Fail(44) }
+    if !GalleryStoreSave(*reloaded, B) || reloaded.gallery.count != 7 || Get("picture-1.txt") != B { return Fail(45) }
+    for slot: cast(s32)0..5 { if Get(GalleryFile(-slot - 1)) != old[slot] { return Fail(46) } }
+    if !Safe() { return Fail(47) }
+    Reset()
+    GalleryStoreInit(*state, Read, Write)
+    Put("slot-0.txt", "")
+    fail_read = "slot-1.txt"
+    if GalleryStoreLoad(*state, "") || write_count != 0 { return Fail(48) }
+    fail_read = ""
+    if !GalleryStoreLoad(*state, "") || state.gallery.count != 0 || !GalleryStoreSave(*state, A) { return Fail(49) }
+    // A newly discovered old slot can join an existing valid index, while its
+    // existing selected positive entry is still bound using borrowed reads.
+    Put("slot-5.txt", old[5])
+    if !GalleryStoreLoad(*state, A) || state.active_ref != 1 || state.gallery.selected != 0 || state.gallery.refs[1] != -6 || state.gallery.count != 2 || Get("slot-5.txt") != old[5] || !Safe() { return Fail(50) }
+    return 0
+}
+
+Limits :: () -> s32 {
+    Reset()
+    state: GalleryStore
+    GalleryStoreInit(*state, Read, Write)
+    model: PaintGallery
+    GalleryClear(*model)
+    while model.count < GALLERY_LIMIT { if !GalleryAppend(*model, model.next_id) { return Fail(60) } }
+    Put(GALLERY_INDEX, GalleryText(*model))
+    Put(GalleryFile(GALLERY_LIMIT), A)
+    if !GalleryStoreLoad(*state, A) || state.active_ref != GALLERY_LIMIT || !GalleryStoreSave(*state, B) || state.gallery.count != GALLERY_LIMIT { return Fail(61) }
+    writes := write_count
+    if GalleryStoreSave(*state, C, true) || write_count != writes { return Fail(62) }
+    GalleryStoreDetach(*state)
+    if GalleryStoreSave(*state, C) || write_count != writes { return Fail(63) }
+    GalleryClear(*model)
+    if !GalleryAppend(*model, GALLERY_MAX_ID) { return Fail(64) }
+    Put(GALLERY_INDEX, GalleryText(*model))
+    if !GalleryStoreLoad(*state, "") || GalleryStoreSave(*state, C) || !Safe() { return Fail(65) }
+    return 0
+}
+
+#program_export
+main :: () -> s32 {
+    result := StableSaves()
+    if result != 0 { return result }
+    result = LoadAndSelect()
+    if result != 0 { return result }
+    result = Legacy()
+    if result != 0 { return result }
+    result = Limits()
+    if result != 0 { return result }
+    print("local paint gallery storage tests passed: stable updates, copies, legacy6 read-only/fork, corrupt-index refusal, orphan skips, failed-write rollback, owned reads, load binding, selection, New detachment, limits, no draft/Undo effects\n")
+    return 0
+}

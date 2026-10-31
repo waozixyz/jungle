@@ -9,7 +9,7 @@ LanguageCode :: () -> string {
 LanguageSet :: (code: string) {
     language = ifx code == "de" then 1 else ifx code == "es" then 2 else 0
 }
-UI_COUNT :: 346
+UI_COUNT :: 356
 ui_en_0: [48]string = .[
     "Picture Book",
     "Animal Counting",
@@ -360,7 +360,7 @@ ui_en_288: [48]string = .[
     "Tap an object to erase",
     "Picture is full. Erase an object first",
 ];
-ui_en_336: [10]string = .[
+ui_en_336: [20]string = .[
     "How many together?",
     "How many stay?",
     "Count",
@@ -371,6 +371,16 @@ ui_en_336: [10]string = .[
     "Leaving",
     "Hear again",
     "Actions",
+    "Rotate",
+    "Gallery",
+    "Tap an object to rotate",
+    "Place the stencil first",
+    "Could not save gallery",
+    "Could not read gallery",
+    "Your pictures appear here",
+    "Save a copy",
+    "Slots",
+    "Well done! Next adventure...",
 ];
 ui_de_0: [48]string = .[
     "Bilderbuch",
@@ -722,7 +732,7 @@ ui_de_288: [48]string = .[
     "Tippe auf ein Objekt zum Löschen",
     "Das Bild ist voll. Lösche zuerst ein Objekt",
 ];
-ui_de_336: [10]string = .[
+ui_de_336: [20]string = .[
     "Wie viele zusammen?",
     "Wie viele bleiben?",
     "Zählen",
@@ -733,6 +743,16 @@ ui_de_336: [10]string = .[
     "Gehen weg",
     "Noch einmal hören",
     "Tätigkeiten",
+    "Drehen",
+    "Galerie",
+    "Tippe auf ein Objekt zum Drehen",
+    "Platziere zuerst die Schablone",
+    "Galerie konnte nicht gespeichert werden",
+    "Galerie konnte nicht geladen werden",
+    "Hier erscheinen deine Bilder",
+    "Kopie speichern",
+    "Speicherplätze",
+    "Gut gemacht! Weiter geht's...",
 ];
 ui_es_0: [48]string = .[
     "Libro ilustrado",
@@ -1084,7 +1104,7 @@ ui_es_288: [48]string = .[
     "Toca un objeto para borrarlo",
     "El dibujo está lleno. Borra un objeto primero",
 ];
-ui_es_336: [10]string = .[
+ui_es_336: [20]string = .[
     "¿Cuántos en total?",
     "¿Cuántos quedan?",
     "Contar",
@@ -1095,6 +1115,16 @@ ui_es_336: [10]string = .[
     "Se van",
     "Escuchar otra vez",
     "Acciones",
+    "Girar",
+    "Galería",
+    "Toca un objeto para girarlo",
+    "Coloca primero la plantilla",
+    "No se pudo guardar la galería",
+    "No se pudo cargar la galería",
+    "Tus dibujos aparecen aquí",
+    "Guardar una copia",
+    "Casillas",
+    "¡Muy bien! Otra aventura...",
 ];
 Ui_en :: (at: s32) -> string {
     if at < 48 { return ui_en_0[at - 0] }
@@ -1104,7 +1134,7 @@ Ui_en :: (at: s32) -> string {
     if at < 240 { return ui_en_192[at - 192] }
     if at < 288 { return ui_en_240[at - 240] }
     if at < 336 { return ui_en_288[at - 288] }
-    if at < 346 { return ui_en_336[at - 336] }
+    if at < 356 { return ui_en_336[at - 336] }
     return ""
 }
 Ui_de :: (at: s32) -> string {
@@ -1115,7 +1145,7 @@ Ui_de :: (at: s32) -> string {
     if at < 240 { return ui_de_192[at - 192] }
     if at < 288 { return ui_de_240[at - 240] }
     if at < 336 { return ui_de_288[at - 288] }
-    if at < 346 { return ui_de_336[at - 336] }
+    if at < 356 { return ui_de_336[at - 336] }
     return ""
 }
 Ui_es :: (at: s32) -> string {
@@ -1126,7 +1156,7 @@ Ui_es :: (at: s32) -> string {
     if at < 240 { return ui_es_192[at - 192] }
     if at < 288 { return ui_es_240[at - 240] }
     if at < 336 { return ui_es_288[at - 288] }
-    if at < 346 { return ui_es_336[at - 336] }
+    if at < 356 { return ui_es_336[at - 336] }
     return ""
 }
 Tr :: (text: string) -> string {

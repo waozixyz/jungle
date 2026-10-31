@@ -160,6 +160,49 @@ main :: () -> s32 {
     if moved.mode != HIDE_FIND || moved.rounds != 2 || moved.remembered != 9 || moved.places != 2 || moved.preview { return 48 }
     if HideSeekLevel(moved, HIDE_REMEMBER, 4).remembered != 9 { return 48 }
 
+    // Only a completed round may advance, once its gentle celebration ends.
+    // The manual Next API remains on the selected mode, even after success.
+    incomplete := HideSeekNew(HIDE_PEEKABOO, 17, 6, -1, 9)
+    if HideSeekAdvanceReady(incomplete, 200.0) || HideSeekAdvance(incomplete, 80).animals[0] != incomplete.animals[0] { return 70 }
+    for i: cast(s32)0..incomplete.places - 1 { unused HideSeekTap(*incomplete, i) }
+    if !HideSeekDone(incomplete) || HideSeekAdvanceReady(incomplete, -1.0) || HideSeekAdvanceReady(incomplete, 2.499) { return 71 }
+    if !HideSeekAdvanceReady(incomplete, 2.5) || !HideSeekAdvanceReady(incomplete, 100.0) { return 71 }
+    advanced := HideSeekAdvance(incomplete, 81)
+    if advanced.mode != HIDE_FIND || advanced.rounds != 6 || advanced.remembered != 9 || HideSeekDone(advanced) { return 72 }
+    if HideSeekAdvanceReady(advanced, 100.0) || HideSeekNext(incomplete, 82).mode != HIDE_PEEKABOO { return 72 }
+    unused HideSeekTap(*advanced, advanced.target)
+    advanced = HideSeekAdvance(advanced, 83)
+    if advanced.mode != HIDE_REMEMBER || advanced.rounds != 7 || advanced.remembered != 9 || !advanced.preview { return 73 }
+    HideSeekPreviewEnd(*advanced)
+    unused HideSeekTap(*advanced, advanced.target)
+    advanced = HideSeekAdvance(advanced, 84)
+    if advanced.mode != HIDE_REMEMBER || advanced.rounds != 7 || advanced.remembered != 10 || !advanced.preview { return 74 }
+    if HideSeekDone(advanced) || HideSeekAdvanceReady(advanced, 100.0) { return 74 }
+    // Preview-held Enter and round-held touch stay blocked until release;
+    // a fresh activation outside a preview remains usable.
+    guard := HideSeekInputGuard(false, true, false, false, true)
+    if !guard || !HideSeekInputGuard(guard, false, false, false, true) { return 77 }
+    if HideSeekInputGuard(guard, false, false, false, false) { return 77 }
+    guard = HideSeekInputGuard(false, true, true, false, false)
+    if !guard || !HideSeekInputGuard(guard, false, false, true, false) { return 78 }
+    if HideSeekInputGuard(guard, false, false, false, false) { return 78 }
+    if HideSeekInputGuard(false, false, true, false, false) || HideSeekInputGuard(false, false, false, false, true) { return 79 }
+    // Geometry is bounded, has real depth, and does not depend on visibility.
+    widths: [2]s32 = .[376, 812]; heights: [2]s32 = .[468, 350]
+    for orientation: cast(s32)0..1 {
+        for count: cast(s32)2..4 {
+            last_ground: s32
+            for place: cast(s32)0..count - 1 {
+                at := HideSeekSceneLayout(widths[orientation], heights[orientation], count, place)
+                if at.size <= 0 || at.x < 0 || at.y < 0 || at.x + at.width > widths[orientation] { return 75 }
+                if at.ground > heights[orientation] || at.y + at.height > heights[orientation] || at.ground - at.size * 145 / 100 < 0 { return 75 }
+                if at.cx <= at.x || at.cx >= at.x + at.width { return 75 }
+                if place > 0 && at.ground == last_ground && count == 2 { return 76 }
+                last_ground = at.ground
+            }
+        }
+    }
+
     // Saves keep only the level and friends found, read the earlier
     // two-mode saves, and refuse damage.
     mode: s32 = -1; rounds: s32 = -1; remembered: s32 = -1

@@ -54,6 +54,7 @@ def fake_tree(root):
     write(root, 'assets/dino-paint/font.png', font)
     write(root, 'assets/dino-paint/sounds/voice-1.wav', b'voice')
     write(root, 'assets/dino-paint/art/dino1.png', b'dino')
+    write(root, 'assets/hide_seek/scenes/cottage-yard.png', b'grounded yard scene')
 
 
 def manifest(path):
@@ -130,8 +131,13 @@ def staging_test():
                          'assets/jungle/icons/icon-64.png', 'assets/jungle/sounds/select.wav',
                          'assets/jungle-book/pages/tiger.jpg', 'assets/jungle-book/pages/lion.jpg',
                          'assets/jungle-book/items/tiger.png',
+                         'assets/hide_seek/scenes/cottage-yard.png',
                          'assets/jungle-book/previews/bedroom.jpg',
                          *{f'assets/jungle-book/counting/{name}.png' for name in shared_assets.COUNTING}}, files
+        # Shared-book activities skip bundle extraction: their new scene must
+        # resolve from the installed tree, without another packed copy.
+        assert (app / 'assets/hide_seek/scenes/cottage-yard.png').read_bytes() == b'grounded yard scene'
+        assert 'assets/hide_seek/scenes/cottage-yard.png' not in bundles['jungle-hide-seek']
         staged = {path.relative_to(stage).as_posix() for path in stage.rglob('*') if path.is_file()}
         assert staged == {'.shared-assets', 'speech-manifest.json', *{name + '.files' for name in bundles},
                           'jungle-abc/assets/abc/sounds/en/letters/0061.wav',

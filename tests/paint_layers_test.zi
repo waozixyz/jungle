@@ -15,6 +15,106 @@ BodySeed :: (id: s32) -> s32 {
     return -1
 }
 
+// Small explicit rasters make orientation, transparency and rounding exact.
+TestLayer :: (x: s32, y: s32, w: s32, h: s32, color: u8) {
+    if layer_count == 0 {
+        for at: cast(s32)0..CANVAS_PIXELS - 1 { base[at] = canvas[at]; owner[at] = 0 }
+    }
+    id := layer_count
+    object := *layers[id]
+    object.x = x; object.y = y; object.w = w; object.h = h
+    object.start = CanvasLayerSpace(w * h)
+    offset := object.start % CANVAS_PIXELS
+    object.pixels = layer_storage[object.start / CANVAS_PIXELS][offset:offset + w * h]
+    for at: cast(s32)0..w * h - 1 { object.pixels[at] = color }
+    layer_order[layer_count] = id
+    layer_count += 1; layer_pixels += w * h
+    CanvasOverlay(id, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
+}
+
+RotationTests :: () -> s32 {
+    CanvasBlank()
+    HistoryClear()
+    bare := PictureText()
+    if CanvasRotateObject(100, 100) || CanvasRotateObject(-1, 0) || CanvasRotateObject(960, 720) || PictureText() != bare || history_count != 0 { return 30 }
+    canvas[101 * CANVAS_WIDTH + 100] = cast(u8)23
+    canvas[100 * CANVAS_WIDTH + 102] = cast(u8)24
+    TestLayer(100, 100, 3, 2, cast(u8)20)
+    background := PictureRunsText(base[:])
+    pattern: [6]u8 = .[16, 17, 18, 19, 255, 21]
+    for at: cast(s32)0..5 { layers[0].pixels[at] = pattern[at] }
+    canvas[101 * CANVAS_WIDTH + 101] = cast(u8)PAPER
+    owner[101 * CANVAS_WIDTH + 101] = 0
+    CanvasOverlay(0, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
+    before := PictureText()
+    HistoryPush()
+    if CanvasRotateObject(900, 700) || history_count != 1 || PictureText() != before { return 50 }
+    if !CanvasRotateObject(100, 100) || history_count != 1 { return 31 }
+    expected: [6]u8 = .[19, 16, 255, 17, 21, 18]
+    if layers[0].x != 100 || layers[0].y != 100 || layers[0].w != 2 || layers[0].h != 3 || layer_pixels != 6 { return 32 }
+    for at: cast(s32)0..5 { if layers[0].pixels[at] != expected[at] { return 33 } }
+    if CanvasObjectAt(100, 101) != -1 || CanvasColorAt(100, 101) != 23 || CanvasColorAt(102, 100) != 24 || PictureRunsText(base[:]) != background { return 34 }
+    rotated := PictureText()
+    if !PictureValid(rotated) || !PictureLoad(rotated) || PictureText() != rotated || !HistoryUndo() || PictureText() != before { return 35 }
+    for turn: cast(s32)0..3 { if !CanvasRotateObject(layers[0].x, layers[0].y) { return 36 } }
+    if PictureText() != before { return 37 }
+    // Mixed parity and a genuine center offset must also have no drift.
+    CanvasBlank()
+    TestLayer(400, 300, 4, 3, cast(u8)25)
+    before = PictureText()
+    if !CanvasRotateObject(400, 300) || layers[0].x != 401 || layers[0].y != 299 { return 38 }
+    for turn: cast(s32)0..2 { if !CanvasRotateObject(layers[0].x, layers[0].y) { return 39 } }
+    if PictureText() != before { return 40 }
+    // Transparent upper pixels select the lower owner; opaque pixels select
+    // only the top owner. Neither rotation can flatten or reorder layers.
+    TestLayer(400, 300, 3, 2, cast(u8)30)
+    layers[1].pixels[0] = cast(u8)TRANSPARENT
+    canvas[300 * CANVAS_WIDTH + 400] = cast(u8)25
+    owner[300 * CANVAS_WIDTH + 400] = 1
+    if !CanvasRotateObject(400, 300) || layers[0].w != 3 || layers[1].w != 3 || layers[1].pixels[1] != cast(u8)30 { return 41 }
+    lower := PictureRunsText(layers[0].pixels)
+    if !CanvasRotateObject(401, 300) || layers[1].w != 2 || PictureRunsText(layers[0].pixels) != lower || layer_order[0] != 0 || layer_order[1] != 1 { return 42 }
+    for at: cast(s32)0..CANVAS_PIXELS - 1 { if base[at] != cast(u8)PAPER { return 43 } }
+    // Clamp either end without cropping a single source pixel.
+    CanvasBlank()
+    TestLayer(0, 0, 4, 2, cast(u8)26)
+    if !CanvasRotateObject(0, 0) || layers[0].x != 1 || layers[0].y != 0 || layers[0].w * layers[0].h != 8 { return 44 }
+    CanvasBlank()
+    TestLayer(956, 718, 4, 2, cast(u8)26)
+    if !CanvasRotateObject(956, 718) || layers[0].x != 957 || layers[0].y != 716 || layers[0].w * layers[0].h != 8 { return 45 }
+    // Both arena banks occupied: rotation must reuse its own interval. The
+    // widest possible Huge raster fits instead of clipping at 720 pixels.
+    CanvasBlank()
+    TestLayer(0, 0, 960, 720, cast(u8)22)
+    TestLayer(0, 0, 960, 720, cast(u8)23)
+    for at: cast(s32)0..CANVAS_PIXELS - 1 { layers[1].pixels[at] = cast(u8)(16 + (at % 31)) }
+    start := layers[1].start
+    if !CanvasRotateObject(0, 0) || layers[1].w != 540 || layers[1].h != 720 || layers[1].x != 210 || layers[1].y != 0 || layers[1].start != start || layer_pixels != CANVAS_PIXELS + 540 * 720 { return 46 }
+    for py: cast(s32)0..719 {
+        for px: cast(s32)0..539 {
+            source := (719 - px * 720 / 540) * 960 + py * 960 / 720
+            if layers[1].pixels[py * 540 + px] != cast(u8)(16 + source % 31) { return 47 }
+        }
+    }
+    for at: cast(s32)0..CANVAS_PIXELS - 1 { if layers[0].pixels[at] != cast(u8)22 || base[at] != cast(u8)PAPER { return 48 } }
+    rotated = PictureText()
+    if !PictureValid(rotated) || !PictureLoad(rotated) || PictureText() != rotated { return 49 }
+    CanvasBlank()
+    TestLayer(0, 0, 960, 1, cast(u8)24)
+    if !CanvasRotateObject(0, 0) || layers[0].w != 1 || layers[0].h != 720 || layer_pixels != 720 { return 51 }
+    for at: cast(s32)0..719 { if layers[0].pixels[at] != cast(u8)24 { return 52 } }
+    // An actual Huge stencil retains its painted body through automatic fit.
+    CanvasBlank()
+    CanvasStampDino(5, 4, 0, 0, false)
+    seed := BodySeed(0)
+    if seed < 0 || CanvasFill(seed % layers[0].w, seed / layers[0].w, 30) <= 0 { return 53 }
+    if !CanvasRotateObject(seed % layers[0].w, seed / layers[0].w) || layers[0].w != 411 || layers[0].h != 720 { return 54 }
+    painted: s32 = 0
+    for at: cast(s32)0..layers[0].w * layers[0].h - 1 { if layers[0].pixels[at] == cast(u8)30 { painted += 1 } }
+    if painted == 0 || !PictureValid(PictureText()) { return 55 }
+    return 0
+}
+
 #program_export
 main :: () -> s32 {
     scene = 0
@@ -113,6 +213,8 @@ main :: () -> s32 {
     if layer_count < 2 || layer_pixels > LAYER_PIXELS { return Fail(19) }
     full = PictureText()
     if !PictureValid(full) || !PictureLoad(full) || PictureText() != full { return Fail(20) }
-    Report("local paint layers model test passed: overlap, paint, transparency, undo/reload, legacy, 32 objects and pixel budget\n")
+    rotation := RotationTests()
+    if rotation != 0 { return Fail(rotation) }
+    Report("local paint layers model test passed: overlap, paint, transparency, undo/reload, legacy, 32 objects, pixel budget and rotation\n")
     return 0
 }

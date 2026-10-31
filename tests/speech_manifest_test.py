@@ -182,6 +182,7 @@ def staging_test():
             'assets/abc/sounds/en/letters/0061.wav': b'duplicate letter',
             'assets/numbers/sounds/one.wav': b'number',
             'assets/animal-count/font.png': b'counting font',
+            'assets/hide_seek/scenes/cottage-yard.png': b'grounded shared scene',
         }
         for name, data in files.items():
             path = source / name

@@ -1,3 +1,4 @@
+#import, file "../host/audio_levels.zi";
 // A compiled browser launcher for the same Jungle activity modules.
 #import "app_context"
 #import "app_protocol"
@@ -155,7 +156,7 @@ PlayAudio :: (path: string, narration: bool) {
     if audio == 0 { return }
     web_audio = WebKeep(audio)
     web_narration = narration
-    WebSet(web_audio, WebName("volume"), WebNumber(ifx narration then 0.45 else 0.25))
+    WebSet(web_audio, WebName("volume"), WebNumber(ifx narration then 0.45 else cast(float64)AudioEffectGain(path) / 100.0))
     promise := WebAsObject(WebCall0(web_audio, WebName("play")))
     if audio_rejected == 0 { audio_rejected = WebFunction(AudioRejected, 0) }
     if promise != 0 { unused WebCall1(promise, WebName("catch"), WebObject(audio_rejected)) }

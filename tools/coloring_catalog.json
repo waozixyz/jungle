@@ -1,0 +1,1041 @@
+{
+  "version": 1,
+  "stencil_categories": [
+    {
+      "key": "dinosaurs",
+      "labels": {
+        "en": "Dinosaurs",
+        "de": "Dinosaurier",
+        "es": "Dinosaurios"
+      }
+    },
+    {
+      "key": "animals",
+      "labels": {
+        "en": "Animals",
+        "de": "Tiere",
+        "es": "Animales"
+      }
+    },
+    {
+      "key": "people",
+      "labels": {
+        "en": "People",
+        "de": "Menschen",
+        "es": "Personas"
+      }
+    },
+    {
+      "key": "objects",
+      "labels": {
+        "en": "Objects",
+        "de": "Objekte",
+        "es": "Objetos"
+      }
+    }
+  ],
+  "scene_categories": [
+    {
+      "key": "nature",
+      "labels": {
+        "en": "Nature",
+        "de": "Natur",
+        "es": "Naturaleza"
+      }
+    },
+    {
+      "key": "places",
+      "labels": {
+        "en": "Places",
+        "de": "Orte",
+        "es": "Lugares"
+      }
+    },
+    {
+      "key": "adventures",
+      "labels": {
+        "en": "Adventures",
+        "de": "Abenteuer",
+        "es": "Aventuras"
+      }
+    }
+  ],
+  "stencils": [
+    {
+      "asset_id": 1,
+      "slug": "tyrannosaurus",
+      "category": "dinosaurs",
+      "labels": {
+        "en": "TYRANNOSAURUS",
+        "de": "TYRANNOSAURUS",
+        "es": "TIRANOSAURIO"
+      },
+      "short_labels": {
+        "en": "T-REX",
+        "de": "T-REX",
+        "es": "T-REX"
+      }
+    },
+    {
+      "asset_id": 2,
+      "slug": "stegosaurus",
+      "category": "dinosaurs",
+      "labels": {
+        "en": "STEGOSAURUS",
+        "de": "STEGOSAURUS",
+        "es": "ESTEGOSAURIO"
+      },
+      "short_labels": {
+        "en": "STEGO",
+        "de": "STEGO",
+        "es": "STEGO"
+      }
+    },
+    {
+      "asset_id": 3,
+      "slug": "triceratops",
+      "category": "dinosaurs",
+      "labels": {
+        "en": "TRICERATOPS",
+        "de": "TRICERATOPS",
+        "es": "TRICERATOPS"
+      },
+      "short_labels": {
+        "en": "TRIKE",
+        "de": "TRIKE",
+        "es": "TRIKE"
+      }
+    },
+    {
+      "asset_id": 4,
+      "slug": "anatosaurus",
+      "category": "dinosaurs",
+      "labels": {
+        "en": "ANATOSAURUS",
+        "de": "ANATOSAURUS",
+        "es": "ANATOSAURIO"
+      },
+      "short_labels": {
+        "en": "Duckbill",
+        "de": "Entenschnabel",
+        "es": "Pico de pato"
+      }
+    },
+    {
+      "asset_id": 5,
+      "slug": "brachiosaurus",
+      "category": "dinosaurs",
+      "labels": {
+        "en": "BRACHIOSAURUS",
+        "de": "BRACHIOSAURUS",
+        "es": "BRAQUIOSAURIO"
+      },
+      "short_labels": {
+        "en": "BRACHIO",
+        "de": "BRACHIO",
+        "es": "BRACHIO"
+      }
+    },
+    {
+      "asset_id": 6,
+      "slug": "diplodocus",
+      "category": "dinosaurs",
+      "labels": {
+        "en": "DIPLODOCUS",
+        "de": "DIPLODOCUS",
+        "es": "DIPLODOCO"
+      },
+      "short_labels": {
+        "en": "DIPLO",
+        "de": "DIPLO",
+        "es": "DIPLO"
+      }
+    },
+    {
+      "asset_id": 7,
+      "slug": "parasaurolophus",
+      "category": "dinosaurs",
+      "labels": {
+        "en": "PARASAUROLOPHUS",
+        "de": "PARASAUROLOPHUS",
+        "es": "PARASAUROLOFO"
+      },
+      "short_labels": {
+        "en": "PARA",
+        "de": "PARA",
+        "es": "PARA"
+      }
+    },
+    {
+      "asset_id": 8,
+      "slug": "deinonychus",
+      "category": "dinosaurs",
+      "labels": {
+        "en": "DEINONYCHUS",
+        "de": "DEINONYCHUS",
+        "es": "DEINONICO"
+      },
+      "short_labels": {
+        "en": "RAPTOR",
+        "de": "RAPTOR",
+        "es": "RAPTOR"
+      }
+    },
+    {
+      "asset_id": 9,
+      "slug": "protoceratops",
+      "category": "dinosaurs",
+      "labels": {
+        "en": "PROTOCERATOPS",
+        "de": "PROTOCERATOPS",
+        "es": "PROTOCERATOPS"
+      },
+      "short_labels": {
+        "en": "PROTO",
+        "de": "PROTO",
+        "es": "PROTO"
+      }
+    },
+    {
+      "asset_id": 10,
+      "slug": "pteranodon",
+      "category": "dinosaurs",
+      "labels": {
+        "en": "PTERANODON",
+        "de": "PTERANODON",
+        "es": "PTERANODÓN"
+      },
+      "short_labels": {
+        "en": "PTERANODON",
+        "de": "PTERANODON",
+        "es": "PTERANODÓN"
+      }
+    },
+    {
+      "asset_id": 11,
+      "slug": "stracosaurus",
+      "category": "dinosaurs",
+      "labels": {
+        "en": "STRACOSAURUS",
+        "de": "STYRACOSAURUS",
+        "es": "ESTIRACOSAURIO"
+      },
+      "short_labels": {
+        "en": "STRACO",
+        "de": "STRACO",
+        "es": "STRACO"
+      }
+    },
+    {
+      "asset_id": 12,
+      "slug": "corythosaurus",
+      "category": "dinosaurs",
+      "labels": {
+        "en": "CORYTHOSAURUS",
+        "de": "CORYTHOSAURUS",
+        "es": "CORITOSAURIO"
+      },
+      "short_labels": {
+        "en": "CORY",
+        "de": "CORY",
+        "es": "CORY"
+      }
+    },
+    {
+      "asset_id": 13,
+      "slug": "cat",
+      "category": "animals",
+      "labels": {
+        "en": "Cat",
+        "de": "Katze",
+        "es": "Gato"
+      },
+      "short_labels": {
+        "en": "Cat",
+        "de": "Katze",
+        "es": "Gato"
+      }
+    },
+    {
+      "asset_id": 14,
+      "slug": "dog",
+      "category": "animals",
+      "labels": {
+        "en": "Dog",
+        "de": "Hund",
+        "es": "Perro"
+      },
+      "short_labels": {
+        "en": "Dog",
+        "de": "Hund",
+        "es": "Perro"
+      }
+    },
+    {
+      "asset_id": 15,
+      "slug": "butterfly",
+      "category": "animals",
+      "labels": {
+        "en": "Butterfly",
+        "de": "Schmetterling",
+        "es": "Mariposa"
+      },
+      "short_labels": {
+        "en": "Butterfly",
+        "de": "Schmetterling",
+        "es": "Mariposa"
+      }
+    },
+    {
+      "asset_id": 16,
+      "slug": "child",
+      "category": "people",
+      "labels": {
+        "en": "Child",
+        "de": "Kind",
+        "es": "Niño"
+      },
+      "short_labels": {
+        "en": "Child",
+        "de": "Kind",
+        "es": "Niño"
+      }
+    },
+    {
+      "asset_id": 17,
+      "slug": "astronaut",
+      "category": "people",
+      "labels": {
+        "en": "Astronaut",
+        "de": "Astronaut",
+        "es": "Astronauta"
+      },
+      "short_labels": {
+        "en": "Astronaut",
+        "de": "Astronaut",
+        "es": "Astronauta"
+      }
+    },
+    {
+      "asset_id": 18,
+      "slug": "farmer",
+      "category": "people",
+      "labels": {
+        "en": "Farmer",
+        "de": "Landwirt",
+        "es": "Granjero"
+      },
+      "short_labels": {
+        "en": "Farmer",
+        "de": "Landwirt",
+        "es": "Granjero"
+      }
+    },
+    {
+      "asset_id": 19,
+      "slug": "rabbit",
+      "category": "animals",
+      "labels": {
+        "en": "Rabbit",
+        "de": "Kaninchen",
+        "es": "Conejo"
+      },
+      "short_labels": {
+        "en": "Rabbit",
+        "de": "Kaninchen",
+        "es": "Conejo"
+      }
+    },
+    {
+      "asset_id": 20,
+      "slug": "elephant",
+      "category": "animals",
+      "labels": {
+        "en": "Elephant",
+        "de": "Elefant",
+        "es": "Elefante"
+      },
+      "short_labels": {
+        "en": "Elephant",
+        "de": "Elefant",
+        "es": "Elefante"
+      }
+    },
+    {
+      "asset_id": 21,
+      "slug": "lion",
+      "category": "animals",
+      "labels": {
+        "en": "Lion",
+        "de": "Löwe",
+        "es": "León"
+      },
+      "short_labels": {
+        "en": "Lion",
+        "de": "Löwe",
+        "es": "León"
+      }
+    },
+    {
+      "asset_id": 22,
+      "slug": "doctor",
+      "category": "people",
+      "labels": {
+        "en": "Doctor",
+        "de": "Ärztin",
+        "es": "Doctora"
+      },
+      "short_labels": {
+        "en": "Doctor",
+        "de": "Ärztin",
+        "es": "Doctora"
+      }
+    },
+    {
+      "asset_id": 23,
+      "slug": "firefighter",
+      "category": "people",
+      "labels": {
+        "en": "Firefighter",
+        "de": "Feuerwehrmann",
+        "es": "Bombero"
+      },
+      "short_labels": {
+        "en": "Firefighter",
+        "de": "Feuerwehrmann",
+        "es": "Bombero"
+      }
+    },
+    {
+      "asset_id": 24,
+      "slug": "cook",
+      "category": "people",
+      "labels": {
+        "en": "Cook",
+        "de": "Köchin",
+        "es": "Cocinera"
+      },
+      "short_labels": {
+        "en": "Cook",
+        "de": "Köchin",
+        "es": "Cocinera"
+      }
+    },
+    {
+      "asset_id": 25,
+      "slug": "crate",
+      "category": "objects",
+      "labels": {
+        "en": "Crate",
+        "de": "Kiste",
+        "es": "Caja"
+      },
+      "short_labels": {
+        "en": "Crate",
+        "de": "Kiste",
+        "es": "Caja"
+      }
+    },
+    {
+      "asset_id": 26,
+      "slug": "campfire",
+      "category": "objects",
+      "labels": {
+        "en": "Campfire",
+        "de": "Lagerfeuer",
+        "es": "Fogata"
+      },
+      "short_labels": {
+        "en": "Campfire",
+        "de": "Lagerfeuer",
+        "es": "Fogata"
+      }
+    },
+    {
+      "asset_id": 27,
+      "slug": "tent",
+      "category": "objects",
+      "labels": {
+        "en": "Tent",
+        "de": "Zelt",
+        "es": "Tienda"
+      },
+      "short_labels": {
+        "en": "Tent",
+        "de": "Zelt",
+        "es": "Tienda"
+      }
+    },
+    {
+      "asset_id": 28,
+      "slug": "tree",
+      "category": "objects",
+      "labels": {
+        "en": "Tree",
+        "de": "Baum",
+        "es": "Árbol"
+      },
+      "short_labels": {
+        "en": "Tree",
+        "de": "Baum",
+        "es": "Árbol"
+      }
+    },
+    {
+      "asset_id": 29,
+      "slug": "rock",
+      "category": "objects",
+      "labels": {
+        "en": "Rock",
+        "de": "Felsen",
+        "es": "Roca"
+      },
+      "short_labels": {
+        "en": "Rock",
+        "de": "Felsen",
+        "es": "Roca"
+      }
+    },
+    {
+      "asset_id": 30,
+      "slug": "barrel",
+      "category": "objects",
+      "labels": {
+        "en": "Barrel",
+        "de": "Fass",
+        "es": "Barril"
+      },
+      "short_labels": {
+        "en": "Barrel",
+        "de": "Fass",
+        "es": "Barril"
+      }
+    },
+    {
+      "asset_id": 31,
+      "slug": "ankylosaurus",
+      "category": "dinosaurs",
+      "labels": {
+        "en": "Ankylosaurus",
+        "de": "Ankylosaurus",
+        "es": "Anquilosaurio"
+      },
+      "source": "art/generated/coloring-stencils/ankylosaurus.png",
+      "short_labels": {
+        "en": "Ankylosaurus",
+        "de": "Ankylosaurus",
+        "es": "Anquilosaurio"
+      },
+      "subject": "A gentle squat ankylosaurus on four sturdy feet, rounded bony back plates and a broad club tail; calm closed mouth."
+    },
+    {
+      "asset_id": 32,
+      "slug": "spinosaurus",
+      "category": "dinosaurs",
+      "labels": {
+        "en": "Spinosaurus",
+        "de": "Spinosaurus",
+        "es": "Espinosaurio"
+      },
+      "source": "art/generated/coloring-stencils/spinosaurus.png",
+      "short_labels": {
+        "en": "Spinosaurus",
+        "de": "Spinosaurus",
+        "es": "Espinosaurio"
+      },
+      "subject": "A friendly spinosaurus with a broad rounded sail along its back, natural long snout and small arms; calm closed mouth, no visible teeth."
+    },
+    {
+      "asset_id": 33,
+      "slug": "iguanodon",
+      "category": "dinosaurs",
+      "labels": {
+        "en": "Iguanodon",
+        "de": "Iguanodon",
+        "es": "Iguanodonte"
+      },
+      "source": "art/generated/coloring-stencils/iguanodon.png",
+      "short_labels": {
+        "en": "Iguanodon",
+        "de": "Iguanodon",
+        "es": "Iguanodonte"
+      },
+      "subject": "A friendly iguanodon standing on four legs, simple thumb spike, broad smooth beak and long balancing tail; calm natural face."
+    },
+    {
+      "asset_id": 34,
+      "slug": "maiasaura",
+      "category": "dinosaurs",
+      "labels": {
+        "en": "Maiasaura",
+        "de": "Maiasaura",
+        "es": "Maiasaura"
+      },
+      "source": "art/generated/coloring-stencils/maiasaura.png",
+      "short_labels": {
+        "en": "Maiasaura",
+        "de": "Maiasaura",
+        "es": "Maiasaura"
+      },
+      "subject": "A gentle duck-billed maiasaura standing in a natural three-quarter pose, broad rounded snout and long tail, simple strong legs, closed mouth."
+    },
+    {
+      "asset_id": 35,
+      "slug": "turtle",
+      "category": "animals",
+      "labels": {
+        "en": "Turtle",
+        "de": "Schildkröte",
+        "es": "Tortuga"
+      },
+      "source": "art/generated/coloring-stencils/turtle.png",
+      "short_labels": {
+        "en": "Turtle",
+        "de": "Schildkröte",
+        "es": "Tortuga"
+      },
+      "subject": "One gentle land turtle with a domed shell divided into a few large closed scutes, four feet, small natural head and short tail."
+    },
+    {
+      "asset_id": 36,
+      "slug": "horse",
+      "category": "animals",
+      "labels": {
+        "en": "Horse",
+        "de": "Pferd",
+        "es": "Caballo"
+      },
+      "source": "art/generated/coloring-stencils/horse.png",
+      "short_labels": {
+        "en": "Horse",
+        "de": "Pferd",
+        "es": "Caballo"
+      },
+      "subject": "One gentle young horse with a strong rounded natural body, four clear legs and hooves, a simple mane and tail, upright natural head, calm closed mouth."
+    },
+    {
+      "asset_id": 37,
+      "slug": "duck",
+      "category": "animals",
+      "labels": {
+        "en": "Duck",
+        "de": "Ente",
+        "es": "Pato"
+      },
+      "source": "art/generated/coloring-stencils/duck.png",
+      "short_labels": {
+        "en": "Duck",
+        "de": "Ente",
+        "es": "Pato"
+      },
+      "subject": "One gentle duck standing naturally, round body, simple wing, natural broad beak and two webbed feet; no human smile."
+    },
+    {
+      "asset_id": 38,
+      "slug": "giraffe",
+      "category": "animals",
+      "labels": {
+        "en": "Giraffe",
+        "de": "Giraffe",
+        "es": "Jirafa"
+      },
+      "source": "art/generated/coloring-stencils/giraffe.png",
+      "short_labels": {
+        "en": "Giraffe",
+        "de": "Giraffe",
+        "es": "Jirafa"
+      },
+      "subject": "One gentle young giraffe with a naturally long neck, small head and ossicones, four legs, and a few large closed patches; calm natural face."
+    },
+    {
+      "asset_id": 39,
+      "slug": "builder",
+      "category": "people",
+      "labels": {
+        "en": "Builder",
+        "de": "Bauarbeiter",
+        "es": "Constructor"
+      },
+      "source": "art/generated/coloring-stencils/builder.png",
+      "short_labels": {
+        "en": "Builder",
+        "de": "Bauarbeiter",
+        "es": "Constructor"
+      },
+      "subject": "One friendly simple boy builder with hard hat, plain shirt, trousers, sturdy shoes and a broad tool belt, holding one large simple hammer safely at his side."
+    },
+    {
+      "asset_id": 40,
+      "slug": "teacher",
+      "category": "people",
+      "labels": {
+        "en": "Teacher",
+        "de": "Lehrerin",
+        "es": "Maestra"
+      },
+      "source": "art/generated/coloring-stencils/teacher.png",
+      "short_labels": {
+        "en": "Teacher",
+        "de": "Lehrerin",
+        "es": "Maestra"
+      },
+      "subject": "One friendly simple woman teacher with plain comfortable clothes, simple shoes and a large closed book held against her side; gentle child-friendly proportions."
+    },
+    {
+      "asset_id": 41,
+      "slug": "gardener",
+      "category": "people",
+      "labels": {
+        "en": "Gardener",
+        "de": "Gärtner",
+        "es": "Jardinero"
+      },
+      "source": "art/generated/coloring-stencils/gardener.png",
+      "short_labels": {
+        "en": "Gardener",
+        "de": "Gärtner",
+        "es": "Jardinero"
+      },
+      "subject": "One friendly simple boy gardener with broad sun hat, plain overalls and simple shoes, holding one large simple watering can at his side."
+    },
+    {
+      "asset_id": 42,
+      "slug": "musician",
+      "category": "people",
+      "labels": {
+        "en": "Musician",
+        "de": "Musiker",
+        "es": "Músico"
+      },
+      "source": "art/generated/coloring-stencils/musician.png",
+      "short_labels": {
+        "en": "Musician",
+        "de": "Musiker",
+        "es": "Músico"
+      },
+      "subject": "One friendly simple boy musician standing naturally in plain clothes and shoes, holding a small rounded acoustic guitar with only a few broad closed details."
+    },
+    {
+      "asset_id": 43,
+      "slug": "ball",
+      "category": "objects",
+      "labels": {
+        "en": "Ball",
+        "de": "Ball",
+        "es": "Pelota"
+      },
+      "source": "art/generated/coloring-stencils/ball.png",
+      "short_labels": {
+        "en": "Ball",
+        "de": "Ball",
+        "es": "Pelota"
+      },
+      "subject": "One round toy ball with a few broad curved closed panels, simple recognizable silhouette; no lettering."
+    },
+    {
+      "asset_id": 44,
+      "slug": "bicycle",
+      "category": "objects",
+      "labels": {
+        "en": "Bicycle",
+        "de": "Fahrrad",
+        "es": "Bicicleta"
+      },
+      "source": "art/generated/coloring-stencils/bicycle.png",
+      "short_labels": {
+        "en": "Bicycle",
+        "de": "Fahrrad",
+        "es": "Bicicleta"
+      },
+      "subject": "One simple sturdy child bicycle in side view with two clear wheels, broad frame, handlebars, seat and simple pedals; no tiny spokes, closed broad colorable regions."
+    },
+    {
+      "asset_id": 45,
+      "slug": "sailboat",
+      "category": "objects",
+      "labels": {
+        "en": "Sailboat",
+        "de": "Segelboot",
+        "es": "Velero"
+      },
+      "source": "art/generated/coloring-stencils/sailboat.png",
+      "short_labels": {
+        "en": "Sailboat",
+        "de": "Segelboot",
+        "es": "Velero"
+      },
+      "subject": "One simple toy sailboat with a broad curved hull, one mast and two large triangular sails; no water or ground."
+    },
+    {
+      "asset_id": 46,
+      "slug": "treasure_chest",
+      "category": "objects",
+      "labels": {
+        "en": "Treasure chest",
+        "de": "Schatztruhe",
+        "es": "Cofre del tesoro"
+      },
+      "source": "art/generated/coloring-stencils/treasure_chest.png",
+      "short_labels": {
+        "en": "Treasure chest",
+        "de": "Schatztruhe",
+        "es": "Cofre del tesoro"
+      },
+      "subject": "One friendly wooden treasure chest with rounded lid closed, two broad bands and one large simple latch; no coins, lettering or surroundings."
+    }
+  ],
+  "scenes": [
+    {
+      "asset_id": 1,
+      "slug": "jungle_clearing",
+      "category": "nature",
+      "labels": {
+        "en": "Jungle clearing",
+        "de": "Dschungellichtung",
+        "es": "Claro de la selva"
+      }
+    },
+    {
+      "asset_id": 2,
+      "slug": "volcano_valley",
+      "category": "adventures",
+      "labels": {
+        "en": "Volcano valley",
+        "de": "Vulkantal",
+        "es": "Valle volcánico"
+      }
+    },
+    {
+      "asset_id": 3,
+      "slug": "waterfall",
+      "category": "nature",
+      "labels": {
+        "en": "Waterfall",
+        "de": "Wasserfall",
+        "es": "Cascada"
+      }
+    },
+    {
+      "asset_id": 4,
+      "slug": "jungle_river",
+      "category": "nature",
+      "labels": {
+        "en": "Jungle river",
+        "de": "Dschungelfluss",
+        "es": "Río de la selva"
+      }
+    },
+    {
+      "asset_id": 5,
+      "slug": "island_beach",
+      "category": "nature",
+      "labels": {
+        "en": "Island beach",
+        "de": "Inselstrand",
+        "es": "Playa de la isla"
+      }
+    },
+    {
+      "asset_id": 6,
+      "slug": "mountain_lake",
+      "category": "nature",
+      "labels": {
+        "en": "Mountain lake",
+        "de": "Bergsee",
+        "es": "Lago de montaña"
+      }
+    },
+    {
+      "asset_id": 7,
+      "slug": "meadow",
+      "category": "nature",
+      "labels": {
+        "en": "Meadow",
+        "de": "Wiese",
+        "es": "Pradera"
+      }
+    },
+    {
+      "asset_id": 8,
+      "slug": "forest",
+      "category": "nature",
+      "labels": {
+        "en": "Forest",
+        "de": "Wald",
+        "es": "Bosque"
+      }
+    },
+    {
+      "asset_id": 9,
+      "slug": "desert",
+      "category": "nature",
+      "labels": {
+        "en": "Desert",
+        "de": "Wüste",
+        "es": "Desierto"
+      }
+    },
+    {
+      "asset_id": 10,
+      "slug": "snowy_hills",
+      "category": "nature",
+      "labels": {
+        "en": "Snowy hills",
+        "de": "Schneehügel",
+        "es": "Colinas nevadas"
+      }
+    },
+    {
+      "asset_id": 11,
+      "slug": "pond",
+      "category": "nature",
+      "labels": {
+        "en": "Pond",
+        "de": "Teich",
+        "es": "Estanque"
+      }
+    },
+    {
+      "asset_id": 12,
+      "slug": "farmyard",
+      "category": "places",
+      "labels": {
+        "en": "Farmyard",
+        "de": "Bauernhof",
+        "es": "Granja"
+      }
+    },
+    {
+      "asset_id": 13,
+      "slug": "flower_garden",
+      "category": "nature",
+      "labels": {
+        "en": "Flower garden",
+        "de": "Blumengarten",
+        "es": "Jardín de flores"
+      },
+      "source": "art/generated/coloring-scenes/flower_garden.png"
+    },
+    {
+      "asset_id": 14,
+      "slug": "apple_orchard",
+      "category": "nature",
+      "labels": {
+        "en": "Apple orchard",
+        "de": "Apfelgarten",
+        "es": "Huerto de manzanos"
+      },
+      "source": "art/generated/coloring-scenes/apple_orchard.png"
+    },
+    {
+      "asset_id": 15,
+      "slug": "autumn_woodland",
+      "category": "nature",
+      "labels": {
+        "en": "Autumn woodland",
+        "de": "Herbstwald",
+        "es": "Bosque otoñal"
+      },
+      "source": "art/generated/coloring-scenes/autumn_woodland.png"
+    },
+    {
+      "asset_id": 16,
+      "slug": "spring_stream",
+      "category": "nature",
+      "labels": {
+        "en": "Spring stream",
+        "de": "Frühlingsbach",
+        "es": "Arroyo primaveral"
+      },
+      "source": "art/generated/coloring-scenes/spring_stream.png"
+    },
+    {
+      "asset_id": 17,
+      "slug": "playground",
+      "category": "places",
+      "labels": {
+        "en": "Playground",
+        "de": "Spielplatz",
+        "es": "Parque infantil"
+      },
+      "source": "art/generated/coloring-scenes/playground.png"
+    },
+    {
+      "asset_id": 18,
+      "slug": "town_park",
+      "category": "places",
+      "labels": {
+        "en": "Town park",
+        "de": "Stadtpark",
+        "es": "Parque urbano"
+      },
+      "source": "art/generated/coloring-scenes/town_park.png"
+    },
+    {
+      "asset_id": 19,
+      "slug": "cozy_room",
+      "category": "places",
+      "labels": {
+        "en": "Cozy room",
+        "de": "Gemütliches Zimmer",
+        "es": "Habitación acogedora"
+      },
+      "source": "art/generated/coloring-scenes/cozy_room.png"
+    },
+    {
+      "asset_id": 20,
+      "slug": "schoolyard",
+      "category": "places",
+      "labels": {
+        "en": "Schoolyard",
+        "de": "Schulhof",
+        "es": "Patio de la escuela"
+      },
+      "source": "art/generated/coloring-scenes/schoolyard.png"
+    },
+    {
+      "asset_id": 21,
+      "slug": "castle_courtyard",
+      "category": "adventures",
+      "labels": {
+        "en": "Castle courtyard",
+        "de": "Burghof",
+        "es": "Patio del castillo"
+      },
+      "source": "art/generated/coloring-scenes/castle_courtyard.png"
+    },
+    {
+      "asset_id": 22,
+      "slug": "moon",
+      "category": "adventures",
+      "labels": {
+        "en": "Moon",
+        "de": "Mond",
+        "es": "Luna"
+      },
+      "source": "art/generated/coloring-scenes/moon.png"
+    },
+    {
+      "asset_id": 23,
+      "slug": "under_the_sea",
+      "category": "adventures",
+      "labels": {
+        "en": "Under the sea",
+        "de": "Unter Wasser",
+        "es": "Bajo el mar"
+      },
+      "source": "art/generated/coloring-scenes/under_the_sea.png"
+    },
+    {
+      "asset_id": 24,
+      "slug": "pirate_cove",
+      "category": "adventures",
+      "labels": {
+        "en": "Pirate cove",
+        "de": "Piratenbucht",
+        "es": "Cala pirata"
+      },
+      "source": "art/generated/coloring-scenes/pirate_cove.png"
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "generator": "builtin-imagegen",
+  "style": "One picture per image; soft warm storybook watercolor; grounded2.5D scene with clear ground plane and depth, house/fences/path or sunroom; lower70% open for separately rendered hiding props/animals; no baked-in animals, characters, text or foreground hiding props.",
+  "jobs": [
+    {
+      "name": "cottage-yard",
+      "subject": "A little warm cream cottage with honey wooden door, a broad porch and two low steps at the BACK LEFT, gentle red-brown pitched roof, green shutters, a low wooden fence receding at the far sides, and a curved pale path leading through an OPEN GRASS LAWN. Cottage and fence remain in the upper BACK30% of scene; lower70% is open grounded lawn and path, softly shaded to suggest depth. A few flowers only along far edges."
+    },
+    {
+      "name": "fenced-garden",
+      "subject": "A sunny cottage GARDEN with a low pale wooden picket fence enclosing the back and receding down each side, a small arched gate centered at back and the distant corner of a cottage beyond it. A few flowerbeds only along far edges. Broad OPEN GREEN LAWN with a narrow curved stepping-stone path fills lower70%, complete physical ground. Nothing placed in the center."
+    },
+    {
+      "name": "cozy-house",
+      "subject": "A cozy cottage SUNROOM interior, warm cream walls only upper30%, sunny rounded windows at the back, empty low wooden shelves at far side, broad honey wooden floor taking lower70% and a soft muted sage woven rug toward the front. Subtle2.5D depth, corner perspective and daylight, big OPEN floor for separately drawn hiding-place props and animals. No furniture in foreground, no potted tree/bush; those are added as playable overlays."
+    },
+    {
+      "name": "farm-courtyard",
+      "subject": "A gentle FARMHOUSE COURTYARD with a small warm timber barn and friendly cottage doorway at the far BACK, low wooden fences receding at both side edges, a muted red-brown roof, and broad OPEN EARTH-and-GRAVEL yard with soft grass borders filling lower70%. A curved walkway suggests2.5D depth. A few flowers near backwall, no farm tools, animals, vehicles or foreground props."
+    }
+  ]
+}

@@ -36,8 +36,9 @@ def select_book(desktop, category_index):
     picture = desktop.capture_actual("book-selection-bounds")
     width,height=picture.size
     padding=max(24,int(14*min(width/320,(height-56)/200))+12)
-    tab_width=(width-padding*2-24)//4
-    desktop.click_actual(padding+group*(tab_width+8)+tab_width//2,56+padding+22)
+    columns=3 if width<600 else len(BOOK_GROUPS)
+    tab_width=(width-padding*2-8*(columns-1))//columns
+    desktop.click_actual(padding+(group%columns)*(tab_width+8)+tab_width//2,56+padding+(group//columns)*52+22)
     for _ in range(groups[group].index(name)):desktop.key("Right")
     desktop.key("Return")
 
@@ -139,7 +140,9 @@ def main():
                 # The finish screen's bar moves, so compare the next book's cover.
                 assert not different(endings["garden"], desktop.capture(f"{language}-auto-finished"), COVER), "Automatic reading looped instead of finishing"
                 time.sleep(8.2)
-                assert not different(firsts["farm"], desktop.capture(f"{language}-suggested-next-book")), "Suggested book did not open"
+                route = [name for _, members in BOOK_GROUPS for name in members]
+                next_book = route[(route.index("garden") + 1) % len(route)]
+                assert not different(firsts[next_book], desktop.capture(f"{language}-suggested-next-book")), "Suggested book did not follow the shelf groups"
                 desktop.key("Escape")
                 desktop.key("Escape")
                 desktop.game("Animal Counting")

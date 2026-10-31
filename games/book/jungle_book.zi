@@ -189,10 +189,10 @@ ResponsiveBook :: (bounds: Rectangle) {
 BookShelf :: () {
     handled := false
     tab_gap: s32 = 8
-    tab_columns: s32 = ifx book_width < 600 then 2 else 4
-    tab_rows := 4 / tab_columns
+    tab_columns: s32 = ifx book_width < 600 then 3 else BOOK_GROUP_COUNT
+    tab_rows := (BOOK_GROUP_COUNT + tab_columns - 1) / tab_columns
     tab_width := (book_width - book_padding * 2 - tab_gap * (tab_columns - 1)) / tab_columns
-    for index: cast(s32)0..3 {
+    for index: cast(s32)0..BOOK_GROUP_COUNT - 1 {
         if TouchButton(700 + index, book_padding + (index % tab_columns) * (tab_width + tab_gap), book_padding + (index / tab_columns) * 52, tab_width, 44, book_groups[index], book_tab == index) {
             book_tab = index
             category = shelf_order[group_starts[index]]
