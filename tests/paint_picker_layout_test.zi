@@ -1,0 +1,28 @@
+#import, file "../games/paint/paint_picker_layout.zi";
+
+Fits :: (width: s32, height: s32) -> bool {
+    l := ScenePickerBounds(width, height)
+    fit := width * 1000 / 320
+    if height * 1000 / 200 < fit { fit = height * 1000 / 200 }
+    if fit < 1000 { fit = 1000 }
+    // Text and controls must clear the inner paper border on every side.
+    if l.padding <= 14 * fit / 1000 || l.top <= 12 * fit / 1000 { return false }
+    if l.tab_y < l.top + 30 || l.grid_y < l.tab_y + 44 { return false }
+    if l.card_width < 40 || l.card_height < 1 || l.card_height > 220 { return false }
+    if l.columns * l.rows != 6 || l.tab_columns != 3 { return false }
+    if width - l.padding * 2 > 1041 { return false }
+    if l.grid_y + l.rows * l.card_height + (l.rows - 1) * l.gap > l.footer_y - l.gap { return false }
+    if l.footer_y + 44 >= height - 12 * fit / 1000 { return false }
+    for i: cast(s32)0..5 {
+        x := l.padding + i % l.columns * (l.card_width + l.gap)
+        if x + l.card_width > width - l.padding { return false }
+    }
+    return true
+}
+
+#program_export
+main :: () -> s32 {
+    if !Fits(240, 500) || !Fits(320, 424) || !Fits(390, 788) || !Fits(600, 304) { return 1 }
+    if !Fits(960, 544) || !Fits(1280, 744) || !Fits(1920, 1024) || !Fits(3840, 2104) { return 2 }
+    return 0
+}

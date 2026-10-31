@@ -52,7 +52,7 @@ ctypes.CDLL = load
 import dino_art
 from paint_catalog import BuildPaintCatalog
 library = BuildPaintCatalog()
-assert len(library['stencils']) == 46 and len(library['scenes']) == 24
+assert len(library['stencils']) == 46 and len(library['scenes']) == 26
 '''
         subprocess.run([sys.executable, '-c', script], cwd=ROOT, check=True,
                        capture_output=True, text=True)
@@ -71,18 +71,18 @@ assert len(library['stencils']) == 46 and len(library['scenes']) == 24
     def test_original_ids_labels_and_category_order(self):
         data = self.library
         self.assertEqual([e['asset_id'] for e in data['stencils']], list(range(1, 47)))
-        self.assertEqual([e['asset_id'] for e in data['scenes']], list(range(1, 25)))
+        self.assertEqual([e['asset_id'] for e in data['scenes']], list(range(1, 27)))
         self.assertEqual(tuple(e['labels']['en'] for e in data['stencils'][:30]), OLD_STENCILS)
         self.assertEqual(tuple(e['short_labels']['en'] for e in data['stencils'][:30]), OLD_SHORT)
         self.assertEqual(tuple(e['labels']['en'] for e in data['scenes'][:12]), OLD_SCENES)
         self.assertEqual([i for i in data['stencil_order'] if i < 30], OLD_ORDER)
         self.assertEqual(data['stencil_category_counts'], [16, 10, 10, 10])
-        self.assertEqual(data['scene_category_counts'], [14, 5, 5])
+        self.assertEqual(data['scene_category_counts'], [14, 6, 6])
         self.assertEqual([e['labels']['en'] for e in data['scene_categories']],
                          ['Nature', 'Places', 'Adventures'])
         self.assertEqual(data['scene_order'],
                          [0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 13, 14, 15,
-                          11, 16, 17, 18, 19, 1, 20, 21, 22, 23])
+                          11, 16, 17, 18, 19, 24, 1, 20, 21, 22, 23, 25])
 
     def test_every_entry_has_one_category_and_safe_pages(self):
         for kind in ('stencil', 'scene'):
@@ -157,7 +157,7 @@ assert len(library['stencils']) == 46 and len(library['scenes']) == 24
             expected = [row['source'] for kind in ('stencils', 'scenes')
                         for row in self.library[kind] if 'source' in row]
             self.assertEqual(str(error.exception).splitlines()[1:], expected)
-            self.assertEqual(len(expected), 28)
+            self.assertEqual(len(expected), 30)
             write.assert_not_called()
         with patch.object(Path, 'write_text') as write:
             with self.assertRaisesRegex(ValueError, 'Unknown stencil asset IDs'):
@@ -203,10 +203,10 @@ assert len(library['stencils']) == 46 and len(library['scenes']) == 24
             expected_sources = [row['source'] for kind in ('stencils', 'scenes')
                                 for row in self.library[kind] if 'source' in row]
             self.assertEqual(opened, expected_sources)
-            expected_files = {f'dino{i}.svg' for i in range(1, 47)} | {f'scene{i}.svg' for i in range(1, 25)}
+            expected_files = {f'dino{i}.svg' for i in range(1, 47)} | {f'scene{i}.svg' for i in range(1, 27)}
             self.assertEqual({path.name for path in output.iterdir()}, expected_files)
-            self.assertEqual(len(traced), 16 * 2 + 12)
-            self.assertTrue(all(size == (960, 720) for size in traced[-12:]))
+            self.assertEqual(len(traced), 16 * 2 + 14)
+            self.assertTrue(all(size == (960, 720) for size in traced[-14:]))
 
     def test_generated_ziran_helpers_execute_in_every_language(self):
         # Compile a private C target to exercise Ziran imports, bounds and

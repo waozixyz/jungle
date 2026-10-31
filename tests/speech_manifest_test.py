@@ -81,9 +81,9 @@ def real_catalog_test():
                 assert abs(duration - measured) <= 0.00000051, (path, 'stale page timing', duration, measured)
     manifest = speech_manifest.BuildSpeechManifest()
     assert manifest['counts'] == {
-        'assembled_lessons': 726, 'recorded_spelling_lessons': 126,
+        'assembled_lessons': 780, 'recorded_spelling_lessons': 126,
         'alphabet_letters': 83, 'recorded_voices': 63,
-        'clips': 1130, 'voices': 1850,
+        'clips': 1184, 'voices': 1958,
     }
     speech_manifest.ValidateSpeechManifest(manifest)
     book_voices = {voice_path(name, language, simple)
@@ -123,9 +123,9 @@ def real_catalog_test():
             original_assembled += 1
         assert any('silence' in segment for segment in segments), name
         assert pcm(voice) == rebuild(manifest, segments), name
-    assert assembled == 726, assembled
+    assert assembled == 780, assembled
     assert original_assembled == 506, original_assembled
-    assert new_assembled == 220, new_assembled
+    assert new_assembled == 274, new_assembled
     assert recorded_spelling == 126, recorded_spelling
     verify_legacy_lettuce()
     assert original_assembled + 1 == 507
@@ -252,7 +252,7 @@ def staging_test():
 def main():
     rejection_test(real_catalog_test())
     staging_test()
-    print('local speech manifest test: 726 exact active lessons (506 original + 220 new), one preserved original lesson, 126 whole recordings, 83 alphabet voices, 89 letter clips passed')
+    print('local speech manifest test: 780 exact active lessons (506 original + 274 new), one preserved original lesson, 126 whole recordings, 83 alphabet voices, 89 letter clips passed')
 
 
 if __name__ == '__main__':

@@ -1,17 +1,16 @@
 // Hide & Seek rules and validated saves, without drawing.
-// Every round sets two to four hiding places, each a different kind: a
-// basket (in), a bush (behind), a table (under) or a tree (up in).
-// Level 1, peekaboo: a friend hides in each of two or three places and every
-// tap reveals one.
-// Level 2, find: one friend hides where the spoken prompt says, always
-// showing a little peek, and a tap on an empty place only adds a gentle hint.
-// Level 3, remember: four friends show themselves, then leave a small peek; the
-// child finds the one that is named. A wrong place lets its own friend peek
-// out and makes the named friend glow, and the friends can be shown again.
+// One gentle hide-and-find game. Each round is one of four scenes with its
+// own natural hiding places: a basket (in), a bush (behind), a table (under)
+// or a tree (up in). Friends hide in all but one place and stay completely
+// out of sight until the child looks there; nothing peeks, previews or names
+// the friend before it is found. A round is done once every friend is found,
+// and the next round moves to the next scene.
 #import "std/format"
 #import, file "../../host/jungle_text.zi";
 #import, file "../../retro/language.zi";
 
+// Earlier saves held one of three levels; every level now loads as this one
+// hide-and-find game, keeping its counts.
 HIDE_MODES :: 3
 HIDE_PEEKABOO :: 0
 HIDE_FIND :: 1
@@ -20,8 +19,8 @@ HIDE_KINDS :: 4
 HIDE_MAX_PLACES :: 4
 HIDE_ANIMALS :: 12
 HIDE_MAX_ROUNDS :: 100000
-// Finding rounds use two places until this many friends were found.
-HIDE_EASY_ROUNDS :: 3
+HIDE_SCENES :: 4
+HIDE_SLOTS :: 3
 
 // Hiding places, each teaching its own position word.
 HIDE_BASKET :: 0
@@ -29,47 +28,72 @@ HIDE_BUSH :: 1
 HIDE_TABLE :: 2
 HIDE_TREE :: 3
 
+// Scenes, in the order the rounds visit them.
+HIDE_COTTAGE_YARD :: 0
+HIDE_FENCED_GARDEN :: 1
+HIDE_COZY_HOUSE :: 2
+HIDE_FARM_COURTYARD :: 3
+
 // What tapping a place did.
 HIDE_IGNORED :: 0
 HIDE_REVEALED :: 1
 HIDE_EMPTY :: 2
 HIDE_AGAIN :: 3
-// Remembering: another friend hides here, not the named one.
-HIDE_OTHER :: 4
 
-// How much of a hidden friend shows.
+// How much of a hiding friend shows: nothing until found.
 HIDE_NO_PEEK :: 0
-HIDE_PEEK :: 1
-HIDE_HINT :: 2
 HIDE_SHOWN :: 3
 
 hide_animals: [12]string = .["frog", "rabbit", "cat", "dog", "monkey", "panda", "duck", "hen", "pig",
     "sheep", "tiger", "parrot"];
 hide_positions: [4]string = .["in", "behind", "under", "up"];
 
+// Every scene's hiding places, back to front so nearer props are painted
+// last: outdoors a tree, bush and basket; indoors a table and basket; the
+// farm a table, bush and basket. -1 marks an unused slot.
+hide_slot_kinds: [12]s32 = .[3, 1, 0, 1, 3, 0, 2, 0, -1, 2, 1, 0];
+// Per mille of the stage: centre x, ground line, size by height and size
+// by width, for tall (portrait) and wide (landscape) stages. Depths vary:
+// far props sit higher and smaller, near ones lower and larger.
+hide_tall_x: [12]s32 = .[270, 700, 360, 240, 730, 300, 520, 330, 0, 330, 700, 330];
+hide_tall_ground: [12]s32 = .[500, 660, 905, 470, 640, 915, 640, 925, 0, 520, 700, 930];
+hide_tall_size_h: [12]s32 = .[260, 250, 270, 200, 300, 270, 600, 280, 0, 450, 250, 270];
+hide_tall_size_w: [12]s32 = .[480, 400, 420, 320, 420, 420, 760, 420, 0, 560, 400, 420];
+hide_wide_x: [12]s32 = .[180, 520, 800, 200, 520, 830, 360, 740, 0, 230, 560, 840];
+hide_wide_ground: [12]s32 = .[640, 740, 925, 700, 760, 930, 790, 930, 0, 700, 800, 935];
+hide_wide_size_h: [12]s32 = .[380, 380, 420, 330, 420, 400, 820, 430, 0, 640, 360, 400];
+hide_wide_size_w: [12]s32 = .[220, 200, 200, 180, 230, 190, 400, 200, 0, 300, 200, 190];
+
 HideSeek :: struct {
+    // Always HIDE_FIND; kept so saves stay readable by earlier releases.
     mode: s32
-    // Friends found in finding rounds; more of them bring a third place.
+    // Friends found.
     rounds: s32
-    // Friends found in remembering rounds.
+    // Friends found in the earlier Remember level, kept in the save.
     remembered: s32
+    scene: s32
+    // The scene's arrangement, mirrored left to right.
+    mirror: bool
     places: s32
     kinds: [4]s32
     animals: [4]s32
-    // The place hiding the friend to find or remember.
-    target: s32
+    // Which places hide a friend; the others are empty.
+    hides: [4]bool
     revealed: [4]bool
-    // Places already looked at in vain; any of them turns the hint on.
+    // Places already looked at.
     looked: [4]bool
-    // Remembering: every friend is showing, and taps wait.
-    preview: bool
 }
 
-// Peekaboo varies between two and three friends with the seed.
-HideSeekPlaces :: (mode: s32, rounds: s32, seed: s32 = 1) -> s32 {
-    if mode == HIDE_REMEMBER { return HIDE_MAX_PLACES }
-    if mode == HIDE_FIND { return ifx rounds < HIDE_EASY_ROUNDS then 2 else 3 }
-    return 2 + (seed & 1)
+HideSeekPlaces :: (scene: s32) -> s32 {
+    if scene < 0 || scene >= HIDE_SCENES { return 0 }
+    places: s32
+    for slot: cast(s32)0..HIDE_SLOTS - 1 { if hide_slot_kinds[scene * HIDE_SLOTS + slot] >= 0 { places += 1 } }
+    return places
+}
+
+HideSeekSlotKind :: (scene: s32, place: s32) -> s32 {
+    if scene < 0 || scene >= HIDE_SCENES || place < 0 || place >= HIDE_SLOTS { return -1 }
+    return hide_slot_kinds[scene * HIDE_SLOTS + place]
 }
 
 HideSeekRandom :: (random: *s64) -> s64 {
@@ -77,80 +101,65 @@ HideSeekRandom :: (random: *s64) -> s64 {
     return random.*
 }
 
-// The friend and kind of place a round is about, packed for the next
-// round to avoid: the target, or peekaboo's first friend.
+// This round's friends, as a bit per animal for the next round to leave out.
 HideSeekAvoid :: (h: HideSeek) -> s32 {
-    place := ifx h.mode == HIDE_PEEKABOO then 0 else h.target
-    if h.places <= 0 || place < 0 || place >= h.places { return -1 }
-    return h.animals[place] * HIDE_KINDS + h.kinds[place]
+    mask: s32
+    for i: cast(s32)0..h.places - 1 {
+        if h.hides[i] && h.animals[i] >= 0 && h.animals[i] < HIDE_ANIMALS { mask |= 1 << h.animals[i] }
+    }
+    return mask
 }
 
 // A new round depending only on its arguments. `avoid` (see HideSeekAvoid)
-// keeps the previous friend out of the round and, where a target is asked
-// for, hides it in another kind of place, so the prompt changes.
-HideSeekNew :: (mode: s32, seed: s32, rounds: s32 = 0, avoid: s32 = -1, remembered: s32 = 0) -> HideSeek {
-    h := HideSeek.{.mode = mode, .rounds = rounds, .remembered = remembered}
-    if h.mode < 0 || h.mode >= HIDE_MODES { h.mode = HIDE_PEEKABOO }
+// keeps the previous friends out of the round. A scene outside 0..3 comes
+// from the seed. Any earlier level is the one hide-and-find game.
+HideSeekNew :: (mode: s32, seed: s32, rounds: s32 = 0, avoid: s32 = -1, remembered: s32 = 0, scene: s32 = -1) -> HideSeek {
+    h := HideSeek.{.mode = HIDE_FIND, .rounds = rounds, .remembered = remembered}
     if h.rounds < 0 || h.rounds > HIDE_MAX_ROUNDS { h.rounds = 0 }
     if h.remembered < 0 || h.remembered > HIDE_MAX_ROUNDS { h.remembered = 0 }
-    avoid_kind: s32 = -1; avoid_animal: s32 = -1
-    if avoid >= 0 && avoid < HIDE_KINDS * HIDE_ANIMALS { avoid_kind = avoid % HIDE_KINDS; avoid_animal = avoid / HIDE_KINDS }
-    h.places = HideSeekPlaces(h.mode, h.rounds, seed)
     random: s64 = cast(s64)(seed & 0x7fffffff) % 2147483646 + 1
-    kinds: [4]s32 = .[0, 1, 2, 3]
+    h.scene = ifx scene >= 0 && scene < HIDE_SCENES then scene else cast(s32)(HideSeekRandom(*random) % cast(s64)HIDE_SCENES)
+    h.places = HideSeekPlaces(h.scene)
+    h.mirror = (HideSeekRandom(*random) & 1) == 1
+    // Leave out at most the previous round's friends, so enough remain.
+    skip: s32 = ifx avoid > 0 && avoid < (1 << HIDE_ANIMALS) then avoid else 0
+    skipped: s32
+    for a: cast(s32)0..HIDE_ANIMALS - 1 { if (skip & (1 << a)) != 0 { skipped += 1 } }
+    if skipped > HIDE_ANIMALS - HIDE_MAX_PLACES { skip = 0 }
     animals: [12]s32
-    for i: cast(s32)0..HIDE_ANIMALS - 1 { animals[i] = i }
+    count: s32
+    for a: cast(s32)0..HIDE_ANIMALS - 1 { if (skip & (1 << a)) == 0 { animals[count] = a; count += 1 } }
+    empty := cast(s32)(HideSeekRandom(*random) % cast(s64)h.places)
     for i: cast(s32)0..h.places - 1 {
-        j := i + cast(s32)(HideSeekRandom(*random) % cast(s64)(HIDE_KINDS - i))
-        swap := kinds[i]; kinds[i] = kinds[j]; kinds[j] = swap
-        h.kinds[i] = kinds[i]
-        k := i + cast(s32)(HideSeekRandom(*random) % cast(s64)(HIDE_ANIMALS - i))
-        swap = animals[i]; animals[i] = animals[k]; animals[k] = swap
-        // The previous friend sits this round out; an unchosen one comes.
-        if animals[i] == avoid_animal { swap = animals[i]; animals[i] = animals[h.places]; animals[h.places] = swap }
+        h.kinds[i] = HideSeekSlotKind(h.scene, i)
+        k := i + cast(s32)(HideSeekRandom(*random) % cast(s64)(count - i))
+        swap := animals[i]; animals[i] = animals[k]; animals[k] = swap
         h.animals[i] = animals[i]
+        h.hides[i] = i != empty
     }
-    h.target = cast(s32)(HideSeekRandom(*random) % cast(s64)h.places)
-    if h.kinds[h.target] == avoid_kind { h.target = (h.target + 1) % h.places }
-    h.preview = h.mode == HIDE_REMEMBER
     return h
 }
 
-HideSeekFinding :: (h: HideSeek) -> bool { return h.mode == HIDE_FIND }
-HideSeekRemembering :: (h: HideSeek) -> bool { return h.mode == HIDE_REMEMBER }
-// Finding and remembering both ask for one friend.
-HideSeekTargeted :: (h: HideSeek) -> bool { return h.mode != HIDE_PEEKABOO }
-
 HideSeekHides :: (h: HideSeek, place: s32) -> bool {
     if place < 0 || place >= h.places { return false }
-    return !HideSeekFinding(h) || place == h.target
+    return h.hides[place]
 }
 
-HideSeekHint :: (h: HideSeek) -> bool {
-    for i: cast(s32)0..h.places - 1 { if h.looked[i] { return true } }
-    return false
+HideSeekFriends :: (h: HideSeek) -> s32 {
+    friends: s32
+    for i: cast(s32)0..h.places - 1 { if h.hides[i] { friends += 1 } }
+    return friends
 }
 
-// Every occupied place leaves a small recognizable peek, including Remember
-// after its preview. Looking somewhere wrong strengthens the target hint;
-// empty Find places never submit an animal.
+// A friend is drawn only once it has been found.
 HideSeekPeek :: (h: HideSeek, place: s32) -> s32 {
-    if !HideSeekHides(h, place) { return HIDE_NO_PEEK }
-    if h.revealed[place] { return HIDE_SHOWN }
-    if HideSeekRemembering(h) {
-        if h.preview { return HIDE_SHOWN }
-        if h.looked[place] { return HIDE_PEEK }
-        if place == h.target && HideSeekHint(h) { return HIDE_HINT }
-        return HIDE_PEEK
-    }
-    if HideSeekFinding(h) && HideSeekHint(h) { return HIDE_HINT }
-    return HIDE_PEEK
+    if !HideSeekHides(h, place) || !h.revealed[place] { return HIDE_NO_PEEK }
+    return HIDE_SHOWN
 }
 
 HideSeekDone :: (h: HideSeek) -> bool {
     if h.places <= 0 { return false }
-    if HideSeekTargeted(h) { return h.revealed[h.target] }
-    for i: cast(s32)0..h.places - 1 { if !h.revealed[i] { return false } }
+    for i: cast(s32)0..h.places - 1 { if h.hides[i] && !h.revealed[i] { return false } }
     return true
 }
 
@@ -160,39 +169,27 @@ HideSeekFound :: (h: HideSeek) -> s32 {
     return found
 }
 
-// Looks at a place. Nothing counts while the friends are showing. Once a
-// round asking for a friend is done, further taps on other places are
-// ignored; a revealed friend can always be tapped again.
+// Looks at a place. An empty place only remembers it was looked at; a
+// found friend can be tapped again; a finished round ignores other taps.
 HideSeekTap :: (h: *HideSeek, place: s32) -> s32 {
-    if place < 0 || place >= h.places || h.preview { return HIDE_IGNORED }
+    if place < 0 || place >= h.places { return HIDE_IGNORED }
     if h.revealed[place] { return HIDE_AGAIN }
-    if HideSeekTargeted(h.*) && HideSeekDone(h.*) { return HIDE_IGNORED }
-    if HideSeekRemembering(h.*) && place != h.target { h.looked[place] = true; return HIDE_OTHER }
-    if !HideSeekHides(h.*, place) { h.looked[place] = true; return HIDE_EMPTY }
+    if HideSeekDone(h.*) { return HIDE_IGNORED }
+    h.looked[place] = true
+    if !h.hides[place] { return HIDE_EMPTY }
     h.revealed[place] = true
-    if HideSeekFinding(h.*) && h.rounds < HIDE_MAX_ROUNDS { h.rounds += 1 }
-    if HideSeekRemembering(h.*) && h.remembered < HIDE_MAX_ROUNDS { h.remembered += 1 }
+    if h.rounds < HIDE_MAX_ROUNDS { h.rounds += 1 }
     return HIDE_REVEALED
 }
 
-// Remembering: the friends show themselves again, keeping every answer and
-// hint so far. A finished round has nothing left to show.
-HideSeekShowAgain :: (h: *HideSeek) -> bool {
-    if !HideSeekRemembering(h.*) || HideSeekDone(h.*) { return false }
-    h.preview = true
-    return true
-}
-
-HideSeekPreviewEnd :: (h: *HideSeek) { h.preview = false }
-
-// The next round in the same mode, hiding somewhere new.
+// The next round moves to the next scene with other friends.
 HideSeekNext :: (h: HideSeek, seed: s32) -> HideSeek {
-    return HideSeekNew(h.mode, seed, h.rounds, HideSeekAvoid(h), h.remembered)
+    scene := ifx h.scene >= 0 && h.scene < HIDE_SCENES then (h.scene + 1) % HIDE_SCENES else 0
+    return HideSeekNew(HIDE_FIND, seed, h.rounds, HideSeekAvoid(h), h.remembered, scene)
 }
 
-// Automatic progression is separate from the manual Next/Replay action.
-// A completed Peekaboo round enters Find, Find enters Remember, and
-// Remember keeps its level with a fresh round. Unfinished rounds never move.
+// A completed round moves on by itself once its gentle celebration ends.
+// Unfinished rounds never move.
 HIDE_CELEBRATE_SECONDS :: 2.5
 HideSeekAdvanceReady :: (h: HideSeek, elapsed: float64) -> bool {
     return HideSeekDone(h) && elapsed >= HIDE_CELEBRATE_SECONDS
@@ -200,21 +197,92 @@ HideSeekAdvanceReady :: (h: HideSeek, elapsed: float64) -> bool {
 
 HideSeekAdvance :: (h: HideSeek, seed: s32) -> HideSeek {
     if !HideSeekDone(h) { return h }
-    mode := h.mode
-    if mode < HIDE_REMEMBER { mode += 1 }
-    return HideSeekNew(mode, seed, h.rounds, HideSeekAvoid(h), h.remembered)
+    return HideSeekNext(h, seed)
 }
 
-// A held activation belongs to the preview/round where it began. The
-// release frame stays blocked so Press cannot turn it into a new click.
-HideSeekInputGuard :: (guarded: bool, preview: bool, pointer_down: bool, pointer_released: bool, enter_down: bool) -> bool {
-    if preview && (pointer_down || enter_down) { return true }
+// A held activation belongs to the round where it began. The release frame
+// stays blocked so Press cannot turn it into a new click.
+HideSeekInputGuard :: (guarded: bool, pointer_down: bool, pointer_released: bool, enter_down: bool) -> bool {
     return guarded && (pointer_down || pointer_released || enter_down)
 }
 
-// Grounded stage geometry, independent of reveal state or time. Back-row
-// places are painted first; each broad hit region encloses its real prop.
+// Original 420px cut-out foot/claw supports. Monkey and parrot tails extend
+// below their feet, so the alpha bounding-box bottom is not their support.
+hide_animal_feet: [12]s32 = .[377, 408, 399, 386, 342, 412, 412, 412, 386, 397, 381, 352];
+
+// Measured opaque extents of the unchanged square 1254px props: support
+// line, top, left and right. Layout uses one scale for both axes.
+HIDE_PROP_PIXELS :: 1254
+hide_prop_bases: [4]s32 = .[1085, 1120, 1038, 1235];
+hide_prop_tops: [4]s32 = .[376, 288, 265, 11];
+hide_prop_lefts: [4]s32 = .[36, 19, 22, 16];
+hide_prop_rights: [4]s32 = .[1229, 1237, 1231, 1240];
+
+// The square bitmap edge for a prop of this size.
+HideSeekPropEdge :: (kind: s32, size: s32) -> s32 {
+    if kind == HIDE_BUSH { return size }
+    if kind == HIDE_TREE { return size * 135 / 100 }
+    return size * 105 / 100
+}
+
+HideSeekArt :: struct {
+    x: s32
+    y: s32
+    edge: s32
+    animal_cx: s32
+    animal_base: s32
+    animal_edge: s32
+    // The friend is drawn before the whole, uncropped prop, so the prop
+    // covers it naturally; otherwise it sits in front (on a tree branch).
+    behind: bool
+}
+
+// Where a found friend stands. The prop is always drawn whole: a friend in
+// the basket rises above its back rim, one behind the bush steps out past
+// its side, one under the table stands between the legs below the cloth,
+// and one up in the tree sits on its low left branch. Feet never move.
+// `toward` is the side of the open stage (see HideSeekPlaceLayout).
+HideSeekArtLayout :: (kind: s32, cx: s32, ground: s32, size: s32, progress: float32, animal: s32 = 0, toward: s32 = -1) -> HideSeekArt {
+    p := progress
+    if p < 0.0 { p = 0.0 }; if p > 1.0 { p = 1.0 }
+    k := ifx kind < 0 || kind >= HIDE_KINDS then HIDE_BASKET else kind
+    edge := HideSeekPropEdge(k, size)
+    x := cx - edge / 2
+    y := ground - edge * hide_prop_bases[k] / HIDE_PROP_PIXELS
+    art := HideSeekArt.{.x = x, .y = y, .edge = edge, .behind = true}
+    if k == HIDE_BASKET {
+        art.animal_cx = x + edge * 632 / HIDE_PROP_PIXELS
+        art.animal_base = y + edge * 640 / HIDE_PROP_PIXELS
+        art.animal_edge = edge * 56 / 100
+    } else if k == HIDE_BUSH {
+        // Out toward the open middle of the stage, never off its edge.
+        side: s32 = ifx toward > 0 then 1 else -1
+        art.animal_cx = cx + side * (size * 36 / 100 + cast(s32)(p * cast(float32)size * 0.12))
+        art.animal_base = ground
+        art.animal_edge = size * 50 / 100
+    } else if k == HIDE_TABLE {
+        // The front legs stand at 167-261 and 995-1092, the back legs end
+        // at 880 and the cloth's hem at 715: the friend stays inside them.
+        art.animal_cx = x + edge * (590 + cast(s32)(p * 38.0)) / HIDE_PROP_PIXELS
+        art.animal_base = y + edge * 1000 / HIDE_PROP_PIXELS
+        art.animal_edge = edge * 22 / 100
+    } else {
+        // The low left branch's top is at 630-640 around x 235.
+        art.animal_cx = x + edge * 235 / HIDE_PROP_PIXELS
+        art.animal_base = y + edge * 640 / HIDE_PROP_PIXELS
+        art.animal_edge = edge * 26 / 100
+        art.behind = false
+    }
+    return art
+}
+
+// Grounded stage geometry for one scene, independent of reveal state or
+// time. Places come back to front; each hit region is its prop's own
+// opaque box, so places never share a tap.
 HideSeekPlaceLayout :: struct {
+    kind: s32
+    // 1 when the open middle of the stage is to the right, else -1.
+    toward: s32
     cx: s32
     ground: s32
     size: s32
@@ -224,93 +292,35 @@ HideSeekPlaceLayout :: struct {
     height: s32
 }
 
-HideSeekSceneLayout :: (width: s32, height: s32, places: s32, place: s32) -> HideSeekPlaceLayout {
+HideSeekSceneLayout :: (width: s32, height: s32, places: s32, place: s32, scene: s32 = 0, mirror: bool = false) -> HideSeekPlaceLayout {
+    s := ifx scene < 0 || scene >= HIDE_SCENES then 0 else scene
+    slot := ifx place < 0 || place >= HideSeekPlaces(s) || place >= places then 0 else place
+    at := s * HIDE_SLOTS + slot
     tall := width < height
-    columns := ifx tall && places > 2 then 2 else places
-    if columns < 1 { columns = 1 }
-    row := place / columns
-    column := place % columns
-    slot := width / columns
-    cx := slot * column + slot / 2
-    ground := height * (ifx column % 2 == 0 then 82 else 90) / 100
-    size := slot * 64 / 100
-    limit := height * 55 / 100
-    if tall && places > 2 {
-        ground = height * (ifx row == 0 then 53 else 92) / 100
-        if row == 0 { cx -= slot / 16 } else { cx += slot / 16 }
-        limit = height * 27 / 100
-    }
-    if size > limit { size = limit }
-    if size > 230 { size = 230 }
-    crown_room := (ground - 12) * 100 / 160
-    if size > crown_room { size = crown_room }
-    return HideSeekPlaceLayout.{.cx = cx, .ground = ground, .size = size,
-        .x = slot * column, .y = ground - size * 160 / 100,
-        .width = slot, .height = size * 165 / 100}
+    fx := ifx tall then hide_tall_x[at] else hide_wide_x[at]
+    if mirror { fx = 1000 - fx }
+    ground := height * (ifx tall then hide_tall_ground[at] else hide_wide_ground[at]) / 1000
+    size := height * (ifx tall then hide_tall_size_h[at] else hide_wide_size_h[at]) / 1000
+    by_width := width * (ifx tall then hide_tall_size_w[at] else hide_wide_size_w[at]) / 1000
+    if by_width < size { size = by_width }
+    kind := hide_slot_kinds[at]
+    // The prop's top stays on the stage.
+    room := (ground - 4) * HIDE_PROP_PIXELS / (hide_prop_bases[kind] - hide_prop_tops[kind])
+    if HideSeekPropEdge(kind, size) > room { size = size * room / HideSeekPropEdge(kind, size) }
+    if size < 1 { size = 1 }
+    edge := HideSeekPropEdge(kind, size)
+    cx := width * fx / 1000
+    if cx - edge / 2 < 0 { cx = edge / 2 }
+    if cx + edge - edge / 2 > width { cx = width - edge + edge / 2 }
+    left := cx - edge / 2
+    top := ground - edge * (hide_prop_bases[kind] - hide_prop_tops[kind]) / HIDE_PROP_PIXELS
+    x := left + edge * hide_prop_lefts[kind] / HIDE_PROP_PIXELS
+    return HideSeekPlaceLayout.{.kind = kind, .toward = ifx cx < width / 2 then 1 else -1, .cx = cx, .ground = ground, .size = size,
+        .x = x, .y = top, .width = left + edge * hide_prop_rights[kind] / HIDE_PROP_PIXELS - x, .height = ground - top}
 }
 
-// Original 420px cut-out foot/claw supports. Monkey and parrot tails extend
-// below their feet, so the alpha bounding-box bottom is not their support.
-hide_animal_feet: [12]s32 = .[377, 408, 399, 386, 342, 412, 412, 412, 386, 397, 381, 352];
-
-// Measured supports in the unchanged square 1254px prop candidates. Layout
-// uses one scale for both axes; reveal moves along a support or changes only
-// the foreground mask. Animal scale and feet height never animate.
-HIDE_PROP_PIXELS :: 1254
-hide_prop_bases: [4]s32 = .[1085, 1120, 1038, 1235];
-HideSeekArt :: struct {
-    x: s32
-    y: s32
-    edge: s32
-    animal_cx: s32
-    animal_base: s32
-    animal_edge: s32
-    // Restore this lower portion of the bitmap in front of the animal.
-    front: s32
-    front_x: s32
-    front_right: s32
-}
-
-HideSeekArtLayout :: (kind: s32, cx: s32, ground: s32, size: s32, progress: float32, animal: s32 = 0) -> HideSeekArt {
-    p := progress
-    if p < 0.0 { p = 0.0 }; if p > 1.0 { p = 1.0 }
-    edge := size * 105 / 100
-    if kind == HIDE_BUSH { edge = size }
-    if kind == HIDE_TREE { edge = size * 135 / 100 }
-    // The frog's face is on its right: peek from that side so its green
-    // haunch cannot disappear into the foliage. Other friends peek left.
-    side: s32 = ifx animal == 0 then 1 else -1
-    x := cx - edge / 2
-    if kind == HIDE_BUSH { x -= side * size * 12 / 100 }
-    y := ground - edge * hide_prop_bases[kind] / HIDE_PROP_PIXELS
-    art := HideSeekArt.{.x = x, .y = y, .edge = edge, .front = 0, .front_right = HIDE_PROP_PIXELS}
-    if kind == HIDE_BASKET {
-        art.animal_cx = cx
-        art.animal_base = y + edge * 860 / HIDE_PROP_PIXELS
-        art.animal_edge = edge * 65 / 100
-        art.front = 560 + cast(s32)(p * 150.0)
-    } else if kind == HIDE_BUSH {
-        art.animal_cx = cx + side * (size * 30 / 100 + cast(s32)(p * cast(float32)size * 0.12))
-        art.animal_base = ground
-        art.animal_edge = size * 50 / 100
-        if side < 0 { art.front_x = cast(s32)(p * 250.0) }
-        else { art.front_right = HIDE_PROP_PIXELS - cast(s32)(p * 250.0) }
-    } else if kind == HIDE_TABLE {
-        art.animal_cx = x + edge * (255 + cast(s32)(p * 365.0)) / HIDE_PROP_PIXELS
-        art.animal_base = ground
-        art.animal_edge = edge * 29 / 100
-    } else {
-        art.animal_cx = x + edge * 450 / HIDE_PROP_PIXELS
-        art.animal_base = y + edge * 705 / HIDE_PROP_PIXELS
-        art.animal_edge = edge * 32 / 100
-        art.front = 530 + cast(s32)(p * 175.0)
-    }
-    return art
-}
-
-// Another level, keeping everything found so far.
-HideSeekLevel :: (h: HideSeek, mode: s32, seed: s32) -> HideSeek {
-    return HideSeekNew(mode, seed, h.rounds, HideSeekAvoid(h), h.remembered)
+HideSeekRoundLayout :: (h: HideSeek, width: s32, height: s32, place: s32) -> HideSeekPlaceLayout {
+    return HideSeekSceneLayout(width, height, h.places, place, h.scene, h.mirror)
 }
 
 HideSeekKind :: (h: HideSeek, place: s32) -> s32 {
@@ -318,35 +328,23 @@ HideSeekKind :: (h: HideSeek, place: s32) -> s32 {
     return h.kinds[place]
 }
 
-HideSeekAnimalName :: (h: HideSeek, place: s32) -> string {
-    if place < 0 || place >= h.places { return hide_animals[h.animals[0]] }
-    return hide_animals[h.animals[place]]
-}
-
-// Spoken cues: "look_<position>" asks, "<position>" answers.
-HideSeekCue :: (kind: s32, asking: bool) -> string {
-    position := ifx kind < 0 || kind >= HIDE_KINDS then hide_positions[0] else hide_positions[kind]
-    return ifx asking then Cat("look_", position) else position
+// The spoken answer once a friend is found: its place, never its name.
+HideSeekCue :: (kind: s32) -> string {
+    return ifx kind < 0 || kind >= HIDE_KINDS then hide_positions[0] else hide_positions[kind]
 }
 
 HideSeekCuePath :: (cue: string, code: string) -> string {
     return Cat("assets/hide_seek/sounds/", code, "/", cue, ".wav")
 }
 
-// The picture book's own recording of a friend's name.
-HideSeekNamePath :: (animal: s32, code: string) -> string {
-    name := ifx animal < 0 || animal >= HIDE_ANIMALS then hide_animals[0] else hide_animals[animal]
-    return Cat("assets/jungle-book/sounds/", code, "/simple/", name, ".wav")
-}
-
-// Only the level and the friends found are kept; a round starts fresh,
-// so a preview always plays again in full after reopening.
+// Only the friends found are kept; a round starts fresh.
 HideSeekText :: (h: HideSeek) -> string {
     return Cat("hideseek 2 ", NumberText(h.mode), " ", NumberText(h.rounds), " ", NumberText(h.remembered), "\n")
 }
 
 // Reads "hideseek 2 <level> <found> <remembered>", or the earlier
-// "hideseek 1 <mode> <found>" with its two modes.
+// "hideseek 1 <mode> <found>" with its two modes. The caller loads any
+// level as the one hide-and-find game.
 HideSeekRead :: (text: string, mode: *s32, rounds: *s32, remembered: *s32) -> bool {
     if text.count < 11 || text[:9] != "hideseek " || text[10] != #char " " { return false }
     version := text[9]
@@ -378,39 +376,10 @@ HideSeekWords :: (en: string, de: string, es: string) -> string {
     return en
 }
 
-HideSeekLevelWords :: (mode: s32) -> string {
-    if mode == HIDE_FIND { return HideSeekWords("Find", "Suchen", "Buscar") }
-    if mode == HIDE_REMEMBER { return HideSeekWords("Remember", "Merken", "Recordar") }
-    return HideSeekWords("Peekaboo", "Kuckuck", "Cucú")
-}
-
 // The spoken answer for a kind of place, as written words.
 HideSeekPlaceWords :: (kind: s32) -> string {
     if kind == HIDE_BUSH { return HideSeekWords("Behind the bush!", "Hinter dem Busch!", "¡Detrás del arbusto!") }
     if kind == HIDE_TABLE { return HideSeekWords("Under the table!", "Unter dem Tisch!", "¡Debajo de la mesa!") }
     if kind == HIDE_TREE { return HideSeekWords("Up in the tree!", "Oben im Baum!", "¡Arriba en el árbol!") }
     return HideSeekWords("In the basket!", "Im Korb!", "¡En la cesta!")
-}
-
-HideSeekLookWords :: (kind: s32) -> string {
-    if kind == HIDE_BUSH { return HideSeekWords("Look behind the bush!", "Schau hinter den Busch!", "¡Mira detrás del arbusto!") }
-    if kind == HIDE_TABLE { return HideSeekWords("Look under the table!", "Schau unter den Tisch!", "¡Mira debajo de la mesa!") }
-    if kind == HIDE_TREE { return HideSeekWords("Look up in the tree!", "Schau oben in den Baum!", "¡Mira arriba en el árbol!") }
-    return HideSeekWords("Look in the basket!", "Schau in den Korb!", "¡Mira en la cesta!")
-}
-
-hide_where_en: [12]string = .["Where is the frog?", "Where is the rabbit?", "Where is the cat?", "Where is the dog?",
-    "Where is the monkey?", "Where is the panda?", "Where is the duck?", "Where is the hen?", "Where is the pig?",
-    "Where is the sheep?", "Where is the tiger?", "Where is the parrot?"];
-hide_where_de: [12]string = .["Wo ist der Frosch?", "Wo ist das Kaninchen?", "Wo ist die Katze?", "Wo ist der Hund?",
-    "Wo ist der Affe?", "Wo ist der Panda?", "Wo ist die Ente?", "Wo ist das Huhn?", "Wo ist das Schwein?",
-    "Wo ist das Schaf?", "Wo ist der Tiger?", "Wo ist der Papagei?"];
-hide_where_es: [12]string = .["¿Dónde está la rana?", "¿Dónde está el conejo?", "¿Dónde está el gato?", "¿Dónde está el perro?",
-    "¿Dónde está el mono?", "¿Dónde está el panda?", "¿Dónde está el pato?", "¿Dónde está la gallina?",
-    "¿Dónde está el cerdo?", "¿Dónde está la oveja?", "¿Dónde está el tigre?", "¿Dónde está el loro?"];
-
-// Remembering asks for a friend by the picture book's name for it.
-HideSeekWhereWords :: (animal: s32) -> string {
-    at := ifx animal < 0 || animal >= HIDE_ANIMALS then 0 else animal
-    return HideSeekWords(hide_where_en[at], hide_where_de[at], hide_where_es[at])
 }

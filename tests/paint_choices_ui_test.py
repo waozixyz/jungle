@@ -47,7 +47,7 @@ with tempfile.TemporaryDirectory(prefix='paint-choices-', dir=WORK) as temporary
                 index = scene['asset_id'] - 1
                 assert working.read_bytes()[len(PICTURE_HEADER)] == ord(DIGITS[index]), 'Scene page selected a different background'
                 seen.add(index)
-        assert seen == set(range(24)), 'A categorized scene was unreachable'
+        assert seen == {scene['asset_id'] - 1 for scene in catalog['scenes']}, 'A categorized scene was unreachable'
         selected_scene = working.read_bytes()[len(PICTURE_HEADER)]
         tool(desktop, 1)
         desktop.capture('paint-expanded-colors', header=56)
@@ -79,4 +79,4 @@ with tempfile.TemporaryDirectory(prefix='paint-choices-', dir=WORK) as temporary
     with Desktop(ROOT / 'build/app/jungle', data) as desktop:
         open_paint(desktop, 'paint-new-scene-resumed')
         assert working.read_bytes() == saved, 'The background or paint changed on reopening'
-print('local UI test: categorized pagination, all24 scenes, 42 crayons and charcoal save/resume passed')
+print('local UI test: categorized pagination, all26 scenes, 42 crayons and charcoal save/resume passed')

@@ -6,15 +6,19 @@ def scene_layout(desktop):
     height = max(300, total - 56)
     if total - 56 < 300:
         height = 500
-    pad, gap = (8, 6) if height < 440 else (16, 10)
-    cols = 2 if width < 600 else 3
+    fit = max(1000, min(width * 1000 // 320, height * 1000 // 200))
+    pad, top = 14 * fit // 1000 + 12, 12 * fit // 1000 + 12
+    if width - pad * 2 > 1040:
+        pad = (width - 1040) // 2
+    gap = 6 if height < 440 else 10
+    cols = 2 if width - pad * 2 < 600 else 3
     rows = 6 // cols
-    tab_y = pad + 30 + gap
+    tab_y = top + 30 + gap
     tab_w = (width - 2 * pad - 2 * gap) // 3
     grid_y = tab_y + 44 + gap
-    footer_y = height - pad - 44
+    footer_y = height - top - 44
     cw = (width - 2 * pad - gap * (cols - 1)) // cols
-    ch = max(80, (footer_y - gap - grid_y - gap * (rows - 1)) // rows)
+    ch = max(80, min(220, (footer_y - gap - grid_y - gap * (rows - 1)) // rows))
     fw = (width - 2 * pad - 2 * gap) // 3
     return {
         'category': [(pad + i * (tab_w + gap), 56 + tab_y, tab_w, 44) for i in range(3)],

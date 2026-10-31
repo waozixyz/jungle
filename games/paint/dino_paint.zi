@@ -26,6 +26,7 @@
 #import, file "paint_picture.zi";
 #import, file "paint_document.zi";
 #import, file "paint_catalog.zi";
+#import, file "paint_picker_layout.zi";
 #import, file "paint_gallery_store.zi";
 #import "pointer_input"
 PictureIcon :: #import "mingcute/mingcute_regular_pic";
@@ -940,19 +941,9 @@ StencilPickerContent :: (l: StencilPickerLayout) {
 scene_picker_scroll: s32;
 scene_picker_page_scroll: s32;
 
-ScenePickerBounds :: (width: s32, height: s32) -> StencilPickerLayout {
-    l := StencilPickerBounds(width, height)
-    // Three scene categories remain visible together at phone widths.
-    l.tab_columns = PAINT_SCENE_CATEGORY_COUNT
-    l.tab_width = (width - l.padding * 2 - l.gap * (l.tab_columns - 1)) / l.tab_columns
-    l.grid_y = l.tab_y + 44 + l.gap
-    l.card_height = (l.footer_y - l.gap - l.grid_y - l.gap * (l.rows - 1)) / l.rows
-    return l
-}
-
-ScenePickerContent :: (l: StencilPickerLayout) {
+ScenePickerContent :: (l: ScenePickerLayout) {
     BookPaperSized(l.width, l.height)
-    BookText(l.padding, l.padding, l.width - l.padding * 2, 30, "Choose a scene", 20)
+    BookText(l.padding, l.top, l.width - l.padding * 2, 30, "Choose a scene", 20)
     for category: cast(s32)0..PAINT_SCENE_CATEGORY_COUNT - 1 {
         if StencilPickerButton(520 + category, l.padding + category * (l.tab_width + l.gap),
             l.tab_y, l.tab_width, PaintSceneCategoryLabel(category), scene_category == category) {
@@ -1024,13 +1015,13 @@ ScenePicker :: () {
         scene_picker_page_scroll = scrolled.scroll_offset
         if scrolled.opened {
             retro.y -= cast(float32)scene_picker_page_scroll
-            ScenePickerContent(ScenePickerBounds(width, 500))
+            ScenePickerContent(ScenePickerBounds(width, 500, PAINT_SCENE_CATEGORY_COUNT))
             retro.y = bounds.y
             unused End(retro.session)
         }
     } else {
         scene_picker_page_scroll = 0
-        ScenePickerContent(ScenePickerBounds(width, height))
+        ScenePickerContent(ScenePickerBounds(width, height, PAINT_SCENE_CATEGORY_COUNT))
     }
 }
 

@@ -161,15 +161,23 @@ DrumsBodyHit :: (pad: s32, x: s32, y: s32, width: s32, height: s32,
 // Room reference scenes, with objects hanging on the wall, resting on a
 // shelf, and standing at different depths on the floor. These are deliberately
 // separate compositions, rather than a row/grid reflow. Fit includes labels.
-DrumsLayout :: struct { left: s32; top: s32; fit: s32; wide: bool; room_top: s32; room_height: s32 }
+DrumsLayout :: struct { left: s32; top: s32; fit: s32; wide: bool; width: s32; room_top: s32; room_height: s32 }
 DrumsPlace :: struct { x: s32; y: s32; edge: s32 }
+DrumsRect :: struct { x: s32; y: s32; width: s32; height: s32 }
 
-DRUMS_PORTRAIT_X: [8]s32 = .[8, 156, 158, 30, 255, 155, 0, 298];
-DRUMS_PORTRAIT_Y: [8]s32 = .[340, 380, 42, 40, 455, 130, 150, 385];
+DRUMS_PORTRAIT_X: [8]s32 = .[8, 156, 125, 30, 255, 155, 0, 298];
+DRUMS_PORTRAIT_Y: [8]s32 = .[410, 380, 135, 110, 455, 130, 235, 385];
 DRUMS_PORTRAIT_EDGE: [8]s32 = .[160, 105, 55, 80, 125, 240, 180, 78];
 DRUMS_LANDSCAPE_X: [8]s32 = .[70, 270, 245, 65, 430, 560, 325, 680];
 DRUMS_LANDSCAPE_Y: [8]s32 = .[180, 230, 23, 17, 245, 58, 57, 260];
 DRUMS_LANDSCAPE_EDGE: [8]s32 = .[160, 104, 52, 78, 125, 235, 180, 78];
+
+DRUMS_ROOM_ART_SIZE: s32 = 1254;
+// Include the whole wooden window frame and sill, not just its upper panes.
+DRUMS_ROOM_WINDOW_X: s32 = 240;
+DRUMS_ROOM_WINDOW_Y: s32 = 60;
+DRUMS_ROOM_WINDOW_WIDTH: s32 = 780;
+DRUMS_ROOM_WINDOW_HEIGHT: s32 = 310;
 
 DrumsRoomLayout :: (width: s32, height: s32, copying: bool = false) -> DrumsLayout {
     wide := width > height
@@ -183,7 +191,32 @@ DrumsRoomLayout :: (width: s32, height: s32, copying: bool = false) -> DrumsLayo
     if fit < 0 { fit = 0 }
     return DrumsLayout.{.left = (width - scene_width * fit / 1000) / 2,
         .top = top + (available - scene_height * fit / 1000) / 2, .fit = fit, .wide = wide,
-        .room_top = top, .room_height = available}
+        .width = width, .room_top = top, .room_height = available}
+}
+
+// The square room art is covered by the taller or wider room box. Map the
+// painted window through that center crop rather than assuming a contain fit.
+DrumsRoomWindow :: (room: DrumsLayout) -> DrumsRect {
+    bounds_width := room.width - 18
+    bounds_height := room.room_height - 2
+    cover := ifx bounds_height > bounds_width then bounds_height else bounds_width
+    fit := cover * 1000 / DRUMS_ROOM_ART_SIZE
+    art_size := DRUMS_ROOM_ART_SIZE * fit / 1000
+    art_x := 9 + (bounds_width - art_size) / 2
+    art_y := room.room_top + 1 + (bounds_height - art_size) / 2
+    window := DrumsRect.{.x = art_x + DRUMS_ROOM_WINDOW_X * fit / 1000,
+        .y = art_y + DRUMS_ROOM_WINDOW_Y * fit / 1000,
+        .width = DRUMS_ROOM_WINDOW_WIDTH * fit / 1000,
+        .height = DRUMS_ROOM_WINDOW_HEIGHT * fit / 1000}
+    right := window.x + window.width
+    bottom := window.y + window.height
+    if window.x < 9 { window.x = 9 }
+    if window.y < room.room_top + 1 { window.y = room.room_top + 1 }
+    if right > room.width - 9 { right = room.width - 9 }
+    if bottom > room.room_top + room.room_height - 1 { bottom = room.room_top + room.room_height - 1 }
+    window.width = right - window.x; window.height = bottom - window.y
+    if window.width < 0 { window.width = 0 }; if window.height < 0 { window.height = 0 }
+    return window
 }
 
 // A short, damped horizontal shake keeps the floor contact height fixed.
@@ -199,8 +232,17 @@ DrumsRoomPlace :: (pad: s32, room: DrumsLayout) -> DrumsPlace {
     x := ifx room.wide then DRUMS_LANDSCAPE_X[pad] else DRUMS_PORTRAIT_X[pad]
     y := ifx room.wide then DRUMS_LANDSCAPE_Y[pad] else DRUMS_PORTRAIT_Y[pad]
     edge := ifx room.wide then DRUMS_LANDSCAPE_EDGE[pad] else DRUMS_PORTRAIT_EDGE[pad]
-    return DrumsPlace.{.x = room.left + x * room.fit / 1000,
+    placed := DrumsPlace.{.x = room.left + x * room.fit / 1000,
         .y = room.top + y * room.fit / 1000, .edge = edge * room.fit / 1000}
+    if !room.wide && (pad == 2 || pad == 3) {
+        window := DrumsRoomWindow(room)
+        base: s32 = ifx pad == 3 then 95 else 91
+        shelf_height := (placed.edge * 8 / 10 + 10) / 3
+        minimum := window.y + window.height + 12 + shelf_height * 140 / 724
+        shelf_y := placed.y + placed.edge * base / 100
+        if shelf_y < minimum { placed.y += minimum - shelf_y }
+    }
+    return placed
 }
 
 // Opaque cut-out bases: bell 1196/1254, shaker 1140/1254. A shelf

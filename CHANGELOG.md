@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.30
+
+Released 2026-10-31.
+
+- Add Desert Animals, Insects and People at Work picture books, each with six illustrated pages and clear narration in English, German and Spanish.
+- Fit the scene picker inside its book frame and add Village square and Treehouse clearing, giving Places and Adventures six scenes each.
+- Keep Music Room shelves below the window on small screens and lower the big drum.
+- Let children find fully hidden animals in natural house and yard hiding places, without previews or animal-name hints; keep baskets whole and animals between table legs.
+
 ## 0.1.29
 
 Released 2026-10-31.

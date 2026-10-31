@@ -31,7 +31,7 @@ class UniqueBookArtTest(unittest.TestCase):
         cls.ids = set(json.loads((ROOT/'tools/book_unique_expansion.json').read_text())['words'])
         cls.meta = {i: json.loads((ROOT/f'art/generated/book-unique-expansion/{i}.json').read_text()) for i in cls.ids}
     def test_exact_inventory_and_pages(self):
-        self.assertEqual(len(self.ids), 36)
+        self.assertEqual(len(self.ids), 54)
         self.assertEqual({p.stem for p in (ROOT/'art/generated/book-unique-expansion').glob('*.json')}, self.ids)
         for i, m in self.meta.items():
             with self.subTest(subject=i), Image.open(ROOT/m['page']) as im:
@@ -57,7 +57,7 @@ class UniqueBookArtTest(unittest.TestCase):
     def test_uniqueness_and_prompt_inventory(self):
         prompts=json.loads((ROOT/'tools/book_prompts.json').read_text())['pages']
         for field in ('source_sha256','page_sha256'):
-            self.assertEqual(len({m[field] for m in self.meta.values()}),36)
+            self.assertEqual(len({m[field] for m in self.meta.values()}),54)
         for i,m in self.meta.items():
             self.assertEqual(prompts[i],m['prompt'])
     def test_no_old_canonical_asset_overwrites(self):

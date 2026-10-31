@@ -272,3 +272,8 @@ install: all
 	mkdir -p '$(DATA_DIR)/metainfo'
 	install -m 0644 packaging/xyz.waozi.jungle.metainfo.xml '$(DATA_DIR)/metainfo/'
 	python3 tools/install_desktop.py '$(LIB_DIR)' '$(DATA_DIR)'
+
+.PHONY: test-paint-picker-layout
+test: test-paint-picker-layout
+test-paint-picker-layout: build/tests/paint_picker_layout
+	build/tests/paint_picker_layout

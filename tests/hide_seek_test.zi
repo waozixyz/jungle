@@ -2,224 +2,207 @@
 #import, file "../host/jungle_text.zi";
 #import, file "../retro/language.zi";
 
-// Distinct kinds of place and friends, a target among the places, and
-// nothing revealed or looked at yet.
-ValidRound :: (h: HideSeek, seed: s32) -> bool {
-    if h.places != HideSeekPlaces(h.mode, h.rounds, seed) || h.places < 2 || h.places > HIDE_MAX_PLACES { return false }
-    if h.target < 0 || h.target >= h.places { return false }
-    if h.preview != (h.mode == HIDE_REMEMBER) { return false }
+// The scene's own kinds of place, back to front, different friends, all but
+// one place hiding a friend, and nothing looked at, found or showing yet.
+ValidRound :: (h: HideSeek) -> bool {
+    if h.mode != HIDE_FIND || h.scene < 0 || h.scene >= HIDE_SCENES { return false }
+    if h.places != HideSeekPlaces(h.scene) || h.places < 2 || h.places > HIDE_SLOTS { return false }
+    if HideSeekFriends(h) != h.places - 1 || HideSeekFound(h) != 0 || HideSeekDone(h) { return false }
     for i: cast(s32)0..h.places - 1 {
-        if h.kinds[i] < 0 || h.kinds[i] >= HIDE_KINDS || h.animals[i] < 0 || h.animals[i] >= HIDE_ANIMALS { return false }
+        if h.kinds[i] != HideSeekSlotKind(h.scene, i) || h.animals[i] < 0 || h.animals[i] >= HIDE_ANIMALS { return false }
         if h.revealed[i] || h.looked[i] { return false }
+        // Completely hidden: no peek, preview or picture before a look.
+        if HideSeekPeek(h, i) != HIDE_NO_PEEK { return false }
         for j: cast(s32)0..i - 1 {
             if j < i && (h.kinds[j] == h.kinds[i] || h.animals[j] == h.animals[i]) { return false }
         }
     }
+    for i: h.places..HIDE_MAX_PLACES - 1 { if h.hides[i] || h.revealed[i] { return false } }
     return true
 }
 
-// Peekaboo and finding friends can be seen a little before any tap, so no
-// round is a blind guess; empty places never show a friend. Remembering
-// shows every friend in full first.
-Solvable :: (h: HideSeek) -> bool {
-    hiding: s32
-    for i: cast(s32)0..h.places - 1 {
-        expected := ifx HideSeekRemembering(h) then HIDE_SHOWN else HIDE_PEEK
-        if HideSeekHides(h, i) {
-            hiding += 1
-            if HideSeekPeek(h, i) != expected { return false }
-        } else if HideSeekPeek(h, i) != HIDE_NO_PEEK { return false }
-    }
-    return ifx HideSeekFinding(h) then hiding == 1 else hiding == h.places
+HasKind :: (scene: s32, kind: s32) -> bool {
+    for i: cast(s32)0..HideSeekPlaces(scene) - 1 { if HideSeekSlotKind(scene, i) == kind { return true } }
+    return false
+}
+
+// Reveal every hiding friend.
+FindAll :: (h: *HideSeek) {
+    for i: cast(s32)0..h.places - 1 { if h.hides[i] { unused HideSeekTap(h, i) } }
 }
 
 #program_export
 main :: () -> s32 {
-    // Deterministic, valid and solvable rounds for every level and many
-    // seeds; every kind of place, friend and target turns up.
-    for mode: cast(s32)0..HIDE_MODES - 1 {
-        kinds: [4]s32
-        targets: [4]s32
-        target_animals: [12]s32
-        animals: [12]s32
-        sizes: [5]s32
+    // Natural places per scene: outdoors a tree, bush and basket; the cozy
+    // house a table and basket; the farm a table, bush and basket.
+    if HideSeekPlaces(HIDE_COTTAGE_YARD) != 3 || HideSeekPlaces(HIDE_FENCED_GARDEN) != 3 { return 1 }
+    if HideSeekPlaces(HIDE_COZY_HOUSE) != 2 || HideSeekPlaces(HIDE_FARM_COURTYARD) != 3 || HideSeekPlaces(4) != 0 || HideSeekPlaces(-1) != 0 { return 1 }
+    for scene: cast(s32)0..1 {
+        if !HasKind(scene, HIDE_TREE) || !HasKind(scene, HIDE_BUSH) || !HasKind(scene, HIDE_BASKET) || HasKind(scene, HIDE_TABLE) { return 1 }
+    }
+    if !HasKind(HIDE_COZY_HOUSE, HIDE_TABLE) || !HasKind(HIDE_COZY_HOUSE, HIDE_BASKET) || HasKind(HIDE_COZY_HOUSE, HIDE_BUSH) || HasKind(HIDE_COZY_HOUSE, HIDE_TREE) { return 1 }
+    if !HasKind(HIDE_FARM_COURTYARD, HIDE_TABLE) || !HasKind(HIDE_FARM_COURTYARD, HIDE_BUSH) || !HasKind(HIDE_FARM_COURTYARD, HIDE_BASKET) || HasKind(HIDE_FARM_COURTYARD, HIDE_TREE) { return 1 }
+    if HideSeekSlotKind(HIDE_COZY_HOUSE, 2) != -1 || HideSeekSlotKind(9, 0) != -1 || HideSeekSlotKind(0, -1) != -1 { return 1 }
+
+    // Deterministic, valid rounds for every scene, earlier level and many
+    // seeds; every scene, friend, empty place and mirror turns up.
+    scenes: [4]s32
+    animals: [12]s32
+    empties: [12]s32
+    mirrors: [2]s32
+    unset: s32 = -1
+    for mode: unset..HIDE_MODES {
         for seed: cast(s32)0..299 {
-            for rounds: cast(s32)0..4 {
-                h := HideSeekNew(mode, seed * 7919 + 3, rounds)
-                if !ValidRound(h, seed * 7919 + 3) { return 1 }
-                if !Solvable(h) { return 2 }
-                // Preview end never makes any occupied place fully invisible.
-                hidden := h
-                HideSeekPreviewEnd(*hidden)
-                for place: cast(s32)0..hidden.places - 1 {
-                    expected := ifx HideSeekHides(hidden, place) then HIDE_PEEK else HIDE_NO_PEEK
-                    if HideSeekPeek(hidden, place) != expected { return 2 }
-                }
-                again := HideSeekNew(mode, seed * 7919 + 3, rounds)
-                if again.target != h.target || again.places != h.places { return 3 }
+            for scene: unset..HIDE_SCENES - 1 {
+                h := HideSeekNew(mode, seed * 7919 + 3, seed % 5, -1, 0, scene)
+                if !ValidRound(h) || (scene >= 0 && h.scene != scene) { return 2 }
+                again := HideSeekNew(mode, seed * 7919 + 3, seed % 5, -1, 0, scene)
+                if again.scene != h.scene || again.mirror != h.mirror || again.places != h.places { return 3 }
                 for i: cast(s32)0..h.places - 1 {
-                    if again.kinds[i] != h.kinds[i] || again.animals[i] != h.animals[i] { return 3 }
-                    kinds[h.kinds[i]] += 1; animals[h.animals[i]] += 1
+                    if again.animals[i] != h.animals[i] || again.hides[i] != h.hides[i] { return 3 }
+                    if h.hides[i] { animals[h.animals[i]] += 1 } else { empties[h.scene * HIDE_SLOTS + i] += 1 }
                 }
-                targets[h.kinds[h.target]] += 1; target_animals[h.animals[h.target]] += 1
-                sizes[h.places] += 1
+                scenes[h.scene] += 1
+                mirrors[ifx h.mirror then 1 else 0] += 1
             }
         }
-        for k: cast(s32)0..HIDE_KINDS - 1 { if kinds[k] == 0 || (mode != HIDE_PEEKABOO && targets[k] == 0) { return 4 } }
-        for a: cast(s32)0..HIDE_ANIMALS - 1 { if animals[a] == 0 || (mode == HIDE_REMEMBER && target_animals[a] == 0) { return 5 } }
-        // Peekaboo varies between a couple and three friends.
-        if mode == HIDE_PEEKABOO && (sizes[2] == 0 || sizes[3] == 0 || sizes[4] != 0) { return 6 }
-        if mode == HIDE_REMEMBER && sizes[4] != 1500 { return 6 }
     }
-    // Two places while finding is new, then three; remembering has four.
-    if HideSeekPlaces(HIDE_FIND, 0) != 2 || HideSeekPlaces(HIDE_FIND, HIDE_EASY_ROUNDS - 1) != 2 { return 6 }
-    if HideSeekPlaces(HIDE_FIND, HIDE_EASY_ROUNDS) != 3 || HideSeekPlaces(HIDE_REMEMBER, 0) != 4 { return 6 }
-    if HideSeekPlaces(HIDE_PEEKABOO, 0, 2) != 2 || HideSeekPlaces(HIDE_PEEKABOO, 0, 3) != 3 || HideSeekPlaces(HIDE_PEEKABOO, 0, -1) != 3 { return 6 }
-    // Bad arguments fall back to a fresh peekaboo round with bounded counts.
-    if HideSeekNew(-1, -5).mode != HIDE_PEEKABOO || !ValidRound(HideSeekNew(7, 2147483647), 2147483647) { return 7 }
-    if !ValidRound(HideSeekNew(HIDE_REMEMBER, -2147483647 - 1), -2147483647 - 1) { return 7 }
+    for s: cast(s32)0..HIDE_SCENES - 1 {
+        if scenes[s] == 0 { return 4 }
+        for i: cast(s32)0..HideSeekPlaces(s) - 1 { if empties[s * HIDE_SLOTS + i] == 0 { return 4 } }
+    }
+    for a: cast(s32)0..HIDE_ANIMALS - 1 { if animals[a] == 0 { return 5 } }
+    if mirrors[0] == 0 || mirrors[1] == 0 { return 5 }
+    // Bad arguments fall back to a fresh round with bounded counts.
+    if HideSeekNew(-1, -5).mode != HIDE_FIND || !ValidRound(HideSeekNew(7, 2147483647)) { return 7 }
+    if !ValidRound(HideSeekNew(HIDE_REMEMBER, -2147483647 - 1)) || !ValidRound(HideSeekNew(HIDE_PEEKABOO, 3, 0, -1, 0, 99)) { return 7 }
     if HideSeekNew(HIDE_FIND, 1, -3).rounds != 0 || HideSeekNew(HIDE_FIND, 1, HIDE_MAX_ROUNDS + 1).rounds != 0 { return 7 }
-    if HideSeekNew(HIDE_REMEMBER, 1, 0, -1, -4).remembered != 0 || HideSeekNew(HIDE_REMEMBER, 1, 0, -1, HIDE_MAX_ROUNDS + 1).remembered != 0 { return 7 }
-    if !ValidRound(HideSeekNew(HIDE_FIND, 5, 4, 99999), 5) || !ValidRound(HideSeekNew(HIDE_FIND, 5, 4, -7), 5) { return 7 }
+    if HideSeekNew(HIDE_FIND, 1, 0, -1, -4).remembered != 0 || HideSeekNew(HIDE_FIND, 1, 0, -1, HIDE_MAX_ROUNDS + 1).remembered != 0 { return 7 }
+    if !ValidRound(HideSeekNew(HIDE_FIND, 5, 4, 99999)) || !ValidRound(HideSeekNew(HIDE_FIND, 5, 4, -7)) || !ValidRound(HideSeekNew(HIDE_FIND, 5, 4, 4095)) { return 7 }
+    // Leaving out friends never leaves too few to hide.
+    for seed: cast(s32)0..99 {
+        some := HideSeekNew(HIDE_FIND, seed, 0, 0x0ff, 0, HIDE_FARM_COURTYARD)
+        if !ValidRound(some) { return 7 }
+        for i: cast(s32)0..some.places - 1 { if some.animals[i] < 8 { return 7 } }
+    }
 
-    // Finding: an empty place only turns the hint on, and the friend is
-    // found where the prompt says.
-    f := HideSeekNew(HIDE_FIND, 4242, 5)
-    if !HideSeekFinding(f) || f.places != 3 || HideSeekHint(f) || f.preview { return 10 }
-    empty := (f.target + 1) % f.places
-    if HideSeekTap(*f, -1) != HIDE_IGNORED || HideSeekTap(*f, f.places) != HIDE_IGNORED { return 11 }
-    if HideSeekTap(*f, empty) != HIDE_EMPTY || !f.looked[empty] || f.revealed[empty] { return 12 }
-    if !HideSeekHint(f) || HideSeekPeek(f, f.target) != HIDE_HINT || HideSeekPeek(f, empty) != HIDE_NO_PEEK { return 13 }
-    if HideSeekDone(f) || f.rounds != 5 { return 14 }
-    if HideSeekShowAgain(*f) || f.preview { return 14 }
-    if HideSeekTap(*f, f.target) != HIDE_REVEALED || !HideSeekDone(f) || f.rounds != 6 || f.remembered != 0 { return 15 }
-    if HideSeekPeek(f, f.target) != HIDE_SHOWN || HideSeekFound(f) != 1 { return 16 }
-    // Once found, empty places stay quiet and the friend can be tapped again.
-    if HideSeekTap(*f, empty) != HIDE_IGNORED || HideSeekTap(*f, f.target) != HIDE_AGAIN || f.rounds != 6 { return 17 }
-    // The spoken prompt names the target's place, asking and answering.
-    if HideSeekCue(HIDE_BASKET, true) != "look_in" || HideSeekCue(HIDE_BUSH, false) != "behind" { return 18 }
-    if HideSeekCue(HIDE_TABLE, true) != "look_under" || HideSeekCue(HIDE_TREE, false) != "up" || HideSeekCue(9, false) != "in" { return 18 }
-    if HideSeekCuePath(HideSeekCue(HIDE_TREE, true), "de") != "assets/hide_seek/sounds/de/look_up.wav" { return 18 }
-    if HideSeekNamePath(7, "es") != "assets/jungle-book/sounds/es/simple/hen.wav" || HideSeekNamePath(40, "en") != "assets/jungle-book/sounds/en/simple/frog.wav" { return 18 }
+    // Looking: an empty place shows and says nothing, a hiding friend is
+    // found and counted, and found friends can be tapped again.
+    f := HideSeekNew(HIDE_FIND, 4242, 5, -1, 3, HIDE_COTTAGE_YARD)
+    empty: s32 = -1
+    for i: cast(s32)0..f.places - 1 { if !f.hides[i] { empty = i } }
+    if empty < 0 || HideSeekFriends(f) != 2 { return 10 }
+    if HideSeekTap(*f, -1) != HIDE_IGNORED || HideSeekTap(*f, f.places) != HIDE_IGNORED || HideSeekTap(*f, 3) != HIDE_IGNORED { return 11 }
+    if HideSeekTap(*f, empty) != HIDE_EMPTY || !f.looked[empty] || f.revealed[empty] || f.rounds != 5 { return 12 }
+    if HideSeekTap(*f, empty) != HIDE_EMPTY || HideSeekPeek(f, empty) != HIDE_NO_PEEK || HideSeekFound(f) != 0 { return 12 }
+    // Looking somewhere empty never uncovers or hints at the others.
+    for i: cast(s32)0..f.places - 1 { if HideSeekPeek(f, i) != HIDE_NO_PEEK { return 13 } }
+    first := (empty + 1) % f.places
+    second := (empty + 2) % f.places
+    if HideSeekTap(*f, first) != HIDE_REVEALED || HideSeekPeek(f, first) != HIDE_SHOWN || f.rounds != 6 { return 14 }
+    if HideSeekPeek(f, second) != HIDE_NO_PEEK || HideSeekDone(f) || HideSeekFound(f) != 1 { return 14 }
+    if HideSeekTap(*f, first) != HIDE_AGAIN || f.rounds != 6 { return 15 }
+    if HideSeekTap(*f, second) != HIDE_REVEALED || !HideSeekDone(f) || f.rounds != 7 || f.remembered != 3 { return 16 }
+    // Once all are found, the empty place stays quiet.
+    if HideSeekTap(*f, empty) != HIDE_IGNORED || HideSeekTap(*f, second) != HIDE_AGAIN || f.rounds != 7 { return 17 }
+    // Found friends' places are answered, never their names.
+    if HideSeekCue(HIDE_BASKET) != "in" || HideSeekCue(HIDE_BUSH) != "behind" || HideSeekCue(HIDE_TABLE) != "under" { return 18 }
+    if HideSeekCue(HIDE_TREE) != "up" || HideSeekCue(9) != "in" || HideSeekCue(-1) != "in" { return 18 }
+    if HideSeekCuePath(HideSeekCue(HIDE_TREE), "de") != "assets/hide_seek/sounds/de/up.wav" { return 18 }
+    if HideSeekCuePath("peekaboo", "es") != "assets/hide_seek/sounds/es/peekaboo.wav" { return 18 }
 
-    // The next round keeps the level and friends found, hides somewhere
-    // new and brings another friend.
+    // The next round visits the next scene, keeps every count and brings
+    // other friends.
     for seed: cast(s32)0..199 {
         next := HideSeekNext(f, seed)
-        if next.mode != HIDE_FIND || next.rounds != 6 || !ValidRound(next, seed) || !Solvable(next) { return 20 }
-        if next.kinds[next.target] == f.kinds[f.target] { return 21 }
-        for i: cast(s32)0..next.places - 1 { if next.animals[i] == f.animals[f.target] { return 21 } }
+        if !ValidRound(next) || next.scene != (f.scene + 1) % HIDE_SCENES || next.rounds != 7 || next.remembered != 3 { return 20 }
+        for i: cast(s32)0..next.places - 1 {
+            for j: cast(s32)0..f.places - 1 { if f.hides[j] && next.animals[i] == f.animals[j] { return 21 } }
+        }
     }
-    // A third place joins after the first easy finds.
-    easy := HideSeekNew(HIDE_FIND, 77, 0)
-    for i: cast(s32)0..HIDE_EASY_ROUNDS - 1 {
-        if easy.places != 2 { return 22 }
-        if HideSeekTap(*easy, easy.target) != HIDE_REVEALED { return 22 }
-        easy = HideSeekNext(easy, i + 11)
+    tour := HideSeekNew(HIDE_FIND, 77, 0, -1, 0, HIDE_COTTAGE_YARD)
+    for i: cast(s32)0..7 {
+        if tour.scene != i % HIDE_SCENES || !ValidRound(tour) { return 22 }
+        FindAll(*tour)
+        tour = HideSeekNext(tour, i + 11)
     }
-    if easy.places != 3 || easy.rounds != HIDE_EASY_ROUNDS { return 23 }
+    if tour.rounds != 2 + 2 + 1 + 2 + 2 + 2 + 1 + 2 { return 23 }
 
-    // Peekaboo: every place hides a friend, found one by one, never counted.
-    p := HideSeekNew(HIDE_PEEKABOO, 9, 4)
-    if p.places != 3 || p.preview { return 30 }
-    for i: cast(s32)0..p.places - 1 {
-        if HideSeekDone(p) { return 30 }
-        if HideSeekTap(*p, i) != HIDE_REVEALED || HideSeekPeek(p, i) != HIDE_SHOWN { return 31 }
-    }
-    if !HideSeekDone(p) || HideSeekFound(p) != 3 || p.rounds != 4 || p.remembered != 0 || HideSeekHint(p) { return 32 }
-    if HideSeekTap(*p, 0) != HIDE_AGAIN || HideSeekShowAgain(*p) { return 33 }
-    for seed: cast(s32)0..99 {
-        fresh := HideSeekNext(p, seed)
-        if fresh.mode != HIDE_PEEKABOO || HideSeekFound(fresh) != 0 || !ValidRound(fresh, seed) { return 34 }
-        for i: cast(s32)0..fresh.places - 1 { if fresh.animals[i] == p.animals[0] { return 34 } }
-    }
-
-    // Remembering: the preview shows every friend and counts nothing.
-    r := HideSeekNew(HIDE_REMEMBER, 31337, 2, -1, 8)
-    if !HideSeekRemembering(r) || r.places != 4 || !r.preview || HideSeekDone(r) { return 40 }
-    for i: cast(s32)0..3 { if HideSeekPeek(r, i) != HIDE_SHOWN || !HideSeekHides(r, i) { return 40 } }
-    for i: cast(s32)0..3 { if HideSeekTap(*r, i) != HIDE_IGNORED { return 41 } }
-    if HideSeekFound(r) != 0 || HideSeekHint(r) || r.remembered != 8 || r.rounds != 2 { return 41 }
-    // Then every friend keeps a small peek; a wrong place strengthens the
-    // named friend's hint, never ending the round.
-    HideSeekPreviewEnd(*r)
-    for i: cast(s32)0..3 { if HideSeekPeek(r, i) != HIDE_PEEK { return 42 } }
-    other := (r.target + 2) % 4
-    if HideSeekTap(*r, other) != HIDE_OTHER || !r.looked[other] || r.revealed[other] || HideSeekDone(r) { return 43 }
-    if HideSeekPeek(r, other) != HIDE_PEEK || HideSeekPeek(r, r.target) != HIDE_HINT || HideSeekPeek(r, (r.target + 1) % 4) != HIDE_PEEK { return 43 }
-    if HideSeekTap(*r, other) != HIDE_OTHER || r.remembered != 8 { return 43 }
-    // Showing again keeps the answers and hint, and taps wait meanwhile.
-    if !HideSeekShowAgain(*r) || !r.preview || !r.looked[other] || r.remembered != 8 { return 44 }
-    if HideSeekTap(*r, r.target) != HIDE_IGNORED || HideSeekPeek(r, (r.target + 1) % 4) != HIDE_SHOWN { return 44 }
-    HideSeekPreviewEnd(*r)
-    if HideSeekPeek(r, r.target) != HIDE_HINT { return 44 }
-    if HideSeekTap(*r, r.target) != HIDE_REVEALED || !HideSeekDone(r) || r.remembered != 9 || r.rounds != 2 { return 45 }
-    if HideSeekShowAgain(*r) || r.preview || HideSeekTap(*r, (r.target + 1) % 4) != HIDE_IGNORED { return 46 }
-    if HideSeekTap(*r, r.target) != HIDE_AGAIN || r.remembered != 9 { return 46 }
-    // The next one names another friend and keeps every count.
-    for seed: cast(s32)0..199 {
-        next := HideSeekNext(r, seed)
-        if !ValidRound(next, seed) || !next.preview || next.remembered != 9 || next.rounds != 2 { return 47 }
-        if next.animals[next.target] == r.animals[r.target] || next.kinds[next.target] == r.kinds[r.target] { return 47 }
-    }
-    // Changing level keeps both counts.
-    moved := HideSeekLevel(r, HIDE_FIND, 3)
-    if moved.mode != HIDE_FIND || moved.rounds != 2 || moved.remembered != 9 || moved.places != 2 || moved.preview { return 48 }
-    if HideSeekLevel(moved, HIDE_REMEMBER, 4).remembered != 9 { return 48 }
-
-    // Only a completed round may advance, once its gentle celebration ends.
-    // The manual Next API remains on the selected mode, even after success.
-    incomplete := HideSeekNew(HIDE_PEEKABOO, 17, 6, -1, 9)
-    if HideSeekAdvanceReady(incomplete, 200.0) || HideSeekAdvance(incomplete, 80).animals[0] != incomplete.animals[0] { return 70 }
-    for i: cast(s32)0..incomplete.places - 1 { unused HideSeekTap(*incomplete, i) }
+    // Only a completed round advances, once its gentle celebration ends.
+    incomplete := HideSeekNew(HIDE_FIND, 17, 6, -1, 9, HIDE_FARM_COURTYARD)
+    if HideSeekAdvanceReady(incomplete, 200.0) || HideSeekAdvance(incomplete, 80).scene != incomplete.scene { return 70 }
+    if HideSeekAdvance(incomplete, 80).animals[0] != incomplete.animals[0] { return 70 }
+    FindAll(*incomplete)
     if !HideSeekDone(incomplete) || HideSeekAdvanceReady(incomplete, -1.0) || HideSeekAdvanceReady(incomplete, 2.499) { return 71 }
     if !HideSeekAdvanceReady(incomplete, 2.5) || !HideSeekAdvanceReady(incomplete, 100.0) { return 71 }
     advanced := HideSeekAdvance(incomplete, 81)
-    if advanced.mode != HIDE_FIND || advanced.rounds != 6 || advanced.remembered != 9 || HideSeekDone(advanced) { return 72 }
-    if HideSeekAdvanceReady(advanced, 100.0) || HideSeekNext(incomplete, 82).mode != HIDE_PEEKABOO { return 72 }
-    unused HideSeekTap(*advanced, advanced.target)
-    advanced = HideSeekAdvance(advanced, 83)
-    if advanced.mode != HIDE_REMEMBER || advanced.rounds != 7 || advanced.remembered != 9 || !advanced.preview { return 73 }
-    HideSeekPreviewEnd(*advanced)
-    unused HideSeekTap(*advanced, advanced.target)
-    advanced = HideSeekAdvance(advanced, 84)
-    if advanced.mode != HIDE_REMEMBER || advanced.rounds != 7 || advanced.remembered != 10 || !advanced.preview { return 74 }
-    if HideSeekDone(advanced) || HideSeekAdvanceReady(advanced, 100.0) { return 74 }
-    // Preview-held Enter and round-held touch stay blocked until release;
-    // a fresh activation outside a preview remains usable.
-    guard := HideSeekInputGuard(false, true, false, false, true)
-    if !guard || !HideSeekInputGuard(guard, false, false, false, true) { return 77 }
-    if HideSeekInputGuard(guard, false, false, false, false) { return 77 }
-    guard = HideSeekInputGuard(false, true, true, false, false)
-    if !guard || !HideSeekInputGuard(guard, false, false, true, false) { return 78 }
-    if HideSeekInputGuard(guard, false, false, false, false) { return 78 }
-    if HideSeekInputGuard(false, false, true, false, false) || HideSeekInputGuard(false, false, false, false, true) { return 79 }
-    // Geometry is bounded, has real depth, and does not depend on visibility.
-    widths: [2]s32 = .[376, 893]; heights: [2]s32 = .[505, 346]
-    for orientation: cast(s32)0..1 {
-        for count: cast(s32)2..4 {
-            last_ground: s32
-            for place: cast(s32)0..count - 1 {
-                at := HideSeekSceneLayout(widths[orientation], heights[orientation], count, place)
-                if at.size <= 0 || at.x < 0 || at.y < 0 || at.x + at.width > widths[orientation] { return 75 }
-                if at.ground > heights[orientation] || at.y + at.height > heights[orientation] || at.ground - at.size * 145 / 100 < 0 { return 75 }
-                if at.cx <= at.x || at.cx >= at.x + at.width { return 75 }
-                if place > 0 && at.ground == last_ground && count == 2 { return 76 }
-                last_ground = at.ground
-                for kind: cast(s32)0..HIDE_KINDS - 1 {
+    if advanced.mode != HIDE_FIND || advanced.scene != HIDE_COTTAGE_YARD || advanced.rounds != 8 || advanced.remembered != 9 { return 72 }
+    if !ValidRound(advanced) || HideSeekAdvanceReady(advanced, 100.0) { return 72 }
+    // A held touch or Enter stays blocked until release; a fresh one works.
+    guard := HideSeekInputGuard(true, false, false, true)
+    if !guard || !HideSeekInputGuard(guard, false, false, true) || HideSeekInputGuard(guard, false, false, false) { return 77 }
+    guard = HideSeekInputGuard(true, true, false, false)
+    if !guard || !HideSeekInputGuard(guard, false, true, false) || HideSeekInputGuard(guard, false, false, false) { return 78 }
+    if HideSeekInputGuard(false, true, false, false) || HideSeekInputGuard(false, false, false, true) || HideSeekInputGuard(false, false, true, false) { return 79 }
+
+    // Geometry for every scene at real stage sizes, mirrored or not: bounded,
+    // back to front with varied depths, separate taps, and every friend in a
+    // believable spot of the unchanged prop.
+    widths: [6]s32 = .[376, 893, 320, 1240, 520, 700]; heights: [6]s32 = .[505, 346, 640, 420, 700, 520]
+    for size_at: cast(s32)0..5 {
+        width := widths[size_at]; height := heights[size_at]
+        for scene: cast(s32)0..HIDE_SCENES - 1 {
+            for flip: cast(s32)0..1 {
+                count := HideSeekPlaces(scene)
+                last_ground: s32 = -1
+                for place: cast(s32)0..count - 1 {
+                    at := HideSeekSceneLayout(width, height, count, place, scene, flip == 1)
+                    if at.kind != HideSeekSlotKind(scene, place) || at.size <= 0 { return 75 }
+                    if at.x < 0 || at.y < 0 || at.x + at.width > width || at.ground > height { return 75 }
+                    if at.width <= 0 || at.height <= 0 || at.y + at.height != at.ground { return 75 }
+                    if at.cx <= at.x || at.cx >= at.x + at.width { return 75 }
+                    // Nearer props stand lower; no uniform grid of grounds.
+                    if at.ground <= last_ground + height / 40 { return 76 }
+                    last_ground = at.ground
+                    for other: cast(s32)0..place - 1 {
+                        b := HideSeekSceneLayout(width, height, count, other, scene, flip == 1)
+                        if at.x < b.x + b.width && b.x < at.x + at.width && at.y < b.y + b.height && b.y < at.y + at.height { return 76 }
+                    }
                     for animal: cast(s32)0..HIDE_ANIMALS - 1 {
-                        closed := HideSeekArtLayout(kind, at.cx, at.ground, at.size, 0.0, animal)
+                        closed := HideSeekArtLayout(at.kind, at.cx, at.ground, at.size, 0.0, animal, at.toward)
                         for frame: cast(s32)0..4 {
-                            art := HideSeekArtLayout(kind, at.cx, at.ground, at.size, cast(float32)frame / 4.0, animal)
-                            if art.edge != closed.edge || art.x != closed.x || art.y != closed.y { return 80 }
+                            art := HideSeekArtLayout(at.kind, at.cx, at.ground, at.size, cast(float32)frame / 4.0, animal, at.toward)
+                            if art.edge != closed.edge || art.x != closed.x || art.y != closed.y || art.behind != closed.behind { return 80 }
                             if art.animal_edge != closed.animal_edge || art.animal_base != closed.animal_base { return 80 }
-                            if art.x < 0 || art.y < 0 || art.x + art.edge > widths[orientation] { return 81 }
-                            if art.y + art.edge * hide_prop_bases[kind] / HIDE_PROP_PIXELS != at.ground { return 81 }
+                            if art.x < 0 || art.y + art.edge * hide_prop_tops[at.kind] / HIDE_PROP_PIXELS < 0 || art.x + art.edge > width { return 81 }
+                            if art.y + art.edge * hide_prop_bases[at.kind] / HIDE_PROP_PIXELS != at.ground { return 81 }
                             // Feet stay planted, regardless of padding or tails.
                             top := art.animal_base - art.animal_edge * hide_animal_feet[animal] / 420
-                            if top < 0 || top + art.animal_edge > heights[orientation] { return 82 }
-                            if art.animal_cx - art.animal_edge / 2 < 0 || art.animal_cx + art.animal_edge / 2 > widths[orientation] { return 82 }
+                            if top < 0 || top + art.animal_edge > height || art.animal_edge <= 0 { return 82 }
+                            if art.animal_cx - art.animal_edge / 2 < 0 || art.animal_cx + art.animal_edge / 2 > width { return 82 }
                             if top + art.animal_edge * hide_animal_feet[animal] / 420 != art.animal_base { return 82 }
+                            px := (art.animal_cx - art.x) * HIDE_PROP_PIXELS / art.edge
+                            left := (art.animal_cx - art.animal_edge / 2 - art.x) * HIDE_PROP_PIXELS / art.edge
+                            right := (art.animal_cx + art.animal_edge / 2 - art.x) * HIDE_PROP_PIXELS / art.edge
+                            feet := (art.animal_base - art.y) * HIDE_PROP_PIXELS / art.edge
+                            head := (top - art.y) * HIDE_PROP_PIXELS / art.edge
+                            if at.kind == HIDE_TABLE {
+                                // Between the front legs, below the cloth's
+                                // hem, standing between back and front feet.
+                                if !art.behind || left < 262 || right > 994 || head < 715 || feet <= 880 || feet >= 1038 { return 83 }
+                            } else if at.kind == HIDE_BASKET {
+                                // Inside the whole basket, rising above its
+                                // back rim without a cropped front.
+                                if !art.behind || left < 36 || right > 1229 || feet <= 376 || feet >= 1085 || head >= 376 { return 84 }
+                                if px < 560 || px > 700 { return 84 }
+                            } else if at.kind == HIDE_BUSH {
+                                // Behind the bush, stepping out past its side.
+                                if !art.behind || art.animal_base != at.ground || px > 300 && px < 954 { return 85 }
+                                if (art.animal_cx - at.cx) * (width / 2 - at.cx) <= 0 || at.toward * (width / 2 - at.cx) < 0 { return 85 }
+                            } else {
+                                // Sitting in front on the low left branch.
+                                if art.behind || feet < 625 || feet > 650 || px < 200 || px > 270 { return 86 }
+                            }
                         }
                     }
                 }
@@ -230,25 +213,41 @@ main :: () -> s32 {
     // Small geometry receipts let the Python real-asset pixel test use the
     // actual native layout, rather than maintaining a second implementation.
     for orientation: cast(s32)0..1 {
-        at := HideSeekSceneLayout(widths[orientation], heights[orientation], 4, 0)
+        at := HideSeekSceneLayout(widths[orientation], heights[orientation], 3, 0, HIDE_COTTAGE_YARD)
         for kind: cast(s32)0..HIDE_KINDS - 1 {
             for frame: cast(s32)0..4 {
                 for animal: cast(s32)0..HIDE_ANIMALS - 1 {
-                    art := HideSeekArtLayout(kind, at.cx, at.ground, at.size, cast(float32)frame / 4.0, animal)
-                    print("hide-art % % % % % % % % % % % % % %\n", widths[orientation], heights[orientation], kind, frame, animal,
-                        art.x, art.y, art.edge, art.animal_cx, art.animal_base, art.animal_edge, art.front, art.front_x, art.front_right)
+                    art := HideSeekArtLayout(kind, at.cx, at.ground, at.size, cast(float32)frame / 4.0, animal, at.toward)
+                    print("hide-art % % % % % % % % % % % %\n", widths[orientation], heights[orientation], kind, frame, animal,
+                        art.x, art.y, art.edge, art.animal_cx, art.animal_base, art.animal_edge, ifx art.behind then 1 else 0)
+                }
+            }
+        }
+        for scene: cast(s32)0..HIDE_SCENES - 1 {
+            for flip: cast(s32)0..1 {
+                for place: cast(s32)0..HideSeekPlaces(scene) - 1 {
+                    p := HideSeekSceneLayout(widths[orientation], heights[orientation], 3, place, scene, flip == 1)
+                    animal := (scene * HIDE_SLOTS + place + flip * 5) % HIDE_ANIMALS
+                    art := HideSeekArtLayout(p.kind, p.cx, p.ground, p.size, 1.0, animal, p.toward)
+                    print("hide-place % % % % % % % % % % % % % % % % % % % % %\n", widths[orientation], heights[orientation], scene, flip, place,
+                        p.kind, p.cx, p.ground, p.size, p.x, p.y, p.width, p.height, animal,
+                        art.x, art.y, art.edge, art.animal_cx, art.animal_base, art.animal_edge, ifx art.behind then 1 else 0)
                 }
             }
         }
     }
 
-    // Saves keep only the level and friends found, read the earlier
-    // two-mode saves, and refuse damage.
+    // Saves keep only the counts. Earlier saves, from any of the three
+    // levels, still read, and damage is refused.
     mode: s32 = -1; rounds: s32 = -1; remembered: s32 = -1
-    if HideSeekText(f) != "hideseek 2 1 6 0\n" || HideSeekText(r) != "hideseek 2 2 2 9\n" { return 50 }
-    if !HideSeekRead(HideSeekText(r), *mode, *rounds, *remembered) || mode != HIDE_REMEMBER || rounds != 2 || remembered != 9 { return 51 }
+    if HideSeekText(f) != "hideseek 2 1 7 3\n" || HideSeekText(advanced) != "hideseek 2 1 8 9\n" { return 50 }
+    if !HideSeekRead(HideSeekText(f), *mode, *rounds, *remembered) || mode != HIDE_FIND || rounds != 7 || remembered != 3 { return 51 }
+    if !HideSeekRead("hideseek 2 2 2 9\n", *mode, *rounds, *remembered) || mode != HIDE_REMEMBER || rounds != 2 || remembered != 9 { return 51 }
+    loaded := HideSeekNew(mode, 12, rounds, -1, remembered)
+    if !ValidRound(loaded) || loaded.rounds != 2 || loaded.remembered != 9 || HideSeekText(loaded) != "hideseek 2 1 2 9\n" { return 51 }
     if !HideSeekRead("hideseek 1 1 6\n", *mode, *rounds, *remembered) || mode != HIDE_FIND || rounds != 6 || remembered != 0 { return 52 }
     if !HideSeekRead("hideseek 1 0 0", *mode, *rounds, *remembered) || mode != 0 || rounds != 0 { return 52 }
+    if HideSeekText(HideSeekNew(mode, 3, rounds, -1, remembered)) != "hideseek 2 1 0 0\n" { return 52 }
     if !HideSeekRead("hideseek 2 0 100000 100000", *mode, *rounds, *remembered) || rounds != HIDE_MAX_ROUNDS || remembered != HIDE_MAX_ROUNDS { return 52 }
     bad: [22]string = .["", "hideseek 1 ", "hideseek 3 1 6 0\n", "hideseek 1 2 0\n", "hideseek 1 1\n", "hideseek 1 1 x\n",
         "hideseek 1 1 6 7\n", "hideseek 1 1 100001\n", "hideseek 1 -1 0\n", "hideseek 1 1 6\n\n", "matching 1 0 0 4", "hideseek 1 1  6\n",
@@ -261,13 +260,10 @@ main :: () -> s32 {
 
     // Every word shown has its German and Spanish wording.
     language = 1
-    if HideSeekLookWords(HIDE_BUSH) != "Schau hinter den Busch!" || HideSeekPlaceWords(HIDE_TREE) != "Oben im Baum!" { return 60 }
-    if HideSeekLevelWords(HIDE_REMEMBER) != "Merken" || HideSeekWhereWords(1) != "Wo ist das Kaninchen?" { return 60 }
+    if HideSeekPlaceWords(HIDE_BUSH) != "Hinter dem Busch!" || HideSeekPlaceWords(HIDE_TREE) != "Oben im Baum!" { return 60 }
     language = 2
-    if HideSeekLookWords(HIDE_TABLE) != "¡Mira debajo de la mesa!" || HideSeekPlaceWords(HIDE_BASKET) != "¡En la cesta!" { return 61 }
-    if HideSeekLevelWords(HIDE_FIND) != "Buscar" || HideSeekWhereWords(7) != "¿Dónde está la gallina?" { return 61 }
+    if HideSeekPlaceWords(HIDE_TABLE) != "¡Debajo de la mesa!" || HideSeekPlaceWords(HIDE_BASKET) != "¡En la cesta!" { return 61 }
     language = 0
-    if HideSeekPlaceWords(HIDE_TABLE) != "Under the table!" || HideSeekAnimalName(f, 99) != hide_animals[f.animals[0]] { return 62 }
-    if HideSeekLevelWords(-3) != "Peekaboo" || HideSeekWhereWords(99) != "Where is the frog?" { return 62 }
+    if HideSeekPlaceWords(HIDE_TABLE) != "Under the table!" || HideSeekKind(f, 99) != f.kinds[0] { return 62 }
     return 0
 }

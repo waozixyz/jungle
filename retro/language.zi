@@ -9,7 +9,7 @@ LanguageCode :: () -> string {
 LanguageSet :: (code: string) {
     language = ifx code == "de" then 1 else ifx code == "es" then 2 else 0
 }
-UI_COUNT :: 368
+UI_COUNT :: 371
 ui_en_0: [48]string = .[
     "Picture Book",
     "Animal Counting",
@@ -173,6 +173,9 @@ ui_en_144: [48]string = .[
     "Elephant",
     "Lion",
     "Doctor",
+    "Desert Animals",
+    "Insects",
+    "People at Work",
     "Firefighter",
     "Cook",
     "Crate",
@@ -206,11 +209,11 @@ ui_en_144: [48]string = .[
     "Hear letter",
     "Next example",
     "Tap to listen",
+];
+ui_en_192: [48]string = .[
     "Play",
     "Pause",
     "Try another letter",
-];
-ui_en_192: [48]string = .[
     "Hear number",
     "Speed",
     "Slow",
@@ -256,11 +259,11 @@ ui_en_192: [48]string = .[
     "Puzzle piece",
     "Puzzle table",
     "Beautifully done!",
+];
+ui_en_240: [48]string = .[
     "A lovely picture, piece by piece",
     "Play again",
     "Pictures",
-];
-ui_en_240: [48]string = .[
     "Peek",
     "All pieces",
     "Edge pieces",
@@ -306,11 +309,11 @@ ui_en_240: [48]string = .[
     "One flies up into the sky",
     "All the others follow",
     "All my little chickens",
+];
+ui_en_288: [48]string = .[
     "Scratching in the straw",
     "When they find a little grain",
     "They are all happy",
-];
-ui_en_288: [48]string = .[
     "All my little goslings",
     "Waddling across the ground",
     "Searching in the puddle",
@@ -356,11 +359,11 @@ ui_en_288: [48]string = .[
     "Water Animals",
     "Drinks",
     "New picture",
+];
+ui_en_336: [35]string = .[
     "Tap an object to erase",
     "Picture is full. Erase an object first",
     "How many together?",
-];
-ui_en_336: [32]string = .[
     "How many stay?",
     "Count",
     "Add · to 5",
@@ -557,6 +560,9 @@ ui_de_144: [48]string = .[
     "Elefant",
     "Löwe",
     "Ärztin",
+    "Wüstentiere",
+    "Insekten",
+    "Menschen bei der Arbeit",
     "Feuerwehrmann",
     "Köchin",
     "Kiste",
@@ -590,11 +596,11 @@ ui_de_144: [48]string = .[
     "Buchstabe hören",
     "Nächstes Beispiel",
     "Antippen zum Hören",
+];
+ui_de_192: [48]string = .[
     "Start",
     "Pause",
     "Wähle einen anderen Buchstaben",
-];
-ui_de_192: [48]string = .[
     "Zahl hören",
     "Tempo",
     "Langsam",
@@ -640,11 +646,11 @@ ui_de_192: [48]string = .[
     "Puzzleteil",
     "Puzzletisch",
     "Wunderbar gemacht!",
+];
+ui_de_240: [48]string = .[
     "Ein schönes Bild, Teil für Teil",
     "Noch einmal",
     "Bilder",
-];
-ui_de_240: [48]string = .[
     "Nachsehen",
     "Alle Teile",
     "Randteile",
@@ -690,11 +696,11 @@ ui_de_240: [48]string = .[
     "Fliegt eins in die Lüfte",
     "Fliegen alle nach",
     "Alle meine Hühnchen",
+];
+ui_de_288: [48]string = .[
     "Scharren in dem Stroh",
     "Finden sie ein Körnchen",
     "Sind sie alle froh",
-];
-ui_de_288: [48]string = .[
     "Alle meine Gänschen",
     "Watscheln durch den Grund",
     "Suchen in dem Tümpel",
@@ -740,11 +746,11 @@ ui_de_288: [48]string = .[
     "Wassertiere",
     "Getränke",
     "Neues Bild",
+];
+ui_de_336: [35]string = .[
     "Tippe auf ein Objekt zum Löschen",
     "Das Bild ist voll. Lösche zuerst ein Objekt",
     "Wie viele zusammen?",
-];
-ui_de_336: [32]string = .[
     "Wie viele bleiben?",
     "Zählen",
     "Plus · bis 5",
@@ -941,6 +947,9 @@ ui_es_144: [48]string = .[
     "Elefante",
     "León",
     "Doctora",
+    "Animales del desierto",
+    "Insectos",
+    "Personas en el trabajo",
     "Bombero",
     "Cocinera",
     "Caja",
@@ -974,11 +983,11 @@ ui_es_144: [48]string = .[
     "Escuchar letra",
     "Siguiente ejemplo",
     "Toca para escuchar",
+];
+ui_es_192: [48]string = .[
     "Reproducir",
     "Pausa",
     "Elige otra letra",
-];
-ui_es_192: [48]string = .[
     "Escuchar número",
     "Velocidad",
     "Lento",
@@ -1024,11 +1033,11 @@ ui_es_192: [48]string = .[
     "Pieza",
     "Mesa de rompecabezas",
     "¡Qué bien lo has hecho!",
+];
+ui_es_240: [48]string = .[
     "Una bella imagen, pieza a pieza",
     "Jugar otra vez",
     "Imágenes",
-];
-ui_es_240: [48]string = .[
     "Mirar",
     "Todas las piezas",
     "Piezas del borde",
@@ -1074,11 +1083,11 @@ ui_es_240: [48]string = .[
     "Una vuela hacia el cielo",
     "Las demás la siguen",
     "Todos mis pollitos",
+];
+ui_es_288: [48]string = .[
     "Escarban en la paja",
     "Cuando encuentran un granito",
     "Todos están contentos",
-];
-ui_es_288: [48]string = .[
     "Todos mis gansitos",
     "Caminan por el campo",
     "Buscan en el charco",
@@ -1124,11 +1133,11 @@ ui_es_288: [48]string = .[
     "Animales acuáticos",
     "Bebidas",
     "Dibujo nuevo",
+];
+ui_es_336: [35]string = .[
     "Toca un objeto para borrarlo",
     "El dibujo está lleno. Borra un objeto primero",
     "¿Cuántos en total?",
-];
-ui_es_336: [32]string = .[
     "¿Cuántos quedan?",
     "Contar",
     "Sumar · hasta 5",
@@ -1170,7 +1179,7 @@ Ui_en :: (at: s32) -> string {
     if at < 240 { return ui_en_192[at - 192] }
     if at < 288 { return ui_en_240[at - 240] }
     if at < 336 { return ui_en_288[at - 288] }
-    if at < 368 { return ui_en_336[at - 336] }
+    if at < 371 { return ui_en_336[at - 336] }
     return ""
 }
 Ui_de :: (at: s32) -> string {
@@ -1181,7 +1190,7 @@ Ui_de :: (at: s32) -> string {
     if at < 240 { return ui_de_192[at - 192] }
     if at < 288 { return ui_de_240[at - 240] }
     if at < 336 { return ui_de_288[at - 288] }
-    if at < 368 { return ui_de_336[at - 336] }
+    if at < 371 { return ui_de_336[at - 336] }
     return ""
 }
 Ui_es :: (at: s32) -> string {
@@ -1192,7 +1201,7 @@ Ui_es :: (at: s32) -> string {
     if at < 240 { return ui_es_192[at - 192] }
     if at < 288 { return ui_es_240[at - 240] }
     if at < 336 { return ui_es_288[at - 288] }
-    if at < 368 { return ui_es_336[at - 336] }
+    if at < 371 { return ui_es_336[at - 336] }
     return ""
 }
 Tr :: (text: string) -> string {

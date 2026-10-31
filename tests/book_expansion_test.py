@@ -22,6 +22,7 @@ OLD_IDS = ('jungle', 'garden', 'fruits', 'farm', 'kitchen', 'bathroom',
            'beach', 'weather', 'feelings')
 NEW_IDS = ('tropical-fruits', 'gardening', 'school', 'water-animals', 'drinks')
 ADDED_IDS = ('actions',)
+LATEST_IDS = ('desert-animals', 'insects', 'people-at-work')
 REUSED = {'mango', 'banana', 'coconut', 'pineapple', 'flower', 'book',
           'backpack', 'duck', 'frog', 'water', 'milk'}
 # Aggregate of established sources, including the approved natural-voice refresh.
@@ -40,7 +41,8 @@ def digest(path):
 
 def protected(name):
     return (name.startswith(('assets/jungle-book/', 'assets/abc/'))
-            and name not in {f'assets/jungle-book/previews/{book}.jpg' for book in NEW_COVERS})
+            and name not in ({f'assets/jungle-book/previews/{book}.jpg' for book in NEW_COVERS}
+                             | {f'assets/jungle-book/previews/{book}.jpg' for book in LATEST_IDS}))
 
 
 def fingerprint_rows(path):
@@ -59,13 +61,15 @@ class LearningBookTest(unittest.TestCase):
     def test_catalog_and_stable_slots(self):
         catalog = BuildUniqueBookCatalog()
         self.assertEqual(catalog['books'], BOOKS)
-        self.assertEqual(tuple(c for c, _ in BOOKS), OLD_IDS + NEW_IDS + ADDED_IDS)
-        self.assertEqual((len(NAMES), len(set(NAMES)), len(PAGE_NAMES)), (284, 284, 284))
+        self.assertEqual(tuple(c for c, _ in BOOKS), OLD_IDS + NEW_IDS + ADDED_IDS + LATEST_IDS)
+        self.assertEqual((len(NAMES), len(set(NAMES)), len(PAGE_NAMES)), (302, 302, 302))
         self.assertEqual(len(LEARNING['words']), 37)
         groups = dict(BOOK_GROUPS)
-        self.assertEqual(groups['Family'], ('family', 'body', 'clothing', 'sports', 'feelings', 'actions'))
+        self.assertEqual(groups['Family'], ('family', 'body', 'clothing', 'sports', 'feelings', 'actions', 'people-at-work'))
         self.assertIn('gardening', groups['Nature'])
         self.assertIn('water-animals', groups['Animals'])
+        self.assertIn('desert-animals', groups['Animals'])
+        self.assertIn('insects', groups['Nature'])
         self.assertFalse(set(groups['Nature']) & set(groups['Animals']))
         self.assertTrue({'tropical-fruits', 'drinks'} <= set(groups['Food']))
         self.assertIn('school', groups['Home'])
@@ -76,7 +80,7 @@ class LearningBookTest(unittest.TestCase):
         self.assertEqual(shared, REUSED)
         pages = (ROOT / 'games/book/book_pages.zi').read_text()
         voices = (ROOT / 'games/book/book_voice.zi').read_text()
-        self.assertIn('CATEGORY_COUNT :: 32', pages)
+        self.assertIn('CATEGORY_COUNT :: 35', pages)
         # The learning books once reused these words; each now has one home page.
         for name in REUSED:
             self.assertEqual(PAGE_NAMES.count(name), 1)
@@ -125,7 +129,8 @@ class LearningBookTest(unittest.TestCase):
             self.assertFalse((ROOT / f'assets/jungle-book/items/{name}.png').exists())
             with Image.open(scene) as im:
                 self.assertEqual((im.size, im.mode, im.format), ((1254, 1254), 'RGB', 'JPEG'))
-        for category, first in {**NEW_COVERS, 'actions': 'cooking'}.items():
+        for category, first in {**NEW_COVERS, 'actions': 'cooking', 'desert-animals': 'camel',
+                                'insects': 'beetle', 'people-at-work': 'firefighter'}.items():
             self.assertEqual(dict(BOOKS)[category][0], first)
             with Image.open(ROOT / f'assets/jungle-book/pages/{first}.jpg') as scene:
                 expected = io.BytesIO()
@@ -133,7 +138,7 @@ class LearningBookTest(unittest.TestCase):
             self.assertEqual((ROOT / f'assets/jungle-book/previews/{category}.jpg').read_bytes(), expected.getvalue())
         letter = json.loads((ROOT / (NEW_LETTER + '.speech.json')).read_text())
         self.assertEqual(letter['text'], 'u con diéresis.')
-        self.assertEqual(self.check_spelling(UNIQUE['words']), 108)
+        self.assertEqual(self.check_spelling(UNIQUE['words']), 162)
         self.assertEqual(self.check_spelling(UNIQUE['voice_stems'], ('de',)), 1)
 
     def check_spelling(self, names, languages=LANGUAGES):
@@ -172,7 +177,7 @@ class LearningBookTest(unittest.TestCase):
     def test_original_assets_unchanged(self):
         # Exclude only explicitly new filenames. Any changed/missing old file or
         # unexpected extra asset changes this durable aggregate, even after commit.
-        new_stems = (set(LEARNING['words']) | set(UNIQUE['words']) | set(NEW_IDS) | set(ADDED_IDS)
+        new_stems = (set(LEARNING['words']) | set(UNIQUE['words']) | set(NEW_IDS) | set(ADDED_IDS) | set(LATEST_IDS)
                      | {stem for stems in UNIQUE['voice_stems'].values() for stem in stems.values()})
         current = []
         for folder in ('assets/jungle-book', 'assets/abc'):

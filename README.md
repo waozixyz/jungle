@@ -14,13 +14,14 @@ babies and toddlers.
 
 ## Little discoveries, every day
 
-- **Picture Book:** Explore 32 illustrated books filled with animals, food,
+- **Picture Book:** Explore 35 illustrated books filled with animals, food,
   family, seasons, vacation, sports, the beach, weather and feelings. Learn hot
   and cold, wet and dry, tired and rested through gentle scenes. Listen to each word or hear it spelled
   out, and turn the pages together. Discover Birds, Toys, Vehicles and Bedtime,
   hide unwanted books, and choose which books play automatically. New books
   explore tropical fruits, gardening, school, water animals, drinks and everyday
-  actions. Across 284 pages, every subject appears only once; Sports now includes
+  actions, desert animals, insects and people at work. Across 302 pages, every
+  subject appears only once; Sports now includes
   badminton, and Actions includes cooking, cleaning, washing hands and more.
 - **ABC + 123:** Hear letter names, explore optional illustrated word examples,
   and discover the numbers one to twenty with watercolor animals. Both books
@@ -28,7 +29,8 @@ babies and toddlers.
 - **Animal Counting:** Count animals in clear groups of five. Follow the gentle
   automatic progression, choose a range up to five, ten or twenty, or try simple
   addition and subtraction within five.
-- **Coloring Book:** Choose a scene, add dinosaurs, animals, people and objects,
+- **Coloring Book:** Choose from 26 scenes, including six Places and six Adventures,
+  add dinosaurs, animals, people and objects,
   then move, resize and freely rotate each stencil before pressing Place.
   Make a picture with crayons. Erase individual newly placed objects while
   keeping the rest of the picture. Save your creations, write a story, and
@@ -46,10 +48,10 @@ babies and toddlers.
   then explore colors and sizes.
 - **Matching Pairs (2+):** Begin with two visible pairs; try hidden cards and
   puzzles with up to ten pairs when ready.
-- **Hide & Seek (2+):** Choose peekaboo, finding clues or a memory challenge with
-  four hiding places. Show the friends again whenever needed.
-- **Music Room (2+):** Tap illustrated drums, a shaker and a bell on a shared
-  playmat, then try copying short rhythms.
+- **Hide & Seek (2+):** Look for completely hidden friends in four house and yard
+  scenes. Explore natural hiding places and discover each animal for yourself.
+- **Music Room (2+):** Tap illustrated drums, a shaker and a bell around a
+  watercolor music room, then try copying short rhythms.
 
 ## A look inside
 
