@@ -205,7 +205,7 @@ class Desktop:
 
     def wait_scene_picker(self, name):
         from PIL import Image
-        from paint_library_test import scene_layout
+        from paint_geometry import scene_layout
         deadline = time.monotonic() + 20
         while time.monotonic() < deadline:
             picture = self.capture(name, header=56)

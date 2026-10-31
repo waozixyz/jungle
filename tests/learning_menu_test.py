@@ -52,7 +52,8 @@ for language in ("en", "de", "es"):
             desktop.key("Escape")
             desktop.game("Coloring Book")
             desktop.wait_scene_picker("combined-coloring")
-            desktop.click(52, 58)
+            from paint_geometry import scene_click
+            scene_click(desktop)
             working = data / "games/jungle.paint/working.txt"
             deadline = time.monotonic() + 20
             while not working.exists() and time.monotonic() < deadline:

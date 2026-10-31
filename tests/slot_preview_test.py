@@ -17,7 +17,7 @@ with tempfile.TemporaryDirectory(prefix="jungle-slot-previews-", dir=WORK) as te
         folder = data / "games/jungle.paint"
         assert not (folder / "working.txt").exists(), "A new picture unexpectedly has saved artwork"
         # A new picture opens the backgrounds directly, before any stencil.
-        from paint_library_test import scene_click
+        from paint_geometry import scene_click
         scene_click(desktop)
         assert (folder / "working.txt").exists(), "A new picture did not choose its background first"
         desktop.key("Escape")

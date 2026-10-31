@@ -237,7 +237,7 @@ def ui():
         with Desktop(binary, data) as desktop:
             desktop.game("Coloring Book")
             desktop.wait_scene_picker("paint-history-scenes")
-            from paint_library_test import scene_click
+            from paint_geometry import scene_click
             scene_click(desktop)
             pictures.append(changed(working, b""))
             desktop.key("Escape")

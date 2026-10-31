@@ -84,7 +84,7 @@ try{
   await until('bench.opened.some(p=>p.includes("/jungle.paint/"))','Coloring Book did not open');
   const w=viewport.width,h=viewport.height,body=h-56,scale=Math.min(w/320,body/200),dx=Math.trunc((w-320*scale)/2),dy=56+Math.trunc((body-200*scale)/2);
   const dialog=(x,y)=>tap(dx+x*scale,dy+y*scale);
-  await dialog(65,79);await until(`Module.FS.analyzePath(${JSON.stringify(working)}).exists`,'Scene did not open');await key('Escape');await rendered();
+  const scene=firstScene(w,h);await tap(scene.x,scene.y);await until(`Module.FS.analyzePath(${JSON.stringify(working)}).exists`,'Scene did not open');await key('Escape');await rendered();
   if(backend==='dom')await until('[...document.querySelectorAll("[data-kryon-paint=span]")].some(e=>e.textContent.trim()==="Coloring Book"&&e.getBoundingClientRect().top<56)','Wrong phone activity');
   const geometry=paintGeometry(w,h),readyMs=performance.now()-start;
   if(args.get('--trace')==='true')await evaluate('bench.events=[];for(const type of ["pointerdown","pointerup","touchstart","touchend","click"])window.addEventListener(type,e=>{const b=e.target.closest?.("button");bench.events.push({type,target:e.target.tagName,label:b?.getAttribute("aria-label"),disabled:b?.disabled,x:e.clientX??e.touches?.[0]?.clientX,y:e.clientY??e.touches?.[0]?.clientY,time:performance.now()});if(bench.events.length>100)bench.events.shift()},true)');
@@ -132,4 +132,11 @@ function paintGeometry(w,h){
  const body=h-56,pad=Math.max(6,Math.min(20,Math.floor(Math.min(w,body)/40))),gap=Math.max(4,Math.min(10,Math.floor(Math.min(w,body)/80)));
  if(body>w){const toolW=Math.floor((w-pad*2-gap*2)/3),toolH=Math.max(44,Math.min(110,Math.floor(toolW*3/4)));let cw=w-pad*2,ch=Math.floor(cw*3/4);const room=body-pad*3-gap*2-toolH*3;if(ch>room){ch=room;cw=Math.floor(ch*4/3)}const cx=Math.floor((w-cw)/2),below=pad+ch+pad,top=below+Math.floor((body-pad-below-toolH*3-gap*2)/2);return {x:cx,y:56+pad,w:cw,h:ch,colorX:pad+toolW+gap+toolW/2,colorY:56+top+toolH/2}}
  const columns=body<440?2:1,rows=columns===2?5:9,toolH=Math.floor((body-pad*2-gap*(rows-1))/rows),toolW=Math.max(64,Math.min(Math.floor(w/(columns===2?8:5)),Math.floor(toolH*5/2))),railW=toolW*columns+gap*(columns-1),roomH=body-pad*2;let cw=w-pad*3-railW,ch=Math.floor(cw*3/4);if(ch>roomH){ch=roomH;cw=Math.floor(ch*4/3)}const left=Math.floor((w-railW-pad-cw)/2),cy=pad+Math.floor((roomH-ch)/2),top=cy+Math.floor((ch-toolH*rows-gap*(rows-1))/2);return {x:left+railW+pad,y:56+cy,w:cw,h:ch,colorX:left+(1%columns)*(toolW+gap)+toolW/2,colorY:56+top+Math.floor(1/columns)*(toolH+gap)+toolH/2};
+}
+
+function firstScene(width,total){
+ const height=total-56<300?500:Math.max(300,total-56),pad=height<440?8:16,gap=height<440?6:10;
+ const columns=width<600?2:3,rows=6/columns,grid=pad+30+gap+44+gap,footer=height-pad-44;
+ const cardWidth=Math.floor((width-pad*2-gap*(columns-1))/columns),cardHeight=Math.max(80,Math.floor((footer-gap-grid-gap*(rows-1))/rows));
+ return {x:pad+Math.floor(cardWidth/2),y:56+grid+Math.floor(cardHeight/2)};
 }
