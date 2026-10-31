@@ -2,6 +2,7 @@
 import copy
 import hashlib
 import json
+import re
 from pathlib import Path
 import sys
 import tempfile
@@ -10,7 +11,7 @@ import wave
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'tools'))
 import shared_assets
-from book_catalog import LANGUAGES, LETTERS, NAMES, LEARNING, UNIQUE, voice_path
+from book_catalog import LANGUAGES, LETTERS, NAMES, PAGE_NAMES, LEARNING, UNIQUE, voice_path
 import speech_codec
 import speech_manifest
 
@@ -65,6 +66,19 @@ def verify_legacy_lettuce():
 
 
 def real_catalog_test():
+    # Page holds use generated durations, which must follow refreshed audio.
+    source = (ROOT / 'games/book/book_voice.zi').read_text()
+    for language in LANGUAGES:
+        for mode in ('simple', 'spelling'):
+            suffix = language + '_' + mode
+            paths = [path for body in re.findall(r'voice_paths_' + suffix + r'_\d+:[^=]*= \.\[(.*?)\];', source, re.S)
+                     for path in re.findall(r'"([^"]+)"', body)]
+            seconds = [float(value) for body in re.findall(r'voice_seconds_' + suffix + r'_\d+:[^=]*= \.\[(.*?)\];', source, re.S)
+                       for value in body.split(',') if value.strip()]
+            assert len(paths) == len(seconds) == len(PAGE_NAMES), suffix
+            for path, duration in zip(paths, seconds):
+                measured = json.loads((ROOT / path).with_suffix('.speech.json').read_text())['duration']
+                assert abs(duration - measured) <= 0.00000051, (path, 'stale page timing', duration, measured)
     manifest = speech_manifest.BuildSpeechManifest()
     assert manifest['counts'] == {
         'assembled_lessons': 726, 'recorded_spelling_lessons': 126,
