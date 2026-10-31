@@ -2,10 +2,10 @@
   "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/es/simple/toothpaste.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Pasta de dientes.",
-  "instructions": "Speak only the supplied word or short phrase, in clear natural Spanish (Spain), gently and unhurriedly for a toddler picture book. No greeting, commentary or extra words. Pronounce even internationally shared words in Spanish (Spain). Use the same calm clear voice throughout.",
-  "duration": 3.700544217687075,
-  "sha256": "d37c316e4de7ff95e518f8d83cc891efc488ab8ccdb2745413739202de6c933c",
-  "request_sha256": "b9a4655d19b61235abf2c437dbcf42afcc50553bd302a4a5ffde01bfee89ec26"
+  "instructions": "Habla español de manera cálida, clara y natural, como una persona adulta amable que habla con un niño. Usa un ritmo normal de conversación, pronunciación nítida y frases fluidas. No alargues vocales, separes sílabas, susurres, cantes ni añadas pausas exageradas. Di únicamente el texto proporcionado. Pronuncia cada palabra aislada una sola vez.",
+  "duration": 2.0,
+  "sha256": "510de2eca5ae5221e840bfaa20603ed903ef5c8b38c319cf9e14351bc96f7277",
+  "request_sha256": "6d1f5248edd1d0a08ed31c237d11d57ba99ae0fa2816d92b1fd4540709147da4"
 }

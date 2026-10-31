@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/en/simple/foot.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/foot.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Foot.",
-  "instructions": "Speak English gently and clearly for a small child. Say only each supplied word once. No introduction, repetition, music or sound effects.",
-  "duration": 1.6360997732426303,
-  "sha256": "187893d781956b797b8f6b7651cec1ef42b19122f2812b46c5e29a13a267480f",
-  "request_sha256": "3d20d9638057e794266f98be8ae1e5eb6ce91e8eb64d3848f9ce65b0158ea55e"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 1.2266666666666666,
+  "sha256": "06d9473cb3dc68c002bf924f7c90ed594f8bbf78936300af57a3b3904a778ced",
+  "request_sha256": "c598a01e4a40b1d2747cb8dcf5be8fdbe74c78a1c960cc7485892f5b5b3b7a7b"
 }

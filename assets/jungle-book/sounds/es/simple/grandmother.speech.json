@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/es/simple/grandmother.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/es/simple/grandmother.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Abuela.",
-  "instructions": "Speak Spanish gently and clearly for a small child. Say only each supplied word once. No introduction, repetition, music or sound effects.",
-  "duration": 1.87297052154195,
-  "sha256": "41b8e4baacc6eb41ccde716bd7d85284124b72cd8671e2749cda8965ca8cd172",
-  "request_sha256": "e1da4ab5d4b35a517d5ab9fbee76fb97d47373f39823a0f3ceba3088393f3384"
+  "instructions": "Habla español de manera cálida, clara y natural, como una persona adulta amable que habla con un niño. Usa un ritmo normal de conversación, pronunciación nítida y frases fluidas. No alargues vocales, separes sílabas, susurres, cantes ni añadas pausas exageradas. Di únicamente el texto proporcionado. Pronuncia cada palabra aislada una sola vez.",
+  "duration": 1.3550113378684807,
+  "sha256": "06be85f1e09558a25efa4888203b9a24da2a70bf56a199d1f76b827a8f7934aa",
+  "request_sha256": "8947595be67c4a5fa90f6a819785e4fba75ff329930eb6a427d12e14673ae0be"
 }

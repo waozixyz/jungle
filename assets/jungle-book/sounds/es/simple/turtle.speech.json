@@ -1,11 +1,11 @@
 {
   "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/es/simple/turtle.wav",
-  "model": "google/gemini-3.1-flash-tts-preview",
+  "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Tortuga.",
-  "instructions": "Speak only the supplied word or phrase, clearly and warmly for a toddler in its own language. Natural gentle unhurried pronunciation, no introductory words, no additional text or sounds.",
-  "duration": 1.7685714285714285,
-  "sha256": "9e688b7359a6a2d98ee5bba9be68258670132c20bcf07240e4918cd1aa586b4a",
-  "request_sha256": "eb7533f779f8b6eaa219d865b26911ce8ea7e6f5c08b6b1073d098df50ac6c1f"
+  "instructions": "Habla español de manera cálida, clara y natural, como una persona adulta amable que habla con un niño. Usa un ritmo normal de conversación, pronunciación nítida y frases fluidas. No alargues vocales, separes sílabas, susurres, cantes ni añadas pausas exageradas. Di únicamente el texto proporcionado. Pronuncia cada palabra aislada una sola vez.",
+  "duration": 1.757641723356009,
+  "sha256": "f901087a7680cb51dcd87e214b6ec286844de989bce68da9941d1dd22052120c",
+  "request_sha256": "335d2d32d1220766361cbce5c50b15b0e593bee8e3c98520bc1c176b0beaac6f"
 }

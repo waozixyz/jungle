@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/cow.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/cow.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Cow. C. O. W. Cow.",
-  "instructions": "Speak in clear, gentle American English for a young child learning words. Read the word, pause, spell each individual letter name slowly with a clear pause between letters, then pause and repeat the word. Read exactly the input. Do not add any extra words. No music or sound effects.",
-  "duration": 8.08172335600907,
-  "sha256": "d6fc38574d8125637efa1d992c791c7ca17b7b4da7cea91ca8a32cb172492fde",
-  "request_sha256": "ad7f3aa2adc1a88d688b55cf67e543c70452029455404c696606cc683abb89dc"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 4.748843537414966,
+  "sha256": "411729f773becea6fc7d4125731f40d54df8ce4f9ffeda0d7c63af1a720478ba",
+  "request_sha256": "17382531c06d5ab9168a6eb3ef04d755ae2435cef20cdc920b8ce8d5bfb721bf"
 }

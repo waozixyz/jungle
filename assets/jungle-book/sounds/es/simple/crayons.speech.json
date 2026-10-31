@@ -1,11 +1,11 @@
 {
   "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/es/simple/crayons.wav",
-  "model": "google/gemini-3.1-flash-tts-preview",
+  "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Ceras.",
-  "instructions": "Speak only the supplied word or phrase, clearly and warmly for a toddler in its own language. Natural gentle unhurried pronunciation, no introductory words, no additional text or sounds.",
-  "duration": 1.72,
-  "sha256": "769fc4128a30417c5ac9bdd3ddd0b2b9d143766e6d716e68c8dd777c1882f11e",
-  "request_sha256": "81f3690d9752f05f5bcc0f6c1d0813ccde3660b56b39410bda23dace9f93e351"
+  "instructions": "Habla español de manera cálida, clara y natural, como una persona adulta amable que habla con un niño. Usa un ritmo normal de conversación, pronunciación nítida y frases fluidas. No alargues vocales, separes sílabas, susurres, cantes ni añadas pausas exageradas. Di únicamente el texto proporcionado. Pronuncia cada palabra aislada una sola vez.",
+  "duration": 1.3156462585034014,
+  "sha256": "721c36bf2f292ff69c8c8517ed910eb5b7413e540d814dd2136e69cf62bcd8f7",
+  "request_sha256": "6d9b780263f0ac53175e254ffb455f21a9a17fad1e8477e0dfc2b6b89eec582c"
 }

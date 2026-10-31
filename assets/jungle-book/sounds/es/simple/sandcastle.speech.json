@@ -2,10 +2,10 @@
   "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/es/simple/sandcastle.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Castillo de arena.",
-  "instructions": "Speak only the exact supplied Spanish word or short phrase once, using natural Spanish pronunciation. Warm, calm and clear, for a toddler picture book. No added words, letter spelling, music or sound effects.",
-  "duration": 3.3814058956916098,
-  "sha256": "6ac62fb7f20cd0e5ab5d3226f558e0f5cc3598f38917ca87669e20198044232f",
-  "request_sha256": "7f6da26474fde3b364aa9bf256e397214c9abecd08cdf2c3d0b69b34af198cf4"
+  "instructions": "Habla español de manera cálida, clara y natural, como una persona adulta amable que habla con un niño. Usa un ritmo normal de conversación, pronunciación nítida y frases fluidas. No alargues vocales, separes sílabas, susurres, cantes ni añadas pausas exageradas. Di únicamente el texto proporcionado. Pronuncia cada palabra aislada una sola vez.",
+  "duration": 2.2369160997732425,
+  "sha256": "21590250cd6c2eeb963c8d318974f3d6cbf21fac15fdd3a32b7e24509102139c",
+  "request_sha256": "2cfc66942ce1716eec5423ac0e07a14d9debf4438462569ae09e8f5f3f070b27"
 }

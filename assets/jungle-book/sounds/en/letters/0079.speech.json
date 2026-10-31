@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/en/letters/0079.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/letters/0079.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "why.",
-  "instructions": "Speak English gently and clearly for a small child. Say only the supplied word or literal letter-name once. No introduction, repetition, music or sound effects. Letter names are written phonetically for correct pronunciation.",
-  "duration": 2.279455782312925,
-  "sha256": "ac966a37ee8ce0e58af136d7aa42973e4af2774abdd1db39520bbaad66c73611",
-  "request_sha256": "f92471914375bca6005d23415a9bfc4da3d24b77c8a1cf526fe4ccbf4f4dc052"
+  "instructions": "Speak English warmly and clearly at a normal conversational pace. Say each supplied standalone letter name once, with crisp pronunciation and only a brief natural pause after it. Do not stretch vowels, separate syllables, exaggerate pauses, whisper, sing, repeat, or add any other words or sounds.",
+  "duration": 1.1160997732426303,
+  "sha256": "d55308def635355fb88e317074d465db2f71c528eb248efcc95884141080844e",
+  "request_sha256": "a90d3633055b7dc1a643a10e73168e95151201b472a1cbedd3d35165ec4fa263"
 }

@@ -1,11 +1,11 @@
 {
   "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/de/simple/yogurt.wav",
-  "model": "google/gemini-3.1-flash-tts-preview",
+  "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Joghurt.",
-  "instructions": "Speak only the supplied word or phrase, clearly and warmly for a toddler in its own language. Natural gentle unhurried pronunciation, no introductory words, no additional text or sounds.",
-  "duration": 1.6337414965986394,
-  "sha256": "4f8c1d4e3fb71d2dbaa6c08aef2bea42af30f1b37c51dc1c9f473a9f2879fb9b",
-  "request_sha256": "4d7dfedb2d5fe8c4b944ed7935f61a4264b554944673d30ca3b5d355620c1df9"
+  "instructions": "Sprich Deutsch warm, klar und natürlich, wie eine freundliche erwachsene Person mit einem Kind. Normales Gesprächstempo, deutliche Aussprache und flüssige Sätze. Keine gedehnten Vokale, getrennten Silben, übertriebenen Pausen, kein Flüstern oder Singen. Sprich nur den vorgegebenen Text. Einzelne Wörter genau einmal aussprechen.",
+  "duration": 1.353015873015873,
+  "sha256": "fb3bed006e11fbc539d1cd7773df443b4854a28823c76811e4e6f27f15869854",
+  "request_sha256": "0f754d03af64fe61528e20161fbbc84c44397883c89e4e8bf47aeec58f3607ee"
 }

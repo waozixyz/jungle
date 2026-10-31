@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/frog.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/frog.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Frog. F. R. O. G. Frog.",
-  "instructions": "Speak in clear, gentle American English for a young child learning words. Read the word, pause, spell each individual letter name slowly with a clear pause between letters, then pause and repeat the word. Read exactly the input. Do not add any extra words. No music or sound effects.",
-  "duration": 9.383628117913831,
-  "sha256": "84c3650d1323dcd5241ab00f85efb5a0a90df3178187ac7a1263d2b94fb5cdab",
-  "request_sha256": "2dcaac9b51084741347ec7cbeef6b49f606d831886d4cb9fd97c976121bf03e5"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 5.71718820861678,
+  "sha256": "99e1c322fea163c3a62bccec43c676a55204f74a8048fb7fb09846ec427dc954",
+  "request_sha256": "3fc9ea34ce598b662dc0ece961038459697f14f36d9e1694fe400502a870e19b"
 }

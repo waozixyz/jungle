@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/monkey.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/monkey.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Monkey. M. O. N. K. E. Y. Monkey.",
-  "instructions": "Speak in clear, gentle American English for a young child learning words. Read the word, pause, spell each individual letter name slowly with a clear pause between letters, then pause and repeat the word. Read exactly the input. Do not add any extra words. No music or sound effects.",
-  "duration": 13.13079365079365,
-  "sha256": "8135d3c181c5f6d234419774a2e07f3d30acfe085cc70e69427eb52ef1de9af6",
-  "request_sha256": "66697dbe0471eed537f7f0dc760f5550cc20aeeee6fc4b33284afc9841512097"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 8.834467120181406,
+  "sha256": "7900b73732da02f9495bfc8d1d5b6805ff53c6c19de81f4ecdd37287e96430db",
+  "request_sha256": "1459ee5e8fb0c29ae16c5c7a8fe0f64af951c634a4d92ac38c54f0a41ee78066"
 }

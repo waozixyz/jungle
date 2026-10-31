@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/es/simple/train.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/es/simple/train.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Tren.",
-  "instructions": "Di \u00fanicamente la palabra indicada en espa\u00f1ol, con voz c\u00e1lida, tranquila y clara para un ni\u00f1o peque\u00f1o. Sin palabras adicionales ni m\u00fasica.",
-  "duration": 1.578140589569161,
-  "sha256": "bd5d98768dc4b4d0ea342abd60c99e87a801f6dcf2d29f87723421ed658c2785",
-  "request_sha256": "f2aa197e359e694bc59f633a69f816d3b16b501306c13c0008e5d1f8b9f00552"
+  "instructions": "Habla español de manera cálida, clara y natural, como una persona adulta amable que habla con un niño. Usa un ritmo normal de conversación, pronunciación nítida y frases fluidas. No alargues vocales, separes sílabas, susurres, cantes ni añadas pausas exageradas. Di únicamente el texto proporcionado. Pronuncia cada palabra aislada una sola vez.",
+  "duration": 1.1962358276643992,
+  "sha256": "7e5a9d760b16a9e29d03e98957c191a3624ee8903f6b6baecae89adca0e25e95",
+  "request_sha256": "7278d23507be0e3a404d08a6797adb0bf99464f8de515f2779f61cb3e69a6f28"
 }

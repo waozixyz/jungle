@@ -10,9 +10,9 @@ root = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(root / 'tools'))
 import shared_assets
 
-old = {'en': '01936ad6f93848eb4919620e07f9f21343dd63d1425ba6829cf773b8267d7123', 'de': '0381bc21bad7db3e9b3788ec2293ceed179b2e3853314180173737ade670ecbb', 'es': '7da9c3a4b61d04bad31bea6c7bbf1aa94f9e289de61f3de54712a2c572ca1000'}
+old = {'en': '709879e30570f55540260cd071f26896da2efec38cddd441c03e2af96ce5684f', 'de': '9df5e6c88d32812aa2f3df487886b8bff6b565b8b4b3d9a1867e70af16842732', 'es': '163fee0758023af9e6eaf78c883f50b59ccfc39ef4542d0cc43b641af18aa692'}
 texts = {'en': 'Hold, drag, let go.', 'de': 'Halten, ziehen, loslassen.', 'es': 'Presiona, arrastra y suelta.'}
-fingerprints = {'en': '3cdae392d1884982c4c339e4592769107317f36914f5311c23eb7929b623bf20', 'de': 'baf8dd17da34bf3c118307adb264fa0734dc84f2f40817f18a07702aec235732', 'es': 'aed0a5bce135f3089fbfb8a59c4249dc30ba6a1cd70d71623ef802d1347f8647'}
+fingerprints = {'en': '71d85e9e75caedf090982a9ea4be8291b85bb480ff43c1305091d67eacccbc9b', 'de': 'f8f7f2507b81485044b2bbd43af4e35a9fd900876bf5a552a74d9d835af8dcee', 'es': '15ff9c117f109384ac039c10c96fea258f1e6381b09e0f776e0e307caf357d18'}
 voices = shared_assets.NarratedVoices(root)
 for lang, expected in texts.items():
     folder = root / 'assets/shapes/sounds' / lang
@@ -20,7 +20,7 @@ for lang, expected in texts.items():
     receipt = json.loads(wav.with_suffix('.speech.json').read_text())
     digest = hashlib.sha256(wav.read_bytes()).hexdigest()
     assert receipt['sha256'] == digest == fingerprints[lang] and receipt['text'] == expected
-    assert receipt['voice'] == 'Kore' and receipt['speed'] == 0.8
+    assert receipt['voice'] == 'Kore' and receipt['speed'] == 1.0
     assert receipt['model'] == 'google/gemini-3.8-flash-lite-tts'
     with wave.open(str(wav)) as audio:
         assert (audio.getnchannels(), audio.getsampwidth(), audio.getframerate(), audio.getcomptype()) == (1, 2, 22050, 'NONE')

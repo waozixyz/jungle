@@ -1,11 +1,11 @@
 {
   "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/de/simple/orange_juice.wav",
-  "model": "google/gemini-3.1-flash-tts-preview",
+  "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Orangensaft.",
-  "instructions": "Speak only the supplied word or phrase, clearly and warmly for a toddler in its own language. Natural gentle unhurried pronunciation, no introductory words, no additional text or sounds.",
-  "duration": 1.9335147392290248,
-  "sha256": "3fb5a15d5e496c4d75ebf5d77a8cdc5109fe42aa2a3eceb8aebe9e7381d1fe5b",
-  "request_sha256": "edef648507d919987cccf33c2927f3fe95f4627252e75e2d5d7f76c95f46493e"
+  "instructions": "Sprich Deutsch warm, klar und natürlich, wie eine freundliche erwachsene Person mit einem Kind. Normales Gesprächstempo, deutliche Aussprache und flüssige Sätze. Keine gedehnten Vokale, getrennten Silben, übertriebenen Pausen, kein Flüstern oder Singen. Sprich nur den vorgegebenen Text. Einzelne Wörter genau einmal aussprechen.",
+  "duration": 1.7114739229024942,
+  "sha256": "2fb5de65f73e5fabcec5989c4addafb084e912ce6e3147ffe953a4d22d590132",
+  "request_sha256": "bef37026bc4167702488589b036afa111a5f05682b2430b4c282b2848da0c108"
 }

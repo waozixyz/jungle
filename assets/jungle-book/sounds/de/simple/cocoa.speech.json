@@ -1,11 +1,11 @@
 {
   "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/de/simple/cocoa.wav",
-  "model": "google/gemini-3.1-flash-tts-preview",
+  "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Kakao.",
-  "instructions": "Speak only the supplied word or phrase, clearly and warmly for a toddler in its own language. Natural gentle unhurried pronunciation, no introductory words, no additional text or sounds.",
-  "duration": 1.468798185941043,
-  "sha256": "2c6fbe3278237aef534b46d3032daaa27eb4da30cbeeb52cc453c088e776f78c",
-  "request_sha256": "b9edb359f64e3550fc0dc29503b312763d396ed7b26fa6de49bc723100cb7230"
+  "instructions": "Sprich Deutsch warm, klar und natürlich, wie eine freundliche erwachsene Person mit einem Kind. Normales Gesprächstempo, deutliche Aussprache und flüssige Sätze. Keine gedehnten Vokale, getrennten Silben, übertriebenen Pausen, kein Flüstern oder Singen. Sprich nur den vorgegebenen Text. Einzelne Wörter genau einmal aussprechen.",
+  "duration": 1.2770975056689342,
+  "sha256": "84d8d8be1e49eb9e529b7bf0384e3bdc67a298d04f9dfc6c527367fcceb2bef0",
+  "request_sha256": "0c6456a2d7c71860c07449fc87e11b5c68c95175e52a22dff853a43070602c84"
 }

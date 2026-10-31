@@ -1,11 +1,11 @@
 {
   "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/seahorse.wav",
-  "model": "google/gemini-3.1-flash-tts-preview",
+  "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Seahorse.",
-  "instructions": "Speak only the supplied word or phrase, clearly and warmly for a toddler in its own language. Natural gentle unhurried pronunciation, no introductory words, no additional text or sounds.",
-  "duration": 1.6714739229024944,
-  "sha256": "65243099982a28cd1fb5c1002860bf9de0073170f873014ae522f87593e4f4d9",
-  "request_sha256": "7382e3787306588d8c657645f2a752a11bddc3b14c94d3285347b7d3b01a5d32"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 1.3936507936507936,
+  "sha256": "ec77a8084cf6fa26a2a90ba43ce41aea749fee7630a0dcf3b2db1ddbb9f33912",
+  "request_sha256": "85836968cecdc2d2fe7ab1a336bc3b94d2c27f5ae6b026736ace0ea4c534ac1f"
 }

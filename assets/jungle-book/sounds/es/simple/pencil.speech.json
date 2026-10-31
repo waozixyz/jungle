@@ -1,11 +1,11 @@
 {
   "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/es/simple/pencil.wav",
-  "model": "google/gemini-3.1-flash-tts-preview",
+  "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
-  "text": "L\u00e1piz.",
-  "instructions": "Speak only the supplied word or phrase, clearly and warmly for a toddler in its own language. Natural gentle unhurried pronunciation, no introductory words, no additional text or sounds.",
-  "duration": 1.5759183673469388,
-  "sha256": "f60a58dc933f38f0fce9d367ea93372cdb1429bad7f54bca53e63458cf6514ae",
-  "request_sha256": "754526226b1303857f3a5a5524fbd09b1f1ed39b9f424d063325ed7c6ffd8e0d"
+  "speed": 1.0,
+  "text": "Lápiz.",
+  "instructions": "Habla español de manera cálida, clara y natural, como una persona adulta amable que habla con un niño. Usa un ritmo normal de conversación, pronunciación nítida y frases fluidas. No alargues vocales, separes sílabas, susurres, cantes ni añadas pausas exageradas. Di únicamente el texto proporcionado. Pronuncia cada palabra aislada una sola vez.",
+  "duration": 1.514013605442177,
+  "sha256": "840db6935e60c370e7fa15835aaedb2305e2c7f1d85f784b69c34e4335cd8461",
+  "request_sha256": "99bd129d5d355a00ab4198ca3bd3d6e3d2e2c3d528ac5bad5c80b1ee979973a0"
 }

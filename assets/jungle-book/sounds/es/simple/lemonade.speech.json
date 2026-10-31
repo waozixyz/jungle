@@ -1,11 +1,11 @@
 {
   "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/es/simple/lemonade.wav",
-  "model": "google/gemini-3.1-flash-tts-preview",
+  "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Limonada.",
-  "instructions": "Speak only the supplied word or phrase, clearly and warmly for a toddler in its own language. Natural gentle unhurried pronunciation, no introductory words, no additional text or sounds.",
-  "duration": 1.786122448979592,
-  "sha256": "f02750f237f452781d8f59ed4b6b33a52cbea92e4ef0da775b1bcbe5ff119881",
-  "request_sha256": "63d1fa48c48b588e6470824b676fa6d139fea804088cbc805ec270d0a3106d0a"
+  "instructions": "Habla español de manera cálida, clara y natural, como una persona adulta amable que habla con un niño. Usa un ritmo normal de conversación, pronunciación nítida y frases fluidas. No alargues vocales, separes sílabas, susurres, cantes ni añadas pausas exageradas. Di únicamente el texto proporcionado. Pronuncia cada palabra aislada una sola vez.",
+  "duration": 1.5543764172335601,
+  "sha256": "a0a8188d9f24a6d83f6ee3b5dd4fd7d43da78e51d9b22fd4281bc5e314976684",
+  "request_sha256": "16f0497991395089378c5a4a83b86ef3dbb3c893e0800666d1b823f815ec6f40"
 }

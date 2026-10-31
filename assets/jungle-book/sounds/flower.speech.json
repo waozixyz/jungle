@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/flower.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/flower.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Flower. F. L. O. W. E. R. Flower.",
-  "instructions": "Speak in clear, gentle American English for a young child learning words. Read the word, pause, spell each individual letter name slowly with a clear pause between letters, then pause and repeat the word. Read exactly the input. Do not add any extra words. No music or sound effects.",
-  "duration": 13.779047619047619,
-  "sha256": "839c834337953273e90892d3b8bb57a5c10fdb57da7f74ef801cd4bc8c516e39",
-  "request_sha256": "4ebe5e8d0cea80a5e6c822101d84ceff7f42633c06699ad10a28689746dc7668"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 8.538639455782313,
+  "sha256": "c81316390f91f870aa8fac9cbfff22f9d05141aef54d769a2b48bb987b4f5df1",
+  "request_sha256": "90839fc76023511a77f3bd16c6f0012657ccb4cd8b03be27cf69d06134f770fd"
 }

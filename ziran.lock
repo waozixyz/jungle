@@ -11,9 +11,9 @@
       "url": "https://github.com/raysan5/raylib.git"
     },
     {
-      "commit": "849eb903e5b6fb9aed996c530ab82f94c4371ee5",
+      "commit": "0532bf87acbf38a182e6d86d910dd6ca9c999d7e",
       "dependencies": {"raylib": "p5a77c9c35110e925"},
-      "id": "pb1ba3b1950f642b9",
+      "id": "pac61df8ef7444e5a",
       "name": "kryon",
       "ref": "master",
       "url": "https://github.com/kryonlabs/kryon.git"
@@ -28,7 +28,7 @@
     }
   ],
   "root": {
-    "dependencies": {"kryon": "pb1ba3b1950f642b9", "mingcute": "pe1027b9d16704793"},
+    "dependencies": {"kryon": "pac61df8ef7444e5a", "mingcute": "pe1027b9d16704793"},
     "name": "Jungle"
   },
   "toolchain": {

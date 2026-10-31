@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/en/simple/salad.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/salad.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Salad.",
-  "instructions": "Speak English gently and clearly for a small child. Say only each supplied word once. No introduction, repetition, music or sound effects.",
-  "duration": 2.0340136054421767,
-  "sha256": "a68abbb08b5a393a56d4f516638f5e6fe46d5b657e9aaa4ad0eeb3987ec0a5e0",
-  "request_sha256": "f9d3354cf48db476cc86a5ce68e65d640722c79348f50e98d5c48f8debcda672"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 1.3570975056689343,
+  "sha256": "d31e4f3d0ffd4910cfdb601249a971b14607a0118744d739eec8564f707dfd56",
+  "request_sha256": "8ca6aaa1074aab4a163fb88dad7b00fa6262456120155b9e352f7553f768a65d"
 }

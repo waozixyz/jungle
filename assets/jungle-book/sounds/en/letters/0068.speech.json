@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/en/letters/0068.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/letters/0068.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "aitch.",
-  "instructions": "Speak English gently and clearly for a small child. Say only the supplied word or literal letter-name once. No introduction, repetition, music or sound effects. Letter names are written phonetically for correct pronunciation.",
-  "duration": 1.6319727891156464,
-  "sha256": "5f3e239b345fa9b7408b9850d71f1555ac9eecceab04953ddaa07d489dc60f01",
-  "request_sha256": "d1ae1179652ca92174712c2675223fd2bf91d5b523c1722318303d0ea6efe480"
+  "instructions": "Speak English warmly and clearly at a normal conversational pace. Say each supplied standalone letter name once, with crisp pronunciation and only a brief natural pause after it. Do not stretch vowels, separate syllables, exaggerate pauses, whisper, sing, repeat, or add any other words or sounds.",
+  "duration": 1.233877551020408,
+  "sha256": "bfd06894043e68fc00a37c7f92bc16afe103edf08927376111c371c5dcf4438f",
+  "request_sha256": "054a071f67fbf0cf467954adeaf56564d96ae7a206abc52bb5a495453f76081a"
 }

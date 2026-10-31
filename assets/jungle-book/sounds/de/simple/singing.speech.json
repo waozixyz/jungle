@@ -2,10 +2,10 @@
   "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/de/simple/singing.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Singen.",
-  "instructions": "Speak only the supplied word or short phrase, in clear natural German, gently and unhurriedly for a toddler picture book. No greeting, commentary or extra words. Pronounce even internationally shared words in German. Use the same calm clear voice throughout.",
-  "duration": 1.5782766439909297,
-  "sha256": "7857b1cf20a45b9ce0ae40d663ff90428b0659e7bba868b47210363d85c96895",
-  "request_sha256": "b7d3ffa3928e11acd8f8f9a832e68025d0d8b1224179606b8052681aff76ed29"
+  "instructions": "Sprich Deutsch warm, klar und natürlich, wie eine freundliche erwachsene Person mit einem Kind. Normales Gesprächstempo, deutliche Aussprache und flüssige Sätze. Keine gedehnten Vokale, getrennten Silben, übertriebenen Pausen, kein Flüstern oder Singen. Sprich nur den vorgegebenen Text. Einzelne Wörter genau einmal aussprechen.",
+  "duration": 1.317233560090703,
+  "sha256": "2e49d29989e403fc484c91a1af78b0ee27f6f87dee2d91fa7a6c71ec27452274",
+  "request_sha256": "eb949123347a0eb511c6484cbc69a2842a5e68d91d824b2e3df0e87f199159bc"
 }

@@ -1,11 +1,11 @@
 {
   "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/animal-count/sounds/en/subtract.wav",
-  "model": "google/gemini-3.1-flash-tts-preview",
+  "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Some animals are leaving. How many are left?",
-  "instructions": "Speak only the supplied text clearly and warmly for a toddler, naturally in its own language. Gentle unhurried delivery, no introductory or additional words or sounds.",
-  "duration": 4.723174603174603,
-  "sha256": "087ecadf2eb3108b9cd15072d2b81076ae89cc1221022a08d52e053af93a2dcb",
-  "request_sha256": "1ad26083ba5997504475bc67d23363e117d9e461b0f8326e88e716622ff60d63"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 3.956825396825397,
+  "sha256": "fb1ca9909c0fd31c753e15a903813a38773ba0a67d21f9c301af63f341eb407c",
+  "request_sha256": "6b30d99b853ffbd27e112c7614d0fa24e2b5185c3c4543ab8bc478c4b2791fd7"
 }

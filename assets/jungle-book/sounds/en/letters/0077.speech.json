@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/en/letters/0077.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/letters/0077.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "double you.",
-  "instructions": "Speak English gently and clearly for a small child. Say only the supplied word or literal letter-name once. No introduction, repetition, music or sound effects. Letter names are written phonetically for correct pronunciation.",
-  "duration": 1.7880272108843538,
-  "sha256": "bc0811da5b26fc425bfaa045f2f0c51202bbc5a6d963c44053a78cd7d7d159b0",
-  "request_sha256": "e8ce7560d304aa8fa9b5ae65a46523240f7cac36e3cd845059970381bbc54f59"
+  "instructions": "Speak English warmly and clearly at a normal conversational pace. Say each supplied standalone letter name once, with crisp pronunciation and only a brief natural pause after it. Do not stretch vowels, separate syllables, exaggerate pauses, whisper, sing, repeat, or add any other words or sounds.",
+  "duration": 1.3532426303854874,
+  "sha256": "5a83f97861009bdee526f198cf2a6d1e7330653d1b985ab771f285aceb24f749",
+  "request_sha256": "0cc64b875e32a71a6c3cb34bb5bfc777001af934558d13064fd345559d2bd135"
 }

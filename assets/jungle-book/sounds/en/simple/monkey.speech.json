@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/en/simple/monkey.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/monkey.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Monkey.",
-  "instructions": "Speak English gently and clearly for a young child. Speak only the supplied text. Pronounce spelling letters individually with pauses. A single word must be said exactly once, without introduction or repetition.",
-  "duration": 2.0253968253968253,
-  "sha256": "153090277378728d25832ab8d269c7c7031cadc52c90773bd8e7aacf21432b18",
-  "request_sha256": "55165c60695bff833ba75412d21e0e07223bda3155c451802172a51848be1897"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 1.3955555555555557,
+  "sha256": "746c7a6a09e88a79be82ceace10d2fb9d6db2b98a6e69e03969c369bfae55848",
+  "request_sha256": "e679a4fc33814e74132c16936b228ba741808d57e697e02067220f1b6242dc72"
 }

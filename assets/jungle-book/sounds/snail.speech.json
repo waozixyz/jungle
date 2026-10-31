@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/snail.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/snail.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Snail. S. N. A. I. L. Snail.",
-  "instructions": "Speak in clear, gentle American English for a young child learning words. Read the word, pause, spell each individual letter name slowly with a clear pause between letters, then pause and repeat the word. Read exactly the input. Do not add any extra words. No music or sound effects.",
-  "duration": 11.82517006802721,
-  "sha256": "5f727cbede162bafcc67afa45c29b4d7f1291d9e7169b32bb3cfc3651b1e741f",
-  "request_sha256": "9f47b6532de504542d5bee6617f5c7a7bf6477b1fc8c1bbd7b20ee4e3d5549ec"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 7.391201814058957,
+  "sha256": "d69bd75c708bc41fdb42c2582034d854b33dd8dd20c2f88f01467f4d6016f6c9",
+  "request_sha256": "cefa71f26c6abf853058d1c72e9d99f4e8d9d3c1fd697912dced82d8f8e59a87"
 }

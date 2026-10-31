@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/en/simple/winter.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/winter.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Winter.",
-  "instructions": "Speak English gently and clearly for a young child. Speak only the supplied text. Pronounce spelling letters individually with pauses. A single word must be said exactly once, without introduction or repetition.",
-  "duration": 1.7258503401360543,
-  "sha256": "ad0ca1edbd8641d10e743fa1bf326abedd5cb740626230d11f232f3857bb0353",
-  "request_sha256": "4f80aae4127f77b646048c613e61231fcb7040482c78eb9f57f3351f351adf61"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 1.2368707482993198,
+  "sha256": "13a3968f0bbc4abaab3ec9474f8f1f3083b80751ea1a7ec833d9c1a3714451cf",
+  "request_sha256": "5098b97d2d335b4012af787e8e8a85b8c34340847007765b76cdca1ba5a07cd2"
 }

@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/en/simple/brother.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/brother.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Brother.",
-  "instructions": "Speak English gently and clearly for a small child. Say only each supplied word once. No introduction, repetition, music or sound effects.",
-  "duration": 1.6365079365079365,
-  "sha256": "7c032f1a8b78bbde4351085812f11def8cfd8f228804f3757760fa3b5b6d8de5",
-  "request_sha256": "7fbdc53c5aefcc9586d2df428054cf333db26bddf384755be54074a245454e2c"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 1.24,
+  "sha256": "1098ed4bb63363df24394a974773d3bbee074e493ea80449b1427c21cbb62f3c",
+  "request_sha256": "0f28d47dc35e8a4247fb64e5fa2a51da005cf0f1ef3abd45c0bd4643f7fbfa43"
 }

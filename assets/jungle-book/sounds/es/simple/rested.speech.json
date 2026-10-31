@@ -2,10 +2,10 @@
   "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/es/simple/rested.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Descansado.",
-  "instructions": "Speak only the exact supplied Spanish word or short phrase once, using natural Spanish pronunciation. Warm, calm and clear, for a toddler picture book. No added words, letter spelling, music or sound effects.",
-  "duration": 2.879501133786848,
-  "sha256": "4f9ae43a37ee50cf5b006199fa2c96a9a2611f7bdf3912fca5535a2984dc2584",
-  "request_sha256": "e827667ff6d9a8431b74ae818c95060ada24c8c816cfbb80cb25f29cef05b9e4"
+  "instructions": "Habla español de manera cálida, clara y natural, como una persona adulta amable que habla con un niño. Usa un ritmo normal de conversación, pronunciación nítida y frases fluidas. No alargues vocales, separes sílabas, susurres, cantes ni añadas pausas exageradas. Di únicamente el texto proporcionado. Pronuncia cada palabra aislada una sola vez.",
+  "duration": 1.6266213151927438,
+  "sha256": "538829cbc01d01a86e1589e482f6381f38b0f867573d42f8ae63c68168f1bde4",
+  "request_sha256": "7ffa226a4307600cc9151d3c8503f5910fde83f51ce68f4db919c39816f393c7"
 }

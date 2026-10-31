@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/en/simple/broccoli.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/broccoli.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Broccoli.",
-  "instructions": "Speak English gently and clearly for a small child. Say only the supplied word once. No introduction, repetition, music or sound effects.",
-  "duration": 2.03156462585034,
-  "sha256": "9c6be721ee350194de6843aa68821ef90b3245682b56f2738bd40915c41a8ee7",
-  "request_sha256": "ff020e1fed5749992bf9c836d6f46efd2e331ea6cc23abff2b688002bce2daf1"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 1.353015873015873,
+  "sha256": "cacca8e8152ea9ac8426701de745808e9f4829e7f939dfe8e8bf0eb72aba927c",
+  "request_sha256": "917991368f22ccdad2385b6759c02a1388c01f82edf0f7c45db2fb0861884319"
 }

@@ -1,11 +1,11 @@
 {
   "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/de/simple/apple_juice.wav",
-  "model": "google/gemini-3.1-flash-tts-preview",
+  "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Apfelsaft.",
-  "instructions": "Speak only the supplied word or phrase, clearly and warmly for a toddler in its own language. Natural gentle unhurried pronunciation, no introductory words, no additional text or sounds.",
-  "duration": 1.8830839002267574,
-  "sha256": "6d1cf39adc779a8d96ba743fc21447c87b0644d5770b087884ed93b85c9d01ed",
-  "request_sha256": "0c69795766320869b89efbd3e67a6465abde3981dbd75e9f40821633a9c21c0f"
+  "instructions": "Sprich Deutsch warm, klar und natürlich, wie eine freundliche erwachsene Person mit einem Kind. Normales Gesprächstempo, deutliche Aussprache und flüssige Sätze. Keine gedehnten Vokale, getrennten Silben, übertriebenen Pausen, kein Flüstern oder Singen. Sprich nur den vorgegebenen Text. Einzelne Wörter genau einmal aussprechen.",
+  "duration": 1.4685714285714286,
+  "sha256": "a9fbad1e74d9f4a2fd2bd158d225fe2a8ce064a08bcacf4abbbd69c3c5a2fc6e",
+  "request_sha256": "64f28e7042e964f3ec690f141e43c32458753a922e1ebac6b87c63f57581f203"
 }

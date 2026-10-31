@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/en/simple/toilet.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/toilet.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Toilet.",
-  "instructions": "Speak English gently and clearly for a small child. Say only the supplied word or literal letter-name once. No introduction, repetition, music or sound effects. Letter names are written phonetically for correct pronunciation.",
-  "duration": 1.937641723356009,
-  "sha256": "b0386c309e8fc8ce1e1eb28e38b2927973c30d6e15319663a19d3643635038d2",
-  "request_sha256": "a7d15a8e2130851ee91c8b96b7e2ad4b31336d54db1c161d9c6c6a95b701ec93"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 1.312517006802721,
+  "sha256": "61c803c1d9997f3fe5a1c31073f7843e69ded15d75eaa55114172136802e4c98",
+  "request_sha256": "945ea2f9ab17df4c005044d80fa03a6c9f514848d2b1ffba65a7649db36a3fee"
 }

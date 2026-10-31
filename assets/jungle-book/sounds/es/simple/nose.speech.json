@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/es/simple/nose.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/es/simple/nose.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Nariz.",
-  "instructions": "Speak Spanish gently and clearly for a small child. Say only each supplied word once. No introduction, repetition, music or sound effects.",
-  "duration": 1.884716553287982,
-  "sha256": "5ba34cfd4ec96ef2df9f3483f0ac8d66def16b27ce42d1700cced035e12599e1",
-  "request_sha256": "a14816628c9a3a6cb8ff3c0478c35706f20f086934342d80570292f0b450adb0"
+  "instructions": "Habla español de manera cálida, clara y natural, como una persona adulta amable que habla con un niño. Usa un ritmo normal de conversación, pronunciación nítida y frases fluidas. No alargues vocales, separes sílabas, susurres, cantes ni añadas pausas exageradas. Di únicamente el texto proporcionado. Pronuncia cada palabra aislada una sola vez.",
+  "duration": 1.6377777777777778,
+  "sha256": "43045661b5dd826f824758624042b32c13545d6e90a081dcb57eb303b62125f9",
+  "request_sha256": "c244fb03775e6af0ac1586ca14d5d111ade624f0fd6725098bf1a0ecca671c3b"
 }

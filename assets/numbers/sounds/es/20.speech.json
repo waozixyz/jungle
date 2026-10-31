@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/numbers/sounds/es/20.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/numbers/sounds/es/20.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Veinte.",
-  "instructions": "Speak Spanish gently and clearly for a small child. Say only the supplied number name exactly once. No introduction, repetition, music or sound effects.",
-  "duration": 1.4903854875283447,
-  "sha256": "9d4a31e04af08a3973a764fa7624d018633bcc7e063115cd68625788536c15dc",
-  "request_sha256": "432d4864c4e67d8194d6cc5ec142c6696cc419ff2ebbbb1e16e4cc8c055d4d27"
+  "instructions": "Habla español de manera cálida, clara y natural, como una persona adulta amable que habla con un niño. Usa un ritmo normal de conversación, pronunciación nítida y frases fluidas. No alargues vocales, separes sílabas, susurres, cantes ni añadas pausas exageradas. Di únicamente el texto proporcionado. Pronuncia cada palabra aislada una sola vez.",
+  "duration": 1.3109297052154194,
+  "sha256": "ce5f98154af8b598dc077d0f9747f71a4a934abc7366603ba1d9bb6c41ea9bd8",
+  "request_sha256": "4cc0867f6d941bf43cec98c7d929aab8fdcb29eb68d64b90096b23f6f5d17be6"
 }

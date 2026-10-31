@@ -1,11 +1,11 @@
 {
   "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/es/simple/wooden_train.wav",
-  "model": "google/gemini-3.1-flash-tts-preview",
+  "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Tren de madera.",
-  "instructions": "Speak only the supplied word or phrase, clearly and warmly for a toddler in its own language. Natural gentle unhurried pronunciation, no introductory words, no additional text or sounds.",
-  "duration": 2.079954648526077,
-  "sha256": "729bd286d85b28fd52d851280b0605206e4a76c61912ad4a8d9c8f88a6601cbd",
-  "request_sha256": "2529ff53389dfe94ee48f8c4282b2c2e4a78d562d83e7bf422ab93f585ef858c"
+  "instructions": "Habla español de manera cálida, clara y natural, como una persona adulta amable que habla con un niño. Usa un ritmo normal de conversación, pronunciación nítida y frases fluidas. No alargues vocales, separes sílabas, susurres, cantes ni añadas pausas exageradas. Di únicamente el texto proporcionado. Pronuncia cada palabra aislada una sola vez.",
+  "duration": 2.393015873015873,
+  "sha256": "96ca40131a1281183f55cbdb05778124d020486d4ebac513981e43b876dc1e21",
+  "request_sha256": "46eed92a88b13f03f785739a5c74788897ae049f58ccf47bf28c6bfe326be44e"
 }

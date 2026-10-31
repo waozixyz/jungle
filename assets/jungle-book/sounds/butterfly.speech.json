@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/butterfly.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/butterfly.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Butterfly. B. U. T. T. E. R. F. L. Y. Butterfly.",
-  "instructions": "Speak in clear, gentle American English for a young child learning words. Read the word, pause, spell each individual letter name slowly with a clear pause between letters, then pause and repeat the word. Read exactly the input. Do not add any extra words. No music or sound effects.",
-  "duration": 17.99124716553288,
-  "sha256": "0d49b228fcdce4c7c4fa6edeaffdc0d975001d54f4888075b64d06162ec380ca",
-  "request_sha256": "3847f53b7369c7ce1781dfc93b679af3aeefc335dbd84538192b170c1fdc42fc"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 8.793786848072562,
+  "sha256": "7980e874ea556b054c8337971c29b7b951cd73effd64e0d19ca883612987b871",
+  "request_sha256": "33da379e813850ad74ddd57e1b74da9a16da06c994ffb67f3e266d6c339dc303"
 }

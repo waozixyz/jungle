@@ -1,11 +1,11 @@
 {
   "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/beans.wav",
-  "model": "google/gemini-3.1-flash-tts-preview",
+  "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Beans.",
-  "instructions": "Speak only the supplied word or phrase, clearly and warmly for a toddler in its own language. Natural gentle unhurried pronunciation, no introductory words, no additional text or sounds.",
-  "duration": 1.7379138321995464,
-  "sha256": "2e7ebce1b3b710494412f429d6f18675dd2e5fa7e98ef95c62c2a3c155262455",
-  "request_sha256": "cdcae62ebea248ad423f51e87b0de8af8bf210bcec804ddd88669cc3adcb2b03"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 1.4383673469387754,
+  "sha256": "cd7f68bb7aa73187be0b7b6b15a1baf5dbde35ea6db3552b46768290905be73e",
+  "request_sha256": "c618e5ae3c04f90cf50c69b5bacd72753dfbb09751ae51ce23a3a666095d94b2"
 }

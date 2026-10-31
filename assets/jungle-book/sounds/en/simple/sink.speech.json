@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/en/simple/sink.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/sink.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Sink.",
-  "instructions": "Speak English gently and clearly for a small child. Say only the supplied word or literal letter-name once. No introduction, repetition, music or sound effects. Letter names are written phonetically for correct pronunciation.",
-  "duration": 1.7797732426303854,
-  "sha256": "e9c82174b6a1d50eb3f7a953a03e92b677198d26f6530581c2b64437174b33a7",
-  "request_sha256": "7e43f202f6b5fb1e09d0280e33d5528883837c672a534027849313f7524a6401"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 1.4737414965986395,
+  "sha256": "7e4460e81393de6ee1c019246c7608a7e27c32516fc44d9bf7573a7a8e8c76fd",
+  "request_sha256": "c6ebb75935532277623290c49e7c20dc512f81665d4544394358f8bd131f574d"
 }

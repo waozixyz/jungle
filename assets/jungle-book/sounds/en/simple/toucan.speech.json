@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/en/simple/toucan.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/toucan.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Toucan.",
-  "instructions": "Speak English gently and clearly for a young child. Speak only the supplied text. Pronounce spelling letters individually with pauses. A single word must be said exactly once, without introduction or repetition.",
-  "duration": 2.2301587301587302,
-  "sha256": "3d934bb0d90b6677550e0195c059951c57cf38ad0bc585a3826487739b6f6c24",
-  "request_sha256": "a966ef2722af9866fabd956ff1e687f40bd3ddbcb582411ddae1a49baae6fafb"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 1.3912925170068027,
+  "sha256": "6dd5e10fa1b040293d241c3f7aed6f73fad620726c82ec3408e6fb437132612b",
+  "request_sha256": "6525e039b48d348b07d3b7a656e11c71a140f71df885ae4c0fadc0bb621c8dea"
 }

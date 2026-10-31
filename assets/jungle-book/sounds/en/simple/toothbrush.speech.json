@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/en/simple/toothbrush.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/toothbrush.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Toothbrush.",
-  "instructions": "Speak English gently and clearly for a small child. Say only the supplied word or literal letter-name once. No introduction, repetition, music or sound effects. Letter names are written phonetically for correct pronunciation.",
-  "duration": 1.9779591836734693,
-  "sha256": "7c010b5941218aca0021b81072a5e7783f34967c59544c170be7c11711ed4187",
-  "request_sha256": "300c301cb956d317a898dffb94cb2e197a079e5ad4a02e0ec237abb70390c298"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 1.4360090702947845,
+  "sha256": "88bd4615440678beb14503294260579c33b08f28bcc263530cd97b7d9d53fe7f",
+  "request_sha256": "7cec02b0c85d897d3b7b4dc53bada059d1c29264becc8f54abbc5e1fbebbb35b"
 }

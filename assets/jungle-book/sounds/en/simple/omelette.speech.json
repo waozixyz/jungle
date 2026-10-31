@@ -1,11 +1,11 @@
 {
   "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/omelette.wav",
-  "model": "google/gemini-3.1-flash-tts-preview",
+  "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Omelette.",
-  "instructions": "Speak only the supplied word or phrase, clearly and warmly for a toddler in its own language. Natural gentle unhurried pronunciation, no introductory words, no additional text or sounds.",
-  "duration": 1.482766439909297,
-  "sha256": "5496072386a359ba37c11c2896aaa494ca5ae638d5afb3996f8ea49500315764",
-  "request_sha256": "cd79c49ab60725f26b832992e780ed9da2c4ef6ee390d636b5381b973d72a24c"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 1.1580498866213151,
+  "sha256": "cea96e4e7bb0888258dd19291e11b433ecdf14cf9d1b3fd7ac14e1f016b6a2fc",
+  "request_sha256": "2f44c260f09815ae323ae4ef137411d04fc470cd6ef7062a4e5539e218125d19"
 }

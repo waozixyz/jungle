@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/es/simple/tacos.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/es/simple/tacos.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Tacos.",
-  "instructions": "Speak Spanish gently and clearly for a small child. Say only each supplied word once. No introduction, repetition, music or sound effects.",
-  "duration": 2.035646258503401,
-  "sha256": "a9688d96e665af083f4b08616713b0b7f0ffb44d07d7d5f5241a2bfdd026e1be",
-  "request_sha256": "8b7b26b70cc81438579cbb96390942df9cd9acd23ace3de382b3966b83ce0af3"
+  "instructions": "Habla español de manera cálida, clara y natural, como una persona adulta amable que habla con un niño. Usa un ritmo normal de conversación, pronunciación nítida y frases fluidas. No alargues vocales, separes sílabas, susurres, cantes ni añadas pausas exageradas. Di únicamente el texto proporcionado. Pronuncia cada palabra aislada una sola vez.",
+  "duration": 1.3126530612244898,
+  "sha256": "b4527a865934355d43d6b73f3b69be21b36e4cafb609fdb672ab90be6da8d322",
+  "request_sha256": "f886c6888ef0257a4fe0944357600e513ecca8ad0dc6e32b4cdaf6641678b163"
 }

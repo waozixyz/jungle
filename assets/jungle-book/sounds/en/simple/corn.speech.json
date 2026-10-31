@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/en/simple/corn.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/corn.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Corn.",
-  "instructions": "Speak English gently and clearly for a small child. Say only the supplied word once. No introduction, repetition, music or sound effects.",
-  "duration": 1.8281179138321995,
-  "sha256": "2ff493318411329afd3e4e86749500a15d53324e06a12972c2d8448479309765",
-  "request_sha256": "667bca4e56e500d217bbbb59b76e75640e3f34e56be24123fe5bd1594aab60f3"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 1.2360544217687075,
+  "sha256": "9b3e8da0f11f74e9c3715538b6895360e1d70ffa5d5abc22cba05ba61ef1f06a",
+  "request_sha256": "dcc56c950aee270e3524884d246c4267875996ea391805ddd7c671a927c5b4d3"
 }

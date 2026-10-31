@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+- Speak clearly at a natural pace across all activities in English, German and Spanish.
+- Restore Android game startup and touch input.
+
 - Keep Android game assets and saves inside the app’s private storage.
 
 - Show typed Story letters correctly in the browser Coloring Book.

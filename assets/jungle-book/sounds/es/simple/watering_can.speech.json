@@ -1,11 +1,11 @@
 {
   "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/es/simple/watering_can.wav",
-  "model": "google/gemini-3.1-flash-tts-preview",
+  "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Regadera.",
-  "instructions": "Speak only the supplied word or phrase, clearly and warmly for a toddler in its own language. Natural gentle unhurried pronunciation, no introductory words, no additional text or sounds.",
-  "duration": 1.6843083900226756,
-  "sha256": "543669f05329e5c494517e56cf754de4bb77832f0deecc646f6879a8c4c9d127",
-  "request_sha256": "ca06b27a59908a7b9fba0bf9fcb4a9f0acfdc75234a9e3354e6682c46798a9b2"
+  "instructions": "Habla español de manera cálida, clara y natural, como una persona adulta amable que habla con un niño. Usa un ritmo normal de conversación, pronunciación nítida y frases fluidas. No alargues vocales, separes sílabas, susurres, cantes ni añadas pausas exageradas. Di únicamente el texto proporcionado. Pronuncia cada palabra aislada una sola vez.",
+  "duration": 1.5164172335600907,
+  "sha256": "38e6384554a9d5db27aa893198be3cf65323174de91fe2d8073d62ba1a6c44eb",
+  "request_sha256": "6df9a992c644399f86f24ae4e0dc95e4e70a5e61fe62ab722addf03182033f65"
 }

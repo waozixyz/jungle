@@ -1,11 +1,11 @@
 {
   "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/de/simple/ruler.wav",
-  "model": "google/gemini-3.1-flash-tts-preview",
+  "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Lineal.",
-  "instructions": "Speak only the supplied word or phrase, clearly and warmly for a toddler in its own language. Natural gentle unhurried pronunciation, no introductory words, no additional text or sounds.",
-  "duration": 1.5273469387755103,
-  "sha256": "384cbd4b7518634e045b21d88ab78d925048d328a16a355d86c1b1b96822da60",
-  "request_sha256": "5629cd733e3bb8769e5195620ba5efd7e621b123efd6d329b3a7ff5a8e16921a"
+  "instructions": "Sprich Deutsch warm, klar und natürlich, wie eine freundliche erwachsene Person mit einem Kind. Normales Gesprächstempo, deutliche Aussprache und flüssige Sätze. Keine gedehnten Vokale, getrennten Silben, übertriebenen Pausen, kein Flüstern oder Singen. Sprich nur den vorgegebenen Text. Einzelne Wörter genau einmal aussprechen.",
+  "duration": 1.4757823129251701,
+  "sha256": "cd59827579bd47317d31a17f43fa8616a2dfc26a0fa579d23ea5701c5e096411",
+  "request_sha256": "12ca3301bb36c85dcbbdde88420af7560606562bea92091995243664d631c6ee"
 }

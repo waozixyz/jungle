@@ -1,11 +1,11 @@
 {
   "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/es/simple/goldfish.wav",
-  "model": "google/gemini-3.1-flash-tts-preview",
+  "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Pez dorado.",
-  "instructions": "Speak only the supplied word or phrase, clearly and warmly for a toddler in its own language. Natural gentle unhurried pronunciation, no introductory words, no additional text or sounds.",
-  "duration": 1.6800453514739229,
-  "sha256": "8cb296e55d744ccadd49291e854c7df9f41bc291158ecbba67e7abd92fa56317",
-  "request_sha256": "2ca5426bcd53bb43235bc2b0e732bd99ad3b3b5e8c726c53e9ccb44cb1b10406"
+  "instructions": "Habla español de manera cálida, clara y natural, como una persona adulta amable que habla con un niño. Usa un ritmo normal de conversación, pronunciación nítida y frases fluidas. No alargues vocales, separes sílabas, susurres, cantes ni añadas pausas exageradas. Di únicamente el texto proporcionado. Pronuncia cada palabra aislada una sola vez.",
+  "duration": 1.8768253968253967,
+  "sha256": "7cd41ff861e0bc91201d5051eda0c26594ceb30c93238959df06851bd17ae15f",
+  "request_sha256": "8036cc6c2f82c7dbb886b6d7371cac11347ad9ccbedb530111c38d5b5d4f9726"
 }

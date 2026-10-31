@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/en/simple/socks.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/socks.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Socks.",
-  "instructions": "Speak English gently and clearly for a young child. Speak only the supplied text. Pronounce spelling letters individually with pauses. A single word must be said exactly once, without introduction or repetition.",
-  "duration": 1.732063492063492,
-  "sha256": "5c767ecbf61a7b4f265e5605b5e5e1775f83653fd3611e7254e8a4ccf0f91ce0",
-  "request_sha256": "a42c00cbe8ce0ce89af7e7869f10b7f5344a6371c92283baa9ec1217ba123440"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 1.1478004535147392,
+  "sha256": "2d09272cda2d08e0c2a3c49dc82b1a99a7c2abb113636ae2aeb6870cdf491d7f",
+  "request_sha256": "2f760f07263779f5af504fe2cd9427d92dd902e54768e7bafbc1e3b02e61b00e"
 }

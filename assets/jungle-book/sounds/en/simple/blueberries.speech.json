@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/en/simple/blueberries.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/blueberries.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Blueberries.",
-  "instructions": "Speak English gently and clearly for a small child. Say only the supplied word or literal letter-name once. No introduction, repetition, music or sound effects. Letter names are written phonetically for correct pronunciation.",
-  "duration": 2.5363718820861676,
-  "sha256": "bc8ac73207155c0525f7c8c60a5e8a7c990d01243be7d7d422faad5bb062225c",
-  "request_sha256": "80b6e81d847aeeb29caf7ed462e90a7b2ea7e75ec76180519b968ede764e906f"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 1.3929705215419501,
+  "sha256": "f72d00b9cbed69c8401f4cb2420d38e9ea076e733f9a63b88780dd8a0acf1e48",
+  "request_sha256": "f46e9122695ff5f6e34d0c01a39586a77f5387d4f3c5ecab62971578bdbc8216"
 }

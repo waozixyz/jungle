@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/en/simple/coconut.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/coconut.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Coconut.",
-  "instructions": "Speak English gently and clearly for a young child. Speak only the supplied text. Pronounce spelling letters individually with pauses. A single word must be said exactly once, without introduction or repetition.",
-  "duration": 2.083764172335601,
-  "sha256": "ddfc26c0cfe0ff4f9f6e7c9404527422a92e11c52241329f25d38177d59b7e81",
-  "request_sha256": "a5dca3f95f9323351647a5eaad7383e9a3f39e074d58e27fb11a06e02e879b8d"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 1.4287074829931974,
+  "sha256": "a86728fd07ce1a1a0495a416a7c58d58729f0b7fd3c24e2c3b7944925a96f6c5",
+  "request_sha256": "4c6f26f9c22aadf55f547ad2c8f12a4a3f8b4327eaf8e0bd8f170e3ac8e6c132"
 }

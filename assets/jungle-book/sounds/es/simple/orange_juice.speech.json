@@ -1,11 +1,11 @@
 {
   "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/es/simple/orange_juice.wav",
-  "model": "google/gemini-3.1-flash-tts-preview",
+  "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Zumo de naranja.",
-  "instructions": "Speak only the supplied word or phrase, clearly and warmly for a toddler in its own language. Natural gentle unhurried pronunciation, no introductory words, no additional text or sounds.",
-  "duration": 2.173877551020408,
-  "sha256": "e931590f300c23ce0ca4ded28065b2f33f50a8b3100af3f8c76193602f4ea2f5",
-  "request_sha256": "fdfa60dc01b3303a476b1147dbfddb58e787ebd6bd58744bcf0fd74ff473b474"
+  "instructions": "Habla español de manera cálida, clara y natural, como una persona adulta amable que habla con un niño. Usa un ritmo normal de conversación, pronunciación nítida y frases fluidas. No alargues vocales, separes sílabas, susurres, cantes ni añadas pausas exageradas. Di únicamente el texto proporcionado. Pronuncia cada palabra aislada una sola vez.",
+  "duration": 2.515873015873016,
+  "sha256": "1f1c0d9d9a4af84fb320eae2021d3f6446e008d93523c2b9eb479bcd044a299f",
+  "request_sha256": "c9e23ed2caa96535d19c507f652258dfb3db107a7e25bd070f4bfb2b850c731e"
 }

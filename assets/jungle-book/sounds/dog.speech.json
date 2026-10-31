@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/dog.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/dog.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Dog. D. O. G. Dog.",
-  "instructions": "Speak in clear, gentle American English for a young child learning words. Read the word, pause, spell each individual letter name slowly with a clear pause between letters, then pause and repeat the word. Read exactly the input. Do not add any extra words. No music or sound effects.",
-  "duration": 8.080634920634921,
-  "sha256": "b40670043cdd1d7078b139a67bcd9e9bc07bd03b8abccd4b6be029d819cef470",
-  "request_sha256": "645205379b509ce29372e8fe4f34aa6f663d7ab20b8a6de0c31ac03a9645d1e1"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 5.1545578231292515,
+  "sha256": "8f8eecc8fc2d5d097e133f93beb8c1387bdf32a09c892a7ab17987578b7922f1",
+  "request_sha256": "31f2c545eba9e39652b3bbc3212ed6bc25a776253b46fe36a72bdbc7af68436d"
 }

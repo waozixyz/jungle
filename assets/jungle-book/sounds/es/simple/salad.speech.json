@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/es/simple/salad.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/es/simple/salad.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Ensalada.",
-  "instructions": "Speak Spanish gently and clearly for a small child. Say only each supplied word once. No introduction, repetition, music or sound effects.",
-  "duration": 2.34,
-  "sha256": "ed95dc8332936924962e114d06ed911a9aa07d045a214e7e51a221c15c64f276",
-  "request_sha256": "c06d431f7b90d5631fdce0eaa5d13e36f33bd16b9ee81f945d93847bf58820b0"
+  "instructions": "Habla español de manera cálida, clara y natural, como una persona adulta amable que habla con un niño. Usa un ritmo normal de conversación, pronunciación nítida y frases fluidas. No alargues vocales, separes sílabas, susurres, cantes ni añadas pausas exageradas. Di únicamente el texto proporcionado. Pronuncia cada palabra aislada una sola vez.",
+  "duration": 1.6361904761904762,
+  "sha256": "c23b95b8d7bbfaa24af89c3ee3edc7425bcb3b2f3230f3d4351d262a3bf1bf79",
+  "request_sha256": "80d6fbb00ada1663ff8b0b18e408c419300a0e32b5a540daec989d506ec92c94"
 }

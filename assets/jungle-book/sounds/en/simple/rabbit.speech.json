@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/en/simple/rabbit.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/rabbit.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Rabbit.",
-  "instructions": "Speak English gently and clearly for a young child. Speak only the supplied text. Pronounce spelling letters individually with pauses. A single word must be said exactly once, without introduction or repetition.",
-  "duration": 1.8282993197278912,
-  "sha256": "8bfe67d12474ef0b3a4d65f0f2dbb9d921d6d69b4b69d1be6adeb2fd770d5da2",
-  "request_sha256": "6c54ade368db64d60878c1569faac0783fbd45016a8dcc7185a137048ba5c43e"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 1.31718820861678,
+  "sha256": "cdd22ace58c3cab444a8cd593e0f1bb5a9369b012c16f60c7c56448101b4db31",
+  "request_sha256": "55e35ae98a481cf3f22b2ae15452abfb7930084346f25764ebe6f6a0e39fb99e"
 }

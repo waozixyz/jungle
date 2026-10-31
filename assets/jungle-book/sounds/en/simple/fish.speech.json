@@ -1,11 +1,11 @@
 {
   "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/fish.wav",
-  "model": "google/gemini-3.1-flash-tts-preview",
+  "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Fish.",
-  "instructions": "Speak only the supplied word or phrase, clearly and warmly for a toddler in its own language. Natural gentle unhurried pronunciation, no introductory words, no additional text or sounds.",
-  "duration": 1.5282086167800453,
-  "sha256": "a5ee370a8e04cff1fbbe704724a6ec56ac6580abfc9ed152a2a2c0fc8868bcc4",
-  "request_sha256": "fb128dec28f4bba3a4bfc9bb4d8cdbd851b3c891f86ab7142b0ad53f80589c98"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 1.3569614512471655,
+  "sha256": "3b94d59539b58dc33c4ddb1de7be881f6251b2ddeaed973fccb8a07fe8fdae32",
+  "request_sha256": "244f6727aa24b9900d5bdecb936b7cb82071bd738f031b5ae2f38468fd1df8ed"
 }

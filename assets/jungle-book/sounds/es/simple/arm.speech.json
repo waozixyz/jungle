@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/es/simple/arm.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/es/simple/arm.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Brazo.",
-  "instructions": "Speak Spanish gently and clearly for a small child. Say only each supplied word once. No introduction, repetition, music or sound effects.",
-  "duration": 1.9965986394557824,
-  "sha256": "c97585f1771e9d026cdd21bd82fe920ded6fcd0666b8e1827613c86d61422c15",
-  "request_sha256": "4dabcf9046d15075c3d9505b991b6e24bb3d52f5a1152ed33784b96449a810f9"
+  "instructions": "Habla español de manera cálida, clara y natural, como una persona adulta amable que habla con un niño. Usa un ritmo normal de conversación, pronunciación nítida y frases fluidas. No alargues vocales, separes sílabas, susurres, cantes ni añadas pausas exageradas. Di únicamente el texto proporcionado. Pronuncia cada palabra aislada una sola vez.",
+  "duration": 1.4383219954648525,
+  "sha256": "9cb37773bcc9d2f8b6d5aaa4d417cf6718d9ba55ad86fb67914a47fead3f5db6",
+  "request_sha256": "6a270b3dc420062a636ce82f1f1c6c9e2b6b6556c3fc5b1b737a24778b0e0e10"
 }

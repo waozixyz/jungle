@@ -1,11 +1,11 @@
 {
   "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/de/simple/whale.wav",
-  "model": "google/gemini-3.1-flash-tts-preview",
+  "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Wal.",
-  "instructions": "Speak only the supplied word or phrase, clearly and warmly for a toddler in its own language. Natural gentle unhurried pronunciation, no introductory words, no additional text or sounds.",
-  "duration": 1.423718820861678,
-  "sha256": "ba25648940ba82f936b420581206d167419a8459d805144a28ed8d90ab777651",
-  "request_sha256": "3b0a553cb4d5a5320a4be35d24550ada1a6022a3b8c3c7f576a1c61fe0fe1500"
+  "instructions": "Sprich Deutsch warm, klar und natürlich, wie eine freundliche erwachsene Person mit einem Kind. Normales Gesprächstempo, deutliche Aussprache und flüssige Sätze. Keine gedehnten Vokale, getrennten Silben, übertriebenen Pausen, kein Flüstern oder Singen. Sprich nur den vorgegebenen Text. Einzelne Wörter genau einmal aussprechen.",
+  "duration": 1.3954195011337869,
+  "sha256": "a37b7ae5e3b5563d162a6411be6f28d10f7a6504b0918c1a24a8ec66934f7ac6",
+  "request_sha256": "5d0172495c53f4cbfd15413dee1b6635c326bd89537d59d95dcbedab3eb3e6e2"
 }

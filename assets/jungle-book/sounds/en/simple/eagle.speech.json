@@ -2,10 +2,10 @@
   "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/eagle.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Eagle.",
-  "instructions": "Speak only the supplied word or short phrase, in clear natural English, gently and unhurriedly for a toddler picture book. No greeting, commentary or extra words. Use the same calm clear voice throughout.",
-  "duration": 1.7849886621315192,
-  "sha256": "649652db7d46f5a859769debb88ec532ee96d4aca5d2f54bc74664589167eb25",
-  "request_sha256": "ba2bee5c503816b6658f2fc894f10a737ecd1235a55febea1dbacf9c7859c7db"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 1.4,
+  "sha256": "9f0812eca445dbafefa4c572c9351365650e5b2092126b537158b2ae2aa6562f",
+  "request_sha256": "54231831b7387242f7083a782b467e4e4fd89a365c5c9c763fab3520f8966142"
 }

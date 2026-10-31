@@ -1,11 +1,11 @@
 {
   "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/notebook.wav",
-  "model": "google/gemini-3.1-flash-tts-preview",
+  "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Notebook.",
-  "instructions": "Speak only the supplied word or phrase, clearly and warmly for a toddler in its own language. Natural gentle unhurried pronunciation, no introductory words, no additional text or sounds.",
-  "duration": 1.6764625850340136,
-  "sha256": "2e1cd254206e78a21d1f23e472c53a56c98bea077c5a60a6845c0dbfff3e8d9d",
-  "request_sha256": "9130c9c2eabdd4e63636f5c23c3214f4195b73836d51e909c0b6085748fdc59e"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 1.3501587301587301,
+  "sha256": "35df93f914c9b050c5a2e826d4d44425cd7bf56b3c996a743782190459616053",
+  "request_sha256": "c5dfa200680312cc60ad1cbfceea32afea9e2789a610c88f6ce47eb22c3d01eb"
 }

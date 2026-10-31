@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/en/simple/hippo.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/hippo.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Hippo.",
-  "instructions": "Speak English gently and clearly for a small child. Say only the supplied word or literal letter-name once. No introduction, repetition, music or sound effects. Letter names are written phonetically for correct pronunciation.",
-  "duration": 1.6798639455782314,
-  "sha256": "03952958a1e9d612929610f64e37da77d83c3655448ab807cb81ab05351c360b",
-  "request_sha256": "d8468fbee4ff33ce8e933165881a90b476d3e48cbf30e7e06ef36dd215283d13"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 1.2726530612244897,
+  "sha256": "757ecf7940f01684c8f09231ba67edb175293db1404aa51f7177939a9241912e",
+  "request_sha256": "50cecc4971da34da0e995f7821f8a91b2472f71794c41aa9dd95704ea8ca2560"
 }

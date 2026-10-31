@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/en/simple/car.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/car.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Car.",
-  "instructions": "Speak only the supplied English word in a calm, warm, clear voice for a toddler's first-word picture book. Natural gentle articulation, no extra words, no music.",
-  "duration": 1.5779138321995465,
-  "sha256": "0e268f84fa23930af745264f3c099d484ca6b490bd8366389a3fc2ca590067ee",
-  "request_sha256": "4f98bccaa80f6570c4e163a54b7e0a70fe07c98d92e5fa4254fe1df9179dc51e"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 1.2774603174603174,
+  "sha256": "e575092dfc6661c0eb7fffcd5f74dc92d1815dd45ac1189626bad0b223da1551",
+  "request_sha256": "de585729cd0559368b6e8ff93e84817c1453bb7a781b49b1b71a72fba7cc8e35"
 }

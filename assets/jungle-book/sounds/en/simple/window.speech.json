@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/en/simple/window.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/window.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Window.",
-  "instructions": "Speak English gently and clearly for a small child. Say only the supplied word or literal letter-name once. No introduction, repetition, music or sound effects. Letter names are written phonetically for correct pronunciation.",
-  "duration": 2.288390022675737,
-  "sha256": "f8ccf29957a364ecd64173ea2ce2fb90ae16aa520b8ac26da2fad62922800c17",
-  "request_sha256": "4da6da1cc9d13f2996233e5fa4ffbed1962a72e37f30b68729f28bb82c2206c0"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 1.2384126984126984,
+  "sha256": "1f5135dcf31b397d3e5eee3dd916bcd89a542982f9df6d9125eb7279f2affe1f",
+  "request_sha256": "12a5c87cf592bdc26a93f2579293566ea97d523c385a4a2d72881043cb15d8ba"
 }

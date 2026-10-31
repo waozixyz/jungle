@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/en/simple/donkey.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/donkey.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Donkey.",
-  "instructions": "Speak English gently and clearly for a young child. Speak only the supplied text. Pronounce spelling letters individually with pauses. A single word must be said exactly once, without introduction or repetition.",
-  "duration": 1.9357823129251701,
-  "sha256": "8048285bf24a99d6aa28fdb975a8a55caf029d266ce89059739d3748b4ab1587",
-  "request_sha256": "a3cb3b7e68004c9d1d871981a3456f5dad4b9df161329a845de826b9518d6a38"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 1.43437641723356,
+  "sha256": "4ec9d754406dd489b1bc309f1c1804e02b1b2d27b79bfac4591d54119bd3367f",
+  "request_sha256": "5b1274cfa75be9dc5f34f4c488f99e31527f6628a2e756be883ef854d53f5040"
 }

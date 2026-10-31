@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/panda.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/panda.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Panda. P. A. N. D. A. Panda.",
-  "instructions": "Speak in clear, gentle American English for a young child learning words. Read the word, pause, spell each individual letter name slowly with a clear pause between letters, then pause and repeat the word. Read exactly the input. Do not add any extra words. No music or sound effects.",
-  "duration": 10.296689342403628,
-  "sha256": "e95c521e58975b397955cb1831681b9dd721ba889f5965a974a2a2c5b879b0e8",
-  "request_sha256": "a945455e7e2213ee06d3a2abfae3228db2fe60a3005a2f88c4976adf8f6f93ec"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 6.63546485260771,
+  "sha256": "488001a5a1c6e8464d907ad8b8404dda6493a947f5c591669f692fa7bbc183ba",
+  "request_sha256": "ae61b952cf01b00c4f59de8114c55b479aeef6afe0c09b2860001a343c3a3036"
 }

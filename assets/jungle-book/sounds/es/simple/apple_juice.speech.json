@@ -1,11 +1,11 @@
 {
   "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/es/simple/apple_juice.wav",
-  "model": "google/gemini-3.1-flash-tts-preview",
+  "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Zumo de manzana.",
-  "instructions": "Speak only the supplied word or phrase, clearly and warmly for a toddler in its own language. Natural gentle unhurried pronunciation, no introductory words, no additional text or sounds.",
-  "duration": 2.5797732426303854,
-  "sha256": "8743535acff12d02444b6496da3281a592d2ca14c6a4b27fcc0d394636655d89",
-  "request_sha256": "23908e02790cf45bbdb468dbd16ec99774382c57cda7821f86361fe82dd83789"
+  "instructions": "Habla español de manera cálida, clara y natural, como una persona adulta amable que habla con un niño. Usa un ritmo normal de conversación, pronunciación nítida y frases fluidas. No alargues vocales, separes sílabas, susurres, cantes ni añadas pausas exageradas. Di únicamente el texto proporcionado. Pronuncia cada palabra aislada una sola vez.",
+  "duration": 2.3159183673469386,
+  "sha256": "d96ed05eea4dd7e6e6df6dd3e0841da46403f44e875d4ad927d8965deb27661a",
+  "request_sha256": "aca46759ac978056020a102c8b6faaa4511869112ceb37d2f6e3fafb4d525808"
 }

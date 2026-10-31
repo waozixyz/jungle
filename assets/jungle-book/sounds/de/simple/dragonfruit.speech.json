@@ -1,11 +1,11 @@
 {
   "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/de/simple/dragonfruit.wav",
-  "model": "google/gemini-3.1-flash-tts-preview",
+  "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Drachenfrucht.",
-  "instructions": "Speak only the supplied word or phrase, clearly and warmly for a toddler in its own language. Natural gentle unhurried pronunciation, no introductory words, no additional text or sounds.",
-  "duration": 1.8760997732426303,
-  "sha256": "b7fdad8137c795f131ba8581eb4ff587db76dfda37ad392833d99deb64f0ab75",
-  "request_sha256": "cc9e9ca8da3c76f02cdd5449512d736103f2099233a08bc5f77a33267d30f2cf"
+  "instructions": "Sprich Deutsch warm, klar und natürlich, wie eine freundliche erwachsene Person mit einem Kind. Normales Gesprächstempo, deutliche Aussprache und flüssige Sätze. Keine gedehnten Vokale, getrennten Silben, übertriebenen Pausen, kein Flüstern oder Singen. Sprich nur den vorgegebenen Text. Einzelne Wörter genau einmal aussprechen.",
+  "duration": 1.7559183673469387,
+  "sha256": "c6e0839b1b7e532e521d6ff76480d8834571719ce6aa8458338a76148620eb46",
+  "request_sha256": "5f7a55531b2f31f49f86ff560e118c802d44ff346d667ef39a13f04bb905cf13"
 }

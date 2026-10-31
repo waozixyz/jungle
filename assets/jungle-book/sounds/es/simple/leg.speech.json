@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/es/simple/leg.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/es/simple/leg.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Pierna.",
-  "instructions": "Speak Spanish gently and clearly for a small child. Say only each supplied word once. No introduction, repetition, music or sound effects.",
-  "duration": 1.926031746031746,
-  "sha256": "2bad48fbadb5865c3ea5f302fd66aab94e8154d8a3bdee9cf14df4813cb29f52",
-  "request_sha256": "b3aeed83a76d97aa7280e91ba630e9e3c014417f969f8b0600f7ad0759fe5093"
+  "instructions": "Habla español de manera cálida, clara y natural, como una persona adulta amable que habla con un niño. Usa un ritmo normal de conversación, pronunciación nítida y frases fluidas. No alargues vocales, separes sílabas, susurres, cantes ni añadas pausas exageradas. Di únicamente el texto proporcionado. Pronuncia cada palabra aislada una sola vez.",
+  "duration": 1.3982312925170068,
+  "sha256": "bf191f56d5b279ec729391a7234195b596c39f8730b0b8aa4a84e4b24ba8287d",
+  "request_sha256": "e933e09c84b07b17c662b188e86869dce77b1cc6a87b030ca33fffe4d5ca4023"
 }

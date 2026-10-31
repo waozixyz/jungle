@@ -2,10 +2,10 @@
   "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/hummus.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Hummus.",
-  "instructions": "Speak only the supplied word or short phrase, in clear natural English, gently and unhurriedly for a toddler picture book. No greeting, commentary or extra words. Use the same calm clear voice throughout.",
-  "duration": 1.9390022675736962,
-  "sha256": "ed054aeeb3bbd87e28f09cb3ec4298ef2b7c7ae4c728fd4a4c83651357ef7d87",
-  "request_sha256": "bba3654e200c7152b7708e7233f5703e40d0650ef0eb3a6bf10e6107b6c03c89"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 1.2770975056689342,
+  "sha256": "3965c8477a015f6e2fe56e16dd4cdc619872b493de6083138737f11b9b25b1cd",
+  "request_sha256": "73f6383c75f2f7c098c4bd81b11d7e8db3f28613dabb1bfa86a81081c890bdfe"
 }

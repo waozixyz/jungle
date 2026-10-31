@@ -1,11 +1,11 @@
 {
   "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/de/simple/trowel.wav",
-  "model": "google/gemini-3.1-flash-tts-preview",
+  "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Pflanzkelle.",
-  "instructions": "Speak only the supplied word or phrase, clearly and warmly for a toddler in its own language. Natural gentle unhurried pronunciation, no introductory words, no additional text or sounds.",
-  "duration": 2.0197732426303854,
-  "sha256": "24535c4cc84ca4bcec28cfd758ab65c66cd7d70c14cbaf49341f9e9951db95c8",
-  "request_sha256": "56f2664cffb1c08825acd4b041d7b6e1ae35cc6b64d056ae35a5382518b130e1"
+  "instructions": "Sprich Deutsch warm, klar und natürlich, wie eine freundliche erwachsene Person mit einem Kind. Normales Gesprächstempo, deutliche Aussprache und flüssige Sätze. Keine gedehnten Vokale, getrennten Silben, übertriebenen Pausen, kein Flüstern oder Singen. Sprich nur den vorgegebenen Text. Einzelne Wörter genau einmal aussprechen.",
+  "duration": 1.5523356009070295,
+  "sha256": "6bee89e2efedd37beafccc9b1a1e687ce2b52200728d5fd0f062a5c3285603f5",
+  "request_sha256": "e7841d98cf77484491b72f785bc1247e5720ae02469522a58c4d7e7c629d17db"
 }

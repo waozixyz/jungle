@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/en/simple/meatballs.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/meatballs.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Meatballs.",
-  "instructions": "Speak English gently and clearly for a small child. Say only each supplied word once. No introduction, repetition, music or sound effects.",
-  "duration": 2.3321995464852607,
-  "sha256": "e66cd42e24e3535b20f0a418232589154dbc1f79986b82225a855dca681eb329",
-  "request_sha256": "24ea7cc47389b24e2148540a1b7dfa3682369fbcc7587c8919f0445bdda79893"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 1.3983673469387754,
+  "sha256": "98b7aec913ef76d84c64bbb6dce083a0ad387881697606d560bd0cd126f7522d",
+  "request_sha256": "62cbb7f15469727c912bc97436792a40f372b629b41a435d52559d03d50daec6"
 }

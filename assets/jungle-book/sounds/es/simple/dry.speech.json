@@ -2,10 +2,10 @@
   "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/es/simple/dry.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Seco.",
-  "instructions": "Speak only the exact supplied Spanish word or short phrase once, using natural Spanish pronunciation. Warm, calm and clear, for a toddler picture book. No added words, letter spelling, music or sound effects.",
-  "duration": 1.581904761904762,
-  "sha256": "ad9ec61fb4238f2a9c96a9496cd27da8d27ffd594caf976bc05f6f30c8cee765",
-  "request_sha256": "627448376002a7b8c2d0ce5869677805793e0be0e4b48468e3a8b66026949502"
+  "instructions": "Habla español de manera cálida, clara y natural, como una persona adulta amable que habla con un niño. Usa un ritmo normal de conversación, pronunciación nítida y frases fluidas. No alargues vocales, separes sílabas, susurres, cantes ni añadas pausas exageradas. Di únicamente el texto proporcionado. Pronuncia cada palabra aislada una sola vez.",
+  "duration": 1.4331519274376416,
+  "sha256": "7077d83512e83b015cf8a800062b2cdc82a0beaa6f0fff2682e4efd84377f302",
+  "request_sha256": "b886d8dffc2fd4b8a1ac2f4254299944dc2f2b6b5eb360c808c9c19b2b88286c"
 }

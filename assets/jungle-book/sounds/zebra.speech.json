@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/zebra.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/zebra.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Zebra. Z. E. B. R. A. Zebra.",
-  "instructions": "Speak in clear, gentle American English for a young child learning words. Read the word, pause, spell each individual letter name slowly with a clear pause between letters, then pause and repeat the word. Read exactly the input. Do not add any extra words. No music or sound effects.",
-  "duration": 10.133333333333333,
-  "sha256": "ef311fced7472f22e11286a65f619c3dcb56162410ed89a0adaaf18b3ce07eb8",
-  "request_sha256": "4c026848da60ee3c28766ef0811c6ca0685eac4c059862966913b19497a6a7a6"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 6.875963718820862,
+  "sha256": "72e93c87205dcf6774038f704509fdd29f3408a01af4d61eb3f51f4f3d606a40",
+  "request_sha256": "cec5c9f663857dd11aac8323e1c00395800ef6ef217db0499c0c29dfde974aff"
 }

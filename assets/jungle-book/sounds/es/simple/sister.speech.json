@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/es/simple/sister.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/es/simple/sister.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Hermana.",
-  "instructions": "Speak Spanish gently and clearly for a small child. Say only each supplied word once. No introduction, repetition, music or sound effects.",
-  "duration": 2.032154195011338,
-  "sha256": "c07cc4931a98277dc84e36a3c8a0315960eae7e5424e4b752e8775007611e790",
-  "request_sha256": "31a97d4c0fa30ddf6be9c20cec4bfd46577d7c7362ee51467da07043e43ceb58"
+  "instructions": "Habla español de manera cálida, clara y natural, como una persona adulta amable que habla con un niño. Usa un ritmo normal de conversación, pronunciación nítida y frases fluidas. No alargues vocales, separes sílabas, susurres, cantes ni añadas pausas exageradas. Di únicamente el texto proporcionado. Pronuncia cada palabra aislada una sola vez.",
+  "duration": 1.3170975056689342,
+  "sha256": "fbf0a3ba9fc83538622ac5831264fca3fc3d49c26a68e3c53bfaec7ea40dd32e",
+  "request_sha256": "f0eab3e68ce469ccc7ca494b78c5b00b2bf06e66a719fbeace75142b13eed9b9"
 }

@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/mouse.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/mouse.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Mouse. M. O. U. S. E. Mouse.",
-  "instructions": "Speak in clear, gentle American English for a young child learning words. Read the word, pause, spell each individual letter name slowly with a clear pause between letters, then pause and repeat the word. Read exactly the input. Do not add any extra words. No music or sound effects.",
-  "duration": 9.82938775510204,
-  "sha256": "f2bcc92eb35848ced0984918379051d5a3c640b9d5fd31fc64f8bea328c4a4b5",
-  "request_sha256": "870cef5dba8f896386c1e2d932defe89fc4b1996e419ccddc830fc1c4a03318e"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 7.196780045351474,
+  "sha256": "2b0dd7b18aa1c32d7d2bc333c539e85bc1d8a2aed5c83ffc34362cbd104c79a0",
+  "request_sha256": "475c667a8418a22443d9241a90053b78efff731b96b7169ebbfa8eb865114ad3"
 }

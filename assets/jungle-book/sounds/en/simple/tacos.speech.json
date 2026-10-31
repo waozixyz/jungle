@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/en/simple/tacos.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/tacos.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Tacos.",
-  "instructions": "Speak English gently and clearly for a small child. Say only each supplied word once. No introduction, repetition, music or sound effects.",
-  "duration": 1.935419501133787,
-  "sha256": "c8080d7ffaba25d14283b961e13d5c5a8cc5ae82f18b214c8c924d175aeca460",
-  "request_sha256": "3872af6cb71f2d5fcbb1ef894225edcd180100a61f205fa53aa6adb510e27baf"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 1.4296145124716553,
+  "sha256": "6d31814d7027a93882aea6f9f23925646e09edcb1ccce15a891f33fc6df0bb5b",
+  "request_sha256": "7a231715184694f4cc05e68ecc36f7607b2b85b9fd07c324acf7a880cbe4a7cc"
 }

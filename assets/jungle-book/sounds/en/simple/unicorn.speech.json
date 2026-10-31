@@ -1,11 +1,11 @@
 {
   "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/unicorn.wav",
-  "model": "google/gemini-3.1-flash-tts-preview",
+  "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Unicorn.",
-  "instructions": "Speak only the supplied word or phrase, clearly and warmly for a toddler in its own language. Natural gentle unhurried pronunciation, no introductory words, no additional text or sounds.",
-  "duration": 1.8319274376417234,
-  "sha256": "8ceebe314a50b466330b71f0ded24b70309368fd4c49788da5bd1696595d15e0",
-  "request_sha256": "9018fdbc618f9208f3e798c4f4f609665b1587b1d1889e0771210994fd0bb606"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 1.5959183673469388,
+  "sha256": "9bc22420199ee20c5ab075047e3fe60812c52acccd84a0c582573fae8cc09911",
+  "request_sha256": "6b922859740cbd734e8209a9fa0ddceece87172ab1ce0754c9bc4ef0cdb1c6f0"
 }

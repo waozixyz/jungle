@@ -2,10 +2,10 @@
   "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/hide_seek/sounds/en/peekaboo.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Peekaboo! Who is hiding?",
-  "instructions": "Speak only the exact supplied English phrase once, using natural English pronunciation. Warm, calm and clear, for a toddler picture game. No added words, music or sound effects.",
-  "duration": 4.384897959183673,
-  "sha256": "d7af1a92c1680ec9e9fe34b6c455da94bc9b06315f6e322038a515802af21385",
-  "request_sha256": "4c1f19d8d994721bfd163092e56c9d30e562dbae4c394ba47dedbfffc48fc4b4"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 2.917732426303855,
+  "sha256": "31f0cfc98bc9b81e89938b301c48afe0b1550646e1ec9a35757fa91a8f2c8a08",
+  "request_sha256": "c22d3ccad5f98981c9e8ace39bee6c71cd2e877df1f3db817a03a8ab8048f64b"
 }

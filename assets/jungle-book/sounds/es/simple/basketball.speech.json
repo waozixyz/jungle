@@ -2,10 +2,10 @@
   "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/es/simple/basketball.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Baloncesto.",
-  "instructions": "Speak only the exact supplied Spanish word or short phrase once, using natural Spanish pronunciation. Warm, calm and clear, for a toddler picture book. No added words, letter spelling, music or sound effects.",
-  "duration": 2.2778684807256235,
-  "sha256": "1486e6cc802f686b2b4f8426e0a3faea033a2cc814fd885684d7e31116779881",
-  "request_sha256": "a99cfeacaeb025f8d27e2b041ead3c5b11dd8f1dd453e29d5e29e9c2c5d94f0c"
+  "instructions": "Habla español de manera cálida, clara y natural, como una persona adulta amable que habla con un niño. Usa un ritmo normal de conversación, pronunciación nítida y frases fluidas. No alargues vocales, separes sílabas, susurres, cantes ni añadas pausas exageradas. Di únicamente el texto proporcionado. Pronuncia cada palabra aislada una sola vez.",
+  "duration": 1.5515646258503402,
+  "sha256": "4ff5575d4d1444856baaac702d268e8bb6cb5a6ae07e34d150a45071d54a9da2",
+  "request_sha256": "67b43ddb6026cfdd400d15084b47770462950304faa22eea0700b18c9530fef1"
 }

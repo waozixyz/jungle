@@ -1,11 +1,11 @@
 {
   "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/de/simple/crayons.wav",
-  "model": "google/gemini-3.1-flash-tts-preview",
+  "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Wachsmalstifte.",
-  "instructions": "Speak only the supplied word or phrase, clearly and warmly for a toddler in its own language. Natural gentle unhurried pronunciation, no introductory words, no additional text or sounds.",
-  "duration": 2.2374603174603176,
-  "sha256": "686f572bae8877d55e3bf3f1a11455e07fb03d89ed035e5eb06b9ebcaaad28d2",
-  "request_sha256": "5e64a0a8aa6d055010c2d165c76cdadfd1aadefabeb556bde121735a805f85b0"
+  "instructions": "Sprich Deutsch warm, klar und natürlich, wie eine freundliche erwachsene Person mit einem Kind. Normales Gesprächstempo, deutliche Aussprache und flüssige Sätze. Keine gedehnten Vokale, getrennten Silben, übertriebenen Pausen, kein Flüstern oder Singen. Sprich nur den vorgegebenen Text. Einzelne Wörter genau einmal aussprechen.",
+  "duration": 2.1143310657596373,
+  "sha256": "a04516f2c6d5c8e2397ffece2bb877ad012a777b24a430f736f125123f0de5e8",
+  "request_sha256": "7e0e80714380872a271de975a695219713e612b6776cd9f94b3f91f25fbcbdad"
 }

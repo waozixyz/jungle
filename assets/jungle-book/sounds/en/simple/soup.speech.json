@@ -1,11 +1,11 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/jungle/assets/jungle-book/sounds/en/simple/soup.wav",
+  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/soup.wav",
   "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Soup.",
-  "instructions": "Speak English gently and clearly for a small child. Say only each supplied word once. No introduction, repetition, music or sound effects.",
-  "duration": 1.9256689342403628,
-  "sha256": "01bbd978c73774c626d7a62ecf5978d788912ec8e12509fef7da52b699db8350",
-  "request_sha256": "35473f81d08519be5952f78a4468e0cbd80d151cf4e95e97dc7ad980af86a173"
+  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
+  "duration": 1.3975056689342404,
+  "sha256": "cf2f58098879e53ea856c958d4863d36db32ec63cad41059d4d0b56edcfb0e63",
+  "request_sha256": "eeb02517bdb4abe135e77d66acf62bc34aaa7a4fa4a666668fd4328f345853b3"
 }

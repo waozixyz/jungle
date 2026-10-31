@@ -1,11 +1,11 @@
 {
   "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/es/simple/flowerpot.wav",
-  "model": "google/gemini-3.1-flash-tts-preview",
+  "model": "google/gemini-3.8-flash-lite-tts",
   "voice": "Kore",
-  "speed": 0.8,
+  "speed": 1.0,
   "text": "Maceta.",
-  "instructions": "Speak only the supplied word or phrase, clearly and warmly for a toddler in its own language. Natural gentle unhurried pronunciation, no introductory words, no additional text or sounds.",
-  "duration": 1.6714739229024944,
-  "sha256": "fadd564d24c667ed4a32791ad1d825fd9aa635b6e8f920b5ac8a6bc8e65a6796",
-  "request_sha256": "00c02b149c44501abb9efdf054827b8310f437b498e477a1db91287ebfcfaf3b"
+  "instructions": "Habla español de manera cálida, clara y natural, como una persona adulta amable que habla con un niño. Usa un ritmo normal de conversación, pronunciación nítida y frases fluidas. No alargues vocales, separes sílabas, susurres, cantes ni añadas pausas exageradas. Di únicamente el texto proporcionado. Pronuncia cada palabra aislada una sola vez.",
+  "duration": 1.513877551020408,
+  "sha256": "45f05c69eabf656bc8c2af112459d2c9adb9a2d2628ee3feab1413b28e62143f",
+  "request_sha256": "e868f1866fd34a1fe84164426ee770987e090c98d1253fea8c06d6aa9460d70d"
 }
