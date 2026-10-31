@@ -266,9 +266,17 @@ def rotation(language, data):
         time.sleep(.3)
         before = working.read_bytes()
         try:
-            desktop.key('Escape')
+            # Desktop.key uses --clearmodifiers, which sends ButtonRelease
+            # before Escape: a real release that commits. Keep the button
+            # held and wait until Escape has left Paint before releasing.
+            run(['xdotool', 'windowfocus', desktop.window], desktop.env)
+            run(['xdotool', 'key', '--delay', '80', 'Escape'], desktop.env)
+            desktop.wait_menu('library-rotation-escape')
+            assert working.read_bytes() == before, 'leaving committed a canceled drag'
         finally:
             run(['xdotool', 'mouseup', '1'], desktop.env)
+        time.sleep(.4)
+        desktop.alive()
         assert working.read_bytes() == before, 'leaving committed a canceled drag'
     print(f'local native library ({language}): Select, free handle rotation, preview/release, no-op, alpha hit, Undo/reopen, edges and responsive layouts passed', flush=True)
 
