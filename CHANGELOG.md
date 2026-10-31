@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.32
+
+Released 2026-10-31.
+
+- Keep Hide & Seek prompts and completion messages readable on small screens in English, German and Spanish.
+
 ## 0.1.31
 
 Released 2026-10-31.
