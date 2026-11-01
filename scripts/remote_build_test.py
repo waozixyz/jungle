@@ -6,6 +6,8 @@ import io
 import json
 from pathlib import Path
 import shutil
+import shlex
+import subprocess
 import tarfile
 import tempfile
 import unittest
@@ -90,6 +92,39 @@ class SyncTest(unittest.TestCase):
         (self.root / 'link').symlink_to(self.root, target_is_directory=True)
         with self.assertRaisesRegex(RuntimeError, 'linked destination'):
             workflow.safe_path(self.root, 'link/owner-data')
+
+
+class MakeGoalsTest(unittest.TestCase):
+    def setUp(self):
+        self.project = Path(__file__).resolve().parents[1]
+        base = self.project / 'work/remote-build-tests'
+        base.mkdir(parents=True, exist_ok=True)
+        self.work = Path(tempfile.mkdtemp(dir=base))
+        self.marker = self.work / 'local-compiler-invoked'
+        self.sentinel = self.work / 'ziran-sentinel'
+        self.sentinel.write_text('#!/bin/sh\necho invoked >> ' + shlex.quote(str(self.marker)) + '\nexit 99\n')
+        self.sentinel.chmod(0o755)
+        self.make = shutil.which('make', path='/usr/bin:/bin')
+
+    def tearDown(self):
+        shutil.rmtree(self.work)
+
+    def test_remote_only_dry_run_never_invokes_local_toolchain(self):
+        for goals in (['remote-debug'], ['remote-run'], ['remote-debug', 'remote-run']):
+            result = subprocess.run([self.make, '-n', 'ZIRAN=' + str(self.sentinel), *goals],
+                                    cwd=self.project, capture_output=True, text=True)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertIn('scripts/remote_build.py', result.stdout)
+            self.assertFalse(self.marker.exists(), 'Remote-only goal resolved a desktop package')
+
+    def test_default_and_mixed_goals_keep_native_rule_parsing(self):
+        # Question mode never executes recipes or builds; the sentinel records
+        # only native prerequisite expansion while Make parses the real file.
+        for goals in ([], ['remote-debug', 'all']):
+            subprocess.run([self.make, '-q', 'ZIRAN=' + str(self.sentinel), *goals],
+                           cwd=self.project, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            self.assertTrue(self.marker.exists(), 'Native rules were omitted for default/mixed goals')
+            self.marker.unlink()
 
 
 if __name__ == '__main__':

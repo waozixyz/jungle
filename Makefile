@@ -9,6 +9,9 @@ remote-debug:
 remote-run:
 	python3 scripts/remote_build.py --host '$(REMOTE_HOST)' $(REMOTE_FLAGS) --launch
 
+# Remote-only goals must not resolve or build the desktop toolchain at parse time.
+# Default and mixed local/remote goals retain the normal native rules.
+ifneq ($(filter-out remote-debug remote-run,$(if $(MAKECMDGOALS),$(MAKECMDGOALS),all)),)
 ZIRAN ?= ziran
 LOCK_FLAGS := $(if $(wildcard ziran.local.toml),,--locked)
 TOOLCHAIN = $(shell $(ZIRAN) pkg path ziran $(LOCK_FLAGS))
@@ -289,3 +292,5 @@ install: all
 test: test-paint-picker-layout
 test-paint-picker-layout: build/tests/paint_picker_layout
 	build/tests/paint_picker_layout
+
+endif # native rules for default, local or mixed goals
