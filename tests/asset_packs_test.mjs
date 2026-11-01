@@ -60,7 +60,23 @@ for(const path of paths){
   assert.equal(await JungleAssetPacks.hash(original),entry.source_sha256,path);
   assert.equal(Buffer.from(actual).subarray(0,4).toString(),'RIFF',path);
   assert.equal(Buffer.from(actual).subarray(8,12).toString(),'WEBP',path);
-  assert.equal(entry.quality,90);assert.ok(actual.length<original.length);
+  if(entry.lossless===true){
+   assert.match(path,/^assets\/(?:jungle-book\/items|hide_seek\/(?:props|scenes)|drums\/pictures)\/[^/]+\.png$/);
+   assert.equal(entry.quality,undefined);
+   // Verify the actual RIFF image codec, including extended WebP containers.
+   const bytes=Buffer.from(actual);let lossless=false;
+   for(let at=12;at+8<=bytes.length;){
+    const kind=bytes.toString('ascii',at,at+4),size=bytes.readUInt32LE(at+4);
+    assert.ok(at+8+size<=bytes.length,'Truncated WebP chunk: '+path);
+    if(kind==='VP8L')lossless=true;
+    assert.notEqual(kind,'VP8 ','A lossless texture used the lossy codec: '+path);
+    at+=8+size+(size&1);
+   }
+   assert.ok(lossless,'Lossless WebP image payload missing: '+path);
+  }else{
+   assert.match(path,/\.jpg$/);assert.equal(entry.quality,90);
+  }
+  assert.ok(actual.length<original.length);
  }else assert.deepEqual(Buffer.from(actual),original,path);
  assert.ok(loader.bytes<=loader.cacheBytes);
 }
