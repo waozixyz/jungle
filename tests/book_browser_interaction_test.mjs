@@ -1,6 +1,6 @@
 import {bookIds,pageCounts,bookPosition} from './book_web_geometry.mjs';
 // Private CDP scaffolding shared with paint_layers_web_test.mjs.
-import {spawn} from 'node:child_process';
+import {spawn,execFileSync} from 'node:child_process';
 import {readFile,writeFile,mkdtemp,rm,mkdir} from 'node:fs/promises';
 import {createServer} from 'node:http';
 import {createHash} from 'node:crypto';
@@ -60,7 +60,8 @@ async function run(input){
   const clear=()=>evaluate('window.jungleTestVoices=[]');
   const last=()=>evaluate('window.jungleTestVoices.at(-1)');
   async function spoken(what){await until(async()=>(await voices()).length>0,what);return last()}
-  const screen=async()=>createHash('sha1').update((await command('Page.captureScreenshot',{format:'png',clip:{x:0,y:56,width:1280,height:560,scale:1}})).data).digest('hex');
+  const screenBytes=async()=>Buffer.from((await command('Page.captureScreenshot',{format:'png',clip:{x:0,y:56,width:1280,height:560,scale:1}})).data,'base64');
+  const screen=async()=>createHash('sha1').update(await screenBytes()).digest('hex');
   await command('Runtime.enable');await command('Page.enable');
   await command('Page.addScriptToEvaluateOnNewDocument',{source:'window.jungleTestVoices=[];Object.defineProperty(HTMLMediaElement.prototype,"junglePath",{get(){return this.dataset.junglePath},set(path){this.dataset.junglePath=path;window.jungleTestRequestedAudio=this}});const play=HTMLMediaElement.prototype.play;HTMLMediaElement.prototype.play=function(){window.jungleTestVoices.push(this.junglePath||this.src);return play.apply(this,arguments)}'});
   await command('Emulation.setDeviceMetricsOverride',{width:1280,height:675,deviceScaleFactor:1,mobile:false});
@@ -106,7 +107,19 @@ async function run(input){
   await clear();await key('F10');await click(1150,400);await delay(500);if((await voices()).length)throw Error('Muted turn played audio');
   await key('F10');await click(90,400);await spoken('unmuted narration');
   const beforeMiddle=await screen();await clear();await click(640,350,'middle',false);await delay(250);if((await voices()).length||await screen()!==beforeMiddle)throw Error('Middle click activated Book');
-  await click(640,350,'right',false);await shot('shelf');const shelf=await screen();
+  await click(640,350,'right',false);await shot('shelf');
+  const shelfBytes=await screenBytes(),shelf=createHash('sha1').update(shelfBytes).digest('hex');
+  const shelfControls=()=>evaluate(`JSON.stringify([...document.querySelectorAll('#kryon-dom-root button')].map(e=>{const r=e.getBoundingClientRect();return [e.getAttribute('aria-label'),r.x,r.y,r.width,r.height]}))`);
+  const shelfSignature=await shelfControls();
+  async function matchesShelf(){
+   if(await shelfControls()!==shelfSignature)return false;
+   const current=await screenBytes();if(createHash('sha1').update(current).digest('hex')===shelf)return true;
+   const prefix=`backup/book-browser-controls/${page}-${input}-shelf-comparison`;
+   await writeFile(prefix+'-reference.png',shelfBytes);await writeFile(prefix+'-current.png',current);
+   const comparison=JSON.parse(execFileSync('python3',['tests/book_screen_compare.py',prefix+'-reference.png',prefix+'-current.png'],{encoding:'utf8'}));
+   console.log(label+': shelf pixel comparison '+JSON.stringify(comparison));
+   return comparison.equal;
+  }
   if(page==='dom.html'&&!await evaluate('[...document.querySelectorAll("[aria-label]")].some(e=>e.getAttribute("aria-label")==="Manage books")'))throw Error('Right click did not reach shelf');
   // Finish the current dynamic category with pointer turns while paused.
   await key('0','Digit0');await spoken('reopening');
@@ -114,16 +127,16 @@ async function run(input){
   await shot('end');const endPage=await screen();await click(1150,400);
   if(await screen()!==endPage)throw Error('Category did not reach its end page');
   await click(640,350,'right',false);
-  if(await screen()!==shelf)throw Error('End Back did not restore shelf');
+  if(!await matchesShelf())throw Error('End Back did not restore shelf');
   // Ordinary Shelf/Manage controls must pass secondary input to the page too.
   await click(1000,597,'left',false);await shot('manage');
-  if(await screen()===shelf)throw Error('Manage did not open');
+  if(await matchesShelf())throw Error('Manage did not open');
   const manage=await screen();await click(1000,597,'middle',false);
   if(await screen()!==manage)throw Error('Middle click left Manage');
   await click(1000,597,'right',false);await shot('manage-back');
-  if(await screen()!==shelf)throw Error('Secondary Back stayed in Manage');
+  if(!await matchesShelf())throw Error('Secondary Back stayed in Manage');
   await click(1000,597,'right',false);await shot('home');
-  if(await screen()===shelf)throw Error('Secondary Back stayed on Shelf');
+  if(await matchesShelf())throw Error('Secondary Back stayed on Shelf');
   // Exercise new catalog pages through real selection and decoded narration.
   const menuScale=Math.min(1280/320,675/200);await click(Math.trunc((1280-320*menuScale)/2)+254*menuScale,54*menuScale);
   if(await evaluate('document.documentElement.lang')!=='es')throw Error('Spanish flag did not select es');
