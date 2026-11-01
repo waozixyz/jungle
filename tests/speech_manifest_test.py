@@ -1,12 +1,15 @@
 """Speech recipes reconstruct exactly without changing source recordings."""
 import copy
 import hashlib
+import io
 import json
 import re
 from pathlib import Path
 import sys
 import tempfile
 import wave
+
+from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'tools'))
@@ -168,6 +171,12 @@ def rejection_test(manifest):
 
 def staging_test():
     original_root = shared_assets.ROOT
+    # Staging now decodes these pictures to make lightweight previews.
+    # Keep speech stand-ins below, but use actual image bytes for artwork.
+    def picture(format, color):
+        data = io.BytesIO()
+        Image.new('RGB', (16, 12), color).save(data, format)
+        return data.getvalue()
     with tempfile.TemporaryDirectory(prefix='speech-stage-', dir=ROOT / 'build') as directory:
         root = Path(directory)
         source, app, stage = root / 'source', root / 'app', root / 'stage'
@@ -175,22 +184,22 @@ def staging_test():
             path = source / f'assets/jungle-book/counting/{name}.png'
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_bytes(name.encode())
-        for name, data in (('assets/jungle-book/items/tiger.png', b'item'),
-                           ('assets/jungle-book/previews/jungle.jpg', b'preview')):
+        for name, data in (('assets/jungle-book/items/tiger.png', picture('PNG', (200, 120, 40))),
+                           ('assets/jungle-book/previews/jungle.jpg', picture('JPEG', (40, 90, 160)))):
             path = source / name
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_bytes(data)
         files = {
             'assets/jungle/font.png': b'font',
             'assets/jungle-book/font.png': b'font',
-            'assets/jungle-book/pages/tiger.jpg': b'page',
+            'assets/jungle-book/pages/tiger.jpg': picture('JPEG', (180, 160, 60)),
             'assets/jungle-book/sounds/tiger.wav': b'assembled',
             'assets/jungle-book/sounds/en/letters/0061.wav': b'canonical letter',
             'assets/abc/sounds/en/letters/0061.wav': b'duplicate letter',
             'assets/numbers/sounds/one.wav': b'number',
             'assets/animal-count/font.png': b'counting font',
-            'assets/hide_seek/scenes/cottage-yard.png': b'grounded shared scene',
-            'assets/hide_seek/props/basket.png': b'watercolor shared prop',
+            'assets/hide_seek/scenes/cottage-yard.png': picture('PNG', (90, 150, 70)),
+            'assets/hide_seek/props/basket.png': picture('PNG', (150, 100, 50)),
             'assets/dino-paint/art/scene1-thumb.jpg': b'shared coloring preview',
         }
         for name, data in files.items():
