@@ -253,6 +253,20 @@ WebService :: (name: string, request: string) -> string {
         if !WebAsBool(WebCall1(WebModule, WebName("jungleImageReady"), WebText(request))) { return "pending" }
         return ifx Raster.ImageWidth(request) > 0 then "ready" else "pending"
     }
+    // The path to draw for a picture now: its full picture once decoded,
+    // meanwhile its few-KB preview, or "" while neither is ready. A preview
+    // has its own path (index.html previewFile), so Canvas textures and DOM
+    // image URLs, cached by path, switch to the full bytes exactly once.
+    if name == "jungle.image-shown" {
+        scope := WebScope()
+        defer WebEnd(scope)
+        if WebAsBool(WebCall1(WebModule, WebName("jungleImageReady"), WebText(request))) &&
+            Raster.ImageWidth(request) > 0 { return request }
+        if request.count > 7 && request[:7] == "assets/" &&
+            WebAsBool(WebCall1(WebModule, WebName("junglePreviewReady"), WebText(request))) &&
+            Raster.ImageWidth(request[7:]) > 0 { return request[7:] }
+        return ""
+    }
     if name == "jungle.voice-state" { return VoiceState() }
     if name == "jungle.voice-control" {
         if web_audio != 0 && web_narration {

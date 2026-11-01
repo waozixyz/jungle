@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.1.33
+
+Released 2026-10-31.
+
+- Add Reptiles, Trees, Plants and Forest picture books, with six scenes each and natural narration in English, German and Spanish.
+- Refresh Wild Animals and People at Work illustrations; give Drawing a distinct easel pose and correct the teeth-brushing action.
+- Fit the stencil chooser inside the paper, show more stencils on larger screens, and add a house, car, rocket, umbrella, kite and watering can.
+- Let a small part of each hiding animal peek out, with animals properly layered inside the basket.
+- Show lightweight picture previews while full-quality artwork loads and reduce browser downloads when opening a book.
+
 ## 0.1.32
 
 Released 2026-10-31.

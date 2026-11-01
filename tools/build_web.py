@@ -10,7 +10,7 @@ import time
 
 from asset_packs import pack_assets, validate_distribution
 from shared_assets import SPEECH_INDEX, Shipped, Speech, SpeechIndexText, WebAliases, WriteIfChanged
-from web_images import prepare_web_images
+from web_images import prepare_previews, prepare_web_images
 
 ROOT = Path(__file__).resolve().parents[1]
 GEN = ROOT / 'build/web-c'
@@ -105,6 +105,54 @@ def build(out):
     (out/'site.webmanifest').write_text(json.dumps(manifest,indent=2)+'\n')
     shutil.copy2(ROOT/'assets/jungle/icons/favicon.ico',out/'favicon.ico')
     shutil.copy2(ROOT/'web/asset-packs.js',out/'asset-packs.js')
+    manifest=stage_assets(out)
+    (out/'version.json').write_text(json.dumps({'version':(ROOT/'VERSION').read_text().strip(),'revision':revision,
+        'runtimes':{'canvas':(out/'jungle.js').stat().st_size,'dom':(out/'jungle-dom.js').stat().st_size}}))
+    count,total=validate_distribution(out)
+    print(f'Built {len(manifest["files"])} packed assets in {len(manifest["packs"])} ZIP packs; distribution: {count} files, {total/1_000_000:.1f} MB',flush=True)
+
+
+def preview_groups():
+    """{book picture: preview pack}: one pack per book's pages, one for the covers."""
+    from book_catalog import BOOKS
+    groups={}
+    for category,names in BOOKS:
+        groups.setdefault(f'assets/jungle-book/previews/{category}.jpg','covers')
+        for name in names:groups.setdefault(f'assets/jungle-book/pages/{name}.jpg',category)
+    return groups
+
+
+def write_previews(files, out, groups=None):
+    """Pack each book picture's few-KB preview into the packs in OUT.
+
+    Opening a book fetches one small pack holding all its page previews (the
+    shelf one for all covers) instead of hundreds of tiny files. Its index,
+    preview-images.json, has asset-packs.json's format keyed by the same
+    logical paths, so the browser checks previews like every packed file.
+    The menu never waits for it.
+    """
+    groups=preview_groups() if groups is None else groups
+    stored,names={},{}
+    for name,path in prepare_previews(files,ROOT/'work/web-image-cache').items():
+        group=groups.get(name,'other')
+        if not re.fullmatch(r'[a-z0-9]+(?:-[a-z0-9]+)*',group):raise ValueError('Unsafe preview group: '+group)
+        key=f'previews/{group}/{Path(name).parent.name}/{Path(name).stem}.webp'
+        stored[key]=path;names[key]=name
+    with tempfile.TemporaryDirectory(prefix='preview-packs-',dir=out) as staging:
+        manifest=pack_assets(stored,staging)
+        (out/'packs').mkdir(exist_ok=True)
+        for pack in manifest['packs']:
+            target=out/pack
+            if not target.exists():(Path(staging)/pack).replace(target)
+    index={'format':1,'packs':manifest['packs'],'files':{names[key]:entry for key,entry in manifest['files'].items()}}
+    (out/'preview-images.json').write_text(json.dumps(index,separators=(',',':'),sort_keys=True)+'\n')
+    total=sum(pack['size'] for pack in manifest['packs'].values())
+    print(f'Book previews: {len(index["files"])} pictures in {len(manifest["packs"])} packs, {total/1000:.0f} kB',flush=True)
+    return index
+
+
+def stage_assets(out):
+    """Pack the game assets and write the browser's startup lists into OUT."""
     files = {}
     for name in ('jungle','jungle-book','abc','numbers','animal-count','dino-paint','jigsaw','piano','shapes','hide_seek','drums','garden'):
         source=ROOT/'assets'/name
@@ -125,22 +173,27 @@ def build(out):
     files.pop('assets/jungle/covers/count.png', None)
     images=sorted(name for name in files if Path(name).suffix in ('.png','.jpg'))
     # Browser branding must work before the runtime starts. Keep the small
-    # menu directly addressable; pack all game pictures and sounds.
+    # menu and its bitmap fonts directly addressable, so the menu opens
+    # before the full pack index arrives; pack all game pictures and sounds.
     for name in list(files):
-        if name.startswith('assets/jungle/') and Path(name).suffix != '.wav':
+        if (name.startswith('assets/jungle/') and Path(name).suffix != '.wav') or name.endswith('/font.png'):
             target=out/name;target.parent.mkdir(parents=True,exist_ok=True)
             shutil.copy2(files.pop(name),target)
-    single_files={name for name in files if str(Path(name).parent)=='assets/jigsaw'}
+    # A page is requested individually. Opening one picture must not fetch
+    # several megabytes of unrelated pages or the whole shelf's covers.
+    single_files={name for name in files if str(Path(name).parent) in
+                  ('assets/jigsaw','assets/jungle-book/pages','assets/jungle-book/previews')}
+    # Speech clips are content-addressed and small; bounded groups avoid a
+    # whole-language download while keeping the distribution below host limits.
+    speech_groups={str(Path(name).parent):128*1024 for name in files if name.startswith('assets/speech/')}
+    write_previews(files,out)
     files,archive_names,encodings=prepare_web_images(files,ROOT/'work/web-image-cache')
-    manifest=pack_assets(files,out,archive_names=archive_names,single_files=single_files)
+    manifest=pack_assets(files,out,archive_names=archive_names,single_files=single_files,group_bytes=speech_groups)
     for name,encoding in encodings.items():
         manifest['files'][name]={**manifest['files'][name],**encoding}
     (out/'asset-packs.json').write_text(json.dumps(manifest,separators=(',',':'))+'\n')
     (out/'images.json').write_text(json.dumps(images))
-    (out/'version.json').write_text(json.dumps({'version':(ROOT/'VERSION').read_text().strip(),'revision':revision,
-        'runtimes':{'canvas':(out/'jungle.js').stat().st_size,'dom':(out/'jungle-dom.js').stat().st_size}}))
-    count,total=validate_distribution(out)
-    print(f'Built {len(manifest["files"])} packed assets in {len(manifest["packs"])} ZIP packs; distribution: {count} files, {total/1_000_000:.1f} MB',flush=True)
+    return manifest
 
 
 def main():

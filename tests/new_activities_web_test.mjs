@@ -198,7 +198,7 @@ assert ImageChops.difference(board(f'tutorial-{width}-{mode}-1'),board(f'tutoria
    const spoken=async()=>{const heard=await voices();if(heard.some(path=>path!==prompt&&!answers.includes(path)))throw Error('Hide & Seek spoke a name or hint '+JSON.stringify(heard));return heard};
    const picture=async()=>(await command('Page.captureScreenshot',{format:'png'})).data;
    // The prompt deliberately says to keep looking after an empty look.
-   // Compare the hiding scene itself, where every friend must stay hidden.
+   // Compare the hiding scene itself, where small peeks must stay still.
    const scenePicture=async()=>(await command('Page.captureScreenshot',{format:'png',clip:{x:12,y:140,width:376,height:526,scale:1}})).data;
    const hideSceneCheck=`
 import sys
@@ -213,9 +213,9 @@ assert worst<=3 and len(changed)<=300, f'worst {worst}/255 on {len(changed)} pix
 `;
    await delay(600);await spoken();
    const start=await state();
-   // Every friend starts fully hidden: a still scene before any look.
+   // Every hiding friend starts with a small stationary peek: a still scene before any look.
    const still=await picture();await delay(900);
-   if(await picture()!==still)throw Error('A hiding place moved or peeked before any look');
+   if(await picture()!==still)throw Error('A hiding place or its small peek moved before any look');
    // Look at each place by keyboard. An empty place stays silent and shows
    // nothing once its wiggle and note settle; a found friend is answered
    // once with its place. A finished round moves on by itself.
@@ -267,7 +267,7 @@ assert worst<=3 and len(changed)<=300, f'worst {worst}/255 on {len(changed)} pix
    await click(200,56+655);await delay(400);
    if(JSON.stringify(await state())!==JSON.stringify(counts)||await picture()===scene)throw Error('Hide again did not start a new scene');
    if(!(await spoken()).includes(prompt))throw Error('A new scene did not ask who is hiding');
-   console.log('local Hide & Seek '+page+' '+language+': hidden until found, silent empty places, place-only answers, automatic next scene, held Enter and Hide again passed');
+   console.log('local Hide & Seek '+page+' '+language+': small peeks until found, silent empty places, place-only answers, automatic next scene, held Enter and Hide again passed');
   }
   if(name==='drums'){
    const names={en:['Big drum','Little drum','Shaker','Bell','Xylophone','Guitar','Cymbal','Tambourine'],de:['Große Trommel','Kleine Trommel','Rassel','Glocke','Xylofon','Gitarre','Becken','Tamburin'],es:['Tambor grande','Tambor pequeño','Sonajero','Campana','Xilófono','Guitarra','Platillo','Pandereta']}[language];

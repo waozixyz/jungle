@@ -20,9 +20,114 @@ Fits :: (width: s32, height: s32) -> bool {
     return true
 }
 
+// Stencil controls stay inside the paper, keep 44 px targets and never overlap.
+StencilFits :: (width: s32, height: s32) -> bool {
+    l := StencilPickerBounds(width, height)
+    fit := width * 1000 / 320
+    if height * 1000 / 200 < fit { fit = height * 1000 / 200 }
+    if fit < 1000 { fit = 1000 }
+    right := width - l.padding
+    if l.padding <= 14 * fit / 1000 || l.top <= 12 * fit / 1000 { return false }
+    if l.tab_y < l.top + 30 || l.tab_width < 44 { return false }
+    tab_rows := (4 + l.tab_columns - 1) / l.tab_columns
+    for i: cast(s32)0..3 {
+        x := l.padding + i % l.tab_columns * (l.tab_width + l.gap)
+        if x + l.tab_width > right { return false }
+    }
+    if l.grid_y < l.tab_y + tab_rows * 44 + (tab_rows - 1) * l.gap + l.gap { return false }
+    if l.columns < 1 || l.rows < 1 || l.capacity != l.columns * l.rows { return false }
+    // Wide enough for any one-word label at the minimum label size.
+    if l.card_width < STENCIL_CARD_NARROW || l.card_height < 80 { return false }
+    if l.columns == 1 && (width - l.padding * 2 - l.gap) / 2 >= STENCIL_CARD_NARROW { return false }
+    if l.content_height != l.rows * (l.card_height + l.gap) - l.gap { return false }
+    // A grid that cannot hold its row scrolls inside its own viewport.
+    if l.scroll != (l.content_height > l.grid_height) || l.grid_height < 44 { return false }
+    if !l.scroll && l.grid_y + l.content_height > l.footer_y - l.gap { return false }
+    for i: cast(s32)0..l.capacity - 1 {
+        x := l.padding + i % l.columns * (l.card_width + l.gap)
+        if x + l.card_width > right { return false }
+    }
+    // Previous, page label and Next sit apart on one row inside the paper.
+    if l.footer_width < 44 || l.footer_width > 240 { return false }
+    label := (width - l.footer_width) / 2
+    if l.padding + l.footer_width + l.gap > label || label + l.footer_width + l.gap > right - l.footer_width { return false }
+    if l.footer_y + 44 >= height - 12 * fit / 1000 { return false }
+    return true
+}
+
+Capacity :: (width: s32, height: s32) -> s32 { return StencilPickerBounds(width, height).capacity }
+
+// Every page contains its anchor at every capacity, so resizing keeps the choice.
+AnchorPaging :: (count: s32) -> bool {
+    for capacity: cast(s32)1..40 {
+        for anchor: cast(s32)0..count - 1 {
+            first := StencilPageFirst(anchor, capacity, count)
+            if first % capacity != 0 || first > anchor || anchor >= first + capacity { return false }
+        }
+        pages := StencilPageCount(capacity, count)
+        if (pages - 1) * capacity >= count || pages * capacity < count { return false }
+        // Next walks every page once, then has no destination.
+        anchor: s32 = 0
+        if pages > 1 {
+            for page: cast(s32)1..pages - 1 {
+                anchor = StencilPageNext(anchor, capacity, count)
+                if anchor != page * capacity { return false }
+            }
+        }
+        if StencilPageNext(anchor, capacity, count) != anchor { return false }
+        if pages > 1 {
+            for page: cast(s32)1..pages - 1 {
+                anchor = StencilPagePrevious(anchor, capacity, count)
+                if anchor != (pages - 1 - page) * capacity { return false }
+            }
+        }
+        if StencilPagePrevious(anchor, capacity, count) != anchor { return false }
+    }
+    return true
+}
+
 #program_export
 main :: () -> s32 {
     if !Fits(240, 500) || !Fits(320, 424) || !Fits(390, 788) || !Fits(600, 304) { return 1 }
     if !Fits(960, 544) || !Fits(1280, 744) || !Fits(1920, 1024) || !Fits(3840, 2104) { return 2 }
+
+    // Content heights exclude the 56 px title bar; below 300 px the page
+    // itself scrolls a 500 px picker.
+    if !StencilFits(240, 444) || !StencilFits(240, 500) || !StencilFits(390, 788) || !StencilFits(844, 334) { return 3 }
+    if !StencilFits(960, 544) || !StencilFits(1280, 744) || !StencilFits(1920, 1024) || !StencilFits(3840, 2104) { return 4 }
+    if !StencilFits(320, 424) || !StencilFits(400, 300) || !StencilFits(600, 300) || !StencilFits(844, 500) { return 5 }
+    // Larger paper shows more tiles; a desktop shows each whole category.
+    if Capacity(240, 444) != 2 || Capacity(240, 500) != 2 || StencilPickerBounds(240, 444).columns != 1 { return 25 }
+    if Capacity(320, 424) != 4 || Capacity(390, 788) != 8 || Capacity(844, 334) != 5 { return 6 }
+    if Capacity(960, 544) != 10 || Capacity(1280, 744) != 21 || Capacity(1920, 1024) != 32 || Capacity(3840, 2104) != 32 { return 7 }
+    if StencilPickerBounds(390, 788).tab_columns != 2 || StencilPickerBounds(960, 544).tab_columns != 4 { return 8 }
+    short := StencilPickerBounds(400, 300)
+    if !short.scroll || short.rows != 1 || short.card_height != 80 { return 9 }
+    if StencilPickerBounds(1920, 1024).card_height < 120 || StencilPickerBounds(390, 788).scroll { return 10 }
+
+    // Category sizes 16 (Dinosaurs, Objects) and 10 (Animals, People).
+    if !AnchorPaging(16) || !AnchorPaging(10) || !AnchorPaging(1) { return 11 }
+    // The final Objects stencil (stable ID 52) on its partial final page.
+    if StencilPageFirst(15, 6, 16) != 12 || StencilPageCount(6, 16) != 3 || StencilPageNext(12, 6, 16) != 12 { return 12 }
+    if StencilPageFirst(15, 5, 16) != 15 || StencilPageFirst(15, 21, 16) != 0 || StencilPageCount(32, 16) != 1 { return 13 }
+    // Resize keeps an anchored choice visible: 13 is on the 12, 8 and 0 pages.
+    if StencilPageFirst(13, 6, 16) != 12 || StencilPageFirst(13, 8, 16) != 8 || StencilPageFirst(13, 32, 16) != 0 { return 14 }
+    if StencilPageFirst(-1, 6, 16) != 0 || StencilPageFirst(40, 6, 16) != 12 || StencilPageFirst(3, 0, 16) != 0 { return 15 }
+
+    // Version 1 saves keep their page as its first item; version 2 stores items.
+    if PaintChoicesVersion("JUNGLE PAINT CHOICES 1\n00030000") != 1 { return 16 }
+    if PaintChoicesVersion("JUNGLE PAINT CHOICES 2\n7d3c3102") != 2 { return 17 }
+    if PaintChoicesVersion("JUNGLE PAINT CHOICES 2\n0003000") != 0 || PaintChoicesVersion("JUNGLE PAINT CHOICES 3\n00030000") != 0 { return 18 }
+    if PaintChoicesVersion("") != 0 || PaintChoicesVersion("JUNGLE PAINT CHOICES 1\n000300000") != 0 { return 19 }
+    if PaintChoicesAnchor(1, 0, 16) != 0 || PaintChoicesAnchor(1, 2, 16) != 12 || PaintChoicesAnchor(1, 1, 10) != 6 { return 20 }
+    // Pages that never existed under six slots stay invalid instead of reinterpreted.
+    if PaintChoicesAnchor(1, 3, 16) != -1 || PaintChoicesAnchor(1, 2, 10) != -1 { return 21 }
+    if PaintChoicesAnchor(2, 15, 16) != 15 || PaintChoicesAnchor(2, 16, 16) != -1 || PaintChoicesAnchor(2, 9, 10) != 9 { return 22 }
+    if PaintChoicesAnchor(0, 0, 16) != -1 || PaintChoicesAnchor(2, -1, 16) != -1 || PaintChoicesAnchor(1, 0, 0) != -1 { return 23 }
+    // A migrated page 2 still shows its first item after growing to 21 tiles.
+    if StencilPageFirst(PaintChoicesAnchor(1, 2, 16), 21, 16) != 0 || StencilPageFirst(PaintChoicesAnchor(1, 2, 16), 6, 16) != 12 { return 24 }
+    // Labels shrink in proportion to their measured width, never below 12 px.
+    if StencilLabelFont(80, 149) != 18 || StencilLabelFont(149, 149) != 18 || StencilLabelFont(0, 77) != 18 { return 26 }
+    if StencilLabelFont(129, 77) != STENCIL_LABEL_MINIMUM || StencilLabelFont(100, 77) != 13 || StencilLabelFont(300, 77) != 12 { return 27 }
     return 0
 }

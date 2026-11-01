@@ -1,6 +1,6 @@
 // Hide & Seek: friendly animals hide in a basket, behind a bush, under a
-// table or up in a tree, in four different scenes. Nothing shows where they
-// are: the child looks behind each hiding place to find them all, then the
+// table or up in a tree, in four different scenes. A small part peeks out:
+// the child looks behind each hiding place to find them all, then the
 // friends hide again in the next scene.
 #import "kryon/app_context"
 #import "kryon/app_protocol"
@@ -133,7 +133,7 @@ Wiggle :: (at: float64, size: s32) -> s32 {
 
 // Draw the existing bitmap with its painted feet on the support. The
 // transparent padding differs between animals; supports are measured at
-// paws/claws in the unchanged 420px originals, rather than dangling tails.
+// paws/claws normalized to 420px, rather than dangling tails.
 AnimalGrounded :: (animal: s32, cx: s32, base: s32, edge: s32) {
     BookPicture(ItemPath(animal), cx - edge / 2, base - edge * hide_animal_feet[animal] / 420, edge, edge)
 }
@@ -143,13 +143,31 @@ PropPath :: (kind: s32) -> string {
     return Cat("assets/hide_seek/props/", names[kind], ".png")
 }
 
-// The prop is always drawn whole and unchanged. A found friend stands
-// behind it (in the basket, behind the bush, under the table) or sits in
-// front on the tree's branch; a hiding friend is not drawn at all.
+BasketFront :: (art: HideSeekArt) {
+    path := PropPath(HIDE_BASKET)
+    if !RetroImageReady(path) { return }
+    points: [29]Vector2
+    for i: cast(s32)0..HIDE_BASKET_POINTS - 1 {
+        points[i] = Vector2.{cast(float32)hide_basket_front_x[i] / 1254.0,
+            cast(float32)hide_basket_front_y[i] / 1254.0}
+    }
+    Image(retro.session, ImageProps.{.asset_path = path,
+        .bounds = RetroRect(art.x, art.y, art.edge, art.edge),
+        .fit = ImageFit.ImageFitContain, .smooth = true, .clip_polygon = points[:]})
+}
+
+// Preserve the whole prop. The basket needs three layers: back, friend,
+// then the front braid/wall. Other places naturally occlude a hiding pose.
 DrawPlace :: (kind: s32, cx: s32, ground: s32, size: s32, animal: s32, peek: s32, p: float32, toward: s32) {
     art := HideSeekArtLayout(kind, cx, ground, size, p, animal, toward)
+    if peek == HIDE_PARTIAL { art = HideSeekHintArtLayout(kind, cx, ground, size, animal, toward) }
     Shadow(cx, ground, size * 82 / 100)
-    shown := peek == HIDE_SHOWN && animal >= 0 && animal < HIDE_ANIMALS
+    shown := peek != HIDE_NO_PEEK && animal >= 0 && animal < HIDE_ANIMALS
+    if kind == HIDE_BASKET {
+        BookPicture(PropPath(kind), art.x, art.y, art.edge, art.edge)
+        if shown { AnimalGrounded(animal, art.animal_cx, art.animal_base, art.animal_edge); BasketFront(art) }
+        return
+    }
     if shown && art.behind { AnimalGrounded(animal, art.animal_cx, art.animal_base, art.animal_edge) }
     BookPicture(PropPath(kind), art.x, art.y, art.edge, art.edge)
     if shown && !art.behind { AnimalGrounded(animal, art.animal_cx, art.animal_base, art.animal_edge) }

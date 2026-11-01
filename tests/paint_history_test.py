@@ -83,31 +83,8 @@ def paint_layout(desktop):
     return (cx, cy, cw, ch), [(x + tw / 2, y + th / 2 + 56) for x, y in tools]
 
 
-def stencil_layout(desktop):
-    """Picker hit rectangles in actual window pixels; legacy dialogs stay virtual."""
-    width, total = desktop.actual_size
-    height = total - 56
-    pad, gap = (8, 6) if height < 440 else (16, 10)
-    cols, tab_cols = (2, 2) if width < 600 else (3, 4)
-    rows = 6 // cols
-    tab_y = pad + 30 + gap
-    tab_w = (width - pad * 2 - gap * (tab_cols - 1)) // tab_cols
-    grid_y = tab_y + 4 // tab_cols * (44 + gap)
-    footer_y = height - pad - 44
-    card_w = (width - pad * 2 - gap * (cols - 1)) // cols
-    card_h = (footer_y - gap - grid_y - gap * (rows - 1)) // rows
-    footer_w = (width - pad * 2 - gap * 2) // 3
-    return {
-        'category': [(pad + i % tab_cols * (tab_w + gap), 56 + tab_y + i // tab_cols * (44 + gap), tab_w, 44) for i in range(4)],
-        'tile': [(pad + i % cols * (card_w + gap), 56 + grid_y + i // cols * (card_h + gap), card_w, card_h) for i in range(6)],
-        'previous': [(pad, 56 + footer_y, footer_w, 44)],
-        'next': [(width - pad - footer_w, 56 + footer_y, footer_w, 44)],
-    }
-
-
-def stencil_click(desktop, kind='tile', index=0):
-    x, y, w, h = stencil_layout(desktop)[kind][index]
-    desktop.click_actual(x + w / 2, y + h / 2)
+# The adaptive stencil picker geometry is shared with the library tests.
+from paint_geometry import stencil_click, stencil_layout, stencil_pick  # noqa: E402,F401
 
 
 def tool(desktop, index):

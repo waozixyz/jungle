@@ -23,6 +23,7 @@ OLD_IDS = ('jungle', 'garden', 'fruits', 'farm', 'kitchen', 'bathroom',
 NEW_IDS = ('tropical-fruits', 'gardening', 'school', 'water-animals', 'drinks')
 ADDED_IDS = ('actions',)
 LATEST_IDS = ('desert-animals', 'insects', 'people-at-work')
+NATURE_IDS = ('reptiles', 'trees', 'plants', 'forest')
 REUSED = {'mango', 'banana', 'coconut', 'pineapple', 'flower', 'book',
           'backpack', 'duck', 'frog', 'water', 'milk'}
 # Aggregate of established sources, including the approved natural-voice refresh.
@@ -37,6 +38,31 @@ NEW_LETTER = 'assets/jungle-book/sounds/es/letters/00fc'
 def digest(path):
     with path.open('rb') as source:
         return hashlib.file_digest(source, 'sha256').hexdigest()
+
+
+def preserved_digest(name):
+    """Compare the unchanged baseline through explicitly requested art refreshes.
+
+    Each replacement must match its reviewed current hash; its exact prior hash
+    still participates in the original aggregate. Other assets retain the same
+    baseline, and the refresh inventory cannot exempt unrelated artwork.
+    """
+    manifest = ROOT / 'tools/book_art_refresh.json'
+    refresh = json.loads(manifest.read_text())['files'] if manifest.exists() else {}
+    wild = set(dict(BOOKS)['jungle'])
+    scenes = wild | set(dict(BOOKS)['people-at-work']) | {'drawing', 'brushing_teeth'}
+    allowed = ({f'assets/jungle-book/pages/{name}.jpg' for name in scenes}
+               | {f'assets/jungle-book/items/{name}.png' for name in wild}
+               | {f'assets/jungle-book/counting/{name}.png' for name in wild}
+               | {'assets/jungle-book/previews/jungle.jpg',
+                  'assets/jungle-book/previews/people-at-work.jpg', 'assets/jungle/book.png'})
+    assert set(refresh) <= allowed, 'Unrequested original asset in art refresh'
+    actual = digest(ROOT / name)
+    if name in refresh:
+        entry = refresh[name]
+        assert actual == entry['sha256'], f'Reviewed artwork changed: {name}'
+        return entry['previous_sha256']
+    return actual
 
 
 def protected(name):
@@ -61,8 +87,8 @@ class LearningBookTest(unittest.TestCase):
     def test_catalog_and_stable_slots(self):
         catalog = BuildUniqueBookCatalog()
         self.assertEqual(catalog['books'], BOOKS)
-        self.assertEqual(tuple(c for c, _ in BOOKS), OLD_IDS + NEW_IDS + ADDED_IDS + LATEST_IDS)
-        self.assertEqual((len(NAMES), len(set(NAMES)), len(PAGE_NAMES)), (302, 302, 302))
+        self.assertEqual(tuple(c for c, _ in BOOKS), OLD_IDS + NEW_IDS + ADDED_IDS + LATEST_IDS + NATURE_IDS)
+        self.assertEqual((len(NAMES), len(set(NAMES)), len(PAGE_NAMES)), (326, 326, 326))
         self.assertEqual(len(LEARNING['words']), 37)
         groups = dict(BOOK_GROUPS)
         self.assertEqual(groups['Family'], ('family', 'body', 'clothing', 'sports', 'feelings', 'actions', 'people-at-work'))
@@ -80,7 +106,7 @@ class LearningBookTest(unittest.TestCase):
         self.assertEqual(shared, REUSED)
         pages = (ROOT / 'games/book/book_pages.zi').read_text()
         voices = (ROOT / 'games/book/book_voice.zi').read_text()
-        self.assertIn('CATEGORY_COUNT :: 35', pages)
+        self.assertIn('CATEGORY_COUNT :: 39', pages)
         # The learning books once reused these words; each now has one home page.
         for name in REUSED:
             self.assertEqual(PAGE_NAMES.count(name), 1)
@@ -138,7 +164,7 @@ class LearningBookTest(unittest.TestCase):
             self.assertEqual((ROOT / f'assets/jungle-book/previews/{category}.jpg').read_bytes(), expected.getvalue())
         letter = json.loads((ROOT / (NEW_LETTER + '.speech.json')).read_text())
         self.assertEqual(letter['text'], 'u con diéresis.')
-        self.assertEqual(self.check_spelling(UNIQUE['words']), 162)
+        self.assertEqual(self.check_spelling(UNIQUE['words']), 234)
         self.assertEqual(self.check_spelling(UNIQUE['voice_stems'], ('de',)), 1)
 
     def check_spelling(self, names, languages=LANGUAGES):
@@ -177,7 +203,7 @@ class LearningBookTest(unittest.TestCase):
     def test_original_assets_unchanged(self):
         # Exclude only explicitly new filenames. Any changed/missing old file or
         # unexpected extra asset changes this durable aggregate, even after commit.
-        new_stems = (set(LEARNING['words']) | set(UNIQUE['words']) | set(NEW_IDS) | set(ADDED_IDS) | set(LATEST_IDS)
+        new_stems = (set(LEARNING['words']) | set(UNIQUE['words']) | set(NEW_IDS) | set(ADDED_IDS) | set(LATEST_IDS) | set(NATURE_IDS)
                      | {stem for stems in UNIQUE['voice_stems'].values() for stem in stems.values()})
         current = []
         for folder in ('assets/jungle-book', 'assets/abc'):
@@ -188,7 +214,7 @@ class LearningBookTest(unittest.TestCase):
                     current.append(name)
         aggregate = hashlib.sha256()
         for name in sorted(current):
-            aggregate.update((name + '\0' + digest(ROOT / name) + '\n').encode())
+            aggregate.update((name + '\0' + preserved_digest(name) + '\n').encode())
         self.assertEqual(len(current), ORIGINAL_COUNT)
         self.assertEqual(aggregate.hexdigest(), ORIGINAL_DIGEST)
         baseline = ROOT / 'work/source-asset-fingerprints.json'
@@ -197,7 +223,7 @@ class LearningBookTest(unittest.TestCase):
                 # The historical inventory still protects original artwork;
                 # narration now has the refreshed tracked aggregate above.
                 if protected(name) and not name.endswith(('.wav', '.speech.json')):
-                    self.assertEqual(digest(ROOT / name), sha, name)
+                    self.assertEqual(preserved_digest(name), sha, name)
 
 
 if __name__ == '__main__':

@@ -93,7 +93,8 @@ dragging: bool;
 canvas_can_fill: bool;
 grab_x: s32;
 grab_y: s32;
-dino_page: s32;
+// Category-relative item whose page the stencil picker shows.
+stencil_anchor: s32;
 scene_page: s32;
 stencil_category: s32;
 scene_category: s32;
@@ -116,26 +117,29 @@ initialized: bool;
 // Choices are separate from pictures and Undo: returning to a stencil never
 // changes the scene or artwork already saved in a picture.
 CHOICES :: "choices.txt"
-CHOICES_HEADER :: "JUNGLE PAINT CHOICES 1\n"
 ChoicesSave :: () {
-    values: [8]u8 = .[PAINT_CODES[dino + 1], PAINT_CODES[stencil_category], PAINT_CODES[dino_page],
+    values: [8]u8 = .[PAINT_CODES[dino + 1], PAINT_CODES[stencil_category], PAINT_CODES[stencil_anchor],
         PAINT_CODES[size], PAINT_CODES[ifx placement_flip then 1 else 0], PAINT_CODES[scene_category],
         PAINT_CODES[scene_page], PAINT_CODES[last_scene + 1]]
-    unused DocumentWrite(CHOICES, Join(CHOICES_HEADER, TextView(values[:])))
+    unused DocumentWrite(CHOICES, Join(PAINT_CHOICES_V2, TextView(values[:])))
 }
 
 ChoicesLoad :: () {
-    dino = -1; stencil_category = 0; dino_page = 0; size = 2
+    dino = -1; stencil_category = 0; stencil_anchor = 0; size = 2
     placement_flip = false; scene_category = 0; scene_page = 0; last_scene = -1
     saved := DocumentRead(CHOICES)
-    if saved.count != CHOICES_HEADER.count + 8 || saved[:CHOICES_HEADER.count] != CHOICES_HEADER { return }
+    version := PaintChoicesVersion(saved)
+    if version == 0 { return }
+    header := PAINT_CHOICES_V2.count
     values: [8]s32
-    for at: cast(s32)0..7 { values[at] = PaintIndex(saved[CHOICES_HEADER.count + at]); if values[at] < 0 { return } }
-    if values[0] > PAINT_STENCIL_COUNT || values[1] >= PAINT_STENCIL_CATEGORY_COUNT ||
-        values[2] >= (paint_stencil_category_counts[values[1]] + 5) / 6 || values[3] < 1 || values[3] > 4 ||
+    for at: cast(s32)0..7 { values[at] = PaintIndex(saved[header + at]); if values[at] < 0 { return } }
+    if values[1] >= PAINT_STENCIL_CATEGORY_COUNT { return }
+    // A version 1 page becomes the anchor of its first item.
+    anchor := PaintChoicesAnchor(version, values[2], paint_stencil_category_counts[values[1]])
+    if values[0] > PAINT_STENCIL_COUNT || anchor < 0 || values[3] < 1 || values[3] > 4 ||
         values[4] > 1 || values[5] >= PAINT_SCENE_CATEGORY_COUNT ||
         values[6] >= (paint_scene_category_counts[values[5]] + 5) / 6 || values[7] > PAINT_SCENE_COUNT { return }
-    dino = values[0] - 1; stencil_category = values[1]; dino_page = values[2]; size = values[3]
+    dino = values[0] - 1; stencil_category = values[1]; stencil_anchor = anchor; size = values[3]
     placement_flip = values[4] == 1; scene_category = values[5]; scene_page = values[6]; last_scene = values[7] - 1
 }
 
@@ -835,32 +839,6 @@ CancelButton :: () -> bool {
 stencil_picker_scroll: s32;
 stencil_picker_page_scroll: s32;
 
-// Six slots are intentional: persisted v1 page choices survive every resize.
-StencilPickerLayout :: struct {
-    width: s32; height: s32; padding: s32; gap: s32
-    columns: s32; rows: s32; tab_columns: s32
-    tab_y: s32; tab_width: s32; grid_y: s32
-    card_width: s32; card_height: s32; footer_y: s32; footer_width: s32
-}
-
-StencilPickerBounds :: (width: s32, height: s32) -> StencilPickerLayout {
-    l: StencilPickerLayout
-    l.width = width; l.height = height
-    l.padding = ifx height < 440 then 8 else 16
-    l.gap = ifx height < 440 then 6 else 10
-    l.columns = ifx width < 600 then 2 else 3
-    l.rows = 6 / l.columns
-    l.tab_columns = ifx width < 600 then 2 else 4
-    l.tab_y = l.padding + 30 + l.gap
-    l.tab_width = (width - l.padding * 2 - l.gap * (l.tab_columns - 1)) / l.tab_columns
-    l.grid_y = l.tab_y + (4 / l.tab_columns) * (44 + l.gap)
-    l.footer_y = height - l.padding - 44
-    l.footer_width = (width - l.padding * 2 - l.gap * 2) / 3
-    l.card_width = (width - l.padding * 2 - l.gap * (l.columns - 1)) / l.columns
-    l.card_height = (l.footer_y - l.gap - l.grid_y - l.gap * (l.rows - 1)) / l.rows
-    return l
-}
-
 StencilPickerButton :: (id: s32, x: s32, y: s32, width: s32, label: string, chosen: bool = false) -> bool {
     press := RetroTap(id, x, y, width, 44, label)
     BookBox(x, y, width, 44, ifx chosen || press.down then cast(u32)0xdcebdcff else cast(u32)0xf3ecdcff,
@@ -869,35 +847,69 @@ StencilPickerButton :: (id: s32, x: s32, y: s32, width: s32, label: string, chos
     return press.clicked
 }
 
+#import "text_measure"
+#import "text_props"
+#import "text_align"
+#import "text_widget"
+
+// Each tile label is measured with the host's fonts once per width and
+// language: it shrinks toward the minimum size, then wraps onto two lines.
+stencil_label_language: s32 = -1;
+stencil_label_available: [52]s32;
+stencil_label_fonts: [52]s32;
+stencil_label_heights: [52]s32;
+
+StencilLabelFit :: (index: s32, available: s32) {
+    if stencil_label_language != language {
+        for at: cast(s32)0..PAINT_STENCIL_COUNT - 1 { stencil_label_available[at] = 0 }
+        stencil_label_language = language
+    }
+    if stencil_label_available[index] == available { return }
+    props := TextProps.{.bounds = RetroRect(0, 0, available, 24), .text = PaintStencilShortLabel(index),
+        .font = STENCIL_LABEL_FONT, .wrap = TextWrap.TextWrapNone}
+    font := StencilLabelFont(TextWidth(retro.session, props), available)
+    props.font = font
+    width := TextWidth(retro.session, props)
+    while font > STENCIL_LABEL_MINIMUM && width > available {
+        font -= 1; props.font = font; width = TextWidth(retro.session, props)
+    }
+    height: s32 = 24
+    if width > available {
+        props.wrap = TextWrap.TextWrapAuto
+        height = TextHeight(retro.session, props)
+        if height < 24 { height = 24 }
+    }
+    stencil_label_available[index] = available
+    stencil_label_fonts[index] = ifx width > available then -font else font
+    stencil_label_heights[index] = height
+}
+
 StencilPickerContent :: (l: StencilPickerLayout) {
     BookPaperSized(l.width, l.height)
-    BookText(l.padding, l.padding, l.width - l.padding * 2, 30, "Choose a stencil", 20)
+    BookText(l.padding, l.top, l.width - l.padding * 2, 30, "Choose a stencil", 20)
     for category: cast(s32)0..3 {
         if StencilPickerButton(500 + category,
             l.padding + (category % l.tab_columns) * (l.tab_width + l.gap),
             l.tab_y + (category / l.tab_columns) * (44 + l.gap), l.tab_width,
             PaintStencilCategoryLabel(category), stencil_category == category) {
-            stencil_category = category; dino_page = 0; stencil_picker_scroll = 0; ChoicesSave(); return
+            stencil_category = category; stencil_anchor = 0; stencil_picker_scroll = 0; ChoicesSave(); return
         }
     }
-    grid_height := l.footer_y - l.gap - l.grid_y
-    scroll_grid := l.card_height < 80
     saved_y := retro.y
-    if scroll_grid {
-        l.card_height = 80
+    if l.scroll {
         scrolled := Scroll(retro.session, ScrollProps.{.key = cast(u64)590,
-            .bounds = RetroRect(l.padding, l.grid_y, l.width - l.padding * 2, grid_height),
-            .scale = 1.0, .content_height = l.rows * (l.card_height + l.gap) - l.gap,
+            .bounds = RetroRect(l.padding, l.grid_y, l.width - l.padding * 2, l.grid_height),
+            .scale = 1.0, .content_height = l.content_height,
             .scroll_offset = stencil_picker_scroll, .keep_scrollbar = true})
         if !scrolled.opened { unused CancelButton(); return }
         stencil_picker_scroll = scrolled.scroll_offset
         retro.y -= cast(float32)stencil_picker_scroll
     } else { stencil_picker_scroll = 0 }
-    first := paint_stencil_category_starts[stencil_category] + dino_page * 6
-    for offset: cast(s32)0..5 {
-        at := first + offset
-        if at >= paint_stencil_category_starts[stencil_category] + paint_stencil_category_counts[stencil_category] { continue }
-        index := paint_stencil_order[at]
+    count := paint_stencil_category_counts[stencil_category]
+    first := StencilPageFirst(stencil_anchor, l.capacity, count)
+    for offset: cast(s32)0..l.capacity - 1 {
+        if first + offset >= count { break }
+        index := paint_stencil_order[paint_stencil_category_starts[stencil_category] + first + offset]
         x := l.padding + (offset % l.columns) * (l.card_width + l.gap)
         y := l.grid_y + (offset / l.columns) * (l.card_height + l.gap)
         press := RetroTap(80 + index, x, y, l.card_width, l.card_height, PaintStencilLabel(index))
@@ -906,7 +918,9 @@ StencilPickerContent :: (l: StencilPickerLayout) {
             ifx press.down || chosen then cast(u32)0xdcebdcff else cast(u32)0xf7f1e3ff,
             ifx chosen then cast(u32)0x2e6956ff else cast(u32)0xdacdb5ff, 6.0)
         number := FormatInteger(index + 1, digits_a[:])
-        image_height := l.card_height - 34
+        StencilLabelFit(index, l.card_width - 12)
+        label_height := stencil_label_heights[index]
+        image_height := l.card_height - 10 - label_height
         fit := cast(float32)(l.card_width - 16) / cast(float32)DinoWidth(index, DINO_SIZES)
         if cast(float32)image_height / cast(float32)DinoHeight(index, DINO_SIZES) < fit {
             fit = cast(float32)image_height / cast(float32)DinoHeight(index, DINO_SIZES)
@@ -915,24 +929,33 @@ StencilPickerContent :: (l: StencilPickerLayout) {
         dh := cast(s32)(cast(float32)DinoHeight(index, DINO_SIZES) * fit)
         RetroSprite(Join(ART, Join("dino", number, "-preview.png")),
             x + (l.card_width - dw) / 2, y + 5 + (image_height - dh) / 2, dw, dh, -1, true)
-        BookText(x + 6, y + l.card_height - 28, l.card_width - 12, 24, PaintStencilShortLabel(index), 18)
+        font := stencil_label_fonts[index]
+        Text(retro.session, TextProps.{.bounds = RetroRect(x + 6, y + l.card_height - 4 - label_height,
+            l.card_width - 12, label_height), .text = PaintStencilShortLabel(index),
+            .font = ifx font < 0 then -font else font, .align = TextAlign.TextAlignCenter,
+            .vertical_align = TextAlign.TextAlignCenter,
+            .wrap = ifx font < 0 then TextWrap.TextWrapAuto else TextWrap.TextWrapNone})
         if press.clicked {
-            dino = index; ChoicesSave(); Sound("click"); PlacementBegin(); view = MAIN; break
+            dino = index; stencil_anchor = first + offset
+            ChoicesSave(); Sound("click"); PlacementBegin(); view = MAIN; break
         }
     }
     retro.y = saved_y
-    if scroll_grid { unused End(retro.session) }
+    if l.scroll { unused End(retro.session) }
     if view == MAIN { return }
-    pages := (paint_stencil_category_counts[stencil_category] + 5) / 6
-    if dino_page > 0 && StencilPickerButton(196, l.padding, l.footer_y, l.footer_width, "Previous") {
-        dino_page -= 1; stencil_picker_scroll = 0; ChoicesSave(); return
+    pages := StencilPageCount(l.capacity, count)
+    page := first / l.capacity
+    if page > 0 && StencilPickerButton(196, l.padding, l.footer_y, l.footer_width, "Previous") {
+        stencil_anchor = StencilPagePrevious(stencil_anchor, l.capacity, count)
+        stencil_picker_scroll = 0; ChoicesSave(); return
     }
-    if dino_page < pages - 1 && StencilPickerButton(197, l.width - l.padding - l.footer_width, l.footer_y, l.footer_width, "Next") {
-        dino_page += 1; stencil_picker_scroll = 0; ChoicesSave(); return
+    if page < pages - 1 && StencilPickerButton(197, l.width - l.padding - l.footer_width, l.footer_y, l.footer_width, "Next") {
+        stencil_anchor = StencilPageNext(stencil_anchor, l.capacity, count)
+        stencil_picker_scroll = 0; ChoicesSave(); return
     }
     page_digits: [24]u8
-    number := FormatInteger(dino_page + 1, digits_a[:])
-    BookText(l.padding + l.footer_width + l.gap, l.footer_y, l.footer_width, 44,
+    number := FormatInteger(page + 1, digits_a[:])
+    BookText((l.width - l.footer_width) / 2, l.footer_y, l.footer_width, 44,
         Join(number, " / ", FormatInteger(pages, page_digits[:])), 18)
     unused CancelButton()
 }

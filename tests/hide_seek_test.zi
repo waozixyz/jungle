@@ -3,7 +3,7 @@
 #import, file "../retro/language.zi";
 
 // The scene's own kinds of place, back to front, different friends, all but
-// one place hiding a friend, and nothing looked at, found or showing yet.
+// one place hiding a friend, with a small clue and nothing found yet.
 ValidRound :: (h: HideSeek) -> bool {
     if h.mode != HIDE_FIND || h.scene < 0 || h.scene >= HIDE_SCENES { return false }
     if h.places != HideSeekPlaces(h.scene) || h.places < 2 || h.places > HIDE_SLOTS { return false }
@@ -11,8 +11,8 @@ ValidRound :: (h: HideSeek) -> bool {
     for i: cast(s32)0..h.places - 1 {
         if h.kinds[i] != HideSeekSlotKind(h.scene, i) || h.animals[i] < 0 || h.animals[i] >= HIDE_ANIMALS { return false }
         if h.revealed[i] || h.looked[i] { return false }
-        // Completely hidden: no peek, preview or picture before a look.
-        if HideSeekPeek(h, i) != HIDE_NO_PEEK { return false }
+        // A small part of a friend peeks out; an empty place stays empty.
+        if HideSeekPeek(h, i) != (ifx h.hides[i] then HIDE_PARTIAL else HIDE_NO_PEEK) { return false }
         for j: cast(s32)0..i - 1 {
             if j < i && (h.kinds[j] == h.kinds[i] || h.animals[j] == h.animals[i]) { return false }
         }
@@ -96,11 +96,11 @@ main :: () -> s32 {
     if HideSeekTap(*f, empty) != HIDE_EMPTY || !f.looked[empty] || f.revealed[empty] || f.rounds != 5 { return 12 }
     if HideSeekTap(*f, empty) != HIDE_EMPTY || HideSeekPeek(f, empty) != HIDE_NO_PEEK || HideSeekFound(f) != 0 { return 12 }
     // Looking somewhere empty never uncovers or hints at the others.
-    for i: cast(s32)0..f.places - 1 { if HideSeekPeek(f, i) != HIDE_NO_PEEK { return 13 } }
+    for i: cast(s32)0..f.places - 1 { if HideSeekPeek(f, i) != (ifx f.hides[i] then HIDE_PARTIAL else HIDE_NO_PEEK) { return 13 } }
     first := (empty + 1) % f.places
     second := (empty + 2) % f.places
     if HideSeekTap(*f, first) != HIDE_REVEALED || HideSeekPeek(f, first) != HIDE_SHOWN || f.rounds != 6 { return 14 }
-    if HideSeekPeek(f, second) != HIDE_NO_PEEK || HideSeekDone(f) || HideSeekFound(f) != 1 { return 14 }
+    if HideSeekPeek(f, second) != HIDE_PARTIAL || HideSeekDone(f) || HideSeekFound(f) != 1 { return 14 }
     if HideSeekTap(*f, first) != HIDE_AGAIN || f.rounds != 6 { return 15 }
     if HideSeekTap(*f, second) != HIDE_REVEALED || !HideSeekDone(f) || f.rounds != 7 || f.remembered != 3 { return 16 }
     // Once all are found, the empty place stays quiet.
@@ -169,6 +169,10 @@ main :: () -> s32 {
                         if at.x < b.x + b.width && b.x < at.x + at.width && at.y < b.y + b.height && b.y < at.y + at.height { return 76 }
                     }
                     for animal: cast(s32)0..HIDE_ANIMALS - 1 {
+                        hint := HideSeekHintArtLayout(at.kind, at.cx, at.ground, at.size, animal, at.toward)
+                        hint_top := hint.animal_base - hint.animal_edge * hide_animal_feet[animal] / 420
+                        if !hint.behind || hint.animal_edge <= 0 || hint_top < 0 || hint_top + hint.animal_edge > height { return 87 }
+                        if hint.animal_cx - hint.animal_edge / 2 < 0 || hint.animal_cx + hint.animal_edge / 2 > width { return 88 }
                         closed := HideSeekArtLayout(at.kind, at.cx, at.ground, at.size, 0.0, animal, at.toward)
                         for frame: cast(s32)0..4 {
                             art := HideSeekArtLayout(at.kind, at.cx, at.ground, at.size, cast(float32)frame / 4.0, animal, at.toward)
@@ -191,13 +195,14 @@ main :: () -> s32 {
                                 // hem, standing between back and front feet.
                                 if !art.behind || left < 262 || right > 994 || head < 715 || feet <= 880 || feet >= 1038 { return 83 }
                             } else if at.kind == HIDE_BASKET {
-                                // Inside the whole basket, rising above its
-                                // back rim without a cropped front.
-                                if !art.behind || left < 36 || right > 1229 || feet <= 376 || feet >= 1085 || head >= 376 { return 84 }
+                                // Inside the bowl: shoulders above the front
+                                // braid, feet concealed by its whole wall.
+                                if !art.behind || left < 36 || right > 1229 || feet <= 717 || feet >= 1085 || head >= 600 { return 84 }
                                 if px < 560 || px > 700 { return 84 }
                             } else if at.kind == HIDE_BUSH {
                                 // Behind the bush, stepping out past its side.
-                                if !art.behind || art.animal_base != at.ground || px > 300 && px < 954 { return 85 }
+                                support := at.ground - (ifx animal == 11 then art.edge * 190 / HIDE_PROP_PIXELS else 0)
+                                if !art.behind || art.animal_base != support || px > 300 && px < 954 { return 85 }
                                 if (art.animal_cx - at.cx) * (width / 2 - at.cx) <= 0 || at.toward * (width / 2 - at.cx) < 0 { return 85 }
                             } else {
                                 // Sitting in front on the low left branch.
@@ -215,6 +220,13 @@ main :: () -> s32 {
     for orientation: cast(s32)0..1 {
         at := HideSeekSceneLayout(widths[orientation], heights[orientation], 3, 0, HIDE_COTTAGE_YARD)
         for kind: cast(s32)0..HIDE_KINDS - 1 {
+            for side: cast(s32)0..1 {
+                for animal: cast(s32)0..HIDE_ANIMALS - 1 {
+                    hint := HideSeekHintArtLayout(kind, at.cx, at.ground, at.size, animal, ifx side == 0 then -1 else 1)
+                    print("hide-hint % % % % % % % % % % % %\n", widths[orientation], heights[orientation], kind, side, animal,
+                        hint.x, hint.y, hint.edge, hint.animal_cx, hint.animal_base, hint.animal_edge, 1)
+                }
+            }
             for frame: cast(s32)0..4 {
                 for animal: cast(s32)0..HIDE_ANIMALS - 1 {
                     art := HideSeekArtLayout(kind, at.cx, at.ground, at.size, cast(float32)frame / 4.0, animal, at.toward)
@@ -232,6 +244,10 @@ main :: () -> s32 {
                     print("hide-place % % % % % % % % % % % % % % % % % % % % %\n", widths[orientation], heights[orientation], scene, flip, place,
                         p.kind, p.cx, p.ground, p.size, p.x, p.y, p.width, p.height, animal,
                         art.x, art.y, art.edge, art.animal_cx, art.animal_base, art.animal_edge, ifx art.behind then 1 else 0)
+                    hint := HideSeekHintArtLayout(p.kind, p.cx, p.ground, p.size, animal, p.toward)
+                    print("hide-hint-place % % % % % % % % % % % % % % % % % % % % %\n", widths[orientation], heights[orientation], scene, flip, place,
+                        p.kind, p.cx, p.ground, p.size, p.x, p.y, p.width, p.height, animal,
+                        hint.x, hint.y, hint.edge, hint.animal_cx, hint.animal_base, hint.animal_edge, 1)
                 }
             }
         }

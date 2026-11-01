@@ -13,14 +13,20 @@ import zipfile
 PACK_BYTES = 4 * 1024 * 1024
 
 
-def pack_assets(files, output, max_bytes=PACK_BYTES, *, archive_names=None, single_files=()):
+def pack_assets(files, output, max_bytes=PACK_BYTES, *, archive_names=None, single_files=(), group_bytes=None):
     """Pack {relative path: source Path}, grouping by directory and size.
 
     Each payload is stored once, even when multiple game paths use it. Packs
     have stable timestamps and content-addressed names for browser/CDN caches.
+    On-demand images may use their own packs; short audio clips may use a
+    smaller directory budget without multiplying every other activity's packs.
     """
     output = Path(output)
     archive_names = archive_names or {}
+    group_bytes = group_bytes or {}
+    for budget in (max_bytes, *group_bytes.values()):
+        if type(budget) is not int or budget <= 0:
+            raise ValueError('Asset pack budgets must be positive integers')
     stored_to_logical = {archive_names.get(name, name): name for name in files}
     if len(stored_to_logical) != len(files):
         raise ValueError('Duplicate stored asset path')
@@ -75,7 +81,8 @@ def pack_assets(files, output, max_bytes=PACK_BYTES, *, archive_names=None, sing
         # Keep languages and activity directories separate, then split large
         # directories. No pack exceeds max_bytes except one oversized asset.
         next_group = name if name in single_files else str(path.parent)
-        if next_group != group or size + len(data) > max_bytes:
+        limit = group_bytes.get(str(path.parent), max_bytes)
+        if next_group != group or size + len(data) > limit:
             flush()
             size = 0
         seen[digest] = name

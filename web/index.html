@@ -105,9 +105,21 @@ window.cancelAnimationFrame=id=>{const entry=pendingFrames.get(id);if(entry){pen
 document.addEventListener('visibilitychange',scheduleHiddenFrames);
 const imageLoads=new Map();
 let imagePaths=new Set();
-let assetPacks;
+let assetPacks,assetPackIndex;
+// The menu pictures and bitmap fonts are separate files (tools/build_web.py),
+// so the menu never waits for the full pack index; everything else does.
+const directAsset=path=>path.startsWith('assets/jungle/')&&!path.endsWith('.wav')||path.endsWith('/font.png');
+function packIndex(){
+ assetPackIndex??=fetchResource('asset-packs.json',response=>response.json())
+  .then(manifest=>assetPacks=new JungleAssetPacks(manifest,path=>fetchResource(path,response=>response.arrayBuffer())))
+  .catch(error=>{assetPackIndex=undefined;throw error});
+ return assetPackIndex;
+}
 async function assetBytes(path){
- if(assetPacks&&Object.hasOwn(assetPacks.manifest.files,path))return assetPacks.read(path);
+ if(!directAsset(path)){
+  const packs=await packIndex();
+  if(Object.hasOwn(packs.manifest.files,path))return packs.read(path);
+ }
  return new Uint8Array(await fetchResource(path,response=>response.arrayBuffer()));
 }
 // Narration ships as Ogg Vorbis speech clips; assets/speech.txt
@@ -234,28 +246,81 @@ async function fetchResource(path,read){
   await new Promise(resolve=>setTimeout(resolve,250*(attempt+1)));
  }
 }
+function writeAsset(file,bytes){
+ Module.FS.mkdirTree(file.substring(0,file.lastIndexOf('/')));
+ Module.FS.writeFile(file,bytes);
+}
+// A picture's file appears only once its full, verified bytes are here.
 async function loadImage(path){
  if(Module.FS.analyzePath('/'+path).exists)return;
  if(imageLoads.has(path))return imageLoads.get(path);
- const request=assetBytes(path).then(bytes=>{
-  Module.FS.mkdirTree('/'+path.substring(0,path.lastIndexOf('/')));
-  Module.FS.writeFile('/'+path,bytes);
- });
+ const request=assetBytes(path).then(bytes=>writeAsset('/'+path,bytes));
  imageLoads.set(path,request);
  try{return await request}catch(error){imageLoads.delete(path);throw error}
+}
+// Few-KB previews (tools/web_images.py) stand in for book pictures while
+// their full bytes download. Kryon caches Canvas textures and DOM object URLs
+// by path, so a preview has its own: the logical path without "assets/".
+// The full picture never shares it, and a preview never replaces it.
+// Each book's previews share one small pack, checked like every asset pack.
+let previewIndex;
+const previewLoads=new Map(),previewFile=path=>'/'+path.slice(7);
+function previews(){
+ previewIndex??=fetchResource('preview-images.json',response=>response.json())
+  .then(manifest=>new JungleAssetPacks(manifest,path=>fetchResource(path,response=>response.arrayBuffer()),4*1024*1024))
+  .catch(error=>{previewIndex=undefined;throw error});
+ return previewIndex;
+}
+function loadPreview(path){
+ if(!path.startsWith('assets/')||previewLoads.has(path))return;
+ const request=previews().then(async packs=>{
+  if(!Object.hasOwn(packs.manifest.files,path))return false;
+  const bytes=await packs.read(path);
+  // A full picture that arrived first needs no stand-in.
+  if(!Module.FS.analyzePath('/'+path).exists)writeAsset(previewFile(path),bytes);
+  return true;
+ });
+ previewLoads.set(path,request);
+ // A preview is optional: without one the full picture still appears.
+ request.catch(error=>console.warn('Preview unavailable:',path,error));
+}
+// Full pictures download two at a time, most recently drawn first. A queued
+// picture nobody has drawn for a second, such as a page flipped past, leaves
+// the queue; drawing it again brings it back. Hidden tabs still draw every
+// 250 ms, so their pictures stay queued.
+const fullQueue=new Map(),fullLimit=2,fullStale=1000;
+let fullActive=0,fullTouch=0;
+function requestFull(path){
+ fullQueue.set(path,{touch:++fullTouch,time:performance.now()});
+ pumpFull();
+}
+function pumpFull(){
+ const now=performance.now();
+ for(const [path,entry] of fullQueue)if(now-entry.time>fullStale)fullQueue.delete(path);
+ while(fullActive<fullLimit&&fullQueue.size){
+  let next,newest=-1;
+  for(const [path,entry] of fullQueue)if(entry.touch>newest){next=path;newest=entry.touch}
+  fullQueue.delete(next);fullActive++;
+  loadImage(next).catch(error=>unavailableImage(next,error)).finally(()=>{fullActive--;pumpFull()});
+ }
 }
 var Module={canvas:document.getElementById('canvas'),locateFile:assetUrl,print:console.log,printErr:console.error,
  jungleLanguage:updateSiteLanguage,
  jungleAudio:packedAudio,
+ // Whether PATH's full picture is here; otherwise its preview and full bytes
+ // are requested.
  jungleImageReady(path){
   if(Module.FS.analyzePath('/'+path).exists)return true;
-  if(imagePaths.has(path)&&!imageLoads.has(path))void loadImage(path).catch(error=>unavailableImage(path,error));
+  if(imagePaths.has(path)&&!imageLoads.has(path)){loadPreview(path);requestFull(path)}
   return false;
+ },
+ // Whether PATH's preview is here, at its own path (previewFile).
+ junglePreviewReady(path){
+  return path.startsWith('assets/')&&Module.FS.analyzePath(previewFile(path)).exists;
  },
  preRun:[function(){
   Module.addRunDependency('menu-pictures');
-  Promise.all([fetchResource('images.json',response=>response.json()),fetchResource('asset-packs.json',response=>response.json())]).then(async([paths,manifest])=>{
-   assetPacks=new JungleAssetPacks(manifest,path=>fetchResource(path,response=>response.arrayBuffer()));
+  fetchResource('images.json',response=>response.json()).then(async paths=>{
    imagePaths=new Set(paths);
    // Open once the menu's own pictures are here, with bounded parallel
    // downloads. Each game's pictures load when it first shows them
@@ -269,7 +334,13 @@ var Module={canvas:document.getElementById('canvas'),locateFile:assetUrl,print:c
    Module.removeRunDependency('menu-pictures');
   }).catch(e=>{console.error(e);Module.onAbort()});
  }],
- onRuntimeInitialized(){window.jungleStartupMs=performance.now();document.getElementById('loading').hidden=true;document.getElementById('loading').style.display='none';document.getElementById('canvas').focus()},
+ onRuntimeInitialized(){
+  window.jungleStartupMs=performance.now();document.getElementById('loading').hidden=true;document.getElementById('loading').style.display='none';document.getElementById('canvas').focus();
+  // The pack and preview indexes download once the menu shows, not with
+  // the runtime; a game asking first simply starts them sooner.
+  packIndex().catch(error=>console.warn('Asset index unavailable:',error));
+  previews().catch(error=>console.warn('Preview index unavailable:',error));
+ },
  onAbort(){document.getElementById('loading').style.display='grid';document.getElementById('status').textContent=siteCopy[siteLanguage].error}
 };
 

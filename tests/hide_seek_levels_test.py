@@ -39,9 +39,11 @@ WORDS_SHOWN = {
 OLD_SAVES = {"en": ("hideseek 1 1 4\n", 4, 0), "de": ("hideseek 2 2 4 3\n", 4, 3), "es": ("hideseek 2 0 4 0\n", 4, 0)}
 
 
-def focused_build():
+def focused_build(pixels_only=False):
     subprocess.run(["make", "build/tests/hide_seek"], cwd=rt.ROOT, check=True)
     result = subprocess.run([str(rt.ROOT / "build/tests/hide_seek")], cwd=rt.ROOT, check=True, capture_output=True, text=True)
+    if pixels_only:
+        return result.stdout
     assert BINARY.exists(), "build the stable host first: make build/app/jungle"
     bundle = rt.ROOT / "build/app/games/jungle-hide-seek.zx"
     assert bundle.exists() and bundle.stat().st_mtime >= max(MODEL.stat().st_mtime, SCREEN.stat().st_mtime), "wait for the parent coordinated app build"
@@ -56,6 +58,34 @@ def records(receipt, tag):
 
 def feet():
     return list(map(int, re.search(r"hide_animal_feet: \[12\]s32 = \.\[(.*?)\];", MODEL.read_text(), re.S).group(1).split(",")))
+
+
+def basket_front(prop):
+    coordinates = []
+    for axis in ("x", "y"):
+        raw = re.search(rf"hide_basket_front_{axis}: \[29\]s32 = \.\[(.*?)\];", MODEL.read_text(), re.S).group(1)
+        coordinates.append([int(value) for value in raw.split(",")])
+    mask = Image.new("L", prop.size)
+    ImageDraw.Draw(mask).polygon([(x * prop.width / 1254, y * prop.height / 1254)
+                                 for x, y in zip(*coordinates)], fill=255)
+    front = prop.copy()
+    front.putalpha(ImageChops.multiply(prop.getchannel("A"), mask))
+    return front
+
+
+def paint_place(picture, cover, friend, kind, behind, front=None):
+    if kind == 0:
+        # Full original back/silhouette, animal, then only the front wall.
+        picture.alpha_composite(cover)
+        picture.alpha_composite(friend)
+        assert front is not None
+        picture.alpha_composite(front)
+    elif behind:
+        picture.alpha_composite(friend)
+        picture.alpha_composite(cover)
+    else:
+        picture.alpha_composite(cover)
+        picture.alpha_composite(friend)
 
 
 def friend_layer(animals, width, height, animal, acx, base, ae, support):
@@ -85,15 +115,18 @@ def check_art_pixels(receipt):
         prop = props[kind].resize((edge, edge), Image.Resampling.LANCZOS)
         cover = Image.new("RGBA", (width, height))
         cover.alpha_composite(prop, (x, y))
+        front = Image.new("RGBA", (width, height))
+        if kind == 0:
+            front.alpha_composite(basket_front(prop), (x, y))
         friend = friend_layer(animals, width, height, animal, acx, base, ae, support)
         alpha = friend.getchannel("A")
-        # Only the whole, uncropped prop covers a friend behind it.
-        visible = ImageChops.multiply(alpha, ImageChops.invert(cover.getchannel("A"))) if behind else alpha
+        occluder = front if kind == 0 else cover
+        visible = ImageChops.multiply(alpha, ImageChops.invert(occluder.getchannel("A"))) if behind else alpha
         ratio = ImageStat.Stat(visible).sum[0] / ImageStat.Stat(alpha).sum[0]
         ratios[width, kind, animal, frame] = ratio
         name = (width, PROPS[kind], ANIMALS[animal], frame)
         if kind == 0:
-            # In the basket: head and shoulders above the back rim.
+            # Head and shoulders inside the bowl, above the front braid.
             assert behind and .3 <= ratio <= .85, (name, "basket friend not rising from the basket", ratio)
         elif kind == 1:
             # Behind the bush, stepping out past its side as it is found.
@@ -113,12 +146,7 @@ def check_art_pixels(receipt):
             assert not behind and ratio == 1, (name, "tree friend not sitting on its branch")
         if frame in (0, 4):
             picture = Image.new("RGBA", (width, height), "#e5ead5")
-            if behind:
-                picture.alpha_composite(friend)
-                picture.alpha_composite(cover)
-            else:
-                picture.alpha_composite(cover)
-                picture.alpha_composite(friend)
+            paint_place(picture, cover, friend, kind, behind, front)
             ax, ay = acx - ae // 2, base - ae * support[animal] // 420
             box = (max(0, min(x, ax)-4), max(0, min(y, ay)-4), min(width, max(x+edge, ax+ae)+4), min(height, max(y+edge, ay+ae)+4))
             tile = picture.crop(box).convert("RGB")
@@ -142,7 +170,9 @@ def check_scene_pixels(receipt):
     """Every scene's natural places, hidden and found, on the real backdrop."""
     support = feet()
     places = records(receipt, "hide-place")
+    hints = {row[:5]: row for row in records(receipt, "hide-hint-place")}
     assert len(places) == 2 * 2 * (3 + 3 + 2 + 3), len(places)
+    assert len(hints) == len(places)
     props = [Image.open(rt.ROOT / f"assets/hide_seek/props/{name}.png").convert("RGBA") for name in PROPS]
     animals = [Image.open(rt.ROOT / f"assets/jungle-book/items/{name}.png").convert("RGBA") for name in ANIMALS]
     kinds = {0: {1, 3, 0}, 1: {1, 3, 0}, 2: {2, 0}, 3: {2, 1, 0}}
@@ -160,21 +190,63 @@ def check_scene_pixels(receipt):
                 for row in rows:
                     kind, cx, ground, size, hx, hy, hw, hh, animal, x, y, edge, acx, base, ae, behind = row[5:]
                     prop = Image.new("RGBA", (width, height))
-                    prop.alpha_composite(props[kind].resize((edge, edge), Image.Resampling.LANCZOS), (x, y))
+                    scaled = props[kind].resize((edge, edge), Image.Resampling.LANCZOS)
+                    prop.alpha_composite(scaled, (x, y))
+                    front = Image.new("RGBA", (width, height))
+                    if kind == 0:
+                        front.alpha_composite(basket_front(scaled), (x, y))
                     # A tap aimed at the middle of a hiding place lands on its prop.
                     assert prop.getchannel("A").getpixel((hx + hw // 2, hy + hh // 2)) > 128, (name, PROPS[kind], "hit box misses the prop")
                     friend = friend_layer(animals, width, height, animal, acx, base, ae, support)
-                    hidden.alpha_composite(prop)
-                    if behind:
-                        found.alpha_composite(friend)
-                        found.alpha_composite(prop)
-                    else:
-                        found.alpha_composite(prop)
-                        found.alpha_composite(friend)
+                    hint = hints[row[:5]]
+                    hcx, hbase, hedge = hint[17:20]
+                    hiding_friend = friend_layer(animals, width, height, animal, hcx, hbase, hedge, support)
+                    paint_place(hidden, prop, hiding_friend, kind, True, front)
+                    paint_place(found, prop, friend, kind, behind, front)
                 sheet.paste(hidden.convert("RGB"), (scene * (width + 10), flip * 2 * (height + 10)))
                 sheet.paste(found.convert("RGB"), (scene * (width + 10), (flip * 2 + 1) * (height + 10)))
         sheet.save(rt.OUTPUT.parent / f"scenes-{width}.png")
     print("local hide & seek scenes: 4 backdrops x mirrored arrangements, natural kinds, back-to-front depth and on-prop taps passed", flush=True)
+
+
+def check_hint_pixels(receipt):
+    """Each animal has a small visible clue, with its body still concealed."""
+    rows = records(receipt, "hide-hint")
+    assert len(rows) == 2 * 4 * 2 * 12
+    props = [Image.open(rt.ROOT / f"assets/hide_seek/props/{name}.png").convert("RGBA") for name in PROPS]
+    animals = [Image.open(rt.ROOT / f"assets/jungle-book/items/{name}.png").convert("RGBA") for name in ANIMALS]
+    support = feet()
+    ratios, panels = [], {}
+    for width, height, kind, side, animal, x, y, edge, acx, base, ae, behind in rows:
+        scaled = props[kind].resize((edge, edge), Image.Resampling.LANCZOS)
+        cover = Image.new("RGBA", (width, height))
+        cover.alpha_composite(scaled, (x, y))
+        front = Image.new("RGBA", (width, height))
+        if kind == 0:
+            front.alpha_composite(basket_front(scaled), (x, y))
+        friend = friend_layer(animals, width, height, animal, acx, base, ae, support)
+        alpha = friend.getchannel("A")
+        visible = ImageChops.multiply(alpha, ImageChops.invert((front if kind == 0 else cover).getchannel("A")))
+        ratio = ImageStat.Stat(visible).sum[0] / ImageStat.Stat(alpha).sum[0]
+        assert behind and .015 <= ratio <= .32, (width, PROPS[kind], side, ANIMALS[animal], "peek must be small but visible", ratio)
+        ratios.append(ratio)
+        picture = Image.new("RGBA", (width, height), "#e5ead5")
+        paint_place(picture, cover, friend, kind, True, front)
+        tile = picture.crop((x, max(0, y), x + edge, y + edge)).convert("RGB")
+        tile.thumbnail((170, 190))
+        panel = Image.new("RGB", (190, 214), "#fffaf0")
+        panel.paste(tile, ((190-tile.width)//2, 20))
+        ImageDraw.Draw(panel).text((4, 3), f"{ANIMALS[animal]} {ratio:.0%}", fill="black")
+        panels[width, kind, side, animal] = panel
+    for width in (376, 893):
+        for kind, name in enumerate(PROPS):
+            sheet = Image.new("RGB", (190*6, 214*4), "#fffaf0")
+            for animal in range(12):
+                for side in range(2):
+                    index = animal*2+side
+                    sheet.paste(panels[width, kind, side, animal], ((index%6)*190, (index//6)*214))
+            sheet.save(rt.OUTPUT.parent / f"{name}-peeks-{width}.png")
+    print(f"local hide & seek peeks: 192 real-asset cases, visible fraction {min(ratios):.1%}–{max(ratios):.1%}; bodies remain concealed", flush=True)
 
 
 def check_words_and_voices():
@@ -282,7 +354,7 @@ def stage(screen, name):
 
 
 def look_everywhere(screen, label, hold_next=False):
-    """Every friend starts fully hidden. Looking at each place by keyboard
+    """Every hiding friend starts with a small stationary peek. Looking at each place by keyboard
     reveals only a friend that is there; an empty place shows nothing new
     once its wiggle settles. Stops as soon as all friends are found."""
     d, data = screen.d, screen.data
@@ -435,7 +507,7 @@ def language_pass(language, temporary):
         open_hide_seek(screen)
         assert saved(data) == [1, found, remembered]
         d.key("Escape")
-    print(f"local hide & seek UI: {language} old save, hidden-until-found, empty looks, 4 scenes x 2 orientations, auto/manual next, held input and reopen passed", flush=True)
+    print(f"local hide & seek UI: {language} old save, small peeks until found, empty looks, 4 scenes x 2 orientations, auto/manual next, held input and reopen passed", flush=True)
 
 
 def completion_visible(screen, image):
@@ -469,11 +541,15 @@ def review_picture():
 
 
 def main():
-    receipt = focused_build()
+    pixels_only = sys.argv[1:] == ["--pixels-only"]
+    receipt = focused_build(pixels_only)
     check_words_and_voices()
     rt.OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     check_art_pixels(receipt)
+    check_hint_pixels(receipt)
     check_scene_pixels(receipt)
+    if pixels_only:
+        return
     with tempfile.TemporaryDirectory(prefix="data-", dir=rt.OUTPUT.parent) as temporary:
         for language in LANGUAGES:
             language_pass(language, temporary)

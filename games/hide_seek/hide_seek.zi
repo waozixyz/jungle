@@ -1,9 +1,9 @@
 // Hide & Seek rules and validated saves, without drawing.
 // One gentle hide-and-find game. Each round is one of four scenes with its
 // own natural hiding places: a basket (in), a bush (behind), a table (under)
-// or a tree (up in). Friends hide in all but one place and stay completely
-// out of sight until the child looks there; nothing peeks, previews or names
-// the friend before it is found. A round is done once every friend is found,
+// or a tree (up in). Friends hide in all but one place, with a small part
+// peeking past the real hiding place. No card or voice names the friend
+// before it is found. A round is done once every friend is found,
 // and the next round moves to the next scene.
 #import "std/format"
 #import, file "../../host/jungle_text.zi";
@@ -40,8 +40,9 @@ HIDE_REVEALED :: 1
 HIDE_EMPTY :: 2
 HIDE_AGAIN :: 3
 
-// How much of a hiding friend shows: nothing until found.
+// Empty places show nothing; hiding friends show a small part.
 HIDE_NO_PEEK :: 0
+HIDE_PARTIAL :: 1
 HIDE_SHOWN :: 3
 
 hide_animals: [12]string = .["frog", "rabbit", "cat", "dog", "monkey", "panda", "duck", "hen", "pig",
@@ -151,10 +152,10 @@ HideSeekFriends :: (h: HideSeek) -> s32 {
     return friends
 }
 
-// A friend is drawn only once it has been found.
+// The scene itself supplies a small clue, without revealing a whole friend.
 HideSeekPeek :: (h: HideSeek, place: s32) -> s32 {
-    if !HideSeekHides(h, place) || !h.revealed[place] { return HIDE_NO_PEEK }
-    return HIDE_SHOWN
+    if !HideSeekHides(h, place) { return HIDE_NO_PEEK }
+    return ifx h.revealed[place] then HIDE_SHOWN else HIDE_PARTIAL
 }
 
 HideSeekDone :: (h: HideSeek) -> bool {
@@ -206,9 +207,25 @@ HideSeekInputGuard :: (guarded: bool, pointer_down: bool, pointer_released: bool
     return guarded && (pointer_down || pointer_released || enter_down)
 }
 
-// Original 420px cut-out foot/claw supports. Monkey and parrot tails extend
+// Foot/claw supports normalized to 420px, including the refreshed cut-outs.
+// Monkey and parrot tails extend
 // below their feet, so the alpha bounding-box bottom is not their support.
-hide_animal_feet: [12]s32 = .[377, 408, 399, 386, 342, 412, 412, 412, 386, 397, 381, 352];
+hide_animal_feet: [12]s32 = .[377, 408, 399, 386, 370, 410, 412, 412, 386, 397, 370, 279];
+hide_animal_tops: [12]s32 = .[84, 18, 24, 43, 64, 10, 19, 17, 60, 35, 52, 17];
+hide_animal_bottoms: [12]s32 = .[377, 408, 399, 386, 374, 413, 412, 412, 386, 397, 373, 407];
+
+// The inside edge of the front braid, measured on the actual basket.
+// Its original alpha remains intact; only this front wall is drawn again.
+HIDE_BASKET_POINTS :: 29
+hide_basket_front_x: [29]s32 = .[0, 60, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750, 800, 850, 900, 950, 1000, 1050, 1100, 1150, 1180, 1210, 1254, 1254, 0];
+hide_basket_front_y: [29]s32 = .[480, 520, 538, 571, 621, 643, 663, 676, 690, 699, 704, 710, 715, 717, 713, 707, 704, 702, 699, 688, 674, 660, 638, 599, 571, 530, 480, 1254, 1254];
+
+// Opaque-pixel measurements place each animal mostly behind the leaves or
+// a table leg. First twelve are left-side positions, next twelve right-side.
+hide_bush_hint_x: [24]s32 = .[242, 215, 260, 248, 224, 245, 215, 230, 275, 248, 305, 158, 952, 1027, 878, 893, 976, 985, 1018, 943, 911, 908, 1018, 958];
+hide_table_hint_x: [24]s32 = .[224, 200, 194, 194, 194, 200, 233, 275, 287, 275, 194, 224, 1057, 1036, 1054, 1042, 1054, 1057, 997, 979, 1012, 1015, 1048, 1057];
+hide_table_hint_base: [24]s32 = .[821, 830, 821, 821, 830, 821, 821, 821, 821, 830, 830, 848, 821, 821, 830, 830, 821, 821, 839, 839, 839, 839, 821, 884];
+hide_tree_hint_x: [12]s32 = .[242, 263, 561, 242, 579, 248, 517, 272, 549, 248, 236, 609];
 
 // Measured opaque extents of the unchanged square 1254px props: support
 // line, top, left and right. Layout uses one scale for both axes.
@@ -232,13 +249,13 @@ HideSeekArt :: struct {
     animal_cx: s32
     animal_base: s32
     animal_edge: s32
-    // The friend is drawn before the whole, uncropped prop, so the prop
-    // covers it naturally; otherwise it sits in front (on a tree branch).
+    // The prop covers the friend; the basket uses only its front wall.
+    // Otherwise the friend sits in front on the tree's branch.
     behind: bool
 }
 
 // Where a found friend stands. The prop is always drawn whole: a friend in
-// the basket rises above its back rim, one behind the bush steps out past
+// the basket rises above its front rim, one behind the bush steps out past
 // its side, one under the table stands between the legs below the cloth,
 // and one up in the tree sits on its low left branch. Feet never move.
 // `toward` is the side of the open stage (see HideSeekPlaceLayout).
@@ -252,19 +269,23 @@ HideSeekArtLayout :: (kind: s32, cx: s32, ground: s32, size: s32, progress: floa
     art := HideSeekArt.{.x = x, .y = y, .edge = edge, .behind = true}
     if k == HIDE_BASKET {
         art.animal_cx = x + edge * 632 / HIDE_PROP_PIXELS
-        art.animal_base = y + edge * 640 / HIDE_PROP_PIXELS
         art.animal_edge = edge * 56 / 100
+        // Feet and dangling tails stay inside the bowl, below its front rim.
+        art.animal_base = y + edge * 1000 / HIDE_PROP_PIXELS -
+            art.animal_edge * (hide_animal_bottoms[animal] - hide_animal_feet[animal]) / 420
     } else if k == HIDE_BUSH {
         // Out toward the open middle of the stage, never off its edge.
         side: s32 = ifx toward > 0 then 1 else -1
         art.animal_cx = cx + side * (size * 36 / 100 + cast(s32)(p * cast(float32)size * 0.12))
         art.animal_base = ground
+        // A parrot perches in the low foliage; its long tail ends at ground.
+        if animal == 11 { art.animal_base -= edge * 190 / HIDE_PROP_PIXELS }
         art.animal_edge = size * 50 / 100
     } else if k == HIDE_TABLE {
         // The front legs stand at 167-261 and 995-1092, the back legs end
         // at 880 and the cloth's hem at 715: the friend stays inside them.
         art.animal_cx = x + edge * (590 + cast(s32)(p * 38.0)) / HIDE_PROP_PIXELS
-        art.animal_base = y + edge * 1000 / HIDE_PROP_PIXELS
+        art.animal_base = y + edge * (ifx animal == 11 then 950 else 1000) / HIDE_PROP_PIXELS
         art.animal_edge = edge * 22 / 100
     } else {
         // The low left branch's top is at 630-640 around x 235.
@@ -272,6 +293,28 @@ HideSeekArtLayout :: (kind: s32, cx: s32, ground: s32, size: s32, progress: floa
         art.animal_base = y + edge * 640 / HIDE_PROP_PIXELS
         art.animal_edge = edge * 26 / 100
         art.behind = false
+    }
+    return art
+}
+
+// A stationary head, ear, paw or tail peeks from the actual prop. The
+// basket's smaller hiding pose fits entirely inside its bowl.
+HideSeekHintArtLayout :: (kind: s32, cx: s32, ground: s32, size: s32, animal: s32, toward: s32 = -1) -> HideSeekArt {
+    art := HideSeekArtLayout(kind, cx, ground, size, 0.0, animal, toward)
+    side := animal + (ifx toward > 0 then HIDE_ANIMALS else 0)
+    art.behind = true
+    if kind == HIDE_BASKET {
+        art.animal_edge = art.edge * 28 / 100
+        body := art.animal_edge * (hide_animal_bottoms[animal] - hide_animal_tops[animal]) / 420
+        top := art.y + art.edge * 717 / HIDE_PROP_PIXELS - body * 8 / 100
+        art.animal_base = top + art.animal_edge * (hide_animal_feet[animal] - hide_animal_tops[animal]) / 420
+    } else if kind == HIDE_BUSH {
+        art.animal_cx = art.x + art.edge * hide_bush_hint_x[side] / HIDE_PROP_PIXELS
+    } else if kind == HIDE_TABLE {
+        art.animal_cx = art.x + art.edge * hide_table_hint_x[side] / HIDE_PROP_PIXELS
+        art.animal_base = art.y + art.edge * hide_table_hint_base[side] / HIDE_PROP_PIXELS
+    } else {
+        art.animal_cx = art.x + art.edge * hide_tree_hint_x[animal] / HIDE_PROP_PIXELS
     }
     return art
 }

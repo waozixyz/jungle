@@ -13,9 +13,10 @@ import numpy as np
 
 from runtime_test import ROOT, DIGITS, picture_pixels, run_number, dinosaur_masks, run
 from paint_history_test import (Desktop, WORK, changed, history, open_paint,
-                                open_slots, paint_layout, pixel_click, scenery, tool, stencil_click, stencil_layout)
+                                open_slots, paint_layout, pixel_click, scenery, tool, stencil_click, stencil_layout,
+                                stencil_pick)
 from paint_layers_test import HEADER, runs
-from paint_geometry import scene_layout, scene_click
+from paint_geometry import label_fits, scene_layout, scene_click, stencil_catalog, stencil_order, stencil_position
 
 
 
@@ -95,10 +96,16 @@ def open_gallery_page(desktop, folder, target):
         page += 1
 
 
-def choices(folder):
+CHOICES_V1, CHOICES_V2 = b'JUNGLE PAINT CHOICES 1\n', b'JUNGLE PAINT CHOICES 2\n'
+
+
+def choices(folder, version=None):
+    """Saved choices; the third digit is a v1 page or a v2 category item anchor."""
     saved = (folder / 'choices.txt').read_bytes()
-    prefix = b'JUNGLE PAINT CHOICES 1\n'
-    assert saved.startswith(prefix) and len(saved) == len(prefix) + 8
+    prefix = saved[:len(CHOICES_V2)]
+    assert prefix in (CHOICES_V1, CHOICES_V2) and len(saved) == len(prefix) + 8
+    if version is not None:
+        assert prefix == (CHOICES_V1, CHOICES_V2)[version - 1], ('choices version', saved)
     return [DIGITS.index(chr(byte)) for byte in saved[len(prefix):]]
 
 
@@ -359,30 +366,32 @@ def library(language, data):
 def remembered(language, data):
     base = np.full((720, 960), 22, np.uint8)
     folder, working = setup(data, language, document(base, []))
-    (folder / 'choices.txt').write_bytes(b'JUNGLE PAINT CHOICES 1\n00030000')
+    # A legacy six-slot save on page 2 opens the page holding its first item.
+    (folder / 'choices.txt').write_bytes(CHOICES_V1 + b'00130000')
     with Desktop(ROOT / 'build/app/jungle', data) as desktop:
         open_paint(desktop, 'library-choices')
         tool(desktop, 0)
         desktop.capture('library-stencils', header=56)
-        # Page 2 dinosaur is an existing asset (stable ID 6).
-        stencil_click(desktop, 'next')
-        stencil_click(desktop)
+        assert choices(folder, 1) == [0, 0, 1, 3, 0, 0, 0, 0], 'opening the picker rewrote legacy choices'
+        # Its seventh dinosaur is an existing asset (stable ID 6).
+        capacity = stencil_layout(desktop)['capacity']
+        stencil_click(desktop, 'tile', 6 % capacity)
         desktop.capture('library-placement', header=56)
         tool(desktop, 6)  # mirror while placing
         before = working.read_bytes()
         tool(desktop, 8)  # Place first: cannot silently rotate/lose pending stencil.
-        assert working.read_bytes() == before and choices(folder)[:5] == [7, 0, 1, 3, 1]
+        assert working.read_bytes() == before and choices(folder, 2)[:5] == [7, 0, 6, 3, 1]
         tool(desktop, 6)
         assert choices(folder)[4] == 0, 'Rotate discarded the pending stencil instead of showing Place first'
         tool(desktop, 6)
         assert choices(folder)[4] == 1
     with Desktop(ROOT / 'build/app/jungle', data) as desktop:
         open_paint(desktop, 'library-remembered-dinosaur')
-        assert choices(folder)[:5] == [7, 0, 1, 3, 1]
+        assert choices(folder, 2)[:5] == [7, 0, 6, 3, 1]
         tool(desktop, 0)
         desktop.capture('library-remembered-page', header=56)
-        stencil_click(desktop)
-        assert choices(folder)[:3] == [7, 0, 1], 'dinosaur page did not reopen'
+        stencil_click(desktop, 'tile', 6 % stencil_layout(desktop)['capacity'])
+        assert choices(folder)[:3] == [7, 0, 6], 'dinosaur page did not reopen'
         desktop.capture('library-remembered-preview', header=56)
         assert choices(folder)[3] == 3, 'remembered size was lost'
         desktop.key('Escape')  # discard pending stencil
@@ -438,58 +447,96 @@ def responsive_stencils(data):
     """Real private-window input: resizing, partial pages and Escape preserve art."""
     base = np.full((720, 960), 22, np.uint8)
     folder, working = setup(data, 'en', document(base, []))
-    with Desktop(ROOT / 'build/app/jungle', data, screen_size='1280x1000') as desktop:
+    counts, last = stencil_catalog()
+    with Desktop(ROOT / 'build/app/jungle', data, screen_size='1920x1200') as desktop:
         open_paint(desktop, 'responsive-main')
         before = working.read_bytes()
         tool(desktop, 0)
-        for n, size in enumerate(((390, 844), (400, 756), (420, 700), (844, 390), (960, 600))):
+        sizes = ((390, 844), (400, 756), (420, 700), (844, 390), (960, 600), (1280, 800), (1920, 1080))
+        capacities = []
+        for n, size in enumerate(sizes):
             desktop.resize(*size)
             actual = desktop.capture_actual('responsive-picker')
             assert actual.size == size, 'private picker capture was clipped'
             rects = stencil_layout(desktop)
-            boxes = sum(rects.values(), [])
+            capacity = rects['capacity']
+            capacities.append(capacity)
+            boxes = sum((rects[kind] for kind in ('category', 'tile', 'previous', 'next')), [])
             for x, y, w, h in boxes:
                 assert w >= 44 and h >= 44, ('small touch target', size, (x, y, w, h))
                 assert 0 <= x < x + w <= size[0] and 56 <= y < y + h <= size[1]
             for i, (x, y, w, h) in enumerate(boxes):
                 for a, b, c, d in boxes[i+1:]:
                     assert x + w <= a or a + c <= x or y + h <= b or b + d <= y, 'picker controls overlap'
-            # Check rendered control backgrounds at the predicted hit rectangles.
-            for kind in ('category', 'tile'):
-                for x, y, w, h in rects[kind]:
+            # Rendered control backgrounds at the predicted hit rectangles of
+            # the Dinosaurs first page.
+            for kind, shown in (('category', 4), ('tile', min(capacity, counts[0]))):
+                for x, y, w, h in rects[kind][:shown]:
                     color = actual.getpixel((x + 4, y + h // 2))
                     assert color in ((243, 236, 220), (247, 241, 227), (220, 235, 220)), ('missing picker control', kind, size, color)
-            # Each category ends with four actual tiles and two empty positions.
+            # Each category's final page, then its last item.
             category = n % 4
+            count = counts[category]
+            pages = (count + capacity - 1) // capacity
+            first = (pages - 1) * capacity
             stencil_click(desktop, 'category', category)
-            for _ in range(2 if category == 0 else 1):
+            for _ in range(pages - 1):
                 stencil_click(desktop, 'next')
-            assert choices(folder)[1:3] == [category, 2 if category == 0 else 1]
+            assert choices(folder, 2)[1:3] == [category, first], ('final page anchor', size, capacity)
             saved_choices = choices(folder)
             stencil_click(desktop, 'next')  # No destination on the final page.
-            stencil_click(desktop, 'tile', 5)  # No phantom sixth item.
+            if count - first < capacity:
+                stencil_click(desktop, 'tile', count - first)  # No phantom item after the last.
             assert choices(folder) == saved_choices
-            stencil_click(desktop, 'tile', 3)
-            expected = (34, 38, 42, 46)[category]
-            assert choices(folder)[0] == expected, ('partial page chose another stencil', category)
+            stencil_click(desktop, 'tile', count - 1 - first)
+            assert choices(folder)[0] == last[category], ('partial page chose another stencil', category, size)
+            assert choices(folder)[2] == count - 1, 'chosen stencil did not anchor its own position'
             desktop.key('Escape')  # Cancel pending stencil, then reopen its page.
             tool(desktop, 0)
             actual = desktop.capture_actual('responsive-selected')
-            x, y, w, h = stencil_layout(desktop)['tile'][3]
+            x, y, w, h = stencil_layout(desktop)['tile'][count - 1 - first]
             assert actual.getpixel((x + 4, y + h // 2)) == (220, 235, 220), 'selected stencil is not highlighted'
             selected = choices(folder)
             desktop.resize(960 if size[0] < 600 else 390, 600 if size[0] < 600 else 844)
             desktop.capture('responsive-resized-selection', header=56)
             assert choices(folder) == selected, 'resize changed persisted page or selection'
-            stencil_click(desktop, 'tile', 3)
+            # The resized page holds the anchored stencil at its new grid slot.
+            stencil_click(desktop, 'tile', (count - 1) % stencil_layout(desktop)['capacity'])
             assert choices(folder) == selected, 'resized page selected a different stencil'
             desktop.key('Escape')
             tool(desktop, 0)
-            stencil_click(desktop, 'category', 0)  # Full page for the next geometry capture.
+            stencil_click(desktop, 'category', 0)  # First page for the next geometry capture.
         desktop.key('Escape')  # Picker -> picture; cancellation preserves pixels.
         assert working.read_bytes() == before
-    print('local native responsive picker: five mobile/landscape sizes, all categories, partial pages, selection, resize and keyboard cancellation passed', flush=True)
+    assert capacities[-1] >= max(counts) and capacities[-1] > capacities[4] > 6, ('large screens show more tiles', capacities)
+    print(f'local native responsive picker: {len(sizes)} phone/landscape/desktop sizes ({capacities} tiles), all categories, final pages, anchored selection, resize and keyboard cancellation passed', flush=True)
 
+
+
+def narrow_labels(data):
+    """Every stencil label in every language fits its tile on a 240 px screen."""
+    order, starts, counts = stencil_order()
+    for language in ('en', 'de', 'es'):
+        (data / language).mkdir()
+        folder, _ = setup(data / language, language, document(np.full((720, 960), 22, np.uint8), []))
+        with Desktop(ROOT / 'build/app/jungle', data / language, screen_size='1280x1000') as desktop:
+            open_paint(desktop, f'narrow-{language}')
+            tool(desktop, 0)
+            desktop.resize(240, 500)
+            rects = stencil_layout(desktop)
+            capacity = rects['capacity']
+            for category, count in enumerate(counts):
+                stencil_click(desktop, 'category', category)
+                for first in range(0, count, capacity):
+                    if first:
+                        stencil_click(desktop, 'next')
+                    assert choices(folder, 2)[1:3] == [category, first]
+                    actual = desktop.capture_actual('narrow-labels')
+                    for offset in range(min(capacity, count - first)):
+                        index = order[starts[category] + first + offset]
+                        assert label_fits(actual, rects['tile'][offset]), ('label overflows its tile', language, index)
+            desktop.key('Escape')
+    print('local native narrow labels: all stencil labels in English, German and Spanish fit 240 px tiles passed', flush=True)
 
 
 def responsive_scenes(data):
@@ -689,28 +736,27 @@ def catalog_ui(data):
     (folder / 'choices.txt').write_bytes(b'JUNGLE PAINT CHOICES 1\n00040000')
     with Desktop(ROOT / 'build/app/jungle', data) as desktop:
         open_paint(desktop, 'library-new-catalog')
-        for category in range(4):
-            for offset in range(4):
-                index = 30 + category * 4 + offset
-                tool(desktop, 0)
-                desktop.capture('library-catalog-stencils', header=56)
-                stencil_click(desktop, 'category', category)
-                for _ in range(2 if category == 0 else 1):
-                    stencil_click(desktop, 'next')
-                stencil_click(desktop, 'tile', offset)
-                desktop.capture('library-catalog-placement', header=56)
-                assert choices(folder)[0] == index + 1, f'new stencil {index} picker selected another asset'
-                placement_click(desktop)
-                placed = changed(working, initial)
-                ink, body = dinosaur_masks(index, 4)
-                source = np.where(ink, 0, np.where(body, 15, 255)).astype(np.uint8)
-                x, y, w, h, *_ = map(int, placed.splitlines()[13].split())
-                # Independent Pillow nearest-neighbour sampling of the full mask.
-                from PIL import Image
-                paint = np.asarray(Image.fromarray(source).resize((w, h), Image.Resampling.NEAREST))
-                assert_document(placed, base, [(x, y, paint)])
-                tool(desktop, 6)
-                assert np.array_equal(picture_pixels(changed(working, placed)), base), f'new stencil {index} Undo failed'
+        # The sixteen added in every category, then the six newest Objects.
+        for index in range(30, 52):
+            category, position = stencil_position(index)
+            tool(desktop, 0)
+            desktop.capture('library-catalog-stencils', header=56)
+            stencil_click(desktop, 'category', category)
+            stencil_pick(desktop, position)
+            desktop.capture('library-catalog-placement', header=56)
+            assert choices(folder)[0] == index + 1, f'new stencil {index} picker selected another asset'
+            assert choices(folder)[1:3] == [category, position], f'new stencil {index} did not anchor its position'
+            placement_click(desktop)
+            placed = changed(working, initial)
+            ink, body = dinosaur_masks(index, 4)
+            source = np.where(ink, 0, np.where(body, 15, 255)).astype(np.uint8)
+            x, y, w, h, *_ = map(int, placed.splitlines()[13].split())
+            # Independent Pillow nearest-neighbour sampling of the full mask.
+            from PIL import Image
+            paint = np.asarray(Image.fromarray(source).resize((w, h), Image.Resampling.NEAREST))
+            assert_document(placed, base, [(x, y, paint)])
+            tool(desktop, 6)
+            assert np.array_equal(picture_pixels(changed(working, placed)), base), f'new stencil {index} Undo failed'
         for index in range(12, 24):
             category = 0 if index < 16 else 1 if index < 20 else 2
             position = index - 2 if category == 0 else index - 15 if category == 1 else index - 19
@@ -729,7 +775,7 @@ def catalog_ui(data):
             assert saved.splitlines()[1][0] == ord(DIGITS[index]), f'new scene {index} opened another asset'
             pixels = picture_pixels(saved)
             assert np.count_nonzero(pixels == 0) > 100 and np.count_nonzero(pixels != 0) > 10000, f'new scene {index} has no usable line art'
-    print('local native catalog: all16 new stencils placed/compared/undone; all12 new scenes opened with line art', flush=True)
+    print('local native catalog: all22 new stencils (incl. Objects 46-51) placed/compared/undone; all12 new scenes opened with line art', flush=True)
 
 
 def run_paint_library_test():
@@ -743,6 +789,9 @@ def run_paint_library_test():
         data = Path(temporary) / 'responsive'
         data.mkdir()
         responsive_stencils(data)
+        data = Path(temporary) / 'narrow-labels'
+        data.mkdir()
+        narrow_labels(data)
         data = Path(temporary) / 'responsive-scenes'
         data.mkdir()
         responsive_scenes(data)

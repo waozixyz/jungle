@@ -47,6 +47,12 @@ ACTIONS = ('cooking', 'cleaning', 'reading', 'drawing', 'singing', 'washing_hand
 DESERT_ANIMALS = ('camel', 'fennec_fox', 'meerkat', 'desert_tortoise', 'gecko', 'scorpion')
 INSECTS = ('beetle', 'moth', 'cricket', 'cicada', 'stick_insect', 'firefly')
 PEOPLE_AT_WORK = ('firefighter', 'doctor', 'teacher', 'farmer', 'builder', 'baker')
+NATURE_BOOKS = {
+    'reptiles': ('alligator', 'chameleon', 'iguana', 'tortoise', 'python', 'sea_turtle'),
+    'trees': ('oak', 'maple', 'birch', 'pine', 'willow', 'palm_tree'),
+    'plants': ('sunflower', 'fern', 'cactus', 'bamboo', 'lavender', 'rose'),
+    'forest': ('deer', 'fox', 'squirrel', 'hedgehog', 'badger', 'woodpecker'),
+}
 LABELS = """
 owl Owl|Eule|Búho
 kingfisher Kingfisher|Eisvogel|Martín pescador
@@ -102,6 +108,30 @@ teacher Teacher|Lehrer|Maestro
 farmer Farmer|Landwirt|Granjero
 builder Builder|Bauarbeiter|Constructor
 baker Baker|Bäcker|Panadero
+alligator Alligator|Alligator|Caimán
+chameleon Chameleon|Chamäleon|Camaleón
+iguana Iguana|Leguan|Iguana
+tortoise Tortoise|Landschildkröte|Tortuga terrestre
+python Python|Python|Pitón
+sea_turtle Sea turtle|Meeresschildkröte|Tortuga marina
+oak Oak|Eiche|Roble
+maple Maple|Ahorn|Arce
+birch Birch|Birke|Abedul
+pine Pine|Kiefer|Pino
+willow Willow|Weide|Sauce
+palm_tree Palm tree|Palme|Palmera
+sunflower Sunflower|Sonnenblume|Girasol
+fern Fern|Farn|Helecho
+cactus Cactus|Kaktus|Cactus
+bamboo Bamboo|Bambus|Bambú
+lavender Lavender|Lavendel|Lavanda
+rose Rose|Rose|Rosa
+deer Deer|Reh|Corzo
+fox Fox|Fuchs|Zorro
+squirrel Squirrel|Eichhörnchen|Ardilla
+hedgehog Hedgehog|Igel|Erizo
+badger Badger|Dachs|Tejón
+woodpecker Woodpecker|Specht|Pájaro carpintero
 """
 
 
@@ -134,7 +164,7 @@ class CatalogTest(unittest.TestCase):
     def test_exact_shape_and_uniqueness(self):
         catalog = BuildUniqueBookCatalog()
         self.assertEqual(catalog['books'], BOOKS)
-        self.assertEqual((len(BOOKS), len(PAGE_NAMES), len(set(PAGE_NAMES)), len(NAMES)), (35, 302, 302, 302))
+        self.assertEqual((len(BOOKS), len(PAGE_NAMES), len(set(PAGE_NAMES)), len(NAMES)), (39, 326, 326, 326))
         self.assertEqual(set(PAGE_NAMES), set(NAMES))
         self.assertEqual(set(NAMES), set(WORDS))
         for at, language in enumerate(LANGUAGES):
@@ -149,7 +179,14 @@ class CatalogTest(unittest.TestCase):
         self.assertEqual((len(LEGACY_IDS), LEGACY_IDS[30], BOOKS[31][0]),
                          (31, 'drinks', 'actions'))
         self.assertEqual(tuple(category for category, _ in BOOKS)[31:],
-                         ('actions', 'desert-animals', 'insects', 'people-at-work'))
+                         ('actions', 'desert-animals', 'insects', 'people-at-work', *NATURE_BOOKS))
+
+    def test_previous_release_saved_ids_are_unchanged(self):
+        self.assertEqual(hashlib.sha256('\n'.join(NAMES[:302]).encode()).hexdigest(),
+                         'd8d73d7467207040cd901e737758519b6927f350b3132d1cfdb05627ee659ee2')
+        self.assertEqual(hashlib.sha256('\n'.join(category for category, _ in BOOKS[:35]).encode()).hexdigest(),
+                         'b24ae5f2fb3ce4f2100f0e34b5eaac980326b2cd4dd9a7619505e69f7f410abc')
+        self.assertEqual(NAMES[302:], tuple(name for members in NATURE_BOOKS.values() for name in members))
 
     def test_exact_replacements_and_additions(self):
         self.assertEqual(UNIQUE['replacements'], REPLACED)
@@ -159,9 +196,12 @@ class CatalogTest(unittest.TestCase):
         self.assertEqual(books['desert-animals'], DESERT_ANIMALS)
         self.assertEqual(books['insects'], INSECTS)
         self.assertEqual(books['people-at-work'], PEOPLE_AT_WORK)
+        for category, subjects in NATURE_BOOKS.items():
+            self.assertEqual(books[category], subjects)
+            self.assertEqual(len(subjects), 6)
         self.assertEqual(books['sports'][-1], 'badminton')
-        self.assertEqual(dict(BOOK_GROUPS)['Animals'][-1], 'desert-animals')
-        self.assertEqual(dict(BOOK_GROUPS)['Nature'][-1], 'insects')
+        self.assertEqual(dict(BOOK_GROUPS)['Animals'][-3:], ('desert-animals', 'reptiles', 'forest'))
+        self.assertEqual(dict(BOOK_GROUPS)['Nature'][-3:], ('insects', 'trees', 'plants'))
         self.assertEqual(dict(BOOK_GROUPS)['Family'][-1], 'people-at-work')
         self.assertEqual(TITLES['actions'], ['Actions', 'Tätigkeiten', 'Acciones'])
         self.assertEqual(TITLES['desert-animals'], ['Desert Animals', 'Wüstentiere', 'Animales del desierto'])
@@ -294,13 +334,13 @@ class GeneratedRouteTest(unittest.TestCase):
         cls.voices = (ROOT / 'games/book/book_voice.zi').read_text()
 
     def test_page_tables_follow_the_catalog(self):
-        self.assertIn('CATEGORY_COUNT :: 35\n', self.pages)
+        self.assertIn('CATEGORY_COUNT :: 39\n', self.pages)
         ids = json.loads('[' + re.search(r'^category_ids:.*?\.\[(.*)\];', self.pages, re.M)[1] + ']')
         self.assertEqual(ids, [category for category, _ in BOOKS])
         counts = re.search(r'^category_counts:.*?\.\{(.*)\};', self.pages, re.M)[1]
         self.assertEqual([int(count) for count in counts.split(',')], [len(names) for _, names in BOOKS])
         order = re.search(r'^shelf_order:.*?\.\[(.*)\];', self.pages, re.M)[1]
-        self.assertEqual(sorted(int(at) for at in order.split(',')), list(range(35)))
+        self.assertEqual(sorted(int(at) for at in order.split(',')), list(range(39)))
         self.assertEqual(table(self.pages, 'page_paths'), [f'assets/jungle-book/pages/{name}.jpg' for name in PAGE_NAMES])
         for at, language in enumerate(LANGUAGES):
             self.assertEqual(table(self.pages, f'page_names_{language}'), [WORDS[name][at] for name in PAGE_NAMES])
@@ -314,10 +354,10 @@ class GeneratedRouteTest(unittest.TestCase):
 
     def test_shelf_title_is_translated(self):
         rows = json.loads((ROOT / 'locales/ui.json').read_text())
-        for category in ('actions', 'desert-animals', 'insects', 'people-at-work'):
+        for category in ('actions', 'desert-animals', 'insects', 'people-at-work', *NATURE_BOOKS):
             self.assertEqual(rows[TITLES[category][0]], list(TITLES[category][1:]))
         language = (ROOT / 'retro/language.zi').read_text()
-        for category in ('actions', 'desert-animals', 'insects', 'people-at-work'):
+        for category in ('actions', 'desert-animals', 'insects', 'people-at-work', *NATURE_BOOKS):
             for label in TITLES[category]:
                 self.assertIn(json.dumps(label, ensure_ascii=False), language)
 

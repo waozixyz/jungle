@@ -14,6 +14,7 @@ with tempfile.TemporaryDirectory(prefix='asset-pack-test-',dir=ROOT/'build') as 
     root = Path(temporary)
     inputs = {}
     for name, data in {'images/a.png': b'\x89PNG'+bytes(range(256))*8,
+                       'images/b.png': b'\x89PNG'+bytes(reversed(range(256)))*8,
                        'sounds/en/a.wav': b'RIFF'+b'hello world'*2048,
                        'sounds/es/a.wav': b'RIFF'+b'hola mundo'*2048,
                        'speech/es/a.ogg': b'OggS'+b'hola mundo'*2048,
@@ -41,6 +42,29 @@ with tempfile.TemporaryDirectory(prefix='asset-pack-test-',dir=ROOT/'build') as 
     # Encoded speech is stored as it is, yet still checked like every file.
     assert first['files']['speech/es/a.ogg']['method']==0 and first['files']['sounds/es/a.wav']['method']==8
     validate_distribution(root/'one')
+    # Demand-loaded pictures never pull their neighbours into the same pack,
+    # while aliases still refer to the original bytes only once.
+    isolated=pack_assets(inputs, root/'isolated', max_bytes=100000,
+                         single_files={'images/a.png'}, group_bytes={'sounds/en':1024})
+    assert isolated['files']['images/a.png']==isolated['files']['images/alias.png']
+    assert isolated['files']['images/a.png']['pack']!=isolated['files']['images/b.png']['pack']
+    with zipfile.ZipFile(root/'isolated'/isolated['files']['images/a.png']['pack']) as archive:
+        assert archive.namelist()==['images/a.png']
+    samples={}
+    for index in range(4):
+        name=f'speech/en/{index}.ogg'
+        path=root/'source'/name;path.parent.mkdir(parents=True,exist_ok=True)
+        path.write_bytes(b'OggS'+bytes([index])*1000);samples[name]=path
+    bounded=pack_assets(samples,root/'bounded',group_bytes={'speech/en':2100})
+    assert len(bounded['packs'])==2
+    assert bounded['files']['speech/en/0.ogg']['pack']==bounded['files']['speech/en/1.ogg']['pack']
+    assert bounded['files']['speech/en/1.ogg']['pack']!=bounded['files']['speech/en/2.ogg']['pack']
+    for budget in (0,-1,True,1.5):
+        try:
+            pack_assets(inputs,root/'invalid-budget',group_bytes={'sounds/en':budget})
+            raise AssertionError('Invalid pack budget was accepted')
+        except ValueError:
+            pass
     try:
         pack_assets({'../outside': inputs['images/a.png']}, root/'bad')
         raise AssertionError('Unsafe path was accepted')
@@ -53,5 +77,59 @@ with tempfile.TemporaryDirectory(prefix='asset-pack-test-',dir=ROOT/'build') as 
         raise AssertionError('Excess files passed the upload gate')
     except ValueError:
         pass
+    # Book pages and covers get a few-KB preview at their own aspect ratio;
+    # jigsaw pieces and other pictures keep only their full bytes.
+    import io, json
+    from PIL import Image
+    from web_images import PREVIEW_PIXELS, prepare_previews
+    from build_web import preview_groups, write_previews
+    page=ROOT/'assets/jungle-book/pages/tiger.jpg'
+    wide=root/'source/wide.jpg';Image.new('RGB',(900,300),(200,120,40)).save(wide,quality=90)
+    sources={'assets/jungle-book/pages/tiger.jpg':page,'assets/jungle-book/pages/tiger-again.jpg':page,
+             'assets/jungle-book/previews/wide.jpg':wide,'assets/jigsaw/tiger.jpg':page,
+             'assets/jungle-book/items/tiger.png':inputs['images/a.png']}
+    made=prepare_previews(sources,root/'preview-cache')
+    assert sorted(made)==['assets/jungle-book/pages/tiger-again.jpg','assets/jungle-book/pages/tiger.jpg','assets/jungle-book/previews/wide.jpg'],made
+    assert made==prepare_previews(sources,root/'preview-cache'),'Cached previews changed'
+    again=prepare_previews(sources,root/'fresh-cache')
+    for name,path in made.items():
+        data=path.read_bytes()
+        assert data==again[name].read_bytes(),'Preview encoding is not reproducible: '+name
+        with Image.open(io.BytesIO(data)) as preview, Image.open(sources[name]) as original:
+            assert preview.format=='WEBP' and max(preview.size)==PREVIEW_PIXELS,(name,preview.size)
+            # Aspect ratio within one rounded pixel.
+            (w,h),(ow,oh)=preview.size,original.size
+            assert abs(w*oh/ow-h)<=1 and abs(h*ow/oh-w)<=1,(name,preview.size)
+        assert len(data)<6000,(name,len(data))
+    assert len(made['assets/jungle-book/pages/tiger.jpg'].read_bytes())*50<page.stat().st_size
+    # One pack per book's pages and one for the covers, in asset-packs.json's
+    # format keyed by the logical paths; identical previews are stored once.
+    groups={'assets/jungle-book/pages/tiger.jpg':'jungle','assets/jungle-book/pages/tiger-again.jpg':'jungle',
+            'assets/jungle-book/previews/wide.jpg':'covers'}
+    (root/'site').mkdir()
+    index=write_previews(sources,root/'site',groups)
+    assert json.loads((root/'site/preview-images.json').read_text())==index
+    assert index['format']==1 and sorted(index['files'])==sorted(made) and len(index['packs'])==2
+    files=index['files']
+    assert files['assets/jungle-book/pages/tiger.jpg']==files['assets/jungle-book/pages/tiger-again.jpg']
+    assert files['assets/jungle-book/pages/tiger.jpg']['pack']!=files['assets/jungle-book/previews/wide.jpg']['pack']
+    for name,entry in files.items():
+        pack=(root/'site'/entry['pack']).read_bytes()
+        assert hashlib.sha256(pack).hexdigest()==index['packs'][entry['pack']]['sha256']
+        data=pack[entry['offset']:entry['offset']+entry['length']]
+        assert entry['method']==0 and data==made[name].read_bytes() and hashlib.sha256(data).hexdigest()==entry['sha256'],name
+    assert sorted(path.name for path in (root/'site').iterdir())==['packs','preview-images.json'],'Preview staging was left behind'
+    validate_distribution(root/'site')
+    try:
+        write_previews(sources,root/'unsafe',{'assets/jungle-book/pages/tiger.jpg':'../up'})
+        raise AssertionError('Unsafe preview group was accepted')
+    except ValueError:
+        pass
+    # Every catalog book's pages share its own pack; covers share the shelf's.
+    catalog=preview_groups()
+    pages=[name for name in catalog if name.startswith('assets/jungle-book/pages/')]
+    assert all((ROOT/name).is_file() for name in catalog),'Catalog names a missing picture'
+    assert len(pages)==len({path.stem for path in (ROOT/'assets/jungle-book/pages').glob('*.jpg')})
+    assert {catalog[name] for name in catalog if '/previews/' in name}=={'covers'}
 
-print('local asset pack test: lossless ZIP/seek round trips, aliases, Unicode, empty files, stable output and upload gates passed')
+print('local asset pack test: lossless ZIP/seek round trips, aliases, Unicode, empty files, stable output, upload gates and reproducible content-addressed book previews passed')

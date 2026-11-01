@@ -32,3 +32,116 @@ ScenePickerBounds :: (width: s32, height: s32, categories: s32 = 3) -> ScenePick
     if l.card_height > 220 { l.card_height = 220 }
     return l
 }
+
+// The stencil gallery fits as many readable tiles as the paper holds, so its
+// page is a category-relative item anchor rather than a fixed six-slot page.
+StencilPickerLayout :: struct {
+    width: s32; height: s32; padding: s32; top: s32; gap: s32
+    columns: s32; rows: s32; capacity: s32; tab_columns: s32
+    tab_y: s32; tab_width: s32; grid_y: s32; grid_height: s32
+    card_width: s32; card_height: s32; content_height: s32; scroll: bool
+    footer_y: s32; footer_width: s32
+}
+
+STENCIL_CARD_WIDTH :: 150
+// Narrower than this, a tile cannot hold its longest one-word label at the
+// minimum label size, so very narrow paper shows one column instead.
+STENCIL_CARD_NARROW :: 120
+STENCIL_LABEL_FONT :: 18
+STENCIL_LABEL_MINIMUM :: 12
+STENCIL_CARD_HEIGHT :: 120
+STENCIL_CARD_SHORT :: 80
+STENCIL_COLUMNS_MAX :: 8
+STENCIL_ROWS_MAX :: 4
+
+StencilPickerBounds :: (width: s32, height: s32, categories: s32 = 4) -> StencilPickerLayout {
+    fit := width * 1000 / 320
+    tall := height * 1000 / 200
+    if tall < fit { fit = tall }
+    if fit < 1000 { fit = 1000 }
+    l: StencilPickerLayout
+    l.width = width; l.height = height
+    l.gap = ifx height < 440 then 6 else 10
+    l.padding = 14 * fit / 1000 + 12
+    l.top = 12 * fit / 1000 + 12
+    usable := width - l.padding * 2
+    l.tab_columns = ifx usable >= 560 then categories else 2
+    tab_rows := (categories + l.tab_columns - 1) / l.tab_columns
+    l.tab_y = l.top + 30 + l.gap
+    l.tab_width = (usable - l.gap * (l.tab_columns - 1)) / l.tab_columns
+    l.grid_y = l.tab_y + tab_rows * (44 + l.gap)
+    l.footer_y = height - l.top - 44
+    l.footer_width = (usable - l.gap * 2) / 3
+    if l.footer_width > 240 { l.footer_width = 240 }
+    l.grid_height = l.footer_y - l.gap - l.grid_y
+    l.columns = (usable + l.gap) / (STENCIL_CARD_WIDTH + l.gap)
+    if l.columns < 2 { l.columns = 2 }
+    if (usable - l.gap) / 2 < STENCIL_CARD_NARROW { l.columns = 1 }
+    if l.columns > STENCIL_COLUMNS_MAX { l.columns = STENCIL_COLUMNS_MAX }
+    l.card_width = (usable - l.gap * (l.columns - 1)) / l.columns
+    // Prefer roomy tiles; two shorter rows beat one, and below that the
+    // single row scrolls inside the grid rather than shrinking its tiles.
+    l.rows = (l.grid_height + l.gap) / (STENCIL_CARD_HEIGHT + l.gap)
+    if l.rows < 2 { l.rows = (l.grid_height + l.gap) / (STENCIL_CARD_SHORT + l.gap) }
+    if l.rows < 1 { l.rows = 1 }
+    if l.rows > STENCIL_ROWS_MAX { l.rows = STENCIL_ROWS_MAX }
+    l.capacity = l.columns * l.rows
+    l.card_height = (l.grid_height - l.gap * (l.rows - 1)) / l.rows
+    if l.card_height < STENCIL_CARD_SHORT { l.card_height = STENCIL_CARD_SHORT }
+    l.content_height = l.rows * (l.card_height + l.gap) - l.gap
+    l.scroll = l.content_height > l.grid_height
+    return l
+}
+
+// A label measured at the full label size scales down to fit its width,
+// never below the readable minimum; past that it wraps instead.
+StencilLabelFont :: (measured: s32, available: s32) -> s32 {
+    if measured <= available || measured < 1 { return STENCIL_LABEL_FONT }
+    font := STENCIL_LABEL_FONT * available / measured
+    return ifx font < STENCIL_LABEL_MINIMUM then STENCIL_LABEL_MINIMUM else font
+}
+
+// The visible page holds the anchored item at any capacity, so resizing or
+// reopening keeps the chosen stencil in view.
+StencilPageFirst :: (anchor: s32, capacity: s32, count: s32) -> s32 {
+    if capacity < 1 || count < 1 || anchor < 0 { return 0 }
+    at := ifx anchor < count then anchor else count - 1
+    return at / capacity * capacity
+}
+
+StencilPageCount :: (capacity: s32, count: s32) -> s32 {
+    if capacity < 1 || count < 1 { return 1 }
+    return (count + capacity - 1) / capacity
+}
+
+StencilPageNext :: (anchor: s32, capacity: s32, count: s32) -> s32 {
+    next := StencilPageFirst(anchor, capacity, count) + capacity
+    return ifx next < count then next else anchor
+}
+
+StencilPagePrevious :: (anchor: s32, capacity: s32, count: s32) -> s32 {
+    first := StencilPageFirst(anchor, capacity, count)
+    return ifx first >= capacity then first - capacity else anchor
+}
+
+// Version 1 stored a six-slot page; version 2 stores the item anchor. Both
+// keep the same eight digits, so stencils, sizes and scenes load unchanged.
+PAINT_CHOICES_V1 :: "JUNGLE PAINT CHOICES 1\n"
+PAINT_CHOICES_V2 :: "JUNGLE PAINT CHOICES 2\n"
+PAINT_CHOICES_DIGITS :: 8
+
+PaintChoicesVersion :: (saved: string) -> s32 {
+    if saved.count != PAINT_CHOICES_V2.count + PAINT_CHOICES_DIGITS { return 0 }
+    header := saved[:PAINT_CHOICES_V2.count]
+    if header == PAINT_CHOICES_V2 { return 2 }
+    if header == PAINT_CHOICES_V1 { return 1 }
+    return 0
+}
+
+// The saved stencil anchor for a category of count items, or -1 if invalid.
+PaintChoicesAnchor :: (version: s32, value: s32, count: s32) -> s32 {
+    if value < 0 || count < 1 { return -1 }
+    if version == 1 { return ifx value < (count + 5) / 6 then value * 6 else -1 }
+    if version == 2 { return ifx value < count then value else -1 }
+    return -1
+}

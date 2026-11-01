@@ -23,6 +23,15 @@ RetroImageReady :: (path: string) -> bool {
     return true
 }
 
+// The picture to draw for PATH now, or "" while it is not ready. On the web
+// a book picture's few-KB preview stands in until its full bytes arrive.
+RetroImageShown :: (path: string) -> string {
+    #if #defined(PLATFORM_WEB) {
+        return AppService("jungle.image-shown", path)
+    }
+    return path
+}
+
 SCREEN_WIDTH :: 320
 SCREEN_HEIGHT :: 200
 

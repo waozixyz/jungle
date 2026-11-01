@@ -35,8 +35,9 @@ BookBox :: (x: s32, y: s32, width: s32, height: s32, fill: u32, border: u32 = 0,
 }
 
 BookPicture :: (path: string, x: s32, y: s32, width: s32, height: s32) {
-    if !RetroImageReady(path) { return }
-    Image(retro.session, ImageProps.{.asset_path = path, .bounds = RetroRect(x, y, width, height),
+    shown := RetroImageShown(path)
+    if shown == "" { return }
+    Image(retro.session, ImageProps.{.asset_path = shown, .bounds = RetroRect(x, y, width, height),
         .fit = ImageFit.ImageFitContain, .smooth = true})
 }
 

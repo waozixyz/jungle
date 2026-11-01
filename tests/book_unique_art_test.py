@@ -31,7 +31,7 @@ class UniqueBookArtTest(unittest.TestCase):
         cls.ids = set(json.loads((ROOT/'tools/book_unique_expansion.json').read_text())['words'])
         cls.meta = {i: json.loads((ROOT/f'art/generated/book-unique-expansion/{i}.json').read_text()) for i in cls.ids}
     def test_exact_inventory_and_pages(self):
-        self.assertEqual(len(self.ids), 54)
+        self.assertEqual(len(self.ids), 78)
         self.assertEqual({p.stem for p in (ROOT/'art/generated/book-unique-expansion').glob('*.json')}, self.ids)
         for i, m in self.meta.items():
             with self.subTest(subject=i), Image.open(ROOT/m['page']) as im:
@@ -57,12 +57,12 @@ class UniqueBookArtTest(unittest.TestCase):
     def test_uniqueness_and_prompt_inventory(self):
         prompts=json.loads((ROOT/'tools/book_prompts.json').read_text())['pages']
         for field in ('source_sha256','page_sha256'):
-            self.assertEqual(len({m[field] for m in self.meta.values()}),54)
+            self.assertEqual(len({m[field] for m in self.meta.values()}),78)
         for i,m in self.meta.items():
             self.assertEqual(prompts[i],m['prompt'])
     def test_no_old_canonical_asset_overwrites(self):
         # Existing tracked aggregate guard also runs in clean CI checkouts.
-        from book_expansion_test import LearningBookTest
+        from book_expansion_test import LearningBookTest, preserved_digest
         LearningBookTest("test_original_assets_unchanged").test_original_assets_unchanged()
         count=0
         for path,expected in baseline_entries():
@@ -73,7 +73,7 @@ class UniqueBookArtTest(unittest.TestCase):
                 continue
             with self.subTest(path=path):
                 self.assertTrue((ROOT/path).is_file(),path)
-                self.assertEqual(digest(ROOT/path),expected,path)
+                self.assertEqual(preserved_digest(path),expected,path)
             count+=1
         if (ROOT/"work/source-asset-fingerprints.json").exists():
             self.assertGreater(count,248)

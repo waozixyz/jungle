@@ -66,13 +66,18 @@ function find(test,left=0,top=0,right=W,bottom=H){
  }
  throw Error('No pixel fits');
 }
-// Actual AppBounds pixels for the responsive stencil picker only.
+// Actual AppBounds pixels for the responsive stencil picker only: a mirror
+// of StencilPickerBounds in games/paint/paint_picker_layout.zi.
 function stencilLayout(width=960,totalHeight=600){
- const height=totalHeight-56,pad=height<440?8:16,gap=height<440?6:10,cols=width<600?2:3,tabCols=width<600?2:4;
- const tabY=pad+30+gap,tabW=Math.floor((width-pad*2-gap*(tabCols-1))/tabCols),gridY=tabY+4/tabCols*(44+gap),footerY=height-pad-44;
- const cardW=Math.floor((width-pad*2-gap*(cols-1))/cols),cardH=Math.floor((footerY-gap-gridY-gap*(6/cols-1))/(6/cols)),footerW=Math.floor((width-pad*2-gap*2)/3);
+ const height=totalHeight-56>=300?totalHeight-56:500,fit=Math.max(1000,Math.min(Math.floor(width*1000/320),Math.floor(height*1000/200)));
+ const gap=height<440?6:10,pad=Math.floor(14*fit/1000)+12,top=Math.floor(12*fit/1000)+12,usable=width-pad*2,tabCols=usable>=560?4:2;
+ const tabY=top+30+gap,tabW=Math.floor((usable-gap*(tabCols-1))/tabCols),gridY=tabY+Math.ceil(4/tabCols)*(44+gap),footerY=height-top-44;
+ const footerW=Math.min(240,Math.floor((usable-gap*2)/3)),gridH=footerY-gap-gridY;
+ const cols=Math.floor((usable-gap)/2)<120?1:Math.max(2,Math.min(8,Math.floor((usable+gap)/(150+gap)))),cardW=Math.floor((usable-gap*(cols-1))/cols);
+ let rows=Math.floor((gridH+gap)/(120+gap));if(rows<2)rows=Math.floor((gridH+gap)/(80+gap));rows=Math.max(1,Math.min(4,rows));
+ const cardH=Math.max(80,Math.floor((gridH-gap*(rows-1))/rows));
  const center=(x,y,w,h)=>({x:x+w/2,y:56+y+h/2});
- return {category:i=>center(pad+i%tabCols*(tabW+gap),tabY+Math.floor(i/tabCols)*(44+gap),tabW,44),
+ return {capacity:cols*rows,category:i=>center(pad+i%tabCols*(tabW+gap),tabY+Math.floor(i/tabCols)*(44+gap),tabW,44),
   tile:i=>center(pad+i%cols*(cardW+gap),gridY+Math.floor(i/cols)*(cardH+gap),cardW,cardH),
   next:center(width-pad-footerW,footerY,footerW,44),previous:center(pad,footerY,footerW,44)};
 }
@@ -121,6 +126,11 @@ const dimensionsFile=await open('games/paint/paint_pages.zi','r'),dimensionBytes
 await dimensionsFile.read(dimensionBytes,0,4096,0);await dimensionsFile.close();
 const dimensions=name=>dimensionBytes.toString().match(new RegExp(name+':[^=]+=[^\\[]*\\[([^\\]]+)'))[1].split(',').map(Number);
 const stencilWidths=dimensions('DINO_WIDTH'),stencilHeights=dimensions('DINO_HEIGHT');
+// Category sizes and their final stencils (stable ID + 1, as saved) from the generated catalog.
+const catalogSource=await readFile('games/paint/paint_catalog.zi','utf8');
+const catalogArray=name=>catalogSource.match(new RegExp(name+':[^=]+=[^\\[]*\\[([^\\]]+)'))[1].split(',').map(Number);
+const STENCIL_ORDER=catalogArray('paint_stencil_order'),STENCIL_STARTS=catalogArray('paint_stencil_category_starts'),STENCIL_COUNTS=catalogArray('paint_stencil_category_counts');
+const STENCIL_LAST=STENCIL_STARTS.map((start,c)=>STENCIL_ORDER[start+STENCIL_COUNTS[c]-1]+1);
 function sceneFirst(index=0,width=960,total=600){
  const h=total-56,fit=Math.max(1000,Math.min(Math.floor(width*1000/320),Math.floor(h*1000/200)));
  let p=Math.floor(14*fit/1000)+12;
@@ -359,7 +369,7 @@ async function run(input){
   // read from the rendered controls; Canvas uses the same hit points and proves
   // each hit by the independently persisted stencil/category/page choices.
   const pickerChoices=()=>text('/kryon-apps/jungle/jungle.paint/choices.txt');
-  const PAGES=[3,2,2,2];
+  const pagesAt=(category,points)=>Math.ceil(STENCIL_COUNTS[category]/points.capacity);
   // The DOM page republishes the picker for a while after a change or resize:
   // thumbnails arrive and renumber the controls. A press and release
   // straddling such a republish gets no browser click, and a busy runner
@@ -372,61 +382,70 @@ async function run(input){
    await until(async()=>{
     const before=await evaluate(pickerTree);
     const placed=await evaluate(`[...document.querySelectorAll('#kryon-dom-root button')].filter(e=>['Previous','Next'].includes(e.getAttribute('aria-label'))).map(e=>{const r=e.getBoundingClientRect(),p=e.getAttribute('aria-label')==='Next'?${JSON.stringify(points.next)}:${JSON.stringify(points.previous)};return p.x>=r.left&&p.x<r.right&&p.y>=r.top&&p.y<r.bottom})`);
+    // A category that fits on one page has neither Previous nor Next.
+    const category=CODES.indexOf((await pickerChoices())?.split('\n')[1]?.[1]),paged=category<0||pagesAt(category,points)>1;
     await frames(3);
-    return before!==null&&before.endsWith('#0')&&placed.length>0&&placed.every(Boolean)&&before===await evaluate(pickerTree);
+    return before!==null&&before.endsWith('#0')&&(placed.length>0||!paged)&&placed.every(Boolean)&&before===await evaluate(pickerTree);
    },what+': the stencil picker kept republishing');
   }
   // The app's own acknowledgement of a picker input: its persisted category
-  // and page and, on the DOM page, the Previous/Next that page has.
+  // and page anchor (the page's first item) and, on the DOM page, the
+  // Previous/Next that page has.
+  const pageControls=(category,page,points)=>[...(page>0?['Previous']:[]),...(page<pagesAt(category,points)-1?['Next']:[])];
   async function pickerPage(category,page,points,what){
-   const controls=[...(page>0?['Previous']:[]),...(page<PAGES[category]-1?['Next']:[])];let last;
+   const controls=pageControls(category,page,points),anchor=page*points.capacity;let last;
    try{
     await until(async()=>{
      const values=(await pickerChoices())?.split('\n')[1];
-     last={category:CODES.indexOf(values?.[1]),page:CODES.indexOf(values?.[2]),controls:dom?await paginationLabels():null};
-     return last.category===category&&last.page===page&&(!dom||JSON.stringify(last.controls)===JSON.stringify(controls));
+     last={category:CODES.indexOf(values?.[1]),anchor:CODES.indexOf(values?.[2]),controls:dom?await paginationLabels():null};
+     return last.category===category&&last.anchor===anchor&&(!dom||JSON.stringify(last.controls)===JSON.stringify(controls));
     },what);
    }catch(error){
     if(errors.length)throw error;
-    throw Error(label+': '+what+' '+JSON.stringify(last)+' expected '+JSON.stringify({category,page,controls}));
+    throw Error(label+': '+what+' '+JSON.stringify(last)+' expected '+JSON.stringify({category,anchor,controls}));
    }
    await pickerSettled(points,what);
   }
-  for(const [n,[width,height]] of [[390,844],[400,756],[420,700],[844,390],[960,600]].entries()){
+  for(const [n,[width,height]] of [[390,844],[400,756],[420,700],[844,390],[960,600],[1280,800],[1920,1080]].entries()){
    await command('Emulation.setDeviceMetricsOverride',{width,height,deviceScaleFactor:1,mobile:false});await frames(8);
    const points=stencilLayout(width,height),category=n%4,at=' at '+width+'x'+height;
+   const count=STENCIL_COUNTS[category],capacity=points.capacity,pages=pagesAt(category,points),first=(pages-1)*capacity;
    await pickerSettled(points,'resized picker'+at);
    await tap(await control(['Dinosaurs','Animals','People','Objects'][category],points.category(category)));await frames(4);
    await pickerPage(category,0,points,'category '+category+at);
    if(dom){
     const boxes=await evaluate(`[...document.querySelectorAll('#kryon-dom-root button')].map(e=>{const r=e.getBoundingClientRect();return {name:e.getAttribute('aria-label'),x:r.x,y:r.y,w:r.width,h:r.height}}).filter(r=>r.y>=56)`);
-    if(boxes.length!==11)throw Error(label+': missing responsive picker controls '+JSON.stringify(boxes));
+    // Four tabs, the first page's tiles and Next when another page exists.
+    if(boxes.length!==4+Math.min(capacity,count)+(pages>1?1:0))throw Error(label+': missing responsive picker controls '+JSON.stringify({capacity,boxes}));
     for(const [i,r] of boxes.entries()){
      if(r.w<44||r.h<44||r.x<0||r.y<56||r.x+r.w>width+1||r.y+r.h>height+1)throw Error(label+': mobile control bounds '+JSON.stringify(r));
      for(const b of boxes.slice(i+1))if(r.x<b.x+b.w&&b.x<r.x+r.w&&r.y<b.y+b.h&&b.y<r.y+r.h)throw Error(label+': overlapping mobile controls');
     }
    }
-   for(let page=0;page<(category===0?2:1);page++){
+   for(let page=0;page<pages-1;page++){
     await tap(await control('Next',points.next));await frames(4);
     await pickerPage(category,page+1,points,'Next to page '+(page+1)+at);
    }
-   await galleryPages(['Previous']);
+   await galleryPages(pageControls(category,pages-1,points));
    const partial=await pickerChoices();
-   await tap(points.next);await tap(points.tile(5));await frames(4);
+   // No destination after the final page, and no phantom tile after its last item.
+   await tap(points.next);if(count-first<capacity)await tap(points.tile(count-first));await frames(4);
    if(await pickerChoices()!==partial)throw Error(label+': nonexistent destination/item changed choices');
-   await tap(points.tile(3));
-   const last=PAGES[category]-1,stencilAt=[34,38,42,46][category];let selected,values;
+   await tap(points.tile(count-1-first));
+   const stencilAt=STENCIL_LAST[category];let selected,values;
    try{
     // Choosing a stencil leaves the picker for its in-scene placement.
     await until(async()=>{selected=await pickerChoices();values=selected?.split('\n')[1];return CODES.indexOf(values?.[0])===stencilAt&&(!dom||!(await paginationLabels()).length)},'tile');
    }catch(error){if(errors.length)throw error}
-   if(CODES.indexOf(values?.[0])!==stencilAt||CODES.indexOf(values?.[1])!==category||CODES.indexOf(values?.[2])!==last)throw Error(label+': mobile partial-page selection failed '+JSON.stringify({width,height,category,values}));
+   // A chosen stencil anchors its own category position.
+   if(CODES.indexOf(values?.[0])!==stencilAt||CODES.indexOf(values?.[1])!==category||CODES.indexOf(values?.[2])!==count-1)throw Error(label+': final-page selection failed '+JSON.stringify({width,height,category,capacity,values}));
    await key('Escape');await tool(0);await stable('reopened stencil picker');
    const wide=width<600?960:390,tall=width<600?600:844;
    await command('Emulation.setDeviceMetricsOverride',{width:wide,height:tall,deviceScaleFactor:1,mobile:false});await frames(8);
    if(await pickerChoices()!==selected)throw Error(label+': resize changed selected stencil/page');
    await pickerSettled(stencilLayout(wide,tall),'resized selected page at '+wide+'x'+tall);
-   await tap(stencilLayout(wide,tall).tile(3));await frames(4);
+   // The resized page still holds the anchored stencil, at its new grid position.
+   await tap(stencilLayout(wide,tall).tile((count-1)%stencilLayout(wide,tall).capacity));await frames(4);
    if(dom)await until(async()=>!(await paginationLabels()).length,'resized tile did not open its placement');
    if(await pickerChoices()!==selected)throw Error(label+': resized tile selected another stencil');
    await key('Escape');await tool(0);await stable('same stencil page');
@@ -436,22 +455,24 @@ async function run(input){
   await tap(await control('Dinosaurs',stencil.category(0)));await frames(4);
   await pickerPage(0,0,stencil,'first dinosaur page at 960x600');
   if(digest(await saved())!==digest(blank)||await steps()!==0)throw Error(label+': responsive browsing changed picture');
-  await galleryPages(['Next']);
-  let gallery=await screen();
-  await tap(await control('Next',stencil.next));
-  await settled(gallery,'second dinosaur page');await pickerPage(0,1,stencil,'second dinosaur page');await galleryPages(['Previous','Next']);
-  gallery=await screen();
-  await tap(await control('Next',stencil.next));
-  await settled(gallery,'last dinosaur page');await pickerPage(0,2,stencil,'last dinosaur page');await galleryPages(['Previous']);
-  gallery=await screen();
-  await tap(await control('Previous',stencil.previous));
-  await settled(gallery,'middle dinosaur page');await pickerPage(0,1,stencil,'middle dinosaur page');
-  gallery=await screen();
-  await tap(await control('Previous',stencil.previous));
-  await settled(gallery,'first dinosaur page');await pickerPage(0,0,stencil,'first dinosaur page');await galleryPages(['Next']);
+  // Every dinosaur page forward, then back to the first.
+  const dinosaurPages=pagesAt(0,stencil);
+  if(dinosaurPages<2)throw Error(label+': 960x600 dinosaurs no longer need pages; choose a pagination size');
+  await galleryPages(pageControls(0,0,stencil));
+  let gallery;
+  for(let page=1;page<dinosaurPages;page++){
+   gallery=await screen();
+   await tap(await control('Next',stencil.next));
+   await settled(gallery,'dinosaur page '+page);await pickerPage(0,page,stencil,'dinosaur page '+page);await galleryPages(pageControls(0,page,stencil));
+  }
+  for(let page=dinosaurPages-2;page>=0;page--){
+   gallery=await screen();
+   await tap(await control('Previous',stencil.previous));
+   await settled(gallery,'dinosaur page '+page);await pickerPage(0,page,stencil,'dinosaur page '+page);await galleryPages(pageControls(0,page,stencil));
+  }
   for(const [name,index] of [['Animals',1],['People',2],['Objects',3]]){
    await tap(await control(name,stencil.category(index)));
-   await stable(name+' gallery');await pickerPage(index,0,stencil,name+' gallery');await galleryPages(['Next']);
+   await stable(name+' gallery');await pickerPage(index,0,stencil,name+' gallery');await galleryPages(pageControls(index,0,stencil));
   }
   if(digest(await saved())!==digest(blank)||await steps()!==0)throw Error(label+': browsing stencils changed the picture');
 
