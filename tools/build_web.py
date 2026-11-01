@@ -182,7 +182,9 @@ def stage_assets(out):
     # A page is requested individually. Opening one picture must not fetch
     # several megabytes of unrelated pages or the whole shelf's covers.
     single_files={name for name in files if str(Path(name).parent) in
-                  ('assets/jigsaw','assets/jungle-book/pages','assets/jungle-book/previews')}
+                  ('assets/jigsaw','assets/jungle-book/pages','assets/jungle-book/previews',
+                   'assets/jungle-book/items','assets/hide_seek/props','assets/hide_seek/scenes',
+                   'assets/drums/pictures')}
     # Speech clips are content-addressed and small; bounded groups avoid a
     # whole-language download while keeping the distribution below host limits.
     speech_groups={str(Path(name).parent):128*1024 for name in files if name.startswith('assets/speech/')}

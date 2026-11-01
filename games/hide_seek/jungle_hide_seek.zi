@@ -159,6 +159,10 @@ BasketFront :: (art: HideSeekArt) {
 // Preserve the whole prop. The basket needs three layers: back, friend,
 // then the front braid/wall. Other places naturally occlude a hiding pose.
 DrawPlace :: (kind: s32, cx: s32, ground: s32, size: s32, animal: s32, peek: s32, p: float32, toward: s32) {
+    #if #defined(PLATFORM_WEB) {
+        // A friend must never flash in full while its cover downloads.
+        if !RetroImageReady(PropPath(kind)) { return }
+    }
     art := HideSeekArtLayout(kind, cx, ground, size, p, animal, toward)
     if peek == HIDE_PARTIAL { art = HideSeekHintArtLayout(kind, cx, ground, size, animal, toward) }
     Shadow(cx, ground, size * 82 / 100)

@@ -81,7 +81,7 @@ with tempfile.TemporaryDirectory(prefix='asset-pack-test-',dir=ROOT/'build') as 
     # jigsaw pieces and other pictures keep only their full bytes.
     import io, json
     from PIL import Image
-    from web_images import PREVIEW_PIXELS, prepare_previews
+    from web_images import PREVIEW_PIXELS, prepare_previews, prepare_web_images
     from build_web import preview_groups, write_previews
     page=ROOT/'assets/jungle-book/pages/tiger.jpg'
     wide=root/'source/wide.jpg';Image.new('RGB',(900,300),(200,120,40)).save(wide,quality=90)
@@ -102,6 +102,52 @@ with tempfile.TemporaryDirectory(prefix='asset-pack-test-',dir=ROOT/'build') as 
             assert abs(w*oh/ow-h)<=1 and abs(h*ow/oh-w)<=1,(name,preview.size)
         assert len(data)<6000,(name,len(data))
     assert len(made['assets/jungle-book/pages/tiger.jpg'].read_bytes())*50<page.stat().st_size
+
+    # Immutable full-color textures get exact WebP bytes without replacing art.
+    lossless_names={'assets/jungle-book/items/tiger.png':ROOT/'assets/jungle-book/items/tiger.png',
+                    'assets/hide_seek/props/basket.png':ROOT/'assets/hide_seek/props/basket.png',
+                    'assets/hide_seek/scenes/cottage-yard.png':ROOT/'assets/hide_seek/scenes/cottage-yard.png',
+                    'assets/drums/pictures/big-drum.png':ROOT/'assets/drums/pictures/big-drum.png'}
+    originals={name:path.read_bytes() for name,path in lossless_names.items()}
+    converted,archive_names,encoded=prepare_web_images(
+        {**lossless_names,'assets/jungle-book/pages/tiger.jpg':page},root/'lossless-cache')
+    assert originals=={name:path.read_bytes() for name,path in lossless_names.items()},'Canonical texture changed'
+    assert set(encoded)==set(lossless_names)|{'assets/jungle-book/pages/tiger.jpg'}
+    assert 'quality' not in encoded['assets/jungle-book/items/tiger.png']
+    for name,path in lossless_names.items():
+        info=encoded[name]
+        assert info['source_sha256']==hashlib.sha256(originals[name]).hexdigest()
+        assert archive_names[name]==str(Path(name).with_suffix('.webp'))
+        with Image.open(path) as source,Image.open(converted[name]) as webp:
+            assert source.size==webp.size==(info['width'],info['height'])
+            assert source.mode==webp.mode and source.tobytes()==webp.tobytes()
+            if source.mode=='RGBA':
+                alpha=webp.getchannel('A')
+                assert alpha.getextrema()[0]==0,'RGBA transparency was not retained'
+    packed=pack_assets(converted,root/'lossless-site',archive_names=archive_names,
+                       single_files=set(lossless_names))
+    assert len({entry['pack'] for name,entry in packed['files'].items() if name in lossless_names})==4
+    for name in lossless_names:
+        entry=packed['files'][name]
+        with zipfile.ZipFile(root/'lossless-site'/entry['pack']) as archive:
+            assert archive.namelist()==[archive_names[name]]
+            assert hashlib.sha256(archive.read(archive_names[name])).hexdigest()==entry['sha256']
+
+    # A PNG that WebP cannot shrink stays in its original lossless format.
+    small=Image.new('RGBA',(4,4))
+    small.frombytes(bytes((index*73+191)&255 for index in range(64)),'raw','RGBA')
+    small_path=root/'source/assets/hide_seek/props/large.png';small_path.parent.mkdir(parents=True)
+    small.save(small_path,'PNG',optimize=True)
+    kept,names,info=prepare_web_images({'assets/hide_seek/props/large.png':small_path},root/'lossless-cache')
+    assert kept['assets/hide_seek/props/large.png']==small_path and names=={} and info=={}
+
+    # Palette art is not a full-color RGB/RGBA texture and remains canonical PNG.
+    palette_path=root/'source/assets/hide_seek/props/palette.png'
+    palette=Image.new('P',(4,4));palette.putpalette([channel for index in range(256)
+                                                     for channel in (index,index,index)])
+    palette.save(palette_path,'PNG',optimize=True)
+    kept,names,info=prepare_web_images({'assets/hide_seek/props/palette.png':palette_path},root/'lossless-cache')
+    assert kept['assets/hide_seek/props/palette.png']==palette_path and names=={} and info=={}
     # One pack per book's pages and one for the covers, in asset-packs.json's
     # format keyed by the logical paths; identical previews are stored once.
     groups={'assets/jungle-book/pages/tiger.jpg':'jungle','assets/jungle-book/pages/tiger-again.jpg':'jungle',

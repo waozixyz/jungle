@@ -7,6 +7,8 @@ import tempfile
 from PIL import Image, __version__ as pillow_version, features
 
 PHOTO_FOLDERS = {'assets/jungle-book/pages', 'assets/jungle-book/previews', 'assets/jigsaw'}
+LOSSLESS_PNG_FOLDERS = {'assets/jungle-book/items', 'assets/hide_seek/props',
+                        'assets/hide_seek/scenes', 'assets/drums/pictures'}
 WEBP_QUALITY = 90
 # Book pages and covers first appear as a few-KB picture while their full
 # bytes download. Jigsaw pieces need full-size pixels, so they have none.
@@ -57,18 +59,28 @@ def prepare_web_images(files, cache):
 
     def convert(item):
         name, source = item
-        if str(Path(name).parent) not in PHOTO_FOLDERS or Path(name).suffix != '.jpg':
+        parent = str(Path(name).parent)
+        suffix = Path(name).suffix
+        photo = parent in PHOTO_FOLDERS and suffix == '.jpg'
+        lossless = parent in LOSSLESS_PNG_FOLDERS and suffix == '.png'
+        if not photo and not lossless:
             return name, source, None
         digest = hashlib.sha256(Path(source).read_bytes()).hexdigest()
-        key = hashlib.sha256((digest+version+str(WEBP_QUALITY)).encode()).hexdigest()
+        settings = str(WEBP_QUALITY) if photo else 'lossless-exact'
+        key = hashlib.sha256((digest+version+settings).encode()).hexdigest()
         target = cache/(key+'.webp')
         with Image.open(source) as image:
+            if lossless and image.mode not in ('RGB', 'RGBA'):
+                return name, source, None
             if not target.exists():
                 with tempfile.NamedTemporaryFile(dir=cache, suffix='.webp', delete=False) as temporary:
                     staged=Path(temporary.name)
                 try:
-                    image.convert('RGB').save(staged, 'WEBP', quality=WEBP_QUALITY,
-                                              lossless=False, exact=True, method=4)
+                    if photo:
+                        image.convert('RGB').save(staged, 'WEBP', quality=WEBP_QUALITY,
+                                                  lossless=False, exact=True, method=4)
+                    else:
+                        image.save(staged, 'WEBP', lossless=True, exact=True, method=6)
                     staged.replace(target)
                 finally:
                     staged.unlink(missing_ok=True)
@@ -76,9 +88,11 @@ def prepare_web_images(files, cache):
         original_size = Path(source).stat().st_size
         if target.stat().st_size >= original_size:
             return name, source, None
-        return name, target, {'encoding': 'webp', 'quality': WEBP_QUALITY,
-                              'source_sha256': digest, 'source_bytes': original_size,
-                              'width': width, 'height': height}
+        info={'encoding': 'webp', 'source_sha256': digest, 'source_bytes': original_size,
+              'width': width, 'height': height}
+        if photo: info['quality'] = WEBP_QUALITY
+        else: info['lossless'] = True
+        return name, target, info
 
     result, archive_names, metadata = dict(files), {}, {}
     with ThreadPoolExecutor(max_workers=2) as pool:
@@ -87,8 +101,10 @@ def prepare_web_images(files, cache):
             if info:
                 archive_names[name] = str(Path(name).with_suffix('.webp'))
                 metadata[name] = info
+    lossless_count = sum(info.get('lossless', False) for info in metadata.values())
     before = sum(info['source_bytes'] for info in metadata.values())
     after = sum(result[name].stat().st_size for name in metadata)
-    print(f'Web-only quality-{WEBP_QUALITY} WebP: {len(metadata)} photos, '
-          f'{before/1_000_000:.1f} → {after/1_000_000:.1f} MB; originals unchanged', flush=True)
+    print(f'Web-only WebP: {len(metadata)-lossless_count} quality-{WEBP_QUALITY} photos and '
+          f'{lossless_count} exact textures, {before/1_000_000:.1f} → {after/1_000_000:.1f} MB; '
+          'originals unchanged', flush=True)
     return result, archive_names, metadata

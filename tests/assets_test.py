@@ -65,15 +65,28 @@ def main():
         original_bytes += original.stat().st_size
         counting_bytes += small.stat().st_size
     assert counting_bytes < original_bytes / 5, 'Counting pictures are no longer small downloads'
+    refreshed = {'tiger','elephant','giraffe','monkey','panda','lion','zebra',
+                 'crocodile','parrot','toucan','gorilla','hippo','rhino','snake','bear'}
+    assert set(json.loads((ROOT / 'tools/book_art_refresh.json').read_text())['cutouts']) == refreshed
     for path in sorted((ROOT / "assets/jungle-book/items").glob("*.png")):
         with Image.open(path) as sprite:
-            assert sprite.size == (420, 420), f"{path.name} must be a 420 pixel cut-out"
+            edge = 1254 if path.stem in refreshed else 420
+            assert sprite.size == (edge, edge), f"{path.name} must preserve its {edge} pixel cut-out"
             assert sprite.mode == "RGBA", f"{path.name} must preserve its transparency"
             assert sprite.getbbox(), f"{path.name} is empty"
             alpha = sprite.getchannel("A")
             assert alpha.getextrema() == (0, 255), f"{path.name} needs an isolated illustration without a paper panel"
-            assert all(alpha.getpixel(p) == 0 for p in [(0,0),(419,0),(0,419),(419,419)]), f"{path.name} has a clipped edge"
-            colors = sprite.convert("RGBA").getcolors(420 * 420)
+            last = edge - 1
+            # Native generated PNGs can carry 1–2/255 alpha export noise.
+            # Check their entire border for visible clipping; legacy corners
+            # keep their exact transparent-pixel requirement.
+            if path.stem in refreshed:
+                borders = [alpha.crop(box).getextrema()[1] for box in
+                           [(0,0,edge,1),(0,last,edge,edge),(0,0,1,edge),(last,0,edge,edge)]]
+                assert max(borders) <= 2, f"{path.name} has visible artwork clipped at its edge"
+            else:
+                assert all(alpha.getpixel(p) == 0 for p in [(0,0),(last,0),(0,last),(last,last)]), f"{path.name} has a clipped edge"
+            colors = sprite.convert("RGBA").getcolors(edge * edge)
             assert colors is not None and len(colors) > 1000, f"{path.name} is not smooth generated artwork"
     for language in LANGUAGES:
         for simple in (True, False):
