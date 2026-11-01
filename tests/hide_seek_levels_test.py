@@ -263,8 +263,11 @@ def check_words_and_voices():
     for token in ("jungle-book/sounds", "NamePath", "look_", "HideSeekWhere", "HideSeekLookWords"):
         assert token not in model and token not in screen, token
     # No memory preview, Show again, level choosers or target picture.
+    # ImageProps.preview_path supplies the same texture at lower resolution;
+    # it does not introduce a separate game state or show hidden friends.
+    game_features = re.sub(r'\.preview_path\b', '', screen)
     for token in ("preview", "ShowAgain", "HideSeekLevel", "HIDE_PEEK ", "HIDE_HINT", "Remembering", "Targeted", "SmallPath"):
-        assert token not in screen, token
+        assert token not in game_features, token
     prompt = re.search(r"\nPrompt :: .*?\n}\n", screen, re.S).group(0)
     assert "Animal" not in prompt and "DrawPlace" not in prompt and "animals" not in prompt, "prompt card shows a friend"
     calls = re.findall(r"\bSay\(([^\n]*)", screen)

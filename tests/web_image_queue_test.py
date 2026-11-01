@@ -123,14 +123,14 @@ def main():
         env = {key: value for key, value in os.environ.items()
                if key not in ('DISPLAY', 'WAYLAND_DISPLAY', 'XAUTHORITY', 'DBUS_SESSION_BUS_ADDRESS', 'SESSION_MANAGER')}
         env['YUE_DESKTOP_RECOVERY'] = '0'
-        # Chromium's singleton socket lives in TMPDIR and must fit a Unix
-        # socket path; a short private folder keeps it there.
+        # Keep Chromium's Unix socket path relative to its private working
+        # folder: the absolute GitHub checkout path can exceed sun_path.
         sockets = ROOT/'work/wq'
         sockets.mkdir(parents=True, exist_ok=True)
-        env['TMPDIR'] = str(sockets)
+        env['TMPDIR'] = '.'
         result = subprocess.run([browser, '--headless=new', '--no-sandbox', '--disable-gpu', '--no-first-run',
                                  '--user-data-dir='+str(Path(scratch)/'profile'), '--virtual-time-budget=5000',
-                                 '--dump-dom', page.as_uri()], capture_output=True, text=True, env=env, timeout=120)
+                                 '--dump-dom', page.as_uri()], capture_output=True, text=True, env=env, cwd=sockets, timeout=120)
     found = re.search(r'data-results="([^"]*)"', result.stdout)
     if not found:
         print(result.stdout[-2000:], result.stderr[-2000:], sep='\n', file=sys.stderr)
