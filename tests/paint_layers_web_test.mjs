@@ -620,18 +620,25 @@ async function run(input){
   // reload independently of the saved picture and its background.
   await tool(0);await stable('remembered stencil picker');
   await tap(await control('Objects',stencil.category(3)));await stable('Objects');
-  await tap(await control('Next',stencil.next));await stable('new object stencils');
-  await tap(await control('Ball',stencil.tile(0)));await stable('Ball placement');
+  const rememberedIndex=48,rememberedName='Rocket';
+  const rememberedPosition=STENCIL_ORDER.indexOf(rememberedIndex)-STENCIL_STARTS[3];
+  const rememberedPage=Math.floor(rememberedPosition/stencil.capacity),rememberedTile=rememberedPosition%stencil.capacity;
+  if(rememberedPage<1)throw Error(label+': remembered stencil must exercise a later page');
+  await pickerPage(3,0,stencil,'first Objects page for remembered choices');
+  for(let page=1;page<=rememberedPage;page++){
+   await tap(await control('Next',stencil.next));await pickerPage(3,page,stencil,'remembered Objects page '+page);
+  }
+  await tap(await control(rememberedName,stencil.tile(rememberedTile)));await stable(rememberedName+' placement');
   // This case checks the remembered Huge preset; no object is committed.
-  await resizePending(42,stencilWidths[42*4+3],{exact:false});
+  await resizePending(rememberedIndex,stencilWidths[rememberedIndex*4+3],{exact:false});
   await tool(6,'Mirror');await frames(8);
   const choiceFile=namespace+'choices.txt',choices=await text(choiceFile),values=choices?.split('\n')[1];
-  if(!values||CODES.indexOf(values[0])!==43||CODES.indexOf(values[1])!==3||CODES.indexOf(values[2])!==1||CODES.indexOf(values[3])!==4)throw Error(label+': stencil choices were not saved');
+  if(!choices?.startsWith('JUNGLE PAINT CHOICES 2\n')||!values||CODES.indexOf(values[0])!==rememberedIndex+1||CODES.indexOf(values[1])!==3||CODES.indexOf(values[2])!==rememberedPosition||CODES.indexOf(values[3])!==4)throw Error(label+': stencil choices were not saved '+JSON.stringify(choices));
   await until(async()=>await stored(choiceFile)===choices,'stencil choices were not stored');
   await reload();await persisted(done,0,'gallery picture after choices reload');
   if(await text(choiceFile)!==choices)throw Error(label+': reload changed choices');
   await tool(0);await stable('restored stencil page');
-  await tap(await control('Ball',stencil.tile(0)));await stable('restored selected stencil');
+  await tap(await control(rememberedName,stencil.tile(rememberedTile)));await stable('restored selected stencil');
   await key('Escape');await stable('cancel restored pending stencil');
   if(errors.length)throw Error(JSON.stringify(errors));
   console.log(`local paint layers ${label}: continuous rendering, placement, Mirror, fill, overlap erase, rotation and Undo across reloads, gallery copies/New/open, and remembered stencil choices passed`);
