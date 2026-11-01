@@ -5,6 +5,7 @@
 #import, file "paint_pages.zi";
 #import, file "paint_palette.zi";
 #import, file "paint_picture.zi";
+#import "geometry"
 #import "std/math"
 
 INK :: 0
@@ -314,6 +315,48 @@ CanvasStampDino :: (dino: s32, size: s32, x: s32, y: s32, flip: bool) {
 
 PlacementClamp :: (value: s32, low: s32, high: s32) -> s32 {
     if value < low { return low }; if value > high { return high }; return value
+}
+
+PAINT_RESIZE_HANDLE_SIZE :: 44
+
+PaintResizePlan :: struct { center: Vector2; width: s32; height: s32; scale: float32; valid: bool; }
+
+PaintResizeHit :: (corner: Vector2, pointer: Vector2) -> bool {
+    dx := pointer.x - corner.x; dy := pointer.y - corner.y
+    limit := cast(float32)PAINT_RESIZE_HANDLE_SIZE / 2.0
+    return (ifx dx < 0.0 then -dx else dx) <= limit && (ifx dy < 0.0 then -dy else dy) <= limit
+}
+
+PlacementMaximumWidth :: (source_width: s32, source_height: s32, degrees: float32) -> s32 {
+    if source_width <= 0 || source_height <= 0 || !Finite32(degrees) { return 0 }
+    sine := SineDegrees(degrees); cosine := CosineDegrees(degrees)
+    across := ifx cosine < 0.0 then -cosine else cosine
+    down := ifx sine < 0.0 then -sine else sine
+    wide := across * cast(float32)source_width + down * cast(float32)source_height
+    high := down * cast(float32)source_width + across * cast(float32)source_height
+    by_width := cast(float32)CANVAS_WIDTH * cast(float32)source_width / wide
+    by_height := cast(float32)CANVAS_HEIGHT * cast(float32)source_height / high
+    fit := ifx by_width < by_height then by_width else by_height
+    return PlacementClamp(FloorInteger(fit + 0.5), 1, CANVAS_WIDTH)
+}
+
+PaintResizeAtCorner :: (start_center: Vector2, anchor: Vector2, moving_start: Vector2, pointer: Vector2,
+    start_width: s32, start_height: s32, minimum_width: s32, maximum_width: s32) -> PaintResizePlan {
+    result := PaintResizePlan.{.center = start_center, .width = start_width, .height = start_height, .scale = 1.0, .valid = true}
+    diagonal := Vector2.{moving_start.x - anchor.x, moving_start.y - anchor.y}
+    delta := Vector2.{pointer.x - anchor.x, pointer.y - anchor.y}
+    length := diagonal.x * diagonal.x + diagonal.y * diagonal.y
+    if start_width <= 0 || start_height <= 0 || minimum_width < 1 || maximum_width < minimum_width || length < 1.0 {
+        result.valid = false; return result
+    }
+    projection := (delta.x * diagonal.x + delta.y * diagonal.y) / length
+    requested := FloorInteger(cast(float32)start_width * projection + 0.5)
+    result.width = PlacementClamp(requested, minimum_width, maximum_width)
+    result.scale = cast(float32)result.width / cast(float32)start_width
+    result.height = PlacementClamp(FloorInteger(cast(float32)start_height * result.scale + 0.5), 1, CANVAS_HEIGHT)
+    result.center = Vector2.{anchor.x + (start_center.x - anchor.x) * result.scale,
+        anchor.y + (start_center.y - anchor.y) * result.scale}
+    return result
 }
 
 // New stencils stay outside the document until the explicit Place action.

@@ -3,6 +3,7 @@
 // dinosaur stamps closed ink and a white body in each size, both ways round,
 // leaving the scenery outside its outline.
 #import, file "../games/paint/paint_canvas.zi";
+#import "geometry"
 #import, file "../games/paint/paint_pages.zi";
 #import, file "../games/paint/paint_picture.zi";
 #import, file "../games/paint/paint_palette.zi";
@@ -49,10 +50,38 @@ PalmFillStaysInside :: (scene: s32, x: s32, y: s32, left: s32, top: s32, right: 
     return true
 }
 
+ResizeCornersPass :: () -> bool {
+    center := Vector2.{100.0, 100.0}
+    corners: [4]Vector2 = .[Vector2.{50.0, 75.0}, Vector2.{150.0, 75.0},
+        Vector2.{150.0, 125.0}, Vector2.{50.0, 125.0}]
+    for at: cast(s32)0..3 {
+        if !PaintResizeHit(corners[at], Vector2.{corners[at].x + 21.0, corners[at].y - 21.0}) {
+            Report(Cat("paint test: resize corner miss: ", NumberText(at + 1), "\n")); return false
+        }
+        anchor := corners[(at + 2) % 4]
+        larger := Vector2.{anchor.x + (corners[at].x - anchor.x) * 2.0, anchor.y + (corners[at].y - anchor.y) * 2.0}
+        resized := PaintResizeAtCorner(center, anchor, corners[at], larger, 100, 50, 48, 300)
+        moving := Vector2.{anchor.x + (corners[at].x - anchor.x) * resized.scale,
+            anchor.y + (corners[at].y - anchor.y) * resized.scale}
+        opposite := Vector2.{resized.center.x * 2.0 - moving.x, resized.center.y * 2.0 - moving.y}
+        if !resized.valid || resized.width != 200 || resized.height != 100 ||
+           (ifx opposite.x < anchor.x - 0.01 then anchor.x - opposite.x else opposite.x - anchor.x) > 0.01 ||
+           (ifx opposite.y < anchor.y - 0.01 then anchor.y - opposite.y else opposite.y - anchor.y) > 0.01 {
+            Report(Cat("paint test: resize corner geometry: ", NumberText(at + 1), "\n")); return false
+        }
+    }
+    minimum := PaintResizeAtCorner(center, corners[0], corners[2], corners[0], 100, 50, 48, 300)
+    if !minimum.valid || minimum.width != 48 || minimum.height != 24 || minimum.center.x != 74.0 || minimum.center.y != 87.0 {
+        Report("paint test: minimum resize is not anchored or square-cornered\n"); return false
+    }
+    return true
+}
+
 #program_export
 main :: (argc: s32, argv: **u8) -> s32 {
     unused argc
     unused argv
+    if !ResizeCornersPass() { return 1 }
     // Every visible swatch is distinct, selectable paint, never outline ink
     // or legacy pure black. Charcoal must remain visibly lighter than ink.
     for index: cast(s32)0..CRAYON_COUNT - 1 {

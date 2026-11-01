@@ -443,7 +443,10 @@ placement_gesture: s32;
 placement_start_width: s32;
 placement_start_angle: float32;
 placement_pointer_angle: float32;
-placement_resize_distance: float32;
+placement_start_center: Vector2;
+placement_resize_anchor: Vector2;
+placement_resize_moving_start: Vector2;
+placement_start_height: s32;
 placement_canvas_w: s32;
 placement_canvas_h: s32;
 
@@ -475,34 +478,44 @@ PlacementView :: (chosen_tool: s32) {
     plan := CanvasPlacement(dino, placement_x, placement_y, placement_width, placement_degrees, placement_flip)
     area := PictureRect(plan.x, plan.y, plan.w, plan.h)
     center := Vector2.{area.x + area.width / 2.0, area.y + area.height / 2.0}
-    hw := cast(float32)DinoWidth(dino, DINO_SIZES) * plan.scale * cast(float32)canvas_w / cast(float32)CANVAS_WIDTH / 2.0
-    hh := cast(float32)DinoHeight(dino, DINO_SIZES) * plan.scale * cast(float32)canvas_h / cast(float32)CANVAS_HEIGHT / 2.0
+    source_width := DinoWidth(dino, DINO_SIZES); source_height := DinoHeight(dino, DINO_SIZES)
+    hw := cast(float32)source_width * plan.scale * cast(float32)canvas_w / cast(float32)CANVAS_WIDTH / 2.0
+    hh := cast(float32)source_height * plan.scale * cast(float32)canvas_h / cast(float32)CANVAS_HEIGHT / 2.0
     handle := SelectionPoint(0.0, -hh - 30.0, center, plan.degrees)
-    corner := SelectionPoint(hw, hh, center, plan.degrees)
     handle.x = cast(float32)Clamp(cast(s32)(handle.x - retro.x), canvas_x + 22, canvas_x + canvas_w - 22) + retro.x
     handle.y = cast(float32)Clamp(cast(s32)(handle.y - retro.y), canvas_y + 22, canvas_y + canvas_h - 74) + retro.y
-    corner.x = cast(float32)Clamp(cast(s32)(corner.x - retro.x), canvas_x + 22, canvas_x + canvas_w - 22) + retro.x
-    corner.y = cast(float32)Clamp(cast(s32)(corner.y - retro.y), canvas_y + 22, canvas_y + canvas_h - 74) + retro.y
+    corners: [4]Vector2
+    corners[0] = SelectionPoint(-hw, -hh, center, plan.degrees)
+    corners[1] = SelectionPoint(hw, -hh, center, plan.degrees)
+    corners[2] = SelectionPoint(hw, hh, center, plan.degrees)
+    corners[3] = SelectionPoint(-hw, hh, center, plan.degrees)
     button_y := canvas_y + canvas_h - 48
     button_w := Clamp((canvas_w - 18) / 2, 44, 140)
     button_x := canvas_x + (canvas_w - button_w * 2 - 6) / 2
     // Ignore the button strip when starting a canvas gesture.
     if !working_bookkeeping && chosen_tool < 0 && pointer.pressed && pointer.y < retro.y + cast(float32)button_y {
         dx := pointer.x - handle.x; dy := pointer.y - handle.y
-        rx := pointer.x - corner.x; ry := pointer.y - corner.y
         if dx * dx + dy * dy <= 22.0 * 22.0 {
             placement_gesture = 2
             placement_start_angle = placement_degrees
             placement_pointer_angle = cast(float32)(Atan2(cast(float64)(pointer.y - center.y), cast(float64)(pointer.x - center.x)) * 57.29577951308232)
-        } else if rx * rx + ry * ry <= 22.0 * 22.0 {
-            placement_gesture = 3; placement_start_width = placement_width
-            placement_resize_distance = rx * rx + ry * ry
-            dx = pointer.x - center.x; dy = pointer.y - center.y
-            placement_resize_distance = dx * dx + dy * dy
-            if placement_resize_distance < 1.0 { placement_resize_distance = 1.0 }
-        } else if pointer.x >= area.x && pointer.x < area.x + area.width && pointer.y >= area.y && pointer.y < area.y + area.height {
-            placement_gesture = 1; dragging = true
-            grab_x = PictureX(pointer.x) - placement_x; grab_y = PictureY(pointer.y) - placement_y
+        } else {
+            corner_at := -1
+            position := Vector2.{pointer.x, pointer.y}
+            for at: cast(s32)0..3 {
+                if PaintResizeHit(corners[at], position) { corner_at = at; break }
+            }
+            if corner_at >= 0 {
+                placement_gesture = 3
+                placement_start_center = center
+                placement_resize_anchor = corners[(corner_at + 2) % 4]
+                placement_resize_moving_start = corners[corner_at]
+                placement_start_width = FloorInteger(cast(float32)source_width * plan.scale + 0.5)
+                placement_start_height = FloorInteger(cast(float32)source_height * plan.scale + 0.5)
+            } else if pointer.x >= area.x && pointer.x < area.x + area.width && pointer.y >= area.y && pointer.y < area.y + area.height {
+                placement_gesture = 1; dragging = true
+                grab_x = PictureX(pointer.x) - placement_x; grab_y = PictureY(pointer.y) - placement_y
+            }
         }
     }
     if placement_gesture == 1 {
@@ -511,9 +524,16 @@ PlacementView :: (chosen_tool: s32) {
         angle := cast(float32)(Atan2(cast(float64)(pointer.y - center.y), cast(float64)(pointer.x - center.x)) * 57.29577951308232)
         placement_degrees = placement_start_angle + angle - placement_pointer_angle
     } else if placement_gesture == 3 {
-        dx := pointer.x - center.x; dy := pointer.y - center.y
-        ratio := cast(float32)Sqrt(cast(float64)((dx * dx + dy * dy) / placement_resize_distance))
-        placement_width = Clamp(cast(s32)(cast(float32)placement_start_width * ratio), 48, CANVAS_WIDTH)
+        maximum := PlacementMaximumWidth(source_width, source_height, placement_degrees)
+        minimum := ifx maximum < 48 then maximum else 48
+        resized := PaintResizeAtCorner(placement_start_center, placement_resize_anchor, placement_resize_moving_start,
+            Vector2.{pointer.x, pointer.y},
+            placement_start_width, placement_start_height, minimum, maximum)
+        if resized.valid {
+            placement_width = resized.width
+            placement_x = PictureX(resized.center.x)
+            placement_y = PictureY(resized.center.y)
+        }
     }
     if pointer.released {
         placement_gesture = 0; dragging = false
@@ -530,10 +550,12 @@ PlacementView :: (chosen_tool: s32) {
     placement_x = plan.x + plan.w / 2; placement_y = plan.y + plan.h / 2
     area = PictureRect(plan.x, plan.y, plan.w, plan.h)
     center = Vector2.{area.x + area.width / 2.0, area.y + area.height / 2.0}
-    hw = cast(float32)DinoWidth(dino, DINO_SIZES) * plan.scale * cast(float32)canvas_w / cast(float32)CANVAS_WIDTH / 2.0
-    hh = cast(float32)DinoHeight(dino, DINO_SIZES) * plan.scale * cast(float32)canvas_h / cast(float32)CANVAS_HEIGHT / 2.0
-    corners: [4]Vector2 = .[SelectionPoint(-hw, -hh, center, plan.degrees), SelectionPoint(hw, -hh, center, plan.degrees),
-        SelectionPoint(-hw, hh, center, plan.degrees), SelectionPoint(hw, hh, center, plan.degrees)]
+    hw = cast(float32)source_width * plan.scale * cast(float32)canvas_w / cast(float32)CANVAS_WIDTH / 2.0
+    hh = cast(float32)source_height * plan.scale * cast(float32)canvas_h / cast(float32)CANVAS_HEIGHT / 2.0
+    corners[0] = SelectionPoint(-hw, -hh, center, plan.degrees)
+    corners[1] = SelectionPoint(hw, -hh, center, plan.degrees)
+    corners[2] = SelectionPoint(hw, hh, center, plan.degrees)
+    corners[3] = SelectionPoint(-hw, hh, center, plan.degrees)
     quad := corners
     if placement_flip { quad[0] = corners[1]; quad[1] = corners[0]; quad[2] = corners[3]; quad[3] = corners[2] }
     number := FormatInteger(dino + 1, digits_a[:])
@@ -543,11 +565,13 @@ PlacementView :: (chosen_tool: s32) {
     SelectionLine(corners[3], corners[2]); SelectionLine(corners[2], corners[0])
     SelectionLine(SelectionPoint(0.0, -hh, center, plan.degrees), handle)
     unused RetroTap(604, cast(s32)(handle.x - retro.x) - 22, cast(s32)(handle.y - retro.y) - 22, 44, 44, "Rotate stencil", true)
-    unused RetroTap(605, cast(s32)(corner.x - retro.x) - 22, cast(s32)(corner.y - retro.y) - 22, 44, 44, "Resize stencil", true)
     Fill(Rectangle.{handle.x - 22.0, handle.y - 22.0, 44.0, 44.0}, 0x2e6956ff, 22.0)
-    Fill(Rectangle.{corner.x - 22.0, corner.y - 22.0, 44.0, 44.0}, 0xfffcf3ff, 8.0)
     SvgIcon(retro.session, SvgIconProps.{.bounds = Rectangle.{handle.x - 12.0, handle.y - 12.0, 24.0, 24.0}, .shape = RotateIcon.Shape, .color = ColorFromPacked(0xfffcf3ff)})
-    BookText(cast(s32)(corner.x - retro.x) - 18, cast(s32)(corner.y - retro.y) - 22, 36, 44, "+", 26)
+    for at: cast(s32)0..3 {
+        corner := corners[at]
+        Fill(Rectangle.{corner.x - 22.0, corner.y - 22.0, 44.0, 44.0}, 0x2e6956ff, 4.0)
+        Fill(Rectangle.{corner.x - 19.0, corner.y - 19.0, 38.0, 38.0}, 0xfffcf3ff, 2.0)
+    }
     if PlacementControl(602, button_x, button_y, button_w, "Cancel") {
         placing = false; dragging = false; placement_gesture = 0; canvas_can_fill = false; return
     }
