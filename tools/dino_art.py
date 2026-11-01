@@ -46,13 +46,15 @@ PALM_OUTLINES = {
 # Remaining narrow breaks are at small palm trunk/leaf joins. Reinforce only
 # these joins, preserving the white interiors of the other tiny fronds.
 PALM_JOINS = {1: [(269, 316, 8), (371, 348, 10), (843, 284, 8), (857, 283, 12)]}
+PALM_JOIN_LINES = {1: [(71, 111, 61, 123), (48, 142, 51, 149),
+                       (786, 228, 766, 229), (862, 239, 875, 240)]}
 
 
 def palm_outlines(index):
     if index not in PALM_OUTLINES:
         return ''
     polygons = ''.join(f'<polygon points="{points}"/>' for points in PALM_OUTLINES[index])
-    return (
+    result = (
         '<!-- Reinforce palm outlines and narrow joins for reliable bucket fills. -->\n'
         '<defs><clipPath id="palm-outlines">' + polygons + '</clipPath></defs>\n'
         '<use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#ink" '
@@ -65,6 +67,12 @@ def palm_outlines(index):
            'clip-path="url(#palm-joins)" fill="#000" stroke="#000" stroke-width="4" '
            'stroke-linejoin="round" stroke-linecap="round"/>\n' if index in PALM_JOINS else '')
     )
+    join_lines = ''.join(
+        f'M{x1} {y1} L{x2} {y2} ' for x1, y1, x2, y2 in PALM_JOIN_LINES.get(index, []))
+    if join_lines:
+        result += (f'<path d="{join_lines}" fill="none" stroke="#000" stroke-width="4" '
+                   'stroke-linejoin="round" stroke-linecap="round"/>\n')
+    return result
 
 WORD = ctypes.c_ulong
 WORD_BITS = ctypes.sizeof(WORD) * 8
