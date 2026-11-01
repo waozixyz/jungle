@@ -317,7 +317,11 @@ The decoder was compared with the original program on a private display.
 
 ## License
 
-Jungle's code is BSD 3-Clause. See [LICENSE](../LICENSE). The menu and Dino letters are drawn from
+Jungle Academy's original application code and Waozi-owned material are proprietary;
+see [LICENSE](../LICENSE). Previously published versions retain their original
+licenses. Ziran, Kryon, the backends and other independent projects keep their
+own open-source licenses. Third-party notices remain in effect.
+The menu and Dino letters are drawn from
 [GNU Unifont](https://unifoundry.com/unifont/), under the SIL Open Font
 License 1.1; see [licenses/unifont.txt](../licenses/unifont.txt). Animal Counting's
 BIOS glyphs are recovered from DOSBox; see

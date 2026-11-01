@@ -77,8 +77,8 @@ with tempfile.TemporaryDirectory(prefix='asset-pack-test-',dir=ROOT/'build') as 
         raise AssertionError('Excess files passed the upload gate')
     except ValueError:
         pass
-    # Book pages and covers get a few-KB preview at their own aspect ratio;
-    # jigsaw pieces and other pictures keep only their full bytes.
+    # Every supported picture gets a few-KB preview at its own aspect ratio,
+    # including jigsaw scenes and transparent cut-outs.
     import io, json
     from PIL import Image
     from web_images import PREVIEW_PIXELS, prepare_previews, prepare_web_images
@@ -87,9 +87,9 @@ with tempfile.TemporaryDirectory(prefix='asset-pack-test-',dir=ROOT/'build') as 
     wide=root/'source/wide.jpg';Image.new('RGB',(900,300),(200,120,40)).save(wide,quality=90)
     sources={'assets/jungle-book/pages/tiger.jpg':page,'assets/jungle-book/pages/tiger-again.jpg':page,
              'assets/jungle-book/previews/wide.jpg':wide,'assets/jigsaw/tiger.jpg':page,
-             'assets/jungle-book/items/tiger.png':inputs['images/a.png']}
+             'assets/jungle-book/items/tiger.png':ROOT/'assets/jungle-book/items/tiger.png'}
     made=prepare_previews(sources,root/'preview-cache')
-    assert sorted(made)==['assets/jungle-book/pages/tiger-again.jpg','assets/jungle-book/pages/tiger.jpg','assets/jungle-book/previews/wide.jpg'],made
+    assert set(made)==set(sources),made
     assert made==prepare_previews(sources,root/'preview-cache'),'Cached previews changed'
     again=prepare_previews(sources,root/'fresh-cache')
     for name,path in made.items():
@@ -155,9 +155,12 @@ with tempfile.TemporaryDirectory(prefix='asset-pack-test-',dir=ROOT/'build') as 
     (root/'site').mkdir()
     index=write_previews(sources,root/'site',groups)
     assert json.loads((root/'site/preview-images.json').read_text())==index
-    assert index['format']==1 and sorted(index['files'])==sorted(made) and len(index['packs'])==2
+    # The jigsaw sample uses the same picture as the book page, so its
+    # identical preview shares the same stored entry across groups.
+    assert index['format']==1 and sorted(index['files'])==sorted(made) and len(index['packs'])==3
     files=index['files']
     assert files['assets/jungle-book/pages/tiger.jpg']==files['assets/jungle-book/pages/tiger-again.jpg']
+    assert files['assets/jungle-book/pages/tiger.jpg']==files['assets/jigsaw/tiger.jpg']
     assert files['assets/jungle-book/pages/tiger.jpg']['pack']!=files['assets/jungle-book/previews/wide.jpg']['pack']
     for name,entry in files.items():
         pack=(root/'site'/entry['pack']).read_bytes()

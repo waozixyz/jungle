@@ -79,7 +79,7 @@ Vorbis support, including Safari 18.4 or later.
 
 ## Build and contribute
 
-Jungle Academy is open source, made with [Ziran](https://github.com/ziranlang/ziran)
+Jungle Academy is proprietary, made with the open-source [Ziran](https://github.com/ziranlang/ziran)
 and [Kryon](https://github.com/kryonlabs/kryon).
 
 ```sh
@@ -89,5 +89,5 @@ make test
 ```
 
 See the [detailed guide](docs/guide.md) for dependencies, controls, builds,
-tests, artwork and deployment. Jungle's code is BSD 3-Clause; see
+tests, artwork and deployment. See Jungle's proprietary
 [LICENSE](LICENSE) and the guide for artwork and font attribution.

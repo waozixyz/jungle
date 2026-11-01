@@ -1,5 +1,9 @@
 # Changelog
 
+## [Unreleased]
+
+- Make Jungle Academy proprietary while retaining third-party licenses and earlier release permissions.
+
 ## 0.1.34
 
 Released 2026-11-01.
