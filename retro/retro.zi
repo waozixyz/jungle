@@ -2,6 +2,7 @@
 // screen of fat pixels in the sixteen colors of an old color card, and
 // letters 8 pixels wide and 16 tall, drawn from a font picture.
 #import, file "language.zi";
+#import, file "../host/jungle_text.zi";
 #import "std/utf8"
 #import "kryon/session"
 #import "kryon/geometry"
