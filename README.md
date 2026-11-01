@@ -93,3 +93,42 @@ make test
 See the [detailed guide](docs/guide.md) for dependencies, controls, builds,
 tests, artwork and deployment. See Jungle's proprietary
 [LICENSE](LICENSE) and the guide for artwork and font attribution.
+
+### Build on Luna from the desktop
+
+With the pinned `luna-laptop` SSH alias configured, run:
+
+```sh
+python3 scripts/remote_build.py --setup --launch  # first Debian setup, build, open
+make remote-run                               # subsequent debug builds and open
+make remote-debug                             # build only
+```
+
+This synchronizes current Git-visible files, including uncommitted changes,
+from Jungle, Ziran, Kryon, Mingcute and locked source dependencies into canonical
+`~/Projects` organization folders. Existing desktop package-cache sources are
+used only when their exact locked revision is available. It compares SHA-256
+manifests before building, refuses
+remote edits or conflicting private files, and preserves unrelated files.
+Previously synchronized source deletions move into Jungle's `backup/`.
+Build outputs, private configuration, credentials and `.git` are never copied.
+Source revision and content receipts live in `work/remote-build/` on the target.
+Each canonical repository receives the exact shallow Git HEAD and its tree,
+then keeps the synchronized current edits. No clone, checkout or network Git
+fetch is used; package resolution has Git network protocols disabled.
+
+`--setup` downloads Debian prerequisites into Jungle's `work/remote-build/sysroot`
+without sudo or system installation; Python 3, Make, GCC, binutils and APT
+must already be available. Builds install/reuse Harmony's supported
+`build-queue`, use two jobs within a systemd user scope capped at two CPU cores,
+6 GB RAM, 512 MB swap and 128 tasks, and produce `build/app/jungle` with debug symbols.
+Luna must have an active graphical login to launch. Each launch opens a new
+instance and preserves existing apps and saves; a live process is verified
+after launch. Use `scripts/launch-luna-jungle` to open the last verified build.
+
+Another pinned Debian SSH target can use the same workflow, for example
+`make remote-run REMOTE_HOST=thinkpad.local`, with its own canonical Projects
+folder, prerequisites and graphical login. Use `REMOTE_FLAGS=--setup` for
+first-time setup, or `python3 scripts/remote_build.py --host HOST --sync-only`
+to synchronize without building. No desktop build outputs are transferred.
+Run `python3 scripts/remote_build_test.py` for the local synchronization tests.

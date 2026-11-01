@@ -1,4 +1,14 @@
 .DEFAULT_GOAL := all
+# Run from the desktop; compilation and stable build/app output stay on Luna.
+.PHONY: remote-debug remote-run
+REMOTE_HOST ?= luna-laptop
+REMOTE_FLAGS ?=
+remote-debug:
+	python3 scripts/remote_build.py --host '$(REMOTE_HOST)' $(REMOTE_FLAGS)
+
+remote-run:
+	python3 scripts/remote_build.py --host '$(REMOTE_HOST)' $(REMOTE_FLAGS) --launch
+
 ZIRAN ?= ziran
 LOCK_FLAGS := $(if $(wildcard ziran.local.toml),,--locked)
 TOOLCHAIN = $(shell $(ZIRAN) pkg path ziran $(LOCK_FLAGS))
