@@ -1,0 +1,2232 @@
+{
+  "version": 1,
+  "scope": "minimum book expansion scenes",
+  "count": 109,
+  "jpeg": {
+    "quality": 92,
+    "optimize": true,
+    "subsampling": 0,
+    "color_mode": "RGB",
+    "dimensions": [
+      1254,
+      1254
+    ]
+  },
+  "files": {
+    "assets/jungle-book/pages/kettle.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "7e21079fa1fc76d12fa2b4ba78f442e1159b211b4ab1859f4e78973be2edaf6d",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "bef1232044027ab0da872749dc3f9b6c4e3be49be7763f06c598d65aa2100ef4",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/spoon.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "3f27e72dde9798319d79e99176a792c5d54c38da0a4b332d2d1a4e205129fb8e"
+    },
+    "assets/jungle-book/pages/oven.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "f2e46850ec66693a4f87bb59a4b7cd8e4eda1c1fa89e907369433645fc3c062e",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "fa40162dc23f7213e2adca596356fe130d4fa37f9ca8439c605cae8da8b7f327",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/spoon.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "6681da00bea613a5264f79290dab61e26a051a38044ec1ef1a74218bc4181039"
+    },
+    "assets/jungle-book/pages/comb.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "8187dce34bb0d7e97bc1446093c7dac7329dd677f8eeb8db922d673d368605fb",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "ba780ac3c73d21aad126c419df7e946c64900df3f8fa2a9439411ebb8635a90d",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/bathtub.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "8f009d6f9a3ea96e5d16887440a2101187f8c7a782fb1fb15e4b1924ae36d569"
+    },
+    "assets/jungle-book/pages/sponge.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "3b55eae7be592fd8759ffd5f4abb6f1020b8477101d9c0cd430cc6df649dbf8e",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "2a4ee0235c85e11054e25f85bfa919222e27629498be2710bd521b6db0199d48",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/bathtub.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "c5ede7df0a1ef4860a5f6f9aa70cc41e086ae7a85985da417ecf3c00fda32878"
+    },
+    "assets/jungle-book/pages/nightstand.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "99cc08dad58f6c65f5d7bd93387e9c0e4a53ce636e718ad033aaa88ebf6f3191",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "078a775d9ba9853cdd4785f9d32caa91e6c2e1ce40861da141f46537177d2773",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/bed.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "9a4b757d8c997f643f78ceed34093eec86ed875d9184b3a989599323b6a3b6a6"
+    },
+    "assets/jungle-book/pages/curtains.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "62ed59fd78f7d6589dda4374ed63171d27a8ef24dcb586cf3768e62c75e28799",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "dad2031f0985d45edb267513b7fc8b24131839e843af148aa59eea9e18c6478a",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/bed.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "102f48e994423e5441ac1af89c26bd437843e473bb6039499552bfa01c536d38"
+    },
+    "assets/jungle-book/pages/armchair.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "a0e0cf99bf21046cebf760a2de36d1f674495403d8cf833e9975fdca2bb70f18",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "b06b1a936096916bfd295be00bc5076f013ca87b061aa40bc9f604e979227b00",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/sofa.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "d706c7a633d8c81a562430287501fba322bd8064a9159438d314e24759cd8cb9"
+    },
+    "assets/jungle-book/pages/fireplace.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "1180385701eaabb0088a0e30d7d28c9cf6fdb4d72fe5e1edb9e7f8f5adfa169b",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "270b107c3513de48192a241ab276ac9a42e3108b2d91c60dfd05d34b7c3c9411",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/sofa.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "d3399c82af5c81d8fbfbb4bdc7f55d994e7f4ad9ed7b3ce196b477aad9342d72"
+    },
+    "assets/jungle-book/pages/meadow.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "29af11542615170fe511950a59d4a79d893e07f98f925c6ba3f3826ade39ca66",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "793039e55861d223c4a1a2ab0ecc0e9f7408e8ee55238412af6d5b20e46fad00",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/waterfall.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "ee667bb583c711c81bc37dc379b4472fee0c29563a80e5ea6a8f8827ed673479"
+    },
+    "assets/jungle-book/pages/cave.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "e423d6a4be81d7250d842a82be333b656ea3fd1e1283989852b4aa83c3bcb16a",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "99c75158b5faa4d14fbc979036fbd43c8810d9f9602a136c13a01332a7d3a3b9",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/waterfall.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "f0d2cde34561bde0235af6435fde378c1a3f708a5877e1e2fa727999470bdcd1"
+    },
+    "assets/jungle-book/pages/aunt.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "74a5b9e65726fb1c1ab3e3a41bde30b696734b1c324fe874d97ce63f4dd42fe4",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "f05360286b64433c964c54ca3cf324d2b98e2c616aa873abf47dde847ca1467b",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/mother.jpg",
+        "assets/jungle-book/pages/father.jpg",
+        "assets/jungle-book/pages/sister.jpg",
+        "assets/jungle-book/pages/reading.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "61b05aa5bcd1dc32feeaf2818c4161bba441eff5109173704afa8ae9bc07313a"
+    },
+    "assets/jungle-book/pages/uncle.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "af6ff4ae1eb690a1c263306c528d93a7badf6a7bfd030395cbec1f5de9bdf13b",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "c3f6a4c59782df86274f4dd05c4bba34909bc97f591fa15b1ec3ae5942b6a4d4",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/mother.jpg",
+        "assets/jungle-book/pages/father.jpg",
+        "assets/jungle-book/pages/sister.jpg",
+        "assets/jungle-book/pages/reading.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "9e483de5a4d6f0194fe23d65e6af50f43d1db9c8cc488f3446fe13f01cc51650"
+    },
+    "assets/jungle-book/pages/honey.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "b2a9962f8cb88d19b95c02ba6ecb2aca872605647aff26b6a1cd5281e403251b",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "164a25e99ff89e3c1d278070d0f09f7817eb91cef50ac5b7aa89d5af23421b0a",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/bread.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "5875607603657dae858d71a17a178f93275911402e6038ff8007d5b84f71a29f"
+    },
+    "assets/jungle-book/pages/toast.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "0b537c5740e3f37999f29a9dcf629da66f23ab2dc94c2df8143ca191e409564a",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "ae0e924f94dcba452b64fc9695a9bfa2d0bdb190747a4f2653e3742a358fbc34",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/bread.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "aa39cc4f596dc11d286a58068982dc20950c199598a2916ed0673a20a317eeff"
+    },
+    "assets/jungle-book/pages/couscous.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "e0289de48537784c592f581ed8e68f20620a38ea77352ebac702eafddddeddff",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "b95080426e3131ad76300ebd6a913c733d41635795fa4cd63133eb1db14f6c2f",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/sandwich.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "e53fdd464216fb6eeda027ff12546a7419ec2797ad226e7c39760f963bb7bbbf"
+    },
+    "assets/jungle-book/pages/falafel.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "61f39b2bf5ac00240abf75d43c46311fc91fd11a5b39e2a1c64e5977d32ffac6",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "2f87518a7122d79ddfa026f217bc27bfd6ddb7151cee7f24686083860500e382",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/sandwich.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "6b1b064cc828a8cb2fafda8c7257e7fbf99b8f177a0273843fcf065b7bb727b1"
+    },
+    "assets/jungle-book/pages/baked_potato.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "5978765861e365e766b8ac858800a3616e70afd538147e4ab5b187298f16da8a",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "b75878091654571b609b1913c7cc45a64ae328dbd8a510ea62bb9633a9fd3644",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/roast_chicken.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "e91cd2084aa32e0a847a1cfb9b5c72751e46d912c267cf536d19b0d14f664fb7"
+    },
+    "assets/jungle-book/pages/vegetable_casserole.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "7fe56a879ee08afe3afb28f1c96d7edd0a8cfab14fc592f820edc0ae4c11d510",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "264f0925406388a64a34481f80963e3e9966a9b9009a4be59e692aafae4ecc57",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/roast_chicken.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "7f1a69277b43a021e80fffac1cc0ec39ee4f92d395250f50edf928d844773902"
+    },
+    "assets/jungle-book/pages/blossom.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "996c822b6c3cd25c5c5bce86019c4ad02716151870e0e4c34e58b54f4fcfa299",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "7891f0c93701c2816e68f417c6b4cba56bc747d19442fa85b230a623e1305fa8",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/spring.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "0d194386a026c9033e4f266101b20987241ec3788598a3bf152ffa8c9a6fd94b"
+    },
+    "assets/jungle-book/pages/nest.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "4d98face1e7714b7f061bfbcd50c413c1e4a5e1da699d94478c9d174c2118bae",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "7fd056d021b2e102015a99ffe0308facaee5871ebf8e7e5830c39d1e2b0840f3",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/spring.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "92be4e3701cdb036fc3305eff7108253aa89940d162905120b1626690372c317"
+    },
+    "assets/jungle-book/pages/shade.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "adf2e57ed350d98e481f1552867343f32afc697aec6233d04fd35530ee13aea3",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "c2b6042b07fd7fe476ca2576f8b5eaa3fcf67c6d465ba0f1172c146cd824e03b",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/spring.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "d2f26be41a2d7a47654fe0cb2e4ee0b889ed9222edeff5542dd4160883f26fd3"
+    },
+    "assets/jungle-book/pages/fallen_leaves.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "98e337500e010b1b2e108330b27da8cecb73dd3cb3664c2980877f66db444a9c",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "f08e474db39c7f8a07c156bbd7ad1059e73e2183e412e706899b13be56855000",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/spring.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "44ce2ba275a7eccab57b9d048f60ae31fb90a10de9fb04137c314f0ff20ef410"
+    },
+    "assets/jungle-book/pages/icicles.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "97964ea04f531e943c4d1e48d7c27594b159bb987877527ccf231ca16e65c855",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "a23cab3c8c0e457eb7c22f60fcabe3e837ef8c1cc5a5756f1930229f1aebc4eb",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/spring.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "a5b00fff669aa6740c15c261f37912e82dd6ceb290f23a2e7789b0cb058b196c"
+    },
+    "assets/jungle-book/pages/snowman.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "efa3f7304285bd8a6a60a1a7faa4ad43032121d40f385f830a497a58e2417a67",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "a3a805faaa81372bfb032b682cb0c529fbc0bd71d748075cbebe8763ce11ebb4",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/spring.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "a2c13a30ad20fd60bfaa1244fc5931efecaa394289e2b199f230782de38a1d19"
+    },
+    "assets/jungle-book/pages/robin.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "549d4db8f8eab51b01caa3e9031b8f20a7a2df5ed79aa4cefd2f8b048491b5e2",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "063044e3696776d65dde07d6b717c1871bbed0c13bb43c5e9eda0feb2cf90911",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/owl.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "bbd73495f398faf94738602994cdeddb41cac94f69925565d58c34d32bbe6030"
+    },
+    "assets/jungle-book/pages/sparrow.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "a8a0c4f0162d77293671de0ec355198920b0e92da1c33977b117b1128c97c81f",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "2996e7e9bfc4d3bfd66f0b230f5033b45b8225a4d201694a80666e674772fd85",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/owl.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "9337abe7cf49ac429bc0ce5679a3676fe14168f1f8e78b9a9d34b63d8704b26a"
+    },
+    "assets/jungle-book/pages/wood_pigeon.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "f0b69030fb47d86679cee0025558f201b1d1c1cc0a8a088a333f6614296ed905",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "a200895e71d4ee165b978f81e952c63d4c3c4919ecdd175cce3079d7d1a955e3",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/owl.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "2cab3bb8c7405644adb99d629c831014f6d6e474dfd123a1b03375b4a7274139"
+    },
+    "assets/jungle-book/pages/peacock.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "80ba85a79b0d1c29f460b3dfefbe6827ca370a7fd17aa5ce9ecaff5cb11e8e2b",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "e5d1bdb97c333f68548d3523d3d9b736f20c1433e2d238ca2e3e3613305d20c2",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/owl.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "0a5f9c054e02016284bf76383bfed17862306b56ada2a8e0106086dc4dc59958"
+    },
+    "assets/jungle-book/pages/spinning_top.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "c3771a46a1d4264dd58995c5b04788e9ff21946396b6552e4a4f420c3a751a8c",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "7de725033af3b93fde66fd45636b3b1261113ee9f4df7eaa97cc064837d15b40",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/teddy.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "be9be44cc65c7494dbb31046e68b38920562a78360880bc948efe25779dfa351"
+    },
+    "assets/jungle-book/pages/truck.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "1a7272034bd79cff1eeca6cc7d601723400109905ab499b83eba644912118980",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "bf9efa782333e568eee9edf3c9c3845a0014260bdede07771237204ea9527a5d",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/car.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "4d1b79870e19d31bcda46d77e226636ada9c8f11ce2be9d3ac28121d702e57ce"
+    },
+    "assets/jungle-book/pages/fire_engine.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "a25717fc554198cc71f8ee380dec2e41bded61ce60eebce86f18cac8a31247af",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "ba25211226bc1f468ece4b0fec9c3fd19c9f549cd32e0fe58be0ab0a3a70ef39",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/car.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "8b80137ef8965c609166244e81cd473d7c2c6970754c72f53d42ac2154f82f18"
+    },
+    "assets/jungle-book/pages/ambulance.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "e809f64c4d668e9f29e2060e920a9d9abb2462c8526ddb83d5d860e5f5361ea1",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "d75785eba70c8f2f03de560c037a0c164c47275c3a613aa85ca32b688ba14a65",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/car.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "e4bbec11ca6ba8d675618f1fbf9fd488424d5365803316c5cb05385aa8733d29"
+    },
+    "assets/jungle-book/pages/helicopter.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "64ac8b8c35fca608e8bdc4d6f3c3e9a1e9ed2cf06d8c441bc1360d443d98d131",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "c36c1a48265e2ae5308edb80023e9d3192d0d878156e91d2c5d436401bfe38b6",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/car.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "10bac16a736a4e4cc8d22a840fe4ad8dae53094fadc18aa77d6c1fec477de446"
+    },
+    "assets/jungle-book/pages/nightlight.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "fb5e3f71311da60db07d55dd698c1c4955937b0aeb1086064d783d2167492e47",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "78360a0d0837dc7a1ff1eb7146f163ffd04d099c707d3627c290974b38b0fa13",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/toothpaste.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "af6399b02650e1292612522f1ee3e37a53e0a0f93f801623874f6f84341acdfd"
+    },
+    "assets/jungle-book/pages/bedtime_story.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "fac6fec0e87e986cb96391c20972516b0118300c6624ef8d1810bb081f173980",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "a8768a680b7bf0234e54bdd56e4677b98efdc6de1860e4553616432e560c16a2",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/toothpaste.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "f942f8f2ad5451dad54c566c60dbfbc3d86ee1fb6e8c5e17c622fb1dfc383614"
+    },
+    "assets/jungle-book/pages/lullaby.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "64894f238bcb8572b38ccf0a8043bb9673b73cbb4473216e6938bceb0aac4830",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "65b3d4cdb68e2df270923c98911f36d1f0ac823732a0a46ec5cd55fb7cf74ac5",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/toothpaste.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "9dbbc671822c9089a2888a874cadf75e908fc0fb2c9c9855d3a1457a80e86b40"
+    },
+    "assets/jungle-book/pages/tucked_in.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "76cc1925ba10df986db0e93b2d6b100b801584f42ffde6a850346c6c5c45be69",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "0cea7cdb0f57a48598bd1f4d7a3b34d5af8e8a06e9051a33b793f232f1a5e482",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/toothpaste.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "9d4a097a4c4219662ff226199e728baac3ef78a936ec5e5b399f15419b556a01"
+    },
+    "assets/jungle-book/pages/passport.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "678421298283f5be56b996891bd90c2babe362719334fa69392301472f8bcc20",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "cf03c11c05205fc1a51ed40d7c7746c56976dbf2841bccb7804565944be9de71",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/suitcase.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "252c6df15f93f110b77f14f77b41fe15acd4d3ea8e71629d0bc237cf2de6d13a"
+    },
+    "assets/jungle-book/pages/campfire.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "a85ec5716183243932b3d2f6274af0c1c9334bccd378b51f87d6958ea685b393",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "ea475c0f6eb644fd160efccecc5642f7bc913460b99eca85e6fd6959d11c0d00",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/suitcase.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "75955f858762f874433f167b1ac818c8c440c31f1aca88c283527448de62e01b"
+    },
+    "assets/jungle-book/pages/cabin.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "579a5fb7ada4d45e5b34b1353e6be792111bd9c0d0ab435a6f0c9e8c3477a1d5",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "edccf1dee2751971015f65569c88e9e261aeddc28821ee2edebf740a03191f23",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/suitcase.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "e09469f1d1613e1ec8a5ee493b35fdad4121ca2299c448215c3e0fe94088248e"
+    },
+    "assets/jungle-book/pages/hammock.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "4fd038a676dfb87c147331c5716ae0a1be3e83574cc44b99293e4992fc07ec3f",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "c6e177707bc309d5ad0ce1808927b238121429c041361805bb4e688d5fd2db17",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/suitcase.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "387bc8d852d4057b496d407fc94aa3d3505cb560e141c9182fa000df7f7ff5df"
+    },
+    "assets/jungle-book/pages/gymnastics.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "a088828965b11db5d4943dfa47f824bda3f044014ddcb64e49e56f03b8fa2464",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "4f35f9e24eafb0d546b7c9161a2fcba465ee5bef61c07a0fe35b2a7f65871d2f",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/mother.jpg",
+        "assets/jungle-book/pages/father.jpg",
+        "assets/jungle-book/pages/sister.jpg",
+        "assets/jungle-book/pages/reading.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "aa113a8095500e79011165a9b6fefc9c1075f5018c666366f7502a721e417207"
+    },
+    "assets/jungle-book/pages/skating.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "4ed1a00f164f4f1a2ed8cf6f8afd9dbcae9b649d682636f5815eaf0ea6f94a44",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "dd39ef5a2504fea8e3f7ab230b6a8f9b7b6f48a5dfc34da5f71e883b2981ba56",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/mother.jpg",
+        "assets/jungle-book/pages/father.jpg",
+        "assets/jungle-book/pages/sister.jpg",
+        "assets/jungle-book/pages/reading.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "dd9d299b38963c115c612d01167685bd3211df90d8af8a63709d97c763b48985"
+    },
+    "assets/jungle-book/pages/skiing.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "af427bb8bb1eee7db6d40cac627dcc7f280347d819890e0b1f01c0053cc250d5",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "ac29980674b8e4c1646d3a6fe68dad51a4eac51f5e78ef086f477e102b1d7197",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/mother.jpg",
+        "assets/jungle-book/pages/father.jpg",
+        "assets/jungle-book/pages/sister.jpg",
+        "assets/jungle-book/pages/reading.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "c0552fc5f82816395b236613539c03096a03e6ee6a253c2b91d019b70802c9bc"
+    },
+    "assets/jungle-book/pages/sand.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "a6619e4eeb7cb781f90e3924cd04512bff524ab80eb8be44b3d8889c877249d6",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "fa7ca8c70201c12d561b2cb07def47c45d7249b226d8a713754e71515b4bdb47",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/beach.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "08166a6353137fb3e7669d72a6b2642d8eb8614e618dbf98d95a33e8052787bc"
+    },
+    "assets/jungle-book/pages/sunhat.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "a6292036aaedacdf09ffec935285090af6c04a4047c80abb59c229fd3c0f9a37",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "3e6445f6e0c7bed953c4bc2715fb1b911a9c2568a0a99549b6026de93a0d5642",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/beach.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "6eca9feaf33600441686875dda2189c6a319e0df82d590d95529bf0be140b6a1"
+    },
+    "assets/jungle-book/pages/beach_towel.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "a61d8d94d9929fa4cfe74ecc7cd686ca9aa460cd5cfb42d52642cb0bb14202f6",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "ed3faf50b38a2800e9f598b6db7dfe7b3507efa8db1714b44d8add82947e01a5",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/beach.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "bb4696864d5f09a252462102a46a64f42f9a35b4cfbf960e000567bce1e539a9"
+    },
+    "assets/jungle-book/pages/lifebuoy.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "8660a92dc490ab73b99687a48f0e40ad4f47c5c0bb8eb92c448268ed31dd6720",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "0f4df7e89c8b34c144fed2049ae8af2c1e4f35ace37282ae851dd1a31580b765",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/beach.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "f1cd1c881ca214f4672f1f5da71241630f8473f8c7967de37fc1a806e540ad18"
+    },
+    "assets/jungle-book/pages/fog.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "01937cbdadc8e14e54a458e3617a6d3ba9bc6a47025c6bfc19e1228f0cb6affa",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "9abda002d467702fba7a25adb6cf420975d0189dcc058f443d7afab6c8d68222",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/sun.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "b43512887b258217431c30f04ed965e5ce0aca07052a374b860576c5c18a1fc3"
+    },
+    "assets/jungle-book/pages/hail.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "2fc4ddcee715b300f4dc5b3193865a86d200a12570e12d4e25841762b7fffc92",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "201380b1ab4f98e2f3e1b8bb855cafb805ea4974cea0cf3f7ce33099b12b75a9",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/sun.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "306aeb0fae4ba3192a51343e6c52eae26b4c9a00f61ef488f3ea1e991687bc62"
+    },
+    "assets/jungle-book/pages/frost.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "5e6c6a7c9a639b659d733b0af0d7dfa270c58460e7cda105c3e86c424cb2d6df",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "11ae9d75b5d01e595744f31561cebaf896e634761d2c79755da792ee88dc8969",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/sun.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "9cf4492e83d543a15ed32941e369557bf5615f4e4528eb2819fba9d68a3d1ac0"
+    },
+    "assets/jungle-book/pages/lightning.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "d209b40401527c62d887b6415d1c58ebabb465ad90ac445a6057ebcd30e86739",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "a6437b5035f303c6d4809b5294d6bea44d8a08fcdd32b74f628973259404a655",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/sun.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "b6ded2480bfb6477c599a9ceadc227d57f1b552b619effc0d06c38d2a7253bf9"
+    },
+    "assets/jungle-book/pages/lychee.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "747d9dc1c3ebf79cfea8e98a7be3b9205fa94f223245f6eca1bc213d55d837db",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "9b7ef7754c29e3a0d75bc7a5991bbdcd28a5f306c3026cf98058d3f2d5570b88",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/mango.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "4d39bfab9e5f6f4d520b22852b4f42a104cc08b1037392937b98eb6f2a7abb4f"
+    },
+    "assets/jungle-book/pages/starfruit.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "0af2b41c7a45671bcb247176ecd852ac98e493086404101fe2c96fca5295209c",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "6e1078e34b3e61d9e093ed33cae386aa622a4351d238cd0e5950598a90c8ae2e",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/mango.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "2808e66794c9ad2d191c22fcdafd3b1a3b1c0cdb31fd993077becadff55d6851"
+    },
+    "assets/jungle-book/pages/garden_gloves.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "6127677eb4a9dd34ab455cd513d0888f334f14d61399e920c5f6d965d6025736",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "7ad71fcb0ddf20c53cd54e5ab0bdc7de74383f9ff14be8fa0b1186bfdbea28e4",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/seeds.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "86e8ca28a28cee29bba654fe6da5ab2fb4435479fbd2cc73535b37c5c4751660"
+    },
+    "assets/jungle-book/pages/pruning_shears.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "b9fe6964327165c1f0be2751a0e3d486934e8d9c6916a79d5140014bf9ad2264",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "149cb60a956e5c8b53576c26b7e6140af8c45128e2c1e15cf9ab25e75d048c8f",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/seeds.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "7fc9e287c8806d450ecf3f35039fe78d7ab6a558a4a22787b509cd2117edf38c"
+    },
+    "assets/jungle-book/pages/compost.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "ab98f9cc8475f319062b7618479ae2c781760767834edc4663d6294aeb57e429",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "6629d8ae8e97c2c62df794bb2bf490791313c5809d8492823efbd92ed630a2e9",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/seeds.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "809d833dbe8d0015dd15a5f791b1edfd5cfdcdd3c4ff761148b34fd62c7ed27e"
+    },
+    "assets/jungle-book/pages/eraser.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "0eceac40bbbb2824bf65d93d18505d0a00b264fb4f7f948958d13cb463a0c6a2",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "55aeef332ab098835e8438b98c5fc82f3262d692bb79bb797420eb8bb617c867",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/book.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "426c577e691fed272868610cc699f82d793d9ab0627db092ab563d4ee57a8282",
+      "post_process": "Corners feathered into page paper by a local script from the retained PNG"
+    },
+    "assets/jungle-book/pages/pencil_case.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "f35ead76457e8947a29c360ba5d6deca0cda15940560b83fbf681c740f4ec0f9",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "3c3abd2ae6090fc9527e4bc7ee04065bb36d5f3e4c36e6e93c3c9c089218cf2c",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/book.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "0a170fd69cb02d4f0c1479300181f65230fe2a0ba95a9dd930b733785debe481",
+      "post_process": "Corners feathered into page paper by a local script from the retained PNG"
+    },
+    "assets/jungle-book/pages/crab.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "4271e77f6e2ccd5c40c45e23d52c363adf3e0246eeec1ece1557c7efb042b763",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "1f9acfd5d40885eefbfd9a871cb784f79a793461f03ecd272da9d9a13f5dd17f",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/goldfish.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "3dbe6cf824a0715b8bd3c406d584fc2a53c5062c953b0578c4987d0a247a0c7c"
+    },
+    "assets/jungle-book/pages/jellyfish.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "094b3b2c363ff54ef836254fe094328512d7d83f2476360665de38f163745d28",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "08c6c55def001b8515b0b8980df99ccd3d509caab251ae95a9e18567e6bea747",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/goldfish.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "bf99a61f309629592ef974997dbd3178ac19b8317f3853fdd100721663a715e6"
+    },
+    "assets/jungle-book/pages/pear_juice.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "36ab3da689cf502acb498ec6c962816d016cfdd5053d9dd7e7da61530064a90d",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "1dcb09aee3b49a6f49a56fe0587149b848382b8c9463c7653d24a557684ef5b3",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/water.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "fea2c90655f63329af72b0b401e8990694fbe7b804026e5841aaf225667de374"
+    },
+    "assets/jungle-book/pages/strawberry_milk.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "161b1989acaf99d6109801bb70c98613bda3e8a0268155adaa392e77302a53ef",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "568a33475ff9f4e443ae9eba660d8a8604a80946533cb7ea780c3189e192278a",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/water.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "d8008104a25169a75ebf302b8f5c537d981dbb33a5418a98197797f03e45ffe5"
+    },
+    "assets/jungle-book/pages/hugging.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "ab76d94bd404a0f344424a9d18f6c52876b651f52d86716ab8cc1e4ef0197daf",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "9bca57de2ee3a0222f02314dac24ebd1978efc20def7dd3efb3b27cec6172190",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/mother.jpg",
+        "assets/jungle-book/pages/father.jpg",
+        "assets/jungle-book/pages/sister.jpg",
+        "assets/jungle-book/pages/reading.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "4c82aa4698d09928ab86e21420d10a2bbc1c1b5d606124bbe3dd995a8240c199"
+    },
+    "assets/jungle-book/pages/clapping.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "d1a2c0e916301df33ea4ffffb9a91bf19ba34da7d20323761984d0d5bb60c6bb",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "4293feea472b8bc4d60deb0b09fd8488f5697468da9ef1cedb17f6ab8ecc93d4",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/mother.jpg",
+        "assets/jungle-book/pages/father.jpg",
+        "assets/jungle-book/pages/sister.jpg",
+        "assets/jungle-book/pages/reading.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "f0c171f3c5dbb3b82aaf5c14649641768b2368e25d29dd235ba6aab5647c2cef"
+    },
+    "assets/jungle-book/pages/nurse.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "57b308a7dcf9cc23ba361b56da56f5ca4f1a3cdcfcd1c0f9c48552053994faf9",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "a4e5c7dec5b44c26c0f0d7d96184d15c52d7ceeff929508a2083cd7d54f221d7",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/mother.jpg",
+        "assets/jungle-book/pages/father.jpg",
+        "assets/jungle-book/pages/sister.jpg",
+        "assets/jungle-book/pages/reading.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "170b456e8f482eabdcefb0f5c9c14391fb73aebd0b8bf04e6115ef5ee333a853"
+    },
+    "assets/jungle-book/pages/vet.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "ec4d76e82d261a1ec0171bf525845978b8433053cda5ea671d19815385c42d78",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "295e41aa72a8d00c9b0618d3da19df11838a7a01298094353c25f124ffbc5b71",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/mother.jpg",
+        "assets/jungle-book/pages/father.jpg",
+        "assets/jungle-book/pages/sister.jpg",
+        "assets/jungle-book/pages/reading.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "660b1d1d0bf9ef79c5e01ae701e6d33a92a979d71dc6da4f8aaf8025fe43453b"
+    },
+    "assets/jungle-book/pages/postworker.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "96ef1e6ba2d75aadf89e9262df4edfad5ed0703fbf8e80ab499b00a993acca45",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "2ccb0baf7300c83063f6c07082ab172555a25f05a43740db0e0b78b1876a6841",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/mother.jpg",
+        "assets/jungle-book/pages/father.jpg",
+        "assets/jungle-book/pages/sister.jpg",
+        "assets/jungle-book/pages/reading.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "ce6784eee6de5d035a38389f9808bdaed15cefba6675b5ffd6006c77d3960471"
+    },
+    "assets/jungle-book/pages/mechanic.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "1ced1945d4eefe1e46ae44e13acc1f00c0ebe7590cbb642becb124aa936dd252",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "99124c68fcb988f35f710d8d8bebc8a64b36b6c7069dd356f8b9a3612484cf4d",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/mother.jpg",
+        "assets/jungle-book/pages/father.jpg",
+        "assets/jungle-book/pages/sister.jpg",
+        "assets/jungle-book/pages/reading.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "30bcd14ef75c14af029c17979a4508d6444d44a151569ecc41ee048705c312c7"
+    },
+    "assets/jungle-book/pages/ostrich.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "d61ed1b45d6d9fd8daedb18a29c1c079aa8b56bdf1149db0a2e837e8849a227b",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "8e71d686c25e7d83ae2f59effea50cf503e41391d728ac743ed142aff089ff5a",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/camel.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "01cac851c5e09af059cf82985112e264ff0cbb706495049f99d79b0f3b9e2356"
+    },
+    "assets/jungle-book/pages/oryx.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "614a8f7cf421006c772d4acaecfb25cf496cc6574fe1dd2d978fc205ee9b0d42",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "6f2836c1587b973d9644476685661fed40679dfab7980f272f95e34c347771dd",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/camel.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "03e2d360a412d905737c700ed55b3e073638f761f47051ecbd6a6bf50b40e2d6"
+    },
+    "assets/jungle-book/pages/jerboa.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "95af70ac8c0781c4f9c7aecf263ff5639c27230e7b83ed7d37253f56162024c4",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "a2b596659a37cbef2e0b7eaefb4cdb2ad7f4fdd2644f8f3a4c54f19044d6cc91",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/camel.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "bdd8003d85c3bb1a62b7b735a5c694402d3496d0dd2870417ef9b0bdda80d408"
+    },
+    "assets/jungle-book/pages/sand_cat.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "10d701b14ce2abd88c1f99fd9b37bfd469fe9e35b0ce161f4afc346bf6d3b58f",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "b5bdc8c8b5e404f84e2258d935e3101e2ebd93775b694b687f0ad5cc742764ce",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/camel.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "c17d0a6a2c25ccdcee443b8455a6a4dc6d0c42b2f02b0b5c1bac587a16fcbe89"
+    },
+    "assets/jungle-book/pages/praying_mantis.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "568c3d2a2ed4c1f4704751718c02376db8d013b0784d168813bc81b462152bf9",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "5a0448b70cf37178761df770abb903e61255f0b49d11c750675a371e78b75a22",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/beetle.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "31fcb3936106e6bfb87fc5e43f601fddcfba025a3f721fc8ab3792a8aeec8d03"
+    },
+    "assets/jungle-book/pages/lacewing.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "792ee3738edd91c1bea94e936fd2fcb5e57afb7a2b56f4e54c2b63fd2fdd57a6",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "ccfd50ed583cefabc7749805adbfe1f6497a91b6cf4a7f0836a11b44551268cc",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/beetle.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "2e460c238bfedea8a5d1872de7e0da238ace956f245295365ae3e81ab7af8b39"
+    },
+    "assets/jungle-book/pages/damselfly.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "f0796427b30db9552f2728f6eda0ddc2063758f663dbda7953ddeaf4c2b44402",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "9a3b744a501fbeeaa1835cf6f8e9aa7913c9d23c01f355bef22f383de2c6c751",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/beetle.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "98a8221f909d5d96a4c1c635b91e258e513b7f90887f0afada0b8ad2a5bf5fd9"
+    },
+    "assets/jungle-book/pages/earwig.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "9bbb4a9ef802b69d5aa9f670e0c06312477d1368c2d67a6651160c1a7868203e",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "39b7fbd1ec997540d31aab2d20c72e4e952f62eab8e92999a8a91e0d705556ca",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/beetle.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "3e29d4513c11b2884ed467686f114121fe33d1c435a19aa19deea2395014c2c4"
+    },
+    "assets/jungle-book/pages/bearded_dragon.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "1dfa0d6347b451c9d500e9873cc4bdf5484c894190c4465f234d889b951534df",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "b9bc66af4a0d6415373ccead270262da4a4fc08808e977bd2612ec66451f695d",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/alligator.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "44dab5b747a1a24cd56145e56287e0614761798286216c4f2888f6707ae88ae8"
+    },
+    "assets/jungle-book/pages/corn_snake.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "71913650ef2614bf18d16a3815279008a2a5723c5e5e0aaa05236f0f0ebec4e2",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "13c153e3c496e80f0106620708200653ef3ce6d27029b7e5ce553f688f434510",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/alligator.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "9ad01f0301556375980bd2cd6d3dc64478d2dc5ae6f125fcd870afde9e72f654"
+    },
+    "assets/jungle-book/pages/anole.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "c802481f1c84bd59e81f6eb9d106eee53b801b40b32dea4ad295d9efb944f3fa",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "c62eb180e2755f588f66532ef65caddc6775ed2f2ddc71a7339e27bea65c8c4b",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/alligator.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "7b78f1322f326ae8d465b61b621571296431cecd55c39b67a73cb35217dd4da1"
+    },
+    "assets/jungle-book/pages/softshell_turtle.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "fbd33b88c8d7c9484e4f52023c11bd9cc5742c28b4734a309618789eca2b9020",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "3adcb4b847149303d5729d0213db2a6b722f5e04586f0ddca5bbc3db70ea91d8",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/alligator.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "bb987136d36a9bd5ac47520223ce9749a9149c09edaf5121fb57179873f9bead"
+    },
+    "assets/jungle-book/pages/chestnut_tree.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "8727f760f0db7a075a2ec29970dcb3c6a44ce7c76da00b0bd9ff6901c4a9e4b0",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "380e931d06cc1660b5503b68fa3d3b5bb708eb83622a77b2971fb9fb801f8611",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/oak.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "7a9771a643aa783de33696a1e0fe4ed4a82f3a70dffb77dc264c1dedd6fca02e"
+    },
+    "assets/jungle-book/pages/apple_tree.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "1e606f1114a466e3047ce7aa3c8dcf58d94692e14ad9d9f1c63072a8986c3fbd",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "9f46cffb3038c2a957c21cf21260bd9ea27a872d7cda243f0529d3beb2d14fbb",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/apple.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "dfa11d7e95ee8205947a7f6ad6e328ed1dd489ab1fa76544b7eb14ebb9e9ac08"
+    },
+    "assets/jungle-book/pages/cypress.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "c45e870ef9b9dfebb860fcce7f820829d56a024c9cf2254214fcac88e12f8e97",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "ed2c6adc9a6f08d62e9986ae44484d621f6e11ed9a8715791775fc89a2a06784",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/oak.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "31a487b220de3cf552a6670ae249d2415f42d3e7e92ad23010a856030b7ce70e"
+    },
+    "assets/jungle-book/pages/cedar.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "851055a7f2156e80ddccff50941a25276713cda4dea4ff23d46270086a2a3224",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "87501259eb0fae9f6fd7661d2ede98ff73cc06f7016ef220c0b8be2edfdfb355",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/oak.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "19ca3f4d042c5009af2e5c41da99998722be78e51e75aff71e36be50b9175e7e"
+    },
+    "assets/jungle-book/pages/daisy.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "95b5a2737898a69c10bbb3c1b838a7e59f558b8fcb50e0363b21ec0797bb85b4",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "b14e1fbe693c7a5a6e1d7a12a8d2175d893985aead5181ec95fc8abd36c26136",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/sunflower.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "0b9dba4d7b80b7c279c6d19d7874adf655db08f6212c6c761b2c39f222c00116"
+    },
+    "assets/jungle-book/pages/tulip.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "9b28bacaeb3c1d93c167f9ee006bcc8929cea7f15146ca2674fe1d5b63677576",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "2733f3ab0f2547e88b3b1ce70aed002b0e2df37101505447110ef393ca0dd169",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/sunflower.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "2084362b2be20d6bbd299846e05c5ea4fee80d579961bcee915d190aed852a9a"
+    },
+    "assets/jungle-book/pages/moss.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "a9373bf98cae6ee62aa97d753ab931623791a84ce08d9279d034c709c1b98fb2",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "40c1f064cd63cbbff6c882209b601bf4a2a147bd7d7652ffa54f8ce059c0414b",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/sunflower.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "dec1321bfdd9f8053e8eb7b9a6cd26bac82b0f2c49f9dbc4281116a3f328e6c6"
+    },
+    "assets/jungle-book/pages/ivy.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "8b844e73fa4b0ea48f84214a1983633d426292bdb8bb0205b7abf7cb96aa7964",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "7a1218691913ca37865a0b5e1c932a18a7d811bcb18139d228ae34c6b39f8645",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/sunflower.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "806a823f77f781086cea282532f323072d2ab1035356b91ca97ab836015b36bd"
+    },
+    "assets/jungle-book/pages/wild_boar.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "7f14b1e273300de6a7f3efd8f2e010143e858fc5f351d03b28b460dcf050beb3",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "64fcf65e5c9619dcb3833b115f62621eabd29a1162ffac02c38c4f009ee20a1f",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/deer.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "692dcad58672b1294c314eaad4fafcde7970fbd4af1ade25ceb2d0ea039dc296"
+    },
+    "assets/jungle-book/pages/raccoon.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "ca802b203cc8c13aeac101721a70143edcae835544a01d7d82c91f09cdd008b2",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "b91643905406f5b3b550e295ee9bb3ea71ba514409b32ff8afb4751ac9d15d11",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/deer.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "921d04a2656c0c9dd85e3929834e5699b0fb6528520e2843fcfc87fb14d77836"
+    },
+    "assets/jungle-book/pages/wood_mouse.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "dcd9573a5661b3f75e8a1d5221c99da03df7ddae15b64f1e77555d2524454478",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "1453f4e7027adf2ea6e126ca6da1f3b28380d4259858d6169233246b0d63f9d7",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/deer.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "53a22eaa816dbcb402ee0a86f04931592621316ae17554d6177c1749f4c4ade2"
+    },
+    "assets/jungle-book/pages/mushroom.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "cf6b924b05e9b8a9b4862a4e61fa19da2d48555ae1c09eec16c93d9dded69500",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "27198bcdd11749bd3ae7852d44cd98ddda97ed08a325071e39d8231664a060bc",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/deer.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "9b617beafdaf530e1e499c2aa01d4bd11deb0db85bb27b031bfa7dd4ce1d9288"
+    },
+    "assets/jungle-book/pages/hamster.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "214bb02399b9b3925e45a355c76b38df9af5e339ef2ce7b2515a14a2dbbf3e8b",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "b2369201c3be7cf69c5e303667e2fd51def8e5a78b7f041a4d812a42365e7177",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/tiger.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "689105a1f981110052cae38e3d9f6bc6020bcb479880d0fd6468eb118781669f"
+    },
+    "assets/jungle-book/pages/guinea_pig.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "cd12822d6a6a25c313ac92cbde77ea71dfa86831d8a5c30fd3d8085415822c6a",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "cd8cf35aa66f2321b8a8a5784627956d9c1b9a0a8a1484f1ed72c2f789399ccd",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/tiger.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "13a6b462856061ab0be3ae3450b64bba712fa2852b1a4d90c36ae1f285abe8d4"
+    },
+    "assets/jungle-book/pages/budgerigar.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "f8230ccfa9c54e4fbb3834ae524f2b324df4eca8cfa0d2e74d0d5835170c2184",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "d902fca9b5b2967e500e9b310ccb845d8c5b6a22a0d6537bc53a495502a9ff44",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/tiger.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "afd1fc4064ce88ed4bf28981b187173de9a2465a302a7a1a316c0e4df550be39"
+    },
+    "assets/jungle-book/pages/canary.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "1d9cb1e92efeed4002ca527fa6b61bb6f8a19bc4a0a50c4d52fdc8be43887c5d",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "68d8f3c04c2cdb8facfdeb1166e15106c5551cf6aed55ad80e42a463262e87a2",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/tiger.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "ca48564fb959d02a19c730a108fe8a1bcc111086b4e46f8b03562852cbf93c37"
+    },
+    "assets/jungle-book/pages/ferret.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "ec084a26d52f8852145d38b733a5da69528fa0d28d92442fda16caa2449c155d",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "dfe5eed5be22e6a858c3a713a895fb06c1acdb7c66830c4e8bcf09a306409d9e",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/tiger.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "bd3920658cf76a1312ae2007f452a99bbcfee838dc1a0b9de8b69b96590fac46"
+    },
+    "assets/jungle-book/pages/chinchilla.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "e976299a0bf4f6417bbd7fa78a0a4a8dafc96bbe5b6ca0bd739578f071d855bb",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "b6ce0b7cbdbd04d63deb5ef3d54583935a4285d24a4285734dd7327e127d38ed",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/tiger.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "92cd751c85f762eba1b049e4fceb9afdb34117aa0d731262826aef00e8001252"
+    },
+    "assets/jungle-book/pages/tractor.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "74024b8b0cff583303e4f7dacd01cdce151a2a8180deb2d6b9f17be759180879",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "a8d61382b1d33d113d3a29e82bf75c475b7060526d1d4898b1d8f3d5ace7fcd5",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/car.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "9f1d228a177420b90f7311222faab08b31bb3c8b0c0da6331a12ad970d45b246"
+    },
+    "assets/jungle-book/pages/barn.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "41da3e1ece27574eea6786c5a46786dad4783ae901048065f5741d3f031b85b4",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "de741d8243168807db082899901a82dbe97942222b9223cfe788826ef5695b7a",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/car.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "9bc8b932914d3c32a36dfffccc856f34164620d7988bd926350e88814b0ae40e"
+    },
+    "assets/jungle-book/pages/hay_bale.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "64ba52e763b49ef6906efb0469c7ad5764486fa0786113470c9899c55162ff7c",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "df03b89f57b49d08cc0e77d2d58efae86bb8ac113879c8d01bcdb8136e9e5eb4",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/car.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "6b527b7c5739a2ff17c555534c74055d4cf543b02a503e577f47f29574266e8f"
+    },
+    "assets/jungle-book/pages/pitchfork.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "c69d0f129efdbe522a19cef7334f21e3bd268728b9a9db964d8ab67287c97832",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "550cb2121748ab6538e2b59e2d2f45df27ae3c05b02bf264aae1164ec6d917d5",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/car.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "db46cdf17d5b1d7244bb97ea3870b4f2abb2400ba38833f0e104f2ead41720b2"
+    },
+    "assets/jungle-book/pages/grain_silo.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "b231a782972775dde1f8ea74645512557d072895d00d2ee56a17b9b9bb5bcada",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "48717dacbfa79154acb65272ccd820be8a844cd1a006cc2c2fb59f9d2383eab9",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/car.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "b75ec2cdd26451443d5c8110a5d592b3e187475e82087a7e384a8651afed3973"
+    },
+    "assets/jungle-book/pages/farm_fence.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "ca73c41862f99fc28c034f623ae27876c61453d1bfb209eb90f5c6bf519ca776",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "890e10d6453a8fea222c7e33e6fd52fb34ab73dc7d092bf75d48df0df098b17a",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/car.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "7d0eca024cdb9426400bfbe1b7f36e30e98b71d6023373d24aa099ddc4f40c15"
+    },
+    "assets/jungle-book/pages/stable.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "3bd965cf5e3299e48404c68d2a9b121acbe0064ffe42a66b07b45ec348d7cbac",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "e25778e25054e97b2b64f732d98b33b55a877f558b8b8564c085f6811f3c8955",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/car.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "a90e89b0c6b9508bc8435df9899103c360f5a0fcf97fa2c3b602611d39bcb1c6"
+    },
+    "assets/jungle-book/pages/chicken_coop.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "cf1bdab5774fe08388574f949c6c856ec2c53d4a9927852c788c2b37137423e8",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "a686aeb9281b570d80f8de5d5ba2eff3a4948530e42b66e4befc2c350e1ff23b",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/car.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "8314ffef85ecc7b40926ef9e77a004623557317519bead4fd7d87acab278aa35"
+    },
+    "assets/jungle-book/pages/well.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "c3ed7d781c2616b2a409c2cdd0ea7e6db90d43cf333d0b0b4a1f97d3cce065a1",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "2a8fbd6a830b2497efc649565e59667ac353000f40fc1306c166a3cad918e8e1",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/car.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "938787de5f234c0b93b7d669a375acce783c68506971ff6187267127e2337a92"
+    },
+    "assets/jungle-book/pages/wheelbarrow.jpg": {
+      "format": "JPEG",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "5e749fba7db3e8877163f566f756d920ff6e4b9143143c783674fa90c3c95927",
+      "source_png_format": "PNG",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "source_png_sha256": "0071d721640436b830086ef838640f4d99247cad18bd1c1dc6e9b3828f15f3ac",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "assets/jungle-book/pages/car.jpg"
+      ],
+      "reference_usage": "Style reference for generation; new subject and setting",
+      "prompt_sha256": "7ccf8dc498b24f7e2acf62c4cd7221addd6094fcf1d636dea4a43d749b5ca023"
+    }
+  }
+}

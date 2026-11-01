@@ -214,14 +214,16 @@ assert worst<=3 and len(changed)<=300, f'worst {worst}/255 on {len(changed)} pix
    await delay(600);await spoken();
    const start=await state();
    // A slow hiding-place texture must never expose the whole hidden friend.
-   // With all covers blocked, enabling animal textures changes no scene pixels.
-   await evaluate(`window.hideReady=Module.jungleImageReady;window.hideNoItems=true;
+   // With all covers and their previews blocked, enabling animal textures
+   // changes no scene pixels.
+   await evaluate(`window.hidePreview=Module.junglePreviewReady;Module.junglePreviewReady=p=>!p.startsWith('assets/hide_seek/props/')&&hidePreview(p);
+    window.hideReady=Module.jungleImageReady;window.hideNoItems=true;
     Module.jungleImageReady=p=>p.startsWith('assets/hide_seek/props/')||
       (hideNoItems&&p.startsWith('assets/jungle-book/items/'))?false:hideReady(p)`);
    await delay(300);const withoutTextures=await scenePicture();
    await evaluate('hideNoItems=false');await delay(300);
    if(await scenePicture()!==withoutTextures)throw Error('A hidden animal appeared before its hiding-place texture');
-   await evaluate('Module.jungleImageReady=hideReady');await delay(300);
+   await evaluate('Module.jungleImageReady=hideReady;Module.junglePreviewReady=hidePreview');await delay(300);
    // Every hiding friend starts with a small stationary peek: a still scene before any look.
    const still=await picture();await delay(900);
    if(await picture()!==still)throw Error('A hiding place or its small peek moved before any look');

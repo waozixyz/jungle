@@ -72,7 +72,7 @@ COUNTING = ('tiger', 'frog', 'butterfly', 'ladybug', 'snail', 'elephant', 'giraf
 # Bundled games with staged assets: their source folders and extra files.
 # Picture Book narration is installed; its bundle needs no copy of it.
 GAMES = {
-    'jungle-book': {'folders': ('assets/jungle-book',), 'skip': ('assets/jungle-book/sounds/',)},
+    'jungle-book': {'folders': ('assets/jungle-book',), 'skip': ('assets/jungle-book/sounds/', 'assets/jungle-book/story-sounds/')},
     'jungle-abc': {'folders': ('assets/abc',)},
     'jungle-numbers': {'folders': ('assets/numbers',)},
     'animal-count': {'folders': ('assets/animal-count',),

@@ -64,7 +64,7 @@ $(APP)/games/catalog.txt: games/catalog.txt
 # folder, so assets removed from assets/ leave the app and bundles too.
 # The manifest and each GAME.files listing change only when their contents
 # do, so an unrelated asset change rebuilds no bundle.
-build/stage/.shared-assets: tools/shared_assets.py tools/web_images.py tools/speech_manifest.py tools/speech_codec.py tools/book_speech.py tools/book_catalog.py tools/book_expansion.json tools/outdoor_books.json tools/book_learning_expansion.json tools/book_unique_expansion.json $(SHARED_SOURCES)
+build/stage/.shared-assets: tools/shared_assets.py tools/web_images.py tools/speech_manifest.py tools/speech_codec.py tools/book_speech.py tools/book_catalog.py tools/book_expansion.json tools/outdoor_books.json tools/book_learning_expansion.json tools/book_unique_expansion.json tools/book_minimum_expansion.json $(SHARED_SOURCES)
 	python3 tools/shared_assets.py
 
 $(SHARED) $(addprefix build/stage/,$(addsuffix .files,$(STAGED_GAMES))): build/stage/.shared-assets
@@ -210,6 +210,7 @@ test: build/tests/paint_preview build/tests/paint_gallery build/tests/paint_gall
 	python3 tests/speech_codec_test.py
 	python3 tests/book_unique_catalog_test.py
 	python3 tests/book_unique_art_test.py
+	python3 tests/book_minimum_art_test.py
 	python3 tests/book_expansion_test.py
 	python3 tests/language_test.py
 	python3 tests/abc_audio_test.py

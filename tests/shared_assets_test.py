@@ -279,7 +279,7 @@ def make_test():
         (root / 'tools').mkdir()
         for name in ('shared_assets.py', 'web_images.py', 'speech_codec.py', 'book_speech.py', 'book_catalog.py',
                      'book_expansion.json', 'book_learning_expansion.json', 'outdoor_books.json',
-                     'book_unique_expansion.json'):
+                     'book_unique_expansion.json', 'book_minimum_expansion.json'):
             shutil.copy2(ROOT / 'tools' / name, root / 'tools' / name)
         (root / 'tools/speech_manifest.py').write_text(SPEECH_STUB)
         shutil.copy2(ROOT / 'Makefile', root / 'Makefile')
@@ -300,7 +300,7 @@ def make_test():
         listing = root / 'build/stage/jungle-numbers.files'
         assert page.exists() and staged.exists()
         assert 'shared_assets.py' not in make(), 'staging reran with nothing changed'
-        for name in ('book_expansion.json', 'outdoor_books.json', 'book_learning_expansion.json', 'book_unique_expansion.json'):
+        for name in ('book_expansion.json', 'outdoor_books.json', 'book_learning_expansion.json', 'book_unique_expansion.json', 'book_minimum_expansion.json'):
             time.sleep(.05)
             (root / 'tools' / name).touch()
             assert 'shared_assets.py' in make(), f'{name} did not rerun staging'

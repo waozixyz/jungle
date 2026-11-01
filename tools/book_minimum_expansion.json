@@ -1,0 +1,763 @@
+{
+  "moves": {
+    "farm": [
+      "rabbit",
+      "cat",
+      "mouse",
+      "dog"
+    ]
+  },
+  "extra": {
+    "kitchen": [
+      "kettle",
+      "oven"
+    ],
+    "bathroom": [
+      "comb",
+      "sponge"
+    ],
+    "bedroom": [
+      "nightstand",
+      "curtains"
+    ],
+    "living-room": [
+      "armchair",
+      "fireplace"
+    ],
+    "nature": [
+      "meadow",
+      "cave"
+    ],
+    "family": [
+      "aunt",
+      "uncle"
+    ],
+    "breakfast": [
+      "honey",
+      "toast"
+    ],
+    "lunch": [
+      "couscous",
+      "falafel"
+    ],
+    "dinner": [
+      "baked_potato",
+      "vegetable_casserole"
+    ],
+    "seasons": [
+      "blossom",
+      "nest",
+      "shade",
+      "fallen_leaves",
+      "icicles",
+      "snowman"
+    ],
+    "birds": [
+      "robin",
+      "sparrow",
+      "wood_pigeon",
+      "peacock"
+    ],
+    "toys": [
+      "spinning_top"
+    ],
+    "vehicles": [
+      "truck",
+      "fire_engine",
+      "ambulance",
+      "helicopter"
+    ],
+    "bedtime": [
+      "nightlight",
+      "bedtime_story",
+      "lullaby",
+      "tucked_in"
+    ],
+    "vacation": [
+      "passport",
+      "campfire",
+      "cabin",
+      "hammock"
+    ],
+    "sports": [
+      "gymnastics",
+      "skating",
+      "skiing"
+    ],
+    "beach": [
+      "sand",
+      "sunhat",
+      "beach_towel",
+      "lifebuoy"
+    ],
+    "weather": [
+      "fog",
+      "hail",
+      "frost",
+      "lightning"
+    ],
+    "tropical-fruits": [
+      "lychee",
+      "starfruit"
+    ],
+    "gardening": [
+      "garden_gloves",
+      "pruning_shears",
+      "compost"
+    ],
+    "school": [
+      "eraser",
+      "pencil_case"
+    ],
+    "water-animals": [
+      "crab",
+      "jellyfish"
+    ],
+    "drinks": [
+      "pear_juice",
+      "strawberry_milk"
+    ],
+    "actions": [
+      "hugging",
+      "clapping"
+    ],
+    "people-at-work": [
+      "nurse",
+      "vet",
+      "postworker",
+      "mechanic"
+    ],
+    "desert-animals": [
+      "ostrich",
+      "oryx",
+      "jerboa",
+      "sand_cat"
+    ],
+    "insects": [
+      "praying_mantis",
+      "lacewing",
+      "damselfly",
+      "earwig"
+    ],
+    "reptiles": [
+      "bearded_dragon",
+      "corn_snake",
+      "anole",
+      "softshell_turtle"
+    ],
+    "trees": [
+      "chestnut_tree",
+      "apple_tree",
+      "cypress",
+      "cedar"
+    ],
+    "plants": [
+      "daisy",
+      "tulip",
+      "moss",
+      "ivy"
+    ],
+    "forest": [
+      "wild_boar",
+      "raccoon",
+      "wood_mouse",
+      "mushroom"
+    ]
+  },
+  "books": {
+    "pets": [
+      "rabbit",
+      "cat",
+      "mouse",
+      "dog",
+      "hamster",
+      "guinea_pig",
+      "budgerigar",
+      "canary",
+      "ferret",
+      "chinchilla"
+    ],
+    "on-the-farm": [
+      "tractor",
+      "barn",
+      "hay_bale",
+      "pitchfork",
+      "grain_silo",
+      "farm_fence",
+      "stable",
+      "chicken_coop",
+      "well",
+      "wheelbarrow"
+    ]
+  },
+  "titles": {
+    "farm": [
+      "Farm Animals",
+      "Bauernhoftiere",
+      "Animales de la granja"
+    ],
+    "pets": [
+      "Pets",
+      "Haustiere",
+      "Mascotas"
+    ],
+    "on-the-farm": [
+      "Farm",
+      "Bauernhof",
+      "Granja"
+    ]
+  },
+  "canonical_homes": {
+    "rabbit": "pets",
+    "cat": "pets",
+    "mouse": "pets",
+    "dog": "pets"
+  },
+  "words": {
+    "kettle": [
+      "Kettle",
+      "Wasserkocher",
+      "Hervidor"
+    ],
+    "oven": [
+      "Oven",
+      "Ofen",
+      "Horno"
+    ],
+    "comb": [
+      "Comb",
+      "Kamm",
+      "Peine"
+    ],
+    "sponge": [
+      "Sponge",
+      "Schwamm",
+      "Esponja"
+    ],
+    "nightstand": [
+      "Nightstand",
+      "Nachttisch",
+      "Mesita de noche"
+    ],
+    "curtains": [
+      "Curtains",
+      "Vorhänge",
+      "Cortinas"
+    ],
+    "armchair": [
+      "Armchair",
+      "Sessel",
+      "Sillón"
+    ],
+    "fireplace": [
+      "Fireplace",
+      "Kamin",
+      "Chimenea"
+    ],
+    "meadow": [
+      "Meadow",
+      "Wiese",
+      "Pradera"
+    ],
+    "cave": [
+      "Cave",
+      "Höhle",
+      "Cueva"
+    ],
+    "aunt": [
+      "Aunt",
+      "Tante",
+      "Tía"
+    ],
+    "uncle": [
+      "Uncle",
+      "Onkel",
+      "Tío"
+    ],
+    "honey": [
+      "Honey",
+      "Honig",
+      "Miel"
+    ],
+    "toast": [
+      "Toast",
+      "Toast",
+      "Tostada"
+    ],
+    "couscous": [
+      "Couscous",
+      "Couscous",
+      "Cuscús"
+    ],
+    "falafel": [
+      "Falafel",
+      "Falafel",
+      "Falafel"
+    ],
+    "baked_potato": [
+      "Baked potato",
+      "Ofenkartoffel",
+      "Patata asada"
+    ],
+    "vegetable_casserole": [
+      "Vegetable casserole",
+      "Gemüseauflauf",
+      "Cazuela de verduras"
+    ],
+    "blossom": [
+      "Blossom",
+      "Blüte",
+      "Flor de árbol"
+    ],
+    "nest": [
+      "Nest",
+      "Nest",
+      "Nido"
+    ],
+    "shade": [
+      "Shade",
+      "Schatten",
+      "Sombra"
+    ],
+    "fallen_leaves": [
+      "Fallen leaves",
+      "Laub",
+      "Hojas caídas"
+    ],
+    "icicles": [
+      "Icicles",
+      "Eiszapfen",
+      "Carámbanos"
+    ],
+    "snowman": [
+      "Snowman",
+      "Schneemann",
+      "Muñeco de nieve"
+    ],
+    "robin": [
+      "Robin",
+      "Rotkehlchen",
+      "Petirrojo"
+    ],
+    "sparrow": [
+      "Sparrow",
+      "Spatz",
+      "Gorrión"
+    ],
+    "wood_pigeon": [
+      "Wood pigeon",
+      "Ringeltaube",
+      "Paloma torcaz"
+    ],
+    "peacock": [
+      "Peacock",
+      "Pfau",
+      "Pavo real"
+    ],
+    "spinning_top": [
+      "Spinning top",
+      "Kreisel",
+      "Peonza"
+    ],
+    "truck": [
+      "Truck",
+      "Lastwagen",
+      "Camión"
+    ],
+    "fire_engine": [
+      "Fire engine",
+      "Feuerwehrauto",
+      "Camión de bomberos"
+    ],
+    "ambulance": [
+      "Ambulance",
+      "Krankenwagen",
+      "Ambulancia"
+    ],
+    "helicopter": [
+      "Helicopter",
+      "Helikopter",
+      "Helicóptero"
+    ],
+    "nightlight": [
+      "Nightlight",
+      "Nachtlicht",
+      "Luz nocturna"
+    ],
+    "bedtime_story": [
+      "Bedtime story",
+      "Gutenachtgeschichte",
+      "Cuento para dormir"
+    ],
+    "lullaby": [
+      "Lullaby",
+      "Schlaflied",
+      "Canción de cuna"
+    ],
+    "tucked_in": [
+      "Tucked in",
+      "Zugedeckt",
+      "Arropado"
+    ],
+    "passport": [
+      "Passport",
+      "Reisepass",
+      "Pasaporte"
+    ],
+    "campfire": [
+      "Campfire",
+      "Lagerfeuer",
+      "Fogata"
+    ],
+    "cabin": [
+      "Cabin",
+      "Hütte",
+      "Cabaña"
+    ],
+    "hammock": [
+      "Hammock",
+      "Hängematte",
+      "Hamaca"
+    ],
+    "gymnastics": [
+      "Gymnastics",
+      "Turnen",
+      "Gimnasia"
+    ],
+    "skating": [
+      "Skating",
+      "Eislaufen",
+      "Patinaje sobre hielo"
+    ],
+    "skiing": [
+      "Skiing",
+      "Skifahren",
+      "Esquí"
+    ],
+    "sand": [
+      "Sand",
+      "Sand",
+      "Arena"
+    ],
+    "sunhat": [
+      "Sunhat",
+      "Sonnenhut",
+      "Sombrero de sol"
+    ],
+    "beach_towel": [
+      "Beach towel",
+      "Strandtuch",
+      "Toalla de playa"
+    ],
+    "lifebuoy": [
+      "Lifebuoy",
+      "Rettungsring",
+      "Salvavidas"
+    ],
+    "fog": [
+      "Fog",
+      "Nebel",
+      "Niebla"
+    ],
+    "hail": [
+      "Hail",
+      "Hagel",
+      "Granizo"
+    ],
+    "frost": [
+      "Frost",
+      "Frost",
+      "Escarcha"
+    ],
+    "lightning": [
+      "Lightning",
+      "Blitz",
+      "Relámpago"
+    ],
+    "lychee": [
+      "Lychee",
+      "Litschi",
+      "Lichi"
+    ],
+    "starfruit": [
+      "Starfruit",
+      "Sternfrucht",
+      "Carambola"
+    ],
+    "garden_gloves": [
+      "Garden gloves",
+      "Gartenhandschuhe",
+      "Guantes de jardín"
+    ],
+    "pruning_shears": [
+      "Pruning shears",
+      "Gartenschere",
+      "Tijeras de podar"
+    ],
+    "compost": [
+      "Compost",
+      "Kompost",
+      "Compost"
+    ],
+    "eraser": [
+      "Eraser",
+      "Radiergummi",
+      "Goma de borrar"
+    ],
+    "pencil_case": [
+      "Pencil case",
+      "Federmäppchen",
+      "Estuche"
+    ],
+    "crab": [
+      "Crab",
+      "Krabbe",
+      "Cangrejo"
+    ],
+    "jellyfish": [
+      "Jellyfish",
+      "Qualle",
+      "Medusa"
+    ],
+    "pear_juice": [
+      "Pear juice",
+      "Birnensaft",
+      "Zumo de pera"
+    ],
+    "strawberry_milk": [
+      "Strawberry milk",
+      "Erdbeermilch",
+      "Leche de fresa"
+    ],
+    "hugging": [
+      "Hugging",
+      "Umarmen",
+      "Abrazar"
+    ],
+    "clapping": [
+      "Clapping",
+      "Klatschen",
+      "Aplaudir"
+    ],
+    "nurse": [
+      "Nurse",
+      "Pflegekraft",
+      "Enfermera"
+    ],
+    "vet": [
+      "Vet",
+      "Tierarzt",
+      "Veterinario"
+    ],
+    "postworker": [
+      "Postal worker",
+      "Briefträgerin",
+      "Cartera"
+    ],
+    "mechanic": [
+      "Mechanic",
+      "Mechaniker",
+      "Mecánico"
+    ],
+    "ostrich": [
+      "Ostrich",
+      "Strauß",
+      "Avestruz"
+    ],
+    "oryx": [
+      "Oryx",
+      "Oryx",
+      "Órix"
+    ],
+    "jerboa": [
+      "Jerboa",
+      "Springmaus",
+      "Jerbo"
+    ],
+    "sand_cat": [
+      "Sand cat",
+      "Sandkatze",
+      "Gato de las arenas"
+    ],
+    "praying_mantis": [
+      "Praying mantis",
+      "Gottesanbeterin",
+      "Mantis religiosa"
+    ],
+    "lacewing": [
+      "Lacewing",
+      "Florfliege",
+      "Crisopa"
+    ],
+    "damselfly": [
+      "Damselfly",
+      "Kleinlibelle",
+      "Caballito del diablo"
+    ],
+    "earwig": [
+      "Earwig",
+      "Ohrwurm",
+      "Tijereta"
+    ],
+    "bearded_dragon": [
+      "Bearded dragon",
+      "Bartagame",
+      "Dragón barbudo"
+    ],
+    "corn_snake": [
+      "Corn snake",
+      "Kornnatter",
+      "Serpiente del maíz"
+    ],
+    "anole": [
+      "Anole",
+      "Anolis",
+      "Anolis"
+    ],
+    "softshell_turtle": [
+      "Softshell turtle",
+      "Weichschildkröte",
+      "Tortuga de caparazón blando"
+    ],
+    "chestnut_tree": [
+      "Chestnut tree",
+      "Kastanie",
+      "Castaño"
+    ],
+    "apple_tree": [
+      "Apple tree",
+      "Apfelbaum",
+      "Manzano"
+    ],
+    "cypress": [
+      "Cypress",
+      "Zypresse",
+      "Ciprés"
+    ],
+    "cedar": [
+      "Cedar",
+      "Zeder",
+      "Cedro"
+    ],
+    "daisy": [
+      "Daisy",
+      "Gänseblümchen",
+      "Margarita"
+    ],
+    "tulip": [
+      "Tulip",
+      "Tulpe",
+      "Tulipán"
+    ],
+    "moss": [
+      "Moss",
+      "Moos",
+      "Musgo"
+    ],
+    "ivy": [
+      "Ivy",
+      "Efeu",
+      "Hiedra"
+    ],
+    "wild_boar": [
+      "Wild boar",
+      "Wildschwein",
+      "Jabalí"
+    ],
+    "raccoon": [
+      "Raccoon",
+      "Waschbär",
+      "Mapache"
+    ],
+    "wood_mouse": [
+      "Wood mouse",
+      "Waldmaus",
+      "Ratón de bosque"
+    ],
+    "mushroom": [
+      "Mushroom",
+      "Pilz",
+      "Seta"
+    ],
+    "hamster": [
+      "Hamster",
+      "Hamster",
+      "Hámster"
+    ],
+    "guinea_pig": [
+      "Guinea pig",
+      "Meerschweinchen",
+      "Conejillo de Indias"
+    ],
+    "budgerigar": [
+      "Budgerigar",
+      "Wellensittich",
+      "Periquito"
+    ],
+    "canary": [
+      "Canary",
+      "Kanarienvogel",
+      "Canario"
+    ],
+    "ferret": [
+      "Ferret",
+      "Frettchen",
+      "Hurón"
+    ],
+    "chinchilla": [
+      "Chinchilla",
+      "Chinchilla",
+      "Chinchilla"
+    ],
+    "tractor": [
+      "Tractor",
+      "Traktor",
+      "Tractor"
+    ],
+    "barn": [
+      "Barn",
+      "Scheune",
+      "Granero"
+    ],
+    "hay_bale": [
+      "Hay bale",
+      "Heuballen",
+      "Paca de heno"
+    ],
+    "pitchfork": [
+      "Pitchfork",
+      "Heugabel",
+      "Horca"
+    ],
+    "grain_silo": [
+      "Grain silo",
+      "Getreidesilo",
+      "Silo de grano"
+    ],
+    "farm_fence": [
+      "Fence",
+      "Zaun",
+      "Valla"
+    ],
+    "stable": [
+      "Stable",
+      "Stall",
+      "Establo"
+    ],
+    "chicken_coop": [
+      "Chicken coop",
+      "Hühnerstall",
+      "Gallinero"
+    ],
+    "well": [
+      "Well",
+      "Brunnen",
+      "Pozo"
+    ],
+    "wheelbarrow": [
+      "Wheelbarrow",
+      "Schubkarre",
+      "Carretilla"
+    ]
+  }
+}

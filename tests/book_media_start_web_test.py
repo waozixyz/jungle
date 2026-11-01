@@ -131,7 +131,7 @@ class CDP:
         raise AssertionError('Timed out: '+description)
 
     def key(self, key):
-        code, vk = {'Home': ('Home',36), 'Enter': ('Enter',13), '0': ('Digit0',48),
+        code, vk = ('Digit'+key, ord(key)) if len(key)==1 and key.isdigit() else {'Home': ('Home',36), 'Enter': ('Enter',13),
                     ' ': ('Space',32), 'ArrowRight': ('ArrowRight',39),
                     'Escape': ('Escape',27)}[key]
         self.call('Input.dispatchKeyEvent', type='keyDown', key=key, code=code, windowsVirtualKeyCode=vk)
@@ -328,6 +328,18 @@ def fingerprint(base_url, renderer):
     return result
 
 
+def open_picture_book(client):
+    """Use the real title's keyboard route, including painted scene hotspots."""
+    painted = client.evaluate('typeof imagePaths!=="undefined"&&[...imagePaths].some(p=>p.startsWith("assets/jungle/title/"))')
+    if painted:
+        import runtime_test
+        keys = runtime_test.title_keys('Picture Book')
+    else:
+        keys = ['Home', 'Enter']
+    for key in keys:
+        client.key(key)
+
+
 def test_first_book_media_start(base_url: str, renderer: str):
     """Return observations; any missing real-app evidence is a test failure."""
     result = fingerprint(base_url, renderer)
@@ -342,9 +354,8 @@ def test_first_book_media_start(base_url: str, renderer: str):
                     c.call('Page.navigate', url=base_url.rstrip('/')+'/'+renderer+'.html')
                     c.until('typeof Module!=="undefined"&&!!Module.FS&&document.getElementById("loading").style.display==="none"', 'wasm startup', 90)
                     c.evaluate('probe.install()')
-                    # Released menu: Picture Book is first. 0 opens category 9
-                    # independent of changing shelf geometry and current catalog.
-                    c.key('Home'); c.key('Enter')
+                    open_picture_book(c)
+                    # 0 opens saved category 9 independently of shelf geometry.
                     c.evaluate('probe.mode='+json.dumps(mode)+';probe.armed=true')
                     c.evaluate('probe.opened=performance.now()'); c.key('0')
                     c.until('probe.current', 'actual Book page image request')

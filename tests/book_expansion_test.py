@@ -11,7 +11,7 @@ from PIL import Image
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'tools'))
 from book_catalog import (BOOKS, BOOK_GROUPS, LANGUAGES, LEARNING, NAMES,
-                          PAGE_NAMES, TITLES, UNIQUE, WORDS, BuildUniqueBookCatalog,
+                          MINIMUM, PAGE_NAMES, TITLES, UNIQUE, WORDS, BuildUniqueBookCatalog,
                           narration, voice_path)
 from book_speech import read_clip
 
@@ -50,13 +50,24 @@ def preserved_digest(name):
     manifest = ROOT / 'tools/book_art_refresh.json'
     refresh = json.loads(manifest.read_text())['files'] if manifest.exists() else {}
     wild = set(dict(BOOKS)['jungle'])
-    scenes = wild | set(dict(BOOKS)['people-at-work']) | {'drawing', 'brushing_teeth'}
-    allowed = ({f'assets/jungle-book/pages/{name}.jpg' for name in scenes}
+    farm_scenes = {'rabbit', 'cat', 'mouse', 'pig', 'cow', 'dog', 'horse',
+                   'sheep', 'duck', 'hen', 'goat', 'donkey', 'goose', 'turkey',
+                   'chick', 'rooster', 'llama', 'alpaca', 'calf', 'lamb'}
+    farm_counting = {'rabbit', 'cat', 'pig', 'cow', 'dog', 'sheep', 'duck', 'hen'}
+    scenes = wild | {'firefighter', 'doctor', 'teacher', 'farmer', 'builder', 'baker',
+                     'drawing', 'brushing_teeth'}
+    allowed = ({f'assets/jungle-book/pages/{name}.jpg' for name in scenes | farm_scenes}
                | {f'assets/jungle-book/items/{name}.png' for name in wild}
+               | {f'assets/jungle-book/items/{name}.png' for name in farm_scenes}
                | {f'assets/jungle-book/counting/{name}.png' for name in wild}
+               | {f'assets/jungle-book/counting/{name}.png' for name in farm_counting}
                | {'assets/jungle-book/previews/jungle.jpg',
-                  'assets/jungle-book/previews/people-at-work.jpg', 'assets/jungle/book.png'})
-    assert set(refresh) <= allowed, 'Unrequested original asset in art refresh'
+                  'assets/jungle-book/previews/people-at-work.jpg',
+                  'assets/jungle-book/previews/farm.jpg', 'assets/jungle/book.png'})
+    minimum_pages = {f'assets/jungle-book/pages/{name}.jpg' for name in MINIMUM['words']}
+    assert set(refresh) <= allowed | minimum_pages, 'Unrequested original asset in art refresh'
+    assert {path for path, entry in refresh.items() if entry['previous_sha256'] is None} == minimum_pages, \
+        'Only the exact 109 new scenes may have no historical fingerprint'
     actual = digest(ROOT / name)
     if name in refresh:
         entry = refresh[name]
@@ -87,8 +98,13 @@ class LearningBookTest(unittest.TestCase):
     def test_catalog_and_stable_slots(self):
         catalog = BuildUniqueBookCatalog()
         self.assertEqual(catalog['books'], BOOKS)
-        self.assertEqual(tuple(c for c, _ in BOOKS), OLD_IDS + NEW_IDS + ADDED_IDS + LATEST_IDS + NATURE_IDS)
-        self.assertEqual((len(NAMES), len(set(NAMES)), len(PAGE_NAMES)), (326, 326, 326))
+        self.assertEqual(tuple(c for c, _ in BOOKS), OLD_IDS + NEW_IDS + ADDED_IDS + LATEST_IDS + NATURE_IDS + ('pets', 'on-the-farm'))
+        self.assertEqual((len(NAMES), len(set(NAMES)), len(PAGE_NAMES)), (435, 435, 435))
+        self.assertTrue(all(len(names) >= 10 for _, names in BOOKS))
+        self.assertEqual(len(MINIMUM['words']), 109)
+        self.assertEqual(NAMES[326:], tuple(MINIMUM['words']))
+        self.assertEqual(hashlib.sha256('\n'.join(NAMES[:326]).encode()).hexdigest(),
+                         '980519bf63805b0f5b63724f77eba1b52a90fa440cdfc8dbaccded7c540d578c')
         self.assertEqual(len(LEARNING['words']), 37)
         groups = dict(BOOK_GROUPS)
         self.assertEqual(groups['Family'], ('family', 'body', 'clothing', 'sports', 'feelings', 'actions', 'people-at-work'))
@@ -101,12 +117,13 @@ class LearningBookTest(unittest.TestCase):
         self.assertIn('school', groups['Home'])
         self.assertEqual(set(c for _, members in BOOK_GROUPS for c in members), set(dict(BOOKS)))
         for category, extra in LEARNING['extra'].items():
-            self.assertEqual(dict(BOOKS)[category][-len(extra):], tuple(extra))
+            historical = tuple(name for name in dict(BOOKS)[category] if name not in MINIMUM['words'])
+            self.assertEqual(historical[-len(extra):], tuple(extra))
         shared = {n for names in LEARNING['books'].values() for n in names} - set(LEARNING['words'])
         self.assertEqual(shared, REUSED)
         pages = (ROOT / 'games/book/book_pages.zi').read_text()
         voices = (ROOT / 'games/book/book_voice.zi').read_text()
-        self.assertIn('CATEGORY_COUNT :: 39', pages)
+        self.assertIn('CATEGORY_COUNT :: 41', pages)
         # The learning books once reused these words; each now has one home page.
         for name in REUSED:
             self.assertEqual(PAGE_NAMES.count(name), 1)
@@ -204,6 +221,7 @@ class LearningBookTest(unittest.TestCase):
         # Exclude only explicitly new filenames. Any changed/missing old file or
         # unexpected extra asset changes this durable aggregate, even after commit.
         new_stems = (set(LEARNING['words']) | set(UNIQUE['words']) | set(NEW_IDS) | set(ADDED_IDS) | set(LATEST_IDS) | set(NATURE_IDS)
+                     | set(MINIMUM['words']) | {'pets', 'on-the-farm'}
                      | {stem for stems in UNIQUE['voice_stems'].values() for stem in stems.values()})
         current = []
         for folder in ('assets/jungle-book', 'assets/abc'):

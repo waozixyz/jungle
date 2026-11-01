@@ -16,8 +16,9 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'tools'))
 import book_catalog
 from book_catalog import (BOOKS, BOOK_GROUPS, LANGUAGES, LEGACY_IDS, LEGACY_NAMES, NAMES,
-                          PAGE_NAMES, PENDING_MEDIA, TITLES, UNIQUE, WORDS,
-                          ApplyUniqueExpansion, BuildUniqueBookCatalog, NormalizedLabel,
+                          PAGE_NAMES, PENDING_MEDIA, PENDING_TITLE_MEDIA, TITLES, UNIQUE, WORDS,
+                          MINIMUM,
+                          ApplyMinimumBookExpansion, ApplyUniqueExpansion, BuildUniqueBookCatalog, NormalizedLabel,
                           ValidateBookCatalog, narration, voice_path)
 
 # Fingerprints of the word and page order before this catalog changed.
@@ -38,20 +39,28 @@ REPLACED = {
     'vacation': {'backpack': 'binoculars'},
 }
 HOMES = {'jungle': ('parrot', 'toucan'), 'farm': ('duck', 'hen', 'goose', 'rooster'),
+         'pets': ('rabbit', 'cat', 'mouse', 'dog'),
          'garden': ('frog', 'flower'),
          'tropical-fruits': ('banana', 'mango', 'coconut', 'pineapple'), 'toys': ('teddy',),
          'school': ('book', 'backpack'), 'bedroom': ('bed', 'pillow', 'blanket'), 'nature': ('moon',),
          'weather': ('sun', 'cloud', 'rain'), 'drinks': ('milk', 'water')}
 ACTIONS = ('cooking', 'cleaning', 'reading', 'drawing', 'singing', 'washing_hands', 'brushing_teeth',
-           'watering_plants')
-DESERT_ANIMALS = ('camel', 'fennec_fox', 'meerkat', 'desert_tortoise', 'gecko', 'scorpion')
-INSECTS = ('beetle', 'moth', 'cricket', 'cicada', 'stick_insect', 'firefly')
-PEOPLE_AT_WORK = ('firefighter', 'doctor', 'teacher', 'farmer', 'builder', 'baker')
+           'watering_plants', 'hugging', 'clapping')
+DESERT_ANIMALS = ('camel', 'fennec_fox', 'meerkat', 'desert_tortoise', 'gecko', 'scorpion',
+                  'ostrich', 'oryx', 'jerboa', 'sand_cat')
+INSECTS = ('beetle', 'moth', 'cricket', 'cicada', 'stick_insect', 'firefly',
+           'praying_mantis', 'lacewing', 'damselfly', 'earwig')
+PEOPLE_AT_WORK = ('firefighter', 'doctor', 'teacher', 'farmer', 'builder', 'baker',
+                  'nurse', 'vet', 'postworker', 'mechanic')
 NATURE_BOOKS = {
-    'reptiles': ('alligator', 'chameleon', 'iguana', 'tortoise', 'python', 'sea_turtle'),
-    'trees': ('oak', 'maple', 'birch', 'pine', 'willow', 'palm_tree'),
-    'plants': ('sunflower', 'fern', 'cactus', 'bamboo', 'lavender', 'rose'),
-    'forest': ('deer', 'fox', 'squirrel', 'hedgehog', 'badger', 'woodpecker'),
+    'reptiles': ('alligator', 'chameleon', 'iguana', 'tortoise', 'python', 'sea_turtle',
+                 'bearded_dragon', 'corn_snake', 'anole', 'softshell_turtle'),
+    'trees': ('oak', 'maple', 'birch', 'pine', 'willow', 'palm_tree',
+              'chestnut_tree', 'apple_tree', 'cypress', 'cedar'),
+    'plants': ('sunflower', 'fern', 'cactus', 'bamboo', 'lavender', 'rose',
+               'daisy', 'tulip', 'moss', 'ivy'),
+    'forest': ('deer', 'fox', 'squirrel', 'hedgehog', 'badger', 'woodpecker',
+               'wild_boar', 'raccoon', 'wood_mouse', 'mushroom'),
 }
 LABELS = """
 owl Owl|Eule|Búho
@@ -164,29 +173,36 @@ class CatalogTest(unittest.TestCase):
     def test_exact_shape_and_uniqueness(self):
         catalog = BuildUniqueBookCatalog()
         self.assertEqual(catalog['books'], BOOKS)
-        self.assertEqual((len(BOOKS), len(PAGE_NAMES), len(set(PAGE_NAMES)), len(NAMES)), (39, 326, 326, 326))
+        self.assertEqual((len(BOOKS), len(PAGE_NAMES), len(set(PAGE_NAMES)), len(NAMES)), (41, 435, 435, 435))
         self.assertEqual(set(PAGE_NAMES), set(NAMES))
         self.assertEqual(set(NAMES), set(WORDS))
+        self.assertTrue(all(len(names) >= 10 for _, names in BOOKS))
         for at, language in enumerate(LANGUAGES):
             labels = [NormalizedLabel(WORDS[name][at]) for name in NAMES]
             self.assertEqual(len(labels), len(set(labels)), language)
 
     def test_saved_ids_keep_their_positions(self):
         self.assertEqual(hashlib.sha256('\n'.join(LEGACY_NAMES).encode()).hexdigest(), LEGACY_NAMES_SHA256)
+        self.assertEqual(hashlib.sha256('\n'.join(NAMES[:326]).encode()).hexdigest(),
+                         '980519bf63805b0f5b63724f77eba1b52a90fa440cdfc8dbaccded7c540d578c')
+        self.assertEqual(hashlib.sha256('\n'.join(category for category, _ in BOOKS[:39]).encode()).hexdigest(),
+                         '904448949d3eb51eaf1bdd7c0df999f29d738e073183f3b8664ff5cecd0a3451')
+        self.assertEqual(NAMES[326:], tuple(MINIMUM['words']))
         self.assertEqual(NAMES[:248], LEGACY_NAMES)
-        self.assertEqual(NAMES[248:], tuple(expected_labels()))
+        self.assertEqual(NAMES[248:326], tuple(expected_labels()))
         self.assertEqual(tuple(category for category, _ in BOOKS)[:31], LEGACY_IDS)
         self.assertEqual((len(LEGACY_IDS), LEGACY_IDS[30], BOOKS[31][0]),
                          (31, 'drinks', 'actions'))
         self.assertEqual(tuple(category for category, _ in BOOKS)[31:],
-                         ('actions', 'desert-animals', 'insects', 'people-at-work', *NATURE_BOOKS))
+                         ('actions', 'desert-animals', 'insects', 'people-at-work', *NATURE_BOOKS,
+                          'pets', 'on-the-farm'))
 
     def test_previous_release_saved_ids_are_unchanged(self):
         self.assertEqual(hashlib.sha256('\n'.join(NAMES[:302]).encode()).hexdigest(),
                          'd8d73d7467207040cd901e737758519b6927f350b3132d1cfdb05627ee659ee2')
         self.assertEqual(hashlib.sha256('\n'.join(category for category, _ in BOOKS[:35]).encode()).hexdigest(),
                          'b24ae5f2fb3ce4f2100f0e34b5eaac980326b2cd4dd9a7619505e69f7f410abc')
-        self.assertEqual(NAMES[302:], tuple(name for members in NATURE_BOOKS.values() for name in members))
+        self.assertEqual(NAMES[302:326], tuple(expected_labels())[-24:])
 
     def test_exact_replacements_and_additions(self):
         self.assertEqual(UNIQUE['replacements'], REPLACED)
@@ -198,9 +214,16 @@ class CatalogTest(unittest.TestCase):
         self.assertEqual(books['people-at-work'], PEOPLE_AT_WORK)
         for category, subjects in NATURE_BOOKS.items():
             self.assertEqual(books[category], subjects)
-            self.assertEqual(len(subjects), 6)
-        self.assertEqual(books['sports'][-1], 'badminton')
+            self.assertEqual(len(subjects), 10)
+        self.assertEqual(books['sports'][-3:], ('gymnastics', 'skating', 'skiing'))
+        self.assertEqual(books['farm'], ('pig', 'cow', 'horse', 'sheep', 'duck', 'hen', 'goat',
+                                         'donkey', 'goose', 'turkey', 'chick', 'rooster',
+                                         'llama', 'alpaca', 'calf', 'lamb'))
+        self.assertEqual(books['pets'], ('rabbit', 'cat', 'mouse', 'dog', 'hamster', 'guinea_pig',
+                                         'budgerigar', 'canary', 'ferret', 'chinchilla'))
+        self.assertEqual(books['on-the-farm'], tuple(MINIMUM['books']['on-the-farm']))
         self.assertEqual(dict(BOOK_GROUPS)['Animals'][-3:], ('desert-animals', 'reptiles', 'forest'))
+        self.assertEqual(dict(BOOK_GROUPS)['Home'][-1], 'on-the-farm')
         self.assertEqual(dict(BOOK_GROUPS)['Nature'][-3:], ('insects', 'trees', 'plants'))
         self.assertEqual(dict(BOOK_GROUPS)['Family'][-1], 'people-at-work')
         self.assertEqual(TITLES['actions'], ['Actions', 'Tätigkeiten', 'Acciones'])
@@ -209,6 +232,8 @@ class CatalogTest(unittest.TestCase):
         self.assertEqual(TITLES['people-at-work'],
                          ['People at Work', 'Menschen bei der Arbeit', 'Personas en el trabajo'])
         for category, members in book_catalog._legacy_books:
+            if category == 'farm':
+                continue
             swaps = REPLACED.get(category, {})
             kept = tuple(swaps.get(name, name) for name in members)
             self.assertEqual(books[category][:len(kept)], kept, category)
@@ -216,6 +241,27 @@ class CatalogTest(unittest.TestCase):
             for name in members:
                 self.assertIn(name, books[home])
                 self.assertEqual(PAGE_NAMES.count(name), 1, name)
+
+    def test_minimum_expansion_moves_and_appends(self):
+        unique_books = ApplyUniqueExpansion(book_catalog._legacy_books, UNIQUE)
+        result = ApplyMinimumBookExpansion(unique_books, MINIMUM)
+        self.assertEqual(result, BOOKS)
+        expected_old = tuple(
+            (category, tuple(name for name in names
+                             if category != 'farm' or name not in MINIMUM['moves']['farm'])
+             + tuple(MINIMUM['extra'].get(category, ())))
+            for category, names in unique_books)
+        self.assertEqual(result[:39], expected_old)
+        self.assertEqual(dict(result[39:]), {category: tuple(names) for category, names in MINIMUM['books'].items()})
+
+    def test_minimum_expansion_media_inventory(self):
+        self.assertEqual(len(MINIMUM['words']), 109)
+        self.assertEqual(set(MINIMUM['words']), set(NAMES[326:]))
+        self.assertTrue(set(MINIMUM['words']) <= set(PENDING_MEDIA))
+        self.assertEqual(MINIMUM['titles']['farm'], ['Farm Animals', 'Bauernhoftiere', 'Animales de la granja'])
+        self.assertEqual(MINIMUM['titles']['pets'], ['Pets', 'Haustiere', 'Mascotas'])
+        self.assertEqual(MINIMUM['titles']['on-the-farm'], ['Farm', 'Bauernhof', 'Granja'])
+        self.assertEqual(set(PENDING_TITLE_MEDIA), {'farm', 'pets', 'on-the-farm'})
 
     def test_exact_new_labels(self):
         for name, labels in expected_labels().items():
@@ -250,7 +296,7 @@ class CatalogTest(unittest.TestCase):
         self.assertEqual(len(originals), 88)
 
     def test_pending_media_is_exact(self):
-        self.assertEqual(set(PENDING_MEDIA), set(expected_labels()) | {'lettuce'})
+        self.assertEqual(set(PENDING_MEDIA), set(expected_labels()) | {'lettuce'} | set(MINIMUM['words']))
 
 
 class InvalidCatalogTest(unittest.TestCase):
@@ -326,6 +372,11 @@ class InvalidCatalogTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'one has no page owl'):
             ApplyUniqueExpansion((('one', ('cat',)),), unique)
 
+    def test_missing_move_source(self):
+        expansion = {'moves': {'one': ('owl',)}, 'extra': {}, 'books': {}}
+        with self.assertRaisesRegex(ValueError, 'one has no page owl to move'):
+            ApplyMinimumBookExpansion((('one', ('cat',)),), expansion)
+
 
 class GeneratedRouteTest(unittest.TestCase):
     @classmethod
@@ -333,14 +384,15 @@ class GeneratedRouteTest(unittest.TestCase):
         cls.pages = (ROOT / 'games/book/book_pages.zi').read_text()
         cls.voices = (ROOT / 'games/book/book_voice.zi').read_text()
 
-    def test_page_tables_follow_the_catalog(self):
-        self.assertIn('CATEGORY_COUNT :: 39\n', self.pages)
+    def test_derived_tables_follow_the_catalog(self):
+        self.assertIn(f'CATEGORY_COUNT :: {len(BOOKS)}\n', self.pages)
         ids = json.loads('[' + re.search(r'^category_ids:.*?\.\[(.*)\];', self.pages, re.M)[1] + ']')
         self.assertEqual(ids, [category for category, _ in BOOKS])
         counts = re.search(r'^category_counts:.*?\.\{(.*)\};', self.pages, re.M)[1]
-        self.assertEqual([int(count) for count in counts.split(',')], [len(names) for _, names in BOOKS])
+        self.assertEqual([int(count) for count in counts.split(',')],
+                         [len(names) for _, names in BOOKS])
         order = re.search(r'^shelf_order:.*?\.\[(.*)\];', self.pages, re.M)[1]
-        self.assertEqual(sorted(int(at) for at in order.split(',')), list(range(39)))
+        self.assertEqual(sorted(int(at) for at in order.split(',')), list(range(len(BOOKS))))
         self.assertEqual(table(self.pages, 'page_paths'), [f'assets/jungle-book/pages/{name}.jpg' for name in PAGE_NAMES])
         for at, language in enumerate(LANGUAGES):
             self.assertEqual(table(self.pages, f'page_names_{language}'), [WORDS[name][at] for name in PAGE_NAMES])
@@ -352,12 +404,13 @@ class GeneratedRouteTest(unittest.TestCase):
                 self.assertEqual(paths, [voice_path(name, language, simple) for name in PAGE_NAMES])
                 self.assertEqual(len(paths), len(set(paths)))
 
-    def test_shelf_title_is_translated(self):
+    def test_shelf_titles_are_translated(self):
         rows = json.loads((ROOT / 'locales/ui.json').read_text())
-        for category in ('actions', 'desert-animals', 'insects', 'people-at-work', *NATURE_BOOKS):
+        categories = ('actions', 'desert-animals', 'insects', 'people-at-work', *NATURE_BOOKS, 'farm', 'pets', 'on-the-farm')
+        for category in categories:
             self.assertEqual(rows[TITLES[category][0]], list(TITLES[category][1:]))
         language = (ROOT / 'retro/language.zi').read_text()
-        for category in ('actions', 'desert-animals', 'insects', 'people-at-work', *NATURE_BOOKS):
+        for category in categories:
             for label in TITLES[category]:
                 self.assertIn(json.dumps(label, ensure_ascii=False), language)
 

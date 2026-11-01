@@ -74,6 +74,7 @@ _legacy_books = tuple((category, _original.get(category, ()) + tuple(extra)) for
 LEGACY_IDS = tuple(category for category, _ in _legacy_books)
 LEGACY_NAMES = tuple(dict.fromkeys(name for _, names in _legacy_books for name in names))
 UNIQUE = json.loads(Path(__file__).with_name("book_unique_expansion.json").read_text())
+MINIMUM = json.loads(Path(__file__).with_name("book_minimum_expansion.json").read_text())
 
 
 def ApplyUniqueExpansion(books, unique):
@@ -89,9 +90,29 @@ def ApplyUniqueExpansion(books, unique):
     return tuple(changed) + tuple((category, tuple(names)) for category, names in unique["books"].items())
 
 
-BOOKS = ApplyUniqueExpansion(_legacy_books, UNIQUE)
+UNIQUE_BOOKS = ApplyUniqueExpansion(_legacy_books, UNIQUE)
+PREVIOUS_BOOK_IDS = tuple(category for category, _ in UNIQUE_BOOKS)
+PREVIOUS_NAMES = LEGACY_NAMES + tuple(UNIQUE["words"])
+
+
+def ApplyMinimumBookExpansion(books, expansion):
+    """Move saved farm pets, fill books, then append Pets and Farm objects."""
+    changed = []
+    for category, names in books:
+        names = list(names)
+        for name in expansion["moves"].get(category, ()):
+            if name not in names:
+                raise ValueError(f"{category} has no page {name} to move")
+            names.remove(name)
+        names.extend(expansion["extra"].get(category, ()))
+        changed.append((category, tuple(names)))
+    return tuple(changed) + tuple((category, tuple(names)) for category, names in expansion["books"].items())
+
+
+BOOKS = ApplyMinimumBookExpansion(UNIQUE_BOOKS, MINIMUM)
 WORDS.update((name, tuple(words)) for name, words in EXPANSION["words"].items())
 WORDS.update((name, tuple(words)) for name, words in UNIQUE["words"].items())
+WORDS.update((name, tuple(words)) for name, words in MINIMUM["words"].items())
 for _name, _changes in UNIQUE["label_changes"].items():
     _labels = list(WORDS[_name])
     for _language, _label in _changes.items():
@@ -99,18 +120,21 @@ for _name, _changes in UNIQUE["label_changes"].items():
     WORDS[_name] = tuple(_labels)
 # Narration tools read these: every book's final pages and every final word.
 EXPANSION["extra"] = {category: list(names) for category, names in BOOKS}
-EXPANSION["words"].update((name, WORDS[name]) for name in (*UNIQUE["words"], *UNIQUE["label_changes"]))
+EXPANSION["words"].update((name, WORDS[name]) for name in
+                          (*UNIQUE["words"], *UNIQUE["label_changes"], *MINIMUM["words"]))
 EXPANSION["titles"].update(UNIQUE["titles"])
+EXPANSION["titles"].update(MINIMUM["titles"])
 TITLES = EXPANSION["titles"]
 PAGE_NAMES = tuple(name for _, names in BOOKS for name in names)
-NAMES = LEGACY_NAMES + tuple(UNIQUE["words"])
+NAMES = PREVIOUS_NAMES + tuple(MINIMUM["words"])
 # A changed label records its speech under a new name; old recordings stay intact.
-PENDING_MEDIA = tuple(UNIQUE["words"]) + tuple(UNIQUE["voice_stems"])
+PENDING_MEDIA = tuple(UNIQUE["words"]) + tuple(UNIQUE["voice_stems"]) + tuple(MINIMUM["words"])
+PENDING_TITLE_MEDIA = tuple(MINIMUM["titles"])
 BOOK_GROUPS = (
-    ("Animals", ("jungle", "farm", "birds", "water-animals", "desert-animals", "reptiles", "forest")),
+    ("Animals", ("jungle", "farm", "pets", "birds", "water-animals", "desert-animals", "reptiles", "forest")),
     ("Nature", ("garden", "nature", "seasons", "weather", "beach", "gardening", "insects", "trees", "plants")),
     ("Food", ("fruits", "vegetables", "breakfast", "lunch", "dinner", "tropical-fruits", "drinks")),
-    ("Home", ("kitchen", "bathroom", "bedroom", "living-room", "toys", "vehicles", "bedtime", "vacation", "school")),
+    ("Home", ("kitchen", "bathroom", "bedroom", "living-room", "toys", "vehicles", "bedtime", "vacation", "school", "on-the-farm")),
     ("Family", ("family", "body", "clothing", "sports", "feelings", "actions", "people-at-work")),
 )
 
@@ -175,7 +199,12 @@ def ValidateBookCatalog(books, groups, words, titles, names, homes=(), legacy_id
 
 def BuildUniqueBookCatalog():
     """Return the validated catalog: every subject is on exactly one page."""
-    ValidateBookCatalog(BOOKS, BOOK_GROUPS, WORDS, TITLES, NAMES, UNIQUE["canonical_homes"], LEGACY_IDS, LEGACY_NAMES)
+    homes = {**UNIQUE["canonical_homes"], **MINIMUM["canonical_homes"]}
+    ValidateBookCatalog(BOOKS, BOOK_GROUPS, WORDS, TITLES, NAMES, homes,
+                        PREVIOUS_BOOK_IDS, PREVIOUS_NAMES)
+    deficient = [category for category, names in BOOKS if len(names) < 10]
+    if deficient:
+        raise ValueError("books have fewer than 10 pages: " + ", ".join(deficient))
     return dict(books=BOOKS, groups=BOOK_GROUPS, words=WORDS, titles=TITLES,
                 names=NAMES, page_names=PAGE_NAMES)
 

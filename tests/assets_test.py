@@ -68,9 +68,10 @@ def main():
     refreshed = {'tiger','elephant','giraffe','monkey','panda','lion','zebra',
                  'crocodile','parrot','toucan','gorilla','hippo','rhino','snake','bear'}
     assert set(json.loads((ROOT / 'tools/book_art_refresh.json').read_text())['cutouts']) == refreshed
+    farm_cutouts = set(json.loads((ROOT / 'tools/book_farm_refresh.json').read_text())['cutouts'])
     for path in sorted((ROOT / "assets/jungle-book/items").glob("*.png")):
         with Image.open(path) as sprite:
-            edge = 1254 if path.stem in refreshed else 420
+            edge = 1254 if path.stem in refreshed | farm_cutouts else 420
             assert sprite.size == (edge, edge), f"{path.name} must preserve its {edge} pixel cut-out"
             assert sprite.mode == "RGBA", f"{path.name} must preserve its transparency"
             assert sprite.getbbox(), f"{path.name} is empty"
