@@ -176,9 +176,16 @@ class Desktop:
         self.alive()
 
     def resize(self, width, height):
+        # SDL initially centers this owned window. Growing it in place can
+        # put its right/bottom edges outside Xvfb, clipping window captures.
+        self.verify_server()
+        run(["xdotool", "windowmove", "--sync", self.window, "0", "0"], self.env)
         run(["xdotool", "windowsize", "--sync", self.window, str(width), str(height)], self.env)
         time.sleep(.5)
         self.alive()
+        geometry = run(["xdotool", "getwindowgeometry", "--shell", self.window], self.env)
+        fields = dict(line.split("=", 1) for line in geometry.splitlines() if "=" in line)
+        self.actual_size = (int(fields["WIDTH"]), int(fields["HEIGHT"]))
 
     def capture_actual(self, name):
         self.capture(name)

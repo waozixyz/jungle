@@ -457,7 +457,7 @@ def responsive_stencils(data):
         for n, size in enumerate(sizes):
             desktop.resize(*size)
             actual = desktop.capture_actual('responsive-picker')
-            assert actual.size == size, 'private picker capture was clipped'
+            assert actual.size == size, ('private picker capture was clipped', size, actual.size, desktop.screen_size)
             rects = stencil_layout(desktop)
             capacity = rects['capacity']
             capacities.append(capacity)
@@ -530,8 +530,8 @@ def narrow_labels(data):
                 for first in range(0, count, capacity):
                     if first:
                         stencil_click(desktop, 'next')
-                    assert choices(folder, 2)[1:3] == [category, first]
                     actual = desktop.capture_actual('narrow-labels')
+                    assert choices(folder, 2)[1:3] == [category, first], ('narrow picker page', language, category, first, capacity, choices(folder))
                     for offset in range(min(capacity, count - first)):
                         index = order[starts[category] + first + offset]
                         assert label_fits(actual, rects['tile'][offset]), ('label overflows its tile', language, index)
