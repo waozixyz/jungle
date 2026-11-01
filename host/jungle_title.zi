@@ -1,0 +1,330 @@
+// The treehouse title screen's scenes without drawing: where a scene picture
+// sits in the window, which painted item a point falls on, and how pointer,
+// touch and keys move between scenes. host/jungle_menu.zi draws it.
+#import, file "jungle_title_data.zi";
+
+// A tap on a touch screen glows this long before its item opens.
+TITLE_TAP_SECONDS :: 0.25
+// A press that moves further than this pans the picture instead of tapping.
+TITLE_DRAG_PIXELS :: 12.0
+
+// Source pixel (x, y) of the scene picture is window pixel
+// (view.x + x * view.scale, view.y + y * view.scale).
+TitleView :: struct {
+    x: float32
+    y: float32
+    scale: float32
+    // How far the picture may pan either way from centered.
+    pan_x_limit: float32
+    pan_y_limit: float32
+}
+
+TitleState :: struct {
+    guide_stopped: bool
+    guide_at: float64
+    guide_spoken: bool
+    started: bool
+    scene: s32
+    // The keyboard selection, the hotspot under a hovering mouse, the
+    // hotspot a press began on and a tapped hotspot about to open; -1 none.
+    selected: s32
+    hovered: s32
+    pressed: s32
+    pending: s32
+    pending_at: float64
+    // A mouse moved with no button down, so the pointer hovers. Touch never
+    // does; keys hand the glow back to the keyboard selection.
+    hover_mode: bool
+    seen: bool
+    last_x: float32
+    last_y: float32
+    tracking: bool
+    dragging: bool
+    press_x: float32
+    press_y: float32
+    press_pan_x: float32
+    press_pan_y: float32
+    // The picture's offset from centered, in window pixels.
+    pan_x: float32
+    pan_y: float32
+    // Center the keyboard selection when the picture overflows the window.
+    focus: bool
+}
+
+TitleStep :: struct {
+    // The hotspot whose game opens now, or -1.
+    game: s32
+    // The scene or keyboard selection changed.
+    moved: bool
+}
+
+TitleStart :: (state: *TitleState) {
+    state.* = TitleState.{.started = true}
+    TitleEnter(state, 0)
+}
+
+// Shows SCENE, centered, with nothing glowing.
+TitleEnter :: (state: *TitleState, scene: s32) {
+    state.scene = scene
+    state.selected = -1
+    state.hovered = -1
+    state.pressed = -1
+    state.pending = -1
+    state.tracking = false
+    state.dragging = false
+    state.pan_x = 0.0
+    state.pan_y = 0.0
+    state.focus = false
+}
+
+// Cover-fits the picture to a window WIDTH by HEIGHT: it fills the window,
+// and the overflowing side (a portrait phone's width) pans by PAN, clamped.
+TitleFit :: (width: float32, height: float32, pan_x: float32, pan_y: float32, scene: s32 = 0) -> TitleView {
+    across := width / cast(float32)TITLE_SCENE_WIDTH[scene]
+    down := height / cast(float32)TITLE_SCENE_HEIGHT[scene]
+    scale := ifx across > down then across else down
+    if scale <= 0.0 { scale = 1.0 }
+    picture_width := cast(float32)TITLE_SCENE_WIDTH[scene] * scale
+    picture_height := cast(float32)TITLE_SCENE_HEIGHT[scene] * scale
+    view := TitleView.{.scale = scale}
+    view.pan_x_limit = (picture_width - width) / 2.0
+    view.pan_y_limit = (picture_height - height) / 2.0
+    if view.pan_x_limit < 0.0 { view.pan_x_limit = 0.0 }
+    if view.pan_y_limit < 0.0 { view.pan_y_limit = 0.0 }
+    view.x = (width - picture_width) / 2.0 + TitleClamp(pan_x, view.pan_x_limit)
+    view.y = (height - picture_height) / 2.0 + TitleClamp(pan_y, view.pan_y_limit)
+    return view
+}
+
+// Canonical destinations resolve on each frame, including after rotation.
+ResolveTitleSceneVariant :: (scene: s32, viewportWidth: float32, viewportHeight: float32) -> s32 {
+    base := TITLE_SCENE_BASE[scene]
+    return ifx viewportHeight > viewportWidth then TITLE_SCENE_PORTRAIT[base] else base
+}
+
+TitleResolve :: (state: *TitleState, width: float32, height: float32) {
+    scene := ResolveTitleSceneVariant(state.scene, width, height)
+    if scene == state.scene { return }
+    // Never carry a pending tap or drag across a change of composition.
+    TitleEnter(state, scene)
+}
+
+TitleClamp :: (value: float32, limit: float32) -> float32 {
+    if value > limit { return limit }
+    if value < -limit { return -limit }
+    return value
+}
+
+TitleSourceX :: (view: TitleView, x: float32) -> float32 { return (x - view.x) / view.scale }
+TitleSourceY :: (view: TitleView, y: float32) -> float32 { return (y - view.y) / view.scale }
+
+// Even-odd rule, so the art's zero-width bridges joining separate pieces
+// (loose sorter shapes, a group of frogs) and holes (ladder rungs) work.
+PointInPolygon :: (xs: []s32, ys: []s32, x: float32, y: float32) -> bool {
+    count := cast(s32)xs.count
+    if count < 3 || cast(s32)ys.count != count { return false }
+    inside := false
+    previous := count - 1
+    for index: cast(s32)0..count - 1 {
+        xi := cast(float32)xs[index]
+        yi := cast(float32)ys[index]
+        xj := cast(float32)xs[previous]
+        yj := cast(float32)ys[previous]
+        if (yi > y) != (yj > y) {
+            crossing := xi + (y - yi) * (xj - xi) / (yj - yi)
+            if x < crossing { inside = !inside }
+        }
+        previous = index
+    }
+    return inside
+}
+
+TitleInside :: (hotspot: s32, x: float32, y: float32) -> bool {
+    chunk := TITLE_POLYGON_CHUNK[hotspot]
+    first := TITLE_POLYGON_FIRST[hotspot]
+    end := first + TITLE_POLYGON_COUNT[hotspot]
+    return PointInPolygon(TitlePointsX(chunk)[first:end], TitlePointsY(chunk)[first:end], x, y)
+}
+
+// The hotspot of SCENE under source pixel (x, y), or -1. Where items
+// overlap, the smaller one wins, as it sits in front.
+TitleHit :: (scene: s32, x: float32, y: float32) -> s32 {
+    if scene < 0 || scene >= TITLE_SCENE_COUNT { return -1 }
+    found: s32 = -1
+    found_area: s32 = 0
+    first := TITLE_SCENE_FIRST[scene]
+    for hotspot: first..first + TITLE_SCENE_HOTSPOTS[scene] - 1 {
+        if !TitleInside(hotspot, x, y) { continue }
+        area := TITLE_GLOW_RECT[hotspot * 4 + 2] * TITLE_GLOW_RECT[hotspot * 4 + 3]
+        if found < 0 || area < found_area { found = hotspot; found_area = area }
+    }
+    return found
+}
+
+// The hotspot that glows now, or -1.
+TitleGlowing :: (state: TitleState) -> s32 {
+    if state.pending >= 0 { return state.pending }
+    if state.pressed >= 0 && !state.dragging { return state.pressed }
+    if state.hover_mode { return state.hovered }
+    return state.selected
+}
+
+// A scene hotspot changes scene; a game hotspot reports its game.
+TitleActivate :: (state: *TitleState, hotspot: s32) -> TitleStep {
+    step := TitleStep.{.game = -1}
+    if hotspot < 0 || hotspot >= TITLE_HOTSPOT_COUNT { return step }
+    state.pending = -1
+    state.pressed = -1
+    if TITLE_HOTSPOT_GUIDE[hotspot] == 1 {
+        state.guide_stopped = false
+        state.guide_spoken = false
+        state.guide_at = 0.0
+        state.selected = -1
+        state.hovered = -1
+        return step
+    }
+    target := TITLE_HOTSPOT_TARGET[hotspot]
+    if target >= 0 {
+        TitleEnter(state, target)
+        step.moved = true
+    } else {
+        step.game = hotspot
+    }
+    return step
+}
+
+// Arrows move the glow through the scene's items in reading order, Enter
+// opens it, Escape climbs back up, Home returns to the treehouse and 1-9
+// open an item directly.
+TitleKey :: (state: *TitleState, key: s32) -> TitleStep {
+    step := TitleStep.{.game = -1}
+    if key == 0 { return step }
+    state.guide_stopped = true
+    first := TITLE_SCENE_FIRST[state.scene]
+    count := TITLE_SCENE_HOTSPOTS[state.scene]
+    if key == 262 || key == 264 || key == 263 || key == 265 {
+        state.hover_mode = false
+        forward := key == 262 || key == 264
+        if state.selected < first || state.selected >= first + count {
+            state.selected = ifx forward then first else first + count - 1
+        } else {
+            step_by: s32 = ifx forward then 1 else count - 1
+            state.selected = first + (state.selected - first + step_by) % count
+        }
+        state.focus = true
+        step.moved = true
+    } else if key == 268 {
+        state.hover_mode = false
+        if state.scene != 0 { step.moved = true }
+        TitleEnter(state, 0)
+    } else if key == 256 {
+        state.hover_mode = false
+        parent := TITLE_SCENE_PARENT[state.scene]
+        if parent >= 0 { TitleEnter(state, parent); step.moved = true }
+    } else if key == 257 {
+        if state.selected >= first && state.selected < first + count {
+            step = TitleActivate(state, state.selected)
+        }
+    } else if key >= 49 && key <= 57 && key - 49 < count {
+        state.hover_mode = false
+        step = TitleActivate(state, first + key - 49)
+    }
+    return step
+}
+
+// One frame of pointer input at window point (x, y), relative to the
+// window's top left. BLOCKED is true over the corner controls. A mouse
+// click opens the hovered item at once; a touch tap glows first and opens
+// TITLE_TAP_SECONDS later. A drag pans an overflowing picture.
+TitlePointer :: (state: *TitleState, view: TitleView, x: float32, y: float32,
+    down: bool, pressed: bool, released: bool, blocked: bool, now: float64) -> TitleStep {
+    step := TitleStep.{.game = -1}
+    moved := state.seen && (x != state.last_x || y != state.last_y)
+    state.seen = true
+    state.last_x = x
+    state.last_y = y
+    hit: s32 = -1
+    if !blocked { hit = TitleHit(state.scene, TitleSourceX(view, x), TitleSourceY(view, y)) }
+    if pressed {
+        state.guide_stopped = true
+        state.tracking = !blocked
+        state.dragging = false
+        state.press_x = x
+        state.press_y = y
+        state.press_pan_x = TitleClamp(state.pan_x, view.pan_x_limit)
+        state.press_pan_y = TitleClamp(state.pan_y, view.pan_y_limit)
+        state.pressed = hit
+        state.pending = -1
+    }
+    if state.tracking && (down || released) {
+        dx := x - state.press_x
+        dy := y - state.press_y
+        far := dx > TITLE_DRAG_PIXELS || dx < -TITLE_DRAG_PIXELS || dy > TITLE_DRAG_PIXELS || dy < -TITLE_DRAG_PIXELS
+        if !state.dragging && far && (view.pan_x_limit > 0.0 || view.pan_y_limit > 0.0) {
+            state.dragging = true
+            state.pressed = -1
+        }
+        if state.dragging {
+            state.pan_x = TitleClamp(state.press_pan_x + dx, view.pan_x_limit)
+            state.pan_y = TitleClamp(state.press_pan_y + dy, view.pan_y_limit)
+        }
+    }
+    if released && state.tracking {
+        tapped := state.pressed
+        state.tracking = false
+        state.pressed = -1
+        if !state.dragging && hit >= 0 && hit == tapped {
+            if state.hover_mode { step = TitleActivate(state, hit) }
+            else { state.pending = hit; state.pending_at = now }
+        }
+        state.dragging = false
+    }
+    if moved && !down && !pressed && !released {
+        state.hover_mode = true
+        state.selected = -1
+    }
+    state.hovered = ifx state.hover_mode && !down then hit else -1
+    return step
+}
+
+// Opens a tapped item once it has glowed for TITLE_TAP_SECONDS.
+TitleTick :: (state: *TitleState, now: float64) -> TitleStep {
+    if state.pending >= 0 && now - state.pending_at >= TITLE_TAP_SECONDS {
+        return TitleActivate(state, state.pending)
+    }
+    return TitleStep.{.game = -1}
+}
+
+// Pans an overflowing picture so the keyboard selection is in view.
+TitleFocus :: (state: *TitleState, width: float32, height: float32) {
+    if !state.focus { return }
+    state.focus = false
+    if state.selected < 0 { return }
+    view := TitleFit(width, height, 0.0, 0.0, state.scene)
+    rect := state.selected * 4
+    center_x := cast(float32)TITLE_GLOW_RECT[rect] + cast(float32)TITLE_GLOW_RECT[rect + 2] / 2.0
+    center_y := cast(float32)TITLE_GLOW_RECT[rect + 1] + cast(float32)TITLE_GLOW_RECT[rect + 3] / 2.0
+    state.pan_x = TitleClamp(width / 2.0 - view.x - center_x * view.scale, view.pan_x_limit)
+    state.pan_y = TitleClamp(height / 2.0 - view.y - center_y * view.scale, view.pan_y_limit)
+}
+
+// One short introduction, replayed only by tapping the painted tiger.
+// Voice requests are edges; stop is safe to repeat and silence never queues.
+TitleGuideFrame :: struct {
+    active: bool
+    voice: bool
+    stop: bool
+}
+
+TitleGuide :: (state: *TitleState, now: float64, muted: bool, interrupted: bool) -> TitleGuideFrame {
+    if interrupted { state.guide_stopped = true }
+    if state.guide_at == 0.0 { state.guide_at = now }
+    age := now - state.guide_at
+    frame := TitleGuideFrame.{.active = !state.guide_stopped && age > 1.0 && age < 13.0}
+    frame.stop = !frame.active || muted
+    if frame.active && !state.guide_spoken && !frame.stop {
+        frame.voice = true
+        state.guide_spoken = true
+    }
+    return frame
+}

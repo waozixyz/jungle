@@ -2,6 +2,7 @@
 """Exercise Jungle's real host with disposable saves and an owned Xvfb."""
 
 import argparse
+import json
 import os
 from pathlib import Path
 import select
@@ -25,6 +26,29 @@ def environment():
     env.update(YUE_DESKTOP_RECOVERY="0", SDL_AUDIODRIVER="dummy",
                LIBGL_ALWAYS_SOFTWARE="1")
     return env
+
+
+def title_keys(title):
+    """Keys that open TITLE from any title scene: Home returns to the
+    treehouse, then 1-9 open each item on the shortest scene path."""
+    data = json.loads((ROOT / "tools/title_hotspots.json").read_text())
+    names = [scene["name"] for scene in data["scenes"]]
+    paths, queue = {0: []}, [0]
+    while queue:
+        scene = queue.pop(0)
+        for index, hotspot in enumerate(data["scenes"][scene]["hotspots"]):
+            kind, _, target = hotspot["target"].partition(":")
+            if (kind == "game" and target == title) or (kind == "book" and target == "sweet-porridge" and title == "Sweet Porridge"):
+                return ["Home"] + [str(step + 1) for step in paths[scene] + [index]]
+            if kind == "scene" and names.index(target) not in paths:
+                paths[names.index(target)] = paths[scene] + [index]
+                queue.append(names.index(target))
+    raise AssertionError(f"No title scene opens {title}")
+
+
+def title_unit(width, height):
+    """Window pixels per corner-control unit (host/jungle_menu.zi)."""
+    return max(1.0, min(3.0, min(width, height) / 300))
 
 
 def run(command, env):
@@ -125,13 +149,8 @@ class Desktop:
         self.alive()
 
     def game(self, title):
-        rows = [line.split('|') for line in (ROOT/'games/catalog.txt').read_text().splitlines() if '|' in line]
-        rows.sort(key=lambda row: int(row[4]))
-        rows = [row for row in rows if row[1] != '123 Book']
-        self.key('Home')
-        for _ in range(next(i for i,row in enumerate(rows) if row[1] == title)):
-            self.key('Down')
-        self.key('Return')
+        for key in title_keys(title):
+            self.key(key)
 
     def click(self, x, y, button=1):
         run(["xdotool", "mousemove", "--window", self.window,
@@ -258,10 +277,13 @@ class Desktop:
         raise AssertionError("Picture Book did not reach its first frame")
 
     def wait_menu(self, name):
+        # The title scene's corner flags: English blue inside its chip.
         deadline = time.monotonic() + 20
         while time.monotonic() < deadline:
-            picture = self.capture(name)
-            if picture.getpixel((0, 0)) == (227, 236, 228) and (0, 0, 170) in [c for _, c in picture.crop((20,42,45,64)).getcolors(10000)]:
+            picture = self.capture_actual(name)
+            unit = title_unit(*picture.size)
+            chip = picture.crop(tuple(round(v * unit) for v in (11, 11, 31, 23)))
+            if (0, 0, 170) in [c for _, c in chip.getcolors(100000)]:
                 return picture
             time.sleep(.1)
         raise AssertionError("Jungle did not return to its menu")
@@ -529,12 +551,14 @@ def ui(binary):
                  "JUNGLE_PRINTER_LOG": str(data / "printed.txt")}
         with Desktop(binary, data, extra) as desktop:
             menu = desktop.capture("menu")
-            desktop.click(250, 186)
+            actual_menu = desktop.capture_actual("menu-sound-control")
+            unit = title_unit(*actual_menu.size)
+            desktop.click_actual(round(actual_menu.width - 22 * unit), round(17 * unit))
             assert (data / "sound.txt").read_text() == "off\n", "menu mute was not saved"
             muted_menu = desktop.capture("menu-muted")
             desktop.key("F10")
             assert (data / "sound.txt").read_text() == "quiet\n", "F10 did not restore quiet sound"
-            desktop.key("1")
+            desktop.game("Picture Book")
             book = desktop.wait_book("book")
             assert book.getpixel((0, 0)) == (227, 236, 228), "Picture Book lost its cream background"
             desktop.key("d")
@@ -557,7 +581,6 @@ def ui(binary):
             desktop.capture("menu-book-return")
             print("local UI test: Picture Book categories, pages and English names", flush=True)
             desktop.game("ABC Book")
-            desktop.key("1")
             abc = desktop.capture("abc-learn")
             assert abc.getpixel((0, 0)) == (227, 236, 228), "ABC Book lost its cream background"
             desktop.key("Right")
@@ -567,8 +590,7 @@ def ui(binary):
             desktop.key("Escape")
             desktop.capture("menu-abc-return")
             print("local UI test: ABC opens directly into learning", flush=True)
-            desktop.game("ABC Book")
-            desktop.key("2")
+            desktop.game("123 Book")
             numbers = desktop.capture("numbers-learn")
             assert numbers.getpixel((0, 0)) == (227, 236, 228), "123 Book lost its cream background"
             desktop.key("4")
@@ -611,10 +633,7 @@ def ui(binary):
             assert progress.read_text().split()[1:] == ["1", "6", "0", "0"], "six misses did not move down"
             desktop.key("Escape")
             desktop.key("Escape")
-            visible = [row.split("|") for row in (ROOT / "games/catalog.txt").read_text().splitlines() if "|" in row and "|123 Book|" not in row]
-            visible.sort(key=lambda row: int(row[4]))
-            counting_index = next(i for i,row in enumerate(visible) if row[1] == "Animal Counting")
-            for _ in range(counting_index): desktop.key("Up")
+            desktop.key("Home")
             returned = desktop.capture("menu-return")
             assert ImageChops.difference(menu, returned).getbbox() is None, "counting did not return home"
             print("local UI test: watercolor counting artwork, questions, ladder and progress", flush=True)

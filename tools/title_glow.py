@@ -1,0 +1,140 @@
+#!/usr/bin/env python3
+"""Reproduce the approved title JPEGs, silhouette glows and visual QA sheets.
+
+The only geometry input is title_hotspots.json. Coordinates and glow rectangles
+are source pixels, including for cropped glows. Pillow + numpy; no generators.
+Run from any directory: python3 tools/title_glow.py
+"""
+from pathlib import Path
+import json
+import numpy as np
+from PIL import Image, ImageDraw, ImageFilter
+
+ROOT = Path(__file__).resolve().parents[1]
+SOURCE = ROOT / 'art/generated/title-world-proposal'
+DEBUG = SOURCE / 'hotspot-debug'
+ORIGINALS = {'treehouse': 'treehouse-room', 'bookshelf': 'bookshelf-closeup',
+             'campus': 'jungle-campus', 'music': 'music-room'}
+
+
+def validate(data):
+    """Fail before writing on malformed geometry or unresolved destinations."""
+    assert set(data) == {'width', 'height', 'scenes'}
+    assert (data['width'], data['height']) == (1672, 941)
+    names = {s['name'] for s in data['scenes']}
+    assert names <= set(ORIGINALS)
+    games = {line.split('|')[1] for line in
+             (ROOT / 'games/catalog.txt').read_text().splitlines() if '|' in line}
+    for original in data['scenes']:
+        assert set(original) <= {'name', 'image', 'low', 'hotspots', 'portrait'}
+        variants = [dict(original, width=data['width'], height=data['height'])]
+        if 'portrait' in original:
+            portrait = original['portrait']
+            assert {h['id']: h['target'] for h in portrait['hotspots']} == {h['id']: h['target'] for h in original['hotspots']}
+            variants.append(dict(portrait, name=original['name'] + '-portrait'))
+        for scene in variants:
+            validate_variant(scene, names, games)
+
+
+def validate_variant(scene, names, games):
+    ids = set()
+    for h in scene['hotspots']:
+        assert set(h) == {'id', 'target', 'polygon', 'glow', 'glow_rect'}
+        assert h['id'] not in ids
+        ids.add(h['id'])
+        kind, dest = h['target'].split(':', 1)
+        assert (kind == 'scene' and dest in names) or (kind == 'game' and dest in games) or (kind == 'guide' and dest == 'tour') or (kind == 'book' and dest == 'sweet-porridge')
+        assert len(h['polygon']) >= 3
+        for p in h['polygon']:
+            assert len(p) == 2 and all(type(n) is int for n in p)
+            assert 0 <= p[0] < scene['width'] and 0 <= p[1] < scene['height']
+        x, y, w, height = h['glow_rect']
+        assert all(type(n) is int for n in h['glow_rect'])
+        assert 0 <= x < x+w <= scene['width'] and 0 <= y < y+height <= scene['height']
+        assert all(x <= px < x+w and y <= py < y+height for px, py in h['polygon'])
+        assert h['glow'] == f"assets/jungle/title/glow/{scene['name']}-{h['id']}.png"
+
+def glow(h):
+    x, y, w, height = h['glow_rect']
+    # Supersampling keeps curves and small frog fingers smooth. Retraced,
+    # zero-area bridges let a single polygon describe detached loose shapes.
+    scale = 3
+    mask = Image.new('L', (w*scale, height*scale))
+    ImageDraw.Draw(mask).polygon([((px-x)*scale, (py-y)*scale)
+                                 for px, py in h['polygon']], fill=255)
+    # Remove rasterized zero-area bridges, without changing the filled lobes.
+    mask = mask.filter(ImageFilter.MinFilter(3)).filter(ImageFilter.MaxFilter(3))
+    mask = mask.resize((w, height), Image.Resampling.LANCZOS)
+    interior = np.asarray(mask.filter(ImageFilter.GaussianBlur(0.7)), dtype=np.float32)/255
+    # A luminous golden edge immediately outside the silhouette, then a
+    # smooth falloff over roughly 24 px. Keep the inner lift separate so
+    # warm watercolor paper cannot swallow the hover feedback.
+    rim = mask.filter(ImageFilter.MaxFilter(7))
+    near = np.asarray(rim.filter(ImageFilter.GaussianBlur(2.8)), dtype=np.float32)/255
+    far = np.asarray(mask.filter(ImageFilter.GaussianBlur(9)), dtype=np.float32)/255
+    outer = np.minimum(240, near*255 + far*100)
+    alpha = outer*(1-interior) + interior*82
+    rgba = np.zeros((height, w, 4), dtype=np.uint8)
+    for channel, (outside, inside) in enumerate(zip((255, 213, 74), (255, 249, 222))):
+        rgba[:, :, channel] = np.rint(outside*(1-interior)+inside*interior).astype(np.uint8)
+    rgba[:, :, 3] = np.rint(alpha).clip(0, 255).astype(np.uint8)
+    rgba[rgba[:, :, 3] == 0, :3] = 0
+    return Image.fromarray(rgba)
+
+
+def main():
+    data = json.loads((ROOT / 'tools/title_hotspots.json').read_text())
+    validate(data)
+    DEBUG.mkdir(parents=True, exist_ok=True)
+    panels = []
+    count = 0
+    variants = []
+    for scene in data['scenes']:
+        variants.append(dict(scene, width=data['width'], height=data['height'], source=SOURCE / (ORIGINALS[scene['name']]+'.png')))
+        if 'portrait' in scene:
+            variants.append(dict(scene['portrait'], name=scene['name'] + '-portrait', source=ROOT / 'art/generated/title-portrait-candidates' / (scene['name'] + '.png')))
+    for scene in variants:
+        source = Image.open(scene['source']).convert('RGB')
+        assert source.size == (scene['width'], scene['height'])
+        image_path = ROOT / scene['image']
+        image_path.parent.mkdir(parents=True, exist_ok=True)
+        source.save(image_path, quality=90, subsampling=0, optimize=True)
+        low = source.resize((240, round(240 * scene['height'] / scene['width'])), Image.Resampling.LANCZOS)
+        low.save(ROOT / scene['low'], quality=65, optimize=True)
+        composite = source.convert('RGBA')
+        outlines = composite.copy()
+        draw = ImageDraw.Draw(outlines)
+        for i, h in enumerate(scene['hotspots']):
+            overlay = glow(h)
+            path = ROOT / h['glow']
+            path.parent.mkdir(parents=True, exist_ok=True)
+            overlay.save(path, optimize=True)
+            composite.alpha_composite(overlay, tuple(h['glow_rect'][:2]))
+            color = ['#e33b51', '#165eff', '#019b7c', '#c343e3', '#ff8618'][i % 5]
+            points = [tuple(p) for p in h['polygon']]
+            draw.line(points+[points[0]], fill=color, width=2)
+            px = min(p[0] for p in points)
+            py = min(p[1] for p in points)
+            draw.text((px, max(0, py-14)), h['id'], fill=color, stroke_width=2, stroke_fill='white')
+            # Full-size individual overlay: inspect silhouettes without other glows.
+            single = source.convert('RGBA')
+            single.alpha_composite(overlay, tuple(h['glow_rect'][:2]))
+            single.convert('RGB').save(DEBUG / f"{scene['name']}-{h['id']}.jpg", quality=90)
+            single.save(DEBUG / f"{scene['name']}-{h['id']}.png")
+            count += 1
+        composite.save(DEBUG / f"{scene['name']}-all-glows.png")
+        outlines.save(DEBUG / f"{scene['name']}-polygons.png")
+        panel = Image.new('RGB', (836, 498), '#fff7e5')
+        ImageDraw.Draw(panel).text((12, 8), scene['name'], fill='#3c382d')
+        panel.paste(composite.resize((836, 470), Image.Resampling.LANCZOS).convert('RGB'), (0, 28))
+        panels.append(panel)
+    sheet = Image.new('RGB', (1672, 498 * ((len(panels) + 1) // 2)), '#fff7e5')
+    for i, panel in enumerate(panels):
+        sheet.paste(panel, ((i % 2)*836, (i // 2)*498))
+    sheet.save(DEBUG / 'all-glows.png')
+    print(f'Generated {len(variants)} JPEG/placeholder pairs and {count} RGBA glows; geometry and catalog targets valid.')
+    print('Contact sheet: art/generated/title-world-proposal/hotspot-debug/all-glows.png')
+
+
+if __name__ == '__main__':
+    main()

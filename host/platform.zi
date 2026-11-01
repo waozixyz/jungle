@@ -9,6 +9,7 @@
 #if #defined(ANDROID_BUILD) {
     #import "kryon/app_asset"
     #import "kryon/android_jni"
+    #import "kryon/android_device"
     android_log :: #system_library "log";
     AndroidLogWrite :: (priority: s32, tag: *u8, message: *u8) -> s32 #foreign android_log "__android_log_write";
 }
@@ -102,4 +103,18 @@ DataDirectory :: () -> string {
         base = Cat(home, "/.local/share")
     }
     return Cat(base, "/jungle")
+}
+
+// Only route transitions cross JNI. Configuration changes retain this cache
+// and all game/menu state. Even unavailable bridges are attempted only once
+// per route transition, rather than retried through JNI every frame.
+title_orientation_policy: s32;
+ApplyTitleOrientationPolicy :: (onTitle: bool) -> bool {
+    policy: s32 = ifx onTitle then 4 else 6
+    if title_orientation_policy == policy { return false }
+    title_orientation_policy = policy
+    #if #defined(ANDROID_BUILD) {
+        return AndroidRequestOrientation(policy)
+    }
+    return true
 }

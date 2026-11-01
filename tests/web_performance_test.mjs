@@ -1,3 +1,4 @@
+import {titleKeys} from './title_routes.mjs';
 // Per-activity benchmarks in one private Chromium. Never attach to owner windows.
 import {spawn,spawnSync} from 'node:child_process';
 import {readFile,mkdtemp,rm,writeFile,mkdir} from 'node:fs/promises';
@@ -61,12 +62,13 @@ try{
  }
  async function metrics(){return Object.fromEntries((await command('Performance.getMetrics')).metrics.map(m=>[m.name,m.value]))}
  // A staged manifest also describes uncommitted builds; never read mutable source.
- let catalogGames;
- try{const catalog=JSON.parse(await readFile(join(root,'benchmark-catalog.json'),'utf8'));catalogGames=catalog.games;if(!Array.isArray(catalogGames)||!catalogGames.length||catalogGames.some(g=>typeof g.title!=='string'||!Number.isInteger(g.age)))throw Error('Invalid benchmark catalog manifest')}
+ let catalogGames, titleScenes;
+ try{const catalog=JSON.parse(await readFile(join(root,'benchmark-catalog.json'),'utf8'));catalogGames=catalog.games;titleScenes=catalog.titleScenes;if(!Array.isArray(catalogGames)||!catalogGames.length||catalogGames.some(g=>typeof g.title!=='string'||!Number.isInteger(g.age)))throw Error('Invalid benchmark catalog manifest')}
  catch(error){if(error.code!=='ENOENT')throw error;const catalog=spawnSync('git',['show',build.revision+':games/catalog.txt'],{encoding:'utf8'});if(catalog.status!==0)throw Error('Cannot read catalog for tested build '+catalog.stderr);catalogGames=catalog.stdout.trim().split('\n').map(l=>l.split('|')).map(r=>({title:r[1],age:Number(r[4])}))}
+ if(!titleScenes){const frozen=spawnSync('git',['show',build.revision+':tools/title_hotspots.json'],{encoding:'utf8'});if(frozen.status===0)titleScenes=JSON.parse(frozen.stdout)}
  const menu=catalogGames.filter(g=>g.title!=='123 Book').sort((a,b)=>a.age-b.age);
- const entry=title=>{const index=menu.findIndex(g=>g.title===title);if(index<0)throw Error('Missing benchmark catalog entry '+title);return index};
- const allCases=[['menu',null],['picture-book',entry('Picture Book')],['abc',entry('ABC Book')],['numbers',entry('ABC Book')],['jigsaw',entry('Jigsaw Puzzles')],['piano',entry('Little Piano')],['counting',entry('Animal Counting')],['coloring',entry('Coloring Book')]];
+ const entry=title=>{if(titleScenes)return titleKeys(titleScenes,title);const index=menu.findIndex(g=>g.title===title);if(index<0)throw Error('Missing benchmark catalog entry '+title);return ['Home',...Array(index).fill('ArrowDown'),'Enter']};
+ const allCases=[['menu',null],['picture-book',entry('Picture Book')],['abc',entry('ABC Book')],['numbers',entry(titleScenes?'123 Book':'ABC Book')],['jigsaw',entry('Jigsaw Puzzles')],['piano',entry('Little Piano')],['counting',entry('Animal Counting')],['coloring',entry('Coloring Book')]];
  const cases=args.has('--activity')?allCases.filter(c=>c[0]===args.get('--activity')):allCases;
  const allViewports=[{name:'desktop',width:960,height:600},{name:'phone',width:390,height:844}];
  const viewports=args.has('--viewport')?allViewports.filter(v=>v.name===args.get('--viewport')):allViewports;
@@ -86,12 +88,12 @@ try{
   const startupMs=performance.now()-navigation,startupBytes=responseBytes;await delay(250);
   const expectedTitle={ 'picture-book':'Picture Book',abc:'ABC Book',numbers:'123 Book',jigsaw:'Jigsaw Puzzles',piano:'Little Piano',counting:'Animal Counting',coloring:'Coloring Book'}[activity];
  const visibleTitle=title=>`[...document.querySelectorAll('[data-kryon-paint=span]')].some(e=>e.textContent.trim()===${JSON.stringify(title)}&&e.getBoundingClientRect().top<56)`;
-  if(entry!==null){await key('Home');await delay(250);for(let n=0;n<entry;n++){await key('ArrowDown');await delay(250)}
+  if(entry!==null){for(const value of entry.slice(0,-1)){await key(value);await delay(250)}
    if(captures)await writeFile(join(output,`${backend}-${viewport.name}-before-${activity}.png`),Buffer.from((await command('Page.captureScreenshot',{format:'png'})).data,'base64'));
-   await key('Enter');await delay(500)}
+   await key(entry.at(-1));await delay(500)}
   if(activity==='picture-book'){await key('1');await waitFor('Module.FS.analyzePath("/assets/jungle-book/pages/tiger.jpg").exists','Book image missing');await key(' ')}
-  if(activity==='abc'){await key('1');await delay(250);await key(' ')}
-  if(activity==='numbers'){await key('2');await delay(250);await key(' ')}
+  if(activity==='abc'){if(!titleScenes)await key('1');await delay(250);await key(' ')}
+  if(activity==='numbers'){if(!titleScenes)await key('2');await delay(250);await key(' ')}
   if(activity==='jigsaw'){await key('Enter');await waitFor('Module.FS.analyzePath("/kryon-apps/jungle/jungle.jigsaw/puzzle.txt").exists','Puzzle did not start')}
   if(activity==='piano'){await key('1');await waitFor('bench.audio.some(p=>p.startsWith("assets/piano/sounds/"))','Piano did not play')}
   if(activity==='counting'){await key('1');await delay(250)}

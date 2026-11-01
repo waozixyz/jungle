@@ -29,6 +29,7 @@ Shapes :: #import, file "../games/shapes/jungle_shapes.zi";
 Matching :: #import, file "../games/matching/jungle_matching.zi";
 HideSeek :: #import, file "../games/hide_seek/jungle_hide_seek.zi";
 Drums :: #import, file "../games/drums/jungle_drums.zi";
+Garden :: #import, file "../games/garden/jungle_garden.zi";
 PianoKeys :: #import, file "../games/piano/keyboard.zi";
 #import, file "../host/jungle_menu.zi";
 #import, file "../host/jungle_text.zi";
@@ -37,18 +38,21 @@ PianoKeys :: #import, file "../games/piano/keyboard.zi";
 #import, file "../games/paint/paint_picture.zi";
 #import, file "../retro/language.zi";
 
-web_games: [11]Game = .[
-    Game.{.title = "Picture Book", .about = "Pictures and words", .age = 2, .icon = "assets/jungle/covers/book.jpg"},
-    Game.{.title = "ABC Book", .about = "Letters and sounds", .age = 3, .icon = "assets/jungle/covers/abc.jpg"},
-    Game.{.title = "123 Book", .about = "Numbers and quantities", .age = 3, .icon = "assets/jungle/covers/numbers.jpg"},
-    Game.{.title = "Animal Counting", .about = "Count the animals", .age = 4, .icon = "assets/jungle/covers/counting.jpg"},
-    Game.{.title = "Coloring Book", .about = "Draw and color", .age = 5, .icon = "assets/jungle/covers/paint.jpg"},
-    Game.{.title = "Jigsaw Puzzles", .about = "Pictures, piece by piece", .age = 3, .icon = "assets/jungle/covers/jigsaw.jpg"},
-    Game.{.title = "Little Piano", .about = "Colors, keys and songs", .age = 5, .icon = "assets/jungle/covers/piano.jpg"},
-    Game.{.title = "Shapes & Sorting", .about = "Shapes, colors and sizes", .age = 2, .icon = "assets/jungle/covers/shapes.jpg"},
-    Game.{.title = "Matching Pairs", .about = "Find friendly animal pairs", .age = 2, .icon = "assets/jungle/covers/matching.jpg"},
-    Game.{.title = "Hide & Seek", .about = "Peek, find and discover", .age = 2, .icon = "assets/jungle/covers/hide-seek.jpg"},
-    Game.{.title = "Music Room", .about = "Tap, listen and copy", .age = 2, .icon = "assets/jungle/covers/drums.jpg"},
+// Painted navigation consumes titles; full descriptions, ages and icons remain
+// in games/catalog.txt for native catalog loading.
+web_games: [12]MenuGame = .[
+    MenuGame.{.title = "Picture Book"},
+    MenuGame.{.title = "ABC Book"},
+    MenuGame.{.title = "123 Book"},
+    MenuGame.{.title = "Animal Counting"},
+    MenuGame.{.title = "Coloring Book"},
+    MenuGame.{.title = "Jigsaw Puzzles"},
+    MenuGame.{.title = "Little Piano"},
+    MenuGame.{.title = "Shapes & Sorting"},
+    MenuGame.{.title = "Matching Pairs"},
+    MenuGame.{.title = "Hide & Seek"},
+    MenuGame.{.title = "Music Room"},
+    MenuGame.{.title = "Grow a Garden"},
 ];
 active_game: s32 = -1;
 selected: s32;
@@ -60,12 +64,14 @@ web_back_pending: bool;
 web_speed_pending: bool;
 web_voice_paused: bool;
 web_audio: s32;
+web_title_guide: bool;
 web_narration: bool;
 audio_rejected: s32;
 canvas_sequence: s32;
 export_pixels: [CANVAS_PIXELS]u8;
 
 GamePrefix :: () -> string {
+    if active_game == 11 { return "jungle.garden/" }
     if active_game == 10 { return "jungle.drums/" }
     if active_game == 9 { return "jungle.hide_seek/" }
     if active_game == 8 { return "jungle.matching/" }
@@ -80,6 +86,7 @@ GamePrefix :: () -> string {
 }
 
 RunGame :: () -> s32 {
+    if active_game == 11 { return Garden.GameMain() }
     if active_game == 10 { return Drums.GameMain() }
     if active_game == 9 { return HideSeek.GameMain() }
     if active_game == 8 { return Matching.GameMain() }
@@ -286,6 +293,7 @@ WebService :: (name: string, request: string) -> string {
         }
         return "ok"
     }
+    if name == "jungle.book-start" { return title_book_requested }
     if name == "jungle.language" { return LanguageCode() }
     if name == "jungle.home" { web_home = true; return "ok" }
     if name == "jungle.secondary" { return ifx IsMouseButtonDown(1) then "down" else "up" }
@@ -336,6 +344,8 @@ JungleMain :: () -> s64 {
     key := AppKey()
     if active_game < 0 {
         action := JungleMenu(AppSession(), AppBounds(), key, AppNow(), "assets/jungle/font.png", web_games[:], *selected, web_muted, "")
+        if web_title_guide && (action.guide_stop || action.language_changed) { StopAudio(); web_title_guide = false }
+        if action.guide_voice != "" { PlayAudio(action.guide_voice, true); web_title_guide = true }
         if action.language_changed { unused Runner.DocumentWriteHost("settings/language.txt", LanguageCode()); UpdateSiteLanguage() }
         if action.sound_toggle { ToggleAudio() }
         if action.navigated { PlayAudio("assets/jungle/sounds/select.wav", false) }

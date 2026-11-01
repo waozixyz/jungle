@@ -54,6 +54,7 @@ babies and toddlers.
   scenes. Explore natural hiding places and discover each animal for yourself.
 - **Music Room (2+):** Tap illustrated drums, a shaker and a bell around a
   watercolor music room, then try copying short rhythms.
+- **Grow a Garden (3+):** Plant seeds, water six kinds of plants and return to care for them as they grow.
 
 ## A look inside
 

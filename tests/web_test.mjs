@@ -1,3 +1,4 @@
+import {openTitleGame, titleUnit} from './title_routes.mjs';
 import {bookPosition} from './book_web_geometry.mjs';
 // Private headless browser; never attaches to the owner's desktop/profile.
 import {spawn} from 'node:child_process';
@@ -68,9 +69,9 @@ try{
  async function waitResource(fragment){const until=Date.now()+12000;while(Date.now()<until){if(await evaluate('[...imageLoads.keys(),...window.jungleTestVoices].some(name=>name.includes('+JSON.stringify(fragment)+'))'))return;await delay(100)}throw Error('Missing lesson audio/image resource: '+fragment)}
  async function waitSpoken(fragment){const until=Date.now()+12000;while(Date.now()<until){if(await evaluate('window.jungleTestVoices.some(path=>path.includes('+JSON.stringify(fragment)+'))'))return;await delay(100)}throw Error('Missing actual playback: '+fragment)}
  async function swipe(x,y,xx,yy){await command('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x,y}]});for(let i=1;i<=6;i++){await delay(35);await command('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:x+(xx-x)*i/6,y:y+(yy-y)*i/6}]})}await command('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});await delay(350)}
- const rows=(await readFile('games/catalog.txt','utf8')).trim().split('\n').map(l=>l.split('|')).filter(r=>r[1]!=='123 Book').sort((a,b)=>Number(a[4])-Number(b[4]));
- async function openCatalog(title){const index=rows.findIndex(r=>r[1]===title);if(index<0)throw Error('Missing catalog game '+title);await key('Home');for(let i=0;i<index;i++)await key('ArrowDown');await key('Enter')}
- const missing=await evaluate('Array.from(imagePaths).filter(path=>/^assets\\/jungle\\/([^/]+|covers\\/[^/]+|branding\\/[^/]+)$/.test(path)&&!Module.FS.analyzePath("/"+path).exists).length');if(missing)throw Error('Opening screen cleared before the menu pictures loaded: '+missing);await shot('menu');
+ const titleScenes=JSON.parse(await readFile(new URL('../tools/title_hotspots.json',import.meta.url),'utf8'));
+ async function openCatalog(title){await openTitleGame(titleScenes,title,key)}
+ const missing=await evaluate('Array.from(imagePaths).filter(path=>/^assets\\/jungle\\/([^/]+|title\\/[^/]+-low\\.jpg|branding\\/[^/]+)$/.test(path)&&!Module.FS.analyzePath("/"+path).exists).length');if(missing)throw Error('Opening screen cleared before the menu pictures loaded: '+missing);await shot('menu');
  await evaluate(`(()=>{const original=soundBytes;let holding=true,release;const released=new Promise(resolve=>release=resolve);const held=[];window.jungleTestHeldNarration=[];window.HoldNarrationForTest=()=>{soundBytes=async(path,current)=>{const index=await speech();if(!holding||!index.voices.has(path))return original(path,current);window.jungleTestHeldNarration.push(path);const request=(async()=>{await released;return current()?original(path,current):null})();held.push(request);return request};window.jungleTestReleaseNarration=async()=>{holding=false;release();await Promise.allSettled(held)}}})()`);
  await evaluate('window.HoldNarrationForTest()');
  await openCatalog('Picture Book');await shot('books');if(await evaluate('window.jungleTestHeldNarration.length'))throw Error('Opening Picture Book skipped the category list');await key('0','Digit0');await waitPage('carrot');await delay(300);const first=await shot('vegetables-desktop',true,64);
@@ -99,12 +100,12 @@ try{
  }
  if(process.env.JUNGLE_BOOK_ONLY){if(diagnostics.length)throw Error(JSON.stringify(diagnostics));console.log('local browser Book-only test passed at '+url)}
  else {
- await pixelClick(34,28,true);await shot('restored-menu-phone');await pixelClick(325,102,true);if(await evaluate('Module.FS.readFile("/kryon-apps/jungle/settings/language.txt",{encoding:"utf8"})')!=="es")throw Error('Spanish flag did not persist');
+ await pixelClick(34,28,true);await shot('restored-menu-phone');await pixelClick(90*titleUnit(390,844),17*titleUnit(390,844),true);if(await evaluate('Module.FS.readFile("/kryon-apps/jungle/settings/language.txt",{encoding:"utf8"})')!=="es")throw Error('Spanish flag did not persist');
  if(await evaluate('document.documentElement.lang')!=='es')throw Error('Website metadata did not follow the selected language');
  if(!(await evaluate('document.querySelector("meta[name=description]").content')).startsWith('Aprende'))throw Error('Spanish website description is missing');
  if(hasABC){
   const resources=()=>evaluate('[...imageLoads.keys(),...window.jungleTestVoices]');
-  await openCatalog('ABC Book');await shot('letters-numbers-hub');await key('1');await shot('abc-letters-phone');
+  await openCatalog('ABC Book');await shot('abc-letters-phone');
   await waitResource('/abc/sounds/es/letters/0061.wav');
   // Switch to a separate private tab: narration and progression must continue
   // when the lesson is hidden, not only after it regains focus.
@@ -133,7 +134,7 @@ try{
   await pixelClick(34,28,true);await key('Escape');await shot('menu-after-abc-phone');
  }
  if(hasNumbers){
-  await openCatalog('ABC Book');await key('2');const numbersLearn=await shot('numbers-learn-phone');await waitResource('/numbers/sounds/es/1.wav');
+  await openCatalog('123 Book');const numbersLearn=await shot('numbers-learn-phone');await waitResource('/numbers/sounds/es/1.wav');
   await waitSpoken('/numbers/sounds/es/2.wav');
   const numberImages=await evaluate('[...imageLoads.keys(),...window.jungleTestVoices]');if(!numberImages.some(path=>path.includes('/jungle-book/counting/')))throw Error('123 did not load the small counting pictures');
   if(numberImages.some(path=>path.includes('/jungle-book/items/')))throw Error('123 loaded full-size counting pictures');

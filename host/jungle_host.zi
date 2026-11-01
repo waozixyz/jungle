@@ -81,7 +81,7 @@ FONT :: "assets/jungle/font.png"
 // Canvas pictures kept on disk: a page chooser shows six at once.
 CANVAS_KEEP :: 24
 
-games: [GAME_LIMIT]Game;
+games: [GAME_LIMIT]MenuGame;
 game_count: s32;
 chosen: s32;
 playing: bool;
@@ -139,7 +139,7 @@ LoadCatalog :: () -> bool {
         age_at: s64 = 0
         age := ReadWhole(fields[4], *age_at)
         if field == 5 && fields[0] != "" && age >= 0 && age_at == fields[4].count {
-            game := Game.{.bundle_name = fields[0], .title = fields[1], .about = fields[2],
+            game := MenuGame.{.bundle_name = fields[0], .title = fields[1], .about = fields[2],
                 .icon = fields[3], .age = age}
             // Keep stable game identities; the shared menu orders them by age.
             games[game_count] = game
@@ -233,7 +233,7 @@ Reply :: (text: string) -> HostValue {
 }
 
 GameAllows :: (context: *void, name: string) -> bool {
-    return name == "jungle.language" || name == "jungle.voice" || name == "jungle.voice-state" || name == "jungle.voice-control" || name == "jungle.sound" || name == "jungle.home" || name == "jungle.canvas" ||
+    return name == "jungle.book-start" || name == "jungle.language" || name == "jungle.voice" || name == "jungle.voice-state" || name == "jungle.voice-control" || name == "jungle.sound" || name == "jungle.home" || name == "jungle.canvas" ||
         name == "jungle.paint-preview" || name == "jungle.export" || name == "jungle.print" || name == "jungle.secondary" || name == "jungle.piano-held" || BundleAppAllows(context, name)
 }
 
@@ -273,6 +273,7 @@ GameServices :: (context: *void, module: *u8, function: *u8,
             result.* = Reply("ok")
             return 1
         }
+        if service == "jungle.book-start" { result.* = Reply(title_book_requested); return 1 }
         if service == "jungle.language" {
             result.* = Reply(LanguageCode())
             return 1
@@ -373,6 +374,7 @@ OpenGame :: (index: s32) -> bool {
     home_requested = false
     message = ""
     playing = true
+    unused ApplyTitleOrientationPolicy(false)
     return true
 }
 
@@ -380,12 +382,14 @@ CloseGame :: () {
     SoundStop()
     BundleAppClose(*game)
     playing = false
+    unused ApplyTitleOrientationPolicy(true)
 }
 
 // One frame of the open game, as BundleAppFrame, with canvas pictures
 // allowed beside the game's packed files.
 GameFrame :: (bounds: Rectangle, pointer: PointerFrame, secondary: SecondaryPointerFrame, key: s32,
     modifiers: s32, wheel: float32, typed: string, seconds: float64, input: FrameInputSnapshot) -> bool {
+    unused ApplyTitleOrientationPolicy(false)
     if !game.ready { return false }
     game_secondary_down = secondary.down
     defer { BundleAppFrameAssetsClear() }
@@ -427,8 +431,20 @@ GameFrame :: (bounds: Rectangle, pointer: PointerFrame, secondary: SecondaryPoin
     return EndFrame(app.session) == FrameStatus.FrameOk
 }
 
+title_guide_playing: bool;
+
 Menu :: (session: Session, bounds: Rectangle, key: s32) {
+    unused ApplyTitleOrientationPolicy(true)
     action := JungleMenu(session, bounds, key, JungleSeconds(), FONT, games[:game_count], *chosen, sound_muted, message)
+    if title_guide_playing && (action.guide_stop || action.language_changed) { SoundStop(); title_guide_playing = false }
+    if action.guide_voice != "" {
+        if !SoundSpeech(action.guide_voice) {
+            wave, found := ShippedRead(action.guide_voice)
+            if found { SoundVoice(wave) }
+            ShippedFree(wave)
+        }
+        title_guide_playing = true
+    }
     if action.language_changed {
         unused WriteEntireFile(language_setting, LanguageCode())
         message = ""

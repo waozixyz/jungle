@@ -194,6 +194,11 @@ the room to hear their distinct sounds. The guitar rests in a stand, shakers sit
 Listen & Copy starts with two hits and gradually offers longer
 patterns. Copy the order at your own pace; replay and free play are always available.
 
+**Grow a Garden (3+)** has six plants: sunflower, tomato, carrot, strawberry,
+pumpkin and cabbage. Choose a seed packet, then tap or drag a seed into the soil.
+Choose the watering can to care for thirsty plants. Seeds stay in moist soil
+before sprouting, and plants continue growing between visits. Return to water
+them; neglected plants can dry out and wither, leaving room to plant again.
 
 These ages are flexible guides. Each activity remembers its own learning state,
 uses English, German or Spanish, and shares the title bar's Back and sound controls.

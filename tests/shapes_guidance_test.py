@@ -18,6 +18,35 @@ os.environ['TMPDIR'] = str(SCRATCH)
 tempfile.tempdir = str(SCRATCH)
 ORIGINAL = 'shapes 1 0 0 0 0 0 0 0\n'
 LEAF = (111, 159, 124)
+WOODEN = os.environ.get('JUNGLE_SHAPES_WOODEN', '1') != '0'
+
+
+def matches(pixel, colors):
+    if not WOODEN:
+        return pixel in colors
+    r, g, b = pixel[:3]
+    # Painted grain and shading vary continuously; recognize material hues,
+    # rather than requiring one perfectly flat RGB value from an illustration.
+    for color in colors:
+        if color == LEAF and g > r * 1.015 and g > b * 1.2: return True
+        if color == (216,112,90) and r > g * 1.3 and r > b * 1.5: return True
+        if color == (233,191,79) and r > b * 1.6 and g > b * 1.45 and g > r * .72: return True
+        if color == (95,147,198) and b > r * 1.2 and b > g * 1.07: return True
+        if color == (210,154,92) and r > g * 1.12 and g > b * 1.3 and g < 190: return True
+        if color in ((181,159,124),(228,216,193)) and r < 115 and g < 90 and b < 75: return True
+    return False
+
+
+def contains_piece(picture, colors):
+    return sum(matches(pixel, colors) for pixel in pixels(picture)) > 12
+
+
+def emblem(home):
+    x,y,w,h = home
+    pad = max(4,min(w//12,h//12))
+    x,y,w,h = x+pad,y+pad,w-2*pad,h-2*pad
+    edge = h if w > h*3//2 else min(w,h*55//100)
+    return (x if w > h*3//2 else x+(w-edge)//2,y,edge,edge)
 
 
 def pixels(picture):
@@ -62,7 +91,10 @@ def shape(picture, colors):
     # Recognize what is actually drawn, without duplicating shuffle/target rules.
     from PIL import Image
     mask = Image.new('L', picture.size)
-    mask.putdata([255 if color in colors else 0 for color in pixels(picture)])
+    mask.putdata([255 if matches(color, colors) else 0 for color in pixels(picture)])
+    # Ignore selection borders at the edge of a touch card.
+    from PIL import ImageDraw
+    ImageDraw.Draw(mask).rectangle((0,0,mask.width-1,mask.height-1),outline=0,width=max(5,round(mask.width*.10)) if colors == {LEAF} else 5)
     bounds = mask.getbbox()
     assert bounds, 'expected a visible sorting piece or hole'
     fitted = mask.crop(bounds)
@@ -103,17 +135,17 @@ def exercise(language, size, mode):
             # Tap a piece to silence the demo, then identify both real shapes.
             tap(cards[0])
             still = screenshot('ready')
-            def identity(picture, colors):
+            def identity(picture, colors, target=False):
                 if mode == 0: return shape(picture, colors)
-                counts = {color: list(pixels(picture)).count(color) for color in colors}
+                counts = {color: sum((pixel == color if target else matches(pixel, {color})) for pixel in pixels(picture)) for color in colors}
                 if mode == 1: return max(counts, key=counts.get)
                 from PIL import Image
                 mask = Image.new('L', picture.size)
-                mask.putdata([255 if color in colors else 0 for color in pixels(picture)])
+                mask.putdata([255 if matches(color, colors) else 0 for color in pixels(picture)])
                 bounds = mask.getbbox()
                 return bounds[2]-bounds[0]
             kinds = [identity(crop(still, card), colors) for card in cards]
-            targets = [identity(crop(still, home), colors if mode == 1 else {(181,159,124),(228,216,193)}) for home in homes]
+            targets = [identity(crop(still, emblem(home) if WOODEN else home), colors if mode == 1 else {(181,159,124),(228,216,193)}, target=True) for home in homes]
             if mode == 2:
                 kinds = [v == max(kinds) for v in kinds]
                 targets = [v == max(targets) for v in targets]
@@ -145,7 +177,7 @@ def exercise(language, size, mode):
                 corridor = (14 + (w - 52) * 52 // 100, 118, 24, h - 132)
             assert ImageChops.difference(crop(still, corridor), crop(frames[3], corridor)).getbbox(), 'no source-to-home gesture'
             # After release the demonstration returns the real piece to its tray.
-            assert colors.intersection(pixels(crop(frames[-1], cards[0]))), "piece did not return"
+            assert contains_piece(crop(frames[-1], cards[0]), colors), "piece did not return"
             assert save.read_text() == original, 'watching changed persisted progress'
             time.sleep(.6)
             quiet = screenshot('quiet')
@@ -192,11 +224,11 @@ def exercise(language, size, mode):
             # Touch it to look underneath before testing its real silhouette.
             tap(cards[1])
             wrong = screenshot('gentle-hint')
-            assert colors.intersection(pixels(crop(wrong, cards[1]))), 'a miss removed the piece'
+            assert contains_piece(crop(wrong, cards[1]), colors), 'a miss removed the piece'
             tap(homes[routes[1]])
             placed = screenshot('tap-placed')
-            assert not colors.intersection(pixels(crop(placed, cards[1]))), 'tap-then-home did not place the chosen piece'
-            assert colors.intersection(pixels(crop(placed, homes[routes[1]]))), 'piece did not arrive in its matching home'
+            assert not contains_piece(crop(placed, cards[1]), colors), 'tap-then-home did not place the chosen piece'
+            assert contains_piece(crop(placed, homes[routes[1]]), colors), 'piece did not arrive in its matching home'
 
             # Drag the remaining piece using this test's private display only.
             start, end = point(cards[0]), point(homes[routes[0]])
@@ -214,14 +246,20 @@ def exercise(language, size, mode):
             while time.monotonic() < deadline and save.read_text().split()[8] == '0':
                 d.alive()
                 time.sleep(.15)
-            assert save.read_text().split()[8] == '1', 'tap and drag did not finish exactly one round'
+            progress = save.read_text()
+            if progress.split()[8] != '1':
+                # Keep evidence before TemporaryDirectory removes the failed save.
+                screenshot('completion-timeout')
+                (rt.OUTPUT / f'{language}-{size[0]}-{mode}-progress-failure.txt').write_text(progress)
+            assert progress.split()[8] == '1', f'tap and drag did not finish exactly one round: {progress.strip()}'
             assert save.read_text().split()[6] == '0', 'the demonstrated round hid the real wrong-home attempt'
             print(f'local shapes UI: {language} {size[0]}x{size[1]} mode={mode} demo, replay, tap, miss, drag, progress passed', flush=True)
 
 
 def main():
     env = rt.environment()
-    subprocess.run(['make', '-j1', 'build/tests/shapes', 'build/app/jungle',
+    if os.environ.get('JUNGLE_SHAPES_PREBUILT') != '1':
+        subprocess.run(['build-queue', '--', 'make', '-j1', 'build/tests/shapes', 'build/app/jungle',
                     'build/app/games/jungle-shapes.zx', 'build/app/games/catalog.txt'],
                    cwd=rt.ROOT, env=env, check=True)
     subprocess.run([str(rt.ROOT / 'build/tests/shapes')], env=env, check=True)

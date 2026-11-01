@@ -9,7 +9,7 @@ LanguageCode :: () -> string {
 LanguageSet :: (code: string) {
     language = ifx code == "de" then 1 else ifx code == "es" then 2 else 0
 }
-UI_COUNT :: 376
+UI_COUNT :: 382
 ui_en_0: [48]string = .[
     "Picture Book",
     "Animal Counting",
@@ -360,7 +360,7 @@ ui_en_288: [48]string = .[
     "Drinks",
     "New picture",
 ];
-ui_en_336: [40]string = .[
+ui_en_336: [46]string = .[
     "Tap an object to erase",
     "Picture is full. Erase an object first",
     "How many together?",
@@ -399,6 +399,12 @@ ui_en_336: [40]string = .[
     "Reptiles",
     "Trees",
     "Plants",
+    "Fairy tales",
+    "Sweet Porridge",
+    "Hear story",
+    "Bookshelf",
+    "Read again",
+    "Story starts shortly",
     "Farm Animals",
     "Pets",
 ];
@@ -752,7 +758,7 @@ ui_de_288: [48]string = .[
     "Getränke",
     "Neues Bild",
 ];
-ui_de_336: [40]string = .[
+ui_de_336: [46]string = .[
     "Tippe auf ein Objekt zum Löschen",
     "Das Bild ist voll. Lösche zuerst ein Objekt",
     "Wie viele zusammen?",
@@ -791,6 +797,12 @@ ui_de_336: [40]string = .[
     "Reptilien",
     "Bäume",
     "Pflanzen",
+    "Märchen",
+    "Der süße Brei",
+    "Geschichte hören",
+    "Bücherregal",
+    "Noch einmal lesen",
+    "Die Geschichte beginnt gleich",
     "Bauernhoftiere",
     "Haustiere",
 ];
@@ -1144,7 +1156,7 @@ ui_es_288: [48]string = .[
     "Bebidas",
     "Dibujo nuevo",
 ];
-ui_es_336: [40]string = .[
+ui_es_336: [46]string = .[
     "Toca un objeto para borrarlo",
     "El dibujo está lleno. Borra un objeto primero",
     "¿Cuántos en total?",
@@ -1183,6 +1195,12 @@ ui_es_336: [40]string = .[
     "Reptiles",
     "Árboles",
     "Plantas",
+    "Cuentos de hadas",
+    "La papilla dulce",
+    "Escuchar cuento",
+    "Estantería",
+    "Leer de nuevo",
+    "El cuento comienza pronto",
     "Animales de la granja",
     "Mascotas",
 ];
@@ -1194,7 +1212,7 @@ Ui_en :: (at: s32) -> string {
     if at < 240 { return ui_en_192[at - 192] }
     if at < 288 { return ui_en_240[at - 240] }
     if at < 336 { return ui_en_288[at - 288] }
-    if at < 376 { return ui_en_336[at - 336] }
+    if at < 382 { return ui_en_336[at - 336] }
     return ""
 }
 Ui_de :: (at: s32) -> string {
@@ -1205,7 +1223,7 @@ Ui_de :: (at: s32) -> string {
     if at < 240 { return ui_de_192[at - 192] }
     if at < 288 { return ui_de_240[at - 240] }
     if at < 336 { return ui_de_288[at - 288] }
-    if at < 376 { return ui_de_336[at - 336] }
+    if at < 382 { return ui_de_336[at - 336] }
     return ""
 }
 Ui_es :: (at: s32) -> string {
@@ -1216,7 +1234,7 @@ Ui_es :: (at: s32) -> string {
     if at < 240 { return ui_es_192[at - 192] }
     if at < 288 { return ui_es_240[at - 240] }
     if at < 336 { return ui_es_288[at - 288] }
-    if at < 376 { return ui_es_336[at - 336] }
+    if at < 382 { return ui_es_336[at - 336] }
     return ""
 }
 Tr :: (text: string) -> string {

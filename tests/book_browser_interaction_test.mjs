@@ -1,3 +1,4 @@
+import {openTitleGame, titleUnit} from './title_routes.mjs';
 import {bookIds,pageCounts,bookPosition} from './book_web_geometry.mjs';
 // Private CDP scaffolding shared with paint_layers_web_test.mjs.
 import {spawn,execFileSync} from 'node:child_process';
@@ -21,9 +22,7 @@ const server=createServer(async(req,res)=>{
 await new Promise(r=>server.listen(0,'127.0.0.1',r));
 const env={...process.env,YUE_DESKTOP_RECOVERY:'0',TMPDIR:resolve('work/b')};
 for(const k of ['DISPLAY','WAYLAND_DISPLAY','XAUTHORITY','DBUS_SESSION_BUS_ADDRESS','SESSION_MANAGER'])delete env[k];
-const menu=(await readFile('games/catalog.txt','utf8')).trim().split('\n').map(x=>x.split('|')).filter(x=>x[1]!=='123 Book').sort((a,b)=>Number(a[4])-Number(b[4]));
-const bookIndex=menu.findIndex(x=>x[1]==='Picture Book');
-if(bookIndex<0)throw Error('No Picture Book in this build');
+const titleScenes=JSON.parse(await readFile(new URL('../tools/title_hotspots.json',import.meta.url),'utf8'));
 
 async function run(input){
  const touch=input==='touch',profile=await mkdtemp(resolve('work/w/p-'));
@@ -68,7 +67,7 @@ async function run(input){
   if(touch)await command('Emulation.setTouchEmulationEnabled',{enabled:true,maxTouchPoints:1});
   await command('Page.navigate',{url:'http://127.0.0.1:'+server.address().port+'/'+page});
   await until(()=>evaluate('typeof Module!=="undefined"&&!!Module.FS&&document.getElementById("loading").style.display==="none"'),'startup',45000);
-  console.log(label+': startup');await key('Home');for(let n=0;n<bookIndex;n++)await key('ArrowDown');await key('Enter');
+  console.log(label+': startup');await openTitleGame(titleScenes,'Picture Book',key);
   // Exercise the actual browser decoder: short single-page Vorbis streams can
   // lose a priming block even though a native decoder reads their full length.
   if(input==='mouse'&&page==='dom.html'){
@@ -138,9 +137,9 @@ async function run(input){
   await click(1000,597,'right',false);await shot('home');
   if(await matchesShelf())throw Error('Secondary Back stayed on Shelf');
   // Exercise new catalog pages through real selection and decoded narration.
-  const menuScale=Math.min(1280/320,675/200);await click(Math.trunc((1280-320*menuScale)/2)+254*menuScale,54*menuScale);
+  const menuScale=titleUnit(1280,675);await click(90*menuScale,17*menuScale);
   if(await evaluate('document.documentElement.lang')!=='es')throw Error('Spanish flag did not select es');
-  await evaluate('document.activeElement?.blur()');await key('Home');for(let n=0;n<bookIndex;n++)await key('ArrowDown');await key('Enter');
+  await evaluate('document.activeElement?.blur()');await openTitleGame(titleScenes,'Picture Book',key);
   async function category(id){const {x,y,index}=bookPosition(id,1280,675);await click(x,y);await evaluate('document.activeElement?.blur()');for(let n=0;n<index;n++)await key('ArrowRight');await clear();await key('Enter');await spoken('category opening');await until(()=>evaluate('window.jungleTestRequestedAudio?.currentTime>0.05'),'decoded category opening '+id);await key(' ','Space')}
   async function expectVoice(fragment){await until(async()=>(await voices()).some(p=>p.includes(fragment)),fragment);await until(()=>evaluate('window.jungleTestRequestedAudio?.currentTime>0.05'),'decoded '+fragment)}
   await category('actions');

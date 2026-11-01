@@ -1,0 +1,214 @@
+#!/usr/bin/env python3
+"""Generate host/jungle_title_data.zi from tools/title_hotspots.json.
+
+The treehouse title screen (host/jungle_menu.zi) draws these scenes. Each
+hotspot leads to another scene ("scene:NAME") or opens a catalog game
+("game:TITLE"; the host finds the game by title at runtime). Escape returns
+to the scene each scene is first reached from, starting at the first scene.
+
+    python3 tools/title_scenes.py           write the data file
+    python3 tools/title_scenes.py --check   fail when it is out of date
+"""
+from pathlib import Path
+import argparse
+import json
+import sys
+
+ROOT = Path(__file__).resolve().parent.parent
+SOURCE = ROOT / 'tools/title_hotspots.json'
+CATALOG = ROOT / 'games/catalog.txt'
+OUTPUT = ROOT / 'host/jungle_title_data.zi'
+# Below Ziran's 4095-character file-scope initializer limit.
+INITIALIZER_LIMIT = 3600
+
+
+def Load(source=SOURCE, catalog=CATALOG):
+    """The validated scenes, their parents and the flattened hotspots."""
+    data = json.loads(Path(source).read_text())
+    scenes = [dict(scene, width=data['width'], height=data['height'], base=index)
+              for index, scene in enumerate(data['scenes'])]
+    # Variants share destinations and identity, but own every pixel coordinate.
+    for index, scene in enumerate(data['scenes']):
+        if 'portrait' not in scene:
+            continue
+        portrait = scene['portrait']
+        if portrait['width'] <= 0 or portrait['height'] <= portrait['width']:
+            raise SystemExit('title scenes: portrait must have positive, taller dimensions')
+        original = {h['id']: h['target'] for h in scene['hotspots']}
+        alternate = {h['id']: h['target'] for h in portrait['hotspots']}
+        if original != alternate or len(alternate) != len(portrait['hotspots']):
+            raise SystemExit('title scenes: portrait hotspot IDs and targets must match landscape')
+        scenes.append(dict(portrait, name=scene['name'] + '-portrait', base=index))
+    names = [scene['name'] for scene in scenes]
+    if not scenes or len(set(names)) != len(names):
+        raise SystemExit('title scenes: scene names must be unique and present')
+    titles = [line.split('|')[1] for line in Path(catalog).read_text().splitlines() if '|' in line]
+    hotspots = []
+    for index, scene in enumerate(scenes):
+        if scene['width'] <= 0 or scene['height'] <= 0:
+            raise SystemExit('title scenes: dimensions must be positive')
+        if len({h['id'] for h in scene['hotspots']}) != len(scene['hotspots']):
+            raise SystemExit('title scenes: duplicate hotspot ID')
+        if not scene['hotspots']:
+            raise SystemExit(f'title scenes: {scene["name"]} has no hotspots')
+        for hotspot in scene['hotspots']:
+            kind, _, target = hotspot['target'].partition(':')
+            if kind == 'scene':
+                if target not in names:
+                    raise SystemExit(f'title scenes: {hotspot["id"]} leads to unknown scene {target}')
+                scene_target, game = names.index(target), ''
+            elif kind == 'book' and target == 'sweet-porridge':
+                scene_target, game = -1, 'Sweet Porridge'
+            elif kind == 'game':
+                if target not in titles:
+                    raise SystemExit(f'title scenes: {hotspot["id"]} opens {target}, which is not in the catalog')
+                scene_target, game = -1, target
+            elif kind == 'guide' and target == 'tour':
+                scene_target, game = -1, ''
+            else:
+                raise SystemExit(f'title scenes: {hotspot["id"]} has target {hotspot["target"]}')
+            polygon = [(round(x), round(y)) for x, y in hotspot['polygon']]
+            if any(x < 0 or y < 0 or x >= scene['width'] or y >= scene['height'] for x, y in polygon):
+                raise SystemExit('title scenes: polygon outside scene')
+            if len(polygon) < 3:
+                raise SystemExit(f'title scenes: {hotspot["id"]} needs at least three points')
+            rect = [round(value) for value in hotspot['glow_rect']]
+            if len(rect) != 4 or rect[2] <= 0 or rect[3] <= 0:
+                raise SystemExit(f'title scenes: {hotspot["id"]} has an empty glow_rect')
+            hotspots.append({'scene': index, 'id': hotspot['id'], 'scene_target': scene_target,
+                             'game': game, 'glow': hotspot['glow'], 'rect': rect, 'polygon': polygon})
+    # Parents: breadth first from the first scene, so Escape always climbs
+    # back towards the treehouse.
+    parents = [-1] * len(scenes)
+    seen = {0}
+    queue = [0]
+    while queue:
+        current = queue.pop(0)
+        for hotspot in hotspots:
+            if hotspot['scene'] == current and hotspot['scene_target'] >= 0 and hotspot['scene_target'] not in seen:
+                seen.add(hotspot['scene_target'])
+                parents[hotspot['scene_target']] = current
+                queue.append(hotspot['scene_target'])
+    for index, scene in enumerate(scenes):
+        if scene['base'] != index:
+            seen.add(index)
+            parents[index] = parents[scene['base']]
+    unreachable = [names[index] for index in range(len(scenes)) if index not in seen]
+    if unreachable:
+        raise SystemExit('title scenes: unreachable scenes ' + ', '.join(unreachable))
+    missing = sorted(set(titles) - {hotspot['game'] for hotspot in hotspots})
+    if missing:
+        raise SystemExit('title scenes: catalog games without a hotspot: ' + ', '.join(missing))
+    for scene in scenes:
+        for key in ('image', 'low'):
+            if not (ROOT / scene[key]).is_file():
+                raise SystemExit(f'title scenes: missing {scene[key]}')
+    for hotspot in hotspots:
+        if not (ROOT / hotspot['glow']).is_file():
+            raise SystemExit(f'title scenes: missing {hotspot["glow"]}')
+    return data, scenes, parents, hotspots
+
+
+def Quoted(values):
+    values = [json.dumps(value, ensure_ascii=False) for value in values]
+    if sum(len(value) + 2 for value in values) < 200:
+        return ', '.join(values)
+    return '\n    ' + ',\n    '.join(values) + ',\n'
+
+
+def Numbers(values):
+    # Ziran source lines stay below 4096 characters.
+    values = [str(value) for value in values]
+    if len(values) <= 24:
+        return ', '.join(values)
+    rows = [', '.join(values[at:at + 24]) for at in range(0, len(values), 24)]
+    return '\n    ' + ',\n    '.join(rows) + ',\n'
+
+
+def Render(data, scenes, parents, hotspots):
+    first, counts = [], []
+    for index in range(len(scenes)):
+        own = [position for position, hotspot in enumerate(hotspots) if hotspot['scene'] == index]
+        first.append(own[0])
+        counts.append(len(own))
+    # Ziran limits a file-scope initializer to 4095 characters, so the points
+    # are split into chunks, each holding whole polygons.
+    chunks, polygon_chunk, polygon_first, polygon_count = [], [], [], []
+    for hotspot in hotspots:
+        xs = [x for x, _ in hotspot['polygon']]
+        ys = [y for _, y in hotspot['polygon']]
+        if not chunks or max(len(Numbers(chunks[-1][0] + xs)), len(Numbers(chunks[-1][1] + ys))) > INITIALIZER_LIMIT:
+            chunks.append(([], []))
+        if max(len(Numbers(xs)), len(Numbers(ys))) > INITIALIZER_LIMIT:
+            raise SystemExit(f'title scenes: {hotspot["id"]} has too many points for one Ziran array')
+        polygon_chunk.append(len(chunks) - 1)
+        polygon_first.append(len(chunks[-1][0]))
+        polygon_count.append(len(xs))
+        chunks[-1][0].extend(xs)
+        chunks[-1][1].extend(ys)
+    rects = [value for hotspot in hotspots for value in hotspot['rect']]
+    scene_count, hotspot_count = len(scenes), len(hotspots)
+    portrait = [next((i for i, s in enumerate(scenes) if s['base'] == scene['base'] and i != s['base']), scene['base']) for scene in scenes]
+    lines = [
+        '// Generated by tools/title_scenes.py from tools/title_hotspots.json; do not edit.',
+        '// Scene pictures and hotspot polygons are in source pixels.',
+        f'TITLE_SOURCE_WIDTH :: {data["width"]}',
+        f'TITLE_SOURCE_HEIGHT :: {data["height"]}',
+        f'TITLE_SCENE_COUNT :: {scene_count}',
+        f'TITLE_HOTSPOT_COUNT :: {hotspot_count}',
+        '',
+        f'TITLE_SCENE_NAME: [{scene_count}]string = .[{Quoted(scene["name"] for scene in scenes)}];',
+        f'TITLE_SCENE_IMAGE: [{scene_count}]string = .[{Quoted(scene["image"] for scene in scenes)}];',
+        f'TITLE_SCENE_LOW: [{scene_count}]string = .[{Quoted(scene["low"] for scene in scenes)}];',
+        f'TITLE_SCENE_WIDTH: [{scene_count}]s32 = .[{Numbers(s["width"] for s in scenes)}];',
+        f'TITLE_SCENE_HEIGHT: [{scene_count}]s32 = .[{Numbers(s["height"] for s in scenes)}];',
+        f'TITLE_SCENE_BASE: [{scene_count}]s32 = .[{Numbers(s["base"] for s in scenes)}];',
+        f'TITLE_SCENE_PORTRAIT: [{scene_count}]s32 = .[{Numbers(portrait)}];',
+        '// The scene Escape returns to; -1 for the first scene.',
+        f'TITLE_SCENE_PARENT: [{scene_count}]s32 = .[{Numbers(parents)}];',
+        '// Each scene\'s hotspots are TITLE_SCENE_FIRST .. + TITLE_SCENE_HOTSPOTS - 1, in reading order.',
+        f'TITLE_SCENE_FIRST: [{scene_count}]s32 = .[{Numbers(first)}];',
+        f'TITLE_SCENE_HOTSPOTS: [{scene_count}]s32 = .[{Numbers(counts)}];',
+        '',
+        f'TITLE_HOTSPOT_ID: [{hotspot_count}]string = .[{Quoted(hotspot["id"] for hotspot in hotspots)}];',
+        f'TITLE_HOTSPOT_GUIDE: [{hotspot_count}]s32 = .[{Numbers(1 if h["game"] == "" and h["scene_target"] < 0 else 0 for h in hotspots)}];',
+        '// The scene a hotspot leads to, or -1 when it opens TITLE_HOTSPOT_GAME.',
+        f'TITLE_HOTSPOT_TARGET: [{hotspot_count}]s32 = .[{Numbers(hotspot["scene_target"] for hotspot in hotspots)}];',
+        f'TITLE_HOTSPOT_GAME: [{hotspot_count}]string = .[{Quoted(hotspot["game"] for hotspot in hotspots)}];',
+        f'TITLE_HOTSPOT_GLOW: [{hotspot_count}]string = .[{Quoted(hotspot["glow"] for hotspot in hotspots)}];',
+        '// x, y, width, height of each glow picture.',
+        f'TITLE_GLOW_RECT: [{hotspot_count * 4}]s32 = .[{Numbers(rects)}];',
+        '// Each polygon is TITLE_POLYGON_COUNT points from TITLE_POLYGON_FIRST in',
+        '// its chunk of TitlePointsX and TitlePointsY.',
+        f'TITLE_POLYGON_CHUNK: [{hotspot_count}]s32 = .[{Numbers(polygon_chunk)}];',
+        f'TITLE_POLYGON_FIRST: [{hotspot_count}]s32 = .[{Numbers(polygon_first)}];',
+        f'TITLE_POLYGON_COUNT: [{hotspot_count}]s32 = .[{Numbers(polygon_count)}];',
+    ]
+    for index, (xs, ys) in enumerate(chunks):
+        lines += ['', f'TITLE_POINT_X_{index}: [{len(xs)}]s32 = .[{Numbers(xs)}];',
+                  f'TITLE_POINT_Y_{index}: [{len(ys)}]s32 = .[{Numbers(ys)}];']
+    for axis in ('X', 'Y'):
+        lines += ['', f'TitlePoints{axis} :: (chunk: s32) -> []s32 {{']
+        for index in range(len(chunks)):
+            lines.append(f'    if chunk == {index} {{ return TITLE_POINT_{axis}_{index}[:] }}')
+        lines += [f'    return TITLE_POINT_{axis}_0[:0]', '}']
+    return '\n'.join(lines) + '\n'
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    parser.add_argument('--check', action='store_true', help='fail when the data file is out of date')
+    arguments = parser.parse_args()
+    text = Render(*Load())
+    if arguments.check:
+        if not OUTPUT.exists() or OUTPUT.read_text() != text:
+            sys.exit(f'{OUTPUT.relative_to(ROOT)} is out of date; run python3 tools/title_scenes.py')
+        print('title scenes: data file is current')
+        return
+    if not OUTPUT.exists() or OUTPUT.read_text() != text:
+        OUTPUT.write_text(text)
+    print(f'title scenes: wrote {OUTPUT.relative_to(ROOT)}')
+
+
+if __name__ == '__main__':
+    main()

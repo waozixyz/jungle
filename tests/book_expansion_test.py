@@ -223,12 +223,21 @@ class LearningBookTest(unittest.TestCase):
         new_stems = (set(LEARNING['words']) | set(UNIQUE['words']) | set(NEW_IDS) | set(ADDED_IDS) | set(LATEST_IDS) | set(NATURE_IDS)
                      | set(MINIMUM['words']) | {'pets', 'on-the-farm'}
                      | {stem for stems in UNIQUE['voice_stems'].values() for stem in stems.values()})
+        # The separately validated story adds these exact files; it cannot
+        # exempt or change any preexisting word-book source in the aggregate.
+        story = json.loads((ROOT / 'tools/sweet_porridge.json').read_text())
+        story_assets = {f"assets/jungle-book/pages/{row['asset']}.jpg" for row in story['pages']}
+        story_assets |= {f"assets/jungle-book/story-sounds/{language}/{row['asset']}.{suffix}"
+                         for row in story['pages'] for language in LANGUAGES
+                         for suffix in ('wav', 'speech.json')}
+        story_assets.add('assets/jungle-book/previews/sweet-porridge.jpg')
         current = []
         for folder in ('assets/jungle-book', 'assets/abc'):
             for path in (ROOT / folder).rglob('*'):
                 name = path.relative_to(ROOT).as_posix()
                 if (path.is_file() and path.name.split('.')[0] not in new_stems
-                        and protected(name) and name.split('.')[0] != NEW_LETTER):
+                        and protected(name) and name.split('.')[0] != NEW_LETTER
+                        and name not in story_assets):
                     current.append(name)
         aggregate = hashlib.sha256()
         for name in sorted(current):

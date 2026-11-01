@@ -21,7 +21,9 @@ def main():
     with Image.open(ROOT / "assets/jungle-book/font.png") as font:
         assert font.size == (128, 224), "Jungle Book needs the shared 8-by-16 font"
     # Each page is one whole watercolor scene whose edges fade into the paper.
-    expected = {name + ".jpg" for name in NAMES}
+    story = json.loads((ROOT / 'tools/sweet_porridge.json').read_text())
+    story_pages = {row['asset'] + '.jpg' for row in story['pages']}
+    expected = {name + ".jpg" for name in NAMES} | story_pages
     actual = {path.name for path in (ROOT / "assets/jungle-book/pages").glob("*")}
     assert actual == expected, "Picture Book has stale or missing scene pages"
     for name in NAMES:
@@ -35,12 +37,12 @@ def main():
     prompts = json.loads((ROOT / "tools/book_prompts.json").read_text())
     assert set(prompts["pages"]) == set(NAMES), "every full scene keeps its prompt"
     assert (ROOT / "art/generated/title-covers.png").exists(), "the cover style reference is missing"
-    expected_previews = {name + ".jpg" for name, _ in BOOKS}
+    expected_previews = {name + ".jpg" for name, _ in BOOKS} | {'sweet-porridge.jpg'}
     actual_previews = {path.name for path in (ROOT / "assets/jungle-book/previews").glob("*")}
     assert actual_previews == expected_previews, "Picture Book needs one cover per book"
     for path in sorted((ROOT / "assets/jungle-book/previews").glob("*.jpg")):
         with Image.open(path) as preview:
-            assert preview.size == (768, 768)
+            assert preview.size == ((768, 512) if path.name == 'sweet-porridge.jpg' else (768, 768))
     assert not (ROOT / "assets/jungle-book/backgrounds").exists(), "scenes replace the shared backdrops"
     with Image.open(ROOT / "assets/jungle/book.png") as icon:
         assert icon.size == (64, 64), "Picture Book needs a generated raster icon"
@@ -81,7 +83,7 @@ def main():
             # Native generated PNGs can carry 1–2/255 alpha export noise.
             # Check their entire border for visible clipping; legacy corners
             # keep their exact transparent-pixel requirement.
-            if path.stem in refreshed:
+            if path.stem in refreshed | farm_cutouts:
                 borders = [alpha.crop(box).getextrema()[1] for box in
                            [(0,0,edge,1),(0,last,edge,edge),(0,0,1,edge),(last,0,edge,edge)]]
                 assert max(borders) <= 2, f"{path.name} has visible artwork clipped at its edge"

@@ -389,3 +389,11 @@ ShapesGuideRect :: (s: Shapes, layout: ShapesLayout, guide: ShapesGuideState) ->
         source.width + cast(s32)(cast(float32)(destination.width - source.width) * t),
         source.height + cast(s32)(cast(float32)(destination.height - source.height) * t)}
 }
+
+// A bounded soft landing for the wooden art; never changes sorting state.
+ShapesWoodDrop :: (elapsed: float32) -> float32 {
+    if elapsed <= 0.0 { return 0.0 }
+    if elapsed >= 0.6 { return 1.0 }
+    t := elapsed / 0.6
+    return t * t * (3.0 - 2.0 * t)
+}

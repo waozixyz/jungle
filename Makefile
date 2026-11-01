@@ -30,10 +30,10 @@ CFLAGS_ZI = -std=c11 -O2 -ffunction-sections -fdata-sections -I'$(TOOLCHAIN)/inc
 APP := build/app
 # Installed shared assets, their manifest and each game's staged bundle files.
 SHARED := $(APP)/assets/shared-assets.txt $(APP)/assets/speech.txt
-STAGED_GAMES := jungle-book jungle-abc jungle-numbers animal-count dino-paint jungle-shapes jungle-hide-seek jungle-drums
+STAGED_GAMES := jungle-book jungle-abc jungle-numbers animal-count dino-paint jungle-shapes jungle-hide-seek jungle-drums jungle-garden
 # Folders too: removing a file changes its folder's time, so staging reruns.
-SHARED_SOURCES := $(shell find assets/jungle assets/jungle-book $(addprefix assets/,abc numbers animal-count dino-paint shapes hide_seek drums jigsaw) 2>/dev/null)
-GAMES := $(APP)/games/jungle-drums.zx $(APP)/games/jungle-hide-seek.zx $(APP)/games/jungle-matching.zx $(APP)/games/jungle-shapes.zx $(APP)/games/jungle-book.zx $(APP)/games/jungle-abc.zx $(APP)/games/jungle-numbers.zx $(APP)/games/animal-count.zx $(APP)/games/dino-paint.zx $(APP)/games/jungle-jigsaw.zx $(APP)/games/jungle-piano.zx
+SHARED_SOURCES := $(shell find assets/jungle assets/jungle-book $(addprefix assets/,abc numbers animal-count dino-paint shapes hide_seek drums garden jigsaw) 2>/dev/null)
+GAMES := $(APP)/games/jungle-garden.zx $(APP)/games/jungle-drums.zx $(APP)/games/jungle-hide-seek.zx $(APP)/games/jungle-matching.zx $(APP)/games/jungle-shapes.zx $(APP)/games/jungle-book.zx $(APP)/games/jungle-abc.zx $(APP)/games/jungle-numbers.zx $(APP)/games/animal-count.zx $(APP)/games/dino-paint.zx $(APP)/games/jungle-jigsaw.zx $(APP)/games/jungle-piano.zx
 KRYON_SOURCES = $(wildcard $(KRYON)/src/ui/*.zi $(KRYON)/src/backend/*.zi)
 
 # A package update can change hosted widget records as well as rendering.
@@ -145,6 +145,11 @@ $(APP)/games/jungle-drums.zx: $(wildcard games/drums/*.zi retro/*.zi) build/stag
 	'$(ZIRANC)' bundle --root games/drums $(MODULES) --define KRYON_HOSTED_UI \
 		--asset-dir assets=build/stage/jungle-drums/assets --entry jungle_drums:main -o $@ games/drums/jungle_drums.zi
 
+$(APP)/games/jungle-garden.zx: $(wildcard games/garden/*.zi retro/*.zi) build/stage/jungle-garden.files
+	mkdir -p $(APP)/games
+	'$(ZIRANC)' bundle --root games/garden $(MODULES) --define KRYON_HOSTED_UI \
+		--asset-dir assets=build/stage/jungle-garden/assets --entry jungle_garden:main -o $@ games/garden/jungle_garden.zi
+
 # Menu pixel art from SVG, Picture Book raster cartoons, then Dino Colors'
 # vector art traced from its generated sheets and compiled into masks.
 # games/paint/paint_pages.zi and its pictures are committed, so a fresh
@@ -181,12 +186,18 @@ build/tests/%: tests/%_test.zi $(wildcard games/*/*.zi host/*.zi retro/*.zi) bui
 		build/ziran/libziran.a -Wl,--gc-sections -lm -lpthread $(TEST_LIBS) -o $@
 
 # Questions, painting and PNG pictures, then every game opened in the app.
-test: build/tests/paint_preview build/tests/paint_gallery build/tests/paint_gallery_store build/tests/counting_exercises build/tests/paint_layers build/tests/drums build/tests/hide_seek build/tests/matching build/tests/shapes build/tests/paint build/tests/paint_history build/tests/png build/tests/progress build/tests/document build/tests/counting build/tests/abc build/tests/numbers build/tests/printing build/tests/audio build/tests/voice build/tests/book_preferences build/tests/book_narration build/tests/jigsaw build/tests/piano all
+test: build/tests/title build/tests/paint_preview build/tests/paint_gallery build/tests/paint_gallery_store build/tests/counting_exercises build/tests/paint_layers build/tests/garden build/tests/drums build/tests/hide_seek build/tests/matching build/tests/shapes build/tests/paint build/tests/paint_history build/tests/png build/tests/progress build/tests/document build/tests/counting build/tests/abc build/tests/numbers build/tests/printing build/tests/audio build/tests/voice build/tests/book_preferences build/tests/book_narration build/tests/jigsaw build/tests/piano all
+	python3 tools/title_scenes.py --check
+	python3 tests/title_scenes_test.py
+	python3 tests/sweet_porridge_test.py
+	python3 tests/garden_assets_test.py
+	build/tests/title
 	build/tests/shapes
 	build/tests/matching
 	build/tests/hide_seek
 	build/tests/drums
 	python3 tools/music_room_audio.py --check
+	build/tests/garden
 	build/tests/piano
 	python3 tests/piano_audio_test.py
 	build/tests/jigsaw
@@ -237,6 +248,8 @@ test: build/tests/paint_preview build/tests/paint_gallery build/tests/paint_gall
 # Actual input and rendering on a private display; requires Xvfb, xdotool,
 # ImageMagick and Pillow. Never uses the inherited desktop or owner saves.
 test-ui: all
+	python3 tests/sweet_porridge_ui_test.py
+	python3 tests/garden_ui_test.py
 	python3 tests/shapes_guidance_test.py
 	python3 tests/counting_exercises_test.py
 	python3 tests/jigsaw_sizes_ui_test.py

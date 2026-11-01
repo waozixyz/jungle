@@ -12,7 +12,7 @@
             android:name=".MainActivity"
             android:launchMode="${nativeLaunchMode}"
             android:exported="true"
-            android:screenOrientation="sensorLandscape"
+            android:screenOrientation="sensor"
             android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboard|keyboardHidden|navigation|density|uiMode"
             android:windowSoftInputMode="stateAlwaysHidden|adjustNothing">
 

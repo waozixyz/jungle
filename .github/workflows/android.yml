@@ -117,14 +117,14 @@ jobs:
       # Composite actions start at the workspace root. The direct and F-Droid
       # builds read Jungle's Gradle files; gplay applies Kryon's external file.
       - name: Keep Google libraries out of the normal and F-Droid builds
-        uses: kryonlabs/kryon/.github/actions/google-free@ddc2fce48e5fa82d94b2d4c0d2158397aabff50f
+        uses: kryonlabs/kryon/.github/actions/google-free@06b42e92ac0a2d87b15b1e80f73dce979d008350
         with:
           source: waozixyz/learning/jungle
           packages: |
             waozixyz/learning/jungle/build/android/JungleAcademy-universal-release-unsigned.apk
             waozixyz/learning/jungle/build/android/JungleAcademy-universal-fdroid-release-unsigned.apk
       - name: Require the Google Play edition to carry Play Billing
-        uses: kryonlabs/kryon/.github/actions/google-free@ddc2fce48e5fa82d94b2d4c0d2158397aabff50f
+        uses: kryonlabs/kryon/.github/actions/google-free@06b42e92ac0a2d87b15b1e80f73dce979d008350
         with:
           source: ''
           expect-google: 'true'

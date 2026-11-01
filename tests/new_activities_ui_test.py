@@ -110,15 +110,24 @@ def main():
                         time.sleep(.2)
                         assert save()[:2]==['drums','1'],save()
                     else:
-                        # Choose seed, plant, water, sun and grow; assert every stage.
-                        y=h-174+46
-                        click(w/4,y)
-                        assert save()[2]=='1',save()
-                        for stage in range(2,6):
-                            click(w/2,y)
-                            assert save()[2]==str(stage),save()
-                        click(w*3/4,h-40)
-                        assert save()[4:6]==['1','1'],save()
+                        # Independent plots; a selected packet plants on the soil.
+                        columns = 4 if w < 600 else 7
+                        tray = 180 if columns == 4 else 94
+                        rows = 2 if columns == 4 else 1
+                        cw, ch = (w-16)//columns, (tray-16)//rows
+                        def tool(index):
+                            click(8+(index%columns+.5)*cw, 8+(index//columns+.5)*ch)
+                        def plot(index):
+                            click(w*(26+index%3*24)/100, tray+(h-tray)*(57 if index<3 else 78)/100)
+                        tool(5); plot(0)
+                        assert save()[:4]==['garden','2','6','6'], save()
+                        born = int(save()[4])
+                        tool(6); plot(0)
+                        # Watering cannot instantly turn a sprout into a mature plant.
+                        assert int(save()[7]) < 60, save()
+                        assert int(save()[5]) >= born, save()
+                        tool(0); plot(1)
+                        assert save()[9]=='1', save()
                     d.capture_actual(f'{name}-{lang}-played')
                     # Shared mute is reversible; Back saves and returns to the menu.
                     d.click_actual(372,28)
@@ -128,7 +137,7 @@ def main():
                     d.click_actual(28,28)
                     original=save()
                     d.game(title); d.capture_actual(f'{name}-{lang}-resumed');d.key('Escape')
-                    assert save()==original,(name,'resume changed persisted state',original,save())
+                    assert (save()[3::6]==original[3::6] if name=='garden' else save()==original),(name,'resume changed persisted state',original,save())
                 # Last menu row is reachable by End, with no punctuation shortcut.
                 d.key('End'); d.capture_actual(f'menu-{lang}-end');d.key('Return');d.alive();d.key('Escape')
             print(f'local new activities UI: {lang} catalog activities dispatch, play, saves/resume and three sizes passed',flush=True)

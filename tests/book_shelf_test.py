@@ -2,36 +2,36 @@
 from pathlib import Path
 import tempfile
 import time
-from PIL import ImageChops
+import json
+from PIL import Image, ImageChops, ImageStat
 from runtime_test import Desktop, ROOT
 
-TITLES = [line.split('|')[1] for line in (ROOT / 'games/catalog.txt').read_text().splitlines() if line.strip()]
-GAMES = len(TITLES) - int('ABC Book' in TITLES and '123 Book' in TITLES)
+SCENES = json.loads((ROOT / 'tools/title_hotspots.json').read_text())['scenes']
+WORK = ROOT / 'work/book-shelf-tests'
+WORK.mkdir(parents=True, exist_ok=True)
 
-with tempfile.TemporaryDirectory(prefix='jungle-responsive-') as directory:
+with tempfile.TemporaryDirectory(prefix='jungle-responsive-', dir=WORK) as directory:
     with Desktop(ROOT / 'build/app/jungle', Path(directory), screen_size='1600x1300') as desktop:
         desktop.capture('responsive-native-menu')
         for mw,mh in [(1280,800),(960,1024),(900,878),(838,878),(390,844),(844,390)]:
             desktop.resize(mw,mh)
-            menu=desktop.capture_actual(f'menu-thumbnail-bounds-{mw}')
-            fit=min(mw/320,mh/200); portrait=mh>mw
-            # Cards keep their readable size inside the scrolling game list.
-            rh=max(88,(int(mh/fit)-164)//GAMES) if portrait else 35
-            start=112 if portrait else 67
-            list_bottom=int(mh/fit)-(58 if portrait else 34)
-            left=(mw-320*fit)/2
-            gap=menu.crop((round(left+26*fit),round((start+rh-1)*fit),round(left+90*fit),round((start+rh-1)*fit)+1))
-            assert all(min(color)>180 and color[0]>=color[1]>=color[2] for _,color in gap.getcolors(100000)), 'Thumbnail overflowed its title-screen row'
-            # Every row keeps its text out of the padding and the next card.
-            for row in range(GAMES):
-                for top,bottom in [(start+row*rh-2,start+row*rh+2), (start+(row+1)*rh-4,start+(row+1)*rh)]:
-                    if top < start or bottom > list_bottom:
-                        continue  # The scroll viewport clips this boundary.
-                    band=menu.crop((round(left+100*fit),round(top*fit),round(left+259*fit),round(bottom*fit)))
-                    assert (62,51,42) not in {color for _,color in band.getcolors(100000)}, 'Menu lettering escaped its row'
+            desktop.key('Home')
+            menu=desktop.capture_actual(f'menu-painted-bounds-{mw}-{mh}')
+            assert menu.size==(mw,mh), 'Window resize did not reach the title viewport'
+            # The actual portrait/landscape painting fills the viewport with
+            # cover-fit cropping, independently of book-page letterboxing.
+            scene=SCENES[0].get('portrait',SCENES[0]) if mh>mw else SCENES[0]
+            source=Image.open(ROOT/scene['image']).convert('RGB')
+            scale=max(mw/source.width,mh/source.height)
+            expected=source.resize((round(source.width*scale),round(source.height*scale)),Image.Resampling.BILINEAR)
+            x,y=(expected.width-mw)//2,(expected.height-mh)//2
+            expected=expected.crop((x,y,x+mw,y+mh))
+            area=(30,120,mw-30,mh-100)
+            error=ImageStat.Stat(ImageChops.difference(menu.crop(area),expected.crop(area))).mean
+            assert max(error)<12, f'Painted title did not fill {mw}x{mh}: {error}'
 
         desktop.resize(1280,800)
-        desktop.key('1')
+        desktop.game('Picture Book')
         desktop.wait_book('responsive-native-books')
         for width,height in [(1280,800),(1000,700),(375,812),(844,390)]:
             desktop.resize(width,height)

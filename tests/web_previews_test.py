@@ -23,7 +23,7 @@ for folder in sorted(PREVIEW_FOLDERS):
     for path in sorted((ROOT/folder).iterdir())[:2]:
         if path.suffix in ('.jpg', '.png'):
             samples[f'{folder}/{path.name}'] = path
-for folder in ('assets/jungle-book/items', 'assets/hide_seek/props', 'assets/hide_seek/scenes', 'assets/drums/pictures', 'assets/jigsaw'):
+for folder in ('assets/jungle-book/items', 'assets/hide_seek/props', 'assets/hide_seek/scenes', 'assets/drums/pictures', 'assets/jigsaw', 'assets/jungle/title'):
     assert folder in PREVIEW_FOLDERS, folder
 
 (ROOT/'work').mkdir(exist_ok=True)
@@ -85,6 +85,7 @@ with tempfile.TemporaryDirectory(prefix='native-preview-test-', dir=ROOT/'work')
 assert preview_group('assets/hide_seek/scenes/cottage-yard.png') == 'hide-seek-scenes'
 assert preview_group('assets/jungle-book/items/alpaca.png') == 'jungle-book-items'
 assert preview_group('assets/jigsaw/garden.jpg') == 'jigsaw'
+assert preview_group('assets/jungle/title/treehouse.jpg') == 'jungle-title'
 print(f'local web preview test: {len(previews)} stand-ins from {len(PREVIEW_FOLDERS)} folders, '
       f'{transparent} transparent cut-outs kept, jigsaw included; {len(native)} desktop/Android previews, '
       f'{native_transparent} transparent')

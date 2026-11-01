@@ -1,4 +1,6 @@
-// The same title screen is drawn by the native and browser hosts.
+// The same title screen is drawn by the native and browser hosts: the
+// treehouse and the scenes below it (host/jungle_title.zi), where every
+// painted item glows under the pointer and opens a game or another scene.
 #import "kryon/session"
 #import "kryon/geometry"
 #import "kryon/text_align"
@@ -8,17 +10,26 @@
 #import "kryon/title_bar_props"
 #import "kryon/dropdown_props"
 #import "kryon/title_bar_widget"
-#import "kryon/scroll_props"
-#import "kryon/scroll_widget"
 #import "kryon/tree"
+#import "kryon/tree_input"
+#import "kryon/box_props"
+#import "kryon/box_widget"
+#import "kryon/image_props"
+#import "kryon/image_widget"
+#import "std/math"
+#if !#defined(PLATFORM_WEB) {
+    #import "kryon/image_raster"
+}
 SoundOnIcon :: #import "mingcute/mingcute_regular_volume";
 SoundOffIcon :: #import "mingcute/mingcute_regular_volume_off";
 #import, file "../retro/retro.zi";
 #import, file "../retro/book_theme.zi";
 #import, file "../retro/language.zi";
 #import, file "jungle_text.zi";
+#import, file "jungle_title.zi";
+#import, file "jungle_title_data.zi";
 
-Game :: struct {
+MenuGame :: struct {
     bundle_name: string
     title: string
     about: string
@@ -31,15 +42,14 @@ MenuAction :: struct {
     language_changed: bool
     sound_toggle: bool
     navigated: bool
+    guide_voice: string
+    guide_stop: bool
 }
 
-menu_height: s32;
-menu_portrait: bool;
-menu_learning: bool;
-menu_lesson_choice: s32;
-menu_root_choice: s32;
-menu_root_scroll: s32;
-menu_lesson_scroll: s32;
+// The scene shown and what glows in it; kept while a game plays, so a
+// child comes back to the same room.
+title_state: TitleState;
+title_book_requested: string;
 GAME_BAR_HEIGHT :: 56
 ABC_SPEED_KEY :: 10001
 abc_title_speed: s32 = 1;
@@ -61,7 +71,7 @@ GameTitleBar :: (session: Session, bounds: Rectangle, key: s32, now: float64, ti
     abc := title == "ABC Book" || title == "123 Book" || title == "Picture Book"
     bar := TitleBar(session, TitleBarProps.{.key = 9001,
         .bounds = Rectangle.{bounds.x, bounds.y, bounds.width, cast(float32)GAME_BAR_HEIGHT},
-        .height = GAME_BAR_HEIGHT, .title = Tr(title), .has_leading_action = true,
+        .height = GAME_BAR_HEIGHT, .title = Tr(ifx title == "Picture Book" && title_book_requested == "sweet-porridge" then "Sweet Porridge" else title), .has_leading_action = true,
         .leading_label = Tr("Back"), .trailing_width = ifx abc then 155 else 60}, options[:])
     action.back = bar.clicked_leading
     sound := RetroTap(9002, width - 56, 6, 44, 44, ifx sound_muted then "Sound off · F10" else "Sound on · F10")
@@ -80,39 +90,59 @@ GameTitleBar :: (session: Session, bounds: Rectangle, key: s32, now: float64, ti
     return action
 }
 
-// Flags retain their native language names on the same cream paper as the book.
-LanguageFlags :: () -> bool {
+// Whether PATH's full picture is decoded and drawable. Asking also starts
+// loading it, so scenes a child can reach next are ready when they arrive.
+TitleReady :: (path: string) -> bool {
+    #if #defined(PLATFORM_WEB) {
+        return RetroImageShown(path) == path
+    }
+    #if !#defined(PLATFORM_WEB) {
+        return AssetWidth(path) > 0
+    }
+    return false
+}
+
+TitlePicture :: (session: Session, path: string, bounds: Rectangle, tint: u32 = 0) {
+    shown := RetroImageShown(path)
+    if shown == "" { return }
+    preview := ifx path.count >= 4 && path[path.count - 4:] == ".jpg" then RetroImagePreview(path) else ""
+    Image(session, ImageProps.{.asset_path = shown, .preview_path = preview, .bounds = bounds,
+        .fit = ImageFit.ImageFitStretch, .smooth = true, .tint = tint})
+}
+
+// Small flags in the top left corner keep their native language names for
+// screen readers; the chosen one has a green frame.
+TitleLanguageFlags :: () -> bool {
     changed := false
     names: [3]string = .["English", "Deutsch", "Español"]
     codes: [3]string = .["en", "de", "es"]
     for index: cast(s32)0..2 {
-        x := 22 + index * 94
-        y: s32 = ifx menu_portrait then 66 else 45
-        h: s32 = ifx menu_portrait then 36 else 18
-        press := RetroTap(510 + index, x, y, 88, h, names[index])
+        x := 6 + index * 34
+        y: s32 = 6
+        press := RetroTap(510 + index, x, y, 30, 22, names[index])
         selected := language == index
-        BookBox(x, y, 88, h, ifx selected then cast(u32)0xdcebdcff else cast(u32)0xf7f1e3ff,
+        BookBox(x, y, 30, 22, ifx selected || press.down then cast(u32)0xdcebdcf0 else cast(u32)0xf7f1e3d8,
             ifx selected then cast(u32)0x2e6956ff else cast(u32)0xdacdb5ff, 4.0)
-        // Small flags drawn as pixels; labels use the book's native lettering.
+        fx := x + 5
+        fy := y + 5
         if index == 0 {
-            RetroFill(x + 4, y + (h - 12) / 2, 20, 12, BLUE)
+            RetroFill(fx, fy, 20, 12, BLUE)
             for line: cast(s32)0..11 {
-                RetroFill(x + 4 + line * 19 / 11, y + (h - 12) / 2 + line, 1, 1, WHITE)
-                RetroFill(x + 23 - line * 19 / 11, y + (h - 12) / 2 + line, 1, 1, WHITE)
+                RetroFill(fx + line * 19 / 11, fy + line, 1, 1, WHITE)
+                RetroFill(fx + 19 - line * 19 / 11, fy + line, 1, 1, WHITE)
             }
-            RetroFill(x + 12, y + (h - 12) / 2, 4, 12, WHITE)
-            RetroFill(x + 4, y + (h - 12) / 2 + 4, 20, 4, WHITE)
-            RetroFill(x + 13, y + (h - 12) / 2, 2, 12, RED)
-            RetroFill(x + 4, y + (h - 12) / 2 + 5, 20, 2, RED)
+            RetroFill(fx + 8, fy, 4, 12, WHITE)
+            RetroFill(fx, fy + 4, 20, 4, WHITE)
+            RetroFill(fx + 9, fy, 2, 12, RED)
+            RetroFill(fx, fy + 5, 20, 2, RED)
         } else if index == 1 {
-            RetroFill(x + 4, y + (h - 12) / 2, 20, 4, BLACK)
-            RetroFill(x + 4, y + (h - 12) / 2 + 4, 20, 4, RED)
-            RetroFill(x + 4, y + (h - 12) / 2 + 8, 20, 4, YELLOW)
+            RetroFill(fx, fy, 20, 4, BLACK)
+            RetroFill(fx, fy + 4, 20, 4, RED)
+            RetroFill(fx, fy + 8, 20, 4, YELLOW)
         } else {
-            RetroFill(x + 4, y + (h - 12) / 2, 20, 12, RED)
-            RetroFill(x + 4, y + (h - 12) / 2 + 3, 20, 6, YELLOW)
+            RetroFill(fx, fy, 20, 12, RED)
+            RetroFill(fx, fy + 3, 20, 6, YELLOW)
         }
-        BookText(x + 28, y, 56, h, names[index], 9)
         if press.clicked {
             LanguageSet(codes[index])
             changed = true
@@ -121,148 +151,101 @@ LanguageFlags :: () -> bool {
     return changed
 }
 
+// The treehouse title screen. KEY is this frame's key; CHOICE receives the
+// catalog index of a game as it opens, which MenuAction.game reports.
 JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font: string,
-    games: []Game, choice: *s32, sound_muted: bool, message: string) -> MenuAction {
+    games: []MenuGame, choice: *s32, sound_muted: bool, message: string) -> MenuAction {
     action := MenuAction.{.game = -1}
-    source_count := cast(s32)games.count
-    abc: s32 = -1
-    numbers: s32 = -1
-    for index: cast(s32)0..source_count - 1 {
-        if games[index].title == "ABC Book" { abc = index }
-        if games[index].title == "123 Book" { numbers = index }
-    }
-    combined := abc >= 0 && numbers >= 0
-    if !combined { menu_learning = false }
-    order: [16]s32
-    game_count: s32 = 0
-    if menu_learning {
-        order[0] = abc
-        order[1] = numbers
-        game_count = 2
-    } else {
-        for index: cast(s32)0..source_count - 1 {
-            if combined && index == numbers { continue }
-            position := game_count
-            while position > 0 && games[order[position - 1]].age > games[index].age {
-                order[position] = order[position - 1]; position -= 1
-            }
-            order[position] = index
-            game_count += 1
+    if !title_state.started { TitleStart(*title_state) }
+    // Corner controls use a unit that grows gently with the window.
+    unit := (ifx bounds.width < bounds.height then bounds.width else bounds.height) / 300.0
+    if unit < 1.0 { unit = 1.0 }
+    if unit > 3.0 { unit = 3.0 }
+    retro = Retro.{.session = session, .font = font, .now = now, .key = key,
+        .x = bounds.x, .y = bounds.y, .scale = unit, .glyph_height = 16}
+    BookPalette()
+    width := cast(s32)(bounds.width / unit)
+    height := cast(s32)(bounds.height / unit)
+
+    TitleResolve(*title_state, bounds.width, bounds.height)
+    step := TitleKey(*title_state, key)
+    if key == 299 { action.sound_toggle = true }
+    TitleFocus(*title_state, bounds.width, bounds.height)
+    view := TitleFit(bounds.width, bounds.height, title_state.pan_x, title_state.pan_y, title_state.scene)
+    pointer := PointerSample(session)
+    px := pointer.x - bounds.x
+    py := pointer.y - bounds.y
+    // The flags and the sound button sit over the picture's corners.
+    blocked := (px < cast(float32)(6 + 3 * 34) * unit && py < 34.0 * unit) ||
+        (px > cast(float32)(width - 38) * unit && py < 34.0 * unit)
+    if step.game < 0 { step = TitlePointer(*title_state, view, px, py, pointer.down, pointer.pressed, pointer.released, blocked, now) }
+    if step.game < 0 { step = TitleTick(*title_state, now) }
+    if step.moved { action.navigated = true }
+    if step.game >= 0 {
+        title := TITLE_HOTSPOT_GAME[step.game]
+        title_book_requested = ifx title == "Sweet Porridge" then "sweet-porridge" else ""
+        if title_book_requested != "" { title = "Picture Book" }
+        for index: cast(s32)0..cast(s32)games.count - 1 {
+            if games[index].title == title { action.game = index; choice.* = index }
         }
     }
-    visible_choice := ifx menu_learning then menu_lesson_choice else menu_root_choice
-    if visible_choice < 0 || visible_choice >= game_count { visible_choice = 0 }
-    if key == KEY_UP || key == KEY_DOWN {
-        step: s32 = ifx key == KEY_UP then game_count - 1 else 1
-        visible_choice = (visible_choice + step) % game_count
-        action.navigated = true
+    TitleResolve(*title_state, bounds.width, bounds.height)
+    view = TitleFit(bounds.width, bounds.height, title_state.pan_x, title_state.pan_y, title_state.scene)
+
+    // Cream while the first picture arrives, then the low-resolution
+    // picture until the clean one is decoded.
+    unused Box(session, BoxProps.{.bounds = bounds, .fill = ColorFromPacked(0xe3ece4ff)})
+    scene := title_state.scene
+    picture := Rectangle.{bounds.x + view.x, bounds.y + view.y,
+        cast(float32)TITLE_SCENE_WIDTH[scene] * view.scale, cast(float32)TITLE_SCENE_HEIGHT[scene] * view.scale}
+    if !TitleReady(TITLE_SCENE_IMAGE[scene]) { TitlePicture(session, TITLE_SCENE_LOW[scene], picture) }
+    TitlePicture(session, TITLE_SCENE_IMAGE[scene], picture)
+    first := TITLE_SCENE_FIRST[scene]
+    for hotspot: first..first + TITLE_SCENE_HOTSPOTS[scene] - 1 {
+        // Each glow and every scene one step away loads ahead of use.
+        unused TitleReady(TITLE_HOTSPOT_GLOW[hotspot])
+        target := TITLE_HOTSPOT_TARGET[hotspot]
+        if target >= 0 { unused TitleReady(TITLE_SCENE_LOW[ResolveTitleSceneVariant(target, bounds.width, bounds.height)]); unused TitleReady(TITLE_SCENE_IMAGE[ResolveTitleSceneVariant(target, bounds.width, bounds.height)]) }
     }
-    if key == 268 || key == 269 {
-        visible_choice = ifx key == 268 then 0 else game_count - 1
-        action.navigated = true
+    glowing := TitleGlowing(title_state)
+    guide := TitleGuide(*title_state, now, sound_muted, action.sound_toggle || key != 0 || pointer.pressed)
+    guide_age := now - title_state.guide_at
+    guiding := guide.active
+    if guiding && title_state.pending < 0 && title_state.pressed < 0 {
+        glowing = first + cast(s32)((guide_age - 1.0) / 2.0) % TITLE_SCENE_HOTSPOTS[scene]
+        if TITLE_HOTSPOT_GUIDE[glowing] == 1 { glowing = first }
     }
-    RetroBegin(session, bounds, font, now, key, BLACK)
-    retro.y = bounds.y
-    menu_height = cast(s32)(bounds.height / retro.scale)
-    menu_portrait = bounds.height > bounds.width
-    BookPaperSized(320, menu_height)
-    heading_y: s32 = ifx menu_portrait then 16 else 12
-    heading_height: s32 = ifx menu_portrait then 28 else 20
-    if menu_learning {
-        if BookBack(600, 22, heading_y, 24, heading_height) || key == KEY_ESCAPE {
-            menu_learning = false
-            menu_root_choice = ifx numbers < abc then abc - 1 else abc
-            choice.* = abc
-            return action
-        }
+    action.guide_stop = guide.stop
+    if guide.voice {
+        action.guide_voice = ifx language == 1 then "assets/jungle/title/guide/de.wav" else ifx language == 2 then "assets/jungle/title/guide/es.wav" else "assets/jungle/title/guide/en.wav"
     }
-    heading_x: s32 = ifx menu_learning then 54 else 24
-    BookText(heading_x, heading_y, 296 - heading_x, heading_height,
-        ifx menu_learning then "ABC + 123" else "Jungle Academy", ifx menu_portrait then 20 else 16)
-    BookText(24, ifx menu_portrait then 48 else 34, 272, ifx menu_portrait then 12 else 8,
-        ifx menu_learning then "Choose a book" else "Choose a little adventure", ifx menu_portrait then 8 else 7)
-    action.language_changed = LanguageFlags()
-    row_height: s32 = ifx menu_portrait then (menu_height - 164) / game_count else (menu_height - 95) / game_count
-    if menu_portrait && row_height < 88 { row_height = 88 }
-    if !menu_portrait { row_height = 35 }
-    row_top: s32 = ifx menu_portrait then 112 else 67
-    footer: s32 = ifx menu_portrait then menu_height - 50 else menu_height - 26
-    list_height := footer - row_top - 8
-    offset := ifx menu_learning then menu_lesson_scroll else menu_root_scroll
-    if action.navigated {
-        top := cast(s32)(cast(float32)(visible_choice * row_height) * retro.scale)
-        bottom := cast(s32)(cast(float32)((visible_choice + 1) * row_height) * retro.scale)
-        extent := cast(s32)(cast(float32)list_height * retro.scale)
-        if top < offset { offset = top }
-        if bottom > offset + extent { offset = bottom - extent }
+    if glowing >= 0 {
+        // A slow, gentle pulse over exactly the item.
+        wave := Sin(now * 6.283185307 / 1.8)
+        alpha := cast(u32)(255.0 * (0.74 + 0.26 * wave))
+        rect := glowing * 4
+        TitlePicture(session, TITLE_HOTSPOT_GLOW[glowing], Rectangle.{
+            picture.x + cast(float32)TITLE_GLOW_RECT[rect] * view.scale,
+            picture.y + cast(float32)TITLE_GLOW_RECT[rect + 1] * view.scale,
+            cast(float32)TITLE_GLOW_RECT[rect + 2] * view.scale,
+            cast(float32)TITLE_GLOW_RECT[rect + 3] * view.scale}, cast(u32)0xffffff00 | alpha)
     }
-    scrolled := Scroll(session, ScrollProps.{.key = ifx menu_learning then cast(u64)7002 else cast(u64)7001,
-        .bounds = RetroRect(22, row_top, 276, list_height), .scale = retro.scale,
-        .content_height = cast(s32)(cast(float32)(game_count * row_height) * retro.scale),
-        .scroll_offset = offset, .keep_scrollbar = true})
-    if menu_learning { menu_lesson_scroll = scrolled.scroll_offset }
-    else { menu_root_scroll = scrolled.scroll_offset }
-    saved_y := retro.y
-    retro.y -= cast(float32)scrolled.scroll_offset
-    row_width := ifx scrolled.frame.clip.width > 0.0 then cast(s32)(scrolled.frame.clip.width / retro.scale) else 276
-    row_right := 22 + row_width
-    badge_x := row_right - 31
-    activated: s32 = -1
-    if scrolled.opened {
-        for slot: cast(s32)0..game_count - 1 {
-            index := order[slot]
-            group := combined && !menu_learning && index == abc
-            title := ifx group then "ABC + 123" else games[index].title
-            about := ifx group then "Letters and numbers" else games[index].about
-            y := row_top + slot * row_height
-            h := row_height - 4
-            press := RetroTap(100 + slot, 22, y, row_width, h, title)
-            if press.down { visible_choice = slot }
-            selected := slot == visible_choice
-            BookBox(22, y, row_width, h, ifx selected then cast(u32)0xe5eee1ff else cast(u32)0xf7f1e3ff,
-                ifx selected then cast(u32)0x2e6956ff else cast(u32)0xdacdb5ff, 4.0)
-            picture: s32 = ifx menu_portrait then 68 else 29
-            if picture > h - 8 { picture = h - 8 }
-            if picture < 1 { picture = 1 }
-            image_y := y + (h - picture) / 2
-            BookPicture(ifx group then "assets/jungle/covers/abc-123.jpg" else games[index].icon, 25, image_y, picture, picture)
-            text_x := 25 + picture + 9
-            if h >= 54 {
-                text_y := y + (h - 42) / 2
-                BookText(text_x, text_y, row_right - 39 - text_x, 26, title, 17, TextAlign.TextAlignStart)
-                BookText(text_x, text_y + 28, row_right - 39 - text_x, 14, about, 10, TextAlign.TextAlignStart)
-            } else {
-                title_size := (h - 8) * 3 / 5
-                if title_size > 17 { title_size = 17 }
-                BookText(text_x, y + 4, row_right - 39 - text_x, h - 8, title, title_size, TextAlign.TextAlignStart)
-            }
-            badge_height: s32 = ifx h < 24 then 13 else 15
-            BookBox(badge_x, y + (h - badge_height) / 2, 24, badge_height, 0xeee4cfff, 0xd6c6a8ff, 5.0)
-            BookText(badge_x, y + (h - badge_height) / 2, 24, badge_height, Cat(NumberText(games[index].age), "+"), 9)
-            if press.clicked { activated = slot }
-        }
-        unused End(session)
+
+    if guiding {
+        line := ifx language == 1 then "Tippe auf ein leuchtendes Spiel." else ifx language == 2 then "Toca un juego que brilla." else "Tap a glowing game to play."
+        BookBox(6, height - 58, width - 12, 24, 0xf7f1e3ee, 0xdacdb5ff, 6.0)
+        BookText(10, height - 58, width - 20, 24, line, 10)
     }
-    retro.y = saved_y
-    footer_height: s32 = ifx menu_portrait then 36 else 14
-    BookText(24, footer + (footer_height - 10) / 2, 150, 10, ifx message != "" then message else "Arrows + Enter", 8, TextAlign.TextAlignStart)
-    sound := RetroTap(500, 182, footer, 116, footer_height, ifx sound_muted then "Sound off · F10" else "Sound on · F10")
-    BookBox(182, footer, 116, footer_height, ifx sound.down then cast(u32)0xdcebdcff else cast(u32)0xeee4cfff,
-        0xd6c6a8ff, 4.0)
-    BookText(182, footer, 116, footer_height, ifx sound_muted then "Sound off · F10" else "Sound on · F10", 8)
-    if sound.clicked || key == 299 { action.sound_toggle = true }
-    if key == KEY_ENTER { activated = visible_choice }
-    if key >= 49 && key <= 57 && key < 49 + game_count { activated = key - 49 }
-    if menu_learning { menu_lesson_choice = visible_choice }
-    else { menu_root_choice = visible_choice; choice.* = order[visible_choice] }
-    if activated >= 0 {
-        if menu_learning { menu_lesson_choice = activated }
-        else { menu_root_choice = activated; choice.* = order[activated] }
-        index := order[activated]
-        if combined && !menu_learning && index == abc {
-            menu_learning = true
-            menu_lesson_choice = 0
-        } else { action.game = index }
+    action.language_changed = TitleLanguageFlags()
+    sound_label := ifx sound_muted then "Sound off · F10" else "Sound on · F10"
+    sound := RetroTap(500, width - 32, 6, 26, 22, sound_label)
+    BookBox(width - 32, 6, 26, 22, ifx sound.down then cast(u32)0xdcebdcf0 else cast(u32)0xf7f1e3d8, 0xdacdb5ff, 4.0)
+    SvgIcon(session, SvgIconProps.{.bounds = RetroRect(width - 27, 9, 16, 16),
+        .shape = ifx sound_muted then SoundOffIcon.Shape else SoundOnIcon.Shape, .color = ColorFromPacked(0x3e332aff)})
+    if sound.clicked { action.sound_toggle = true }
+    if message != "" {
+        BookBox(width / 2 - 90, height - 30, 180, 22, 0xf7f1e3e8, 0xdacdb5ff, 6.0)
+        BookText(width / 2 - 86, height - 30, 172, 22, message, 10)
     }
     return action
 }

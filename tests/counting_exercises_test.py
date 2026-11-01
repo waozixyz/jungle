@@ -6,6 +6,7 @@ import tempfile
 import time
 import runtime_test as rt
 from drums_playground_test import PROBE
+import counting_portrait_ui_test
 
 rt.OUTPUT = rt.ROOT / 'backup/counting-exercises-ui'
 
@@ -15,6 +16,8 @@ def main():
                     'build/app/jungle', 'build/app/games/animal-count.zx'], cwd=rt.ROOT, check=True)
     for name in ('counting_exercises', 'counting'):
         subprocess.run([str(rt.ROOT/'build/tests'/name)], check=True, env=rt.environment())
+    counting_portrait_ui_test.main()
+    rt.OUTPUT = rt.ROOT / 'backup/counting-exercises-ui'
     scratch = rt.ROOT/'work/counting-exercises'
     scratch.mkdir(parents=True, exist_ok=True)
     source=scratch/'audio_probe.c'; library=scratch/'audio_probe.so'

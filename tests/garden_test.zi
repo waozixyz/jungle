@@ -1,0 +1,77 @@
+#import, file "../games/garden/garden.zi";
+#import, file "../retro/language.zi";
+#import, file "../host/jungle_text.zi";
+#program_export
+main :: () -> s32 {
+    start: s64 = 1793550000
+    g: Garden
+    if GardenPlant(*g, -1, 1, start) || GardenPlant(*g, 6, 1, start) || GardenPlant(*g, 0, 0, start) || GardenPlant(*g, 0, 7, start) { return 1 }
+    if GardenWater(*g, 0, start) || GardenClear(*g, 0, start) { return 2 }
+    for kind: cast(s32)1..6 {
+        g = Garden.{}
+        if !GardenPlant(*g, 0, kind, start) || GardenStage(g.plots[0]) != 0 { return 3 }
+        GardenTick(*g.plots[0], start + GARDEN_SEED_TIME - 1)
+        if GardenStage(g.plots[0]) != 0 { return 3 }
+        GardenTick(*g.plots[0], start + GARDEN_SEED_TIME)
+        if GardenStage(g.plots[0]) != 1 { return 3 }
+        if GardenPlant(*g, 0, kind, start) || GardenClear(*g, 0, start) { return 4 }
+        // Watering repeatedly at one time never advances growth.
+        for repeat: cast(s32)0..9 { if !GardenWater(*g, 0, start + GARDEN_SEED_TIME) { return 5 } }
+        if g.plots[0].growth != GARDEN_SEED_TIME { return 6 }
+        // Time in moist soil advances through sprout, small and mature.
+        t := start + GARDEN_SEED_TIME
+        while g.plots[0].growth < GardenGrowTime(kind) {
+            t += 6 * GARDEN_HOUR
+            if !GardenWater(*g, 0, t) || g.plots[0].dead { return 7 }
+            if g.plots[0].growth >= GardenGrowTime(kind) / 3 && g.plots[0].growth < GardenGrowTime(kind) && GardenStage(g.plots[0]) != 2 { return 8 }
+        }
+        if GardenStage(g.plots[0]) != 3 { return 9 }
+        // Exactly the drying boundary; growth pauses in dry soil.
+        GardenTick(*g.plots[0], t + GardenDryTime(kind) - 1)
+        if GardenDry(g.plots[0], t + GardenDryTime(kind) - 1) { return 10 }
+        GardenTick(*g.plots[0], t + GardenDryTime(kind))
+        if !GardenDry(g.plots[0], t + GardenDryTime(kind)) || g.plots[0].dead { return 11 }
+        if !GardenWater(*g, 0, t + GardenDryTime(kind)) || GardenDry(g.plots[0], t + GardenDryTime(kind)) { return 12 }
+        t += GardenDryTime(kind)
+        GardenTick(*g.plots[0], t + GardenDeathTime(kind) - 1)
+        if g.plots[0].dead { return 13 }
+        GardenTick(*g.plots[0], t + GardenDeathTime(kind))
+        if !g.plots[0].dead || GardenWater(*g, 0, t + GardenDeathTime(kind)) { return 14 }
+        if !GardenClear(*g, 0, t + GardenDeathTime(kind)) || !GardenPlant(*g, 0, kind, t + GardenDeathTime(kind)) { return 15 }
+        restored: Garden
+        if !GardenRead(GardenSave(g), *restored) || GardenSave(restored) != GardenSave(g) { return 16 }
+    }
+    // Offline and live reconciliation agree; only moist hours count.
+    live: Garden; offline: Garden
+    unused GardenPlant(*live, 0, 6, start); offline = live
+    for hour: cast(s32)1..36 { GardenTick(*live.plots[0], start + cast(s64)hour * GARDEN_HOUR) }
+    GardenTick(*offline.plots[0], start + 36 * GARDEN_HOUR)
+    if GardenSave(live) != GardenSave(offline) || offline.plots[0].growth != GardenDryTime(6) { return 17 }
+    before := GardenSave(live)
+    GardenTick(*live.plots[0], start - 1)
+    if GardenSave(live) != before || GardenWater(*live, 0, start - 1) { return 18 }
+    // Keep Unix seconds beyond 2038 without narrowing them to 32 bits.
+    future: Garden
+    unused GardenPlant(*future, 0, 6, 4102444800)
+    future_read: Garden
+    if !GardenRead(GardenSave(future), *future_read) || future_read.plots[0].watered != 4102444800 { return 27 }
+    // All six plants and timestamps survive the shared document format.
+    g = Garden.{}
+    for plot: cast(s32)0..5 { unused GardenPlant(*g, plot, plot + 1, start) }
+    g.selected = 6
+    restored: Garden
+    if !GardenRead(GardenSave(g), *restored) || GardenSave(restored) != GardenSave(g) { return 19 }
+    bad_saves: [7]string = .["", "garden 2 7\n", "garden 2 -1\n", "garden 3 0\n", "garden 2 0\n99999999999999999999", "garden 2 0\n0 1 0 0 0 0\n", "garden 2 0\n1 5 4 6 0 0\n"]
+    for bad: bad_saves {
+        saved := GardenSave(g)
+        if GardenRead(bad, *g) || GardenSave(g) != saved { return 20 }
+    }
+    if GardenRead(Cat(GardenSave(g), "extra"), *g) { return 21 }
+    migrated: Garden
+    if !GardenMigrate("garden 1 5 0 0 1\n", *migrated, start) || GardenStage(migrated.plots[0]) != 3 { return 22 }
+    if GardenDryTime(6) >= GardenDryTime(1) || GardenDeathTime(6) >= GardenDeathTime(1) { return 23 }
+    LanguageSet("de"); if GardenName(6) != "Kohl" { return 24 }
+    LanguageSet("es"); if GardenName(6) != "Repollo" { return 25 }
+    LanguageSet("en"); if GardenName(6) != "Cabbage" { return 26 }
+    return 0
+}

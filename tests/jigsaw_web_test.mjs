@@ -1,3 +1,4 @@
+import {openTitleGame} from './title_routes.mjs';
 // A private browser/profile exercises the real compiled game and IndexedDB.
 import {spawn} from 'node:child_process';
 import {readFile,writeFile,mkdtemp,rm,mkdir} from 'node:fs/promises';
@@ -50,8 +51,8 @@ try{
  await command('Page.addScriptToEvaluateOnNewDocument',{source:'window.jungleTestDocument=crypto.randomUUID()'});
  await command('Emulation.setDeviceMetricsOverride',{width:960,height:600,deviceScaleFactor:1,mobile:false});
  await command('Page.navigate',{url:'http://127.0.0.1:'+server.address().port+(page?'/'+page:'')});await ready();
- const rows=(await readFile('games/catalog.txt','utf8')).trim().split('\n').map(l=>l.split('|')).filter(r=>r[1]!=='123 Book').sort((a,b)=>Number(a[4])-Number(b[4]));
- async function openPuzzle(){const index=rows.findIndex(r=>r[0]==='jungle-jigsaw.zx');if(index<0)throw Error('Jigsaw missing');await key('Home');for(let i=0;i<index;i++)await key('ArrowDown');await key('Enter')}
+ const titleScenes=JSON.parse(await readFile(new URL('../tools/title_hotspots.json',import.meta.url),'utf8'));
+ async function openPuzzle(){await openTitleGame(titleScenes,'Jigsaw Puzzles',key)}
  await command('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});await delay(500);
  await openPuzzle();await key('Enter');
  let values=fields(await saved());

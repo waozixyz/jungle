@@ -1,3 +1,4 @@
+import {openTitleGame} from './title_routes.mjs';
 // Exercise the compiled piano in a private headless browser and profile.
 import {spawn} from 'node:child_process';
 import {readFile,writeFile,mkdtemp,rm,mkdir} from 'node:fs/promises';
@@ -8,9 +9,7 @@ import {setTimeout as delay} from 'node:timers/promises';
 await mkdir('work/w',{recursive:true});await mkdir('work/b',{recursive:true});
 const root=resolve(process.env.JUNGLE_WEB_ROOT||'build/web');
 const page=process.env.JUNGLE_WEB_PAGE||'index.html';
-const menu=(await readFile('games/catalog.txt','utf8')).trim().split('\n').map(l=>l.split('|')).filter(r=>r[1]!=='123 Book').sort((a,b)=>Number(a[4])-Number(b[4]));
-const pianoEntry=menu.findIndex(r=>r[1]==='Little Piano');
-if(pianoEntry<0)throw Error('Little Piano missing from catalog');
+const titleScenes=JSON.parse(await readFile(new URL('../tools/title_hotspots.json',import.meta.url),'utf8'));
 const profile=await mkdtemp(resolve('work/w/p-'));
 const mime={'.html':'text/html','.js':'text/javascript','.wasm':'application/wasm','.json':'application/json','.png':'image/png','.jpg':'image/jpeg','.wav':'audio/wav'};
 const server=createServer(async(req,res)=>{
@@ -94,7 +93,7 @@ try{
   const y=top+h-22-kh,cw=Math.min(kw,620),rh=h<360?30:40,controls=y-(cw<500?rh*2+6:rh)-12;
   return {x,y:y+56,kh,keyWidth,controls:controls+56,top:top+56,h,title:top+8+56};
  }
- await key('Home');for(let i=0;i<pianoEntry;i++)await key('ArrowDown');await key('Enter');await key('1');await key('w');await key('2');
+ await openTitleGame(titleScenes,'Little Piano',key);await key('1');await key('w');await key('2');
  let notes=await evaluate('pianoAudio.map(note=>note.path)');
  if(JSON.stringify(notes)!==JSON.stringify([60,61,62].map(p=>'assets/piano/sounds/'+p+'.wav')))throw Error('Wrong fixed shortcut pitches: '+JSON.stringify(notes));
  if(await evaluate('pianoAudio.some(note=>note.volume!==.25)'))throw Error('Piano bypassed quiet gain');
@@ -159,7 +158,7 @@ try{
  if(await evaluate('pianoAudio.length'))throw Error('Muted piano played audio');
  await click(930,25);await key('3');await waitFor('pianoAudio.length===1','Unmuting did not restore audio');
  await key('Escape');if(!(await evaluate('pianoElement.paused')))throw Error('Leaving piano did not stop audio');
- await key('Home');for(let i=0;i<pianoEntry;i++)await key('ArrowDown');await key('Enter');
+ await openTitleGame(titleScenes,'Little Piano',key);
  await command('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});await delay(500);
  const phone=layout(390,844);
  await evaluate('pianoAudio=[]');

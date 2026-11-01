@@ -70,9 +70,12 @@ is in `tools/book_prompts.json`; the full-size originals are kept in
 - The stencil gallery has Dinosaurs, Animals, People and Objects sections,
   including placeable objects such as crates and campfires.
 
-- ABC and 123 share one ABC + 123 entry, with both books inside. Keep their
-  existing saved progress. Menu text must fit within each row at every window
-  size; use one centered title when a row cannot hold its description.
+- The title screen is the painted treehouse (no list): the bookshelf leads to
+  the books (Picture Book, ABC Book, 123 Book), a ladder down to the jungle
+  campus and from there into the music room; every game opens from a painted
+  item. Hovering an item glows exactly that item; a tap glows briefly, then
+  opens it. Scenes and hotspots come from `tools/title_hotspots.json` through
+  `tools/title_scenes.py`; only small flags and the sound button sit on top.
 - Picture Book includes Clothing and Seasons, with the same full-scene art
   and complete English, German and Spanish names and narration as every book.
 

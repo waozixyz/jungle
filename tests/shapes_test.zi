@@ -52,6 +52,15 @@ Solve :: (s: *Shapes, misses: s32) -> bool {
 
 #program_export
 main :: () -> s32 {
+    // Art landing is monotonic, clamped, and independent of progress.
+    if ShapesWoodDrop(-1.0) != 0.0 || ShapesWoodDrop(0.6) != 1.0 || ShapesWoodDrop(4.0) != 1.0 { return 64 }
+    previous: float32 = 0.0
+    for step: cast(s32)0..60 {
+        next := ShapesWoodDrop(cast(float32)step / 100.0)
+        if next < previous || next > 1.0 { return 65 }
+        previous = next
+    }
+
     // Explicit mixed board: guidance follows the chosen piece, not the first
     // home or a presumed left-to-right route. Watching cannot play the game.
     lesson: Shapes

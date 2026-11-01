@@ -452,7 +452,8 @@ class GroupCommand(unittest.TestCase):
         ran = self.record.read_text().splitlines()
         self.assertEqual(ran.count("make all"), 2)
         self.assertEqual(ran.count("python3 tests/hide_seek_levels_test.py"), 1)
-        self.assertEqual(len(ran), 2 + 1 + 4)
+        self.assertEqual(ran.count("python3 tests/garden_ui_test.py"), 1)
+        self.assertEqual(len(ran), 2 + 1 + 5)
 
     def test_a_group_without_a_restored_build_or_benchmark_runs_nothing(self):
         refused = self.command("--group", rcv.PACKAGING)

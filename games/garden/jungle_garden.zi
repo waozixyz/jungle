@@ -1,0 +1,225 @@
+// A quiet, persistent garden. The host supplies the shared Back/sound title bar.
+#import "kryon/app_context"
+#import "kryon/app_protocol"
+#import "kryon/pointer_input"
+#import "kryon/frame_snapshot"
+#import "kryon/text_align"
+#import "kryon/geometry"
+#import "kryon/image_props"
+#import "kryon/image_widget"
+#import, file "../../host/jungle_text.zi";
+#import, file "garden.zi";
+#import, file "../../retro/retro.zi";
+#import, file "../../retro/game.zi";
+#import, file "../../retro/book_theme.zi";
+
+garden: Garden;
+loaded: bool;
+width: s32;
+height: s32;
+tray_height: s32;
+press_plot: s32 = -1;
+press_tool: s32 = -1;
+focus_plot: s32;
+water_plot: s32 = -1;
+water_at: float64;
+seed_plot: s32 = -1;
+seed_at: float64;
+last_tick: s64;
+
+Save :: () -> bool { return DocumentWrite("garden.txt", GardenSave(garden)) }
+Picture :: (name: string, x: s32, y: s32, w: s32, h: s32) {
+    Image(retro.session, ImageProps.{.asset_path = Cat("assets/garden/art/", name, ".png"),
+        .preview_path = Cat("assets/garden/previews/", name, ".png"),
+        .bounds = RetroRect(x, y, w, h), .fit = ImageFit.ImageFitContain, .smooth = true, .alt_text = name})
+}
+TrayColumns :: () -> s32 { return ifx width < 600 then 4 else 7 }
+ToolAt :: (x: s32, y: s32) -> s32 {
+    columns := TrayColumns()
+    rows: s32 = ifx columns == 4 then 2 else 1
+    cell_w := (width - 16) / columns
+    cell_h := (tray_height - 16) / rows
+    if x < 8 || x >= 8 + cell_w * columns || y < 8 || y >= tray_height - 8 { return -1 }
+    index := (y - 8) / cell_h * columns + (x - 8) / cell_w
+    if index > 6 { return -1 }
+    return ifx index == 6 then 0 else index + 1
+}
+PlotX :: (plot: s32) -> s32 {
+    return width * (26 + plot % 3 * 24) / 100
+}
+PlotY :: (plot: s32) -> s32 {
+    return tray_height + (height - tray_height) * (ifx plot < 3 then 57 else 78) / 100
+}
+PlotEdge :: (plot: s32, now: s64) -> s32 {
+    p := garden.plots[plot]
+    edge := width * 24 / 100
+    cap := (height - tray_height) * 34 / 100
+    if edge > cap { edge = cap }
+    if plot < 3 { edge = edge * 85 / 100 }
+    if !p.dead && !GardenDry(p, now) {
+        stage := GardenStage(p)
+        if stage == 0 { edge = edge * 34 / 100 }
+        if stage == 1 { edge = edge * 45 / 100 }
+        if stage == 2 { edge = edge * 75 / 100 }
+    }
+    return edge
+}
+PlotAt :: (x: s32, y: s32) -> s32 {
+    // Touching visible leaves works too; the front row owns overlaps.
+    i: s32 = GARDEN_PLOTS - 1
+    while i >= 0 {
+        if garden.plots[i].kind != 0 {
+            edge := PlotEdge(i, cast(s64)retro.now)
+            if x >= PlotX(i) - edge / 2 && x < PlotX(i) + edge / 2 && y >= PlotY(i) - edge && y < PlotY(i) { return i }
+        }
+        i -= 1
+    }
+    if x < width * 12 / 100 || x >= width * 88 / 100 { return -1 }
+    top := tray_height + (height - tray_height) * 41 / 100
+    bottom := tray_height + (height - tray_height) * 88 / 100
+    if y < top || y >= bottom { return -1 }
+    col := (x - width * 14 / 100) * 3 / (width * 72 / 100)
+    if col < 0 { col = 0 }; if col > 2 { col = 2 }
+    middle := tray_height + (height - tray_height) * 67 / 100
+    return col + (ifx y < middle then 0 else 3)
+}
+UsePlot :: (plot: s32, now: s64) {
+    if plot < 0 || plot >= GARDEN_PLOTS { return }
+    GardenTick(*garden.plots[plot], now)
+    if garden.plots[plot].dead {
+        unused GardenClear(*garden, plot, now)
+        if garden.selected > 0 && GardenPlant(*garden, plot, garden.selected, now) {
+            seed_plot = plot; seed_at = retro.now
+        }
+        unused Save(); return
+    }
+    if garden.selected == 0 {
+        if GardenWater(*garden, plot, now) {
+            water_plot = plot; water_at = retro.now
+            unused Save()
+        }
+    } else if GardenPlant(*garden, plot, garden.selected, now) {
+        seed_plot = plot; seed_at = retro.now
+        unused Save()
+    }
+}
+Seed :: (plot: s32, cx: s32, base: s32) {
+    // A seed falls into the soil; the packet stays in the tray and on the cursor.
+    elapsed := retro.now - seed_at
+    if seed_plot == plot && elapsed >= 0 && elapsed < 0.9 {
+        remaining := 1.0 - elapsed / 0.9
+        base -= cast(s32)(48.0 * remaining * remaining)
+    }
+    edge: s32 = ifx plot < 3 then 16 else 20
+    BookBox(cx - edge / 2, base - edge, edge, edge, 0x825c37ff, 0x65452dff, cast(float32)edge / 2.0)
+    BookBox(cx - edge / 4, base - edge + 3, edge / 3, edge / 2, 0xd0aa70ff, 0, cast(float32)edge / 5.0)
+}
+Tray :: () {
+    BookBox(6, 4, width - 12, tray_height - 8, 0xeadcc1ff, 0xc4ad83ff, 16)
+    columns := TrayColumns()
+    rows: s32 = ifx columns == 4 then 2 else 1
+    cw := (width - 16) / columns
+    ch := (tray_height - 16) / rows
+    for i: cast(s32)0..6 {
+        tool := ifx i == 6 then 0 else i + 1
+        x := 8 + i % columns * cw
+        y := 8 + i / columns * ch
+        if garden.selected == tool { BookBox(x + 2, y + 1, cw - 4, ch - 2, 0xfff7d5ff, 0xa3ad75ff, 12) }
+        name := ifx tool == 0 then "watering-can" else Cat(GardenKind(tool), "-packet")
+        Picture(name, x + 4, y + 2, cw - 8, ch - 24)
+        BookText(x + 2, y + ch - 23, cw - 4, 20, GardenName(tool), 12, TextAlign.TextAlignCenter, false)
+    }
+}
+Scene :: (now: s64) {
+    Image(retro.session, ImageProps.{.asset_path = "assets/garden/art/bed.png", .preview_path = "assets/garden/previews/bed.png",
+        .bounds = RetroRect(0, tray_height, width, height - tray_height), .fit = ImageFit.ImageFitStretch, .smooth = true,
+        .alt_text = GardenText("Garden bed", "Gartenbeet", "Huerto")})
+    // Back row first: the front row naturally overlaps it.
+    for i: cast(s32)0..GARDEN_PLOTS - 1 {
+        p := garden.plots[i]
+        cx := PlotX(i); base := PlotY(i)
+        if p.kind == 0 { continue }
+        stage := GardenStage(p)
+        if stage == 0 && !p.dead && !GardenDry(p, now) { Seed(i, cx, base); continue }
+        suffix := ifx stage < 2 then "sprout" else ifx stage == 2 then "small" else "mature"
+        if GardenDry(p, now) { suffix = "dry" }
+        if p.dead { suffix = "withered" }
+        edge := PlotEdge(i, now)
+        Picture(Cat(GardenKind(p.kind), "-", suffix), cx - edge / 2, base - edge, edge, edge)
+        // Thirst is visible without any spoken instruction.
+        if GardenDry(p, now) { Picture("water-drop", cx + edge / 4, base - edge - 12, 20, 24) }
+    }
+    elapsed := retro.now - water_at
+    if water_plot >= 0 && elapsed >= 0 && elapsed < 1.2 {
+        cx := PlotX(water_plot); base := PlotY(water_plot)
+        Picture("watering-can", cx - 72, base - 125, 84, 84)
+        for drop: cast(s32)0..4 {
+            fall := (cast(s32)(elapsed * 160) + drop * 19) % 76
+            Picture("water-drop", cx - 10 + drop * 4, base - 72 + fall, 12, 17)
+        }
+    }
+}
+GameMain :: () -> s32 {
+    mode := AppMode()
+    if mode == APP_IDENTIFY { loaded = false; AppIdentity("jungle.garden"); AppDescribe("Grow a Garden", ""); return APP_PROTOCOL }
+    if mode == APP_SAVE { return ifx !loaded || Save() then 0 else 1 }
+    if mode != APP_FRAME { return 0 }
+    GameLanguage()
+    bounds := AppBounds()
+    scale := bounds.width / 400.0
+    if bounds.height / 640.0 < scale { scale = bounds.height / 640.0 }
+    if bounds.width > bounds.height {
+        scale = bounds.height / 430.0
+        if bounds.width / 760.0 < scale { scale = bounds.width / 760.0 }
+    }
+    if scale > 1.8 { scale = 1.8 }
+    if scale <= 0 { return 0 }
+    retro = Retro.{.session = AppSession(), .x = bounds.x, .y = bounds.y, .scale = scale, .now = AppNow(), .key = AppKey()}
+    width = cast(s32)(bounds.width / scale); height = cast(s32)(bounds.height / scale)
+    tray_height = ifx width < 600 then 180 else 94
+    now := cast(s64)retro.now
+    BookPalette(); BookBox(0, 0, width, height, 0xfffcf3ff)
+    if !loaded {
+        if !DocumentStorageReady() { Scene(now); Tray(); return 0 }
+        text := DocumentRead("garden.txt")
+        if !GardenRead(text, *garden) && !GardenMigrate(text, *garden, now) { garden = Garden.{.selected = 1} }
+        loaded = true; press_plot = -1; press_tool = -1; water_plot = -1; seed_plot = -1; last_tick = 0
+    }
+    if now != last_tick {
+        for i: cast(s32)0..GARDEN_PLOTS - 1 { GardenTick(*garden.plots[i], now) }
+        // Moist time is also reconciled on reopen; persist once a minute.
+        if now / 60 != last_tick / 60 { unused Save() }
+        last_tick = now
+    }
+    if retro.key == KEY_ESCAPE { unused Save(); GameHome(); return 0 }
+    if retro.key >= 49 && retro.key <= 54 { garden.selected = retro.key - 48; unused Save() }
+    if retro.key == 87 { garden.selected = 0; unused Save() }
+    if retro.key == KEY_LEFT { focus_plot = (focus_plot + 5) % 6 }
+    if retro.key == KEY_RIGHT { focus_plot = (focus_plot + 1) % 6 }
+    if retro.key == KEY_DOWN || retro.key == KEY_UP { focus_plot = (focus_plot + 3) % 6 }
+    if retro.key == KEY_ENTER { UsePlot(focus_plot, now) }
+    pointer := SamplePointer()
+    px := cast(s32)((pointer.x - retro.x) / retro.scale)
+    py := cast(s32)((pointer.y - retro.y) / retro.scale)
+    snapshot := CaptureFrameInput(retro.session)
+    active := !snapshot.available || snapshot.focused
+    if !active { press_plot = -1; press_tool = -1 }
+    if active && pointer.pressed {
+        press_tool = ToolAt(px, py); press_plot = PlotAt(px, py)
+        if press_tool >= 0 { garden.selected = press_tool; unused Save() }
+    }
+    if active && pointer.released {
+        target := PlotAt(px, py)
+        if target >= 0 && (press_tool >= 0 || press_plot == target) { UsePlot(target, now) }
+        press_tool = -1; press_plot = -1
+    }
+    Scene(now); Tray()
+    if active && px >= 0 && px < width && py >= tray_height && py < height {
+        Picture(ifx garden.selected == 0 then "watering-can" else Cat(GardenKind(garden.selected), "-packet"), px - 34, py - 64, 68, 68)
+    }
+    return 0
+}
+#if !#defined(PLATFORM_WEB) {
+    #program_export
+    main :: () -> s32 { return GameMain() }
+}

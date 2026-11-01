@@ -1,0 +1,169 @@
+// Independent plants, grown by moist elapsed time. All clocks are injected.
+#import, file "../../host/jungle_text.zi";
+#import, file "../../retro/language.zi";
+
+GARDEN_PLOTS :: 6
+GARDEN_KINDS :: 6
+GARDEN_HOUR :: 3600
+GARDEN_SEED_TIME :: GARDEN_HOUR
+GardenPlot :: struct {
+    kind: s32 // zero is an empty plot; seed kinds are 1..6
+    planted: s64
+    watered: s64
+    updated: s64
+    growth: s64 // seconds spent in moist soil
+    dead: bool
+}
+Garden :: struct {
+    plots: [GARDEN_PLOTS]GardenPlot
+    selected: s32 // 0 watering can, 1..6 seeds
+}
+GardenText :: (en: string, de: string, es: string) -> string {
+    if LanguageCode() == "de" { return de }
+    if LanguageCode() == "es" { return es }
+    return en
+}
+GardenKind :: (kind: s32) -> string {
+    names: [6]string = .["sunflower", "tomato", "carrot", "strawberry", "pumpkin", "cabbage"]
+    if kind < 1 || kind > GARDEN_KINDS { return "" }
+    return names[kind - 1]
+}
+GardenName :: (kind: s32) -> string {
+    if kind == 1 { return GardenText("Sunflower", "Sonnenblume", "Girasol") }
+    if kind == 2 { return GardenText("Tomato", "Tomate", "Tomate") }
+    if kind == 3 { return GardenText("Carrot", "Karotte", "Zanahoria") }
+    if kind == 4 { return GardenText("Strawberry", "Erdbeere", "Fresa") }
+    if kind == 5 { return GardenText("Pumpkin", "Kürbis", "Calabaza") }
+    if kind == 6 { return GardenText("Cabbage", "Kohl", "Repollo") }
+    return GardenText("Water", "Wasser", "Agua")
+}
+GardenGrowTime :: (kind: s32) -> s64 {
+    hours: [6]s32 = .[72, 96, 72, 48, 120, 72]
+    if kind < 1 || kind > 6 { return 0 }
+    return cast(s64)hours[kind - 1] * GARDEN_HOUR
+}
+GardenDryTime :: (kind: s32) -> s64 {
+    hours: [6]s32 = .[30, 24, 30, 18, 24, 18]
+    if kind < 1 || kind > 6 { return 0 }
+    return cast(s64)hours[kind - 1] * GARDEN_HOUR
+}
+GardenDeathTime :: (kind: s32) -> s64 {
+    hours: [6]s32 = .[96, 72, 96, 60, 72, 48]
+    if kind < 1 || kind > 6 { return 0 }
+    return cast(s64)hours[kind - 1] * GARDEN_HOUR
+}
+GardenTick :: (p: *GardenPlot, now: s64) {
+    if p.kind == 0 || p.dead || now <= p.updated { return }
+    wet_end := p.watered + GardenDryTime(p.kind)
+    end := ifx now < wet_end then now else wet_end
+    if end > p.updated {
+        p.growth += end - p.updated
+        limit := GardenGrowTime(p.kind)
+        if p.growth > limit { p.growth = limit }
+    }
+    p.updated = now
+    if now - p.watered >= GardenDeathTime(p.kind) { p.dead = true }
+}
+GardenDry :: (p: GardenPlot, now: s64) -> bool {
+    return p.kind != 0 && !p.dead && now >= p.watered + GardenDryTime(p.kind)
+}
+GardenStage :: (p: GardenPlot) -> s32 {
+    if p.kind == 0 { return 0 }
+    if p.growth < GARDEN_SEED_TIME { return 0 }
+    if p.growth >= GardenGrowTime(p.kind) { return 3 }
+    if p.growth >= GardenGrowTime(p.kind) / 3 { return 2 }
+    return 1
+}
+GardenPlant :: (g: *Garden, plot: s32, kind: s32, now: s64) -> bool {
+    if plot < 0 || plot >= GARDEN_PLOTS || kind < 1 || kind > GARDEN_KINDS || now <= 0 { return false }
+    GardenTick(*g.plots[plot], now)
+    if g.plots[plot].kind != 0 { return false }
+    g.plots[plot] = GardenPlot.{.kind = kind, .planted = now, .watered = now, .updated = now}
+    return true
+}
+GardenWater :: (g: *Garden, plot: s32, now: s64) -> bool {
+    if plot < 0 || plot >= GARDEN_PLOTS || now <= 0 { return false }
+    p := *g.plots[plot]
+    GardenTick(p, now)
+    if p.kind == 0 || p.dead || now < p.updated { return false }
+    p.watered = now
+    return true
+}
+GardenClear :: (g: *Garden, plot: s32, now: s64) -> bool {
+    if plot < 0 || plot >= GARDEN_PLOTS { return false }
+    GardenTick(*g.plots[plot], now)
+    // Only a withered plant can be cleared; growing plants stay safe.
+    if !g.plots[plot].dead { return false }
+    g.plots[plot] = GardenPlot.{}
+    return true
+}
+GardenSave :: (g: Garden) -> string {
+    out: Vec(u8)
+    BuilderPrint(*out, "garden 2 %\n", g.selected)
+    for p: g.plots {
+        BuilderPrint(*out, "% % % % % %\n", p.kind, p.planted, p.watered, p.updated, p.growth, ifx p.dead then 1 else 0)
+    }
+    return BuilderFinish(out)
+}
+GardenNumber :: (text: string, at: *s64) -> s64 {
+    if at.* >= text.count || text[at.*] < #char "0" || text[at.*] > #char "9" { return -1 }
+    n: s64
+    while at.* < text.count && text[at.*] >= #char "0" && text[at.*] <= #char "9" {
+        if n > 25340230079 { return -1 }
+        n = n * 10 + cast(s64)(text[at.*] - #char "0"); at.* += 1
+    }
+    if n > 253402300799 { return -1 }
+    return n
+}
+GardenRead :: (text: string, result: *Garden) -> bool {
+    if text.count < 11 || text.count > 1200 || text[:9] != "garden 2 " { return false }
+    at: s64 = 9
+    selected := GardenNumber(text, *at)
+    if selected < 0 || selected > GARDEN_KINDS || at >= text.count || text[at] != #char "\n" { return false }
+    at += 1
+    parsed: Garden
+    parsed.selected = cast(s32)selected
+    for i: cast(s32)0..GARDEN_PLOTS - 1 {
+        values: [6]s64
+        for field: cast(s32)0..5 {
+            values[field] = GardenNumber(text, *at)
+            if values[field] < 0 || at >= text.count { return false }
+            separator := ifx field == 5 then #char "\n" else #char " "
+            if text[at] != separator { return false }
+            at += 1
+        }
+        if values[0] > GARDEN_KINDS || values[5] > 1 { return false }
+        if values[0] == 0 {
+            for j: cast(s32)1..5 { if values[j] != 0 { return false } }
+        } else {
+            if values[1] <= 0 || values[2] < values[1] || values[3] < values[2] || values[4] > GardenGrowTime(cast(s32)values[0]) || values[4] > values[3] - values[1] { return false }
+        }
+        parsed.plots[i] = GardenPlot.{.kind = cast(s32)values[0], .planted = values[1], .watered = values[2], .updated = values[3], .growth = values[4], .dead = values[5] == 1}
+    }
+    if at != text.count { return false }
+    result.* = parsed
+    return true
+}
+// Preserve the one plant from the earlier sequence when opening its save.
+GardenMigrate :: (text: string, result: *Garden, now: s64) -> bool {
+    if text.count < 16 || text.count > 32 || text[:9] != "garden 1 " || now <= 0 { return false }
+    at: s64 = 9
+    v: [4]s32
+    for i: cast(s32)0..3 {
+        v[i] = ReadWhole(text, *at)
+        if v[i] < 0 || at >= text.count || text[at] != (ifx i == 3 then #char "\n" else #char " ") { return false }
+        at += 1
+    }
+    if at != text.count || v[0] > 5 || v[1] > 1 || v[2] > 1 || v[3] > 1 { return false }
+    if (v[0] == 0 && v[1] != 0) || ((v[0] == 5 || v[2] == 1) && v[3] == 0) { return false }
+    migrated: Garden
+    if v[0] >= 2 {
+        unused GardenPlant(*migrated, 0, 1, now)
+        if v[0] == 5 {
+            migrated.plots[0].planted = now - GardenGrowTime(1)
+            migrated.plots[0].growth = GardenGrowTime(1)
+        }
+    }
+    result.* = migrated
+    return true
+}

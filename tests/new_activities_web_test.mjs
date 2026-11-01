@@ -1,3 +1,4 @@
+import {openTitleGame} from './title_routes.mjs';
 // Exercise catalog activities in a private headless browser and profile.
 import {spawn,spawnSync} from 'node:child_process';
 import {readFile,writeFile,mkdtemp,rm,mkdir} from 'node:fs/promises';
@@ -91,8 +92,8 @@ try{
  await waitFor('typeof Module!=="undefined"&&Module.FS&&document.getElementById("loading").style.display==="none"','Startup timed out');
  await delay(800);
  await click((22+94*['en','de','es'].indexOf(language)+44)*1.25,84*1.25);
- const rows=(await readFile('games/catalog.txt','utf8')).trim().split('\n').map(x=>x.split('|')).sort((a,b)=>Number(a[4])-Number(b[4])).filter(x=>x[1]!=='123 Book');
- async function open(title){const index=rows.findIndex(r=>r[1]===title);if(index<0)throw Error('Missing required activity '+title);await key('Home');for(let i=0;i<index;i++)await key('ArrowDown');await key('Enter');await delay(500)}
+ const titleScenes=JSON.parse(await readFile(new URL('../tools/title_hotspots.json',import.meta.url),'utf8'));
+ async function open(title){await openTitleGame(titleScenes,title,key);await delay(500)}
  async function saved(name){return evaluate(`(()=>{const fs=Module.FS;const paths=[];function scan(p){for(const n of fs.readdir(p)){if(n==='.'||n==='..')continue;const a=p+'/'+n;try{if(fs.isDir(fs.stat(a).mode))scan(a);else if(a.endsWith('/${name}.txt')&&a.includes('jungle.${name}'))paths.push(a)}catch{}}}scan('/kryon-apps/jungle');return paths.map(p=>fs.readFile(p,{encoding:'utf8'}))})()`)}
  // Tutorial pixel assertions require their input images even when optional
  // diagnostic captures are disabled.

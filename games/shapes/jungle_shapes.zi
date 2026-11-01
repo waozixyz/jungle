@@ -41,6 +41,7 @@ view_width: s32;
 view_height: s32;
 done_until: float64;
 placed_target: s32 = -1;
+placed_item: s32 = -1;
 placed_until: float64;
 drag_item: s32 = -1;
 drag_x: s32;
@@ -122,6 +123,31 @@ ViewPoint :: (x: float32, y: float32) -> Vector2 {
     return Vector2.{retro.x + x * retro.scale, retro.y + y * retro.scale}
 }
 
+// Owner accepted the wooden design; retain classic art for comparison only.
+#if #defined(SHAPES_CLASSIC_ART) {
+    WoodenToy :: () -> bool { return false }
+}
+#if !#defined(SHAPES_CLASSIC_ART) {
+    WoodenToy :: () -> bool { return true }
+}
+
+WoodPiecePath :: (mode: s32, value: s32) -> string {
+    if mode == SHAPES_MODE_COLOR {
+        if value == SHAPE_RED { return "assets/shapes/wooden/circle-red.png" }
+        if value == SHAPE_YELLOW { return "assets/shapes/wooden/circle-yellow.png" }
+        return "assets/shapes/wooden/circle-blue.png"
+    }
+    if mode == SHAPES_MODE_SIZE { return "assets/shapes/wooden/circle-wood.png" }
+    if value == SHAPE_SQUARE { return "assets/shapes/wooden/square-green.png" }
+    if value == SHAPE_TRIANGLE { return "assets/shapes/wooden/triangle-green.png" }
+    return "assets/shapes/wooden/circle-green.png"
+}
+
+WoodBox :: (area: ShapesRect) {
+    BookBox(area.x + 2, area.y + 7, area.width, area.height - 2, 0x64412735, 0, 12.0)
+    RetroSprite("assets/shapes/wooden/sorter.png", area.x, area.y, area.width, area.height, -1, true)
+}
+
 // An upright triangle fitting the same square as a circle of radius r.
 DrawTriangle :: (cx: s32, cy: s32, r: s32, inset: s32, fill: u32) {
     x := cast(float32)cx
@@ -146,6 +172,14 @@ DrawShape :: (kind: s32, cx: s32, cy: s32, r: s32, fill: u32, inset: s32 = 0) {
 
 // A shape-sorter hole: an outline with a soft hollow inside.
 DrawHole :: (kind: s32, cx: s32, cy: s32, r: s32) {
+    if WoodenToy() {
+        // Beveled cut-out: light lower lip, dark inner wall and deep cavity.
+        DrawShape(kind, cx, cy + 2, r + 2, 0xf5d79fff)
+        DrawShape(kind, cx, cy, r, 0x775035ff)
+        DrawShape(kind, cx, cy + r / 10, r, 0x382b22ff, r / 10)
+        DrawShape(kind, cx, cy + r / 6, r, 0x57402dff, r / 5)
+        return
+    }
     edge := r / 9
     if edge < 2 { edge = 2 }
     DrawShape(kind, cx, cy, r, HOLE_EDGE)
@@ -154,13 +188,23 @@ DrawHole :: (kind: s32, cx: s32, cy: s32, r: s32) {
 
 DrawItem :: (value: s32, area: ShapesRect) {
     r := ItemRadius(game.mode, value, area.width)
+    if WoodenToy() {
+        cx := area.x + area.width / 2
+        cy := area.y + area.height / 2
+        DrawShape(ItemKind(game.mode, value), cx + 2, cy + r / 5, r, 0x5c3d2933)
+        // Asset margins leave the same generous touch area as the old cards.
+        BookPicture(WoodPiecePath(game.mode, value), cx - r * 11 / 10, cy - r * 11 / 10, r * 22 / 10, r * 22 / 10)
+        return
+    }
     DrawShape(ItemKind(game.mode, value), area.x + area.width / 2, area.y + area.height / 2, r, ItemFill(game.mode, value))
 }
 
 Drop :: (target: s32) {
+    selected := game.selected
     result := ShapesDrop(*game, target)
     GuideRestart(result == SHAPES_MISSED)
     if result == SHAPES_PLACED {
+        placed_item = selected
         placed_target = target
         placed_until = retro.now + 0.6
         if ShapesDone(game) {
@@ -243,19 +287,28 @@ Homes :: () {
         }
         fill: u32 = ifx game.mode == SHAPES_MODE_COLOR then color_tints[value] else cast(u32)HOME
         if press.down || (placed_target == t && retro.now < placed_until) { fill = 0xdcebdcff }
-        BookBox(home.x, home.y, home.width, home.height, fill, ifx game.hint == t || guided then cast(u32)GREEN else cast(u32)0xbba98bff, 14.0)
+        if WoodenToy() { WoodBox(home) }
+        else { BookBox(home.x, home.y, home.width, home.height, fill, ifx game.hint == t || guided then cast(u32)GREEN else cast(u32)0xbba98bff, 14.0) }
         parts := ShapesHomeParts(home, per)
         e := parts.emblem
         r := e.width * 42 / 100
         cx := e.x + e.width / 2
         cy := e.y + e.height / 2
         if game.mode == SHAPES_MODE_SHAPE { DrawHole(value, cx, cy, r) }
-        else if game.mode == SHAPES_MODE_COLOR { DrawShape(SHAPE_CIRCLE, cx, cy, r, color_fills[value]) }
+        else if game.mode == SHAPES_MODE_COLOR {
+            DrawShape(SHAPE_CIRCLE, cx, cy, r, color_fills[value])
+            if WoodenToy() { DrawHole(SHAPE_CIRCLE, cx, cy, r * 3 / 4) }
+        }
         else { DrawHole(SHAPE_CIRCLE, cx, cy, ifx value == SHAPE_SMALL then r / 2 else r) }
         slot: s32 = 0
         for at: cast(s32)0..game.item_count - 1 {
             if game.placed[at] != t || slot >= per { continue }
-            DrawItem(game.items[at], parts.slots[slot])
+            if WoodenToy() && at == placed_item && retro.now < placed_until {
+                progress := ShapesWoodDrop(cast(float32)(0.6 - (placed_until - retro.now)))
+                edge := e.width * (100 - cast(s32)(progress * 20.0)) / 100
+                drop := ShapesRect.{cx - edge / 2, cy - edge / 2 - cast(s32)((1.0 - progress) * 18.0), edge, edge}
+                DrawItem(game.items[at], drop)
+            } else { DrawItem(game.items[at], parts.slots[slot]) }
             slot += 1
         }
         if press.clicked && drag_item < 0 { Drop(t) }
@@ -264,8 +317,13 @@ Homes :: () {
 
 Tray :: () {
     tray := layout.tray
-    BookBox(tray.x, tray.y, tray.width, tray.height, 0xd8b78aff, 0xb59f7cff, 14.0)
-    BookBox(tray.x + 5, tray.y + 5, tray.width - 10, tray.height - 10, 0xf7f1e3ff, CARD_EDGE, 10.0)
+    if WoodenToy() {
+        BookBox(tray.x, tray.y + 4, tray.width, tray.height, 0x654c3433, 0, 18.0)
+        BookBox(tray.x, tray.y, tray.width, tray.height, 0xe6dec5ed, 0xb6ad8dff, 18.0)
+    } else {
+        BookBox(tray.x, tray.y, tray.width, tray.height, 0xd8b78aff, 0xb59f7cff, 14.0)
+        BookBox(tray.x + 5, tray.y + 5, tray.width - 10, tray.height - 10, 0xf7f1e3ff, CARD_EDGE, 10.0)
+    }
     for at: cast(s32)0..game.item_count - 1 {
         if game.placed[at] >= 0 { continue }
         card := layout.items[at]
@@ -292,9 +350,11 @@ Tray :: () {
         }
         lifted := drag_item == at && drag_moved
         chosen := game.selected == at
-        if chosen && !lifted { BookBox(card.x + 3, card.y + 5, card.width, card.height, 0x70593c33, 0, 14.0) }
-        BookBox(card.x, card.y - (ifx chosen && !lifted then 3 else 0), card.width, card.height,
+        if !WoodenToy() && chosen && !lifted { BookBox(card.x + 3, card.y + 5, card.width, card.height, 0x70593c33, 0, 14.0) }
+        if !WoodenToy() || chosen {
+            BookBox(card.x, card.y - (ifx chosen && !lifted then 3 else 0), card.width, card.height,
             ifx lifted then cast(u32)0xf1ebdfff else cast(u32)CARD, ifx chosen then cast(u32)GREEN else cast(u32)CARD_EDGE, 14.0)
+        }
         if !lifted && !(guide.visible && guide.item == at && guide.phase >= SHAPES_GUIDE_LIFT) { DrawItem(game.items[at], ShapesRect.{card.x, card.y - (ifx chosen then 3 else 0), card.width, card.height}) }
     }
 }
@@ -319,7 +379,8 @@ DrawGuide :: () {
     // Only its drawing moves: its real tray item remains available for input.
     if guide.phase >= SHAPES_GUIDE_LIFT {
         DrawShape(ItemKind(game.mode, value), cx + 4, cy + 6, r, 0x70593c44)
-        DrawShape(ItemKind(game.mode, value), cx, cy - lift, r, ItemFill(game.mode, value))
+        if WoodenToy() { DrawItem(value, ShapesRect.{piece.x, piece.y - lift, piece.width, piece.height}) }
+        else { DrawShape(ItemKind(game.mode, value), cx, cy - lift, r, ItemFill(game.mode, value)) }
     }
     if guide.phase == SHAPES_GUIDE_PRESS {
         unused Circle(retro.session, CircleProps.{.center = ViewPoint(cast(float32)cx, cast(float32)cy),
@@ -372,6 +433,7 @@ GameMain :: () -> s32 {
     retro = Retro.{.session = AppSession(), .x = bounds.x, .y = bounds.y, .scale = scale, .now = AppNow(), .key = AppKey()}
     view_width = cast(s32)(bounds.width / scale); view_height = cast(s32)(bounds.height / scale)
     BookPalette(); BookBox(0, 0, view_width, view_height, CARD)
+    if WoodenToy() { RetroSprite("assets/shapes/wooden/backdrop.png", 0, 0, view_width, view_height, -1, true) }
     if !loaded {
         if !ShapesRead(DocumentRead("shapes.txt"), *game) { game = ShapesNew() }
         loaded = true
@@ -404,8 +466,10 @@ GameMain :: () -> s32 {
     if drag_item >= 0 && drag_moved {
         edge := layout.items[drag_item].width
         lifted := ShapesRect.{drag_x - edge / 2, drag_y - edge / 2, edge, edge}
-        BookBox(lifted.x + 4, lifted.y + 6, edge, edge, 0x70593c44, 0, 14.0)
+        if !WoodenToy() {
+            BookBox(lifted.x + 4, lifted.y + 6, edge, edge, 0x70593c44, 0, 14.0)
         BookBox(lifted.x, lifted.y, edge, edge, CARD, GREEN, 14.0)
+        }
         DrawItem(game.items[drag_item], lifted)
     }
     return 0

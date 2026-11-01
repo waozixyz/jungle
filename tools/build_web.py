@@ -92,10 +92,13 @@ def build(out):
     link_runtime(out/'jungle-dom.js',dom_gen)
     revision=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip()
     write_pages(out,revision)
-    # Freeze actual compiled menu rows for repeatable input-driven benchmarks,
+    # Freeze actual compiled menu routes for repeatable input-driven benchmarks,
     # including a current checkout with unrelated uncommitted catalog entries.
     rows=[line.split('|') for line in (ROOT/'games/catalog.txt').read_text().splitlines() if '|' in line]
-    (out/'benchmark-catalog.json').write_text(json.dumps({'games':[{'title':row[1],'age':int(row[4])} for row in rows]},separators=(',',':'))+'\n')
+    (out/'benchmark-catalog.json').write_text(json.dumps({
+        'games':[{'title':row[1],'age':int(row[4])} for row in rows],
+        'titleScenes':json.loads((ROOT/'tools/title_hotspots.json').read_text()),
+    },separators=(',',':'))+'\n')
     shutil.copy2(ROOT/'LICENSE',out/'LICENSE')
     for name in ('robots.txt','sitemap.xml','funding.json'):
         shutil.copy2(ROOT/'web'/name,out/name)

@@ -1,0 +1,12 @@
+// Accepted 1536x1024 paintings: preserve the scene, resize only its blank paper.
+StoryLayout :: struct { x: s32; y: s32; width: s32; art_height: s32; paper_height: s32; caption_height: s32; }
+StoryPageLayout :: (width: s32, height: s32, paper_top: s32) -> StoryLayout {
+    caption: s32 = ifx width >= height then 120 else 140
+    available: s32 = height - caption - 52
+    span := width
+    if span * paper_top / 1536 > available { span = available * 1536 / paper_top }
+    art := span * paper_top / 1536
+    // Start at the top of the actual book page. Its painted paper continues
+    // down to the bottom, including behind the closely associated controls.
+    return StoryLayout.{(width - span) / 2, 0, span, art, height - art, caption}
+}

@@ -5,6 +5,9 @@
 #import "app_context"
 #import "app_protocol"
 #import "geometry"
+#import "kryon/box_widget"
+#import "kryon/box_props"
+#import "kryon/drawing_props"
 #import "text_align"
 #import "number_text"
 #import "text_buffer"
@@ -253,6 +256,9 @@ GameMain :: () -> s32 {
         loaded = true
     }
     RetroBegin(AppSession(), AppBounds(), FONT, now, AppKey(), BLACK)
+    // The portrait page can be narrower than RetroBegin's legacy canvas.
+    // Cover that canvas too, including the margins on short portrait windows.
+    unused Box(retro.session, BoxProps.{.bounds = AppBounds(), .fill = ColorFromPacked(0xe3ece4ff)})
     if AppKey() == KEY_ESCAPE {
         if choosing_lesson { GameHome() }
         else { choosing_lesson = true; lesson_guard = true; unused AppService("jungle.voice", "") }

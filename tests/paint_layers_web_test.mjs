@@ -1,3 +1,4 @@
+import {openTitleGame} from './title_routes.mjs';
 // A private browser and profile color a picture through the page's real mouse
 // or touch input: two overlapping stencils dragged into place, a fill, the
 // upper object erased without touching the one below or the paper, and Undo
@@ -22,9 +23,7 @@ const server=createServer(async(req,res)=>{
 await new Promise(r=>server.listen(0,'127.0.0.1',r));
 const env={...process.env,YUE_DESKTOP_RECOVERY:'0',TMPDIR:resolve('work/b')};
 for(const k of ['DISPLAY','WAYLAND_DISPLAY','XAUTHORITY','DBUS_SESSION_BUS_ADDRESS','SESSION_MANAGER'])delete env[k];
-const menu=(await readFile('games/catalog.txt','utf8')).trim().split('\n').map(x=>x.split('|')).filter(x=>x[1]!=='123 Book').sort((a,b)=>Number(a[4])-Number(b[4]));
-const paintIndex=menu.findIndex(x=>x[1]==='Coloring Book');
-if(paintIndex<0)throw Error('No Coloring Book in this build');
+const titleScenes=JSON.parse(await readFile(new URL('../tools/title_hotspots.json',import.meta.url),'utf8'));
 
 const WORKING='/kryon-apps/jungle/jungle.paint/working.txt',HISTORY='/kryon-apps/jungle/jungle.paint/working-undo.txt';
 const CODES='0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_',W=960,H=720,PAPER=15,CLEAR=255;
@@ -264,7 +263,7 @@ async function run(input){
    await tap(await control(name,toolbarPoint(index,size.width,size.height)));
   }
   async function key(name){
-   const code={Home:36,ArrowDown:40,Enter:13,Escape:27}[name];await evaluate('document.activeElement?.blur()');
+   const code=({Home:36,ArrowDown:40,Enter:13,Escape:27}[name]||name.charCodeAt(0));await evaluate('document.activeElement?.blur()');
    await command('Input.dispatchKeyEvent',{type:'keyDown',key:name,windowsVirtualKeyCode:code});await frames(2);
    await command('Input.dispatchKeyEvent',{type:'keyUp',key:name,windowsVirtualKeyCode:code});await frames(4);
   }
@@ -273,7 +272,7 @@ async function run(input){
   }
   async function openPaint(){
    await stable('the menu kept changing');
-   const before=await screen();await key('Home');for(let n=0;n<paintIndex;n++)await key('ArrowDown');await key('Enter');
+   const before=await screen();await openTitleGame(titleScenes,'Coloring Book',key);
    await settled(before,'Coloring Book did not open');
    dom=await evaluate('!!document.querySelector("#kryon-dom-root button")');
    if(dom!==await evaluate('document.documentElement.dataset.backend==="dom"'))throw Error(label+': wrong renderer');

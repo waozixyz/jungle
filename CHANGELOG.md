@@ -5,6 +5,10 @@
 - Explore 41 picture books with at least ten pages each, 435 subjects and complete English, German and Spanish narration.
 - Separate Farm Animals and Pets, with tractors, barns and tools in a Farm book under Home; refresh the twenty animal scenes and matching counting pictures.
 - Make Jungle Academy proprietary while retaining third-party licenses and earlier release permissions.
+- Explore painted title rooms in portrait or landscape, with direct bookshelf, campus and music-room navigation.
+- Read Sweet Porridge with eleven illustrated pages and complete narration in English, German and Spanish.
+- Grow six garden plants with seeds, watering and care that continues between visits.
+- Sort wooden toy shapes by default and keep Animal Counting's paper background across portrait screens.
 
 ## 0.1.34
 

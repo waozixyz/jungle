@@ -1,0 +1,274 @@
+// The treehouse title screen's fit, hit testing and navigation, without a window.
+#import, file "../host/jungle_title.zi";
+#import, file "../host/jungle_title_data.zi";
+#import, file "../host/platform.zi";
+
+Near :: (a: float32, b: float32) -> bool { return a - b < 0.01 && b - a < 0.01 }
+
+// A point whose actual scene hit resolves to HOTSPOT, searched on a grid
+// over its glow picture; false when no clickable painted point exists.
+OwnPoint :: (scene: s32, hotspot: s32, x: *float32, y: *float32) -> bool {
+    rect := hotspot * 4
+    for row: cast(s32)1..39 {
+        for column: cast(s32)1..39 {
+            px := cast(float32)TITLE_GLOW_RECT[rect] + cast(float32)(TITLE_GLOW_RECT[rect + 2] * column) / 40.0
+            py := cast(float32)TITLE_GLOW_RECT[rect + 1] + cast(float32)(TITLE_GLOW_RECT[rect + 3] * row) / 40.0
+            if !TitleInside(hotspot, px, py) { continue }
+            // A piano painted inside the hut intentionally overlaps it;
+            // the smaller foreground target must win the real hit test.
+            if TitleHit(scene, px, py) == hotspot { x.* = px; y.* = py; return true }
+        }
+    }
+    return false
+}
+
+SceneNamed :: (name: string) -> s32 {
+    for scene: cast(s32)0..TITLE_SCENE_COUNT - 1 { if TITLE_SCENE_NAME[scene] == name { return scene } }
+    return -1
+}
+
+HotspotNamed :: (scene: s32, id: string) -> s32 {
+    first := TITLE_SCENE_FIRST[scene]
+    for hotspot: first..first + TITLE_SCENE_HOTSPOTS[scene] - 1 { if TITLE_HOTSPOT_ID[hotspot] == id { return hotspot } }
+    return -1
+}
+
+#program_export
+main :: () -> s32 {
+    // Title -> game -> title changes policy once each. Resizing/rotating or
+    // repeating either route never issues another request or resets state.
+    if !ApplyTitleOrientationPolicy(true) || title_orientation_policy != 4 { return 101 }
+    if ApplyTitleOrientationPolicy(true) { return 102 }
+    if !ApplyTitleOrientationPolicy(false) || title_orientation_policy != 6 { return 103 }
+    if ApplyTitleOrientationPolicy(false) { return 104 }
+    if !ApplyTitleOrientationPolicy(true) || title_orientation_policy != 4 { return 105 }
+    if ApplyTitleOrientationPolicy(true) { return 106 }
+
+    // Even-odd polygons: a square, a square with a square hole, and two
+    // squares joined by a zero-width bridge.
+    square_x: [4]s32 = .[0, 10, 10, 0]
+    square_y: [4]s32 = .[0, 0, 10, 10]
+    if !PointInPolygon(square_x[:], square_y[:], 5.0, 5.0) { return 1 }
+    if PointInPolygon(square_x[:], square_y[:], 11.0, 5.0) { return 2 }
+    if PointInPolygon(square_x[:], square_y[:], 5.0, -1.0) { return 3 }
+    hole_x: [10]s32 = .[0, 10, 10, 0, 0, 3, 3, 7, 7, 3]
+    hole_y: [10]s32 = .[0, 0, 10, 10, 0, 3, 7, 7, 3, 3]
+    if PointInPolygon(hole_x[:], hole_y[:], 5.0, 5.0) { return 4 }
+    if !PointInPolygon(hole_x[:], hole_y[:], 1.5, 5.0) { return 5 }
+    pair_x: [10]s32 = .[0, 4, 4, 10, 10, 14, 14, 10, 10, 4]
+    pair_y: [10]s32 = .[0, 0, 2, 2, 0, 0, 4, 4, 2, 2]
+    if !PointInPolygon(pair_x[:], pair_y[:], 2.0, 1.0) || !PointInPolygon(pair_x[:], pair_y[:], 12.0, 3.0) { return 6 }
+    if PointInPolygon(pair_x[:], pair_y[:], 7.0, 3.0) { return 7 }
+
+    // Cover fit: the source size fits exactly; a wider window fills its
+    // width; a portrait window fills its height and pans sideways only.
+    exact := TitleFit(cast(float32)TITLE_SOURCE_WIDTH, cast(float32)TITLE_SOURCE_HEIGHT, 50.0, 50.0)
+    if !Near(exact.scale, 1.0) || !Near(exact.x, 0.0) || !Near(exact.y, 0.0) { return 10 }
+    wide := TitleFit(3344.0, 941.0, 0.0, 0.0)
+    if !Near(wide.scale, 2.0) || !Near(wide.x, 0.0) || !Near(wide.y, -470.5) || !Near(wide.pan_x_limit, 0.0) { return 11 }
+    phone := TitleFit(400.0, 941.0, 0.0, 0.0)
+    if !Near(phone.scale, 1.0) || !Near(phone.x, -636.0) || !Near(phone.pan_x_limit, 636.0) || !Near(phone.pan_y_limit, 0.0) { return 12 }
+    panned := TitleFit(400.0, 941.0, 10000.0, 30.0)
+    if !Near(panned.x, 0.0) || !Near(panned.y, 0.0) { return 13 }
+    panned = TitleFit(400.0, 941.0, -10000.0, 0.0)
+    if !Near(panned.x, 400.0 - cast(float32)TITLE_SOURCE_WIDTH) { return 14 }
+    half := TitleFit(836.0, 470.5, 0.0, 0.0)
+    if !Near(TitleSourceX(half, 418.0), 836.0) || !Near(TitleSourceY(half, 100.0), 200.0) { return 15 }
+
+    // Every painted item can be hit through the window mapping, and only
+    // inside its own scene.
+    for scene: cast(s32)0..TITLE_SCENE_COUNT - 1 {
+        first := TITLE_SCENE_FIRST[scene]
+        if TITLE_SCENE_HOTSPOTS[scene] < 1 { return 20 }
+        for hotspot: first..first + TITLE_SCENE_HOTSPOTS[scene] - 1 {
+            x: float32
+            y: float32
+            if !OwnPoint(scene, hotspot, *x, *y) { Report("no clickable point for "); Report(TITLE_HOTSPOT_ID[hotspot]); return 21 }
+            if TitleHit(scene, x, y) != hotspot { return 22 }
+            view := TitleFit(400.0, 941.0, 0.0, 0.0, scene)
+            if TitleHit(scene, TitleSourceX(view, view.x + x * view.scale), TitleSourceY(view, view.y + y * view.scale)) != hotspot { return 23 }
+            if TITLE_HOTSPOT_GUIDE[hotspot] == 0 && (TITLE_HOTSPOT_TARGET[hotspot] >= 0) == (TITLE_HOTSPOT_GAME[hotspot] != "") { return 24 }
+        }
+    }
+    if TitleHit(0, -5.0, -5.0) != -1 || TitleHit(TITLE_SCENE_COUNT, 10.0, 10.0) != -1 { return 25 }
+
+    treehouse := SceneNamed("treehouse")
+    bookshelf := SceneNamed("bookshelf")
+    campus := SceneNamed("campus")
+    if treehouse != 0 || bookshelf < 0 || campus < 0 { return 30 }
+    if TITLE_SCENE_PARENT[bookshelf] != treehouse || TITLE_SCENE_PARENT[campus] != treehouse { return 31 }
+
+    // The approved portrait composition has independent coordinates and
+    // resolves back to its canonical room when rotated to landscape.
+    portrait_campus := ResolveTitleSceneVariant(campus, 420.0, 900.0)
+    if portrait_campus == campus || TITLE_SCENE_WIDTH[portrait_campus] != 1024 { return 84 }
+    if ResolveTitleSceneVariant(portrait_campus, 900.0, 420.0) != campus { return 85 }
+    if TitleHit(portrait_campus, 900.0, 530.0) != HotspotNamed(portrait_campus, "piano") { return 86 }
+    if TitleHit(portrait_campus, 200.0, 530.0) != HotspotNamed(portrait_campus, "music-hut") { return 87 }
+    portrait_fit := TitleFit(1024.0, 1536.0, 0.0, 0.0, portrait_campus)
+    if !Near(portrait_fit.scale, 1.0) || !Near(portrait_fit.x, 0.0) || !Near(portrait_fit.y, 0.0) { return 88 }
+    rotated: TitleState
+    TitleStart(*rotated)
+    rotated.pending = 0
+    rotated.tracking = true
+    TitleResolve(*rotated, 420.0, 900.0)
+    if rotated.scene == treehouse || rotated.pending >= 0 || rotated.tracking { return 89 }
+    TitleResolve(*rotated, 900.0, 420.0)
+    if rotated.scene != treehouse { return 90 }
+
+    // Both the painted house/platform and ladder are one return target,
+    // independently traced in the two approved compositions.
+    if TitleHit(campus, 800.0, 50.0) != HotspotNamed(campus, "ladder") { return 110 }
+    if TitleHit(campus, 980.0, 350.0) != HotspotNamed(campus, "ladder") { return 111 }
+    if TitleHit(portrait_campus, 500.0, 140.0) != HotspotNamed(portrait_campus, "ladder") { return 112 }
+    if TitleHit(portrait_campus, 570.0, 430.0) != HotspotNamed(portrait_campus, "ladder") { return 113 }
+    for shelf_scene: cast(s32)0..TITLE_SCENE_COUNT - 1 {
+        if TITLE_SCENE_BASE[shelf_scene] != bookshelf { continue }
+        back_ladder := HotspotNamed(shelf_scene, "ladder")
+        returning: TitleState
+        TitleStart(*returning)
+        TitleEnter(*returning, shelf_scene)
+        back_step := TitleActivate(*returning, back_ladder)
+        if !back_step.moved || TITLE_SCENE_BASE[returning.scene] != treehouse { return 114 }
+    }
+
+    // Keyboard: arrows glow items in order, Enter opens a scene or game,
+    // Escape climbs back and Home returns to the treehouse.
+    state: TitleState
+    TitleStart(*state)
+    if state.scene != treehouse || TitleGlowing(state) != -1 { return 40 }
+    step := TitleKey(*state, 264)
+    if !step.moved || state.selected != TITLE_SCENE_FIRST[treehouse] || TitleGlowing(state) != state.selected { return 41 }
+    unused TitleKey(*state, 265)
+    if state.selected != TITLE_SCENE_FIRST[treehouse] + TITLE_SCENE_HOTSPOTS[treehouse] - 1 { return 42 }
+    shelf := HotspotNamed(treehouse, "bookshelf")
+    for turn: cast(s32)0..TITLE_SCENE_HOTSPOTS[treehouse] - 1 { if state.selected != shelf { unused TitleKey(*state, 262) } }
+    if state.selected != shelf { return 43 }
+    step = TitleKey(*state, 257)
+    if !step.moved || step.game >= 0 || state.scene != bookshelf || TitleGlowing(state) != -1 { return 44 }
+    abc := HotspotNamed(bookshelf, "book-abc")
+    step = TitleKey(*state, 49 + abc - TITLE_SCENE_FIRST[bookshelf])
+    if step.game != abc || TITLE_HOTSPOT_GAME[abc] != "ABC Book" || state.scene != bookshelf { return 45 }
+    step = TitleKey(*state, 256)
+    if !step.moved || state.scene != treehouse { return 46 }
+    step = TitleKey(*state, 256)
+    if step.moved || state.scene != treehouse { return 47 }
+    TitleEnter(*state, campus)
+    hut := HotspotNamed(campus, "music-hut")
+    if TITLE_HOTSPOT_GAME[hut] != "Music Room" { return 48 }
+    piano := HotspotNamed(campus, "piano")
+    if piano < 0 || TITLE_HOTSPOT_GAME[piano] != "Little Piano" { return 74 }
+    // Actual painted keyboard and drum body, not helper-selected points.
+    if TitleHit(campus, 180.0, 385.0) != piano { return 80 }
+    if TitleHit(campus, 330.0, 400.0) != hut { return 81 }
+    guide := HotspotNamed(treehouse, "tiger-guide")
+    unused TitleActivate(*state, guide)
+    if state.guide_stopped || state.guide_at != 0.0 { return 82 }
+    unused TitleKey(*state, 262)
+    if !state.guide_stopped { return 83 }
+    if ResolveTitleSceneVariant(campus, 960.0, 600.0) != campus { return 75 }
+    if ResolveTitleSceneVariant(campus, 400.0, 900.0) != TITLE_SCENE_PORTRAIT[campus] { return 76 }
+    unused TitleKey(*state, 256)
+    if state.scene != treehouse { return 77 }
+    unused TitleKey(*state, 268)
+    if state.scene != treehouse || state.selected != -1 { return 49 }
+
+    // A mouse hovers, glows exactly the item under it, and opens it on click.
+    view := TitleFit(cast(float32)TITLE_SOURCE_WIDTH, cast(float32)TITLE_SOURCE_HEIGHT, 0.0, 0.0)
+    easel := HotspotNamed(treehouse, "easel")
+    ex: float32
+    ey: float32
+    if easel < 0 || !OwnPoint(treehouse, easel, *ex, *ey) { return 50 }
+    unused TitlePointer(*state, view, 1.0, 1.0, false, false, false, false, 1.0)
+    unused TitlePointer(*state, view, ex, ey, false, false, false, false, 1.1)
+    if !state.hover_mode || TitleGlowing(state) != easel { return 51 }
+    unused TitlePointer(*state, view, ex, ey, false, false, false, true, 1.15)
+    if TitleGlowing(state) != -1 { return 52 }
+    unused TitlePointer(*state, view, ex, ey, true, true, false, false, 1.2)
+    step = TitlePointer(*state, view, ex, ey, false, false, true, false, 1.3)
+    if step.game != easel || TITLE_HOTSPOT_GAME[easel] != "Coloring Book" { return 53 }
+    // Keys take the glow back from the mouse.
+    unused TitleKey(*state, 262)
+    if state.hover_mode || TitleGlowing(state) != TITLE_SCENE_FIRST[treehouse] { return 54 }
+
+    // Touch: no hover; a tap glows its item and opens it a moment later.
+    touch: TitleState
+    TitleStart(*touch)
+    ladder := HotspotNamed(treehouse, "ladder")
+    lx: float32
+    ly: float32
+    if ladder < 0 || !OwnPoint(treehouse, ladder, *lx, *ly) { return 60 }
+    unused TitlePointer(*touch, view, lx, ly, false, false, false, false, 2.0)
+    unused TitlePointer(*touch, view, lx, ly, true, true, false, false, 2.1)
+    if touch.hover_mode || TitleGlowing(touch) != ladder { return 61 }
+    step = TitlePointer(*touch, view, lx, ly, false, false, true, false, 2.2)
+    if step.game >= 0 || step.moved || TitleGlowing(touch) != ladder { return 62 }
+    step = TitleTick(*touch, 2.3)
+    if step.moved || touch.scene != treehouse { return 63 }
+    step = TitleTick(*touch, 2.21 + TITLE_TAP_SECONDS)
+    if !step.moved || touch.scene != campus || TitleGlowing(touch) != -1 { return 64 }
+    // A tap opening a game reports it after the glow.
+    frogs := HotspotNamed(campus, "frogs")
+    fx: float32
+    fy: float32
+    if frogs < 0 || !OwnPoint(campus, frogs, *fx, *fy) { return 65 }
+    unused TitlePointer(*touch, view, fx, fy, true, true, false, false, 3.0)
+    unused TitlePointer(*touch, view, fx, fy, false, false, true, false, 3.05)
+    step = TitleTick(*touch, 3.06 + TITLE_TAP_SECONDS)
+    if step.game != frogs || TITLE_HOTSPOT_GAME[frogs] != "Animal Counting" { return 66 }
+    // A quick tap pressed and released within one frame still counts.
+    TitleEnter(*touch, treehouse)
+    unused TitlePointer(*touch, view, lx, ly, false, true, true, false, 4.0)
+    step = TitleTick(*touch, 4.01 + TITLE_TAP_SECONDS)
+    if touch.scene != campus { return 67 }
+
+    // Portrait: dragging pans the picture and never taps; keys center the
+    // selection.
+    pan: TitleState
+    TitleStart(*pan)
+    phone_view := TitleFit(400.0, 941.0, pan.pan_x, pan.pan_y)
+    unused TitlePointer(*pan, phone_view, 200.0, 400.0, true, true, false, false, 5.0)
+    unused TitlePointer(*pan, phone_view, 300.0, 402.0, true, false, false, false, 5.1)
+    step = TitlePointer(*pan, phone_view, 300.0, 402.0, false, false, true, false, 5.2)
+    if !Near(pan.pan_x, 100.0) || !Near(pan.pan_y, 0.0) || pan.pending >= 0 || step.game >= 0 { return 70 }
+    unused TitlePointer(*pan, phone_view, 0.0, 400.0, true, true, false, false, 5.3)
+    unused TitlePointer(*pan, phone_view, 2000.0, 400.0, true, false, false, false, 5.4)
+    if !Near(pan.pan_x, phone_view.pan_x_limit) { return 71 }
+    unused TitlePointer(*pan, phone_view, 2000.0, 400.0, false, false, true, false, 5.5)
+    TitleEnter(*pan, treehouse)
+    if !Near(pan.pan_x, 0.0) { return 72 }
+    unused TitleKey(*pan, 262)
+    TitleFocus(*pan, 400.0, 941.0)
+    focused := TitleFit(400.0, 941.0, pan.pan_x, pan.pan_y)
+    rect := pan.selected * 4
+    center := focused.x + (cast(float32)TITLE_GLOW_RECT[rect] + cast(float32)TITLE_GLOW_RECT[rect + 2] / 2.0) * focused.scale
+    if center < 0.0 || center > 400.0 { return 73 }
+    // Corner controls must never start a pan, even when pressed and dragged.
+    TitleEnter(*pan, treehouse)
+    unused TitlePointer(*pan, phone_view, 10.0, 10.0, true, true, false, true, 6.0)
+    unused TitlePointer(*pan, phone_view, 200.0, 10.0, true, false, false, false, 6.1)
+    if pan.tracking || pan.pan_x != 0.0 || pan.pending >= 0 { return 78 }
+    if !pan.guide_stopped { return 79 }
+    // Spoken guide starts once, respects mute, stops on interaction and
+    // replays only when the tiger is activated again.
+    narrated: TitleState
+    TitleStart(*narrated)
+    intro := TitleGuide(*narrated, 10.0, false, false)
+    if intro.active || intro.voice || !intro.stop { return 91 }
+    intro = TitleGuide(*narrated, 11.1, false, false)
+    if !intro.active || !intro.voice || intro.stop { return 92 }
+    intro = TitleGuide(*narrated, 11.2, false, false)
+    if intro.voice { return 93 }
+    intro = TitleGuide(*narrated, 11.3, true, false)
+    if !intro.stop || intro.voice { return 94 }
+    intro = TitleGuide(*narrated, 11.4, false, true)
+    if !intro.stop || intro.active || !narrated.guide_stopped { return 95 }
+    unused TitleActivate(*narrated, guide)
+    unused TitleGuide(*narrated, 20.0, false, false)
+    intro = TitleGuide(*narrated, 21.1, false, false)
+    if !intro.voice { return 96 }
+    intro = TitleGuide(*narrated, 34.0, false, false)
+    if intro.voice || !intro.stop || intro.active { return 97 }
+    Report("local title scene test passed\n")
+    return 0
+}

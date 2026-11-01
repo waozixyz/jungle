@@ -1,3 +1,4 @@
+import {titleKeys} from './title_routes.mjs';
 // USB Moto only. Owns one new Chrome tab and its own ADB mappings, never a profile.
 import {spawnSync} from 'node:child_process';
 import {createReadStream} from 'node:fs';
@@ -21,8 +22,7 @@ if(!deviceList.stdout?.split('\n').some(l=>l.startsWith(serial+' ')&&l.includes(
 if(adb('shell','getprop','ro.product.manufacturer').toLowerCase()!=='motorola')throw Error('The explicit USB test device must be the development Moto');
 await mkdir(output,{recursive:true});
 const catalog=connectionOnly?{games:[]}:JSON.parse(await readFile(join(root,'benchmark-catalog.json'),'utf8'));
-const menu=catalog.games.filter(g=>g.title!=='123 Book').sort((a,b)=>a.age-b.age),entry=menu.findIndex(g=>g.title==='Coloring Book');
-if(entry<0&&!connectionOnly)throw Error('Frozen build catalog is missing Coloring Book');
+const paintRoute=connectionOnly?[]:titleKeys(catalog.titleScenes,'Coloring Book');
 const build=JSON.parse(await readFile(join(root,'version.json'),'utf8'));
 async function fingerprints(){const result={};for(const name of ['version.json','benchmark-catalog.json','canvas.html','dom.html','jungle.js','jungle-dom.js','jungle.wasm','jungle-dom.wasm']){const hash=createHash('sha256');for await(const chunk of createReadStream(join(root,name)))hash.update(chunk);result[name]=hash.digest('hex')}return result}
 const artifacts=connectionOnly?{}:await fingerprints();
@@ -56,7 +56,7 @@ try{
  async function evaluate(expression){const r=await command('Runtime.evaluate',{expression,returnByValue:true,awaitPromise:true});if(r.exceptionDetails)throw Error(JSON.stringify(r.exceptionDetails));return r.result.value}
  async function until(expression,label){const end=Date.now()+Number(args.get('--timeout-ms')||90000);while(Date.now()<end){if(pageRpc.errors.length)throw Error(pageRpc.errors.join('\n'));if(await evaluate(expression))return;await delay(120)}if(args.get('--captures')==='true')await writeFile(join(output,'phone-timeout.png'),Buffer.from((await command('Page.captureScreenshot',{format:'png'})).data,'base64'));throw Error(label+' '+await evaluate('JSON.stringify({text:document.body?.innerText?.slice(0,700),opened:window.bench?.opened?.slice(-12)})'))}
  async function rendered(){await evaluate('new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>requestAnimationFrame(resolve))))')}
- async function key(key){await evaluate('document.documentElement.dataset.backend==="canvas"?Module.canvas.focus():document.activeElement?.blur()');const code=key==='Home'?36:key==='ArrowDown'?40:key==='Enter'?13:key==='Escape'?27:0;await command('Input.dispatchKeyEvent',{type:'keyDown',key,code:key,windowsVirtualKeyCode:code});await delay(160);await command('Input.dispatchKeyEvent',{type:'keyUp',key,code:key,windowsVirtualKeyCode:code});await rendered();await delay(350)}
+ async function key(key){await evaluate('document.documentElement.dataset.backend==="canvas"?Module.canvas.focus():document.activeElement?.blur()');const code=key==='Home'?36:key==='ArrowDown'?40:key==='Enter'?13:key==='Escape'?27:key.charCodeAt(0);await command('Input.dispatchKeyEvent',{type:'keyDown',key,code:key,windowsVirtualKeyCode:code});await delay(160);await command('Input.dispatchKeyEvent',{type:'keyUp',key,code:key,windowsVirtualKeyCode:code});await rendered();await delay(350)}
  async function tap(x,y){await command('Input.synthesizeTapGesture',{x,y,duration:100,tapCount:1,gestureSourceType:'touch'});await rendered()}
  async function metrics(){return Object.fromEntries((await command('Performance.getMetrics')).metrics.map(m=>[m.name,m.value]))}
  async function picture(){return evaluate(`(async()=>{const bytes=Module.FS.readFile(${JSON.stringify(working)}),text=new TextDecoder().decode(bytes),pixels=text.split('\\n').slice(10).join('\\n');const hash=async b=>Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',b))).map(v=>v.toString(16).padStart(2,'0')).join('');return {mtime:Number(Module.FS.stat(${JSON.stringify(working)}).mtime),sha256:await hash(bytes),pixels:await hash(new TextEncoder().encode(pixels))}})()`)}
@@ -80,7 +80,7 @@ try{
   const viewport=await evaluate('({width:innerWidth,height:innerHeight,dpr:devicePixelRatio,canvasWidth:Module.canvas.width,canvasHeight:Module.canvas.height,clientWidth:Module.canvas.clientWidth,clientHeight:Module.canvas.clientHeight})');
   // PageDimension uses CSS client sizes; only the raster backing is DPR-scaled.
   if(viewport.width!==viewport.clientWidth||viewport.height!==viewport.clientHeight||Math.abs(viewport.canvasWidth/viewport.clientWidth-viewport.dpr)>.02||Math.abs(viewport.canvasHeight/viewport.clientHeight-viewport.dpr)>.02)throw Error('Unexpected phone CSS/backing scale: '+JSON.stringify(viewport));
-  await key('Home');for(let n=0;n<entry;n++)await key('ArrowDown');await key('Enter');
+  for(const value of paintRoute)await key(value);
   await until('bench.opened.some(p=>p.includes("/jungle.paint/"))','Coloring Book did not open');
   const w=viewport.width,h=viewport.height,body=h-56,scale=Math.min(w/320,body/200),dx=Math.trunc((w-320*scale)/2),dy=56+Math.trunc((body-200*scale)/2);
   const dialog=(x,y)=>tap(dx+x*scale,dy+y*scale);

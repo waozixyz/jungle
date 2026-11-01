@@ -7,7 +7,7 @@ import tempfile
 
 from PIL import Image, __version__ as pillow_version, features
 
-PHOTO_FOLDERS = {'assets/jungle-book/pages', 'assets/jungle-book/previews', 'assets/jigsaw'}
+PHOTO_FOLDERS = {'assets/jungle-book/pages', 'assets/jungle-book/previews', 'assets/jigsaw', 'assets/jungle/title'}
 LOSSLESS_PNG_FOLDERS = {'assets/jungle-book/items', 'assets/hide_seek/props',
                         'assets/hide_seek/scenes', 'assets/drums/pictures'}
 WEBP_QUALITY = 90
@@ -16,7 +16,7 @@ WEBP_QUALITY = 90
 # scenes, and the Music Room's pictures. Cut-outs keep their transparency, so
 # a stand-in never shows a white box. Jigsaw pictures have one too: Kryon maps
 # each piece's full-size source rectangle onto it (ImageProps.full_size).
-PREVIEW_FOLDERS = {'assets/jungle-book/pages', 'assets/jungle-book/previews', 'assets/jigsaw'} | LOSSLESS_PNG_FOLDERS
+PREVIEW_FOLDERS = PHOTO_FOLDERS | LOSSLESS_PNG_FOLDERS
 PREVIEW_PIXELS = 128
 PREVIEW_QUALITY = 50
 
