@@ -271,12 +271,12 @@ HideSeekArtLayout :: (kind: s32, cx: s32, ground: s32, size: s32, progress: floa
         art.animal_cx = x + edge * 632 / HIDE_PROP_PIXELS
         art.animal_edge = edge * 56 / 100
         // Feet and dangling tails stay inside the bowl, below its front rim.
-        art.animal_base = y + edge * 1000 / HIDE_PROP_PIXELS -
+        art.animal_base = y + edge * 940 / HIDE_PROP_PIXELS -
             art.animal_edge * (hide_animal_bottoms[animal] - hide_animal_feet[animal]) / 420
     } else if k == HIDE_BUSH {
         // Out toward the open middle of the stage, never off its edge.
         side: s32 = ifx toward > 0 then 1 else -1
-        art.animal_cx = cx + side * (size * 36 / 100 + cast(s32)(p * cast(float32)size * 0.12))
+        art.animal_cx = cx + side * (size * 36 / 100 + cast(s32)(p * cast(float32)size * 0.16))
         art.animal_base = ground
         // A parrot perches in the low foliage; its long tail ends at ground.
         if animal == 11 { art.animal_base -= edge * 190 / HIDE_PROP_PIXELS }
@@ -306,7 +306,7 @@ HideSeekHintArtLayout :: (kind: s32, cx: s32, ground: s32, size: s32, animal: s3
     if kind == HIDE_BASKET {
         art.animal_edge = art.edge * 28 / 100
         body := art.animal_edge * (hide_animal_bottoms[animal] - hide_animal_tops[animal]) / 420
-        top := art.y + art.edge * 717 / HIDE_PROP_PIXELS - body * 8 / 100
+        top := art.y + art.edge * 717 / HIDE_PROP_PIXELS - body * 26 / 100
         art.animal_base = top + art.animal_edge * (hide_animal_feet[animal] - hide_animal_tops[animal]) / 420
     } else if kind == HIDE_BUSH {
         art.animal_cx = art.x + art.edge * hide_bush_hint_x[side] / HIDE_PROP_PIXELS
