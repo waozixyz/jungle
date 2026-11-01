@@ -12,6 +12,7 @@ import tarfile
 import tempfile
 import unittest
 from unittest.mock import patch
+from types import SimpleNamespace
 
 import remote_build as workflow
 
@@ -48,6 +49,53 @@ class SyncTest(unittest.TestCase):
         self.receive({self.name: b'latest edit'})
         self.assertEqual((self.root / self.name).read_bytes(), b'latest edit')
         self.assertEqual(private.read_text(), 'owner data')
+
+    def test_source_mutates_after_snapshot_receiver_uses_captured_bytes(self):
+        desktop = self.root / 'desktop'
+        folder = desktop / workflow.PROJECT
+        source = folder / 'host/current.zi'
+        source.parent.mkdir(parents=True)
+        source.write_bytes(b'captured working edit')
+        private = folder / 'work/private-save'
+        private.parent.mkdir()
+        private.write_bytes(b'local owner data')
+        remote_private = self.root / workflow.PROJECT / 'work/private-save'
+        remote_private.parent.mkdir(parents=True)
+        remote_private.write_bytes(b'remote owner data')
+        payload_path = self.root / 'snapshot.tar'
+        git_results = [SimpleNamespace(stdout='revision-at-capture\n'),
+                       SimpleNamespace(stdout=b'host/current.zi\0')]
+        with payload_path.open('w+b') as payload:
+            with patch.object(workflow, 'QUEUE_FILES', ()), patch.object(workflow, 'run', side_effect=git_results):
+                proposal = workflow.collect(desktop, payload, {workflow.PROJECT: folder})
+            source.write_bytes(b'newer desktop edit')
+            buffer = io.BytesIO()
+            buffer.write((json.dumps(proposal) + '\n').encode())
+            workflow.transfer_payload(payload, buffer, proposal['files'])
+        buffer.seek(0)
+        with patch('sys.stdin', io.TextIOWrapper(buffer)), contextlib.redirect_stdout(io.StringIO()):
+            workflow.receive(self.root)
+        self.assertEqual((self.root / self.name).read_bytes(), b'captured working edit')
+        self.assertEqual(workflow.digest(self.root / self.name), proposal['files'][self.name]['sha256'])
+        self.assertEqual(source.read_bytes(), b'newer desktop edit')
+        self.assertEqual(private.read_bytes(), b'local owner data')
+        self.assertEqual(remote_private.read_bytes(), b'remote owner data')
+        self.assertEqual(proposal['heads'][workflow.PROJECT], 'revision-at-capture')
+        self.assertLessEqual(proposal['capture_started_at'], proposal['captured_at'])
+
+    def test_payload_transfer_selects_only_changed_members(self):
+        payload = io.BytesIO()
+        with tarfile.open(fileobj=payload, mode='w') as archive:
+            for name in ('unchanged', 'changed'):
+                member = tarfile.TarInfo(name)
+                member.size = 3
+                archive.addfile(member, io.BytesIO(b'old'))
+        target = io.BytesIO()
+        workflow.transfer_payload(payload, target, ['changed'])
+        target.seek(0)
+        with tarfile.open(fileobj=target) as archive:
+            self.assertEqual(archive.getnames(), ['changed'])
+            self.assertEqual(archive.extractfile('changed').read(), b'old')
 
     def test_remote_edit_stops_sync(self):
         self.receive({self.name: b'desktop'})

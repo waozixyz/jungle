@@ -107,9 +107,13 @@ make remote-debug                             # build only
 This synchronizes current Git-visible files, including uncommitted changes,
 from Jungle, Ziran, Kryon, Mingcute and locked source dependencies into canonical
 `~/Projects` organization folders. Existing desktop package-cache sources are
-used only when their exact locked revision is available. It compares SHA-256
-manifests before building, refuses
-remote edits or conflicting private files, and preserves unrelated files.
+used only when their exact locked revision is available. Before transfer, it
+captures working file bytes into a disk archive in desktop `work/remote-build/`,
+with SHA-256 hashes of those captured bytes, revisions and capture start/end times.
+Capture spans that time window; later desktop edits are included in the next
+invocation and do not invalidate this build. Only changed captured files transfer.
+It verifies the manifest before building, refuses remote edits or conflicting
+private files, and preserves unrelated files.
 Previously synchronized source deletions move into Jungle's `backup/`.
 Build outputs, private configuration, credentials and `.git` are never copied.
 Source revision and content receipts live in `work/remote-build/` on the target.

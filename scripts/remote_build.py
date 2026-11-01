@@ -11,6 +11,7 @@ import shutil
 import subprocess
 import sys
 import tarfile
+import tempfile
 import time
 
 PROJECT = 'waozixyz/learning/jungle'
@@ -388,9 +389,17 @@ def remote(host, action, stdin=None, capture=False, jobs=2, expected=None, repos
     return run(args, capture_output=capture, text=capture)
 
 
-def collect(root):
+def collect(root, payload, folders=None):
+    """Capture bytes incrementally on disk; hashes describe the archive, not live paths.
+
+    Capture spans a time window, rather than an atomic filesystem transaction.
+    Later edits cannot alter the completed payload or invalidate its manifest.
+    """
     files, heads = {}, {}
-    for repo, folder in repositories(root).items():
+    started = time.time()
+    folders = repositories(root) if folders is None else folders
+    sources = {}
+    for repo, folder in folders.items():
         heads[repo] = run(['git', '-C', folder, 'rev-parse', 'HEAD'], capture_output=True, text=True).stdout.strip()
         names = run(['git', '-C', folder, 'ls-files', '--cached', '--others', '--exclude-standard', '-z'],
                     capture_output=True).stdout.split(b'\0')
@@ -400,12 +409,43 @@ def collect(root):
             name = os.fsdecode(raw)
             path = safe_path(folder, name)
             if path.is_file():
-                files[repo + '/' + name] = {'sha256': digest(path), 'mode': path.stat().st_mode & 0o777}
+                sources[repo + '/' + name] = path
     for name in QUEUE_FILES:
-        path = root / QUEUE / 'scripts' / name
-        files[QUEUE + '/scripts/' + name] = {'sha256': digest(path), 'mode': path.stat().st_mode & 0o777}
+        sources[QUEUE + '/scripts/' + name] = safe_path(root, QUEUE + '/scripts/' + name)
+    with tarfile.open(fileobj=payload, mode='w|') as archive:
+        for name, path in sources.items():
+            # One file at a time, bounded RAM regardless of asset size. Spooling
+            # first permits an exact tar size even when the live file grows.
+            with tempfile.TemporaryFile(dir=Path(payload.name).parent) as captured:
+                sha = hashlib.sha256()
+                with path.open('rb') as source:
+                    mode = os.fstat(source.fileno()).st_mode & 0o777
+                    while chunk := source.read(1024 * 1024):
+                        captured.write(chunk)
+                        sha.update(chunk)
+                info = tarfile.TarInfo(name)
+                info.size = captured.tell()
+                info.mode = mode
+                captured.seek(0)
+                archive.addfile(info, captured)
+                files[name] = {'sha256': sha.hexdigest(), 'mode': mode}
+    payload.flush()
+    payload.seek(0)
     content = hashlib.sha256(json.dumps(files, sort_keys=True).encode()).hexdigest()
-    return {'files': files, 'heads': heads, 'content_sha256': content}
+    return {'files': files, 'heads': heads, 'content_sha256': content,
+            'capture_started_at': started, 'captured_at': time.time()}
+
+
+def transfer_payload(payload, target, changed):
+    """Send only requested members, always from the immutable captured archive."""
+    changed = set(changed)
+    payload.seek(0)
+    with tarfile.open(fileobj=payload, mode='r|') as source:
+        with tarfile.open(fileobj=target, mode='w|') as archive:
+            for member in source:
+                if member.name in changed:
+                    with source.extractfile(member) as data:
+                        archive.addfile(member, data)
 
 
 def main():
@@ -440,8 +480,21 @@ def main():
         remote(args.host, 'launch')
         return
     root = Path(__file__).resolve().parents[4]
+    work = safe_path(root, PROJECT + '/work/remote-build')
+    work.mkdir(parents=True, exist_ok=True)
+    with (work / 'capture.lock').open('a') as lock:
+        fcntl.flock(lock, fcntl.LOCK_EX)
+        synchronize(root, work, args)
+
+
+def synchronize(root, work, args):
     folders = repositories(root)
-    proposal = collect(root)
+    print('Capturing current working sources on disk...', flush=True)
+    with (work / 'source.next.tar').open('w+b') as payload:
+        proposal = collect(root, payload, folders)
+    (work / 'source.next.tar').replace(work / 'source.tar')
+    save_json(work / 'capture.json', proposal)
+    print('Captured source:', proposal['content_sha256'], 'at', proposal['captured_at'], flush=True)
     actual = json.loads(remote(args.host, 'inventory', capture=True).stdout)
     for name, entry in actual['recorded'].items():
         if actual['actual'].get(name) != entry['sha256']:
@@ -453,14 +506,8 @@ def main():
     process = remote(args.host, 'receive', stdin='pipe')
     try:
         process.stdin.write((json.dumps(proposal) + '\n').encode())
-        with tarfile.open(fileobj=process.stdin, mode='w|') as archive:
-            for name in changed:
-                path = root / name
-                for repo, folder in folders.items():
-                    if name.startswith(repo + '/'):
-                        path = folder / name.removeprefix(repo + '/')
-                        break
-                archive.add(path, arcname=name, recursive=False)
+        with (work / 'source.tar').open('rb') as payload:
+            transfer_payload(payload, process.stdin, changed)
         process.stdin.close()
     except BaseException:
         process.stdin.close()
@@ -468,12 +515,6 @@ def main():
         raise
     if process.wait():
         raise RuntimeError('Remote source synchronization failed')
-    current = collect(root)
-    if current['content_sha256'] != proposal['content_sha256'] or current['heads'] != proposal['heads']:
-        changed_names = [name for name in current['files'].keys() | proposal['files'].keys()
-                         if current['files'].get(name) != proposal['files'].get(name)]
-        raise RuntimeError('Desktop source changed during synchronization; rerun before building: '
-                           + ', '.join(sorted(changed_names)[:10]))
     if args.setup:
         remote(args.host, 'setup')
     if not args.sync_only:
