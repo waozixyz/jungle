@@ -1,0 +1,91 @@
+// When a page's narration starts, and whether that start took. A turned page
+// asks for its voice; the voice starts once the page's picture, or its small
+// stand-in, is on screen, so a child sees the scene before hearing its word.
+// A picture that is slow or unavailable never costs the narration: after
+// NARRATION_IMAGE_WAIT the voice starts anyway. Audio services start
+// asynchronously, so a start counts only once the service reports it playing,
+// paused or ended. A start the service drops or rejects, idle again before it
+// ever played, is sent again up to NARRATION_ATTEMPTS times in all.
+// A voice the child asked for, by turning the page or Hear word, plays even
+// while the book is paused; each retry keeps that until the start is
+// confirmed, the child presses Pause or the book leaves the page.
+
+NARRATION_IMAGE_WAIT :: 2.5
+NARRATION_CONFIRM_SECONDS :: 0.75
+NARRATION_ATTEMPTS :: 3
+
+Narration :: struct {
+    // The current page wants its voice started.
+    pending: bool
+    // When the page asked; the picture wait counts from here.
+    asked: float64
+    // The latest start was sent and is not yet confirmed.
+    confirming: bool
+    // When that start was sent.
+    sent: float64
+    // The service has reported loading since that start.
+    loading: bool
+    attempts: s32
+    // The child asked for this voice; it starts playing although the book
+    // is paused.
+    manual: bool
+}
+
+NarrationRequest :: (narration: *Narration, now: float64, manual: bool = true) {
+    narration.* = Narration.{.pending = true, .asked = now, .manual = manual}
+}
+
+// The child pressed Pause: a voice not yet started, or started again after
+// a failure, starts paused.
+NarrationPause :: (narration: *Narration) {
+    narration.manual = false
+}
+
+// Whether the voice being sent now starts paused, as on an automatic turn
+// while the book is paused.
+NarrationStartsPaused :: (narration: Narration, playing: bool) -> bool {
+    return !playing && !narration.manual
+}
+
+// Nothing waits or retries: the book left its page.
+NarrationCancel :: (narration: *Narration) {
+    narration.* = Narration.{}
+}
+
+// Whether the pending voice starts now. PICTURE is 1 while the page's picture
+// or its stand-in is drawn, 0 while it is loading and -1 when it is unavailable.
+BookPageReadyForNarration :: (narration: Narration, now: float64, picture: s32) -> bool {
+    if !narration.pending { return false }
+    return picture != 0 || now - narration.asked >= NARRATION_IMAGE_WAIT
+}
+
+NarrationSent :: (narration: *Narration, now: float64) {
+    narration.pending = false
+    narration.confirming = true
+    narration.sent = now
+    narration.loading = false
+    narration.attempts += 1
+}
+
+// Whether a start is still unconfirmed, or due again.
+NarrationWaiting :: (narration: Narration) -> bool {
+    return narration.pending || narration.confirming
+}
+
+// Follows the latest start with STATE, the audio service's "loading",
+// "playing", "paused", "ended" or "idle". A failed start becomes pending again
+// while attempts remain; the picture is already shown or waited for, so it is
+// sent at once.
+NarrationObserve :: (narration: *Narration, now: float64, state: string) {
+    if !narration.confirming { return }
+    if state == "playing" || state == "paused" || state == "ended" {
+        narration.confirming = false
+        narration.loading = false
+        return
+    }
+    if state == "loading" { narration.loading = true; return }
+    if !narration.loading && now - narration.sent < NARRATION_CONFIRM_SECONDS { return }
+    narration.confirming = false
+    narration.loading = false
+    narration.pending = narration.attempts < NARRATION_ATTEMPTS
+}

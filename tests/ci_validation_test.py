@@ -44,6 +44,7 @@ OLD_BROWSER_GATES = [
     "node tests/dom_native_web_test.mjs",
     "python3 tools/measure_web.py",
 ]
+MEDIA_BROWSER_GATES = ["python3 tests/web_image_queue_test.py", "python3 tests/web_previews_test.py"]
 
 
 def groups_of(*specs):
@@ -86,9 +87,9 @@ class Schedule(unittest.TestCase):
         packaging = rcv.packaging_group()
         browser = [step.label() for step in by_name["browser"].steps]
         moved = ["python3 tools/prepare_itch.py", "python3 tools/test_itch_web.py", "python3 tools/measure_web.py"]
-        self.assertEqual(collections.Counter(browser + moved), collections.Counter(OLD_BROWSER_GATES))
+        self.assertEqual(collections.Counter(browser + moved), collections.Counter(OLD_BROWSER_GATES + MEDIA_BROWSER_GATES))
         painting = [gate for gate in OLD_BROWSER_GATES if "tests/paint_layers_web_test.mjs" in gate]
-        fast = ["node tests/asset_packs_test.mjs", "python3 tests/web_images_test.py"]
+        fast = ["node tests/asset_packs_test.mjs", "python3 tests/web_images_test.py", *MEDIA_BROWSER_GATES]
         self.assertEqual(browser, fast + painting + [gate for gate in OLD_BROWSER_GATES if gate not in fast + painting + moved])
         self.assertEqual([step.label() for step in by_name["performance"].steps], moved[2:])
         self.assertEqual([step.label() for step in packaging.steps], moved[:2])

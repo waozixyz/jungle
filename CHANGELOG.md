@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.34
+
+Released 2026-11-01.
+
+- Start a book's narration after its picture appears and retry an audio start that fails.
+- Show small picture previews across activities while the full artwork loads, with the current page loading ahead of upcoming pages.
+- Use the selected Family-style Firefighter, Doctor, Builder and Baker pictures; keep the original Teacher and Farmer.
+
 ## 0.1.33
 
 Released 2026-10-31.

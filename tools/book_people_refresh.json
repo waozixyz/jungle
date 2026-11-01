@@ -1,0 +1,33 @@
+{
+  "request": "Use the new Firefighter, Doctor, Builder and Baker illustrations; retain the original Teacher and Farmer.",
+  "choices": {
+    "firefighter": {
+      "version": "after",
+      "previous_sha256": "8a9f45bdce21bc21fd1c9a0f5ac33c7aa12c522e4e10afe0db0f1debeba8e76d",
+      "sha256": "952d26818b580837093a679245073bb0d1ad009e0c14ccb5a62e07fd8eb47c13",
+      "source_sha256": "2ecf5238e0bd763849034a3fff42454ea54a0752121d1fbadbcf03b2649317f3"
+    },
+    "doctor": {
+      "version": "after",
+      "previous_sha256": "87ab08490b11a41a4322570d19cce71f5c1848ed8b5d77fa40ad445ea88434d6",
+      "sha256": "2f6c27d58dbb1937b1758988a3e572e49e885db79cbb5cdd58cf37a172771e23",
+      "source_sha256": "3bed87268b718f566aafdd230a0a99379137f45fa6d10a4786ab0af190b93d96"
+    },
+    "builder": {
+      "version": "after",
+      "previous_sha256": "fac764f381b15737912690288ad0b2e4ea4e6b37f0fb9956f743825af1f2f26c",
+      "sha256": "8e5dd4decf7da5a9c1e52ee03592c77a9bafda9e5bf0f513f8224e7d88f7fc00",
+      "source_sha256": "dcba2f04c182d19b692e06e87d8553e90e9b5eabddbbc466bdfed1c42efa6bb3"
+    },
+    "baker": {
+      "version": "after",
+      "previous_sha256": "f814f5fdb7ad92855640e9c45a653f61d4b943b029d6f7ed0d1bca98363a7f11",
+      "sha256": "14189d889d9c9367d0b4c113bae86c373892637de99b749b960c2265a2a99192",
+      "source_sha256": "60b2be88c39888c2f45ed2ed1710bdbe46cc4d1d9c22d84866756456f3f80952"
+    }
+  },
+  "kept": {
+    "assets/jungle-book/pages/teacher.jpg": "2f8cc59375aa5e62a97a5e24b253ace24fb2865ccff6aeb20c925e9f2db44990",
+    "assets/jungle-book/pages/farmer.jpg": "fc71ee4034a9ba3b1e89655797e2647db3c0de4324123e5152e15a2c2c5e34c7"
+  }
+}

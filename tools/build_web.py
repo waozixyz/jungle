@@ -113,13 +113,21 @@ def build(out):
 
 
 def preview_groups():
-    """{book picture: preview pack}: one pack per book's pages, one for the covers."""
+    """{book picture: preview pack}: one pack per book's pages, one for the covers.
+
+    Other pictures share one pack per folder (preview_group).
+    """
     from book_catalog import BOOKS
     groups={}
     for category,names in BOOKS:
         groups.setdefault(f'assets/jungle-book/previews/{category}.jpg','covers')
         for name in names:groups.setdefault(f'assets/jungle-book/pages/{name}.jpg',category)
     return groups
+
+
+def preview_group(name):
+    """A folder's preview pack name, such as hide-seek-scenes."""
+    return re.sub(r'[^a-z0-9]+','-',str(Path(name).parent).removeprefix('assets/').lower()).strip('-')
 
 
 def write_previews(files, out, groups=None):
@@ -134,7 +142,7 @@ def write_previews(files, out, groups=None):
     groups=preview_groups() if groups is None else groups
     stored,names={},{}
     for name,path in prepare_previews(files,ROOT/'work/web-image-cache').items():
-        group=groups.get(name,'other')
+        group=groups.get(name) or preview_group(name)
         if not re.fullmatch(r'[a-z0-9]+(?:-[a-z0-9]+)*',group):raise ValueError('Unsafe preview group: '+group)
         key=f'previews/{group}/{Path(name).parent.name}/{Path(name).stem}.webp'
         stored[key]=path;names[key]=name

@@ -159,7 +159,9 @@ DrawPiece :: (piece: s32, cx: s32, cy: s32, cell: s32, tint: u32 = 0) {
     source_tile := source_cell + source_cell / 4 * 2
     span := cast(s32)(cast(float32)cell * cast(float32)source_tile / cast(float32)source_cell)
     path := PicturePath(puzzle.scene)
-    if !RetroImageReady(path) { return }
+    // A piece shows its part of the picture's preview until the picture
+    // itself arrives.
+    if RetroImageShown(path) == "" { return }
     if piece_outline_level != puzzle.level {
         for at: cast(s32)0..PuzzleCount(puzzle) - 1 {
             first := at * PUZZLE_OUTLINE_POINTS
@@ -172,7 +174,8 @@ DrawPiece :: (piece: s32, cx: s32, cy: s32, cell: s32, tint: u32 = 0) {
     Image(retro.session, ImageProps.{.asset_path = path, .alt_text = Tr("Puzzle piece"),
         .source = Rectangle.{cast(float32)(piece % n * source_cell - source_cell / 4), cast(float32)(piece / n * source_cell - source_cell / 4), cast(float32)source_tile, cast(float32)source_tile},
         .bounds = RetroRect(cx - span / 2, cy - span / 2, span, span), .fit = ImageFit.ImageFitStretch,
-        .clip_polygon = piece_outlines[first:first + piece_outline_counts[piece]], .smooth = true, .tint = tint})
+        .clip_polygon = piece_outlines[first:first + piece_outline_counts[piece]], .smooth = true, .tint = tint,
+        .preview_path = RetroImagePreview(path), .full_size = Vector2.{1200.0, 1200.0}})
 }
 
 PieceVisible :: (piece: s32) -> bool {

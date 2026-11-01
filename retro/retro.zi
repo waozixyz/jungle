@@ -10,6 +10,7 @@
 #import "kryon/box_widget"
 #import "kryon/image_props"
 #import "kryon/image_widget"
+#import "kryon/image_showing"
 #import "kryon/press_props"
 #import "kryon/press_widget"
 #if #defined(PLATFORM_WEB) {
@@ -30,6 +31,25 @@ RetroImageShown :: (path: string) -> string {
         return AppService("jungle.image-shown", path)
     }
     return path
+}
+
+// The few-KB stand-in Kryon draws for PATH while PATH loads
+// (ImageProps.preview_path), such as a jigsaw piece's part of its picture.
+// Every host has it at one path (tools/web_images.py preview_path): the web
+// loader writes it there, desktop and Android install it.
+RetroImagePreview :: (path: string) -> string {
+    if path.count > 7 && path[:7] == "assets/" { return Cat("assets/previews/", path[7:]) }
+    return ""
+}
+
+// Whether PATH's picture, or its preview, is on screen when drawn now, for
+// what must never show before it, such as a friend before its cover.
+RetroPictureShown :: (path: string) -> bool {
+    #if #defined(PLATFORM_WEB) {
+        return RetroImageShown(path) != ""
+    }
+    showing := ImageShowingOf(retro.session, ImageProps.{.asset_path = path, .preview_path = RetroImagePreview(path)})
+    return showing == ImageShowing.ImageShowingFull || showing == ImageShowing.ImageShowingPreview
 }
 
 SCREEN_WIDTH :: 320
@@ -117,12 +137,13 @@ RetroFrame :: (x: s32, y: s32, width: s32, height: s32, color: s32) {
     RetroFill(x + width - 1, y, 1, height, color)
 }
 
-// A picture stretched to width by height screen pixels. A tint paints its
-// shape in one color.
+// A picture stretched to width by height screen pixels, or its few-KB
+// stand-in while the picture downloads. A tint paints its shape in one color.
 RetroSprite :: (path: string, x: s32, y: s32, width: s32, height: s32, tint: s32 = -1, smooth: bool = false) {
-    if !RetroImageReady(path) { return }
-    Image(retro.session, ImageProps.{.asset_path = path, .bounds = RetroRect(x, y, width, height),
-            .fit = ImageFit.ImageFitStretch, .smooth = smooth,
+    shown := RetroImageShown(path)
+    if shown == "" { return }
+    Image(retro.session, ImageProps.{.asset_path = shown, .preview_path = RetroImagePreview(path),
+            .bounds = RetroRect(x, y, width, height), .fit = ImageFit.ImageFitStretch, .smooth = smooth,
             .tint = ifx tint < 0 then cast(u32)0 else retro_colors[tint & 15]})
 }
 

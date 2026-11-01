@@ -260,11 +260,12 @@ async function loadImage(path){
 }
 // Few-KB previews (tools/web_images.py) stand in for book pictures while
 // their full bytes download. Kryon caches Canvas textures and DOM object URLs
-// by path, so a preview has its own: the logical path without "assets/".
+// by path, so a preview has its own, the one every host uses: assets/previews/
+// and the logical path without "assets/" (tools/web_images.py preview_path).
 // The full picture never shares it, and a preview never replaces it.
 // Each book's previews share one small pack, checked like every asset pack.
 let previewIndex;
-const previewLoads=new Map(),previewFile=path=>'/'+path.slice(7);
+const previewLoads=new Map(),previewSettled=new Set(),previewFile=path=>'/assets/previews/'+path.slice(7);
 function previews(){
  previewIndex??=fetchResource('preview-images.json',response=>response.json())
   .then(manifest=>new JungleAssetPacks(manifest,path=>fetchResource(path,response=>response.arrayBuffer()),4*1024*1024))
@@ -282,36 +283,62 @@ function loadPreview(path){
  });
  previewLoads.set(path,request);
  // A preview is optional: without one the full picture still appears.
- request.catch(error=>console.warn('Preview unavailable:',path,error));
+ request.catch(error=>console.warn('Preview unavailable:',path,error))
+  .finally(()=>{previewSettled.add(path);pumpFull()});
 }
-// Full pictures download two at a time, most recently drawn first. A queued
-// picture nobody has drawn for a second, such as a page flipped past, leaves
-// the queue; drawing it again brings it back. Hidden tabs still draw every
-// 250 ms, so their pictures stay queued.
-const fullQueue=new Map(),fullLimit=2,fullStale=1000;
-let fullActive=0,fullTouch=0;
-function requestFull(path){
- fullQueue.set(path,{touch:++fullTouch,time:performance.now()});
+// Full pictures download two at a time, most recently drawn first. A picture
+// on screen always goes before a prefetched one, such as the next page, and
+// prefetches use one slot at most, so a turned page never waits behind them.
+// A drawn picture's few-KB preview arrives first: its full bytes start once
+// the preview is here, or failed, or after fullPreviewWait. A queued picture
+// nobody has asked for in a second, such as a page flipped past, leaves the
+// queue; asking again brings it back. Hidden tabs still draw every 250 ms, so
+// their pictures stay queued.
+// A full picture that fails is asked for again after fullRetry, doubling,
+// fullAttempts times in all; meanwhile its preview stays on screen.
+const fullQueue=new Map(),fullLimit=2,fullStale=1000,fullPreviewWait=700,fullRetry=2000,fullAttempts=3,fullFailures=new Map();
+let fullActive=0,fullPrefetching=0,fullTouch=0;
+function fullFailed(path,error){
+ const failure=fullFailures.get(path)||{count:0,until:0};
+ failure.count++;failure.until=performance.now()+fullRetry*2**(failure.count-1);
+ fullFailures.set(path,failure);
+ if(failure.count>=fullAttempts)unavailableImage(path,error);else console.warn('Picture retrying:',path,error);
+}
+function fullWaiting(path){
+ const failure=fullFailures.get(path);
+ return Boolean(failure)&&performance.now()<failure.until;
+}
+function requestFull(path,prefetch=false){
+ const now=performance.now(),old=fullQueue.get(path);
+ fullQueue.set(path,{touch:++fullTouch,time:now,first:old?old.first:now,prefetch:prefetch&&(!old||old.prefetch)});
  pumpFull();
+}
+function fullReady(path,entry,now){
+ return entry.prefetch||!previewLoads.has(path)||previewSettled.has(path)||now-entry.first>=fullPreviewWait;
 }
 function pumpFull(){
  const now=performance.now();
  for(const [path,entry] of fullQueue)if(now-entry.time>fullStale)fullQueue.delete(path);
- while(fullActive<fullLimit&&fullQueue.size){
-  let next,newest=-1;
-  for(const [path,entry] of fullQueue)if(entry.touch>newest){next=path;newest=entry.touch}
+ while(fullActive<fullLimit){
+  let next,best;
+  for(const [path,entry] of fullQueue){
+   if(!fullReady(path,entry,now)||(entry.prefetch&&fullPrefetching>=fullLimit-1))continue;
+   if(!best||(best.prefetch&&!entry.prefetch)||(best.prefetch===entry.prefetch&&entry.touch>best.touch)){next=path;best=entry}
+  }
+  if(!best)return;
   fullQueue.delete(next);fullActive++;
-  loadImage(next).catch(error=>unavailableImage(next,error)).finally(()=>{fullActive--;pumpFull()});
+  const prefetch=best.prefetch;if(prefetch)fullPrefetching++;
+  loadImage(next).then(()=>fullFailures.delete(next),error=>fullFailed(next,error)).finally(()=>{fullActive--;if(prefetch)fullPrefetching--;pumpFull()});
  }
 }
 var Module={canvas:document.getElementById('canvas'),locateFile:assetUrl,print:console.log,printErr:console.error,
  jungleLanguage:updateSiteLanguage,
  jungleAudio:packedAudio,
  // Whether PATH's full picture is here; otherwise its preview and full bytes
- // are requested.
- jungleImageReady(path){
+ // are requested, a PREFETCH behind every picture on screen.
+ jungleImageReady(path,prefetch=false){
   if(Module.FS.analyzePath('/'+path).exists)return true;
-  if(imagePaths.has(path)&&!imageLoads.has(path)){loadPreview(path);requestFull(path)}
+  if(imagePaths.has(path)&&!imageLoads.has(path)){loadPreview(path);if(!fullWaiting(path))requestFull(path,prefetch)}
   return false;
  },
  // Whether PATH's preview is here, at its own path (previewFile).
@@ -328,7 +355,8 @@ var Module={canvas:document.getElementById('canvas'),locateFile:assetUrl,print:c
    // A blocked optional picture must not prevent the game from starting.
    // Story letters use the shared bitmap atlases. Load these tiny fonts
    // before typing can draw them; they do not request lazy images themselves.
-   const menu=paths.filter(path=>/^assets\/jungle\/([^/]+|covers\/[^/]+|branding\/[^/]+)$/.test(path)||path.endsWith('/font.png'));
+   // The title scenes open on their few-KB pictures; the clean ones follow.
+   const menu=paths.filter(path=>/^assets\/jungle\/([^/]+|title\/[^/]+-low\.jpg|branding\/[^/]+)$/.test(path)||path.endsWith('/font.png'));
    let next=0;
    await Promise.all(Array.from({length:8},async()=>{while(next<menu.length){const path=menu[next++];try{await loadImage(path)}catch(error){unavailableImage(path,error)}}}));
    Module.removeRunDependency('menu-pictures');

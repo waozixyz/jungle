@@ -15,6 +15,10 @@ line each, after the exact "#jungle-shared-assets-FORMAT" header.
     shared|assets/jungle-book/pages/|    read-only folder installed beside the app
     alias|assets/animal-count/latin.png|assets/jungle/font.png
 
+Every picture Kryon may draw before it has loaded gets a small preview under
+assets/previews/ (tools/web_images.py prepare_native_previews), installed
+beside the app and shared like the artwork.
+
 Hosts reject a header or kind they do not know, so a later format (speech
 manifests, compressed audio) raises FORMAT and its kinds together with the
 hosts that read them; they always ship together.
@@ -29,6 +33,7 @@ import sys
 from book_catalog import LANGUAGES
 from speech_codec import EncodeSpeech, SHIPPED, ValidateEncodedSpeech
 from speech_manifest import BuildSpeechManifest
+from web_images import PREVIEW_FOLDERS, PREVIEW_ROOT, prepare_native_previews
 
 ROOT = Path(__file__).resolve().parents[1]
 APP = ROOT / 'build/app'
@@ -52,6 +57,9 @@ INSTALLED = ('assets/jungle', 'assets/jungle-book', 'assets/hide_seek/scenes', '
 SHARED = ('assets/jungle-book/counting/', 'assets/jungle-book/items/',
           'assets/jungle-book/pages/', 'assets/jungle-book/previews/',
           'assets/hide_seek/scenes/', 'assets/hide_seek/props/', 'assets/dino-paint/art/')
+# Previews of the pictures in PREVIEW_FOLDERS, generated while staging; their
+# cache holds one set, keyed by each picture's bytes.
+PREVIEW_CACHE = 'build/native-previews'
 # Only pictures and fonts are aliased. Speech is described separately by
 # SPEECH_MANIFEST: canonical clips ship once, encoded under SHIPPED, and the
 # voice WAVs they represent are omitted.
@@ -121,9 +129,18 @@ def GameFiles(name):
     return files
 
 
+def Previews():
+    """{preview path: generated file} for every picture in PREVIEW_FOLDERS."""
+    files = {}
+    for folder in sorted(PREVIEW_FOLDERS):
+        files.update(Folder(folder))
+    return prepare_native_previews(files, ROOT / PREVIEW_CACHE)
+
+
 # speech can be supplied when staging already built it, avoiding duplicate work;
 # speech_files then names the encoded file of each shipped speech path.
-def Plan(speech=None, speech_files=None):
+# previews, from Previews(), are installed as they are; they are never aliased.
+def Plan(speech=None, speech_files=None, previews=None):
     """(installed files, {alias: target}, {game: bundle files}), all checked."""
     speech = NO_SPEECH if speech is None else speech
     speech_files = {} if speech_files is None else speech_files
@@ -162,6 +179,9 @@ def Plan(speech=None, speech_files=None):
     for path, source in speech_files.items():
         assert SafePath(path) and path.startswith(SHIPPED + '/'), path
         installed[path] = Path(source)
+    for path, source in (previews or {}).items():
+        assert SafePath(path) and path.startswith(PREVIEW_ROOT) and path not in installed, path
+        installed[path] = Path(source)
     bundles = {name: {path: source for path, source in files.items()
                       if path not in aliases and not IsShared(path)
                       and path not in speech_clips and path not in speech['voices']}
@@ -171,7 +191,7 @@ def Plan(speech=None, speech_files=None):
 
 
 def IsShared(path):
-    return any(path.startswith(prefix) for prefix in SHARED)
+    return any(path.startswith(prefix) for prefix in SHARED + (PREVIEW_ROOT,))
 
 
 def Check(installed, aliases):
@@ -187,7 +207,7 @@ def Check(installed, aliases):
 
 def ManifestText(aliases):
     lines = [HEADER]
-    lines += [f'shared|{prefix}|\n' for prefix in SHARED]
+    lines += [f'shared|{prefix}|\n' for prefix in SHARED + (PREVIEW_ROOT,)]
     lines += [f'alias|{path}|{target}\n' for path, target in sorted(aliases.items())]
     return ''.join(lines)
 
@@ -330,19 +350,21 @@ def SpeechIndexText(speech):
     return ''.join(lines)
 
 
-def StageSharedAssets(app=APP, stage=STAGE, speech=None):
-    """Installs shared assets, encoded speech and both manifests; stages each
-    game's bundle files.
+def StageSharedAssets(app=APP, stage=STAGE, speech=None, previews=None):
+    """Installs shared assets, encoded speech, previews and both manifests;
+    stages each game's bundle files.
 
     Folders are synchronized, so files removed from assets/ disappear from the
     installed app and the staged bundles. build/stage/GAME.files lists each
     game's staged files and changes only when they do. SPEECH, as Speech()
-    returns it, is built when not given.
+    returns it, and PREVIEWS, as Previews() returns them, are built when not
+    given.
     """
     app, stage = Path(app), Path(stage)
     speech, speech_files = Speech() if speech is None else speech
-    installed, aliases, bundles = Plan(speech, speech_files)
-    Sync(installed, app, INSTALLED + (SHIPPED,))
+    previews = Previews() if previews is None else previews
+    installed, aliases, bundles = Plan(speech, speech_files, previews)
+    Sync(installed, app, INSTALLED + (SHIPPED, PREVIEW_ROOT.rstrip('/')))
     WriteIfChanged(app / MANIFEST, ManifestText(aliases))
     WriteIfChanged(app / SPEECH_INDEX, SpeechIndexText(speech))
     WriteIfChanged(stage / SPEECH_MANIFEST, json.dumps(speech, ensure_ascii=False, separators=(',', ':')) + '\n')

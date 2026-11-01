@@ -1,0 +1,174 @@
+#import, file "../games/book/book_narration.zi";
+// When a Picture Book page starts its voice, and how a start the audio
+// service drops is sent again (games/book/book_narration.zi).
+
+// A cold first open: the page's picture is still downloading or decoding.
+ColdOpenWaitsForPicture :: () -> s32 {
+    narration: Narration
+    NarrationRequest(*narration, 10.0)
+    if BookPageReadyForNarration(narration, 10.0, 0) { return 1 }
+    if BookPageReadyForNarration(narration, 11.0, 0) { return 2 }
+    // The preview, or the full picture, appears: the voice starts that frame.
+    if !BookPageReadyForNarration(narration, 11.2, 1) { return 3 }
+    NarrationSent(*narration, 11.2)
+    if narration.pending || !NarrationWaiting(narration) { return 4 }
+    NarrationObserve(*narration, 11.25, "loading")
+    NarrationObserve(*narration, 12.5, "loading")
+    if !NarrationWaiting(narration) { return 5 }
+    NarrationObserve(*narration, 12.6, "playing")
+    if NarrationWaiting(narration) || narration.attempts != 1 { return 6 }
+    // Later states belong to the page hold, not to this start.
+    NarrationObserve(*narration, 20.0, "idle")
+    if NarrationWaiting(narration) { return 7 }
+    return 0
+}
+
+// Neither preview nor full picture arrives: narration is not lost.
+SlowPictureStillNarrates :: () -> s32 {
+    narration: Narration
+    NarrationRequest(*narration, 3.0)
+    if BookPageReadyForNarration(narration, 3.0 + NARRATION_IMAGE_WAIT - 0.01, 0) { return 1 }
+    if !BookPageReadyForNarration(narration, 3.0 + NARRATION_IMAGE_WAIT, 0) { return 2 }
+    // A picture that is unavailable does not hold the voice at all.
+    NarrationRequest(*narration, 8.0)
+    if !BookPageReadyForNarration(narration, 8.0, -1) { return 3 }
+    return 0
+}
+
+// Turning the page asks again: the old page's start and retries are gone,
+// and the new page waits for its own picture.
+TurnReplacesThePage :: () -> s32 {
+    narration: Narration
+    NarrationRequest(*narration, 1.0)
+    NarrationSent(*narration, 1.1)
+    NarrationObserve(*narration, 1.2, "loading")
+    NarrationRequest(*narration, 1.5)
+    if narration.confirming || narration.loading || narration.attempts != 0 { return 1 }
+    if BookPageReadyForNarration(narration, 1.6, 0) { return 2 }
+    // Leaving the book: nothing starts or retries on the shelf.
+    NarrationCancel(*narration)
+    if NarrationWaiting(narration) || BookPageReadyForNarration(narration, 99.0, 1) { return 3 }
+    NarrationObserve(*narration, 99.0, "idle")
+    if NarrationWaiting(narration) { return 4 }
+    return 0
+}
+
+// The browser rejected or failed a start after loading it: send it again,
+// at most NARRATION_ATTEMPTS starts in all.
+FailedStartRetries :: () -> s32 {
+    narration: Narration
+    NarrationRequest(*narration, 0.0)
+    now := 0.5
+    for attempt: cast(s32)1..NARRATION_ATTEMPTS {
+        if !BookPageReadyForNarration(narration, now, 1) { return attempt * 10 + 1 }
+        NarrationSent(*narration, now)
+        NarrationObserve(*narration, now + 0.05, "loading")
+        NarrationObserve(*narration, now + 0.3, "idle")
+        if attempt < NARRATION_ATTEMPTS && !narration.pending { return attempt * 10 + 2 }
+        now += 0.4
+    }
+    if NarrationWaiting(narration) || narration.attempts != NARRATION_ATTEMPTS { return 3 }
+    // A second attempt that plays settles normally.
+    NarrationRequest(*narration, 5.0)
+    NarrationSent(*narration, 5.0)
+    NarrationObserve(*narration, 5.1, "loading")
+    NarrationObserve(*narration, 5.2, "idle")
+    if !narration.pending { return 4 }
+    NarrationSent(*narration, 5.2)
+    NarrationObserve(*narration, 5.3, "playing")
+    if NarrationWaiting(narration) || narration.attempts != 2 { return 5 }
+    return 0
+}
+
+// A muted or dropped start never reports loading. It is retried only after
+// NARRATION_CONFIRM_SECONDS, and gives up, so a muted book still turns.
+SilentHostGivesUp :: () -> s32 {
+    narration: Narration
+    NarrationRequest(*narration, 0.0)
+    now := 0.0
+    for attempt: cast(s32)1..NARRATION_ATTEMPTS {
+        NarrationSent(*narration, now)
+        NarrationObserve(*narration, now + 0.02, "idle")
+        if narration.pending || !NarrationWaiting(narration) { return attempt * 10 + 1 }
+        now += NARRATION_CONFIRM_SECONDS
+        NarrationObserve(*narration, now, "idle")
+        if attempt < NARRATION_ATTEMPTS && !narration.pending { return attempt * 10 + 2 }
+    }
+    if NarrationWaiting(narration) { return 3 }
+    return 0
+}
+
+// Pause and Play: a start the service holds paused, or one that already
+// ended, is a start; it is never sent again.
+PausedAndEndedCount :: () -> s32 {
+    narration: Narration
+    NarrationRequest(*narration, 0.0)
+    NarrationSent(*narration, 0.1)
+    NarrationObserve(*narration, 0.12, "paused")
+    if NarrationWaiting(narration) { return 1 }
+    NarrationRequest(*narration, 1.0)
+    NarrationSent(*narration, 1.0)
+    NarrationObserve(*narration, 1.3, "ended")
+    if NarrationWaiting(narration) || narration.attempts != 1 { return 2 }
+    return 0
+}
+
+// Turning the page or Hear word while the book is paused: the voice plays,
+// and a start that fails plays again on its retry, not paused. The child's
+// Pause while it waits makes every later start paused.
+ManualIntentSurvivesRetry :: () -> s32 {
+    narration: Narration
+    playing := false
+    // Turn: AskPageVoice.
+    NarrationRequest(*narration, 0.0)
+    if !BookPageReadyForNarration(narration, 0.1, 1) || NarrationStartsPaused(narration, playing) { return 1 }
+    NarrationSent(*narration, 0.1)
+    NarrationObserve(*narration, 0.15, "loading")
+    NarrationObserve(*narration, 0.4, "idle")
+    if !narration.pending || NarrationStartsPaused(narration, playing) { return 2 }
+    NarrationSent(*narration, 0.4)
+    NarrationObserve(*narration, 0.4 + NARRATION_CONFIRM_SECONDS + 0.01, "idle")
+    if !narration.pending || NarrationStartsPaused(narration, playing) { return 3 }
+    NarrationSent(*narration, 1.2)
+    NarrationObserve(*narration, 1.3, "playing")
+    if NarrationWaiting(narration) { return 4 }
+    // Hear word on the same paused page asks again with a fresh count.
+    NarrationRequest(*narration, 2.0)
+    if narration.attempts != 0 || NarrationStartsPaused(narration, playing) { return 5 }
+    NarrationSent(*narration, 2.0)
+    NarrationObserve(*narration, 2.0 + NARRATION_CONFIRM_SECONDS, "idle")
+    if !narration.pending || NarrationStartsPaused(narration, playing) { return 6 }
+    // Pause pressed while the retry waits: it starts paused.
+    NarrationPause(*narration)
+    if !NarrationStartsPaused(narration, playing) { return 7 }
+    // Playing books never start paused.
+    if NarrationStartsPaused(narration, true) { return 8 }
+    // A turn after that is the child's request again.
+    NarrationRequest(*narration, 4.0)
+    if NarrationStartsPaused(narration, playing) { return 9 }
+    // An automatic request while paused starts paused.
+    NarrationRequest(*narration, 5.0, false)
+    if !NarrationStartsPaused(narration, playing) { return 10 }
+    NarrationCancel(*narration)
+    if narration.manual { return 11 }
+    return 0
+}
+
+#program_export
+main :: () -> s32 {
+    failed := ColdOpenWaitsForPicture()
+    if failed != 0 { return 100 + failed }
+    failed = SlowPictureStillNarrates()
+    if failed != 0 { return 200 + failed }
+    failed = TurnReplacesThePage()
+    if failed != 0 { return 300 + failed }
+    failed = FailedStartRetries()
+    if failed != 0 { return 400 + failed }
+    failed = SilentHostGivesUp()
+    if failed != 0 { return 500 + failed }
+    failed = PausedAndEndedCount()
+    if failed != 0 { return 600 + failed }
+    failed = ManualIntentSurvivesRetry()
+    if failed != 0 { return 700 + failed }
+    return 0
+}

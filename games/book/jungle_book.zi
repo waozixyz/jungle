@@ -11,8 +11,11 @@
 #import "tree"
 #import "swipe"
 #import "swipe_props"
+#import "image_props"
+#import "image_showing"
 #import, file "book_pages.zi";
 #import, file "book_voice.zi";
+#import, file "book_narration.zi";
 #import, file "book_preferences.zi";
 #import "number_text"
 #import "text_buffer"
@@ -32,8 +35,7 @@ category: s32;
 book_scroll: s32;
 book_tab: s32;
 voice_idle_started: float64;
-voice_pending: bool;
-manual_narration: bool;
+narration: Narration;
 simple: bool = true;
 settings_loaded: bool;
 swipe_tracking: bool;
@@ -52,7 +54,9 @@ SaveBookChoice :: (index: s32) {
 
 TogglePlayback :: () {
     playing = !playing
-    if !playing { paused_at = retro.now }
+    // A voice still waiting for its picture starts paused, as on an
+    // automatic turn; Play resumes it.
+    if !playing { paused_at = retro.now; NarrationPause(*narration) }
     else {
         elapsed := retro.now - paused_at
         page_started += elapsed
@@ -112,7 +116,7 @@ Turn :: (step: s32) {
             finished = true
             finished_started = retro.now
             swipe_tracking = false
-            voice_pending = false
+            NarrationCancel(*narration)
             unused AppService("jungle.voice", "")
             return
         }
@@ -121,8 +125,36 @@ Turn :: (step: s32) {
     page_started = retro.now
     paused_at = retro.now
     voice_idle_started = 0.0
-    voice_pending = true
-    manual_narration = true
+    AskPageVoice()
+}
+
+// The previous page's voice stops at once; this page's starts when its
+// picture shows (GameMain).
+AskPageVoice :: () {
+    unused AppService("jungle.voice", "")
+    NarrationRequest(*narration, retro.now)
+}
+
+// 1 while PATH's picture or its small stand-in is drawn, 0 while it loads,
+// -1 when it is unavailable. The web loader answers for its downloads;
+// elsewhere Kryon's host answers as its Image draws.
+PagePicturePresented :: (path: string) -> s32 {
+    #if #defined(PLATFORM_WEB) {
+        return ifx AppService("jungle.image-shown", path) != "" then 1 else 0
+    }
+    showing := ImageShowingOf(retro.session, ImageProps.{.asset_path = path, .preview_path = RetroImagePreview(path)})
+    if showing == ImageShowing.ImageShowingFull || showing == ImageShowing.ImageShowingPreview { return 1 }
+    return ifx showing == ImageShowing.ImageShowingNone then 0 else -1
+}
+
+// Upcoming pages load behind the current one, never ahead of it. Asking
+// Kryon what shows starts its host decoding the picture.
+PrefetchPicture :: (path: string) {
+    #if #defined(PLATFORM_WEB) {
+        unused AppService("jungle.image-prefetch", path)
+        return
+    }
+    unused ImageShowingOf(retro.session, ImageProps.{.asset_path = path})
 }
 
 OpenBook :: () {
@@ -134,8 +166,7 @@ OpenBook :: () {
     page = 0
     page_started = retro.now
     voice_idle_started = 0.0
-    voice_pending = true
-    manual_narration = true
+    AskPageVoice()
     paused_at = retro.now
 }
 
@@ -293,8 +324,7 @@ PictureBookBack :: () {
         choosing_category = true
         finished = false
         swipe_tracking = false
-        voice_pending = false
-        manual_narration = false
+        NarrationCancel(*narration)
         unused AppService("jungle.voice", "")
     } else if managing_books {
         managing_books = false
@@ -332,8 +362,7 @@ PlaybackControls :: (can_hear: bool = true) {
     if can_hear {
         BookBox(x + button, y + 10, 1, 22, 0xdacdb5ff)
         if PlaybackAction(63, x + button, y, width - button, "Hear word") {
-            unused AppService("jungle.voice", PageVoice())
-            voice_pending = false; manual_narration = false
+            AskPageVoice()
             page_started = retro.now; paused_at = retro.now; voice_idle_started = 0.0
         }
     }
@@ -407,7 +436,7 @@ ReadingPage :: () {
     x, y, size := SceneRect()
     landscape := book_width >= book_height
     for ahead: cast(s32)1..2 {
-        if page + ahead < category_counts[category] { unused RetroImageReady(page_paths(PageIndex() + ahead)) }
+        if page + ahead < category_counts[category] { PrefetchPicture(page_paths(PageIndex() + ahead)) }
     }
     BookPicture(page_paths(PageIndex()), x, y, size, size)
     label_width := CaptionWidth()
@@ -460,8 +489,7 @@ GameMain :: () -> s32 {
         choosing_category = true
         finished = false
         settings_loaded = false
-        voice_pending = false
-        manual_narration = false
+        NarrationCancel(*narration)
         swipe_tracking = false
         secondary_back_was_down = false
         page = 0
@@ -494,7 +522,11 @@ GameMain :: () -> s32 {
     secondary_back_was_down = secondary_down
     if retro.key == 10001 { playback_speed = (playback_speed + 1) % 3 }
     if retro.key == 32 && !choosing_category { TogglePlayback() }
-    if playing && !voice_pending && !choosing_category && !finished && !swipe_tracking {
+    if !choosing_category && !finished && narration.confirming {
+        NarrationObserve(*narration, now, AppService("jungle.voice-state", ""))
+    }
+    // An unconfirmed or pending start holds the page like a loading voice.
+    if playing && !NarrationWaiting(narration) && !choosing_category && !finished && !swipe_tracking {
         state := AppService("jungle.voice-state", "")
         if state == "loading" || state == "playing" { voice_idle_started = 0.0 }
         else if voice_idle_started == 0.0 { voice_idle_started = now }
@@ -504,11 +536,14 @@ GameMain :: () -> s32 {
     if choosing_category { BookShelf() }
     else if finished { FinishedBook() }
     else { ReadingPage() }
-    if voice_pending && !choosing_category && !finished {
+    if !choosing_category && !finished && narration.pending &&
+        BookPageReadyForNarration(narration, now, PagePicturePresented(page_paths(PageIndex()))) {
         unused AppService("jungle.voice", PageVoice())
-        if !playing && !manual_narration { unused AppService("jungle.voice-control", "pause") }
-        voice_pending = false
-        manual_narration = false
+        if NarrationStartsPaused(narration, playing) { unused AppService("jungle.voice-control", "pause") }
+        NarrationSent(*narration, now)
+        // The page holds for its voice from when that voice starts.
+        page_started = now
+        voice_idle_started = 0.0
     }
     return 0
 }

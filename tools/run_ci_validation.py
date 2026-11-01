@@ -89,6 +89,8 @@ def browser_steps() -> tuple[Step, ...]:
     """All original browser gates; check asset prerequisites before slow UI work."""
     steps = [Step(("node", "tests/asset_packs_test.mjs")),
              Step(("python3", "tests/web_images_test.py")),
+             Step(("python3", "tests/web_image_queue_test.py")),
+             Step(("python3", "tests/web_previews_test.py")),
              web("tests/paint_layers_web_test.mjs", "canvas.html"),
              web("tests/paint_layers_web_test.mjs", "dom.html"),
              web("tests/book_browser_interaction_test.mjs", "dom.html"),

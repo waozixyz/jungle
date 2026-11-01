@@ -144,14 +144,14 @@ PropPath :: (kind: s32) -> string {
 }
 
 BasketFront :: (art: HideSeekArt) {
-    path := PropPath(HIDE_BASKET)
-    if !RetroImageReady(path) { return }
+    path := RetroImageShown(PropPath(HIDE_BASKET))
+    if path == "" { return }
     points: [29]Vector2
     for i: cast(s32)0..HIDE_BASKET_POINTS - 1 {
         points[i] = Vector2.{cast(float32)hide_basket_front_x[i] / 1254.0,
             cast(float32)hide_basket_front_y[i] / 1254.0}
     }
-    Image(retro.session, ImageProps.{.asset_path = path,
+    Image(retro.session, ImageProps.{.asset_path = path, .preview_path = RetroImagePreview(PropPath(HIDE_BASKET)),
         .bounds = RetroRect(art.x, art.y, art.edge, art.edge),
         .fit = ImageFit.ImageFitContain, .smooth = true, .clip_polygon = points[:]})
 }
@@ -159,10 +159,9 @@ BasketFront :: (art: HideSeekArt) {
 // Preserve the whole prop. The basket needs three layers: back, friend,
 // then the front braid/wall. Other places naturally occlude a hiding pose.
 DrawPlace :: (kind: s32, cx: s32, ground: s32, size: s32, animal: s32, peek: s32, p: float32, toward: s32) {
-    #if #defined(PLATFORM_WEB) {
-        // A friend must never flash in full while its cover downloads.
-        if !RetroImageReady(PropPath(kind)) { return }
-    }
+    // A friend must never flash in full before its cover, or the cover's
+    // stand-in, is shown.
+    if !RetroPictureShown(PropPath(kind)) { return }
     art := HideSeekArtLayout(kind, cx, ground, size, p, animal, toward)
     if peek == HIDE_PARTIAL { art = HideSeekHintArtLayout(kind, cx, ground, size, animal, toward) }
     Shadow(cx, ground, size * 82 / 100)
@@ -204,9 +203,10 @@ Scene :: (top: s32, bottom: s32) {
     width := view_width - margin * 2; height := bottom - top
     if height < 40 || game.places <= 0 { return }
     BookBox(margin, top, width, height, 0xe5ead5ff, 0xdacdb5ff, 12.0)
-    path := ScenePath()
-    if RetroImageReady(path) {
-        Image(retro.session, ImageProps.{.asset_path = path, .bounds = RetroRect(margin, top, width, height),
+    path := RetroImageShown(ScenePath())
+    if path != "" {
+        Image(retro.session, ImageProps.{.asset_path = path, .preview_path = RetroImagePreview(ScenePath()),
+            .bounds = RetroRect(margin, top, width, height),
             .fit = ImageFit.ImageFitCover, .smooth = true, .radius = 12.0 * retro.scale})
     }
     done := HideSeekDone(game)

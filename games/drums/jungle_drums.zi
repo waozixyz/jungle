@@ -159,9 +159,10 @@ DrumsRoom :: (room: DrumsLayout) {
     }
     BookBox(drums_width * 13 / 100, top + height * 65 / 100, drums_width * 74 / 100, height * 30 / 100, 0xaac2adff, 0x92ad98ff, 55.0)
     BookBox(drums_width * 16 / 100, top + height * 68 / 100, drums_width * 68 / 100, height * 24 / 100, 0xc5d5bbff, 0, 44.0)
-    background := "assets/drums/pictures/room.png"
-    if RetroImageReady(background) {
+    background := RetroImageShown("assets/drums/pictures/room.png")
+    if background != "" {
         Image(retro.session, ImageProps.{.asset_path = background,
+            .preview_path = RetroImagePreview("assets/drums/pictures/room.png"),
             .bounds = RetroRect(9, top + 1, drums_width - 18, height - 2),
             .fit = ImageFit.ImageFitCover, .smooth = true})
     }
@@ -222,13 +223,15 @@ DrumsInstrument :: (pad: s32, x: s32, y: s32, edge: s32) {
         DrumsIcon(Music.Shape, center_x - 11, picture_y - 28, 22, 0x8d6d3fff)
     }
     shake: s32 = ifx pad == 7 then DrumsShakeX(retro.now - drums_hit_time[pad]) else 0
-    if pad == 7 && RetroImageReady(drums_pictures[pad]) {
+    // The mirrored pad draws its mirrored preview until the picture arrives.
+    if pad == 7 && RetroImageShown(drums_pictures[pad]) != "" {
         rect := RetroRect(picture_x + shake, picture_y, size, size)
         // Mirror the existing bitmap and its alpha hit mask together.
         points: [4]Vector2 = .[Vector2.{rect.x + rect.width, rect.y}, Vector2.{rect.x, rect.y},
             Vector2.{rect.x + rect.width, rect.y + rect.height}, Vector2.{rect.x, rect.y + rect.height}]
         Image(retro.session, ImageProps.{.asset_path = drums_pictures[pad], .bounds = rect,
-            .smooth = true, .mesh = ImageMesh.{.columns = 2, .rows = 2, .points = points[:]}})
+            .smooth = true, .mesh = ImageMesh.{.columns = 2, .rows = 2, .points = points[:]},
+            .preview_path = RetroImagePreview(drums_pictures[pad])})
     } else { RetroSprite(drums_pictures[pad], picture_x + shake, picture_y, size, size, -1, true) }
     label_y := DrumsLabelY(pad, DrumsPlace.{.x = x, .y = y, .edge = edge})
     label_x := x - 12

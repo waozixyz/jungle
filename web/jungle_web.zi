@@ -247,10 +247,12 @@ WebService :: (name: string, request: string) -> string {
         web_piano_held[PianoKeys.PIANO_SHORTCUTS] = 0
         return TextFromBytes(web_piano_held[:PianoKeys.PIANO_SHORTCUTS])
     }
-    if name == "jungle.image" {
+    // A drawn picture downloads ahead of prefetched ones (index.html).
+    if name == "jungle.image" || name == "jungle.image-prefetch" {
         scope := WebScope()
         defer WebEnd(scope)
-        if !WebAsBool(WebCall1(WebModule, WebName("jungleImageReady"), WebText(request))) { return "pending" }
+        if !WebAsBool(WebCall2(WebModule, WebName("jungleImageReady"), WebText(request),
+            WebBool(name == "jungle.image-prefetch"))) { return "pending" }
         return ifx Raster.ImageWidth(request) > 0 then "ready" else "pending"
     }
     // The path to draw for a picture now: its full picture once decoded,
@@ -263,8 +265,10 @@ WebService :: (name: string, request: string) -> string {
         if WebAsBool(WebCall1(WebModule, WebName("jungleImageReady"), WebText(request))) &&
             Raster.ImageWidth(request) > 0 { return request }
         if request.count > 7 && request[:7] == "assets/" &&
-            WebAsBool(WebCall1(WebModule, WebName("junglePreviewReady"), WebText(request))) &&
-            Raster.ImageWidth(request[7:]) > 0 { return request[7:] }
+            WebAsBool(WebCall1(WebModule, WebName("junglePreviewReady"), WebText(request))) {
+            preview := Cat("assets/previews/", request[7:])
+            if Raster.ImageWidth(preview) > 0 { return preview }
+        }
         return ""
     }
     if name == "jungle.voice-state" { return VoiceState() }
