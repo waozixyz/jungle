@@ -390,6 +390,20 @@ ShapesGuideRect :: (s: Shapes, layout: ShapesLayout, guide: ShapesGuideState) ->
         source.height + cast(s32)(cast(float32)(destination.height - source.height) * t)}
 }
 
+// A real placement keeps the filled home stable and lands in the next slot.
+ShapesDropRect :: (source: ShapesRect, home: ShapesRect, occupied: s32, per: s32, elapsed: float32) -> ShapesRect {
+    if per < 1 { per = 1 }
+    if occupied < 0 { occupied = 0 }
+    if occupied >= per { occupied = per - 1 }
+    destination := ShapesHomeParts(home, per).slots[occupied]
+    progress := ShapesWoodDrop(elapsed)
+    return ShapesRect.{
+        source.x + cast(s32)(cast(float32)(destination.x - source.x) * progress),
+        source.y + cast(s32)(cast(float32)(destination.y - source.y) * progress),
+        source.width + cast(s32)(cast(float32)(destination.width - source.width) * progress),
+        source.height + cast(s32)(cast(float32)(destination.height - source.height) * progress)}
+}
+
 // A bounded soft landing for the wooden art; never changes sorting state.
 ShapesWoodDrop :: (elapsed: float32) -> float32 {
     if elapsed <= 0.0 { return 0.0 }

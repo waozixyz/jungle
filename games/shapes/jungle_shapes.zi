@@ -42,6 +42,7 @@ view_height: s32;
 done_until: float64;
 placed_target: s32 = -1;
 placed_item: s32 = -1;
+placed_from: ShapesRect;
 placed_until: float64;
 drag_item: s32 = -1;
 drag_x: s32;
@@ -201,16 +202,21 @@ DrawItem :: (value: s32, area: ShapesRect) {
 
 Drop :: (target: s32) {
     selected := game.selected
+    source := layout.items[selected]
+    if drag_item == selected && drag_moved {
+        source = ShapesRect.{drag_x - source.width / 2, drag_y - source.height / 2, source.width, source.height}
+    }
     result := ShapesDrop(*game, target)
     GuideRestart(result == SHAPES_MISSED)
     if result == SHAPES_PLACED {
         placed_item = selected
         placed_target = target
+        placed_from = source
         placed_until = retro.now + 0.6
         if ShapesDone(game) {
             GameSound(Cat(SOUNDS, "complete.wav"))
             Voice("done")
-            done_until = retro.now + 2.6
+            done_until = retro.now + 1.2
         } else { GameSound(Cat(SOUNDS, "place.wav")) }
     } else if result == SHAPES_MISSED { SayValue(game.selected) }
 }
@@ -254,7 +260,6 @@ ButtonRow :: () {
             edge: s32 = 26
             SvgIcon(retro.session, SvgIconProps.{.bounds = RetroRect(box.x + (box.width - edge) / 2, box.y + 7, edge, edge),
                 .shape = ifx at == 3 then ShapesRefreshIcon.Shape else ShapesDemoIcon.Shape, .color = ColorFromPacked(INK)})
-            BookText(box.x + 2, box.y + 36, box.width - 4, 20, label, 12, TextAlign.TextAlignCenter, false)
         }
         if !press.clicked { continue }
         GuideRestart(true)
@@ -304,9 +309,8 @@ Homes :: () {
         for at: cast(s32)0..game.item_count - 1 {
             if game.placed[at] != t || slot >= per { continue }
             if WoodenToy() && at == placed_item && retro.now < placed_until {
-                progress := ShapesWoodDrop(cast(float32)(0.6 - (placed_until - retro.now)))
-                edge := e.width * (100 - cast(s32)(progress * 20.0)) / 100
-                drop := ShapesRect.{cx - edge / 2, cy - edge / 2 - cast(s32)((1.0 - progress) * 18.0), edge, edge}
+                drop := ShapesDropRect(placed_from, home, slot, per,
+                    cast(float32)(0.6 - (placed_until - retro.now)))
                 DrawItem(game.items[at], drop)
             } else { DrawItem(game.items[at], parts.slots[slot]) }
             slot += 1

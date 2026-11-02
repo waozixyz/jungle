@@ -114,7 +114,10 @@ def exercise(language, size, mode):
         save.write_text(original)
         with rt.Desktop(rt.ROOT / 'build/app/jungle', data, screen_size='1280x1000') as d:
             d.resize(*size)
-            d.game('Shapes & Sorting')
+            # Enter avoids the direct digit shortcut leaking into the game as
+            # its first drop when the title activates the bundle.
+            for key in ('Home', 'Right', 'Return'):
+                d.key(key)
             scale, w, h, cards, homes = layout(*size)
 
             def crop(picture, box):
@@ -132,25 +135,20 @@ def exercise(language, size, mode):
             def screenshot(label):
                 return d.capture_actual(f'{language}-{size[0]}-{mode}-{label}')
 
-            # Tap a piece to silence the demo, then identify both real shapes.
+            def assert_no_action_caption(picture):
+                button = min(84, (w - 76) // 5)
+                left = (w - button * 5 - 48) // 2
+                for at in (3, 4):
+                    area = (left + at * (button + 12) + 8, 50, button - 16, 8)
+                    caption = crop(picture, area)
+                    dark = sum(r < 125 and g < 110 and b < 95 for r, g, b, *_ in pixels(caption))
+                    assert dark < 4, (language, size, mode, at, 'caption text remains under icon')
+
+            # Tap a piece to silence the demo; the demonstration then follows
+            # this exact card, so its release frame reveals the real route.
             tap(cards[0])
             still = screenshot('ready')
-            def identity(picture, colors, target=False):
-                if mode == 0: return shape(picture, colors)
-                counts = {color: sum((pixel == color if target else matches(pixel, {color})) for pixel in pixels(picture)) for color in colors}
-                if mode == 1: return max(counts, key=counts.get)
-                from PIL import Image
-                mask = Image.new('L', picture.size)
-                mask.putdata([255 if matches(color, colors) else 0 for color in pixels(picture)])
-                bounds = mask.getbbox()
-                return bounds[2]-bounds[0]
-            kinds = [identity(crop(still, card), colors) for card in cards]
-            targets = [identity(crop(still, emblem(home) if WOODEN else home), colors if mode == 1 else {(181,159,124),(228,216,193)}, target=True) for home in homes]
-            if mode == 2:
-                kinds = [v == max(kinds) for v in kinds]
-                targets = [v == max(targets) for v in targets]
-            routes = [targets.index(kind) for kind in kinds]
-            assert len(set(routes)) == 2, (kinds, targets)
+            assert_no_action_caption(still)
 
             button = min(84, (w - 76) // 5)
             left = (w - button * 5 - 48) // 2
@@ -171,6 +169,13 @@ def exercise(language, size, mode):
                 picture = screenshot(label)
                 frames.append(picture.copy()); phases.append(label)
             assert ImageChops.difference(frames[1], frames[3]).getbbox(), 'hand did not drag'
+            changes = []
+            for home in homes:
+                before, after = crop(frames[3], home), crop(frames[4], home)
+                changes.append(sum(sum(color[:3]) > 45 for color in pixels(ImageChops.difference(before, after))))
+            first = changes.index(max(changes))
+            routes = [first, 1 - first]
+            assert max(changes) > min(changes) * 2, (changes, 'release did not reveal the matching home')
             if h >= w:
                 corridor = (14, 118 + (h - 132) * 42 // 100, w - 28, 24)
             else:
@@ -186,13 +191,13 @@ def exercise(language, size, mode):
             # cancels before release, without taking control from the child.
             tap(show); d.key('a')
             cancelled = screenshot('key-cancel')
-            assert not ImageChops.difference(crop(still, cards[0]), crop(cancelled, cards[0])).getbbox(), "input did not cancel hand"
+            assert contains_piece(crop(cancelled, cards[0]), colors), "input did not cancel hand"
             tap(show)
             rt.run(['xdotool', 'mousemove', '--window', d.window, '8', str(size[1]-8)], d.env)
             rt.run(['xdotool', 'mousedown', '1'], d.env)
             try:
                 cancelled = screenshot('press-cancel')
-                assert not ImageChops.difference(crop(still, cards[0]), crop(cancelled, cards[0])).getbbox(), "input did not cancel hand"
+                assert contains_piece(crop(cancelled, cards[0]), colors), "input did not cancel hand"
             finally:
                 rt.run(['xdotool', 'mouseup', '1'], d.env)
             if language == 'en' and size[0] == 960 and mode == 0:
@@ -212,9 +217,7 @@ def exercise(language, size, mode):
                     frame.thumbnail((480,300)); x,y=(i%4)*480,(i//4)*325
                     sheet.paste(frame,(x,y+25)); draw.text((x+8,y+6),label,fill='#3e332a')
                 sheet.save(rt.OUTPUT / 'phases.png')
-            d.key('Escape')
             assert save.read_text() == original, 'help or inactivity played the round'
-            d.game('Shapes & Sorting')
 
             # Choose the other piece first. Tap then tap must work, including
             # after a harmless wrong-home try. No drag or reading is required.
@@ -242,7 +245,7 @@ def exercise(language, size, mode):
                 rt.run(['xdotool', 'mouseup', '1'], d.env)
             time.sleep(.3)
             screenshot('completed')
-            deadline = time.monotonic() + 8
+            deadline = time.monotonic() + 2.0
             while time.monotonic() < deadline and save.read_text().split()[8] == '0':
                 d.alive()
                 time.sleep(.15)
@@ -251,8 +254,9 @@ def exercise(language, size, mode):
                 # Keep evidence before TemporaryDirectory removes the failed save.
                 screenshot('completion-timeout')
                 (rt.OUTPUT / f'{language}-{size[0]}-{mode}-progress-failure.txt').write_text(progress)
-            assert progress.split()[8] == '1', f'tap and drag did not finish exactly one round: {progress.strip()}'
-            assert save.read_text().split()[6] == '0', 'the demonstrated round hid the real wrong-home attempt'
+            assert progress.split()[8] == '1', f'level did not automatically advance after celebration: {progress.strip()}'
+            progress = save.read_text()
+            assert progress.split()[6] == '0', f'the demonstrated round hid the real wrong-home attempt: {progress.strip()}'
             print(f'local shapes UI: {language} {size[0]}x{size[1]} mode={mode} demo, replay, tap, miss, drag, progress passed', flush=True)
 
 

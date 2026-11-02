@@ -214,8 +214,12 @@ main :: () -> s32 {
                     path.travel = 1.0
                     parts := ShapesHomeParts(layout.targets[path.target], per)
                     end := ShapesGuideRect(board, layout, path)
-                    slot := parts.slots[ShapesInTarget(board, path.target)]
+                    occupied := ShapesInTarget(board, path.target)
+                    slot := parts.slots[occupied]
                     if end.x != slot.x || end.y != slot.y || end.width != slot.width || end.height != slot.height { return 63 }
+                    landed := ShapesDropRect(layout.items[at], layout.targets[path.target], occupied, per, 0.6)
+                    if landed.x != slot.x || landed.y != slot.y || landed.width != slot.width || landed.height != slot.height ||
+                        !Within(landed, layout.targets[path.target]) { return 66 }
                     unused ShapesDrop(*board, path.target)
                 }
                 for at: cast(s32)0..SHAPES_BUTTONS - 1 {
