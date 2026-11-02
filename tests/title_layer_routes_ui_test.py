@@ -3,6 +3,7 @@ Uses the same stable test host and fully staged game bundles as the title suite.
 """
 import json
 import os
+import subprocess
 from pathlib import Path
 import tempfile
 import time
@@ -13,17 +14,24 @@ from runtime_test import ROOT, Desktop, run, title_unit
 from title_paper_ui_test import enter, paper, background, error, collected
 
 
-def capture(d, path):
+def capture(d, path=None):
     d.verify_server()
     d.alive()
-    run(['import', '-display', d.env['DISPLAY'], '-window', d.window, str(path)], d.env)
-    return Image.open(path).convert('RGB')
+    # PNG encoding during this 0.9-second flight can miss its final approach.
+    # Read the owned window's pixels now and encode the frames afterward.
+    result = subprocess.run(['import', '-display', d.env['DISPLAY'], '-window',
+                             d.window, '-depth', '8', 'rgb:-'], env=d.env,
+                            check=True, capture_output=True, timeout=15)
+    picture = Image.frombytes('RGB', d.actual_size, result.stdout)
+    if path is not None:
+        picture.save(path)
+    return picture
 
 
 def main():
     work = ROOT/'work/title-layer-routes'
     work.mkdir(parents=True, exist_ok=True)
-    runtime_test.OUTPUT = work/'captures'
+    runtime_test.OUTPUT = Path(os.environ.get('JUNGLE_TEST_OUTPUT', work/'captures'))
     runtime_test.OUTPUT.mkdir(exist_ok=True)
     binary = Path(os.environ.get('JUNGLE_TEST_BINARY', ROOT/'build/app/jungle'))
     evidence = []
@@ -47,9 +55,11 @@ def main():
                     if remaining > 0:
                         time.sleep(remaining)
                     path = runtime_test.OUTPUT/f'flight-{w}-{round(at*100)}.png'
-                    frames.append((time.monotonic()-start, capture(d,path), path))
+                    frames.append((time.monotonic()-start, capture(d), path))
                 time.sleep(.2)
                 done = capture(d, runtime_test.OUTPUT/f'flight-complete-{w}.png')
+                for _, frame, path in frames:
+                    frame.save(path)
                 assert collected(data) == [slug]
                 unit = title_unit(w, h)
                 cx, cy = w-51*unit, 17*unit

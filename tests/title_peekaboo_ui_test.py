@@ -21,7 +21,7 @@ def difference(left, right):
 def main():
     work = ROOT/'work/title-peekaboo'
     work.mkdir(parents=True, exist_ok=True)
-    runtime_test.OUTPUT = work/'captures'
+    runtime_test.OUTPUT = Path(os.environ.get('JUNGLE_TEST_OUTPUT', work/'captures'))
     runtime_test.OUTPUT.mkdir(exist_ok=True)
     binary = Path(os.environ.get('JUNGLE_TEST_BINARY', ROOT/'build/app/jungle'))
     with tempfile.TemporaryDirectory(prefix='ui-', dir=work) as temporary:
@@ -58,11 +58,9 @@ def main():
                 'source_glow_rect': hotspot['glow_rect'],
                 'screen_tap': [tap_x, tap_y],
                 'hover_signal': signal,
-                'captures': [
-                    'work/title-peekaboo/captures/peekaboo-hover-960.png',
-                    'work/title-peekaboo/captures/peekaboo-hide-seek-960.png',
-                    'work/title-peekaboo/captures/peekaboo-return-960.png',
-                ],
+                'captures': [str((runtime_test.OUTPUT/name).relative_to(ROOT)) for name in (
+                    'peekaboo-hover-960.png', 'peekaboo-hide-seek-960.png',
+                    'peekaboo-return-960.png')],
             }
             (work/'evidence.json').write_text(json.dumps(receipt, indent=2)+'\n')
             print('local Peekaboo UI: 960x600 hover, Hide & Seek click and Back passed', flush=True)
