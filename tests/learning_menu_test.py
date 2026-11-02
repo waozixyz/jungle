@@ -4,7 +4,10 @@ import tempfile
 import os
 import time
 from PIL import ImageChops
-from runtime_test import Desktop, ROOT, OUTPUT
+from runtime_test import Desktop, ROOT, OUTPUT, title_keys
+
+# The lower book covers identify the shelf without its animated paper glow.
+BOOK_CHOICE = (20, 100, 300, 190)
 
 for language in ("en", "de", "es"):
     with tempfile.TemporaryDirectory(prefix="jungle-learning-menu-") as temporary:
@@ -17,11 +20,14 @@ for language in ("en", "de", "es"):
             path.write_text(content)
         with Desktop(Path(os.environ.get("JUNGLE_TEST_BINARY", ROOT / "build/app/jungle")), data) as desktop:
             desktop.capture("combined-main-" + language)
-            desktop.game("ABC Book")
-            hub = desktop.capture("combined-books-" + language)
-            for choice, name in (("1", "letters"), ("2", "numbers")):
-                desktop.key(choice)
+            for key in title_keys("ABC Book")[:-1]:
+                desktop.key(key)
+            hub = desktop.capture("book-choice-" + language).crop(BOOK_CHOICE)
+            for title, name in (("ABC Book", "letters"), ("123 Book", "numbers")):
+                desktop.game(title)
                 page = desktop.capture_actual("direct-" + name + "-" + language)
+                if name == "letters":
+                    abc_header = page.crop((page.width // 3, 0, page.width * 2 // 3, 56))
                 # Letters are taught alone by default. Pictures are optional;
                 # the number pages still show their counted animals.
                 picture = page.crop((page.width // 2, 90, page.width - 40, page.height - 90))
@@ -46,8 +52,7 @@ for language in ("en", "de", "es"):
                 changed = desktop.capture_actual("next-" + name + "-" + language)
                 assert ImageChops.difference(page, changed).getbbox(), "Next did not change the learning page"
                 desktop.click_actual(30, 28)
-                if choice == "2": desktop.key("Up")
-                returned = desktop.capture("returned-" + name + "-" + language)
+                returned = desktop.capture("returned-" + name + "-" + language).crop(BOOK_CHOICE)
                 assert ImageChops.difference(hub, returned).getbbox() is None, "Back did not return directly to the book choice"
             desktop.key("Escape")
             desktop.game("Coloring Book")
@@ -65,10 +70,14 @@ for language in ("en", "de", "es"):
             desktop.key("Escape")  # Close the stencil picker.
             desktop.key("Escape")  # Leave the picture directly.
             desktop.wait_menu("after-coloring-home")
-            desktop.game("ABC Book")
             deadline = time.monotonic() + 20
-            while ImageChops.difference(hub, desktop.capture("after-coloring-exit")).getbbox() is not None:
-                assert time.monotonic() < deadline, "Coloring Back did not return directly to the book choice"
+            for key in title_keys("ABC Book")[:-1]:
+                desktop.key(key)
+            while ImageChops.difference(hub, desktop.capture("after-coloring-exit").crop(BOOK_CHOICE)).getbbox() is not None:
+                assert time.monotonic() < deadline, "The painted bookshelf did not reopen after Coloring Book"
+            desktop.game("ABC Book")
+            reopened = desktop.capture_actual("after-coloring-abc")
+            assert ImageChops.difference(abc_header, reopened.crop((reopened.width // 3, 0, reopened.width * 2 // 3, 56))).getbbox() is None, "ABC did not reopen directly"
             assert working.read_bytes() == saved, "Back changed the saved picture"
             assert "portable execution failed" not in (OUTPUT / "jungle.log").read_text(), "A game stopped"
         for name, content in saves.items():
