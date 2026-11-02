@@ -14,8 +14,10 @@ def scene_layout(desktop):
     cols = 2 if width - pad * 2 < 600 else 3
     rows = 6 // cols
     tab_y = top + 30 + gap
-    tab_w = (width - 2 * pad - 2 * gap) // 3
-    grid_y = tab_y + 44 + gap
+    tab_cols = 2 if width - 2 * pad < 560 else 4
+    tab_rows = (4 + tab_cols - 1) // tab_cols
+    tab_w = (width - 2 * pad - gap * (tab_cols - 1)) // tab_cols
+    grid_y = tab_y + tab_rows * (44 + gap) - gap
     footer_y = height - top - 44
     cw = (width - 2 * pad - gap * (cols - 1)) // cols
     available = (footer_y - gap - grid_y - gap * (rows - 1)) // rows
@@ -25,7 +27,8 @@ def scene_layout(desktop):
     content_height = rows * (ch + gap) - gap
     viewport = (56 + grid_y, grid_height, width - pad * 2)
     return {
-        'category': [(pad + i * (tab_w + gap), 56 + tab_y, tab_w, 44) for i in range(3)],
+        'category': [(pad + i % tab_cols * (tab_w + gap), 56 + tab_y + i // tab_cols * (44 + gap), tab_w, 44)
+                     for i in range(4)],
         'tile': [(pad + i % cols * (cw + gap), 56 + grid_y + i // cols * (ch + gap), cw, ch) for i in range(6)],
         'previous': [(pad, 56 + footer_y, fw, 44)],
         'next': [(width - pad - fw, 56 + footer_y, fw, 44)],

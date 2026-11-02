@@ -10,6 +10,7 @@
 
 INK :: 0
 PAPER :: 15
+BLANK_SCENE :: 26
 
 canvas: [CANVAS_PIXELS]u8;
 stamp: [CANVAS_PIXELS]bool;
@@ -24,6 +25,13 @@ LAYER_LIMIT :: 32
 LAYER_PIXELS :: CANVAS_PIXELS * 2
 TRANSPARENT :: 255
 PaintLayer :: struct { x: s32; y: s32; w: s32; h: s32; start: s32; pixels: []u8; }
+PENCIL_SCALE :: 8
+PENCIL_WIDTH :: 4
+PENCIL_WIDTH_UNITS :: PENCIL_WIDTH * PENCIL_SCALE
+PENCIL_STROKE_LIMIT :: 128
+PENCIL_POINT_LIMIT :: 8192
+PencilPoint :: struct { x: s32; y: s32; }
+PencilStroke :: struct { first: s32; count: s32; width: s32; }
 layers: [LAYER_LIMIT]PaintLayer;
 layer_order: [LAYER_LIMIT]s32;
 layer_count: s32;
@@ -32,6 +40,10 @@ layer_storage: [2][CANVAS_PIXELS]u8;
 base: [CANVAS_PIXELS]u8;
 owner: [CANVAS_PIXELS]u8;
 rotate_pixels: [CANVAS_PIXELS]u8;
+pencil_points: [PENCIL_POINT_LIMIT]PencilPoint;
+pencil_strokes: [PENCIL_STROKE_LIMIT]PencilStroke;
+pencil_point_count: s32;
+pencil_stroke_count: s32;
 
 CanvasLayersClear :: () {
     for at: cast(s32)0..LAYER_LIMIT - 1 { layers[at] = PaintLayer.{} }
@@ -41,6 +53,7 @@ CanvasLayersClear :: () {
 
 CanvasBlank :: () {
     CanvasLayersClear()
+    CanvasPencilClear()
     for at: cast(s32)0..CANVAS_PIXELS - 1 { canvas[at] = cast(u8)PAPER }
 }
 
@@ -169,6 +182,7 @@ CanvasRotationCommit :: (rotation: PaintRotation) -> bool {
     for at: cast(s32)0..w * h - 1 { object.pixels[at] = rotate_pixels[at] }
     for at: cast(s32)0..CANVAS_PIXELS - 1 { canvas[at] = base[at]; owner[at] = 0 }
     for at: cast(s32)0..layer_count - 1 { CanvasOverlay(layer_order[at], 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT) }
+    CanvasPencilRenderAll()
     return true
 }
 
@@ -196,6 +210,7 @@ CanvasEraseObject :: (x: s32, y: s32) -> bool {
         }
     }
     for at: cast(s32)0..layer_count - 1 { CanvasOverlay(layer_order[at], left, top, right, bottom) }
+    CanvasPencilRenderAll()
     return true
 }
 
@@ -271,9 +286,13 @@ ReadMask :: (index: s32, mask: []bool, count: s32) -> bool {
 
 // Starts a new picture: the scene's lines on white paper.
 SceneOpen :: (scene: s32) -> bool {
+    if scene == BLANK_SCENE {
+        CanvasBlank()
+        return true
+    }
     if scene < 0 || scene >= SCENE_COUNT { return false }
     if !ReadMask(SceneMask(scene), stamp[:], CANVAS_PIXELS) { return false }
-    CanvasLayersClear()
+    CanvasBlank()
     for at: cast(s32)0..CANVAS_PIXELS - 1 { canvas[at] = cast(u8)(ifx stamp[at] then INK else PAPER) }
     return true
 }
@@ -425,7 +444,99 @@ CanvasPlacementCommit :: (plan: PaintPlacement) -> bool {
     for at: cast(s32)0..plan.w * plan.h - 1 { object.pixels[at] = rotate_pixels[at] }
     layer_order[layer_count] = id; layer_count += 1; layer_pixels += plan.w * plan.h
     CanvasOverlay(id, plan.x, plan.y, plan.x + plan.w, plan.y + plan.h)
+    CanvasPencilRenderAll()
     return true
+}
+
+CanvasPencilClear :: () {
+    for at: cast(s32)0..PENCIL_STROKE_LIMIT - 1 { pencil_strokes[at] = PencilStroke.{} }
+    for at: cast(s32)0..PENCIL_POINT_LIMIT - 1 { pencil_points[at] = PencilPoint.{} }
+    pencil_stroke_count = 0
+    pencil_point_count = 0
+}
+
+CanvasPencilCanStroke :: () -> bool {
+    return pencil_stroke_count < PENCIL_STROKE_LIMIT && pencil_point_count < PENCIL_POINT_LIMIT
+}
+
+CanvasPencilInside :: (x: s32, y: s32) -> bool {
+    return x >= 0 && y >= 0 && x < CANVAS_WIDTH && y < CANVAS_HEIGHT
+}
+
+CanvasPencilStamp :: (x: s32, y: s32) {
+    left := x - PENCIL_WIDTH / 2
+    top := y - PENCIL_WIDTH / 2
+    for py: top..top + PENCIL_WIDTH - 1 {
+        if py < 0 || py >= CANVAS_HEIGHT { continue }
+        for px: left..left + PENCIL_WIDTH - 1 {
+            if px < 0 || px >= CANVAS_WIDTH { continue }
+            canvas[py * CANVAS_WIDTH + px] = cast(u8)INK
+        }
+    }
+}
+
+CanvasPencilSegment :: (start: PencilPoint, end: PencilPoint) {
+    x := start.x; y := start.y
+    dx := end.x - x; dy := end.y - y
+    step_x: s32 = 1; if dx < 0 { step_x = -1; dx = -dx }
+    step_y: s32 = 1; if dy < 0 { step_y = -1; dy = -dy }
+    error := dx - dy
+    while true {
+        CanvasPencilStamp(x / PENCIL_SCALE, y / PENCIL_SCALE)
+        if x == end.x && y == end.y { break }
+        twice := error * 2
+        if twice > -dy {
+            error -= dy
+            x += step_x * PENCIL_SCALE
+        }
+        if twice < dx {
+            error += dx
+            y += step_y * PENCIL_SCALE
+        }
+    }
+}
+
+CanvasPencilPoint :: (x: s32, y: s32) -> PencilPoint {
+    return PencilPoint.{x * PENCIL_SCALE + PENCIL_SCALE / 2, y * PENCIL_SCALE + PENCIL_SCALE / 2}
+}
+
+CanvasPencilStrokeBegin :: (x: s32, y: s32) -> bool {
+    if !CanvasPencilCanStroke() || !CanvasPencilInside(x, y) { return false }
+    point := CanvasPencilPoint(x, y)
+    pencil_points[pencil_point_count] = point
+    pencil_strokes[pencil_stroke_count] = PencilStroke.{pencil_point_count, 1, PENCIL_WIDTH_UNITS}
+    pencil_point_count += 1
+    pencil_stroke_count += 1
+    CanvasPencilStamp(x, y)
+    return true
+}
+
+CanvasPencilStrokeMove :: (x: s32, y: s32) -> bool {
+    if pencil_stroke_count == 0 || pencil_point_count >= PENCIL_POINT_LIMIT || !CanvasPencilInside(x, y) { return false }
+    stroke := pencil_strokes[pencil_stroke_count - 1]
+    previous := pencil_points[stroke.first + stroke.count - 1]
+    point := CanvasPencilPoint(x, y)
+    if previous.x == point.x && previous.y == point.y { return true }
+    pencil_points[pencil_point_count] = point
+    pencil_point_count += 1
+    stroke.count += 1
+    pencil_strokes[pencil_stroke_count - 1] = stroke
+    CanvasPencilSegment(previous, point)
+    return true
+}
+
+CanvasPencilStrokeEnd :: () -> bool {
+    return pencil_stroke_count > 0
+}
+
+CanvasPencilRenderAll :: () {
+    for stroke_at: cast(s32)0..pencil_stroke_count - 1 {
+        stroke := *pencil_strokes[stroke_at]
+        for point_at: cast(s32)0..stroke.count - 2 {
+            CanvasPencilSegment(pencil_points[stroke.first + point_at], pencil_points[stroke.first + point_at + 1])
+        }
+        if stroke.count == 1 { CanvasPencilStamp(pencil_points[stroke.first].x / PENCIL_SCALE, pencil_points[stroke.first].y / PENCIL_SCALE) }
+    }
 }
 
 CanvasText :: () -> string {

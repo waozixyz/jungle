@@ -77,11 +77,35 @@ ResizeCornersPass :: () -> bool {
     return true
 }
 
+PencilShapeFillPass :: () -> bool {
+    CanvasBlank()
+    if !CanvasPencilStrokeBegin(100, 100) || !CanvasPencilStrokeMove(200, 100) ||
+        !CanvasPencilStrokeMove(200, 200) || !CanvasPencilStrokeMove(100, 200) ||
+        !CanvasPencilStrokeMove(100, 100) || !CanvasPencilStrokeEnd() {
+        Report("paint test: pencil shape did not draw\n"); return false
+    }
+    if CanvasColorAt(100, 100) != INK || CanvasColorAt(150, 100) != INK ||
+        CanvasColorAt(200, 150) != INK || CanvasColorAt(150, 200) != INK {
+        Report("paint test: pencil boundary is not black ink\n"); return false
+    }
+    if CanvasFill(150, 150, 30) <= 0 {
+        Report("paint test: closed pencil shape did not fill\n"); return false
+    }
+    for at: cast(s32)0..CANVAS_PIXELS - 1 {
+        if canvas[at] != 30 { continue }
+        x := at % CANVAS_WIDTH; y := at / CANVAS_WIDTH
+        if x < 102 || x > 197 || y < 102 || y > 197 {
+            Report("paint test: fill escaped the closed pencil shape\n"); return false
+        }
+    }
+    return true
+}
+
 #program_export
 main :: (argc: s32, argv: **u8) -> s32 {
     unused argc
     unused argv
-    if !ResizeCornersPass() { return 1 }
+    if !ResizeCornersPass() || !PencilShapeFillPass() { return 1 }
     // Every visible swatch is distinct, selectable paint, never outline ink
     // or legacy pure black. Charcoal must remain visibly lighter than ink.
     for index: cast(s32)0..CRAYON_COUNT - 1 {

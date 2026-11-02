@@ -166,6 +166,24 @@ RotationTests :: () -> s32 {
     return 0
 }
 
+PencilPersistenceUndo :: () -> s32 {
+    CanvasBlank(); HistoryClear()
+    scene = BLANK_SCENE
+    before := PictureText()
+    HistoryPush()
+    if !CanvasPencilStrokeBegin(100, 100) || !CanvasPencilStrokeMove(180, 100) ||
+        !CanvasPencilStrokeMove(180, 160) || !CanvasPencilStrokeEnd() { return 90 }
+    record := PictureText()
+    if !PictureValid(record) || !PictureLoad(record) || PictureText() != record { return 91 }
+    if pencil_stroke_count != 1 || pencil_point_count != 3 || pencil_strokes[0].width != PENCIL_WIDTH_UNITS ||
+        pencil_points[0].x != 804 || pencil_points[0].y != 804 || pencil_points[1].x != 1444 ||
+        pencil_points[2].y != 1284 || CanvasColorAt(140, 100) != INK { return 92 }
+    if !HistoryUndo() || PictureText() != before || pencil_stroke_count != 0 || pencil_point_count != 0 ||
+        CanvasColorAt(140, 100) != PAPER { return 93 }
+    CanvasBlank()
+    return 0
+}
+
 PlacementTests :: () -> s32 {
     CanvasBlank(); HistoryClear()
     original := PictureText()
@@ -306,6 +324,8 @@ main :: () -> s32 {
     if placement != 0 { return Fail(placement) }
     rotation := RotationTests()
     if rotation != 0 { return Fail(rotation) }
+    pencil := PencilPersistenceUndo()
+    if pencil != 0 { return Fail(pencil) }
     Report("local paint layers model test passed: overlap, paint, transparency, undo/reload, legacy, 32 objects, pixel budget and rotation\n")
     return 0
 }

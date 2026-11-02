@@ -31,6 +31,7 @@
 #import "pointer_input"
 PictureIcon :: #import "mingcute/mingcute_regular_pic";
 BucketIcon :: #import "mingcute/mingcute_regular_paint";
+BookIcon :: #import "mingcute/mingcute_regular_book";
 PencilIcon :: #import "mingcute/mingcute_regular_pencil";
 NewIcon :: #import "mingcute/mingcute_regular_file_new";
 EraserIcon :: #import "mingcute/mingcute_regular_eraser";
@@ -57,13 +58,13 @@ SAVE_LOAD :: 8
 OVERWRITE :: 9
 PRINT_VIEW :: 10
 GALLERY :: 11
-TOOL_COUNT :: 9
+TOOL_COUNT :: 10
 
 SLOT_COUNT :: 6
 WORKING :: "working.txt"
 WORKING_HISTORY :: "working-undo.txt"
 
-button_names: [9]string = .["Image", "Color", "Story", "Erase", "Gallery", "Print", "Undo", "New picture", "Select"];
+button_names: [10]string = .["Image", "Color", "Story", "Erase", "Gallery", "Print", "Undo", "New picture", "Select", "Pencil"];
 size_names: [4]string = .["Small", "Medium", "Large", "Huge"];
 
 view: s32 = MAIN;
@@ -72,6 +73,8 @@ size: s32 = 2;
 placing: bool;
 erasing: bool;
 rotating: bool;
+penciling: bool;
+pencil_dragging: bool;
 selected_object: s32 = -1;
 selection_bounds: PaintExtent;
 selection_source_bounds: PaintExtent;
@@ -137,10 +140,39 @@ ChoicesLoad :: () {
     // A version 1 page becomes the anchor of its first item.
     anchor := PaintChoicesAnchor(version, values[2], paint_stencil_category_counts[values[1]])
     if values[0] > PAINT_STENCIL_COUNT || anchor < 0 || values[3] < 1 || values[3] > 4 ||
-        values[4] > 1 || values[5] >= PAINT_SCENE_CATEGORY_COUNT ||
-        values[6] >= (paint_scene_category_counts[values[5]] + 5) / 6 || values[7] > PAINT_SCENE_COUNT { return }
+        values[4] > 1 || values[5] >= PAINT_SCENE_TAB_COUNT ||
+        values[6] >= (SceneCategoryCount(values[5]) + 5) / 6 || values[7] > PAINT_SCENE_COUNT { return }
     dino = values[0] - 1; stencil_category = values[1]; stencil_anchor = anchor; size = values[3]
     placement_flip = values[4] == 1; scene_category = values[5]; scene_page = values[6]; last_scene = values[7] - 1
+}
+
+PAINT_SCENE_TAB_COUNT :: PAINT_SCENE_CATEGORY_COUNT + 1
+
+SceneCategoryCount :: (index: s32) -> s32 {
+    if index == PAINT_SCENE_CATEGORY_COUNT { return 1 }
+    if index < 0 || index >= PAINT_SCENE_CATEGORY_COUNT { return 0 }
+    return paint_scene_category_counts[index]
+}
+
+SceneCategoryLabel :: (index: s32) -> string {
+    if index == PAINT_SCENE_CATEGORY_COUNT {
+        code := LanguageCode()
+        if code == "de" { return "Leere Seite" }
+        if code == "es" { return "Página en blanco" }
+        return "Blank page"
+    }
+    return PaintSceneCategoryLabel(index)
+}
+
+PictureHasPage :: () -> bool {
+    return scene != -1
+}
+
+PencilLabel :: () -> string {
+    code := LanguageCode()
+    if code == "de" { return "Stift" }
+    if code == "es" { return "Lápiz" }
+    return "Pencil"
 }
 
 GalleryReadDocument :: (name: string, status: *s32) -> string {
@@ -185,7 +217,7 @@ WorkingPictureSave :: () -> bool {
     if !initialized || working_history_start || history_loading { return true }
     working := PictureText()
     if !DocumentWrite(WORKING, working) { return false }
-    gallery_saved := scene < 0 || GalleryStoreSave(*gallery_store, working)
+    gallery_saved := scene == -1 || GalleryStoreSave(*gallery_store, working)
     if HistoryBoundTo(working) { return gallery_saved }
     // Built in place, so its storage is released after writing.
     text: Vec(u8)
@@ -214,7 +246,7 @@ WorkingPictureLoad :: () {
 Notice :: (text: string) { status = text; status_until = retro.now + 3.0 }
 
 StoreSlot :: (index: s32) -> bool {
-    if scene < 0 { Notice("Choose a scene first"); return false }
+    if !PictureHasPage() { Notice("Choose a scene first"); return false }
     if !DocumentWrite(SlotFile(index), PictureText()) { Notice("Could not save"); return false }
     slot = index
     slot_previews_ready[index] = false
@@ -247,14 +279,14 @@ Undo :: () {
 
 OpenScene :: (index: s32) {
     scene = index
-    last_scene = index
+    last_scene = ifx index == BLANK_SCENE then -1 else index
     ChoicesSave()
     unused SceneOpen(index)
     placing = false
     erasing = false
     HistoryClear()
     dirty = true
-    view = PICK_DINO
+    view = ifx index == BLANK_SCENE then MAIN else PICK_DINO
     ClearStory()
     story_row = 0
     story_column = 0
@@ -278,8 +310,8 @@ MakeCanvas :: () {
     }
 }
 
-// The main screen is laid out in window pixels: on a wide window the nine
-// tools stand beside the picture, or in three rows below a portrait picture. The picture keeps its 4:3 shape.
+// The main screen is laid out in window pixels: on a wide window the ten
+// tools stand beside the picture, or in four rows below a portrait picture. The picture keeps its 4:3 shape.
 canvas_x: s32;
 canvas_y: s32;
 canvas_w: s32 = 1;
@@ -310,12 +342,13 @@ LayoutMain :: () {
         tool_h = Clamp(tool_w * 3 / 4, 44, 110)
         canvas_w = width - pad * 2
         canvas_h = canvas_w * 3 / 4
-        room := height - pad * 3 - gap * 2 - tool_h * 3
+        rows := cast(s32)((TOOL_COUNT + 2) / 3)
+        room := height - pad * 3 - gap * (rows - 1) - tool_h * rows
         if canvas_h > room { canvas_h = room; canvas_w = canvas_h * 4 / 3 }
         canvas_x = (width - canvas_w) / 2
         canvas_y = pad
         below := canvas_y + canvas_h + pad
-        top := below + (height - pad - below - tool_h * 3 - gap * 2) / 2
+        top := below + (height - pad - below - tool_h * rows - gap * (rows - 1)) / 2
         for index: cast(s32)0..TOOL_COUNT - 1 {
             tool_x[index] = pad + (index % 3) * (tool_w + gap)
             tool_y[index] = top + (index / 3) * (tool_h + gap)
@@ -348,12 +381,13 @@ LayoutMain :: () {
 ToolShape :: (index: s32) -> string {
     if index == 0 { return PictureIcon.Shape }
     if index == 1 { return BucketIcon.Shape }
-    if index == 2 { return PencilIcon.Shape }
+    if index == 2 { return BookIcon.Shape }
     if index == 3 { return EraserIcon.Shape }
     if index == 4 { return PictureIcon.Shape }
     if index == 5 { return PrintIcon.Shape }
     if index == 6 { return ifx placing then MirrorIcon.Shape else UndoIcon.Shape }
     if index == 8 { return RotateIcon.Shape }
+    if index == 9 { return PencilIcon.Shape }
     return NewIcon.Shape
 }
 
@@ -750,27 +784,28 @@ MainView :: () {
     chosen_tool: s32 = -1
     for index: cast(s32)0..TOOL_COUNT - 1 {
         mirror := placing && index == 6
-        label := ifx mirror then "Mirror" else button_names[index]
-        pressed := ToolButton(20 + index, tool_x[index], tool_y[index], tool_w, tool_h, ToolShape(index), label, (mirror && placement_flip) || (index == 3 && erasing) || (index == 8 && rotating))
+        label := ifx mirror then "Mirror" else ifx index == 9 then PencilLabel() else button_names[index]
+        pressed := ToolButton(20 + index, tool_x[index], tool_y[index], tool_w, tool_h, ToolShape(index), label,
+            (mirror && placement_flip) || (index == 3 && erasing) || (index == 8 && rotating) || (index == 9 && penciling))
         if pressed && !working_bookkeeping { chosen_tool = index }
     }
     // The chosen crayon, as a dot on the Color tool.
     dot := Clamp(tool_h / 4, 8, 24)
     BookBox(tool_x[1] + tool_w - dot - tool_h / 10, tool_y[1] + tool_h / 10, dot, dot,
         paint_colors[16 + crayon], 0x3e332aff, cast(float32)(dot / 2))
-    if scene >= 0 && (!working_bookkeeping || working_canvas_state == WORKING_CANVAS_MAKE) { MakeCanvas() }
+    if PictureHasPage() && (!working_bookkeeping || working_canvas_state == WORKING_CANVAS_MAKE) { MakeCanvas() }
     frame := Clamp(canvas_w / 120, 3, 8)
     BookBox(canvas_x - frame, canvas_y - frame, canvas_w + frame * 2, canvas_h + frame * 2,
         0xfffcf3ff, 0x704d36ff, cast(float32)(frame * 2))
     name := TextUntilNul(canvas_name[:])
     shown := TextUntilNul(canvas_shown_name[:])
-    if scene >= 0 && shown != "" {
+    if PictureHasPage() && shown != "" {
         RetroSprite(shown, canvas_x, canvas_y, canvas_w, canvas_h, -1, true)
     }
-    if scene >= 0 && name != "" && name != shown {
+    if PictureHasPage() && name != "" && name != shown {
         RetroSprite(name, canvas_x, canvas_y, canvas_w, canvas_h, -1, true)
     }
-    if scene < 0 || (name == "" && shown == "") { BookBox(canvas_x, canvas_y, canvas_w, canvas_h, 0xffffffff) }
+    if !PictureHasPage() || (name == "" && shown == "") { BookBox(canvas_x, canvas_y, canvas_w, canvas_h, 0xffffffff) }
     press := RetroTap(40, canvas_x, canvas_y, canvas_w, canvas_h, "Picture", true)
     x := PictureX(press.x)
     y := PictureY(press.y)
@@ -781,8 +816,26 @@ MainView :: () {
         canvas_can_fill = false
         SelectionView(chosen_tool)
     } else {
-        if !working_bookkeeping && chosen_tool < 0 && SamplePointer().pressed { canvas_can_fill = true }
-        if !working_bookkeeping && chosen_tool < 0 && press.clicked && canvas_can_fill {
+        pointer := SamplePointer()
+        if !working_bookkeeping && chosen_tool < 0 && pointer.pressed && !penciling { canvas_can_fill = true }
+        if penciling {
+            canvas_can_fill = false
+            inside := pointer.x >= retro.x + cast(float32)canvas_x && pointer.y >= retro.y + cast(float32)canvas_y &&
+                pointer.x < retro.x + cast(float32)(canvas_x + canvas_w) && pointer.y < retro.y + cast(float32)(canvas_y + canvas_h)
+            if !working_bookkeeping && !pencil_dragging && pointer.pressed && inside {
+                if CanvasPencilCanStroke() {
+                    HistoryPush()
+                    pencil_dragging = CanvasPencilStrokeBegin(x, y)
+                    if pencil_dragging { dirty = true }
+                }
+            } else if pencil_dragging {
+                if pointer.down && inside && CanvasPencilStrokeMove(x, y) { dirty = true }
+                if pointer.released || !pointer.down {
+                    if CanvasPencilStrokeEnd() { WorkingPictureKeep(); Sound("click") }
+                    pencil_dragging = false
+                }
+            }
+        } else if !working_bookkeeping && chosen_tool < 0 && press.clicked && canvas_can_fill {
             canvas_can_fill = false
             if erasing {
                 if CanvasObjectAt(x, y) >= 0 {
@@ -796,15 +849,15 @@ MainView :: () {
                 return
             }
             fill := 16 + crayon
-            if scene >= 0 && CanvasColorAt(x, y) > INK && CanvasColorAt(x, y) != fill {
-            HistoryPush()
-            if CanvasFill(x, y, fill) > 0 {
-                dirty = true
-                WorkingPictureKeep()
-                Sound("fill")
+            if PictureHasPage() && CanvasColorAt(x, y) > INK && CanvasColorAt(x, y) != fill {
+                HistoryPush()
+                if CanvasFill(x, y, fill) > 0 {
+                    dirty = true
+                    WorkingPictureKeep()
+                    Sound("fill")
+                }
             }
         }
-    }
     }
     if chosen_tool >= 0 {
         mirror := placing && chosen_tool == 6
@@ -815,8 +868,9 @@ MainView :: () {
         SelectionClear()
         Sound("click")
         if chosen_tool != 8 { rotating = false }
+        if chosen_tool != 9 { penciling = false; pencil_dragging = false }
         if chosen_tool == 0 || chosen_tool == 1 || chosen_tool == 7 || chosen_tool == 8 { erasing = false }
-        if chosen_tool == 0 { view = ifx scene < 0 then PICK_SCENE else PICK_DINO }
+        if chosen_tool == 0 { view = ifx PictureHasPage() then PICK_DINO else PICK_SCENE }
         if chosen_tool == 1 { view = PICK_COLOR }
         if chosen_tool == 2 { view = STORY }
         if chosen_tool == 3 { erasing = !erasing; canvas_can_fill = false }
@@ -829,6 +883,7 @@ MainView :: () {
         if chosen_tool == 6 { Undo() }
         if chosen_tool == 7 { view = CONFIRM_ERASE }
         if chosen_tool == 8 { rotating = !rotating; canvas_can_fill = false }
+        if chosen_tool == 9 { penciling = !penciling; canvas_can_fill = false }
         return
     }
     if retro.key == KEY_ESCAPE { SelectionClear(); WorkingPictureKeep(); GameHome() }
@@ -879,9 +934,9 @@ StencilPickerButton :: (id: s32, x: s32, y: s32, width: s32, label: string, chos
 // Each tile label is measured with the host's fonts once per width and
 // language: it shrinks toward the minimum size, then wraps onto two lines.
 stencil_label_language: s32 = -1;
-stencil_label_available: [52]s32;
-stencil_label_fonts: [52]s32;
-stencil_label_heights: [52]s32;
+stencil_label_available: [55]s32;
+stencil_label_fonts: [55]s32;
+stencil_label_heights: [55]s32;
 
 StencilLabelFit :: (index: s32, available: s32) {
     if stencil_label_language != language {
@@ -991,9 +1046,10 @@ scene_picker_page_scroll: s32;
 ScenePickerContent :: (l: ScenePickerLayout) {
     BookPaperSized(l.width, l.height)
     BookText(l.padding, l.top, l.width - l.padding * 2, 30, "Choose a scene", 20)
-    for category: cast(s32)0..PAINT_SCENE_CATEGORY_COUNT - 1 {
-        if StencilPickerButton(520 + category, l.padding + category * (l.tab_width + l.gap),
-            l.tab_y, l.tab_width, PaintSceneCategoryLabel(category), scene_category == category) {
+    for category: cast(s32)0..PAINT_SCENE_TAB_COUNT - 1 {
+        if StencilPickerButton(520 + category, l.padding + (category % l.tab_columns) * (l.tab_width + l.gap),
+            l.tab_y + (category / l.tab_columns) * (44 + l.gap), l.tab_width, SceneCategoryLabel(category),
+            scene_category == category) {
             if scene_category != category {
                 scene_category = category; scene_page = 0; scene_picker_scroll = 0; ChoicesSave()
             }
@@ -1014,6 +1070,23 @@ ScenePickerContent :: (l: ScenePickerLayout) {
         retro.y -= cast(float32)scene_picker_scroll
     } else { scene_picker_scroll = 0 }
     for offset: cast(s32)0..5 {
+        if scene_category == PAINT_SCENE_CATEGORY_COUNT {
+            if offset > 0 { continue }
+            x := l.padding
+            y := l.grid_y
+            press := RetroTap(69, x, y, l.card_width, l.card_height, SceneCategoryLabel(scene_category))
+            BookBox(x, y, l.card_width, l.card_height,
+                ifx press.down then cast(u32)0xdcebdcff else cast(u32)0xfffcf3ff,
+                ifx press.down then cast(u32)0x2e6956ff else cast(u32)0xdacdb5ff, 6.0)
+            icon := ifx l.card_width < l.card_height then l.card_width * 2 / 5 else l.card_height * 2 / 5
+            if icon > 96 { icon = 96 }
+            SvgIcon(retro.session, SvgIconProps.{.bounds = RetroRect(x + (l.card_width - icon) / 2,
+                y + (l.card_height - 34 - icon) / 2, icon, icon), .shape = PencilIcon.Shape,
+                .color = ColorFromPacked(0x3e332aff)})
+            BookText(x + 6, y + l.card_height - 28, l.card_width - 12, 24, SceneCategoryLabel(scene_category), 18)
+            if press.clicked { OpenScene(BLANK_SCENE); break }
+            continue
+        }
         index := PaintSceneAt(scene_category, scene_page * 6 + offset)
         if index < 0 { continue }
         x := l.padding + (offset % l.columns) * (l.card_width + l.gap)
@@ -1035,7 +1108,7 @@ ScenePickerContent :: (l: ScenePickerLayout) {
     retro.y = saved_y
     if scroll_grid { unused End(retro.session) }
     if view != PICK_SCENE { return }
-    pages := (paint_scene_category_counts[scene_category] + 5) / 6
+    pages := (SceneCategoryCount(scene_category) + 5) / 6
     if scene_page > 0 && StencilPickerButton(196, l.padding, l.footer_y, l.footer_width, "Previous") {
         scene_page -= 1; scene_picker_scroll = 0; ChoicesSave(); Sound("click"); return
     }
@@ -1062,13 +1135,13 @@ ScenePicker :: () {
         scene_picker_page_scroll = scrolled.scroll_offset
         if scrolled.opened {
             retro.y -= cast(float32)scene_picker_page_scroll
-            ScenePickerContent(ScenePickerBounds(width, 500, PAINT_SCENE_CATEGORY_COUNT))
+            ScenePickerContent(ScenePickerBounds(width, 500, PAINT_SCENE_TAB_COUNT))
             retro.y = bounds.y
             unused End(retro.session)
         }
     } else {
         scene_picker_page_scroll = 0
-        ScenePickerContent(ScenePickerBounds(width, height, PAINT_SCENE_CATEGORY_COUNT))
+        ScenePickerContent(ScenePickerBounds(width, height, PAINT_SCENE_TAB_COUNT))
     }
 }
 
@@ -1285,7 +1358,7 @@ GalleryView :: () {
     DialogBack("Gallery")
     slot_preview_created = false
     if BookButton(540, 20, 29, 176, 18, "Save a copy") {
-        if scene >= 0 && GalleryStoreSave(*gallery_store, PictureText(), true) {
+        if PictureHasPage() && GalleryStoreSave(*gallery_store, PictureText(), true) {
             gallery_page = gallery_store.gallery.selected / 6
             GalleryPreviewsClear()
             Notice("Picture and story saved")
@@ -1406,10 +1479,14 @@ GameMain :: () -> s32 {
         history_loading = false
         erasing = false
         rotating = false
+        penciling = false
+        pencil_dragging = false
         SelectionClear()
         view = MAIN
         placing = false
         dragging = false
+        penciling = false
+        pencil_dragging = false
         HistoryClear()
         scene = -1
         crayon = 14
