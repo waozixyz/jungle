@@ -855,13 +855,14 @@ PlacementView :: (chosen_tool: s32) {
     corners[1] = SelectionPoint(hw, -hh, center, plan.degrees)
     corners[2] = SelectionPoint(hw, hh, center, plan.degrees)
     corners[3] = SelectionPoint(-hw, hh, center, plan.degrees)
-    quad := corners
-    if placement_flip { quad[0] = corners[1]; quad[1] = corners[0]; quad[2] = corners[3]; quad[3] = corners[2] }
+    // Handles use clockwise TL/TR/BR/BL (opposites are two apart).
+    // ImageMesh samples row-major TL/TR/BL/BR; mirror each source row.
+    quad: [4]Vector2 = .[corners[0], corners[1], corners[3], corners[2]]
+    if placement_flip { quad[0] = corners[1]; quad[1] = corners[0]; quad[2] = corners[2]; quad[3] = corners[3] }
     number := FormatInteger(dino + 1, digits_a[:])
     Image(retro.session, ImageProps.{.asset_path = Join(ART, Join("dino", number, "-preview.png")),
         .bounds = CanvasScreen(), .mesh = ImageMesh.{.columns = 2, .rows = 2, .points = quad[:]}})
-    SelectionLine(corners[0], corners[1]); SelectionLine(corners[1], corners[3])
-    SelectionLine(corners[3], corners[2]); SelectionLine(corners[2], corners[0])
+    for at: cast(s32)0..3 { SelectionLine(corners[at], corners[(at + 1) % 4]) }
     SelectionLine(SelectionPoint(0.0, -hh, center, plan.degrees), handle)
     unused RetroTap(604, cast(s32)(handle.x - retro.x) - 22, cast(s32)(handle.y - retro.y) - 22, 44, 44, "Rotate stencil", true)
     Fill(Rectangle.{handle.x - 22.0, handle.y - 22.0, 44.0, 44.0}, 0x2e6956ff, 22.0)

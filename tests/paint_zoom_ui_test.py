@@ -294,6 +294,82 @@ def placement_stays_aligned(root):
     print("local UI test: a stencil moves and resizes under the pointer while zoomed", flush=True)
 
 
+def preview_matches_placed(root):
+    """Compare real preview ink with committed vector ink, ignoring controls.
+
+    Pig and the asymmetric campfire exercise both triangles, mirroring and
+    rotation. A small pixel tolerance allows bitmap versus vector antialiasing.
+    """
+    import json
+    import numpy as np
+    from PIL import Image, ImageFilter
+    from paint_geometry import stencil_click, stencil_pick, stencil_position
+    from paint_library_test import document, placement_click
+    from runtime_test import DIGITS, dinosaur_masks
+
+    def grow(mask, size):
+        return np.asarray(Image.fromarray(mask.astype('uint8') * 255).filter(
+            ImageFilter.MaxFilter(size))) > 0
+
+    for index in (58, 25):  # approved pig, asymmetric campfire
+        for variant in ('fit', 'rotated', 'flipped', 'zoomed'):
+            tag = f'preview-{index}-{variant}'
+            data = root / tag
+            folder = data / 'games/jungle.paint'
+            folder.mkdir(parents=True)
+            registry = json.loads((ROOT / 'tools/collectibles.json').read_text())
+            (data / 'collection.txt').write_text('JUNGLE COLLECTION 1\n' + ''.join(
+                row['slug'] + '\n' for row in registry['collectibles']))
+            working = folder / 'working.txt'
+            initial = document(np.full((720, 960), 15, np.uint8), []).replace(b'\n0e\n', b'\nqe\n', 1)
+            working.write_bytes(initial)
+            category, position = stencil_position(index)
+            values = (index + 1, category, 0, 3, int(variant == 'flipped'), 0, 0, 0)
+            (folder / 'choices.txt').write_text('JUNGLE PAINT CHOICES 2\n' + ''.join(DIGITS[v] for v in values))
+            with Desktop(BINARY, data) as desktop:
+                desktop.game('Coloring Book')
+                settle()
+                settle()
+                initial = working.read_bytes()
+                tool(desktop, 0)
+                stencil_click(desktop, 'category', category)
+                stencil_pick(desktop, position)
+                settle()
+                if variant == 'rotated':
+                    ink, _ = dinosaur_masks(index, 3)
+                    center = middle(desktop)
+                    radius = (ink.shape[0] / 2 + 30) * page_scale(desktop)
+                    drag(desktop, (center[0], center[1] - radius),
+                         (center[0] + radius * .707, center[1] - radius * .707))
+                if variant == 'zoomed':
+                    wheel(desktop, 4, 2)
+                    center = middle(desktop)
+                    drag(desktop, center, (center[0] + 35, center[1] + 20))
+                picture = desktop.capture_actual(tag + '-pending')
+                picture.save(WORK / (tag + '-pending.png'))
+                before = np.asarray(picture).astype('int16')
+                assert working.read_bytes() == initial, 'preview changed the document'
+                placement_click(desktop)
+                changed(working, initial)
+                settle()
+                picture = desktop.capture_actual(tag + '-placed')
+                picture.save(WORK / (tag + '-placed.png'))
+                after = np.asarray(picture)
+                x, y, w, h = paint_layout(desktop)[0]
+                # Exclude toolbar/button strips and green outline/handles.
+                region = np.zeros(before.shape[:2], bool)
+                region[HEADER+y+55:HEADER+y+h-65, x+2:x+w-2] = True
+                green = (before[:,:,1] > before[:,:,0] + 20) & (before[:,:,1] > before[:,:,2] + 5)
+                region &= ~grow(green, 45)
+                pending = (before.max(axis=2) < 110) & region
+                placed = (after.max(axis=2) < 110) & region
+                assert pending.sum() > 100 and placed.sum() > 100, (tag, 'missing ink')
+                for a, b in ((pending, placed), (placed, pending)):
+                    match = (a & grow(b, 7)).sum() / a.sum()
+                    assert match > .93, (tag, 'preview differs from placed ink', match)
+                print(f'local UI test: {tag} matches placed ink', flush=True)
+
+
 def ui():
     WORK.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(prefix="zoom-", dir=WORK) as temporary:
@@ -327,6 +403,7 @@ def ui():
         pencil_stays_aligned(root)
         rotation_handle_stays_aligned(root)
         placement_stays_aligned(root)
+        preview_matches_placed(root)
         for tag, size in (("wide", None), ("short", (800, 500)), ("tall", (600, 900))):
             data = root / tag
             working = data / "games/jungle.paint/working.txt"
@@ -339,5 +416,12 @@ def ui():
 
 
 if __name__ == "__main__":
-    ui()
-    print("local UI test: Coloring Book zoom and pan passed", flush=True)
+    import sys
+    if '--preview-only' in sys.argv:
+        WORK.mkdir(parents=True, exist_ok=True)
+        with tempfile.TemporaryDirectory(prefix='preview-', dir=WORK) as temporary:
+            preview_matches_placed(Path(temporary))
+    else:
+        ui()
+    print('local UI test: Coloring Book placement previews passed' if '--preview-only' in sys.argv
+          else 'local UI test: Coloring Book zoom and pan passed', flush=True)
