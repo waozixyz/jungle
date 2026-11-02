@@ -1,0 +1,107 @@
+// The hidden white paper's rules, apart from drawing so tests can check them.
+// retro/paper.zi draws it and asks the app to collect.
+#import, file "collect_flight.zi";
+#import, file "collectibles.zi";
+
+SECRET_PAPER_WAITING :: 0
+SECRET_PAPER_FLYING :: 1
+SECRET_PAPER_GONE :: 2
+// One slow breath of the glow, and how bright it gets at its faintest and fullest.
+SECRET_PAPER_PULSE_SECONDS :: 2.6
+SECRET_PAPER_GLOW_LOW :: 0.35
+SECRET_PAPER_GLOW_HIGH :: 0.8
+// A tap the app could not collect only twinkles for this long.
+SECRET_PAPER_SPARKLE_SECONDS :: 0.6
+// The paper's edge in window pixels: a few dozen, growing with the screen.
+SECRET_PAPER_SMALLEST :: 28.0
+SECRET_PAPER_LARGEST :: 64.0
+
+SecretPaper :: struct {
+    state: s32
+    // When the flight started, and where from.
+    started: float64
+    start: CollectRect
+    // When a tap last twinkled without collecting; 0 for never.
+    sparkled: float64
+    // A gentle sound in the game's own bundle; "" plays the shared chime.
+    chime: string
+}
+
+// The app's collect call: true only the first time SLUG is collected.
+SecretPaperCollect :: #type (slug: string) -> bool;
+
+// The glow's brightness at NOW: it rises and falls smoothly, never off, never glaring.
+SecretPaperGlow :: (now: float64) -> float32 {
+    cycles := now / SECRET_PAPER_PULSE_SECONDS
+    phase := cast(float32)(cycles - cast(float64)cast(s64)cycles)
+    if phase < 0.0 { phase += 1.0 }
+    wave: float32 = ifx phase < 0.5 then phase * 2.0 else (1.0 - phase) * 2.0
+    return SECRET_PAPER_GLOW_LOW + (SECRET_PAPER_GLOW_HIGH - SECRET_PAPER_GLOW_LOW) * CollectEase(wave)
+}
+
+// The paper's edge in screen units, for a window whose short side is SHORT_SIDE
+// pixels drawn SCALE window pixels per screen unit.
+SecretPaperSize :: (short_side: float32, scale: float32) -> s32 {
+    pixels := short_side * 0.07
+    if pixels < SECRET_PAPER_SMALLEST { pixels = SECRET_PAPER_SMALLEST }
+    if pixels > SECRET_PAPER_LARGEST { pixels = SECRET_PAPER_LARGEST }
+    if scale <= 0.0 { return cast(s32)pixels }
+    size := cast(s32)(pixels / scale)
+    return ifx size < 4 then 4 else size
+}
+
+// How far from its middle a tap still finds a paper SIZE wide: a little past
+// its edge for small fingers, not so far that it takes the game's taps.
+SecretPaperReach :: (size: s32) -> s32 { return size * 3 / 4 }
+
+// Whether a tap at PX, PY lands on the paper SIZE wide centered on X, Y.
+SecretPaperHit :: (x: s32, y: s32, size: s32, px: s32, py: s32) -> bool {
+    if size <= 0 { return false }
+    reach := SecretPaperReach(size)
+    return px >= x - reach && px <= x + reach && py >= y - reach && py <= y + reach
+}
+
+// Whether entry INDEX's paper lies waiting: a paper entry not yet collected.
+SecretPaperShown :: (paper: SecretPaper, index: s32, collected: bool) -> bool {
+    if index < 0 || index >= COLLECTIBLE_COUNT || collectible_how_kinds[index] != COLLECTIBLE_HOW_PAPER { return false }
+    return paper.state == SECRET_PAPER_WAITING && !collected
+}
+
+// A tap on a waiting paper, which it uses up. When COLLECT answers new, the
+// stencil starts flying from START; otherwise the paper only twinkles and
+// stays. False when no paper was there to tap.
+SecretPaperTap :: (paper: *SecretPaper, index: s32, collected: bool, now: float64, start: CollectRect,
+    collect: SecretPaperCollect) -> bool {
+    if !SecretPaperShown(paper.*, index, collected) { return false }
+    if collect(collectible_slugs[index]) {
+        paper.state = SECRET_PAPER_FLYING
+        paper.started = now
+        paper.start = start
+    } else {
+        paper.sparkled = now
+    }
+    return true
+}
+
+// How far the flight has come (0..1).
+SecretPaperProgress :: (paper: SecretPaper, now: float64) -> float32 {
+    if paper.state == SECRET_PAPER_GONE { return 1.0 }
+    if paper.state != SECRET_PAPER_FLYING { return 0.0 }
+    at := cast(float32)((now - paper.started) / COLLECT_FLIGHT_SECONDS)
+    return ifx at < 0.0 then 0.0 else ifx at > 1.0 then 1.0 else at
+}
+
+// A finished flight leaves the paper gone for good.
+SecretPaperStep :: (paper: *SecretPaper, now: float64) {
+    if paper.state == SECRET_PAPER_FLYING && now - paper.started >= COLLECT_FLIGHT_SECONDS {
+        paper.state = SECRET_PAPER_GONE
+    }
+}
+
+// The twinkle of a tap that collected nothing, fading from 1 to 0; 0 when none.
+SecretPaperSparkle :: (paper: SecretPaper, now: float64) -> float32 {
+    if paper.sparkled <= 0.0 { return 0.0 }
+    age := now - paper.sparkled
+    if age < 0.0 || age >= SECRET_PAPER_SPARKLE_SECONDS { return 0.0 }
+    return cast(float32)(1.0 - age / SECRET_PAPER_SPARKLE_SECONDS)
+}

@@ -1,0 +1,29 @@
+// How a collected picture flies to the top corner, shared by the book's
+// tap-to-collect and the hidden papers. Pure, so tests can check it.
+
+COLLECT_FLIGHT_SECONDS :: 0.9
+COLLECT_CORNER_SIZE :: 56
+COLLECT_CORNER_MARGIN :: 12
+
+CollectRect :: struct { x: s32; y: s32; width: s32; height: s32; }
+
+// PROGRESS (0..1, clamped) eased in and out.
+CollectEase :: (progress: float32) -> float32 {
+    at: float32 = ifx progress < 0.0 then 0.0 else ifx progress > 1.0 then 1.0 else progress
+    return at * at * (3.0 - 2.0 * at)
+}
+
+// The square SIZE wide, MARGIN in from the top right of the visible area
+// whose top edge is TOP and right edge RIGHT.
+CollectCorner :: (top: s32, right: s32, size: s32 = COLLECT_CORNER_SIZE, margin: s32 = COLLECT_CORNER_MARGIN) -> CollectRect {
+    return CollectRect.{right - size - margin, top + margin, size, size}
+}
+
+// Where the picture is at PROGRESS: it eases from START into CORNER.
+CollectFlight :: (start: CollectRect, corner: CollectRect, progress: float32) -> CollectRect {
+    eased := CollectEase(progress)
+    return CollectRect.{start.x + cast(s32)(cast(float32)(corner.x - start.x) * eased),
+        start.y + cast(s32)(cast(float32)(corner.y - start.y) * eased),
+        start.width + cast(s32)(cast(float32)(corner.width - start.width) * eased),
+        start.height + cast(s32)(cast(float32)(corner.height - start.height) * eased)}
+}

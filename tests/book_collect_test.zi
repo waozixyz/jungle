@@ -1,5 +1,6 @@
 // Pure tap-to-collect rules: registry ellipses, the cached mask and the flight.
 #import, file "../games/book/book_collect.zi";
+#import, file "../retro/collect_flight.zi";
 #import, file "../retro/collection_cache.zi";
 #import, file "../retro/collectibles.zi";
 #import "std/stdio_linux"
@@ -60,8 +61,8 @@ main :: () -> s32 {
     }
 
     // Landscape: the square scene is centered. Portrait: it is the full width.
-    wide := BookCollectRect.{280, 0, 720, 720}
-    tall := BookCollectRect.{0, 200, 400, 400}
+    wide := CollectRect.{280, 0, 720, 720}
+    tall := CollectRect.{0, 200, 400, 400}
     panda := CollectibleBySlug("panda")
     wide_x: s32 = 280 + cast(s32)(collectible_x[panda] * 720.0)
     wide_y: s32 = cast(s32)(collectible_y[panda] * 720.0)
@@ -83,7 +84,7 @@ main :: () -> s32 {
 
     // The story's subject is placed on its illustrated section.
     pot := CollectibleBySlug("magic-pot")
-    art := BookCollectRect.{0, 0, 1000, 528}
+    art := CollectRect.{0, 0, 1000, 528}
     if !BookCollectWants(pot, false, art, 550, 200) || BookCollectWants(pot, false, art, 550, 400) { return 27 }
 
     // The flight starts around the subject and ends small in the top corner.
@@ -93,8 +94,8 @@ main :: () -> s32 {
     first := BookCollectFlight(start, 1280, 0.0)
     if first.x != start.x || first.y != start.y || first.width != start.width { return 29 }
     last := BookCollectFlight(start, 1280, 1.0)
-    if last.x != 1280 - BOOK_COLLECT_CORNER_SIZE - BOOK_COLLECT_CORNER_MARGIN || last.y != BOOK_COLLECT_CORNER_MARGIN ||
-        last.width != BOOK_COLLECT_CORNER_SIZE { return 30 }
+    if last.x != 1280 - COLLECT_CORNER_SIZE - COLLECT_CORNER_MARGIN || last.y != COLLECT_CORNER_MARGIN ||
+        last.width != COLLECT_CORNER_SIZE { return 30 }
     if BookCollectFlight(start, 1280, 2.0).x != last.x || BookCollectFlight(start, 1280, -1.0).x != first.x { return 31 }
     middle := BookCollectFlight(start, 1280, 0.5)
     if middle.x <= first.x || middle.x >= last.x || middle.width >= first.width || middle.width <= last.width { return 32 }

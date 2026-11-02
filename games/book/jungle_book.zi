@@ -28,6 +28,7 @@ StoryPauseIcon :: #import "mingcute/mingcute_filled_pause";
 #import, file "book_narration.zi";
 #import, file "book_preferences.zi";
 #import, file "book_collect.zi";
+#import, file "../../retro/collect_flight.zi";
 #import, file "../../retro/collectibles.zi";
 #import "number_text"
 #import "text_buffer"
@@ -62,7 +63,7 @@ secondary_back_was_down: bool;
 direct_story: bool;
 collect_flying: s32 = -1;
 collect_started: float64;
-collect_start: BookCollectRect;
+collect_start: CollectRect;
 StoryBook :: () -> bool { return direct_story }
 PageCount :: () -> s32 { return ifx direct_story then STORY_PAGE_COUNT else category_counts[category] }
 PagePath :: (offset: s32 = 0) -> string {
@@ -366,13 +367,13 @@ SceneRect :: () -> (x: s32, y: s32, size: s32) {
 
 // Where the current page's subject is drawn: the whole scene of a book page,
 // the illustrated section of a story page.
-PagePictureRect :: () -> BookCollectRect {
+PagePictureRect :: () -> CollectRect {
     if direct_story {
         layout := StoryPageLayout(book_width, book_height, story_paper_top[page])
-        return BookCollectRect.{layout.x, layout.y, layout.width, layout.art_height}
+        return CollectRect.{layout.x, layout.y, layout.width, layout.art_height}
     }
     x, y, size := SceneRect()
-    return BookCollectRect.{x, y, size, size}
+    return CollectRect.{x, y, size, size}
 }
 
 // The current page's subject while it can still be collected, or -1.
@@ -397,7 +398,7 @@ BookCollectTap :: (x: s32, y: s32) -> bool {
 }
 
 BookCollectFlying :: () -> bool {
-    return collect_flying >= 0 && retro.now - collect_started < BOOK_COLLECT_SECONDS
+    return collect_flying >= 0 && retro.now - collect_started < COLLECT_FLIGHT_SECONDS
 }
 
 COLLECT_SPARKLE_X: [8]s32 = .[100, 71, 0, -71, -100, -71, 0, 71];
@@ -406,7 +407,7 @@ COLLECT_SPARKLE_Y: [8]s32 = .[0, 71, 100, 71, 0, -71, -100, -71];
 // The colored shape flies to the top corner inside a few soft sparkles.
 CollectFlight :: () {
     if !BookCollectFlying() { collect_flying = -1; return }
-    progress := cast(float32)((retro.now - collect_started) / BOOK_COLLECT_SECONDS)
+    progress := cast(float32)((retro.now - collect_started) / COLLECT_FLIGHT_SECONDS)
     place := BookCollectFlight(collect_start, book_width, progress)
     if collectible_color_ready[collect_flying] {
         BookPicture(collectible_colors[collect_flying], place.x, place.y, place.width, place.height)

@@ -1,0 +1,116 @@
+// Hidden paper rules: the glow, the tap area, when it shows, and one collect.
+#import, file "../retro/paper_rules.zi";
+#import, file "../retro/collect_flight.zi";
+#import, file "../retro/collection_cache.zi";
+#import, file "../retro/collectibles.zi";
+#import "std/stdio_linux"
+
+collect_calls: s32;
+collect_slug: string;
+collected_once: bool;
+
+// An app with the services: new the first time, had afterwards.
+FakeCollect :: (slug: string) -> bool {
+    collect_calls += 1
+    collect_slug = slug
+    if collected_once { return false }
+    collected_once = true
+    return true
+}
+
+// An app without them answers "" and nothing is collected.
+NoServices :: (slug: string) -> bool {
+    collect_calls += 1
+    return false
+}
+
+#program_export
+main :: () -> s32 {
+    // The glow breathes between its faint and full levels, never beyond them.
+    lowest: float32 = 2.0
+    highest: float32 = -1.0
+    step: s32 = 0
+    while step <= 800 {
+        glow := SecretPaperGlow(-5.0 + cast(float64)step * 0.05)
+        if glow < SECRET_PAPER_GLOW_LOW - 0.0001 || glow > SECRET_PAPER_GLOW_HIGH + 0.0001 { return 1 }
+        if glow < lowest { lowest = glow }
+        if glow > highest { highest = glow }
+        step += 1
+    }
+    if lowest > SECRET_PAPER_GLOW_LOW + 0.01 || highest < SECRET_PAPER_GLOW_HIGH - 0.01 { return 2 }
+    faint := SecretPaperGlow(0.0)
+    full := SecretPaperGlow(SECRET_PAPER_PULSE_SECONDS / 2.0)
+    if faint > SECRET_PAPER_GLOW_LOW + 0.01 || full < SECRET_PAPER_GLOW_HIGH - 0.01 { return 3 }
+    // It changes gently: no jump between frames, and it comes back each breath.
+    if SecretPaperGlow(1.0) - SecretPaperGlow(1.016) > 0.02 || SecretPaperGlow(1.016) - SecretPaperGlow(1.0) > 0.02 { return 4 }
+    again := SecretPaperGlow(SECRET_PAPER_PULSE_SECONDS * 3.0 + 0.4) - SecretPaperGlow(0.4)
+    if again > 0.001 || again < -0.001 { return 5 }
+
+    // A few dozen window pixels, growing with the screen, in the game's units.
+    if SecretPaperSize(200.0, 1.0) != 28 || SecretPaperSize(2000.0, 1.0) != 64 || SecretPaperSize(600.0, 1.0) != 42 { return 6 }
+    if SecretPaperSize(600.0, 2.0) != 21 || SecretPaperSize(600.0, 0.0) != 42 || SecretPaperSize(200.0, 100.0) != 4 { return 7 }
+
+    // Taps on the paper and just past its edge find it; farther ones stay the game's.
+    if !SecretPaperHit(100, 80, 40, 100, 80) || !SecretPaperHit(100, 80, 40, 130, 50) || !SecretPaperHit(100, 80, 40, 70, 110) { return 8 }
+    if SecretPaperHit(100, 80, 40, 131, 80) || SecretPaperHit(100, 80, 40, 100, 111) ||
+        SecretPaperHit(100, 80, 40, 69, 49) || SecretPaperHit(100, 80, 0, 100, 80) { return 9 }
+
+    // Only paper entries lie waiting, and never once they are collected.
+    toucan := CollectibleBySlug("toucan")
+    paper: SecretPaper
+    if !SecretPaperShown(paper, toucan, false) || SecretPaperShown(paper, toucan, true) { return 10 }
+    if SecretPaperShown(paper, CollectibleBySlug("monkey"), false) || SecretPaperShown(paper, CollectibleBySlug("magic-pot"), false) ||
+        SecretPaperShown(paper, -1, false) || SecretPaperShown(paper, COLLECTIBLE_COUNT, false) { return 11 }
+    for index: cast(s32)0..COLLECTIBLE_COUNT - 1 {
+        if collectible_how_kinds[index] == COLLECTIBLE_HOW_PAPER && !SecretPaperShown(paper, index, false) { return 12 }
+    }
+    // The app's collected mask hides the toucan's paper (id 7 is bit 3 of the second digit).
+    CollectionCacheSet("08")
+    if SecretPaperShown(paper, toucan, CollectionCacheHas(collectible_ids[toucan])) { return 13 }
+    if !SecretPaperShown(paper, CollectibleBySlug("parrot"), CollectionCacheHas(collectible_ids[CollectibleBySlug("parrot")])) { return 14 }
+    // An already collected paper is never tapped, so nothing is collected.
+    if SecretPaperTap(*paper, toucan, true, 1.0, CollectRect.{0, 0, 40, 40}, FakeCollect) || collect_calls != 0 { return 15 }
+
+    // Without the services a tap only twinkles: the paper stays and nothing flies.
+    quiet: SecretPaper
+    if SecretPaperSparkle(quiet, 1.0) != 0.0 { return 16 }
+    if !SecretPaperTap(*quiet, toucan, false, 2.0, CollectRect.{0, 0, 40, 40}, NoServices) || collect_calls != 1 { return 17 }
+    if quiet.state != SECRET_PAPER_WAITING || !SecretPaperShown(quiet, toucan, false) { return 18 }
+    if SecretPaperSparkle(quiet, 2.0) < 0.99 || SecretPaperSparkle(quiet, 2.3) <= 0.0 || SecretPaperSparkle(quiet, 2.3) >= 1.0 ||
+        SecretPaperSparkle(quiet, 2.0 + SECRET_PAPER_SPARKLE_SECONDS) != 0.0 { return 19 }
+    SecretPaperStep(*quiet, 50.0)
+    if quiet.state != SECRET_PAPER_WAITING || SecretPaperProgress(quiet, 50.0) != 0.0 { return 20 }
+    collect_calls = 0
+
+    // One tap collects exactly once; the stencil flies, then the paper is gone.
+    start := CollectRect.{80, 60, 40, 40}
+    if !SecretPaperTap(*paper, toucan, false, 10.0, start, FakeCollect) || collect_calls != 1 || collect_slug != "toucan" { return 21 }
+    if paper.state != SECRET_PAPER_FLYING || paper.started != 10.0 || paper.start.x != 80 || paper.start.width != 40 { return 22 }
+    if SecretPaperShown(paper, toucan, false) || SecretPaperTap(*paper, toucan, false, 10.1, start, FakeCollect) || collect_calls != 1 { return 23 }
+    half := 10.0 + COLLECT_FLIGHT_SECONDS / 2.0
+    SecretPaperStep(*paper, half)
+    progress := SecretPaperProgress(paper, half)
+    if paper.state != SECRET_PAPER_FLYING || progress < 0.49 || progress > 0.51 { return 24 }
+    SecretPaperStep(*paper, 10.0 + COLLECT_FLIGHT_SECONDS)
+    if paper.state != SECRET_PAPER_GONE || SecretPaperProgress(paper, 99.0) != 1.0 { return 25 }
+    // Gone for good, even if the app's mask has not caught up.
+    if SecretPaperShown(paper, toucan, false) || SecretPaperTap(*paper, toucan, false, 20.0, start, FakeCollect) || collect_calls != 1 { return 26 }
+
+    // The shared flight: from the paper into the visible top right corner.
+    corner := CollectCorner(-20, 400)
+    if corner.x != 400 - COLLECT_CORNER_SIZE - COLLECT_CORNER_MARGIN || corner.y != -20 + COLLECT_CORNER_MARGIN ||
+        corner.width != COLLECT_CORNER_SIZE || corner.height != COLLECT_CORNER_SIZE { return 27 }
+    small := CollectCorner(0, 320, 14, 3)
+    if small.x != 303 || small.y != 3 || small.width != 14 { return 28 }
+    first := CollectFlight(start, corner, 0.0)
+    last := CollectFlight(start, corner, 1.0)
+    middle := CollectFlight(start, corner, 0.5)
+    if first.x != start.x || first.y != start.y || first.width != start.width { return 29 }
+    if last.x != corner.x || last.y != corner.y || last.width != corner.width || last.height != corner.height { return 30 }
+    if middle.x <= first.x || middle.x >= last.x || middle.y >= first.y || middle.y <= last.y { return 31 }
+    if CollectFlight(start, corner, 3.0).x != last.x || CollectFlight(start, corner, -1.0).x != first.x { return 32 }
+    if CollectEase(0.25) >= 0.25 || CollectEase(0.75) <= 0.75 || CollectEase(0.5) != 0.5 { return 33 }
+
+    WriteOutput("paper test passed\n")
+    return 0
+}

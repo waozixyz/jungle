@@ -1,0 +1,125 @@
+// A small white paper hidden in a game or scene, glowing softly until a tap
+// collects its stencil. No text, no voice: a chime and the stencil flying to
+// the top corner, then the paper is gone for good. The rules are in paper_rules.zi.
+//
+// A game imports paper.zi, paper_rules.zi and collectibles.zi, keeps one
+// SecretPaper per hidden paper and, after drawing its scene,
+// calls SecretPaperFrame(*paper, CollectibleForGame("jungle-x.zx"), x, y, retro.now)
+// with the paper's middle in screen units. When it returns true the tap was the
+// paper's: the game ignores this frame's tap. Pointer games check SecretPaperHit
+// first, since Kryon gives a click to the topmost press only.
+#import "app_context"
+#import "kryon/geometry"
+#import "kryon/drawing_props"
+#import "kryon/box_props"
+#import "kryon/box_widget"
+#import "kryon/image_props"
+#import "kryon/image_widget"
+#import, file "retro.zi";
+#import, file "game.zi";
+#import, file "collectibles.zi";
+#import, file "collect_flight.zi";
+#import, file "paper_rules.zi";
+
+SECRET_PAPER_CHIME :: "assets/jungle-book/collect.wav"
+// Press ids far from any game's own.
+SECRET_PAPER_TAP_ID :: 0x5ec7000
+
+SECRET_PAPER_SPARKLE_X: [8]s32 = .[100, 71, 0, -71, -100, -71, 0, 71];
+SECRET_PAPER_SPARKLE_Y: [8]s32 = .[0, 71, 100, 71, 0, -71, -100, -71];
+
+// Draws, and answers a tap on, entry INDEX's paper centered on X, Y. True when
+// this frame's tap was the paper's.
+SecretPaperFrame :: (paper: *SecretPaper, index: s32, x: s32, y: s32, now: float64) -> bool {
+    if index < 0 || index >= COLLECTIBLE_COUNT { return false }
+    SecretPaperStep(paper, now)
+    if paper.state == SECRET_PAPER_FLYING { SecretPaperFlightDraw(paper.*, index, now); return false }
+    if !SecretPaperShown(paper.*, index, GameCollected(collectible_ids[index])) { return false }
+    bounds := AppBounds()
+    short := ifx bounds.width < bounds.height then bounds.width else bounds.height
+    size := SecretPaperSize(short, retro.scale)
+    reach := SecretPaperReach(size)
+    tapped := RetroTap(SECRET_PAPER_TAP_ID + index, x - reach, y - reach, reach * 2, reach * 2, "").clicked
+    if tapped {
+        // The stencil unfolds out of the paper a little larger, then flies.
+        start := CollectRect.{x - size, y - size, size * 2, size * 2}
+        unused SecretPaperTap(paper, index, false, now, start, GameCollect)
+        if paper.state == SECRET_PAPER_FLYING {
+            GameSound(ifx paper.chime == "" then SECRET_PAPER_CHIME else paper.chime)
+            SecretPaperFlightDraw(paper.*, index, now)
+            return true
+        }
+    }
+    SecretPaperDraw(retro.x + cast(float32)x * retro.scale, retro.y + cast(float32)y * retro.scale,
+        cast(float32)size * retro.scale, SecretPaperGlow(now), 1.0)
+    SecretPaperTwinkle(x, y, size, SecretPaperSparkle(paper.*, now))
+    return tapped
+}
+
+SecretPaperBox :: (x: float32, y: float32, width: float32, height: float32, color: u32, alpha: float32, radius: float32 = 0.0) {
+    level := alpha
+    if level < 0.0 { level = 0.0 }
+    if level > 1.0 { level = 1.0 }
+    unused Box(retro.session, BoxProps.{.bounds = Rectangle.{x, y, width, height},
+        .fill = ColorFromPacked((color & 0xffffff00) | cast(u32)(cast(float32)(color & 0xff) * level)), .radius = radius})
+}
+
+// The paper EDGE window pixels tall centered on CX, CY, in a warm glow of
+// strength GLOW, all faded to ALPHA. Its top right corner is folded down.
+SecretPaperDraw :: (cx: float32, cy: float32, edge: float32, glow: float32, alpha: float32) {
+    halo := edge * 2.2
+    for ring: 0..2 {
+        width := halo * (1.0 - cast(float32)ring * 0.22)
+        SecretPaperBox(cx - width / 2.0, cy - width / 2.0, width, width, 0xfff4d6ff,
+            alpha * glow * (0.16 + cast(float32)ring * 0.14), width / 2.0)
+    }
+    height := edge
+    width := edge * 0.78
+    fold := width * 0.3
+    left := cx - width / 2.0
+    top := cy - height / 2.0
+    shade := edge * 0.05
+    if shade < 1.0 { shade = 1.0 }
+    // A faint warm shadow keeps white paper visible on light scenes.
+    SecretPaperBox(left + shade, top + shade, width - fold, height, 0x8a6a40ff, alpha * 0.22)
+    SecretPaperBox(left + shade + width - fold, top + shade + fold, fold, height - fold, 0x8a6a40ff, alpha * 0.22)
+    SecretPaperBox(left, top, width - fold, height, 0xfffdf8ff, alpha)
+    SecretPaperBox(left + width - fold, top + fold, fold, height - fold, 0xfffdf8ff, alpha)
+    // The folded flap shows the paper's slightly shaded back.
+    SecretPaperBox(left + width - fold, top, fold, fold, 0xebe2cfff, alpha, fold * 0.25)
+}
+
+// A few soft golden dots around the paper, at STRENGTH (0 shows none).
+SecretPaperTwinkle :: (x: s32, y: s32, size: s32, strength: float32) {
+    if strength <= 0.0 { return }
+    reach := cast(float32)size * (0.8 + 0.5 * (1.0 - strength)) * retro.scale
+    cx := retro.x + cast(float32)x * retro.scale
+    cy := retro.y + cast(float32)y * retro.scale
+    for at: 0..7 {
+        dot := cast(float32)(ifx at % 2 == 0 then 6 else 4) * (ifx retro.scale > 1.0 then 1.0 else retro.scale) +
+            cast(float32)size * retro.scale * 0.06
+        SecretPaperBox(cx + cast(float32)SECRET_PAPER_SPARKLE_X[at] * reach / 100.0 - dot / 2.0,
+            cy + cast(float32)SECRET_PAPER_SPARKLE_Y[at] * reach / 100.0 - dot / 2.0, dot, dot, 0xfff0b4ff, strength, dot / 2.0)
+    }
+}
+
+// The stencil flying from the paper into the top corner, among fading sparkles:
+// its colored picture when there is one to show, otherwise the paper itself.
+SecretPaperFlightDraw :: (paper: SecretPaper, index: s32, now: float64) {
+    bounds := AppBounds()
+    scale := ifx retro.scale > 0.0 then retro.scale else 1.0
+    corner := CollectCorner(RetroPointY(bounds.y), RetroPointX(bounds.x + bounds.width),
+        cast(s32)(cast(float32)COLLECT_CORNER_SIZE / scale), cast(s32)(cast(float32)COLLECT_CORNER_MARGIN / scale))
+    progress := SecretPaperProgress(paper, now)
+    place := CollectFlight(paper.start, corner, progress)
+    shown := RetroRect(place.x, place.y, place.width, place.height)
+    picture := collectible_colors[index]
+    if collectible_color_ready[index] && RetroPictureShown(picture) {
+        Image(retro.session, ImageProps.{.asset_path = RetroImageShown(picture), .preview_path = RetroImagePreview(picture),
+            .bounds = shown, .fit = ImageFit.ImageFitContain, .smooth = true})
+    } else {
+        SecretPaperDraw(shown.x + shown.width / 2.0, shown.y + shown.height / 2.0, shown.height * 0.6,
+            SecretPaperGlow(now), 1.0 - progress * progress * 0.5)
+    }
+    SecretPaperTwinkle(place.x + place.width / 2, place.y + place.height / 2, place.width / 2, 1.0 - progress * progress)
+}
