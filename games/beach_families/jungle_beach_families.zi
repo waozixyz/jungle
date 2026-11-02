@@ -1,0 +1,207 @@
+// A quiet counting page. The host supplies the shared Back/sound title bar.
+#import "kryon/app_context"
+#import "kryon/app_protocol"
+#import "kryon/pointer_input"
+#import "kryon/frame_snapshot"
+#import "kryon/text_align"
+#import "kryon/geometry"
+#import "kryon/drawing_props"
+#import "kryon/image_props"
+#import "kryon/image_widget"
+#import "kryon/press_props"
+#import "kryon/press_widget"
+#import "kryon/svg_icon_props"
+#import "kryon/svg_icon_widget"
+CountedIcon :: #import "mingcute/mingcute_regular_check";
+#import, file "../../host/jungle_text.zi";
+#import, file "beach_families.zi";
+#import, file "../../retro/retro.zi";
+#import, file "../../retro/game.zi";
+#import, file "../../retro/book_theme.zi";
+
+family: BeachFamily;
+loaded: bool;
+width: s32;
+height: s32;
+field_top: s32;
+field_height: s32;
+focus_crab: s32;
+keyboard_focus: bool = true;
+pressed: s32 = -1;
+// The next-family button has a separate target from every crab.
+NEXT_TARGET :: 4
+
+Save :: () -> bool { return DocumentWrite("beach_families.txt", BeachFamilySave(family)) }
+
+CrabLabel :: (crab: s32) -> string {
+    return Cat(BeachFamilyText("Crab", "Krabbe", "Cangrejo"), " ", NumberText(crab + 1), ". ",
+        ifx family.crabs[crab].counted then BeachFamilyText("Counted", "Gezählt", "Contado")
+        else BeachFamilyText("Tap to count", "Zum Zählen antippen", "Toca para contar"))
+}
+
+CrabX :: (crab: s32) -> s32 { return width * family.crabs[crab].x / 1000 }
+CrabY :: (crab: s32) -> s32 { return field_top + field_height * family.crabs[crab].y / 1000 }
+CrabEdge :: (crab: s32) -> s32 {
+    edge := width * family.crabs[crab].edge / 1000
+    cap := field_height * 65 / 100
+    if edge > cap { edge = cap }
+    return edge
+}
+
+NextX :: () -> s32 { return width / 2 - 116 }
+NextY :: () -> s32 { return height - 66 }
+TargetAt :: (x: s32, y: s32) -> s32 {
+    if x < 0 || x >= width || y < 0 || y >= height { return -1 }
+    if BeachFamilyDone(family) && x >= NextX() && x < NextX() + 232 && y >= NextY() && y < NextY() + 50 { return NEXT_TARGET }
+    for crab: cast(s32)0..family.family - 1 {
+        edge := CrabEdge(crab)
+        if x >= CrabX(crab) - edge / 2 && x < CrabX(crab) + edge / 2 &&
+            y >= CrabY(crab) - edge / 2 && y < CrabY(crab) + edge / 2 { return crab }
+    }
+    return -1
+}
+
+Activate :: (target: s32) {
+    if target == NEXT_TARGET {
+        if !BeachFamilyDone(family) { return }
+        // Keep the model's bounded counter consistent at its maximum too.
+        next := family.round + 1
+        rounds := family.rounds
+        if next > BEACH_FAMILY_MAX_ROUND { next = 0; rounds = 0 }
+        family = BeachFamilyRound(next, rounds)
+        focus_crab = 0; pressed = -1
+        unused Save()
+        return
+    }
+    if !BeachFamilyTap(*family, target) { return }
+    focus_crab = target
+    // Enter/Space may count the whole family without needing a pointer.
+    for step: cast(s32)1..family.family {
+        candidate := (target + step) % family.family
+        if !family.crabs[candidate].counted { focus_crab = candidate; break }
+    }
+    unused Save()
+}
+
+Picture :: (path: string, x: s32, y: s32, w: s32, h: s32, label: string, fit: ImageFit = ImageFit.ImageFitContain) {
+    // Shared asset staging maps the artist's previews to the runtime prefix.
+    Image(retro.session, ImageProps.{.asset_path = path, .preview_path = RetroImagePreview(path),
+        .bounds = RetroRect(x, y, w, h), .fit = fit, .smooth = true, .alt_text = label})
+}
+
+Scene :: (active: bool, pointer_target: s32, custom_key: bool) -> s32 {
+    Picture("assets/beach_families/background.webp", 0, 0, width, height,
+        BeachFamilyText("A quiet sandy beach", "Ein ruhiger Sandstrand", "Una playa tranquila"), ImageFit.ImageFitCover)
+    BookBox(12, 10, width - 24, 110, 0xfffcf3ef, 0xdacdb5ff, 20)
+    BookText(24, 13, width - 48, 30, BeachFamilyTitle(), 24, TextAlign.TextAlignCenter, false)
+    BookText(24, 43, width - 48, 28, BeachFamilyPrompt(), 16, TextAlign.TextAlignCenter, false)
+    // The next numeral appears immediately after each new crab is counted.
+    BookText(width / 2 - 40, 71, 80, 43, NumberText(BeachFamilyCount(family)), 36, TextAlign.TextAlignCenter, false)
+    action: s32 = -1
+    for crab: cast(s32)0..family.family - 1 {
+        edge := CrabEdge(crab)
+        x := CrabX(crab) - edge / 2; y := CrabY(crab) - edge / 2
+        if keyboard_focus && focus_crab == crab && !BeachFamilyDone(family) {
+            BookBox(x - 4, y - 4, edge + 8, edge + 8, 0xfffcf344, 0x567e6aff, 18)
+        } else if active && pointer_target == crab && !family.crabs[crab].counted {
+            BookBox(x - 3, y - 3, edge + 6, edge + 6, 0xfff1ca66, 0, 18)
+        }
+        // Baby crabs share the same generous tap box but are visibly smaller.
+        baby := crab >= 2
+        picture_edge := ifx baby then edge * 55 / 100 else edge
+        path := ifx baby then "assets/beach_families/crab-baby.webp" else "assets/beach_families/crab-adult.webp"
+        Picture(path, CrabX(crab) - picture_edge / 2, y + edge - picture_edge, picture_edge, picture_edge, CrabLabel(crab))
+        if family.crabs[crab].counted {
+            badge: s32 = 30
+            BookBox(CrabX(crab) - badge / 2, y - badge - 6, badge, badge, 0xe7efdcff, 0x86a57bff, 15)
+            SvgIcon(retro.session, SvgIconProps.{.bounds = RetroRect(CrabX(crab) - 10, y - badge - 1, 20, 20),
+                .shape = CountedIcon.Shape, .color = ColorFromPacked(0x42694fff)})
+        }
+        press := Press(retro.session, PressProps.{.key = cast(u64)(100 + crab), .id = 100 + crab,
+            .bounds = RetroRect(x, y, edge, edge), .label = CrabLabel(crab), .now = retro.now, .disabled = !loaded})
+        if active && press.clicked && !custom_key { action = crab }
+    }
+    done := BeachFamilyDone(family)
+    BookBox(12, height - 114, width - 24, 102, 0xfffcf3ef, 0xdacdb5ff, 20)
+    BookText(22, height - 110, width - 44, 34, ifx done then BeachFamilyDoneText(family) else BeachFamilyCountText(family),
+        18, TextAlign.TextAlignCenter, false)
+    if done {
+        next := Press(retro.session, PressProps.{.key = cast(u64)110, .id = 110, .bounds = RetroRect(NextX(), NextY(), 232, 50),
+            .label = BeachFamilyNextText(), .now = retro.now, .disabled = !loaded})
+        BookBox(NextX(), NextY(), 232, 50, 0xe7efdcff,
+            ifx keyboard_focus then cast(u32)0x42694fff else cast(u32)0x86a57bff, 16)
+        BookText(NextX() + 10, NextY(), 212, 50, BeachFamilyNextText(), 20, TextAlign.TextAlignCenter, false)
+        if active && next.clicked && !custom_key { action = NEXT_TARGET }
+    }
+    return action
+}
+
+GameMain :: () -> s32 {
+    mode := AppMode()
+    if mode == APP_IDENTIFY {
+        loaded = false; pressed = -1
+        AppIdentity("jungle.beach_families"); AppDescribe("Crab Family Counting", ""); return APP_PROTOCOL
+    }
+    if mode == APP_SAVE { return ifx !loaded || Save() then 0 else 1 }
+    if mode != APP_FRAME { return 0 }
+    GameLanguage()
+    bounds := AppBounds()
+    scale := bounds.width / 400.0
+    if bounds.height / 640.0 < scale { scale = bounds.height / 640.0 }
+    if bounds.width > bounds.height {
+        scale = bounds.height / 430.0
+        if bounds.width / 760.0 < scale { scale = bounds.width / 760.0 }
+    }
+    if scale > 1.8 { scale = 1.8 }
+    if scale <= 0 { return 0 }
+    retro = Retro.{.session = AppSession(), .x = bounds.x, .y = bounds.y, .scale = scale, .now = AppNow(), .key = AppKey()}
+    width = cast(s32)(bounds.width / scale); height = cast(s32)(bounds.height / scale)
+    field_top = 128; field_height = height - field_top - 124
+    BookPalette()
+    if !loaded {
+        family = BeachFamilyRound(0)
+        if !DocumentStorageReady() { unused Scene(false, -1, false); return 0 }
+        unused BeachFamilyRead(DocumentRead("beach_families.txt"), *family)
+        loaded = true; focus_crab = 0; keyboard_focus = true; pressed = -1
+    }
+    if retro.key == KEY_ESCAPE { unused Save(); GameHome(); return 0 }
+    pointer := SamplePointer()
+    // AppBounds and SamplePointer both use host logical coordinates, including zoom.
+    px := cast(s32)((pointer.x - retro.x) / retro.scale)
+    py := cast(s32)((pointer.y - retro.y) / retro.scale)
+    snapshot := CaptureFrameInput(retro.session)
+    active := !snapshot.available || snapshot.focused
+    target := TargetAt(px, py)
+    action: s32 = -1
+    if !active { pressed = -1 }
+    if active && pointer.pressed { pressed = target; keyboard_focus = false }
+    if active && pointer.released {
+        if target >= 0 && target == pressed { action = target }
+        pressed = -1
+    }
+    custom_key := false
+    if active {
+        if retro.key == 258 { keyboard_focus = false } // Tab uses Kryon's accessible buttons.
+        if retro.key == KEY_LEFT || retro.key == KEY_UP {
+            keyboard_focus = true; focus_crab = (focus_crab + family.family - 1) % family.family
+        }
+        if retro.key == KEY_RIGHT || retro.key == KEY_DOWN {
+            keyboard_focus = true; focus_crab = (focus_crab + 1) % family.family
+        }
+        if retro.key >= 49 && retro.key <= 52 {
+            custom_key = true; keyboard_focus = true
+            if retro.key - 49 < family.family { focus_crab = retro.key - 49; action = focus_crab }
+        }
+        if keyboard_focus && (retro.key == KEY_ENTER || retro.key == 32) {
+            custom_key = true; action = ifx BeachFamilyDone(family) then NEXT_TARGET else focus_crab
+        }
+    }
+    widget_action := Scene(active, target, custom_key)
+    if action < 0 { action = widget_action }
+    if action >= 0 { Activate(action) }
+    return 0
+}
+#if !#defined(PLATFORM_WEB) {
+    #program_export
+    main :: () -> s32 { return GameMain() }
+}
