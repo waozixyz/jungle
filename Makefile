@@ -30,9 +30,7 @@ CFLAGS_ZI = -std=c11 -O2 -ffunction-sections -fdata-sections -I'$(TOOLCHAIN)/inc
 APP := build/app
 # Installed shared assets, their manifest and each game's staged bundle files.
 SHARED := $(APP)/assets/shared-assets.txt $(APP)/assets/speech.txt
-STAGED_GAMES := jungle-book jungle-abc jungle-numbers animal-count dino-paint jungle-shapes jungle-hide-seek jungle-drums jungle-garden
-# Matching Pairs ships only the hidden paper's chime.
-STAGED_GAMES += jungle-matching
+STAGED_GAMES := jungle-book jungle-abc jungle-numbers animal-count dino-paint jungle-shapes jungle-hide-seek jungle-matching jungle-drums jungle-garden
 # Folders too: removing a file changes its folder's time, so staging reruns.
 SHARED_SOURCES := $(shell find assets/jungle assets/jungle-book $(addprefix assets/,abc numbers animal-count dino-paint shapes hide_seek drums garden jigsaw) 2>/dev/null)
 GAMES := $(APP)/games/jungle-garden.zx $(APP)/games/jungle-drums.zx $(APP)/games/jungle-hide-seek.zx $(APP)/games/jungle-matching.zx $(APP)/games/jungle-shapes.zx $(APP)/games/jungle-book.zx $(APP)/games/jungle-abc.zx $(APP)/games/jungle-numbers.zx $(APP)/games/animal-count.zx $(APP)/games/dino-paint.zx $(APP)/games/jungle-jigsaw.zx $(APP)/games/jungle-piano.zx
