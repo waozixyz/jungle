@@ -61,7 +61,7 @@
       "source": {"kind": "story", "story": "sweet-porridge", "page": "porridge_02_gift"},
       "how": {"kind": "tap", "x": 0.55, "y": 0.38, "rx": 0.075, "ry": 0.11},
       "color": "assets/collectibles/magic-pot.png",
-      "pending": true,
+      "pending": false,
       "paint": {"kind": "stencil", "category": "objects", "art": null}
     },
     {
@@ -88,7 +88,7 @@
       "source": {"kind": "game", "game": "jungle-garden.zx"},
       "how": {"kind": "paper"},
       "color": "assets/collectibles/sunflower.png",
-      "pending": true,
+      "pending": false,
       "paint": {"kind": "stencil", "category": "objects", "art": null}
     },
     {
@@ -97,7 +97,7 @@
       "source": {"kind": "game", "game": "jungle-drums.zx"},
       "how": {"kind": "paper"},
       "color": "assets/collectibles/drum.png",
-      "pending": true,
+      "pending": false,
       "paint": {"kind": "stencil", "category": "objects", "art": null}
     },
     {
