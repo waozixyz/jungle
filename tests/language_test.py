@@ -10,7 +10,16 @@ sys.path.insert(0, str(ROOT / "tools"))
 from book_catalog import BOOKS, LANGUAGES, NAMES, WORDS, narration, voice_path
 
 
+def source_literals(text):
+    # Match strings before interpreting comment markers inside them. Quoted
+    # protocol documentation in comments is not a displayed message.
+    tokens = r'//[^\n]*|/\*.*?\*/|"((?:\\.|[^"\\])*)"'
+    return [match[1] for match in re.finditer(tokens, text, re.S) if match[1] is not None]
+
+
 def main():
+    assert source_literals('// "protocol fields"\n"Visible message" /* "comment" */\n"https://waozi.xyz"') == [
+        "Visible message", "https://waozi.xyz"]
     rows = json.loads((ROOT / "locales/ui.json").read_text())
     for english, translations in rows.items():
         assert len(translations) == 2 and all(translations), english
@@ -27,10 +36,13 @@ def main():
         for english, german, spanish in re.findall(r'Words\("([^"\n]*)",\s*"([^"\n]*)",\s*"([^"\n]*)"\)', text):
             assert rows.get(english) == [german, spanish], (source, "inline wording differs", english)
             translated.update((german, spanish))
-        for value in re.findall(r'"([^"\n]*)"', text):
+        for value in source_literals(text):
             if value in translated and value not in rows:
                 continue
             if " " not in value or not value.strip() or value.startswith(("assets/", "paint", "skill ", " runs here", ":", "jungle:")):
+                continue
+            # Numeric ink/touch protocol fields contain no wording to translate.
+            if re.fullmatch(r'%(?: %)+', value):
                 continue
             if value in ("FILE|TITLE|ABOUT|ICON|AGE", "Jungle Academy", "jungle --check", "COUNTING", " / ", "  ·  ", " : ") or "\\" in value:
                 continue
