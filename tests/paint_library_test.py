@@ -4,6 +4,7 @@
 Run after building build/app/jungle. Pixel expectations are independent fixtures,
 not screenshots or a copy of the application's rotation implementation.
 """
+import json
 import math
 import tempfile
 import time
@@ -117,8 +118,17 @@ def choices(folder, version=None, anchored=False):
     return values
 
 
+def earn(data, slugs=None):
+    """Save a collection in the app's data; without SLUGS, every collectible."""
+    if slugs is None:
+        registry = json.loads((ROOT / 'tools/collectibles.json').read_text())
+        slugs = [row['slug'] for row in registry['collectibles']]
+    (data / 'collection.txt').write_text('JUNGLE COLLECTION 1\n' + ''.join(s + '\n' for s in slugs))
+
+
 def setup(data, language, initial):
     (data / 'language.txt').write_text(language)
+    earn(data)
     folder = data / 'games/jungle.paint'
     folder.mkdir(parents=True)
     (folder / 'working.txt').write_bytes(initial)
@@ -551,6 +561,7 @@ def responsive_scenes(data):
     """Real scene input at phone, landscape and short scrolling sizes."""
     import json
     catalog = json.loads((ROOT / 'tools/coloring_catalog.json').read_text())
+    earn(data)
     with Desktop(ROOT / 'build/app/jungle', data, screen_size='1280x1000') as desktop:
         desktop.game('Coloring Book')
         desktop.wait_scene_picker('responsive-scenes-entry')
@@ -738,6 +749,98 @@ def placement_editor(data):
     print('local placement editor: visible art, drag/resize/37-degree rotation preview, release no-op, Place one Undo, Cancel/Escape and phone controls passed',flush=True)
 
 
+def has_star(actual, rect):
+    """A tile's top-right corner holds the amber earned star."""
+    x, y, w, _ = rect
+    pixels = np.asarray(actual.convert('RGB').crop((x + w - 26, y + 2, x + w - 2, y + 26))).astype(int)
+    return np.count_nonzero((pixels[..., 0] > 190) & (pixels[..., 2] < 80)) >= 20
+
+
+def earned_ui(data):
+    """Only earned collectibles show, starred, in portrait and landscape."""
+    TOUCAN, ANIMALS = 62, 1
+    defaults = 11
+    assert stencil_position(TOUCAN) == (ANIMALS, 17), stencil_position(TOUCAN)
+    SIZES = ((390, 844), (844, 390))
+
+    # Nothing earned: a saved picture on a hidden scene still opens unchanged.
+    (data / 'none').mkdir()
+    base = np.full((720, 960), 22, np.uint8)
+    saved = document(base, []).replace(b'\n0e\n', ('\n' + DIGITS[27] + 'e\n').encode(), 1)
+    folder, working = setup(data / 'none', 'en', saved)
+    earn(data / 'none', [])
+    with Desktop(ROOT / 'build/app/jungle', data / 'none', screen_size='1280x1000') as desktop:
+        open_paint(desktop, 'earned-none-opens')
+        assert working.read_bytes() == saved, 'a saved unearned scene did not stay open'
+        tool(desktop, 0)
+        for size in SIZES:
+            desktop.resize(*size)
+            stencil_click(desktop, 'category', ANIMALS)
+            rects = stencil_layout(desktop)
+            last = defaults - 1
+            for _ in range(last // rects['capacity']):
+                stencil_click(desktop, 'next')
+            actual = desktop.capture_actual('earned-none-animals')
+            assert choices(folder, anchored=True)[1] == ANIMALS
+            assert label_fits(actual, rects['tile'][last % rects['capacity']]), 'last default is missing'
+            assert not has_star(actual, rects['tile'][last % rects['capacity']]), 'a default has a star'
+            # Next never leads past the defaults, so the page stays on the last one.
+            anchor = choices(folder)[2]
+            stencil_click(desktop, 'next')
+            assert choices(folder)[2] == anchor, 'a hidden stencil was paged to'
+            for _ in range(last // rects['capacity']):
+                stencil_click(desktop, 'previous')
+        desktop.key('Escape')
+        desktop.capture('earned-none-main', header=56)
+        assert working.read_bytes() == saved, 'browsing the pickers changed the picture'
+
+    # Toucan and treehouse earned: they alone join their sections, starred.
+    (data / 'some').mkdir()
+    folder, working = setup(data / 'some', 'en', document(base, []))
+    earn(data / 'some', ['toucan', 'treehouse-scene'])
+    with Desktop(ROOT / 'build/app/jungle', data / 'some', screen_size='1280x1000') as desktop:
+        open_paint(desktop, 'earned-some')
+        tool(desktop, 0)
+        for size in SIZES:
+            desktop.resize(*size)
+            stencil_click(desktop, 'category', ANIMALS)
+            rects = stencil_layout(desktop)
+            capacity = rects['capacity']
+            for _ in range(defaults // capacity):
+                stencil_click(desktop, 'next')
+            actual = desktop.capture_actual('earned-some-animals')
+            assert has_star(actual, rects['tile'][defaults % capacity]), ('earned stencil has no star', size)
+            if defaults % capacity:
+                assert not has_star(actual, rects['tile'][defaults % capacity - 1]), 'a default has a star'
+            for _ in range(defaults // capacity):
+                stencil_click(desktop, 'previous')
+        desktop.resize(390, 844)
+        stencil_pick(desktop, defaults)
+        desktop.capture('earned-some-placement', header=56)
+        assert choices(folder)[0] == TOUCAN + 1, 'the earned tile placed another stencil'
+        placement_click(desktop, False)
+        tool(desktop, 7)
+        desktop.capture('earned-some-new', header=56)
+        desktop.click(80, 90)
+        desktop.wait_scene_picker('earned-some-scenes')
+        for size in SIZES:
+            desktop.resize(*size)
+            scene_click(desktop, 'category', 1)
+            scene_click(desktop, 'next')
+            actual = desktop.capture_actual('earned-some-places')
+            rect = scene_layout(desktop)['tile'][0]
+            assert has_star(actual, rect), ('earned scene has no star', size)
+            scene_click(desktop, 'previous')
+        scene_click(desktop, 'next')
+        scene_click(desktop, 'tile', 0)
+        desktop.key('Escape')
+        desktop.capture('earned-some-scene', header=56)
+        picture = working.read_bytes()
+        assert picture.splitlines()[1][0] == ord(DIGITS[27]), 'the earned scene saved another code'
+        assert np.count_nonzero(picture_pixels(picture) == 0) > 100, 'the earned scene has no line art'
+    print('local native earned stencils: hidden until earned, starred, saved pictures open', flush=True)
+
+
 def catalog_ui(data):
     """Exercise each added asset through its real categorized native picker."""
     base = np.full((720, 960), 22, np.uint8)
@@ -808,6 +911,9 @@ def run_paint_library_test():
         data = Path(temporary) / 'placement-editor'
         data.mkdir()
         placement_editor(data)
+        data = Path(temporary) / 'earned'
+        data.mkdir()
+        earned_ui(data)
         data = Path(temporary) / 'new-catalog'
         data.mkdir()
         catalog_ui(data)

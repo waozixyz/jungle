@@ -3,6 +3,9 @@
 // dinosaur stamps closed ink and a white body in each size, both ways round,
 // leaving the scenery outside its outline.
 #import, file "../games/paint/paint_canvas.zi";
+#import, file "../games/paint/paint_catalog.zi";
+#import, file "../games/paint/paint_earned.zi";
+#import, file "../retro/collection_cache.zi";
 #import "geometry"
 #import, file "../games/paint/paint_pages.zi";
 #import, file "../games/paint/paint_picture.zi";
@@ -101,11 +104,59 @@ PencilShapeFillPass :: () -> bool {
     return true
 }
 
+EarnedFail :: (message: string) -> bool {
+    Report(Cat("paint test: earned: ", message, "\n"))
+    return false
+}
+
+// Every collectible stays hidden until its own bit is set, keeps its natural
+// section once earned, and defaults never change position or gain a star.
+EarnedPass :: () -> bool {
+    CollectionCacheSet("")
+    for index: cast(s32)0..PAINT_STENCIL_COUNT - 1 {
+        collectible := index >= 55
+        if (PaintStencilCollectible(index) >= 0) != collectible { return EarnedFail("stencil table") }
+        if PaintItemShown(PAINT_ITEM_STENCIL, index) == collectible { return EarnedFail("stencil shown without earning") }
+        if PaintItemEarned(PAINT_ITEM_STENCIL, index) { return EarnedFail("stencil earned from nothing") }
+    }
+    for index: cast(s32)0..PAINT_SCENE_COUNT - 1 {
+        collectible := index >= 26
+        if (PaintSceneCollectible(index) >= 0) != collectible { return EarnedFail("scene table") }
+        if PaintItemShown(PAINT_ITEM_SCENE, index) == collectible { return EarnedFail("scene shown without earning") }
+    }
+    if PaintShownCount(PAINT_ITEM_STENCIL, 1) != 11 || PaintShownCount(PAINT_ITEM_STENCIL, 3) != 17 ||
+        PaintShownCount(PAINT_ITEM_SCENE, 1) != 6 { return EarnedFail("default section sizes") }
+    if PaintItemShown(PAINT_ITEM_STENCIL, -1) && PaintItemEarned(PAINT_ITEM_STENCIL, -1) { return EarnedFail("bad stencil earned") }
+    if PaintItemEarned(PAINT_ITEM_SCENE, PAINT_SCENE_COUNT) || PaintItemEarned(9, 0) { return EarnedFail("out of range earned") }
+    if PaintShownAt(PAINT_ITEM_STENCIL, 1, 11) != -1 || PaintShownAt(PAINT_ITEM_STENCIL, 1, -1) != -1 ||
+        PaintShownAt(PAINT_ITEM_STENCIL, 9, 0) != -1 { return EarnedFail("past the last shown item") }
+    // Toucan is id 7 (asset 63) and treehouse is id 11 (asset 27): bits 3 of digits 1 and 2.
+    CollectionCacheSet("0880")
+    if !PaintItemEarned(PAINT_ITEM_STENCIL, 62) || !PaintItemEarned(PAINT_ITEM_SCENE, 26) { return EarnedFail("mask did not earn them") }
+    if PaintItemEarned(PAINT_ITEM_STENCIL, 55) || PaintItemShown(PAINT_ITEM_STENCIL, 55) { return EarnedFail("another bit earned the monkey") }
+    if PaintItemEarned(PAINT_ITEM_STENCIL, 0) { return EarnedFail("a default has a star") }
+    if PaintShownAt(PAINT_ITEM_STENCIL, 1, 11) != 62 || PaintShownCount(PAINT_ITEM_STENCIL, 1) != 12 { return EarnedFail("toucan is not last among Animals") }
+    if PaintShownAt(PAINT_ITEM_SCENE, 1, 6) != 26 || PaintShownCount(PAINT_ITEM_SCENE, 1) != 7 { return EarnedFail("treehouse is not in Places") }
+    // A damaged mask earns nothing rather than everything.
+    CollectionCacheSet("xyz")
+    if PaintItemEarned(PAINT_ITEM_STENCIL, 62) { return EarnedFail("damaged mask earned") }
+    // A picture on an unearned scene still opens: the pickers alone hide it.
+    CollectionCacheSet("")
+    if !SceneOpen(26) { return EarnedFail("unearned scene does not open") }
+    CollectionCacheSet("fffffffffffffff")
+    for index: cast(s32)55..PAINT_STENCIL_COUNT - 1 {
+        if !PaintItemEarned(PAINT_ITEM_STENCIL, index) { return EarnedFail("full mask missed a stencil") }
+    }
+    if PaintShownCount(PAINT_ITEM_STENCIL, 1) != paint_stencil_category_counts[1] { return EarnedFail("full mask section") }
+    CollectionCacheSet("")
+    return true
+}
+
 #program_export
 main :: (argc: s32, argv: **u8) -> s32 {
     unused argc
     unused argv
-    if !ResizeCornersPass() || !PencilShapeFillPass() { return 1 }
+    if !ResizeCornersPass() || !PencilShapeFillPass() || !EarnedPass() { return 1 }
     // Every visible swatch is distinct, selectable paint, never outline ink
     // or legacy pure black. Charcoal must remain visibly lighter than ink.
     for index: cast(s32)0..CRAYON_COUNT - 1 {

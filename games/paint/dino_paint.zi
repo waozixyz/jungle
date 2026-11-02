@@ -26,6 +26,7 @@
 #import, file "paint_picture.zi";
 #import, file "paint_document.zi";
 #import, file "paint_catalog.zi";
+#import, file "paint_earned.zi";
 #import, file "paint_picker_layout.zi";
 #import, file "paint_gallery_store.zi";
 #import "pointer_input"
@@ -48,6 +49,7 @@ HandIcon :: #import "mingcute/mingcute_regular_hand";
 ZoomInIcon :: #import "mingcute/mingcute_regular_zoom_in";
 ZoomOutIcon :: #import "mingcute/mingcute_regular_zoom_out";
 FitIcon :: #import "mingcute/mingcute_regular_fullscreen";
+StarIcon :: #import "mingcute/mingcute_filled_star";
 
 FONT :: "assets/dino-paint/font.png"
 SOUNDS :: "assets/dino-paint/sounds/"
@@ -162,6 +164,13 @@ SceneCategoryCount :: (index: s32) -> s32 {
     if index == PAINT_SCENE_CATEGORY_COUNT { return 1 }
     if index < 0 || index >= PAINT_SCENE_CATEGORY_COUNT { return 0 }
     return paint_scene_category_counts[index]
+}
+
+// What the scene picker pages through: the Blank page, or what is earned so far.
+SceneShownCount :: (index: s32) -> s32 {
+    if index == PAINT_SCENE_CATEGORY_COUNT { return 1 }
+    if index < 0 || index >= PAINT_SCENE_CATEGORY_COUNT { return 0 }
+    return PaintShownCount(PAINT_ITEM_SCENE, index)
 }
 
 SceneCategoryLabel :: (index: s32) -> string {
@@ -1239,6 +1248,12 @@ StencilPickerButton :: (id: s32, x: s32, y: s32, width: s32, label: string, chos
     return press.clicked
 }
 
+// The small mark on a tile the child earned somewhere else in Jungle.
+EarnedStar :: (x: s32, y: s32, card_width: s32) {
+    SvgIcon(retro.session, SvgIconProps.{.bounds = RetroRect(x + card_width - 24, y + 4, 20, 20),
+        .shape = StarIcon.Shape, .color = ColorFromPacked(0xd9920fff)})
+}
+
 #import "text_measure"
 #import "text_props"
 #import "text_align"
@@ -1297,11 +1312,11 @@ StencilPickerContent :: (l: StencilPickerLayout) {
         stencil_picker_scroll = scrolled.scroll_offset
         retro.y -= cast(float32)stencil_picker_scroll
     } else { stencil_picker_scroll = 0 }
-    count := paint_stencil_category_counts[stencil_category]
+    count := PaintShownCount(PAINT_ITEM_STENCIL, stencil_category)
     first := StencilPageFirst(stencil_anchor, l.capacity, count)
     for offset: cast(s32)0..l.capacity - 1 {
         if first + offset >= count { break }
-        index := paint_stencil_order[paint_stencil_category_starts[stencil_category] + first + offset]
+        index := PaintShownAt(PAINT_ITEM_STENCIL, stencil_category, first + offset)
         x := l.padding + (offset % l.columns) * (l.card_width + l.gap)
         y := l.grid_y + (offset / l.columns) * (l.card_height + l.gap)
         press := RetroTap(80 + index, x, y, l.card_width, l.card_height, PaintStencilLabel(index))
@@ -1327,6 +1342,7 @@ StencilPickerContent :: (l: StencilPickerLayout) {
             .font = ifx font < 0 then -font else font, .align = TextAlign.TextAlignCenter,
             .vertical_align = TextAlign.TextAlignCenter,
             .wrap = ifx font < 0 then TextWrap.TextWrapAuto else TextWrap.TextWrapNone})
+        if PaintItemEarned(PAINT_ITEM_STENCIL, index) { EarnedStar(x, y, l.card_width) }
         if press.clicked {
             dino = index; stencil_anchor = first + offset
             ChoicesSave(); Sound("click"); PlacementBegin(); view = MAIN; break
@@ -1369,6 +1385,9 @@ ScenePickerContent :: (l: ScenePickerLayout) {
             return
         }
     }
+    // A page saved when more scenes were earned falls back to the last one left.
+    pages := (SceneShownCount(scene_category) + 5) / 6
+    if scene_page >= pages { scene_page = ifx pages > 0 then pages - 1 else 0 }
     grid_height := l.footer_y - l.gap - l.grid_y
     scroll_grid := l.card_height < 80
     saved_y := retro.y
@@ -1400,7 +1419,7 @@ ScenePickerContent :: (l: ScenePickerLayout) {
             if press.clicked { OpenScene(BLANK_SCENE); break }
             continue
         }
-        index := PaintSceneAt(scene_category, scene_page * 6 + offset)
+        index := PaintShownAt(PAINT_ITEM_SCENE, scene_category, scene_page * 6 + offset)
         if index < 0 { continue }
         x := l.padding + (offset % l.columns) * (l.card_width + l.gap)
         y := l.grid_y + (offset / l.columns) * (l.card_height + l.gap)
@@ -1416,12 +1435,12 @@ ScenePickerContent :: (l: ScenePickerLayout) {
         RetroSprite(Join(ART, Join("scene", number, "-thumb.jpg")),
             x + (l.card_width - dw) / 2, y + 5 + (image_height - dh) / 2, dw, dh, -1, true)
         BookText(x + 6, y + l.card_height - 28, l.card_width - 12, 24, PaintSceneLabel(index), 18)
+        if PaintItemEarned(PAINT_ITEM_SCENE, index) { EarnedStar(x, y, l.card_width) }
         if press.clicked { OpenScene(index); break }
     }
     retro.y = saved_y
     if scroll_grid { unused End(retro.session) }
     if view != PICK_SCENE { return }
-    pages := (SceneCategoryCount(scene_category) + 5) / 6
     if scene_page > 0 && StencilPickerButton(196, l.padding, l.footer_y, l.footer_width, "Previous") {
         scene_page -= 1; scene_picker_scroll = 0; ChoicesSave(); Sound("click"); return
     }
@@ -1848,6 +1867,7 @@ GameMain :: () -> s32 {
     if history_loading && !history_begin { HistoryLoadStep(); working_bookkeeping = true }
     else if history_loading { working_bookkeeping = true }
     if !initialized {
+        GameCollectionRefresh()
         CanvasBlank()
         WorkingPictureLoad()
         ChoicesLoad()

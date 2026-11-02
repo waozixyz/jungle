@@ -1,0 +1,57 @@
+// Which stencils and scenes the child can choose. Defaults always show; a
+// collectible shows once earned. Only the pickers ask: a saved picture opens
+// whatever the collection holds.
+#import, file "paint_catalog.zi";
+#import, file "../../retro/collection_cache.zi";
+
+PAINT_ITEM_STENCIL :: 0
+PAINT_ITEM_SCENE :: 1
+
+PaintItemCollectible :: (kind: s32, index: s32) -> s32 {
+    if kind == PAINT_ITEM_STENCIL { return PaintStencilCollectible(index) }
+    if kind == PAINT_ITEM_SCENE { return PaintSceneCollectible(index) }
+    return -1
+}
+
+// True only for a collectible in the collected set, so it also means "starred".
+PaintItemEarned :: (kind: s32, index: s32) -> bool {
+    id := PaintItemCollectible(kind, index)
+    return id >= 0 && CollectionCacheHas(id)
+}
+
+PaintItemShown :: (kind: s32, index: s32) -> bool {
+    return PaintItemCollectible(kind, index) < 0 || PaintItemEarned(kind, index)
+}
+
+PaintItemAt :: (kind: s32, category: s32, offset: s32) -> s32 {
+    return ifx kind == PAINT_ITEM_STENCIL then PaintStencilAt(category, offset) else PaintSceneAt(category, offset)
+}
+
+// The category's chosen-from size, then its item at that position (or -1).
+PaintShownCount :: (kind: s32, category: s32) -> s32 {
+    shown: s32 = 0
+    at: s32 = 0
+    index := PaintItemAt(kind, category, at)
+    while index >= 0 {
+        if PaintItemShown(kind, index) { shown += 1 }
+        at += 1
+        index = PaintItemAt(kind, category, at)
+    }
+    return shown
+}
+
+PaintShownAt :: (kind: s32, category: s32, offset: s32) -> s32 {
+    if offset < 0 { return -1 }
+    left := offset
+    at: s32 = 0
+    index := PaintItemAt(kind, category, at)
+    while index >= 0 {
+        if PaintItemShown(kind, index) {
+            if left == 0 { return index }
+            left -= 1
+        }
+        at += 1
+        index = PaintItemAt(kind, category, at)
+    }
+    return -1
+}

@@ -128,6 +128,51 @@ assert len(library['stencils']) == 66 and len(library['scenes']) == 30
             with self.assertRaises(ValueError):
                 catalog.BuildPaintCatalog(metadata)
 
+    def test_collectible_ids_match_the_registry(self):
+        registry = json.loads(catalog.REGISTRY.read_text())
+        slugs = {row['id']: row['slug'] for row in registry['collectibles']}
+        for kind, first in (('stencil', 56), ('scene', 27)):
+            for row, identifier in zip(self.library[kind + 's'], self.library[kind + '_collectibles']):
+                if row['asset_id'] < first:
+                    self.assertEqual(identifier, -1)
+                else:
+                    self.assertEqual(slugs[identifier], row['collectible'])
+        self.assertEqual(sorted(i for k in ('stencil', 'scene')
+                                for i in self.library[k + '_collectibles'] if i >= 0), sorted(slugs))
+        self.assertIn('paint_stencil_collectibles: [66]s32', catalog.GENERATED.read_text())
+        self.assertIn('paint_scene_collectibles: [30]s32', catalog.GENERATED.read_text())
+
+    def test_collectibles_follow_defaults_in_each_section(self):
+        # A saved picker position among defaults stays right whatever is earned.
+        for kind in ('stencil', 'scene'):
+            hidden = [self.library[kind + '_collectibles'][i] >= 0 for i in self.library[kind + '_order']]
+            for start, size in zip(self.library[kind + '_category_starts'], self.library[kind + '_category_counts']):
+                group = hidden[start:start + size]
+                self.assertEqual(group, sorted(group))
+                self.assertFalse(all(group), 'every section keeps a default')
+
+    def test_bad_collectible_links_are_rejected(self):
+        registry = json.loads(catalog.REGISTRY.read_text())
+        monkey = next(row for row in registry['collectibles'] if row['slug'] == 'monkey')
+        def art(value):
+            monkey['paint']['art'] = value
+        restore = monkey['paint']['art']
+        for change in (lambda d: d['stencils'][55].update(collectible='no-such-slug'),
+                       lambda d: d['stencils'][55].update(collectible='panda'),
+                       lambda d: d['scenes'][26].update(collectible='monkey'),
+                       lambda d: d['stencils'][55].update(category='objects'),
+                       lambda d: d['stencils'][55].pop('collectible')):
+            metadata = copy.deepcopy(self.metadata)
+            change(metadata)
+            with self.assertRaises(ValueError):
+                catalog.BuildPaintCatalog(metadata, registry)
+        for wrong in (None, 55):
+            art(wrong)
+            with self.assertRaises(ValueError):
+                catalog.BuildPaintCatalog(copy.deepcopy(self.metadata), registry)
+        art(restore)
+        catalog.BuildPaintCatalog(copy.deepcopy(self.metadata), registry)
+
     def test_manifest_matches_new_sources_and_preserves_old_entries(self):
         manifest = json.loads((ROOT / 'tools/coloring_stencils.json').read_text())
         original = subprocess.check_output(
@@ -208,6 +253,8 @@ assert len(library['stencils']) == 66 and len(library['scenes']) == 30
                         if kind == 'stencil':
                             short = json.dumps(row['short_labels'][locale], ensure_ascii=False)
                             lines.append(f'    if PaintStencilShortLabel({index}) != {short} {{ return 3 }}')
+                        identifier = self.library[kind + '_collectibles'][index]
+                        lines.append(f'    if Paint{title}Collectible({index}) != {identifier} {{ return 11 }}')
                     for category, row in enumerate(self.library[kind + '_categories']):
                         name = json.dumps(row['labels'][locale], ensure_ascii=False)
                         lines.append(f'    if Paint{title}CategoryLabel({category}) != {name} {{ return 4 }}')
@@ -219,6 +266,7 @@ assert len(library['stencils']) == 66 and len(library['scenes']) == 30
                     count, groups = len(self.library[kind + 's']), len(self.library[kind + '_categories'])
                     for invalid in (-1, count, 2147483647):
                         lines.append(f'    if Paint{title}Label({invalid}) != "" || Paint{title}Category({invalid}) != -1 {{ return 7 }}')
+                        lines.append(f'    if Paint{title}Collectible({invalid}) != -1 {{ return 12 }}')
                         if kind == 'stencil':
                             lines.append(f'    if PaintStencilShortLabel({invalid}) != "" {{ return 8 }}')
                     for invalid in (-1, groups, 2147483647):

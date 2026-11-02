@@ -5,7 +5,7 @@ import tempfile
 from pathlib import Path
 
 from runtime_test import DIGITS, PICTURE_HEADER, ROOT, picture_runs, picture_pixels
-from paint_library_test import scene_click, scene_layout
+from paint_library_test import earn, scene_click, scene_layout
 from paint_history_test import Desktop, WORK, changed, open_paint, pixel_click, tool
 
 
@@ -14,6 +14,7 @@ catalog = json.loads((ROOT / 'tools/coloring_catalog.json').read_text())
 with tempfile.TemporaryDirectory(prefix='paint-choices-', dir=WORK) as temporary:
     data = Path(temporary)
     working = data / 'games/jungle.paint/working.txt'
+    earn(data)
     with Desktop(ROOT / 'build/app/jungle', data) as desktop:
         desktop.game('Coloring Book')
         first = desktop.wait_scene_picker('paint-scenes-page-1')
@@ -45,7 +46,9 @@ with tempfile.TemporaryDirectory(prefix='paint-choices-', dir=WORK) as temporary
                 desktop.key('Escape')
                 desktop.capture('paint-selected-scene', header=56)
                 index = scene['asset_id'] - 1
-                assert working.read_bytes()[len(PICTURE_HEADER)] == ord(DIGITS[index]), 'Scene page selected a different background'
+                # Saved code 26 stays the blank page; appended scenes skip it.
+                code = index + 1 if index >= 26 else index
+                assert working.read_bytes()[len(PICTURE_HEADER)] == ord(DIGITS[code]), 'Scene page selected a different background'
                 seen.add(index)
         assert seen == {scene['asset_id'] - 1 for scene in catalog['scenes']}, 'A categorized scene was unreachable'
         selected_scene = working.read_bytes()[len(PICTURE_HEADER)]
@@ -79,4 +82,4 @@ with tempfile.TemporaryDirectory(prefix='paint-choices-', dir=WORK) as temporary
     with Desktop(ROOT / 'build/app/jungle', data) as desktop:
         open_paint(desktop, 'paint-new-scene-resumed')
         assert working.read_bytes() == saved, 'The background or paint changed on reopening'
-print('local UI test: categorized pagination, all26 scenes, 42 crayons and charcoal save/resume passed')
+print('local UI test: categorized pagination, all 30 scenes, 42 crayons and charcoal save/resume passed')

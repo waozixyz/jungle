@@ -75,3 +75,21 @@ def test_book_bundle_packs_every_ready_cut_out():
     for entry in validate_registry(load_registry()):
         if entry["source"]["kind"] in ("book", "story") and not entry["pending"]:
             assert entry["color"] in packed, entry["slug"]
+
+
+def test_coloring_catalog_and_registry_agree():
+    """Every collectible with art is the same stencil or scene in both files."""
+    import json
+
+    catalog = json.loads((ROOT / "tools/coloring_catalog.json").read_text())
+    linked = {
+        row["collectible"]: (kind, row["asset_id"], row["category"])
+        for kind in ("stencil", "scene")
+        for row in catalog[kind + "s"]
+        if row.get("collectible")
+    }
+    entries = validate_registry(load_registry())
+    assert {entry["slug"] for entry in entries} == set(linked)
+    for entry in entries:
+        paint = entry["paint"]
+        assert (paint["kind"], paint["art"], paint["category"]) == linked[entry["slug"]], entry["slug"]

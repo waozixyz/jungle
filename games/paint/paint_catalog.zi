@@ -8,6 +8,7 @@ paint_stencil_order: [66]s32 = .[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 30, 31, 3
 paint_stencil_category_starts: [4]s32 = .[0, 16, 35, 46];
 paint_stencil_category_counts: [4]s32 = .[16, 19, 11, 20];
 paint_stencil_category_for_index: [66]s32 = .[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 2, 2, 2, 1, 1, 1, 2, 2, 2, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 2, 3, 1, 1, 1, 1, 1, 1, 3, 1, 1, 3, 3];
+paint_stencil_collectibles: [66]s32 = .[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 paint_stencil_labels_en: [66]string = .["TYRANNOSAURUS", "STEGOSAURUS", "TRICERATOPS", "ANATOSAURUS", "BRACHIOSAURUS", "DIPLODOCUS", "PARASAUROLOPHUS", "DEINONYCHUS", "PROTOCERATOPS", "PTERANODON", "STRACOSAURUS", "CORYTHOSAURUS", "Cat", "Dog", "Butterfly", "Child", "Astronaut", "Farmer", "Rabbit", "Elephant", "Lion", "Doctor", "Firefighter", "Cook", "Crate", "Campfire", "Tent", "Tree", "Rock", "Barrel", "Ankylosaurus", "Spinosaurus", "Iguanodon", "Maiasaura", "Turtle", "Horse", "Duck", "Giraffe", "Builder", "Teacher", "Gardener", "Musician", "Ball", "Bicycle", "Sailboat", "Treasure chest", "House", "Car", "Rocket", "Umbrella", "Kite", "Watering can", "Frog", "Girl", "Flowers in pot", "Monkey", "Panda", "Zebra", "Pig", "Ladybug", "Snail", "Magic pot", "Toucan", "Parrot", "Sunflower", "Drum"];
 paint_stencil_labels_de: [66]string = .["TYRANNOSAURUS", "STEGOSAURUS", "TRICERATOPS", "ANATOSAURUS", "BRACHIOSAURUS", "DIPLODOCUS", "PARASAUROLOPHUS", "DEINONYCHUS", "PROTOCERATOPS", "PTERANODON", "STYRACOSAURUS", "CORYTHOSAURUS", "Katze", "Hund", "Schmetterling", "Kind", "Astronaut", "Landwirt", "Kaninchen", "Elefant", "Löwe", "Ärztin", "Feuerwehrmann", "Köchin", "Kiste", "Lagerfeuer", "Zelt", "Baum", "Felsen", "Fass", "Ankylosaurus", "Spinosaurus", "Iguanodon", "Maiasaura", "Schildkröte", "Pferd", "Ente", "Giraffe", "Bauarbeiter", "Lehrerin", "Gärtner", "Musiker", "Ball", "Fahrrad", "Segelboot", "Schatztruhe", "Haus", "Auto", "Rakete", "Schirm", "Drachen", "Gießkanne", "Frosch", "Mädchen", "Blumen im Topf", "Affe", "Panda", "Zebra", "Schwein", "Marienkäfer", "Schnecke", "Zaubertopf", "Tukan", "Papagei", "Sonnenblume", "Trommel"];
 paint_stencil_labels_es: [66]string = .["TIRANOSAURIO", "ESTEGOSAURIO", "TRICERATOPS", "ANATOSAURIO", "BRAQUIOSAURIO", "DIPLODOCO", "PARASAUROLOFO", "DEINONICO", "PROTOCERATOPS", "PTERANODÓN", "ESTIRACOSAURIO", "CORITOSAURIO", "Gato", "Perro", "Mariposa", "Niño", "Astronauta", "Granjero", "Conejo", "Elefante", "León", "Doctora", "Bombero", "Cocinera", "Caja", "Fogata", "Tienda", "Árbol", "Roca", "Barril", "Anquilosaurio", "Espinosaurio", "Iguanodonte", "Maiasaura", "Tortuga", "Caballo", "Pato", "Jirafa", "Constructor", "Maestra", "Jardinero", "Músico", "Pelota", "Bicicleta", "Velero", "Cofre del tesoro", "Casa", "Coche", "Cohete", "Paraguas", "Cometa", "Regadera", "Rana", "Niña", "Flores en maceta", "Mono", "Panda", "Cebra", "Cerdo", "Mariquita", "Caracol", "Olla mágica", "Tucán", "Loro", "Girasol", "Tambor"];
@@ -49,6 +50,12 @@ PaintStencilCategory :: (index: s32) -> s32 {
     return paint_stencil_category_for_index[index]
 }
 
+// The registry id that unlocks this entry; -1 for a default.
+PaintStencilCollectible :: (index: s32) -> s32 {
+    if index < 0 || index >= PAINT_STENCIL_COUNT { return -1 }
+    return paint_stencil_collectibles[index]
+}
+
 PaintStencilAt :: (category: s32, offset: s32) -> s32 {
     if category < 0 || category >= PAINT_STENCIL_CATEGORY_COUNT { return -1 }
     if offset < 0 || offset >= paint_stencil_category_counts[category] { return -1 }
@@ -61,6 +68,7 @@ paint_scene_order: [30]s32 = .[0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 13, 14, 15, 11
 paint_scene_category_starts: [3]s32 = .[0, 14, 24];
 paint_scene_category_counts: [3]s32 = .[14, 10, 6];
 paint_scene_category_for_index: [30]s32 = .[0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 1, 2, 1, 1, 1, 1];
+paint_scene_collectibles: [30]s32 = .[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 11, 12, 13, 14];
 paint_scene_labels_en: [30]string = .["Jungle clearing", "Volcano valley", "Waterfall", "Jungle river", "Island beach", "Mountain lake", "Meadow", "Forest", "Desert", "Snowy hills", "Pond", "Farmyard", "Flower garden", "Apple orchard", "Autumn woodland", "Spring stream", "Playground", "Town park", "Cozy room", "Schoolyard", "Castle courtyard", "Moon", "Under the sea", "Pirate cove", "Village square", "Treehouse clearing", "Treehouse", "Bookshelf", "Jungle campus", "Music room"];
 paint_scene_labels_de: [30]string = .["Dschungellichtung", "Vulkantal", "Wasserfall", "Dschungelfluss", "Inselstrand", "Bergsee", "Wiese", "Wald", "Wüste", "Schneehügel", "Teich", "Bauernhof", "Blumengarten", "Apfelgarten", "Herbstwald", "Frühlingsbach", "Spielplatz", "Stadtpark", "Gemütliches Zimmer", "Schulhof", "Burghof", "Mond", "Unter Wasser", "Piratenbucht", "Dorfplatz", "Baumhauslichtung", "Baumhaus", "Bücherregal", "Dschungelcampus", "Musikzimmer"];
 paint_scene_labels_es: [30]string = .["Claro de la selva", "Valle volcánico", "Cascada", "Río de la selva", "Playa de la isla", "Lago de montaña", "Pradera", "Bosque", "Desierto", "Colinas nevadas", "Estanque", "Granja", "Jardín de flores", "Huerto de manzanos", "Bosque otoñal", "Arroyo primaveral", "Parque infantil", "Parque urbano", "Habitación acogedora", "Patio de la escuela", "Patio del castillo", "Luna", "Bajo el mar", "Cala pirata", "Plaza del pueblo", "Claro con casa del árbol", "Casa del árbol", "Estantería", "Campus de la selva", "Sala de música"];
@@ -88,6 +96,12 @@ PaintSceneCategoryLabel :: (index: s32) -> string {
 PaintSceneCategory :: (index: s32) -> s32 {
     if index < 0 || index >= PAINT_SCENE_COUNT { return -1 }
     return paint_scene_category_for_index[index]
+}
+
+// The registry id that unlocks this entry; -1 for a default.
+PaintSceneCollectible :: (index: s32) -> s32 {
+    if index < 0 || index >= PAINT_SCENE_COUNT { return -1 }
+    return paint_scene_collectibles[index]
 }
 
 PaintSceneAt :: (category: s32, offset: s32) -> s32 {

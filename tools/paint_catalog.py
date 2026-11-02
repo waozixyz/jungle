@@ -15,15 +15,51 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 METADATA = ROOT / 'tools/coloring_catalog.json'
+REGISTRY = ROOT / 'tools/collectibles.json'
 GENERATED = ROOT / 'games/paint/paint_catalog.zi'
 LANGUAGES = ('en', 'de', 'es')
 ORIGINAL_COUNTS = {'stencil': 30, 'scene': 12}
 
 
-def BuildPaintCatalog(metadata=None):
+def collectible_ids(metadata, registry):
+    """Each entry's registry id (-1 for defaults), proving catalog and registry agree.
+
+    The registry's paint.art is the one-based asset ID of the same stencil or scene.
+    """
+    rows = {row['slug']: row for row in registry['collectibles']}
+    used = set()
+    ids = {}
+    for kind in ('stencil', 'scene'):
+        ids[kind] = []
+        for entry in metadata[kind + 's']:
+            slug = entry.get('collectible')
+            if slug is None:
+                ids[kind].append(-1)
+                continue
+            row = rows.get(slug)
+            if row is None:
+                raise ValueError(f'Unknown collectible slug: {slug}')
+            if slug in used:
+                raise ValueError(f'Collectible used twice: {slug}')
+            used.add(slug)
+            paint = row['paint']
+            if paint['kind'] != kind or paint['art'] != entry['asset_id']:
+                raise ValueError(f'Collectible {slug} paint must be {kind} art {entry["asset_id"]}')
+            if paint['category'] != entry['category']:
+                raise ValueError(f'Collectible {slug} category differs: {paint["category"]}')
+            ids[kind].append(row['id'])
+    for slug, row in rows.items():
+        if row['paint']['art'] is not None and slug not in used:
+            raise ValueError(f'Collectible {slug} has art but no catalog entry')
+    return ids
+
+
+def BuildPaintCatalog(metadata=None, registry=None):
     """Validate metadata and derive category maps without changing asset IDs."""
     if metadata is None:
         metadata = json.loads(METADATA.read_text(encoding='utf-8'))
+    if registry is None:
+        registry = json.loads(REGISTRY.read_text(encoding='utf-8'))
     if metadata.get('version') != 1:
         raise ValueError('Unsupported coloring catalog version')
     catalog = {}
@@ -75,6 +111,9 @@ def BuildPaintCatalog(metadata=None):
         catalog[kind + '_category_starts'] = starts
         catalog[kind + '_category_counts'] = counts
         catalog[kind + '_category_for_index'] = category_for_index
+    ids = collectible_ids(metadata, registry)
+    for kind in ('stencil', 'scene'):
+        catalog[kind + '_collectibles'] = ids[kind]
     return catalog
 
 
@@ -98,7 +137,7 @@ def render_catalog(catalog=None):
         entries, categories = catalog[kind + 's'], catalog[kind + '_categories']
         lines.extend([f'PAINT_{upper}_COUNT :: {len(entries)}',
                       f'PAINT_{upper}_CATEGORY_COUNT :: {len(categories)}'])
-        for field in ('order', 'category_starts', 'category_counts', 'category_for_index'):
+        for field in ('order', 'category_starts', 'category_counts', 'category_for_index', 'collectibles'):
             array(f'paint_{kind}_{field}', catalog[f'{kind}_{field}'], 's32')
         fields = [('labels', '', entries), ('labels', '_category', categories)]
         if kind == 'stencil':
@@ -121,6 +160,10 @@ def render_catalog(catalog=None):
             f'Paint{title}Category :: (index: s32) -> s32 {{',
             f'    if index < 0 || index >= PAINT_{upper}_COUNT {{ return -1 }}',
             f'    return paint_{kind}_category_for_index[index]', '}', '',
+            '// The registry id that unlocks this entry; -1 for a default.',
+            f'Paint{title}Collectible :: (index: s32) -> s32 {{',
+            f'    if index < 0 || index >= PAINT_{upper}_COUNT {{ return -1 }}',
+            f'    return paint_{kind}_collectibles[index]', '}', '',
             f'Paint{title}At :: (category: s32, offset: s32) -> s32 {{',
             f'    if category < 0 || category >= PAINT_{upper}_CATEGORY_COUNT {{ return -1 }}',
             f'    if offset < 0 || offset >= paint_{kind}_category_counts[category] {{ return -1 }}',
@@ -164,7 +207,7 @@ def main():
             GENERATED.write_text(code, encoding='utf-8')
         print(f'Coloring catalog: {len(catalog["stencils"])} stencils, '
               f'{len(catalog["scenes"])} scenes, complete EN/DE/ES labels.')
-    except (ValueError, FileNotFoundError) as error:
+    except (KeyError, ValueError, FileNotFoundError) as error:
         parser.exit(1, str(error) + '\n')
 
 
