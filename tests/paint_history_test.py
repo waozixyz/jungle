@@ -66,10 +66,10 @@ def paint_layout(desktop):
         cx, cy = (width - cw) // 2, pad
         below = cy + ch + pad
         top = below + (height - pad - below - th * rows - gap * (rows - 1)) // 2
-        tools = [(pad + i % 3 * (tw + gap), top + i // 3 * (th + gap)) for i in range(10)]
+        tools = [(pad + i % 3 * (tw + gap), top + i // 3 * (th + gap)) for i in range(11)]
     else:
-        columns = 2 if height < 440 else 1
-        rows = 5 if columns == 2 else 10
+        columns = 2 if height < 560 else 1
+        rows = 6 if columns == 2 else 11
         th = (height - pad * 2 - gap * (rows - 1)) // rows
         tw = max(64, min(th * 5 // 2, width // (8 if columns == 2 else 5)))
         rail = tw * columns + gap * (columns - 1)
@@ -80,7 +80,7 @@ def paint_layout(desktop):
         left = (width - rail - pad - cw) // 2
         cx, cy = left + rail + pad, pad + (room - ch) // 2
         top = cy + (ch - th * rows - gap * (rows - 1)) // 2
-        tools = [(left + i % columns * (tw + gap), top + i // columns * (th + gap)) for i in range(10)]
+        tools = [(left + i % columns * (tw + gap), top + i // columns * (th + gap)) for i in range(11)]
     return (cx, cy, cw, ch), [(x + tw / 2, y + th / 2 + 56) for x, y in tools]
 
 

@@ -34,6 +34,7 @@
 #import, file "sound.zi";
 #import, file "canvas_png.zi";
 #import, file "paint_preview.zi";
+#import, file "paint_view.zi";
 #import, file "jungle_text.zi";
 #import, file "jungle_menu.zi";
 #import, file "jungle_progress.zi";
@@ -97,6 +98,13 @@ guide_seen_setting: string;
 title_back_pending: bool;
 title_speed_pending: bool;
 game_secondary_down: bool;
+// Input for the Coloring Book's zoom. Fingers come from the platform's frame.
+game_wheel: float32;
+paint_touch_count: s32;
+paint_touches: [2]Vector2;
+paint_density: float32 = 1.0;
+paint_ink_counts: [2]s32;
+PAINT_INK_KEEP :: 4
 book_assets_installed: bool;
 // assets/shared-assets.txt from tools/shared_assets.py: read-only folders
 // installed once beside the app, and game pictures whose identical bytes are
@@ -236,7 +244,7 @@ Reply :: (text: string) -> HostValue {
 
 GameAllows :: (context: *void, name: string) -> bool {
     return name == "jungle.book-start" || name == "jungle.language" || name == "jungle.voice" || name == "jungle.voice-state" || name == "jungle.voice-control" || name == "jungle.sound" || name == "jungle.home" || name == "jungle.canvas" ||
-        name == "jungle.paint-preview" || name == "jungle.export" || name == "jungle.print" || name == "jungle.secondary" || name == "jungle.piano-held" || BundleAppAllows(context, name)
+        name == "jungle.paint-preview" || name == "jungle.paint-ops" || name == "jungle.paint-colors" || name == "jungle.paint-ink" || name == "jungle.paint-tile" || name == "jungle.touches" || name == "jungle.export" || name == "jungle.print" || name == "jungle.secondary" || name == "jungle.piano-held" || BundleAppAllows(context, name)
 }
 
 // A Dino Colors picture as a PNG file in the game's folder. Older pictures
@@ -248,6 +256,10 @@ WriteCanvas :: (request: string, preview: bool = false) -> string {
         if PictureFromGame(request, canvas_pixels[:]) != request.count { return "" }
         data = PngIndexed(CANVAS_WIDTH, CANVAS_HEIGHT, paint_colors[:], canvas_pixels[:])
     }
+    return WriteCanvasPng(data)
+}
+
+WriteCanvasPng :: (data: string) -> string {
     if data == "" { return "" }
     canvas_count += 1
     name := Cat("canvas-", NumberText(canvas_count), ".png")
@@ -257,6 +269,36 @@ WriteCanvas :: (request: string, preview: bool = false) -> string {
         if old != "" { unused RemoveFile(old) }
     }
     return name
+}
+
+// Reads a vector outline from the game's bundle.
+PaintViewBundleRead :: (path: string) -> string {
+    return BundleReadAsset(game.app.app.bundle, path)
+}
+
+// The picture of a kind of ink; ink's two kinds keep their own recent files.
+WriteInk :: (request: string, kind: s32) -> string {
+    data := PaintViewInkPng(request, PaintViewBundleRead)
+    if data == "" { return "" }
+    prefix := ifx kind == 0 then "canvas-ink-" else "canvas-tile-"
+    paint_ink_counts[kind] += 1
+    name := Cat(prefix, NumberText(paint_ink_counts[kind]), ".png")
+    if !AppFileWrite(*game.local.files, name, data) { return "" }
+    if paint_ink_counts[kind] > PAINT_INK_KEEP {
+        old := AppFilePath(*game.local.files, Cat(prefix, NumberText(paint_ink_counts[kind] - PAINT_INK_KEEP), ".png"), false)
+        if old != "" { unused RemoveFile(old) }
+    }
+    return name
+}
+
+// "<count> <x0> <y0> <x1> <y1> <wheel> <density>" in thousandths.
+PaintTouchesReply :: () -> string {
+    text: Vec(u8)
+    BuilderPrint(*text, "% % % % % % %", paint_touch_count,
+        cast(s64)(paint_touches[0].x * 1000.0), cast(s64)(paint_touches[0].y * 1000.0),
+        cast(s64)(paint_touches[1].x * 1000.0), cast(s64)(paint_touches[1].y * 1000.0),
+        cast(s64)(game_wheel * 1000.0), cast(s64)(paint_density * 1000.0))
+    return BuilderFinish(text)
 }
 
 GameServices :: (context: *void, module: *u8, function: *u8,
@@ -307,6 +349,23 @@ GameServices :: (context: *void, module: *u8, function: *u8,
             result.* = Reply(WriteCanvas(request, service == "jungle.paint-preview"))
             return 1
         }
+        if service == "jungle.paint-ops" {
+            same := PaintViewOpsSame(request)
+            ok := PaintViewOpsSet(request, PaintViewBundleRead)
+            result.* = Reply(ifx !ok then "failed" else ifx same then "same" else "changed")
+            return 1
+        }
+        if service == "jungle.paint-colors" {
+            data := ""
+            if PictureFromGame(request, canvas_pixels[:]) == request.count { data = PaintViewColorsPng(canvas_pixels[:]) }
+            result.* = Reply(WriteCanvasPng(data))
+            return 1
+        }
+        if service == "jungle.paint-ink" || service == "jungle.paint-tile" {
+            result.* = Reply(WriteInk(request, ifx service == "jungle.paint-ink" then 0 else 1))
+            return 1
+        }
+        if service == "jungle.touches" { result.* = Reply(PaintTouchesReply()); return 1 }
         if service == "jungle.export" || service == "jungle.print" {
             result.* = Reply(ExportPicture(*game.local.files, request, service == "jungle.print"))
             return 1
@@ -394,6 +453,7 @@ GameFrame :: (bounds: Rectangle, pointer: PointerFrame, secondary: SecondaryPoin
     unused ApplyTitleOrientationPolicy(false)
     if !game.ready { return false }
     game_secondary_down = secondary.down
+    game_wheel = wheel
     defer { BundleAppFrameAssetsClear() }
     app := *game.app
     // A hosted game's session is separate from the platform's session. Keep

@@ -29,6 +29,8 @@
 #import, file "paint_picker_layout.zi";
 #import, file "paint_gallery_store.zi";
 #import "pointer_input"
+#import "input_protocol"
+#import "view_transform"
 PictureIcon :: #import "mingcute/mingcute_regular_pic";
 BucketIcon :: #import "mingcute/mingcute_regular_paint";
 BookIcon :: #import "mingcute/mingcute_regular_book";
@@ -42,6 +44,10 @@ MoveIcon :: #import "mingcute/mingcute_regular_move";
 HappyIcon :: #import "mingcute/mingcute_regular_happy";
 SadIcon :: #import "mingcute/mingcute_regular_sad";
 RotateIcon :: #import "mingcute/mingcute_regular_refresh_2";
+HandIcon :: #import "mingcute/mingcute_regular_hand";
+ZoomInIcon :: #import "mingcute/mingcute_regular_zoom_in";
+ZoomOutIcon :: #import "mingcute/mingcute_regular_zoom_out";
+FitIcon :: #import "mingcute/mingcute_regular_fullscreen";
 
 FONT :: "assets/dino-paint/font.png"
 SOUNDS :: "assets/dino-paint/sounds/"
@@ -58,13 +64,14 @@ SAVE_LOAD :: 8
 OVERWRITE :: 9
 PRINT_VIEW :: 10
 GALLERY :: 11
-TOOL_COUNT :: 10
+TOOL_COUNT :: 11
+TOOL_ZOOM :: 10
 
 SLOT_COUNT :: 6
 WORKING :: "working.txt"
 WORKING_HISTORY :: "working-undo.txt"
 
-button_names: [10]string = .["Image", "Color", "Story", "Erase", "Gallery", "Print", "Undo", "New picture", "Select", "Pencil"];
+button_names: [11]string = .["Image", "Color", "Story", "Erase", "Gallery", "Print", "Undo", "New picture", "Select", "Pencil", "Zoom"];
 size_names: [4]string = .["Small", "Medium", "Large", "Huge"];
 
 view: s32 = MAIN;
@@ -121,10 +128,11 @@ initialized: bool;
 // changes the scene or artwork already saved in a picture.
 CHOICES :: "choices.txt"
 ChoicesSave :: () {
-    values: [8]u8 = .[PAINT_CODES[dino + 1], PAINT_CODES[stencil_category], PAINT_CODES[stencil_anchor],
+    values: [9]u8 = .[PAINT_CODES[(dino + 1) % 64], PAINT_CODES[stencil_category], PAINT_CODES[stencil_anchor],
         PAINT_CODES[size], PAINT_CODES[ifx placement_flip then 1 else 0], PAINT_CODES[scene_category],
-        PAINT_CODES[scene_page], PAINT_CODES[last_scene + 1]]
-    unused DocumentWrite(CHOICES, Join(PAINT_CHOICES_V2, TextView(values[:])))
+        PAINT_CODES[scene_page], PAINT_CODES[last_scene + 1], PAINT_CODES[(dino + 1) / 64]]
+    if dino + 1 >= 64 { unused DocumentWrite(CHOICES, Join(PAINT_CHOICES_V3, TextView(values[:]))) }
+    else { unused DocumentWrite(CHOICES, Join(PAINT_CHOICES_V2, TextView(values[:8]))) }
 }
 
 ChoicesLoad :: () {
@@ -136,6 +144,8 @@ ChoicesLoad :: () {
     header := PAINT_CHOICES_V2.count
     values: [8]s32
     for at: cast(s32)0..7 { values[at] = PaintIndex(saved[header + at]); if values[at] < 0 { return } }
+    values[0] = PaintChoicesStencil(saved)
+    if values[0] < 0 { return }
     if values[1] >= PAINT_STENCIL_CATEGORY_COUNT { return }
     // A version 1 page becomes the anchor of its first item.
     anchor := PaintChoicesAnchor(version, values[2], paint_stencil_category_counts[values[1]])
@@ -258,6 +268,7 @@ LoadSlot :: (index: s32) -> bool {
     slot = index
     placing = false
     erasing = false
+    PictureViewReset()
     HistoryClear()
     story_row = 0
     story_column = 0
@@ -279,6 +290,7 @@ OpenScene :: (index: s32) {
     last_scene = ifx index == BLANK_SCENE then -1 else index
     ChoicesSave()
     unused SceneOpen(index)
+    PictureViewReset()
     placing = false
     erasing = false
     HistoryClear()
@@ -294,7 +306,12 @@ OpenScene :: (index: s32) {
 
 MakeCanvas :: () {
     if !dirty { return }
-    made := GameCanvas(CanvasText())
+    // A line being drawn shows as page pixels until it is finished.
+    if !pencil_dragging {
+        reply := AppService("jungle.paint-ops", CanvasVectorOps())
+        if reply != "same" { ink_page_stale = true; ink_tile_stale = true }
+    }
+    made := GameCanvasService("jungle.paint-colors", CanvasText())
     if made != "" {
         // Keep the last complete picture beneath its replacement while the
         // browser installs the new image in its drawing surface.
@@ -307,7 +324,261 @@ MakeCanvas :: () {
     }
 }
 
-// The main screen is laid out in window pixels: on a wide window the ten
+// The picture's zoom and its vector ink. Both ink images are drawn from the
+// host's outlines at the size they are shown: the whole page at its fitted
+// size, and, zoomed in, a tile of the visible part once the view settles.
+PICTURE_ZOOM_MAXIMUM :: 8.0
+INK_SETTLE_SECONDS :: 0.12
+// Extra tile pixels on each side, so a small pan keeps a sharp picture.
+INK_MARGIN :: 64.0
+INK_TILE_PIXELS :: 1920000.0
+ZOOM_CONTROL_SIZE :: 44
+
+picture_view: ViewTransform;
+picture_view_ready: bool;
+picture_view_changed_at: float64;
+// Pinching holds off every drawing gesture until the fingers lift.
+view_block: bool;
+view_panning: bool;
+view_pan_active: bool;
+view_pan_last: Vector2;
+pencil_started_at: float64;
+paint_density: float32 = 1.0;
+
+ink_page_name: [128]u8;
+ink_page_stale: bool = true;
+ink_page_width: s32;
+ink_page_height: s32;
+ink_tile_name: [128]u8;
+ink_tile_stale: bool = true;
+ink_tile_width: s32;
+ink_tile_height: s32;
+ink_tile_page: Rectangle;
+ink_tile_zoom: float32;
+ink_tile_view_x: float32;
+ink_tile_view_y: float32;
+
+CanvasScreen :: () -> Rectangle {
+    return RetroRect(canvas_x, canvas_y, canvas_w, canvas_h)
+}
+
+PointerInCanvas :: (x: float32, y: float32) -> bool {
+    area := CanvasScreen()
+    return x >= area.x && y >= area.y && x < area.x + area.width && y < area.y + area.height
+}
+
+PictureViewReset :: () {
+    if picture_view_ready { ViewReset(*picture_view) }
+    picture_view_changed_at = 0.0
+    ink_tile_stale = true
+}
+
+// One number of the host's touch reply, in thousandths.
+TouchNumber :: (text: string, at: *s64) -> float32 {
+    while at.* < text.count && text[at.*] == #char " " { at.* += 1 }
+    negative := at.* < text.count && text[at.*] == #char "-"
+    if negative { at.* += 1 }
+    value: s64 = 0
+    while at.* < text.count && text[at.*] >= #char "0" && text[at.*] <= #char "9" {
+        value = value * 10 + cast(s64)(text[at.*] - #char "0")
+        at.* += 1
+    }
+    return cast(float32)(ifx negative then -value else value) / 1000.0
+}
+
+// Stops whatever one finger had begun; a brief pencil mark was a pinch's first
+// finger, not a line.
+PictureGesturesCancel :: () {
+    canvas_can_fill = false
+    if placing { placement_gesture = 0; dragging = false }
+    if rotation_drag { rotation_drag = false; rotation_degrees = 0.0 }
+    if pencil_dragging {
+        pencil_dragging = false
+        if retro.now - pencil_started_at < 0.25 { unused HistoryUndo() }
+        else { WorkingPictureKeep() }
+        dirty = true
+    }
+}
+
+ZoomControlRect :: (index: s32) -> Rectangle {
+    area := CanvasScreen()
+    return Rectangle.{area.x + area.width - cast(float32)((index + 1) * (ZOOM_CONTROL_SIZE + 6)), area.y + 6.0,
+        cast(float32)ZOOM_CONTROL_SIZE, cast(float32)ZOOM_CONTROL_SIZE}
+}
+
+// Fit shows whenever the picture is zoomed; zoom in and out with the Zoom tool.
+ZoomControlShown :: (index: s32) -> bool {
+    return ifx index == 0 then !ViewIsFit(picture_view) else view_panning
+}
+
+ZoomControlAt :: (x: float32, y: float32) -> bool {
+    for index: cast(s32)0..2 {
+        rect := ZoomControlRect(index)
+        if ZoomControlShown(index) && x >= rect.x && y >= rect.y && x < rect.x + rect.width && y < rect.y + rect.height { return true }
+    }
+    return false
+}
+
+// The pointer as the picture's gestures may use it.
+PaintPointer :: () -> PointerFrame {
+    pointer := SamplePointer()
+    if view_block || view_pan_active || view_panning {
+        pointer.pressed = false; pointer.down = false; pointer.released = false
+    } else if pointer.pressed && ZoomControlAt(pointer.x, pointer.y) { pointer.pressed = false }
+    return pointer
+}
+
+// Reads this frame's fingers, wheel and pan, before the picture's gestures.
+PictureViewFrame :: () {
+    viewport := CanvasScreen()
+    if !picture_view_ready {
+        picture_view = ViewFit(viewport, cast(float32)CANVAS_WIDTH, cast(float32)CANVAS_HEIGHT, PICTURE_ZOOM_MAXIMUM)
+        picture_view_ready = true
+    } else { ViewSetViewport(*picture_view, viewport) }
+    zoom := picture_view.zoom; page_x := picture_view.page_x; page_y := picture_view.page_y
+    reply := AppService("jungle.touches", "")
+    at: s64 = 0
+    count := cast(s32)(TouchNumber(reply, *at) * 1000.0 + 0.5)
+    first := Vector2.{TouchNumber(reply, *at), TouchNumber(reply, *at)}
+    second := Vector2.{TouchNumber(reply, *at), TouchNumber(reply, *at)}
+    wheel := TouchNumber(reply, *at)
+    density := TouchNumber(reply, *at)
+    if density > 0.0 { paint_density = density }
+    pointer := SamplePointer()
+    if count >= 2 {
+        if picture_view.pinching { ViewPinchUpdate(*picture_view, first, second) }
+        else if PointerInCanvas((first.x + second.x) / 2.0, (first.y + second.y) / 2.0) {
+            PictureGesturesCancel()
+            view_pan_active = false
+            view_block = true
+            ViewPinchBegin(*picture_view, first, second)
+        }
+    } else if picture_view.pinching { ViewPinchEnd(*picture_view) }
+    if view_block && count == 0 && !pointer.down { view_block = false }
+    if wheel != 0.0 && !view_block && PointerInCanvas(pointer.x, pointer.y) {
+        ViewZoomAt(*picture_view, Vector2.{pointer.x, pointer.y}, ViewWheelFactor(wheel))
+    }
+    secondary := GameSecondaryDown()
+    if view_pan_active {
+        if secondary || (view_panning && pointer.down) {
+            ViewPanBy(*picture_view, pointer.x - view_pan_last.x, pointer.y - view_pan_last.y)
+            view_pan_last = Vector2.{pointer.x, pointer.y}
+        } else { view_pan_active = false }
+    } else if !view_block && (secondary || (view_panning && pointer.pressed)) && PointerInCanvas(pointer.x, pointer.y) &&
+        !ZoomControlAt(pointer.x, pointer.y) && !(placing && pointer.y >= retro.y + cast(float32)(canvas_y + canvas_h - 48)) {
+        PictureGesturesCancel()
+        view_pan_active = true
+        view_pan_last = Vector2.{pointer.x, pointer.y}
+    }
+    if picture_view.zoom != zoom || picture_view.page_x != page_x || picture_view.page_y != page_y {
+        picture_view_changed_at = retro.now
+    }
+}
+
+InkRequest :: (w: s32, h: s32, page: Rectangle, scale_x: float32, scale_y: float32) -> string {
+    text: Vec(u8)
+    BuilderPrint(*text, "% % % % % %", w, h, PaintVectorUnits(page.x), PaintVectorUnits(page.y),
+        PaintVectorUnits(scale_x), PaintVectorUnits(scale_y))
+    return BuilderFinish(text)
+}
+
+// Keeps the ink images matching the outlines and the size they are shown at.
+PictureInkRefresh :: () {
+    density := paint_density
+    width := CeilInteger(cast(float32)canvas_w * density)
+    height := CeilInteger(cast(float32)canvas_h * density)
+    if cast(float32)width * cast(float32)height > INK_TILE_PIXELS {
+        density = cast(float32)FloorInteger(density * 8.0) * 0.125
+        if density < 1.0 { density = 1.0 }
+        width = CeilInteger(cast(float32)canvas_w * density)
+        height = CeilInteger(cast(float32)canvas_h * density)
+    }
+    settled := retro.now - picture_view_changed_at >= INK_SETTLE_SECONDS && !picture_view.pinching && !view_pan_active
+    if ink_page_stale || width != ink_page_width || height != ink_page_height {
+        name := GameCanvasService("jungle.paint-ink", InkRequest(width, height,
+            Rectangle.{0.0, 0.0, cast(float32)CANVAS_WIDTH, cast(float32)CANVAS_HEIGHT},
+            cast(float32)width / cast(float32)CANVAS_WIDTH, cast(float32)height / cast(float32)CANVAS_HEIGHT))
+        if name != "" {
+            Keep(name, ink_page_name[:])
+            ink_page_stale = false; ink_page_width = width; ink_page_height = height
+        }
+    }
+    if ViewIsFit(picture_view) || !settled { return }
+    if !ink_tile_stale && ink_tile_zoom == picture_view.zoom && ink_tile_view_x == picture_view.page_x && ink_tile_view_y == picture_view.page_y { return }
+    scale_x := cast(float32)width * picture_view.zoom / cast(float32)CANVAS_WIDTH
+    scale_y := cast(float32)height * picture_view.zoom / cast(float32)CANVAS_HEIGHT
+    visible := ViewVisiblePage(picture_view)
+    // Whole margins keep the tile's pixels on the screen's.
+    left := cast(float32)FloorInteger(visible.x * scale_x); if left > INK_MARGIN { left = INK_MARGIN }
+    top := cast(float32)FloorInteger(visible.y * scale_y); if top > INK_MARGIN { top = INK_MARGIN }
+    right := (cast(float32)CANVAS_WIDTH - visible.x - visible.width) * scale_x; if right > INK_MARGIN { right = INK_MARGIN }
+    bottom := (cast(float32)CANVAS_HEIGHT - visible.y - visible.height) * scale_y; if bottom > INK_MARGIN { bottom = INK_MARGIN }
+    w := CeilInteger(visible.width * scale_x + left + cast(float32)FloorInteger(right))
+    h := CeilInteger(visible.height * scale_y + top + cast(float32)FloorInteger(bottom))
+    if cast(float32)w * cast(float32)h > INK_TILE_PIXELS {
+        left = 0.0; top = 0.0
+        w = CeilInteger(visible.width * scale_x); h = CeilInteger(visible.height * scale_y)
+    }
+    page := Rectangle.{visible.x - left / scale_x, visible.y - top / scale_y, cast(float32)w / scale_x, cast(float32)h / scale_y}
+    name := GameCanvasService("jungle.paint-tile", InkRequest(w, h, page, scale_x, scale_y))
+    if name != "" {
+        Keep(name, ink_tile_name[:])
+        ink_tile_stale = false; ink_tile_width = w; ink_tile_height = h; ink_tile_page = page
+        ink_tile_zoom = picture_view.zoom; ink_tile_view_x = picture_view.page_x; ink_tile_view_y = picture_view.page_y
+    }
+}
+
+// Draws the visible part of a picture that holds the given page rectangle.
+PicturePart :: (path: string, width: s32, height: s32, page: Rectangle) {
+    shown := RetroImageShown(path)
+    if shown == "" { return }
+    visible := ViewVisiblePage(picture_view)
+    across := cast(float32)width / page.width
+    down := cast(float32)height / page.height
+    Image(retro.session, ImageProps.{.asset_path = shown, .bounds = CanvasScreen(), .fit = ImageFit.ImageFitStretch, .smooth = true,
+        .source = Rectangle.{(visible.x - page.x) * across, (visible.y - page.y) * down, visible.width * across, visible.height * down}})
+}
+
+WHOLE_PAGE :: Rectangle.{0.0, 0.0, 960.0, 720.0}
+
+PictureInkDraw :: () {
+    visible := ViewVisiblePage(picture_view)
+    tile := TextUntilNul(ink_tile_name[:])
+    if !ViewIsFit(picture_view) && !ink_tile_stale && tile != "" && RetroImageReady(tile) &&
+        visible.x >= ink_tile_page.x && visible.y >= ink_tile_page.y &&
+        visible.x + visible.width <= ink_tile_page.x + ink_tile_page.width + 0.01 &&
+        visible.y + visible.height <= ink_tile_page.y + ink_tile_page.height + 0.01 {
+        PicturePart(tile, ink_tile_width, ink_tile_height, ink_tile_page)
+    } else {
+        page := TextUntilNul(ink_page_name[:])
+        if page != "" { PicturePart(page, ink_page_width, ink_page_height, WHOLE_PAGE) }
+    }
+}
+
+// Fit, zoom in and zoom out over the picture's corner.
+ZoomControls :: () {
+    for index: cast(s32)0..2 {
+        if !ZoomControlShown(index) { continue }
+        rect := ZoomControlRect(index)
+        label := ifx index == 0 then "Fit picture" else ifx index == 1 then "Zoom in" else "Zoom out"
+        press := RetroTap(70 + index, cast(s32)(rect.x - retro.x), cast(s32)(rect.y - retro.y), ZOOM_CONTROL_SIZE, ZOOM_CONTROL_SIZE, label)
+        Fill(rect, ifx press.down then cast(u32)0xdcebdcff else cast(u32)0xfffcf3f0, 8.0)
+        SvgIcon(retro.session, SvgIconProps.{.bounds = Rectangle.{rect.x + 10.0, rect.y + 10.0, 24.0, 24.0},
+            .shape = ifx index == 0 then FitIcon.Shape else ifx index == 1 then ZoomInIcon.Shape else ZoomOutIcon.Shape,
+            .color = ColorFromPacked(0x3e332aff)})
+        if press.clicked {
+            area := CanvasScreen()
+            center := Vector2.{area.x + area.width / 2.0, area.y + area.height / 2.0}
+            if index == 0 { ViewReset(*picture_view) }
+            else { ViewZoomAt(*picture_view, center, ifx index == 1 then 1.5 else 1.0 / 1.5) }
+            picture_view_changed_at = retro.now
+            canvas_can_fill = false
+            Sound("click")
+        }
+    }
+}
+
+// The main screen is laid out in window pixels: on a wide window the
 // tools stand beside the picture, or in four rows below a portrait picture. The picture keeps its 4:3 shape.
 canvas_x: s32;
 canvas_y: s32;
@@ -352,8 +623,8 @@ LayoutMain :: () {
         }
     } else {
         // A short landscape phone needs two columns to keep taps generous.
-        columns: s32 = ifx height < 440 then 2 else 1
-        rows: s32 = ifx columns == 2 then 5 else TOOL_COUNT
+        columns: s32 = ifx height < 560 then 2 else 1
+        rows: s32 = (TOOL_COUNT + columns - 1) / columns
         width_parts: s32 = ifx columns == 2 then 8 else 5
         tool_h = (height - pad * 2 - gap * (rows - 1)) / rows
         tool_w = Clamp(tool_h * 5 / 2, 64, width / width_parts)
@@ -385,6 +656,7 @@ ToolShape :: (index: s32) -> string {
     if index == 6 { return ifx placing then MirrorIcon.Shape else UndoIcon.Shape }
     if index == 8 { return RotateIcon.Shape }
     if index == 9 { return PencilIcon.Shape }
+    if index == TOOL_ZOOM { return HandIcon.Shape }
     return NewIcon.Shape
 }
 
@@ -404,19 +676,15 @@ ToolButton :: (id: s32, x: s32, y: s32, w: s32, h: s32, shape: string, label: st
 
 // The window rectangle of a part of the picture, in picture pixels.
 PictureRect :: (x: s32, y: s32, w: s32, h: s32) -> Rectangle {
-    across := cast(float32)canvas_w / cast(float32)CANVAS_WIDTH
-    down := cast(float32)canvas_h / cast(float32)CANVAS_HEIGHT
-    return Rectangle.{retro.x + cast(float32)canvas_x + cast(float32)x * across,
-        retro.y + cast(float32)canvas_y + cast(float32)y * down,
-        cast(float32)w * across, cast(float32)h * down}
+    return ViewPageRect(picture_view, Rectangle.{cast(float32)x, cast(float32)y, cast(float32)w, cast(float32)h})
 }
 
 PictureX :: (x: float32) -> s32 {
-    return cast(s32)((x - retro.x - cast(float32)canvas_x) * cast(float32)CANVAS_WIDTH / cast(float32)canvas_w)
+    return cast(s32)ViewScreenToPage(picture_view, Vector2.{x, 0.0}).x
 }
 
 PictureY :: (y: float32) -> s32 {
-    return cast(s32)((y - retro.y - cast(float32)canvas_y) * cast(float32)CANVAS_HEIGHT / cast(float32)canvas_h)
+    return cast(s32)ViewScreenToPage(picture_view, Vector2.{0.0, y}).y
 }
 
 Fill :: (area: Rectangle, color: u32, radius: float32 = 0.0) {
@@ -497,7 +765,7 @@ PlacementControl :: (id: s32, x: s32, y: s32, width: s32, label: string) -> bool
 }
 
 PlacementView :: (chosen_tool: s32) {
-    pointer := SamplePointer()
+    pointer := PaintPointer()
     if placement_canvas_w != canvas_w || placement_canvas_h != canvas_h {
         placement_gesture = 0; dragging = false
         placement_canvas_w = canvas_w; placement_canvas_h = canvas_h
@@ -510,8 +778,8 @@ PlacementView :: (chosen_tool: s32) {
     area := PictureRect(plan.x, plan.y, plan.w, plan.h)
     center := Vector2.{area.x + area.width / 2.0, area.y + area.height / 2.0}
     source_width := DinoWidth(dino, DINO_SIZES); source_height := DinoHeight(dino, DINO_SIZES)
-    hw := cast(float32)source_width * plan.scale * cast(float32)canvas_w / cast(float32)CANVAS_WIDTH / 2.0
-    hh := cast(float32)source_height * plan.scale * cast(float32)canvas_h / cast(float32)CANVAS_HEIGHT / 2.0
+    hw := cast(float32)source_width * plan.scale * ViewScale(picture_view).x / 2.0
+    hh := cast(float32)source_height * plan.scale * ViewScale(picture_view).y / 2.0
     handle := SelectionPoint(0.0, -hh - 30.0, center, plan.degrees)
     handle.x = cast(float32)Clamp(cast(s32)(handle.x - retro.x), canvas_x + 22, canvas_x + canvas_w - 22) + retro.x
     handle.y = cast(float32)Clamp(cast(s32)(handle.y - retro.y), canvas_y + 22, canvas_y + canvas_h - 74) + retro.y
@@ -524,7 +792,7 @@ PlacementView :: (chosen_tool: s32) {
     button_w := Clamp((canvas_w - 18) / 2, 44, 140)
     button_x := canvas_x + (canvas_w - button_w * 2 - 6) / 2
     // Ignore the button strip when starting a canvas gesture.
-    if !working_bookkeeping && chosen_tool < 0 && pointer.pressed && pointer.y < retro.y + cast(float32)button_y {
+    if !working_bookkeeping && chosen_tool < 0 && pointer.pressed && pointer.y < retro.y + cast(float32)button_y && PointerInCanvas(pointer.x, pointer.y) {
         dx := pointer.x - handle.x; dy := pointer.y - handle.y
         if dx * dx + dy * dy <= 22.0 * 22.0 {
             placement_gesture = 2
@@ -581,8 +849,8 @@ PlacementView :: (chosen_tool: s32) {
     placement_x = plan.x + plan.w / 2; placement_y = plan.y + plan.h / 2
     area = PictureRect(plan.x, plan.y, plan.w, plan.h)
     center = Vector2.{area.x + area.width / 2.0, area.y + area.height / 2.0}
-    hw = cast(float32)source_width * plan.scale * cast(float32)canvas_w / cast(float32)CANVAS_WIDTH / 2.0
-    hh = cast(float32)source_height * plan.scale * cast(float32)canvas_h / cast(float32)CANVAS_HEIGHT / 2.0
+    hw = cast(float32)source_width * plan.scale * ViewScale(picture_view).x / 2.0
+    hh = cast(float32)source_height * plan.scale * ViewScale(picture_view).y / 2.0
     corners[0] = SelectionPoint(-hw, -hh, center, plan.degrees)
     corners[1] = SelectionPoint(hw, -hh, center, plan.degrees)
     corners[2] = SelectionPoint(hw, hh, center, plan.degrees)
@@ -591,7 +859,7 @@ PlacementView :: (chosen_tool: s32) {
     if placement_flip { quad[0] = corners[1]; quad[1] = corners[0]; quad[2] = corners[3]; quad[3] = corners[2] }
     number := FormatInteger(dino + 1, digits_a[:])
     Image(retro.session, ImageProps.{.asset_path = Join(ART, Join("dino", number, "-preview.png")),
-        .bounds = PictureRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT), .mesh = ImageMesh.{.columns = 2, .rows = 2, .points = quad[:]}})
+        .bounds = CanvasScreen(), .mesh = ImageMesh.{.columns = 2, .rows = 2, .points = quad[:]}})
     SelectionLine(corners[0], corners[1]); SelectionLine(corners[1], corners[3])
     SelectionLine(corners[3], corners[2]); SelectionLine(corners[2], corners[0])
     SelectionLine(SelectionPoint(0.0, -hh, center, plan.degrees), handle)
@@ -600,6 +868,9 @@ PlacementView :: (chosen_tool: s32) {
     SvgIcon(retro.session, SvgIconProps.{.bounds = Rectangle.{handle.x - 12.0, handle.y - 12.0, 24.0, 24.0}, .shape = RotateIcon.Shape, .color = ColorFromPacked(0xfffcf3ff)})
     for at: cast(s32)0..3 {
         corner := corners[at]
+        // While zoomed, a corner far outside the picture has nothing to show.
+        view := CanvasScreen()
+        if corner.x < view.x - 22.0 || corner.y < view.y - 22.0 || corner.x > view.x + view.width + 22.0 || corner.y > view.y + view.height + 22.0 { continue }
         Fill(Rectangle.{corner.x - 22.0, corner.y - 22.0, 44.0, 44.0}, 0x2e6956ff, 4.0)
         Fill(Rectangle.{corner.x - 19.0, corner.y - 19.0, 38.0, 38.0}, 0xfffcf3ff, 2.0)
     }
@@ -673,19 +944,44 @@ SelectionPoint :: (dx: float32, dy: float32, center: Vector2, degrees: float32) 
     return Vector2.{center.x + dx * cosine - dy * sine, center.y + dx * sine + dy * cosine}
 }
 
+// A line of the selection, kept inside the picture.
 SelectionLine :: (start: Vector2, end: Vector2) {
+    area := CanvasScreen()
+    low: float32 = 0.0; high: float32 = 1.0
+    dx := end.x - start.x; dy := end.y - start.y
+    limits: [4]float32 = .[-dx, dx, -dy, dy]
+    room: [4]float32 = .[start.x - area.x, area.x + area.width - start.x, start.y - area.y, area.y + area.height - start.y]
+    for side: cast(s32)0..3 {
+        if limits[side] == 0.0 {
+            if room[side] < 0.0 { return }
+        } else {
+            at := room[side] / limits[side]
+            if limits[side] < 0.0 { if at > low { low = at } }
+            else if at < high { high = at }
+        }
+    }
+    if low > high { return }
+    SelectionLineDraw(Vector2.{start.x + dx * low, start.y + dy * low}, Vector2.{start.x + dx * high, start.y + dy * high})
+}
+
+SelectionLineDraw :: (start: Vector2, end: Vector2) {
     unused Line(retro.session, LineProps.{.start = start, .end = end, .thickness = 2.0, .color = ColorFromPacked(0x2e6956ff)})
 }
 
 // Keep the above-centre dot reachable when the object touches the page top.
 SelectionHandle :: (area: Rectangle) -> Vector2 {
     top := area.y - 24.0
-    if top < retro.y + 12.0 { top = retro.y + 12.0 }
-    return Vector2.{area.x + area.width / 2.0, top}
+    canvas := CanvasScreen()
+    if top < canvas.y + 12.0 { top = canvas.y + 12.0 }
+    if top > canvas.y + canvas.height - 12.0 { top = canvas.y + canvas.height - 12.0 }
+    middle := area.x + area.width / 2.0
+    if middle < canvas.x + 12.0 { middle = canvas.x + 12.0 }
+    if middle > canvas.x + canvas.width - 12.0 { middle = canvas.x + canvas.width - 12.0 }
+    return Vector2.{middle, top}
 }
 
 SelectionView :: (chosen_tool: s32) {
-    pointer := SamplePointer()
+    pointer := PaintPointer()
     if chosen_tool >= 0 || retro.key == KEY_ESCAPE { rotation_drag = false; rotation_degrees = 0.0; return }
     if selected_object >= 0 && layers[selected_object].pixels.count == 0 { SelectionClear() }
     if rotation_drag && (rotation_width != canvas_w || rotation_height != canvas_h) { rotation_drag = false; rotation_degrees = 0.0 }
@@ -704,7 +1000,7 @@ SelectionView :: (chosen_tool: s32) {
         }
         if !grabbed {
             x := PictureX(pointer.x); y := PictureY(pointer.y)
-            if pointer.x >= retro.x + cast(float32)canvas_x && pointer.y >= retro.y + cast(float32)canvas_y &&
+            if PointerInCanvas(pointer.x, pointer.y) &&
                 x >= 0 && y >= 0 && x < CANVAS_WIDTH && y < CANVAS_HEIGHT { SelectionChoose(CanvasObjectAt(x, y)) }
         }
     }
@@ -739,19 +1035,19 @@ SelectionView :: (chosen_tool: s32) {
     if rotation_drag && plan.valid {
         preview := PictureRect(plan.x, plan.y, plan.w, plan.h)
         center = Vector2.{preview.x + preview.width / 2.0, preview.y + preview.height / 2.0}
-        Image(retro.session, ImageProps.{.asset_path = selection_below, .bounds = PictureRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)})
+        PicturePart(selection_below, CANVAS_WIDTH, CANVAS_HEIGHT, WHOLE_PAGE)
         object := *selection_source
-        across := cast(float32)canvas_w / cast(float32)CANVAS_WIDTH * scale
-        down := cast(float32)canvas_h / cast(float32)CANVAS_HEIGHT * scale
+        across := ViewScale(picture_view).x * scale
+        down := ViewScale(picture_view).y * scale
         left := -(cast(float32)(selection_source_bounds.x - object.x) + cast(float32)selection_source_bounds.w / 2.0) * across
         top := -(cast(float32)(selection_source_bounds.y - object.y) + cast(float32)selection_source_bounds.h / 2.0) * down
         right := left + cast(float32)object.w * across
         bottom := top + cast(float32)object.h * down
         quad: [4]Vector2 = .[SelectionPoint(left, top, center, degrees), SelectionPoint(right, top, center, degrees),
             SelectionPoint(left, bottom, center, degrees), SelectionPoint(right, bottom, center, degrees)]
-        Image(retro.session, ImageProps.{.asset_path = selection_image, .bounds = PictureRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT),
+        Image(retro.session, ImageProps.{.asset_path = selection_image, .bounds = CanvasScreen(),
             .mesh = ImageMesh.{.columns = 2, .rows = 2, .points = quad[:]}})
-        Image(retro.session, ImageProps.{.asset_path = selection_above, .bounds = PictureRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)})
+        PicturePart(selection_above, CANVAS_WIDTH, CANVAS_HEIGHT, WHOLE_PAGE)
     }
     if rotation_drag { area = PictureRect(selection_source_bounds.x, selection_source_bounds.y, selection_source_bounds.w, selection_source_bounds.h) }
     half_w := area.width * scale / 2.0; half_h := area.height * scale / 2.0
@@ -776,6 +1072,7 @@ PictureNote :: (text: string) {
 
 MainView :: () {
     LayoutMain()
+    PictureViewFrame()
     bounds := AppBounds()
     BookBox(0, 0, cast(s32)bounds.width, cast(s32)bounds.height, 0xe3ece4ff)
     chosen_tool: s32 = -1
@@ -783,29 +1080,34 @@ MainView :: () {
         mirror := placing && index == 6
         label := ifx mirror then "Mirror" else ifx index == 9 then PencilLabel() else button_names[index]
         pressed := ToolButton(20 + index, tool_x[index], tool_y[index], tool_w, tool_h, ToolShape(index), label,
-            (mirror && placement_flip) || (index == 3 && erasing) || (index == 8 && rotating) || (index == 9 && penciling))
+            (mirror && placement_flip) || (index == 3 && erasing) || (index == 8 && rotating) || (index == 9 && penciling) || (index == TOOL_ZOOM && view_panning))
         if pressed && !working_bookkeeping { chosen_tool = index }
     }
     // The chosen crayon, as a dot on the Color tool.
     dot := Clamp(tool_h / 4, 8, 24)
     BookBox(tool_x[1] + tool_w - dot - tool_h / 10, tool_y[1] + tool_h / 10, dot, dot,
         paint_colors[16 + crayon], 0x3e332aff, cast(float32)(dot / 2))
-    if PictureHasPage() && (!working_bookkeeping || working_canvas_state == WORKING_CANVAS_MAKE) { MakeCanvas() }
+    if PictureHasPage() && (!working_bookkeeping || working_canvas_state == WORKING_CANVAS_MAKE) {
+        MakeCanvas()
+        if !dirty { PictureInkRefresh() }
+    }
     frame := Clamp(canvas_w / 120, 3, 8)
     BookBox(canvas_x - frame, canvas_y - frame, canvas_w + frame * 2, canvas_h + frame * 2,
         0xfffcf3ff, 0x704d36ff, cast(float32)(frame * 2))
     name := TextUntilNul(canvas_name[:])
     shown := TextUntilNul(canvas_shown_name[:])
     if PictureHasPage() && shown != "" {
-        RetroSprite(shown, canvas_x, canvas_y, canvas_w, canvas_h, -1, true)
+        PicturePart(shown, CANVAS_WIDTH, CANVAS_HEIGHT, WHOLE_PAGE)
     }
     if PictureHasPage() && name != "" && name != shown {
-        RetroSprite(name, canvas_x, canvas_y, canvas_w, canvas_h, -1, true)
+        PicturePart(name, CANVAS_WIDTH, CANVAS_HEIGHT, WHOLE_PAGE)
     }
+    if PictureHasPage() { PictureInkDraw() }
     if !PictureHasPage() || (name == "" && shown == "") { BookBox(canvas_x, canvas_y, canvas_w, canvas_h, 0xffffffff) }
     press := RetroTap(40, canvas_x, canvas_y, canvas_w, canvas_h, "Picture", true)
     x := PictureX(press.x)
     y := PictureY(press.y)
+    fine := ViewScreenToPage(picture_view, Vector2.{press.x, press.y})
     if placing {
         PlacementView(chosen_tool)
         if retro.key == KEY_ESCAPE { return }
@@ -813,23 +1115,23 @@ MainView :: () {
         canvas_can_fill = false
         SelectionView(chosen_tool)
     } else {
-        pointer := SamplePointer()
+        pointer := PaintPointer()
         if !working_bookkeeping && chosen_tool < 0 && pointer.pressed && !penciling { canvas_can_fill = true }
         if penciling {
             canvas_can_fill = false
-            inside := pointer.x >= retro.x + cast(float32)canvas_x && pointer.y >= retro.y + cast(float32)canvas_y &&
-                pointer.x < retro.x + cast(float32)(canvas_x + canvas_w) && pointer.y < retro.y + cast(float32)(canvas_y + canvas_h)
+            inside := PointerInCanvas(pointer.x, pointer.y)
             if !working_bookkeeping && !pencil_dragging && pointer.pressed && inside {
                 if CanvasPencilCanStroke() {
                     HistoryPush()
-                    pencil_dragging = CanvasPencilStrokeBegin(x, y)
-                    if pencil_dragging { dirty = true }
+                    pencil_dragging = CanvasPencilBeginAt(CanvasPencilPointAt(fine.x, fine.y))
+                    if pencil_dragging { dirty = true; pencil_started_at = retro.now }
                 }
             } else if pencil_dragging {
-                if pointer.down && inside && CanvasPencilStrokeMove(x, y) { dirty = true }
+                if pointer.down && inside && CanvasPencilMoveAt(CanvasPencilPointAt(fine.x, fine.y)) { dirty = true }
                 if pointer.released || !pointer.down {
                     if CanvasPencilStrokeEnd() { WorkingPictureKeep(); Sound("click") }
                     pencil_dragging = false
+                    dirty = true
                 }
             }
         } else if !working_bookkeeping && chosen_tool < 0 && press.clicked && canvas_can_fill {
@@ -856,7 +1158,20 @@ MainView :: () {
             }
         }
     }
+    ZoomControls()
+    if chosen_tool == TOOL_ZOOM {
+        view_panning = !view_panning
+        view_pan_active = false
+        canvas_can_fill = false
+        Sound("click")
+        if !placing {
+            erasing = false; rotating = false; penciling = false; pencil_dragging = false
+            SelectionClear()
+        }
+        return
+    }
     if chosen_tool >= 0 {
+        if chosen_tool != 6 { view_panning = false; view_pan_active = false }
         mirror := placing && chosen_tool == 6
         if mirror { placement_flip = !placement_flip; ChoicesSave(); Sound("click"); return }
         if placing { Notice("Place the stencil first"); return }
@@ -931,9 +1246,9 @@ StencilPickerButton :: (id: s32, x: s32, y: s32, width: s32, label: string, chos
 // Each tile label is measured with the host's fonts once per width and
 // language: it shrinks toward the minimum size, then wraps onto two lines.
 stencil_label_language: s32 = -1;
-stencil_label_available: [55]s32;
-stencil_label_fonts: [55]s32;
-stencil_label_heights: [55]s32;
+stencil_label_available: [PAINT_STENCIL_COUNT]s32;
+stencil_label_fonts: [PAINT_STENCIL_COUNT]s32;
+stencil_label_heights: [PAINT_STENCIL_COUNT]s32;
 
 StencilLabelFit :: (index: s32, available: s32) {
     if stencil_label_language != language {
@@ -1309,6 +1624,7 @@ ConfirmView :: () {
         rotating = false
         HistoryPush()
         CanvasBlank()
+        PictureViewReset()
         scene = -1
         ClearStory()
         dirty = true
@@ -1384,6 +1700,7 @@ GalleryView :: () {
                 if PictureLoad(picture) {
                     if !GalleryStoreSelect(*gallery_store, index, picture) { GalleryStoreDetach(*gallery_store); Notice("Could not save gallery") }
                     placing = false; dragging = false; erasing = false; rotating = false
+                    PictureViewReset()
                     HistoryClear(); story_row = 0; story_column = 0; dirty = true
                     WorkingPictureKeep(); Sound("open"); view = MAIN
                 } else { Notice("Empty or damaged save") }
@@ -1490,6 +1807,14 @@ GameMain :: () -> s32 {
         dino = -1
         canvas_name[0] = 0
         canvas_shown_name[0] = 0
+        ink_page_name[0] = 0
+        ink_tile_name[0] = 0
+        ink_page_stale = true
+        ink_tile_stale = true
+        picture_view_ready = false
+        view_block = false
+        view_panning = false
+        view_pan_active = false
         dirty = true
         ClearStory()
         AppIdentity("jungle.paint")

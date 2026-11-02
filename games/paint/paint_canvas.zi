@@ -10,7 +10,20 @@
 
 INK :: 0
 PAPER :: 15
-BLANK_SCENE :: 26
+BLANK_SCENE :: SCENE_COUNT + 0
+// Saved pictures reserve code 26 for the original blank page forever. New
+// scene codes skip it, while in-memory scene indices remain contiguous.
+SAVED_BLANK_SCENE :: 26
+
+PaintSceneCode :: (index: s32) -> s32 {
+    if index == BLANK_SCENE { return SAVED_BLANK_SCENE }
+    return ifx index >= SAVED_BLANK_SCENE then index + 1 else index
+}
+
+PaintSceneFromCode :: (code: s32) -> s32 {
+    if code == SAVED_BLANK_SCENE { return BLANK_SCENE }
+    return ifx code > SAVED_BLANK_SCENE then code - 1 else code
+}
 
 canvas: [CANVAS_PIXELS]u8;
 stamp: [CANVAS_PIXELS]bool;
@@ -24,7 +37,12 @@ fill_stack: [CANVAS_PIXELS]s32;
 LAYER_LIMIT :: 32
 LAYER_PIXELS :: CANVAS_PIXELS * 2
 TRANSPARENT :: 255
-PaintLayer :: struct { x: s32; y: s32; w: s32; h: s32; start: s32; pixels: []u8; }
+// How a stencil's vector art lies on the page: x' = a x + c y + e, y' = b x + d y + f,
+// in the page space of its Huge mask (see tools/paint_vectors.py).
+PaintMatrix :: struct { a: float32; b: float32; c: float32; d: float32; e: float32; f: float32; }
+// art is the stencil's number from 1. Objects saved before vector outlines have
+// 0, and keep their page pixels as their lines.
+PaintLayer :: struct { x: s32; y: s32; w: s32; h: s32; start: s32; pixels: []u8; art: s32; matrix: PaintMatrix; }
 PENCIL_SCALE :: 8
 PENCIL_WIDTH :: 4
 PENCIL_WIDTH_UNITS :: PENCIL_WIDTH * PENCIL_SCALE
@@ -82,7 +100,7 @@ CanvasObjectAt :: (x: s32, y: s32) -> s32 {
 
 // Preparing a rotation never changes the document. The editor can push one
 // Undo record only after it knows a release will actually change pixels.
-PaintRotation :: struct { id: s32; x: s32; y: s32; w: s32; h: s32; start: s32; scale: float32; degrees: float32; valid: bool; changed: bool; }
+PaintRotation :: struct { id: s32; x: s32; y: s32; w: s32; h: s32; start: s32; scale: float32; degrees: float32; valid: bool; changed: bool; matrix: PaintMatrix; }
 PaintExtent :: struct { x: s32; y: s32; w: s32; h: s32; }
 
 CanvasObjectBounds :: (id: s32) -> PaintExtent {
@@ -150,6 +168,10 @@ CanvasRotationPrepareFrom :: (id: s32, degrees: float32, extent: PaintExtent, so
     }
     w := result.w; h := result.h
     sine := SineDegrees(result.degrees); cosine := CosineDegrees(result.degrees)
+    result.matrix = ifx result.degrees == 0.0 then source.matrix else PaintMatrixRotated(source.matrix,
+        Vector2.{cast(float32)extent.x + cast(float32)extent.w / 2.0, cast(float32)extent.y + cast(float32)extent.h / 2.0},
+        Vector2.{cast(float32)result.x + cast(float32)w / 2.0, cast(float32)result.y + cast(float32)h / 2.0},
+        result.scale, result.degrees)
     // Inverse sampling preserves indexed colors and transparent cut-outs;
     // uncovered corners are transparent, never paper or background paint.
     for py: cast(s32)0..h - 1 {
@@ -177,6 +199,7 @@ CanvasRotationCommit :: (rotation: PaintRotation) -> bool {
     w := rotation.w; h := rotation.h
     layer_pixels += w * h - object.w * object.h
     object.x = rotation.x; object.y = rotation.y; object.w = w; object.h = h; object.start = rotation.start
+    object.matrix = rotation.matrix
     offset := object.start % CANVAS_PIXELS
     object.pixels = layer_storage[object.start / CANVAS_PIXELS][offset:offset + w * h]
     for at: cast(s32)0..w * h - 1 { object.pixels[at] = rotate_pixels[at] }
@@ -313,6 +336,10 @@ CanvasStampDino :: (dino: s32, size: s32, x: s32, y: s32, flip: bool) {
     while layers[id].pixels.count != 0 { id += 1 }
     object := *layers[id]
     object.x = x; object.y = y; object.w = w; object.h = h
+    huge_w := cast(float32)DinoWidth(dino, DINO_SIZES); huge_h := cast(float32)DinoHeight(dino, DINO_SIZES)
+    object.art = dino + 1
+    object.matrix = PaintMatrix.{cast(float32)w / huge_w, 0.0, 0.0, cast(float32)h / huge_h, cast(float32)x, cast(float32)y}
+    if flip { object.matrix.a = -object.matrix.a; object.matrix.e += cast(float32)w }
     object.start = CanvasLayerSpace(w * h)
     object.pixels = layer_storage[object.start / CANVAS_PIXELS][object.start % CANVAS_PIXELS:object.start % CANVAS_PIXELS + w * h]
     for ty: cast(s32)0..h - 1 {
@@ -330,6 +357,28 @@ CanvasStampDino :: (dino: s32, size: s32, x: s32, y: s32, flip: bool) {
     layer_order[layer_count] = id
     layer_count += 1
     layer_pixels += w * h
+}
+
+// Where a stencil's art lies when its center is at center, as the masks are sampled.
+PaintMatrixPlaced :: (center: Vector2, width: float32, height: float32, scale: float32, degrees: float32, flip: bool) -> PaintMatrix {
+    sine := SineDegrees(degrees); cosine := CosineDegrees(degrees)
+    a := scale * cosine; b := scale * sine; c := -scale * sine; d := scale * cosine
+    result := PaintMatrix.{a, b, c, d, center.x - a * width / 2.0 - c * height / 2.0, center.y - b * width / 2.0 - d * height / 2.0}
+    if flip {
+        result.e += result.a * width; result.f += result.b * width
+        result.a = -result.a; result.b = -result.b
+    }
+    return result
+}
+
+// The art after turning and scaling its page about from_center onto to_center.
+PaintMatrixRotated :: (source: PaintMatrix, from_center: Vector2, to_center: Vector2, scale: float32, degrees: float32) -> PaintMatrix {
+    sine := SineDegrees(degrees); cosine := CosineDegrees(degrees)
+    ra := scale * cosine; rb := scale * sine; rc := -scale * sine; rd := scale * cosine
+    ex := source.e - from_center.x; ey := source.f - from_center.y
+    return PaintMatrix.{ra * source.a + rc * source.b, rb * source.a + rd * source.b,
+        ra * source.c + rc * source.d, rb * source.c + rd * source.d,
+        ra * ex + rc * ey + to_center.x, rb * ex + rd * ey + to_center.y}
 }
 
 PlacementClamp :: (value: s32, low: s32, high: s32) -> s32 {
@@ -439,6 +488,9 @@ CanvasPlacementCommit :: (plan: PaintPlacement) -> bool {
     while layers[id].pixels.count != 0 { id += 1 }
     object := *layers[id]
     object.x = plan.x; object.y = plan.y; object.w = plan.w; object.h = plan.h; object.start = plan.start
+    object.art = plan.dino + 1
+    object.matrix = PaintMatrixPlaced(Vector2.{cast(float32)plan.x + cast(float32)plan.w / 2.0, cast(float32)plan.y + cast(float32)plan.h / 2.0},
+        cast(float32)DinoWidth(plan.dino, DINO_SIZES), cast(float32)DinoHeight(plan.dino, DINO_SIZES), plan.scale, plan.degrees, plan.flip)
     offset := plan.start % CANVAS_PIXELS
     object.pixels = layer_storage[plan.start / CANVAS_PIXELS][offset:offset + plan.w * plan.h]
     for at: cast(s32)0..plan.w * plan.h - 1 { object.pixels[at] = rotate_pixels[at] }
@@ -476,22 +528,24 @@ CanvasPencilStamp :: (x: s32, y: s32) {
 }
 
 CanvasPencilSegment :: (start: PencilPoint, end: PencilPoint) {
-    x := start.x; y := start.y
-    dx := end.x - x; dy := end.y - y
+    // Points may hold fractions of a pixel; the page's INK steps in whole pixels.
+    x := start.x / PENCIL_SCALE; y := start.y / PENCIL_SCALE
+    end_x := end.x / PENCIL_SCALE; end_y := end.y / PENCIL_SCALE
+    dx := end_x - x; dy := end_y - y
     step_x: s32 = 1; if dx < 0 { step_x = -1; dx = -dx }
     step_y: s32 = 1; if dy < 0 { step_y = -1; dy = -dy }
     error := dx - dy
     while true {
-        CanvasPencilStamp(x / PENCIL_SCALE, y / PENCIL_SCALE)
-        if x == end.x && y == end.y { break }
+        CanvasPencilStamp(x, y)
+        if x == end_x && y == end_y { break }
         twice := error * 2
         if twice > -dy {
             error -= dy
-            x += step_x * PENCIL_SCALE
+            x += step_x
         }
         if twice < dx {
             error += dx
-            y += step_y * PENCIL_SCALE
+            y += step_y
         }
     }
 }
@@ -500,9 +554,18 @@ CanvasPencilPoint :: (x: s32, y: s32) -> PencilPoint {
     return PencilPoint.{x * PENCIL_SCALE + PENCIL_SCALE / 2, y * PENCIL_SCALE + PENCIL_SCALE / 2}
 }
 
+// A point of a line in fractions of a page pixel, for a zoomed picture.
+CanvasPencilPointAt :: (x: float32, y: float32) -> PencilPoint {
+    return PencilPoint.{FloorInteger(x * cast(float32)PENCIL_SCALE), FloorInteger(y * cast(float32)PENCIL_SCALE)}
+}
+
 CanvasPencilStrokeBegin :: (x: s32, y: s32) -> bool {
-    if !CanvasPencilCanStroke() || !CanvasPencilInside(x, y) { return false }
-    point := CanvasPencilPoint(x, y)
+    return CanvasPencilBeginAt(CanvasPencilPoint(x, y))
+}
+
+CanvasPencilBeginAt :: (point: PencilPoint) -> bool {
+    x := point.x / PENCIL_SCALE; y := point.y / PENCIL_SCALE
+    if !CanvasPencilCanStroke() || point.x < 0 || point.y < 0 || !CanvasPencilInside(x, y) { return false }
     pencil_points[pencil_point_count] = point
     pencil_strokes[pencil_stroke_count] = PencilStroke.{pencil_point_count, 1, PENCIL_WIDTH_UNITS}
     pencil_point_count += 1
@@ -512,10 +575,14 @@ CanvasPencilStrokeBegin :: (x: s32, y: s32) -> bool {
 }
 
 CanvasPencilStrokeMove :: (x: s32, y: s32) -> bool {
-    if pencil_stroke_count == 0 || pencil_point_count >= PENCIL_POINT_LIMIT || !CanvasPencilInside(x, y) { return false }
+    return CanvasPencilMoveAt(CanvasPencilPoint(x, y))
+}
+
+CanvasPencilMoveAt :: (point: PencilPoint) -> bool {
+    if point.x < 0 || point.y < 0 { return false }
+    if pencil_stroke_count == 0 || pencil_point_count >= PENCIL_POINT_LIMIT || !CanvasPencilInside(point.x / PENCIL_SCALE, point.y / PENCIL_SCALE) { return false }
     stroke := pencil_strokes[pencil_stroke_count - 1]
     previous := pencil_points[stroke.first + stroke.count - 1]
-    point := CanvasPencilPoint(x, y)
     if previous.x == point.x && previous.y == point.y { return true }
     pencil_points[pencil_point_count] = point
     pencil_point_count += 1
@@ -537,6 +604,11 @@ CanvasPencilRenderAll :: () {
         }
         if stroke.count == 1 { CanvasPencilStamp(pencil_points[stroke.first].x / PENCIL_SCALE, pencil_points[stroke.first].y / PENCIL_SCALE) }
     }
+}
+
+// A matrix number in the display host's units; see host/paint_view.zi.
+PaintVectorUnits :: (value: float32) -> s64 {
+    return cast(s64)FloorInteger(value * 65536.0 + 0.5)
 }
 
 CanvasText :: () -> string {

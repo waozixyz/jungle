@@ -1,5 +1,6 @@
 #import, file "../host/audio_levels.zi";
 #import, file "../host/paint_preview.zi";
+#import, file "../host/paint_view.zi";
 // A compiled browser launcher for the same Jungle activity modules.
 #import "app_context"
 #import "app_protocol"
@@ -191,6 +192,46 @@ ToggleAudio :: () {
     unused Runner.DocumentWriteHost("settings/sound.txt", ifx web_muted then "off" else "quiet")
 }
 
+// The outlines are embedded in the program, so reading one never waits.
+PaintViewWebRead :: (path: string) -> string {
+    data, found := ReadEntireFile(Cat("/", path))
+    return ifx found then data else ""
+}
+
+canvas_ink_sequences: [2]s32;
+CanvasInk :: (request: string, kind: s32) -> string {
+    data := PaintViewInkPng(request, PaintViewWebRead)
+    if data == "" { return "" }
+    prefix := ifx kind == 0 then "canvas-ink-" else "canvas-tile-"
+    canvas_ink_sequences[kind] += 1
+    name := Cat(prefix, NumberText(canvas_ink_sequences[kind]), ".png")
+    if !WriteEntireFile(Cat("/", name), data) { return "" }
+    if canvas_ink_sequences[kind] > 4 { unused RemoveFile(Cat("/", prefix, NumberText(canvas_ink_sequences[kind] - 4), ".png")) }
+    return name
+}
+
+CanvasColors :: (request: string) -> string {
+    if PictureFromGame(request, export_pixels[:]) != request.count { return "" }
+    data := PaintViewColorsPng(export_pixels[:])
+    if data == "" { return "" }
+    canvas_sequence += 1
+    name := Cat("canvas-", NumberText(canvas_sequence), ".png")
+    if !WriteEntireFile(Cat("/", name), data) { return "" }
+    if canvas_sequence > 24 { unused RemoveFile(Cat("/canvas-", NumberText(canvas_sequence - 24), ".png")) }
+    return name
+}
+
+// "<count> <x0> <y0> <x1> <y1> <wheel> <density>" in thousandths.
+WebPaintTouches :: () -> string {
+    count := GetTouchPointCount()
+    a := ifx count > 0 then GetTouchPosition(0) else Vector2.{}
+    b := ifx count > 1 then GetTouchPosition(1) else Vector2.{}
+    text: Vec(u8)
+    BuilderPrint(*text, "% % % % % % 1000", count, cast(s64)(a.x * 1000.0), cast(s64)(a.y * 1000.0),
+        cast(s64)(b.x * 1000.0), cast(s64)(b.y * 1000.0), cast(s64)(GetMouseWheelMove() * 1000.0))
+    return BuilderFinish(text)
+}
+
 CanvasImage :: (request: string, preview: bool = false) -> string {
     data: string
     if preview { data = PaintPreviewPng(request) }
@@ -304,6 +345,15 @@ WebService :: (name: string, request: string) -> string {
         return "played"
     }
     if name == "jungle.canvas" { return CanvasImage(request) }
+    if name == "jungle.paint-ops" {
+        same := PaintViewOpsSame(request)
+        ok := PaintViewOpsSet(request, PaintViewWebRead)
+        return ifx !ok then "failed" else ifx same then "same" else "changed"
+    }
+    if name == "jungle.paint-colors" { return CanvasColors(request) }
+    if name == "jungle.paint-ink" { return CanvasInk(request, 0) }
+    if name == "jungle.paint-tile" { return CanvasInk(request, 1) }
+    if name == "jungle.touches" { return WebPaintTouches() }
     if name == "jungle.paint-preview" { return CanvasImage(request, true) }
     if name == "jungle.export" || name == "jungle.print" { return WebExport(request, name == "jungle.print") }
     return "{\"status\":\"unavailable\"}"

@@ -9,6 +9,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 from book_catalog import NAMES, BOOKS, LANGUAGES, WORDS, narration, voice_path
 
 from PIL import Image, ImageChops
+from paint_pages import dinosaur as stencil_source, render, fit, CANVAS
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -116,9 +117,9 @@ def main():
     for number in range(1, 31):
         svg = (ROOT / f"art/paint/dino{number}.svg").read_text()
         assert '<path id="body" fill="#fff"' in svg and ('<path id="ink" fill="#000"' in svg or '<g id="ink"' in svg)
-        with Image.open(art / f"dino{number}.png") as dinosaur, Image.open(art / f"dino{number}-flip.png") as flipped:
-            assert 720 in dinosaur.size or 960 in dinosaur.size, "placement picture is not the Huge size"
-            assert dinosaur.transpose(Image.Transpose.FLIP_LEFT_RIGHT).tobytes() == flipped.tobytes()
+        _, width, height, _, _ = stencil_source(number)
+        with render(svg, *fit(width, height, *CANVAS)) as dinosaur:
+            assert 720 in dinosaur.size or 960 in dinosaur.size, "vector source has the wrong page space"
             red, green, blue, alpha = dinosaur.convert("RGBA").split()
             opaque = alpha.point(lambda v: 255 if v == 255 else 0)
             lightest = ImageChops.darker(ImageChops.darker(red, green), blue).point(lambda v: 255 if v > 240 else 0)
@@ -128,7 +129,7 @@ def main():
             assert ImageChops.multiply(opaque, darkest).histogram()[255] > 1000, "dinosaur lost its ink"
             assert levels[0] > 10000, "dinosaur erased its surrounding scenery"
             assert sum(levels[1:255]) > 100, "dinosaur edges are not smooth"
-        for kind in ("thumb", "preview"):
+        for kind in ("preview",):
             with Image.open(art / f"dino{number}-{kind}.png") as picture:
                 assert picture.mode == "RGBA" and picture.getbbox()
         if number <= 12:

@@ -31,6 +31,8 @@ APP := build/app
 # Installed shared assets, their manifest and each game's staged bundle files.
 SHARED := $(APP)/assets/shared-assets.txt $(APP)/assets/speech.txt
 STAGED_GAMES := jungle-book jungle-abc jungle-numbers animal-count dino-paint jungle-shapes jungle-hide-seek jungle-drums jungle-garden
+# Matching Pairs ships only the hidden paper's chime.
+STAGED_GAMES += jungle-matching
 # Folders too: removing a file changes its folder's time, so staging reruns.
 SHARED_SOURCES := $(shell find assets/jungle assets/jungle-book $(addprefix assets/,abc numbers animal-count dino-paint shapes hide_seek drums garden jigsaw) 2>/dev/null)
 GAMES := $(APP)/games/jungle-garden.zx $(APP)/games/jungle-drums.zx $(APP)/games/jungle-hide-seek.zx $(APP)/games/jungle-matching.zx $(APP)/games/jungle-shapes.zx $(APP)/games/jungle-book.zx $(APP)/games/jungle-abc.zx $(APP)/games/jungle-numbers.zx $(APP)/games/animal-count.zx $(APP)/games/dino-paint.zx $(APP)/games/jungle-jigsaw.zx $(APP)/games/jungle-piano.zx
@@ -130,10 +132,10 @@ $(APP)/games/jungle-shapes.zx: $(wildcard games/shapes/*.zi retro/*.zi) build/st
 	'$(ZIRANC)' bundle --root games/shapes $(MODULES) --define KRYON_HOSTED_UI \
 		--asset-dir assets=build/stage/jungle-shapes/assets --entry jungle_shapes:main -o $@ games/shapes/jungle_shapes.zi
 
-$(APP)/games/jungle-matching.zx: $(wildcard games/matching/*.zi retro/*.zi) $(shell find assets/matching -type f 2>/dev/null)
+$(APP)/games/jungle-matching.zx: $(wildcard games/matching/*.zi retro/*.zi) build/stage/jungle-matching.files
 	mkdir -p $(APP)/games
 	'$(ZIRANC)' bundle --root games/matching $(MODULES) --define KRYON_HOSTED_UI \
-		--entry jungle_matching:main -o $@ games/matching/jungle_matching.zi
+		--asset-dir assets=build/stage/jungle-matching/assets --entry jungle_matching:main -o $@ games/matching/jungle_matching.zi
 
 $(APP)/games/jungle-hide-seek.zx: $(wildcard games/hide_seek/*.zi retro/*.zi) build/stage/jungle-hide-seek.files
 	mkdir -p $(APP)/games
@@ -160,9 +162,9 @@ art: build/tools/art
 	python3 tools/counting_art.py
 	python3 tools/menu_art.py
 	python3 tools/branding.py
-	python3 tools/dino_art.py
-	python3 tools/paint_scenes.py
+	python3 tools/paint_catalog.py --art
 	python3 tools/paint_pages.py
+	python3 tools/paint_vectors.py
 
 # Sound effects into assets/ (committed).
 sounds: build/tools/sounds
@@ -186,7 +188,7 @@ build/tests/%: tests/%_test.zi $(wildcard games/*/*.zi host/*.zi retro/*.zi) bui
 		build/ziran/libziran.a -Wl,--gc-sections -lm -lpthread $(TEST_LIBS) -o $@
 
 # Questions, painting and PNG pictures, then every game opened in the app.
-test: build/tests/title build/tests/paint_preview build/tests/paint_gallery build/tests/paint_gallery_store build/tests/counting_exercises build/tests/paint_layers build/tests/garden build/tests/drums build/tests/hide_seek build/tests/matching build/tests/shapes build/tests/paint build/tests/paint_history build/tests/png build/tests/progress build/tests/document build/tests/counting build/tests/abc build/tests/numbers build/tests/printing build/tests/audio build/tests/voice build/tests/book_preferences build/tests/book_narration build/tests/book_collect build/tests/collection build/tests/paper build/tests/jigsaw build/tests/piano all
+test: build/tests/title build/tests/paint_preview build/tests/paint_gallery build/tests/paint_gallery_store build/tests/counting_exercises build/tests/paint_layers build/tests/paint_view build/tests/garden build/tests/drums build/tests/hide_seek build/tests/matching build/tests/shapes build/tests/paint build/tests/paint_history build/tests/png build/tests/progress build/tests/document build/tests/counting build/tests/abc build/tests/numbers build/tests/printing build/tests/audio build/tests/voice build/tests/book_preferences build/tests/book_narration build/tests/book_collect build/tests/collection build/tests/paper build/tests/jigsaw build/tests/piano all
 	python3 tools/title_scenes.py --check
 	python3 tests/title_guide_test.py
 	python3 tests/title_scenes_test.py
@@ -207,10 +209,13 @@ test: build/tests/title build/tests/paint_preview build/tests/paint_gallery buil
 	build/tests/document
 	build/tests/paint_history
 	build/tests/paint_layers
+	build/tests/paint_view
 	build/tests/paint_gallery
 	build/tests/paint_gallery_store
 	python3 tests/paint_preview_test.py
 	python3 tests/paint_catalog_test.py
+	python3 tests/paint_vectors_test.py
+	python3 tests/paint_stencil_regions_test.py
 	build/tests/counting
 	build/tests/counting_exercises
 	build/tests/abc
@@ -274,6 +279,7 @@ test-ui: all
 	python3 tests/slot_preview_test.py
 	python3 tests/paint_layers_test.py
 	python3 tests/paint_history_test.py
+	python3 tests/paint_zoom_ui_test.py
 	python3 tests/paint_library_test.py
 	python3 tests/language_ui_test.py
 

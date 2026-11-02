@@ -2,6 +2,7 @@
 #import, file "../games/paint/paint_document.zi";
 #import, file "../games/paint/paint_canvas.zi";
 #import, file "../games/paint/paint_picture.zi";
+#import, file "../games/paint/paint_pages.zi";
 #import, file "../host/platform.zi";
 #import, file "../host/jungle_text.zi";
 
@@ -184,6 +185,70 @@ PencilPersistenceUndo :: () -> s32 {
     return 0
 }
 
+Close :: (a: float32, b: float32) -> bool { return a - b < 0.01 && b - a < 0.01 }
+
+// Every placed object records where its vector art lies, through saving,
+// loading, rotating and Undo; older saves keep their page pixels as lines.
+VectorRecordTests :: () -> s32 {
+    unused SceneOpen(0)
+    scene = 0
+    wide := DinoWidth(0, DINO_SIZES)
+    CanvasStampDino(0, 2, 100, 100, false)
+    CanvasStampDino(0, 2, 300, 100, true)
+    object := layers[0]
+    if object.art != 1 || !Close(object.matrix.e, 100.0) || !Close(object.matrix.f, 100.0) ||
+        !Close(object.matrix.a, cast(float32)object.w / cast(float32)wide) { return 100 }
+    mirrored := layers[1]
+    if mirrored.matrix.a >= 0.0 || !Close(mirrored.matrix.e, cast(float32)(300 + mirrored.w)) { return 101 }
+    placed := CanvasPlacement(0, 500, 400, 240, 90.0, false)
+    if !CanvasPlacementPrepare(placed) || !CanvasPlacementCommit(placed) { return 102 }
+    turned := layers[2].matrix
+    // A right angle swaps the art's axes about the object's center.
+    if !Close(turned.a, 0.0) || !Close(turned.d, 0.0) || turned.b <= 0.0 || turned.c >= 0.0 { return 103 }
+    record := PictureText()
+    if !PictureValid(record) || !PictureLoad(record) || PictureText() != record { return 104 }
+    if layers[2].art != 1 || !Close(layers[2].matrix.b, turned.b) || !Close(layers[2].matrix.e, turned.e) { return 105 }
+    // Turning an object turns its art's middle about its own middle.
+    bounds := CanvasObjectBounds(0)
+    before := layers[0].matrix
+    middle_x := before.a * cast(float32)wide / 2.0 + before.e
+    rotation := CanvasRotationPrepareFrom(0, 90.0, bounds, layers[0])
+    if !rotation.valid || !CanvasRotationCommit(rotation) { return 106 }
+    if !Close(layers[0].matrix.a, 0.0) || layers[0].art != 1 { return 107 }
+    if !PictureLoad(record) || !Close(layers[0].matrix.a, before.a) { return 108 }
+    // A damaged record is refused whole, and a missing one means older objects.
+    at := 0
+    marker := -1
+    while at + VECTOR_HEADER.count <= record.count {
+        if record[at:at + VECTOR_HEADER.count] == VECTOR_HEADER { marker = cast(s32)at; break }
+        at += 1
+    }
+    if marker < 0 { return 109 }
+    if PictureValid(Cat(record[:marker + VECTOR_HEADER.count], "x")) { return 110 }
+    older := record[:marker]
+    if !PictureValid(older) || !PictureLoad(older) { return 111 }
+    if layer_count != 3 || layers[0].art != 0 || layers[2].art != 0 { return 112 }
+    if CanvasColorAt(object.x + object.w / 2, object.y + object.h / 2) == TRANSPARENT { return 113 }
+    if CanvasVectorOps()[4] != #char "X" { return 114 }
+    // Undo brings the art back with its object.
+    unused SceneOpen(0)
+    HistoryClear()
+    CanvasStampDino(0, 2, 100, 100, false)
+    HistoryPush()
+    CanvasStampDino(0, 2, 300, 100, false)
+    if !HistoryUndo() || layer_count != 1 || layers[0].art != 1 { return 115 }
+    // Pencil lines may hold fractions of a pixel in a picture's record.
+    CanvasBlank(); HistoryClear()
+    scene = BLANK_SCENE
+    if !CanvasPencilBeginAt(CanvasPencilPointAt(10.25, 20.5)) || !CanvasPencilMoveAt(CanvasPencilPointAt(30.75, 20.5)) { return 116 }
+    if pencil_points[0].x != 82 || pencil_points[0].y != 164 || pencil_points[1].x != 246 { return 117 }
+    fine := PictureText()
+    if !PictureValid(fine) || !PictureLoad(fine) || pencil_points[1].x != 246 { return 118 }
+    if CanvasPencilBeginAt(PencilPoint.{-1, 0}) || CanvasPencilMoveAt(PencilPoint.{-1, 0}) { return 119 }
+    CanvasBlank()
+    return 0
+}
+
 PlacementTests :: () -> s32 {
     CanvasBlank(); HistoryClear()
     original := PictureText()
@@ -326,6 +391,8 @@ main :: () -> s32 {
     if rotation != 0 { return Fail(rotation) }
     pencil := PencilPersistenceUndo()
     if pencil != 0 { return Fail(pencil) }
+    vector := VectorRecordTests()
+    if vector != 0 { return Fail(vector) }
     Report("local paint layers model test passed: overlap, paint, transparency, undo/reload, legacy, 32 objects, pixel budget and rotation\n")
     return 0
 }

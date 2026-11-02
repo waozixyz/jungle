@@ -7,6 +7,7 @@
 #import "kryon/key_input"
 #import "kryon/input_protocol"
 #import "kryon/frame_snapshot"
+#import "kryon/raylib_runtime"
 #import, file "../host/platform.zi";
 #import, file "../host/sound.zi";
 #import, file "../host/jungle_host.zi";
@@ -30,6 +31,8 @@ Frame :: (session: Session, viewport: Rectangle) -> s32 {
     }
     // Back leaves a game for the menu.
     if key == JUNGLE_BACK_KEY { home_requested = true; key = 0 }
+    paint_touch_count = RaylibTouches(paint_touches[:])
+    paint_density = RaylibZoom()
     typed: [256]u8
     text := TypedTextTake(session, typed[:])
     if !GameFrame(viewport, PointerSample(session), SecondaryPointerFrame.{}, key, 0, 0.0, text, JungleSeconds(), CaptureFrameInput(session)) {

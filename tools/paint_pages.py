@@ -7,7 +7,9 @@ Scenes become 960 by 720 line masks. Each dinosaur becomes ink and body
 masks in its four sizes, rendered from its SVG at that size so every size
 keeps smooth lines. Masks are runs of paper and ink in the digits of
 games/paint/paint_runs.zi, split into lines the compiler accepts. Picker
-thumbnails and the placement picture are smooth RGBA renderings.
+and placement previews are small smooth RGBA renderings. The full-size
+outlines are KVP1 vectors compiled by tools/paint_vectors.py; do not ship full
+raster copies, mirrored copies, or unused thumbnails.
 """
 import io
 from pathlib import Path
@@ -98,10 +100,6 @@ def main():
             # Lines keep pixels they half cover; the body keeps whole ones.
             add(numpy.asarray(render(ink, w, h).getchannel('A')) >= 96)
             add(numpy.asarray(render(body, w, h).getchannel('A')) >= 128)
-        huge = render(svg, widths[-1], heights[-1])
-        huge.save(ASSETS / f'dino{index}.png', optimize=True)
-        huge.transpose(Image.Transpose.FLIP_LEFT_RIGHT).save(ASSETS / f'dino{index}-flip.png', optimize=True)
-        render(svg, *fit(width, height, 272, 184)).save(ASSETS / f'dino{index}-thumb.png', optimize=True)
         render(svg, *fit(width, height, 240, 376)).save(ASSETS / f'dino{index}-preview.png', optimize=True)
     starts.append(len(pieces))
 

@@ -17,7 +17,7 @@ from pathlib import Path
 import sys
 
 import numpy
-from PIL import Image, ImageDraw, ImageFilter
+from PIL import Image, ImageDraw, ImageFilter, ImageOps
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'art/paint'
@@ -194,8 +194,14 @@ def components(image):
     return result
 
 
-def silhouette(outline):
+def silhouette(outline, close_gaps=True):
     """Everything an outline encloses, outline included."""
+    if not close_gaps:
+        # Chosen collectible outlines already close their regions. Morphological
+        # closing would add white rims and bridge spaces between fine features.
+        outside = outline.point(lambda value: 0 if value >= 128 else 255)
+        ImageDraw.floodfill(outside, (0, 0), 128)
+        return outside.point(lambda value: 0 if value == 128 else 255)
     closed = outline.filter(ImageFilter.MaxFilter(7))
     outside = closed.point(lambda v: 0 if v else 255)
     ImageDraw.floodfill(outside, (0, 0), 128)
@@ -238,6 +244,60 @@ def scene(sheet, index):
     return trace(ink, SCENE_SIZE[0] / width, SCENE_SIZE[1] / height)
 
 
+def stencil_svg(source, reinforce=True):
+    """Trace a chosen stencil once into closed cubic curves and its body.
+
+    Approved collectible ink already has the desired outline weight; it uses
+    reinforce=False to retain those exact outlines rather than add a border.
+    """
+    with Image.open(source) as image:
+        rgba = image.convert('RGBA')
+        paper = Image.new('RGBA', rgba.size, 'white')
+        paper.alpha_composite(rgba)
+        ink = paper.convert('L').point(lambda value: 255 if value < 160 else 0)
+    bounds = ink.getbbox()
+    assert bounds, f'Empty stencil: {source}'
+    ink = ink.crop(bounds)
+    ink.thumbnail((960, 960), Image.Resampling.LANCZOS)
+    margin = 12
+    outline = Image.new('L', (ink.width + margin * 2, ink.height + margin * 2))
+    outline.paste(ink, (margin, margin))
+    body = silhouette(outline, close_gaps=reinforce)
+    width, height = outline.size
+    body_path = trace(body.point(lambda value: 255 if value else 0, mode='1'))
+    ink_path = trace(outline.point(lambda value: 255 if value >= 128 else 0, mode='1'))
+    reinforcement = (
+        f'<path d="{body_path}" fill="none" stroke="#000" stroke-width="10" '
+        f'stroke-linejoin="round"/>\n' if reinforce else '')
+    return (
+        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}" '
+        f'width="{width}" height="{height}">\n'
+        f'<path id="body" fill="#fff" fill-rule="evenodd" d="{body_path}"/>\n'
+        f'<g id="ink" fill="#000" fill-rule="evenodd">\n'
+        f'<path d="{ink_path}"/>\n'
+        f'{reinforcement}</g>\n</svg>\n')
+
+
+def scene_svg(source, preserve_frame=False):
+    """Compile scene ink, optionally fitting the entire approved composition."""
+    width, height = SCENE_SIZE
+    with Image.open(source) as image:
+        rgba = image.convert('RGBA')
+        paper = Image.new('RGBA', rgba.size, 'white')
+        paper.alpha_composite(rgba)
+        resize = ImageOps.pad if preserve_frame else ImageOps.fit
+        fitted = resize(paper.convert('L'), SCENE_SIZE,
+                        method=Image.Resampling.LANCZOS, **({'color': 'white'} if preserve_frame else {}))
+        ink = fitted.point(lambda value: 255 if value < 160 else 0, mode='1')
+    if not ink.getbbox():
+        raise ValueError(f'Empty scene: {source}')
+    path = trace(ink)
+    return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}" '
+            f'width="{width}" height="{height}">\n'
+            f'<rect width="{width}" height="{height}" fill="#fff"/>\n'
+            f'<path id="ink" fill="#000" fill-rule="evenodd" d="{path}"/>\n</svg>\n')
+
+
 def standalone_stencils(indices=None):
     """Trace selected one-based asset IDs, or all standalone stencil sources."""
     manifest = json.loads((ROOT / 'tools/coloring_stencils.json').read_text())
@@ -256,30 +316,7 @@ def standalone_stencils(indices=None):
     for item in items:
         index = item['index']
         source = ROOT / 'art/generated/coloring-stencils' / (item['name'] + '.png')
-        with Image.open(source) as image:
-            rgba = image.convert('RGBA')
-            paper = Image.new('RGBA', rgba.size, 'white')
-            paper.alpha_composite(rgba)
-            ink = paper.convert('L').point(lambda value: 255 if value < 160 else 0)
-        bounds = ink.getbbox()
-        assert bounds, f'Empty stencil: {source}'
-        ink = ink.crop(bounds)
-        ink.thumbnail((960, 960), Image.Resampling.LANCZOS)
-        margin = 12
-        outline = Image.new('L', (ink.width + margin * 2, ink.height + margin * 2))
-        outline.paste(ink, (margin, margin))
-        body = silhouette(outline)
-        width, height = outline.size
-        body_path = trace(body.point(lambda value: 255 if value else 0, mode='1'))
-        ink_path = trace(outline.point(lambda value: 255 if value >= 128 else 0, mode='1'))
-        (OUT / f'dino{index}.svg').write_text(
-            f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}" '
-            f'width="{width}" height="{height}">\n'
-            f'<path id="body" fill="#fff" fill-rule="evenodd" d="{body_path}"/>\n'
-            f'<g id="ink" fill="#000" fill-rule="evenodd">\n'
-            f'<path d="{ink_path}"/>\n'
-            f'<path d="{body_path}" fill="none" stroke="#000" stroke-width="10" '
-            f'stroke-linejoin="round"/>\n</g>\n</svg>\n')
+        (OUT / f'dino{index}.svg').write_text(stencil_svg(source, item.get('reinforce', True)))
     print(f'Traced {len(items)} individual stencils.')
 
 

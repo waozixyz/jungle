@@ -23,7 +23,11 @@ GameSecondaryDown :: () -> bool {
 // Turns a picture's text (see games/paint/paint_picture.zi) into a file the
 // game can show; returns its name, or "" when the app cannot make one.
 GameCanvas :: (pixels: string) -> string {
-    name := AppService("jungle.canvas", pixels)
+    return GameCanvasService("jungle.canvas", pixels)
+}
+// A host service that writes a picture and names it.
+GameCanvasService :: (service: string, request: string) -> string {
+    name := AppService(service, request)
     if name.count < 8 || name[:7] != "canvas-" { return "" }
     #if #defined(PLATFORM_WEB) {
         return AppAssetPath(name)

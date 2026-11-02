@@ -14,6 +14,7 @@ STORY_COLUMNS :: 38
 PICTURE_HEADER :: "JUNGLE PICTURE 2\n"
 LAYER_HEADER :: "JUNGLE PICTURE 3\n"
 PENCIL_HEADER :: "JUNGLE PENCIL 1\n"
+VECTOR_HEADER :: "JUNGLE VECTOR 1\n"
 // Version 1 kept 240 by 180 pixels, one letter each, then a line mask.
 OLD_HEADER :: "JUNGLE PICTURE 1\n"
 PICTURE_STORY :: STORY_LINES * (STORY_COLUMNS + 1)
@@ -41,7 +42,7 @@ StoryText :: () -> string {
 PictureText :: () -> string {
     if scene < -1 || scene > BLANK_SCENE { return "" }
     text: Vec(u8)
-    metadata: [3]u8 = .[ifx scene < 0 then #char "-" else PAINT_CODES[scene], PAINT_CODES[crayon], cast(u8)10]
+    metadata: [3]u8 = .[ifx scene < 0 then #char "-" else PAINT_CODES[PaintSceneCode(scene)], PAINT_CODES[crayon], cast(u8)10]
     layered := layer_count > 0 || pencil_stroke_count > 0
     BuilderPrint(*text, "%", ifx layered then LAYER_HEADER else PICTURE_HEADER)
     BuilderPrint(*text, "%", TextView(metadata[:]))
@@ -63,6 +64,18 @@ PictureText :: () -> string {
             BuilderPrint(*text, "% % % % %\n", object.x, object.y, object.w, object.h, object.start)
             PictureRunsAppend(*text, object.pixels)
             unused VecPush(text, cast(u8)10)
+        }
+        // Pictures made before vector outlines keep their exact bytes.
+        has_art := false
+        for at: cast(s32)0..layer_count - 1 { if layers[layer_order[at]].art != 0 { has_art = true } }
+        if has_art {
+            BuilderPrint(*text, "%", VECTOR_HEADER)
+            for at: cast(s32)0..layer_count - 1 {
+                object := *layers[layer_order[at]]
+                m := object.matrix
+                BuilderPrint(*text, "% % % % % % %\n", object.art, PaintVectorUnits(m.a), PaintVectorUnits(m.b),
+                    PaintVectorUnits(m.c), PaintVectorUnits(m.d), PaintVectorUnits(m.e), PaintVectorUnits(m.f))
+            }
         }
     }
     if pencil_stroke_count > 0 {
@@ -107,7 +120,7 @@ StoryValid :: (saved: string, header: s64) -> bool {
 }
 
 StoryLoad :: (saved: string, header: s64) {
-    scene = ifx saved[header] == #char "-" then -1 else PaintIndex(saved[header])
+    scene = ifx saved[header] == #char "-" then -1 else PaintSceneFromCode(PaintIndex(saved[header]))
     crayon = PaintIndex(saved[header + 1])
     ClearStory()
     for row: cast(s32)0..STORY_LINES - 1 {
@@ -251,8 +264,76 @@ LayerRecord :: (saved: string, load: bool) -> bool {
             CanvasOverlay(index, cast(s32)x, cast(s32)y, cast(s32)(x + w), cast(s32)(y + h))
         }
     }
+    if !VectorRecord(saved, *at, load, cast(s32)count) { return false }
     if !PencilRecord(saved, *at, load, count == 0) { return false }
     return at == saved.count
+}
+
+// The picture's outlines, bottom to top, for host/paint_view.zi.
+CanvasVectorOps :: () -> string {
+    text: Vec(u8)
+    if scene >= 0 && scene < SCENE_COUNT { BuilderPrint(*text, "S %\n", scene) }
+    for at: cast(s32)0..layer_count - 1 {
+        object := *layers[layer_order[at]]
+        if object.art > 0 {
+            m := object.matrix
+            BuilderPrint(*text, "O % % % % % % %\n", object.art - 1, PaintVectorUnits(m.a), PaintVectorUnits(m.b),
+                PaintVectorUnits(m.c), PaintVectorUnits(m.d), PaintVectorUnits(m.e), PaintVectorUnits(m.f))
+        } else {
+            BuilderPrint(*text, "X % % % % ", object.x, object.y, object.w, object.h)
+            PictureRunsAppend(*text, object.pixels)
+            unused VecPush(text, cast(u8)10)
+        }
+    }
+    for at: cast(s32)0..pencil_stroke_count - 1 {
+        stroke := *pencil_strokes[at]
+        BuilderPrint(*text, "P %", stroke.width * 16 / PENCIL_SCALE)
+        for point: cast(s32)0..stroke.count - 1 {
+            value := pencil_points[stroke.first + point]
+            BuilderPrint(*text, " % %", value.x * 16 / PENCIL_SCALE, value.y * 16 / PENCIL_SCALE)
+        }
+        unused VecPush(text, cast(u8)10)
+    }
+    return BuilderFinish(text)
+}
+
+// Each object's vector outline, in saved order. Pictures from before vector
+// outlines have no record; their objects keep their page pixels as lines.
+VectorRecord :: (saved: string, at: *s64, load: bool, count: s32) -> bool {
+    header := VECTOR_HEADER.count
+    if at.* + header > saved.count || saved[at.*:at.* + header] != VECTOR_HEADER { return true }
+    at.* += header
+    for index: cast(s32)0..count - 1 {
+        art := HistoryNumber(saved, at, #char " ", DINO_COUNT)
+        if art < 0 { return false }
+        values: [6]float32
+        for field: cast(s32)0..5 {
+            if !VectorNumber(saved, at, ifx field == 5 then cast(u8)10 else #char " ", *values[field]) { return false }
+        }
+        if load {
+            object := *layers[index]
+            object.art = cast(s32)art
+            object.matrix = PaintMatrix.{values[0], values[1], values[2], values[3], values[4], values[5]}
+        }
+    }
+    return true
+}
+
+// One signed matrix number, saved in 1/65536 units.
+VectorNumber :: (text: string, at: *s64, end: u8, out: *float32) -> bool {
+    negative := at.* < text.count && text[at.*] == #char "-"
+    if negative { at.* += 1 }
+    value: s64 = 0
+    start := at.*
+    while at.* < text.count && text[at.*] >= #char "0" && text[at.*] <= #char "9" {
+        if at.* - start >= 13 { return false }
+        value = value * 10 + cast(s64)(text[at.*] - #char "0")
+        at.* += 1
+    }
+    if at.* == start || at.* >= text.count || text[at.*] != end { return false }
+    at.* += 1
+    out.* = cast(float32)(cast(float64)(ifx negative then -value else value) / 65536.0)
+    return true
 }
 
 PencilRecord :: (saved: string, at: *s64, load: bool, required: bool) -> bool {

@@ -52,7 +52,7 @@ ctypes.CDLL = load
 import dino_art
 from paint_catalog import BuildPaintCatalog
 library = BuildPaintCatalog()
-assert len(library['stencils']) == 55 and len(library['scenes']) == 26
+assert len(library['stencils']) == 66 and len(library['scenes']) == 30
 '''
         subprocess.run([sys.executable, '-c', script], cwd=ROOT, check=True,
                        capture_output=True, text=True)
@@ -70,17 +70,17 @@ assert len(library['stencils']) == 55 and len(library['scenes']) == 26
 
     def test_original_ids_labels_and_category_order(self):
         data = self.library
-        self.assertEqual([e['asset_id'] for e in data['stencils']], list(range(1, 56)))
-        self.assertEqual([e['asset_id'] for e in data['scenes']], list(range(1, 27)))
+        self.assertEqual([e['asset_id'] for e in data['stencils']], list(range(1, 67)))
+        self.assertEqual([e['asset_id'] for e in data['scenes']], list(range(1, 31)))
         self.assertEqual(tuple(e['labels']['en'] for e in data['stencils'][:30]), OLD_STENCILS)
         self.assertEqual(tuple(e['short_labels']['en'] for e in data['stencils'][:30]), OLD_SHORT)
         self.assertEqual(tuple(e['labels']['en'] for e in data['scenes'][:12]), OLD_SCENES)
         self.assertEqual([i for i in data['stencil_order'] if i < 30], OLD_ORDER)
-        self.assertEqual(data['stencil_category_counts'], [16, 11, 11, 17])
-        self.assertEqual(data['scene_category_counts'], [14, 6, 6])
+        self.assertEqual(data['stencil_category_counts'], [16, 19, 11, 20])
+        self.assertEqual(data['scene_category_counts'], [14, 10, 6])
         self.assertEqual([e['labels']['en'] for e in data['scene_categories']],
                          ['Nature', 'Places', 'Adventures'])
-        self.assertEqual(data['scene_order'],
+        self.assertEqual([index for index in data['scene_order'] if index < 26],
                          [0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 13, 14, 15,
                           11, 16, 17, 18, 19, 24, 1, 20, 21, 22, 23, 25])
 
@@ -138,7 +138,7 @@ assert len(library['stencils']) == 55 and len(library['scenes']) == 26
         prefix = original[:original.rfind('\n    }\n  ]') + len('\n    }')]
         self.assertTrue((ROOT / 'tools/coloring_stencils.json').read_text().startswith(prefix))
         mapping = {row['index']: row for row in manifest['stencils']}
-        self.assertEqual(set(mapping), set(range(13, 56)))
+        self.assertEqual(set(mapping), set(range(13, 67)))
         for row in self.library['stencils'][30:]:
             self.assertEqual(mapping[row['asset_id']]['name'], row['slug'])
             self.assertIn(row['subject'], mapping[row['asset_id']]['prompt'])
@@ -155,58 +155,33 @@ assert len(library['stencils']) == 55 and len(library['scenes']) == 26
             with self.assertRaises(FileNotFoundError) as error:
                 catalog.compile_new_art(self.library)
             expected = [row['source'] for kind in ('stencils', 'scenes')
-                        for row in self.library[kind] if 'source' in row]
+                        for row in self.library[kind]]
             self.assertEqual(str(error.exception).splitlines()[1:], expected)
-            self.assertEqual(len(expected), 39)
-            write.assert_not_called()
-        with patch.object(Path, 'write_text') as write:
-            with self.assertRaisesRegex(ValueError, 'Unknown stencil asset IDs'):
-                dino_art.standalone_stencils([999])
+            self.assertEqual(len(expected), 96)
             write.assert_not_called()
 
-    def test_art_writes_only_new_ids_and_composites_on_white(self):
-        # Mock source loading and the external tracer, exercising the actual
-        # filtering, thresholding, silhouette construction and SVG writers.
-        with tempfile.TemporaryDirectory(prefix='paint-catalog-', dir=ROOT / 'work') as directory:
-            root = Path(directory)
-            (root / 'tools').mkdir()
-            (root / 'tools/coloring_stencils.json').write_text((ROOT / 'tools/coloring_stencils.json').read_text())
-            output = root / 'art/paint'
-            output.mkdir(parents=True)
-            protected = [output / f'{kind}{i}.svg'
-                         for kind, total in (('dino', 30), ('scene', 12))
-                         for i in range(1, total + 1)]
-            for path in protected:
-                path.write_text('original ' + path.name)
-            before = {path: hashlib.sha256(path.read_bytes()).digest() for path in protected}
-            opened, traced = [], []
+    def test_production_art_needs_only_committed_vectors(self):
+        # No source PNG, ignored archive, or native tracing library is opened.
+        import paint_vectors
+        with patch.object(Image, 'open', side_effect=AssertionError('raster source read')), \
+                patch.object(dino_art, 'trace', side_effect=AssertionError('retrace')), \
+                patch.object(Path, 'write_text') as write, redirect_stdout(io.StringIO()):
+            catalog.compile_new_art(self.library)
+            write.assert_not_called()
+        for kind, prefix in (('stencils', 'dino'), ('scenes', 'scene')):
+            for row in self.library[kind]:
+                self.assertEqual(row['source'], f'art/paint/{prefix}{row["asset_id"]}.svg')
+                paint_vectors.validate_source(ROOT / row['source'])
 
-            def image_open(path):
-                opened.append(str(path.relative_to(root)))
-                image = Image.new('RGBA', (80, 60), (0, 0, 0, 0))
-                ImageDraw.Draw(image).rectangle((20, 15, 60, 45), outline='black', width=3)
-                return image
-
-            def trace(image):
-                self.assertEqual(image.mode, '1')
-                self.assertTrue(image.getbbox())
-                self.assertEqual(image.getpixel((0, 0)), 0, 'transparent pixels became ink')
-                traced.append(image.size)
-                return 'M1 1H10V10H1Z'
-
-            with patch.object(catalog, 'ROOT', root), patch.object(dino_art, 'ROOT', root), \
-                    patch.object(dino_art, 'OUT', output), patch.object(Path, 'is_file', return_value=True), \
-                    patch.object(Image, 'open', side_effect=image_open), \
-                    patch.object(dino_art, 'trace', side_effect=trace), redirect_stdout(io.StringIO()):
-                catalog.compile_new_art(self.library)
-            self.assertEqual({path: hashlib.sha256(path.read_bytes()).digest() for path in protected}, before)
-            expected_sources = [row['source'] for kind in ('stencils', 'scenes')
-                                for row in self.library[kind] if 'source' in row]
-            self.assertEqual(opened, expected_sources)
-            expected_files = {f'dino{i}.svg' for i in range(1, 56)} | {f'scene{i}.svg' for i in range(1, 27)}
-            self.assertEqual({path.name for path in output.iterdir()}, expected_files)
-            self.assertEqual(len(traced), 25 * 2 + 14)
-            self.assertTrue(all(size == (960, 720) for size in traced[-14:]))
+    def test_explicit_stencil_import_preserves_approved_ink_weight(self):
+        source = Image.new('RGBA', (80, 60), (0, 0, 0, 0))
+        ImageDraw.Draw(source).rectangle((20, 15, 60, 45), outline='black', width=3)
+        with patch.object(Image, 'open', return_value=source):
+            svg = dino_art.stencil_svg('chosen-reference.png', reinforce=False)
+        self.assertIn('id="body"', svg)
+        self.assertIn('id="ink"', svg)
+        self.assertNotIn('stroke-width', svg)
+        self.assertNotIn('<image', svg)
 
     def test_generated_ziran_helpers_execute_in_every_language(self):
         # Compile a private C target to exercise Ziran imports, bounds and

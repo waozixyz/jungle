@@ -97,16 +97,24 @@ def open_gallery_page(desktop, folder, target):
 
 
 CHOICES_V1, CHOICES_V2 = b'JUNGLE PAINT CHOICES 1\n', b'JUNGLE PAINT CHOICES 2\n'
+CHOICES_V3 = b'JUNGLE PAINT CHOICES 3\n'
 
 
-def choices(folder, version=None):
+def choices(folder, version=None, anchored=False):
     """Saved choices; the third digit is a v1 page or a v2 category item anchor."""
     saved = (folder / 'choices.txt').read_bytes()
     prefix = saved[:len(CHOICES_V2)]
-    assert prefix in (CHOICES_V1, CHOICES_V2) and len(saved) == len(prefix) + 8
+    assert prefix in (CHOICES_V1, CHOICES_V2, CHOICES_V3)
+    assert len(saved) == len(prefix) + (9 if prefix == CHOICES_V3 else 8)
     if version is not None:
-        assert prefix == (CHOICES_V1, CHOICES_V2)[version - 1], ('choices version', saved)
-    return [DIGITS.index(chr(byte)) for byte in saved[len(prefix):]]
+        assert prefix == (CHOICES_V1, CHOICES_V2, CHOICES_V3)[version - 1], ('choices version', saved)
+    if anchored:
+        assert prefix in (CHOICES_V2, CHOICES_V3), ('choices anchor version', saved)
+    values = [DIGITS.index(chr(byte)) for byte in saved[len(prefix):]]
+    if prefix == CHOICES_V3:
+        assert values[8] > 0
+        values[0] += values.pop() * 64
+    return values
 
 
 def setup(data, language, initial):
@@ -482,7 +490,7 @@ def responsive_stencils(data):
             stencil_click(desktop, 'category', category)
             for _ in range(pages - 1):
                 stencil_click(desktop, 'next')
-            assert choices(folder, 2)[1:3] == [category, first], ('final page anchor', size, capacity)
+            assert choices(folder, anchored=True)[1:3] == [category, first], ('final page anchor', size, capacity)
             saved_choices = choices(folder)
             stencil_click(desktop, 'next')  # No destination on the final page.
             if count - first < capacity:
@@ -531,7 +539,7 @@ def narrow_labels(data):
                     if first:
                         stencil_click(desktop, 'next')
                     actual = desktop.capture_actual('narrow-labels')
-                    assert choices(folder, 2)[1:3] == [category, first], ('narrow picker page', language, category, first, capacity, choices(folder))
+                    assert choices(folder, anchored=True)[1:3] == [category, first], ('narrow picker page', language, category, first, capacity, choices(folder))
                     for offset in range(min(capacity, count - first)):
                         index = order[starts[category] + first + offset]
                         assert label_fits(actual, rects['tile'][offset]), ('label overflows its tile', language, index)
@@ -701,8 +709,10 @@ def placement_editor(data):
         ink,_ = dinosaur_masks(24, choices(folder)[3]); sw=ink.shape[1]
         full,_=dinosaur_masks(24,4);sh=full.shape[0]*sw/full.shape[1]
         corner=(min(x+w-22,cx+sw*w/960/2),min(56+y+h-74,cy+sh*h/720/2))
-        drag_actual(corner,(cx+(corner[0]-cx)*.55,cy+(corner[1]-cy)*.55))
-        assert choices(folder)[3] < 2, 'in-scene resize did not persist its nearest size'
+        # The opposite corner stays fixed: 30% of the center-to-corner
+        # distance gives 65% of the original width, nearest the Small preset.
+        drag_actual(corner,(cx+(corner[0]-cx)*.30,cy+(corner[1]-cy)*.30))
+        assert choices(folder)[3] == 1, ('in-scene resize did not persist its nearest size', choices(folder))
         desktop.key('Escape')
         assert working.read_bytes() == before and not undo()
         begin()

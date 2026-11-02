@@ -129,7 +129,7 @@ class Schedule(unittest.TestCase):
         self.assertEqual(first.name, "paint")
         self.assertEqual([step.argv[1] for step in first.steps],
                          ["tests/slot_preview_test.py", "tests/paint_layers_test.py", "tests/paint_history_test.py",
-                          "tests/paint_library_test.py", "tests/language_ui_test.py"])
+                          "tests/paint_zoom_ui_test.py", "tests/paint_library_test.py", "tests/language_ui_test.py"])
 
     def test_no_scheduled_script_hardcodes_the_shared_capture_folder(self):
         scripts = {step.argv[1] for group in self.groups for step in group.steps if step.argv[0] == "python3"}

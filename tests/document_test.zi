@@ -97,5 +97,17 @@ main :: () -> s32 {
         if !PictureLoad(saved) || scene != chosen || crayon != CHARCOAL_PAINT - 16 || PictureText() != saved { return 16 }
     }
     Report("local document test passed\n")
+    // Code 26 keeps its old blank-page meaning after scenes are appended.
+    CanvasBlank()
+    scene = BLANK_SCENE
+    blank := PictureText()
+    if blank[PICTURE_HEADER.count] != PAINT_CODES[26] || !PictureLoad(blank) ||
+        scene != BLANK_SCENE || PictureText() != blank || CanvasVectorOps() != "" { return 20 }
+    for chosen: cast(s32)26..SCENE_COUNT - 1 {
+        scene = chosen
+        saved := PictureText()
+        if saved[PICTURE_HEADER.count] != PAINT_CODES[chosen + 1] || !PictureLoad(saved) ||
+            scene != chosen || PictureText() != saved { return 21 }
+    }
     return 0
 }

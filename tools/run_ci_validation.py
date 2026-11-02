@@ -118,7 +118,8 @@ def schedule() -> tuple[Group, ...]:
         return Group(name, tuple(native(c) if isinstance(c, str) else c for c in commands), tmpdir)
     return (
         group("paint", "python3 tests/slot_preview_test.py", "python3 tests/paint_layers_test.py",
-              "python3 tests/paint_history_test.py", "python3 tests/paint_library_test.py",
+              "python3 tests/paint_history_test.py", "python3 tests/paint_zoom_ui_test.py",
+              "python3 tests/paint_library_test.py",
               "python3 tests/language_ui_test.py"),
         group("hide-seek", "python3 tests/hide_seek_levels_test.py"),
         # Chromium's singleton socket must fit a Unix socket path, so the

@@ -78,6 +78,7 @@ def build(out):
         for directory in sorted({path.parent for path in files}):includes += ['-iquote',directory]
         run([emcc,'-O2','-I'+str(ziran/'include'),*includes,*files,
              '--js-library',ziran/'web/ziran_web.js','--embed-file',str(kryon/'assets/fonts/LiberationSans-Regular.ttf')+'@/kryon-font.ttf',
+             '--embed-file',str(ROOT/'assets/dino-paint/vector')+'@/assets/dino-paint/vector',
              '-sEXPORTED_RUNTIME_METHODS=FS,HEAPU8,addRunDependency,removeRunDependency','-sASYNCIFY','-sALLOW_MEMORY_GROWTH=1',
              '-sINITIAL_MEMORY=67108864','-sMAXIMUM_MEMORY=536870912','-sSTACK_SIZE=8388608','-sENVIRONMENT=web',
              '-sFORCE_FILESYSTEM=1','-lidbfs.js','-o',output],env=env)
@@ -168,6 +169,10 @@ def stage_assets(out):
     for name in ('jungle','jungle-book','abc','numbers','animal-count','dino-paint','jigsaw','piano','shapes','hide_seek','drums','garden'):
         source=ROOT/'assets'/name
         for path in source.rglob('*'):
+            # PaintViewWebRead uses the vectors embedded in the host above.
+            # Do not download another copy in the activity asset packs.
+            if path.parent == ROOT/'assets/dino-paint/vector':
+                continue
             if path.is_file() and Shipped(path.relative_to(ROOT).as_posix()) and not path.name.startswith('voice-'):
                 files[path.relative_to(ROOT).as_posix()] = path
     # Native hosts' manifest aliases, such as Animal Counting's pictures, name

@@ -1,0 +1,295 @@
+// The Coloring Book's display: fills stay in page pixels, and the outlines are
+// drawn from their vector art at the scale the picture is shown.
+//
+// Two images make the picture. Colors is the page's 960 by 720 fills with each
+// outline pixel the vector art covers replaced by its nearest fill, so a fill
+// runs to the middle of its line and a staircase edge never shows. Ink is the
+// outlines' coverage, rendered for the visible part of the page at display
+// resolution and drawn above the colors. Bucket fills stay inside the page
+// pixels' INK, so they stay aligned with the lines at every zoom.
+//
+// The game sends the outlines as PaintViewOpsSet text, one operation a line,
+// bottom to top. Fractions are integers over the scales below.
+//   S <scene>                      a scene's ink
+//   O <stencil> <a b c d e f>      a stencil's body hides what is below, then
+//                                  its ink; a b c d e f maps it onto the page
+//   P <width> <x y x y ...>        a pencil line through page points
+//   X <x> <y> <w> <h> <runs>       an older object saved without vector art:
+//                                  its pixels hide what is below, and its INK
+//                                  stays page pixels
+#if #defined(PLATFORM_WEB) {
+    #import "vector_path"
+    #import "geometry"
+} else {
+    #import "kryon/vector_path"
+    #import "kryon/geometry"
+}
+#import "std/text_buffer"
+#import "std/format"
+#import "std/math"
+#import "std/vec"
+#import "std/byte_text_linux"
+#import, file "canvas_png.zi";
+#import, file "../games/paint/paint_picture.zi";
+#import, file "../games/paint/paint_palette.zi";
+
+PAINT_VIEW_MATRIX_UNITS :: 65536.0
+PAINT_VIEW_POINT_UNITS :: 16.0
+// Bounded by PNG_LIMIT, as one byte a pixel.
+PAINT_VIEW_TILE_PIXELS :: 1920000
+PAINT_VIEW_OPS_LIMIT :: 8388608
+PAINT_VIEW_ASSET_COUNT :: 128
+PAINT_VIEW_POINT_LIMIT :: 65536
+// Each point of a stroke takes about 20 edges of the rasterizer's 65536.
+PAINT_VIEW_STROKE_POINTS :: 1024
+// How many page pixels of a vector line replace raster INK. Traced lines stray
+// from the raster by about a pixel, so a smaller reach leaves stray black pixels.
+PAINT_VIEW_NEAR :: 2
+
+PaintViewRead :: #type (path: string) -> string;
+
+PaintViewTile :: struct { width: s32; height: s32; page_x: float32; page_y: float32; scale_x: float32; scale_y: float32; }
+
+paint_view_ops: string;
+paint_view_scene_assets: [PAINT_VIEW_ASSET_COUNT]string;
+paint_view_stencil_assets: [PAINT_VIEW_ASSET_COUNT]string;
+// Page pixels within one pixel of vector ink.
+paint_view_vector: [CANVAS_PIXELS]bool;
+paint_view_page: [CANVAS_PIXELS]u8;
+paint_view_hide: [CANVAS_PIXELS]u8;
+paint_view_runs: [CANVAS_PIXELS]u8;
+paint_view_distance: [CANVAS_PIXELS]u16;
+paint_view_colors: [CANVAS_PIXELS]u8;
+// A fixed array holds at most 1 MiB, so the largest tiles span two.
+PaintViewTileStore :: struct { first: [1048576]u8; second: [871424]u8; }
+paint_view_tile: PaintViewTileStore;
+paint_view_palette: [256]u32;
+paint_view_points: [PAINT_VIEW_POINT_LIMIT]Vector2;
+
+PaintViewBytes :: (text: string) -> []u8 {
+    descriptor := cast(*TextDescriptor)(*text)
+    return BytesFromPointer(cast(*u8)descriptor.data, cast(u64)text.count)
+}
+
+PaintViewNumber :: (text: string, at: *s64, value: *s64) -> bool {
+    while at.* < text.count && text[at.*] == #char " " { at.* += 1 }
+    negative := at.* < text.count && text[at.*] == #char "-"
+    if negative { at.* += 1 }
+    start := at.*
+    result: s64 = 0
+    while at.* < text.count && text[at.*] >= #char "0" && text[at.*] <= #char "9" {
+        if result > 1000000000000 { return false }
+        result = result * 10 + cast(s64)(text[at.*] - #char "0")
+        at.* += 1
+    }
+    if at.* == start { return false }
+    value.* = ifx negative then -result else result
+    return true
+}
+
+PaintViewTileTransform :: (tile: PaintViewTile) -> VectorTransform {
+    return VectorTransform.{.a = tile.scale_x, .b = 0.0, .c = 0.0, .d = tile.scale_y,
+        .e = -tile.page_x * tile.scale_x, .f = -tile.page_y * tile.scale_y}
+}
+
+// The source-to-page matrix, then the page-to-tile one.
+PaintViewCompose :: (page: VectorTransform, tile: PaintViewTile) -> VectorTransform {
+    return VectorTransform.{.a = page.a * tile.scale_x, .b = page.b * tile.scale_y,
+        .c = page.c * tile.scale_x, .d = page.d * tile.scale_y,
+        .e = (page.e - tile.page_x) * tile.scale_x, .f = (page.f - tile.page_y) * tile.scale_y}
+}
+
+PaintViewAsset :: (cache: []string, index: s64, kind: string, read: PaintViewRead) -> string {
+    if index < 0 || index >= cache.count { return "" }
+    if cache[index] != "" { return cache[index] }
+    digits: Vec(u8)
+    BuilderPrint(*digits, "assets/dino-paint/vector/%", kind)
+    BuilderPrint(*digits, "%.kvp", index + 1)
+    bytes := read(BuilderFinish(digits))
+    if !VectorFileValid(PaintViewBytes(bytes)) { return "" }
+    // Read results may be per-frame, so the cache owns its copy.
+    owned: Vec(u8)
+    BuilderPrint(*owned, "%", bytes)
+    cache[index] = BuilderFinish(owned)
+    return cache[index]
+}
+
+// The pixels of a line's X record hide what the tile holds below them.
+PaintViewHide :: (tile: PaintViewTile, target: VectorTarget) {
+    at: s32 = 0
+    for y: cast(s32)0..target.height - 1 {
+        page_y := FloorInteger((cast(float32)y + 0.5) / tile.scale_y + tile.page_y)
+        for x: cast(s32)0..target.width - 1 {
+            page_x := FloorInteger((cast(float32)x + 0.5) / tile.scale_x + tile.page_x)
+            if page_x >= 0 && page_y >= 0 && page_x < CANVAS_WIDTH && page_y < CANVAS_HEIGHT &&
+                paint_view_hide[page_y * CANVAS_WIDTH + page_x] != cast(u8)0 { target.coverage[at] = 0 }
+            at += 1
+        }
+    }
+}
+
+// Draws the current operations into a tile; damaged lines draw nothing.
+PaintViewDraw :: (tile: PaintViewTile, target: VectorTarget, read: PaintViewRead) -> bool {
+    for at: cast(s64)0..target.coverage.count - 1 { target.coverage[at] = 0 }
+    ok := true
+    text := paint_view_ops
+    at: s64 = 0
+    while at < text.count {
+        end := at
+        while end < text.count && text[end] != cast(u8)10 { end += 1 }
+        line := text[at:end]
+        at = end + 1
+        if line.count < 2 { continue }
+        kind := line[0]
+        cursor: s64 = 1
+        if kind == #char "S" {
+            scene: s64
+            if !PaintViewNumber(line, *cursor, *scene) { ok = false; continue }
+            file := PaintViewAsset(paint_view_scene_assets[:], scene, "scene", read)
+            if file == "" { ok = false; continue }
+            if !VectorPathFill(VectorFilePath(PaintViewBytes(file), 0), PaintViewTileTransform(tile), target, VectorMode.VectorAdd) { ok = false }
+        } else if kind == #char "O" {
+            stencil: s64
+            values: [6]s64
+            valid := PaintViewNumber(line, *cursor, *stencil)
+            for index: cast(s32)0..5 { valid = valid && PaintViewNumber(line, *cursor, *values[index]) }
+            if !valid { ok = false; continue }
+            file := PaintViewAsset(paint_view_stencil_assets[:], stencil, "dino", read)
+            if file == "" { ok = false; continue }
+            page := VectorTransform.{.a = cast(float32)values[0] / PAINT_VIEW_MATRIX_UNITS, .b = cast(float32)values[1] / PAINT_VIEW_MATRIX_UNITS,
+                .c = cast(float32)values[2] / PAINT_VIEW_MATRIX_UNITS, .d = cast(float32)values[3] / PAINT_VIEW_MATRIX_UNITS,
+                .e = cast(float32)values[4] / PAINT_VIEW_MATRIX_UNITS, .f = cast(float32)values[5] / PAINT_VIEW_MATRIX_UNITS}
+            transform := PaintViewCompose(page, tile)
+            if !VectorPathFill(VectorFilePath(PaintViewBytes(file), 0), transform, target, VectorMode.VectorErase) { ok = false }
+            if !VectorPathFill(VectorFilePath(PaintViewBytes(file), 1), transform, target, VectorMode.VectorAdd) { ok = false }
+        } else if kind == #char "P" {
+            width: s64
+            if !PaintViewNumber(line, *cursor, *width) { ok = false; continue }
+            count: s32 = 0
+            while count < PAINT_VIEW_POINT_LIMIT {
+                x: s64; y: s64
+                if !PaintViewNumber(line, *cursor, *x) || !PaintViewNumber(line, *cursor, *y) { break }
+                paint_view_points[count] = Vector2.{cast(float32)x / PAINT_VIEW_POINT_UNITS, cast(float32)y / PAINT_VIEW_POINT_UNITS}
+                count += 1
+            }
+            first: s32 = 0
+            while first < count {
+                stop := first + PAINT_VIEW_STROKE_POINTS
+                if stop > count { stop = count }
+                if !VectorPolylineStroke(paint_view_points[first:stop], cast(float32)width / PAINT_VIEW_POINT_UNITS,
+                    PaintViewTileTransform(tile), target, VectorMode.VectorAdd) { ok = false }
+                if stop == count { break }
+                first = stop - 1
+            }
+        } else if kind == #char "X" {
+            x: s64; y: s64; w: s64; h: s64
+            if !PaintViewNumber(line, *cursor, *x) || !PaintViewNumber(line, *cursor, *y) ||
+               !PaintViewNumber(line, *cursor, *w) || !PaintViewNumber(line, *cursor, *h) ||
+               x < 0 || y < 0 || w <= 0 || h <= 0 || x + w > CANVAS_WIDTH || y + h > CANVAS_HEIGHT { ok = false; continue }
+            if cursor >= line.count || line[cursor] != #char " " { ok = false; continue }
+            cursor += 1
+            count := w * h
+            if PictureRunsScan(line[cursor:], paint_view_runs[:count], count, true) < 0 { ok = false; continue }
+            for at_pixel: cast(s64)0..CANVAS_PIXELS - 1 { paint_view_hide[at_pixel] = 0 }
+            for row: cast(s64)0..h - 1 {
+                for column: cast(s64)0..w - 1 {
+                    if paint_view_runs[row * w + column] != cast(u8)255 { paint_view_hide[(y + row) * CANVAS_WIDTH + x + column] = 1 }
+                }
+            }
+            PaintViewHide(tile, target)
+        } else { ok = false }
+    }
+    return ok
+}
+
+PaintViewOpsSame :: (ops: string) -> bool {
+    return paint_view_ops == ops
+}
+
+// Remembers the outlines and which page pixels their ink is near. A page INK
+// pixel away from all vector ink stays a page pixel, so a line is never lost.
+PaintViewOpsSet :: (ops: string, read: PaintViewRead) -> bool {
+    if ops.count > PAINT_VIEW_OPS_LIMIT { return false }
+    if PaintViewOpsSame(ops) { return true }
+    owned: Vec(u8)
+    BuilderAppend(owned, ops)
+    paint_view_ops = BuilderFinish(owned)
+    page := PaintViewTile.{.width = CANVAS_WIDTH, .height = CANVAS_HEIGHT, .scale_x = 1.0, .scale_y = 1.0}
+    ok := PaintViewDraw(page, VectorTarget.{.width = CANVAS_WIDTH, .height = CANVAS_HEIGHT, .coverage = paint_view_page[:]}, read)
+    for at: cast(s32)0..CANVAS_PIXELS - 1 { paint_view_vector[at] = false }
+    for y: cast(s32)0..CANVAS_HEIGHT - 1 {
+        for x: cast(s32)0..CANVAS_WIDTH - 1 {
+            if paint_view_page[y * CANVAS_WIDTH + x] == cast(u8)0 { continue }
+            for dy: cast(s32)-PAINT_VIEW_NEAR..PAINT_VIEW_NEAR {
+                for dx: cast(s32)-PAINT_VIEW_NEAR..PAINT_VIEW_NEAR {
+                    ny := y + dy; nx := x + dx
+                    if nx >= 0 && ny >= 0 && nx < CANVAS_WIDTH && ny < CANVAS_HEIGHT { paint_view_vector[ny * CANVAS_WIDTH + nx] = true }
+                }
+            }
+        }
+    }
+    return ok
+}
+
+// Replaces each INK pixel marked in vector with its nearest other color. Two
+// sweeps of city-block distance are one pass over the page in either order.
+PaintViewBleed :: (pixels: []u8, vector: []bool, width: s32, height: s32, distance: []u16) {
+    FAR: u16 = 65535
+    count := width * height
+    for at: cast(s32)0..count - 1 {
+        distance[at] = ifx pixels[at] == cast(u8)0 then FAR else cast(u16)0
+    }
+    for at: cast(s32)0..count - 1 {
+        if distance[at] == cast(u16)0 { continue }
+        if at % width > 0 && distance[at - 1] != FAR && distance[at - 1] + cast(u16)1 < distance[at] {
+            distance[at] = distance[at - 1] + cast(u16)1
+            if vector[at] { pixels[at] = pixels[at - 1] }
+        }
+        if at >= width && distance[at - width] != FAR && distance[at - width] + cast(u16)1 < distance[at] {
+            distance[at] = distance[at - width] + cast(u16)1
+            if vector[at] { pixels[at] = pixels[at - width] }
+        }
+    }
+    at := count - 1
+    while at >= 0 {
+        if distance[at] != cast(u16)0 {
+            if at % width < width - 1 && distance[at + 1] != FAR && distance[at + 1] + cast(u16)1 < distance[at] {
+                distance[at] = distance[at + 1] + cast(u16)1
+                if vector[at] { pixels[at] = pixels[at + 1] }
+            }
+            if at < count - width && distance[at + width] != FAR && distance[at + width] + cast(u16)1 < distance[at] {
+                distance[at] = distance[at + width] + cast(u16)1
+                if vector[at] { pixels[at] = pixels[at + width] }
+            }
+            // A page of nothing but lines has no color to spread.
+            if distance[at] == FAR && vector[at] { pixels[at] = cast(u8)15 }
+        }
+        at -= 1
+    }
+}
+
+// The PNG of the page's fills beneath the vector ink.
+PaintViewColorsPng :: (pixels: []u8) -> string {
+    if pixels.count != CANVAS_PIXELS { return "" }
+    for at: cast(s32)0..CANVAS_PIXELS - 1 { paint_view_colors[at] = pixels[at] }
+    PaintViewBleed(paint_view_colors[:], paint_view_vector[:], CANVAS_WIDTH, CANVAS_HEIGHT, paint_view_distance[:])
+    return PngIndexed(CANVAS_WIDTH, CANVAS_HEIGHT, paint_colors[:], paint_view_colors[:])
+}
+
+// "<width> <height> <page x> <page y> <scale x> <scale y>": page position and
+// scale in matrix units. Returns the PNG of that tile's vector ink.
+PaintViewInkPng :: (request: string, read: PaintViewRead) -> string {
+    at: s64 = 0
+    w: s64; h: s64; px: s64; py: s64; sx: s64; sy: s64
+    if !PaintViewNumber(request, *at, *w) || !PaintViewNumber(request, *at, *h) ||
+       !PaintViewNumber(request, *at, *px) || !PaintViewNumber(request, *at, *py) ||
+       !PaintViewNumber(request, *at, *sx) || !PaintViewNumber(request, *at, *sy) { return "" }
+    if w <= 0 || h <= 0 || w * h > PAINT_VIEW_TILE_PIXELS || sx <= 0 || sy <= 0 { return "" }
+    tile := PaintViewTile.{.width = cast(s32)w, .height = cast(s32)h,
+        .page_x = cast(float32)px / PAINT_VIEW_MATRIX_UNITS, .page_y = cast(float32)py / PAINT_VIEW_MATRIX_UNITS,
+        .scale_x = cast(float32)sx / PAINT_VIEW_MATRIX_UNITS, .scale_y = cast(float32)sy / PAINT_VIEW_MATRIX_UNITS}
+    target := VectorTarget.{.width = tile.width, .height = tile.height, .coverage = BytesFromPointer(*paint_view_tile.first[0], cast(u64)(w * h))}
+    unused PaintViewDraw(tile, target, read)
+    for index: cast(s32)0..255 { paint_view_palette[index] = cast(u32)index }
+    return PngIndexed(tile.width, tile.height, paint_view_palette[:], target.coverage)
+}

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Generate the stable coloring library; optionally trace only its new artwork.
+"""Generate the stable coloring library; validate its vector masters.
 
 python3 tools/paint_catalog.py          # metadata -> paint_catalog.zi
 python3 tools/paint_catalog.py --check  # verify reproducibility, without writes
-python3 tools/paint_catalog.py --art    # also trace dino31..46 / scene13..24
+python3 tools/paint_catalog.py --art    # also validate all SVG geometry
 
 The committed JSON is the production source. Ignored generation jobs and raw
 PNGs are unnecessary for catalog generation or tests. IDs are one-based asset
@@ -57,10 +57,10 @@ def BuildPaintCatalog(metadata=None):
             if row['category'] not in keys:
                 raise ValueError(f'Unknown {kind} category: {row["category"]}')
             category_for_index.append(keys.index(row['category']))
-            if row['asset_id'] > ORIGINAL_COUNTS[kind]:
-                expected = f'art/generated/coloring-{kind}s/{row["slug"]}.png'
-                if row.get('source') != expected:
-                    raise ValueError(f'Invalid {kind} source; expected {expected}')
+            prefix = 'dino' if kind == 'stencil' else 'scene'
+            expected = f'art/paint/{prefix}{row["asset_id"]}.svg'
+            if row.get('source') != expected:
+                raise ValueError(f'Invalid {kind} source; expected {expected}')
         order, starts, counts = [], [], []
         for category in range(len(keys)):
             members = [i for i, group in enumerate(category_for_index) if group == category]
@@ -131,47 +131,26 @@ def render_catalog(catalog=None):
 
 
 def compile_new_art(catalog):
-    """Preflight every new source before tracing; never touch existing art IDs."""
-    new = {kind: [row for row in catalog[kind + 's']
-                  if row['asset_id'] > ORIGINAL_COUNTS[kind]]
-           for kind in ('stencil', 'scene')}
-    missing = [row['source'] for rows in new.values() for row in rows
-               if not (ROOT / row['source']).is_file()]
-    if missing:
-        raise FileNotFoundError('Missing coloring PNG inputs:\n' + '\n'.join(missing))
-    # Keep image and tracer dependencies out of metadata-only generation/tests.
-    import dino_art
-    from PIL import Image, ImageOps
+    """Validate committed vector masters; raster tracing is an explicit import.
 
-    output = ROOT / 'art/paint'
-    output.mkdir(parents=True, exist_ok=True)
-    dino_art.standalone_stencils(indices=[row['asset_id'] for row in new['stencil']])
-    width, height = dino_art.SCENE_SIZE
-    for row in new['scene']:
-        with Image.open(ROOT / row['source']) as source:
-            rgba = source.convert('RGBA')
-            paper = Image.new('RGBA', rgba.size, 'white')
-            paper.alpha_composite(rgba)
-            fitted = ImageOps.fit(paper.convert('L'), (width, height),
-                                  method=Image.Resampling.LANCZOS)
-            ink = fitted.point(lambda value: 255 if value < 160 else 0, mode='1')
-        if not ink.getbbox():
-            raise ValueError(f'Empty scene: {row["source"]}')
-        path = dino_art.trace(ink)
-        (output / f'scene{row["asset_id"]}.svg').write_text(
-            f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}" '
-            f'width="{width}" height="{height}">\n'
-            f'<rect width="{width}" height="{height}" fill="#fff"/>\n'
-            f'<path id="ink" fill="#000" fill-rule="evenodd" d="{path}"/>\n</svg>\n',
-            encoding='utf-8')
-    print(f'Traced {len(new["scene"])} new scenes; existing scene1..12.svg preserved.')
+    Source PNGs are private reference archives, never production dependencies.
+    Rebuild previews/masks with paint_pages.py and KVP1 with paint_vectors.py.
+    """
+    sources = [row['source'] for kind in ('stencils', 'scenes') for row in catalog[kind]]
+    missing = [source for source in sources if not (ROOT / source).is_file()]
+    if missing:
+        raise FileNotFoundError('Missing coloring SVG inputs:\n' + '\n'.join(missing))
+    from paint_vectors import validate_source
+    for source in sources:
+        validate_source(ROOT / source)
+    print(f'Validated {len(sources)} vector masters; no source artwork changed.')
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument('--check', action='store_true', help='compare generated Ziran without writes')
-    mode.add_argument('--art', action='store_true', help='trace only new sources after preflight')
+    mode.add_argument('--art', action='store_true', help='validate production SVG masters without retracing artwork')
     args = parser.parse_args()
     try:
         catalog = BuildPaintCatalog()

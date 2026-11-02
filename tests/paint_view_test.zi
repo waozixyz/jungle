@@ -1,0 +1,190 @@
+// The Coloring Book's display: vector ink at every scale, and fills and
+// outlines staying together however the picture is zoomed.
+#import "std/file"
+#import "kryon/view_transform"
+#import "kryon/vector_path"
+#import "kryon/geometry"
+#import, file "../games/paint/paint_document.zi";
+#import, file "../games/paint/paint_canvas.zi";
+#import, file "../games/paint/paint_picture.zi";
+#import, file "../host/paint_view.zi";
+#import, file "../host/platform.zi";
+#import, file "../host/jungle_text.zi";
+
+Fail :: (step: s32) -> s32 { Report(Cat("paint view failed at ", NumberText(step), "\n")); return step }
+
+DiskRead :: (path: string) -> string {
+    data, found := ReadEntireFile(path)
+    return ifx found then data else ""
+}
+
+bleed_pixels: [25]u8;
+bleed_vector: [25]bool;
+bleed_distance: [25]u16;
+page_ink: [CANVAS_PIXELS]u8;
+large_ink: [907500]u8;
+tile_ink: [160000]u8;
+fill_first: [CANVAS_PIXELS]u8;
+
+Page :: (width: s32, height: s32, page_x: float32, page_y: float32, scale: float32) -> PaintViewTile {
+    return PaintViewTile.{.width = width, .height = height, .page_x = page_x, .page_y = page_y, .scale_x = scale, .scale_y = scale}
+}
+
+Draw :: (tile: PaintViewTile, coverage: []u8) -> bool {
+    return PaintViewDraw(tile, VectorTarget.{.width = tile.width, .height = tile.height, .coverage = coverage}, DiskRead)
+}
+
+Near :: (a: u8, b: u8, reach: s32) -> bool {
+    difference := cast(s32)a - cast(s32)b
+    return difference <= reach && difference >= -reach
+}
+
+BleedTests :: () -> s32 {
+    // A vertical line between two colors; its lower end is not vector ink.
+    for at: cast(s32)0..24 {
+        bleed_pixels[at] = ifx at % 5 == 2 then cast(u8)0 else ifx at % 5 < 2 then cast(u8)20 else cast(u8)30
+        bleed_vector[at] = at % 5 == 2 && at < 20
+    }
+    PaintViewBleed(bleed_pixels[:], bleed_vector[:], 5, 5, bleed_distance[:])
+    for row: cast(s32)0..3 {
+        color := bleed_pixels[row * 5 + 2]
+        if color != cast(u8)20 && color != cast(u8)30 { return 1 }
+    }
+    if bleed_pixels[22] != cast(u8)0 { return 2 }
+    if bleed_pixels[0] != cast(u8)20 || bleed_pixels[4] != cast(u8)30 { return 3 }
+    return 0
+}
+
+// The same page point has ink at every scale, and tiles match a larger render.
+ScaleTests :: () -> s32 {
+    if !PaintViewOpsSet("S 0\n", DiskRead) { return 10 }
+    if !Draw(Page(960, 720, 0.0, 0.0, 1.0), page_ink[:]) { return 11 }
+    ink: s32 = 0
+    for at: cast(s32)0..CANVAS_PIXELS - 1 { if page_ink[at] > cast(u8)127 { ink += 1 } }
+    if ink < 1000 || ink > CANVAS_PIXELS / 2 { return 12 }
+    // Ink covers about the same part of the page at each scale.
+    if !Draw(Page(1100, 825, 0.0, 0.0, 1100.0 / 960.0), large_ink[:]) { return 13 }
+    large: s32 = 0
+    for at: cast(s32)0..907500 - 1 { if large_ink[at] > cast(u8)127 { large += 1 } }
+    ratio := cast(float32)large / (cast(float32)ink * (1100.0 / 960.0) * (1100.0 / 960.0))
+    if ratio < 0.9 || ratio > 1.1 { return 14 }
+    // A 3x, 8x and fractional tile against a whole render at each scale.
+    scales: [3]float32 = .[3.0, 8.0, 1.375]
+    for index: cast(s32)0..2 {
+        scale := scales[index]
+        origin_x: float32 = 200.0; origin_y: float32 = 160.0
+        if !Draw(Page(400, 400, origin_x, origin_y, scale), tile_ink[:]) { return 15 + index }
+        shifted := Page(200, 200, origin_x + 100.0 / scale, origin_y + 100.0 / scale, scale)
+        for at: cast(s32)0..39999 { large_ink[at] = 0 }
+        if !Draw(shifted, large_ink[:40000]) { return 18 + index }
+        for y: cast(s32)0..199 {
+            for x: cast(s32)0..199 {
+                if !Near(tile_ink[(y + 100) * 400 + x + 100], large_ink[y * 200 + x], 2) { return 21 + index }
+            }
+        }
+    }
+    return 0
+}
+
+// A stencil's body hides the scene's lines below it; its own ink stays.
+LayerTests :: () -> s32 {
+    if !PaintViewOpsSet("S 0\n", DiskRead) || !Draw(Page(960, 720, 0.0, 0.0, 1.0), page_ink[:]) { return 30 }
+    alone: s32 = 0
+    for at: cast(s32)0..CANVAS_PIXELS - 1 { if page_ink[at] > cast(u8)0 { alone += 1 } }
+    if !PaintViewOpsSet("S 0\nO 0 65536 0 0 65536 0 0\n", DiskRead) || !Draw(Page(960, 720, 0.0, 0.0, 1.0), page_ink[:]) { return 31 }
+    covered: s32 = 0
+    for at: cast(s32)0..CANVAS_PIXELS - 1 { if page_ink[at] > cast(u8)0 { covered += 1 } }
+    if covered == alone || covered == 0 { return 32 }
+    return 0
+}
+
+// Ops of an older object: ink under its pixels goes, and its lines stay page pixels.
+LegacyTests :: () -> s32 {
+    unused SceneOpen(0)
+    scene = 0
+    // Forget the art, as a picture saved before vector outlines loads.
+    CanvasStampDino(0, 2, 100, 100, false)
+    if layers[0].art != 1 { return 40 }
+    layers[0].art = 0
+    ops := CanvasVectorOps()
+    if ops.count < 8 || ops[:4] != "S 0\n" || ops[4] != #char "X" { return 41 }
+    if !PaintViewOpsSet(ops, DiskRead) { return 42 }
+    if !Draw(Page(960, 720, 0.0, 0.0, 1.0), page_ink[:]) { return 43 }
+    object := layers[0]
+    for y: cast(s32)0..object.h - 1 {
+        for x: cast(s32)0..object.w - 1 {
+            if object.pixels[y * object.w + x] != cast(u8)255 && page_ink[(object.y + y) * CANVAS_WIDTH + object.x + x] != cast(u8)0 { return 44 }
+        }
+    }
+    // A pencil line is a vector line, at any fraction of a pixel.
+    CanvasBlank()
+    scene = BLANK_SCENE
+    if !CanvasPencilBeginAt(CanvasPencilPointAt(100.5, 100.25)) || !CanvasPencilMoveAt(CanvasPencilPointAt(180.75, 100.25)) { return 45 }
+    ops = CanvasVectorOps()
+    if ops.count < 3 || ops[0] != #char "P" { return 46 }
+    if !PaintViewOpsSet(ops, DiskRead) || !Draw(Page(960, 720, 0.0, 0.0, 1.0), page_ink[:]) { return 47 }
+    if page_ink[100 * CANVAS_WIDTH + 140] != cast(u8)255 || page_ink[120 * CANVAS_WIDTH + 140] != cast(u8)0 { return 48 }
+    if CanvasColorAt(140, 100) != INK || CanvasColorAt(140, 120) == INK { return 49 }
+    CanvasBlank()
+    return 0
+}
+
+// A tap maps to the same page point at any zoom, so a fill stays in its region.
+FillTests :: () -> s32 {
+    viewport := Rectangle.{40.0, 30.0, 640.0, 480.0}
+    page := Vector2.{480.0, 360.0}
+    // Find a fillable page point in the first scene.
+    unused SceneOpen(0)
+    found := false
+    for y: cast(s32)0..CANVAS_HEIGHT - 1 {
+        for x: cast(s32)0..CANVAS_WIDTH - 1 {
+            if CanvasColorAt(x, y) == PAPER && x > 200 && x < 760 && y > 200 && y < 520 {
+                page = Vector2.{cast(float32)x + 0.5, cast(float32)y + 0.5}; found = true; break
+            }
+        }
+        if found { break }
+    }
+    if !found { return 50 }
+    original: s32 = 0
+    zooms: [4]float32 = .[1.0, 1.5, 3.0, 8.0]
+    for index: cast(s32)0..3 {
+        unused SceneOpen(0)
+        view := ViewFit(viewport, 960.0, 720.0, 8.0)
+        ViewZoomAt(*view, Vector2.{viewport.x + 300.0, viewport.y + 200.0}, zooms[index])
+        // Pan so the target is on screen, away from the viewport's middle.
+        screen := ViewPageToScreen(view, page)
+        ViewPanBy(*view, viewport.x + 200.0 - screen.x, viewport.y + 150.0 - screen.y)
+        screen = ViewPageToScreen(view, page)
+        back := ViewScreenToPage(view, screen)
+        x := cast(s32)back.x; y := cast(s32)back.y
+        if x != cast(s32)page.x || y != cast(s32)page.y { return 51 + index }
+        count := CanvasFill(x, y, 20)
+        if count <= 0 { return 55 + index }
+        if index == 0 {
+            original = count
+            for at: cast(s32)0..CANVAS_PIXELS - 1 { fill_first[at] = canvas[at] }
+        } else {
+            if count != original { return 59 + index }
+            for at: cast(s32)0..CANVAS_PIXELS - 1 { if fill_first[at] != canvas[at] { return 63 + index } }
+        }
+        // Ink stays where it was.
+        for at: cast(s32)0..CANVAS_PIXELS - 1 { if base[at] == cast(u8)INK && canvas[at] != cast(u8)INK && layer_count == 0 { return 67 + index } }
+    }
+    return 0
+}
+
+#program_export
+main :: () -> s32 {
+    result := BleedTests()
+    if result != 0 { return Fail(result) }
+    result = ScaleTests()
+    if result != 0 { return Fail(result) }
+    result = LayerTests()
+    if result != 0 { return Fail(result) }
+    result = LegacyTests()
+    if result != 0 { return Fail(result) }
+    result = FillTests()
+    if result != 0 { return Fail(result) }
+    Report("local paint view test passed: bleed, ink at scales, tiles, bodies, older objects, pencil and fill at zoom\n")
+    return 0
+}

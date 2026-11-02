@@ -1,3 +1,5 @@
+#import, file "paint_palette.zi";
+
 // Pixel-sized scene controls live inside the scaled book's paper, not its frame.
 ScenePickerLayout :: struct {
     width: s32; height: s32; padding: s32; top: s32; gap: s32
@@ -129,9 +131,13 @@ StencilPagePrevious :: (anchor: s32, capacity: s32, count: s32) -> s32 {
 // keep the same eight digits, so stencils, sizes and scenes load unchanged.
 PAINT_CHOICES_V1 :: "JUNGLE PAINT CHOICES 1\n"
 PAINT_CHOICES_V2 :: "JUNGLE PAINT CHOICES 2\n"
+// Version 3 adds a high digit for stencil choices beyond the first 63.
+PAINT_CHOICES_V3 :: "JUNGLE PAINT CHOICES 3\n"
 PAINT_CHOICES_DIGITS :: 8
 
 PaintChoicesVersion :: (saved: string) -> s32 {
+    if saved.count == PAINT_CHOICES_V3.count + PAINT_CHOICES_DIGITS + 1 &&
+        saved[:PAINT_CHOICES_V3.count] == PAINT_CHOICES_V3 { return 3 }
     if saved.count != PAINT_CHOICES_V2.count + PAINT_CHOICES_DIGITS { return 0 }
     header := saved[:PAINT_CHOICES_V2.count]
     if header == PAINT_CHOICES_V2 { return 2 }
@@ -139,10 +145,23 @@ PaintChoicesVersion :: (saved: string) -> s32 {
     return 0
 }
 
+PaintChoicesStencil :: (saved: string) -> s32 {
+    version := PaintChoicesVersion(saved)
+    if version == 0 { return -1 }
+    value := PaintIndex(saved[PAINT_CHOICES_V2.count])
+    if value < 0 { return -1 }
+    if version == 3 {
+        high := PaintIndex(saved[PAINT_CHOICES_V3.count + PAINT_CHOICES_DIGITS])
+        if high <= 0 { return -1 }
+        value += high * 64
+    }
+    return value
+}
+
 // The saved stencil anchor for a category of count items, or -1 if invalid.
 PaintChoicesAnchor :: (version: s32, value: s32, count: s32) -> s32 {
     if value < 0 || count < 1 { return -1 }
     if version == 1 { return ifx value < (count + 5) / 6 then value * 6 else -1 }
-    if version == 2 { return ifx value < count then value else -1 }
+    if version == 2 || version == 3 { return ifx value < count then value else -1 }
     return -1
 }
