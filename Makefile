@@ -249,9 +249,9 @@ test: build/tests/title build/tests/paint_preview build/tests/paint_gallery buil
 	python3 tests/android_editions_test.py
 
 # Actual input and rendering on a private display; requires Xvfb, xdotool,
-	python3 tests/title_guide_ui_test.py
 # ImageMagick and Pillow. Never uses the inherited desktop or owner saves.
 test-ui: all
+	python3 tests/title_guide_ui_test.py
 	python3 tests/sweet_porridge_ui_test.py
 	python3 tests/garden_ui_test.py
 	python3 tests/shapes_guidance_test.py
