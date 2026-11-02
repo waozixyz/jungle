@@ -7,7 +7,7 @@ import tempfile
 import time
 
 from PIL import ImageChops
-from runtime_test import Desktop, ROOT
+from runtime_test import Desktop, ROOT, title_unit
 sys.path.insert(0, str(ROOT / "tools"))
 from book_catalog import BOOKS, BOOK_GROUPS, LANGUAGES, voice_path
 
@@ -24,6 +24,13 @@ def different(a, b, box=None):
     if box:
         a, b = a.crop(box), b.crop(box)
     return ImageChops.difference(a, b).getbbox() is not None
+
+
+def language_flags(picture):
+    # The title scene includes animated paper and guidance. Only the corner
+    # flags (including their selected frame) represent the language setting.
+    unit = title_unit(*picture.size)
+    return picture.crop((0, 0, round(108 * unit), round(34 * unit)))
 
 
 def select_book(desktop, category_index):
@@ -66,7 +73,7 @@ def main():
             with Desktop(binary, data) as desktop:
                 desktop.capture(f"{language}-menu-before")
                 desktop.select_language(index)
-                menu = desktop.capture(f"{language}-menu")
+                menu = language_flags(desktop.capture_actual(f"{language}-menu"))
                 assert (data / "language.txt").read_text() == language
                 desktop.game("Picture Book")
                 categories = desktop.wait_book(f"{language}-books")
@@ -165,8 +172,9 @@ def main():
                 desktop.capture(f"{language}-scenes")
             # Verify the actual saved language after starting a fresh process.
             with Desktop(binary, data) as desktop:
-                persisted = desktop.capture(f"{language}-menu-persisted")
-                assert not different(menu, persisted), "Language did not survive reopening Jungle"
+                persisted = desktop.capture_actual(f"{language}-menu-persisted")
+                assert (data / "language.txt").read_text() == language
+                assert not different(menu, language_flags(persisted)), "Language did not survive reopening Jungle"
             print(f"local UI test: {language}, {len(BOOKS)} books, two modes, swipes, timing and persistence passed", flush=True)
     print("local Picture Book language and mode UI tests passed")
 
