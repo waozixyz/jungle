@@ -558,7 +558,7 @@ Menu :: (session: Session, bounds: Rectangle, key: s32) {
         return
     }
     action := JungleMenu(session, bounds, key, JungleSeconds(), FONT, games[:game_count], *chosen,
-        sound_muted, title_guide_muted, title_guide_seen, message)
+        sound_muted, title_guide_muted, title_guide_seen, message, jungle_collection, TitlePaperCollect)
     if title_guide_playing && (action.guide_stop || action.language_changed ||
         (action.guide_mute_toggle && !title_guide_muted)) {
         SoundStop()
@@ -584,8 +584,15 @@ Menu :: (session: Session, bounds: Rectangle, key: s32) {
     if action.sound_toggle { ToggleSound() }
     if action.navigated { SoundPlay("assets/jungle/sounds/select.wav") }
     if action.collection_open { CollectionBookOpen(); SoundStop(); title_guide_playing = false }
+    if action.paper_collected {
+        // The book's soft chime, or the title's own gentle sound if it is not installed.
+        SoundPlay(ifx SoundSamples(TITLE_PAPER_CHIME) != "" then TITLE_PAPER_CHIME else "assets/jungle/sounds/select.wav")
+    }
     if action.game >= 0 { Start(action.game) }
 }
+
+// A title scene's paper: true only the first time its line art is collected.
+TitlePaperCollect :: (slug: string) -> bool { return HostCollect(slug) == 1 }
 
 Start :: (index: s32) {
     abc_title_speed = 1; title_speed_pending = false

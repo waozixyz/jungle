@@ -31,6 +31,10 @@ SoundOffIcon :: #import "mingcute/mingcute_regular_volume_off";
 #import, file "jungle_collection.zi";
 #import, file "jungle_title.zi";
 #import, file "jungle_title_data.zi";
+#import, file "../retro/paper_rules.zi";
+#import, file "../retro/paper_draw.zi";
+#import, file "../retro/collectibles.zi";
+#import, file "../retro/collect_flight.zi";
 
 MenuGame :: struct {
     bundle_name: string
@@ -50,11 +54,15 @@ MenuAction :: struct {
     guide_finished: bool
     guide_mute_toggle: bool
     collection_open: bool
+    // A scene's hidden paper was just collected: the host plays its chime.
+    paper_collected: bool
 }
 
 // The scene shown and what glows in it; kept while a game plays, so a
 // child comes back to the same room.
 title_state: TitleState;
+title_papers: TitlePapers;
+TITLE_PAPER_CHIME :: "assets/jungle-book/collect.wav"
 title_book_requested: string;
 GAME_BAR_HEIGHT :: 56
 ABC_SPEED_KEY :: 10001
@@ -179,9 +187,10 @@ TitleLanguageFlags :: () -> bool {
 
 // The treehouse title screen. KEY is this frame's key; CHOICE receives the
 // catalog index of a game as it opens, which MenuAction.game reports.
+// COLLECTION is what the child has earned; COLLECT earns a scene's paper.
 JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font: string,
     games: []MenuGame, choice: *s32, sound_muted: bool, guide_muted: bool, guide_seen: bool,
-    message: string) -> MenuAction {
+    message: string, collection: Collection, collect: SecretPaperCollect) -> MenuAction {
     action := MenuAction.{.game = -1}
     if !title_state.started { TitleStart(*title_state) }
     if guide_seen {
@@ -215,6 +224,14 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
     // The flags and the sound button sit over the picture's corners.
     blocked := guide_hover || (px < cast(float32)(6 + 3 * 34) * unit && py < 34.0 * unit) ||
         (px > bounds.width - 112.0 && py < 56.0)
+    // The hidden paper takes its own hover and tap before the scene sees them;
+    // a drag that starts on it still pans the picture.
+    paper := TitlePaperSpot(title_state.scene, view, bounds.width, bounds.height)
+    paper_had := paper.index >= 0 && CollectionHas(collection, collectible_slugs[paper.index])
+    paper_input := TitlePaperPointer(*title_papers, paper, paper_had, px, py, pointer.down,
+        pointer.pressed && !blocked, pointer.released, now, collect)
+    if paper_input.owned { blocked = true }
+    action.paper_collected = paper_input.collected
     if step.game < 0 { step = TitlePointer(*title_state, view, px, py, pointer.down, pointer.pressed, pointer.released, blocked, now) }
     if step.game < 0 { step = TitleTick(*title_state, now) }
     if guide_hover && !title_state.guide_finished_reported { title_state.guide_stopped = false }
@@ -277,6 +294,11 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
             picture.y + cast(float32)TITLE_GLOW_RECT[rect + 1] * view.scale,
             cast(float32)TITLE_GLOW_RECT[rect + 2] * view.scale,
             cast(float32)TITLE_GLOW_RECT[rect + 3] * view.scale}, cast(u32)0xffffff00 | alpha)
+    }
+    paper = TitlePaperSpot(scene, view, bounds.width, bounds.height)
+    if paper.index >= 0 && SecretPaperShown(title_papers.papers[paper.index], paper.index,
+        CollectionHas(collection, collectible_slugs[paper.index])) {
+        SecretPaperDraw(bounds.x + paper.x, bounds.y + paper.y, paper.size, SecretPaperGlow(now), 1.0)
     }
 
     if guiding {
@@ -343,7 +365,28 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
     }
     retro.scale = 1.0
     action.collection_open = CollectionBookButton(cast(s32)bounds.width - 106, 6)
+    TitlePaperFlights(cast(s32)bounds.width - 106, 6, now)
     return action
+}
+
+// Each collected paper's empty scene line art flies from where the paper lay
+// into the Collection Book button at X, Y, among fading sparkles. Window
+// pixels, drawn with retro.scale 1.
+TitlePaperFlights :: (x: s32, y: s32, now: float64) {
+    target := CollectRect.{x, y, 44, 44}
+    for index: cast(s32)0..COLLECTIBLE_COUNT - 1 {
+        paper := *title_papers.papers[index]
+        SecretPaperStep(paper, now)
+        if paper.state != SECRET_PAPER_FLYING { continue }
+        progress := SecretPaperProgress(paper.*, now)
+        place := CollectFlight(paper.start, target, progress)
+        shown := RetroRect(place.x, place.y, place.width, place.height)
+        SecretPaperBox(shown.x, shown.y, shown.width, shown.height, 0xfffdf8ff, 1.0 - progress * progress * 0.3, 4.0)
+        path := ifx album_outlines[index] != "" then album_outlines[index] else AlbumOutlinePath(index)
+        Image(retro.session, ImageProps.{.asset_path = RetroImageShown(path), .bounds = shown,
+            .fit = ImageFit.ImageFitContain, .smooth = true})
+        SecretPaperTwinkle(place.x + place.width / 2, place.y + place.height / 2, place.width / 2, 1.0 - progress * progress)
+    }
 }
 
 // Shared by native desktop/Android and web. Back belongs to the album while open.

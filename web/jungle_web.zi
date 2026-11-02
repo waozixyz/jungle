@@ -296,6 +296,9 @@ WebCollectionService :: (service: string, request: string) -> string {
     reply, changed := CollectionService(*web_collection, service, request)
     if changed { unused Runner.DocumentWriteHost("settings/collection.txt", CollectionText(web_collection)) }
     return reply
+// A title scene's paper: true only the first time its line art is collected.
+WebTitlePaperCollect :: (slug: string) -> bool { return WebCollectionService("jungle.collect", slug) == "new" }
+
 }
 
 #program_export
@@ -414,7 +417,8 @@ JungleMain :: () -> s64 {
     }
     if active_game < 0 {
         action := JungleMenu(AppSession(), AppBounds(), key, AppNow(), "assets/jungle/font.png", web_games[:],
-            *selected, web_muted, web_title_guide_muted, web_title_guide_seen, "")
+            *selected, web_muted, web_title_guide_muted, web_title_guide_seen, "", web_collection, WebTitlePaperCollect)
+        if action.paper_collected { PlayAudio(TITLE_PAPER_CHIME, false) }
         if web_title_guide && (action.guide_stop || action.language_changed ||
             (action.guide_mute_toggle && !web_title_guide_muted)) {
             StopAudio()

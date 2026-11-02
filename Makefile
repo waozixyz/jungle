@@ -275,6 +275,7 @@ test-ui: all
 	python3 tests/runtime_test.py --ui
 	python3 tests/book_ui_test.py
 	python3 tests/book_additions_ui_test.py
+	python3 tests/title_paper_ui_test.py
 	python3 tests/learning_menu_test.py
 	python3 tests/abc_sequence_ui_test.py
 	python3 tests/playback_ui_test.py

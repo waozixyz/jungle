@@ -2,6 +2,9 @@
 #import, file "../host/jungle_title.zi";
 #import, file "../host/jungle_title_data.zi";
 #import, file "../host/platform.zi";
+#import, file "../retro/paper_rules.zi";
+#import, file "../retro/collectibles.zi";
+#import, file "../retro/collect_flight.zi";
 
 Near :: (a: float32, b: float32) -> bool { return a - b < 0.01 && b - a < 0.01 }
 
@@ -337,6 +340,156 @@ main :: () -> s32 {
             if path.count < 4 || path[path.count - 4:] != ".wav" { return 112 + language * 3 + step }
         }
     }
+    paper_failure := TitlePaperChecks()
+    if paper_failure != 0 { return paper_failure }
     Report("local title scene test passed\n")
+    return 0
+}
+
+paper_collects: s32;
+// Answers new only the first time, as the hosts' collection does.
+PaperCollect :: (slug: string) -> bool {
+    paper_collects += 1
+    return paper_collects == 1 && slug == "treehouse-scene"
+}
+
+// Whether the paper's whole tap square, plus a finger's margin, misses every
+// hotspot, the language flags and the sound and Collection Book buttons.
+PaperClear :: (scene: s32, view: TitleView, place: TitlePaperPlace, width: float32, height: float32) -> bool {
+    unit := (ifx width < height then width else height) / 300.0
+    if unit < 1.0 { unit = 1.0 }
+    if unit > 3.0 { unit = 3.0 }
+    reach := cast(float32)SecretPaperReach(cast(s32)place.size) + 12.0
+    left := place.x - reach
+    right := place.x + reach
+    top := place.y - reach
+    bottom := place.y + reach
+    // Fully in the window and on the picture.
+    if left < 0.0 || top < 0.0 || right > width || bottom > height { return false }
+    if left < view.x || top < view.y || right > view.x + cast(float32)TITLE_SCENE_WIDTH[scene] * view.scale ||
+        bottom > view.y + cast(float32)TITLE_SCENE_HEIGHT[scene] * view.scale { return false }
+    // Flags top left; sound and Collection Book top right (JungleMenu's blocked corners).
+    if left < cast(float32)(6 + 3 * 34) * unit && top < 34.0 * unit { return false }
+    if right > width - 112.0 && top < 56.0 { return false }
+    if right > width - 32.0 * unit && top < 28.0 * unit { return false }
+    for row: cast(s32)0..16 {
+        for column: cast(s32)0..16 {
+            x := left + (right - left) * cast(float32)column / 16.0
+            y := top + (bottom - top) * cast(float32)row / 16.0
+            if TitleHit(scene, TitleSourceX(view, x), TitleSourceY(view, y)) >= 0 { return false }
+        }
+    }
+    return true
+}
+
+// The paper of STATE's scene once its picture has panned.
+TitlePlaceAfterPan :: (state: TitleState, place: TitlePaperPlace, width: float32, height: float32) -> TitlePaperPlace {
+    return TitlePaperSpot(state.scene, TitleFit(width, height, state.pan_x, state.pan_y, state.scene), width, height)
+}
+
+TitlePaperChecks :: () -> s32 {
+    // One paper on each original title scene, holding that scene's empty line
+    // art, clear of every hotspot and corner control in landscape and portrait.
+    names: [3]string = .["treehouse", "bookshelf", "campus"]
+    slugs: [3]string = .["treehouse-scene", "bookshelf-scene", "campus-scene"]
+    widths: [8]float32 = .[1280.0, 960.0, 1024.0, 2560.0, 420.0, 390.0, 768.0, 600.0]
+    heights: [8]float32 = .[720.0, 600.0, 768.0, 1080.0, 900.0, 844.0, 1024.0, 800.0]
+    for named: cast(s32)0..2 {
+        base := SceneNamed(names[named])
+        if base < 0 { return 200 + named }
+        index := TitlePaperIndex(base)
+        if index < 0 || collectible_slugs[index] != slugs[named] || collectible_how_kinds[index] != COLLECTIBLE_HOW_PAPER ||
+            collectible_paint_kinds[index] != COLLECTIBLE_PAINT_SCENE { return 203 + named }
+        for size: cast(s32)0..7 {
+            scene := ResolveTitleSceneVariant(base, widths[size], heights[size])
+            if TitlePaperIndex(scene) != index { return 206 + named }
+            if (size >= 4) != (scene != base) { return 209 + named }
+            view := TitleFit(widths[size], heights[size], 0.0, 0.0, scene)
+            place := TitlePaperSpot(scene, view, widths[size], heights[size])
+            if place.index != index || place.size < SECRET_PAPER_SMALLEST || place.size > SECRET_PAPER_LARGEST { return 212 + named }
+            if !PaperClear(scene, view, place, widths[size], heights[size]) { return 220 + named * 8 + size }
+            // The same check refuses a paper laid on one of the scene's items.
+            on_item := place
+            item_x: float32
+            item_y: float32
+            if !OwnPoint(scene, TITLE_SCENE_FIRST[scene], *item_x, *item_y) { return 215 + named }
+            on_item.x = view.x + item_x * view.scale
+            on_item.y = view.y + item_y * view.scale
+            if PaperClear(scene, view, on_item, widths[size], heights[size]) { return 218 }
+            // Panned to either edge it still lies in the same painted spot.
+            panned := TitleFit(widths[size], heights[size], 9999.0, 9999.0, scene)
+            moved := TitlePaperSpot(scene, panned, widths[size], heights[size])
+            if !Near(moved.x - panned.x, place.x - view.x) || !Near(moved.y - panned.y, place.y - view.y) { return 245 + named }
+        }
+    }
+    // The waterfront scenes hide no paper, and nothing there takes the pointer.
+    for scene: cast(s32)0..TITLE_SCENE_COUNT - 1 {
+        name := TITLE_SCENE_NAME[TITLE_SCENE_BASE[scene]]
+        if name == "treehouse" || name == "bookshelf" || name == "campus" { continue }
+        if TitlePaperIndex(scene) >= 0 { return 248 }
+        none: TitlePapers
+        empty := TitlePaperSpot(scene, TitleFit(960.0, 600.0, 0.0, 0.0, scene), 960.0, 600.0)
+        input := TitlePaperPointer(*none, empty, false, empty.x, empty.y, true, true, false, 1.0, PaperCollect)
+        if input.owned || input.collected || paper_collects != 0 { return 249 }
+    }
+
+    // A tap on the treehouse paper collects it once and flies; the scene never
+    // sees the tap, so nothing glows, opens or pans.
+    for portrait: cast(s32)0..1 {
+        paper_collects = 0
+        width: float32 = ifx portrait == 1 then 420.0 else 960.0
+        height: float32 = ifx portrait == 1 then 900.0 else 600.0
+        papers: TitlePapers
+        state: TitleState
+        TitleStart(*state)
+        TitleResolve(*state, width, height)
+        view := TitleFit(width, height, 0.0, 0.0, state.scene)
+        place := TitlePaperSpot(state.scene, view, width, height)
+        if place.index < 0 { return 250 }
+        // A mouse resting on the paper makes nothing glow.
+        hover := TitlePaperPointer(*papers, place, false, place.x, place.y, false, false, false, 1.0, PaperCollect)
+        unused TitlePointer(*state, view, place.x - 40.0, place.y, false, false, false, hover.owned, 0.9)
+        unused TitlePointer(*state, view, place.x, place.y, false, false, false, hover.owned, 1.0)
+        if !hover.owned || TitleGlowing(state) >= 0 { return 251 }
+        press := TitlePaperPointer(*papers, place, false, place.x, place.y, true, true, false, 2.0, PaperCollect)
+        step := TitlePointer(*state, view, place.x, place.y, true, true, false, press.owned, 2.0)
+        if press.owned || press.collected || paper_collects != 0 || step.game >= 0 || state.pressed >= 0 { return 252 }
+        release := TitlePaperPointer(*papers, place, false, place.x + 3.0, place.y + 2.0, false, false, true, 2.1, PaperCollect)
+        step = TitlePointer(*state, view, place.x + 3.0, place.y + 2.0, false, false, true, release.owned, 2.1)
+        if !release.owned || !release.collected || paper_collects != 1 { return 253 }
+        if step.game >= 0 || step.moved || state.pending >= 0 || state.pan_x != 0.0 || state.pan_y != 0.0 { return 254 }
+        flying := papers.papers[place.index]
+        if flying.state != SECRET_PAPER_FLYING || SecretPaperProgress(flying, 2.1 + COLLECT_FLIGHT_SECONDS / 2.0) <= 0.0 { return 255 }
+        if TitleTick(*state, 3.0).game >= 0 || state.scene != ResolveTitleSceneVariant(0, width, height) { return 256 }
+        // Gone for good: after its flight nothing lies there to tap.
+        again := TitlePaperPointer(*papers, place, true, place.x, place.y, true, true, false, 5.0, PaperCollect)
+        if again.owned || papers.papers[place.index].state != SECRET_PAPER_GONE { return 257 }
+        unused TitlePaperPointer(*papers, place, true, place.x, place.y, false, false, true, 5.1, PaperCollect)
+        if paper_collects != 1 { return 258 }
+        // A paper already in the collection never shows, even on a fresh start.
+        fresh: TitlePapers
+        earned := TitlePaperPointer(*fresh, place, true, place.x, place.y, true, true, false, 6.0, PaperCollect)
+        if earned.owned || SecretPaperShown(fresh.papers[place.index], place.index, true) { return 259 }
+        // A press that slides off the paper before release collects nothing.
+        slid: TitlePapers
+        unused TitlePaperPointer(*slid, place, false, place.x, place.y, true, true, false, 7.0, PaperCollect)
+        off := TitlePaperPointer(*slid, place, false, place.x + 200.0, place.y, false, false, true, 7.2, PaperCollect)
+        if off.collected || slid.papers[place.index].state != SECRET_PAPER_WAITING || paper_collects != 1 { return 260 }
+        // A drag that starts on the paper pans the picture, as anywhere else, and collects nothing.
+        dragged: TitlePapers
+        drag: TitleState
+        TitleStart(*drag)
+        TitleResolve(*drag, width, height)
+        if view.pan_x_limit <= 0.0 { return 261 }
+        unused TitlePaperPointer(*dragged, place, false, place.x, place.y, true, true, false, 8.0, PaperCollect)
+        unused TitlePointer(*drag, view, place.x, place.y, true, true, false, false, 8.0)
+        unused TitlePaperPointer(*dragged, place, false, place.x - 40.0, place.y, true, false, false, 8.1, PaperCollect)
+        unused TitlePointer(*drag, view, place.x - 40.0, place.y, true, false, false, false, 8.1)
+        moved_paper := TitlePlaceAfterPan(drag, place, width, height)
+        dropped := TitlePaperPointer(*dragged, moved_paper, false, place.x - 40.0, place.y, false, false, true, 8.2, PaperCollect)
+        unused TitlePointer(*drag, view, place.x - 40.0, place.y, false, false, true, dropped.owned, 8.2)
+        if drag.pan_x >= 0.0 || dropped.collected || dragged.papers[place.index].state != SECRET_PAPER_WAITING ||
+            paper_collects != 1 { return 262 }
+    }
     return 0
 }

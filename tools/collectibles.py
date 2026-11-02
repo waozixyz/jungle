@@ -169,12 +169,19 @@ def validate_registry(registry: dict[str, Any], root: Path = ROOT) -> list[dict[
             if x - rx < 0.0 or x + rx > 1.0 or y - ry < 0.0 or y + ry > 1.0:
                 raise RegistryError(f"{where} tap ellipse leaves the picture")
         else:
-            paper_fields = {"kind", "x", "y"} if source_kind == "title" else {"kind"}
+            # A title paper lies at x, y in the landscape picture and at portrait.x, portrait.y
+            # in the portrait one, each normalized to its own picture.
+            paper_fields = {"kind", "x", "y", "portrait"} if source_kind == "title" else {"kind"}
             if set(how) != paper_fields:
                 raise RegistryError(f"{where} paper fields are invalid")
             if source_kind == "title":
                 _unit(how["x"], f"{where} how.x")
                 _unit(how["y"], f"{where} how.y")
+                portrait = _object(how["portrait"], f"{where} how.portrait")
+                if set(portrait) != {"x", "y"}:
+                    raise RegistryError(f"{where} portrait paper fields are invalid")
+                _unit(portrait["x"], f"{where} how.portrait.x")
+                _unit(portrait["y"], f"{where} how.portrait.y")
 
         pending = entry.get("pending", False)
         if not isinstance(pending, bool):
@@ -264,6 +271,15 @@ def render_catalog(entries: list[dict[str, Any]]) -> str:
         ),
         (
             f"collectible_ry: [{count}]float32 = .[{_floats([entry['how'].get('ry', 0.0) for entry in ordered])}];"
+        ),
+        "// A title paper's place in the portrait picture; collectible_x/y hold the landscape one.",
+        (
+            f"collectible_portrait_x: [{count}]float32 = "
+            f".[{_floats([entry['how'].get('portrait', {}).get('x', 0.0) for entry in ordered])}];"
+        ),
+        (
+            f"collectible_portrait_y: [{count}]float32 = "
+            f".[{_floats([entry['how'].get('portrait', {}).get('y', 0.0) for entry in ordered])}];"
         ),
         f"collectible_colors: [{count}]string = .[{_strings([entry['color'] for entry in ordered])}];",
         # A pending picture is not painted or bundled yet: show only a sparkle.

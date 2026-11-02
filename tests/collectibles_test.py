@@ -43,6 +43,22 @@ def test_rejects_bad_registry_fields(field, value):
         validate_registry(mutate(field, value))
 
 
+@pytest.mark.parametrize(
+    "how",
+    [
+        {"kind": "paper", "x": 0.45, "y": 0.62},
+        {"kind": "paper", "x": 0.45, "y": 0.62, "portrait": {"x": 0.4}},
+        {"kind": "paper", "x": 0.45, "y": 0.62, "portrait": {"x": 0.4, "y": 1.2}},
+    ],
+)
+def test_title_papers_need_a_portrait_spot(how):
+    registry = load_registry()
+    title = next(entry for entry in registry["collectibles"] if entry["source"]["kind"] == "title")
+    title["how"] = how
+    with pytest.raises(RegistryError):
+        validate_registry(registry)
+
+
 def test_allows_pending_color_to_be_missing(tmp_path: Path):
     registry = load_registry()
     for entry in registry["collectibles"]:

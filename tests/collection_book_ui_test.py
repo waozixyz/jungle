@@ -40,7 +40,10 @@ for locale in ('en', 'de', 'es'):
         data = Path(directory)
         (data / 'language.txt').write_text(locale)
         (data / 'guide-seen.txt').write_text('yes')
-        (data / 'collection.txt').write_text('JUNGLE COLLECTION 1\nmonkey\n')
+        # The title papers are already earned, so no pulsing paper glow changes
+        # the exact title comparison below.
+        (data / 'collection.txt').write_text(
+            'JUNGLE COLLECTION 1\nmonkey\ntreehouse-scene\nbookshelf-scene\ncampus-scene\n')
         with Desktop(ROOT / 'build/app/jungle', data) as d:
             for width, height in ((960, 600), (320, 568)):
                 d.resize(width, height)

@@ -3,6 +3,11 @@
 // touch and keys move between scenes. host/jungle_menu.zi draws it.
 #import, file "jungle_title_data.zi";
 #import, file "jungle_text.zi";
+#import, file "../retro/collectibles.zi";
+#import, file "../retro/collect_flight.zi";
+#import, file "../retro/paper_rules.zi";
+#import, file "../retro/collectibles.zi";
+#import, file "../retro/collect_flight.zi";
 
 // A tap on a touch screen glows this long before its item opens.
 TITLE_TAP_SECONDS :: 0.25
@@ -435,4 +440,98 @@ TitleGuide :: (state: *TitleState, now: float64, muted: bool, interrupted: bool,
         state.guide_spoken_step = state.guide_step
     }
     return frame
+}
+
+// A scene's hidden paper: one small white paper lies somewhere in the
+// painting until a tap collects that scene's empty line art. No text, no
+// voice; host/jungle_menu.zi draws it and flies the line art away.
+TitlePaperPlace :: struct {
+    // The registry entry the paper holds; -1 when the scene hides none.
+    index: s32
+    // Its middle and edge in window pixels, from the window's top left.
+    x: float32
+    y: float32
+    size: float32
+}
+
+// One paper per registry entry, and whether the pointer's press began on one, and where.
+TitlePapers :: struct {
+    papers: [COLLECTIBLE_COUNT]SecretPaper
+    pressed: bool
+    press_x: float32
+    press_y: float32
+}
+
+TitlePaperInput :: struct {
+    // The pointer is the paper's this frame, hovering it or tapping it: the
+    // scene treats it as blocked, so nothing glows or opens. A press is not
+    // the paper's, so a drag that starts on it still pans the picture.
+    owned: bool
+    // This tap collected the paper for the first time.
+    collected: bool
+}
+
+// The registry entry of SCENE's paper, in either composition; -1 when none.
+TitlePaperIndex :: (scene: s32) -> s32 {
+    if scene < 0 || scene >= TITLE_SCENE_COUNT { return -1 }
+    index := CollectibleForTitle(TITLE_SCENE_NAME[TITLE_SCENE_BASE[scene]])
+    if index < 0 || collectible_how_kinds[index] != COLLECTIBLE_HOW_PAPER { return -1 }
+    return index
+}
+
+// Where SCENE's paper lies for VIEW in a WIDTH by HEIGHT window. The portrait
+// picture has its own spot; both pan with the picture.
+TitlePaperSpot :: (scene: s32, view: TitleView, width: float32, height: float32) -> TitlePaperPlace {
+    place := TitlePaperPlace.{.index = TitlePaperIndex(scene)}
+    if place.index < 0 { return place }
+    portrait := TITLE_SCENE_BASE[scene] != scene
+    nx := ifx portrait then collectible_portrait_x[place.index] else collectible_x[place.index]
+    ny := ifx portrait then collectible_portrait_y[place.index] else collectible_y[place.index]
+    place.x = view.x + nx * cast(float32)TITLE_SCENE_WIDTH[scene] * view.scale
+    place.y = view.y + ny * cast(float32)TITLE_SCENE_HEIGHT[scene] * view.scale
+    short := ifx width < height then width else height
+    place.size = cast(float32)SecretPaperSize(short, 1.0)
+    return place
+}
+
+// Whether window point X, Y finds the paper at PLACE, a little past its edge.
+TitlePaperHit :: (place: TitlePaperPlace, x: float32, y: float32) -> bool {
+    if place.index < 0 { return false }
+    return SecretPaperHit(cast(s32)place.x, cast(s32)place.y, cast(s32)place.size, cast(s32)x, cast(s32)y)
+}
+
+// One frame of pointer input at window point (x, y) for the paper at PLACE,
+// before TitlePointer. COLLECTED: its line art was earned before, so no paper
+// lies there. A tap on the waiting paper (pressed and released on it, moving
+// less than a drag) collects it through COLLECT, and its line art starts flying.
+TitlePaperPointer :: (papers: *TitlePapers, place: TitlePaperPlace, collected: bool, x: float32, y: float32,
+    down: bool, pressed: bool, released: bool, now: float64, collect: SecretPaperCollect) -> TitlePaperInput {
+    input: TitlePaperInput
+    if place.index < 0 { papers.pressed = false; return input }
+    paper := *papers.papers[place.index]
+    SecretPaperStep(paper, now)
+    over := SecretPaperShown(paper.*, place.index, collected) && TitlePaperHit(place, x, y)
+    if pressed {
+        papers.pressed = over
+        papers.press_x = x
+        papers.press_y = y
+    }
+    input.owned = over && !down
+    if released && papers.pressed {
+        papers.pressed = false
+        dx := x - papers.press_x
+        dy := y - papers.press_y
+        still := dx <= TITLE_DRAG_PIXELS && dx >= -TITLE_DRAG_PIXELS && dy <= TITLE_DRAG_PIXELS && dy >= -TITLE_DRAG_PIXELS
+        if over && still {
+            input.owned = true
+            // The line art unfolds out of the paper a little larger, then flies.
+            edge := cast(s32)place.size
+            start := CollectRect.{cast(s32)place.x - edge, cast(s32)place.y - edge, edge * 2, edge * 2}
+            unused SecretPaperTap(paper, place.index, collected, now, start, collect)
+            input.collected = paper.state == SECRET_PAPER_FLYING
+        }
+    } else if !down {
+        papers.pressed = false
+    }
+    return input
 }
