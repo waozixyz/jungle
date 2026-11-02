@@ -41,8 +41,12 @@ def native_composition_test(path, segments, frames):
             span = samples[offset * 2:(offset + count) * 2]
             assert (not any(span)) if quiet else any(span), (segment, offset)
             offset += count
-    missing = [path for path in (APP / 'assets').rglob('*.wav') if 'assets/jungle/sounds/' not in path.as_posix()]
-    assert not missing, [path.relative_to(APP) for path in missing]
+    # The collection chime is a sound effect, not a narrated lesson.
+    chime = Path('assets/jungle-book/collect.wav')
+    assert (APP / chime).read_bytes() == (ROOT / chime).read_bytes()
+    unexpected = [path for path in (APP / 'assets').rglob('*.wav')
+                  if path != APP / chime and 'assets/jungle/sounds/' not in path.as_posix()]
+    assert not unexpected, [path.relative_to(APP) for path in unexpected]
 
 
 def browser_test():
