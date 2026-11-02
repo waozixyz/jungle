@@ -1,6 +1,8 @@
 # Changelog
 
-## [Unreleased]
+## 0.1.36
+
+Released 2026-11-02.
 
 - Read Sweet Porridge with complete portrait illustrations on tall screens and landscape illustrations on wide screens.
 
