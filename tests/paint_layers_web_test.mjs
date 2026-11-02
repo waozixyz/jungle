@@ -28,11 +28,12 @@ const titleScenes=JSON.parse(await readFile(new URL('../tools/title_hotspots.jso
 const WORKING='/kryon-apps/jungle/jungle.paint/working.txt',HISTORY='/kryon-apps/jungle/jungle.paint/working-undo.txt';
 const CODES='0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_',W=960,H=720,PAPER=15,CLEAR=255;
 const TOOLS=['Image','Color','Story','Erase','Gallery','Print','Undo','New picture','Select','Pencil'];
-// Read only the small source header for the toolbar inventory. Coordinates
-// still follow LayoutMain independently, at each tested viewport.
-const paintHeaderFile=await open('games/paint/dino_paint.zi','r'),paintHeader=Buffer.alloc(4096);
-await paintHeaderFile.read(paintHeader,0,4096,0);await paintHeaderFile.close();
+// Read a bounded source prefix for toolbar inventory and its responsive
+// breakpoint. Coordinates still follow LayoutMain independently.
+const paintHeaderFile=await open('games/paint/dino_paint.zi','r'),paintHeader=Buffer.alloc(65536);
+await paintHeaderFile.read(paintHeader,0,paintHeader.length,0);await paintHeaderFile.close();
 const TOOL_COUNT=Number(paintHeader.toString().match(/^TOOL_COUNT :: (\d+)/m)[1]);
+const LANDSCAPE_TWO_COLUMNS_UNDER=Number(paintHeader.toString().match(/columns: s32 = ifx height < (\d+) then 2 else 1/)[1]);
 // The saved picture: crayon, composed pixels, scene below the objects and
 // the objects from the bottom up.
 function picture(text){
@@ -98,7 +99,7 @@ function toolbarPoint(index,width,totalHeight){
   const below=pad+ch+pad;
   top=below+Math.floor((height-pad-below-th*rows-gap*(rows-1))/2);
  }else{
-  columns=height<440?2:1;const rows=Math.ceil(TOOL_COUNT/columns);
+  columns=height<LANDSCAPE_TWO_COLUMNS_UNDER?2:1;const rows=Math.ceil(TOOL_COUNT/columns);
   th=Math.floor((height-pad*2-gap*(rows-1))/rows);tw=Math.max(64,Math.min(Math.floor(th*5/2),Math.floor(width/(columns===2?8:5))));
   const rail=tw*columns+gap*(columns-1),room=height-pad*2;
   let cw=width-pad*3-rail,ch=Math.floor(cw*3/4);
@@ -112,15 +113,17 @@ function toolbarPoint(index,width,totalHeight){
 // Paint's landscape layout in a 960 by 600 page whose title bar is 56 high.
 const layout=(()=>{
  const width=960,height=544,pad=Math.min(20,Math.max(6,Math.floor(height/40))),gap=Math.min(10,Math.max(4,Math.floor(height/80)));
- const toolH=Math.floor((height-pad*2-gap*(TOOL_COUNT-1))/TOOL_COUNT),toolW=Math.min(Math.floor(width/5),Math.max(64,Math.floor(toolH*5/2)));
- let cw=width-pad*3-toolW,ch=Math.floor(cw*3/4);if(ch>height-pad*2){ch=height-pad*2;cw=Math.floor(ch*4/3)}
- const left=Math.floor((width-toolW-pad-cw)/2),cx=left+toolW+pad,cy=pad+Math.floor((height-pad*2-ch)/2);
+ const columns=height<LANDSCAPE_TWO_COLUMNS_UNDER?2:1,rows=Math.ceil(TOOL_COUNT/columns);
+ const toolH=Math.floor((height-pad*2-gap*(rows-1))/rows),toolW=Math.min(Math.floor(width/(columns===2?8:5)),Math.max(64,Math.floor(toolH*5/2)));
+ const rail=toolW*columns+gap*(columns-1);
+ let cw=width-pad*3-rail,ch=Math.floor(cw*3/4);if(ch>height-pad*2){ch=height-pad*2;cw=Math.floor(ch*4/3)}
+ const left=Math.floor((width-rail-pad-cw)/2),cx=left+rail+pad,cy=pad+Math.floor((height-pad*2-ch)/2);
  const scale=Math.min(960/320,544/200),rx=Math.trunc((960-scale*320)/2),ry=56+Math.trunc((544-scale*200)/2);
  return {
   canvas:{x:cx,y:56+cy,w:cw,h:ch},
   toolWidth:toolW,toolHeight:toolH,
   point:(x,y)=>({x:cx+(x+0.5)*cw/W,y:56+cy+(y+0.5)*ch/H}),
-  tool:index=>({x:left+toolW/2,y:56+cy+Math.floor((ch-toolH*TOOL_COUNT-gap*(TOOL_COUNT-1))/2)+index*(toolH+gap)+toolH/2}),
+  tool:index=>({x:left+index%columns*(toolW+gap)+toolW/2,y:56+cy+Math.floor((ch-toolH*rows-gap*(rows-1))/2)+Math.floor(index/columns)*(toolH+gap)+toolH/2}),
   dialog:(x,y,w,h)=>({x:rx+(x+w/2)*scale,y:ry+(y+h/2)*scale})
  };
 })();
@@ -135,6 +138,13 @@ const catalogSource=await readFile('games/paint/paint_catalog.zi','utf8');
 const catalogArray=name=>catalogSource.match(new RegExp(name+':[^=]+=[^\\[]*\\[([^\\]]+)'))[1].split(',').map(Number);
 const STENCIL_ORDER=catalogArray('paint_stencil_order'),STENCIL_STARTS=catalogArray('paint_stencil_category_starts'),STENCIL_COUNTS=catalogArray('paint_stencil_category_counts');
 const STENCIL_LAST=STENCIL_STARTS.map((start,c)=>STENCIL_ORDER[start+STENCIL_COUNTS[c]-1]+1);
+function chosenStencil(choices){
+ const [header,values]=choices?.split('\n')||[],low=CODES.indexOf(values?.[0]);
+ if(low<0)return -1;
+ if(header==='JUNGLE PAINT CHOICES 2'&&values.length===8)return low;
+ const high=CODES.indexOf(values?.[8]);
+ return header==='JUNGLE PAINT CHOICES 3'&&values.length===9&&high>=0?low+high*64:-1;
+}
 function sceneFirst(index=0,width=960,total=600){
  const h=total-56,fit=Math.max(1000,Math.min(Math.floor(width*1000/320),Math.floor(h*1000/200)));
  let p=Math.floor(14*fit/1000)+12;
@@ -293,39 +303,49 @@ async function run(input){
   async function resizePending(index,target,{exact=true}={}){
    const values=(await text('/kryon-apps/jungle/jungle.paint/choices.txt')).split('\n')[1];
    const width=stencilWidths[index*4+CODES.indexOf(values[3])-1],fullW=stencilWidths[index*4+3],fullH=stencilHeights[index*4+3],c=layout.canvas;
-   if(width===target)return;
-   // PlacementView uses the bounds' center (half a pixel for odd dimensions)
-   // and an integer handle. Choose an integer pointer endpoint in the middle
-   // of the target width's truncation interval, not on its rounding boundary.
-   const height=Math.ceil(width*fullH/fullW-.0001);
-   const center={x:c.x+(480+width%2/2)*c.w/W,y:c.y+(360+height%2/2)*c.h/H};
-   const corner={x:Math.floor(Math.max(c.x+22,Math.min(c.x+c.w-22,center.x+width*c.w/W/2))),y:Math.floor(Math.max(c.y+22,Math.min(c.y+c.h-74,center.y+width*fullH/fullW*c.h/H/2)))};
-   const distance=Math.hypot(corner.x-center.x,corner.y-center.y),ratio=(target+.5)/width;
-   const goal={x:center.x+(corner.x-center.x)*ratio,y:center.y+(corner.y-center.y)*ratio};
-   let end,score=Infinity;
+   if(width===target)return {x:480,y:360};
+   const height=Math.ceil(width*fullH/fullW-.0001),rawHeight=width*fullH/fullW;
+   // Put the fixed bottom-right corner at the picture edge. Both shrinking
+   // and growing can then use the top-left handle entirely inside the page.
+   const parked={x:W-Math.ceil(width/2),y:H-Math.ceil(height/2)},initial=layout.point(480,360),destination=layout.point(parked.x,parked.y);
+   await press(initial);
+   for(let step=1;step<=8;step++)await move({x:initial.x+(destination.x-initial.x)*step/8,y:initial.y+(destination.y-initial.y)*step/8});
+   await lift(destination);await frames(4);
+   const screen=(x,y)=>({x:c.x+x*c.w/W,y:c.y+y*c.h/H});
+   const center=screen(W-width/2,H-height/2),anchor={x:center.x+width*c.w/W/2,y:center.y+rawHeight*c.h/H/2};
+   const corner={x:center.x-width*c.w/W/2,y:center.y-rawHeight*c.h/H/2};
+   const diagonal={x:corner.x-anchor.x,y:corner.y-anchor.y},length=diagonal.x**2+diagonal.y**2;
+   const goal={x:anchor.x+diagonal.x*target/width,y:anchor.y+diagonal.y*target/width};
+   let end,score=Infinity,resizedWidth;
    for(let dy=-4;dy<=4;dy++)for(let dx=-4;dx<=4;dx++){
     const point={x:Math.round(goal.x)+dx,y:Math.round(goal.y)+dy};
-    const resized=width*Math.hypot(point.x-center.x,point.y-center.y)/distance;
-    if((!exact||Math.floor(resized)===target)&&Math.abs(resized-target-.5)<score){end=point;score=Math.abs(resized-target-.5)}
+    const resized=width*((point.x-anchor.x)*diagonal.x+(point.y-anchor.y)*diagonal.y)/length;
+    if((!exact||Math.round(resized)===target)&&Math.abs(resized-target)<score){end=point;score=Math.abs(resized-target);resizedWidth=Math.round(resized)}
    }
-   if(!end)throw Error(label+': no integer resize endpoint for width '+target);
+   if(!end)throw Error(label+': no integer anchored resize endpoint for width '+target);
    if(dom){
     await control('Resize stencil',corner);
     await evaluate('window.junglePaintPointerTrace=[]');
    }
    await press(corner);await move(end);await lift(end);await frames(4);
    if(dom)console.log(label+': resize pointer delivery '+JSON.stringify({index,width,target,corner,end,trace:await evaluate('window.junglePaintPointerTrace')}));
+   // Resizing preserves the opposite corner, so its new center also moves.
+   // CanvasPlacement rounds and clamps the resulting page rectangle.
+   const ratio=resizedWidth/width,newCenter={x:anchor.x+(center.x-anchor.x)*ratio,y:anchor.y+(center.y-anchor.y)*ratio};
+   const resizedHeight=Math.ceil(resizedWidth*fullH/fullW-.0001);
+   return {x:Math.max(Math.floor(resizedWidth/2),Math.min(W-Math.ceil(resizedWidth/2),Math.floor((newCenter.x-c.x)*W/c.w))),
+    y:Math.max(Math.floor(resizedHeight/2),Math.min(H-Math.ceil(resizedHeight/2),Math.floor((newCenter.y-c.y)*H/c.h)))};
   }
   // Every pointer release keeps the new stencil outside the saved document.
   async function place(at,{picking=false,mirror=false,secondary=false,watch=false}={}){
    if(!picking){await tool(0);await stable('stencil picker')}
    await tap(await control('Objects',stencil.category(3)));await stable('Objects');
    await tap(await control('Crate',stencil.tile(0)));await stable('in-scene placement');
-   await resizePending(24,232);
+   const pending=await resizePending(24,232);
    const stepsBefore=await steps(),pictureBefore=await saved();
    const values=(await text('/kryon-apps/jungle/jungle.paint/choices.txt')).split('\n')[1];
    if(Boolean(CODES.indexOf(values[4]))!==mirror){await tool(6,'Mirror');await frames(4)}
-   const w=232,h=Math.ceil(232*stencilHeights[24*4+3]/stencilWidths[24*4+3]-.0001),start=layout.point(480,360),drop=layout.point(at.x+Math.floor(w/2),at.y+Math.floor(h/2));
+   const w=232,h=Math.ceil(232*stencilHeights[24*4+3]/stencilWidths[24*4+3]-.0001),start=layout.point(pending.x,pending.y),drop=layout.point(at.x+Math.floor(w/2),at.y+Math.floor(h/2));
    await press(start);
    for(let step=1;step<=8;step++)await move({x:start.x+(drop.x-start.x)*step/8,y:start.y+(drop.y-start.y)*step/8});
    if(secondary&&!touch){await command('Input.dispatchMouseEvent',{type:'mousePressed',...drop,button:'right',buttons:3,clickCount:1});await frames(3);await command('Input.dispatchMouseEvent',{type:'mouseReleased',...drop,button:'right',buttons:1,clickCount:1})}
@@ -338,7 +358,7 @@ async function run(input){
    };
    if(watch)await observe('stencil placement',placeEdit);else await placeEdit();
    const after=await saved(),object=after.objects.at(-1);
-   if(Math.abs(object.x-at.x)>1||Math.abs(object.y-at.y)>1||object.w!==w||object.h!==h)throw Error(label+': stencil bounds '+JSON.stringify({x:object.x,y:object.y,w:object.w,h:object.h}));
+   if(Math.abs(object.x-at.x)>1||Math.abs(object.y-at.y)>1||object.w!==w||object.h!==h)throw Error(label+': stencil bounds '+JSON.stringify({expected:{x:at.x,y:at.y,w,h},actual:{x:object.x,y:object.y,w:object.w,h:object.h}}));
    return after;
   }
 
@@ -439,10 +459,10 @@ async function run(input){
    const stencilAt=STENCIL_LAST[category];let selected,values;
    try{
     // Choosing a stencil leaves the picker for its in-scene placement.
-    await until(async()=>{selected=await pickerChoices();values=selected?.split('\n')[1];return CODES.indexOf(values?.[0])===stencilAt&&(!dom||!(await paginationLabels()).length)},'tile');
+    await until(async()=>{selected=await pickerChoices();values=selected?.split('\n')[1];return chosenStencil(selected)===stencilAt&&(!dom||!(await paginationLabels()).length)},'tile');
    }catch(error){if(errors.length)throw error}
    // A chosen stencil anchors its own category position.
-   if(CODES.indexOf(values?.[0])!==stencilAt||CODES.indexOf(values?.[1])!==category||CODES.indexOf(values?.[2])!==count-1)throw Error(label+': final-page selection failed '+JSON.stringify({width,height,category,capacity,values}));
+   if(chosenStencil(selected)!==stencilAt||CODES.indexOf(values?.[1])!==category||CODES.indexOf(values?.[2])!==count-1)throw Error(label+': final-page selection failed '+JSON.stringify({width,height,category,capacity,values}));
    await key('Escape');await tool(0);await stable('reopened stencil picker');
    const wide=width<600?960:390,tall=width<600?600:844;
    await command('Emulation.setDeviceMetricsOverride',{width:wide,height:tall,deviceScaleFactor:1,mobile:false});await frames(8);
