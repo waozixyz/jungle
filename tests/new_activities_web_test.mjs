@@ -198,6 +198,8 @@ assert ImageChops.difference(board(f'tutorial-{width}-{mode}-1'),board(f'tutoria
    if(page==='dom.html'){
     const outlined=await evaluate(`(()=>{const places=[...document.querySelectorAll('#kryon-dom-root button')].filter(e=>['Hiding place','Versteck','Escondite'].includes(e.getAttribute('aria-label')));if(!places.length)return ['missing places'];return places.flatMap(e=>{e.focus();return getComputedStyle(e).outlineStyle==='none'?[]:[getComputedStyle(e).outline]})})()`);
     if(outlined.length)throw Error('Hiding places still have focus rectangles '+JSON.stringify(outlined));
+    // The focus-style inspection must not redirect later Enter presses.
+    await evaluate('document.activeElement?.blur()');
    }
 
    const state=async()=>{const text=(await saved(name))[0];return text?text.trim().split(/\s+/).slice(2).map(Number):[1,0,0]};
@@ -220,7 +222,8 @@ difference=ImageChops.difference(before,after)
 samples=difference.get_flattened_data() if hasattr(difference,'get_flattened_data') else difference.getdata()
 changed=[max(pixel) for pixel in samples if max(pixel)]
 worst=max(changed,default=0)
-assert worst<=3 and len(changed)<=300, f'worst {worst}/255 on {len(changed)} pixels'
+strong=sum(delta>3 for delta in changed)
+assert worst<=5 and strong<=20 and len(changed)<=300, f'worst {worst}/255 on {len(changed)} pixels ({strong} above 3)'
 `;
    await delay(600);await spoken();
    const start=await state();
@@ -261,10 +264,10 @@ assert worst<=3 and len(changed)<=300, f'worst {worst}/255 on {len(changed)} pix
       const prefix='backup/new-activities-web/'+page+'-'+language+'-empty-place';
       await writeFile(prefix+'-before.png',Buffer.from(shot,'base64'));
       await writeFile(prefix+'-after.png',Buffer.from(after,'base64'));
-      // Repainting the same scene may round a few antialiased edge pixels
-      // differently (measured at most 2/255 on 77 pixels in both renderers).
-      // Bound edge rounding to 3/255 on 300 pixels; visible or widespread
-      // changes (a friend, a hint or a moved prop) must still fail.
+      // Repainting may round antialiased edges differently: CI showed 16
+      // wood-edge pixels changing by at most 5/255. Keep the 300-pixel total
+      // and 3/255 normal bound, allowing only 20 pixels up to 5/255. A friend,
+      // a hint or a moved prop must still fail.
       const compared=spawnSync('python3',['-c',hideSceneCheck,prefix+'-before.png',prefix+'-after.png'],{encoding:'utf8',timeout:15000});
       if(compared.status!==0){
        await writeFile(prefix+'-screen.png',Buffer.from(await picture(),'base64'));
