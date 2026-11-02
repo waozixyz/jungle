@@ -144,7 +144,12 @@ const stencilWidths=dimensions('DINO_WIDTH'),stencilHeights=dimensions('DINO_HEI
 // Category sizes and their final stencils (stable ID + 1, as saved) from the generated catalog.
 const catalogSource=await readFile('games/paint/paint_catalog.zi','utf8');
 const catalogArray=name=>catalogSource.match(new RegExp(name+':[^=]+=[^\\[]*\\[([^\\]]+)'))[1].split(',').map(Number);
-const STENCIL_ORDER=catalogArray('paint_stencil_order'),STENCIL_STARTS=catalogArray('paint_stencil_category_starts'),STENCIL_COUNTS=catalogArray('paint_stencil_category_counts');
+const catalogOrder=catalogArray('paint_stencil_order'),catalogStarts=catalogArray('paint_stencil_category_starts'),catalogCounts=catalogArray('paint_stencil_category_counts');
+// This browser profile starts with no collection. Earned additions stay hidden;
+// every default stencil still participates in the responsive picker sweep.
+const collectibleIds=/^paint_stencil_collectibles:/m.test(catalogSource)?catalogArray('paint_stencil_collectibles'):null;
+const visibleCategories=catalogCounts.map((count,c)=>catalogOrder.slice(catalogStarts[c],catalogStarts[c]+count).filter(index=>!collectibleIds||collectibleIds[index]<0));
+const STENCIL_ORDER=visibleCategories.flat(),STENCIL_COUNTS=visibleCategories.map(items=>items.length),STENCIL_STARTS=visibleCategories.map((_,c)=>visibleCategories.slice(0,c).reduce((total,items)=>total+items.length,0));
 const STENCIL_LAST=STENCIL_STARTS.map((start,c)=>STENCIL_ORDER[start+STENCIL_COUNTS[c]-1]+1);
 function chosenStencil(choices){
  const [header,values]=choices?.split('\n')||[],low=CODES.indexOf(values?.[0]);
