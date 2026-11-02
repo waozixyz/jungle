@@ -434,6 +434,8 @@ GameFrame :: (bounds: Rectangle, pointer: PointerFrame, secondary: SecondaryPoin
 }
 
 title_guide_playing: bool;
+title_guide_muted: bool;
+title_guide_seen: bool;
 
 Menu :: (session: Session, bounds: Rectangle, key: s32) {
     unused ApplyTitleOrientationPolicy(true)
@@ -456,6 +458,11 @@ Menu :: (session: Session, bounds: Rectangle, key: s32) {
         unused WriteEntireFile(language_setting, LanguageCode())
         message = ""
     }
+    if action.guide_mute_toggle {
+        title_guide_muted = !title_guide_muted
+        unused WriteEntireFile(guide_sound_setting, ifx title_guide_muted then "off\n" else "on\n")
+    }
+    if action.guide_finished { unused WriteEntireFile(guide_seen_setting, "yes\n") }
     if action.sound_toggle { ToggleSound() }
     if action.navigated { SoundPlay("assets/jungle/sounds/select.wav") }
     if action.game >= 0 { Start(action.game) }
@@ -499,8 +506,6 @@ KeepAnimalLevels :: () {
     if !found { return }
     levels := AnimalLevels(old)
     if levels == "" { return }
-title_guide_muted: bool;
-title_guide_seen: bool;
     if CreatePrivateDirectory(folder) { unused WriteEntireFile(target, levels) }
 }
 
@@ -518,11 +523,6 @@ Check :: () -> s32 {
             game.app.services = GameServices
             game.app.allows = GameAllows
             Report(Cat(games[index].bundle_name, ": ", TextFromCString(*game.app.id[0]), " runs here\n"))
-    if action.guide_mute_toggle {
-        title_guide_muted = !title_guide_muted
-        unused WriteEntireFile(guide_sound_setting, ifx title_guide_muted then "off\n" else "on\n")
-    }
-    if action.guide_finished { unused WriteEntireFile(guide_seen_setting, "yes\n") }
             BundleAppClose(*game)
         } else {
             Report(Cat(games[index].bundle_name, ": cannot run\n"))
