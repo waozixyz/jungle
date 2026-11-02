@@ -73,5 +73,24 @@ main :: () -> s32 {
     LanguageSet("de"); if GardenName(6) != "Kohl" { return 24 }
     LanguageSet("es"); if GardenName(6) != "Repollo" { return 25 }
     LanguageSet("en"); if GardenName(6) != "Cabbage" { return 26 }
+    // Continuous positions, boundaries and spacing are shared by hover/drop.
+    free: Garden
+    if GardenPlantAt(*free, 5, 331, 692, start) != 0 || GardenPlantAt(*free, 2, 687, 467, start) != 1 { return 28 }
+    if free.plots[0].x != 331 || free.plots[0].y != 692 || free.plots[1].x != 687 || free.plots[1].y != 467 { return 29 }
+    placed := GardenSave(free)
+    if GardenPlantAt(*free, 1, 335, 695, start) != -1 || GardenPlantAt(*free, 1, 101, 410, start) != -1 || GardenPlantAt(*free, 1, 500, 731, start) != -1 || GardenPlantAt(*free, 1, 500, 409, start) != -1 { return 30 }
+    if GardenSave(free) != placed || !GardenRead(placed, *restored) || GardenSave(restored) != placed { return 31 }
+    // Capacity remains six plants; attempts never displace an existing plant.
+    full := g
+    if GardenPlantAt(*full, 1, 420, 410, start) != -1 || GardenSave(full) != GardenSave(g) { return 32 }
+    order := GardenDrawOrder(free)
+    if order[4] != 1 || order[5] != 0 { return 33 }
+    // Old six-field saves retain kind, care and growth, adding safe soil anchors.
+    old := Cat("garden 2 6\n1 100 100 3700 3600 0\n", "0 0 0 0 0 0\n0 0 0 0 0 0\n0 0 0 0 0 0\n0 0 0 0 0 0\n2 100 100 3700 3600 0\n")
+    if !GardenRead(old, *restored) || restored.selected != 6 || restored.plots[0].growth != 3600 || restored.plots[5].kind != 2 || restored.plots[5].x != 740 || restored.plots[5].y != 730 { return 34 }
+    if !GardenRead(GardenSave(restored), *future_read) { return 35 }
+    invalid_position := Cat("garden 3 0\n1 100 100 3700 3600 0 999 410\n", "0 0 0 0 0 0 0 0\n0 0 0 0 0 0 0 0\n0 0 0 0 0 0 0 0\n0 0 0 0 0 0 0 0\n0 0 0 0 0 0 0 0\n")
+    saved := GardenSave(restored)
+    if GardenRead(invalid_position, *restored) || GardenSave(restored) != saved { return 36 }
     return 0
 }

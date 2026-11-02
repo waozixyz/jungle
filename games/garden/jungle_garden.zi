@@ -18,7 +18,8 @@ loaded: bool;
 width: s32;
 height: s32;
 tray_height: s32;
-press_plot: s32 = -1;
+press_map: bool;
+held_seed: s32;
 press_tool: s32 = -1;
 focus_plot: s32;
 water_plot: s32 = -1;
@@ -45,17 +46,17 @@ ToolAt :: (x: s32, y: s32) -> s32 {
     return ifx index == 6 then 0 else index + 1
 }
 PlotX :: (plot: s32) -> s32 {
-    return width * (26 + plot % 3 * 24) / 100
+    return width * garden.plots[plot].x / 1000
 }
 PlotY :: (plot: s32) -> s32 {
-    return tray_height + (height - tray_height) * (ifx plot < 3 then 57 else 78) / 100
+    return tray_height + (height - tray_height) * garden.plots[plot].y / 1000
 }
 PlotEdge :: (plot: s32, now: s64) -> s32 {
     p := garden.plots[plot]
     edge := width * 24 / 100
     cap := (height - tray_height) * 34 / 100
     if edge > cap { edge = cap }
-    if plot < 3 { edge = edge * 85 / 100 }
+    edge = edge * DepthScale(garden.plots[plot].y) / 100
     if !p.dead && !GardenDry(p, now) {
         stage := GardenStage(p)
         if stage == 0 { edge = edge * 34 / 100 }
@@ -64,55 +65,65 @@ PlotEdge :: (plot: s32, now: s64) -> s32 {
     }
     return edge
 }
+MapX :: (x: s32) -> s32 { return x * 1000 / width }
+MapY :: (y: s32) -> s32 { return (y - tray_height) * 1000 / (height - tray_height) }
+DepthScale :: (y: s32) -> s32 {
+    depth := y
+    if depth < 410 { depth = 410 }; if depth > 730 { depth = 730 }
+    return 80 + (depth - 410) * 20 / 320
+}
 PlotAt :: (x: s32, y: s32) -> s32 {
-    // Touching visible leaves works too; the front row owns overlaps.
+    // Reverse the actual paint order: frontmost visible plant owns overlaps.
+    order := GardenDrawOrder(garden)
     i: s32 = GARDEN_PLOTS - 1
     while i >= 0 {
-        if garden.plots[i].kind != 0 {
-            edge := PlotEdge(i, cast(s64)retro.now)
-            if x >= PlotX(i) - edge / 2 && x < PlotX(i) + edge / 2 && y >= PlotY(i) - edge && y < PlotY(i) { return i }
+        plot := order[i]
+        if garden.plots[plot].kind != 0 {
+            edge := PlotEdge(plot, cast(s64)retro.now)
+            if edge < 36 { edge = 36 }
+            if x >= PlotX(plot) - edge / 2 && x < PlotX(plot) + edge / 2 && y >= PlotY(plot) - edge && y <= PlotY(plot) + 10 { return plot }
         }
         i -= 1
     }
-    if x < width * 12 / 100 || x >= width * 88 / 100 { return -1 }
-    top := tray_height + (height - tray_height) * 41 / 100
-    bottom := tray_height + (height - tray_height) * 88 / 100
-    if y < top || y >= bottom { return -1 }
-    col := (x - width * 14 / 100) * 3 / (width * 72 / 100)
-    if col < 0 { col = 0 }; if col > 2 { col = 2 }
-    middle := tray_height + (height - tray_height) * 67 / 100
-    return col + (ifx y < middle then 0 else 3)
+    return -1
+}
+ChooseTool :: (tool: s32) {
+    // Tapping the held packet again puts its seed back; Water also cancels.
+    if tool == held_seed && held_seed > 0 { held_seed = 0; garden.selected = 0 }
+    else { garden.selected = tool; held_seed = tool }
+    unused Save()
 }
 UsePlot :: (plot: s32, now: s64) {
-    if plot < 0 || plot >= GARDEN_PLOTS { return }
+    if plot < 0 || plot >= GARDEN_PLOTS || held_seed > 0 { return }
     GardenTick(*garden.plots[plot], now)
     if garden.plots[plot].dead {
         unused GardenClear(*garden, plot, now)
-        if garden.selected > 0 && GardenPlant(*garden, plot, garden.selected, now) {
-            seed_plot = plot; seed_at = retro.now
-        }
         unused Save(); return
     }
-    if garden.selected == 0 {
-        if GardenWater(*garden, plot, now) {
-            water_plot = plot; water_at = retro.now
-            unused Save()
-        }
-    } else if GardenPlant(*garden, plot, garden.selected, now) {
-        seed_plot = plot; seed_at = retro.now
+    if garden.selected == 0 && GardenWater(*garden, plot, now) {
+        water_plot = plot; water_at = retro.now
         unused Save()
     }
 }
+PlaceSeed :: (x: s32, y: s32, now: s64) {
+    if held_seed == 0 { return }
+    plot := GardenPlantAt(*garden, held_seed, x, y, now)
+    if plot < 0 { return } // Invalid drops retain the one held seed.
+    seed_plot = plot; seed_at = retro.now; held_seed = 0
+    unused Save()
+}
+SeedShape :: (cx: s32, base: s32, depth: s32) {
+    edge := 20 * DepthScale(depth) / 100
+    BookBox(cx - edge / 2, base - edge, edge, edge, 0x825c37ff, 0x65452dff, cast(float32)edge / 2.0)
+    BookBox(cx - edge / 4, base - edge + 3, edge / 3, edge / 2, 0xd0aa70ff, 0, cast(float32)edge / 5.0)
+}
 Seed :: (plot: s32, cx: s32, base: s32) {
-    // A seed falls into the soil; the packet stays in the tray and on the cursor.
     elapsed := retro.now - seed_at
     if seed_plot == plot && elapsed >= 0 && elapsed < 0.9 {
         remaining := 1.0 - elapsed / 0.9
         base -= cast(s32)(48.0 * remaining * remaining)
     }
-    edge: s32 = ifx plot < 3 then 16 else 20
-    BookBox(cx - edge / 2, base - edge, edge, edge, 0x825c37ff, 0x65452dff, cast(float32)edge / 2.0)
-    BookBox(cx - edge / 4, base - edge + 3, edge / 3, edge / 2, 0xd0aa70ff, 0, cast(float32)edge / 5.0)
+    SeedShape(cx, base, garden.plots[plot].y)
 }
 Tray :: () {
     BookBox(6, 4, width - 12, tray_height - 8, 0xeadcc1ff, 0xc4ad83ff, 16)
@@ -124,7 +135,7 @@ Tray :: () {
         tool := ifx i == 6 then 0 else i + 1
         x := 8 + i % columns * cw
         y := 8 + i / columns * ch
-        if garden.selected == tool { BookBox(x + 2, y + 1, cw - 4, ch - 2, 0xfff7d5ff, 0xa3ad75ff, 12) }
+        if garden.selected == tool && (tool == 0 || held_seed > 0) { BookBox(x + 2, y + 1, cw - 4, ch - 2, 0xfff7d5ff, 0xa3ad75ff, 12) }
         name := ifx tool == 0 then "watering-can" else Cat(GardenKind(tool), "-packet")
         Picture(name, x + 4, y + 2, cw - 8, ch - 24)
         BookText(x + 2, y + ch - 23, cw - 4, 20, GardenName(tool), 12, TextAlign.TextAlignCenter, false)
@@ -134,8 +145,9 @@ Scene :: (now: s64) {
     Image(retro.session, ImageProps.{.asset_path = "assets/garden/art/bed.png", .preview_path = "assets/garden/previews/bed.png",
         .bounds = RetroRect(0, tray_height, width, height - tray_height), .fit = ImageFit.ImageFitStretch, .smooth = true,
         .alt_text = GardenText("Garden bed", "Gartenbeet", "Huerto")})
-    // Back row first: the front row naturally overlaps it.
-    for i: cast(s32)0..GARDEN_PLOTS - 1 {
+    // Ground depth determines overlap, independent of storage slot.
+    order := GardenDrawOrder(garden)
+    for i: order {
         p := garden.plots[i]
         cx := PlotX(i); base := PlotY(i)
         if p.kind == 0 { continue }
@@ -183,7 +195,7 @@ GameMain :: () -> s32 {
         if !DocumentStorageReady() { Scene(now); Tray(); return 0 }
         text := DocumentRead("garden.txt")
         if !GardenRead(text, *garden) && !GardenMigrate(text, *garden, now) { garden = Garden.{.selected = 1} }
-        loaded = true; press_plot = -1; press_tool = -1; water_plot = -1; seed_plot = -1; last_tick = 0
+        loaded = true; press_map = false; held_seed = 0; press_tool = -1; water_plot = -1; seed_plot = -1; last_tick = 0
     }
     if now != last_tick {
         for i: cast(s32)0..GARDEN_PLOTS - 1 { GardenTick(*garden.plots[i], now) }
@@ -191,31 +203,48 @@ GameMain :: () -> s32 {
         if now / 60 != last_tick / 60 { unused Save() }
         last_tick = now
     }
-    if retro.key == KEY_ESCAPE { unused Save(); GameHome(); return 0 }
-    if retro.key >= 49 && retro.key <= 54 { garden.selected = retro.key - 48; unused Save() }
-    if retro.key == 87 { garden.selected = 0; unused Save() }
+    if retro.key == KEY_ESCAPE {
+        if held_seed > 0 { ChooseTool(0) }
+        else { unused Save(); GameHome(); return 0 }
+    }
+    if retro.key >= 49 && retro.key <= 54 { ChooseTool(retro.key - 48) }
+    if retro.key == 87 { ChooseTool(0) }
     if retro.key == KEY_LEFT { focus_plot = (focus_plot + 5) % 6 }
     if retro.key == KEY_RIGHT { focus_plot = (focus_plot + 1) % 6 }
     if retro.key == KEY_DOWN || retro.key == KEY_UP { focus_plot = (focus_plot + 3) % 6 }
-    if retro.key == KEY_ENTER { UsePlot(focus_plot, now) }
+    if retro.key == KEY_ENTER {
+        if held_seed > 0 { PlaceSeed(GardenDefaultX(focus_plot), GardenDefaultY(focus_plot), now) }
+        else { UsePlot(focus_plot, now) }
+    }
     pointer := SamplePointer()
+    // AppBounds and SamplePointer share host logical coordinates, including zoom.
     px := cast(s32)((pointer.x - retro.x) / retro.scale)
     py := cast(s32)((pointer.y - retro.y) / retro.scale)
     snapshot := CaptureFrameInput(retro.session)
     active := !snapshot.available || snapshot.focused
-    if !active { press_plot = -1; press_tool = -1 }
+    if !active { press_map = false; press_tool = -1; held_seed = 0 }
+    if active && snapshot.secondary.pressed { ChooseTool(0); press_map = false; press_tool = -1 }
     if active && pointer.pressed {
-        press_tool = ToolAt(px, py); press_plot = PlotAt(px, py)
-        if press_tool >= 0 { garden.selected = press_tool; unused Save() }
+        press_tool = ToolAt(px, py)
+        press_map = px >= 0 && px < width && py >= tray_height && py < height
+        if press_tool >= 0 { ChooseTool(press_tool) }
     }
     if active && pointer.released {
-        target := PlotAt(px, py)
-        if target >= 0 && (press_tool >= 0 || press_plot == target) { UsePlot(target, now) }
-        press_tool = -1; press_plot = -1
+        if px >= 0 && px < width && py >= tray_height && py < height && (press_tool >= 0 || press_map) {
+            if held_seed > 0 { PlaceSeed(MapX(px), MapY(py), now) }
+            else { UsePlot(PlotAt(px, py), now) }
+        }
+        press_tool = -1; press_map = false
     }
     Scene(now); Tray()
     if active && px >= 0 && px < width && py >= tray_height && py < height {
-        Picture(ifx garden.selected == 0 then "watering-can" else Cat(GardenKind(garden.selected), "-packet"), px - 34, py - 64, 68, 68)
+        if held_seed > 0 {
+            valid := GardenPlaceSlot(garden, MapX(px), MapY(py)) >= 0
+            BookBox(px - 12, py - 4, 24, 8, 0, ifx valid then cast(u32)0xdce8a5ff else cast(u32)0xc37c60ff, 4)
+            SeedShape(px, py - 7, MapY(py))
+        } else if garden.selected == 0 {
+            Picture("watering-can", px - 34, py - 64, 68, 68)
+        }
     }
     return 0
 }

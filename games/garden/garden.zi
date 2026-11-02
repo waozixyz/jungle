@@ -13,6 +13,8 @@ GardenPlot :: struct {
     updated: s64
     growth: s64 // seconds spent in moist soil
     dead: bool
+    x: s32 // thousandths of the painted bed, independent of viewport size
+    y: s32
 }
 Garden :: struct {
     plots: [GARDEN_PLOTS]GardenPlot
@@ -78,8 +80,47 @@ GardenPlant :: (g: *Garden, plot: s32, kind: s32, now: s64) -> bool {
     if plot < 0 || plot >= GARDEN_PLOTS || kind < 1 || kind > GARDEN_KINDS || now <= 0 { return false }
     GardenTick(*g.plots[plot], now)
     if g.plots[plot].kind != 0 { return false }
-    g.plots[plot] = GardenPlot.{.kind = kind, .planted = now, .watered = now, .updated = now}
+    g.plots[plot] = GardenPlot.{.kind = kind, .planted = now, .watered = now, .updated = now,
+        .x = GardenDefaultX(plot), .y = GardenDefaultY(plot)}
     return true
+}
+GardenDefaultX :: (plot: s32) -> s32 { return 260 + plot % 3 * 240 }
+GardenDefaultY :: (plot: s32) -> s32 { return ifx plot < 3 then 570 else 730 }
+// The inset trapezoid follows the soil inside the accepted painted wooden bed.
+GardenSoil :: (x: s32, y: s32) -> bool {
+    if y < 410 || y > 730 { return false }
+    left := 190 - (y - 410) * 90 / 320
+    return x >= left && x <= 1000 - left
+}
+GardenPlaceSlot :: (g: Garden, x: s32, y: s32) -> s32 {
+    if !GardenSoil(x, y) { return -1 }
+    empty: s32 = -1
+    for i: cast(s32)0..GARDEN_PLOTS - 1 {
+        p := g.plots[i]
+        if p.kind == 0 { if empty < 0 { empty = i }; continue }
+        dx := x - p.x; dy := y - p.y
+        // Elliptical ground spacing allows leaves to overlap in perspective.
+        if dx * dx * 100 + dy * dy * 169 < 1822500 { return -1 }
+    }
+    return empty
+}
+GardenPlantAt :: (g: *Garden, kind: s32, x: s32, y: s32, now: s64) -> s32 {
+    slot := GardenPlaceSlot(g.*, x, y)
+    if slot < 0 || !GardenPlant(g, slot, kind, now) { return -1 }
+    g.plots[slot].x = x; g.plots[slot].y = y
+    return slot
+}
+GardenDrawOrder :: (g: Garden) -> [GARDEN_PLOTS]s32 {
+    order: [GARDEN_PLOTS]s32
+    for i: cast(s32)0..GARDEN_PLOTS - 1 { order[i] = i }
+    for pass: cast(s32)1..GARDEN_PLOTS - 1 {
+        for j: cast(s32)0..GARDEN_PLOTS - 2 {
+            if g.plots[order[j]].y > g.plots[order[j + 1]].y {
+                swap := order[j]; order[j] = order[j + 1]; order[j + 1] = swap
+            }
+        }
+    }
+    return order
 }
 GardenWater :: (g: *Garden, plot: s32, now: s64) -> bool {
     if plot < 0 || plot >= GARDEN_PLOTS || now <= 0 { return false }
@@ -99,9 +140,9 @@ GardenClear :: (g: *Garden, plot: s32, now: s64) -> bool {
 }
 GardenSave :: (g: Garden) -> string {
     out: Vec(u8)
-    BuilderPrint(*out, "garden 2 %\n", g.selected)
+    BuilderPrint(*out, "garden 3 %\n", g.selected)
     for p: g.plots {
-        BuilderPrint(*out, "% % % % % %\n", p.kind, p.planted, p.watered, p.updated, p.growth, ifx p.dead then 1 else 0)
+        BuilderPrint(*out, "% % % % % % % %\n", p.kind, p.planted, p.watered, p.updated, p.growth, ifx p.dead then 1 else 0, p.x, p.y)
     }
     return BuilderFinish(out)
 }
@@ -116,7 +157,9 @@ GardenNumber :: (text: string, at: *s64) -> s64 {
     return n
 }
 GardenRead :: (text: string, result: *Garden) -> bool {
-    if text.count < 11 || text.count > 1200 || text[:9] != "garden 2 " { return false }
+    if text.count < 11 || text.count > 1200 { return false }
+    positioned := text[:9] == "garden 3 "
+    if !positioned && text[:9] != "garden 2 " { return false }
     at: s64 = 9
     selected := GardenNumber(text, *at)
     if selected < 0 || selected > GARDEN_KINDS || at >= text.count || text[at] != #char "\n" { return false }
@@ -124,21 +167,27 @@ GardenRead :: (text: string, result: *Garden) -> bool {
     parsed: Garden
     parsed.selected = cast(s32)selected
     for i: cast(s32)0..GARDEN_PLOTS - 1 {
-        values: [6]s64
-        for field: cast(s32)0..5 {
+        values: [8]s64
+        last: s32 = ifx positioned then 7 else 5
+        for field: cast(s32)0..last {
             values[field] = GardenNumber(text, *at)
             if values[field] < 0 || at >= text.count { return false }
-            separator := ifx field == 5 then #char "\n" else #char " "
+            separator := ifx field == last then #char "\n" else #char " "
             if text[at] != separator { return false }
             at += 1
         }
-        if values[0] > GARDEN_KINDS || values[5] > 1 { return false }
+        if values[0] > GARDEN_KINDS || values[5] > 1 || values[6] > 1000 || values[7] > 1000 { return false }
         if values[0] == 0 {
-            for j: cast(s32)1..5 { if values[j] != 0 { return false } }
+            for j: cast(s32)1..last { if values[j] != 0 { return false } }
         } else {
             if values[1] <= 0 || values[2] < values[1] || values[3] < values[2] || values[4] > GardenGrowTime(cast(s32)values[0]) || values[4] > values[3] - values[1] { return false }
+            if positioned && !GardenSoil(cast(s32)values[6], cast(s32)values[7]) { return false }
         }
-        parsed.plots[i] = GardenPlot.{.kind = cast(s32)values[0], .planted = values[1], .watered = values[2], .updated = values[3], .growth = values[4], .dead = values[5] == 1}
+        parsed.plots[i] = GardenPlot.{.kind = cast(s32)values[0], .planted = values[1], .watered = values[2], .updated = values[3], .growth = values[4], .dead = values[5] == 1,
+            .x = cast(s32)values[6], .y = cast(s32)values[7]}
+        if !positioned && values[0] != 0 {
+            parsed.plots[i].x = GardenDefaultX(i); parsed.plots[i].y = GardenDefaultY(i)
+        }
     }
     if at != text.count { return false }
     result.* = parsed
