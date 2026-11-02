@@ -6,6 +6,7 @@ import sys
 from pathlib import Path
 import tempfile
 import unittest
+import subprocess
 from PIL import Image, ImageFilter
 import numpy as np
 
@@ -33,6 +34,102 @@ def hit(scene, x, y):
 
 
 class TitleVariants(unittest.TestCase):
+    def signs(self):
+        data = json.loads(title.SOURCE.read_text())
+        campus = next(s for s in data['scenes'] if s['name'] == 'campus')
+        for scene in (campus, campus['portrait']):
+            path = next(h for h in scene['hotspots'] if h['id'] == 'beach-path')
+            # Existing separate sprite stands in for an approved wooden sign;
+            # these fixtures never replace production art or routes.
+            path['glow_rect'] = [100, 100, 200, 160]
+            path['polygon'] = [[110, 110], [290, 110], [290, 250], [110, 250]]
+            path['sign'] = {'label': 'Beach', 'label_rect': [20, 20, 160, 50], 'direction': 'left'}
+        return data, campus
+
+    def test_sign_board_metadata_and_locale_inventory(self):
+        data, campus = self.signs()
+        _, scenes, _, hotspots = self.load(data)
+        signs = [h for h in hotspots if h['sign_label']]
+        self.assertEqual(len(signs), 2)
+        for sign in signs:
+            self.assertEqual(sign['sign_label'], 'Beach')
+            self.assertEqual(sign['sign_rect'], [20, 20, 160, 50])
+            self.assertEqual(scenes[sign['scene_target']]['name'], 'beach')
+        output = title.Render(*self.load(data))
+        self.assertIn('TITLE_SIGN_LABEL', output)
+        self.assertIn('TITLE_SIGN_RECT', output)
+        self.assertIn('TITLE_SIGN_DIRECTION', output)
+        self.assertTrue(all(sign['sign_direction'] == 1 for sign in signs))
+        locales = json.loads((ROOT/'locales/ui.json').read_text())
+        for label, translations in {'Beach': ['Strand', 'Playa'], 'Farm': ['Bauernhof', 'Granja'],
+                                    'Desert': ['Wüste', 'Desierto']}.items():
+            self.assertEqual(locales[label], translations)
+
+    def test_sign_directions_are_data_driven(self):
+        for direction, code in title.SIGN_DIRECTIONS.items():
+            data, campus = self.signs()
+            for scene in (campus, campus['portrait']):
+                next(h for h in scene['hotspots'] if h['id'] == 'beach-path')['sign']['direction'] = direction
+            signs = [h for h in self.load(data)[3] if h['sign_label']]
+            self.assertEqual([h['sign_direction'] for h in signs], [code, code])
+
+    def test_explicit_testing_destinations(self):
+        for label, code in (('Farm', 1), ('Desert', 2)):
+            data, campus = self.signs()
+            for scene in (campus, campus['portrait']):
+                path = next(h for h in scene['hotspots'] if h['id'] == 'beach-path')
+                # Keep the old waterfront route for graph reachability.
+                path = copy.deepcopy(path)
+                path['id'] = label.lower() + '-sign'
+                path['sign']['label'] = label
+                path['target'] = 'preview:' + label
+                scene['hotspots'].append(path)
+            signs = [h for h in self.load(data)[3] if h['sign_label'] == label]
+            self.assertEqual([h['preview_room'] for h in signs], [code, code])
+            self.assertTrue(all(h['game'] == '' and h['scene_target'] < 0 for h in signs))
+
+    def test_modal_and_preview_locales(self):
+        rows = json.loads((ROOT/'locales/ui.json').read_text())
+        self.assertEqual(rows['Not yet implemented'], ['Noch nicht implementiert', 'Aún no implementado'])
+        for key in ('Close', 'Development preview', 'This room is a testing preview.'):
+            self.assertEqual(len(rows[key]), 2)
+            self.assertTrue(all(value and value != key for value in rows[key]))
+
+    def test_testing_builds_reject_published_outputs(self):
+        import build_web
+        with self.assertRaisesRegex(SystemExit, 'private output'):
+            build_web.build(ROOT/'build/web', test_rooms=True)
+        for app in ('build/app', str(ROOT/'build/app')):
+            result = subprocess.run(['make','-n','TEST_ROOMS=1','APP='+app], cwd=ROOT,
+                                    capture_output=True, text=True)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn('requires a private APP', result.stderr)
+
+    def test_reject_invalid_sign_board_or_physical_sprite(self):
+        for update, error in [
+                ({'sign': {'label': 'Elsewhere', 'label_rect': [20, 20, 160, 50], 'direction': 'left'}}, 'invalid path sign label'),
+                ({'sign': {'label': 'Beach', 'label_rect': [20, 20, 181, 50], 'direction': 'left'}}, 'label_rect'),
+                ({'sign': {'label': 'Beach', 'label_rect': [20, 20, 160, 0], 'direction': 'left'}}, 'label_rect'),
+                ({'sign': {'label': 'Beach', 'label_rect': [20, 20, 1.5, 50], 'direction': 'left'}}, 'label_rect'),
+                ({'sign': {'label': 'Beach', 'label_rect': [0, 0, 160, 50], 'direction': 'left'}}, 'physical hit area'),
+                ({'sign': {'label': 'Beach', 'label_rect': [20, 20, 160, 50], 'direction': 'sideways'}}, 'invalid path sign direction'),
+                ({'rest': ''}, 'separate resting sprite'),
+                ({'target': 'guide:tour'}, 'actual destination'),
+                ({'polygon': [[90, 110], [290, 110], [290, 250]]}, 'hit polygon'),
+                ({'target': 'scene:unconfirmed-farm'}, 'unknown scene')]:
+            with self.subTest(update=update):
+                data, campus = self.signs()
+                for scene in (campus, campus['portrait']):
+                    next(h for h in scene['hotspots'] if h['id'] == 'beach-path').update(update)
+                with self.assertRaisesRegex(SystemExit, error):
+                    self.load(data)
+
+    def test_reject_different_sign_label_in_portrait(self):
+        data, campus = self.signs()
+        next(h for h in campus['portrait']['hotspots'] if h['id'] == 'beach-path')['sign']['label'] = 'Farm'
+        with self.assertRaisesRegex(SystemExit, 'portrait path sign labels'):
+            self.load(data)
+
     def test_port_entries_have_separate_painted_layers(self):
         _, scenes, _, _ = title.Load()
         for name in ('beach', 'beach-portrait'):

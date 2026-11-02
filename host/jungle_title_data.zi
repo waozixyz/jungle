@@ -121,6 +121,10 @@ TITLE_HOTSPOT_GUIDE: [46]s32 = .[
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 ];
+TITLE_HOTSPOT_PREVIEW: [46]s32 = .[
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+];
 // The scene a hotspot leads to, or -1 when it opens TITLE_HOTSPOT_GAME.
 TITLE_HOTSPOT_TARGET: [46]s32 = .[
     -1, 1, -1, -1, 2, -1, -1, -1, 0, -1, -1, -1, -1, 0, -1, -1, -1, 3, 2, 4, -1, -1, 3, -1,
@@ -270,6 +274,23 @@ TITLE_HOTSPOT_REST: [46]string = .[
     "assets/jungle/title/navigation/beach-portrait-fishing-boat.png",
     "assets/jungle/title/navigation/beach-portrait-crab-family.png",
     "",
+];
+// Localized at runtime; the blank sign sprite never contains language-specific lettering.
+TITLE_SIGN_LABEL: [46]string = .["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""];
+TITLE_SIGN_DIRECTION: [46]s32 = .[
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+];
+// Text board bounds relative to the hotspot sprite, in source pixels.
+TITLE_SIGN_RECT: [184]s32 = .[
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 ];
 // x, y, width, height of each glow picture.
 TITLE_GLOW_RECT: [184]s32 = .[

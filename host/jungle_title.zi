@@ -15,6 +15,16 @@ TITLE_TAP_SECONDS :: 0.25
 TITLE_DRAG_PIXELS :: 12.0
 TITLE_GUIDE_STEP_COUNT :: 3
 
+// An explicit compiler define is the only way to expose unfinished rooms.
+// Release hosts (including Android and web) default to the modal policy.
+TitleTestRooms :: () -> bool {
+    #if #defined(JUNGLE_TEST_ROOMS) {
+        return true
+    } else {
+        return false
+    }
+}
+
 // Source pixel (x, y) of the scene picture is window pixel
 // (view.x + x * view.scale, view.y + y * view.scale).
 TitleView :: struct {
@@ -27,6 +37,9 @@ TitleView :: struct {
 }
 
 TitleState :: struct {
+    not_implemented: bool
+    // 1 Farm, 2 Desert: neutral, labeled development rooms, not gameplay.
+    preview_room: s32
     guide_stopped: bool
     guide_at: float64
     guide_step: s32
@@ -67,6 +80,39 @@ TitleStep :: struct {
     moved: bool
 }
 
+TitleDismissNotice :: (state: *TitleState) {
+    state.not_implemented = false
+    state.pending = -1
+    state.pressed = -1
+    state.tracking = false
+    state.dragging = false
+}
+
+TitleDevelopmentAvailable :: (state: TitleState) -> bool {
+    return TitleTestRooms() && !state.not_implemented && state.preview_room == 0 &&
+        TITLE_SCENE_NAME[TITLE_SCENE_BASE[state.scene]] == "campus"
+}
+
+// Temporary development navigation while the new campus art awaits approval.
+// It works with normal metadata and has no release-build entry point.
+TitleDevelopmentRoom :: (state: *TitleState, room: s32) -> TitleStep {
+    step := TitleStep.{.game = -1}
+    if !TitleDevelopmentAvailable(state.*) || room < 0 || room > 2 { return step }
+    state.guide_stopped = true
+    state.pending = -1
+    state.pressed = -1
+    state.tracking = false
+    if room == 0 {
+        for scene: cast(s32)0..TITLE_SCENE_COUNT - 1 {
+            if TITLE_SCENE_NAME[scene] == "beach" { TitleEnter(state, scene); step.moved = true; return step }
+        }
+        return step
+    }
+    state.preview_room = room
+    step.moved = true
+    return step
+}
+
 TitleStart :: (state: *TitleState) {
     state.* = TitleState.{.started = true}
     state.guide_spoken_step = -1
@@ -75,6 +121,7 @@ TitleStart :: (state: *TitleState) {
 
 // Shows SCENE, centered, with nothing glowing.
 TitleEnter :: (state: *TitleState, scene: s32) {
+    state.preview_room = 0
     state.scene = scene
     state.selected = -1
     state.hovered = -1
@@ -184,12 +231,46 @@ TitleGlowing :: (state: TitleState) -> s32 {
     return state.selected
 }
 
+// Shared by physical pointer taps and the sign's accessible button. Every
+// sign click pauses for the same gentle glow, even after mouse hover.
+TitleQueue :: (state: *TitleState, hotspot: s32, now: float64) {
+    if state.not_implemented || state.preview_room != 0 { return }
+    if hotspot < 0 || hotspot >= TITLE_HOTSPOT_COUNT { return }
+    if state.pending == hotspot { return }
+    state.pending = hotspot
+    state.pending_at = now
+}
+
+// A small nod of the whole sign (wood and lettering together), returning
+// to rest before the existing tap transition opens its destination.
+TitleSignLift :: (state: TitleState, hotspot: s32, now: float64) -> float32 {
+    if state.pending != hotspot { return ifx state.pressed == hotspot then -1.5 else 0.0 }
+    progress := cast(float32)((now - state.pending_at) / TITLE_TAP_SECONDS)
+    if progress < 0.0 || progress > 1.0 { return 0.0 }
+    return -12.0 * progress * (1.0 - progress)
+}
+
 // A scene hotspot changes scene; a game hotspot reports its game.
 TitleActivate :: (state: *TitleState, hotspot: s32) -> TitleStep {
     step := TitleStep.{.game = -1}
+    if state.not_implemented || state.preview_room != 0 { return step }
     if hotspot < 0 || hotspot >= TITLE_HOTSPOT_COUNT { return step }
     state.pending = -1
     state.pressed = -1
+    label := TITLE_SIGN_LABEL[hotspot]
+    if label == "Beach" || label == "Farm" || label == "Desert" {
+        if !TitleTestRooms() {
+            state.not_implemented = true
+            state.tracking = false
+            state.dragging = false
+            state.hovered = -1
+            return step
+        }
+    }
+    if TITLE_HOTSPOT_PREVIEW[hotspot] != 0 {
+        if TitleTestRooms() { state.preview_room = TITLE_HOTSPOT_PREVIEW[hotspot]; step.moved = true }
+        return step
+    }
     target := TITLE_HOTSPOT_TARGET[hotspot]
     if target >= 0 {
         TitleEnter(state, target)
@@ -205,6 +286,14 @@ TitleActivate :: (state: *TitleState, hotspot: s32) -> TitleStep {
 // open an item directly.
 TitleKey :: (state: *TitleState, key: s32) -> TitleStep {
     step := TitleStep.{.game = -1}
+    if state.not_implemented { return step }
+    if state.preview_room != 0 {
+        if key == 256 { state.preview_room = 0; step.moved = true }
+        return step
+    }
+    if key == 66 { return TitleDevelopmentRoom(state, 0) }
+    if key == 70 { return TitleDevelopmentRoom(state, 1) }
+    if key == 68 { return TitleDevelopmentRoom(state, 2) }
     if key == 0 { return step }
     state.guide_stopped = true
     first := TITLE_SCENE_FIRST[state.scene]
@@ -246,6 +335,7 @@ TitleKey :: (state: *TitleState, key: s32) -> TitleStep {
 TitlePointer :: (state: *TitleState, view: TitleView, x: float32, y: float32,
     down: bool, pressed: bool, released: bool, blocked: bool, now: float64) -> TitleStep {
     step := TitleStep.{.game = -1}
+    if state.not_implemented || state.preview_room != 0 { return step }
     moved := state.seen && (x != state.last_x || y != state.last_y)
     state.seen = true
     state.last_x = x
@@ -281,8 +371,8 @@ TitlePointer :: (state: *TitleState, view: TitleView, x: float32, y: float32,
         state.tracking = false
         state.pressed = -1
         if !state.dragging && hit >= 0 && hit == tapped {
-            if state.hover_mode { step = TitleActivate(state, hit) }
-            else { state.pending = hit; state.pending_at = now }
+            if state.hover_mode && TITLE_SIGN_LABEL[hit] == "" { step = TitleActivate(state, hit) }
+            else { TitleQueue(state, hit, now) }
         }
         state.dragging = false
     }

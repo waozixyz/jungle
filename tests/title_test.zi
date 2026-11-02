@@ -271,6 +271,87 @@ main :: () -> s32 {
     step = TitleTick(*touch, 4.01 + TITLE_TAP_SECONDS)
     if touch.scene != campus { return 67 }
 
+    // A physical path sign always animates before travel, including mouse
+    // clicks after hovering. Exercise the model before new art is selected.
+    sign := HotspotNamed(campus, "beach-path")
+    original_label := TITLE_SIGN_LABEL[sign]
+    TITLE_SIGN_LABEL[sign] = "Beach"
+    TitleEnter(*touch, campus)
+    sign_view := TitleFit(cast(float32)TITLE_SOURCE_WIDTH, cast(float32)TITLE_SOURCE_HEIGHT, 0.0, 0.0, campus)
+    sx: float32
+    sy: float32
+    if !OwnPoint(campus, sign, *sx, *sy) { return 270 }
+    touch.hover_mode = true
+    unused TitlePointer(*touch, sign_view, sx, sy, true, true, false, false, 7.0)
+    step = TitlePointer(*touch, sign_view, sx, sy, false, false, true, false, 7.1)
+    if step.moved || touch.scene != campus || touch.pending != sign { return 271 }
+    if !Near(TitleSignLift(touch, sign, 7.1), 0.0) { return 272 }
+    if !Near(TitleSignLift(touch, sign, 7.1 + TITLE_TAP_SECONDS / 2.0), -3.0) { return 273 }
+    // A semantic click on the same frame must not reset the tap timer.
+    TitleQueue(*touch, sign, 7.2)
+    step = TitleTick(*touch, 7.1 + TITLE_TAP_SECONDS / 2.0)
+    if step.moved || touch.scene != campus { return 274 }
+    step = TitleTick(*touch, 7.11 + TITLE_TAP_SECONDS)
+    if TitleTestRooms() {
+        if !step.moved || touch.scene != TITLE_HOTSPOT_TARGET[sign] { return 275 }
+        unused TitleKey(*touch, 256)
+    } else {
+        if step.moved || !touch.not_implemented || touch.scene != campus { return 275 }
+        TitleDismissNotice(*touch)
+    }
+    if touch.scene != campus { return 276 }
+    // Same activation boundary for physical, semantic and keyboard input.
+    // A modal freezes navigation/pan and drops duplicate activations.
+    labels: [3]string = .["Beach", "Farm", "Desert"]
+    for room: cast(s32)0..2 {
+        TITLE_SIGN_LABEL[sign] = labels[room]
+        TITLE_HOTSPOT_PREVIEW[sign] = room
+        TitleEnter(*touch, campus)
+        touch.pan_x = 9.0
+        touch.selected = sign
+        step = TitleKey(*touch, 257)
+        if TitleTestRooms() {
+            if touch.not_implemented || !step.moved { return 280 }
+            if room == 0 && touch.scene != beach { return 281 }
+            if room > 0 && (touch.preview_room != room || touch.scene != campus) { return 282 }
+            unused TitleKey(*touch, 256)
+            if touch.scene != campus || touch.preview_room != 0 { return 283 }
+        } else {
+            if !touch.not_implemented || step.moved || step.game >= 0 { return 284 }
+            unused TitleKey(*touch, 268)
+            unused TitleKey(*touch, 256)
+            unused TitleKey(*touch, 49)
+            unused TitleKey(*touch, 257)
+            TitleQueue(*touch, sign, 8.0)
+            unused TitlePointer(*touch, sign_view, sx, sy, true, true, false, false, 8.1)
+            unused TitlePointer(*touch, sign_view, sx, sy, false, false, true, false, 8.2)
+            unused TitleTick(*touch, 9.0)
+            if touch.scene != campus || touch.preview_room != 0 || touch.pending >= 0 || touch.tracking || touch.pan_x != 9.0 { return 285 }
+            TitleDismissNotice(*touch)
+            if touch.not_implemented || touch.scene != campus || touch.pan_x != 9.0 { return 286 }
+            // Numeric shortcuts use the same gate.
+            unused TitleKey(*touch, 49 + sign - TITLE_SCENE_FIRST[campus])
+            if !touch.not_implemented { return 287 }
+            TitleDismissNotice(*touch)
+        }
+    }
+    TITLE_HOTSPOT_PREVIEW[sign] = 0
+    TITLE_SIGN_LABEL[sign] = original_label
+
+    // Normal metadata exposes every room only in the explicit test build.
+    keys: [3]s32 = .[66, 70, 68]
+    for room: cast(s32)0..2 {
+        TitleEnter(*touch, campus)
+        step = TitleKey(*touch, keys[room])
+        if TitleTestRooms() {
+            if !step.moved || touch.not_implemented { return 288 }
+            if room == 0 && touch.scene != beach { return 289 }
+            if room > 0 && touch.preview_room != room { return 290 }
+            unused TitleKey(*touch, 256)
+            if touch.scene != campus || touch.preview_room != 0 { return 291 }
+        } else if step.moved || touch.scene != campus || touch.preview_room != 0 { return 292 }
+    }
+
     // Portrait: dragging pans the picture and never taps; keys center the
     // selection.
     pan: TitleState

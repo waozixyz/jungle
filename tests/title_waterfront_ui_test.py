@@ -6,7 +6,7 @@ import tempfile
 import time
 from PIL import Image, ImageChops, ImageStat
 import runtime_test
-from runtime_test import Desktop, ROOT, run
+from runtime_test import Desktop, ROOT, run, title_unit
 from title_scenes_test import hit
 from title_paper_ui_test import foreground_mask
 
@@ -55,6 +55,77 @@ def assert_scene(d, name, w, h):
     return s, actual
 
 
+def path_signs(d, campus, w, h):
+    """Actual separate wood, localized lettering, press animation and Back.
+
+    Called when production metadata contains signs. Private candidate hosts
+    can supply the same metadata to exercise art before owner selection.
+    """
+    signs = [t for t in campus['hotspots'] if t.get('sign')]
+    if not signs:
+        return
+    label_pictures = {t['id']: [] for t in signs}
+    for language in range(3):
+        unit = title_unit(w, h)
+        d.click_actual(round((21 + 34 * language) * unit), round(17 * unit))
+        for target in signs:
+            _, rest = assert_scene(d, 'campus', w, h)
+            rest = d.capture_actual(f'sign-labels-{language}-{w}')
+            scale, ox, oy = mapping(campus, w, h)
+            rx, ry, rw, rh = target['glow_rect']
+            bx, by, bw, bh = target['sign']['label_rect']
+            area = tuple(round(v) for v in (ox+(rx+bx)*scale, oy+(ry+by)*scale,
+                                           ox+(rx+bx+bw)*scale, oy+(ry+by+bh)*scale))
+            assert area[0] >= 8 and area[1] >= 65 and area[2] <= w-8 and area[3] <= h-8, ('sign label cropped', target['id'], area, w, h)
+            if campus.get('foreground'):
+                with Image.open(ROOT/campus['foreground']) as foreground:
+                    mask = foreground.getchannel('A').resize(
+                        (round(foreground.width*scale), round(foreground.height*scale)), Image.Resampling.BILINEAR)
+                mask = mask.crop((-round(ox), -round(oy), w-round(ox), h-round(oy)))
+                assert mask.crop(area).getextrema()[1] <= 16, ('foreground hides sign lettering', target['id'], w, h)
+            # The text/semantic rectangle is on opaque painted wood and its
+            # center resolves to the physical sign, never an arrow beside it.
+            with Image.open(ROOT/target['rest']) as sprite:
+                assert sprite.mode == 'RGBA'
+                alpha = sprite.getchannel('A')
+                for u in (.05, .5, .95):
+                    for v in (.05, .5, .95):
+                        x, y = bx+u*bw, by+v*bh
+                        assert hit(campus, rx+x, ry+y) == target['id']
+                        assert alpha.getpixel((min(sprite.width-1, round(x*sprite.width/rw)),
+                                               min(sprite.height-1, round(y*sprite.height/rh)))) > 200
+            label_pictures[target['id']].append(rest.crop(area))
+            x, y = round((area[0]+area[2])/2), round((area[1]+area[3])/2)
+            move(d, x, y)
+            hover = d.capture_actual(f'sign-{target["id"]}-hover-{language}-{w}')
+            signal = max(ImageStat.Stat(ImageChops.difference(rest.crop(area), hover.crop(area))).mean)
+            assert signal > .5, ('sign hover missing', target['id'], language, w, signal)
+            run(['xdotool', 'mousedown', '1'], d.env)
+            try:
+                time.sleep(.08)
+                pressed = d.capture_actual(f'sign-{target["id"]}-pressed-{language}-{w}')
+                assert max(ImageStat.Stat(ImageChops.difference(rest, pressed)).mean) < 12, 'sign navigated before release'
+                assert max(ImageStat.Stat(ImageChops.difference(hover.crop(area), pressed.crop(area))).mean) > .2
+            finally:
+                run(['xdotool', 'mouseup', '1'], d.env)
+            time.sleep(.4)
+            kind, destination = target['target'].split(':', 1)
+            if kind == 'scene':
+                assert_scene(d, destination, w, h)
+                d.key('Escape')
+            else:
+                assert max(ImageStat.Stat(ImageChops.difference(rest, d.capture_actual('sign-opened-game'))).mean) > 15
+                d.click_actual(24, 26)
+            assert_scene(d, 'campus', w, h)
+    for ident, pictures in label_pictures.items():
+        for first, second in ((0, 1), (1, 2), (0, 2)):
+            assert max(ImageStat.Stat(ImageChops.difference(pictures[first], pictures[second])).mean) > .3, (ident, 'label did not localize', first, second, w)
+    # Continue the rest of the waterfront regression in its default language.
+    unit = title_unit(w, h)
+    d.click_actual(round(21*unit), round(17*unit))
+    print(f'local path sign UI: {w}x{h}, EN/DE/ES physical board, hover, press, route and Back passed', flush=True)
+
+
 def main():
     work = ROOT/'work/title-waterfront'
     work.mkdir(parents=True,exist_ok=True)
@@ -71,6 +142,8 @@ def main():
                     d.key('Home')
                     home = DATA['scenes'][0]
                     d.key(str(next(i+1 for i,t in enumerate(home['hotspots']) if t['target']=='scene:campus')))
+                    campus,rest = assert_scene(d,'campus',w,h)
+                    path_signs(d, campus, w, h)
                     campus,rest = assert_scene(d,'campus',w,h)
                     arrow = next(t for t in campus['hotspots'] if t['id']=='beach-path')
                     scale,ox,oy = mapping(campus,w,h)

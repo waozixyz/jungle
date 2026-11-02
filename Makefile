@@ -28,6 +28,20 @@ DESKTOP_LIBS = $$(pkg-config --libs sdl2 cairo freetype2 fontconfig pangocairo) 
 CFLAGS_ZI = -std=c11 -O2 -ffunction-sections -fdata-sections -I'$(TOOLCHAIN)/include'
 # The app as it is installed: the program, its menu assets and the games.
 APP := build/app
+# Unfinished campus rooms are opt-in and may never replace the installed app.
+TEST_ROOMS ?= 0
+ifeq ($(TEST_ROOMS),1)
+ifeq ($(abspath $(APP)),$(abspath build/app))
+$(error TEST_ROOMS=1 requires a private APP, such as build/tests/title-host)
+endif
+TITLE_DEFINES := --define JUNGLE_TEST_ROOMS
+endif
+.PHONY: FORCE_TITLE_POLICY
+$(APP)/title-policy build/tests/title-policy: FORCE_TITLE_POLICY
+	mkdir -p $(@D)
+	@printf '%s\n' '$(TEST_ROOMS)' | cmp -s - $@ || printf '%s\n' '$(TEST_ROOMS)' > $@
+$(APP)/jungle: $(APP)/title-policy
+build/tests/title: build/tests/title-policy
 # Private test apps own their staging and manifest as well as their bundles.
 STAGE ?= $(if $(filter build/app,$(APP)),build/stage,$(APP)/stage)
 # Installed shared assets, their manifest and each game's staged bundle files.
@@ -68,7 +82,7 @@ $(APP)/jungle: $(wildcard host/*.zi retro/*.zi games/paint/paint_palette.zi game
 	mkdir -p $(APP)
 	@set -eu; output=$$(mktemp -d build/host-c.XXXXXX); \
 		trap 'rm -rf "$$output"' EXIT; \
-		'$(ZIRANC)' build --target=c --root host $(MODULES) --entry desktop:main -o "$$output" host/desktop.zi; \
+		'$(ZIRANC)' build --target=c --root host $(MODULES) $(TITLE_DEFINES) --entry desktop:main -o "$$output" host/desktop.zi; \
 		$${CC:-cc} $(CFLAGS_ZI) $$(find "$$output" -type d -printf ' -iquote %p') $$(find "$$output" -name '*.c') \
 		build/ziran/libziran.a -Wl,--gc-sections $(DESKTOP_LIBS) -o "$$output/jungle"; \
 		mv "$$output/jungle" $@
@@ -198,7 +212,7 @@ build/tests/voice build/tests/speech_codec: TEST_LIBS = $(DESKTOP_LIBS)
 
 build/tests/%: tests/%_test.zi $(wildcard games/*/*.zi host/*.zi retro/*.zi) build/ziran/libziran.a
 	rm -rf build/tests/$*-c
-	'$(ZIRANC)' build --target=c --root tests $(MODULES) \
+	'$(ZIRANC)' build --target=c --root tests $(MODULES) $(TITLE_DEFINES) \
 		--entry $*_test:main -o build/tests/$*-c $<
 	$${CC:-cc} $(CFLAGS_ZI) $$(find build/tests/$*-c -type d -printf ' -iquote %p') $$(find build/tests/$*-c -name '*.c') \
 		build/ziran/libziran.a -Wl,--gc-sections -lm -lpthread $(TEST_LIBS) -o $@

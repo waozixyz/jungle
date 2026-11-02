@@ -20,6 +20,57 @@ CATALOG = ROOT / 'games/catalog.txt'
 OUTPUT = ROOT / 'host/jungle_title_data.zi'
 # Below Ziran's 4095-character file-scope initializer limit.
 INITIALIZER_LIMIT = 3600
+SIGN_LABELS = {'Beach', 'Farm', 'Desert', 'Campus'}
+SIGN_DIRECTIONS = {'left': 1, 'right': 2, 'up': 3, 'down': 4}
+
+
+def Inside(polygon, x, y):
+    inside = False
+    for (xi, yi), (xj, yj) in zip(polygon, polygon[-1:] + polygon[:-1]):
+        if (yi > y) != (yj > y) and x < xi + (y - yi) * (xj - xi) / (yj - yi):
+            inside = not inside
+    return inside
+
+
+def SignLabel(hotspot):
+    sign = hotspot.get('sign')
+    if sign is None:
+        return ''
+    if not isinstance(sign, dict) or not isinstance(sign.get('label'), str) or sign['label'] not in SIGN_LABELS:
+        raise SystemExit('title scenes: invalid path sign label')
+    return sign['label']
+
+
+def Sign(hotspot, rect):
+    """A label on a separate physical sprite, with board-local text bounds."""
+    sign = hotspot.get('sign')
+    if sign is None:
+        return '', [0, 0, 0, 0]
+    label = SignLabel(hotspot)
+    if sign.get('direction') not in SIGN_DIRECTIONS:
+        raise SystemExit('title scenes: invalid path sign direction')
+    board = sign.get('label_rect', [])
+    if (not isinstance(board, list) or len(board) != 4 or
+            any(type(v) is not int for v in board) or
+            min(board[:2]) < 0 or min(board[2:]) <= 0 or
+            board[0] + board[2] > rect[2] or board[1] + board[3] > rect[3]):
+        raise SystemExit('title scenes: path sign label_rect must fit its separate sprite')
+    if not hotspot.get('rest'):
+        raise SystemExit('title scenes: path sign needs a separate resting sprite')
+    if not hotspot['target'].startswith(('scene:', 'game:', 'book:', 'preview:')):
+        raise SystemExit('title scenes: path sign needs an actual destination')
+    if any(not (rect[0] <= x <= rect[0] + rect[2] and
+                    rect[1] <= y <= rect[1] + rect[3]) for x, y in hotspot['polygon']):
+        raise SystemExit('title scenes: path sign hit polygon must fit its sprite')
+    # The semantic button covers the board only, so its complete rectangle
+    # must be part of the physical hit shape and outside foreground animals.
+    for u in (0.001, 0.5, 0.999):
+        for v in (0.001, 0.5, 0.999):
+            x, y = rect[0] + board[0] + u * board[2], rect[1] + board[1] + v * board[3]
+            if (not Inside(hotspot['polygon'], x, y) or
+                    Inside(hotspot.get('occlusion', []), x, y)):
+                raise SystemExit('title scenes: path sign board must stay inside its physical hit area')
+    return label, board
 
 
 def Load(source=SOURCE, catalog=CATALOG):
@@ -38,6 +89,9 @@ def Load(source=SOURCE, catalog=CATALOG):
         alternate = {h['id']: h['target'] for h in portrait['hotspots']}
         if original != alternate or len(alternate) != len(portrait['hotspots']):
             raise SystemExit('title scenes: portrait hotspot IDs and targets must match landscape')
+        labels = lambda items: {h['id']: SignLabel(h) for h in items}
+        if labels(scene['hotspots']) != labels(portrait['hotspots']):
+            raise SystemExit('title scenes: portrait path sign labels must match landscape')
         scenes.append(dict(portrait, name=scene['name'] + '-portrait', base=index))
     names = [scene['name'] for scene in scenes]
     if not scenes or len(set(names)) != len(names):
@@ -65,6 +119,8 @@ def Load(source=SOURCE, catalog=CATALOG):
                 scene_target, game = -1, target
             elif kind == 'guide' and target == 'tour':
                 scene_target, game = -1, ''
+            elif kind == 'preview' and target in ('Farm', 'Desert') and SignLabel(hotspot) == target and scene['name'] in ('campus', 'campus-portrait'):
+                scene_target, game = -1, ''
             else:
                 raise SystemExit(f'title scenes: {hotspot["id"]} has target {hotspot["target"]}')
             polygon = [(round(x), round(y)) for x, y in hotspot['polygon']]
@@ -80,9 +136,13 @@ def Load(source=SOURCE, catalog=CATALOG):
             rect = [round(value) for value in hotspot['glow_rect']]
             if len(rect) != 4 or rect[2] <= 0 or rect[3] <= 0:
                 raise SystemExit(f'title scenes: {hotspot["id"]} has an empty glow_rect')
+            label, board = Sign(hotspot, rect)
             hotspots.append({'scene': index, 'id': hotspot['id'], 'scene_target': scene_target,
                              'game': game, 'glow': hotspot['glow'], 'rect': rect, 'polygon': polygon,
-                             'rest': hotspot.get('rest', ''), 'occlusion': occlusion})
+                             'rest': hotspot.get('rest', ''), 'occlusion': occlusion,
+                             'sign_label': label, 'sign_rect': board,
+                             'preview_room': {'Farm': 1, 'Desert': 2}.get(target, 0) if kind == 'preview' else 0,
+                             'sign_direction': SIGN_DIRECTIONS[hotspot['sign']['direction']] if label else 0})
     # Parents: breadth first from the first scene, so Escape always climbs
     # back towards the treehouse.
     parents = [-1] * len(scenes)
@@ -198,13 +258,19 @@ def Render(data, scenes, parents, hotspots):
         f'TITLE_SCENE_HOTSPOTS: [{scene_count}]s32 = .[{Numbers(counts)}];',
         '',
         f'TITLE_HOTSPOT_ID: [{hotspot_count}]string = .[{Quoted(hotspot["id"] for hotspot in hotspots)}];',
-        f'TITLE_HOTSPOT_GUIDE: [{hotspot_count}]s32 = .[{Numbers(1 if h["game"] == "" and h["scene_target"] < 0 else 0 for h in hotspots)}];',
+        f'TITLE_HOTSPOT_GUIDE: [{hotspot_count}]s32 = .[{Numbers(1 if h["game"] == "" and h["scene_target"] < 0 and not h["preview_room"] else 0 for h in hotspots)}];',
+        f'TITLE_HOTSPOT_PREVIEW: [{hotspot_count}]s32 = .[{Numbers(h["preview_room"] for h in hotspots)}];',
         '// The scene a hotspot leads to, or -1 when it opens TITLE_HOTSPOT_GAME.',
         f'TITLE_HOTSPOT_TARGET: [{hotspot_count}]s32 = .[{Numbers(hotspot["scene_target"] for hotspot in hotspots)}];',
         f'TITLE_HOTSPOT_GAME: [{hotspot_count}]string = .[{Quoted(hotspot["game"] for hotspot in hotspots)}];',
         f'TITLE_HOTSPOT_GLOW: [{hotspot_count}]string = .[{Quoted(hotspot["glow"] for hotspot in hotspots)}];',
         '// Optional always-visible navigation art; shares the glow rectangle.',
         f'TITLE_HOTSPOT_REST: [{hotspot_count}]string = .[{Quoted(hotspot["rest"] for hotspot in hotspots)}];',
+        '// Localized at runtime; the blank sign sprite never contains language-specific lettering.',
+        f'TITLE_SIGN_LABEL: [{hotspot_count}]string = .[{Quoted(h["sign_label"] for h in hotspots)}];',
+        f'TITLE_SIGN_DIRECTION: [{hotspot_count}]s32 = .[{Numbers(h["sign_direction"] for h in hotspots)}];',
+        '// Text board bounds relative to the hotspot sprite, in source pixels.',
+        f'TITLE_SIGN_RECT: [{hotspot_count * 4}]s32 = .[{Numbers(v for h in hotspots for v in h["sign_rect"])}];',
         '// x, y, width, height of each glow picture.',
         f'TITLE_GLOW_RECT: [{hotspot_count * 4}]s32 = .[{Numbers(rects)}];',
         '// Each polygon is TITLE_POLYGON_COUNT points from TITLE_POLYGON_FIRST in',

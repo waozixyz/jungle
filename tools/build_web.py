@@ -1,5 +1,6 @@
 """Build Jungle's WebAssembly Canvas and DOM browser editions."""
 import os
+import argparse
 import json
 import re
 from pathlib import Path
@@ -40,7 +41,9 @@ def write_pages(out, revision):
         (out/(backend+'.html')).write_text(profile)
 
 
-def build(out):
+def build(out, test_rooms=False):
+    if test_rooms and out.resolve() == (ROOT/'build/web').resolve():
+        raise SystemExit('Testing rooms require a private output, not build/web')
     ziran = package('ziran')
     kryon = package('kryon')
     mingcute = package('mingcute')
@@ -69,6 +72,7 @@ def build(out):
         if semantic_dom:sources.append(kryon/'src/backend/dom_app_run.zi')
         sources.append(ROOT/'web/jungle_web.zi')
         args=[compiler,'build','--target=c','--entry',entry,'--define','PLATFORM_WEB','--root',ROOT/'web',*modules]
+        if test_rooms: args += ['--define', 'JUNGLE_TEST_ROOMS']
         for source,target in bindings.items():args += ['--bind',source+'='+target]
         args += ['-o',output,*sources]
         run(args)
@@ -112,6 +116,7 @@ def build(out):
     shutil.copy2(ROOT/'web/asset-packs.js',out/'asset-packs.js')
     manifest=stage_assets(out)
     (out/'version.json').write_text(json.dumps({'version':(ROOT/'VERSION').read_text().strip(),'revision':revision,
+        'testingRooms':test_rooms,
         'runtimes':{'canvas':(out/'jungle.js').stat().st_size,'dom':(out/'jungle-dom.js').stat().st_size}}))
     count,total=validate_distribution(out)
     print(f'Built {len(manifest["files"])} packed assets in {len(manifest["packs"])} ZIP packs; distribution: {count} files, {total/1_000_000:.1f} MB',flush=True)
@@ -229,6 +234,15 @@ def stage_assets(out):
 
 
 def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--test-rooms', action='store_true')
+    parser.add_argument('--output', type=Path)
+    args = parser.parse_args()
+    if args.test_rooms and args.output is None:
+        parser.error('--test-rooms requires an explicit private --output')
+    if args.output is not None:
+        build(args.output, test_rooms=args.test_rooms)
+        return
     # Fresh staging excludes obsolete assets; retain the last successful build.
     (ROOT/'build').mkdir(exist_ok=True)
     with tempfile.TemporaryDirectory(prefix='web-stage-',dir=ROOT/'build') as stage:
