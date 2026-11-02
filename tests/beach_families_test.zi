@@ -1,0 +1,121 @@
+#import, file "../games/beach_families/beach_families.zi";
+#import, file "../retro/language.zi";
+#import, file "../host/jungle_text.zi";
+
+ValidCrabs :: (family: BeachFamily) -> bool {
+    if family.family < 1 || family.family > 4 || BeachFamilyCount(family) > family.family { return false }
+    for crab: cast(s32)0..family.family - 1 {
+        left := family.crabs[crab].x - family.crabs[crab].edge / 2
+        right := family.crabs[crab].x + family.crabs[crab].edge / 2
+        top := family.crabs[crab].y - family.crabs[crab].edge / 2
+        bottom := family.crabs[crab].y + family.crabs[crab].edge / 2
+        if left < 0 || right > 1000 || top < 0 || bottom > 1000 { return false }
+        for other: cast(s32)crab + 1..family.family - 1 {
+            other_left := family.crabs[other].x - family.crabs[other].edge / 2
+            other_right := family.crabs[other].x + family.crabs[other].edge / 2
+            other_top := family.crabs[other].y - family.crabs[other].edge / 2
+            other_bottom := family.crabs[other].y + family.crabs[other].edge / 2
+            if right <= other_left || left >= other_right || bottom <= other_top || top >= other_bottom { continue }
+            return false
+        }
+    }
+    for unused: cast(s32)family.family..3 {
+        if family.crabs[unused].counted { return false }
+    }
+    return true
+}
+
+#program_export
+main :: () -> s32 {
+    // Round creation clamps unsafe values and deterministically cycles one
+    // through four without modes, levels, mistakes or pressure.
+    negative := BeachFamilyRound(-9, -4)
+    if negative.round != 0 || negative.rounds != 0 || negative.family != 1 || !ValidCrabs(negative) { return 1 }
+    capped := BeachFamilyRound(BEACH_FAMILY_MAX_ROUND + 2, BEACH_FAMILY_MAX_ROUND + 9)
+    if capped.round != BEACH_FAMILY_MAX_ROUND || capped.rounds != capped.round || !ValidCrabs(capped) { return 2 }
+    for round: cast(s32)0..11 {
+        family := BeachFamilyRound(round, round)
+        again := BeachFamilyRound(round, round)
+        if family.family != 1 + round % 4 || family.rounds != round || BeachFamilyDone(family) ||
+            BeachFamilyCount(family) != 0 || !ValidCrabs(family) || BeachFamilySave(family) != BeachFamilySave(again) { return 10 + round }
+    }
+    ahead := BeachFamilyRound(7, 99)
+    if ahead.round != 7 || ahead.rounds != 7 || BeachFamilyDone(ahead) { return 3 }
+
+    // Every valid tap counts once; duplicates and bounds misses are no-ops.
+    // Completing a family increments the round total exactly once.
+    for family_count: cast(s32)1..4 {
+        family := BeachFamilyRound(family_count - 1, family_count - 1)
+        if BeachFamilyTap(*family, -1) || BeachFamilyTap(*family, family.family) { return 40 + family_count }
+        for crab: cast(s32)0..family.family - 1 {
+            if !BeachFamilyTap(*family, crab) || BeachFamilyCount(family) != crab + 1 { return 50 + family_count }
+            expected := Cat(NumberText(crab + 1), " of ", NumberText(family.family))
+            if BeachFamilyCountText(family) != expected || !family.crabs[crab].counted { return 55 + family_count }
+            if BeachFamilyTap(*family, crab) || BeachFamilyCount(family) != crab + 1 { return 60 + family_count }
+        }
+        if !BeachFamilyDone(family) || family.rounds != family.round + 1 { return 70 + family_count }
+        if BeachFamilyTap(*family, 0) || family.rounds != family.round + 1 { return 80 + family_count }
+    }
+
+    // Completed rounds resume into the same calm celebration; the next start
+    // preserves completed count and resets only the new family's taps.
+    complete := BeachFamilyRound(2, 2)
+    for crab: cast(s32)0..2 { unused BeachFamilyTap(*complete, crab) }
+    saved := BeachFamilySave(complete)
+    if saved != "beach_families 1 2 3 1 1 1 0\n" { return 4 }
+    restored: BeachFamily
+    if !BeachFamilyRead(saved, *restored) || !BeachFamilyDone(restored) || restored.round != 2 ||
+        restored.rounds != 3 || BeachFamilyCount(restored) != 3 || BeachFamilySave(restored) != saved { return 5 }
+    next := BeachFamilyRound(restored.round + 1, restored.rounds)
+    if next.family != 4 || next.round != 3 || next.rounds != 3 || BeachFamilyCount(next) != 0 ||
+        BeachFamilyDone(next) || !ValidCrabs(next) { return 6 }
+
+    // Partial saves resume exactly where the child left them.
+    partial := "beach_families 1 5 5 1 0 0 0\n"
+    if !BeachFamilyRead(partial, *restored) || restored.round != 5 || restored.rounds != 5 ||
+        restored.family != 2 || BeachFamilyCount(restored) != 1 || BeachFamilyDone(restored) { return 7 }
+    if !BeachFamilyTap(*restored, 1) || !BeachFamilyDone(restored) || restored.rounds != 6 { return 8 }
+
+    // Malformed, inconsistent and out-of-bounds saves are refused without
+    // changing the current family.
+    keep := BeachFamilySave(restored)
+    bad: [17]string = .[
+        "",
+        "beach_families 2 0 0 0 0 0 0\n",
+        "beach_families 1 -1 0 0 0 0 0\n",
+        "beach_families 1 100000001 0 0 0 0 0\n",
+        "beach_families 1 0 2 0 0 0 0\n",
+        "beach_families 1 0 1 0 0 0 0\n",
+        "beach_families 1 1 1 1 1 0 0\n",
+        "beach_families 1 1 2 1 0 0 0\n",
+        "beach_families 1 1 2 1 2 0 0\n",
+        "beach_families 1 2 2 1 1 1 0\n",
+        "beach_families 1 0 0 1 0 0 0\n",
+        "beach_families 1 0 0 0 0 0 0 junk\n",
+        "beach_families 1 0 0 0 0 0 0",
+        "beach_families 1 0 0  0 0 0 0\n",
+        "beach_families 1 0 0 0 0 0 0\n\n",
+        "beach_families 1 100000000 100000001 0 0 1 0\n",
+        "beach_families 1 999999999 1000000000 0 0 0 0\n"
+    ];
+    for at: cast(s32)0..16 {
+        if BeachFamilyRead(bad[at], *restored) { return 100 + at }
+        if BeachFamilySave(restored) != keep { return 120 }
+    }
+
+    // The complete UI vocabulary exists in all three supported languages.
+    LanguageSet("en")
+    if BeachFamilyTitle() != "Crab Family" || BeachFamilyPrompt() != "Tap each crab once." ||
+        BeachFamilyNextText() != "New family" || BeachFamilyCountText(BeachFamilyRound(1)) != "0 of 2" ||
+        BeachFamilyDoneText(BeachFamilyRound(1)) != "A calm family of 2 crabs!" { return 130 }
+    LanguageSet("de")
+    if BeachFamilyTitle() != "Krabbenfamilie" || BeachFamilyPrompt() != "Tippe jede Krabbe einmal an." ||
+        BeachFamilyNextText() != "Neue Familie" || BeachFamilyCountText(BeachFamilyRound(1)) != "0 von 2" ||
+        BeachFamilyDoneText(BeachFamilyRound(1)) != "Eine ruhige Familie mit 2 Krabben!" { return 131 }
+    LanguageSet("es")
+    if BeachFamilyTitle() != "Familia de cangrejos" || BeachFamilyPrompt() != "Toca cada cangrejo una vez." ||
+        BeachFamilyNextText() != "Nueva familia" || BeachFamilyCountText(BeachFamilyRound(1)) != "0 de 2" ||
+        BeachFamilyDoneText(BeachFamilyRound(1)) != "¡Una familia tranquila de 2 cangrejos!" { return 132 }
+    LanguageSet("en")
+    return 0
+}

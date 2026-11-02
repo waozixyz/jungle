@@ -1,0 +1,161 @@
+// Crab Family Counting rules and validated saves, without drawing.
+// Every round shows one friendly crab family of one to four crabs. Tapping a
+// crab once counts it; repeated and out-of-range taps never change the round.
+#import, file "../../host/jungle_text.zi";
+#import, file "../../retro/language.zi";
+
+BEACH_FAMILY_MAX_ROUND :: 100000000
+BEACH_FAMILY_MAX_ROUNDS :: BEACH_FAMILY_MAX_ROUND + 1
+
+BeachFamilyCrab :: struct {
+    // A crab center and square tap box, in thousandths of the play field.
+    x: s32
+    y: s32
+    edge: s32
+    counted: bool
+}
+
+BeachFamily :: struct {
+    // The current zero-based family and the number of completed families.
+    round: s32
+    rounds: s32
+    // One to four identical crabs, so only counting changes.
+    family: s32
+    crabs: [4]BeachFamilyCrab
+}
+
+BeachFamilyText :: (en: string, de: string, es: string) -> string {
+    if LanguageCode() == "de" { return de }
+    if LanguageCode() == "es" { return es }
+    return en
+}
+
+BeachFamilyTitle :: () -> string {
+    return BeachFamilyText("Crab Family", "Krabbenfamilie", "Familia de cangrejos")
+}
+
+BeachFamilyPrompt :: () -> string {
+    return BeachFamilyText("Tap each crab once.", "Tippe jede Krabbe einmal an.", "Toca cada cangrejo una vez.")
+}
+
+BeachFamilyNextText :: () -> string {
+    return BeachFamilyText("New family", "Neue Familie", "Nueva familia")
+}
+
+BeachFamilyCountText :: (family: BeachFamily) -> string {
+    return Cat(NumberText(BeachFamilyCount(family)), " ",
+        BeachFamilyText("of", "von", "de"), " ", NumberText(family.family))
+}
+
+BeachFamilyDoneText :: (family: BeachFamily) -> string {
+    count := NumberText(family.family)
+    crabs := BeachFamilyText("crabs", "Krabben", "cangrejos")
+    opening := BeachFamilyText("", "", "¡")
+    closing := BeachFamilyText("!", "!", "!")
+    return Cat(opening, BeachFamilyText("A calm family of", "Eine ruhige Familie mit", "Una familia tranquila de"),
+        " ", count, " ", crabs, closing)
+}
+
+BeachFamilyClamp :: (value: s32, low: s32, high: s32) -> s32 {
+    if value < low { return low }
+    if value > high { return high }
+    return value
+}
+
+BeachFamilyFamily :: (round: s32) -> s32 { return 1 + round % 4 }
+
+// Starts family `round` from scratch. Both inputs are clamped. After a calm
+// celebration, the host starts the next family with
+// BeachFamilyRound(family.round + 1, family.rounds).
+BeachFamilyRound :: (round: s32, rounds: s32 = 0) -> BeachFamily {
+    family := BeachFamily.{}
+    family.round = BeachFamilyClamp(round, 0, BEACH_FAMILY_MAX_ROUND)
+    family.rounds = BeachFamilyClamp(rounds, 0, family.round)
+    family.family = BeachFamilyFamily(family.round)
+    spacing: [4]s32 = .[0, 300, 260, 210]
+    edge: [4]s32 = .[270, 245, 220, 200]
+    for crab: cast(s32)0..family.family - 1 {
+        offset := crab * 2 - family.family + 1
+        family.crabs[crab] = BeachFamilyCrab.{
+            .x = 500 + offset * spacing[family.family - 1] / 2,
+            .y = 560 + family.family * 15,
+            .edge = edge[family.family - 1],
+            .counted = false
+        }
+    }
+    return family
+}
+
+BeachFamilyCount :: (family: BeachFamily) -> s32 {
+    count: s32
+    for crab: cast(s32)0..family.family - 1 {
+        if family.crabs[crab].counted { count += 1 }
+    }
+    return count
+}
+
+// Counts one new crab. Invalid and already-counted taps are calm no-ops. The
+// final valid tap increments the completed-family counter exactly once.
+BeachFamilyTap :: (family: *BeachFamily, crab: s32) -> bool {
+    if crab < 0 || crab >= family.family || family.crabs[crab].counted || BeachFamilyDone(family.*) { return false }
+    family.crabs[crab].counted = true
+    if BeachFamilyDone(family.*) && family.rounds == family.round {
+        family.rounds += 1
+    }
+    return true
+}
+
+// True only after every crab in the current family has been tapped.
+BeachFamilyDone :: (family: BeachFamily) -> bool {
+    if family.family < 1 || family.family > 4 { return false }
+    return BeachFamilyCount(family) == family.family
+}
+
+// Version 1 keeps the current round, completed rounds and four tap flags. A
+// completed save also keeps its calm celebration state, so it can resume.
+BeachFamilySave :: (family: BeachFamily) -> string {
+    text := Cat("beach_families 1 ", NumberText(family.round), " ", NumberText(family.rounds))
+    for crab: cast(s32)0..3 {
+        text = Cat(text, " ", ifx family.crabs[crab].counted then "1" else "0")
+    }
+    return Cat(text, "\n")
+}
+
+BeachFamilyNumber :: (text: string, at: *s64) -> s32 {
+    if at.* >= text.count || text[at.*] < #char "0" || text[at.*] > #char "9" { return -1 }
+    value: s32
+    while at.* < text.count && text[at.*] >= #char "0" && text[at.*] <= #char "9" {
+        if value > 100000000 { return -1 }
+        value = value * 10 + cast(s32)(text[at.*] - #char "0")
+        at.* += 1
+    }
+    return value
+}
+
+BeachFamilyRead :: (text: string, result: *BeachFamily) -> bool {
+    if text.count < 29 || text.count > 72 { return false }
+    if text[:17] != "beach_families 1 " { return false }
+    at: s64 = 17
+    values: [6]s32
+    for field: cast(s32)0..5 {
+        values[field] = BeachFamilyNumber(text, *at)
+        if values[field] < 0 || at >= text.count { return false }
+        separator := ifx field == 5 then #char "\n" else #char " "
+        if text[at] != separator { return false }
+        at += 1
+    }
+    if at != text.count || values[0] > BEACH_FAMILY_MAX_ROUND || values[1] > BEACH_FAMILY_MAX_ROUNDS { return false }
+    if values[1] != values[0] && values[1] != values[0] + 1 { return false }
+    restored := BeachFamilyRound(values[0])
+    for field: cast(s32)2..5 {
+        if values[field] > 1 { return false }
+        restored.crabs[field - 2].counted = values[field] == 1
+    }
+    for crab: cast(s32)restored.family..3 {
+        if restored.crabs[crab].counted { return false }
+    }
+    if BeachFamilyDone(restored) != (values[1] == values[0] + 1) { return false }
+    restored.rounds = values[1]
+    result.* = restored
+    return true
+}
