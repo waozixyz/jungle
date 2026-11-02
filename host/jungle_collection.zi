@@ -115,6 +115,20 @@ CollectionAdd :: (collection: *Collection, slug: string) -> s32 {
     return 1
 }
 
+// A game's collection services: "jungle.collect" with a slug replies new, had or unknown, and
+// "jungle.collection" replies CollectionMask. Other services reply "". changed is true when a
+// new item must be saved. An invalid collection (its file was unreadable or corrupt, perhaps
+// from a newer version) still collects for this session but never reports changed, so the old
+// file stays untouched.
+CollectionService :: (collection: *Collection, service: string, request: string) -> (reply: string, changed: bool) {
+    if service == "jungle.collection" { return CollectionMask(collection.*), false }
+    if service != "jungle.collect" { return "", false }
+    added := CollectionAdd(collection, request)
+    if added > 0 { return "new", collection.valid }
+    if added == 0 { return "had", false }
+    return "unknown", false
+}
+
 CollectionHexValue :: (digit: u8) -> s32 {
     if digit >= #char "0" && digit <= #char "9" { return cast(s32)(digit - #char "0") }
     if digit >= #char "A" && digit <= #char "F" { return cast(s32)(digit - #char "A") + 10 }

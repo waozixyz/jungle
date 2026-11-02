@@ -41,6 +41,7 @@
 #import, file "../games/paint/paint_palette.zi";
 #import, file "../games/paint/paint_picture.zi";
 #import, file "printing.zi";
+#import, file "jungle_collection.zi";
 
 #import, file "../retro/language.zi";
 #import, file "../games/piano/keyboard.zi";
@@ -242,8 +243,32 @@ Reply :: (text: string) -> HostValue {
     return AppLocalText(TextUntilNul(service_reply[:]))
 }
 
+// The collected stencils, loaded once from <data>/collection.txt by JungleOpen. Games reach it
+// through the jungle.collect and jungle.collection services; the title screen and album use
+// HostCollect and this value directly.
+jungle_collection: Collection;
+collection_setting: string;
+
+// Collects SLUG: 1 the first time, 0 when it was already collected, -1 for an unknown slug.
+HostCollect :: (slug: string) -> s32 {
+    reply := HostCollectionService("jungle.collect", slug)
+    return ifx reply == "new" then 1 else ifx reply == "had" then 0 else -1
+}
+
+HostCollectionService :: (service: string, request: string) -> string {
+    reply, changed := CollectionService(*jungle_collection, service, request)
+    // Written whole beside the old file, then renamed over it. A failed write keeps the item in
+    // memory; the next new item writes them all.
+    if changed && collection_setting != "" {
+        next := Cat(collection_setting, ".new")
+        saved := WriteEntireFile(next, CollectionText(jungle_collection)) && RenamePath(next, collection_setting)
+        if !saved { unused RemoveFile(next) }
+    }
+    return reply
+}
+
 GameAllows :: (context: *void, name: string) -> bool {
-    return name == "jungle.book-start" || name == "jungle.language" || name == "jungle.voice" || name == "jungle.voice-state" || name == "jungle.voice-control" || name == "jungle.sound" || name == "jungle.home" || name == "jungle.canvas" ||
+    return name == "jungle.collect" || name == "jungle.collection" || name == "jungle.book-start" || name == "jungle.language" || name == "jungle.voice" || name == "jungle.voice-state" || name == "jungle.voice-control" || name == "jungle.sound" || name == "jungle.home" || name == "jungle.canvas" ||
         name == "jungle.paint-preview" || name == "jungle.paint-ops" || name == "jungle.paint-colors" || name == "jungle.paint-ink" || name == "jungle.paint-tile" || name == "jungle.touches" || name == "jungle.export" || name == "jungle.print" || name == "jungle.secondary" || name == "jungle.piano-held" || BundleAppAllows(context, name)
 }
 
@@ -315,6 +340,10 @@ GameServices :: (context: *void, module: *u8, function: *u8,
         if service == "jungle.voice-control" {
             SoundSetPaused(request == "pause")
             result.* = Reply("ok")
+            return 1
+        }
+        if service == "jungle.collect" || service == "jungle.collection" {
+            result.* = Reply(HostCollectionService(service, request))
             return 1
         }
         if service == "jungle.book-start" { result.* = Reply(title_book_requested); return 1 }
@@ -624,6 +653,12 @@ JungleOpen :: (checking: bool) -> bool {
     guide_seen_setting = Cat(base, "/guide-seen.txt")
     guide_seen, guide_seen_found := ReadEntireFile(guide_seen_setting)
     if guide_seen_found { title_guide_seen = guide_seen == "yes\n" || guide_seen == "yes" }
+    // A missing file is an empty collection. An unreadable or invalid one loads as invalid, so
+    // nothing is ever written over it (see CollectionService).
+    collection_setting = Cat(base, "/collection.txt")
+    saved_collection, collection_found := ReadEntireFile(collection_setting)
+    if collection_found { jungle_collection = CollectionParse(saved_collection) }
+    else if !PathExists(collection_setting) { jungle_collection = CollectionParse("") }
     unused CreateDirectory(data_root)
     KeepMathLevels(base)
     KeepAnimalLevels()

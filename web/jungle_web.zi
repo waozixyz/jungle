@@ -38,6 +38,7 @@ PianoKeys :: #import, file "../games/piano/keyboard.zi";
 #import, file "../games/paint/paint_palette.zi";
 #import, file "../games/paint/paint_picture.zi";
 #import, file "../retro/language.zi";
+#import, file "../host/jungle_collection.zi";
 
 // Painted navigation consumes titles; full descriptions, ages and icons remain
 // in games/catalog.txt for native catalog loading.
@@ -287,6 +288,14 @@ WebPrint :: (png: string, story: string) -> string {
 }
 
 web_piano_held: [22]u8;
+// The collected stencils, in the settings/collection.txt document; see CollectionService.
+web_collection: Collection;
+
+WebCollectionService :: (service: string, request: string) -> string {
+    reply, changed := CollectionService(*web_collection, service, request)
+    if changed { unused Runner.DocumentWriteHost("settings/collection.txt", CollectionText(web_collection)) }
+    return reply
+}
 
 #program_export
 WebService :: (name: string, request: string) -> string {
@@ -336,6 +345,7 @@ WebService :: (name: string, request: string) -> string {
         }
         return "ok"
     }
+    if name == "jungle.collect" || name == "jungle.collection" { return WebCollectionService(name, request) }
     if name == "jungle.book-start" { return title_book_requested }
     if name == "jungle.language" { return LanguageCode() }
     if name == "jungle.home" { web_home = true; return "ok" }
@@ -392,6 +402,7 @@ JungleMain :: () -> s64 {
         web_muted = Runner.DocumentReadHost("settings/sound.txt") == "off"
         web_title_guide_muted = Runner.DocumentReadHost("settings/guide-sound.txt") == "off"
         web_title_guide_seen = Runner.DocumentReadHost("settings/guide-seen.txt") == "yes"
+        web_collection = CollectionParse(Runner.DocumentReadHost("settings/collection.txt"))
         UpdateSiteLanguage()
         web_initialized = true
     }
