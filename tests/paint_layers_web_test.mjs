@@ -299,7 +299,9 @@ async function run(input){
    await until(()=>evaluate(`window.jungleTestDocument&&window.jungleTestDocument!==${JSON.stringify(previous)}&&typeof Module!=="undefined"&&!!Module.FS&&document.getElementById("loading").style.display==="none"`),'startup',45000);
   }
   async function openPaint(){
-   await stable('the menu kept changing');
+   // The title's collectible paper deliberately pulses. Wait for the app,
+   // then require the destination paint screen to settle after navigation.
+   await ready();
    const before=await screen();await openTitleGame(titleScenes,'Coloring Book',key);
    await settled(before,'Coloring Book did not open');
    dom=await evaluate('!!document.querySelector("#kryon-dom-root button")');
@@ -590,7 +592,7 @@ async function run(input){
 
   // Re-entering the compiled game in the same document must recreate its
   // picture resource and preserve the existing history without a page reload.
-  await key('Escape');await stable('return to menu');await openPaint();await frames(16);
+  await key('Escape');await openPaint();await frames(16);
   await observe('same-document reopen',async()=>{
    await persisted(digest(erased),4,'the reopened picture');await frames(6);
   });
