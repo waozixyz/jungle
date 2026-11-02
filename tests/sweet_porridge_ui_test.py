@@ -1,5 +1,6 @@
 """Walk both bookshelf compositions through every translated story page privately."""
 from pathlib import Path
+import os
 import json
 import subprocess
 import tempfile
@@ -17,7 +18,8 @@ def tokens(text):
     text=unicodedata.normalize('NFKD',text.casefold())
     return re.findall(r'[a-z]+', ''.join(c for c in text if not unicodedata.combining(c)))
 with tempfile.TemporaryDirectory(prefix='reader-',dir=work) as temp:
-    with Desktop(ROOT/'build/app/jungle',Path(temp),screen_size='1280x1100') as desktop:
+    binary = Path(os.environ.get('JUNGLE_TEST_BINARY', ROOT/'build/app/jungle'))
+    with Desktop(binary,Path(temp),screen_size='1280x1100') as desktop:
         for width,height in ((960,600),(420,900)):
             desktop.resize(width,height)
             for language,first,last in ((0,'Sweet','Everyone'),(1,'Der','Alle'),(2,'La','Todos')):

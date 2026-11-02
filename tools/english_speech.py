@@ -140,6 +140,10 @@ def generate():
                              for profile, speed in PROFILES.items()}}
     write_json(ROOT / 'assets/speech-profiles.json', manifest)
     validate()
+    # The reader's offline fallback must describe these newly measured clips.
+    # Regenerate it in the same operation as the narration inventory.
+    from story_book import main as compile_story
+    compile_story()
 
 
 def validate():

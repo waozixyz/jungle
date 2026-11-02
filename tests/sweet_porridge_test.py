@@ -55,6 +55,7 @@ for row in story['pages']:
         with wave.open(str(path)) as audio:
             assert (audio.getnchannels(),audio.getsampwidth(),audio.getframerate()) == (1,2,22050)
             assert 0.5 < audio.getnframes()/22050 < 30
+            assert abs(receipt['duration'] - audio.getnframes()/22050) < 1/22050
 voices = NarratedVoices(ROOT)
 assert len([p for p in voices if '/story-sounds/' in p]) == 33
 previews = prepare_native_previews(files, ROOT/'work/porridge-portrait-integration/preview-test')
