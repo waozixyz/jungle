@@ -124,7 +124,8 @@ TitleSourceX :: (view: TitleView, x: float32) -> float32 { return (x - view.x) /
 TitleSourceY :: (view: TitleView, y: float32) -> float32 { return (y - view.y) / view.scale }
 
 // Even-odd rule, so the art's zero-width bridges joining separate pieces
-// (loose sorter shapes, a group of frogs) and holes (ladder rungs) work.
+// (loose sorter shapes, a group of frogs) and holes work. Ladder hit polygons
+// include the space between rungs; their separate glow art keeps its holes.
 PointInPolygon :: (xs: []s32, ys: []s32, x: float32, y: float32) -> bool {
     count := cast(s32)xs.count
     if count < 3 || cast(s32)ys.count != count { return false }

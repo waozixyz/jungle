@@ -12,6 +12,20 @@ title = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(title)
 
 
+def inside(polygon, x, y):
+    """Even-odd source geometry, including the existing overlap policy."""
+    result = False
+    for (xi, yi), (xj, yj) in zip(polygon, polygon[-1:] + polygon[:-1]):
+        if (yi > y) != (yj > y) and x < xi + (y-yi)*(xj-xi)/(yj-yi):
+            result = not result
+    return result
+
+
+def hit(scene, x, y):
+    candidates = [h for h in scene['hotspots'] if inside(h['polygon'], x, y)]
+    return min(candidates, key=lambda h: h['glow_rect'][2]*h['glow_rect'][3])['id'] if candidates else None
+
+
 class TitleVariants(unittest.TestCase):
     def load(self, data):
         work = ROOT/'work/title-tests'
@@ -60,6 +74,39 @@ class TitleVariants(unittest.TestCase):
                 self.assertLess(max(x for x, y in hut['polygon']),
                                 min(x for x, y in piano['polygon']))
                 self.assertEqual(hotspots['ladder']['target'], 'scene:treehouse')
+
+    def test_ladder_interiors_are_continuous(self):
+        _, scenes, _, _ = title.Load()
+        # Sweep between the rails at every source-pixel row, across rungs
+        # and their gaps. Portrait artwork has its own traced composition.
+        bands = {
+            'treehouse': (540, 580, lambda y: (1455, 1595)),
+            'treehouse-portrait': (1240, 1420, lambda y: (850, 1005)),
+            'bookshelf': (480, 850, lambda y: (1660-.28*(y-480), 1670)),
+            'bookshelf-portrait': (630, 1370, lambda y: (1015-.13*(y-630), 1022)),
+            'campus': (145, 445, lambda y: (942+.215*(y-137), 991+.205*(y-141))),
+            'campus-portrait': (300, 540, lambda y: (520+.19*(y-300), 590+.17*(y-300))),
+        }
+        for scene in scenes:
+            start, end, edges = bands[scene['name']]
+            for y in range(start, end):
+                left, right = edges(y)
+                for x in range(round(left), round(right)):
+                    self.assertEqual(hit(scene, x+.5, y+.5), 'ladder', (scene['name'], x, y))
+
+    def test_nearby_targets_and_background_remain_separate(self):
+        _, scenes, _, _ = title.Load()
+        samples = {
+            'treehouse': [(1400, 550, None), (1000, 400, 'easel')],
+            'treehouse-portrait': [(780, 1300, None), (850, 500, 'easel')],
+            'bookshelf': [(1500, 600, None), (900, 500, 'book-123')],
+            'bookshelf-portrait': [(900, 1000, None), (700, 700, 'book-123')],
+            'campus': [(900, 300, None), (200, 300, 'music-hut'), (1430, 340, 'piano'), (200, 700, 'garden')],
+            'campus-portrait': [(480, 430, None), (200, 530, 'music-hut'), (900, 530, 'piano'), (200, 850, 'garden')],
+        }
+        for scene in scenes:
+            for x, y, expected in samples[scene['name']]:
+                self.assertEqual(hit(scene, x, y), expected, (scene['name'], x, y))
 
     def test_distinct_variant_dimensions_and_parents(self):
         data, scenes, parents, hotspots = self.load(self.fixture())
