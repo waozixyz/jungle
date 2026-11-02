@@ -296,13 +296,13 @@ web_piano_held: [22]u8;
 // The collected stencils, in the settings/collection.txt document; see CollectionService.
 web_collection: Collection;
 
+// A title scene's paper: true only the first time its line art is collected.
+WebTitlePaperCollect :: (slug: string) -> bool { return WebCollectionService("jungle.collect", slug) == "new" }
+
 WebCollectionService :: (service: string, request: string) -> string {
     reply, changed := CollectionService(*web_collection, service, request)
     if changed { unused Runner.DocumentWriteHost("settings/collection.txt", CollectionText(web_collection)) }
     return reply
-// A title scene's paper: true only the first time its line art is collected.
-WebTitlePaperCollect :: (slug: string) -> bool { return WebCollectionService("jungle.collect", slug) == "new" }
-
 }
 
 #program_export
