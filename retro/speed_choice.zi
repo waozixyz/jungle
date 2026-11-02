@@ -1,0 +1,16 @@
+SpeedWalkIcon :: #import "mingcute/mingcute_regular_walk";
+SpeedRabbitIcon :: #import "mingcute/mingcute_regular_rabbit";
+#import, file "language.zi";
+#import, file "../host/jungle_text.zi";
+
+// The visible animal/person is the current speed, in the existing cycle.
+// Turtle is a compact side silhouette with a domed shell and little feet.
+SpeedChoiceIcon :: (speed: s32) -> string {
+    if speed == 1 { return SpeedWalkIcon.Shape }
+    if speed == 2 { return SpeedRabbitIcon.Shape }
+    return "S2rr:M4 15C4 9 7 6 11 6C15 6 18 10 18 15Z M5 15L4 18H7L8 15 M13 15L14 18H17L16 15 M18 12C18 10 19 9 21 10C23 11 22 14 20 14H18 M4 13L2 14 M7 9L11 12L15 9 M11 12V15|F:M20.5 10.8C21.3 10.8 21.3 12 20.5 12C19.7 12 19.7 10.8 20.5 10.8Z"
+}
+
+SpeedChoiceLabel :: (speed: s32) -> string {
+    return Cat(Tr("Speed"), Cat(": ", Tr(ifx speed == 0 then "Slow" else ifx speed == 1 then "Normal" else "Fast")))
+}

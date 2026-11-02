@@ -22,6 +22,7 @@
 }
 SoundOnIcon :: #import "mingcute/mingcute_regular_volume";
 SoundOffIcon :: #import "mingcute/mingcute_regular_volume_off";
+#import, file "../retro/speed_choice.zi";
 #import, file "../retro/retro.zi";
 #import, file "../retro/book_theme.zi";
 #import, file "../retro/language.zi";
@@ -96,11 +97,15 @@ GameTitleBar :: (session: Session, bounds: Rectangle, key: s32, now: float64, ti
         .shape = ifx sound_muted then SoundOffIcon.Shape else SoundOnIcon.Shape, .color = ColorFromPacked(0x3e332aff)})
     action.sound_toggle = sound.clicked
     if abc {
-        speed_label := ifx abc_title_speed == 0 then "Slow" else ifx abc_title_speed == 1 then "Normal" else "Fast"
-        speed := RetroTap(9003, width - 150, 6, 88, 44, Tr("Speed"))
-        BookBox(width - 150, 6, 88, 44, ifx speed.down then cast(u32)0xdcebdcff else cast(u32)0xf3ecdcff, 0xdacdb5ff, 4.0)
-        BookText(width - 150, 7, 88, 18, "Speed", 12)
-        BookText(width - 150, 24, 88, 20, speed_label, 13)
+        speed_label := SpeedChoiceLabel(abc_title_speed)
+        speed := RetroTap(9003, width - 150, 6, 88, 44, speed_label)
+        BookBox(width - 150, 6, 88, 44, ifx speed.down then cast(u32)0xdcebdcff else cast(u32)0xf3ecdcff, 0x2e6956ff, 4.0)
+        SvgIcon(session, SvgIconProps.{.bounds = RetroRect(width - 123, 12, 32, 32),
+            .shape = SpeedChoiceIcon(abc_title_speed), .color = ColorFromPacked(0x2e6956ff)})
+        if TreeHoveredAt(session, speed.node) {
+            BookBox(width - 214, 54, 152, 28, 0xf3ecdcff, 0x2e6956ff, 4.0)
+            BookText(width - 212, 56, 148, 24, speed_label, 13)
+        }
         if speed.clicked { abc_title_speed = (abc_title_speed + 1) % 3; action.speed_toggle = true }
     }
     return action

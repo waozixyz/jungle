@@ -1,0 +1,26 @@
+#import, file "../retro/speed_choice.zi";
+#import "kryon/svg_shape"
+#import, file "../retro/language.zi";
+
+#program_export
+main :: () -> s32 {
+    labels: [9]string = .["Speed: Slow", "Speed: Normal", "Speed: Fast",
+        "Tempo: Langsam", "Tempo: Normal", "Tempo: Schnell",
+        "Velocidad: Lento", "Velocidad: Normal", "Velocidad: Rápido"]
+    for lang: cast(s32)0..2 {
+        language = lang
+        for speed: cast(s32)0..2 {
+            if SpeedChoiceLabel(speed) != labels[lang * 3 + speed] { return 1 }
+        }
+    }
+    for size: cast(s32)24..32 {
+        for speed: cast(s32)0..2 {
+            coverage: [1024]u8
+            if !ShapeRaster(SpeedChoiceIcon(speed), size, coverage[:]) { return 2 }
+            ink: s32
+            for pixel: coverage { if pixel > 127 { ink += 1 } }
+            if ink < 60 { return 3 }
+        }
+    }
+    return 0
+}
