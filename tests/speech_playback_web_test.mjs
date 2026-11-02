@@ -1,3 +1,4 @@
+import {openTitleGame} from './title_routes.mjs';
 // Private headless browser check for compressed narration playback.
 import {spawn} from 'node:child_process';
 import {readFile,mkdtemp,rm,mkdir} from 'node:fs/promises';
@@ -67,10 +68,10 @@ try{
     return result.result.value;
   }
   async function key(name,code=name){
-    const virtualKey=name==='F10'?121:name.charCodeAt(0);
+    const virtualKey=({Home:36,Escape:27,F10:121}[name]??name.toUpperCase().charCodeAt(0));
     await command('Input.dispatchKeyEvent',{type:'keyDown',key:name,code,windowsVirtualKeyCode:virtualKey});
     await delay(80);
-    await command('Input.dispatchKeyEvent',{type:'keyUp',key:name,code,windowsVirtualKeyCode:name.charCodeAt(0)});
+    await command('Input.dispatchKeyEvent',{type:'keyUp',key:name,code,windowsVirtualKeyCode:virtualKey});
     await delay(250);
   }
   async function click(x,y){
@@ -162,12 +163,9 @@ URL.revokeObjectURL=url=>{window.speechTest.revoked++;return revokeObjectURL(url
   if(!transport.playing||!transport.held||!transport.resumed)
     throw Error('Browser Audio position/pause/resume failed: '+JSON.stringify(transport));
 
-  const catalog=(await readFile('games/catalog.txt','utf8')).trim().split('\n').map(line=>line.split('|'))
-    .filter(row=>row[1]!=='123 Book').sort((left,right)=>Number(left[4])-Number(right[4]));
-  const abcEntry=String(catalog.findIndex(row=>row[1]==='ABC Book')+1);
-  await key(abcEntry);
-  await key('1');
-  await waitFor('speechTest.elements.length>0&&speechTest.decoded>0&&!speechTest.elements.at(-1).jungleLoading',
+  const titleScenes=JSON.parse(await readFile(new URL('../tools/title_hotspots.json',import.meta.url),'utf8'));
+  await openTitleGame(titleScenes,'ABC Book',key);
+  await waitFor('speechTest.elements.length>0&&speechTest.decoded>0&&speechTest.elements.at(-1).junglePath.startsWith("assets/abc/sounds/en/letters/")&&!speechTest.elements.at(-1).jungleLoading',
     'Alphabet narration did not decode through the Audio transport');
   const element=await evaluate('(()=>{const audio=speechTest.elements.at(-1);return {path:audio.junglePath,volume:audio.volume}})()');
   if(!element.path.startsWith('assets/abc/sounds/en/letters/')||element.volume!==0.45)
