@@ -92,5 +92,52 @@ main :: () -> s32 {
     invalid_position := Cat("garden 3 0\n1 100 100 3700 3600 0 999 410\n", "0 0 0 0 0 0 0 0\n0 0 0 0 0 0 0 0\n0 0 0 0 0 0 0 0\n0 0 0 0 0 0 0 0\n0 0 0 0 0 0 0 0\n")
     saved := GardenSave(restored)
     if GardenRead(invalid_position, *restored) || GardenSave(restored) != saved { return 36 }
+    // The sunflower's hidden paper appears only once a healthy plant has fully
+    // grown, inside the scene and clear of every plant and the tool tray.
+    for portrait: cast(s32)0..1 {
+        w: s32 = ifx portrait == 1 then 400 else 760
+        h: s32 = ifx portrait == 1 then 640 else 430
+        tray: s32 = ifx portrait == 1 then 180 else 94
+        none: Garden
+        shown, sx, sy := GardenPaperSpot(none, w, h)
+        if shown { return 37 }
+        young: Garden
+        unused GardenPlantAt(*young, 1, 500, 570, start)
+        GardenTick(*young.plots[0], start + GardenGrowTime(1) / 2)
+        shown, sx, sy = GardenPaperSpot(young, w, h)
+        if shown { return 38 }
+        grown_garden: Garden
+        unused GardenPlantAt(*grown_garden, 1, 500, 570, start)
+        unused GardenPlantAt(*grown_garden, 2, 260, 730, start)
+        unused GardenPlantAt(*grown_garden, 3, 740, 730, start)
+        unused GardenPlantAt(*grown_garden, 4, 320, 450, start)
+        unused GardenPlantAt(*grown_garden, 5, 680, 450, start)
+        for i: cast(s32)0..4 {
+            grown_garden.plots[i].growth = GardenGrowTime(grown_garden.plots[i].kind)
+            grown_garden.plots[i].updated = start
+        }
+        shown, sx, sy = GardenPaperSpot(grown_garden, w, h)
+        if !shown || sx < GARDEN_PAPER_ROOM || sx > w - GARDEN_PAPER_ROOM || sy < tray + GARDEN_PAPER_ROOM || sy > h - GARDEN_PAPER_ROOM { return 39 }
+        // Never over a plant box (at its full size) nor inside the tray.
+        scene := h - tray
+        edge := w * 24 / 100
+        if edge > scene * 34 / 100 { edge = scene * 34 / 100 }
+        for p: grown_garden.plots {
+            if p.kind == 0 { continue }
+            half := edge * GardenDepthScale(p.y) / 100
+            px := w * p.x / 1000
+            py := tray + scene * p.y / 1000
+            if sx > px - half / 2 && sx < px + half / 2 && sy > py - half && sy < py + 10 { return 40 }
+        }
+        // A dead plant does not count as grown; a crowded bed still leaves a place or none.
+        dead_only: Garden
+        unused GardenPlantAt(*dead_only, 1, 500, 570, start)
+        dead_only.plots[0].growth = GardenGrowTime(1)
+        dead_only.plots[0].dead = true
+        shown, sx, sy = GardenPaperSpot(dead_only, w, h)
+        if shown { return 41 }
+        shown, sx, sy = GardenPaperSpot(grown_garden, 0, 0)
+        if shown { return 42 }
+    }
     return 0
 }

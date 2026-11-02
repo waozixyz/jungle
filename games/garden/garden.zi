@@ -122,6 +122,48 @@ GardenDrawOrder :: (g: Garden) -> [GARDEN_PLOTS]s32 {
     }
     return order
 }
+// Depth shrinks plants painted higher up the bed; Y is thousandths of the scene.
+GardenDepthScale :: (y: s32) -> s32 {
+    depth := y
+    if depth < 410 { depth = 410 }; if depth > 730 { depth = 730 }
+    return 80 + (depth - 410) * 20 / 320
+}
+GARDEN_PAPER_ROOM :: 30 // screen units from the paper's middle to clear of anything else
+// Where the sunflower's hidden paper lies, in screen units of a WIDTH by HEIGHT
+// garden: a quiet corner of the scene, clear of every plant at its full grown
+// size, never in the tray of seed packets and tools. `show` is false until a
+// healthy plant has fully grown, and when the screen leaves no such corner.
+GardenPaperSpot :: (g: Garden, width: s32, height: s32) -> (show: bool, x: s32, y: s32) {
+    grown := false
+    for p: g.plots { if p.kind != 0 && !p.dead && GardenStage(p) == 3 { grown = true } }
+    if !grown || width <= 0 || height <= 0 { return false, 0, 0 }
+    tray: s32 = ifx width < 600 then 180 else 94
+    scene := height - tray
+    edge := width * 24 / 100
+    cap := scene * 34 / 100
+    if edge > cap { edge = cap }
+    room: s32 = GARDEN_PAPER_ROOM
+    if scene < room * 4 || width < room * 4 { return false, 0, 0 }
+    for c: cast(s32)0..5 {
+        x := room + 4
+        if c == 0 || c == 3 { x = width - room - 4 }
+        if c >= 4 { x = width / 2 }
+        y := tray + room + 4
+        if c == 2 || c == 3 || c == 5 { y = height - room - 4 }
+        clear := true
+        for p: g.plots {
+            if p.kind == 0 { continue }
+            half := edge * GardenDepthScale(p.y) / 100
+            if half < 36 { half = 36 }
+            px := width * p.x / 1000
+            py := tray + scene * p.y / 1000
+            // The plant's box: edge wide, edge tall above its base, a little below.
+            if x > px - half / 2 - room && x < px + half / 2 + room && y > py - half - room && y < py + 10 + room { clear = false }
+        }
+        if clear { return true, x, y }
+    }
+    return false, 0, 0
+}
 GardenWater :: (g: *Garden, plot: s32, now: s64) -> bool {
     if plot < 0 || plot >= GARDEN_PLOTS || now <= 0 { return false }
     p := *g.plots[plot]

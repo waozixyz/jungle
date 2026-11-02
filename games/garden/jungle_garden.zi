@@ -12,6 +12,9 @@
 #import, file "../../retro/retro.zi";
 #import, file "../../retro/game.zi";
 #import, file "../../retro/book_theme.zi";
+#import, file "../../retro/paper.zi";
+#import, file "../../retro/paper_rules.zi";
+#import, file "../../retro/collectibles.zi";
 
 garden: Garden;
 loaded: bool;
@@ -27,6 +30,7 @@ water_at: float64;
 seed_plot: s32 = -1;
 seed_at: float64;
 last_tick: s64;
+secret_paper: SecretPaper;
 
 Save :: () -> bool { return DocumentWrite("garden.txt", GardenSave(garden)) }
 Picture :: (name: string, x: s32, y: s32, w: s32, h: s32) {
@@ -67,11 +71,7 @@ PlotEdge :: (plot: s32, now: s64) -> s32 {
 }
 MapX :: (x: s32) -> s32 { return x * 1000 / width }
 MapY :: (y: s32) -> s32 { return (y - tray_height) * 1000 / (height - tray_height) }
-DepthScale :: (y: s32) -> s32 {
-    depth := y
-    if depth < 410 { depth = 410 }; if depth > 730 { depth = 730 }
-    return 80 + (depth - 410) * 20 / 320
-}
+DepthScale :: (y: s32) -> s32 { return GardenDepthScale(y) }
 PlotAt :: (x: s32, y: s32) -> s32 {
     // Reverse the actual paint order: frontmost visible plant owns overlaps.
     order := GardenDrawOrder(garden)
@@ -224,7 +224,14 @@ GameMain :: () -> s32 {
     active := !snapshot.available || snapshot.focused
     if !active { press_map = false; press_tool = -1; held_seed = 0 }
     if active && snapshot.secondary.pressed { ChooseTool(0); press_map = false; press_tool = -1 }
-    if active && pointer.pressed {
+    // The sunflower's hidden paper sits clear of every plant and tool; a tap on
+    // it is the paper's and never plants, waters or picks. A flight begun finishes anywhere.
+    paper_show, paper_x, paper_y := GardenPaperSpot(garden, width, height)
+    paper_index := CollectibleForGame("jungle-garden.zx")
+    paper_size := SecretPaperSize(ifx bounds.width < bounds.height then bounds.width else bounds.height, retro.scale)
+    over_paper := paper_show && paper_index >= 0 && SecretPaperShown(secret_paper, paper_index, GameCollected(collectible_ids[paper_index])) &&
+        SecretPaperHit(paper_x, paper_y, paper_size, px, py)
+    if active && pointer.pressed && !over_paper {
         press_tool = ToolAt(px, py)
         press_map = px >= 0 && px < width && py >= tray_height && py < height
         if press_tool >= 0 { ChooseTool(press_tool) }
@@ -237,6 +244,9 @@ GameMain :: () -> s32 {
         press_tool = -1; press_map = false
     }
     Scene(now); Tray()
+    if paper_show || secret_paper.state == SECRET_PAPER_FLYING {
+        unused SecretPaperFrame(*secret_paper, paper_index, paper_x, paper_y, retro.now)
+    }
     if active && px >= 0 && px < width && py >= tray_height && py < height {
         if held_seed > 0 {
             valid := GardenPlaceSlot(garden, MapX(px), MapY(py)) >= 0

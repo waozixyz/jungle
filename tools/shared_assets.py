@@ -72,7 +72,9 @@ COUNTING = ('tiger', 'frog', 'butterfly', 'ladybug', 'snail', 'elephant', 'giraf
 # Bundled games with staged assets: their source folders and extra files.
 # Picture Book narration is installed; its bundle needs no copy of it.
 GAMES = {
-    'jungle-book': {'folders': ('assets/jungle-book',), 'skip': ('assets/jungle-book/sounds/', 'assets/jungle-book/story-sounds/')},
+    # The Sweet Porridge pot tap flies the colored magic pot.
+    'jungle-book': {'folders': ('assets/jungle-book',), 'skip': ('assets/jungle-book/sounds/', 'assets/jungle-book/story-sounds/'),
+                    'extra': {'assets/collectibles/magic-pot.png': 'assets/collectibles/magic-pot.png'}},
     'jungle-abc': {'folders': ('assets/abc',)},
     'jungle-numbers': {'folders': ('assets/numbers',)},
     'animal-count': {'folders': ('assets/animal-count',),
@@ -87,7 +89,10 @@ GAMES = {
     'jungle-matching': {'folders': (),
                         'extra': {'assets/jungle-book/collect.wav': 'assets/jungle-book/collect.wav'}},
     'jungle-drums': {'folders': ('assets/drums',)},
-    'jungle-garden': {'folders': ('assets/garden',)},
+    # The hidden paper's chime and the colored sunflower it flies.
+    'jungle-garden': {'folders': ('assets/garden',),
+                      'extra': {'assets/jungle-book/collect.wav': 'assets/jungle-book/collect.wav',
+                                'assets/collectibles/sunflower.png': 'assets/collectibles/sunflower.png'}},
 }
 
 
