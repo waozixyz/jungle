@@ -28,6 +28,22 @@ def select_painted(desktop, name, target, width, height):
     return scene, hotspot, expected, lambda px, py: (round(x+px*scale), round(y+py*scale))
 
 
+def wait_painted_transition(desktop, name, expected, area, opened, timeout=20):
+    """Wait for one input's rendered result without sending it again.
+
+    A packaged frame can arrive after the first window capture. Keep the
+    original scene-difference limits and fail if the destination never draws.
+    """
+    deadline = time.monotonic() + timeout
+    while True:
+        actual = desktop.capture_actual(name)
+        error = ImageStat.Stat(ImageChops.difference(actual.crop(area), expected.crop(area))).mean
+        ready = max(error) > 20 if opened else max(error) < 12
+        if ready or time.monotonic() >= deadline:
+            return actual, error
+        time.sleep(.1)
+
+
 def hover_ladder_gaps(desktop, scene, ladder, screen, width, height, points):
     """Every rung gap must show the same accepted glow as keyboard selection."""
     reference = desktop.capture_actual(f'{scene["image"].split("/")[-1]}-selected')
@@ -211,8 +227,13 @@ with tempfile.TemporaryDirectory(prefix='menu-', dir=work) as temporary:
             error = ImageStat.Stat(ImageChops.difference(returned.crop(area), treehouse_expected.crop(area))).mean
             assert max(error) < 12, f'Painted house did not return to treehouse: {error}'
             # Clicking the house returns to treehouse, so this path still works.
-            desktop.game('Music Room')
-            desktop.capture(f'title-{width}-music-game')
+            music_keys = title_keys('Music Room')
+            for music_key in music_keys[:-1]: desktop.key(music_key)
+            music_campus = desktop.capture_actual(f'title-{width}-music-campus')
+            desktop.key(music_keys[-1])
+            area = (30, 120, width-30, height-100)
+            _, error = wait_painted_transition(desktop, f'title-{width}-music-game', music_campus, area, opened=True)
+            assert max(error) > 20, f'Music Room did not open its game: {error}'
             desktop.key('Escape')
             # Returning from drums keeps this campus. Select the painted
             # piano and click its real keyboard at the orientation's own point.
@@ -224,13 +245,11 @@ with tempfile.TemporaryDirectory(prefix='menu-', dir=work) as temporary:
             run(['xdotool', 'mousemove', '--window', desktop.window, str(x), str(y)], desktop.env)
             desktop.capture_actual(f'title-{width}-separate-piano-glow')
             desktop.click_actual(*screen(*point))
-            actual = desktop.capture_actual(f'title-{width}-piano-game')
             area = (30, 120, width-30, height-100)
-            error = ImageStat.Stat(ImageChops.difference(actual.crop(area), expected.crop(area))).mean
+            actual, error = wait_painted_transition(desktop, f'title-{width}-piano-game', expected, area, opened=True)
             assert max(error) > 20, f'Painted piano did not open its game: {error}'
             desktop.key('1')
             desktop.key('Escape')
-            returned = desktop.capture_actual(f'title-{width}-piano-back')
-            error = ImageStat.Stat(ImageChops.difference(returned.crop(area), expected.crop(area))).mean
+            returned, error = wait_painted_transition(desktop, f'title-{width}-piano-back', expected, area, opened=False)
             assert max(error) < 12, f'Piano Back did not return to the same campus: {error}'
 print('local title UI test: repeated pan/focus at wide/portrait/short sizes; landscape/portrait ladder gap hover/click, navigation, combined house/ladder glow and direct book/music/piano routes passed')
