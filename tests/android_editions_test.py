@@ -106,7 +106,13 @@ def release_gate_test():
     assert android_release.OutputName('0.1.3', 'fdroid') == 'jungle-v0.1.3-fdroid.apk'
     assert android_release.OutputName('0.1.3', 'gplay') == 'jungle-v0.1.3-gplay.apk'
     workflow = (ROOT / '.github/workflows/android.yml').read_text()
-    assert 'libvorbisfile3 ffmpeg python3-pil' in workflow
+    installed = {
+        package
+        for line in workflow.splitlines()
+        if line.strip().startswith('sudo apt-get install ')
+        for package in line.split()[3:]
+    }
+    assert {'libvorbisfile3', 'ffmpeg', 'python3-pil', 'libwebpdemux2', 'libwebp7'} <= installed
     lock = json.loads((ROOT / 'ziran.lock').read_text())
     kryon = next(package['commit'] for package in lock['packages'] if package['name'] == 'kryon')
     assert workflow.count('kryonlabs/kryon/.github/actions/google-free@' + kryon) == 2
