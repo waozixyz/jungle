@@ -280,6 +280,11 @@ test-ui: all
 	python3 tests/title_guide_ui_test.py
 	python3 tests/sweet_porridge_ui_test.py
 	python3 tests/garden_ui_test.py
+	mkdir -p build/tests/title-host
+	cp build/app/jungle build/tests/title-host/jungle
+	cp build/app/games/jungle-fishing.zx build/tests/jungle-fishing.zx
+	cp build/app/games/jungle-beach-families.zx build/tests/jungle-beach-families.zx
+	python3 tests/port_games_ui_test.py
 	python3 tests/shapes_guidance_test.py
 	python3 tests/counting_exercises_test.py
 	python3 tests/jigsaw_sizes_ui_test.py

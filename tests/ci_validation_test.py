@@ -425,6 +425,11 @@ class GroupCommand(unittest.TestCase):
         shutil.copy(ROOT / "Makefile", self.root / "Makefile")
         (self.root / "build/app").mkdir(parents=True)
         (self.root / "build/app/jungle").write_text("restored")
+        self.bundles = {"jungle-fishing.zx": b"fishing candidate",
+                        "jungle-beach-families.zx": b"beach families candidate"}
+        (self.root / "build/app/games").mkdir()
+        for name, data in self.bundles.items():
+            (self.root / "build/app/games" / name).write_bytes(data)
         self.record = self.root / "ran.txt"
         fake = self.root / "fake-bin"
         fake.mkdir()
@@ -454,7 +459,21 @@ class GroupCommand(unittest.TestCase):
         self.assertEqual(ran.count("make all"), 2)
         self.assertEqual(ran.count("python3 tests/hide_seek_levels_test.py"), 1)
         self.assertEqual(ran.count("python3 tests/garden_ui_test.py"), 1)
-        self.assertEqual(len(ran), 2 + 1 + 5)
+        self.assertEqual(ran.count("python3 tests/port_games_ui_test.py"), 1)
+        self.assertEqual(len(ran), 2 + 1 + 6)
+        self.assertEqual((self.root / "build/tests/title-host/jungle").read_text(), "restored")
+        self.assertEqual((self.root / "build/app/jungle").read_text(), "restored")
+        for name, data in self.bundles.items():
+            self.assertEqual((self.root / "build/tests" / name).read_bytes(), data)
+            self.assertEqual((self.root / "build/app/games" / name).read_bytes(), data)
+
+    def test_port_ui_refuses_a_missing_candidate_bundle(self):
+        (self.root / "build/app/games/jungle-fishing.zx").unlink()
+        result = self.command("--group", "activities")
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("jungle-fishing.zx", result.stdout + result.stderr)
+        self.assertNotIn("python3 tests/port_games_ui_test.py", self.record.read_text())
+        self.assertEqual((self.root / "build/app/jungle").read_text(), "restored")
 
     def test_a_group_without_a_restored_build_or_benchmark_runs_nothing(self):
         refused = self.command("--group", rcv.PACKAGING)
