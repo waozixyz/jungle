@@ -3,6 +3,8 @@ from pathlib import Path
 import os
 import tempfile
 import json
+import time
+from title_scenes_test import hit
 from PIL import Image, ImageChops, ImageStat
 from runtime_test import Desktop, ROOT, title_keys, run
 
@@ -48,11 +50,93 @@ def hover_ladder_gaps(desktop, scene, ladder, screen, width, height, points):
         assert glow > signal*.25, f'Ladder gap lost selection in {scene["image"]} at {point}: {glow}, expected {signal}'
 
 
+def move(d,x,y):
+    run(['xdotool','mousemove','--window',d.window,str(round(x)),str(round(y))],d.env)
+    time.sleep(.65)
+
+def fit(scene,w,h,pan):
+    scale=max(w/scene['width'],h/scene['height'])
+    cx,cy=(w-scene['width']*scale)/2,(h-scene['height']*scale)/2
+    pan[:]=[max(cx,min(-cx,pan[0])),max(cy,min(-cy,pan[1]))]
+    return scale,cx+pan[0],cy+pan[1]
+
+def pan_alignment(d):
+    """Rendered positions, hover and routes after focus and repeated drags.
+
+    The bookshelf centre crosses the dismissed guide bubble: that invisible
+    region used to swallow a drag and leave the image at its old position.
+    """
+    scenes = [scene for scene in data["scenes"]
+              if scene["name"] in ("treehouse", "bookshelf", "campus")]
+    for w,h in ((960,600),(420,900),(1100,300)):
+        d.resize(w,h)
+        for base in scenes:
+            d.key('Home')
+            if base['name']=='bookshelf': d.key(str(next(i+1 for i,t in enumerate(scenes[0]['hotspots']) if t['target']=='scene:bookshelf')))
+            if base['name']=='campus': d.key(str(next(i+1 for i,t in enumerate(scenes[0]['hotspots']) if t['target']=='scene:campus')))
+            scene=base.get('portrait',base) if h>w else base
+            scene=dict(scene)
+            scene['width'],scene['height']=Image.open(ROOT/scene['image']).size
+            idx=next(i for i,t in enumerate(scene['hotspots']) if t['id']=='ladder')
+            ladder=scene['hotspots'][idx]
+            for _ in range(idx+1): d.key('Right')
+            scale=max(w/scene['width'],h/scene['height'])
+            cx,cy=(w-scene['width']*scale)/2,(h-scene['height']*scale)/2
+            rx,ry,rw,rh=ladder['glow_rect']
+            pan=[w/2-cx-(rx+rw/2)*scale,h/2-cy-(ry+rh/2)*scale]
+            fit(scene,w,h,pan)
+            for n,(dx,dy) in enumerate(((35,28),(-70,-56),(45,40),(-20,-12))):
+                move(d,w/2,h/2)
+                run(['xdotool','mousedown','1'],d.env)
+                time.sleep(.65)
+                move(d,w/2+dx,h/2+dy)
+                run(['xdotool','mouseup','1'],d.env)
+                time.sleep(.65)
+                pan[0] += dx
+                pan[1] += dy
+                scale,x,y=fit(scene,w,h,pan)
+                move(d,3,h-3)
+                actual=d.capture_actual(f'pan-{w}-{base["name"]}-{n}')
+                source=Image.open(ROOT/scene['image']).convert('RGB')
+                expected=source.resize((round(scene['width']*scale),round(scene['height']*scale)),Image.Resampling.BILINEAR).crop((-round(x),-round(y),w-round(x),h-round(y)))
+                area=(110,80,w-110,h-60)
+                err=max(ImageStat.Stat(ImageChops.difference(actual.crop(area),expected.crop(area))).mean)
+                assert err<12,(w,h,base['name'],n,'render offset',err,pan)
+                points=[(sx,sy) for sy in range(80,h-30,5) for sx in range(5,w-2,5) if hit(scene,(sx-x)/scale,(sy-y)/scale)=='ladder']
+                assert points,(w,h,base['name'],'ladder not visible')
+                sx,sy=points[len(points)//2]
+                move(d,sx,sy)
+                glow=d.capture_actual(f'pan-{w}-{base["name"]}-{n}-hover')
+                area=(max(2,round(x+rx*scale)),max(60,round(y+ry*scale)),min(w-2,round(x+(rx+rw)*scale)),min(h-2,round(y+(ry+rh)*scale)))
+                signal=max(ImageStat.Stat(ImageChops.difference(glow.crop(area),actual.crop(area))).mean)
+                assert signal>.5,(w,h,base['name'],n,'hover missing',signal)
+                print('pan hover aligned',w,h,base['name'],n,round(err,2),round(signal,2),flush=True)
+            d.click_actual(sx,sy)
+            # The same stationary mouse may now hover another painted item
+            # in the destination. Clear that glow before comparing routes.
+            destination_name = ladder['target'].split(':')[1]
+            destination = next(s for s in scenes if s['name'] == destination_name)
+            destination = dict(destination.get('portrait', destination) if h>w else destination)
+            destination['width'],destination['height'] = Image.open(ROOT/destination['image']).size
+            ds, ox, oy = fit(destination,w,h,[0,0])
+            away = next((ax,ay) for ay in range(80,h-5,5) for ax in range(5,w-5,5)
+                        if hit(destination,(ax-ox)/ds,(ay-oy)/ds) is None)
+            move(d,*away)
+            opened=d.capture_actual(f'pan-{w}-{base["name"]}-clicked')
+            d.key('Home')
+            if base['name']=='treehouse': d.key(str(idx+1))
+            reference=d.capture_actual(f'pan-{w}-{base["name"]}-destination')
+            area=(110,80,w-110,h-60)
+            err=max(ImageStat.Stat(ImageChops.difference(opened.crop(area),reference.crop(area))).mean)
+            assert err<2,(w,h,base['name'],'wrong click destination',err)
+            print('pan click destination aligned',w,h,base['name'],flush=True)
+
 work = ROOT / 'work/title-tests'
 work.mkdir(parents=True, exist_ok=True)
 with tempfile.TemporaryDirectory(prefix='menu-', dir=work) as temporary:
     with Desktop(Path(os.environ.get('JUNGLE_TEST_BINARY', ROOT/'build/app/jungle')),
                  Path(temporary), screen_size='1280x1100') as desktop:
+        pan_alignment(desktop)
         for width, height in ((960, 600), (420, 900)):
             desktop.resize(width, height)
             desktop.key('Home')
@@ -149,4 +233,4 @@ with tempfile.TemporaryDirectory(prefix='menu-', dir=work) as temporary:
             returned = desktop.capture_actual(f'title-{width}-piano-back')
             error = ImageStat.Stat(ImageChops.difference(returned.crop(area), expected.crop(area))).mean
             assert max(error) < 12, f'Piano Back did not return to the same campus: {error}'
-print('local title UI test: landscape/portrait ladder gap hover/click, navigation, combined house/ladder glow and direct book/music/piano routes passed')
+print('local title UI test: repeated pan/focus at wide/portrait/short sizes; landscape/portrait ladder gap hover/click, navigation, combined house/ladder glow and direct book/music/piano routes passed')

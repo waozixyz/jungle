@@ -208,7 +208,9 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
     py := pointer.y - bounds.y
     guide_anchor := TitleGuideAnchor(*title_state, view, bounds, unit, width, height)
     guide_place := TitleGuideLayout(width, height, guide_anchor)
-    guide_hover := px >= cast(float32)guide_place.hit.x * unit && px < cast(float32)(guide_place.hit.x + guide_place.hit.width) * unit &&
+    // A dismissed guide has no painted bubble and must not intercept the scene.
+    guide_hover := !title_state.guide_stopped && !title_state.guide_finished_reported &&
+        title_state.guide_step < TITLE_GUIDE_STEP_COUNT && px >= cast(float32)guide_place.hit.x * unit && px < cast(float32)(guide_place.hit.x + guide_place.hit.width) * unit &&
         py >= cast(float32)guide_place.hit.y * unit && py < cast(float32)(guide_place.hit.y + guide_place.hit.height) * unit
     // The flags and the sound button sit over the picture's corners.
     blocked := guide_hover || (px < cast(float32)(6 + 3 * 34) * unit && py < 34.0 * unit) ||
