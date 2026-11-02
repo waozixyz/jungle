@@ -244,6 +244,7 @@ class LearningBookTest(unittest.TestCase):
         story_assets |= {f"assets/jungle-book/story-sounds/{language}/{row['asset']}.{suffix}"
                          for row in story['pages'] for language in LANGUAGES
                          for suffix in ('wav', 'speech.json')}
+        story_assets |= {f"assets/jungle-book/portraits/{row['portrait_asset']}.webp" for row in story['pages']}
         story_assets.add('assets/jungle-book/previews/sweet-porridge.webp')
         # The new collection feedback sound is not historical book artwork.
         # Exempt its exact path, preserving the original count and digest.

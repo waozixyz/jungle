@@ -42,11 +42,11 @@ BASKET = picture((150, 100, 50, 255), '.png', (200, 200))
 JIGSAW = picture((60, 120, 90), '.webp', (1200, 1200))
 # The previews staging installs for fake_tree.
 PREVIEWED = {path.with_suffix('.webp').as_posix() for path in map(Path, (
-    'assets/previews/jungle-book/pages/tiger.webp', 'assets/previews/jungle-book/pages/lion.webp',
+    'assets/previews/jungle-book/portraits/story.webp', 'assets/previews/jungle-book/pages/tiger.webp', 'assets/previews/jungle-book/pages/lion.webp',
     'assets/previews/jungle-book/items/tiger.png', 'assets/previews/jungle-book/previews/bedroom.webp',
     'assets/previews/jungle-book/previews/bedtime.webp', 'assets/previews/hide_seek/scenes/cottage-yard.png',
     'assets/previews/hide_seek/props/basket.png'))}
-RUNTIME_LOGICAL = {'assets/jungle-book/pages/tiger.webp', 'assets/jungle-book/pages/lion.webp',
+RUNTIME_LOGICAL = {'assets/jungle-book/portraits/story.webp', 'assets/jungle-book/pages/tiger.webp', 'assets/jungle-book/pages/lion.webp',
                    'assets/jungle-book/items/tiger.png', 'assets/jungle-book/previews/bedroom.webp',
                    'assets/jungle-book/previews/bedtime.webp', 'assets/hide_seek/scenes/cottage-yard.png',
                    'assets/hide_seek/props/basket.png',
@@ -68,6 +68,7 @@ def fake_tree(root):
     write(root, 'assets/jungle/icons/icon-64.png', b'icon')
     write(root, 'assets/jungle/sounds/select.wav', b'select')
     write(root, 'assets/jungle-book/font.png', font)
+    write(root, 'assets/jungle-book/portraits/story.webp', picture((160, 150, 90), '.webp', (1024,1536)))
     write(root, 'assets/jungle-book/pages/tiger.webp', TIGER_PAGE)
     write(root, 'assets/jungle-book/pages/lion.webp', LION_PAGE)
     write(root, 'assets/jungle-book/items/tiger.png', TIGER_ITEM)
@@ -222,7 +223,8 @@ def unsafe_test():
     for name in ('/assets/x.png', 'assets/../x.png', 'assets//x.png', 'assets/./x.png', 'assets/a|b.png',
                  'games/x.png', 'assets/a\\b.png', 'assets/a\nb.png'):
         assert not shared_assets.SafePath(name), name
-    installed = {'assets/jungle/font.png': ROOT / 'assets/jungle/font.png',
+    installed = {'assets/jungle-book/portraits/story.webp': ROOT / 'assets/jungle-book/portraits/porridge_00_cover.webp',
+                 'assets/jungle/font.png': ROOT / 'assets/jungle/font.png',
                  'assets/jungle-book/pages/tiger.webp': ROOT / 'assets/jungle-book/pages/tiger.webp',
                  'assets/jungle-book/items/tiger.png': ROOT / 'assets/jungle-book/items/tiger.png',
                  'assets/jungle-book/counting/tiger.png': ROOT / 'assets/jungle-book/counting/tiger.png',

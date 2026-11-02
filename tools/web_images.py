@@ -29,6 +29,7 @@ RUNTIME_ROOT = 'assets/runtime-images/'
 RUNTIME_QUALITY = 85
 RUNTIME_ALPHA_QUALITY = 100
 RUNTIME_RULES = {
+    'assets/jungle-book/portraits': RuntimeRule(1536, RUNTIME_QUALITY),
     'assets/jungle-book/pages': RuntimeRule(1024, RUNTIME_QUALITY),
     'assets/jungle-book/previews': RuntimeRule(512, RUNTIME_QUALITY),
     'assets/jungle-book/items': RuntimeRule(1024, RUNTIME_QUALITY),
@@ -43,7 +44,7 @@ RUNTIME_RULES = {
 
 # These folders receive previews. Runtime WebP replaces the former lossless
 # PNG copies; title art remains host-only and browser-encoded.
-PHOTO_FOLDERS = {'assets/jungle-book/pages', 'assets/jungle-book/previews',
+PHOTO_FOLDERS = {'assets/jungle-book/portraits', 'assets/jungle-book/pages', 'assets/jungle-book/previews',
                  'assets/jigsaw', 'assets/jungle/title'}
 LOSSLESS_PNG_FOLDERS = {'assets/jungle-book/items', 'assets/hide_seek/props',
                         'assets/hide_seek/scenes', 'assets/drums/pictures'}

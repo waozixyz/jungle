@@ -56,7 +56,7 @@ NARRATED = ('assets/jungle-book/story-sounds', 'assets/animal-count/sounds', 'as
 INSTALLED = ('assets/jungle', 'assets/jungle-book', 'assets/hide_seek/scenes', 'assets/hide_seek/props', 'assets/dino-paint/art', 'assets/collectibles')
 # Read-only artwork every game may draw from the installed copy.
 SHARED = ('assets/jungle-book/counting/', 'assets/jungle-book/items/',
-          'assets/jungle-book/pages/', 'assets/jungle-book/previews/',
+          'assets/jungle-book/pages/', 'assets/jungle-book/portraits/', 'assets/jungle-book/previews/',
           'assets/hide_seek/scenes/', 'assets/hide_seek/props/', 'assets/dino-paint/art/',
           'assets/collectibles/', RUNTIME_ROOT)
 # Previews of the pictures in PREVIEW_FOLDERS, generated while staging; their

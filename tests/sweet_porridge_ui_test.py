@@ -8,7 +8,7 @@ import re
 import unicodedata
 from PIL import Image, ImageChops, ImageStat
 from runtime_test import Desktop, ROOT, title_keys, title_unit
-work = ROOT/'work/sweet-porridge-review-v2/ui'
+work = ROOT/'work/porridge-portrait-integration/ui'
 work.mkdir(parents=True,exist_ok=True)
 data=json.loads((ROOT/'tools/title_hotspots.json').read_text())
 book=next(s for s in data['scenes'] if s['name']=='bookshelf')
@@ -59,9 +59,11 @@ with tempfile.TemporaryDirectory(prefix='reader-',dir=work) as temp:
                     # Real reader coordinates below the shared 56px title bar.
                     bh=height-56
                     caption=120 if width>=bh else 140
-                    source_top=story['pages'][page]['paper_top']
-                    span=min(width,(bh-caption-52)*1536//source_top)
-                    art=span*source_top//1536
+                    portrait=bh>width
+                    source_top=1536 if portrait else story['pages'][page]['paper_top']
+                    source_width=1024 if portrait else 1536
+                    span=min(width,(bh-caption-52)*source_width//source_top)
+                    art=span*source_top//source_width
                     xx=(width-span)//2
                     return (xx,56+art,xx+span,height)
                 def words(picture,page):
@@ -75,7 +77,8 @@ with tempfile.TemporaryDirectory(prefix='reader-',dir=work) as temp:
                     # proving captions sit on the artwork rather than a UI card.
                     source=Image.open(ROOT/f"assets/jungle-book/pages/{story['pages'][index]['asset']}.webp").convert('RGB')
                     expected=source.crop((0,story['pages'][index]['paper_top'],1536,1024)).resize((box[2]-box[0],box[3]-box[1]),Image.Resampling.BILINEAR)
-                    artwork=source.crop((0,0,1536,story['pages'][index]['paper_top'])).resize((art_box[2]-art_box[0],art_box[3]-art_box[1]),Image.Resampling.BILINEAR)
+                    art_source=Image.open(ROOT/f"assets/jungle-book/portraits/{story['pages'][index]['portrait_asset']}.webp").convert('RGB') if height-56>width else source.crop((0,0,1536,story['pages'][index]['paper_top']))
+                    artwork=art_source.resize((art_box[2]-art_box[0],art_box[3]-art_box[1]),Image.Resampling.BILINEAR)
                     assert max(ImageStat.Stat(ImageChops.difference(picture.crop(art_box),artwork)).mean)<12, 'Illustration cropped or not at page top'
                     actual=picture.crop(box)
                     for margin in ((0,0,12,100),(actual.width-12,0,actual.width,100)):

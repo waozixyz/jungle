@@ -67,14 +67,17 @@ collect_start: CollectRect;
 StoryBook :: () -> bool { return direct_story }
 PageCount :: () -> s32 { return ifx direct_story then STORY_PAGE_COUNT else category_counts[category] }
 PagePath :: (offset: s32 = 0) -> string {
-    return ifx direct_story then story_pictures[page + offset] else page_paths(PageIndex() + offset)
+    if direct_story {
+        return ifx book_height > book_width then story_portraits[page + offset] else story_pictures[page + offset]
+    }
+    return page_paths(PageIndex() + offset)
 }
 
 StorySourceRectangles :: (path: string, paper_top: s32) -> (art: Rectangle, paper: Rectangle) {
     width: float32 = 1536.0
     height: float32 = 1024.0
     top: float32 = cast(float32)paper_top
-    if path == PagePath() {
+    if path == story_pictures[page] {
         width = 1024.0
         height = 683.0
         top = cast(float32)paper_top * height / 1024.0
@@ -390,7 +393,7 @@ PagePictureRect :: () -> CollectRect {
 
 // The current page's subject while it can still be collected, or -1.
 PageCollectible :: () -> s32 {
-    index := BookCollectIndex(PagePath(), direct_story)
+    index := BookCollectIndex(ifx direct_story then story_pictures[page] else PagePath(), direct_story)
     if index < 0 || GameCollected(collectible_ids[index]) { return -1 }
     return index
 }
@@ -548,17 +551,23 @@ ReadingPage :: () {
     label_y := book_height - label_height - 66
     if StoryBook() {
         layout := StoryPageLayout(book_width, book_height, story_paper_top[page])
+        portrait := book_height > book_width
         path := RetroImageShown(PagePath())
+        paper_path := RetroImageShown(story_pictures[page])
         if path != "" {
-            art_source, paper_source := StorySourceRectangles(path, story_paper_top[page])
-            // Both sections sample the same accepted painting, including its
-            // paper texture. The illustrated scene keeps its original aspect.
+            art_source, unused_paper := StorySourceRectangles(path, story_paper_top[page])
+            if portrait { art_source = Rectangle.{} }
+            // Portrait paintings are full scenes: draw all of their pixels.
             Image(retro.session, ImageProps.{.asset_path = path, .preview_path = RetroImagePreview(PagePath()),
-                .full_size = Vector2.{1536, 1024}, .source = art_source,
+                .full_size = ifx portrait then Vector2.{1024, 1536} else Vector2.{1536, 1024}, .source = art_source,
                 .bounds = RetroRect(layout.x, layout.y, layout.width, layout.art_height), .smooth = true})
-            Image(retro.session, ImageProps.{.asset_path = path, .preview_path = RetroImagePreview(PagePath()),
-                .full_size = Vector2.{1536, 1024},
-                .source = paper_source,
+        }
+        if paper_path != "" {
+            unused_art, paper_source := StorySourceRectangles(paper_path, story_paper_top[page])
+            // Caption and playback controls always use the accepted blank paper,
+            // never the scene at the bottom of the portrait painting.
+            Image(retro.session, ImageProps.{.asset_path = paper_path, .preview_path = RetroImagePreview(story_pictures[page]),
+                .full_size = Vector2.{1536, 1024}, .source = paper_source,
                 .bounds = RetroRect(layout.x, layout.y + layout.art_height, layout.width, layout.paper_height), .smooth = true})
         }
         Text(retro.session, TextProps.{.bounds = RetroRect(layout.x + 20, layout.y + layout.art_height + 10,
