@@ -3,6 +3,13 @@
 Jungle is for babies and toddlers. Every picture, sound and screen should feel
 friendly, gentle and obvious.
 
+## Narration voices (owner feedback, 2026-11-02)
+
+- English male narration uses local Kokoro voice `am_michael`.
+- English female narration uses local Kokoro voice `af_bella`.
+- Keep these selections in `speech.json`; generate English Jungle narration with
+  Harmony's `voice_role: "male"` or `voice_role: "female"`.
+
 ## Picture art (owner feedback, 2026-10-26)
 
 - **One style everywhere:** the title-screen cover style,
