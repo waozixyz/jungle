@@ -118,16 +118,16 @@ def main():
                         def tool(index):
                             click(8+(index%columns+.5)*cw, 8+(index//columns+.5)*ch)
                         def plot(index):
-                            click(w*(26+index%3*24)/100, tray+(h-tray)*(57 if index<3 else 78)/100)
+                            click(w*(26+index%3*24)/100, tray+(h-tray)*(57 if index<3 else 70)/100)
                         tool(5); plot(0)
-                        assert save()[:4]==['garden','2','6','6'], save()
+                        assert save()[:4]==['garden','3','6','6'], save()
                         born = int(save()[4])
                         tool(6); plot(0)
                         # Watering cannot instantly turn a sprout into a mature plant.
                         assert int(save()[7]) < 60, save()
                         assert int(save()[5]) >= born, save()
                         tool(0); plot(1)
-                        assert save()[9]=='1', save()
+                        assert save()[11]=='1', save()
                     d.capture_actual(f'{name}-{lang}-played')
                     # Shared mute is reversible; Back saves and returns to the menu.
                     d.click_actual(372,28)
@@ -137,7 +137,12 @@ def main():
                     d.click_actual(28,28)
                     original=save()
                     d.game(title); d.capture_actual(f'{name}-{lang}-resumed');d.key('Escape')
-                    assert (save()[3::6]==original[3::6] if name=='garden' else save()==original),(name,'resume changed persisted state',original,save())
+                    resumed=save()
+                    if name=='garden':
+                        # Care timers advance; plant kinds and chosen map positions persist.
+                        assert resumed[:2]==['garden','3'] and all(resumed[offset::8]==original[offset::8] for offset in (3,9,10)), (name,'resume changed plants or positions',original,resumed)
+                    else:
+                        assert resumed==original,(name,'resume changed persisted state',original,resumed)
                 # Last menu row is reachable by End, with no punctuation shortcut.
                 d.key('End'); d.capture_actual(f'menu-{lang}-end');d.key('Return');d.alive();d.key('Escape')
             print(f'local new activities UI: {lang} catalog activities dispatch, play, saves/resume and three sizes passed',flush=True)
