@@ -1,0 +1,61 @@
+#import, file "../host/jungle_collection.zi";
+#import, file "../retro/collectibles.zi";
+#import "std/stdio_linux"
+
+#program_export
+main :: () -> s32 {
+    // A missing file is an empty, valid collection.
+    empty := CollectionParse("")
+    if !empty.valid || CollectionText(empty) != "JUNGLE COLLECTION 1\n" { return 1 }
+    header := CollectionParse("JUNGLE COLLECTION 1")
+    if !header.valid || header.slugs.count != 0 { return 2 }
+
+    // A corrupt header or line is empty and marked invalid so the caller keeps the old file.
+    wrong := CollectionParse("JUNGLE COLLECTION 0\nmonkey\n")
+    if wrong.valid || CollectionText(wrong) != "JUNGLE COLLECTION 1\n" { return 3 }
+    longer := CollectionParse("JUNGLE COLLECTION 10\nmonkey\n")
+    if longer.valid || longer.slugs.count != 0 { return 4 }
+    bad_line := CollectionParse("JUNGLE COLLECTION 1\nmonkey\nNot-a-slug\n")
+    if bad_line.valid || bad_line.slugs.count != 0 { return 5 }
+
+    // Duplicates collapse, known slugs sort by id, unknown slugs stay after them.
+    duplicated := CollectionParse("JUNGLE COLLECTION 1\nsnail\nfuture-slug\nmonkey\nsnail\nfuture-slug\r\n")
+    if !duplicated.valid ||
+        CollectionText(duplicated) != "JUNGLE COLLECTION 1\nmonkey\nsnail\nfuture-slug\n" { return 6 }
+    again := CollectionParse(CollectionText(duplicated))
+    if !again.valid || CollectionText(again) != CollectionText(duplicated) { return 7 }
+
+    crlf := CollectionParse("JUNGLE COLLECTION 1\r\nmonkey\r\ntreehouse-scene\r\n")
+    if !crlf.valid || CollectionText(crlf) != "JUNGLE COLLECTION 1\nmonkey\ntreehouse-scene\n" { return 8 }
+
+    // Each collectible is gained once; only the registry knows slugs.
+    if CollectionAdd(*crlf, "monkey") != 0 || CollectionAdd(*crlf, "future-slug") != -1 ||
+        CollectionAdd(*crlf, "panda") != 1 || CollectionAdd(*crlf, "panda") != 0 { return 9 }
+    if CollectionText(crlf) != "JUNGLE COLLECTION 1\nmonkey\ntreehouse-scene\npanda\n" { return 10 }
+    if CollectionText(CollectionParse(CollectionText(crlf))) !=
+        "JUNGLE COLLECTION 1\nmonkey\npanda\ntreehouse-scene\n" { return 11 }
+
+    if CollectibleBySlug("toucan") != 7 || collectible_ids[CollectibleBySlug("toucan")] != 7 ||
+        CollectibleForPage("assets/jungle-book/pages/panda.jpg") != 1 ||
+        CollectibleForPage("porridge_02_gift") != -1 ||
+        CollectibleForGame("jungle-garden.zx") != 9 ||
+        CollectibleForTitle("music") != 14 { return 12 }
+
+    // Ids 0, 1 and 11: digit 0 = 1 + 2, digit 1 = 0, digit 2 = 8.
+    mask := CollectionMask(crlf)
+    if mask != "308" { return 13 }
+    if !CollectionMaskHas(mask, 0) || !CollectionMaskHas(mask, 1) || !CollectionMaskHas(mask, 11) ||
+        CollectionMaskHas(mask, 4) || CollectionMaskHas(mask, 14) ||
+        CollectionMaskHas(mask, -1) || CollectionMaskHas(mask, 252) { return 14 }
+    CollectionAdd(*crlf, "music-scene")
+    if CollectionMask(crlf) != "3084" || !CollectionMaskHas("3084", 14) { return 15 }
+
+    ladybug: Collection
+    CollectionAdd(*ladybug, "ladybug")
+    if CollectionMask(ladybug) != "01" || !CollectionMaskHas("01", 4) || CollectionMaskHas("01", 0) { return 16 }
+    if CollectionMask(empty) != "0" || CollectionMaskHas("0", 0) || CollectionMaskHas("308G", 0) ||
+        CollectionMaskHas("", 0) { return 17 }
+
+    WriteOutput("local collection test passed\n")
+    return 0
+}

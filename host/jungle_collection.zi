@@ -1,0 +1,163 @@
+#import, file "../retro/collectibles.zi";
+#import "std/number_text"
+
+COLLECTION_HEADER :: "JUNGLE COLLECTION 1\n"
+COLLECTION_HEADER_LINE :: "JUNGLE COLLECTION 1"
+COLLECTION_TEXT_LIMIT :: 16384
+COLLECTION_SLUG_LIMIT :: 64
+
+// A missing or empty file parses as an empty valid collection. A bad header or a malformed
+// line parses as empty with valid = false: the caller must not write such a collection over
+// the file unless it chooses to discard the old contents.
+Collection :: struct {
+    slugs: string // Canonical newline-terminated slug storage; known slugs come first.
+    valid: bool
+}
+
+CollectionSlugValid :: (slug: string) -> bool {
+    if slug.count < 1 || slug.count > COLLECTION_SLUG_LIMIT { return false }
+    for at: cast(s64)0..slug.count - 1 {
+        letter := slug[at]
+        if (letter >= #char "a" && letter <= #char "z") ||
+            (letter >= #char "0" && letter <= #char "9") ||
+            (at > 0 && at + 1 < slug.count && letter == #char "-") { continue }
+        return false
+    }
+    return true
+}
+
+CollectionHasSlug :: (slugs: string, slug: string) -> bool {
+    if slug.count == 0 { return false }
+    at: s64 = 0
+    while at < slugs.count {
+        end := at
+        while end < slugs.count && slugs[end] != cast(u8)10 { end += 1 }
+        if slugs[at:end] == slug { return true }
+        at = end + 1
+    }
+    return false
+}
+
+CollectionHas :: (collection: Collection, slug: string) -> bool {
+    return CollectionHasSlug(collection.slugs, slug)
+}
+
+CollectionAppend :: (slugs: *string, slug: string) -> bool {
+    if !CollectionSlugValid(slug) || CollectionHasSlug(slugs.*, slug) { return false }
+    bytes: Vec(u8)
+    BuilderPrint(*bytes, "%", slugs.*)
+    BuilderPrint(*bytes, "%", slug)
+    BuilderPrint(*bytes, "\n")
+    slugs.* = BuilderFinish(bytes)
+    return true
+}
+
+CollectionParse :: (text: string) -> Collection {
+    parsed: Collection
+    if text.count == 0 {
+        parsed.valid = true
+        return parsed
+    }
+    if text.count > COLLECTION_TEXT_LIMIT || text.count < COLLECTION_HEADER_LINE.count ||
+        text[:COLLECTION_HEADER_LINE.count] != COLLECTION_HEADER_LINE { return parsed }
+
+    raw: string
+    at := COLLECTION_HEADER_LINE.count
+    if at < text.count {
+        if text[at] == cast(u8)13 {
+            if at + 1 >= text.count || text[at + 1] != cast(u8)10 { return parsed }
+            at += 2
+        } else if text[at] == cast(u8)10 { at += 1 } else { return parsed }
+    }
+    while at < text.count {
+        end := at
+        while end < text.count && text[end] != cast(u8)10 { end += 1 }
+        line := text[at:end]
+        if line.count > 0 && line[line.count - 1] == cast(u8)13 { line = line[:line.count - 1] }
+        if line.count > 0 {
+            if !CollectionSlugValid(line) { return parsed }
+            CollectionAppend(*raw, line) // A repeated slug is skipped.
+        }
+        at = end + 1
+    }
+
+    canonical: string
+    for id: cast(s32)0..251 {
+        index := CollectibleById(id)
+        if index < 0 { continue }
+        slug := collectible_slugs[index]
+        if CollectionHasSlug(raw, slug) { CollectionAppend(*canonical, slug) }
+    }
+    at = 0
+    while at < raw.count {
+        end := at
+        while end < raw.count && raw[end] != cast(u8)10 { end += 1 }
+        slug := raw[at:end]
+        if CollectibleBySlug(slug) < 0 { CollectionAppend(*canonical, slug) }
+        at = end + 1
+    }
+    parsed.slugs = canonical
+    parsed.valid = true
+    return parsed
+}
+
+CollectionText :: (collection: Collection) -> string {
+    bytes: Vec(u8)
+    BuilderPrint(*bytes, "%", COLLECTION_HEADER)
+    BuilderPrint(*bytes, "%", collection.slugs)
+    return BuilderFinish(bytes)
+}
+
+CollectionAdd :: (collection: *Collection, slug: string) -> s32 {
+    if CollectibleBySlug(slug) < 0 { return -1 }
+    if CollectionHasSlug(collection.slugs, slug) { return 0 }
+    if !CollectionAppend(*collection.slugs, slug) { return -1 }
+    return 1
+}
+
+CollectionHexValue :: (digit: u8) -> s32 {
+    if digit >= #char "0" && digit <= #char "9" { return cast(s32)(digit - #char "0") }
+    if digit >= #char "A" && digit <= #char "F" { return cast(s32)(digit - #char "A") + 10 }
+    if digit >= #char "a" && digit <= #char "f" { return cast(s32)(digit - #char "a") + 10 }
+    return -1
+}
+
+CollectionHexDigit :: (value: s32) -> string {
+    digits := "0123456789ABCDEF"
+    return digits[value:value + 1]
+}
+
+// Hex digit i (from the left) holds ids 4i..4i+3, id 4i + b as bit value 1 << b. The text
+// ends at the digit of the highest collected id; an empty set is "0".
+CollectionMask :: (collection: Collection) -> string {
+    values: [63]s32
+    highest: s32 = -1
+    at: s64 = 0
+    while at < collection.slugs.count {
+        end := at
+        while end < collection.slugs.count && collection.slugs[end] != cast(u8)10 { end += 1 }
+        index := CollectibleBySlug(collection.slugs[at:end])
+        if index >= 0 {
+            id := collectible_ids[index]
+            values[id / 4] |= 1 << (id % 4)
+            if id > highest { highest = id }
+        }
+        at = end + 1
+    }
+    digits: s32 = (highest + 4) / 4
+    if digits == 0 { return "0" }
+    bytes: Vec(u8)
+    for digit: cast(s32)0..digits - 1 {
+        BuilderPrint(*bytes, "%", CollectionHexDigit(values[digit]))
+    }
+    return BuilderFinish(bytes)
+}
+
+CollectionMaskHas :: (mask: string, id: s32) -> bool {
+    if id < 0 || id > 251 || mask.count < 1 || mask.count > 63 { return false }
+    for digit: cast(s64)0..mask.count - 1 {
+        if CollectionHexValue(mask[digit]) < 0 { return false }
+    }
+    slot := cast(s64)(id / 4)
+    return slot < mask.count && (CollectionHexValue(mask[slot]) & (1 << (id % 4))) != 0
+}

@@ -1,0 +1,140 @@
+{
+  "version": 1,
+  "collectibles": [
+    {
+      "id": 0,
+      "slug": "monkey",
+      "source": {"kind": "book", "page": "assets/jungle-book/pages/monkey.jpg"},
+      "how": {"kind": "tap", "x": 0.5, "y": 0.55, "rx": 0.3, "ry": 0.35},
+      "color": "assets/jungle-book/items/monkey.png",
+      "pending": false,
+      "paint": {"kind": "stencil", "category": "animals", "art": null}
+    },
+    {
+      "id": 1,
+      "slug": "panda",
+      "source": {"kind": "book", "page": "assets/jungle-book/pages/panda.jpg"},
+      "how": {"kind": "tap", "x": 0.5, "y": 0.55, "rx": 0.3, "ry": 0.35},
+      "color": "assets/jungle-book/items/panda.png",
+      "pending": false,
+      "paint": {"kind": "stencil", "category": "animals", "art": null}
+    },
+    {
+      "id": 2,
+      "slug": "zebra",
+      "source": {"kind": "book", "page": "assets/jungle-book/pages/zebra.jpg"},
+      "how": {"kind": "tap", "x": 0.5, "y": 0.55, "rx": 0.3, "ry": 0.35},
+      "color": "assets/jungle-book/items/zebra.png",
+      "pending": false,
+      "paint": {"kind": "stencil", "category": "animals", "art": null}
+    },
+    {
+      "id": 3,
+      "slug": "pig",
+      "source": {"kind": "book", "page": "assets/jungle-book/pages/pig.jpg"},
+      "how": {"kind": "tap", "x": 0.5, "y": 0.55, "rx": 0.3, "ry": 0.35},
+      "color": "assets/jungle-book/items/pig.png",
+      "pending": false,
+      "paint": {"kind": "stencil", "category": "animals", "art": null}
+    },
+    {
+      "id": 4,
+      "slug": "ladybug",
+      "source": {"kind": "book", "page": "assets/jungle-book/pages/ladybug.jpg"},
+      "how": {"kind": "tap", "x": 0.5, "y": 0.55, "rx": 0.3, "ry": 0.35},
+      "color": "assets/jungle-book/items/ladybug.png",
+      "pending": false,
+      "paint": {"kind": "stencil", "category": "animals", "art": null}
+    },
+    {
+      "id": 5,
+      "slug": "snail",
+      "source": {"kind": "book", "page": "assets/jungle-book/pages/snail.jpg"},
+      "how": {"kind": "tap", "x": 0.5, "y": 0.55, "rx": 0.3, "ry": 0.35},
+      "color": "assets/jungle-book/items/snail.png",
+      "pending": false,
+      "paint": {"kind": "stencil", "category": "animals", "art": null}
+    },
+    {
+      "id": 6,
+      "slug": "magic-pot",
+      "source": {"kind": "story", "story": "sweet-porridge", "page": "porridge_02_gift"},
+      "how": {"kind": "tap", "x": 0.5, "y": 0.55, "rx": 0.3, "ry": 0.35},
+      "color": "assets/collectibles/magic-pot.png",
+      "pending": true,
+      "paint": {"kind": "stencil", "category": "objects", "art": null}
+    },
+    {
+      "id": 7,
+      "slug": "toucan",
+      "source": {"kind": "game", "game": "jungle-hide-seek.zx"},
+      "how": {"kind": "paper"},
+      "color": "assets/jungle-book/items/toucan.png",
+      "pending": false,
+      "paint": {"kind": "stencil", "category": "animals", "art": null}
+    },
+    {
+      "id": 8,
+      "slug": "parrot",
+      "source": {"kind": "game", "game": "jungle-matching.zx"},
+      "how": {"kind": "paper"},
+      "color": "assets/jungle-book/items/parrot.png",
+      "pending": false,
+      "paint": {"kind": "stencil", "category": "animals", "art": null}
+    },
+    {
+      "id": 9,
+      "slug": "sunflower",
+      "source": {"kind": "game", "game": "jungle-garden.zx"},
+      "how": {"kind": "paper"},
+      "color": "assets/collectibles/sunflower.png",
+      "pending": true,
+      "paint": {"kind": "stencil", "category": "objects", "art": null}
+    },
+    {
+      "id": 10,
+      "slug": "drum",
+      "source": {"kind": "game", "game": "jungle-drums.zx"},
+      "how": {"kind": "paper"},
+      "color": "assets/collectibles/drum.png",
+      "pending": true,
+      "paint": {"kind": "stencil", "category": "objects", "art": null}
+    },
+    {
+      "id": 11,
+      "slug": "treehouse-scene",
+      "source": {"kind": "title", "scene": "treehouse"},
+      "how": {"kind": "paper", "x": 0.92, "y": 0.88},
+      "color": "assets/jungle/title/treehouse.jpg",
+      "pending": false,
+      "paint": {"kind": "scene", "category": "places", "art": null}
+    },
+    {
+      "id": 12,
+      "slug": "bookshelf-scene",
+      "source": {"kind": "title", "scene": "bookshelf"},
+      "how": {"kind": "paper", "x": 0.91, "y": 0.9},
+      "color": "assets/jungle/title/bookshelf.jpg",
+      "pending": false,
+      "paint": {"kind": "scene", "category": "places", "art": null}
+    },
+    {
+      "id": 13,
+      "slug": "campus-scene",
+      "source": {"kind": "title", "scene": "campus"},
+      "how": {"kind": "paper", "x": 0.93, "y": 0.87},
+      "color": "assets/jungle/title/campus.jpg",
+      "pending": false,
+      "paint": {"kind": "scene", "category": "places", "art": null}
+    },
+    {
+      "id": 14,
+      "slug": "music-scene",
+      "source": {"kind": "title", "scene": "music"},
+      "how": {"kind": "paper", "x": 0.92, "y": 0.89},
+      "color": "assets/jungle/title/music.jpg",
+      "pending": false,
+      "paint": {"kind": "scene", "category": "places", "art": null}
+    }
+  ]
+}
