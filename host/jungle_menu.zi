@@ -44,6 +44,8 @@ MenuAction :: struct {
     navigated: bool
     guide_voice: string
     guide_stop: bool
+    guide_finished: bool
+    guide_mute_toggle: bool
 }
 
 // The scene shown and what glows in it; kept while a game plays, so a
@@ -53,6 +55,20 @@ title_book_requested: string;
 GAME_BAR_HEIGHT :: 56
 ABC_SPEED_KEY :: 10001
 abc_title_speed: s32 = 1;
+
+TitleGuideAnchor :: (state: *TitleState, view: TitleView, bounds: Rectangle, unit: float32,
+    width: s32, height: s32) -> TitleGuideRect {
+    if state.guide_step == 1 { return TitleGuideRect.{width / 2 - 34, height / 2 - 34, 68, 68} }
+    if state.guide_step == 2 { return TitleGuideRect.{width - 40, 2, 32, 30} }
+    hotspot := TitleGuideHotspot(0, state.scene)
+    if hotspot < 0 { return TitleGuideRect.{width / 2 - 34, height / 2 - 34, 68, 68} }
+    rect := hotspot * 4
+    x := (bounds.x + view.x + cast(float32)TITLE_GLOW_RECT[rect] * view.scale - bounds.x) / unit
+    y := (bounds.y + view.y + cast(float32)TITLE_GLOW_RECT[rect + 1] * view.scale - bounds.y) / unit
+    picture_width := cast(float32)TITLE_GLOW_RECT[rect + 2] * view.scale / unit
+    picture_height := cast(float32)TITLE_GLOW_RECT[rect + 3] * view.scale / unit
+    return TitleGuideRect.{cast(s32)x, cast(s32)y, cast(s32)picture_width, cast(s32)picture_height}
+}
 
 TitleBarAction :: struct {
     back: bool
@@ -154,9 +170,14 @@ TitleLanguageFlags :: () -> bool {
 // The treehouse title screen. KEY is this frame's key; CHOICE receives the
 // catalog index of a game as it opens, which MenuAction.game reports.
 JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font: string,
-    games: []MenuGame, choice: *s32, sound_muted: bool, message: string) -> MenuAction {
+    games: []MenuGame, choice: *s32, sound_muted: bool, guide_muted: bool, guide_seen: bool,
+    message: string) -> MenuAction {
     action := MenuAction.{.game = -1}
     if !title_state.started { TitleStart(*title_state) }
+    if guide_seen {
+        TitleGuideSkip(*title_state)
+        title_state.guide_finished_reported = true
+    }
     // Corner controls use a unit that grows gently with the window.
     unit := (ifx bounds.width < bounds.height then bounds.width else bounds.height) / 300.0
     if unit < 1.0 { unit = 1.0 }
@@ -175,11 +196,16 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
     pointer := PointerSample(session)
     px := pointer.x - bounds.x
     py := pointer.y - bounds.y
+    guide_anchor := TitleGuideAnchor(*title_state, view, bounds, unit, width, height)
+    guide_place := TitleGuideLayout(width, height, guide_anchor)
+    guide_hover := px >= cast(float32)guide_place.hit.x * unit && px < cast(float32)(guide_place.hit.x + guide_place.hit.width) * unit &&
+        py >= cast(float32)guide_place.hit.y * unit && py < cast(float32)(guide_place.hit.y + guide_place.hit.height) * unit
     // The flags and the sound button sit over the picture's corners.
-    blocked := (px < cast(float32)(6 + 3 * 34) * unit && py < 34.0 * unit) ||
+    blocked := guide_hover || (px < cast(float32)(6 + 3 * 34) * unit && py < 34.0 * unit) ||
         (px > cast(float32)(width - 38) * unit && py < 34.0 * unit)
     if step.game < 0 { step = TitlePointer(*title_state, view, px, py, pointer.down, pointer.pressed, pointer.released, blocked, now) }
     if step.game < 0 { step = TitleTick(*title_state, now) }
+    if guide_hover && !title_state.guide_finished_reported { title_state.guide_stopped = false }
     if step.moved { action.navigated = true }
     if step.game >= 0 {
         title := TITLE_HOTSPOT_GAME[step.game]
@@ -208,16 +234,16 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
         if target >= 0 { unused TitleReady(TITLE_SCENE_LOW[ResolveTitleSceneVariant(target, bounds.width, bounds.height)]); unused TitleReady(TITLE_SCENE_IMAGE[ResolveTitleSceneVariant(target, bounds.width, bounds.height)]) }
     }
     glowing := TitleGlowing(title_state)
-    guide := TitleGuide(*title_state, now, sound_muted, action.sound_toggle || key != 0 || pointer.pressed)
-    guide_age := now - title_state.guide_at
+    guide := TitleGuide(*title_state, now, sound_muted || guide_muted,
+        action.sound_toggle || key != 0 || (pointer.pressed && !guide_hover), language)
     guiding := guide.active
-    if guiding && title_state.pending < 0 && title_state.pressed < 0 {
-        glowing = first + cast(s32)((guide_age - 1.0) / 2.0) % TITLE_SCENE_HOTSPOTS[scene]
-        if TITLE_HOTSPOT_GUIDE[glowing] == 1 { glowing = first }
+    if guiding && title_state.guide_step == 0 && title_state.pending < 0 && title_state.pressed < 0 {
+        glowing = TitleGuideHotspot(0, scene)
     }
     action.guide_stop = guide.stop
+    action.guide_finished = guide.finished
     if guide.voice {
-        action.guide_voice = ifx language == 1 then "assets/jungle/title/guide/de.wav" else ifx language == 2 then "assets/jungle/title/guide/es.wav" else "assets/jungle/title/guide/en.wav"
+        action.guide_voice = TitleGuideVoicePath(guide.step, language)
     }
     if glowing >= 0 {
         // A slow, gentle pulse over exactly the item.
@@ -232,9 +258,55 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
     }
 
     if guiding {
-        line := ifx language == 1 then "Tippe auf ein leuchtendes Spiel." else ifx language == 2 then "Toca un juego que brilla." else "Tap a glowing game to play."
-        BookBox(6, height - 58, width - 12, 24, 0xf7f1e3ee, 0xdacdb5ff, 6.0)
-        BookText(10, height - 58, width - 20, 24, line, 10)
+        guide_anchor = TitleGuideAnchor(*title_state, view, bounds, unit, width, height)
+        guide_place = TitleGuideLayout(width, height, guide_anchor)
+        skip_x := guide_place.bubble.x + guide_place.bubble.width - 21
+        skip_y := guide_place.bubble.y + 5
+        guide_sound_x := guide_place.bubble.x + guide_place.bubble.width - 42
+        guide_sound_y := guide_place.bubble.y + 5
+        skip_label := ifx language == 1 then "Anleitung überspringen" else ifx language == 2 then "Saltar la guía" else "Skip guide"
+        skip := RetroTap(712, skip_x, skip_y, 16, 16, skip_label)
+        guide_sound_label := ifx language == 1 then (ifx guide_muted then "Anleitungston aus" else "Anleitungston an") else ifx language == 2 then (ifx guide_muted then "Guía sin sonido" else "Guía con sonido") else (ifx guide_muted then "Guide sound off" else "Guide sound on")
+        guide_sound := RetroTap(711, guide_sound_x, guide_sound_y, 16, 16, guide_sound_label)
+        skip_hit := pointer.pressed && px >= cast(float32)skip_x * unit && px < cast(float32)(skip_x + 16) * unit &&
+            py >= cast(float32)skip_y * unit && py < cast(float32)(skip_y + 16) * unit
+        guide_sound_hit := pointer.pressed && px >= cast(float32)guide_sound_x * unit &&
+            px < cast(float32)(guide_sound_x + 16) * unit &&
+            py >= cast(float32)guide_sound_y * unit && py < cast(float32)(guide_sound_y + 16) * unit
+        BookBox(guide_place.bubble.x, guide_place.bubble.y, guide_place.bubble.width, guide_place.bubble.height,
+            0xf7f1e3f2, 0xdacdb5ff, 8.0)
+        tail_x := guide_anchor.x + guide_anchor.width / 2
+        if tail_x < guide_place.bubble.x + 16 { tail_x = guide_place.bubble.x + 16 }
+        if tail_x > guide_place.bubble.x + guide_place.bubble.width - 16 {
+            tail_x = guide_place.bubble.x + guide_place.bubble.width - 16
+        }
+        tail_top := guide_anchor.y + guide_anchor.height <= guide_place.bubble.y + 4
+        for offset: cast(s32)0..5 {
+            tail_width := 12 - offset * 2
+            tail_y := ifx tail_top then guide_place.bubble.y + 1 + offset else guide_place.bubble.y + guide_place.bubble.height - 2 - offset
+            BookBox(tail_x - tail_width / 2, tail_y, tail_width, 1, 0xf7f1e3ff)
+        }
+        BookPicture("assets/jungle/title/guide/tiger.png", guide_place.mascot.x, guide_place.mascot.y,
+            guide_place.mascot.width, guide_place.mascot.height)
+        BookText(guide_place.text.x, guide_place.text.y, guide_place.text.width, guide_place.text.height,
+            TitleGuideText(guide.step, language), 10, TextAlign.TextAlignStart, false)
+        BookBox(skip_x, skip_y, 16, 16, ifx skip.down then cast(u32)0xdcebdcf0 else cast(u32)0xf7f1e3ff,
+            0xbba98bff, 4.0)
+        BookText(skip_x, skip_y, 16, 16, "X", 10, TextAlign.TextAlignCenter, false)
+        BookBox(guide_sound_x, guide_sound_y, 16, 16,
+            ifx guide_sound.down then cast(u32)0xdcebdcf0 else cast(u32)0xf7f1e3ff, 0xbba98bff, 4.0)
+        SvgIcon(session, SvgIconProps.{.bounds = RetroRect(guide_sound_x + 2, guide_sound_y + 2, 12, 12),
+            .shape = ifx guide_muted then SoundOffIcon.Shape else SoundOnIcon.Shape, .color = ColorFromPacked(0x3e332aff)})
+        if skip_hit || skip.clicked {
+            TitleGuideSkip(*title_state)
+            title_state.guide_finished_reported = true
+            action.guide_stop = true
+            action.guide_finished = true
+        }
+        if guide_sound_hit || guide_sound.clicked {
+            action.guide_mute_toggle = true
+            if !guide_muted { action.guide_stop = true }
+        }
     }
     action.language_changed = TitleLanguageFlags()
     sound_label := ifx sound_muted then "Sound off · F10" else "Sound on · F10"

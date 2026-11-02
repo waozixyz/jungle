@@ -90,6 +90,8 @@ data_root: string;
 sound_setting: string;
 language_setting: string;
 home_requested: bool;
+guide_sound_setting: string;
+guide_seen_setting: string;
 // The title bar's back arrow reaches the game as Escape on the next frame,
 // so each game steps back itself and leaves from its first screen.
 title_back_pending: bool;
@@ -435,8 +437,13 @@ title_guide_playing: bool;
 
 Menu :: (session: Session, bounds: Rectangle, key: s32) {
     unused ApplyTitleOrientationPolicy(true)
-    action := JungleMenu(session, bounds, key, JungleSeconds(), FONT, games[:game_count], *chosen, sound_muted, message)
-    if title_guide_playing && (action.guide_stop || action.language_changed) { SoundStop(); title_guide_playing = false }
+    action := JungleMenu(session, bounds, key, JungleSeconds(), FONT, games[:game_count], *chosen,
+        sound_muted, title_guide_muted, title_guide_seen, message)
+    if title_guide_playing && (action.guide_stop || action.language_changed ||
+        (action.guide_mute_toggle && !title_guide_muted)) {
+        SoundStop()
+        title_guide_playing = false
+    }
     if action.guide_voice != "" {
         if !SoundSpeech(action.guide_voice) {
             wave, found := ShippedRead(action.guide_voice)
@@ -492,6 +499,8 @@ KeepAnimalLevels :: () {
     if !found { return }
     levels := AnimalLevels(old)
     if levels == "" { return }
+title_guide_muted: bool;
+title_guide_seen: bool;
     if CreatePrivateDirectory(folder) { unused WriteEntireFile(target, levels) }
 }
 
@@ -509,6 +518,11 @@ Check :: () -> s32 {
             game.app.services = GameServices
             game.app.allows = GameAllows
             Report(Cat(games[index].bundle_name, ": ", TextFromCString(*game.app.id[0]), " runs here\n"))
+    if action.guide_mute_toggle {
+        title_guide_muted = !title_guide_muted
+        unused WriteEntireFile(guide_sound_setting, ifx title_guide_muted then "off\n" else "on\n")
+    }
+    if action.guide_finished { unused WriteEntireFile(guide_seen_setting, "yes\n") }
             BundleAppClose(*game)
         } else {
             Report(Cat(games[index].bundle_name, ": cannot run\n"))
@@ -549,3 +563,9 @@ JungleOpen :: (checking: bool) -> bool {
     KeepAnimalLevels()
     return true
 }
+    guide_sound_setting = Cat(base, "/guide-sound.txt")
+    guide_setting, guide_setting_found := ReadEntireFile(guide_sound_setting)
+    if guide_setting_found { title_guide_muted = guide_setting == "off\n" || guide_setting == "off" }
+    guide_seen_setting = Cat(base, "/guide-seen.txt")
+    guide_seen, guide_seen_found := ReadEntireFile(guide_seen_setting)
+    if guide_seen_found { title_guide_seen = guide_seen == "yes\n" || guide_seen == "yes" }

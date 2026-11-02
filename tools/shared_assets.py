@@ -49,7 +49,7 @@ FORMAT = 1
 HEADER = f"#jungle-shared-assets-{FORMAT}\n"
 # Activities whose narration is recorded per language, as FOLDER/LANGUAGE/
 # NAME.wav beside its receipt. Their other sounds are effects and stay WAV.
-NARRATED = ('assets/jungle-book/story-sounds', 'assets/animal-count/sounds', 'assets/drums/sounds', 'assets/garden/sounds', 'assets/hide_seek/sounds', 'assets/shapes/sounds')
+NARRATED = ('assets/jungle-book/story-sounds', 'assets/animal-count/sounds', 'assets/drums/sounds', 'assets/garden/sounds', 'assets/hide_seek/sounds', 'assets/shapes/sounds', 'assets/jungle/title/guide')
 
 # Installed beside the app: the menu's own files and the Picture Book.
 INSTALLED = ('assets/jungle', 'assets/jungle-book', 'assets/hide_seek/scenes', 'assets/hide_seek/props', 'assets/dino-paint/art')

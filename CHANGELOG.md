@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+- Meet a quick little guide with natural narration, a mute button and a skip button in place of the old tour.
 - Explore 41 picture books with at least ten pages each, 435 subjects and complete English, German and Spanish narration.
 - Separate Farm Animals and Pets, with tractors, barns and tools in a Farm book under Home; refresh the twenty animal scenes and matching counting pictures.
 - Make Jungle Academy proprietary while retaining third-party licenses and earlier release permissions.

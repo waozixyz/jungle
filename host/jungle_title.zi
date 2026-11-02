@@ -2,11 +2,13 @@
 // sits in the window, which painted item a point falls on, and how pointer,
 // touch and keys move between scenes. host/jungle_menu.zi draws it.
 #import, file "jungle_title_data.zi";
+#import, file "jungle_text.zi";
 
 // A tap on a touch screen glows this long before its item opens.
 TITLE_TAP_SECONDS :: 0.25
 // A press that moves further than this pans the picture instead of tapping.
 TITLE_DRAG_PIXELS :: 12.0
+TITLE_GUIDE_STEP_COUNT :: 3
 
 // Source pixel (x, y) of the scene picture is window pixel
 // (view.x + x * view.scale, view.y + y * view.scale).
@@ -22,7 +24,9 @@ TitleView :: struct {
 TitleState :: struct {
     guide_stopped: bool
     guide_at: float64
-    guide_spoken: bool
+    guide_step: s32
+    guide_spoken_step: s32
+    guide_finished_reported: bool
     started: bool
     scene: s32
     // The keyboard selection, the hotspot under a hovering mouse, the
@@ -60,6 +64,7 @@ TitleStep :: struct {
 
 TitleStart :: (state: *TitleState) {
     state.* = TitleState.{.started = true}
+    state.guide_spoken_step = -1
     TitleEnter(state, 0)
 }
 
@@ -175,14 +180,6 @@ TitleActivate :: (state: *TitleState, hotspot: s32) -> TitleStep {
     if hotspot < 0 || hotspot >= TITLE_HOTSPOT_COUNT { return step }
     state.pending = -1
     state.pressed = -1
-    if TITLE_HOTSPOT_GUIDE[hotspot] == 1 {
-        state.guide_stopped = false
-        state.guide_spoken = false
-        state.guide_at = 0.0
-        state.selected = -1
-        state.hovered = -1
-        return step
-    }
     target := TITLE_HOTSPOT_TARGET[hotspot]
     if target >= 0 {
         TitleEnter(state, target)
@@ -308,23 +305,129 @@ TitleFocus :: (state: *TitleState, width: float32, height: float32) {
     state.pan_y = TitleClamp(height / 2.0 - view.y - center_y * view.scale, view.pan_y_limit)
 }
 
-// One short introduction, replayed only by tapping the painted tiger.
-// Voice requests are edges; stop is safe to repeat and silence never queues.
+// A compact first-run guide. Voice requests are edges; stop is safe to repeat
+// and silence never queues.
 TitleGuideFrame :: struct {
     active: bool
+    step: s32
     voice: bool
     stop: bool
+    finished: bool
 }
 
-TitleGuide :: (state: *TitleState, now: float64, muted: bool, interrupted: bool) -> TitleGuideFrame {
+TitleGuideSkip :: (state: *TitleState) {
+    state.guide_stopped = true
+}
+
+TitleGuideText :: (step: s32, language: s32) -> string {
+    if step == 0 {
+        return ifx language == 1 then "Tippe auf ein Spielzeug." else ifx language == 2 then "Toca un juguete." else "Tap a toy."
+    }
+    if step == 1 {
+        return ifx language == 1 then "Ziehe, um mehr zu sehen." else ifx language == 2 then "Arrastra para ver más." else "Drag to see more."
+    }
+    return ifx language == 1 then "Tippe auf den Lautsprecher." else ifx language == 2 then "Toca el altavoz." else "Tap the speaker."
+}
+
+TitleGuideVoicePath :: (step: s32, language: s32) -> string {
+    name := ifx step == 0 then "step0" else ifx step == 1 then "step1" else "step2"
+    folder := ifx language == 1 then "de" else ifx language == 2 then "es" else "en"
+    return Cat("assets/jungle/title/guide/", folder, "/", name, ".wav")
+}
+
+TitleGuideDuration :: (step: s32, language: s32) -> float64 {
+    if step == 0 {
+        return ifx language == 1 then 2.57 else ifx language == 2 then 2.22 else 2.12
+    }
+    if step == 1 {
+        return ifx language == 1 then 3.00 else ifx language == 2 then 3.05 else 2.81
+    }
+    return ifx language == 1 then 2.61 else ifx language == 2 then 2.86 else 2.00
+}
+
+TitleGuideRect :: struct {
+    x: s32
+    y: s32
+    width: s32
+    height: s32
+}
+
+TitleGuidePlace :: struct {
+    hit: TitleGuideRect
+    bubble: TitleGuideRect
+    mascot: TitleGuideRect
+    text: TitleGuideRect
+}
+
+TitleGuideLayout :: (width: s32, height: s32, anchor: TitleGuideRect) -> TitleGuidePlace {
+    bubble_width := ifx width < 190 then width - 12 else ifx width < 270 then 208 else 228
+    if bubble_width < 120 { bubble_width = 120 }
+    x := anchor.x + anchor.width / 2 - bubble_width / 2
+    if x < 6 { x = 6 }
+    if x + bubble_width > width - 6 { x = width - 6 - bubble_width }
+    if x < 6 { x = 6 }
+    y := anchor.y + anchor.height + 8
+    if y + 48 > height - 8 { y = anchor.y - 56 }
+    if y < 38 { y = height - 56 }
+    if y + 48 > height - 8 { y = 8 }
+    bubble := TitleGuideRect.{.x = x, .y = y, .width = bubble_width, .height = 48}
+    mascot := TitleGuideRect.{.x = x + 6, .y = y + 8, .width = 32, .height = 32}
+    text := TitleGuideRect.{.x = x + 42, .y = y, .width = bubble_width - 78, .height = 48}
+    if x >= 44 {
+        mascot.x = x - 38
+        text.x = x + 8
+        text.width = bubble_width - 58
+    }
+    hit := bubble
+    if mascot.x < hit.x {
+        hit.width += hit.x - mascot.x
+        hit.x = mascot.x
+    }
+    return TitleGuidePlace.{.hit = hit, .bubble = bubble, .mascot = mascot, .text = text}
+}
+
+TitleGuideHotspot :: (step: s32, scene: s32) -> s32 {
+    if scene < 0 || scene >= TITLE_SCENE_COUNT || step < 0 || step > 1 { return -1 }
+    first := TITLE_SCENE_FIRST[scene]
+    found: s32 = 0
+    for hotspot: first..first + TITLE_SCENE_HOTSPOTS[scene] - 1 {
+        if TITLE_HOTSPOT_GUIDE[hotspot] != 0 { continue }
+        if found == step { return hotspot }
+        found += 1
+    }
+    return -1
+}
+
+TitleGuide :: (state: *TitleState, now: float64, muted: bool, interrupted: bool, language: s32) -> TitleGuideFrame {
     if interrupted { state.guide_stopped = true }
     if state.guide_at == 0.0 { state.guide_at = now }
     age := now - state.guide_at
-    frame := TitleGuideFrame.{.active = !state.guide_stopped && age > 1.0 && age < 13.0}
-    frame.stop = !frame.active || muted
-    if frame.active && !state.guide_spoken && !frame.stop {
+    duration := TitleGuideDuration(state.guide_step, language)
+    while !state.guide_stopped && age >= duration {
+        state.guide_step += 1
+        state.guide_at += duration
+        state.guide_spoken_step = -1
+        age = now - state.guide_at
+        duration = TitleGuideDuration(state.guide_step, language)
+    }
+    frame := TitleGuideFrame.{.step = state.guide_step}
+    if state.guide_stopped {
+        frame.stop = !state.guide_finished_reported
+        frame.finished = frame.stop
+        state.guide_finished_reported = true
+        return frame
+    }
+    if state.guide_step >= TITLE_GUIDE_STEP_COUNT {
+        state.guide_stopped = true
+        frame.stop = true
+        frame.finished = true
+        state.guide_finished_reported = true
+        return frame
+    }
+    frame.active = true
+    if !muted && state.guide_spoken_step != state.guide_step {
         frame.voice = true
-        state.guide_spoken = true
+        state.guide_spoken_step = state.guide_step
     }
     return frame
 }

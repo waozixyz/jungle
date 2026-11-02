@@ -161,9 +161,9 @@ main :: () -> s32 {
     // Actual painted keyboard and drum body, not helper-selected points.
     if TitleHit(campus, 180.0, 385.0) != piano { return 80 }
     if TitleHit(campus, 330.0, 400.0) != hut { return 81 }
-    guide := HotspotNamed(treehouse, "tiger-guide")
-    unused TitleActivate(*state, guide)
-    if state.guide_stopped || state.guide_at != 0.0 { return 82 }
+    for hotspot: cast(s32)0..TITLE_HOTSPOT_COUNT - 1 {
+        if TITLE_HOTSPOT_ID[hotspot] == "tiger-guide" { return 82 }
+    }
     unused TitleKey(*state, 262)
     if !state.guide_stopped { return 83 }
     if ResolveTitleSceneVariant(campus, 960.0, 600.0) != campus { return 75 }
@@ -249,26 +249,48 @@ main :: () -> s32 {
     unused TitlePointer(*pan, phone_view, 200.0, 10.0, true, false, false, false, 6.1)
     if pan.tracking || pan.pan_x != 0.0 || pan.pending >= 0 { return 78 }
     if !pan.guide_stopped { return 79 }
-    // Spoken guide starts once, respects mute, stops on interaction and
-    // replays only when the tiger is activated again.
+    // Three immediate steps, mute input, skip and compact portrait/landscape
+    // bounds are all covered without a tiger hotspot.
     narrated: TitleState
     TitleStart(*narrated)
-    intro := TitleGuide(*narrated, 10.0, false, false)
-    if intro.active || intro.voice || !intro.stop { return 91 }
-    intro = TitleGuide(*narrated, 11.1, false, false)
-    if !intro.active || !intro.voice || intro.stop { return 92 }
-    intro = TitleGuide(*narrated, 11.2, false, false)
-    if intro.voice { return 93 }
-    intro = TitleGuide(*narrated, 11.3, true, false)
-    if !intro.stop || intro.voice { return 94 }
-    intro = TitleGuide(*narrated, 11.4, false, true)
-    if !intro.stop || intro.active || !narrated.guide_stopped { return 95 }
-    unused TitleActivate(*narrated, guide)
-    unused TitleGuide(*narrated, 20.0, false, false)
-    intro = TitleGuide(*narrated, 21.1, false, false)
-    if !intro.voice { return 96 }
-    intro = TitleGuide(*narrated, 34.0, false, false)
-    if intro.voice || !intro.stop || intro.active { return 97 }
+    intro := TitleGuide(*narrated, 10.0, false, false, 0)
+    if !intro.active || intro.step != 0 || !intro.voice || intro.stop { return 91 }
+    intro = TitleGuide(*narrated, 10.2, false, false, 0)
+    if intro.voice || intro.step != 0 { return 92 }
+    intro = TitleGuide(*narrated, 12.2, false, false, 0)
+    if !intro.active || intro.step != 1 || !intro.voice { return 93 }
+    intro = TitleGuide(*narrated, 15.3, false, false, 0)
+    if !intro.active || intro.step != 2 || !intro.voice { return 94 }
+    intro = TitleGuide(*narrated, 17.4, false, false, 0)
+    if intro.active || intro.voice || !intro.stop || !intro.finished || narrated.guide_step != 3 { return 95 }
+    intro = TitleGuide(*narrated, 17.5, false, false, 0)
+    if intro.stop || intro.finished { return 96 }
+    quiet: TitleState
+    TitleStart(*quiet)
+    quiet_intro := TitleGuide(*quiet, 10.0, true, false, 1)
+    if !quiet_intro.active || quiet_intro.voice { return 97 }
+    quiet_intro = TitleGuide(*quiet, 12.7, true, false, 1)
+    if !quiet_intro.active || quiet_intro.voice || quiet_intro.step != 1 { return 98 }
+    skipped: TitleState
+    TitleStart(*skipped)
+    TitleGuideSkip(*skipped)
+    skipped_intro := TitleGuide(*skipped, 10.0, false, false, 2)
+    if skipped_intro.active || skipped_intro.voice || !skipped_intro.stop || !skipped_intro.finished { return 99 }
+    landscape := TitleGuideLayout(960, 600, TitleGuideRect.{420, 200, 80, 80})
+    if landscape.bubble.width > 228 || landscape.bubble.height != 48 ||
+       landscape.hit.x < 0 || landscape.hit.y < 0 ||
+       landscape.hit.x + landscape.hit.width > 960 || landscape.hit.y + landscape.hit.height > 600 { return 100 }
+    portrait := TitleGuideLayout(400, 900, TitleGuideRect.{160, 80, 80, 80})
+    if portrait.bubble.width > 228 || portrait.bubble.height != 48 ||
+       portrait.hit.x < 0 || portrait.hit.y < 0 ||
+       portrait.hit.x + portrait.hit.width > 400 || portrait.hit.y + portrait.hit.height > 900 { return 101 }
+    for language: cast(s32)0..2 {
+        for step: cast(s32)0..2 {
+            if TitleGuideText(step, language) == "" || TitleGuideDuration(step, language) > 3.1 { return 102 + language * 3 + step }
+            path := TitleGuideVoicePath(step, language)
+            if path.count < 4 || path[path.count - 4:] != ".wav" { return 112 + language * 3 + step }
+        }
+    }
     Report("local title scene test passed\n")
     return 0
 }

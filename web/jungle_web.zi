@@ -66,6 +66,8 @@ web_voice_paused: bool;
 web_audio: s32;
 web_title_guide: bool;
 web_narration: bool;
+web_title_guide_muted: bool;
+web_title_guide_seen: bool;
 audio_rejected: s32;
 canvas_sequence: s32;
 export_pixels: [CANVAS_PIXELS]u8;
@@ -343,8 +345,13 @@ JungleMain :: () -> s64 {
     }
     key := AppKey()
     if active_game < 0 {
-        action := JungleMenu(AppSession(), AppBounds(), key, AppNow(), "assets/jungle/font.png", web_games[:], *selected, web_muted, "")
-        if web_title_guide && (action.guide_stop || action.language_changed) { StopAudio(); web_title_guide = false }
+        action := JungleMenu(AppSession(), AppBounds(), key, AppNow(), "assets/jungle/font.png", web_games[:],
+            *selected, web_muted, web_title_guide_muted, web_title_guide_seen, "")
+        if web_title_guide && (action.guide_stop || action.language_changed ||
+            (action.guide_mute_toggle && !web_title_guide_muted)) {
+            StopAudio()
+            web_title_guide = false
+        }
         if action.guide_voice != "" { PlayAudio(action.guide_voice, true); web_title_guide = true }
         if action.language_changed { unused Runner.DocumentWriteHost("settings/language.txt", LanguageCode()); UpdateSiteLanguage() }
         if action.sound_toggle { ToggleAudio() }
@@ -379,3 +386,10 @@ JungleMain :: () -> s64 {
     }
     return 0
 }
+        web_title_guide_muted = Runner.DocumentReadHost("settings/guide-sound.txt") == "off"
+        web_title_guide_seen = Runner.DocumentReadHost("settings/guide-seen.txt") == "yes"
+        if action.guide_mute_toggle {
+            web_title_guide_muted = !web_title_guide_muted
+            unused Runner.DocumentWriteHost("settings/guide-sound.txt", ifx web_title_guide_muted then "off" else "on")
+        }
+        if action.guide_finished { unused Runner.DocumentWriteHost("settings/guide-seen.txt", "yes") }
