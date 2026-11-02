@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+- Expose Coloring Book stencil resize handles as translated browser controls.
 - Follow a glowing path behind the campus tiger to a river beach, dock and fishing boat, then explore a secret lakeside aquarium; return routes work in portrait and landscape.
 
 - Meet a quick little guide with natural narration, a mute button and a skip button in place of the old tour.

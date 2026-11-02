@@ -881,6 +881,7 @@ PlacementView :: (chosen_tool: s32) {
         // While zoomed, a corner far outside the picture has nothing to show.
         view := CanvasScreen()
         if corner.x < view.x - 22.0 || corner.y < view.y - 22.0 || corner.x > view.x + view.width + 22.0 || corner.y > view.y + view.height + 22.0 { continue }
+        unused RetroTap(605 + at, cast(s32)(corner.x - retro.x) - 22, cast(s32)(corner.y - retro.y) - 22, 44, 44, "Resize stencil", true)
         Fill(Rectangle.{corner.x - 22.0, corner.y - 22.0, 44.0, 44.0}, 0x2e6956ff, 4.0)
         Fill(Rectangle.{corner.x - 19.0, corner.y - 19.0, 38.0, 38.0}, 0xfffcf3ff, 2.0)
     }
