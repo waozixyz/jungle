@@ -31,6 +31,8 @@ APP := build/app
 # Installed shared assets, their manifest and each game's staged bundle files.
 SHARED := $(APP)/assets/shared-assets.txt $(APP)/assets/speech.txt
 STAGED_GAMES := jungle-book jungle-abc jungle-numbers animal-count dino-paint jungle-shapes jungle-hide-seek jungle-drums jungle-garden
+# Matching Pairs ships only the hidden paper's chime.
+STAGED_GAMES += jungle-matching
 # Folders too: removing a file changes its folder's time, so staging reruns.
 SHARED_SOURCES := $(shell find assets/jungle assets/jungle-book $(addprefix assets/,abc numbers animal-count dino-paint shapes hide_seek drums garden jigsaw) 2>/dev/null)
 GAMES := $(APP)/games/jungle-garden.zx $(APP)/games/jungle-drums.zx $(APP)/games/jungle-hide-seek.zx $(APP)/games/jungle-matching.zx $(APP)/games/jungle-shapes.zx $(APP)/games/jungle-book.zx $(APP)/games/jungle-abc.zx $(APP)/games/jungle-numbers.zx $(APP)/games/animal-count.zx $(APP)/games/dino-paint.zx $(APP)/games/jungle-jigsaw.zx $(APP)/games/jungle-piano.zx
@@ -130,10 +132,10 @@ $(APP)/games/jungle-shapes.zx: $(wildcard games/shapes/*.zi retro/*.zi) build/st
 	'$(ZIRANC)' bundle --root games/shapes $(MODULES) --define KRYON_HOSTED_UI \
 		--asset-dir assets=build/stage/jungle-shapes/assets --entry jungle_shapes:main -o $@ games/shapes/jungle_shapes.zi
 
-$(APP)/games/jungle-matching.zx: $(wildcard games/matching/*.zi retro/*.zi) $(shell find assets/matching -type f 2>/dev/null)
+$(APP)/games/jungle-matching.zx: $(wildcard games/matching/*.zi retro/*.zi) build/stage/jungle-matching.files
 	mkdir -p $(APP)/games
 	'$(ZIRANC)' bundle --root games/matching $(MODULES) --define KRYON_HOSTED_UI \
-		--entry jungle_matching:main -o $@ games/matching/jungle_matching.zi
+		--asset-dir assets=build/stage/jungle-matching/assets --entry jungle_matching:main -o $@ games/matching/jungle_matching.zi
 
 $(APP)/games/jungle-hide-seek.zx: $(wildcard games/hide_seek/*.zi retro/*.zi) build/stage/jungle-hide-seek.files
 	mkdir -p $(APP)/games
