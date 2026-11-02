@@ -24,6 +24,9 @@ Volume :: #import "mingcute/mingcute_regular_volume";
 #import, file "hide_seek.zi";
 #import, file "../../retro/retro.zi";
 #import, file "../../retro/game.zi";
+#import, file "../../retro/paper.zi";
+#import, file "../../retro/paper_rules.zi";
+#import, file "../../retro/collectibles.zi";
 #import, file "../../retro/book_theme.zi";
 #import, file "../../host/jungle_text.zi";
 #import, file "../../retro/language.zi";
@@ -54,6 +57,9 @@ view_scale: float32;
 round_serial: s32;
 completed_at: float64;
 input_guard: bool;
+// Screens started since the game opened, and the hidden stencil paper.
+screen_number: s32;
+secret_paper: SecretPaper;
 
 Words :: (en: string, de: string, es: string) -> string { return HideSeekWords(en, de, es) }
 
@@ -100,6 +106,7 @@ ResetMotion :: () {
 StartRound :: (automatic: bool = false) {
     if !automatic { Hush() }
     game = HideSeekNext(game, Seed())
+    screen_number += 1
     ResetMotion()
     unused Save()
     // The scene changes promptly, while the last answer finishes speaking
@@ -224,6 +231,13 @@ Scene :: (top: s32, bottom: s32) {
             Icon(Heart.Shape, cx - edge / 2, top + at.y - edge / 2, edge, 0xe4a77fff)
         }
     }
+    // One screen hides the toucan's stencil paper in the sky; a tap on it is
+    // the paper's, never the game's. A flight already begun finishes anywhere.
+    show, spot_x, spot_y := HideSeekPaperSpot(screen_number)
+    if show || secret_paper.state == SECRET_PAPER_FLYING {
+        unused SecretPaperFrame(*secret_paper, CollectibleForGame("jungle-hide-seek.zx"),
+            margin + width * spot_x / 1000, top + height * spot_y / 1000, retro.now)
+    }
 }
 
 PromptWords :: () -> string {
@@ -328,6 +342,7 @@ GameMain :: () -> s32 {
         }
         game = HideSeekNew(HIDE_FIND, Seed(), saved_rounds, -1, saved_remembered)
         keyboard_active = false
+        screen_number = 0
         ResetMotion()
         prompt_pending = false
         loaded = true

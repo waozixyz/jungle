@@ -362,6 +362,16 @@ HideSeekSceneLayout :: (width: s32, height: s32, places: s32, place: s32, scene:
         .x = x, .y = top, .width = left + edge * hide_prop_rights[kind] / HIDE_PROP_PIXELS - x, .height = ground - top}
 }
 
+// The hidden stencil paper: shown on exactly one screen, the third one a visit
+// plays (ROUND counts the screens started since the game opened, 0 first).
+// X, Y are per mille of the scene stage, in the open upper gap above every
+// scene's props in both orientations and mirrored arrangements.
+HIDE_PAPER_ROUND :: 2
+HideSeekPaperSpot :: (round: s32) -> (show: bool, x: s32, y: s32) {
+    if round != HIDE_PAPER_ROUND { return false, 0, 0 }
+    return true, 500, 100
+}
+
 HideSeekRoundLayout :: (h: HideSeek, width: s32, height: s32, place: s32) -> HideSeekPlaceLayout {
     return HideSeekSceneLayout(width, height, h.places, place, h.scene, h.mirror)
 }

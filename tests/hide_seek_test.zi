@@ -1,6 +1,7 @@
 #import, file "../games/hide_seek/hide_seek.zi";
 #import, file "../host/jungle_text.zi";
 #import, file "../retro/language.zi";
+#import, file "../retro/paper_rules.zi";
 
 // The scene's own kinds of place, back to front, different friends, all but
 // one place hiding a friend, with a small clue and nothing found yet.
@@ -281,5 +282,47 @@ main :: () -> s32 {
     if HideSeekPlaceWords(HIDE_TABLE) != "¡Debajo de la mesa!" || HideSeekPlaceWords(HIDE_BASKET) != "¡En la cesta!" { return 61 }
     language = 0
     if HideSeekPlaceWords(HIDE_TABLE) != "Under the table!" || HideSeekKind(f, 99) != f.kinds[0] { return 62 }
+    // The hidden stencil paper is on exactly one screen, never the first.
+    shown_rounds: s32
+    for round: cast(s32)-2..300 {
+        show, px, py := HideSeekPaperSpot(round)
+        if show { shown_rounds += 1; if round <= 0 { return 70 } }
+    }
+    if shown_rounds != 1 { return 71 }
+    show, spot_x, spot_y := HideSeekPaperSpot(HIDE_PAPER_ROUND)
+    if !show || spot_x < 100 || spot_x > 900 || spot_y < 40 || spot_y > 900 { return 72 }
+    // In every scene, arrangement and orientation the paper's tap box sits
+    // inside the stage and clear of every hiding place's tap box.
+    paper_widths: [8]s32 = .[360, 300, 400, 480, 700, 756, 1000, 600];
+    paper_heights: [8]s32 = .[540, 640, 700, 800, 420, 470, 520, 330];
+    for size_at: cast(s32)0..7 {
+        // Match GameMain's window-to-stage transform; the paper sizes itself
+        // from the entire viewport, not the smaller scene stage.
+        window_width := cast(float32)paper_widths[size_at]
+        window_height := cast(float32)paper_heights[size_at]
+        scale := window_width / 400.0
+        if window_height / 700.0 < scale { scale = window_height / 700.0 }
+        if window_width > window_height {
+            scale = window_height / 520.0
+            if window_width / 780.0 < scale { scale = window_width / 780.0 }
+        }
+        if scale > 1.6 { scale = 1.6 }
+        if scale < 0.5 { scale = 0.5 }
+        width := cast(s32)(window_width / scale) - 24
+        height := cast(s32)(window_height / scale) - 174
+        short := ifx window_width < window_height then window_width else window_height
+        size := SecretPaperSize(short, scale)
+        reach := SecretPaperReach(size)
+        cx := width * spot_x / 1000; cy := height * spot_y / 1000
+        if cx - reach < 0 || cx + reach > width || cy - reach < 0 || cy + reach > height { return 73 }
+        for scene: cast(s32)0..HIDE_SCENES - 1 {
+            for flip: cast(s32)0..1 {
+                for place: cast(s32)0..HideSeekPlaces(scene) - 1 {
+                    at := HideSeekSceneLayout(width, height, HideSeekPlaces(scene), place, scene, flip == 1)
+                    if cx + reach > at.x && cx - reach < at.x + at.width && cy + reach > at.y && cy - reach < at.y + at.height { return 74 }
+                }
+            }
+        }
+    }
     return 0
 }

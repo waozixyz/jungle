@@ -80,7 +80,9 @@ GAMES = {
                                for name in COUNTING}},
     'dino-paint': {'folders': ('assets/dino-paint',), 'voices': True},
     'jungle-shapes': {'folders': ('assets/shapes',)},
-    'jungle-hide-seek': {'folders': ('assets/hide_seek',)},
+    # The hidden paper's chime comes from the book bundle's shared sound.
+    'jungle-hide-seek': {'folders': ('assets/hide_seek',),
+                         'extra': {'assets/jungle-book/collect.wav': 'assets/jungle-book/collect.wav'}},
     # The hidden paper's chime is the only sound Matching Pairs adds.
     'jungle-matching': {'folders': (),
                         'extra': {'assets/jungle-book/collect.wav': 'assets/jungle-book/collect.wav'}},
