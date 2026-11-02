@@ -90,7 +90,21 @@ with tempfile.TemporaryDirectory(prefix='menu-', dir=work) as temporary:
             desktop.game('Music Room')
             desktop.capture(f'title-{width}-music-game')
             desktop.key('Escape')
-            desktop.game('Little Piano')
-            desktop.capture(f'title-{width}-piano-game')
+            # Returning from drums keeps this campus. Select the painted
+            # piano and click its real keyboard at the orientation's own point.
+            desktop.key('Home')
+            desktop.key(str(key))
+            scene, piano, expected, screen = select_painted(desktop, 'campus', 'piano', width, height)
+            desktop.capture_actual(f'title-{width}-separate-piano-glow')
+            point = (1430, 340) if width > height else (900, 530)
+            desktop.click_actual(*screen(*point))
+            actual = desktop.capture_actual(f'title-{width}-piano-game')
+            area = (30, 120, width-30, height-100)
+            error = ImageStat.Stat(ImageChops.difference(actual.crop(area), expected.crop(area))).mean
+            assert max(error) > 20, f'Painted piano did not open its game: {error}'
+            desktop.key('1')
             desktop.key('Escape')
+            returned = desktop.capture_actual(f'title-{width}-piano-back')
+            error = ImageStat.Stat(ImageChops.difference(returned.crop(area), expected.crop(area))).mean
+            assert max(error) < 12, f'Piano Back did not return to the same campus: {error}'
 print('local title UI test: landscape/portrait navigation, painted ladder return, combined house/ladder glow and direct book/music/piano routes passed')

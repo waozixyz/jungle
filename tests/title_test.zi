@@ -14,8 +14,8 @@ OwnPoint :: (scene: s32, hotspot: s32, x: *float32, y: *float32) -> bool {
             px := cast(float32)TITLE_GLOW_RECT[rect] + cast(float32)(TITLE_GLOW_RECT[rect + 2] * column) / 40.0
             py := cast(float32)TITLE_GLOW_RECT[rect + 1] + cast(float32)(TITLE_GLOW_RECT[rect + 3] * row) / 40.0
             if !TitleInside(hotspot, px, py) { continue }
-            // A piano painted inside the hut intentionally overlaps it;
-            // the smaller foreground target must win the real hit test.
+            // Resolve an actual painted point, including any foreground
+            // overlap with another scene item.
             if TitleHit(scene, px, py) == hotspot { x.* = px; y.* = py; return true }
         }
     }
@@ -159,7 +159,8 @@ main :: () -> s32 {
     piano := HotspotNamed(campus, "piano")
     if piano < 0 || TITLE_HOTSPOT_GAME[piano] != "Little Piano" { return 74 }
     // Actual painted keyboard and drum body, not helper-selected points.
-    if TitleHit(campus, 180.0, 385.0) != piano { return 80 }
+    if TitleHit(campus, 1430.0, 340.0) != piano { return 80 }
+    if TitleInside(hut, 1430.0, 340.0) || TitleInside(piano, 330.0, 400.0) { return 115 }
     if TitleHit(campus, 330.0, 400.0) != hut { return 81 }
     for hotspot: cast(s32)0..TITLE_HOTSPOT_COUNT - 1 {
         if TITLE_HOTSPOT_ID[hotspot] == "tiger-guide" { return 82 }

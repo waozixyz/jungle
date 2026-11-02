@@ -46,6 +46,21 @@ class TitleVariants(unittest.TestCase):
         self.assertEqual(routes['music-hut'], 'game:Music Room')
         self.assertEqual(routes['piano'], 'game:Little Piano')
 
+    def test_separate_music_and_piano_entrances(self):
+        _, scenes, _, _ = title.Load()
+        for name in ('campus', 'campus-portrait'):
+            with self.subTest(scene=name):
+                scene = next(s for s in scenes if s['name'] == name)
+                hotspots = {h['id']: h for h in scene['hotspots']}
+                hut, piano = hotspots['music-hut'], hotspots['piano']
+                self.assertEqual(hut['target'], 'game:Music Room')
+                self.assertEqual(piano['target'], 'game:Little Piano')
+                # Portrait's two separate painted entrances must remain
+                # separate in landscape too, rather than overlapping targets.
+                self.assertLess(max(x for x, y in hut['polygon']),
+                                min(x for x, y in piano['polygon']))
+                self.assertEqual(hotspots['ladder']['target'], 'scene:treehouse')
+
     def test_distinct_variant_dimensions_and_parents(self):
         data, scenes, parents, hotspots = self.load(self.fixture())
         base_count = len(data['scenes'])
