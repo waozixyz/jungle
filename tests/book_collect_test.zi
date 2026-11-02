@@ -100,8 +100,8 @@ main :: () -> s32 {
     middle := BookCollectFlight(start, 1280, 0.5)
     if middle.x <= first.x || middle.x >= last.x || middle.width >= first.width || middle.width <= last.width { return 32 }
 
-    // Colored cut-outs fly only once the picture exists.
-    if !collectible_color_ready[panda] || collectible_color_ready[pot] { return 33 }
+    // The approved panda and magic-pot cut-outs are both ready to fly.
+    if !collectible_color_ready[panda] || !collectible_color_ready[pot] { return 33 }
 
     WriteOutput("book collect test passed\n")
     return 0
