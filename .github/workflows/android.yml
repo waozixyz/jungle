@@ -108,7 +108,19 @@ jobs:
           python3 tests/appimage_test.py
       - name: Install the pinned Android SDK tools
         run: |
-          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'ndk;28.2.13676358' 'build-tools;36.0.0' 'platforms;android-36' 'cmake;3.22.1'
+          for attempt in 1 2 3; do
+            if "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'ndk;28.2.13676358' 'build-tools;36.0.0' 'platforms;android-36' 'cmake;3.22.1'; then
+              exit 0
+            fi
+            if [ "$attempt" = 3 ]; then
+              echo '::error::Pinned Android SDK tools could not be installed after three attempts.'
+              exit 1
+            fi
+            # A truncated archive can survive in sdkmanager's temporary cache.
+            # Clear only that cache on this disposable CI runner before retrying.
+            rm -rf "$ANDROID_HOME/.temp"
+            sleep "$((attempt * 5))"
+          done
       - name: Build each edition with both ARM architectures
         run: |
           for edition in direct fdroid gplay; do
