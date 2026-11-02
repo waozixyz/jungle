@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """Real host dispatch, interaction and isolated saves on owned private Xvfb."""
 from pathlib import Path
+from garden_scene_layout import soil_point
 import tempfile
+import os
 import time
 from PIL import ImageChops
 import runtime_test as rt
@@ -25,11 +27,12 @@ def geometry(name, width, height):
 
 
 def main():
-    with tempfile.TemporaryDirectory(prefix='jungle-activities-') as temporary:
+    scratch=rt.ROOT/'work/new-activities-ui'; scratch.mkdir(parents=True,exist_ok=True)
+    with tempfile.TemporaryDirectory(prefix='jungle-activities-',dir=scratch) as temporary:
         for lang in ('en','de','es'):
             data = Path(temporary)/lang
             data.mkdir(); (data/'language.txt').write_text(lang)
-            with rt.Desktop(rt.ROOT/'build/app/jungle', data, screen_size='1280x1100') as d:
+            with rt.Desktop(Path(os.environ.get('JUNGLE_TEST_BINARY',rt.ROOT/'build/app/jungle')), data, screen_size='1280x1100') as d:
                 for name,title in TITLES.items():
                     if name=='garden' and title not in (rt.ROOT/'games/catalog.txt').read_text(): continue
                     d.game(title)
@@ -118,7 +121,8 @@ def main():
                         def tool(index):
                             click(8+(index%columns+.5)*cw, 8+(index//columns+.5)*ch)
                         def plot(index):
-                            click(w*(26+index%3*24)/100, tray+(h-tray)*(57 if index<3 else 70)/100)
+                            x,y = soil_point(w,h,260+index%3*180,490 if index<3 else 650)
+                            click(x,y)
                         tool(5); plot(0)
                         assert save()[:4]==['garden','3','6','6'], save()
                         born = int(save()[4])
@@ -155,7 +159,7 @@ def catalog_narration():
     with tempfile.TemporaryDirectory(prefix='catalog-narration-') as temporary:
         data=Path(temporary); (data/'language.txt').write_text('es')
         audio=data/'narration.raw'
-        with rt.Desktop(rt.ROOT/'build/app/jungle',data,extra_env={'SDL_AUDIODRIVER':'disk','SDL_DISKAUDIOFILE':str(audio)}) as d:
+        with rt.Desktop(Path(os.environ.get('JUNGLE_TEST_BINARY',rt.ROOT/'build/app/jungle')),data,extra_env={'SDL_AUDIODRIVER':'disk','SDL_DISKAUDIOFILE':str(audio)}) as d:
             d.game('Picture Book');d.key('s')
             for category, indices in [('actions',range(8)),('sports',[6]),('birds',[2])]:
                 select_book(d,[name for name,_ in BOOKS].index(category))

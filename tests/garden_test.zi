@@ -1,6 +1,7 @@
 #import, file "../games/garden/garden.zi";
 #import, file "../retro/language.zi";
 #import, file "../host/jungle_text.zi";
+#import, file "../games/garden/garden_scene.zi";
 #program_export
 main :: () -> s32 {
     start: s64 = 1793550000
@@ -138,6 +139,20 @@ main :: () -> s32 {
         if shown { return 41 }
         shown, sx, sy = GardenPaperSpot(grown_garden, 0, 0)
         if shown { return 42 }
+    }
+    // All saved soil positions round-trip through both paintings, preserving
+    // legacy positions and six independent slots, including quadrant edges.
+    for orientation: cast(s32)0..1 {
+        for y: cast(s32)410..730 {
+            for x: cast(s32)100..900 {
+                if !GardenSoil(x,y) { continue }
+                p := GardenScenePoint(x,y,orientation == 1)
+                rx, ry := GardenSceneMap(p.x,p.y,orientation == 1)
+                if rx != x || ry != y { return 43 }
+            }
+        }
+        rx, ry := GardenSceneMap(20.0,20.0,orientation == 1)
+        if GardenSoil(rx,ry) { return 44 }
     }
     return 0
 }

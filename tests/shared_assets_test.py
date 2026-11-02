@@ -324,8 +324,8 @@ def make_test():
             shutil.copy2(ROOT / 'tools' / name, root / 'tools' / name)
         (root / 'tools/speech_manifest.py').write_text(SPEECH_STUB)
 
-        def stage():
-            result = subprocess.run(['python3', 'tools/shared_assets.py'],
+        def stage(*args):
+            result = subprocess.run(['python3', 'tools/shared_assets.py', *args],
                                   cwd=root, capture_output=True, text=True, timeout=120)
             assert result.returncode == 0, (result.stdout + '\n' + result.stderr)[-4000:]
             return result.stdout
@@ -348,6 +348,22 @@ def make_test():
         assert not (root / 'build/app/assets/previews/jungle-book/pages/tiger.webp').exists(), 'a deleted picture keeps its preview'
         assert listing.stat().st_mtime_ns != 1, 'the game bundle would not rebuild'
         assert (root / 'build/stage/jungle-numbers/assets/numbers/sounds/two.wav').exists()
+        # A private APP owns both output assets and its bundle-stage tree.
+        owner = {str(p.relative_to(root)): (p.stat().st_mtime_ns,p.read_bytes())
+                 for folder in ('build/app','build/stage') for p in (root/folder).rglob('*') if p.is_file()}
+        assert 'Shared assets:' in stage('--app','build/tests/private','--stage','build/tests/private/stage')
+        assert (root/'build/tests/private/assets/shared-assets.txt').is_file()
+        assert (root/'build/tests/private/stage/jungle-numbers.files').is_file()
+        assert 'Shared assets:' in stage('--app','build/tests/another')
+        assert (root/'build/tests/another/stage/jungle-numbers.files').is_file()
+        for name,(mtime,content) in owner.items():
+            assert (root/name).stat().st_mtime_ns == mtime and (root/name).read_bytes() == content
+        dry = subprocess.run(['make','-n','-B','APP=build/tests/private','TOOLCHAIN=/unused',
+            'KRYON=/unused','MINGCUTE=/unused','build/tests/private/assets/shared-assets.txt'],
+            cwd=ROOT,capture_output=True,text=True,check=True).stdout
+        calls = [line for line in dry.splitlines() if 'python3 tools/shared_assets.py' in line]
+        assert calls and all("--app 'build/tests/private' --stage 'build/tests/private/stage'" in line for line in calls),calls
+
 
 
 def host_parser_test():

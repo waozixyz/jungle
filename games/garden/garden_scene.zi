@@ -1,0 +1,100 @@
+// Save coordinates remain in the original continuous bed. Four quadrants map
+// onto inset soil quads in each approved painting; no save data is rewritten.
+GardenPoint :: struct { x: float64; y: float64 }
+GardenQuad :: (bed: s32, portrait: bool) -> [4]GardenPoint {
+    q: [4]GardenPoint
+    if portrait && bed == 0 {
+        q[0] = GardenPoint.{.x = 230.0, .y = 480.0}
+        q[1] = GardenPoint.{.x = 415.0, .y = 520.0}
+        q[2] = GardenPoint.{.x = 300.0, .y = 585.0}
+        q[3] = GardenPoint.{.x = 95.0, .y = 535.0}
+        return q
+    }
+    if portrait && bed == 1 {
+        q[0] = GardenPoint.{.x = 780.0, .y = 515.0}
+        q[1] = GardenPoint.{.x = 960.0, .y = 555.0}
+        q[2] = GardenPoint.{.x = 810.0, .y = 645.0}
+        q[3] = GardenPoint.{.x = 605.0, .y = 590.0}
+        return q
+    }
+    if portrait && bed == 2 {
+        q[0] = GardenPoint.{.x = 220.0, .y = 730.0}
+        q[1] = GardenPoint.{.x = 415.0, .y = 790.0}
+        q[2] = GardenPoint.{.x = 250.0, .y = 870.0}
+        q[3] = GardenPoint.{.x = 65.0, .y = 800.0}
+        return q
+    }
+    if portrait && bed == 3 {
+        q[0] = GardenPoint.{.x = 780.0, .y = 845.0}
+        q[1] = GardenPoint.{.x = 950.0, .y = 900.0}
+        q[2] = GardenPoint.{.x = 730.0, .y = 1040.0}
+        q[3] = GardenPoint.{.x = 490.0, .y = 970.0}
+        return q
+    }
+    if !portrait && bed == 0 {
+        q[0] = GardenPoint.{.x = 470.0, .y = 325.0}
+        q[1] = GardenPoint.{.x = 690.0, .y = 352.0}
+        q[2] = GardenPoint.{.x = 560.0, .y = 380.0}
+        q[3] = GardenPoint.{.x = 310.0, .y = 350.0}
+        return q
+    }
+    if !portrait && bed == 1 {
+        q[0] = GardenPoint.{.x = 1170.0, .y = 360.0}
+        q[1] = GardenPoint.{.x = 1480.0, .y = 392.0}
+        q[2] = GardenPoint.{.x = 1330.0, .y = 435.0}
+        q[3] = GardenPoint.{.x = 1020.0, .y = 393.0}
+        return q
+    }
+    if !portrait && bed == 2 {
+        q[0] = GardenPoint.{.x = 300.0, .y = 460.0}
+        q[1] = GardenPoint.{.x = 600.0, .y = 510.0}
+        q[2] = GardenPoint.{.x = 415.0, .y = 565.0}
+        q[3] = GardenPoint.{.x = 130.0, .y = 510.0}
+        return q
+    }
+    if !portrait && bed == 3 {
+        q[0] = GardenPoint.{.x = 1190.0, .y = 540.0}
+        q[1] = GardenPoint.{.x = 1500.0, .y = 600.0}
+        q[2] = GardenPoint.{.x = 1190.0, .y = 695.0}
+        q[3] = GardenPoint.{.x = 850.0, .y = 636.0}
+        return q
+    }
+    return q
+}
+GardenBlend :: (q: [4]GardenPoint, u: float64, v: float64) -> GardenPoint {
+    return GardenPoint.{.x = (1-u)*(1-v)*q[0].x + u*(1-v)*q[1].x + u*v*q[2].x + (1-u)*v*q[3].x,
+        .y = (1-u)*(1-v)*q[0].y + u*(1-v)*q[1].y + u*v*q[2].y + (1-u)*v*q[3].y}
+}
+GardenScenePoint :: (x: s32, y: s32, portrait: bool) -> GardenPoint {
+    left := 190 - (y - 410) * 90 / 320
+    right := x > 500; front := y > 570
+    u := ifx right then cast(float64)(x-500) / cast(float64)(500-left) else cast(float64)(x-left) / cast(float64)(500-left)
+    v := cast(float64)(y - (ifx front then 570 else 410)) / 160.0
+    return GardenBlend(GardenQuad((ifx front then 2 else 0) + (ifx right then 1 else 0), portrait), u, v)
+}
+GardenSceneMap :: (x: float64, y: float64, portrait: bool) -> (sx: s32, sy: s32) {
+    for bed: cast(s32)0..3 {
+        q := GardenQuad(bed, portrait)
+        u: float64 = 0.5; v: float64 = 0.5
+        for step: cast(s32)0..11 {
+            p := GardenBlend(q,u,v)
+            ux := (1-v)*(q[1].x-q[0].x)+v*(q[2].x-q[3].x)
+            uy := (1-v)*(q[1].y-q[0].y)+v*(q[2].y-q[3].y)
+            vx := (1-u)*(q[3].x-q[0].x)+u*(q[2].x-q[1].x)
+            vy := (1-u)*(q[3].y-q[0].y)+u*(q[2].y-q[1].y)
+            det := ux*vy-uy*vx
+            u -= ((p.x-x)*vy-(p.y-y)*vx)/det
+            v -= (ux*(p.y-y)-uy*(p.x-x))/det
+        }
+        if u < -0.001 || u > 1.001 || v < -0.001 || v > 1.001 { continue }
+        sy := cast(s32)(410.0 + (ifx bed >= 2 then 160.0 else 0.0) + v*160.0 + 0.5)
+        left := 190 - (sy-410)*90/320
+        sx := cast(s32)(cast(float64)(ifx bed%2 == 1 then 500 else left) + u*cast(float64)(500-left) + 0.5)
+        if bed >= 2 && sy <= 570 { sy = 571 }
+        if bed < 2 && sy > 570 { sy = 570 }
+        if bed%2 == 1 && sx <= 500 { sx = 501 }
+        if bed%2 == 0 && sx > 500 { sx = 500 }
+        return sx, sy
+    }
+    return -1000, -1000
+}

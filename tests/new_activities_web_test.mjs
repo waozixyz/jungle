@@ -345,13 +345,33 @@ assert worst<=5 and strong<=20 and len(changed)<=300, f'worst {worst}/255 on {le
    console.log('local music room '+page+' '+language+': all8 instruments decode and play through touch/mouse, DOM keyboard, empty space and mute on portrait/landscape');
   }
   if(name==='garden'){
+   // The app must request its pictures itself. An interaction-only test can
+   // otherwise pass on the image widget's empty fallback labels.
+   const gardenArt=['scene-portrait','campus-sign','watering-can',...['sunflower','tomato','carrot','strawberry','pumpkin','cabbage'].map(k=>k+'-packet')].map(n=>'assets/garden/art/'+n+'.png');
+   await waitFor(`(${JSON.stringify(gardenArt)}).every(p=>Module.FS.analyzePath('/'+p).exists)`,'Garden did not automatically request its art');
+   if(page==='dom.html')await waitFor(`(()=>{const images=[...document.querySelectorAll('#kryon-dom-paint img')];return images.length>=9&&images.every(i=>i.complete&&i.naturalWidth>0)})()`,'Garden painted images did not decode');
+   await delay(400);await shot('garden-painted',true);
+   const gardenPixels=spawnSync('python3',['-c',`
+from PIL import Image,ImageChops,ImageStat
+import sys
+actual=Image.open(sys.argv[1]).convert('RGB').crop((152,298,228,335))
+expected=Image.open('assets/garden/art/scene-portrait.png').convert('RGB').resize((346,520)).crop((125,62,201,99)).resize(actual.size)
+assert min(ImageStat.Stat(actual).stddev)>15,'Garden painting absent (flat fallback pixels)'
+assert sum(ImageStat.Stat(ImageChops.difference(actual,expected)).mean)/3<30,'Garden differs from approved painting'
+`,'backup/new-activities-web/'+page+'-'+language+'-garden-painted.png'],{encoding:'utf8',timeout:15000});
+   if(gardenPixels.status!==0)throw Error('Garden painting regression '+gardenPixels.stderr);
    // The seed tray is above the painted bed; one packet supplies one seed.
    const tool=index=>[8+(index%4+.5)*96,56+8+(Math.floor(index/4)+.5)*82];
-   const soil=(x,y)=>[400*x/1000,56+180+520*y/1000];
+   const soil=(x,y)=>{
+    const quads=[[[230,480],[415,520],[300,585],[95,535]],[[780,515],[960,555],[810,645],[605,590]],[[220,730],[415,790],[250,870],[65,800]],[[780,845],[950,900],[730,1040],[490,970]]];
+    const left=190-Math.trunc((y-410)*90/320),u=(x>500?x-500:x-left)/(500-left),v=(y-(y>570?570:410))/160;
+    const q=quads[(y>570?2:0)+(x>500?1:0)],weights=[(1-u)*(1-v),u*(1-v),u*v,(1-u)*v];
+    return [27+q.reduce((n,p,i)=>n+p[0]*weights[i],0)*346/1024,236+q.reduce((n,p,i)=>n+p[1]*weights[i],0)*520/1536];
+   };
    async function tap(x,y){await command('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x,y,id:1}]});await delay(100);await command('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});await delay(180)}
    await click(...tool(0));await tap(...soil(623,489));
    const planted=gardenState((await saved(name))[0]),plant=planted.plots[0];
-   if(planted.plots.filter(p=>p[0]).length!==1||plant[0]!==1||plant[1]<=0||plant[2]!==plant[1]||plant[3]<plant[1]||plant[4]>=3600||plant[5]!==0||Math.abs(plant[6]-623)>4||Math.abs(plant[7]-489)>5)throw Error('Garden seed did not land at the touched soil '+JSON.stringify(planted));
+   if(planted.plots.filter(p=>p[0]).length!==1||plant[0]!==1||plant[1]<=0||plant[2]!==plant[1]||plant[3]<plant[1]||plant[4]>=3600||plant[5]!==0||Math.max(...soil(plant[6],plant[7]).map((value,index)=>Math.abs(value-soil(623,489)[index])))>3)throw Error('Garden seed did not land at the touched soil '+JSON.stringify(planted));
    await tap(...soil(800,670));
    if(gardenState((await saved(name))[0]).plots.filter(p=>p[0]).length!==1)throw Error('One packet planted more than one seed');
    // Cross a clock second so a real watering must change the care timestamp.

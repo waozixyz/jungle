@@ -1,0 +1,46 @@
+{
+  "approval": "Owner: corrected 3 is fine as long as the sign is an actual overlay",
+  "assets": [
+    {
+      "source": "art/generated/world-scene-refresh/garden-landscape-clean-v3.png",
+      "runtime": "assets/garden/art/scene-landscape.png",
+      "sha256": "ce05c400eacfe725812b5bf2bfb4928ea25a825430ad90e369547c760c182802"
+    },
+    {
+      "source": "art/generated/world-scene-refresh/garden-portrait-clean-v3.png",
+      "runtime": "assets/garden/art/scene-portrait.png",
+      "sha256": "b7a7cf8ee5b61aab3366ec99c66b4efff28b4b51807030c085e595197778bde7"
+    },
+    {
+      "source": "art/generated/campus-object-layers/sign-blank.png",
+      "runtime": "assets/garden/art/campus-sign.png",
+      "sha256": "40e2d519cf0b843206c62b5cca684f1c6cd743b69c9a422743d397d445b02cdf"
+    },
+    {
+      "source": "art/generated/campus-object-layers/sign-blank-glow.png",
+      "runtime": "assets/garden/art/campus-sign-glow.png",
+      "sha256": "a46eb65b708afc188d9ad68161d07b8fc140f91445dce6333ddc58d0d7054711"
+    }
+  ],
+  "mapping": "games/garden/garden_scene.zi",
+  "sign_rects": {
+    "landscape": [
+      1400,
+      80,
+      210,
+      210
+    ],
+    "portrait": [
+      680,
+      320,
+      180,
+      180
+    ]
+  },
+  "label_rect": [
+    150,
+    330,
+    950,
+    260
+  ]
+}

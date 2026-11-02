@@ -470,8 +470,13 @@ def WebAliases():
 
 
 if __name__ == '__main__':
-    if sys.argv[1:]:
-        raise SystemExit('usage: shared_assets.py')
-    installed, aliases, bundles = StageSharedAssets()
+    import argparse
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--app', type=Path, default=APP)
+    parser.add_argument('--stage', type=Path)
+    # --app alone must also keep bundle staging out of the owner's app.
+
+    args = parser.parse_args()
+    installed, aliases, bundles = StageSharedAssets(app=args.app, stage=args.stage or (STAGE if args.app.resolve() == APP.resolve() else args.app / 'stage'))
     print(f'Shared assets: {len(installed)} installed files, {len(aliases)} aliases, '
           + ', '.join(f'{name} {len(files)}' for name, files in bundles.items()))

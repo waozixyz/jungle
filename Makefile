@@ -28,6 +28,8 @@ DESKTOP_LIBS = $$(pkg-config --libs sdl2 cairo freetype2 fontconfig pangocairo) 
 CFLAGS_ZI = -std=c11 -O2 -ffunction-sections -fdata-sections -I'$(TOOLCHAIN)/include'
 # The app as it is installed: the program, its menu assets and the games.
 APP := build/app
+# Private test apps own their staging and manifest as well as their bundles.
+STAGE ?= $(if $(filter build/app,$(APP)),build/stage,$(APP)/stage)
 # Installed shared assets, their manifest and each game's staged bundle files.
 SHARED := $(APP)/assets/shared-assets.txt $(APP)/assets/speech.txt
 STAGED_GAMES := jungle-book jungle-abc jungle-numbers animal-count dino-paint jungle-shapes jungle-jigsaw jungle-hide-seek jungle-matching jungle-drums jungle-garden jungle-fishing jungle-beach-families
@@ -83,41 +85,41 @@ $(APP)/games/catalog.txt: games/catalog.txt
 # folder, so assets removed from assets/ leave the app and bundles too.
 # The manifest and each GAME.files listing change only when their contents
 # do, so an unrelated asset change rebuilds no bundle.
-build/stage/.shared-assets: tools/shared_assets.py tools/web_images.py tools/speech_manifest.py tools/speech_codec.py tools/book_speech.py tools/book_catalog.py tools/book_expansion.json tools/outdoor_books.json tools/book_learning_expansion.json tools/book_unique_expansion.json tools/book_minimum_expansion.json $(SHARED_SOURCES)
-	python3 tools/shared_assets.py
+$(STAGE)/.shared-assets: tools/shared_assets.py tools/web_images.py tools/speech_manifest.py tools/speech_codec.py tools/book_speech.py tools/book_catalog.py tools/book_expansion.json tools/outdoor_books.json tools/book_learning_expansion.json tools/book_unique_expansion.json tools/book_minimum_expansion.json $(SHARED_SOURCES)
+	python3 tools/shared_assets.py --app '$(APP)' --stage '$(STAGE)'
 
-$(SHARED) $(addprefix build/stage/,$(addsuffix .files,$(STAGED_GAMES))): build/stage/.shared-assets
-	@test -e $@ || python3 tools/shared_assets.py
+$(SHARED) $(addprefix $(STAGE)/,$(addsuffix .files,$(STAGED_GAMES))): $(STAGE)/.shared-assets
+	@test -e $@ || python3 tools/shared_assets.py --app '$(APP)' --stage '$(STAGE)'
 
-$(APP)/games/jungle-book.zx: $(wildcard games/book/*.zi retro/*.zi) build/stage/jungle-book.files
+$(APP)/games/jungle-book.zx: $(wildcard games/book/*.zi retro/*.zi) $(STAGE)/jungle-book.files
 	mkdir -p $(APP)/games
 	'$(ZIRANC)' bundle --root games/book $(MODULES) --define KRYON_HOSTED_UI \
-		--asset-dir assets=build/stage/jungle-book/assets --entry jungle_book:main -o $@ games/book/jungle_book.zi
+		--asset-dir assets=$(STAGE)/jungle-book/assets --entry jungle_book:main -o $@ games/book/jungle_book.zi
 
 # ABC Book draws the installed watercolor pictures and narration, so its
 # bundle carries only its own quiet sounds and letters.
-$(APP)/games/jungle-abc.zx: $(wildcard games/abc/*.zi retro/*.zi) build/stage/jungle-abc.files
+$(APP)/games/jungle-abc.zx: $(wildcard games/abc/*.zi retro/*.zi) $(STAGE)/jungle-abc.files
 	mkdir -p $(APP)/games
 	'$(ZIRANC)' bundle --root games/abc $(MODULES) --define KRYON_HOSTED_UI \
-		--asset-dir assets=build/stage/jungle-abc/assets --entry jungle_abc:main -o $@ games/abc/jungle_abc.zi
+		--asset-dir assets=$(STAGE)/jungle-abc/assets --entry jungle_abc:main -o $@ games/abc/jungle_abc.zi
 
 # 123 Book draws the installed watercolor pictures, so its bundle carries
 # only its own quiet sounds and questions.
-$(APP)/games/jungle-numbers.zx: $(wildcard games/numbers/*.zi retro/*.zi) build/stage/jungle-numbers.files
+$(APP)/games/jungle-numbers.zx: $(wildcard games/numbers/*.zi retro/*.zi) $(STAGE)/jungle-numbers.files
 	mkdir -p $(APP)/games
 	'$(ZIRANC)' bundle --root games/numbers $(MODULES) --define KRYON_HOSTED_UI \
-		--asset-dir assets=build/stage/jungle-numbers/assets --entry jungle_numbers:main -o $@ games/numbers/jungle_numbers.zi
+		--asset-dir assets=$(STAGE)/jungle-numbers/assets --entry jungle_numbers:main -o $@ games/numbers/jungle_numbers.zi
 
 # Animal Counting draws the installed counting pictures through aliases.
-$(APP)/games/animal-count.zx: $(wildcard games/animal/*.zi retro/*.zi) build/stage/animal-count.files
+$(APP)/games/animal-count.zx: $(wildcard games/animal/*.zi retro/*.zi) $(STAGE)/animal-count.files
 	mkdir -p $(APP)/games
 	'$(ZIRANC)' bundle --root games/animal $(MODULES) --define KRYON_HOSTED_UI \
-		--asset-dir assets=build/stage/animal-count/assets --entry animal_count:main -o $@ games/animal/animal_count.zi
+		--asset-dir assets=$(STAGE)/animal-count/assets --entry animal_count:main -o $@ games/animal/animal_count.zi
 
-$(APP)/games/dino-paint.zx: $(wildcard games/paint/*.zi retro/*.zi) build/stage/dino-paint.files
+$(APP)/games/dino-paint.zx: $(wildcard games/paint/*.zi retro/*.zi) $(STAGE)/dino-paint.files
 	mkdir -p $(APP)/games
 	'$(ZIRANC)' bundle --root games/paint $(MODULES) --define KRYON_HOSTED_UI \
-		--asset-dir assets=build/stage/dino-paint/assets --entry dino_paint:main -o $@ games/paint/dino_paint.zi
+		--asset-dir assets=$(STAGE)/dino-paint/assets --entry dino_paint:main -o $@ games/paint/dino_paint.zi
 
 # One score and the same pitched samples, shared by every piano host.
 $(APP)/games/jungle-piano.zx: $(wildcard games/piano/*.zi retro/*.zi) $(wildcard assets/piano/sounds/*.wav)
@@ -126,45 +128,45 @@ $(APP)/games/jungle-piano.zx: $(wildcard games/piano/*.zi retro/*.zi) $(wildcard
 		--asset-dir assets/piano=assets/piano --entry jungle_piano:main -o $@ games/piano/jungle_piano.zi
 
 # Full pictures only: every host clips its own interlocking puzzle pieces.
-$(APP)/games/jungle-jigsaw.zx: $(wildcard games/jigsaw/*.zi retro/*.zi) build/stage/jungle-jigsaw.files
+$(APP)/games/jungle-jigsaw.zx: $(wildcard games/jigsaw/*.zi retro/*.zi) $(STAGE)/jungle-jigsaw.files
 	mkdir -p $(APP)/games
 	'$(ZIRANC)' bundle --root games/jigsaw $(MODULES) --define KRYON_HOSTED_UI \
-		--asset-dir assets=build/stage/jungle-jigsaw/assets --entry jungle_jigsaw:main -o $@ games/jigsaw/jungle_jigsaw.zi
+		--asset-dir assets=$(STAGE)/jungle-jigsaw/assets --entry jungle_jigsaw:main -o $@ games/jigsaw/jungle_jigsaw.zi
 
-$(APP)/games/jungle-shapes.zx: $(wildcard games/shapes/*.zi retro/*.zi) build/stage/jungle-shapes.files
+$(APP)/games/jungle-shapes.zx: $(wildcard games/shapes/*.zi retro/*.zi) $(STAGE)/jungle-shapes.files
 	mkdir -p $(APP)/games
 	'$(ZIRANC)' bundle --root games/shapes $(MODULES) --define KRYON_HOSTED_UI \
-		--asset-dir assets=build/stage/jungle-shapes/assets --entry jungle_shapes:main -o $@ games/shapes/jungle_shapes.zi
+		--asset-dir assets=$(STAGE)/jungle-shapes/assets --entry jungle_shapes:main -o $@ games/shapes/jungle_shapes.zi
 
-$(APP)/games/jungle-matching.zx: $(wildcard games/matching/*.zi retro/*.zi) build/stage/jungle-matching.files
+$(APP)/games/jungle-matching.zx: $(wildcard games/matching/*.zi retro/*.zi) $(STAGE)/jungle-matching.files
 	mkdir -p $(APP)/games
 	'$(ZIRANC)' bundle --root games/matching $(MODULES) --define KRYON_HOSTED_UI \
-		--asset-dir assets=build/stage/jungle-matching/assets --entry jungle_matching:main -o $@ games/matching/jungle_matching.zi
+		--asset-dir assets=$(STAGE)/jungle-matching/assets --entry jungle_matching:main -o $@ games/matching/jungle_matching.zi
 
-$(APP)/games/jungle-hide-seek.zx: $(wildcard games/hide_seek/*.zi retro/*.zi) build/stage/jungle-hide-seek.files
+$(APP)/games/jungle-hide-seek.zx: $(wildcard games/hide_seek/*.zi retro/*.zi) $(STAGE)/jungle-hide-seek.files
 	mkdir -p $(APP)/games
 	'$(ZIRANC)' bundle --root games/hide_seek $(MODULES) --define KRYON_HOSTED_UI \
-		--asset-dir assets=build/stage/jungle-hide-seek/assets --entry jungle_hide_seek:main -o $@ games/hide_seek/jungle_hide_seek.zi
+		--asset-dir assets=$(STAGE)/jungle-hide-seek/assets --entry jungle_hide_seek:main -o $@ games/hide_seek/jungle_hide_seek.zi
 
-$(APP)/games/jungle-drums.zx: $(wildcard games/drums/*.zi retro/*.zi) build/stage/jungle-drums.files
+$(APP)/games/jungle-drums.zx: $(wildcard games/drums/*.zi retro/*.zi) $(STAGE)/jungle-drums.files
 	mkdir -p $(APP)/games
 	'$(ZIRANC)' bundle --root games/drums $(MODULES) --define KRYON_HOSTED_UI \
-		--asset-dir assets=build/stage/jungle-drums/assets --entry jungle_drums:main -o $@ games/drums/jungle_drums.zi
+		--asset-dir assets=$(STAGE)/jungle-drums/assets --entry jungle_drums:main -o $@ games/drums/jungle_drums.zi
 
-$(APP)/games/jungle-garden.zx: $(wildcard games/garden/*.zi retro/*.zi) build/stage/jungle-garden.files
+$(APP)/games/jungle-garden.zx: $(wildcard games/garden/*.zi retro/*.zi) $(STAGE)/jungle-garden.files
 	mkdir -p $(APP)/games
 	'$(ZIRANC)' bundle --root games/garden $(MODULES) --define KRYON_HOSTED_UI \
-		--asset-dir assets=build/stage/jungle-garden/assets --entry jungle_garden:main -o $@ games/garden/jungle_garden.zi
+		--asset-dir assets=$(STAGE)/jungle-garden/assets --entry jungle_garden:main -o $@ games/garden/jungle_garden.zi
 
-$(APP)/games/jungle-fishing.zx: $(wildcard games/fishing/*.zi retro/*.zi) build/stage/jungle-fishing.files
+$(APP)/games/jungle-fishing.zx: $(wildcard games/fishing/*.zi retro/*.zi) $(STAGE)/jungle-fishing.files
 	mkdir -p $(APP)/games
 	'$(ZIRANC)' bundle --root games/fishing $(MODULES) --define KRYON_HOSTED_UI \
-		--asset-dir assets=build/stage/jungle-fishing/assets --entry jungle_fishing:main -o $@ games/fishing/jungle_fishing.zi
+		--asset-dir assets=$(STAGE)/jungle-fishing/assets --entry jungle_fishing:main -o $@ games/fishing/jungle_fishing.zi
 
-$(APP)/games/jungle-beach-families.zx: $(wildcard games/beach_families/*.zi retro/*.zi) build/stage/jungle-beach-families.files
+$(APP)/games/jungle-beach-families.zx: $(wildcard games/beach_families/*.zi retro/*.zi) $(STAGE)/jungle-beach-families.files
 	mkdir -p $(APP)/games
 	'$(ZIRANC)' bundle --root games/beach_families $(MODULES) --define KRYON_HOSTED_UI \
-		--asset-dir assets=build/stage/jungle-beach-families/assets --entry jungle_beach_families:main -o $@ games/beach_families/jungle_beach_families.zi
+		--asset-dir assets=$(STAGE)/jungle-beach-families/assets --entry jungle_beach_families:main -o $@ games/beach_families/jungle_beach_families.zi
 
 # Menu pixel art from SVG, Picture Book raster cartoons, then Dino Colors'
 # vector art traced from its generated sheets and compiled into masks.

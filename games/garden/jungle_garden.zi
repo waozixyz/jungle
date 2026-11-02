@@ -7,8 +7,14 @@
 #import "kryon/geometry"
 #import "kryon/image_props"
 #import "kryon/image_widget"
+#import "kryon/svg_icon_props"
+#import "kryon/svg_icon_widget"
+#import "kryon/drawing_props"
+CampusArrow :: #import "mingcute/mingcute_regular_arrow_right_up";
 #import, file "../../host/jungle_text.zi";
 #import, file "garden.zi";
+#import, file "garden_scene.zi";
+#import, file "../../retro/language.zi";
 #import, file "../../retro/retro.zi";
 #import, file "../../retro/game.zi";
 #import, file "../../retro/book_theme.zi";
@@ -31,11 +37,53 @@ seed_plot: s32 = -1;
 seed_at: float64;
 last_tick: s64;
 secret_paper: SecretPaper;
+scene_x: s32; scene_y: s32; scene_w: s32; scene_h: s32;
+portrait: bool;
+sign_at: float64 = -10;
+SceneLayout :: () {
+    portrait = width < height
+    aw: s32 = ifx portrait then 1024 else 1671
+    ah: s32 = ifx portrait then 1536 else 941
+    scene_w = width; scene_h = width * ah / aw
+    if scene_h > height - tray_height { scene_h = height - tray_height; scene_w = scene_h * aw / ah }
+    scene_x = (width - scene_w) / 2; scene_y = tray_height + (height - tray_height - scene_h) / 2
+}
+SceneX :: (native: float64) -> s32 { return scene_x + cast(s32)(native * cast(float64)scene_w / (ifx portrait then 1024.0 else 1671.0)) }
+SceneY :: (native: float64) -> s32 { return scene_y + cast(s32)(native * cast(float64)scene_h / (ifx portrait then 1536.0 else 941.0)) }
+OverSign :: (px: s32, py: s32) -> bool {
+    x := SceneX(ifx portrait then 680.0 else 1400.0)
+    y := SceneY(ifx portrait then 320.0 else 80.0)
+    edge := SceneX(ifx portrait then 860.0 else 1610.0) - x
+    return px >= x && px < x+edge && py >= y && py < y+edge
+}
+CampusSign :: () -> bool {
+    x := SceneX(ifx portrait then 680.0 else 1400.0)
+    y := SceneY(ifx portrait then 320.0 else 80.0)
+    edge := SceneX(ifx portrait then 860.0 else 1610.0) - x
+    // Press exposes a labeled accessible target independently of the painting.
+    press := RetroTap(7801, x, y, edge, edge, "Campus")
+    if press.clicked { sign_at = retro.now }
+    pointer := SamplePointer()
+    px := RetroPointX(pointer.x); py := RetroPointY(pointer.y)
+    hover := px >= x && px < x + edge && py >= y && py < y + edge
+    lift: s32 = ifx press.down then 1 else ifx hover then -2 else 0
+    Picture(ifx hover || press.down || retro.now - sign_at < 0.16 then "campus-sign-glow" else "campus-sign", x, y + lift, edge, edge)
+    font := edge * 14 / 100
+    if font < 9 { font = 9 }
+    BookText(x + edge * 150 / 1254, y + lift + edge * 330 / 1254, edge * 750 / 1254, edge * 260 / 1254, Tr("Campus"), font, TextAlign.TextAlignCenter, false)
+    arrow := edge * 170 / 1254
+    SvgIcon(retro.session, SvgIconProps.{.bounds = RetroRect(x + edge * 910 / 1254, y + lift + edge * 375 / 1254, arrow, arrow),
+        .shape = CampusArrow.Shape, .color = ColorFromPacked(0x49351fff)})
+    return sign_at >= 0 && retro.now - sign_at >= 0.16
+}
 
 Save :: () -> bool { return DocumentWrite("garden.txt", GardenSave(garden)) }
 Picture :: (name: string, x: s32, y: s32, w: s32, h: s32) {
-    Image(retro.session, ImageProps.{.asset_path = Cat("assets/garden/art/", name, ".png"),
-        .preview_path = Cat("assets/garden/previews/", name, ".png"),
+    path := Cat("assets/garden/art/", name, ".png")
+    shown := RetroImageShown(path)
+    if shown == "" { return }
+    Image(retro.session, ImageProps.{.asset_path = shown,
+        .preview_path = RetroImagePreview(path),
         .bounds = RetroRect(x, y, w, h), .fit = ImageFit.ImageFitContain, .smooth = true, .alt_text = name})
 }
 TrayColumns :: () -> s32 { return ifx width < 600 then 4 else 7 }
@@ -50,15 +98,17 @@ ToolAt :: (x: s32, y: s32) -> s32 {
     return ifx index == 6 then 0 else index + 1
 }
 PlotX :: (plot: s32) -> s32 {
-    return width * garden.plots[plot].x / 1000
+    p := GardenScenePoint(garden.plots[plot].x, garden.plots[plot].y, portrait)
+    return SceneX(p.x)
 }
 PlotY :: (plot: s32) -> s32 {
-    return tray_height + (height - tray_height) * garden.plots[plot].y / 1000
+    p := GardenScenePoint(garden.plots[plot].x, garden.plots[plot].y, portrait)
+    return SceneY(p.y)
 }
 PlotEdge :: (plot: s32, now: s64) -> s32 {
     p := garden.plots[plot]
-    edge := width * 24 / 100
-    cap := (height - tray_height) * 34 / 100
+    edge := scene_w * 20 / 100
+    cap := scene_h * 24 / 100
     if edge > cap { edge = cap }
     edge = edge * DepthScale(garden.plots[plot].y) / 100
     if !p.dead && !GardenDry(p, now) {
@@ -69,12 +119,24 @@ PlotEdge :: (plot: s32, now: s64) -> s32 {
     }
     return edge
 }
-MapX :: (x: s32) -> s32 { return x * 1000 / width }
-MapY :: (y: s32) -> s32 { return (y - tray_height) * 1000 / (height - tray_height) }
+MapPoint :: (x: float64, y: float64) -> (sx: s32, sy: s32) {
+    sx, sy := GardenSceneMap((x-cast(float64)scene_x) * (ifx portrait then 1024.0 else 1671.0) / cast(float64)scene_w,
+        (y-cast(float64)scene_y) * (ifx portrait then 1536.0 else 941.0) / cast(float64)scene_h, portrait)
+    return sx, sy
+}
 DepthScale :: (y: s32) -> s32 { return GardenDepthScale(y) }
+SceneOrder :: () -> [GARDEN_PLOTS]s32 {
+    order := GardenDrawOrder(garden)
+    for pass: cast(s32)1..GARDEN_PLOTS - 1 {
+        for j: cast(s32)0..GARDEN_PLOTS - 2 {
+            if PlotY(order[j]) > PlotY(order[j+1]) { swap := order[j]; order[j] = order[j+1]; order[j+1] = swap }
+        }
+    }
+    return order
+}
 PlotAt :: (x: s32, y: s32) -> s32 {
     // Reverse the actual paint order: frontmost visible plant owns overlaps.
-    order := GardenDrawOrder(garden)
+    order := SceneOrder()
     i: s32 = GARDEN_PLOTS - 1
     while i >= 0 {
         plot := order[i]
@@ -142,11 +204,9 @@ Tray :: () {
     }
 }
 Scene :: (now: s64) {
-    Image(retro.session, ImageProps.{.asset_path = "assets/garden/art/bed.png", .preview_path = "assets/garden/previews/bed.png",
-        .bounds = RetroRect(0, tray_height, width, height - tray_height), .fit = ImageFit.ImageFitStretch, .smooth = true,
-        .alt_text = GardenText("Garden bed", "Gartenbeet", "Huerto")})
+    Picture(ifx portrait then "scene-portrait" else "scene-landscape", scene_x, scene_y, scene_w, scene_h)
     // Ground depth determines overlap, independent of storage slot.
-    order := GardenDrawOrder(garden)
+    order := SceneOrder()
     for i: order {
         p := garden.plots[i]
         cx := PlotX(i); base := PlotY(i)
@@ -189,12 +249,14 @@ GameMain :: () -> s32 {
     retro = Retro.{.session = AppSession(), .x = bounds.x, .y = bounds.y, .scale = scale, .now = AppNow(), .key = AppKey()}
     width = cast(s32)(bounds.width / scale); height = cast(s32)(bounds.height / scale)
     tray_height = ifx width < 600 then 180 else 94
+    SceneLayout()
     now := cast(s64)retro.now
     BookPalette(); BookBox(0, 0, width, height, 0xfffcf3ff)
     if !loaded {
         if !DocumentStorageReady() { Scene(now); Tray(); return 0 }
         text := DocumentRead("garden.txt")
         if !GardenRead(text, *garden) && !GardenMigrate(text, *garden, now) { garden = Garden.{.selected = 1} }
+        sign_at = -10
         loaded = true; press_map = false; held_seed = 0; press_tool = -1; water_plot = -1; seed_plot = -1; last_tick = 0
     }
     if now != last_tick {
@@ -227,31 +289,35 @@ GameMain :: () -> s32 {
     // The sunflower's hidden paper sits clear of every plant and tool; a tap on
     // it is the paper's and never plants, waters or picks. A flight begun finishes anywhere.
     paper_show, paper_x, paper_y := GardenPaperSpot(garden, width, height)
+    paper_x = SceneX(ifx portrait then 200.0 else 450.0)
+    paper_y = SceneY(ifx portrait then 1320.0 else 820.0)
     paper_index := CollectibleForGame("jungle-garden.zx")
     paper_size := SecretPaperSize(ifx bounds.width < bounds.height then bounds.width else bounds.height, retro.scale)
     over_paper := paper_show && paper_index >= 0 && SecretPaperShown(secret_paper, paper_index, GameCollected(collectible_ids[paper_index])) &&
         SecretPaperHit(paper_x, paper_y, paper_size, px, py)
-    if active && pointer.pressed && !over_paper {
+    if active && pointer.pressed && !over_paper && !OverSign(px,py) {
         press_tool = ToolAt(px, py)
         press_map = px >= 0 && px < width && py >= tray_height && py < height
         if press_tool >= 0 { ChooseTool(press_tool) }
     }
     if active && pointer.released {
         if px >= 0 && px < width && py >= tray_height && py < height && (press_tool >= 0 || press_map) {
-            if held_seed > 0 { PlaceSeed(MapX(px), MapY(py), now) }
+            if held_seed > 0 { sx, sy := MapPoint(cast(float64)(pointer.x-retro.x)/cast(float64)retro.scale, cast(float64)(pointer.y-retro.y)/cast(float64)retro.scale); PlaceSeed(sx, sy, now) }
             else { UsePlot(PlotAt(px, py), now) }
         }
         press_tool = -1; press_map = false
     }
     Scene(now); Tray()
+    if CampusSign() { unused Save(); GameHome(); return 0 }
     if paper_show || secret_paper.state == SECRET_PAPER_FLYING {
         unused SecretPaperFrame(*secret_paper, paper_index, paper_x, paper_y, retro.now)
     }
-    if active && px >= 0 && px < width && py >= tray_height && py < height {
+    if active && !OverSign(px,py) && px >= 0 && px < width && py >= tray_height && py < height {
         if held_seed > 0 {
-            valid := GardenPlaceSlot(garden, MapX(px), MapY(py)) >= 0
+            sx, sy := MapPoint(cast(float64)(pointer.x-retro.x)/cast(float64)retro.scale, cast(float64)(pointer.y-retro.y)/cast(float64)retro.scale)
+            valid := GardenPlaceSlot(garden, sx, sy) >= 0
             BookBox(px - 12, py - 4, 24, 8, 0, ifx valid then cast(u32)0xdce8a5ff else cast(u32)0xc37c60ff, 4)
-            SeedShape(px, py - 7, MapY(py))
+            SeedShape(px, py - 7, sy)
         } else if garden.selected == 0 {
             Picture("watering-can", px - 34, py - 64, 68, 68)
         }
