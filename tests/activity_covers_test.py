@@ -19,9 +19,11 @@ for name, title in names.items():
     for ref, digest in rec['references'].items(): assert hash_file(root / ref) == digest
     raw = Path(rec['source_png'])
     if raw.exists(): assert hash_file(raw) == rec['source_sha256']
-    for registry in ['games/catalog.txt', 'web/jungle_web.zi']:
-        lines = (root / registry).read_text().splitlines()
-        assert sum(title in line and rec['jpeg'] in line for line in lines) == 1
+    lines = (root / 'games/catalog.txt').read_text().splitlines()
+    assert sum(title in line and rec['jpeg'] in line for line in lines) == 1
+    # The web host's painted navigation registers titles only; covers stay in the catalog.
+    web = (root / 'web/jungle_web.zi').read_text()
+    assert web.count(f'MenuGame.{{.title = "{title}"}}') == 1, title
 assert len({r['jpeg_sha256'] for r in records.values()}) == 4
 for name in ['abc-123', 'abc', 'book', 'counting', 'jigsaw', 'numbers', 'paint', 'piano']:
     path = f'assets/jungle/covers/{name}.jpg'

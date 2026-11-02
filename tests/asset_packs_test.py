@@ -178,7 +178,9 @@ with tempfile.TemporaryDirectory(prefix='asset-pack-test-',dir=ROOT/'build') as 
     catalog=preview_groups()
     pages=[name for name in catalog if name.startswith('assets/jungle-book/pages/')]
     assert all((ROOT/name).is_file() for name in catalog),'Catalog names a missing picture'
-    assert len(pages)==len({path.stem for path in (ROOT/'assets/jungle-book/pages').glob('*.jpg')})
+    # The separately validated story keeps its own exact pages beside the books.
+    story={row['asset'] for row in json.loads((ROOT/'tools/sweet_porridge.json').read_text())['pages']}
+    assert len(pages)==len({path.stem for path in (ROOT/'assets/jungle-book/pages').glob('*.jpg')}-story)
     assert {catalog[name] for name in catalog if '/previews/' in name}=={'covers'}
 
 print('local asset pack test: lossless ZIP/seek round trips, aliases, Unicode, empty files, stable output, upload gates and reproducible content-addressed book previews passed')
