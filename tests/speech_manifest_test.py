@@ -180,27 +180,31 @@ def staging_test():
     with tempfile.TemporaryDirectory(prefix='speech-stage-', dir=ROOT / 'build') as directory:
         root = Path(directory)
         source, app, stage = root / 'source', root / 'app', root / 'stage'
-        for name in shared_assets.COUNTING:
+        for index, name in enumerate(shared_assets.COUNTING):
             path = source / f'assets/jungle-book/counting/{name}.png'
             path.parent.mkdir(parents=True, exist_ok=True)
-            path.write_bytes(name.encode())
+            path.write_bytes(picture('PNG', (index, 120, 40)))
         for name, data in (('assets/jungle-book/items/tiger.png', picture('PNG', (200, 120, 40))),
                            ('assets/jungle-book/previews/jungle.jpg', picture('JPEG', (40, 90, 160)))):
             path = source / name
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_bytes(data)
         files = {
-            'assets/jungle/font.png': b'font',
-            'assets/jungle-book/font.png': b'font',
+            'assets/jungle/font.png': picture('PNG', (10, 20, 30)),
+            'assets/jungle-book/font.png': picture('PNG', (10, 20, 30)),
+            'assets/jungle-book/collect.wav': b'collection chime',
+            'assets/collectibles/magic-pot.png': picture('PNG', (80, 90, 100)),
+            'assets/collectibles/drum.png': picture('PNG', (81, 90, 100)),
+            'assets/collectibles/sunflower.png': picture('PNG', (82, 90, 100)),
             'assets/jungle-book/pages/tiger.jpg': picture('JPEG', (180, 160, 60)),
             'assets/jungle-book/sounds/tiger.wav': b'assembled',
             'assets/jungle-book/sounds/en/letters/0061.wav': b'canonical letter',
             'assets/abc/sounds/en/letters/0061.wav': b'duplicate letter',
             'assets/numbers/sounds/one.wav': b'number',
-            'assets/animal-count/font.png': b'counting font',
+            'assets/animal-count/font.png': picture('PNG', (30, 20, 10)),
             'assets/hide_seek/scenes/cottage-yard.png': picture('PNG', (90, 150, 70)),
             'assets/hide_seek/props/basket.png': picture('PNG', (150, 100, 50)),
-            'assets/dino-paint/art/scene1-thumb.jpg': b'shared coloring preview',
+            'assets/dino-paint/art/scene1-thumb.jpg': picture('JPEG', (40, 80, 120)),
         }
         for name, data in files.items():
             path = source / name
@@ -241,9 +245,14 @@ def staging_test():
             shared_assets.ROOT = original_root
         # Each clip ships once, encoded; no speech WAV ships beside it.
         assert set(encoded_files) <= set(installed)
-        assert not {path for path in installed if path.endswith('.wav')}
+        chime = 'assets/jungle-book/collect.wav'
+        assert {path for path in installed if path.endswith('.wav')} == {chime}
         shipped_files = {path.relative_to(app).as_posix() for path in app.rglob('*') if path.is_file()}
-        assert not {path for path in shipped_files if path.endswith('.wav')}, shipped_files
+        assert {path for path in shipped_files if path.endswith('.wav')} == {chime}, shipped_files
+        assert (app / chime).read_bytes() == b'collection chime'
+        for game in ('jungle-hide-seek', 'jungle-matching', 'jungle-drums', 'jungle-garden'):
+            assert chime in bundles[game]
+            assert (stage / game / chime).read_bytes() == b'collection chime'
         assert 'assets/speech/en/old.ogg' not in shipped_files
         assert (app / next(iter(encoded_files))).read_bytes().startswith(b'encoded ')
         assert all('assets/abc/sounds/en/letters/0061.wav' not in files for files in bundles.values())
