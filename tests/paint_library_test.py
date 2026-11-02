@@ -736,8 +736,8 @@ def catalog_ui(data):
     (folder / 'choices.txt').write_bytes(b'JUNGLE PAINT CHOICES 1\n00040000')
     with Desktop(ROOT / 'build/app/jungle', data) as desktop:
         open_paint(desktop, 'library-new-catalog')
-        # The sixteen added in every category, then the six newest Objects.
-        for index in range(30, 52):
+        # Every stencil added after the original thirty.
+        for index in range(30, len(stencil_order()[0])):
             category, position = stencil_position(index)
             tool(desktop, 0)
             desktop.capture('library-catalog-stencils', header=56)
@@ -775,7 +775,7 @@ def catalog_ui(data):
             assert saved.splitlines()[1][0] == ord(DIGITS[index]), f'new scene {index} opened another asset'
             pixels = picture_pixels(saved)
             assert np.count_nonzero(pixels == 0) > 100 and np.count_nonzero(pixels != 0) > 10000, f'new scene {index} has no usable line art'
-    print('local native catalog: all22 new stencils (incl. Objects 46-51) placed/compared/undone; all12 new scenes opened with line art', flush=True)
+    print('local native catalog: all25 new stencils (incl. IDs 53-55) placed/compared/undone; all12 new scenes opened with line art', flush=True)
 
 
 def run_paint_library_test():
