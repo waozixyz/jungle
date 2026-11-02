@@ -149,7 +149,11 @@ TitleInside :: (hotspot: s32, x: float32, y: float32) -> bool {
     chunk := TITLE_POLYGON_CHUNK[hotspot]
     first := TITLE_POLYGON_FIRST[hotspot]
     end := first + TITLE_POLYGON_COUNT[hotspot]
-    return PointInPolygon(TitlePointsX(chunk)[first:end], TitlePointsY(chunk)[first:end], x, y)
+    if !PointInPolygon(TitlePointsX(chunk)[first:end], TitlePointsY(chunk)[first:end], x, y) { return false }
+    chunk = TITLE_OCCLUSION_CHUNK[hotspot]
+    first = TITLE_OCCLUSION_FIRST[hotspot]
+    end = first + TITLE_OCCLUSION_COUNT[hotspot]
+    return !PointInPolygon(TitlePointsX(chunk)[first:end], TitlePointsY(chunk)[first:end], x, y)
 }
 
 // The hotspot of SCENE under source pixel (x, y), or -1. Where items

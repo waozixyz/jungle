@@ -6,6 +6,7 @@ are source pixels, including for cropped glows. Pillow + numpy; no generators.
 Run from any directory: python3 tools/title_glow.py
 """
 from pathlib import Path
+import argparse
 import json
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter
@@ -14,7 +15,8 @@ ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / 'art/generated/title-world-proposal'
 DEBUG = SOURCE / 'hotspot-debug'
 ORIGINALS = {'treehouse': 'treehouse-room', 'bookshelf': 'bookshelf-closeup',
-             'campus': 'jungle-campus', 'music': 'music-room'}
+             'campus': 'jungle-campus', 'music': 'music-room',
+             'beach': '../title-waterfront/beach', 'aquarium': '../title-waterfront/aquarium'}
 
 
 def validate(data):
@@ -39,7 +41,8 @@ def validate(data):
 def validate_variant(scene, names, games):
     ids = set()
     for h in scene['hotspots']:
-        assert set(h) == {'id', 'target', 'polygon', 'glow', 'glow_rect'}
+        assert {'id', 'target', 'polygon', 'glow', 'glow_rect'} <= set(h)
+        assert set(h) <= {'id', 'target', 'polygon', 'glow', 'glow_rect', 'rest', 'occlusion'}
         assert h['id'] not in ids
         ids.add(h['id'])
         kind, dest = h['target'].split(':', 1)
@@ -53,6 +56,21 @@ def validate_variant(scene, names, games):
         assert 0 <= x < x+w <= scene['width'] and 0 <= y < y+height <= scene['height']
         assert all(x <= px < x+w and y <= py < y+height for px, py in h['polygon'])
         assert h['glow'] == f"assets/jungle/title/glow/{scene['name']}-{h['id']}.png"
+
+
+def occlude(image, h):
+    """Keep the original foreground above every part of navigation feedback."""
+    if not h.get('occlusion'):
+        return image
+    x, y, w, height = h['glow_rect']
+    mask = Image.new('L', (w*3, height*3))
+    ImageDraw.Draw(mask).polygon([((px-x)*3, (py-y)*3) for px, py in h['occlusion']], fill=255)
+    # Expand one source pixel so antialiasing never spills onto the tiger.
+    mask = mask.filter(ImageFilter.MaxFilter(7)).resize((w, height), Image.Resampling.LANCZOS)
+    rgba = np.array(image)
+    rgba[:, :, 3] = np.rint(rgba[:, :, 3].astype(float)*(1-np.asarray(mask)/255)).astype('uint8')
+    rgba[rgba[:, :, 3] == 0, :3] = 0
+    return Image.fromarray(rgba)
 
 def glow(h):
     x, y, w, height = h['glow_rect']
@@ -79,20 +97,29 @@ def glow(h):
         rgba[:, :, channel] = np.rint(outside*(1-interior)+inside*interior).astype(np.uint8)
     rgba[:, :, 3] = np.rint(alpha).clip(0, 255).astype(np.uint8)
     rgba[rgba[:, :, 3] == 0, :3] = 0
-    return Image.fromarray(rgba)
+    return occlude(Image.fromarray(rgba), h)
 
 
 def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--scenes', nargs='+', help='Only reproduce these base scenes')
+    args = parser.parse_args()
     data = json.loads((ROOT / 'tools/title_hotspots.json').read_text())
     validate(data)
-    DEBUG.mkdir(parents=True, exist_ok=True)
+    debug = DEBUG / '-'.join(args.scenes) if args.scenes else DEBUG
+    debug.mkdir(parents=True, exist_ok=True)
     panels = []
     count = 0
     variants = []
     for scene in data['scenes']:
+        if args.scenes and scene['name'] not in args.scenes:
+            continue
         variants.append(dict(scene, width=data['width'], height=data['height'], source=SOURCE / (ORIGINALS[scene['name']]+'.png')))
         if 'portrait' in scene:
-            variants.append(dict(scene['portrait'], name=scene['name'] + '-portrait', source=ROOT / 'art/generated/title-portrait-candidates' / (scene['name'] + '.png')))
+            portrait_source = (ROOT / 'art/generated/title-waterfront' / (scene['name'] + '-portrait.png')
+                               if scene['name'] in ('beach', 'aquarium') else
+                               ROOT / 'art/generated/title-portrait-candidates' / (scene['name'] + '.png'))
+            variants.append(dict(scene['portrait'], name=scene['name'] + '-portrait', source=portrait_source))
     for scene in variants:
         source = Image.open(scene['source']).convert('RGB')
         assert source.size == (scene['width'], scene['height'])
@@ -119,11 +146,11 @@ def main():
             # Full-size individual overlay: inspect silhouettes without other glows.
             single = source.convert('RGBA')
             single.alpha_composite(overlay, tuple(h['glow_rect'][:2]))
-            single.convert('RGB').save(DEBUG / f"{scene['name']}-{h['id']}.jpg", quality=90)
-            single.save(DEBUG / f"{scene['name']}-{h['id']}.png")
+            single.convert('RGB').save(debug / f"{scene['name']}-{h['id']}.jpg", quality=90)
+            single.save(debug / f"{scene['name']}-{h['id']}.png")
             count += 1
-        composite.save(DEBUG / f"{scene['name']}-all-glows.png")
-        outlines.save(DEBUG / f"{scene['name']}-polygons.png")
+        composite.save(debug / f"{scene['name']}-all-glows.png")
+        outlines.save(debug / f"{scene['name']}-polygons.png")
         panel = Image.new('RGB', (836, 498), '#fff7e5')
         ImageDraw.Draw(panel).text((12, 8), scene['name'], fill='#3c382d')
         panel.paste(composite.resize((836, 470), Image.Resampling.LANCZOS).convert('RGB'), (0, 28))
@@ -131,9 +158,9 @@ def main():
     sheet = Image.new('RGB', (1672, 498 * ((len(panels) + 1) // 2)), '#fff7e5')
     for i, panel in enumerate(panels):
         sheet.paste(panel, ((i % 2)*836, (i // 2)*498))
-    sheet.save(DEBUG / 'all-glows.png')
+    sheet.save(debug / 'all-glows.png')
     print(f'Generated {len(variants)} JPEG/placeholder pairs and {count} RGBA glows; geometry and catalog targets valid.')
-    print('Contact sheet: art/generated/title-world-proposal/hotspot-debug/all-glows.png')
+    print('Contact sheet:', (debug/'all-glows.png').relative_to(ROOT))
 
 
 if __name__ == '__main__':

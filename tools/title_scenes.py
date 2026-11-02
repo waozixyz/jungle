@@ -72,11 +72,17 @@ def Load(source=SOURCE, catalog=CATALOG):
                 raise SystemExit('title scenes: polygon outside scene')
             if len(polygon) < 3:
                 raise SystemExit(f'title scenes: {hotspot["id"]} needs at least three points')
+            occlusion = [(round(x), round(y)) for x, y in hotspot.get('occlusion', [])]
+            if occlusion and (len(occlusion) < 3 or any(
+                    x < 0 or y < 0 or x >= scene['width'] or y >= scene['height']
+                    for x, y in occlusion)):
+                raise SystemExit('title scenes: invalid foreground occlusion')
             rect = [round(value) for value in hotspot['glow_rect']]
             if len(rect) != 4 or rect[2] <= 0 or rect[3] <= 0:
                 raise SystemExit(f'title scenes: {hotspot["id"]} has an empty glow_rect')
             hotspots.append({'scene': index, 'id': hotspot['id'], 'scene_target': scene_target,
-                             'game': game, 'glow': hotspot['glow'], 'rect': rect, 'polygon': polygon})
+                             'game': game, 'glow': hotspot['glow'], 'rect': rect, 'polygon': polygon,
+                             'rest': hotspot.get('rest', ''), 'occlusion': occlusion})
     # Parents: breadth first from the first scene, so Escape always climbs
     # back towards the treehouse.
     parents = [-1] * len(scenes)
@@ -106,6 +112,8 @@ def Load(source=SOURCE, catalog=CATALOG):
     for hotspot in hotspots:
         if not (ROOT / hotspot['glow']).is_file():
             raise SystemExit(f'title scenes: missing {hotspot["glow"]}')
+        if hotspot['rest'] and not (ROOT / hotspot['rest']).is_file():
+            raise SystemExit(f'title scenes: missing {hotspot["rest"]}')
     return data, scenes, parents, hotspots
 
 
@@ -134,13 +142,16 @@ def Render(data, scenes, parents, hotspots):
     # Ziran limits a file-scope initializer to 4095 characters, so the points
     # are split into chunks, each holding whole polygons.
     chunks, polygon_chunk, polygon_first, polygon_count = [], [], [], []
-    for hotspot in hotspots:
-        xs = [x for x, _ in hotspot['polygon']]
-        ys = [y for _, y in hotspot['polygon']]
+    # Hit shapes and optional foreground exclusions use the same bounded
+    # storage. The visible arrow and its interaction stop at the tiger.
+    polygons = [h['polygon'] for h in hotspots] + [h['occlusion'] for h in hotspots]
+    for polygon in polygons:
+        xs = [x for x, _ in polygon]
+        ys = [y for _, y in polygon]
         if not chunks or max(len(Numbers(chunks[-1][0] + xs)), len(Numbers(chunks[-1][1] + ys))) > INITIALIZER_LIMIT:
             chunks.append(([], []))
         if max(len(Numbers(xs)), len(Numbers(ys))) > INITIALIZER_LIMIT:
-            raise SystemExit(f'title scenes: {hotspot["id"]} has too many points for one Ziran array')
+            raise SystemExit('title scenes: too many points for one Ziran array')
         polygon_chunk.append(len(chunks) - 1)
         polygon_first.append(len(chunks[-1][0]))
         polygon_count.append(len(xs))
@@ -176,13 +187,18 @@ def Render(data, scenes, parents, hotspots):
         f'TITLE_HOTSPOT_TARGET: [{hotspot_count}]s32 = .[{Numbers(hotspot["scene_target"] for hotspot in hotspots)}];',
         f'TITLE_HOTSPOT_GAME: [{hotspot_count}]string = .[{Quoted(hotspot["game"] for hotspot in hotspots)}];',
         f'TITLE_HOTSPOT_GLOW: [{hotspot_count}]string = .[{Quoted(hotspot["glow"] for hotspot in hotspots)}];',
+        '// Optional always-visible navigation art; shares the glow rectangle.',
+        f'TITLE_HOTSPOT_REST: [{hotspot_count}]string = .[{Quoted(hotspot["rest"] for hotspot in hotspots)}];',
         '// x, y, width, height of each glow picture.',
         f'TITLE_GLOW_RECT: [{hotspot_count * 4}]s32 = .[{Numbers(rects)}];',
         '// Each polygon is TITLE_POLYGON_COUNT points from TITLE_POLYGON_FIRST in',
         '// its chunk of TitlePointsX and TitlePointsY.',
-        f'TITLE_POLYGON_CHUNK: [{hotspot_count}]s32 = .[{Numbers(polygon_chunk)}];',
-        f'TITLE_POLYGON_FIRST: [{hotspot_count}]s32 = .[{Numbers(polygon_first)}];',
-        f'TITLE_POLYGON_COUNT: [{hotspot_count}]s32 = .[{Numbers(polygon_count)}];',
+        f'TITLE_POLYGON_CHUNK: [{hotspot_count}]s32 = .[{Numbers(polygon_chunk[:hotspot_count])}];',
+        f'TITLE_POLYGON_FIRST: [{hotspot_count}]s32 = .[{Numbers(polygon_first[:hotspot_count])}];',
+        f'TITLE_POLYGON_COUNT: [{hotspot_count}]s32 = .[{Numbers(polygon_count[:hotspot_count])}];',
+        f'TITLE_OCCLUSION_CHUNK: [{hotspot_count}]s32 = .[{Numbers(polygon_chunk[hotspot_count:])}];',
+        f'TITLE_OCCLUSION_FIRST: [{hotspot_count}]s32 = .[{Numbers(polygon_first[hotspot_count:])}];',
+        f'TITLE_OCCLUSION_COUNT: [{hotspot_count}]s32 = .[{Numbers(polygon_count[hotspot_count:])}];',
     ]
     for index, (xs, ys) in enumerate(chunks):
         lines += ['', f'TITLE_POINT_X_{index}: [{len(xs)}]s32 = .[{Numbers(xs)}];',

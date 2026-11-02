@@ -240,6 +240,16 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
     TitlePicture(session, TITLE_SCENE_IMAGE[scene], picture)
     first := TITLE_SCENE_FIRST[scene]
     for hotspot: first..first + TITLE_SCENE_HOTSPOTS[scene] - 1 {
+        // Navigation arrows remain visible on touch screens. Their alpha
+        // masks leave the painted foreground (the tiger) in front.
+        if TITLE_HOTSPOT_REST[hotspot] != "" {
+            rect := hotspot * 4
+            TitlePicture(session, TITLE_HOTSPOT_REST[hotspot], Rectangle.{
+                picture.x + cast(float32)TITLE_GLOW_RECT[rect] * view.scale,
+                picture.y + cast(float32)TITLE_GLOW_RECT[rect + 1] * view.scale,
+                cast(float32)TITLE_GLOW_RECT[rect + 2] * view.scale,
+                cast(float32)TITLE_GLOW_RECT[rect + 3] * view.scale})
+        }
         // Each glow and every scene one step away loads ahead of use.
         unused TitleReady(TITLE_HOTSPOT_GLOW[hotspot])
         target := TITLE_HOTSPOT_TARGET[hotspot]
