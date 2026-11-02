@@ -41,12 +41,16 @@ CollectionBookBack :: () {
     else { collection_book_open = false }
 }
 
-CollectionBookButton :: (x: s32, y: s32) -> bool {
-    button := RetroTap(9010, x, y, 44, 44, Tr("Collection Book"))
-    BookBox(x, y, 44, 44, ifx button.down then cast(u32)0xdcebdcff else cast(u32)0xf3ecdcff, 0xdacdb5ff, 4.0)
-    SvgIcon(retro.session, SvgIconProps.{.bounds = RetroRect(x + 7, y + 7, 30, 30),
+CollectionBookButton :: (x: s32, y: s32, compact: bool = false) -> bool {
+    width := cast(s32)(ifx compact then 26 else 44)
+    height := cast(s32)(ifx compact then 22 else 44)
+    icon_size := cast(s32)(ifx compact then 16 else 30)
+    icon_offset := cast(s32)(ifx compact then 5 else 7)
+    button := RetroTap(9010, x, y, width, height, Tr("Collection Book"))
+    BookBox(x, y, width, height, ifx button.down then cast(u32)0xdcebdcff else cast(u32)0xf3ecdcff, 0xdacdb5ff, 4.0)
+    SvgIcon(retro.session, SvgIconProps.{.bounds = RetroRect(x + icon_offset, y + icon_offset, icon_size, icon_size),
         .shape = AlbumIcon.Shape, .color = ColorFromPacked(0x2e6956ff)})
-    if TreeHoveredAt(retro.session, button.node) {
+    if !compact && TreeHoveredAt(retro.session, button.node) {
         BookBox(x - 70, y + 48, 140, 28, 0xf3ecdcff, 0x2e6956ff, 4.0)
         BookText(x - 68, y + 50, 136, 24, "Collection Book", 14)
     }

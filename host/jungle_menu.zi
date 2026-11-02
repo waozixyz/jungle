@@ -363,8 +363,8 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
         BookBox(width / 2 - 90, height - 30, 180, 22, 0xf7f1e3e8, 0xdacdb5ff, 6.0)
         BookText(width / 2 - 86, height - 30, 172, 22, message, 10)
     }
+    action.collection_open = CollectionBookButton(width - 64, 6, true)
     retro.scale = 1.0
-    action.collection_open = CollectionBookButton(cast(s32)bounds.width - 106, 6)
     TitlePaperFlights(cast(s32)bounds.width - 106, 6, now)
     return action
 }

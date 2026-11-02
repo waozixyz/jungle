@@ -35,6 +35,118 @@ def same(a, b, area, message):
 work = ROOT / 'work/collection-book-tests'
 work.mkdir(parents=True, exist_ok=True)
 runtime_test.OUTPUT = work / 'captures'
+
+
+def web_layout():
+    import base64
+    import io
+    import sys
+    import time
+
+    sys.path.insert(0, str(ROOT / 'tests'))
+    from PIL import Image
+    from book_media_start_web_test import browser, serve
+    captures = work / 'web-captures'
+    captures.mkdir(parents=True, exist_ok=True)
+    languages = (
+        ('English', 'Collection Book', 'Back'),
+        ('Deutsch', 'Sammelbuch', '< Zurück'),
+        ('Español', 'Libro de colección', '< Atrás'),
+    )
+    sizes = ((320, 568), (960, 600), (1280, 300), (320, 240))
+
+    def near(actual, expected, tolerance=.2):
+        return abs(actual - expected) <= tolerance
+
+    def controls(client, collection_label):
+        rows = client.evaluate(
+            "[...document.querySelectorAll('#kryon-dom-root button')].map(button=>({"
+            "label:button.getAttribute('aria-label'),"
+            "rect:button.getBoundingClientRect().toJSON()}))")
+        collection = next((row for row in rows if row['label'] == collection_label), None)
+        volume = max((row for row in rows if row['label'].startswith(
+            ('Sound ', 'Ton ', 'Sonido '))), key=lambda row: row['rect']['left'])
+        assert collection and volume['label'] != collection_label, (collection_label, rows)
+        return collection, volume
+
+    def button(client, label):
+        rows = client.evaluate(
+            "[...document.querySelectorAll('#kryon-dom-root button')].map(button=>({"
+            "label:button.getAttribute('aria-label'),"
+            "rect:button.getBoundingClientRect().toJSON()}))")
+        result = next((row for row in rows if row['label'] == label), None)
+        assert result, (label, rows)
+        return result
+
+    with serve(ROOT / 'build/web') as base_url, browser() as client:
+        client.call('Page.navigate', url=base_url + '/dom.html')
+        client.until("document.readyState === 'complete'", 'private Chromium page load')
+        client.until("document.getElementById('loading').style.display === 'none'", 'title frame startup')
+        client.until("[...document.querySelectorAll('#kryon-dom-root button')]"
+                     ".some(button=>button.getAttribute('aria-label')==='Skip guide')",
+                     'title guide controls')
+        skip_guide = button(client, 'Skip guide')
+        client.click(skip_guide['rect']['x'] + skip_guide['rect']['width'] / 2,
+                     skip_guide['rect']['y'] + skip_guide['rect']['height'] / 2)
+        for language, collection_label, back_label in languages:
+            client.until(f"[...document.querySelectorAll('#kryon-dom-root button')]"
+                         f".some(button=>button.getAttribute('aria-label')==={language!r})",
+                         language + ' controls')
+            language_button = button(client, language)
+            client.click(language_button['rect']['x'] + language_button['rect']['width'] / 2,
+                         language_button['rect']['y'] + language_button['rect']['height'] / 2)
+            client.until(f"[...document.querySelectorAll('#kryon-dom-root button')]"
+                         f".some(button=>button.getAttribute('aria-label')==={collection_label!r})",
+                         collection_label + ' accessible label')
+            for width, height in sizes:
+                client.call('Emulation.setDeviceMetricsOverride', width=width, height=height,
+                            deviceScaleFactor=1, mobile=False)
+                time.sleep(.3)
+                collection, volume = controls(client, collection_label)
+                collection_rect = collection['rect']
+                volume_rect = volume['rect']
+                assert near(collection_rect['width'], volume_rect['width'], 1.1), (
+                    width, height, collection_rect, volume_rect)
+                assert near(collection_rect['height'], volume_rect['height'], 1.1), (
+                    width, height, collection_rect, volume_rect)
+                scale = volume_rect['width'] / 26
+                assert near(collection_rect['height'], 22 * scale, .4)
+                assert near(collection_rect['y'], volume_rect['y'], .4)
+                assert near(volume_rect['x'] - collection_rect['right'], 6 * scale, .6)
+                frame = client.call('Page.captureScreenshot', format='png')
+                with Image.open(io.BytesIO(base64.b64decode(frame['data']))) as image:
+                    assert image.size == (width, height)
+                    image.save(captures / f'{language}-{width}x{height}.png')
+                if language == 'English' and width == 320:
+                    client.click(collection_rect['x'] + collection_rect['width'] / 2,
+                                 collection_rect['y'] + collection_rect['height'] / 2)
+                    client.until(f"[...document.querySelectorAll('#kryon-dom-root button')]"
+                                 f".some(button=>button.getAttribute('aria-label')==={back_label!r})",
+                                 'Collection Book opened')
+                    client.key('Escape')
+                    client.until(f"[...document.querySelectorAll('#kryon-dom-root button')]"
+                                 f".some(button=>button.getAttribute('aria-label')==={collection_label!r})",
+                                 'Collection Book closed')
+        client.call('Emulation.setDeviceMetricsOverride', width=1280, height=675,
+                    deviceScaleFactor=1, mobile=False)
+        client.key('1')
+        client.until("[...document.querySelectorAll('#kryon-dom-root button')]"
+                     ".some(button=>button.getAttribute('aria-label')==='Sammelbuch'||"
+                     "button.getAttribute('aria-label')==='Libro de colección'||"
+                     "button.getAttribute('aria-label')==='Collection Book')",
+                     'activity title bar')
+        collection, volume = controls(client, 'Libro de colección')
+        assert collection['rect']['width'] == volume['rect']['width'] == 44
+        assert collection['rect']['height'] == volume['rect']['height'] == 44
+        assert collection['rect']['y'] == volume['rect']['y'] == 6
+
+
+if '--web-layout' in __import__('sys').argv:
+    web_layout()
+    print('local collection-book web layout test passed: compact button matches volume at portrait, landscape, short and wide sizes; EN/DE/ES labels and portrait tap')
+    raise SystemExit(0)
+
+
 for locale in ('en', 'de', 'es'):
     with tempfile.TemporaryDirectory(dir=work) as directory:
         data = Path(directory)
