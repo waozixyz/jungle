@@ -363,17 +363,19 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
         BookBox(width / 2 - 90, height - 30, 180, 22, 0xf7f1e3e8, 0xdacdb5ff, 6.0)
         BookText(width / 2 - 86, height - 30, 172, 22, message, 10)
     }
+    collection_target := RetroRect(width - 64, 6, 26, 22)
     action.collection_open = CollectionBookButton(width - 64, 6, true)
     retro.scale = 1.0
-    TitlePaperFlights(cast(s32)bounds.width - 106, 6, now)
+    TitlePaperFlights(cast(s32)collection_target.x, cast(s32)collection_target.y,
+        cast(s32)collection_target.width, cast(s32)collection_target.height, now)
     return action
 }
 
 // Each collected paper's empty scene line art flies from where the paper lay
 // into the Collection Book button at X, Y, among fading sparkles. Window
 // pixels, drawn with retro.scale 1.
-TitlePaperFlights :: (x: s32, y: s32, now: float64) {
-    target := CollectRect.{x, y, 44, 44}
+TitlePaperFlights :: (x: s32, y: s32, width: s32, height: s32, now: float64) {
+    target := CollectRect.{x, y, width, height}
     for index: cast(s32)0..COLLECTIBLE_COUNT - 1 {
         paper := *title_papers.papers[index]
         SecretPaperStep(paper, now)
