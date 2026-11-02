@@ -1,6 +1,7 @@
 """Shared collection titlebar, earned album, and unchanged activity return on private Xvfb."""
 import tempfile
 import time
+import os
 from pathlib import Path
 from PIL import ImageChops
 from runtime_test import ROOT, run
@@ -20,8 +21,12 @@ def shot(d, name):
     return d.capture_actual(name)
 
 
-def album(d, width, abc=False):
-    d.click_actual(width - (178 if abc else 84), 28)
+def album(d, width, abc=False, title=False):
+    if title:
+        unit = runtime_test.title_unit(*d.actual_size)
+        d.click_actual(round(width - 51 * unit), round(17 * unit))
+    else:
+        d.click_actual(width - (178 if abc else 84), 28)
     image = shot(d, 'album')
     assert image.getpixel((3, 100)) == (255, 252, 243), 'Album did not open'
     return image
@@ -34,7 +39,8 @@ def same(a, b, area, message):
 
 work = ROOT / 'work/collection-book-tests'
 work.mkdir(parents=True, exist_ok=True)
-runtime_test.OUTPUT = work / 'captures'
+runtime_test.OUTPUT = Path(os.environ.get('JUNGLE_TEST_OUTPUT', work / 'captures'))
+BINARY = Path(os.environ.get('JUNGLE_TEST_BINARY', ROOT / 'build/app/jungle'))
 
 
 def web_layout():
@@ -156,12 +162,12 @@ for locale in ('en', 'de', 'es'):
         # the exact title comparison below.
         (data / 'collection.txt').write_text(
             'JUNGLE COLLECTION 1\nmonkey\ntreehouse-scene\nbookshelf-scene\ncampus-scene\n')
-        with Desktop(ROOT / 'build/app/jungle', data) as d:
+        with Desktop(BINARY, data) as d:
             for width, height in ((960, 600), (320, 568)):
                 d.resize(width, height)
                 time.sleep(2)
                 before = shot(d, 'title-before')
-                collected = album(d, width)
+                collected = album(d, width, title=True)
                 # First earned card contains colored artwork; next unearned card stays quiet.
                 cell = (width - 24) // min(5, max(2, width // 150))
                 earned = collected.crop((20, 138, cell - 4, 230))
@@ -226,9 +232,9 @@ for locale in ('en', 'de', 'es'):
 with tempfile.TemporaryDirectory(dir=work) as directory:
     data = Path(directory)
     (data / 'guide-seen.txt').write_text('yes')
-    with Desktop(ROOT / 'build/app/jungle', data) as d:
+    with Desktop(BINARY, data) as d:
         d.resize(320, 568)
-        album(d, 320)
+        album(d, 320, title=True)
         d.key('Escape')
         assert not (data / 'collection.txt').exists(), 'Viewing an empty album collected something'
 print('local collection-book UI tests passed: title, earned enlargement/back, unsaved Coloring Book, paused 123 Book, empty album; EN/DE/ES at desktop + narrow phone sizes')

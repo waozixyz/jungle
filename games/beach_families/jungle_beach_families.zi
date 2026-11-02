@@ -85,7 +85,9 @@ Activate :: (target: s32) {
 
 Picture :: (path: string, x: s32, y: s32, w: s32, h: s32, label: string, fit: ImageFit = ImageFit.ImageFitContain) {
     // Shared asset staging maps the artist's previews to the runtime prefix.
-    Image(retro.session, ImageProps.{.asset_path = path, .preview_path = RetroImagePreview(path),
+    shown := RetroImageShown(path)
+    if shown == "" { return }
+    Image(retro.session, ImageProps.{.asset_path = shown, .preview_path = RetroImagePreview(path),
         .bounds = RetroRect(x, y, w, h), .fit = fit, .smooth = true, .alt_text = label})
 }
 

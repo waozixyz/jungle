@@ -45,7 +45,7 @@ OLD_BROWSER_GATES = [
     "python3 tools/measure_web.py",
 ]
 MEDIA_BROWSER_GATES = ["python3 tests/web_image_queue_test.py", "python3 tests/web_previews_test.py",
-                       "python3 tests/runtime_images_web_test.py"]
+                       "python3 tests/runtime_images_web_test.py", "python3 tests/port_games_web_test.py"]
 
 
 def groups_of(*specs):

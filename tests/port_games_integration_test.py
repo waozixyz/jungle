@@ -115,8 +115,9 @@ class Registration(unittest.TestCase):
         for bundle, folder, module, *_ in GAMES:
             self.assertRegex(sources, rf'\b{folder}\b')
             self.assertIn(f'$(APP)/games/{bundle}.zx', games.split())
-            self.assertIn(f'build/stage/{bundle}.files', make)
-            self.assertIn(f'--asset-dir assets=build/stage/{bundle}/assets --entry {module}:main', make)
+            self.assertIn(f'$(STAGE)/{bundle}.files', make, 'port bundle must use the selected app staging')
+            self.assertIn(f'--asset-dir assets=$(STAGE)/{bundle}/assets --entry {module}:main', make,
+                          'port bundle must embed its selected app staging')
             self.assertIn(f'build/tests/{folder}', prerequisites.split())
             self.assertIn(f'\tbuild/tests/{folder}\n', make)
         self.assertIn('\tpython3 tests/port_games_integration_test.py\n', make)

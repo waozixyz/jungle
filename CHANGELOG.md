@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.37
+
+Released 2026-11-02.
+
+- Grow a Garden in the approved painted landscape and portrait scenes, with a separate Campus return sign.
+- Show a localized notice for unfinished campus destinations in released builds, while keeping the rooms available in explicit testing builds.
+- Restore the lagoon, boat, sandy beach and crab paintings in the browser activities.
+
 ## 0.1.36
 
 Released 2026-11-02.

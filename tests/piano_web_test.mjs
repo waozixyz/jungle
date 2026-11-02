@@ -68,7 +68,8 @@ try{
  async function waitFor(expression,description,timeout=30000){
   const end=Date.now()+timeout;
   while(Date.now()<end){if(errors.length)throw Error(JSON.stringify(errors));if(await evaluate(expression))return;await delay(100)}
-  throw Error(description);
+  const pending=await evaluate('(window.pianoRequests||[]).map(({path,audio})=>({path,loading:audio.jungleLoading,paused:audio.paused,readyState:audio.readyState,time:audio.currentTime,error:audio.error?.code}))');
+  throw Error(description+'; piano requests: '+JSON.stringify(pending));
  }
  await command('Runtime.enable');await command('Page.enable');
  await command('Page.addScriptToEvaluateOnNewDocument',{source:`
@@ -84,6 +85,10 @@ try{
  await command('Emulation.setDeviceMetricsOverride',{width:960,height:600,deviceScaleFactor:1,mobile:false});
  await command('Page.navigate',{url:'http://127.0.0.1:'+server.address().port+'/'+page});
  await waitFor('typeof Module!=="undefined"&&Module.FS&&document.getElementById("loading").style.display==="none"','Startup timed out');
+ await evaluate(`window.pianoRequests=[];const originalAudio=Module.jungleAudio;
+  Module.jungleAudio=(path,profile)=>{const audio=originalAudio(path,profile);
+   if(path.startsWith('assets/piano/')){pianoRequests.push({path,audio});if(pianoRequests.length>128)pianoRequests.shift()}
+   return audio};`);
  function layout(width,height){
   height-=56;
   const pad=Math.max(8,Math.min(28,Math.floor(width/24),Math.floor(height/24)));
@@ -93,7 +98,24 @@ try{
   const y=top+h-22-kh,cw=Math.min(kw,620),rh=h<360?30:40,controls=y-(cw<500?rh*2+6:rh)-12;
   return {x,y:y+56,kh,keyWidth,controls:controls+56,top:top+56,h,title:top+8+56};
  }
- await openTitleGame(titleScenes,'Little Piano',key);await key('1');await key('w');await key('2');
+ await openTitleGame(titleScenes,'Little Piano',key);
+ // Exercise a genuinely cold first sample under bounded network latency.
+ // This note must reach advancing, unmuted media without another key press.
+ await command('Network.enable');
+ await command('Network.emulateNetworkConditions',{offline:false,latency:160,downloadThroughput:2*1024*1024,uploadThroughput:1024*1024});
+ // The first sample can need a cold pack download. Wait for its actual
+ // media play before the next key replaces this monophonic sound; otherwise
+ // this mapping assertion measures network speed instead of keyboard pitches.
+ for(const [shortcut,pitch] of [['1',60],['w',61],['2',62]]){
+  await key(shortcut);
+  await waitFor(`pianoAudio.some(note=>note.path==='assets/piano/sounds/${pitch}.wav')`,
+   `Piano shortcut ${shortcut} did not play pitch ${pitch}`);
+  if(pitch===60){
+   await waitFor('pianoElement&&!pianoElement.paused&&!pianoElement.muted&&pianoElement.readyState>=2&&pianoElement.currentTime>0',
+    'The cold first piano note did not reach advancing media');
+   await command('Network.emulateNetworkConditions',{offline:false,latency:0,downloadThroughput:-1,uploadThroughput:-1});
+  }
+ }
  let notes=await evaluate('pianoAudio.map(note=>note.path)');
  if(JSON.stringify(notes)!==JSON.stringify([60,61,62].map(p=>'assets/piano/sounds/'+p+'.wav')))throw Error('Wrong fixed shortcut pitches: '+JSON.stringify(notes));
  if(await evaluate('pianoAudio.some(note=>note.volume!==.25)'))throw Error('Piano bypassed quiet gain');

@@ -49,6 +49,8 @@ FishAsset :: (fish: s32) -> string {
 
 Picture :: (name: string, x: s32, y: s32, w: s32, h: s32, alt: string, stretch: bool = false, mirror: bool = false) {
     path := Cat("assets/fishing/", name, ".webp")
+    shown := RetroImageShown(path)
+    if shown == "" { return }
     // The fish artwork faces right. Mirror a swimming fish toward its bobber
     // without altering the centered source artwork used on its learning card.
     corners: [4]Vector2
@@ -58,7 +60,7 @@ Picture :: (name: string, x: s32, y: s32, w: s32, h: s32, alt: string, stretch: 
         corners[2] = Point(x + w, y + h); corners[3] = Point(x, y + h)
         mesh = ImageMesh.{.columns = 2, .rows = 2, .points = corners[:]}
     }
-    Image(retro.session, ImageProps.{.asset_path = path, .preview_path = RetroImagePreview(path),
+    Image(retro.session, ImageProps.{.asset_path = shown, .preview_path = RetroImagePreview(path),
         .bounds = RetroRect(x, y, w, h),
         .fit = ifx stretch then ImageFit.ImageFitStretch else ImageFit.ImageFitContain,
         .smooth = true, .alt_text = alt, .mesh = mesh})

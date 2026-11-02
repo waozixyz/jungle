@@ -92,6 +92,7 @@ def browser_steps() -> tuple[Step, ...]:
              Step(("python3", "tests/web_image_queue_test.py")),
              Step(("python3", "tests/web_previews_test.py")),
              Step(("python3", "tests/runtime_images_web_test.py")),
+             Step(("python3", "tests/port_games_web_test.py")),
              web("tests/paint_layers_web_test.mjs", "canvas.html"),
              web("tests/paint_layers_web_test.mjs", "dom.html"),
              web("tests/book_browser_interaction_test.mjs", "dom.html"),
