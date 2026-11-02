@@ -6,6 +6,7 @@ Released 2026-11-02.
 
 - Read Sweet Porridge with complete portrait illustrations on tall screens and landscape illustrations on wide screens.
 - Open Little Fishing Boat from the painted harbor boat and Crab Family Counting from the crab family, with matching glow and tap targets in landscape and portrait.
+- Hear Bella's English narration at a gentle normal speed, with slower and faster recordings available in a saved speed setting.
 
 ## 0.1.35
 
