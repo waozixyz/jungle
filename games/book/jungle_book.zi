@@ -26,6 +26,7 @@
 StoryPlayIcon :: #import "mingcute/mingcute_filled_play";
 StoryPauseIcon :: #import "mingcute/mingcute_filled_pause";
 #import, file "book_narration.zi";
+#import, file "../../retro/speech_profile.zi";
 #import, file "book_preferences.zi";
 #import, file "book_collect.zi";
 #import, file "../../retro/collect_flight.zi";
@@ -131,12 +132,17 @@ PageVoice :: () -> string {
     return ifx simple then VoicePath_en_simple(at) else VoicePath_en_spelling(at)
 }
 PageHold :: () -> float64 {
-    if direct_story { return StorySeconds(page, language) + (ifx playback_speed == 0 then 5.0 else ifx playback_speed == 2 then 1.0 else 3.0) }
+    measured := SpeechFramesParse(AppService("jungle.voice-frames", PageVoice()))
+    if direct_story {
+        duration := ifx measured > 0 then cast(float64)measured / 22050.0 else StorySeconds(page, language)
+        return duration + (ifx playback_speed == 0 then 5.0 else ifx playback_speed == 2 then 1.0 else 3.0)
+    }
     at := PageIndex()
     duration: float64
     if language == 1 { duration = ifx simple then VoiceSeconds_de_simple(at) else VoiceSeconds_de_spelling(at) }
     else if language == 2 { duration = ifx simple then VoiceSeconds_es_simple(at) else VoiceSeconds_es_spelling(at) }
     else { duration = ifx simple then VoiceSeconds_en_simple(at) else VoiceSeconds_en_spelling(at) }
+    if measured > 0 { duration = cast(float64)measured / 22050.0 }
     quiet := ifx playback_speed == 0 then 5.0 else ifx playback_speed == 1 then 3.0 else 1.0
     spoken := duration + quiet
     minimum := ifx playback_speed == 0 then 10.0 else ifx playback_speed == 2 then 3.0 else ifx simple then 6.0 else PAGE_SECONDS
@@ -253,7 +259,7 @@ ResponsiveBook :: (bounds: Rectangle) {
     shelf_card_width = (book_width - book_padding * 2 - book_gap * (shelf_columns - 1) - 10) / shelf_columns
     shelf_card_height = ifx book_width < 600 then 92 else 120
     if managing_books { shelf_card_height += 52 }
-    shelf_view_height = book_height - book_padding * 2 - 64
+    shelf_view_height = book_height - book_padding * 2 - 64 - ifx managing_books then 88 else 0
     if shelf_view_height < 80 { shelf_view_height = 80 }
 }
 
@@ -325,6 +331,12 @@ BookShelf :: () {
     if count == 0 { BookText(book_padding, view_top, book_width - book_padding * 2, 64, "No visible books", 20) }
     x := book_padding
     if managing_books {
+        BookText(x, footer - 86, book_width - book_padding * 2, 28, "English voice", 18)
+        profile := AppService("jungle.speech-profile", "")
+        speed_width := (book_width - book_padding * 2 - book_gap * 2) / 3
+        if TouchButton(910, x, footer - 54, speed_width, 44, "Slow", profile == "slow") { unused AppService("jungle.speech-profile", "slow") }
+        if TouchButton(911, x + speed_width + book_gap, footer - 54, speed_width, 44, "Normal", profile == "normal" || profile == "") { unused AppService("jungle.speech-profile", "normal") }
+        if TouchButton(912, x + (speed_width + book_gap) * 2, footer - 54, speed_width, 44, "Fast", profile == "fast") { unused AppService("jungle.speech-profile", "fast") }
         button := (book_width - book_padding * 2 - book_gap) / 2
         if TouchButton(62, x, footer, button, 48, ifx repeat_all then "Repeat on" else "Repeat off", repeat_all) {
             repeat_all = !repeat_all

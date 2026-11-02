@@ -32,7 +32,7 @@ import sys
 
 from book_catalog import LANGUAGES
 from speech_codec import EncodeSpeech, SHIPPED, ValidateEncodedSpeech
-from speech_manifest import BuildSpeechManifest
+from speech_manifest import BuildSpeechManifest, AddSpeechProfiles
 from web_images import (PREVIEW_FOLDERS, PREVIEW_ROOT, RUNTIME_ROOT,
                         prepare_native_previews, prepare_runtime_images, preview_path)
 
@@ -366,7 +366,7 @@ def Speech(root=None):
     """(encoded speech manifest, {shipped path: encoded file}) for every
     narration path, checked against its sources."""
     root = ROOT if root is None else Path(root)
-    speech = BuildSpeechManifest(root, extra_voices=NarratedVoices(root))
+    speech = AddSpeechProfiles(BuildSpeechManifest(root, extra_voices=NarratedVoices(root)), root)
     encoded = EncodeSpeech(speech, root)
     speech = dict(speech, encoding=encoded['encoding'], encoded=encoded['encoded'],
                   shipping=dict(speech.get('shipping', {}),

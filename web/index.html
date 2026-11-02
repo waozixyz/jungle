@@ -128,7 +128,7 @@ async function assetBytes(path){
 // SpeechPreflight before they are decoded, and the composed samples play as
 // one WAV through the same Audio element as every other sound.
 const speechRate=22050,speechLimit=speechRate*60,speechBytes=524288;
-let speechIndex;
+let speechIndex,speechResolved;
 function parseSpeech(text){
  const lines=text.split('\n'),clips=[],voices=new Map(),number=/^(?:0|[1-9][0-9]{0,8})$/;
  const invalid=()=>{throw Error('Invalid speech index')};
@@ -157,7 +157,7 @@ function parseSpeech(text){
  return {clips,voices};
 }
 function speech(){
- speechIndex??=assetBytes('assets/speech.txt').then(bytes=>parseSpeech(new TextDecoder('utf-8',{fatal:true}).decode(bytes)))
+ speechIndex??=assetBytes('assets/speech.txt').then(bytes=>speechResolved=parseSpeech(new TextDecoder('utf-8',{fatal:true}).decode(bytes)))
   .catch(error=>{speechIndex=undefined;throw error});
  return speechIndex;
 }
@@ -189,9 +189,17 @@ async function speechClip(clip){
 }
 // The bytes of sound PATH: a WAV composed from speech clips for narration,
 // otherwise the packed file. Null once CURRENT() turns false.
-async function soundBytes(path,current){
+function speechVoiceFrames(path,profile){
+ if(!speechResolved){speech().catch(()=>{});return 0;}
+ return (speechVoice(speechResolved,path,profile)||[]).reduce((total,segment)=>total+segment.frames,0);
+}
+function speechVoice(index,path,profile){
+ const selected=profile==='slow'||profile==='fast'?'assets/speech-profiles/'+profile+'/'+path.slice(7):path;
+ return index.voices.get(selected)||index.voices.get(path);
+}
+async function soundBytes(path,current,profile="normal"){
  const index=await speech();
- const segments=index.voices.get(path);
+ const segments=speechVoice(index,path,profile);
  if(!segments)return assetBytes(path);
  let frames=0;for(const segment of segments)frames+=segment.frames;
  const bytes=new Uint8Array(44+frames*2),view=new DataView(bytes.buffer),decoded=new Map();
@@ -212,7 +220,7 @@ async function soundBytes(path,current){
  }
  return bytes;
 }
-function packedAudio(path){
+function packedAudio(path,profile="normal"){
  const audio=new Audio();audio.junglePath=path;audio.jungleLoading=false;
  const play=audio.play.bind(audio),pause=audio.pause.bind(audio),remove=audio.removeAttribute.bind(audio);
  let generation=0,url;
@@ -220,7 +228,7 @@ function packedAudio(path){
   if(url)return play();
   const request=++generation;audio.jungleLoading=true;
   try{
-   const bytes=await soundBytes(path,()=>request===generation);
+   const bytes=await soundBytes(path,()=>request===generation,profile);
    if(request!==generation)return;
    url=URL.createObjectURL(new Blob([bytes],{type:'audio/wav'}));audio.src=url;
    return await play();
@@ -334,6 +342,7 @@ function pumpFull(){
 var Module={canvas:document.getElementById('canvas'),locateFile:assetUrl,print:console.log,printErr:console.error,
  jungleLanguage:updateSiteLanguage,
  jungleAudio:packedAudio,
+ jungleVoiceFrames:speechVoiceFrames,
  // Whether PATH's full picture is here; otherwise its preview and full bytes
  // are requested, a PREFETCH behind every picture on screen.
  jungleImageReady(path,prefetch=false){

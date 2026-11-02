@@ -276,6 +276,63 @@ def ValidateSpeechManifest(manifest, root=ROOT):
                 raise ValueError('speech recipe does not reconstruct original PCM: ' + name)
 
 
+def AddSpeechProfiles(manifest, root=ROOT):
+    """Include generated English variants, preserving exact spelling recipes.
+
+    The generator publishes its profile inventory only once all three sets are
+    complete. Older source trees without that inventory retain normal speech.
+    """
+    root = Path(root)
+    inventory = root / 'assets/speech-profiles.json'
+    if not inventory.exists():
+        return manifest
+    profiles = json.loads(inventory.read_text())
+    if (profiles.get('format'), profiles.get('language'), profiles.get('voice'), profiles.get('default')) != (
+            'jungle-speech-profiles-1', 'en', 'af_bella', 'normal'):
+        raise ValueError('unsupported English speech profiles')
+    if set(profiles['profiles']) != {'slow', 'normal', 'fast'}:
+        raise ValueError('expected three English speech profiles')
+    normal = profiles['profiles']['normal']['voices']
+    for profile, speed in [('normal', .8), ('slow', .65), ('fast', 1.)]:
+        entry = profiles['profiles'][profile]
+        if entry['speed'] != speed or set(entry['voices']) != set(normal):
+            raise ValueError('incomplete English speech profile: ' + profile)
+        for original, target in entry['voices'].items():
+            expected = original if profile == 'normal' else 'assets/speech-profiles/' + profile + '/' + original.removeprefix('assets/')
+            if not _safe_asset_path(original) or target != expected:
+                raise ValueError('unsafe speech profile mapping: ' + original)
+            # Letter clips are composition sources even when not public voices.
+            if profile == 'normal':
+                continue
+            clip, original_pcm = _whole_clip(root / target, 'en', root)
+            receipt, _ = _receipt(root / target)
+            if 'PCM assembly' not in receipt.get('method', ''):
+                _add_clip(manifest['clips'], clip, None)
+                manifest['voices'][target] = [_segment(clip)]
+                continue
+            if original not in manifest['voices']:
+                raise ValueError('profile recipe has no original voice: ' + original)
+            segments = []
+            for segment in manifest['voices'][original]:
+                if 'silence' in segment:
+                    segments.append(dict(segment))
+                    continue
+                source = entry['voices'][segment['clip']]
+                source_clip, _ = _whole_clip(root / source, 'en', root)
+                _add_clip(manifest['clips'], source_clip, None)
+                first, frames, _ = _trimmed_range(root / source, root)
+                segments.append(_range_segment(source, first, frames))
+            reconstructed = b''.join(
+                bytes(segment['silence'] * 2) if 'silence' in segment else
+                _pcm_range(root / target, manifest['clips'][segment['clip']], segment['start'], segment['frames'], root)
+                for segment in segments)
+            if original_pcm != reconstructed:
+                raise ValueError('profile spelling recipe differs from recording: ' + target)
+            manifest['voices'][target] = segments
+    manifest['counts'].update(clips=len(manifest['clips']), voices=len(manifest['voices']))
+    return manifest
+
+
 def BuildSpeechManifest(root=ROOT, extra_voices=()):
     """Validate and describe all narrated paths used by the speech phase."""
     root = Path(root).resolve()

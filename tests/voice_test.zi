@@ -6,6 +6,7 @@
 #import "std/file"
 #import "std/byte_text_linux"
 #import, file "../host/sound.zi";
+#import, file "../retro/speech_profile.zi";
 #import, file "../host/audio_samples.zi";
 #import, file "../host/platform.zi";
 voice_sdl :: #system_library "SDL2";
@@ -13,11 +14,33 @@ Queued :: (device: u32) -> u32 #foreign voice_sdl "SDL_GetQueuedAudioSize";
 CloseAudio :: (device: u32) #foreign voice_sdl "SDL_CloseAudioDevice";
 WaitAudio :: (milliseconds: u32) #foreign voice_sdl "SDL_Delay";
 
+ProfileSelectionTest :: () -> bool {
+    fixture := "#jungle-speech-1\nvoice|assets/de/demo.wav|5\nvoice|assets/demo.wav|4\nvoice|assets/speech-profiles/fast/demo.wav|2\nvoice|assets/speech-profiles/slow/demo.wav|6\n"
+    if !SpeechLoad(fixture) { return false }
+    pcm: Vec(u8)
+    SpeechProfileSet("")
+    if english_speech_profile != "normal" || !ComposeVoice("assets/demo.wav", *pcm) || pcm.count != 8 { return false }
+    SpeechProfileSet("slow\n")
+    if !ComposeVoice("assets/demo.wav", *pcm) || pcm.count != 12 || SpeechVoiceFrames("assets/demo.wav") != 6 { return false }
+    if !ComposeVoice("assets/de/demo.wav", *pcm) || pcm.count != 10 { return false }
+    SpeechProfileSet("fast")
+    if !ComposeVoice("assets/demo.wav", *pcm) || pcm.count != 4 { return false }
+    // Unavailable variants and corrupt saved settings safely use normal.
+    if !ComposeVoice("assets/de/demo.wav", *pcm) || pcm.count != 10 { return false }
+    SpeechProfileSet("bogus")
+    if english_speech_profile != "normal" || SpeechVoiceFrames("assets/demo.wav") != 4 { return false }
+    if SpeechFramesParse("1323000") != 1323000 || SpeechFramesParse("1323001") != 0 || SpeechFramesParse("broken") != 0 { return false }
+    speech_index = ""
+    return true
+}
+
 #program_export
 main :: (argc: s32, argv: **u8) -> s32 {
-    if argc != 1 && argc != 3 { return 3 }
+    if argc != 1 && argc != 3 && argc != 4 { return 3 }
+    if !ProfileSelectionTest() { return 14 }
     if !SpeechLoadShipped() { return 5 }
-    if argc == 3 {
+    if argc == 3 || argc == 4 {
+        if argc == 4 { SpeechProfileSet(TextFromCString(argv[3])) }
         pcm: Vec(u8)
         if !ComposeVoice(TextFromCString(argv[1]), *pcm) { return ifx pcm.count == 0 then 2 else 4 }
         return ifx WriteEntireFile(TextFromCString(argv[2]), BuilderFinish(pcm)) then 0 else 3

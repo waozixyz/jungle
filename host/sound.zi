@@ -10,6 +10,7 @@
 #import "std/vorbis"
 #import, file "audio_samples.zi";
 #import, file "platform.zi";
+#import, file "../retro/speech_profile.zi";
 
 SoundSpec :: struct {
     freq: s32
@@ -468,6 +469,11 @@ SpeechLoadShipped :: () -> bool {
 
 // The segments of narration PATH, or "".
 SpeechVoice :: (path: string) -> string {
+    selected := SpeechVoiceExact(SpeechProfilePath(path))
+    return ifx selected != "" then selected else SpeechVoiceExact(path)
+}
+
+SpeechVoiceExact :: (path: string) -> string {
     at := speech_voices_at
     while path != "" && at < speech_index.count {
         end := at
@@ -479,6 +485,20 @@ SpeechVoice :: (path: string) -> string {
         at = end + 1
     }
     return ""
+}
+
+SpeechVoiceFrames :: (path: string) -> s64 {
+    spec := SpeechVoice(path)
+    at: s64 = 0
+    total: s64 = 0
+    while at < spec.count {
+        clip, first, frames, next := SpeechSegment(spec, at)
+        unused clip; unused first
+        if next <= 0 { return 0 }
+        total += frames
+        at = next
+    }
+    return total
 }
 
 // The samples of narration PATH, assembled from its speech clips and silences

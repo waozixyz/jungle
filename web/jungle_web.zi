@@ -41,6 +41,7 @@ PianoKeys :: #import, file "../games/piano/keyboard.zi";
 #import, file "../games/paint/paint_palette.zi";
 #import, file "../games/paint/paint_picture.zi";
 #import, file "../retro/language.zi";
+#import, file "../retro/speech_profile.zi";
 #import, file "../host/jungle_collection.zi";
 
 // Painted navigation consumes titles; full descriptions, ages and icons remain
@@ -173,7 +174,7 @@ PlayAudio :: (path: string, narration: bool) {
     if web_muted || path == "" { return }
     scope := WebScope()
     defer WebEnd(scope)
-    audio := WebAsObject(WebCall1(WebModule, WebName("jungleAudio"), WebText(path)))
+    audio := WebAsObject(WebCall2(WebModule, WebName("jungleAudio"), WebText(path), WebText(ifx narration then english_speech_profile else "normal")))
     if audio == 0 { return }
     web_audio = WebKeep(audio)
     web_narration = narration
@@ -342,6 +343,18 @@ WebService :: (name: string, request: string) -> string {
         }
         return ""
     }
+    if name == "jungle.voice-frames" {
+        scope := WebScope()
+        defer WebEnd(scope)
+        return NumberText(cast(s32)WebAsNumber(WebCall2(WebModule, WebName("jungleVoiceFrames"), WebText(request), WebText(english_speech_profile))))
+    }
+    if name == "jungle.speech-profile" {
+        if request != "" {
+            SpeechProfileSet(request)
+            unused Runner.DocumentWriteHost("settings/speech-profile.txt", english_speech_profile)
+        }
+        return english_speech_profile
+    }
     if name == "jungle.voice-state" { return VoiceState() }
     if name == "jungle.voice-control" {
         if web_audio != 0 && web_narration {
@@ -411,6 +424,7 @@ JungleMain :: () -> s64 {
     if mode != APP_FRAME { return 0 }
     if !web_initialized {
         LanguageSet(Runner.DocumentReadHost("settings/language.txt"))
+        SpeechProfileSet(Runner.DocumentReadHost("settings/speech-profile.txt"))
         web_muted = Runner.DocumentReadHost("settings/sound.txt") == "off"
         web_title_guide_muted = Runner.DocumentReadHost("settings/guide-sound.txt") == "off"
         web_title_guide_seen = Runner.DocumentReadHost("settings/guide-seen.txt") == "yes"

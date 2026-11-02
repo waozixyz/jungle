@@ -5,10 +5,12 @@ friendly, gentle and obvious.
 
 ## Narration voices (owner feedback, 2026-11-02)
 
-- English male narration uses local Kokoro voice `am_michael`.
-- English female narration uses local Kokoro voice `af_bella`.
-- Keep these selections in `speech.json`; generate English Jungle narration with
-  Harmony's `voice_role: "male"` or `voice_role: "female"`.
+- All English app narration uses locally generated Kokoro `af_bella`.
+- Offer three generated profiles: slow `0.65`, normal `0.8` (default), fast `1.0`.
+  Select the generated profile assets; do not stretch playback or estimate timing.
+- Keep voice selections in `speech.json`; `assets/speech-profiles.json` maps
+  the generated English profiles. The general male voice preference remains
+  `am_michael`; it does not override the app's all-English Bella narration.
 
 ## Picture art (owner feedback, 2026-10-26)
 

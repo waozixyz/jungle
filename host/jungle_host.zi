@@ -34,6 +34,7 @@
 #import, file "../retro/book_theme.zi";
 #import, file "platform.zi";
 #import, file "sound.zi";
+#import, file "../retro/speech_profile.zi";
 #import, file "canvas_png.zi";
 #import, file "paint_preview.zi";
 #import, file "paint_view.zi";
@@ -92,6 +93,7 @@ playing: bool;
 game: BundleApp;
 data_root: string;
 sound_setting: string;
+speech_profile_setting: string;
 language_setting: string;
 home_requested: bool;
 guide_sound_setting: string;
@@ -270,7 +272,7 @@ HostCollectionService :: (service: string, request: string) -> string {
 }
 
 GameAllows :: (context: *void, name: string) -> bool {
-    return name == "jungle.collect" || name == "jungle.collection" || name == "jungle.book-start" || name == "jungle.language" || name == "jungle.voice" || name == "jungle.voice-state" || name == "jungle.voice-control" || name == "jungle.sound" || name == "jungle.home" || name == "jungle.canvas" ||
+    return name == "jungle.voice-frames" || name == "jungle.speech-profile" || name == "jungle.collect" || name == "jungle.collection" || name == "jungle.book-start" || name == "jungle.language" || name == "jungle.voice" || name == "jungle.voice-state" || name == "jungle.voice-control" || name == "jungle.sound" || name == "jungle.home" || name == "jungle.canvas" ||
         name == "jungle.paint-preview" || name == "jungle.paint-ops" || name == "jungle.paint-colors" || name == "jungle.paint-ink" || name == "jungle.paint-tile" || name == "jungle.touches" || name == "jungle.export" || name == "jungle.print" || name == "jungle.secondary" || name == "jungle.piano-held" || BundleAppAllows(context, name)
 }
 
@@ -335,6 +337,15 @@ GameServices :: (context: *void, module: *u8, function: *u8,
     HostScalarValid(arguments[1], "string", cast(s32)HostValueKind.HostString) {
         service := AppArgumentText(arguments[0])
         request := AppArgumentText(arguments[1])
+        if service == "jungle.voice-frames" { result.* = Reply(NumberText(cast(s32)SpeechVoiceFrames(request))); return 1 }
+        if service == "jungle.speech-profile" {
+            if request != "" {
+                SpeechProfileSet(request)
+                unused WriteEntireFile(speech_profile_setting, english_speech_profile)
+            }
+            result.* = Reply(english_speech_profile)
+            return 1
+        }
         if service == "jungle.voice-state" {
             result.* = Reply(ifx sound_paused then "paused" else ifx SoundBusy() then "playing" else "idle")
             return 1
@@ -681,6 +692,9 @@ JungleOpen :: (checking: bool) -> bool {
     language_setting = Cat(base, "/language.txt")
     saved_language, has_language := ReadEntireFile(language_setting)
     if has_language { LanguageSet(saved_language) }
+    speech_profile_setting = Cat(base, "/speech-profile.txt")
+    saved_profile, has_profile := ReadEntireFile(speech_profile_setting)
+    if has_profile { SpeechProfileSet(saved_profile) }
     sound_setting = Cat(base, "/sound.txt")
     setting, setting_found := ReadEntireFile(sound_setting)
     if setting_found { SoundMuted(setting == "off\n" || setting == "off") }

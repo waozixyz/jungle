@@ -32,7 +32,7 @@ APP := build/app
 SHARED := $(APP)/assets/shared-assets.txt $(APP)/assets/speech.txt
 STAGED_GAMES := jungle-book jungle-abc jungle-numbers animal-count dino-paint jungle-shapes jungle-jigsaw jungle-hide-seek jungle-matching jungle-drums jungle-garden jungle-fishing jungle-beach-families
 # Folders too: removing a file changes its folder's time, so staging reruns.
-SHARED_SOURCES := $(shell find assets/jungle assets/jungle-book $(addprefix assets/,abc numbers animal-count dino-paint shapes hide_seek drums garden jigsaw collectibles fishing beach_families) 2>/dev/null)
+SHARED_SOURCES := $(wildcard assets/speech-profiles.json) $(shell find assets/speech-profiles assets/jungle assets/jungle-book $(addprefix assets/,abc numbers animal-count dino-paint shapes hide_seek drums garden jigsaw collectibles fishing beach_families) 2>/dev/null)
 GAMES := $(APP)/games/jungle-fishing.zx $(APP)/games/jungle-beach-families.zx $(APP)/games/jungle-garden.zx $(APP)/games/jungle-drums.zx $(APP)/games/jungle-hide-seek.zx $(APP)/games/jungle-matching.zx $(APP)/games/jungle-shapes.zx $(APP)/games/jungle-book.zx $(APP)/games/jungle-abc.zx $(APP)/games/jungle-numbers.zx $(APP)/games/animal-count.zx $(APP)/games/dino-paint.zx $(APP)/games/jungle-jigsaw.zx $(APP)/games/jungle-piano.zx
 KRYON_SOURCES = $(wildcard $(KRYON)/src/ui/*.zi $(KRYON)/src/backend/*.zi)
 
@@ -259,6 +259,8 @@ test: build/tests/fishing build/tests/beach_families build/tests/speed_choice bu
 	python3 tests/shared_assets_test.py
 	python3 tests/port_games_integration_test.py
 	python3 tests/speech_manifest_test.py
+	python3 tests/speech_profiles_test.py
+	python3 tests/english_speech_test.py
 	python3 tests/shapes_tutorial_audio_test.py
 	python3 tests/speech_codec_test.py
 	python3 tests/book_unique_catalog_test.py

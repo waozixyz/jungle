@@ -197,6 +197,7 @@ def staging_test():
             'assets/collectibles/drum.png': picture('PNG', (81, 90, 100)),
             'assets/collectibles/sunflower.png': picture('PNG', (82, 90, 100)),
             'assets/jungle-book/pages/tiger.webp': picture('WEBP', (180, 160, 60)),
+            'assets/jungle-book/portraits/tiger.webp': picture('WEBP', (180, 160, 60)),
             'assets/jungle-book/sounds/tiger.wav': b'assembled',
             'assets/jungle-book/sounds/en/letters/0061.wav': b'canonical letter',
             'assets/abc/sounds/en/letters/0061.wav': b'duplicate letter',

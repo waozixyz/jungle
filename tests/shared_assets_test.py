@@ -122,6 +122,10 @@ SPEECH_STUB = """LANGUAGES = ('en', 'de', 'es')
 def BuildSpeechManifest(root=None, extra_voices=()):
     assert not extra_voices
     return {'clips': {}, 'voices': {}}
+
+
+def AddSpeechProfiles(manifest, root=None):
+    return manifest
 """
 
 

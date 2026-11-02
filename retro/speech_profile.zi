@@ -1,0 +1,24 @@
+#import, file "../host/jungle_text.zi";
+// Shared native/web setting. Invalid or absent saved values use normal.
+english_speech_profile: string = "normal";
+SpeechProfileParse :: (saved: string) -> string {
+    if saved == "slow" || saved == "slow\n" { return "slow" }
+    if saved == "fast" || saved == "fast\n" { return "fast" }
+    return "normal"
+}
+SpeechProfileSet :: (saved: string) { english_speech_profile = SpeechProfileParse(saved) }
+SpeechProfilePath :: (path: string) -> string {
+    if english_speech_profile == "normal" || path.count < 8 || path[:7] != "assets/" { return path }
+    return Cat("assets/speech-profiles/", english_speech_profile, "/", path[7:])
+}
+
+// Frame counts come from the selected recipe, never an estimated speed ratio.
+SpeechFramesParse :: (text: string) -> s64 {
+    if text.count < 1 || text.count > 9 { return 0 }
+    frames: s64 = 0
+    for digit: text {
+        if digit < #char "0" || digit > #char "9" { return 0 }
+        frames = frames * 10 + cast(s64)(digit - #char "0")
+    }
+    return ifx frames <= 22050 * 60 then frames else 0
+}
