@@ -85,7 +85,7 @@ def main():
     assert by_name[DIRECT_TITLE]['width'] == 1672, by_name[DIRECT_TITLE]
     low_titles = [row for row in startup if '-low.webp' in row['name']]
     assert any(row['name'] == 'treehouse-portrait-low.webp' and row['bytes'] > 0 for row in low_titles), startup
-    assert not any(row['name'].endswith('.webp') for row in startup), startup
+    assert not any(row['name'].lower().endswith(('.jpg', '.jpeg')) for row in startup), startup
     assert frame_colors > 100, frame_colors
     basket = by_name['assets/hide_seek/props/basket.png']
     assert basket['minimumAlpha'] == 0 and basket['maximumAlpha'] == 255, basket
