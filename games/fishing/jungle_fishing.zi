@@ -1,0 +1,291 @@
+// A quiet cast-and-release activity. The host supplies Back and sound controls.
+#import "kryon/app_context"
+#import "kryon/app_protocol"
+#import "kryon/pointer_input"
+#import "kryon/frame_snapshot"
+#import "kryon/text_align"
+#import "kryon/geometry"
+#import "kryon/drawing_props"
+#import "kryon/image_props"
+#import "kryon/image_widget"
+#import "kryon/press_props"
+#import "kryon/press_widget"
+#import "kryon/shape_props"
+#import "kryon/shape_widget"
+#import, file "../../host/jungle_text.zi";
+#import, file "fishing.zi";
+#import, file "../../retro/retro.zi";
+#import, file "../../retro/game.zi";
+#import, file "../../retro/book_theme.zi";
+
+fishing: FishingState;
+loaded: bool;
+width: s32;
+height: s32;
+scene_y: s32;
+scene_height: s32;
+footer_y: s32;
+dragging: bool;
+drag_phase: s32;
+drag_x: s32;
+drag_y: s32;
+drag_moved: bool;
+pointer_until: s64;
+keyboard_until: s64;
+focus_x: s32 = 560;
+focus_y: s32 = 500;
+keyboard_focus: bool;
+
+Save :: () -> bool { return DocumentWrite("fishing.txt", FishingSave(fishing)) }
+
+FishAsset :: (fish: s32) -> string {
+    if fish == 0 { return "clownfish" }
+    if fish == 1 { return "blue-tang" }
+    if fish == 2 { return "butterflyfish" }
+    if fish == 3 { return "angelfish" }
+    if fish == 4 { return "parrotfish" }
+    return "pufferfish"
+}
+
+Picture :: (name: string, x: s32, y: s32, w: s32, h: s32, alt: string, stretch: bool = false, mirror: bool = false) {
+    path := Cat("assets/fishing/", name, ".webp")
+    // The fish artwork faces right. Mirror a swimming fish toward its bobber
+    // without altering the centered source artwork used on its learning card.
+    corners: [4]Vector2
+    mesh: ImageMesh
+    if mirror {
+        corners[0] = Point(x + w, y); corners[1] = Point(x, y)
+        corners[2] = Point(x + w, y + h); corners[3] = Point(x, y + h)
+        mesh = ImageMesh.{.columns = 2, .rows = 2, .points = corners[:]}
+    }
+    Image(retro.session, ImageProps.{.asset_path = path, .preview_path = RetroImagePreview(path),
+        .bounds = RetroRect(x, y, w, h),
+        .fit = ifx stretch then ImageFit.ImageFitStretch else ImageFit.ImageFitContain,
+        .smooth = true, .alt_text = alt, .mesh = mesh})
+}
+
+// All paint, hit testing and dragging share this exact rectangle. AppBounds
+// and SamplePointer already use the host's logical coordinates, including zoom.
+SceneX :: (x: s32) -> s32 { return x * width / 1000 }
+SceneY :: (y: s32) -> s32 { return scene_y + y * scene_height / 1000 }
+MapX :: (x: s32) -> s32 { return x * 1000 / width }
+MapY :: (y: s32) -> s32 { return (y - scene_y) * 1000 / scene_height }
+InScene :: (x: s32, y: s32) -> bool {
+    return x >= 0 && x < width && y >= scene_y && y < footer_y
+}
+SceneEdge :: () -> s32 { return ifx width < scene_height then width else scene_height }
+
+Point :: (x: s32, y: s32) -> Vector2 {
+    return Vector2.{retro.x + cast(float32)x * retro.scale, retro.y + cast(float32)y * retro.scale}
+}
+Stroke :: (x: s32, y: s32, end_x: s32, end_y: s32, thickness: float32, color: u32) {
+    Line(retro.session, LineProps.{.start = Point(x, y), .end = Point(end_x, end_y),
+        .thickness = thickness * retro.scale, .color = ColorFromPacked(color)})
+}
+Dot :: (x: s32, y: s32, radius: s32, color: u32) {
+    Circle(retro.session, CircleProps.{.center = Point(x, y), .radius = cast(float32)radius * retro.scale,
+        .fill = ColorFromPacked(color)})
+}
+
+ActionLabel :: () -> string {
+    if fishing.phase == FISHING_CAUGHT { return FishingText("Let it swim", "Schwimmen lassen", "Dejarlo nadar") }
+    if fishing.phase == FISHING_CAST { return FishingText("Reel to the boat", "Zum Boot einholen", "Recoger hacia el bote") }
+    if fishing.phase == FISHING_REEL { return FishingText("Here comes our friend", "Unser Freund kommt", "Ya viene nuestro amigo") }
+    return FishingText("Cast into the water", "Ins Wasser werfen", "Lanzar al agua")
+}
+Prompt :: () -> string {
+    if fishing.phase == FISHING_CAUGHT { return FishingText("Hello, little fish!", "Hallo, kleiner Fisch!", "¡Hola, pececito!") }
+    if fishing.phase == FISHING_CAST { return FishingText("Drag to the boat, or tap to reel", "Zum Boot ziehen oder zum Einholen tippen", "Arrastra al bote o toca para recoger") }
+    if fishing.phase == FISHING_REEL { return FishingText("A gentle ride to the boat", "Ganz sanft zum Boot", "Un paseo suave hacia el bote") }
+    return FishingText("Tap the water to meet a fish", "Tippe ins Wasser und triff einen Fisch", "Toca el agua para conocer un pez")
+}
+Act :: (now: s64) {
+    dragging = false
+    if fishing.phase == FISHING_CAST { unused FishingBeginReel(*fishing); return }
+    if fishing.phase == FISHING_REEL { return }
+    unused FishingCast(*fishing, focus_x, focus_y, now)
+}
+
+PointerInput :: (px: s32, py: s32, pressed: bool, down: bool, released: bool, now: s64) {
+    if pressed || down || released { pointer_until = now + 250; keyboard_focus = false }
+    if pressed && InScene(px, py) {
+        dragging = true; drag_phase = fishing.phase
+        drag_x = px; drag_y = py; drag_moved = false
+        if fishing.phase == FISHING_READY {
+            unused FishingCast(*fishing, MapX(px), MapY(py), now)
+        }
+    }
+    if !dragging { return }
+    dx := px - drag_x; dy := py - drag_y
+    if dx * dx + dy * dy > 64 { drag_moved = true }
+    if fishing.phase == FISHING_CAST && (down || released) {
+        unused FishingMoveBobber(*fishing, MapX(px), MapY(py))
+    }
+    if !released { return }
+    if drag_phase == FISHING_CAUGHT && InScene(px, py) { Act(now) }
+    else if fishing.phase == FISHING_CAST {
+        // A cast's first release leaves the bobber in the water. Later taps
+        // reel automatically; a drag back to the boat also starts reeling.
+        if (drag_phase == FISHING_CAST && !drag_moved && InScene(px, py)) ||
+            (drag_moved && MapX(px) <= FISHING_WATER_LEFT + 70 && MapY(py) >= 300 && MapY(py) <= 760) {
+            unused FishingBeginReel(*fishing)
+        }
+        focus_x = fishing.bobber_x; focus_y = fishing.bobber_y
+    }
+    dragging = false
+}
+
+Scene :: () {
+    Picture("background", 0, scene_y, width, scene_height,
+        FishingText("A quiet jungle lagoon", "Eine ruhige Dschungellagune", "Una tranquila laguna en la selva"), true)
+    edge := SceneEdge()
+    boat := edge * 42 / 100
+    if boat > width * 34 / 100 { boat = width * 34 / 100 }
+    Picture("boat", SceneX(FISHING_BOAT_X) - boat / 2, SceneY(FISHING_BOAT_Y) - boat / 2,
+        boat, boat, FishingText("Little fishing boat", "Kleines Fischerboot", "Pequeño bote de pesca"))
+    // A coded rod and line keep their tips attached to the moving bobber.
+    rod_x := SceneX(265); rod_y := SceneY(300)
+    Stroke(SceneX(FISHING_BOAT_X), SceneY(FISHING_BOAT_Y), rod_x, rod_y, 4.0, 0x89683fff)
+    if fishing.phase == FISHING_CAST || fishing.phase == FISHING_REEL {
+        fish_edge := edge * 24 / 100
+        Picture(FishAsset(fishing.fish), SceneX(fishing.fish_x) - fish_edge / 2,
+            SceneY(fishing.fish_y) - fish_edge / 2, fish_edge, fish_edge, FishingName(fishing.fish), false,
+            fishing.fish_x >= fishing.bobber_x)
+        bx := SceneX(fishing.bobber_x); by := SceneY(fishing.bobber_y)
+        Stroke(rod_x, rod_y, bx, by, 1.5, 0x6c7a69ff)
+        radius := edge * 2 / 100
+        if radius < 7 { radius = 7 }
+        Ring(retro.session, RingProps.{.center = Point(bx, by + radius),
+            .inner_radius = cast(float32)(radius + 3) * retro.scale,
+            .outer_radius = cast(float32)(radius + 5) * retro.scale,
+            .start_angle = 0, .end_angle = 360, .color = ColorFromPacked(0xfffcf3b0)})
+        Dot(bx, by, radius, 0xfff3ceff)
+        Dot(bx, by - radius / 3, radius * 2 / 3, 0xcd7859ff)
+    } else {
+        Stroke(rod_x, rod_y, rod_x + 8, rod_y + 28, 1.5, 0x6c7a69ff)
+        Dot(rod_x + 8, rod_y + 28, 6, 0xcd7859ff)
+    }
+    if keyboard_focus && fishing.phase != FISHING_CAUGHT && fishing.phase != FISHING_REEL {
+        cx := SceneX(focus_x); cy := SceneY(focus_y)
+        Ring(retro.session, RingProps.{.center = Point(cx, cy), .inner_radius = 15.0 * retro.scale,
+            .outer_radius = 18.0 * retro.scale, .start_angle = 0, .end_angle = 360,
+            .color = ColorFromPacked(0xfffcf3ff)})
+    }
+}
+
+CatchCard :: () {
+    caught := FishingCaught(fishing)
+    if caught < 0 { return }
+    cw := width - 32
+    if cw > 440 { cw = 440 }
+    ch := scene_height - 20
+    if ch > 320 { ch = 320 }
+    x := (width - cw) / 2; y := scene_y + (scene_height - ch) / 2
+    BookBox(x, y, cw, ch, 0xfffcf3f5, 0xc8b89aff, 20)
+    BookText(x + 12, y + 8, cw - 24, 30, Prompt(), 17, TextAlign.TextAlignCenter, false)
+    Picture(FishAsset(caught), x + 20, y + 40, cw - 40, ch - 90, FishingName(caught))
+    BookText(x + 12, y + ch - 46, cw - 24, 36, FishingName(caught), 23, TextAlign.TextAlignCenter, false)
+}
+
+Controls :: (active: bool) -> bool {
+    BookBox(0, 0, width, scene_y, 0xfffcf3ff)
+    BookText(12, 0, width - 24, scene_y, Prompt(), 15, TextAlign.TextAlignCenter, false)
+    BookBox(0, footer_y, width, height - footer_y, 0xfffcf3ff)
+    button_width := width - 32
+    if button_width > 420 { button_width = 420 }
+    x := (width - button_width) / 2
+    label := ActionLabel()
+    enabled := active && loaded && fishing.phase != FISHING_REEL
+    press := Press(retro.session, PressProps.{.key = 10, .id = 10,
+        .bounds = RetroRect(x, footer_y + 6, button_width, 48), .label = label,
+        .now = retro.now, .disabled = !enabled})
+    BookBox(x, footer_y + 6, button_width, 48,
+        ifx press.down then cast(u32)0xdcebdcff else cast(u32)0xeff3dfff, 0x91aa83ff, 16)
+    BookText(x + 8, footer_y + 6, button_width - 16, 48, label, 18, TextAlign.TextAlignCenter, false)
+    // The little album remembers encounters, without a score or reward pressure.
+    row_y := footer_y + 58
+    cell := (width - 24) / FISHING_KINDS
+    edge := height - row_y - 3
+    if edge > 45 { edge = 45 }
+    for fish: cast(s32)0..FISHING_KINDS - 1 {
+        seen := (fishing.seen & cast(u8)(1 << fish)) != 0
+        cx := 12 + fish * cell + cell / 2
+        if seen {
+            Picture(FishAsset(fish), cx - edge / 2, row_y, edge, edge, FishingName(fish))
+        } else { Dot(cx, row_y + edge / 2, 3, 0xccd9c7ff) }
+    }
+    return enabled && press.clicked
+}
+
+GameMain :: () -> s32 {
+    mode := AppMode()
+    if mode == APP_IDENTIFY {
+        loaded = false; dragging = false; fishing = FishingState.{}
+        pointer_until = 0; keyboard_until = 0
+        AppIdentity("jungle.fishing"); AppDescribe("Little Fishing Boat", ""); return APP_PROTOCOL
+    }
+    if mode == APP_SAVE { return ifx !loaded || Save() then 0 else 1 }
+    if mode != APP_FRAME { return 0 }
+    GameLanguage()
+    bounds := AppBounds()
+    scale := bounds.width / 400.0
+    if bounds.height / 640.0 < scale { scale = bounds.height / 640.0 }
+    if bounds.width > bounds.height {
+        scale = bounds.height / 430.0
+        if bounds.width / 760.0 < scale { scale = bounds.width / 760.0 }
+    }
+    if scale > 1.8 { scale = 1.8 }
+    if scale <= 0 { return 0 }
+    retro = Retro.{.session = AppSession(), .x = bounds.x, .y = bounds.y, .scale = scale, .now = AppNow(), .key = AppKey()}
+    width = cast(s32)(bounds.width / scale); height = cast(s32)(bounds.height / scale)
+    scene_y = 40; footer_y = height - 112; scene_height = footer_y - scene_y
+    if scene_height <= 0 || width <= 0 { return 0 }
+    now := cast(s64)(retro.now * 1000.0)
+    if now < 1 { now = 1 }
+    snapshot := CaptureFrameInput(retro.session)
+    active := !snapshot.available || snapshot.focused
+    pointer := SamplePointer()
+    px := cast(s32)((pointer.x - retro.x) / retro.scale)
+    py := cast(s32)((pointer.y - retro.y) / retro.scale)
+    if !loaded && DocumentStorageReady() {
+        fishing = FishingState.{}
+        unused FishingRead(DocumentRead("fishing.txt"), *fishing)
+        loaded = true; dragging = false; pointer_until = now + 250
+        focus_x = 560; focus_y = 500; keyboard_focus = false
+    }
+    if !active { dragging = false }
+    if active && retro.key == KEY_ESCAPE { if loaded { unused Save() }; GameHome(); return 0 }
+    if loaded {
+        previous_seen := fishing.seen
+        FishingTick(*fishing, now)
+        if fishing.seen != previous_seen { unused Save() }
+        if active {
+            if retro.key == KEY_LEFT { focus_x -= 50; keyboard_focus = true }
+            if retro.key == KEY_RIGHT { focus_x += 50; keyboard_focus = true }
+            if retro.key == KEY_UP { focus_y -= 50; keyboard_focus = true }
+            if retro.key == KEY_DOWN { focus_y += 50; keyboard_focus = true }
+            FishingClampPoint(focus_x, focus_y, *focus_x, *focus_y)
+            if keyboard_focus && fishing.phase == FISHING_CAST {
+                unused FishingMoveBobber(*fishing, focus_x, focus_y)
+            }
+            PointerInput(px, py, pointer.pressed, pointer.down, pointer.released, now)
+        }
+    }
+    BookPalette(); BookBox(0, 0, width, height, 0xfffcf3ff)
+    Scene(); CatchCard()
+    // Accessible scene activation uses the same simple action as the large
+    // button. Raw pointer gestures own their current and just-ended frames.
+    scene_press := Press(retro.session, PressProps.{.key = 11, .id = 11,
+        .bounds = RetroRect(0, scene_y, width, scene_height), .label = ActionLabel(),
+        .now = retro.now, .capture = true, .disabled = !active || !loaded || fishing.phase == FISHING_REEL})
+    button := Controls(active)
+    if active && loaded {
+        if retro.key == KEY_ENTER { Act(now); keyboard_until = now + 250 }
+        else if now > keyboard_until && (button || (scene_press.clicked && now > pointer_until)) { Act(now) }
+    }
+    return 0
+}
+#if !#defined(PLATFORM_WEB) {
+    #program_export
+    main :: () -> s32 { return GameMain() }
+}
