@@ -43,6 +43,17 @@ friendly, gentle and obvious.
   transparent background.
 - **Clean cut-outs:** no leftover white paper, painted ground patches, halos
   or other generation artifacts around a subject (plates, cups, soap…).
+- **Always optimize new images** (owner feedback, 2026-11-02): use
+  `tools/image_exports.py` in generation/export workflows. Preserve canonical
+  full-resolution originals and review candidates. New opaque title backgrounds
+  use WebP q50/method 6; full-scene book pages use q85/method 6 at
+  native/fullscreen resolution. Transparent
+  cut-outs/layers use exact lossless WebP, preserving alpha and clean edges.
+  Reuse new WebP exports without another lossy encode; keep established staging
+  derivatives/caps for existing artwork. Make new derivatives from originals,
+  resize only for established runtime sizes or explicit previews, and choose the
+  smaller valid export. Optimization does not approve artwork: retain the before/after choice
+  before replacing any shipping picture. Never batch-recompress old lossy art.
 - **High resolution:** a page fills most of the screen, so ship pictures
   that stay sharp at that size, never 420 px pictures stretched up.
 - **Believable scale:** keep relative sizes where pictures are compared, for

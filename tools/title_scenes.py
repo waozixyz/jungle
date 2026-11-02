@@ -296,14 +296,14 @@ def Render(data, scenes, parents, hotspots):
 def ExportBeach():
     """Export the owner's approved, unchanged Beach plates at runtime sizes."""
     from PIL import Image, ImageDraw, ImageFilter
+    from image_exports import export_image
     for orientation, stem in [('landscape', 'beach-port'), ('portrait', 'beach-portrait-port')]:
         source = ROOT / f'art/generated/world-scene-refresh/beach-{orientation}-clean.png'
         with Image.open(source) as image:
             image = image.convert('RGB')
-            image.save(ROOT / f'assets/jungle/title/{stem}.webp', lossless=True, exact=True)
-            image.resize((240, round(image.height * 240 / image.width)),
-                         Image.Resampling.LANCZOS).save(
-                ROOT / f'assets/jungle/title/{stem}-low.webp', lossless=True, exact=True)
+            export_image(source, ROOT / f'assets/jungle/title/{stem}.webp', 'title-background')
+            export_image(source, ROOT / f'assets/jungle/title/{stem}-low.webp',
+                         'title-background', size=(240, round(image.height * 240 / image.width)))
     beach = next(s for s in json.loads(SOURCE.read_text())['scenes'] if s['name'] == 'beach')
     for scene in (beach, beach['portrait']):
         door = next(h for h in scene['hotspots'] if h['id'] == 'bunker-door')
@@ -319,7 +319,7 @@ def ExportBeach():
 def main():
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument('--check', action='store_true', help='fail when the data file is out of date')
-    parser.add_argument('--export-beach', action='store_true', help='export approved Beach plates losslessly')
+    parser.add_argument('--export-beach', action='store_true', help='export approved Beach plates with the title preset')
     arguments = parser.parse_args()
     if arguments.export_beach:
         ExportBeach()

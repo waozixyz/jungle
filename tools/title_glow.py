@@ -10,6 +10,7 @@ import argparse
 import json
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter
+from image_exports import export_image
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / 'art/generated/title-world-proposal'
@@ -127,9 +128,9 @@ def main():
         assert source.size == (scene['width'], scene['height'])
         image_path = ROOT / scene['image']
         image_path.parent.mkdir(parents=True, exist_ok=True)
-        source.save(image_path, quality=90, method=6)
+        export_image(scene['source'], image_path, 'title-background')
         low = source.resize((240, round(240 * scene['height'] / scene['width'])), Image.Resampling.LANCZOS)
-        low.save(ROOT / scene['low'], quality=90, method=6)
+        export_image(scene['source'], ROOT / scene['low'], 'title-background', size=low.size)
         composite = source.convert('RGBA')
         outlines = composite.copy()
         draw = ImageDraw.Draw(outlines)

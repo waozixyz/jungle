@@ -63,6 +63,7 @@ web:
 
 test-web-images: web
 	python3 tests/canonical_webp_test.py
+	python3 tests/image_exports_test.py
 	python3 tests/runtime_images_test.py
 	python3 tests/web_images_test.py
 	python3 tests/runtime_images_web_test.py
@@ -223,6 +224,7 @@ test: build/tests/fishing build/tests/beach_families build/tests/speed_choice bu
 	python3 tests/title_guide_test.py
 	python3 tests/title_scenes_test.py
 	python3 tests/canonical_webp_test.py
+	python3 tests/image_exports_test.py
 	python3 tests/runtime_images_test.py
 	python3 tests/sweet_porridge_test.py
 	python3 tests/garden_assets_test.py

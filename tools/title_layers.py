@@ -6,12 +6,13 @@ art/generated/title-layers/prompts.json. --finish-generated preserves the
 approved scene's RGB, using the generated extraction's actual alpha matte;
 inpainted pixels are restricted to that silhouette. It is an explicit artwork
 preparation step, never part of a normal build. Normal invocation only exports
-the checked-in PNGs as lossless WebP through the existing image API.
+the checked-in PNGs through the shared role-specific WebP exporter.
 """
 import argparse
 import json
 from pathlib import Path
 from PIL import Image, ImageFilter
+from image_exports import export_image
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -59,9 +60,8 @@ def main():
             source = ROOT/(entry['source']+f'-{kind}.png')
             destination = ROOT/(entry['runtime']+f'-{kind}.webp')
             destination.parent.mkdir(parents=True, exist_ok=True)
-            with Image.open(source) as image:
-                image.save(destination, lossless=True, method=6, exact=True)
-        print(f'title layers: {entry["name"]} full-detail PNG and lossless WebP')
+            export_image(source, destination, 'title-background' if kind == 'background' else 'cutout')
+        print(f'title layers: {entry["name"]} original PNG and optimized WebP')
 
 
 if __name__ == '__main__':

@@ -1,6 +1,7 @@
 """Export the individually generated watercolor menu illustrations."""
 from pathlib import Path
 from PIL import Image
+from image_exports import export_image
 ROOT = Path(__file__).resolve().parents[1]
 
 def main():
@@ -10,7 +11,8 @@ def main():
         with Image.open(ROOT / 'art/generated/menu-covers' / (name + '.png')) as cover:
             assert cover.width == cover.height
             # Preserve canonical cover pixels; runtime exports control shipped size.
-            cover.convert('RGB').resize((420, 420), Image.Resampling.LANCZOS).save(
-                target / (('counting' if name == 'count' else name) + '.webp'), quality=90, method=6)
+            export_image(ROOT / 'art/generated/menu-covers' / (name + '.png'),
+                         target / (('counting' if name == 'count' else name) + '.webp'),
+                         'scene', size=(420, 420))
     print('Prepared four watercolor title covers')
 if __name__ == '__main__': main()

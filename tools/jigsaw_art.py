@@ -1,6 +1,6 @@
 """Prepare the full pictures; every host cuts Jigsaw pieces at runtime."""
 from pathlib import Path
-from PIL import Image
+from image_exports import export_image
 
 ROOT = Path(__file__).resolve().parents[1]
 SCENES = ('tiger-stream', 'duck-pond', 'meadow-train')
@@ -12,11 +12,12 @@ def main():
     dest = ROOT/'assets/jigsaw'
     dest.mkdir(parents=True, exist_ok=True)
     for name in SCENES:
-        source = Image.open(ROOT/'art/generated/jigsaw'/f'{name}.png').convert('RGB')
-        source = source.resize((SIZE, SIZE), Image.Resampling.LANCZOS)
-        source.save(dest/f'{name}.webp', quality=90, method=6)
+        source = ROOT/'art/generated/jigsaw'/f'{name}.png'
+        export_image(source, dest/f'{name}.webp', 'scene', size=(SIZE, SIZE))
         print('Prepared full runtime jigsaw picture:', name, flush=True)
-    Image.open(dest/'tiger-stream.webp').convert('RGB').resize((420,420),Image.Resampling.LANCZOS).save(ROOT/'assets/jungle/covers/jigsaw.webp',quality=90,method=6)
+    export_image(ROOT/'art/generated/jigsaw/tiger-stream.png',
+                 ROOT/'assets/jungle/covers/jigsaw.webp', 'scene', size=(420, 420))
+
 
 
 if __name__ == '__main__':
