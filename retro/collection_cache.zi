@@ -1,0 +1,17 @@
+// A game's copy of the app's collected set, kept so a frame need not ask the
+// app. It holds the jungle.collection reply: the hex mask of host/jungle_collection.zi.
+#import, file "../host/jungle_collection.zi";
+
+collection_cache_mask: string;
+collection_cache_loaded: bool;
+
+CollectionCacheSet :: (mask: string) {
+    kept: Vec(u8)
+    BuilderPrint(*kept, "%", mask)
+    collection_cache_mask = BuilderFinish(kept)
+    collection_cache_loaded = true
+}
+
+CollectionCacheHas :: (id: s32) -> bool {
+    return CollectionMaskHas(collection_cache_mask, id)
+}

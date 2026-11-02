@@ -234,7 +234,7 @@ def real_tree_test():
             assert sha(source) == sha(installed[target]), path
     assert 'assets/jungle-book/font.png' in aliases and 'assets/dino-paint/font.png' in aliases
     assert all(f'assets/animal-count/pictures/{name}.png' in aliases for name in shared_assets.COUNTING)
-    assert bundles['jungle-book'] == {}, 'Picture Book bundle must not repeat the installed book'
+    assert set(bundles['jungle-book']) == {'assets/jungle-book/collect.wav'}, 'Picture Book bundle holds only its chime, never the installed book'
     sounds = 0
     for name, files in bundles.items():
         for path, source in files.items():

@@ -5,7 +5,6 @@ from pathlib import Path
 import tempfile
 import time
 
-from PIL import Image
 from runtime_test import Desktop, ROOT
 
 
@@ -69,14 +68,13 @@ with tempfile.TemporaryDirectory(prefix="skip-", dir=work) as temporary:
     with Desktop(binary, data, screen_size="320x200") as desktop:
         _, _, skip = wait_guide(desktop, 320, 200, "guide-before-skip")
         desktop.click_actual(*skip)
-        desktop.capture_actual("guide-immediately-after-skip")
+        immediate = desktop.capture_actual("guide-immediately-after-skip")
         _, _, box = guide_controls(320, 200)
-        immediate = Image.open(ROOT / "build/tests/ui/guide-immediately-after-skip.png").convert("RGB")
         assert cream_pixels(immediate, *box) < 500, "Skipped guide stayed on screen"
     assert (data / "guide-seen.txt").read_text() == "yes\n", "Guide skip was not saved"
     with Desktop(binary, data, screen_size="320x200") as desktop:
         desktop.wait_menu("guide-disabled")
-        picture = Image.open(ROOT / "build/tests/ui/guide-disabled.png").convert("RGB")
+        picture = desktop.capture_actual("guide-disabled")
         _, _, box = guide_controls(320, 200)
         assert cream_pixels(picture, *box) < 500, "Skipped guide reappeared"
 

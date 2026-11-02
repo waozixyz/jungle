@@ -1,6 +1,7 @@
 // What a Jungle game asks of the Jungle app around it.
 #import "app_context"
 #import, file "language.zi";
+#import, file "collection_cache.zi";
 
 // Plays one of the game's own sound files, such as
 // "assets/animal-count/sounds/right.wav".
@@ -32,4 +33,22 @@ GameCanvas :: (pixels: string) -> string {
 
 GameLanguage :: () {
     LanguageSet(AppService("jungle.language", ""))
+}
+
+// Asks the app once for the collected set; GameCollected reads the answer.
+GameCollectionRefresh :: () {
+    CollectionCacheSet(AppService("jungle.collection", ""))
+}
+
+GameCollected :: (id: s32) -> bool {
+    if !collection_cache_loaded { GameCollectionRefresh() }
+    return CollectionCacheHas(id)
+}
+
+// True only the first time SLUG is collected. An app without the service
+// answers "" and nothing is collected.
+GameCollect :: (slug: string) -> bool {
+    reply := AppService("jungle.collect", slug)
+    if reply != "" { GameCollectionRefresh() }
+    return reply == "new"
 }

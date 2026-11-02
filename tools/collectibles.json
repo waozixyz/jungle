@@ -5,7 +5,7 @@
       "id": 0,
       "slug": "monkey",
       "source": {"kind": "book", "page": "assets/jungle-book/pages/monkey.jpg"},
-      "how": {"kind": "tap", "x": 0.5, "y": 0.55, "rx": 0.3, "ry": 0.35},
+      "how": {"kind": "tap", "x": 0.48, "y": 0.5, "rx": 0.33, "ry": 0.26},
       "color": "assets/jungle-book/items/monkey.png",
       "pending": false,
       "paint": {"kind": "stencil", "category": "animals", "art": null}
@@ -14,7 +14,7 @@
       "id": 1,
       "slug": "panda",
       "source": {"kind": "book", "page": "assets/jungle-book/pages/panda.jpg"},
-      "how": {"kind": "tap", "x": 0.5, "y": 0.55, "rx": 0.3, "ry": 0.35},
+      "how": {"kind": "tap", "x": 0.47, "y": 0.54, "rx": 0.27, "ry": 0.29},
       "color": "assets/jungle-book/items/panda.png",
       "pending": false,
       "paint": {"kind": "stencil", "category": "animals", "art": null}
@@ -23,7 +23,7 @@
       "id": 2,
       "slug": "zebra",
       "source": {"kind": "book", "page": "assets/jungle-book/pages/zebra.jpg"},
-      "how": {"kind": "tap", "x": 0.5, "y": 0.55, "rx": 0.3, "ry": 0.35},
+      "how": {"kind": "tap", "x": 0.47, "y": 0.5, "rx": 0.3, "ry": 0.37},
       "color": "assets/jungle-book/items/zebra.png",
       "pending": false,
       "paint": {"kind": "stencil", "category": "animals", "art": null}
@@ -32,7 +32,7 @@
       "id": 3,
       "slug": "pig",
       "source": {"kind": "book", "page": "assets/jungle-book/pages/pig.jpg"},
-      "how": {"kind": "tap", "x": 0.5, "y": 0.55, "rx": 0.3, "ry": 0.35},
+      "how": {"kind": "tap", "x": 0.5, "y": 0.5, "rx": 0.33, "ry": 0.31},
       "color": "assets/jungle-book/items/pig.png",
       "pending": false,
       "paint": {"kind": "stencil", "category": "animals", "art": null}
@@ -41,7 +41,7 @@
       "id": 4,
       "slug": "ladybug",
       "source": {"kind": "book", "page": "assets/jungle-book/pages/ladybug.jpg"},
-      "how": {"kind": "tap", "x": 0.5, "y": 0.55, "rx": 0.3, "ry": 0.35},
+      "how": {"kind": "tap", "x": 0.46, "y": 0.49, "rx": 0.26, "ry": 0.19},
       "color": "assets/jungle-book/items/ladybug.png",
       "pending": false,
       "paint": {"kind": "stencil", "category": "animals", "art": null}
@@ -50,7 +50,7 @@
       "id": 5,
       "slug": "snail",
       "source": {"kind": "book", "page": "assets/jungle-book/pages/snail.jpg"},
-      "how": {"kind": "tap", "x": 0.5, "y": 0.55, "rx": 0.3, "ry": 0.35},
+      "how": {"kind": "tap", "x": 0.4, "y": 0.53, "rx": 0.31, "ry": 0.18},
       "color": "assets/jungle-book/items/snail.png",
       "pending": false,
       "paint": {"kind": "stencil", "category": "animals", "art": null}
@@ -59,7 +59,7 @@
       "id": 6,
       "slug": "magic-pot",
       "source": {"kind": "story", "story": "sweet-porridge", "page": "porridge_02_gift"},
-      "how": {"kind": "tap", "x": 0.5, "y": 0.55, "rx": 0.3, "ry": 0.35},
+      "how": {"kind": "tap", "x": 0.55, "y": 0.38, "rx": 0.075, "ry": 0.11},
       "color": "assets/collectibles/magic-pot.png",
       "pending": true,
       "paint": {"kind": "stencil", "category": "objects", "art": null}

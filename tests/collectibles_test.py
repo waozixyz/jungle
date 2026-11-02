@@ -62,3 +62,16 @@ def test_check_rejects_a_stale_generated_catalog(tmp_path: Path, monkeypatch: py
     monkeypatch.setattr(collectibles, "OUTPUT_PATH", tmp_path / "collectibles.zi")
     assert collectibles.main(["--check"]) == 1
 
+
+def test_book_bundle_packs_every_ready_cut_out():
+    """A page's flying cut-out must be in the Picture Book bundle before it stops being pending."""
+    import sys
+
+    sys.path.insert(0, str(ROOT / "tools"))
+    from shared_assets import GameFiles
+
+    packed = GameFiles("jungle-book")
+    assert "assets/jungle-book/collect.wav" in packed
+    for entry in validate_registry(load_registry()):
+        if entry["source"]["kind"] in ("book", "story") and not entry["pending"]:
+            assert entry["color"] in packed, entry["slug"]

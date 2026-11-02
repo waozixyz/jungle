@@ -1,0 +1,51 @@
+// Which subject a book or story page offers and where a tap collects it, apart
+// from drawing so tests can check it. Only the reading page in jungle_book.zi draws.
+#import, file "../../retro/collection_cache.zi";
+#import, file "../../retro/collectibles.zi";
+
+BOOK_COLLECT_SECONDS :: 0.9
+BOOK_COLLECT_CORNER_SIZE :: 56
+BOOK_COLLECT_CORNER_MARGIN :: 12
+STORY_NAME :: "sweet-porridge"
+STORY_PAGE_PREFIX :: "assets/jungle-book/pages/"
+STORY_PAGE_SUFFIX :: ".jpg"
+
+BookCollectRect :: struct { x: s32; y: s32; width: s32; height: s32; }
+
+// The registry entry of a page picture, or -1.
+BookCollectIndex :: (path: string, story: bool) -> s32 {
+    if !story { return CollectibleForPage(path) }
+    first := STORY_PAGE_PREFIX.count
+    last := path.count - STORY_PAGE_SUFFIX.count
+    if last <= first || path[:first] != STORY_PAGE_PREFIX || path[last:] != STORY_PAGE_SUFFIX { return -1 }
+    return CollectibleForStory(STORY_NAME, path[first:last])
+}
+
+// Whether a tap at X, Y collects entry INDEX drawn in PICTURE. Anything else
+// stays an ordinary page tap.
+BookCollectWants :: (index: s32, collected: bool, picture: BookCollectRect, x: s32, y: s32) -> bool {
+    if index < 0 || collected || picture.width <= 0 || picture.height <= 0 { return false }
+    return CollectibleTapHit(index, (cast(float32)x - cast(float32)picture.x) / cast(float32)picture.width,
+        (cast(float32)y - cast(float32)picture.y) / cast(float32)picture.height)
+}
+
+// The square around entry INDEX where its flight starts.
+BookCollectStart :: (index: s32, picture: BookCollectRect) -> BookCollectRect {
+    across := collectible_rx[index] * cast(float32)picture.width
+    down := collectible_ry[index] * cast(float32)picture.height
+    size := cast(s32)(2.0 * (ifx across > down then across else down))
+    return BookCollectRect.{picture.x + cast(s32)(collectible_x[index] * cast(float32)picture.width) - size / 2,
+        picture.y + cast(s32)(collectible_y[index] * cast(float32)picture.height) - size / 2, size, size}
+}
+
+// Where the shape is at PROGRESS (0..1): it eases from START to the top corner.
+BookCollectFlight :: (start: BookCollectRect, screen_width: s32, progress: float32) -> BookCollectRect {
+    at := ifx progress < 0.0 then 0.0 else ifx progress > 1.0 then 1.0 else progress
+    eased := at * at * (3.0 - 2.0 * at)
+    corner := BookCollectRect.{screen_width - BOOK_COLLECT_CORNER_SIZE - BOOK_COLLECT_CORNER_MARGIN,
+        BOOK_COLLECT_CORNER_MARGIN, BOOK_COLLECT_CORNER_SIZE, BOOK_COLLECT_CORNER_SIZE}
+    return BookCollectRect.{start.x + cast(s32)(cast(float32)(corner.x - start.x) * eased),
+        start.y + cast(s32)(cast(float32)(corner.y - start.y) * eased),
+        start.width + cast(s32)(cast(float32)(corner.width - start.width) * eased),
+        start.height + cast(s32)(cast(float32)(corner.height - start.height) * eased)}
+}

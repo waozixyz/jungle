@@ -27,6 +27,8 @@ StoryPlayIcon :: #import "mingcute/mingcute_filled_play";
 StoryPauseIcon :: #import "mingcute/mingcute_filled_pause";
 #import, file "book_narration.zi";
 #import, file "book_preferences.zi";
+#import, file "book_collect.zi";
+#import, file "../../retro/collectibles.zi";
 #import "number_text"
 #import "text_buffer"
 #import "byte_text_linux"
@@ -58,6 +60,9 @@ paused_at: float64;
 managing_books: bool;
 secondary_back_was_down: bool;
 direct_story: bool;
+collect_flying: s32 = -1;
+collect_started: float64;
+collect_start: BookCollectRect;
 StoryBook :: () -> bool { return direct_story }
 PageCount :: () -> s32 { return ifx direct_story then STORY_PAGE_COUNT else category_counts[category] }
 PagePath :: (offset: s32 = 0) -> string {
@@ -359,6 +364,64 @@ SceneRect :: () -> (x: s32, y: s32, size: s32) {
     return (book_width - size) / 2, (book_height - size) / 2, size
 }
 
+// Where the current page's subject is drawn: the whole scene of a book page,
+// the illustrated section of a story page.
+PagePictureRect :: () -> BookCollectRect {
+    if direct_story {
+        layout := StoryPageLayout(book_width, book_height, story_paper_top[page])
+        return BookCollectRect.{layout.x, layout.y, layout.width, layout.art_height}
+    }
+    x, y, size := SceneRect()
+    return BookCollectRect.{x, y, size, size}
+}
+
+// The current page's subject while it can still be collected, or -1.
+PageCollectible :: () -> s32 {
+    index := BookCollectIndex(PagePath(), direct_story)
+    if index < 0 || GameCollected(collectible_ids[index]) { return -1 }
+    return index
+}
+
+// A tap on a subject not yet collected collects it and is used up. With nothing
+// to collect, or an app that does not collect, it stays an ordinary page tap.
+BookCollectTap :: (x: s32, y: s32) -> bool {
+    index := PageCollectible()
+    if index < 0 || PagePicturePresented(PagePath()) <= 0 { return false }
+    picture := PagePictureRect()
+    if !BookCollectWants(index, false, picture, x, y) || !GameCollect(collectible_slugs[index]) { return false }
+    collect_flying = index
+    collect_started = retro.now
+    collect_start = BookCollectStart(index, picture)
+    GameSound("assets/jungle-book/collect.wav")
+    return true
+}
+
+BookCollectFlying :: () -> bool {
+    return collect_flying >= 0 && retro.now - collect_started < BOOK_COLLECT_SECONDS
+}
+
+COLLECT_SPARKLE_X: [8]s32 = .[100, 71, 0, -71, -100, -71, 0, 71];
+COLLECT_SPARKLE_Y: [8]s32 = .[0, 71, 100, 71, 0, -71, -100, -71];
+
+// The colored shape flies to the top corner inside a few soft sparkles.
+CollectFlight :: () {
+    if !BookCollectFlying() { collect_flying = -1; return }
+    progress := cast(float32)((retro.now - collect_started) / BOOK_COLLECT_SECONDS)
+    place := BookCollectFlight(collect_start, book_width, progress)
+    if collectible_color_ready[collect_flying] {
+        BookPicture(collectible_colors[collect_flying], place.x, place.y, place.width, place.height)
+    }
+    center_x := place.x + place.width / 2
+    center_y := place.y + place.height / 2
+    reach := place.width / 2 + 8 + cast(s32)(16.0 * progress)
+    alpha := cast(u32)(255.0 * (1.0 - progress * progress))
+    for at: cast(s32)0..7 {
+        dot: s32 = ifx at % 2 == 0 then 10 else 6
+        BookBox(center_x + COLLECT_SPARKLE_X[at] * reach / 100 - dot / 2, center_y + COLLECT_SPARKLE_Y[at] * reach / 100 - dot / 2,
+            dot, dot, 0xfff0b400 | alpha, 0, cast(float32)dot / 2.0)
+    }
+}
+
 FINISHED_SECONDS :: 8.0
 
 CaptionWidth :: () -> s32 { return ifx book_width - 32 < 560 then book_width - 32 else 560 }
@@ -499,6 +562,8 @@ ReadingPage :: () {
         for ahead: cast(s32)1..2 {
             if page + ahead < PageCount() { PrefetchPicture(PagePath(ahead)) }
         }
+        offered := PageCollectible()
+        if offered >= 0 && collectible_color_ready[offered] { PrefetchPicture(collectible_colors[offered]) }
     }
     if !simple && !StoryBook() {
         spelling_font: s32 = 22
@@ -537,6 +602,7 @@ ReadingPage :: () {
     // Keyboard activation has no page point. Raw Enter/Space below
     // owns its meaning; only a pointer release can choose a page side.
     tapped := touch.clicked && touch.released && !moved
+    if tapped && BookCollectTap(RetroPointX(touch.x), RetroPointY(touch.y)) { tapped = false }
     back_side := tapped && touch.x < retro.x + cast(float32)(book_width / 3)
     if back_side || retro.key == KEY_LEFT || direction == SwipeDirection.SwipeRight { Turn(-1) }
     else if tapped || retro.key == KEY_RIGHT || retro.key == KEY_ENTER || direction == SwipeDirection.SwipeLeft { Turn(1) }
@@ -544,6 +610,7 @@ ReadingPage :: () {
         PictureBookBack()
     }
     PlaybackControls()
+    CollectFlight()
 }
 
 GameMain :: () -> s32 {
@@ -562,6 +629,7 @@ GameMain :: () -> s32 {
         book_tab = 0
         playing = true; paused_at = 0.0; playback_speed = 1
         managing_books = false
+        collect_flying = -1
         AppIdentity("jungle.book")
         AppDescribe("Picture Book", "")
         return APP_PROTOCOL
@@ -577,6 +645,7 @@ GameMain :: () -> s32 {
         if !direct_story { for index: cast(s32)0..CATEGORY_COUNT - 1 {
             LoadBookChoice(index, DocumentRead(Join("hidden-", category_ids[index], ".txt")), DocumentRead(Join("skip-", category_ids[index], ".txt")))
         } }
+        GameCollectionRefresh()
         settings_loaded = true
     }
     now := AppNow()
@@ -596,7 +665,7 @@ GameMain :: () -> s32 {
         NarrationObserve(*narration, now, AppService("jungle.voice-state", ""))
     }
     // An unconfirmed or pending start holds the page like a loading voice.
-    if playing && !NarrationWaiting(narration) && !choosing_category && !finished && !swipe_tracking {
+    if playing && !NarrationWaiting(narration) && !choosing_category && !finished && !swipe_tracking && !BookCollectFlying() {
         state := AppService("jungle.voice-state", "")
         if state == "loading" || state == "playing" { voice_idle_started = 0.0 }
         else if voice_idle_started == 0.0 { voice_idle_started = now }

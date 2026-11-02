@@ -127,7 +127,7 @@ def schedule() -> tuple[Group, ...]:
                                if step.argv != BENCHMARK and step.argv not in ITCH_STEPS), tmpdir="work/b"),
         group("book-en", book("en")),
         group("book-de", book("de")),
-        group("navigation", "python3 tests/menu_ui_test.py", "python3 tests/runtime_test.py --ui",
+        group("navigation", "python3 tests/title_guide_ui_test.py", "python3 tests/menu_ui_test.py", "python3 tests/runtime_test.py --ui",
               "python3 tests/learning_menu_test.py", "python3 tests/piano_ui_test.py",
               "python3 tests/jigsaw_sizes_ui_test.py", "python3 tests/jigsaw_ui_test.py"),
         group("book-es", book("es")),

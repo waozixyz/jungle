@@ -1,0 +1,107 @@
+// Pure tap-to-collect rules: registry ellipses, the cached mask and the flight.
+#import, file "../games/book/book_collect.zi";
+#import, file "../retro/collection_cache.zi";
+#import, file "../retro/collectibles.zi";
+#import "std/stdio_linux"
+
+BOOK_PAGES: [6]string = .["assets/jungle-book/pages/monkey.jpg", "assets/jungle-book/pages/panda.jpg",
+    "assets/jungle-book/pages/zebra.jpg", "assets/jungle-book/pages/pig.jpg",
+    "assets/jungle-book/pages/ladybug.jpg", "assets/jungle-book/pages/snail.jpg"];
+STORY_GIFT :: "assets/jungle-book/pages/porridge_02_gift.jpg"
+
+#program_export
+main :: () -> s32 {
+    // Every registry page finds its entry; other pages and paths offer nothing.
+    for at: cast(s32)0..5 {
+        if BookCollectIndex(BOOK_PAGES[at], false) != at { return 1 }
+    }
+    if BookCollectIndex(STORY_GIFT, true) != 6 { return 2 }
+    if BookCollectIndex(STORY_GIFT, false) != -1 || BookCollectIndex(BOOK_PAGES[0], true) != -1 ||
+        BookCollectIndex("assets/jungle-book/pages/porridge_03_magic_words.jpg", true) != -1 ||
+        BookCollectIndex("assets/jungle-book/pages/tiger.jpg", false) != -1 ||
+        BookCollectIndex("short", true) != -1 { return 3 }
+
+    // Each ellipse covers its subject's middle, not the picture's far corners, and is
+    // a real ellipse rather than its bounding box.
+    for index: cast(s32)0..6 {
+        x := collectible_x[index]
+        y := collectible_y[index]
+        rx := collectible_rx[index]
+        ry := collectible_ry[index]
+        if !CollectibleTapHit(index, x, y) { return 4 }
+        if !CollectibleTapHit(index, x + rx * 0.99, y) || !CollectibleTapHit(index, x, y - ry * 0.99) { return 5 }
+        if CollectibleTapHit(index, x + rx * 1.01, y) || CollectibleTapHit(index, x, y + ry * 1.01) { return 6 }
+        if CollectibleTapHit(index, x + rx * 0.9, y + ry * 0.9) { return 7 }
+        if CollectibleTapHit(index, 0.01, 0.01) || CollectibleTapHit(index, 0.99, 0.99) { return 8 }
+        // Not the registry's placeholder any more.
+        if rx == 0.3 && ry == 0.35 { return 9 }
+    }
+    // Spot checks against the painted subjects.
+    if !CollectibleTapHit(CollectibleBySlug("zebra"), 0.68, 0.30) { return 10 } // neck
+    if !CollectibleTapHit(CollectibleBySlug("pig"), 0.25, 0.42) { return 11 } // snout
+    if CollectibleTapHit(CollectibleBySlug("ladybug"), 0.80, 0.30) { return 12 } // flowers
+    if !CollectibleTapHit(CollectibleBySlug("magic-pot"), 0.55, 0.38) { return 13 } // the pot
+    if CollectibleTapHit(CollectibleBySlug("magic-pot"), 0.40, 0.45) { return 14 } // the rabbit
+
+    // Papers and bad indices are never tap targets.
+    if CollectibleTapHit(CollectibleBySlug("toucan"), 0.0, 0.0) || CollectibleTapHit(-1, 0.5, 0.5) ||
+        CollectibleTapHit(COLLECTIBLE_COUNT, 0.5, 0.5) { return 15 }
+
+    // Mask parsing agrees with the store: low ids first, id 4i + b is bit 1 << b.
+    if collection_cache_loaded { return 16 }
+    if CollectionCacheHas(0) { return 17 }
+    CollectionCacheSet("308")
+    if !collection_cache_loaded { return 18 }
+    if !CollectionCacheHas(0) || !CollectionCacheHas(1) || !CollectionCacheHas(11) ||
+        CollectionCacheHas(4) || CollectionCacheHas(14) || CollectionCacheHas(-1) || CollectionCacheHas(252) { return 19 }
+    for bad: cast(s32)0..2 {
+        CollectionCacheSet(ifx bad == 0 then "" else ifx bad == 1 then "0" else "308G")
+        if CollectionCacheHas(0) { return 20 }
+    }
+
+    // Landscape: the square scene is centered. Portrait: it is the full width.
+    wide := BookCollectRect.{280, 0, 720, 720}
+    tall := BookCollectRect.{0, 200, 400, 400}
+    panda := CollectibleBySlug("panda")
+    wide_x: s32 = 280 + cast(s32)(collectible_x[panda] * 720.0)
+    wide_y: s32 = cast(s32)(collectible_y[panda] * 720.0)
+    tall_x: s32 = cast(s32)(collectible_x[panda] * 400.0)
+    tall_y: s32 = 200 + cast(s32)(collectible_y[panda] * 400.0)
+    if !BookCollectWants(panda, false, wide, wide_x, wide_y) || !BookCollectWants(panda, false, tall, tall_x, tall_y) { return 21 }
+    // The same point on a differently placed picture misses: the rect matters.
+    if BookCollectWants(panda, false, wide, tall_x, tall_y) { return 22 }
+    // A tap outside the ellipse, off the page, or on a page without an entry stays a turn.
+    if BookCollectWants(panda, false, wide, 290, 10) || BookCollectWants(panda, false, tall, tall_x, 10) ||
+        BookCollectWants(-1, false, wide, wide_x, wide_y) { return 23 }
+    // Once collected, the same tap turns the page again.
+    if BookCollectWants(panda, true, wide, wide_x, wide_y) { return 24 }
+    CollectionCacheSet("2")
+    if !CollectionCacheHas(collectible_ids[panda]) ||
+        BookCollectWants(panda, CollectionCacheHas(collectible_ids[panda]), wide, wide_x, wide_y) { return 25 }
+    if !BookCollectWants(CollectibleBySlug("monkey"), CollectionCacheHas(0), wide,
+        280 + cast(s32)(collectible_x[0] * 720.0), cast(s32)(collectible_y[0] * 720.0)) { return 26 }
+
+    // The story's subject is placed on its illustrated section.
+    pot := CollectibleBySlug("magic-pot")
+    art := BookCollectRect.{0, 0, 1000, 528}
+    if !BookCollectWants(pot, false, art, 550, 200) || BookCollectWants(pot, false, art, 550, 400) { return 27 }
+
+    // The flight starts around the subject and ends small in the top corner.
+    start := BookCollectStart(panda, wide)
+    if start.width != start.height || start.width < 300 ||
+        start.x + start.width / 2 < wide_x - 2 || start.x + start.width / 2 > wide_x + 2 { return 28 }
+    first := BookCollectFlight(start, 1280, 0.0)
+    if first.x != start.x || first.y != start.y || first.width != start.width { return 29 }
+    last := BookCollectFlight(start, 1280, 1.0)
+    if last.x != 1280 - BOOK_COLLECT_CORNER_SIZE - BOOK_COLLECT_CORNER_MARGIN || last.y != BOOK_COLLECT_CORNER_MARGIN ||
+        last.width != BOOK_COLLECT_CORNER_SIZE { return 30 }
+    if BookCollectFlight(start, 1280, 2.0).x != last.x || BookCollectFlight(start, 1280, -1.0).x != first.x { return 31 }
+    middle := BookCollectFlight(start, 1280, 0.5)
+    if middle.x <= first.x || middle.x >= last.x || middle.width >= first.width || middle.width <= last.width { return 32 }
+
+    // Colored cut-outs fly only once the picture exists.
+    if !collectible_color_ready[panda] || collectible_color_ready[pot] { return 33 }
+
+    WriteOutput("book collect test passed\n")
+    return 0
+}
