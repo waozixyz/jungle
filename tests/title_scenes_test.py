@@ -1,5 +1,6 @@
 """Validate title variants without selecting unapproved portrait artwork."""
 import copy
+import hashlib
 import importlib.util
 import json
 import sys
@@ -11,6 +12,7 @@ from PIL import Image, ImageFilter
 import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
+APPROVED_TITLE_WEBP = ROOT/'tests/approved_title_webp.json'
 spec = importlib.util.spec_from_file_location('title_scenes', ROOT/'tools/title_scenes.py')
 title = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(title)
@@ -34,6 +36,31 @@ def hit(scene, x, y):
 
 
 class TitleVariants(unittest.TestCase):
+    def approved_title(self, path):
+        manifest = json.loads(APPROVED_TITLE_WEBP.read_text())
+        self.assertEqual(manifest['format'], 'jungle-approved-title-webp-1')
+        self.assertEqual((manifest['quality'], manifest['method']), (50, 6))
+        rows = {row['path']: row for row in manifest['images']}
+        self.assertEqual(len(rows), 8)
+        self.assertEqual(sum(row['bytes'] for row in rows.values()), manifest['total_bytes'])
+        return rows[path]
+
+    def assert_approved_title_webp(self, path):
+        row = self.approved_title(path)
+        runtime = ROOT/path
+        self.assertEqual(runtime.stat().st_size, row['bytes'])
+        self.assertEqual(hashlib.sha256(runtime.read_bytes()).hexdigest(), row['sha256'])
+        with Image.open(runtime) as image:
+            self.assertEqual(image.format, 'WEBP')
+            self.assertEqual(image.size, (row['width'], row['height']))
+            self.assertEqual(hashlib.sha256(image.convert('RGBA').tobytes()).hexdigest(),
+                             row['decoded_rgba_sha256'])
+        canonical = ROOT/row['canonical_source']
+        self.assertEqual(canonical.stat().st_size, row['canonical_bytes'])
+        self.assertEqual(hashlib.sha256(canonical.read_bytes()).hexdigest(), row['canonical_sha256'])
+        with Image.open(canonical) as image:
+            self.assertEqual(image.size, (row['width'], row['height']))
+
     def signs(self):
         data = json.loads(title.SOURCE.read_text())
         campus = next(s for s in data['scenes'] if s['name'] == 'campus')
@@ -134,10 +161,7 @@ class TitleVariants(unittest.TestCase):
         _, scenes, _, _ = title.Load()
         for name in ('beach', 'beach-portrait'):
             scene = next(s for s in scenes if s['name'] == name)
-            orientation = 'portrait' if name.endswith('-portrait') else 'landscape'
-            approved = np.asarray(Image.open(ROOT/f'art/generated/world-scene-refresh/beach-{orientation}-clean.png').convert('RGB'))
-            plate = np.asarray(Image.open(ROOT/scene['image']).convert('RGB'))
-            self.assertTrue(np.array_equal(approved, plate), name)
+            self.assert_approved_title_webp(scene['image'])
             for ident in ('fishing-boat', 'crab-family'):
                 target = next(h for h in scene['hotspots'] if h['id'] == ident)
                 x, y, w, h = target['glow_rect']
@@ -265,6 +289,8 @@ class TitleVariants(unittest.TestCase):
                 original = np.asarray(Image.open(ROOT/scene['image']).convert('RGB'))
                 foreground = Image.open(ROOT/scene['foreground']).convert('RGBA')
                 background = np.asarray(Image.open(ROOT/scene['background']).convert('RGB'))
+                approved = self.approved_title(scene['background'])
+                canonical = np.asarray(Image.open(ROOT/approved['canonical_source']).convert('RGB'))
                 pixels = np.asarray(foreground)
                 alpha = pixels[:, :, 3]
                 self.assertEqual(foreground.size, (scene['width'], scene['height']))
@@ -273,7 +299,8 @@ class TitleVariants(unittest.TestCase):
                 # Reconstructed background is confined to the extracted object,
                 # preserving every unrelated object and accepted scene pixel.
                 outside = np.asarray(foreground.getchannel('A').filter(ImageFilter.MaxFilter(13))) == 0
-                self.assertTrue(np.array_equal(background[outside], original[outside]))
+                self.assertTrue(np.array_equal(canonical[outside], original[outside]))
+                self.assert_approved_title_webp(scene['background'])
                 self.assertGreater(np.abs(background.astype(int)-original).sum(), 10000)
                 self.assertGreater(float((alpha > 0).mean()), .01)
                 self.assertLess(float((alpha > 0).mean()), .3)
