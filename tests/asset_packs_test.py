@@ -77,6 +77,31 @@ with tempfile.TemporaryDirectory(prefix='asset-pack-test-',dir=ROOT/'build') as 
         raise AssertionError('Excess files passed the upload gate')
     except ValueError:
         pass
+    # The expanded catalog must fit the host cap without downloading the
+    # whole book directory at once. Exercise staging, including its pack policy.
+    from unittest.mock import patch
+    import build_web
+    catalog_root=root/'expanded-catalog'
+    pictures=catalog_root/'assets/jigsaw'
+    pictures.mkdir(parents=True)
+    for index in range(1001):
+        (pictures/f'{index:04}.png').write_bytes(index.to_bytes(4,'little')+bytes(1020))
+    site=root/'expanded-site';site.mkdir()
+    with patch.multiple(build_web,create=True,ROOT=catalog_root,
+                        Shipped=lambda name:True,WebAliases=lambda:{},WebFiles=lambda:({},{}),
+                        Speech=lambda:({'clips':{},'voices':{}},{}),
+                        SpeechIndexText=lambda speech:'',
+                        write_previews=lambda files,out:None,
+                        prepare_web_images=lambda files,cache:(files,{},{})):
+        expanded=build_web.stage_assets(site)
+    count,_=validate_distribution(site)
+    assert count<20, count
+    assert len([name for name in expanded['files'] if name.endswith('.png')])==1001
+    for name,entry in expanded['files'].items():
+        if not name.endswith('.png'): continue
+        with zipfile.ZipFile(site/entry['pack']) as archive:
+            assert sum(row.file_size for row in archive.infolist())<=512*1024
+            assert archive.read(name)==(catalog_root/name).read_bytes()
     # Every supported picture gets a few-KB preview at its own aspect ratio,
     # including jigsaw scenes and transparent cut-outs.
     import io, json

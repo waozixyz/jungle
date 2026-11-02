@@ -156,10 +156,7 @@ SceneCategoryCount :: (index: s32) -> s32 {
 
 SceneCategoryLabel :: (index: s32) -> string {
     if index == PAINT_SCENE_CATEGORY_COUNT {
-        code := LanguageCode()
-        if code == "de" { return "Leere Seite" }
-        if code == "es" { return "Página en blanco" }
-        return "Blank page"
+        return Tr("Blank page")
     }
     return PaintSceneCategoryLabel(index)
 }

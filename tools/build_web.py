@@ -190,18 +190,18 @@ def stage_assets(out):
         if (name.startswith('assets/jungle/') and Path(name).suffix != '.wav') or name.endswith('/font.png'):
             target=out/name;target.parent.mkdir(parents=True,exist_ok=True)
             shutil.copy2(files.pop(name),target)
-    # A page is requested individually. Opening one picture must not fetch
-    # several megabytes of unrelated pages or the whole shelf's covers.
-    single_files={name for name in files if str(Path(name).parent) in
-                  ('assets/jigsaw','assets/jungle-book/pages','assets/jungle-book/previews',
-                   'assets/jungle-book/items','assets/hide_seek/props','assets/hide_seek/scenes',
-                   'assets/drums/pictures')}
+    # Bound picture downloads while keeping the expanded catalog below the
+    # host's 1,000-file limit. One oversized picture may occupy its own pack.
+    picture_groups={parent:512*1024 for parent in (
+        'assets/jigsaw','assets/jungle-book/pages','assets/jungle-book/previews',
+        'assets/jungle-book/items','assets/hide_seek/props','assets/hide_seek/scenes',
+        'assets/drums/pictures')}
     # Speech clips are content-addressed and small; bounded groups avoid a
     # whole-language download while keeping the distribution below host limits.
     speech_groups={str(Path(name).parent):128*1024 for name in files if name.startswith('assets/speech/')}
     write_previews(files,out)
     files,archive_names,encodings=prepare_web_images(files,ROOT/'work/web-image-cache')
-    manifest=pack_assets(files,out,archive_names=archive_names,single_files=single_files,group_bytes=speech_groups)
+    manifest=pack_assets(files,out,archive_names=archive_names,group_bytes={**speech_groups,**picture_groups})
     for name,encoding in encodings.items():
         manifest['files'][name]={**manifest['files'][name],**encoding}
     (out/'asset-packs.json').write_text(json.dumps(manifest,separators=(',',':'))+'\n')
