@@ -76,8 +76,15 @@ class MinimumBookArtTest(unittest.TestCase):
                     paths.add(path)
                     receipt = json.loads(path.with_suffix('.speech.json').read_text())
                     self.assertEqual(receipt['text'], narration(name, language, True))
-                    self.assertEqual(receipt['voice'], 'Kore')
-                    self.assertEqual(receipt['speed'], 1.0)
+                    if language == 'en':
+                        self.assertEqual(receipt['voice'], 'af_bella')
+                        self.assertEqual(receipt['speed'], 0.8)
+                        self.assertEqual(receipt['model'], 'kokoro-82m-uint8')
+                        self.assertEqual(receipt['profile'], 'normal')
+                        self.assertEqual(receipt['language'], 'en')
+                    else:
+                        self.assertEqual(receipt['voice'], 'Kore')
+                        self.assertEqual(receipt['speed'], 1.0)
                     self.assertEqual(receipt['sha256'], digest(path))
                     with wave.open(str(path)) as clip:
                         self.assertEqual((clip.getnchannels(), clip.getsampwidth(), clip.getframerate()), (1, 2, 22050))

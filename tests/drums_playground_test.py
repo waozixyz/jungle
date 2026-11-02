@@ -493,7 +493,13 @@ def main():
     for (language, cue), text in VOICE_TEXT.items():
         path = rt.ROOT / 'assets/drums/sounds' / language / (cue + '.wav')
         receipt = json.loads(path.with_suffix('.speech.json').read_text())
-        assert receipt['text'] == text and receipt['speed'] == 1.0, (path, 'natural-speed words changed')
+        assert receipt['text'] == text, (path, 'narration words changed')
+        if language == 'en':
+            assert receipt['voice'] == 'af_bella' and receipt['speed'] == 0.8, path
+            assert receipt['model'] == 'kokoro-82m-uint8' and receipt['profile'] == 'normal', path
+            assert receipt['language'] == 'en', path
+        else:
+            assert receipt['speed'] == 1.0, (path, 'natural-speed words changed')
         assert hashlib.sha256(path.read_bytes()).hexdigest() == receipt['sha256'], (path, 'voice provenance differs')
         with wave.open(str(path), 'rb') as clip:
             assert (clip.getnchannels(), clip.getsampwidth(), clip.getframerate()) == (1, 2, 22050)
