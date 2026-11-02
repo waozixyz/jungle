@@ -1,0 +1,158 @@
+// Gentle cast-and-release fishing: no missed catch, failure state or penalty.
+// Coordinates are thousandths of the painted scene; now is an injected
+// millisecond clock supplied by the host. Zero-initialization starts READY.
+#import, file "../../host/jungle_text.zi";
+#import, file "../../retro/language.zi";
+
+FISHING_KINDS :: 6
+FISHING_READY :: 0
+FISHING_CAST :: 1
+FISHING_REEL :: 2
+FISHING_CAUGHT :: 3
+
+FISHING_BOAT_X :: 180
+FISHING_BOAT_Y :: 500
+FISHING_WATER_LEFT :: 220
+FISHING_WATER_RIGHT :: 900
+FISHING_WATER_TOP :: 300
+FISHING_WATER_BOTTOM :: 760
+FISHING_FISH_GAP :: 26
+
+FishingState :: struct {
+    phase: s32
+    fish: s32 // species 0..5; meaningful only outside READY (use FishingCaught for cards)
+    seen: u8 // exactly bits 0..5; persistence stores this mask and nothing else
+    now: s64
+    bobber_x: s32
+    bobber_y: s32
+    fish_x: s32
+    fish_y: s32
+}
+
+FishingText :: (en: string, de: string, es: string) -> string {
+    if LanguageCode() == "de" { return de }
+    if LanguageCode() == "es" { return es }
+    return en
+}
+
+FishingName :: (fish: s32) -> string {
+    if fish == 0 { return FishingText("Clownfish", "Clownfisch", "Pez payaso") }
+    if fish == 1 { return FishingText("Blue tang", "Paletten-Doktorfisch", "Pez cirujano azul") }
+    if fish == 2 { return FishingText("Butterflyfish", "Falterfisch", "Pez mariposa") }
+    if fish == 3 { return FishingText("Angelfish", "Kaiserfisch", "Pez ángel") }
+    if fish == 4 { return FishingText("Parrotfish", "Papageifisch", "Pez loro") }
+    if fish == 5 { return FishingText("Pufferfish", "Kugelfisch", "Pez globo") }
+    return FishingText("Friend", "Freund", "Amigo")
+}
+
+FishingClampPoint :: (x: s32, y: s32, result: *s32, result_y: *s32) {
+    result.* = ifx x < FISHING_WATER_LEFT then FISHING_WATER_LEFT else ifx x > FISHING_WATER_RIGHT then FISHING_WATER_RIGHT else x
+    result_y.* = ifx y < FISHING_WATER_TOP then FISHING_WATER_TOP else ifx y > FISHING_WATER_BOTTOM then FISHING_WATER_BOTTOM else y
+}
+
+// A ready tap or drag casts to the nearest friendly water point. A caught tap
+// only closes the card; the following tap can begin a new cast. The selected
+// species is deterministic from the clamped water column.
+FishingCast :: (state: *FishingState, x: s32, y: s32, now: s64) -> bool {
+    if now <= 0 || now < state.now { return false }
+    if state.phase == FISHING_CAUGHT {
+        state.phase = FISHING_READY
+        state.fish = 0
+        state.now = now
+        state.bobber_x = FISHING_BOAT_X; state.bobber_y = FISHING_BOAT_Y
+        state.fish_x = FISHING_BOAT_X; state.fish_y = FISHING_BOAT_Y
+        return true
+    }
+    if state.phase != FISHING_READY { return false }
+    FishingClampPoint(x, y, *state.bobber_x, *state.bobber_y)
+    width: s32 = FISHING_WATER_RIGHT - FISHING_WATER_LEFT
+    state.fish = (state.bobber_x - FISHING_WATER_LEFT) * FISHING_KINDS / width
+    if state.fish >= FISHING_KINDS { state.fish = FISHING_KINDS - 1 }
+    state.fish_x = FISHING_WATER_RIGHT; state.fish_y = FISHING_WATER_BOTTOM - state.fish * 42
+    state.phase = FISHING_CAST
+    state.now = now
+    return true
+}
+
+// While casting, dragging moves the bobber to the nearest water point. The
+// chosen fish keeps approaching and can never be lost by moving or waiting.
+FishingMoveBobber :: (state: *FishingState, x: s32, y: s32) -> bool {
+    if state.phase != FISHING_CAST { return false }
+    FishingClampPoint(x, y, *state.bobber_x, *state.bobber_y)
+    return true
+}
+
+FishingStepToward :: (x: *s32, y: *s32, target_x: s32, target_y: s32, distance: s32) {
+    if distance <= 0 { return }
+    dx := target_x - x.*
+    if dx > distance { dx = distance }
+    if dx < -distance { dx = -distance }
+    x.* += dx
+    dy := target_y - y.*
+    if dy > distance { dy = distance }
+    if dy < -distance { dy = -distance }
+    y.* += dy
+}
+
+// Reeling is always available after a cast. The bobber returns to the boat,
+// the fish follows gently, and arrival only produces a celebration card.
+FishingBeginReel :: (state: *FishingState) -> bool {
+    if state.phase != FISHING_CAST { return false }
+    state.phase = FISHING_REEL
+    return true
+}
+
+// Tick once per UI frame. Equal or backward clocks do not move the fish.
+// Long stalls are capped so they cannot teleport the fish or cause a miss.
+// Clock buckets retain sub-step time across frames, including fast displays.
+FishingTick :: (state: *FishingState, now: s64) {
+    if now <= state.now || state.phase == FISHING_READY || state.phase == FISHING_CAUGHT { return }
+    elapsed := now - state.now
+    if elapsed > 250 { elapsed = 250 }
+    state.now = now
+    if state.phase == FISHING_CAST {
+        distance := cast(s32)(now / 16 - (now - elapsed) / 16)
+        FishingStepToward(*state.fish_x, *state.fish_y, state.bobber_x, state.bobber_y, distance)
+        return
+    }
+    if state.phase != FISHING_REEL { return }
+    distance := cast(s32)(now / 8 - (now - elapsed) / 8)
+    FishingStepToward(*state.bobber_x, *state.bobber_y, FISHING_BOAT_X, FISHING_BOAT_Y, distance)
+    FishingStepToward(*state.fish_x, *state.fish_y, state.bobber_x, state.bobber_y, distance * 2)
+    if state.bobber_x == FISHING_BOAT_X && state.bobber_y == FISHING_BOAT_Y &&
+        state.fish_x == FISHING_BOAT_X && state.fish_y == FISHING_BOAT_Y {
+        state.phase = FISHING_CAUGHT
+        state.fish_x = FISHING_BOAT_X + FISHING_FISH_GAP
+        state.fish_y = FISHING_BOAT_Y
+        state.seen |= cast(u8)(1 << state.fish)
+    }
+}
+
+// The catch-card species, or -1 when no card is showing.
+FishingCaught :: (state: FishingState) -> s32 {
+    return ifx state.phase == FISHING_CAUGHT then state.fish else -1
+}
+
+FishingSave :: (state: FishingState) -> string {
+    return Cat("fishing1 ", NumberText(cast(s32)(state.seen & 63)), "\n")
+}
+
+// Accept exactly the current version and a decimal mask 0..63. Rejected
+// legacy, corrupt or future saves never change the supplied state.
+FishingRead :: (text: string, result: *FishingState) -> bool {
+    if text.count < 11 || text.count > 12 || text[:9] != "fishing1 " { return false }
+    at: s64 = 9
+    start := at
+    seen: s64
+    while at < text.count && text[at] >= #char "0" && text[at] <= #char "9" {
+        seen = seen * 10 + cast(s64)(text[at] - #char "0")
+        at += 1
+    }
+    digits := at - start
+    if digits == 0 || digits > 2 || (digits > 1 && text[start] == #char "0") ||
+        at + 1 != text.count || text[at] != #char "\n" || seen > 63 { return false }
+    loaded: FishingState
+    loaded.seen = cast(u8)seen
+    result.* = loaded
+    return true
+}

@@ -1,0 +1,155 @@
+#import, file "../games/fishing/fishing.zi";
+#import, file "../retro/language.zi";
+#import, file "../host/jungle_text.zi";
+
+FinishFishingCatch :: (state: *FishingState, start: s64) {
+    now := start
+    while state.phase != FISHING_CAUGHT && now < start + 10000 {
+        now += 40
+        FishingTick(state, now)
+    }
+}
+
+#program_export
+main :: () -> s32 {
+    start: s64 = 1793630400000
+    state: FishingState
+    if state.phase != FISHING_READY || state.fish != 0 || FishingCaught(state) != -1 { return 1 }
+    if FishingBeginReel(*state) || FishingMoveBobber(*state, 500, 500) ||
+        FishingCast(*state, 500, 500, 0) || FishingCast(*state, 500, 500, -1) { return 20 }
+
+    // One tap clamps into gentle water and starts a deterministic species.
+    if !FishingCast(*state, -1000, -1000, start) || state.phase != FISHING_CAST { return 2 }
+    if state.bobber_x != FISHING_WATER_LEFT || state.bobber_y != FISHING_WATER_TOP || state.fish != 0 { return 3 }
+    if FishingCast(*state, 500, 500, start) { return 4 }
+    if !FishingMoveBobber(*state, 500, 500) || !FishingBeginReel(*state) { return 5 }
+
+    state = FishingState.{}
+    if !FishingCast(*state, 9999, 9999, start) || state.bobber_x != FISHING_WATER_RIGHT ||
+        state.bobber_y != FISHING_WATER_BOTTOM || state.fish != FISHING_KINDS - 1 { return 6 }
+    if !FishingMoveBobber(*state, -1, 9999) || state.bobber_x != FISHING_WATER_LEFT ||
+        state.bobber_y != FISHING_WATER_BOTTOM { return 7 }
+
+    // The same clock frame is idempotent and a backward clock is ignored.
+    before_x := state.fish_x; before_y := state.fish_y
+    FishingTick(*state, start)
+    if state.fish_x != before_x || state.fish_y != before_y { return 8 }
+    FishingTick(*state, start - 1000)
+    if state.fish_x != before_x || state.fish_y != before_y || state.now != start { return 9 }
+    FishingTick(*state, start + 40)
+    if state.fish_x == before_x && state.fish_y == before_y { return 10 }
+
+    // A dragged bobber remains in bounds while the fish calmly approaches.
+    approach_end := state.now + 20000
+    while (state.fish_x != state.bobber_x || state.fish_y != state.bobber_y) && state.now < approach_end {
+        last_x := state.fish_x; last_y := state.fish_y
+        FishingTick(*state, state.now + 40)
+        if state.fish_x > last_x || state.fish_y < last_y { return 11 }
+        if state.phase != FISHING_CAST || FishingCaught(state) != -1 { return 12 }
+    }
+    FishingTick(*state, state.now + 4000)
+    if state.fish_x != state.bobber_x || state.fish_y != state.bobber_y { return 13 }
+
+    // Reeling cannot fail, cannot time out and records the species once.
+    if !FishingBeginReel(*state) || FishingBeginReel(*state) || FishingMoveBobber(*state, 500, 500) { return 14 }
+    FinishFishingCatch(*state, state.now)
+    if state.phase != FISHING_CAUGHT || FishingCaught(state) != 5 || state.seen != 32 { return 15 }
+    card := FishingSave(state)
+    FishingTick(*state, state.now + 1000)
+    if state.seen != 32 || FishingSave(state) != card || FishingCaught(state) != 5 { return 16 }
+
+    // The first tap closes the card; only the next tap casts again.
+    if !FishingCast(*state, 500, 500, state.now + 100) || state.phase != FISHING_READY || FishingCaught(state) != -1 { return 17 }
+    if FishingSave(state) != "fishing1 32\n" { return 18 }
+    if !FishingCast(*state, 500, 500, state.now + 100) || state.phase != FISHING_CAST { return 19 }
+
+    // Rendering more frames must not make the approaching fish swim faster.
+    fast: FishingState; slow: FishingState
+    unused FishingCast(*fast, 300, 350, start)
+    slow = fast
+    for ms: cast(s32)1..240 { FishingTick(*fast, start + ms) }
+    FishingTick(*slow, start + 240)
+    if fast.fish_x != slow.fish_x || fast.fish_y != slow.fish_y { return 21 }
+    old_x := fast.fish_x
+    FishingTick(*fast, start + 86400000)
+    if fast.phase != FISHING_CAST || old_x - fast.fish_x > 16 { return 22 }
+
+    // Immediate reeling still brings a distant fish home gently, not instantly.
+    early: FishingState
+    unused FishingCast(*early, FISHING_WATER_LEFT, FISHING_BOAT_Y, start)
+    unused FishingBeginReel(*early)
+    FishingTick(*early, start + 250)
+    FishingTick(*early, start + 500)
+    if early.phase != FISHING_REEL || FishingCaught(early) != -1 || early.seen != 0 ||
+        early.fish_x < FISHING_WATER_RIGHT - 128 { return 23 }
+    FinishFishingCatch(*early, early.now)
+    if FishingCaught(early) != 0 || early.seen != 1 { return 24 }
+
+    // Every species is reachable by a water column, in the agreed family order.
+    species: FishingState
+    for fish: cast(s32)0..FISHING_KINDS - 1 {
+        x := FISHING_WATER_LEFT + fish * (FISHING_WATER_RIGHT - FISHING_WATER_LEFT) / FISHING_KINDS
+        if !FishingCast(*species, x + 5, FISHING_WATER_TOP, start + cast(s64)fish * 20000) || species.fish != fish { return 30 + fish }
+        unused FishingBeginReel(*species)
+        FinishFishingCatch(*species, species.now)
+        if FishingCaught(species) != fish || species.seen != cast(u8)((1 << (fish + 1)) - 1) { return 36 }
+        unused FishingCast(*species, 500, 500, species.now + 1)
+    }
+    if species.seen != 63 { return 37 }
+    // Seeing the same fish again never erases or double-counts the collection.
+    unused FishingCast(*species, FISHING_WATER_LEFT, FISHING_BOAT_Y, species.now + 1)
+    unused FishingBeginReel(*species)
+    FinishFishingCatch(*species, species.now)
+    if FishingCaught(species) != 0 || species.seen != 63 { return 38 }
+
+    // Names are complete in the three visible languages.
+    LanguageSet("en")
+    if FishingName(0) != "Clownfish" || FishingName(3) != "Angelfish" || FishingName(-1) != "Friend" { return 40 }
+    LanguageSet("de")
+    if FishingName(1) != "Paletten-Doktorfisch" || FishingName(5) != "Kugelfisch" || FishingName(6) != "Freund" { return 41 }
+    LanguageSet("es")
+    if FishingName(2) != "Pez mariposa" || FishingName(4) != "Pez loro" || FishingText("Tap", "Tippen", "Toca") != "Toca" { return 42 }
+    LanguageSet("en")
+
+    // A full collection round-trips as exactly one six-bit mask.
+    complete: FishingState
+    complete.seen = 63
+    loaded: FishingState
+    loaded.seen = 12; loaded.phase = FISHING_CAUGHT; loaded.fish = 4
+    if FishingSave(complete) != "fishing1 63\n" || !FishingRead(FishingSave(complete), *loaded) { return 50 }
+    if loaded.seen != 63 || loaded.phase != FISHING_READY || loaded.fish != 0 || loaded.now != 0 ||
+        loaded.bobber_x != 0 || loaded.bobber_y != 0 || loaded.fish_x != 0 || loaded.fish_y != 0 { return 51 }
+
+    bad_saves: [16]string = .[
+        "",
+        "fishing1 0",
+        "fishing1 0 ",
+        "fishing1 0\n\n",
+        "fishing1 0 junk\n",
+        "fishing1 00\n",
+        "fishing1 063\n",
+        "fishing1 64\n",
+        "fishing1 -1\n",
+        "fishing1 x\n",
+        "fishing1 \n",
+        "fishing 1 0\n",
+        "fishing2 0\n",
+        "Fishing1 0\n",
+        "fishing1 1 0\n",
+        "fishing1 9999999999999999999999\n"
+    ];
+    for bad: bad_saves {
+        keep: FishingState
+        keep.seen = 21; keep.phase = FISHING_REEL; keep.fish = 2; keep.now = start
+        if FishingRead(bad, *keep) || keep.seen != 21 || keep.phase != FISHING_REEL || keep.fish != 2 || keep.now != start { return 60 }
+    }
+    for mask: cast(s32)0..63 {
+        round: FishingState
+        round.seen = cast(u8)mask
+        again: FishingState
+        if !FishingRead(FishingSave(round), *again) || again.seen != cast(u8)mask { return 61 }
+    }
+    complete.seen = 255
+    if FishingSave(complete) != "fishing1 63\n" { return 62 }
+    return 0
+}
