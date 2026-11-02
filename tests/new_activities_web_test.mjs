@@ -97,6 +97,12 @@ try{
  const titleScenes=JSON.parse(await readFile(new URL('../tools/title_hotspots.json',import.meta.url),'utf8'));
  async function open(title){await openTitleGame(titleScenes,title,key);await delay(500)}
  async function saved(name){return evaluate(`(()=>{const fs=Module.FS;const paths=[];function scan(p){for(const n of fs.readdir(p)){if(n==='.'||n==='..')continue;const a=p+'/'+n;try{if(fs.isDir(fs.stat(a).mode))scan(a);else if(a.endsWith('/${name}.txt')&&a.includes('jungle.${name}'))paths.push(a)}catch{}}}scan('/kryon-apps/jungle');return paths.map(p=>fs.readFile(p,{encoding:'utf8'}))})()`)}
+ function gardenState(text){
+  const [header,...lines]=(text||'').trim().split('\n');
+  const plots=lines.map(line=>line.split(' ').map(Number));
+  if(!/^garden 3 [0-6]$/.test(header)||plots.length!==6||plots.some(p=>p.length!==8||p.some(n=>!Number.isSafeInteger(n)||n<0)))throw Error('Invalid Garden save '+text);
+  return {selected:Number(header.split(' ')[2]),plots};
+ }
  // Tutorial pixel assertions require their input images even when optional
  // diagnostic captures are disabled.
  async function shot(name,required=false){if(!keepCaptures&&!required)return;await writeFile('backup/new-activities-web/'+page+'-'+language+'-'+name+'.png',Buffer.from((await command('Page.captureScreenshot',{format:'png'})).data,'base64'))}
@@ -333,16 +339,39 @@ assert worst<=3 and len(changed)<=300, f'worst {worst}/255 on {len(changed)} pix
    await command('Emulation.setDeviceMetricsOverride',{width:400,height:756,deviceScaleFactor:1,mobile:false});await delay(400);
    console.log('local music room '+page+' '+language+': all8 instruments decode and play through touch/mouse, DOM keyboard, empty space and mute on portrait/landscape');
   }
-  if(name==='garden'){await click(100,56+572);for(let i=0;i<4;i++)await click(200,56+572)}
+  if(name==='garden'){
+   // The seed tray is above the painted bed; one packet supplies one seed.
+   const tool=index=>[8+(index%4+.5)*96,56+8+(Math.floor(index/4)+.5)*82];
+   const soil=(x,y)=>[400*x/1000,56+180+520*y/1000];
+   async function tap(x,y){await command('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x,y,id:1}]});await delay(100);await command('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});await delay(180)}
+   await click(...tool(0));await tap(...soil(623,489));
+   const planted=gardenState((await saved(name))[0]),plant=planted.plots[0];
+   if(planted.plots.filter(p=>p[0]).length!==1||plant[0]!==1||plant[1]<=0||plant[2]!==plant[1]||plant[3]<plant[1]||plant[4]>=3600||plant[5]!==0||Math.abs(plant[6]-623)>4||Math.abs(plant[7]-489)>5)throw Error('Garden seed did not land at the touched soil '+JSON.stringify(planted));
+   await tap(...soil(800,670));
+   if(gardenState((await saved(name))[0]).plots.filter(p=>p[0]).length!==1)throw Error('One packet planted more than one seed');
+   // Cross a clock second so a real watering must change the care timestamp.
+   await delay(1100);await click(...tool(6));
+   for(let i=0;i<4;i++)await click(...soil(plant[6],plant[7]));
+   const watered=gardenState((await saved(name))[0]),after=watered.plots[0];
+   if(watered.selected!==0||watered.plots.filter(p=>p[0]).length!==1||after[2]<=plant[2]||after[4]>=3600||after[4]>after[3]-after[1]||[0,1,5,6,7].some(i=>after[i]!==plant[i]))throw Error('Garden watering changed the plant or advanced growth without elapsed time '+JSON.stringify(watered));
+  }
   await shot(name+'-played');
   await click(372,28);await click(372,28);await click(28,28);
   const before=await saved(name);if(!before.length)throw Error('Missing browser save '+name);
   if(name==='matching'&&before[0].trim().split(' ').slice(9,13).filter(x=>x==='1').length!==2)throw Error('Matching pair failed '+before);
-  if(name==='garden'&&!before[0].startsWith('garden 1 5 '))throw Error('Garden touches failed '+before);
+  if(name==='garden'&&gardenState(before[0]).selected!==0)throw Error('Garden care selection was not saved '+before);
   if(name==='shapes'&&(!before[0].startsWith('shapes 1 2 ')||Number(before[0].trim().split(' ')[8])<=1))throw Error('Shapes mode failed '+before);
   if(name==='hide_seek'&&!/^hideseek 2 1 [1-9]\d* 0\n?$/.test(before[0]))throw Error('Hide & Seek save failed '+before);
+  const checkpointTime=Date.now();
   await open(title);await key('Escape');
-  if(JSON.stringify(await saved(name))!==JSON.stringify(before))throw Error('Browser resume changed '+name);
+  const resumed=await saved(name);
+  if(name==='garden'){
+   const old=gardenState(before[0]),now=gardenState(resumed[0]),elapsed=Math.ceil((Date.now()-checkpointTime)/1000)+2;
+   if(old.selected!==now.selected||old.plots.some((p,i)=>{
+    const q=now.plots[i];
+    return [0,1,2,5,6,7].some(j=>p[j]!==q[j])||q[3]<p[3]||q[3]-p[3]>elapsed||q[4]-p[4]!==q[3]-p[3];
+   }))throw Error('Garden resume lost plant position/care or elapsed growth '+JSON.stringify({old,now,elapsed}));
+  }else if(JSON.stringify(resumed)!==JSON.stringify(before))throw Error('Browser resume changed '+name);
   await open(title);
   await command('Emulation.setDeviceMetricsOverride',{width:960,height:600,deviceScaleFactor:1,mobile:false});await delay(400);await shot(name+'-desktop');
   await key('Escape');await command('Emulation.setDeviceMetricsOverride',{width:400,height:756,deviceScaleFactor:1,mobile:false});await delay(300);
