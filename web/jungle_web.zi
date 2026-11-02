@@ -1,3 +1,4 @@
+#import, file "../host/jungle_album.zi";
 #import, file "../host/audio_levels.zi";
 #import, file "../host/paint_preview.zi";
 #import, file "../host/paint_view.zi";
@@ -407,6 +408,10 @@ JungleMain :: () -> s64 {
         web_initialized = true
     }
     key := AppKey()
+    if collection_book_open {
+        if CollectionBookFrame(AppSession(), AppBounds(), key, AppNow(), web_muted, web_collection) { ToggleAudio() }
+        return 0
+    }
     if active_game < 0 {
         action := JungleMenu(AppSession(), AppBounds(), key, AppNow(), "assets/jungle/font.png", web_games[:],
             *selected, web_muted, web_title_guide_muted, web_title_guide_seen, "")
@@ -424,6 +429,7 @@ JungleMain :: () -> s64 {
         if action.language_changed { unused Runner.DocumentWriteHost("settings/language.txt", LanguageCode()); UpdateSiteLanguage() }
         if action.sound_toggle { ToggleAudio() }
         if action.navigated { PlayAudio("assets/jungle/sounds/select.wav", false) }
+        if action.collection_open { CollectionBookOpen(); StopAudio(); web_title_guide = false }
         if action.game >= 0 { OpenGame(action.game) }
     } else {
         if key == 299 {
@@ -439,6 +445,7 @@ JungleMain :: () -> s64 {
         unused RunGame()
         Runner.canvas_app_bounds = full_bounds
         bar := GameTitleBar(AppSession(), full_bounds, key, AppNow(), web_games[active_game].title, web_muted)
+        if bar.collection_open { CollectionBookOpen(); StopAudio() }
         if bar.back { web_back_pending = true }
         if bar.speed_toggle { web_speed_pending = true }
         if bar.sound_toggle { ToggleAudio() }

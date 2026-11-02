@@ -1,0 +1,109 @@
+#import "kryon/svg_icon_props"
+#import "kryon/svg_icon_widget"
+#import "kryon/drawing_props"
+#import "kryon/tree_input"
+#import "kryon/image_props"
+#import "kryon/image_widget"
+#import, file "../retro/retro.zi";
+#import, file "../retro/language.zi";
+#import, file "../retro/collectibles.zi";
+// Host-owned album: visiting it never unloads or reinitializes the active game.
+#import, file "jungle_collection.zi";
+#import, file "jungle_text.zi";
+#import, file "../retro/book_theme.zi";
+AlbumIcon :: #import "mingcute/mingcute_regular_book_2";
+
+collection_book_open: bool;
+album_selected: s32 = -1;
+album_page: s32;
+album_images: [COLLECTIBLE_COUNT]string;
+album_outlines: [COLLECTIBLE_COUNT]string;
+
+AlbumOutlinePath :: (index: s32) -> string {
+    scene := collectible_paint_kinds[index] == COLLECTIBLE_PAINT_SCENE
+    return Cat("assets/dino-paint/art/", ifx scene then "scene" else "dino",
+        NumberText(collectible_paint_arts[index]), ifx scene then "-thumb.jpg" else "-preview.png")
+}
+
+AlbumPicturePath :: (index: s32) -> string {
+    if !collectible_color_ready[index] { return AlbumOutlinePath(index) }
+    return collectible_colors[index]
+}
+
+CollectionBookOpen :: () {
+    collection_book_open = true
+    album_selected = -1
+    album_page = 0
+}
+
+CollectionBookBack :: () {
+    if album_selected >= 0 { album_selected = -1 }
+    else { collection_book_open = false }
+}
+
+CollectionBookButton :: (x: s32, y: s32) -> bool {
+    button := RetroTap(9010, x, y, 44, 44, Tr("Collection Book"))
+    BookBox(x, y, 44, 44, ifx button.down then cast(u32)0xdcebdcff else cast(u32)0xf3ecdcff, 0xdacdb5ff, 4.0)
+    SvgIcon(retro.session, SvgIconProps.{.bounds = RetroRect(x + 7, y + 7, 30, 30),
+        .shape = AlbumIcon.Shape, .color = ColorFromPacked(0x2e6956ff)})
+    if TreeHoveredAt(retro.session, button.node) {
+        BookBox(x - 70, y + 48, 140, 28, 0xf3ecdcff, 0x2e6956ff, 4.0)
+        BookText(x - 68, y + 50, 136, 24, "Collection Book", 14)
+    }
+    return button.clicked
+}
+
+AlbumPicture :: (index: s32, x: s32, y: s32, width: s32, height: s32) {
+    path := ifx album_images[index] != "" then album_images[index] else AlbumPicturePath(index)
+    BookPicture(path, x, y, width, height)
+}
+
+AlbumContent :: (collection: Collection, width: s32, height: s32) {
+    BookBox(0, 56, width, height - 56, 0xfffcf3ff)
+    if album_selected >= 0 {
+        AlbumPicture(album_selected, 16, 72, width - 32, height - 88)
+        return
+    }
+    columns := width / 150
+    if columns < 2 { columns = 2 }
+    if columns > 5 { columns = 5 }
+    rows := (height - 188) / 130
+    if rows < 1 { rows = 1 }
+    capacity := columns * rows
+    pages := (COLLECTIBLE_COUNT + capacity - 1) / capacity
+    if album_page >= pages { album_page = pages - 1 }
+    cell_width := (width - 24) / columns
+    cell_height := (height - 180) / rows
+    if cell_height > 190 { cell_height = 190 }
+    for slot: cast(s32)0..capacity - 1 {
+        index := album_page * capacity + slot
+        if index >= COLLECTIBLE_COUNT { break }
+        x := 12 + slot % columns * cell_width
+        y := 130 + slot / columns * cell_height
+        has := CollectionHas(collection, collectible_slugs[index])
+        BookBox(x, y, cell_width - 8, cell_height - 8, ifx has then cast(u32)0xf3ecdcff else cast(u32)0xf4f2ebff, 0xdacdb5ff, 8.0)
+        if has {
+            press := RetroTap(9100 + index, x, y, cell_width - 8, cell_height - 8, Tr("Collected picture"))
+            AlbumPicture(index, x + 8, y + 8, cell_width - 24, cell_height - 24)
+            if press.clicked { album_selected = index }
+        } else {
+            path := ifx album_outlines[index] != "" then album_outlines[index] else AlbumOutlinePath(index)
+            Image(retro.session, ImageProps.{.asset_path = RetroImageShown(path),
+                .bounds = RetroRect(x + 8, y + 8, cell_width - 24, cell_height - 24),
+                .fit = ImageFit.ImageFitContain, .smooth = true, .tint = 0xd4cfc560})
+        }
+    }
+    if album_page > 0 {
+        previous := RetroTap(9050, 12, height - 48, 96, 44, Tr("Previous"))
+        BookBox(12, height - 48, 96, 44, 0xf3ecdcff, 0xdacdb5ff, 4.0)
+        BookText(12, height - 48, 96, 44, "Previous", 16)
+        if previous.clicked { album_page -= 1 }
+    }
+    BookText(width / 2 - 40, height - 48, 80, 44, Cat(NumberText(album_page + 1), " / ", NumberText(pages)), 16)
+    if album_page + 1 < pages {
+        next := RetroTap(9051, width - 108, height - 48, 96, 44, Tr("Next"))
+        BookBox(width - 108, height - 48, 96, 44, 0xf3ecdcff, 0xdacdb5ff, 4.0)
+        BookText(width - 108, height - 48, 96, 44, "Next", 16)
+        if next.clicked { album_page += 1 }
+    }
+}

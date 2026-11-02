@@ -1,3 +1,4 @@
+#import, file "../host/jungle_album.zi";
 // Jungle Academy on Android: Kryon's canonical host (android_run) draws this
 // Frame. The games, pictures and sounds come from the APK; saves live in the
 // app's private files.
@@ -23,6 +24,7 @@ Frame :: (session: Session, viewport: Rectangle) -> s32 {
     if jungle_state != 1 { return 1 }
     SoundPump()
     key := KeyboardTake(session)
+    if collection_book_open && key == JUNGLE_BACK_KEY { key = 256 }
     if !playing {
         // Back on the menu closes the app, as Android users expect.
         if key == JUNGLE_BACK_KEY { unused KeyboardSend(session, key); return 0 }

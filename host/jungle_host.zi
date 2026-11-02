@@ -1,3 +1,5 @@
+#import, file "jungle_album.zi";
+#import, file "../retro/collectibles.zi";
 #import, file "audio_levels.zi";
 // Jungle Academy's menu, games and services, shared by the desktop and
 // Android hosts. Each game is its own .zx bundle in games/, run through
@@ -479,6 +481,7 @@ CloseGame :: () {
 // allowed beside the game's packed files.
 GameFrame :: (bounds: Rectangle, pointer: PointerFrame, secondary: SecondaryPointerFrame, key: s32,
     modifiers: s32, wheel: float32, typed: string, seconds: float64, input: FrameInputSnapshot) -> bool {
+    HostAlbumPaths()
     unused ApplyTitleOrientationPolicy(false)
     if !game.ready { return false }
     game_secondary_down = secondary.down
@@ -508,6 +511,10 @@ GameFrame :: (bounds: Rectangle, pointer: PointerFrame, secondary: SecondaryPoin
     app.area_input = TextAreaInputFor(key, modifiers, typed)
     app.area_input.now_seconds = seconds
     if BeginFrame(app.session, cast(u64)1, bounds) != FrameStatus.FrameOk { return false }
+    if collection_book_open {
+        if CollectionBookFrame(app.session, bounds, key, seconds, sound_muted, jungle_collection) { ToggleSound() }
+        return EndFrame(app.session) == FrameStatus.FrameOk
+    }
     bundle_drawing_app = *game
     WidgetHostBegin(app.session, GameAssetAllowed, GameAssetResolve)
     ok := AppContextRun(app, APP_FRAME)
@@ -516,6 +523,7 @@ GameFrame :: (bounds: Rectangle, pointer: PointerFrame, secondary: SecondaryPoin
     bundle_drawing_app = null
     if !ok { TreeCancel(app.session); game.failed = true; return false }
     bar := GameTitleBar(app.session, bounds, key, seconds, games[chosen].title, sound_muted)
+    if bar.collection_open { CollectionBookOpen(); SoundStop() }
     if bar.back { title_back_pending = true }
     if bar.speed_toggle { title_speed_pending = true }
     if bar.sound_toggle { ToggleSound() }
@@ -526,8 +534,29 @@ title_guide_playing: bool;
 title_guide_muted: bool;
 title_guide_seen: bool;
 
+host_album_paths_ready: bool;
+
+HostAlbumPaths :: () {
+    if host_album_paths_ready { return }
+    for index: cast(s32)0..COLLECTIBLE_COUNT - 1 {
+        album_images[index] = HostAlbumAsset(AlbumPicturePath(index))
+        album_outlines[index] = HostAlbumAsset(AlbumOutlinePath(index))
+    }
+    host_album_paths_ready = true
+}
+
+HostAlbumAsset :: (path: string) -> string {
+    target := SharedAlias(path)
+    return ifx target != "" then target else path
+}
+
 Menu :: (session: Session, bounds: Rectangle, key: s32) {
+    HostAlbumPaths()
     unused ApplyTitleOrientationPolicy(true)
+    if collection_book_open {
+        if CollectionBookFrame(session, bounds, key, JungleSeconds(), sound_muted, jungle_collection) { ToggleSound() }
+        return
+    }
     action := JungleMenu(session, bounds, key, JungleSeconds(), FONT, games[:game_count], *chosen,
         sound_muted, title_guide_muted, title_guide_seen, message)
     if title_guide_playing && (action.guide_stop || action.language_changed ||
@@ -554,6 +583,7 @@ Menu :: (session: Session, bounds: Rectangle, key: s32) {
     if action.guide_finished { unused WriteEntireFile(guide_seen_setting, "yes\n") }
     if action.sound_toggle { ToggleSound() }
     if action.navigated { SoundPlay("assets/jungle/sounds/select.wav") }
+    if action.collection_open { CollectionBookOpen(); SoundStop(); title_guide_playing = false }
     if action.game >= 0 { Start(action.game) }
 }
 

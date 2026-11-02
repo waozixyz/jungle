@@ -27,6 +27,8 @@ SoundOffIcon :: #import "mingcute/mingcute_regular_volume_off";
 #import, file "../retro/book_theme.zi";
 #import, file "../retro/language.zi";
 #import, file "jungle_text.zi";
+#import, file "jungle_album.zi";
+#import, file "jungle_collection.zi";
 #import, file "jungle_title.zi";
 #import, file "jungle_title_data.zi";
 
@@ -47,6 +49,7 @@ MenuAction :: struct {
     guide_stop: bool
     guide_finished: bool
     guide_mute_toggle: bool
+    collection_open: bool
 }
 
 // The scene shown and what glows in it; kept while a game plays, so a
@@ -75,6 +78,7 @@ TitleBarAction :: struct {
     back: bool
     sound_toggle: bool
     speed_toggle: bool
+    collection_open: bool
 }
 
 // Back on the left, the game's name, and sound on or off on the right.
@@ -89,7 +93,8 @@ GameTitleBar :: (session: Session, bounds: Rectangle, key: s32, now: float64, ti
     bar := TitleBar(session, TitleBarProps.{.key = 9001,
         .bounds = Rectangle.{bounds.x, bounds.y, bounds.width, cast(float32)GAME_BAR_HEIGHT},
         .height = GAME_BAR_HEIGHT, .title = Tr(ifx title == "Picture Book" && title_book_requested == "sweet-porridge" then "Sweet Porridge" else title), .has_leading_action = true,
-        .leading_label = Tr("Back"), .trailing_width = ifx abc then 155 else 60}, options[:])
+        .leading_label = Tr("Back"), .trailing_width = ifx collection_book_open then 60 else ifx abc then 205 else 110}, options[:])
+    if !collection_book_open { action.collection_open = CollectionBookButton(ifx abc then width - 200 else width - 106, 6) }
     action.back = bar.clicked_leading
     sound := RetroTap(9002, width - 56, 6, 44, 44, ifx sound_muted then "Sound off · F10" else "Sound on · F10")
     BookBox(width - 56, 6, 44, 44, ifx sound.down then cast(u32)0xdcebdcff else cast(u32)0xf3ecdcff, 0xdacdb5ff, 4.0)
@@ -207,7 +212,7 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
         py >= cast(float32)guide_place.hit.y * unit && py < cast(float32)(guide_place.hit.y + guide_place.hit.height) * unit
     // The flags and the sound button sit over the picture's corners.
     blocked := guide_hover || (px < cast(float32)(6 + 3 * 34) * unit && py < 34.0 * unit) ||
-        (px > cast(float32)(width - 38) * unit && py < 34.0 * unit)
+        (px > bounds.width - 112.0 && py < 56.0)
     if step.game < 0 { step = TitlePointer(*title_state, view, px, py, pointer.down, pointer.pressed, pointer.released, blocked, now) }
     if step.game < 0 { step = TitleTick(*title_state, now) }
     if guide_hover && !title_state.guide_finished_reported { title_state.guide_stopped = false }
@@ -324,5 +329,15 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
         BookBox(width / 2 - 90, height - 30, 180, 22, 0xf7f1e3e8, 0xdacdb5ff, 6.0)
         BookText(width / 2 - 86, height - 30, 172, 22, message, 10)
     }
+    retro.scale = 1.0
+    action.collection_open = CollectionBookButton(cast(s32)bounds.width - 106, 6)
     return action
+}
+
+// Shared by native desktop/Android and web. Back belongs to the album while open.
+CollectionBookFrame :: (session: Session, bounds: Rectangle, key: s32, now: float64, muted: bool, collection: Collection) -> bool {
+    bar := GameTitleBar(session, bounds, key, now, "Collection Book", muted)
+    AlbumContent(collection, cast(s32)bounds.width, cast(s32)bounds.height)
+    if bar.back || key == 256 { CollectionBookBack() }
+    return bar.sound_toggle || key == 299
 }
