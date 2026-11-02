@@ -19,7 +19,7 @@ def main():
         with Desktop(args.binary.resolve(), data) as desktop:
             desktop.capture('new-version-menu')
             desktop.select_language(2)
-            desktop.key('1')
+            desktop.game("Picture Book")
             desktop.wait_book('new-version-spanish-books')
             desktop.key('3')
             simple = desktop.capture('new-version-spanish-simple')
@@ -35,7 +35,7 @@ def main():
             desktop.key('Escape')
             desktop.wait_menu('new-version-language-menu')
             desktop.select_language(1)
-            desktop.key('1')
+            desktop.game("Picture Book")
             desktop.wait_book('new-version-german-books')
             desktop.key('2')
             desktop.key('Right')

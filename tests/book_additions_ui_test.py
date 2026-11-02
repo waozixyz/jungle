@@ -16,7 +16,7 @@ with tempfile.TemporaryDirectory(prefix="jungle-new-books-") as temporary:
         with Desktop(ROOT / "build/app/jungle", data) as desktop:
             desktop.capture(f"new-books-{language}-menu")
             desktop.select_language(index)
-            desktop.key("1")
+            desktop.game("Picture Book")
             desktop.wait_book(f"new-books-{language}-shelf")
             desktop.key("s")
             for category in ("clothing", "seasons", "birds", "toys", "vehicles", "bedtime", "vacation", "sports", "beach", "weather", "feelings"):

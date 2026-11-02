@@ -68,7 +68,7 @@ def main():
                 desktop.select_language(index)
                 menu = desktop.capture(f"{language}-menu")
                 assert (data / "language.txt").read_text() == language
-                desktop.key("1")
+                desktop.game("Picture Book")
                 categories = desktop.wait_book(f"{language}-books")
                 # The saved setting from the preceding language is reset explicitly.
                 desktop.key("s")
