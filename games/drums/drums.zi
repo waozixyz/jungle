@@ -257,3 +257,49 @@ DrumsShelfPlace :: (pad: s32, room: DrumsLayout) -> DrumsPlace {
 DrumsLabelY :: (pad: s32, place: DrumsPlace) -> s32 {
     return place.y + place.edge + (ifx pad == 2 || pad == 3 then 28 else 0)
 }
+
+DRUMS_PAPER_AFTER :: 12 // pad hits the child plays before the hidden paper shows
+DRUMS_PAPER_ROOM :: 30 // screen units from the paper's middle to clear of anything else
+
+// Whether the box around X, Y (ROOM to every side) overlaps the box PLACE paints.
+DrumsPaperNear :: (x: s32, y: s32, box_x: s32, box_y: s32, box_width: s32, box_height: s32) -> bool {
+    room: s32 = DRUMS_PAPER_ROOM
+    return x > box_x - room && x < box_x + box_width + room && y > box_y - room && y < box_y + box_height + room
+}
+
+// Where the instrument playground's hidden paper lies, in screen units of a
+// WIDTH by HEIGHT screen. PLAYED is how many pad hits the child has made: the
+// paper stays away (`show` false) until they have played a little. It tucks
+// into a side wall of the room, clear of every pad, label and shelf in both
+// Free Play and Listen & Copy, and of the two control rows and the prompt.
+DrumsPaperSpot :: (width: s32, height: s32, played: s32) -> (show: bool, x: s32, y: s32) {
+    if played < DRUMS_PAPER_AFTER || width <= 0 || height <= 0 { return false, 0, 0 }
+    room: s32 = DRUMS_PAPER_ROOM
+    // Listen & Copy has the tallest chrome: controls and prompt above, the Replay row below.
+    top: s32 = 112 + room
+    bottom := height - 72 - room
+    // Walk in from each side wall, so the paper keeps to the edge when it can.
+    for step: cast(s32)0..40 {
+        for column: cast(s32)0..1 {
+            x := room + step * 8
+            if column == 1 { x = width - room - step * 8 }
+            if x < room || x > width - room { continue }
+            y := bottom
+            while y >= top {
+                clear := true
+                for mode: cast(s32)0..1 {
+                    layout := DrumsRoomLayout(width, height, mode == 1)
+                    for pad: cast(s32)0..DRUMS_PADS - 1 {
+                        place := DrumsRoomPlace(pad, layout)
+                        below: s32 = ifx pad == 2 || pad == 3 then 50 else 22
+                        // The pad's picture square, its label and, for the shelf pads, the shelf.
+                        if DrumsPaperNear(x, y, place.x, place.y, place.edge, place.edge + below) { clear = false }
+                    }
+                }
+                if clear { return true, x, y }
+                y -= 8
+            }
+        }
+    }
+    return false, 0, 0
+}

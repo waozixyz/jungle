@@ -142,6 +142,32 @@ main :: () -> s32 {
         }
     }
     }
+    // The hidden paper stays away until the child has played a little, then
+    // lies inside the screen, clear of every pad, label, shelf and control.
+    for i: cast(s32)0..5 {
+        w := widths[i]; h := heights[i]
+        shown, px, py := DrumsPaperSpot(w, h, DRUMS_PAPER_AFTER - 1)
+        if shown { return 100 }
+        shown, px, py = DrumsPaperSpot(w, h, 0)
+        if shown { return 101 }
+        shown, px, py = DrumsPaperSpot(w, h, DRUMS_PAPER_AFTER)
+        // The cramped 400 by 590 window leaves no clear corner and shows no paper.
+        if !shown && i != 5 { return 102 }
+        if !shown { continue }
+        edge: s32 = DRUMS_PAPER_ROOM
+        if px < edge || px > w - edge || py < 112 + edge || py > h - 72 - edge { return 103 }
+        for mode: cast(s32)0..1 {
+            layout := DrumsRoomLayout(w, h, mode == 1)
+            for pad: cast(s32)0..DRUMS_PADS - 1 {
+                place := DrumsRoomPlace(pad, layout)
+                below: s32 = ifx pad == 2 || pad == 3 then 50 else 22
+                if px > place.x - edge && px < place.x + place.edge + edge &&
+                    py > place.y - edge && py < place.y + place.edge + below + edge { return 104 }
+            }
+        }
+    }
+    shown, px, py := DrumsPaperSpot(0, 0, 1000)
+    if shown { return 106 }
     if DrumsShakeX(-1.0) != 0 || DrumsShakeX(0.0) != 3 || DrumsShakeX(0.05) != -3 ||
         DrumsShakeX(0.1) != 2 || DrumsShakeX(0.17) != -2 || DrumsShakeX(0.26) != -1 ||
         DrumsShakeX(0.30) != 0 || DrumsShakeX(2.0) != 0 { return 91 }

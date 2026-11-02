@@ -88,7 +88,10 @@ GAMES = {
     # The hidden paper's chime is the only sound Matching Pairs adds.
     'jungle-matching': {'folders': (),
                         'extra': {'assets/jungle-book/collect.wav': 'assets/jungle-book/collect.wav'}},
-    'jungle-drums': {'folders': ('assets/drums',)},
+    # The hidden paper's chime and the colored drum it flies.
+    'jungle-drums': {'folders': ('assets/drums',),
+                     'extra': {'assets/jungle-book/collect.wav': 'assets/jungle-book/collect.wav',
+                               'assets/collectibles/drum.png': 'assets/collectibles/drum.png'}},
     # The hidden paper's chime and the colored sunflower it flies.
     'jungle-garden': {'folders': ('assets/garden',),
                       'extra': {'assets/jungle-book/collect.wav': 'assets/jungle-book/collect.wav',

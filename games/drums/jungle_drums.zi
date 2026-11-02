@@ -20,6 +20,9 @@ Star :: #import "mingcute/mingcute_filled_star";
 #import, file "../../retro/retro.zi";
 #import, file "../../retro/game.zi";
 #import, file "../../retro/book_theme.zi";
+#import, file "../../retro/paper.zi";
+#import, file "../../retro/paper_rules.zi";
+#import, file "../../retro/collectibles.zi";
 #import, file "../../retro/language.zi";
 #import, file "../../host/jungle_text.zi";
 
@@ -33,6 +36,9 @@ drums_glow: [8]float64;
 drums_hit_time: [8]float64;
 drums_retry_until: float64;
 drums_explaining: bool;
+// Pad hits the child has played since opening, and the hidden stencil paper.
+drums_played: s32;
+secret_paper: SecretPaper;
 drums_explain_started: float64;
 drums_sounds: [8]string = .["big_drum", "small_drum", "shaker", "bell", "xylophone", "guitar", "cymbal", "tambourine"];
 drums_pictures: [8]string = .[
@@ -211,7 +217,7 @@ DrumsInstrument :: (pad: s32, x: s32, y: s32, edge: s32) {
     drums_down[pad] = press.down
     if touched {
         result := DrumsChoose(*drums, pad)
-        if result != DRUMS_IGNORED { DrumsSound(pad) }
+        if result != DRUMS_IGNORED { DrumsSound(pad); drums_played += 1 }
         if result == DRUMS_RETRY { drums_retry_until = retro.now + 1.4 }
         if result == DRUMS_COMPLETE { unused DrumsSave() }
     }
@@ -264,7 +270,7 @@ GameMain :: () -> s32 {
     if !drums_loaded {
         if !DrumsRead(DocumentRead(DRUMS_SAVE), *drums) { drums = DrumsNew() }
         for i: cast(s32)0..DRUMS_PADS - 1 { drums_down[i] = false; drums_glow[i] = -1.0; drums_hit_time[i] = -1.0 }
-        drums_retry_until = 0.0; drums_explaining = false; drums_loaded = true
+        drums_retry_until = 0.0; drums_explaining = false; drums_played = 0; drums_loaded = true
     }
     if retro.key == KEY_ESCAPE { unused DrumsSave(); GameHome(); return 0 }
     DrumsControls()
@@ -289,6 +295,14 @@ GameMain :: () -> s32 {
     }
     for pad: cast(s32)0..DRUMS_PADS - 1 {
         place := DrumsRoomPlace(pad, room); DrumsInstrument(pad, place.x, place.y, place.edge)
+    }
+    // After a little playing, the drum's stencil paper is tucked beside the room,
+    // clear of every pad. It is drawn last and shares no pad's press area, so its
+    // tap never plays a drum, and its gentle chime is a separate sound that leaves
+    // playing drums alone. A flight begun finishes anywhere.
+    show, spot_x, spot_y := DrumsPaperSpot(drums_width, drums_height, drums_played)
+    if show || secret_paper.state == SECRET_PAPER_FLYING {
+        unused SecretPaperFrame(*secret_paper, CollectibleForGame("jungle-drums.zx"), spot_x, spot_y, retro.now)
     }
     return 0
 }
