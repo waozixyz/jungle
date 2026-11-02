@@ -1,18 +1,28 @@
 # Changelog
 
-## [Unreleased]
+## 0.1.35
 
-- Expose Coloring Book stencil resize handles as translated browser controls.
-- Follow a glowing path behind the campus tiger to a river beach, dock and fishing boat, then explore a secret lakeside aquarium; return routes work in portrait and landscape.
+Released 2026-11-02.
 
 - Meet a quick little guide with natural narration, a mute button and a skip button in place of the old tour.
-- Explore 41 picture books with at least ten pages each, 435 subjects and complete English, German and Spanish narration.
-- Separate Farm Animals and Pets, with tractors, barns and tools in a Farm book under Home; refresh the twenty animal scenes and matching counting pictures.
+- Explore 41 picture books with at least ten pages each and complete English, German and Spanish narration.
+- Separate Farm Animals, Pets and Farm, with refreshed animals facing different directions.
+- Explore painted title rooms in portrait or landscape, with a fairy-tale shelf, a ladder back to the treehouse and a separate piano shelter in both orientations.
+- Follow a glowing path behind the campus tiger to a river beach, dock and fishing boat, then explore a secret lakeside aquarium; return routes work in portrait and landscape.
+- Read Sweet Porridge with its words inside the pictures, a quicker start and a simple volume control.
+- Pick up one garden seed and plant it anywhere on the soil, then water and care for plants at different depths.
+- Choose book playback speed with turtle, walking and rabbit icons.
+- Sort wooden toy shapes that slide into their box one by one, and keep Animal Counting's paper background on portrait screens.
+- Resize Coloring Book stickers from any corner, see accurate placement previews and color every palm leaf.
+- Expose Coloring Book stencil resize handles as translated browser controls.
+- Tap hidden glowing paper to collect new Coloring Book stencils.
+- Let hidden stencil paper peek from behind painted room objects and slide out on hover, with softer route arrows behind the tiger.
+- Open the Collection Book from any title bar, enlarge earned pictures and return to the same activity.
+- Match the Collection Book button to the volume control on screens without a title bar.
+- Choose frog, girl and flowers in a pot stencils, with simpler zebra and scene designs.
+- Keep Coloring Book artwork sharp while zooming, use smaller vector stencils and reopen existing pictures correctly.
+- Load smaller WebP pictures on desktop, Android and the web while preserving detailed PNG artwork.
 - Make Jungle Academy proprietary while retaining third-party licenses and earlier release permissions.
-- Explore painted title rooms in portrait or landscape, with direct bookshelf, campus and music-room navigation.
-- Read Sweet Porridge with eleven illustrated pages and complete narration in English, German and Spanish.
-- Grow six garden plants with seeds, watering and care that continues between visits.
-- Sort wooden toy shapes by default and keep Animal Counting's paper background across portrait screens.
 
 ## 0.1.34
 
