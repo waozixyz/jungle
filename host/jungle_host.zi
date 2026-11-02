@@ -558,14 +558,14 @@ JungleOpen :: (checking: bool) -> bool {
     sound_setting = Cat(base, "/sound.txt")
     setting, setting_found := ReadEntireFile(sound_setting)
     if setting_found { SoundMuted(setting == "off\n" || setting == "off") }
-    unused CreateDirectory(data_root)
-    KeepMathLevels(base)
-    KeepAnimalLevels()
-    return true
-}
     guide_sound_setting = Cat(base, "/guide-sound.txt")
     guide_setting, guide_setting_found := ReadEntireFile(guide_sound_setting)
     if guide_setting_found { title_guide_muted = guide_setting == "off\n" || guide_setting == "off" }
     guide_seen_setting = Cat(base, "/guide-seen.txt")
     guide_seen, guide_seen_found := ReadEntireFile(guide_seen_setting)
     if guide_seen_found { title_guide_seen = guide_seen == "yes\n" || guide_seen == "yes" }
+    unused CreateDirectory(data_root)
+    KeepMathLevels(base)
+    KeepAnimalLevels()
+    return true
+}
