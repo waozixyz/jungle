@@ -18,11 +18,15 @@ app_pid=
 
 cleanup() {
     status=$?
+    trap - EXIT HUP INT TERM
+
     if [ -n "$app_pid" ]; then
         kill "$app_pid" 2>/dev/null || true
         wait "$app_pid" 2>/dev/null || true
     fi
-    rm -rf -- "$data"
+
+    rm -rf -- "$data" 2>/dev/null || true
+    exit "$status"
 }
 
 trap cleanup EXIT
@@ -35,43 +39,7 @@ printf 'jungle desktop debug data: %s\n' "$data" >&2
 
 "$app" "$@" &
 app_pid=$!
-wait "$app"
+app_status=0
+wait "$app_pid" || app_status=$?
 app_pid=
-set -eu
-
-umask 077
-
-root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
-app=$root/build/app/jungle
-storage=$root/work/desktop-debug
-
-if [ ! -x "$app" ]; then
-    echo "jungle desktop debug: missing executable: $app" >&2
-    exit 127
-fi
-
-mkdir -p "$storage"
-data=$(mktemp -d "$storage/data.XXXXXXXX")
-app_pid=
-
-cleanup() {
-    status=$?
-    if [ -n "$app_pid" ]; then
-        kill "$app_pid" 2>/dev/null || true
-        wait "$app_pid" 2>/dev/null || true
-    fi
-    rm -rf -- "$data"
-}
-
-trap cleanup EXIT
-trap 'exit 129' HUP
-trap 'exit 130' INT
-trap 'exit 143' TERM
-
-export JUNGLE_DATA=$data
-printf 'jungle desktop debug data: %s\n' "$data" >&2
-
-"$app" "$@" &
-app_pid=$!
-wait "$app"
-app_pid=
+exit "$app_status"
