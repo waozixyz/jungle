@@ -231,13 +231,16 @@ class LearningBookTest(unittest.TestCase):
                          for row in story['pages'] for language in LANGUAGES
                          for suffix in ('wav', 'speech.json')}
         story_assets.add('assets/jungle-book/previews/sweet-porridge.jpg')
+        # The new collection feedback sound is not historical book artwork.
+        # Exempt its exact path, preserving the original count and digest.
+        added_sounds = {'assets/jungle-book/collect.wav'}
         current = []
         for folder in ('assets/jungle-book', 'assets/abc'):
             for path in (ROOT / folder).rglob('*'):
                 name = path.relative_to(ROOT).as_posix()
                 if (path.is_file() and path.name.split('.')[0] not in new_stems
                         and protected(name) and name.split('.')[0] != NEW_LETTER
-                        and name not in story_assets):
+                        and name not in story_assets | added_sounds):
                     current.append(name)
         aggregate = hashlib.sha256()
         for name in sorted(current):
