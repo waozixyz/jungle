@@ -204,6 +204,25 @@ class TitleVariants(unittest.TestCase):
                                 min(x for x, y in piano['polygon']))
                 self.assertEqual(hotspots['ladder']['target'], 'scene:treehouse')
 
+    def test_landscape_peekaboo_moves_clear_of_piano(self):
+        _, scenes, _, _ = title.Load()
+        def box(hotspot):
+            return (min(x for x, y in hotspot['polygon']), min(y for x, y in hotspot['polygon']),
+                    max(x for x, y in hotspot['polygon']), max(y for x, y in hotspot['polygon']))
+        for name, peek_point, piano_box in (
+                ('campus', (660, 300), (1352, 284, 1521, 425)),
+                ('campus-portrait', (914, 1287), (819, 462, 1005, 622))):
+            with self.subTest(scene=name):
+                scene = next(s for s in scenes if s['name'] == name)
+                peek = next(h for h in scene['hotspots'] if h['id'] == 'hiding-bush')
+                peek_box = box(peek)
+                if name == 'campus':
+                    self.assertLess(peek_box[2], piano_box[0])
+                else:
+                    self.assertGreater(peek_box[1], piano_box[3])
+                self.assertEqual(hit(scene, *peek_point), 'hiding-bush')
+                self.assertEqual(peek['target'], 'game:Hide & Seek')
+
     def test_ladder_interiors_are_continuous(self):
         _, scenes, _, _ = title.Load()
         # Sweep between the rails at every source-pixel row, across rungs
