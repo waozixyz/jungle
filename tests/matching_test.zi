@@ -180,6 +180,40 @@ main :: () -> s32 {
     }
     if MatchingGrid(0, 100, 100, 4).edge != 0 { return 95 }
 
+    // The stencil paper lies on exactly one level, inside the screen, in the
+    // empty room beside the cards: never over a card, the prompt or the controls.
+    sizes_w: [8]s32 = .[320, 360, 412, 540, 768, 960, 1280, 1920];
+    sizes_h: [8]s32 = .[568, 640, 800, 960, 1024, 520, 720, 1080];
+    for size: cast(s32)0..7 {
+        for turned: cast(s32)0..1 {
+            width := ifx turned == 1 then sizes_h[size] else sizes_w[size]
+            height := ifx turned == 1 then sizes_w[size] else sizes_h[size]
+            shown_on: s32
+            for level: cast(s32)0..MATCH_MODES - 1 {
+                show, x, y := MatchingPaperSpot(level, width, height)
+                if !show {
+                    if x != 0 || y != 0 { return 110 }
+                    continue
+                }
+                shown_on += 1
+                if level == 0 { return 111 }
+                reach := MATCH_PAPER_REACH
+                if x - reach < 0 || x + reach > width || y - reach < MATCH_BOARD_TOP ||
+                    y + reach > MatchingBoardBottom(width, height) { return 112 }
+                board := MatchingBoard(MatchingPairs(level) * 2, width, height)
+                for card: cast(s32)0..MatchingPairs(level) * 2 - 1 {
+                    cx := board.left + card % board.columns * (board.edge + MATCH_GAP)
+                    cy := board.above + card / board.columns * (board.edge + MATCH_GAP)
+                    apart := x + reach <= cx || x - reach >= cx + board.edge || y + reach <= cy || y - reach >= cy + board.edge
+                    if !apart { return 113 }
+                }
+            }
+            // Portrait and landscape phones and tablets all find the room.
+            // Portrait and landscape phones and tablets all find the room.
+            if shown_on != 1 { return 114 }
+        }
+    }
+
     // Words follow the chosen language.
     LanguageSet("de")
     if MatchingWords("Easy", "Leicht", "Fácil") != "Leicht" { return 96 }

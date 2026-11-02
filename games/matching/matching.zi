@@ -211,6 +211,59 @@ MatchingGrid :: (cards: s32, width: s32, height: s32, gap: s32) -> MatchGrid {
     return best
 }
 
+// Where the board sits in screen units: its cards, centered in the room
+// between the prompt above and the controls below.
+MATCH_MARGIN :: 16
+MATCH_GAP :: 14
+MATCH_BOARD_TOP :: 70
+MATCH_EDGE_MAX :: 220
+
+// The one level that hides a stencil paper (the three-pair memory round; the
+// very first board never does), and how far the paper's tap reaches at most
+// (a little past the paper on a normal phone screen).
+MATCH_PAPER_LEVEL :: 2
+MATCH_PAPER_REACH :: 21
+
+MatchBoard :: struct {
+    columns: s32
+    rows: s32
+    edge: s32
+    left: s32
+    above: s32
+}
+
+// The controls take two rows on a narrow screen.
+MatchingControlsHeight :: (width: s32) -> s32 { return ifx width < 560 then 124 else 66 }
+
+MatchingBoardBottom :: (width: s32, height: s32) -> s32 {
+    return height - MatchingControlsHeight(width) - 12 - 14
+}
+
+MatchingBoard :: (cards: s32, width: s32, height: s32) -> MatchBoard {
+    // The round hiding a paper keeps a strip of empty room down its left side.
+    strip: s32 = ifx cards == MatchingPairs(MATCH_PAPER_LEVEL) * 2 then MATCH_PAPER_REACH * 2 + 2 else MATCH_MARGIN
+    room_width := width - strip - MATCH_MARGIN
+    room_height := MatchingBoardBottom(width, height) - MATCH_BOARD_TOP
+    grid := MatchingGrid(cards, room_width, room_height, MATCH_GAP)
+    // Cards stay big enough to tap but never larger than a friendly picture.
+    if grid.edge > MATCH_EDGE_MAX { grid.edge = MATCH_EDGE_MAX }
+    span_x := grid.columns * grid.edge + (grid.columns - 1) * MATCH_GAP
+    span_y := grid.rows * grid.edge + (grid.rows - 1) * MATCH_GAP
+    return MatchBoard.{.columns = grid.columns, .rows = grid.rows, .edge = grid.edge,
+        .left = strip + (room_width - span_x) / 2, .above = MATCH_BOARD_TOP + (room_height - span_y) / 2}
+}
+
+// Where that level's paper lies, in screen units: in the empty strip
+// beside the cards that the board keeps free on that level, never over a card or a control. `show` is false on every
+// other level, and when the screen leaves no such room.
+MatchingPaperSpot :: (level: s32, width: s32, height: s32) -> (show: bool, x: s32, y: s32) {
+    if level != MATCH_PAPER_LEVEL { return false, 0, 0 }
+    board := MatchingBoard(MatchingPairs(level) * 2, width, height)
+    if board.left < MATCH_PAPER_REACH * 2 { return false, 0, 0 }
+    bottom := MatchingBoardBottom(width, height)
+    return true, board.left / 2, MATCH_BOARD_TOP + (bottom - MATCH_BOARD_TOP) * 3 / 4
+}
+
 // Game-local English, German and Spanish wording.
 MatchingWords :: (en: string, de: string, es: string) -> string {
     if language == 1 { return de }

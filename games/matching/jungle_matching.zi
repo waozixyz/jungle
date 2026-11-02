@@ -15,6 +15,9 @@ Again :: #import "mingcute/mingcute_regular_refresh_2";
 #import, file "../../retro/retro.zi";
 #import, file "../../retro/game.zi";
 #import, file "../../retro/book_theme.zi";
+#import, file "../../retro/paper.zi";
+#import, file "../../retro/paper_rules.zi";
+#import, file "../../retro/collectibles.zi";
 #import, file "../../host/jungle_text.zi";
 #import, file "../../retro/language.zi";
 
@@ -40,6 +43,8 @@ keyboard_active: bool;
 view_width: s32;
 view_height: s32;
 view_scale: float32;
+// The parrot's stencil paper, hidden on one level.
+secret_paper: SecretPaper;
 
 Words :: (en: string, de: string, es: string) -> string { return MatchingWords(en, de, es) }
 
@@ -188,18 +193,12 @@ LevelButton :: (x: s32, y: s32, width: s32, height: s32) {
 }
 
 Board :: (top: s32, bottom: s32) {
-    margin: s32 = 16
-    gap: s32 = 14
-    width := view_width - margin * 2
-    height := bottom - top
-    grid := MatchingGrid(game.cards, width, height, gap)
+    board := MatchingBoard(game.cards, view_width, view_height)
+    grid := MatchGrid.{.columns = board.columns, .rows = board.rows, .edge = board.edge}
+    gap: s32 = MATCH_GAP
     card_columns = grid.columns
-    // Cards stay big enough to tap but never larger than a friendly picture.
-    if grid.edge > 220 { grid.edge = 220 }
-    span_x := grid.columns * grid.edge + (grid.columns - 1) * gap
-    span_y := grid.rows * grid.edge + (grid.rows - 1) * gap
-    left := margin + (width - span_x) / 2
-    above := top + (height - span_y) / 2
+    left := board.left
+    above := board.above
     for card: cast(s32)0..game.cards - 1 {
         x := left + card % grid.columns * (grid.edge + gap)
         y := above + card / grid.columns * (grid.edge + gap)
@@ -318,6 +317,12 @@ GameMain :: () -> s32 {
     }
     Board(70, controls_y - 14)
     Controls(controls_y, controls_height)
+    // One level hides the parrot's stencil paper in the room beside the cards;
+    // a tap on it is the paper's, never a card's. A flight begun finishes anywhere.
+    show, paper_x, paper_y := MatchingPaperSpot(game.mode, view_width, view_height)
+    if show || secret_paper.state == SECRET_PAPER_FLYING {
+        unused SecretPaperFrame(*secret_paper, CollectibleForGame("jungle-matching.zx"), paper_x, paper_y, retro.now)
+    }
     return 0
 }
 
