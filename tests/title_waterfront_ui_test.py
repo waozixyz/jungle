@@ -94,6 +94,46 @@ def main():
                     assert max(v[1] for v in ImageStat.Stat(occluded.crop(area)).extrema) < 4, ('arrow painted over tiger',w,h)
                     d.click_actual(x,y)
                     beach,beach_rest = assert_scene(d,'beach',w,h)
+                    # Actual painted game entries, using the production catalog and routes.
+                    for ident, title in [('fishing-boat', 'Little Fishing Boat'),
+                                         ('crab-family', 'Crab Family Counting')]:
+                        beach, resting = assert_scene(d, 'beach', w, h)
+                        target = next(t for t in beach['hotspots'] if t['id'] == ident)
+                        scale, ox, oy = mapping(beach, w, h)
+                        rx, ry, rw, rh = target['glow_rect']
+                        area = (max(0, round(ox+rx*scale)), max(65, round(oy+ry*scale)),
+                                min(w, round(ox+(rx+rw)*scale)), min(h, round(oy+(ry+rh)*scale)))
+                        # Visible object interiors must really differ from the clean water/sand plate.
+                        with Image.open(ROOT/target['rest']) as layer:
+                            assert layer.mode == 'RGBA' and layer.getchannel('A').getextrema()[1] > 240
+                        with Image.open(ROOT/beach['image']) as plate:
+                            plate = plate.convert('RGB').resize((round(plate.width*scale), round(plate.height*scale)),
+                                                               Image.Resampling.BILINEAR)
+                        plate = plate.crop((-round(ox), -round(oy), w-round(ox), h-round(oy)))
+                        visible = max(ImageStat.Stat(ImageChops.difference(resting.crop(area), plate.crop(area))).mean)
+                        assert visible > 1, (ident, w, 'painted entry not visible', visible)
+                        x, y = point(beach, ident, w, h)
+                        move(d, x, y)
+                        hovered = d.capture_actual(f'port-{ident}-hover-{w}')
+                        signal = max(ImageStat.Stat(ImageChops.difference(resting.crop(area), hovered.crop(area))).mean)
+                        assert signal > .5, (ident, w, 'painted object did not glow', signal)
+                        d.click_actual(x, y)
+                        time.sleep(1)
+                        opened = d.capture_actual(f'port-{ident}-opened-{w}')
+                        assert max(ImageStat.Stat(ImageChops.difference(resting, opened)).mean) > 15, (title, 'did not open')
+                        # Shared title bar Back must return to this beach, in the current orientation.
+                        d.click_actual(24, 26)
+                        assert_scene(d, 'beach', w, h)
+                        game = 'fishing' if ident == 'fishing-boat' else 'beach_families'
+                        saved = Path(temporary)/f'games/jungle.{game}/{game}.txt'
+                        assert saved.is_file(), (title, 'expected game did not save on Back')
+                    # Open water next to the boat is not a game target and cannot glow it.
+                    scale, ox, oy = mapping(beach, w, h)
+                    water = (450, 430) if w > h else (330, 440)
+                    assert hit(beach, *water) is None
+                    move(d, round(ox+water[0]*scale), round(oy+water[1]*scale))
+                    d.click_actual(round(ox+water[0]*scale), round(oy+water[1]*scale))
+                    beach, beach_rest = assert_scene(d, 'beach', w, h)
                     return_arrow = next(t for t in beach['hotspots'] if t['id']=='campus-path')
                     scale,ox,oy = mapping(beach,w,h)
                     rx,ry,rw,rh = return_arrow['glow_rect']

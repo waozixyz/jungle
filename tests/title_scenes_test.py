@@ -33,6 +33,31 @@ def hit(scene, x, y):
 
 
 class TitleVariants(unittest.TestCase):
+    def test_port_entries_have_separate_painted_layers(self):
+        _, scenes, _, _ = title.Load()
+        for name in ('beach', 'beach-portrait'):
+            scene = next(s for s in scenes if s['name'] == name)
+            layout = json.loads((ROOT/'art/generated/port-games/preview-layout.json').read_text())
+            row = next(r for r in layout['scenes'] if r['scene'] == name)
+            original = np.asarray(Image.open(ROOT/f'assets/jungle/title/{name}.webp').convert('RGB'))
+            plate = np.asarray(Image.open(ROOT/scene['image']).convert('RGB'))
+            x, y, w, h = row['patch']
+            outside = np.ones(original.shape[:2], dtype=bool)
+            outside[y:y+h, x:x+w] = False
+            self.assertTrue(np.array_equal(original[outside], plate[outside]), name)
+            for ident in ('fishing-boat', 'crab-family'):
+                target = next(h for h in scene['hotspots'] if h['id'] == ident)
+                x, y, w, h = target['glow_rect']
+                with Image.open(ROOT/target['rest']) as rest, Image.open(ROOT/target['glow']) as glow:
+                    self.assertEqual(rest.size, (w, h))
+                    self.assertEqual(rest.mode, 'RGBA')
+                    self.assertEqual(rest.getchannel('A').tobytes(), glow.getchannel('A').tobytes())
+                    painted = [(px, py) for py in range(0, h, 3) for px in range(0, w, 3)
+                               if rest.getpixel((px, py))[3] > 200 and hit(scene, x+px, y+py) == ident]
+                    self.assertGreater(len(painted), 30, (name, ident))
+            water = (450, 430) if name == 'beach' else (330, 440)
+            self.assertIsNone(hit(scene, *water))
+
     def load(self, data):
         work = ROOT/'work/title-tests'
         work.mkdir(parents=True, exist_ok=True)
@@ -75,7 +100,9 @@ class TitleVariants(unittest.TestCase):
                                        for name in ('campus', 'beach', 'aquarium')]
             routes = lambda scene: {h['id']: h['target'] for h in scene['hotspots']}
             self.assertEqual(routes(campus)['beach-path'], 'scene:beach')
-            self.assertEqual(routes(beach), {'campus-path': 'scene:campus', 'bunker-door': 'scene:aquarium'})
+            self.assertEqual(routes(beach), {'campus-path': 'scene:campus', 'bunker-door': 'scene:aquarium',
+                                            'fishing-boat': 'game:Little Fishing Boat',
+                                            'crab-family': 'game:Crab Family Counting'})
             self.assertEqual(routes(aquarium), {'beach-stairs': 'scene:beach'})
             for scene in (beach, aquarium):
                 with Image.open(ROOT/scene['image']) as image:
