@@ -1,4 +1,4 @@
-import {openTitleGame} from './title_routes.mjs';
+import {openTitleGame, titleUnit} from './title_routes.mjs';
 // Exercise catalog activities in a private headless browser and profile.
 import {spawn,spawnSync} from 'node:child_process';
 import {readFile,writeFile,mkdtemp,rm,mkdir} from 'node:fs/promises';
@@ -91,7 +91,9 @@ try{
  await command('Page.navigate',{url:'http://127.0.0.1:'+server.address().port+'/'+page});
  await waitFor('typeof Module!=="undefined"&&Module.FS&&document.getElementById("loading").style.display==="none"','Startup timed out');
  await delay(800);
- await click((22+94*['en','de','es'].indexOf(language)+44)*1.25,84*1.25);
+ const menuScale=titleUnit(400,756);
+ await click((21+34*['en','de','es'].indexOf(language))*menuScale,17*menuScale);
+ await waitFor(`document.documentElement.lang===${JSON.stringify(language)}`,'Title flag did not select '+language);
  const titleScenes=JSON.parse(await readFile(new URL('../tools/title_hotspots.json',import.meta.url),'utf8'));
  async function open(title){await openTitleGame(titleScenes,title,key);await delay(500)}
  async function saved(name){return evaluate(`(()=>{const fs=Module.FS;const paths=[];function scan(p){for(const n of fs.readdir(p)){if(n==='.'||n==='..')continue;const a=p+'/'+n;try{if(fs.isDir(fs.stat(a).mode))scan(a);else if(a.endsWith('/${name}.txt')&&a.includes('jungle.${name}'))paths.push(a)}catch{}}}scan('/kryon-apps/jungle');return paths.map(p=>fs.readFile(p,{encoding:'utf8'}))})()`)}
@@ -99,7 +101,7 @@ try{
  // diagnostic captures are disabled.
  async function shot(name,required=false){if(!keepCaptures&&!required)return;await writeFile('backup/new-activities-web/'+page+'-'+language+'-'+name+'.png',Buffer.from((await command('Page.captureScreenshot',{format:'png'})).data,'base64'))}
  const wanted=process.env.JUNGLE_WEB_ACTIVITY||'';
- const activities=[['shapes','Shapes & Sorting'],['matching','Matching Pairs'],['hide_seek','Hide & Seek'],['drums','Music Room'],['garden','Grow a Garden']].filter(([name,title])=>(name!=='garden'||rows.some(r=>r[1]===title))&&(!wanted||name===wanted));
+ const activities=[['shapes','Shapes & Sorting'],['matching','Matching Pairs'],['hide_seek','Hide & Seek'],['drums','Music Room'],['garden','Grow a Garden']].filter(([name])=>!wanted||name===wanted);
  for(const [name,title] of activities){
   // Scope narration to this activity; menu effects belong to navigation.
   await evaluate('window.jungleVoiceActivity='+JSON.stringify(name)+';jungleVoices=[]');
