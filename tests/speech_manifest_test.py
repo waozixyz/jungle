@@ -185,7 +185,7 @@ def staging_test():
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_bytes(picture('PNG', (index, 120, 40)))
         for name, data in (('assets/jungle-book/items/tiger.png', picture('PNG', (200, 120, 40))),
-                           ('assets/jungle-book/previews/jungle.jpg', picture('JPEG', (40, 90, 160)))):
+                           ('assets/jungle-book/previews/jungle.webp', picture('WEBP', (40, 90, 160)))):
             path = source / name
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_bytes(data)
@@ -196,7 +196,7 @@ def staging_test():
             'assets/collectibles/magic-pot.png': picture('PNG', (80, 90, 100)),
             'assets/collectibles/drum.png': picture('PNG', (81, 90, 100)),
             'assets/collectibles/sunflower.png': picture('PNG', (82, 90, 100)),
-            'assets/jungle-book/pages/tiger.jpg': picture('JPEG', (180, 160, 60)),
+            'assets/jungle-book/pages/tiger.webp': picture('WEBP', (180, 160, 60)),
             'assets/jungle-book/sounds/tiger.wav': b'assembled',
             'assets/jungle-book/sounds/en/letters/0061.wav': b'canonical letter',
             'assets/abc/sounds/en/letters/0061.wav': b'duplicate letter',
@@ -204,7 +204,7 @@ def staging_test():
             'assets/animal-count/font.png': picture('PNG', (30, 20, 10)),
             'assets/hide_seek/scenes/cottage-yard.png': picture('PNG', (90, 150, 70)),
             'assets/hide_seek/props/basket.png': picture('PNG', (150, 100, 50)),
-            'assets/dino-paint/art/scene1-thumb.jpg': picture('JPEG', (40, 80, 120)),
+            'assets/dino-paint/art/scene1-thumb.webp': picture('WEBP', (40, 80, 120)),
         }
         for name, data in files.items():
             path = source / name

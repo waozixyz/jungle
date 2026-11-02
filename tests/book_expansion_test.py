@@ -6,7 +6,7 @@ from pathlib import Path
 import sys
 import unittest
 
-from PIL import Image
+from PIL import Image, ImageChops, ImageStat
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'tools'))
@@ -40,6 +40,14 @@ def digest(path):
         return hashlib.file_digest(source, 'sha256').hexdigest()
 
 
+MIGRATED = json.loads((ROOT / 'tools/canonical_webp.json').read_text())['files']
+CANONICAL_NAMES = {entry['source']: name for name, entry in MIGRATED.items()}
+
+
+def canonical_name(name):
+    return CANONICAL_NAMES.get(name, name)
+
+
 def preserved_digest(name):
     """Compare the unchanged baseline through explicitly requested art refreshes.
 
@@ -47,6 +55,7 @@ def preserved_digest(name):
     still participates in the original aggregate. Other assets retain the same
     baseline, and the refresh inventory cannot exempt unrelated artwork.
     """
+    name = canonical_name(name)
     manifest = ROOT / 'tools/book_art_refresh.json'
     refresh = json.loads(manifest.read_text())['files'] if manifest.exists() else {}
     wild = set(dict(BOOKS)['jungle'])
@@ -56,15 +65,15 @@ def preserved_digest(name):
     farm_counting = {'rabbit', 'cat', 'pig', 'cow', 'dog', 'sheep', 'duck', 'hen'}
     scenes = wild | {'firefighter', 'doctor', 'teacher', 'farmer', 'builder', 'baker',
                      'drawing', 'brushing_teeth'}
-    allowed = ({f'assets/jungle-book/pages/{name}.jpg' for name in scenes | farm_scenes}
+    allowed = ({f'assets/jungle-book/pages/{name}.webp' for name in scenes | farm_scenes}
                | {f'assets/jungle-book/items/{name}.png' for name in wild}
                | {f'assets/jungle-book/items/{name}.png' for name in farm_scenes}
                | {f'assets/jungle-book/counting/{name}.png' for name in wild}
                | {f'assets/jungle-book/counting/{name}.png' for name in farm_counting}
-               | {'assets/jungle-book/previews/jungle.jpg',
-                  'assets/jungle-book/previews/people-at-work.jpg',
-                  'assets/jungle-book/previews/farm.jpg', 'assets/jungle/book.png'})
-    minimum_pages = {f'assets/jungle-book/pages/{name}.jpg' for name in MINIMUM['words']}
+               | {'assets/jungle-book/previews/jungle.webp',
+                  'assets/jungle-book/previews/people-at-work.webp',
+                  'assets/jungle-book/previews/farm.webp', 'assets/jungle/book.png'})
+    minimum_pages = {f'assets/jungle-book/pages/{name}.webp' for name in MINIMUM['words']}
     assert set(refresh) <= allowed | minimum_pages, 'Unrequested original asset in art refresh'
     assert {path for path, entry in refresh.items() if entry['previous_sha256'] is None} == minimum_pages, \
         'Only the exact 109 new scenes may have no historical fingerprint'
@@ -73,13 +82,18 @@ def preserved_digest(name):
         entry = refresh[name]
         assert actual == entry['sha256'], f'Reviewed artwork changed: {name}'
         return entry['previous_sha256']
+    if name in MIGRATED:
+        entry = MIGRATED[name]
+        assert actual == entry['sha256'], f'Migrated artwork changed: {name}'
+        return entry['original_sha256']
     return actual
 
 
 def protected(name):
+    name = canonical_name(name)
     return (name.startswith(('assets/jungle-book/', 'assets/abc/'))
-            and name not in ({f'assets/jungle-book/previews/{book}.jpg' for book in NEW_COVERS}
-                             | {f'assets/jungle-book/previews/{book}.jpg' for book in LATEST_IDS}))
+            and name not in ({f'assets/jungle-book/previews/{book}.webp' for book in NEW_COVERS}
+                             | {f'assets/jungle-book/previews/{book}.webp' for book in LATEST_IDS}))
 
 
 def fingerprint_rows(path):
@@ -127,7 +141,7 @@ class LearningBookTest(unittest.TestCase):
         # The learning books once reused these words; each now has one home page.
         for name in REUSED:
             self.assertEqual(PAGE_NAMES.count(name), 1)
-            self.assertEqual(pages.count(f'"assets/jungle-book/pages/{name}.jpg"'), PAGE_NAMES.count(name))
+            self.assertEqual(pages.count(f'"assets/jungle-book/pages/{name}.webp"'), PAGE_NAMES.count(name))
             for language in LANGUAGES:
                 for simple in (True, False):
                     self.assertEqual(voices.count('"' + voice_path(name, language, simple) + '"'), PAGE_NAMES.count(name))
@@ -145,19 +159,19 @@ class LearningBookTest(unittest.TestCase):
         for name, labels in LEARNING['words'].items():
             self.assertEqual(WORDS[name], tuple(labels))
             self.assertEqual(len(labels), 3)
-            scene = ROOT / f'assets/jungle-book/pages/{name}.jpg'
-            self.assertEqual(digest(scene), manifest[name]['sha256'])
+            scene = ROOT / f'assets/jungle-book/pages/{name}.webp'
+            self.assertEqual(digest(scene), manifest[name]['canonical_sha256'])
             self.assertEqual(prompts['pages'][name], manifest[name]['prompt'])
             self.assertFalse((ROOT / f'assets/jungle-book/items/{name}.png').exists())
             with Image.open(scene) as im:
-                self.assertEqual((im.size, im.mode, im.format), ((1254, 1254), 'RGB', 'JPEG'))
+                self.assertEqual((im.size, im.mode, im.format), ((1254, 1254), 'RGB', 'WEBP'))
         for category, names in LEARNING['books'].items():
             title = TITLES[category]
             self.assertEqual(rows[title[0]], title[1:])
-            with Image.open(ROOT / f'assets/jungle-book/pages/{names[0]}.jpg') as scene:
-                expected = io.BytesIO()
-                scene.convert('RGB').resize((768, 768), Image.Resampling.LANCZOS).save(expected, format='JPEG', quality=86)
-            self.assertEqual((ROOT / f'assets/jungle-book/previews/{category}.jpg').read_bytes(), expected.getvalue())
+            with Image.open(ROOT / f'assets/jungle-book/pages/{names[0]}.webp') as scene, Image.open(
+                    ROOT / f'assets/jungle-book/previews/{category}.webp') as cover:
+                expected = scene.convert('RGB').resize((768, 768), Image.Resampling.LANCZOS)
+                self.assertLess(max(ImageStat.Stat(ImageChops.difference(expected, cover.convert('RGB'))).mean), 8)
         self.assertEqual(dict(BOOKS)['water-animals'][0], 'goldfish')
 
     def test_new_spelling_exact_pcm(self):
@@ -167,18 +181,18 @@ class LearningBookTest(unittest.TestCase):
         # Runs once the new art and speech exist; every original check also applies.
         prompts = json.loads((ROOT / 'tools/book_prompts.json').read_text())
         for name in UNIQUE['words']:
-            scene = ROOT / f'assets/jungle-book/pages/{name}.jpg'
+            scene = ROOT / f'assets/jungle-book/pages/{name}.webp'
             self.assertIn(name, prompts['pages'])
             self.assertFalse((ROOT / f'assets/jungle-book/items/{name}.png').exists())
             with Image.open(scene) as im:
-                self.assertEqual((im.size, im.mode, im.format), ((1254, 1254), 'RGB', 'JPEG'))
+                self.assertEqual((im.size, im.mode, im.format), ((1254, 1254), 'RGB', 'WEBP'))
         for category, first in {**NEW_COVERS, 'actions': 'cooking', 'desert-animals': 'camel',
                                 'insects': 'beetle', 'people-at-work': 'firefighter'}.items():
             self.assertEqual(dict(BOOKS)[category][0], first)
-            with Image.open(ROOT / f'assets/jungle-book/pages/{first}.jpg') as scene:
-                expected = io.BytesIO()
-                scene.convert('RGB').resize((768, 768), Image.Resampling.LANCZOS).save(expected, format='JPEG', quality=86)
-            self.assertEqual((ROOT / f'assets/jungle-book/previews/{category}.jpg').read_bytes(), expected.getvalue())
+            with Image.open(ROOT / f'assets/jungle-book/pages/{first}.webp') as scene, Image.open(
+                    ROOT / f'assets/jungle-book/previews/{category}.webp') as cover:
+                expected = scene.convert('RGB').resize((768, 768), Image.Resampling.LANCZOS)
+                self.assertLess(max(ImageStat.Stat(ImageChops.difference(expected, cover.convert('RGB'))).mean), 8)
         letter = json.loads((ROOT / (NEW_LETTER + '.speech.json')).read_text())
         self.assertEqual(letter['text'], 'u con diéresis.')
         self.assertEqual(self.check_spelling(UNIQUE['words']), 234)
@@ -226,11 +240,11 @@ class LearningBookTest(unittest.TestCase):
         # The separately validated story adds these exact files; it cannot
         # exempt or change any preexisting word-book source in the aggregate.
         story = json.loads((ROOT / 'tools/sweet_porridge.json').read_text())
-        story_assets = {f"assets/jungle-book/pages/{row['asset']}.jpg" for row in story['pages']}
+        story_assets = {f"assets/jungle-book/pages/{row['asset']}.webp" for row in story['pages']}
         story_assets |= {f"assets/jungle-book/story-sounds/{language}/{row['asset']}.{suffix}"
                          for row in story['pages'] for language in LANGUAGES
                          for suffix in ('wav', 'speech.json')}
-        story_assets.add('assets/jungle-book/previews/sweet-porridge.jpg')
+        story_assets.add('assets/jungle-book/previews/sweet-porridge.webp')
         # The new collection feedback sound is not historical book artwork.
         # Exempt its exact path, preserving the original count and digest.
         added_sounds = {'assets/jungle-book/collect.wav'}
@@ -244,7 +258,7 @@ class LearningBookTest(unittest.TestCase):
                     current.append(name)
         aggregate = hashlib.sha256()
         for name in sorted(current):
-            aggregate.update((name + '\0' + preserved_digest(name) + '\n').encode())
+            aggregate.update((MIGRATED.get(name, {}).get('source', name) + '\0' + preserved_digest(name) + '\n').encode())
         self.assertEqual(len(current), ORIGINAL_COUNT)
         self.assertEqual(aggregate.hexdigest(), ORIGINAL_DIGEST)
         baseline = ROOT / 'work/source-asset-fingerprints.json'

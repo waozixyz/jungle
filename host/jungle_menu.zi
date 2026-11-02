@@ -139,7 +139,7 @@ TitleReady :: (path: string) -> bool {
 TitlePicture :: (session: Session, path: string, bounds: Rectangle, tint: u32 = 0) {
     shown := RetroImageShown(path)
     if shown == "" { return }
-    preview := ifx path.count >= 4 && path[path.count - 4:] == ".jpg" then RetroImagePreview(path) else ""
+    preview := ifx path.count >= 5 && path[path.count - 5:] == ".webp" then RetroImagePreview(path) else ""
     Image(session, ImageProps.{.asset_path = shown, .preview_path = preview, .bounds = bounds,
         .fit = ImageFit.ImageFitStretch, .smooth = true, .tint = tint})
 }

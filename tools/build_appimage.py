@@ -63,7 +63,7 @@ def main():
     env = os.environ.copy()
     env.update(APPIMAGE_EXTRACT_AND_RUN='1', ARCH='x86_64', VERSION=(ROOT / 'VERSION').read_text().strip(),
                OMP_NUM_THREADS='1')
-    # GdkPixbuf is loaded at runtime for JPEG pages; it is not in ldd output.
+    # GdkPixbuf is loaded at runtime for PNG artwork; it is not in ldd output.
     subprocess.run([str(tool), '--appdir', str(appdir), '--deploy-deps-only', str(payload / 'jungle'),
                     '--library', pixbuf, '--library', vorbisfile, '--desktop-file', str(ROOT / 'packaging/xyz.waozi.jungle.desktop'),
                     '--icon-file', str(ROOT / 'assets/jungle/icons/icon-512.png'), '--icon-filename', 'xyz.waozi.jungle',

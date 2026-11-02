@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Reproduce the approved title JPEGs, silhouette glows and visual QA sheets.
+"""Reproduce the approved title WebP masters, silhouette glows and visual QA sheets.
 
 The only geometry input is title_hotspots.json. Coordinates and glow rectangles
 are source pixels, including for cropped glows. Pillow + numpy; no generators.
@@ -125,9 +125,9 @@ def main():
         assert source.size == (scene['width'], scene['height'])
         image_path = ROOT / scene['image']
         image_path.parent.mkdir(parents=True, exist_ok=True)
-        source.save(image_path, quality=90, subsampling=0, optimize=True)
+        source.save(image_path, quality=90, method=6)
         low = source.resize((240, round(240 * scene['height'] / scene['width'])), Image.Resampling.LANCZOS)
-        low.save(ROOT / scene['low'], quality=65, optimize=True)
+        low.save(ROOT / scene['low'], quality=90, method=6)
         composite = source.convert('RGBA')
         outlines = composite.copy()
         draw = ImageDraw.Draw(outlines)
@@ -146,7 +146,7 @@ def main():
             # Full-size individual overlay: inspect silhouettes without other glows.
             single = source.convert('RGBA')
             single.alpha_composite(overlay, tuple(h['glow_rect'][:2]))
-            single.convert('RGB').save(debug / f"{scene['name']}-{h['id']}.jpg", quality=90)
+            single.convert('RGB').save(debug / f"{scene['name']}-{h['id']}.webp", quality=90)
             single.save(debug / f"{scene['name']}-{h['id']}.png")
             count += 1
         composite.save(debug / f"{scene['name']}-all-glows.png")
@@ -159,7 +159,7 @@ def main():
     for i, panel in enumerate(panels):
         sheet.paste(panel, ((i % 2)*836, (i // 2)*498))
     sheet.save(debug / 'all-glows.png')
-    print(f'Generated {len(variants)} JPEG/placeholder pairs and {count} RGBA glows; geometry and catalog targets valid.')
+    print(f'Generated {len(variants)} WebP/placeholder pairs and {count} RGBA glows; geometry and catalog targets valid.')
     print('Contact sheet:', (debug/'all-glows.png').relative_to(ROOT))
 
 

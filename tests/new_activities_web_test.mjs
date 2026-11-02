@@ -13,7 +13,7 @@ const language=process.env.JUNGLE_TEST_LANG||'en';
 const keepCaptures=process.env.JUNGLE_TEST_CAPTURES==='1';
 await mkdir('backup/new-activities-web',{recursive:true});
 const profile=await mkdtemp(resolve('work/w/p-'));
-const mime={'.html':'text/html','.js':'text/javascript','.wasm':'application/wasm','.json':'application/json','.png':'image/png','.jpg':'image/jpeg','.wav':'audio/wav'};
+const mime={'.html':'text/html','.js':'text/javascript','.wasm':'application/wasm','.json':'application/json','.png':'image/png','.webp':'image/jpeg','.wav':'audio/wav'};
 const server=createServer(async(req,res)=>{
  try{
   const file=resolve(root,'.'+decodeURIComponent(new URL(req.url,'http://localhost').pathname));

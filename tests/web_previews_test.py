@@ -21,7 +21,7 @@ from build_web import preview_group  # noqa: E402
 samples = {}
 for folder in sorted(PREVIEW_FOLDERS):
     for path in sorted((ROOT/folder).iterdir())[:2]:
-        if path.suffix in ('.jpg', '.png'):
+        if path.suffix in ('.webp', '.png'):
             samples[f'{folder}/{path.name}'] = path
 for folder in ('assets/jungle-book/items', 'assets/hide_seek/props', 'assets/hide_seek/scenes', 'assets/drums/pictures', 'assets/jigsaw', 'assets/jungle/title'):
     assert folder in PREVIEW_FOLDERS, folder
@@ -51,7 +51,7 @@ with tempfile.TemporaryDirectory(prefix='preview-test-', dir=ROOT/'work') as cac
 
 # Desktop and Android previews: the picture's own format at the one preview
 # path every host uses, transparency kept, from a cache holding one set.
-assert preview_path('assets/jigsaw/garden.jpg') == 'assets/previews/jigsaw/garden.webp'
+assert preview_path('assets/jigsaw/garden.webp') == 'assets/previews/jigsaw/garden.webp'
 with tempfile.TemporaryDirectory(prefix='native-preview-test-', dir=ROOT/'work') as scratch:
     cache = Path(scratch)/'cache'
     native = prepare_native_previews(samples, cache)
@@ -84,8 +84,8 @@ with tempfile.TemporaryDirectory(prefix='native-preview-test-', dir=ROOT/'work')
     assert sorted(cache.iterdir()) == [again[preview_path(one)]], sorted(cache.iterdir())
 assert preview_group('assets/hide_seek/scenes/cottage-yard.png') == 'hide-seek-scenes'
 assert preview_group('assets/jungle-book/items/alpaca.png') == 'jungle-book-items'
-assert preview_group('assets/jigsaw/garden.jpg') == 'jigsaw'
-assert preview_group('assets/jungle/title/treehouse.jpg') == 'jungle-title'
+assert preview_group('assets/jigsaw/garden.webp') == 'jigsaw'
+assert preview_group('assets/jungle/title/treehouse.webp') == 'jungle-title'
 print(f'local web preview test: {len(previews)} stand-ins from {len(PREVIEW_FOLDERS)} folders, '
       f'{transparent} transparent cut-outs kept, jigsaw included; {len(native)} desktop/Android previews, '
       f'{native_transparent} transparent')

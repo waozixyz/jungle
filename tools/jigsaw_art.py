@@ -14,9 +14,9 @@ def main():
     for name in SCENES:
         source = Image.open(ROOT/'art/generated/jigsaw'/f'{name}.png').convert('RGB')
         source = source.resize((SIZE, SIZE), Image.Resampling.LANCZOS)
-        source.save(dest/f'{name}.jpg', quality=92)
+        source.save(dest/f'{name}.webp', quality=90, method=6)
         print('Prepared full runtime jigsaw picture:', name, flush=True)
-    Image.open(dest/'tiger-stream.jpg').convert('RGB').resize((420,420),Image.Resampling.LANCZOS).save(ROOT/'assets/jungle/covers/jigsaw.jpg',quality=90,optimize=True,progressive=True)
+    Image.open(dest/'tiger-stream.webp').convert('RGB').resize((420,420),Image.Resampling.LANCZOS).save(ROOT/'assets/jungle/covers/jigsaw.webp',quality=90,method=6)
 
 
 if __name__ == '__main__':

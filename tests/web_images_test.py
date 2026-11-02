@@ -21,8 +21,12 @@ for name, entry in manifest['files'].items():
     original_path = ROOT/name
     original_bytes = original_path.read_bytes()
     assert entry['source_sha256'] == hashlib.sha256(original_bytes).hexdigest(), name
-    assert entry['quality'] == 85 and entry.get('alpha_quality') == 100, entry
-    assert entry['runtime_bytes'] < entry['source_bytes'], name
+    assert (entry['quality'] is None if entry.get('reused_source') else entry['quality'] == 85), entry
+    assert entry.get('alpha_quality') == 100, entry
+    if entry.get('reused_source'):
+        assert entry['runtime_bytes'] == entry['source_bytes'] and entry['sha256'] == entry['source_sha256'], name
+    else:
+        assert entry['runtime_bytes'] < entry['source_bytes'], name
     with zipfile.ZipFile(WEB/entry['pack']) as archive:
         stored = next(item for item in archive.infolist()
                       if item.header_offset + 30 + len(item.filename.encode('utf-8'))
@@ -47,7 +51,7 @@ for name, entry in manifest['files'].items():
     categories.add(str(Path(name).parent))
 
 representatives = (
-    'assets/jungle-book/pages/tiger.jpg', 'assets/garden/art/bed.png',
+    'assets/jungle-book/pages/tiger.webp', 'assets/garden/art/bed.png',
     'assets/hide_seek/props/basket.png', 'assets/shapes/wooden/backdrop.png',
     'assets/drums/pictures/room.png')
 for name in representatives:
@@ -68,11 +72,11 @@ for name in representatives:
 assert converted > 700, converted
 assert {'assets/jungle-book/pages', 'assets/jungle-book/items', 'assets/garden/art',
         'assets/shapes/wooden', 'assets/drums/pictures', 'assets/hide_seek/props'} <= categories, categories
-title_sources = sorted((ROOT/'assets/jungle/title').glob('*.jpg'))
+title_sources = sorted((ROOT/'assets/jungle/title').glob('*.webp'))
 assert title_sources
 for source in title_sources:
     shipped = WEB/'assets/jungle/title'/(source.stem + '.webp')
-    assert not (WEB/'assets/jungle/title'/source.name).exists(), source
+    assert shipped.is_file(), source
     with Image.open(shipped) as decoded, Image.open(source) as original:
         assert decoded.format == 'WEBP' and max(decoded.size) <= 2048, source
         assert decoded.size == original.size, source

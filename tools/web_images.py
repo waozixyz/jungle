@@ -3,6 +3,7 @@ pictures; keep canonical artwork intact."""
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 import hashlib
+import shutil
 from pathlib import Path
 import tempfile
 
@@ -90,7 +91,7 @@ def prepare_previews(files, cache):
 
     wanted = sorted((name, source) for name, source in files.items()
                     if str(Path(name).parent) in PREVIEW_FOLDERS
-                    and Path(name).suffix in ('.jpg', '.jpeg', '.png'))
+                    and Path(name).suffix in ('.webp', '.png'))
     with ThreadPoolExecutor(max_workers=2) as pool:
         return dict(pool.map(convert, wanted))
 
@@ -108,7 +109,7 @@ def native_preview_sources(files):
     """{picture: source} for the pictures in FILES that get previews."""
     return {name: source for name, source in files.items()
             if str(Path(name).parent) in PREVIEW_FOLDERS
-            and Path(name).suffix in ('.jpg', '.jpeg', '.png')}
+            and Path(name).suffix in ('.webp', '.png')}
 
 
 def prepare_native_previews(files, cache):
@@ -153,14 +154,14 @@ def prepare_runtime_images(files, cache):
     version = pillow_version + '-' + str(features.version('webp'))
     wanted = sorted((name, Path(source)) for name, source in files.items()
                     if str(Path(name).parent) in RUNTIME_RULES
-                    and Path(name).suffix in ('.jpg', '.jpeg', '.png'))
+                    and Path(name).suffix in ('.webp', '.png'))
 
     def convert(item):
         name, source = item
         rule = RUNTIME_RULES[str(Path(name).parent)]
         source_bytes = source.read_bytes()
         digest = hashlib.sha256(source_bytes).hexdigest()
-        settings = f'runtime-{rule.long_edge}-{rule.quality}-{RUNTIME_ALPHA_QUALITY}'
+        settings = f'runtime-reuse-webp-{rule.long_edge}-{rule.quality}-{RUNTIME_ALPHA_QUALITY}'
         key = hashlib.sha256((digest+version+settings).encode()).hexdigest()
         target = cache/(key+'.webp')
         if target.exists() and (target.stat().st_size < 12
@@ -171,6 +172,7 @@ def prepare_runtime_images(files, cache):
             picture = ImageOps.exif_transpose(image)
             width, height = picture.size
             alpha = _alpha(picture)
+            reuse = source.suffix.lower() == '.webp' and max(picture.size) <= rule.long_edge
             picture = picture.convert('RGBA' if alpha else 'RGB')
             picture.thumbnail((rule.long_edge, rule.long_edge), Image.Resampling.LANCZOS)
             expected_size = picture.size
@@ -179,15 +181,18 @@ def prepare_runtime_images(files, cache):
                 with tempfile.NamedTemporaryFile(dir=cache, suffix='.webp', delete=False) as temporary:
                     staged = Path(temporary.name)
                 try:
-                    picture.save(staged, 'WEBP', quality=rule.quality, lossless=False,
-                                 exact=True, alpha_quality=RUNTIME_ALPHA_QUALITY, method=6)
+                    if reuse:
+                        shutil.copyfile(source, staged)
+                    else:
+                        picture.save(staged, 'WEBP', quality=rule.quality, lossless=False,
+                                     exact=True, alpha_quality=RUNTIME_ALPHA_QUALITY, method=6)
                     staged.replace(target)
                 finally:
                     staged.unlink(missing_ok=True)
         with Image.open(target) as decoded:
             decoded.load()
             runtime_size = target.stat().st_size
-            if runtime_size >= len(source_bytes):
+            if runtime_size >= len(source_bytes) and not reuse:
                 target.unlink(missing_ok=True)
                 return name, None
             payload_digest = hashlib.sha256(target.read_bytes()).hexdigest()
@@ -196,7 +201,7 @@ def prepare_runtime_images(files, cache):
                 'source_bytes': len(source_bytes), 'runtime_bytes': runtime_size,
                 'width': width, 'height': height,
                 'runtime_width': decoded.width, 'runtime_height': decoded.height,
-                'quality': rule.quality, 'long_edge': rule.long_edge,
+                'quality': None if reuse else rule.quality, 'reused_source': reuse, 'long_edge': rule.long_edge,
                 'alpha_quality': RUNTIME_ALPHA_QUALITY, 'alpha': alpha,
             }
             if alpha:
@@ -229,11 +234,15 @@ def prepare_web_images(files, cache, force_title=False):
     def convert(item):
         name, source = item
         source = Path(source)
-        if source.suffix == '.webp':
-            return name, source, None
         parent = str(Path(name).parent)
+        if source.suffix.lower() == '.webp':
+            if parent not in WEB_PHOTO_FOLDERS:
+                return name, source, None
+            with Image.open(source) as image:
+                if max(image.size) <= WEBP_LONG_EDGE:
+                    return name, source, None
         suffix = Path(name).suffix
-        if parent not in WEB_PHOTO_FOLDERS or suffix not in ('.jpg', '.jpeg', '.png'):
+        if parent not in WEB_PHOTO_FOLDERS or suffix not in ('.webp', '.png'):
             return name, source, None
         digest = hashlib.sha256(source.read_bytes()).hexdigest()
         settings = f'browser-{WEBP_LONG_EDGE}-{WEBP_QUALITY}'

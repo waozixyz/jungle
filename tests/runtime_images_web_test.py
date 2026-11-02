@@ -13,13 +13,13 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'tests'))
 
 REPRESENTATIVES = (
-    'assets/jungle-book/pages/tiger.jpg',
+    'assets/jungle-book/pages/tiger.webp',
     'assets/garden/art/bed.png',
     'assets/hide_seek/props/basket.png',
     'assets/shapes/wooden/backdrop.png',
     'assets/drums/pictures/room.png',
 )
-DIRECT_TITLE = 'assets/jungle/title/beach.jpg'
+DIRECT_TITLE = 'assets/jungle/title/beach.webp'
 
 CHECK = r'''
 (async()=>{
@@ -80,12 +80,12 @@ def main():
             frame_colors = 101 if observed_colors is None else len(observed_colors)
     by_name = {row['name']: row for row in results}
     assert set(by_name) == set(REPRESENTATIVES) | {DIRECT_TITLE}, results
-    assert by_name['assets/jungle-book/pages/tiger.jpg']['width'] == 1024
+    assert by_name['assets/jungle-book/pages/tiger.webp']['width'] == 1024
     assert by_name['assets/garden/art/bed.png']['width'] == 1024
     assert by_name[DIRECT_TITLE]['width'] == 1672, by_name[DIRECT_TITLE]
     low_titles = [row for row in startup if '-low.webp' in row['name']]
     assert any(row['name'] == 'treehouse-portrait-low.webp' and row['bytes'] > 0 for row in low_titles), startup
-    assert not any(row['name'].endswith('.jpg') for row in startup), startup
+    assert not any(row['name'].endswith('.webp') for row in startup), startup
     assert frame_colors > 100, frame_colors
     basket = by_name['assets/hide_seek/props/basket.png']
     assert basket['minimumAlpha'] == 0 and basket['maximumAlpha'] == 255, basket

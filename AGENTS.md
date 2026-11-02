@@ -47,7 +47,7 @@ friendly, gentle and obvious.
 - **Time of day:** Breakfast pages look like morning, Lunch like midday and
   Dinner like evening.
 
-Pages live in `assets/jungle-book/pages` (1254 px JPEG) and cut-outs for
+Pages live in `assets/jungle-book/pages` (1254 px WebP) and cut-outs for
 Animal Counting and the ABC Book in `assets/jungle-book/items`. Every prompt
 is in `tools/book_prompts.json`; the full-size originals are kept in
 `backup/picture-book-scenes/`.

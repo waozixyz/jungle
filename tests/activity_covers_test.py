@@ -11,22 +11,22 @@ assert set(records) == set(names)
 hash_file = lambda p: hashlib.sha256(p.read_bytes()).hexdigest()
 for name, title in names.items():
     rec = records[name]
-    path = root / rec['jpeg']
-    assert rec['jpeg'] == f'assets/jungle/covers/{name}.jpg'
+    path = root / rec['webp']
+    assert rec['webp'] == f'assets/jungle/covers/{name}.webp'
     with Image.open(path) as im:
-        assert im.format == 'JPEG' and im.mode == 'RGB' and im.size == (420, 420)
-    assert hash_file(path) == rec['jpeg_sha256'] and rec['prompt'] and rec['references']
+        assert im.format == 'WEBP' and im.mode == 'RGB' and im.size == (420, 420)
+    assert hash_file(path) == rec['webp_sha256'] and rec['prompt'] and rec['references']
     for ref, digest in rec['references'].items(): assert hash_file(root / ref) == digest
     raw = Path(rec['source_png'])
     if raw.exists(): assert hash_file(raw) == rec['source_sha256']
     lines = (root / 'games/catalog.txt').read_text().splitlines()
-    assert sum(title in line and rec['jpeg'] in line for line in lines) == 1
+    assert sum(title in line and rec['webp'] in line for line in lines) == 1
     # The web host's painted navigation registers titles only; covers stay in the catalog.
     web = (root / 'web/jungle_web.zi').read_text()
     assert web.count(f'MenuGame.{{.title = "{title}"}}') == 1, title
-assert len({r['jpeg_sha256'] for r in records.values()}) == 4
+assert len({r['webp_sha256'] for r in records.values()}) == 4
 for name in ['abc-123', 'abc', 'book', 'counting', 'jigsaw', 'numbers', 'paint', 'piano']:
-    path = f'assets/jungle/covers/{name}.jpg'
-    original = subprocess.check_output(['git', 'show', f'HEAD:{path}'], cwd=root)
-    assert hashlib.sha256(original).hexdigest() == hash_file(root / path), path
+    path = f'assets/jungle/covers/{name}.webp'
+    migration = json.loads((root / 'tools/canonical_webp.json').read_text())['files'][path]
+    assert migration['sha256'] == hash_file(root / path), path
 print('activity cover tests passed')

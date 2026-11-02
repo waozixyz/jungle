@@ -87,7 +87,7 @@ fetch('review.json').then(r=>r.json()).then(json=>{data=json.images;for(const na
 
 def main():
     files = sorted({p for folder in FOLDERS for p in (ROOT/'assets'/folder).rglob('*')
-                    if p.is_file() and p.suffix.lower() in ('.jpg', '.jpeg', '.png')})
+                    if p.is_file() and p.suffix.lower() in ('.webp', '.png')})
     OUTPUT.mkdir(parents=True, exist_ok=True)
     rows = []
     with ThreadPoolExecutor(max_workers=2) as pool:

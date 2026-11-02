@@ -287,7 +287,7 @@ ASCII and Latin-1 letters from GNU Unifont. Picture Book's pages and the
 transparent cut-outs used by Animal Counting and the ABC Book are drawn one
 picture at a time with Codex's built-in imagegen tool, in the style of the
 title-screen covers (`art/generated/title-covers.png`). Their prompts are kept
-in `tools/book_prompts.json`; the pages are 1254 pixel JPEG files in
+in `tools/book_prompts.json`; the pages are 1254 pixel WebP files in
 `assets/jungle-book/pages`. `tools/counting_art.py` makes transparent 128 pixel copies for both counting games,
 keeping their full-size sources intact. `tools/book_art.py` makes the book covers from the
 first pages and writes the page and narration tables.
@@ -362,12 +362,13 @@ activity/directory and language, split at 4 MiB of source data. An individual
 large picture stays whole. `asset-packs.json` maps each original path to a
 pack, byte offset, compressed length, original size, ZIP method and SHA-256.
 The browser fetches a pack when an asset is needed and decodes only that entry
-with its built-in decompressor. WAV compression is lossless. Web builds use
-reviewed quality-90 WebP derivatives for Picture Book and Jigsaw photos only,
-at their original dimensions, retaining the original whenever WebP would be
-larger. Android and Linux keep their canonical JPEG pictures. Coloring Book
-keeps its SVG/PNG artwork and masks on every platform. The seek index keeps
-stable game paths and source fingerprints while ZIP entries use their actual
+with its built-in decompressor. WAV compression is lossless. Canonical JPEG
+artwork has migrated to quality-90 WebP at its original dimensions; original
+JPEG bytes remain in ignored backups. Canonical PNG and SVG artwork stays intact.
+Native, Android and browser hosts share capped WebP runtime derivatives: book
+pages and transparent artwork at 1024 pixels, book covers at 512 pixels, and
+Jigsaw pictures at 1200 pixels. WebP sources already within their cap are
+reused byte for byte. The seek index records source fingerprints and actual
 WebP filenames. Duplicate contents share an
 entry, and content-named packs remain cacheable across releases. The pack cache
 holds at most 16 MiB; simultaneous reads share downloads and failed downloads

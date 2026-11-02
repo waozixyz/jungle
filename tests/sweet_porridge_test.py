@@ -14,7 +14,7 @@ story = json.loads((ROOT/'tools/sweet_porridge.json').read_text())
 assert len(story['pages']) == 11
 files = {}
 for row in story['pages']:
-    name = f"assets/jungle-book/pages/{row['asset']}.jpg"
+    name = f"assets/jungle-book/pages/{row['asset']}.webp"
     files[name] = ROOT/name
     with Image.open(ROOT/name) as picture:
         assert picture.size == (1536,1024)

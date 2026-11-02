@@ -10,7 +10,7 @@ def main():
     def array(name,values,kind='string'):
         nonlocal out
         out += f'{name}: [{len(values)}]{kind} = .[' + ', '.join(json.dumps(v,ensure_ascii=False) for v in values) + '];\n'
-    array('story_pictures',[f"assets/jungle-book/pages/{r['asset']}.jpg" for r in rows])
+    array('story_pictures',[f"assets/jungle-book/pages/{r['asset']}.webp" for r in rows])
     array('story_paper_top',[r['paper_top'] for r in rows],'s32')
     for lang in ('en','de','es'):
         array('story_caption_'+lang,[r[lang] for r in rows])

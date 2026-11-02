@@ -9,9 +9,8 @@ def main():
     for name in ('book', 'count', 'paint', 'abc-123'):
         with Image.open(ROOT / 'art/generated/menu-covers' / (name + '.png')) as cover:
             assert cover.width == cover.height
-            # Opaque covers ship as JPEG, a sixth of their PNG size.
+            # Preserve canonical cover pixels; runtime exports control shipped size.
             cover.convert('RGB').resize((420, 420), Image.Resampling.LANCZOS).save(
-                target / (('counting' if name == 'count' else name) + '.jpg'), quality=90,
-                optimize=True, progressive=True)
+                target / (('counting' if name == 'count' else name) + '.webp'), quality=90, method=6)
     print('Prepared four watercolor title covers')
 if __name__ == '__main__': main()

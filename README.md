@@ -59,9 +59,9 @@ babies and toddlers.
 ## A look inside
 
 <p align="center">
-  <img src="assets/jungle-book/pages/tiger.jpg" alt="A watercolor tiger in the jungle" width="30%">
-  <img src="assets/jungle-book/pages/apple.jpg" alt="A watercolor apple from Picture Book" width="30%">
-  <img src="assets/jungle-book/pages/spring.jpg" alt="A watercolor spring scene" width="30%">
+  <img src="assets/jungle-book/pages/tiger.webp" alt="A watercolor tiger in the jungle" width="30%">
+  <img src="assets/jungle-book/pages/apple.webp" alt="A watercolor apple from Picture Book" width="30%">
+  <img src="assets/jungle-book/pages/spring.webp" alt="A watercolor spring scene" width="30%">
 </p>
 <p align="center"><em>Picture Book illustrations: animals · food · seasons</em></p>
 

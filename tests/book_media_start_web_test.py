@@ -235,7 +235,7 @@ HTMLMediaElement.prototype.play=function(){
   this.addEventListener('playing',()=>P.log('playing',{path,muted:this.muted,volume:this.volume}));
   this.addEventListener('pause',()=>P.log('pause',{path}));
  }
- const image='assets/jungle-book/pages/'+path.split('/').at(-1).replace(/\.wav$/,'.jpg');
+ const image='assets/jungle-book/pages/'+path.split('/').at(-1).replace(/\.wav$/,'.webp');
  const capture={path,image,t:performance.now(),asked:P.requests.get(image)||P.opened||P.asked};
  // Capture actual framebuffer at the voice boundary, not loader readiness.
  const canvas=document.getElementById('canvas');

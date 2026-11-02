@@ -88,7 +88,7 @@ def main():
         page = render(svg, *CANVAS)
         add(numpy.asarray(page.convert('L')) < 128)
         page.convert('RGB').resize((256, 192), Image.Resampling.LANCZOS).save(
-            ASSETS / f'scene{index}-thumb.jpg', quality=90, optimize=True, progressive=True)
+            ASSETS / f'scene{index}-thumb.webp', quality=90, method=6)
     widths, heights = [], []
     stencil_count = len(list(ART.glob('dino[0-9]*.svg')))
     for index in range(1, stencil_count + 1):

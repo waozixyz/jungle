@@ -23,7 +23,8 @@ def baseline_entries():
                 key = match.group(1)
             match = re.search(r'"sha256": "([0-9a-f]{64})"', line)
             if match and key:
-                yield key, match.group(1)
+                from book_expansion_test import canonical_name
+                yield canonical_name(key), match.group(1)
                 key = None
 class UniqueBookArtTest(unittest.TestCase):
     @classmethod
@@ -35,8 +36,8 @@ class UniqueBookArtTest(unittest.TestCase):
         self.assertEqual({p.stem for p in (ROOT/'art/generated/book-unique-expansion').glob('*.json')}, self.ids)
         for i, m in self.meta.items():
             with self.subTest(subject=i), Image.open(ROOT/m['page']) as im:
-                self.assertEqual(m['page'], f'assets/jungle-book/pages/{i}.jpg')
-                self.assertEqual((im.format, im.mode, im.size), ('JPEG', 'RGB', (1254,1254)))
+                self.assertEqual(m['page'], f'assets/jungle-book/pages/{i}.webp')
+                self.assertEqual((im.format, im.mode, im.size), ('WEBP', 'RGB', (1254,1254)))
                 im.load()
     def test_sources_and_fingerprints(self):
         for i,m in self.meta.items():

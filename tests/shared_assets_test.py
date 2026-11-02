@@ -29,26 +29,26 @@ def picture(color, suffix, size=(300, 200)):
     if len(color) == 4:
         image.paste((0, 0, 0, 0), (0, 0, size[0] // 2, size[1]))
     data = BytesIO()
-    image.save(data, 'JPEG' if suffix == '.jpg' else 'PNG')
+    image.save(data, 'WEBP' if suffix == '.webp' else 'PNG')
     return data.getvalue()
 
 
-TIGER_PAGE = picture((200, 120, 40), '.jpg')
-LION_PAGE = picture((180, 160, 60), '.jpg')
+TIGER_PAGE = picture((200, 120, 40), '.webp')
+LION_PAGE = picture((180, 160, 60), '.webp')
 TIGER_ITEM = picture((230, 140, 30, 255), '.png')
-COVER = picture((40, 90, 160), '.jpg', (200, 200))
+COVER = picture((40, 90, 160), '.webp', (200, 200))
 SCENE = picture((90, 150, 70), '.png')
 BASKET = picture((150, 100, 50, 255), '.png', (200, 200))
-JIGSAW = picture((60, 120, 90), '.jpg', (1200, 1200))
+JIGSAW = picture((60, 120, 90), '.webp', (1200, 1200))
 # The previews staging installs for fake_tree.
 PREVIEWED = {path.with_suffix('.webp').as_posix() for path in map(Path, (
-    'assets/previews/jungle-book/pages/tiger.jpg', 'assets/previews/jungle-book/pages/lion.jpg',
-    'assets/previews/jungle-book/items/tiger.png', 'assets/previews/jungle-book/previews/bedroom.jpg',
-    'assets/previews/jungle-book/previews/bedtime.jpg', 'assets/previews/hide_seek/scenes/cottage-yard.png',
+    'assets/previews/jungle-book/pages/tiger.webp', 'assets/previews/jungle-book/pages/lion.webp',
+    'assets/previews/jungle-book/items/tiger.png', 'assets/previews/jungle-book/previews/bedroom.webp',
+    'assets/previews/jungle-book/previews/bedtime.webp', 'assets/previews/hide_seek/scenes/cottage-yard.png',
     'assets/previews/hide_seek/props/basket.png'))}
-RUNTIME_LOGICAL = {'assets/jungle-book/pages/tiger.jpg', 'assets/jungle-book/pages/lion.jpg',
-                   'assets/jungle-book/items/tiger.png', 'assets/jungle-book/previews/bedroom.jpg',
-                   'assets/jungle-book/previews/bedtime.jpg', 'assets/hide_seek/scenes/cottage-yard.png',
+RUNTIME_LOGICAL = {'assets/jungle-book/pages/tiger.webp', 'assets/jungle-book/pages/lion.webp',
+                   'assets/jungle-book/items/tiger.png', 'assets/jungle-book/previews/bedroom.webp',
+                   'assets/jungle-book/previews/bedtime.webp', 'assets/hide_seek/scenes/cottage-yard.png',
                    'assets/hide_seek/props/basket.png',
                    'assets/collectibles/magic-pot.png', 'assets/collectibles/sunflower.png',
                    'assets/collectibles/drum.png'}
@@ -68,11 +68,11 @@ def fake_tree(root):
     write(root, 'assets/jungle/icons/icon-64.png', b'icon')
     write(root, 'assets/jungle/sounds/select.wav', b'select')
     write(root, 'assets/jungle-book/font.png', font)
-    write(root, 'assets/jungle-book/pages/tiger.jpg', TIGER_PAGE)
-    write(root, 'assets/jungle-book/pages/lion.jpg', LION_PAGE)
+    write(root, 'assets/jungle-book/pages/tiger.webp', TIGER_PAGE)
+    write(root, 'assets/jungle-book/pages/lion.webp', LION_PAGE)
     write(root, 'assets/jungle-book/items/tiger.png', TIGER_ITEM)
-    write(root, 'assets/jungle-book/previews/bedroom.jpg', COVER)
-    write(root, 'assets/jungle-book/previews/bedtime.jpg', COVER)
+    write(root, 'assets/jungle-book/previews/bedroom.webp', COVER)
+    write(root, 'assets/jungle-book/previews/bedtime.webp', COVER)
     write(root, 'assets/jungle-book/sounds/en/tiger.wav', b'tiger voice')
     write(root, 'assets/jungle-book/sounds/en/tiger.speech.json', b'{}')
     write(root, 'assets/jungle-book/collect.wav', b'collect')
@@ -131,11 +131,11 @@ def staging_test():
         fake_tree(root / 'source')
         app, stage = root / 'app', root / 'stage'
         # Stale files from an earlier build, including renamed artwork.
-        write(app, 'assets/jungle-book/pages/old.jpg', b'old')
+        write(app, 'assets/jungle-book/pages/old.webp', b'old')
         write(app, 'assets/jungle-book/sounds/de/simple/lettuce.wav', b'old retired voice')
-        write(app, 'assets/jungle-book/previews/bedtime.jpg', COVER)
-        write(app, 'assets/previews/jungle-book/pages/old.jpg', b'old preview')
-        write(stage, 'jungle-book/assets/jungle-book/pages/tiger.jpg', b'tiger page')
+        write(app, 'assets/jungle-book/previews/bedtime.webp', COVER)
+        write(app, 'assets/previews/jungle-book/pages/old.webp', b'old preview')
+        write(stage, 'jungle-book/assets/jungle-book/pages/tiger.webp', b'tiger page')
         write(stage, 'animal-count/assets/animal-count/pictures/tiger.png', b'tiger')
         write(stage, 'jungle-abc/leftover/file.txt', b'old')
         shared_assets.ROOT = root / 'source'
@@ -223,10 +223,10 @@ def unsafe_test():
                  'games/x.png', 'assets/a\\b.png', 'assets/a\nb.png'):
         assert not shared_assets.SafePath(name), name
     installed = {'assets/jungle/font.png': ROOT / 'assets/jungle/font.png',
-                 'assets/jungle-book/pages/tiger.jpg': ROOT / 'assets/jungle-book/pages/tiger.jpg',
+                 'assets/jungle-book/pages/tiger.webp': ROOT / 'assets/jungle-book/pages/tiger.webp',
                  'assets/jungle-book/items/tiger.png': ROOT / 'assets/jungle-book/items/tiger.png',
                  'assets/jungle-book/counting/tiger.png': ROOT / 'assets/jungle-book/counting/tiger.png',
-                 'assets/jungle-book/previews/jungle.jpg': ROOT / 'assets/jungle-book/previews/jungle.jpg'}
+                 'assets/jungle-book/previews/jungle.webp': ROOT / 'assets/jungle-book/previews/jungle.webp'}
     for aliases in ({'assets/a.png': 'assets/missing.png'},
                     {'assets/a.png': 'assets/b.png', 'assets/b.png': 'assets/jungle/font.png'},
                     {'assets/../a.png': 'assets/jungle/font.png'}):
@@ -261,7 +261,7 @@ def real_tree_test():
             assert sha(source) == sha(installed[target]), path
     assert 'assets/jungle-book/font.png' in aliases and 'assets/dino-paint/font.png' in aliases
     assert all(f'assets/animal-count/pictures/{name}.png' in aliases for name in shared_assets.COUNTING)
-    catalog_pages = {f'assets/jungle-book/pages/{name}.jpg'
+    catalog_pages = {f'assets/jungle-book/pages/{name}.webp'
                      for _, names in __import__('book_catalog').BOOKS for name in names}
     assert len(catalog_pages) == 435 and catalog_pages <= set(aliases), 'a catalog page lost its runtime alias'
     assert len(runtime) >= 700, len(runtime)
@@ -274,7 +274,7 @@ def real_tree_test():
                 assert sha(source) not in pictures, (name, path)
         # Every sound and piece of progress data the game had still ships.
         for path in shared_assets.GameFiles(name):
-            if not path.endswith(('.png', '.jpg', '.jpeg', '.webp')):
+            if not path.endswith(('.png', '.webp')):
                 assert path in files or (name == 'jungle-book' and path in installed), (name, path)
                 sounds += 1
     assert sounds > 150
@@ -310,7 +310,7 @@ def make_test():
     with tempfile.TemporaryDirectory(prefix='shared-make-', dir=ROOT / 'build') as directory:
         root = Path(directory)
         fake_tree(root)
-        write(root, 'assets/jigsaw/tiger.jpg', JIGSAW)
+        write(root, 'assets/jigsaw/tiger.webp', JIGSAW)
         (root / 'tools').mkdir()
         for name in ('shared_assets.py', 'web_images.py', 'speech_codec.py', 'book_speech.py', 'book_catalog.py',
                      'book_expansion.json', 'book_learning_expansion.json', 'outdoor_books.json',
@@ -328,14 +328,14 @@ def make_test():
         assert (root / 'build/app/assets/speech.txt').read_text() == shared_assets.SPEECH_HEADER
         jigsaw_preview = root / 'build/app/assets/previews/jigsaw/tiger.webp'
         assert jigsaw_preview.is_file(), 'a Jigsaw picture has no installed preview'
-        page = root / 'build/app/assets/jungle-book/pages/tiger.jpg'
+        page = root / 'build/app/assets/jungle-book/pages/tiger.webp'
         staged = root / 'build/stage/jungle-numbers/assets/numbers/sounds/one.wav'
         listing = root / 'build/stage/jungle-numbers.files'
         assert not page.exists() and staged.exists()
         os.utime(listing, ns=(1, 1))
         assert 'Shared assets:' in stage()
         assert listing.stat().st_mtime_ns == 1, 'unchanged files rebuild a bundle'
-        (root / 'assets/jungle-book/pages/tiger.jpg').unlink()
+        (root / 'assets/jungle-book/pages/tiger.webp').unlink()
         (root / 'assets/numbers/sounds/one.wav').unlink()
         assert 'Shared assets:' in stage(), 'a deleted source did not restage'
         assert not page.exists() and not staged.exists(), 'deleted assets still ship'
@@ -368,7 +368,7 @@ def host_parser_test():
         (app / 'assets').mkdir()
         shutil.copy2(program, app / 'jungle')
         (app / shared_assets.SPEECH_INDEX).write_text(shared_assets.SPEECH_HEADER)
-        (app / 'games/catalog.txt').write_text('missing.zx|Missing|Test|assets/jungle/covers/book.jpg|2\n')
+        (app / 'games/catalog.txt').write_text('missing.zx|Missing|Test|assets/jungle/covers/book.webp|2\n')
         environment = {**os.environ, 'JUNGLE_DATA': str(Path(directory) / 'data')}
         for text in [good, *bad]:
             (app / shared_assets.MANIFEST).write_text(text)

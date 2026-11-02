@@ -22,7 +22,7 @@ def main():
     pending = set(PENDING_MEDIA) if "--pending-media" in sys.argv else set()
     assert catalog_only or not pending, "--pending-media only regenerates the catalog sources"
     previews = ROOT / "assets/jungle-book/previews"
-    missing = [name for name in NAMES if name not in pending and not (SCENES / (name + ".jpg")).exists()]
+    missing = [name for name in NAMES if name not in pending and not (SCENES / (name + ".webp")).exists()]
     assert not missing, "pages without a scene: " + ", ".join(missing)
     starts = []
     index = 0
@@ -33,13 +33,13 @@ def main():
         previews.mkdir(parents=True, exist_ok=True)
         # A book's cover is its first page.
         for category, names in BOOKS:
-            with Image.open(SCENES / (names[0] + ".jpg")) as cover:
-                cover.convert("RGB").resize((768, 768), Image.Resampling.LANCZOS).save(previews / (category + ".jpg"), quality=86)
-        with Image.open(SCENES / (NAMES[0] + ".jpg")) as first:
+            with Image.open(SCENES / (names[0] + ".webp")) as cover:
+                cover.convert("RGB").resize((768, 768), Image.Resampling.LANCZOS).save(previews / (category + ".webp"), quality=90, method=6)
+        with Image.open(SCENES / (NAMES[0] + ".webp")) as first:
             first.convert("RGB").resize((64, 64), Image.Resampling.LANCZOS).save(ROOT / "assets/jungle/book.png", optimize=True)
         sheet = Image.new("RGB", (840, 210 * ceil(len(NAMES) / 4)), "#fcf2d4")
         for at, name in enumerate(NAMES):
-            with Image.open(SCENES / (name + ".jpg")) as page:
+            with Image.open(SCENES / (name + ".webp")) as page:
                 sheet.paste(page.convert("RGB").resize((210, 210), Image.Resampling.LANCZOS), (at % 4 * 210, at // 4 * 210))
         sheet.save(ROOT / "art/generated/picture-book-preview.png", optimize=True)
     counts = ", ".join(str(len(names)) for _, names in BOOKS)
@@ -60,8 +60,8 @@ def main():
     catalog += f'group_counts: [{len(groups)}]s32 = .[' + ','.join(map(str, group_counts)) + '];\n'
     catalog += f'category_groups: [{len(BOOKS)}]s32 = .[' + ','.join(str(next(i for i,(_,members) in enumerate(groups) if c in members)) for c,_ in BOOKS) + '];\n'
     catalog += f"category_names: [{len(BOOKS)}]string = .[" + ", ".join(json.dumps(TITLES[c][0]) for c, _ in BOOKS) + "];\n"
-    catalog += f"category_previews: [{len(BOOKS)}]string = .[" + ", ".join(json.dumps("assets/jungle-book/previews/" + c + ".jpg") for c, _ in BOOKS) + "];\n"
-    catalog += string_table("page_paths", [f"assets/jungle-book/pages/{name}.jpg" for name in PAGE_NAMES])
+    catalog += f"category_previews: [{len(BOOKS)}]string = .[" + ", ".join(json.dumps("assets/jungle-book/previews/" + c + ".webp") for c, _ in BOOKS) + "];\n"
+    catalog += string_table("page_paths", [f"assets/jungle-book/pages/{name}.webp" for name in PAGE_NAMES])
     for language_index, language in enumerate(LANGUAGES):
         catalog += string_table(f"page_names_{language}", [WORDS[name][language_index] for name in PAGE_NAMES])
         catalog += string_table(f"page_spelling_{language}", [" ".join(WORDS[name][language_index].upper()) for name in PAGE_NAMES])

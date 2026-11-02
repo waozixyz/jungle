@@ -74,7 +74,7 @@ for(const path of paths){
    }
    assert.ok(lossless,'Lossless WebP image payload missing: '+path);
   }else{
-   assert.match(path,/\.jpg$/);assert.equal(entry.quality,90);
+   assert.match(path,/\.webp$/);assert.equal(entry.quality,90);
   }
   assert.ok(actual.length<original.length);
  }else assert.deepEqual(Buffer.from(actual),original,path);

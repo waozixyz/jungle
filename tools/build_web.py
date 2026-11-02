@@ -124,8 +124,8 @@ def preview_groups():
     from book_catalog import BOOKS
     groups={}
     for category,names in BOOKS:
-        groups.setdefault(f'assets/jungle-book/previews/{category}.jpg','covers')
-        for name in names:groups.setdefault(f'assets/jungle-book/pages/{name}.jpg',category)
+        groups.setdefault(f'assets/jungle-book/previews/{category}.webp','covers')
+        for name in names:groups.setdefault(f'assets/jungle-book/pages/{name}.webp',category)
     return groups
 
 
@@ -190,7 +190,7 @@ def stage_assets(out):
     files,archive_names,encodings=prepare_web_images(
         files,ROOT/'work/web-image-cache',force_title=True)
     images=sorted(archive_names.get(name,name) for name in files
-                  if Path(name).suffix in ('.png','.jpg','.webp'))
+                  if Path(name).suffix in ('.png','.webp'))
     # Browser branding must work before the runtime starts. Keep the small
     # menu and its bitmap fonts directly addressable, so the menu opens
     # before the full pack index arrives; pack all game pictures and sounds.

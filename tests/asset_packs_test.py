@@ -108,10 +108,10 @@ with tempfile.TemporaryDirectory(prefix='asset-pack-test-',dir=ROOT/'build') as 
     from PIL import Image
     from web_images import PREVIEW_PIXELS, prepare_native_previews, prepare_previews, prepare_web_images
     from build_web import preview_groups, write_previews
-    page=ROOT/'assets/jungle-book/pages/tiger.jpg'
-    wide=root/'source/wide.jpg';Image.new('RGB',(900,300),(200,120,40)).save(wide,quality=90)
-    sources={'assets/jungle-book/pages/tiger.jpg':page,'assets/jungle-book/pages/tiger-again.jpg':page,
-             'assets/jungle-book/previews/wide.jpg':wide,'assets/jigsaw/tiger.jpg':page,
+    page=ROOT/'assets/jungle-book/pages/tiger.webp'
+    wide=root/'source/wide.webp';Image.new('RGB',(900,300),(200,120,40)).save(wide,quality=90)
+    sources={'assets/jungle-book/pages/tiger.webp':page,'assets/jungle-book/pages/tiger-again.webp':page,
+             'assets/jungle-book/previews/wide.webp':wide,'assets/jigsaw/tiger.webp':page,
              'assets/jungle-book/items/tiger.png':ROOT/'assets/jungle-book/items/tiger.png'}
     made=prepare_previews(sources,root/'preview-cache')
     assert set(made)==set(sources),made
@@ -126,32 +126,32 @@ with tempfile.TemporaryDirectory(prefix='asset-pack-test-',dir=ROOT/'build') as 
             (w,h),(ow,oh)=preview.size,original.size
             assert abs(w*oh/ow-h)<=1 and abs(h*ow/oh-w)<=1,(name,preview.size)
         assert len(data)<6500,(name,len(data))
-    assert len(made['assets/jungle-book/pages/tiger.jpg'].read_bytes())*50<page.stat().st_size
+    assert len(made['assets/jungle-book/pages/tiger.webp'].read_bytes())*50<page.stat().st_size
     native=prepare_native_previews(sources,root/'native-preview-cache')
     digest=lambda path:hashlib.sha256(path.read_bytes()).hexdigest()
     assert [digest(path) for path in native.values()]==[digest(path) for path in made.values()],\
         'browser and native preview bytes differ'
 
     # Browser staging reuses runtime exports unchanged and only caps its own title art.
-    runtime_sources={'assets/jungle-book/pages/tiger.jpg':page,
+    runtime_sources={'assets/jungle-book/pages/tiger.webp':page,
                      'assets/garden/art/bed.png':ROOT/'assets/garden/art/bed.png',
                      'assets/hide_seek/props/basket.png':ROOT/'assets/hide_seek/props/basket.png'}
     reused,names,info=prepare_web_images(runtime_sources,root/'runtime-reuse-cache')
     assert reused==runtime_sources and names=={} and info=={}
-    title=root/'source/assets/jungle/title/guide.jpg';title.parent.mkdir(parents=True,exist_ok=True)
+    title=root/'source/assets/jungle/title/guide.webp';title.parent.mkdir(parents=True,exist_ok=True)
     Image.new('RGB',(2500,1400),(80,120,180)).save(title,quality=95)
     title_before=title.read_bytes()
     converted,archive_names,encoded=prepare_web_images(
-        {'assets/jungle/title/guide.jpg':title},root/'browser-image-cache')
-    assert set(encoded)=={'assets/jungle/title/guide.jpg'}
-    with Image.open(converted['assets/jungle/title/guide.jpg']) as image:
+        {'assets/jungle/title/guide.webp':title},root/'browser-image-cache')
+    assert set(encoded)=={'assets/jungle/title/guide.webp'}
+    with Image.open(converted['assets/jungle/title/guide.webp']) as image:
         assert image.format=='WEBP' and image.size==(2048,1147),image.size
-    assert archive_names['assets/jungle/title/guide.jpg']=='assets/jungle/title/guide.webp'
+    assert archive_names['assets/jungle/title/guide.webp']=='assets/jungle/title/guide.webp'
     assert title.read_bytes()==title_before,'Canonical title art changed'
     # One pack per book's pages and one for the covers, in asset-packs.json's
     # format keyed by the logical paths; identical previews are stored once.
-    groups={'assets/jungle-book/pages/tiger.jpg':'jungle','assets/jungle-book/pages/tiger-again.jpg':'jungle',
-            'assets/jungle-book/previews/wide.jpg':'covers'}
+    groups={'assets/jungle-book/pages/tiger.webp':'jungle','assets/jungle-book/pages/tiger-again.webp':'jungle',
+            'assets/jungle-book/previews/wide.webp':'covers'}
     (root/'site').mkdir()
     index=write_previews(sources,root/'site',groups)
     assert json.loads((root/'site/preview-images.json').read_text())==index
@@ -159,9 +159,9 @@ with tempfile.TemporaryDirectory(prefix='asset-pack-test-',dir=ROOT/'build') as 
     # identical preview shares the same stored entry across groups.
     assert index['format']==1 and sorted(index['files'])==sorted(made) and len(index['packs'])==3
     files=index['files']
-    assert files['assets/jungle-book/pages/tiger.jpg']==files['assets/jungle-book/pages/tiger-again.jpg']
-    assert files['assets/jungle-book/pages/tiger.jpg']==files['assets/jigsaw/tiger.jpg']
-    assert files['assets/jungle-book/pages/tiger.jpg']['pack']!=files['assets/jungle-book/previews/wide.jpg']['pack']
+    assert files['assets/jungle-book/pages/tiger.webp']==files['assets/jungle-book/pages/tiger-again.webp']
+    assert files['assets/jungle-book/pages/tiger.webp']==files['assets/jigsaw/tiger.webp']
+    assert files['assets/jungle-book/pages/tiger.webp']['pack']!=files['assets/jungle-book/previews/wide.webp']['pack']
     for name,entry in files.items():
         pack=(root/'site'/entry['pack']).read_bytes()
         assert hashlib.sha256(pack).hexdigest()==index['packs'][entry['pack']]['sha256']
@@ -170,7 +170,7 @@ with tempfile.TemporaryDirectory(prefix='asset-pack-test-',dir=ROOT/'build') as 
     assert sorted(path.name for path in (root/'site').iterdir())==['packs','preview-images.json'],'Preview staging was left behind'
     validate_distribution(root/'site')
     try:
-        write_previews(sources,root/'unsafe',{'assets/jungle-book/pages/tiger.jpg':'../up'})
+        write_previews(sources,root/'unsafe',{'assets/jungle-book/pages/tiger.webp':'../up'})
         raise AssertionError('Unsafe preview group was accepted')
     except ValueError:
         pass
@@ -180,7 +180,7 @@ with tempfile.TemporaryDirectory(prefix='asset-pack-test-',dir=ROOT/'build') as 
     assert all((ROOT/name).is_file() for name in catalog),'Catalog names a missing picture'
     # The separately validated story keeps its own exact pages beside the books.
     story={row['asset'] for row in json.loads((ROOT/'tools/sweet_porridge.json').read_text())['pages']}
-    assert len(pages)==len({path.stem for path in (ROOT/'assets/jungle-book/pages').glob('*.jpg')}-story)
+    assert len(pages)==len({path.stem for path in (ROOT/'assets/jungle-book/pages').glob('*.webp')}-story)
     assert {catalog[name] for name in catalog if '/previews/' in name}=={'covers'}
 
 print('local asset pack test: lossless ZIP/seek round trips, aliases, Unicode, empty files, stable output, upload gates and reproducible content-addressed book previews passed')

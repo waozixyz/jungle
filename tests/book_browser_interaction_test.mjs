@@ -12,7 +12,7 @@ const root=resolve(process.env.JUNGLE_WEB_ROOT||'build/web'),page=process.env.JU
 const inputs=['mouse','touch'];
 await mkdir('work/w',{recursive:true});await mkdir('work/b',{recursive:true});await mkdir('backup/book-browser-controls',{recursive:true});
 const vegetableCount=pageCounts[bookIds.indexOf('vegetables')];
-const mime={'.html':'text/html','.js':'text/javascript','.wasm':'application/wasm','.json':'application/json','.png':'image/png','.jpg':'image/jpeg','.webp':'image/webp','.wav':'audio/wav','.zip':'application/zip'};
+const mime={'.html':'text/html','.js':'text/javascript','.wasm':'application/wasm','.json':'application/json','.png':'image/png','.webp':'image/jpeg','.webp':'image/webp','.wav':'audio/wav','.zip':'application/zip'};
 const server=createServer(async(req,res)=>{
  try{let file=resolve(root,'.'+decodeURIComponent(new URL(req.url,'http://localhost').pathname));
   if(file!==root&&!file.startsWith(root+'/'))throw Error('path');if(file===root)file=join(root,'index.html');

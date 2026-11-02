@@ -36,7 +36,7 @@ function reset(paths,withPreviews=paths){
  try{previewSettled.clear();fullFailures.clear();fullPrefetching=0}catch{}imagePaths=new Set(paths);previewNames=new Set(withPreviews);clock=0;
 }
 const fulls=()=>started.filter(key=>key.startsWith('full:')).map(key=>key.slice(5));
-const page=name=>'assets/jungle-book/pages/'+name+'.jpg';
+const page=name=>'assets/jungle-book/pages/'+name+'.webp';
 // One Picture Book frame: ReadingPage prefetches two pages, then draws its own.
 const frame=(current,ahead)=>{for(const path of ahead)Module.jungleImageReady(path,true);return Module.jungleImageReady(current)};
 (async()=>{
@@ -48,7 +48,7 @@ const frame=(current,ahead)=>{for(const path of ahead)Module.jungleImageReady(pa
  check('current page waits for its preview',!fulls().includes(page('a')),fulls());
  check('previews requested',started.includes('preview:'+page('a')),started);
  deferred.get('preview:'+page('a')).resolve(new Uint8Array(1));await settle();
- check('preview written at its own path',fs.has('/assets/previews/jungle-book/pages/a.jpg')&&Module.junglePreviewReady(page('a')),[...fs]);
+ check('preview written at its own path',fs.has('/assets/previews/jungle-book/pages/a.webp')&&Module.junglePreviewReady(page('a')),[...fs]);
  check('full starts once preview is here',fulls().includes(page('a')),fulls());
  check('two at a time',fullActive===2,fullActive);
  deferred.get('full:'+page('a')).resolve(new Uint8Array(2));await settle();
@@ -70,7 +70,7 @@ const frame=(current,ahead)=>{for(const path of ahead)Module.jungleImageReady(pa
  frame(page('f'),[]);await settle();clock=fullPreviewWait;frame(page('f'),[]);await settle();
  deferred.get('full:'+page('f')).resolve(new Uint8Array(2));await settle();
  deferred.get('preview:'+page('f')).resolve(new Uint8Array(1));await settle();
- check('late preview is not written',!fs.has('/assets/previews/jungle-book/pages/f.jpg'),[...fs]);
+ check('late preview is not written',!fs.has('/assets/previews/jungle-book/pages/f.webp'),[...fs]);
 
  // Drawn pictures beat queued prefetches, newest first; a page flipped past
  // leaves the queue.

@@ -57,7 +57,7 @@ table_area: TableBounds;
 table_width: s32;
 table_height: s32;
 
-PicturePath :: (scene: s32) -> string { return Cat("assets/jigsaw/", scene_files[scene], ".jpg") }
+PicturePath :: (scene: s32) -> string { return Cat("assets/jigsaw/", scene_files[scene], ".webp") }
 
 PuzzleButton :: (id: s32, x: s32, y: s32, width: s32, height: s32, label: string, chosen: bool = false) -> bool {
     press := RetroTap(id, x, y, width, height, label)

@@ -73,7 +73,7 @@ with tempfile.TemporaryDirectory(prefix='reader-',dir=work) as temp:
                     assert 56<=box[1]<box[3]==height
                     # The outside margins must be the original painted paper,
                     # proving captions sit on the artwork rather than a UI card.
-                    source=Image.open(ROOT/f"assets/jungle-book/pages/{story['pages'][index]['asset']}.jpg").convert('RGB')
+                    source=Image.open(ROOT/f"assets/jungle-book/pages/{story['pages'][index]['asset']}.webp").convert('RGB')
                     expected=source.crop((0,story['pages'][index]['paper_top'],1536,1024)).resize((box[2]-box[0],box[3]-box[1]),Image.Resampling.BILINEAR)
                     artwork=source.crop((0,0,1536,story['pages'][index]['paper_top'])).resize((art_box[2]-art_box[0],art_box[3]-art_box[1]),Image.Resampling.BILINEAR)
                     assert max(ImageStat.Stat(ImageChops.difference(picture.crop(art_box),artwork)).mean)<12, 'Illustration cropped or not at page top'

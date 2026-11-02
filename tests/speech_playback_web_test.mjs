@@ -10,7 +10,7 @@ const root=resolve(process.env.JUNGLE_WEB_ROOT||'build/web');
 const page=process.env.JUNGLE_WEB_PAGE||'index.html';
 const profile=await mkdtemp(resolve('work/w/p-'));
 const mime={'.html':'text/html','.js':'text/javascript','.wasm':'application/wasm','.json':'application/json',
-  '.png':'image/png','.jpg':'image/jpeg','.wav':'audio/wav','.ogg':'audio/ogg'};
+  '.png':'image/png','.webp':'image/jpeg','.wav':'audio/wav','.ogg':'audio/ogg'};
 const requested=[];
 const server=createServer(async(request,response)=>{
   try{

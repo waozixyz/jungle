@@ -6,7 +6,7 @@
 
 STORY_NAME :: "sweet-porridge"
 STORY_PAGE_PREFIX :: "assets/jungle-book/pages/"
-STORY_PAGE_SUFFIX :: ".jpg"
+STORY_PAGE_SUFFIX :: ".webp"
 
 // The registry entry of a page picture, or -1.
 BookCollectIndex :: (path: string, story: bool) -> s32 {

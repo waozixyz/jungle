@@ -66,7 +66,7 @@ RUNTIME_CACHE = 'work/runtime-image-cache'
 # Only pictures and fonts are aliased. Speech is described separately by
 # SPEECH_MANIFEST: canonical clips ship once, encoded under SHIPPED, and the
 # voice WAVs they represent are omitted.
-PICTURES = ('.png', '.jpg', '.jpeg', '.webp')
+PICTURES = ('.png', '.webp')
 # The host menu reads these directly, so they are never replaced by an alias.
 HOST_ONLY = 'assets/jungle/'
 COUNTING = ('tiger', 'frog', 'butterfly', 'ladybug', 'snail', 'elephant', 'giraffe', 'monkey', 'panda',

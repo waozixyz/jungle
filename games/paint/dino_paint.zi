@@ -1432,7 +1432,7 @@ ScenePickerContent :: (l: ScenePickerLayout) {
         dw := l.card_width - 16
         dh := dw * 3 / 4
         if dh > image_height { dh = image_height; dw = dh * 4 / 3 }
-        RetroSprite(Join(ART, Join("scene", number, "-thumb.jpg")),
+        RetroSprite(Join(ART, Join("scene", number, "-thumb.webp")),
             x + (l.card_width - dw) / 2, y + 5 + (image_height - dh) / 2, dw, dh, -1, true)
         BookText(x + 6, y + l.card_height - 28, l.card_width - 12, 24, PaintSceneLabel(index), 18)
         if PaintItemEarned(PAINT_ITEM_SCENE, index) { EarnedStar(x, y, l.card_width) }

@@ -23,12 +23,12 @@ def main():
         assert font.size == (128, 224), "Jungle Book needs the shared 8-by-16 font"
     # Each page is one whole watercolor scene whose edges fade into the paper.
     story = json.loads((ROOT / 'tools/sweet_porridge.json').read_text())
-    story_pages = {row['asset'] + '.jpg' for row in story['pages']}
-    expected = {name + ".jpg" for name in NAMES} | story_pages
+    story_pages = {row['asset'] + '.webp' for row in story['pages']}
+    expected = {name + ".webp" for name in NAMES} | story_pages
     actual = {path.name for path in (ROOT / "assets/jungle-book/pages").glob("*")}
     assert actual == expected, "Picture Book has stale or missing scene pages"
     for name in NAMES:
-        with Image.open(ROOT / f"assets/jungle-book/pages/{name}.jpg") as page:
+        with Image.open(ROOT / f"assets/jungle-book/pages/{name}.webp") as page:
             assert page.size == (1254, 1254) and page.mode == "RGB", f"{name} page is not a sharp full scene"
             corners = [page.getpixel(p) for p in [(4, 4), (1249, 4), (4, 1249), (1249, 1249)]]
             # A leaf or arm can reach a corner while the scene still fades
@@ -38,12 +38,12 @@ def main():
     prompts = json.loads((ROOT / "tools/book_prompts.json").read_text())
     assert set(prompts["pages"]) == set(NAMES), "every full scene keeps its prompt"
     assert (ROOT / "art/generated/title-covers.png").exists(), "the cover style reference is missing"
-    expected_previews = {name + ".jpg" for name, _ in BOOKS} | {'sweet-porridge.jpg'}
+    expected_previews = {name + ".webp" for name, _ in BOOKS} | {'sweet-porridge.webp'}
     actual_previews = {path.name for path in (ROOT / "assets/jungle-book/previews").glob("*")}
     assert actual_previews == expected_previews, "Picture Book needs one cover per book"
-    for path in sorted((ROOT / "assets/jungle-book/previews").glob("*.jpg")):
+    for path in sorted((ROOT / "assets/jungle-book/previews").glob("*.webp")):
         with Image.open(path) as preview:
-            assert preview.size == ((768, 512) if path.name == 'sweet-porridge.jpg' else (768, 768))
+            assert preview.size == ((768, 512) if path.name == 'sweet-porridge.webp' else (768, 768))
     assert not (ROOT / "assets/jungle-book/backgrounds").exists(), "scenes replace the shared backdrops"
     with Image.open(ROOT / "assets/jungle/book.png") as icon:
         assert icon.size == (64, 64), "Picture Book needs a generated raster icon"
@@ -106,13 +106,13 @@ def main():
                     assert any(voice.readframes(voice.getnframes())), (name, language, simple)
                 assert path.read_bytes()[36:40] == b"data"
     for name in ("book", "counting", "paint", "piano"):
-        with Image.open(ROOT / f"assets/jungle/covers/{name}.jpg") as cover:
-            assert cover.size == (420, 420) and cover.format == "JPEG"
+        with Image.open(ROOT / f"assets/jungle/covers/{name}.webp") as cover:
+            assert cover.size == (420, 420) and cover.format == "WEBP"
     art = ROOT / "assets/dino-paint/art"
     assert not (ROOT / "assets/dino-paint/crayons").exists(), "crayons are drawn as color boxes"
     for number in range(1, 13):
         assert '<svg ' in (ROOT / f"art/paint/scene{number}.svg").read_text()
-        with Image.open(art / f"scene{number}-thumb.jpg") as thumb:
+        with Image.open(art / f"scene{number}-thumb.webp") as thumb:
             assert thumb.size == (256, 192) and len(thumb.getcolors(1 << 16) or range(1 << 16)) > 16, "scene thumbnail is not smooth"
     for number in range(1, 31):
         svg = (ROOT / f"art/paint/dino{number}.svg").read_text()

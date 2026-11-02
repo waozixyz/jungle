@@ -7,28 +7,28 @@ TITLE_HOTSPOT_COUNT :: 42
 
 TITLE_SCENE_NAME: [10]string = .["treehouse", "bookshelf", "campus", "beach", "aquarium", "treehouse-portrait", "bookshelf-portrait", "campus-portrait", "beach-portrait", "aquarium-portrait"];
 TITLE_SCENE_IMAGE: [10]string = .[
-    "assets/jungle/title/treehouse.jpg",
-    "assets/jungle/title/bookshelf.jpg",
-    "assets/jungle/title/campus.jpg",
-    "assets/jungle/title/beach.jpg",
-    "assets/jungle/title/aquarium.jpg",
-    "assets/jungle/title/treehouse-portrait.jpg",
-    "assets/jungle/title/bookshelf-portrait.jpg",
-    "assets/jungle/title/campus-portrait.jpg",
-    "assets/jungle/title/beach-portrait.jpg",
-    "assets/jungle/title/aquarium-portrait.jpg",
+    "assets/jungle/title/treehouse.webp",
+    "assets/jungle/title/bookshelf.webp",
+    "assets/jungle/title/campus.webp",
+    "assets/jungle/title/beach.webp",
+    "assets/jungle/title/aquarium.webp",
+    "assets/jungle/title/treehouse-portrait.webp",
+    "assets/jungle/title/bookshelf-portrait.webp",
+    "assets/jungle/title/campus-portrait.webp",
+    "assets/jungle/title/beach-portrait.webp",
+    "assets/jungle/title/aquarium-portrait.webp",
 ];
 TITLE_SCENE_LOW: [10]string = .[
-    "assets/jungle/title/treehouse-low.jpg",
-    "assets/jungle/title/bookshelf-low.jpg",
-    "assets/jungle/title/campus-low.jpg",
-    "assets/jungle/title/beach-low.jpg",
-    "assets/jungle/title/aquarium-low.jpg",
-    "assets/jungle/title/treehouse-portrait-low.jpg",
-    "assets/jungle/title/bookshelf-portrait-low.jpg",
-    "assets/jungle/title/campus-portrait-low.jpg",
-    "assets/jungle/title/beach-portrait-low.jpg",
-    "assets/jungle/title/aquarium-portrait-low.jpg",
+    "assets/jungle/title/treehouse-low.webp",
+    "assets/jungle/title/bookshelf-low.webp",
+    "assets/jungle/title/campus-low.webp",
+    "assets/jungle/title/beach-low.webp",
+    "assets/jungle/title/aquarium-low.webp",
+    "assets/jungle/title/treehouse-portrait-low.webp",
+    "assets/jungle/title/bookshelf-portrait-low.webp",
+    "assets/jungle/title/campus-portrait-low.webp",
+    "assets/jungle/title/beach-portrait-low.webp",
+    "assets/jungle/title/aquarium-portrait-low.webp",
 ];
 TITLE_SCENE_WIDTH: [10]s32 = .[1672, 1672, 1672, 1672, 1672, 1024, 1024, 1024, 1024, 1024];
 TITLE_SCENE_HEIGHT: [10]s32 = .[941, 941, 941, 941, 941, 1536, 1536, 1536, 1536, 1536];
