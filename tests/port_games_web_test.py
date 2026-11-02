@@ -60,14 +60,15 @@ def main():
     with driver.serve(root) as base:
         for renderer in ('canvas', 'dom'):
             for width, height in ((960, 600), (420, 900)):
-                # Each size starts cold, so resizing cannot hide a missing load.
-                with driver.browser() as client:
-                    client.call('Emulation.setDeviceMetricsOverride', width=width, height=height,
-                                deviceScaleFactor=1, mobile=False)
-                    client.call('Page.navigate', url=base+'/'+renderer+'.html')
-                    client.until('typeof Module!=="undefined"&&Module.FS&&document.getElementById("loading").style.display==="none"',
-                                 'WASM startup', seconds=60)
-                    for title, paths in GAMES:
+                # Each game starts cold at the title. Home navigates title
+                # scenes; it does not leave an active activity.
+                for title, paths in GAMES:
+                    with driver.browser() as client:
+                        client.call('Emulation.setDeviceMetricsOverride', width=width, height=height,
+                                    deviceScaleFactor=1, mobile=False)
+                        client.call('Page.navigate', url=base+'/'+renderer+'.html')
+                        client.until('typeof Module!=="undefined"&&Module.FS&&document.getElementById("loading").style.display==="none"',
+                                     'WASM startup', seconds=60)
                         for key in route(data, title):
                             client.key(key)
                         name = f'{renderer}-{width}-{title.lower().replace(" ", "-")}.png'
