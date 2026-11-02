@@ -1,11 +1,12 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/dog.wav",
-  "model": "google/gemini-3.8-flash-lite-tts",
-  "voice": "Kore",
-  "speed": 1.0,
   "text": "Dog.",
-  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
-  "duration": 1.218639455782313,
-  "sha256": "f8f9928f0d81695df183447521c5d2c121da5354b682a88e18ea9e811b20f24d",
-  "request_sha256": "e48ae8e6ac86f238b92150fdfb683231dba5cd985f04a743b6b43d3ac58a4ca4"
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.8,
+  "profile": "normal",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "duration": 0.7680272108843538,
+  "sha256": "33e7d0e7e8a8fe19ad48f3c226dcebf8b1b1e7c466a1736ac70f0335177bb49e"
 }

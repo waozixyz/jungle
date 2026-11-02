@@ -1,11 +1,12 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/pear.wav",
-  "model": "google/gemini-3.8-flash-lite-tts",
-  "voice": "Kore",
-  "speed": 1.0,
   "text": "Pear. P. E. A. R. Pear.",
-  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
-  "duration": 5.196009070294784,
-  "sha256": "8a49aba3caa8d0bfd1b042bc57600173303cd013cbbebeff68d837ed99ca027b",
-  "request_sha256": "11becb3b09e758d80cd820b81485e5d03b20722d05f8808693a92486f319ad10"
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.8,
+  "profile": "normal",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "duration": 2.431972789115646,
+  "sha256": "02308732612611380b81835c91e269404def83ef9854f5f9fd964f362bb30e6c"
 }

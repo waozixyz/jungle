@@ -1,11 +1,12 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/bathrobe.wav",
-  "model": "google/gemini-3.8-flash-lite-tts",
-  "voice": "Kore",
-  "speed": 1.0,
   "text": "Bathrobe.",
-  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
-  "duration": 1.4364625850340136,
-  "sha256": "b34af92e74c921c943971c75d7e5e65b27be9dcaf641b6c1f879205753f9cbdc",
-  "request_sha256": "05e1238b8f7bca3a3774c2a4ba34d5f5660fdb7cfee23f5138d1f965e40e229f"
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.8,
+  "profile": "normal",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "duration": 0.9173696145124717,
+  "sha256": "2121ce494f3ce0371d6da1c64f7bb71466298a7539ea3cc8a93349a24b07b960"
 }

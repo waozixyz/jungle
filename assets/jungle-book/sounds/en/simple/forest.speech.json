@@ -1,11 +1,12 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/forest.wav",
-  "model": "google/gemini-3.8-flash-lite-tts",
-  "voice": "Kore",
-  "speed": 1.0,
   "text": "Forest.",
-  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
-  "duration": 1.465986394557823,
-  "sha256": "c06939a46e713df5fe5a5dec00e4206e312ddc6a71778ec4b30fec8233827631",
-  "request_sha256": "348b6fe1871d5630f6b779127990c1555cdaffec197367f1474a415cc89c347f"
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.8,
+  "profile": "normal",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "duration": 0.8960090702947846,
+  "sha256": "73d690091263f4fd259893307ae6e4054a81e16759ceea322d0e2eaddf5eef5f"
 }

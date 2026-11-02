@@ -1,11 +1,12 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/horse.wav",
-  "model": "google/gemini-3.8-flash-lite-tts",
-  "voice": "Kore",
-  "speed": 1.0,
   "text": "Horse. H. O. R. S. E. Horse.",
-  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
-  "duration": 6.9170068027210885,
-  "sha256": "9efd3e68b32ae0c9e1a4f267ac3429958a3bd6163049abe5f10c465e90da0d40",
-  "request_sha256": "5a2f146f6b3ed1e76019f378402cd4dd1a44047ed991b67de3669d7820b1ac0c"
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.8,
+  "profile": "normal",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "duration": 3.2,
+  "sha256": "58c1e375fb1030ea787a837387d131f0a8385f65187b3e8d746bb88c3a100c40"
 }

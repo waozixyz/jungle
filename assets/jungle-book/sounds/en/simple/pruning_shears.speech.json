@@ -1,11 +1,12 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/pruning_shears.wav",
-  "model": "google/gemini-3.8-flash-lite-tts",
-  "voice": "Kore",
-  "speed": 1,
   "text": "Pruning shears.",
-  "instructions": "Speak English clearly and naturally at an ordinary conversational speed. Pronounce each provided label exactly once; do not slow down, spell, add words, or explain.",
-  "duration": 1.7552380952380953,
-  "sha256": "85fe4a7322ba984d5c89b86ea880ad3c7b061b977afebc6d79b191b7cbf6b4ab",
-  "request_sha256": "7ca8fb9c0b991eace27147b2ce5bf11327ef4530f4a03840e5fcf9aeccd417f2"
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.8,
+  "profile": "normal",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "duration": 1.130702947845805,
+  "sha256": "cae90a778043399437584807a569ce9efa01c489cd8065e2584fb73c935188d1"
 }

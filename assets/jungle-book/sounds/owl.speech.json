@@ -1,24 +1,31 @@
 {
   "text": "Owl. O. W. L. Owl.",
-  "duration": 5.576054421768707,
-  "sha256": "36b44403e230917c5c6adf7c3f81c55983e6f26148a9150a1bb9171e700b0c59",
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.8,
+  "profile": "normal",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
   "method": "Verified word, literal letter names, word; PCM assembly",
   "sources": [
     {
       "path": "assets/jungle-book/sounds/en/simple/owl.wav",
-      "sha256": "94932c149f792d0c1ef6c2913725faba7cafaeb51f8bdfc09658b0604b19bdcb"
+      "sha256": "d1fea99d6ab221336162dc6d77b210089b53841ea82546b070c73e1ccaefe4bc"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/006f.wav",
-      "sha256": "557256d28f31daef71402b9bab50ee2b47793354d38fa7f0f7747948b4dbd971"
+      "sha256": "fac709628a916ad774ec43ab8d2d67f7dcfac51dc5394d6d87166dc410b121e9"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/0077.wav",
-      "sha256": "5a83f97861009bdee526f198cf2a6d1e7330653d1b985ab771f285aceb24f749"
+      "sha256": "cedf9646042e69d505dceaa2efbe14e235aeaeac3390433722d068a5ef952baf"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/006c.wav",
-      "sha256": "abc6134be52ab3ffc8dfafe30e8157fc2cf565443947108a80ce69b1c9b442bf"
+      "sha256": "b95271e038667e363b27401f8335bade440b98b816df7b0083d3bc66a3ad1cf6"
     }
-  ]
+  ],
+  "duration": 5.145215419501134,
+  "sha256": "a64086d70f0a150613997c26afd8c8a24c7e12971a36fc2b8b757e6862d2d929"
 }

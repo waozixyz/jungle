@@ -1,0 +1,39 @@
+{
+  "text": "Honey. H. O. N. E. Y. Honey.",
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.65,
+  "profile": "slow",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "method": "Verified word, literal letter names, word; PCM assembly",
+  "sources": [
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/simple/honey.wav",
+      "sha256": "ae78ec01deae1bf72d8e974b6d0f92a5358569477690273fbdf70aa55d3ad389"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0068.wav",
+      "sha256": "7dcd5b2912537fb0d76339d4b1888229b5e272b3a61d098df98e3f16132b0f4e"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/006f.wav",
+      "sha256": "42d3e3e65e42ae7049359cea69e448ef9663484a1a251f642b04fc284aba9fe6"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/006e.wav",
+      "sha256": "9db179a2b78ca5408b1b57d7e9029e2a19114919c291a74f74dd366f77d03bab"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0065.wav",
+      "sha256": "2a47a90cb2e553de89fd28af8e07f5f2cba15935c44c72f070384952389a6e3d"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0079.wav",
+      "sha256": "8323526946e21186b5ef7eef3aa68e47e280f76bc116616063c7efc47259ef2c"
+    }
+  ],
+  "duration": 8.093151927437642,
+  "sha256": "69b679bb0e82b9a6450a7cc5fda99494a255505f1b85c06fc4e371550038927e"
+}

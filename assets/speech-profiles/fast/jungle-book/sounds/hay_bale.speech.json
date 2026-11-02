@@ -1,0 +1,47 @@
+{
+  "text": "Hay bale. H. A. Y. B. A. L. E. Hay bale.",
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 1.0,
+  "profile": "fast",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "method": "Verified word, literal letter names, word; PCM assembly",
+  "sources": [
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/simple/hay_bale.wav",
+      "sha256": "200bc7526a128688282878f98ccb0c0024e59eb8f5bc28c2568a4c8b6a92248b"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/0068.wav",
+      "sha256": "2b203c6d95737ef2d6214cda22be1747b5a356a32ac9daeab1f3dbe4200afca3"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/0061.wav",
+      "sha256": "9e3c609744e0993f9d6d807035459f871f42bca60a6d2441e4e7447f21439cfa"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/0079.wav",
+      "sha256": "71957662b724c6940cdd68b9598fb8e9dd1f36aabeddb450f58c730201d3c9f0"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/0062.wav",
+      "sha256": "de1db9376e8bdcb1bce7b0d0e5260f4eafd70d520eda50649fd9e1c55374ca6a"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/0061.wav",
+      "sha256": "9e3c609744e0993f9d6d807035459f871f42bca60a6d2441e4e7447f21439cfa"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/006c.wav",
+      "sha256": "1448a2a073bf1b16114325b6e8ad10a56e59c2b640615ed433b388faad436cca"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/0065.wav",
+      "sha256": "febaea06cdc2510f95261ec00b009ae316710a1723906d1934813e25da11bf0b"
+    }
+  ],
+  "duration": 7.898367346938776,
+  "sha256": "a5683a2c01e220d4e8f7ff76d712d14b78c60a62dcf1936cce9e21bd0647349f"
+}

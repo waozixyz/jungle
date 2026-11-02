@@ -1,0 +1,31 @@
+{
+  "text": "Pan. P. A. N. Pan.",
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.65,
+  "profile": "slow",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "method": "Verified word, literal letter names, word; PCM assembly",
+  "sources": [
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/simple/pan.wav",
+      "sha256": "caa9e84a2607af186f45c3790e44a9c55d275eafb56a4211383e5c9d3a4a47d0"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0070.wav",
+      "sha256": "f7b9102b6b92cca16f769112106453a92d7683af256facd3179452eaa7f91440"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0061.wav",
+      "sha256": "f27ea56326b064aed947e1c8b2d7b57289868ec49e58b63ff2b87fd05a19d790"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/006e.wav",
+      "sha256": "9db179a2b78ca5408b1b57d7e9029e2a19114919c291a74f74dd366f77d03bab"
+    }
+  ],
+  "duration": 5.93827664399093,
+  "sha256": "53aef83ac808ecf18b927c2e8e236f2d508ee47f563b9d3b1071067f3f96cce7"
+}

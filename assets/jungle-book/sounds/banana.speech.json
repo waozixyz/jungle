@@ -1,11 +1,12 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/banana.wav",
-  "model": "google/gemini-3.8-flash-lite-tts",
-  "voice": "Kore",
-  "speed": 1.0,
   "text": "Banana. B. A. N. A. N. A. Banana.",
-  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
-  "duration": 8.475918367346939,
-  "sha256": "95fd3a2f7bf31b7888974228c8de6b7f4f1d8e294b4cfb4b69ffa4e706ac8abd",
-  "request_sha256": "42f3fa779225b3dcc558ed6836845b3eb82b68c6500906712699338790695662"
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.8,
+  "profile": "normal",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "duration": 3.7760090702947844,
+  "sha256": "fbce20caa92648d0829b7d603c09a50d88712c8a7ede93a41fe2179c1e51d05f"
 }

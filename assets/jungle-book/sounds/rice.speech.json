@@ -1,28 +1,35 @@
 {
   "text": "Rice. R. I. C. E. Rice.",
-  "duration": 6.529115646258504,
-  "sha256": "c079009fd96443230c9ac0e7a35a2127e78f2c85796fc11faf12bc77d44eab9b",
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.8,
+  "profile": "normal",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
   "method": "Verified word, literal letter names, word; PCM assembly",
   "sources": [
     {
       "path": "assets/jungle-book/sounds/en/simple/rice.wav",
-      "sha256": "104ee56efad4cc6a4574c9573bc2e1b47403ffb5d6c98bb992d5853272b805e7"
+      "sha256": "f72ee4afbf29666d780b482e0ffd29df251400a7ecd7d693766253287c9a4058"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/0072.wav",
-      "sha256": "63a20ddeb84eddc6ff4103c5281d6c5b36e1c7b206f5fec58eaaee93afea88d5"
+      "sha256": "4827c1a5d65cbb13b65944d1e4d4201aa7a10e6222fd7098795f77209d9deb89"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/0069.wav",
-      "sha256": "db7888b025ca6ca54af75f8ab2ca583dbfcc221b6fed96e811eb9108ecf05a41"
+      "sha256": "7583ef2d5dc317a2fd35e63c8230c8f14691dc108fde2a0b7100e1c838d07905"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/0063.wav",
-      "sha256": "dbf53703c54bdd08ef6d7e7ffc2f04538e31d670659d2792295b401692a809e3"
+      "sha256": "cfbd4051c6a9aa4d3b3d656fdce4380cbb9df9d65ac9e6a86717abab86865d67"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/0065.wav",
-      "sha256": "e548362573771ff78a7aff8f49bbe29d40b97c38e1733d05715ccbb411076309"
+      "sha256": "fa2b8e659dd183dc77fc395e58dba5cb43a0e2fce2b1cfba1e6fe1479c71ad4e"
     }
-  ]
+  ],
+  "duration": 5.9254875283446715,
+  "sha256": "d6db03a7f5fd3d7c561b603cafb780fb5a6fe20c30bf256a48f7f20f03d73840"
 }

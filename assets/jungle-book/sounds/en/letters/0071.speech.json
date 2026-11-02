@@ -1,11 +1,12 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/letters/0071.wav",
-  "model": "google/gemini-3.8-flash-lite-tts",
-  "voice": "Kore",
-  "speed": 1.0,
   "text": "cue.",
-  "instructions": "Speak English warmly and clearly at a normal conversational pace. Say each supplied standalone letter name once, with crisp pronunciation and only a brief natural pause after it. Do not stretch vowels, separate syllables, exaggerate pauses, whisper, sing, repeat, or add any other words or sounds.",
-  "duration": 1.1965532879818594,
-  "sha256": "33735dc98ea1c54e4f716708f4853a71b5a805228767abadea1c5eb40c1dff0a",
-  "request_sha256": "8965fa0c1bea55d618f1c82c030d5df18b56332449a3a9dec2490a9df8db5d62"
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.8,
+  "profile": "normal",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "duration": 0.7040362811791383,
+  "sha256": "dd0b6cc0855071108d04904f3410bc5a7e279eb0229dd56a4b199b01a05963f5"
 }

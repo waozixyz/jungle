@@ -1,0 +1,39 @@
+{
+  "text": "Gecko. G. E. C. K. O. Gecko.",
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.65,
+  "profile": "slow",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "method": "Verified word, literal letter names, word; PCM assembly",
+  "sources": [
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/simple/gecko.wav",
+      "sha256": "55a7d9aa6e30963f77222d740f22648a6636dec30fb0182ea54e01f544545bac"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0067.wav",
+      "sha256": "922f1d8139e648873934610213e4ce756464cb7c93de597d8b8dd3fcb2b2e836"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0065.wav",
+      "sha256": "2a47a90cb2e553de89fd28af8e07f5f2cba15935c44c72f070384952389a6e3d"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0063.wav",
+      "sha256": "42789dd324c1f471e26b70b7bb8ce63ffe67f2fa26c6e5148db789b6091523c7"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/006b.wav",
+      "sha256": "d1c9c6c308ff9bf4c91145bb6827649a798c0e38be60aec8f87022d18a6899c1"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/006f.wav",
+      "sha256": "42d3e3e65e42ae7049359cea69e448ef9663484a1a251f642b04fc284aba9fe6"
+    }
+  ],
+  "duration": 8.559501133786847,
+  "sha256": "c98fe932f2c36a695230ba4bff717175912b956910cc0afece18b7ca00522473"
+}

@@ -1,32 +1,39 @@
 {
   "text": "Shelf. S. H. E. L. F. Shelf.",
-  "duration": 7.41092970521542,
-  "sha256": "cf3b50c1d9be1f7ee499c76c51e81e0b69b65fe45d3116f4579111558f870ff6",
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.8,
+  "profile": "normal",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
   "method": "Verified word, literal letter names, word; PCM assembly",
   "sources": [
     {
       "path": "assets/jungle-book/sounds/en/simple/shelf.wav",
-      "sha256": "e475e2f12175ed3d85d9d3a77586351bee1775deb093a9b09ebb9b390998aa91"
+      "sha256": "89ba923232a5f4a6d39db835dc6269a1255c9bef3def5ff5c21ad118f27718d3"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/0073.wav",
-      "sha256": "954e7ffcc810aa20a26fb598cad7cc78902720be9fc04dac0f1ee2792be8c966"
+      "sha256": "08ebe4dcd428a1f4b865d27aa1d0e2731b1c4981744ca9ca6cadbb291053fbaf"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/0068.wav",
-      "sha256": "bfd06894043e68fc00a37c7f92bc16afe103edf08927376111c371c5dcf4438f"
+      "sha256": "ece96414dcf7a958acd56f5a94faf27e7f5b2a8f2edf91f3c5c750af995ed56e"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/0065.wav",
-      "sha256": "e548362573771ff78a7aff8f49bbe29d40b97c38e1733d05715ccbb411076309"
+      "sha256": "fa2b8e659dd183dc77fc395e58dba5cb43a0e2fce2b1cfba1e6fe1479c71ad4e"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/006c.wav",
-      "sha256": "abc6134be52ab3ffc8dfafe30e8157fc2cf565443947108a80ce69b1c9b442bf"
+      "sha256": "b95271e038667e363b27401f8335bade440b98b816df7b0083d3bc66a3ad1cf6"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/0066.wav",
-      "sha256": "0afbdb29ecfa4391bfd32ec963cbb32989558fbc1e2644ba3a9dc26c6bbae6b8"
+      "sha256": "7b2174c40becb335c2fa94863b102828ce9cba4e53c3a183566d1f4655de2d17"
     }
-  ]
+  ],
+  "duration": 6.775873015873016,
+  "sha256": "5697c81078d7949f4e1a74a42335d09479adfaf56dbe43c74ef60d9ed458d2b6"
 }

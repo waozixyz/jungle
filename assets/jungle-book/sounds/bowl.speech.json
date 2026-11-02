@@ -1,28 +1,35 @@
 {
   "text": "Bowl. B. O. W. L. Bowl.",
-  "duration": 6.503990929705216,
-  "sha256": "f4b4140250db8b65c08e69827dfd938cbe4a3cf3ab9cf2854096327e3aef6e38",
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.8,
+  "profile": "normal",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
   "method": "Verified word, literal letter names, word; PCM assembly",
   "sources": [
     {
       "path": "assets/jungle-book/sounds/en/simple/bowl.wav",
-      "sha256": "36b0998805b1ad3bf9b462e51542ee557fedd7f3a6bd1a5ad1f8a529028735cd"
+      "sha256": "aa9a3eab7ed67b08d03cde1cb900d893a82ebc5e426b6119e1765c9652fef4c6"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/0062.wav",
-      "sha256": "441efd3d3a4ae1154c64bff6409eb9dd9de1d318211a9c1a930f8b6c859ebe82"
+      "sha256": "948c1550c20d3283a2dade65452b98d37cdf420dca3ed2ba31a3adc6a825dc7c"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/006f.wav",
-      "sha256": "557256d28f31daef71402b9bab50ee2b47793354d38fa7f0f7747948b4dbd971"
+      "sha256": "fac709628a916ad774ec43ab8d2d67f7dcfac51dc5394d6d87166dc410b121e9"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/0077.wav",
-      "sha256": "5a83f97861009bdee526f198cf2a6d1e7330653d1b985ab771f285aceb24f749"
+      "sha256": "cedf9646042e69d505dceaa2efbe14e235aeaeac3390433722d068a5ef952baf"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/006c.wav",
-      "sha256": "abc6134be52ab3ffc8dfafe30e8157fc2cf565443947108a80ce69b1c9b442bf"
+      "sha256": "b95271e038667e363b27401f8335bade440b98b816df7b0083d3bc66a3ad1cf6"
     }
-  ]
+  ],
+  "duration": 6.248571428571428,
+  "sha256": "535f3bd0a8ff5334421c02c5fb997fd06e47c6ad0f762ba4fcba3eabcfcb3782"
 }

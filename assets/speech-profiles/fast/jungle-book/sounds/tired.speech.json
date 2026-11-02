@@ -1,0 +1,39 @@
+{
+  "text": "Tired. T. I. R. E. D. Tired.",
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 1.0,
+  "profile": "fast",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "method": "Verified word, literal letter names, word; PCM assembly",
+  "sources": [
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/simple/tired.wav",
+      "sha256": "0eafa96a1d61fd75bce3cf5a6328b1a75ff0cb289791f3caf889dc674712888a"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/0074.wav",
+      "sha256": "c2de6b9e1227ed320bc2cbfa04baefa4e37a09e05e7dcd23bbd9e8f76dfc54ec"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/0069.wav",
+      "sha256": "9e3c609744e0993f9d6d807035459f871f42bca60a6d2441e4e7447f21439cfa"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/0072.wav",
+      "sha256": "3a758143b6963441fa7ed656fbbf205d7d3f88922a63a8c911a8029cc967a185"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/0065.wav",
+      "sha256": "febaea06cdc2510f95261ec00b009ae316710a1723906d1934813e25da11bf0b"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/0064.wav",
+      "sha256": "2860040af07dddfec83ddc981391ca727163f054b575dea3f13d598b24f83b69"
+    }
+  ],
+  "duration": 5.8829024943310655,
+  "sha256": "55978407248faed9afb2716182786bcd26cbdb79df646589e057ed50d3dddf7b"
+}

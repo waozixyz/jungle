@@ -1,11 +1,12 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle/title/guide/en/step1.wav",
-  "model": "google/gemini-3.8-flash-lite-tts",
-  "voice": "Kore",
-  "speed": 1.0,
   "text": "Drag to see more.",
-  "instructions": "Warm, gentle, friendly toddler guide. Speak each language natively at a natural normal conversational speed, with clean phrase pacing and no dramatic slowdown, music, or sound effects.",
-  "duration": 2.501315,
-  "sha256": "669f2d4c3c1c2d2026790d561514c0cb363e9528d06b1c9120f64c24932a4155",
-  "request_sha256": "2e3d998c9a2225e488e087bf687ed6b9a58c59f0d318b6f418ce7fcbd5e071dc"
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.8,
+  "profile": "normal",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "duration": 1.5360090702947846,
+  "sha256": "1b13e8da338d3b25da21a79feb729dced5a31a3ddc022dde6226096560bf19bc"
 }

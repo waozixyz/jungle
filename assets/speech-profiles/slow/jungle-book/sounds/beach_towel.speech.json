@@ -1,0 +1,59 @@
+{
+  "text": "Beach towel. B. E. A. C. H. T. O. W. E. L. Beach towel.",
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.65,
+  "profile": "slow",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "method": "Verified word, literal letter names, word; PCM assembly",
+  "sources": [
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/simple/beach_towel.wav",
+      "sha256": "da5c8621d4664ed224c948e46b6fe3c4aadd7d98c1bd3207f33b56058b5a429f"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0062.wav",
+      "sha256": "aa9fb102d77abe2638347503c37ba06d2185a1fc800acaecdb021c871e1373d4"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0065.wav",
+      "sha256": "2a47a90cb2e553de89fd28af8e07f5f2cba15935c44c72f070384952389a6e3d"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0061.wav",
+      "sha256": "f27ea56326b064aed947e1c8b2d7b57289868ec49e58b63ff2b87fd05a19d790"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0063.wav",
+      "sha256": "42789dd324c1f471e26b70b7bb8ce63ffe67f2fa26c6e5148db789b6091523c7"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0068.wav",
+      "sha256": "7dcd5b2912537fb0d76339d4b1888229b5e272b3a61d098df98e3f16132b0f4e"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0074.wav",
+      "sha256": "374e06146a66e7fc0362e4eaf976ee3b4fa87e669bfad6a4f556ed690dffe3c8"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/006f.wav",
+      "sha256": "42d3e3e65e42ae7049359cea69e448ef9663484a1a251f642b04fc284aba9fe6"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0077.wav",
+      "sha256": "645dcc5e6883349c601ea93c6f0054e61ba2e279849e74a9c1e66edf5797bb03"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0065.wav",
+      "sha256": "2a47a90cb2e553de89fd28af8e07f5f2cba15935c44c72f070384952389a6e3d"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/006c.wav",
+      "sha256": "7f5afe52d5541c08bf55f3891ac15dd67566299269ea1723a400e9ff743e87f1"
+    }
+  ],
+  "duration": 15.51156462585034,
+  "sha256": "14d12aac3d484013ed56dd214c0a21601a7ba93dd563ebf75a289016a0e0f667"
+}

@@ -1,56 +1,63 @@
 {
   "text": "Wooden train. W. O. O. D. E. N. T. R. A. I. N. Wooden train.",
-  "duration": 15.260725623582767,
-  "sha256": "96518a4b5ecc9090387660c6d55d07c1997f6edeb0cdf81589c2926dd05af3f6",
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.8,
+  "profile": "normal",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
   "method": "Verified word, literal letter names, word; PCM assembly",
   "sources": [
     {
       "path": "assets/jungle-book/sounds/en/simple/wooden_train.wav",
-      "sha256": "ec099d58b25a5673ef34ac77c50ab2b1abf5fa9003667b37dc953ca1f9c3322c"
+      "sha256": "18afe8dfda36eb29e526162aaad18540bd2ca5bc4462c31005ff38c3f2000fef"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/0077.wav",
-      "sha256": "5a83f97861009bdee526f198cf2a6d1e7330653d1b985ab771f285aceb24f749"
+      "sha256": "cedf9646042e69d505dceaa2efbe14e235aeaeac3390433722d068a5ef952baf"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/006f.wav",
-      "sha256": "557256d28f31daef71402b9bab50ee2b47793354d38fa7f0f7747948b4dbd971"
+      "sha256": "fac709628a916ad774ec43ab8d2d67f7dcfac51dc5394d6d87166dc410b121e9"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/006f.wav",
-      "sha256": "557256d28f31daef71402b9bab50ee2b47793354d38fa7f0f7747948b4dbd971"
+      "sha256": "fac709628a916ad774ec43ab8d2d67f7dcfac51dc5394d6d87166dc410b121e9"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/0064.wav",
-      "sha256": "2ef4393f49eeff7edc405fe6e368ef106051f2bbf1ac2370dadcf5e93000c201"
+      "sha256": "fbba179c78f6818fdbee1fbf168275d0da2653669929afb85129bfae3f84fdba"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/0065.wav",
-      "sha256": "e548362573771ff78a7aff8f49bbe29d40b97c38e1733d05715ccbb411076309"
+      "sha256": "fa2b8e659dd183dc77fc395e58dba5cb43a0e2fce2b1cfba1e6fe1479c71ad4e"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/006e.wav",
-      "sha256": "82b515a934c88374afb363c761452a0d6eba3f74bfcdc3a73e0a71eab85510d2"
+      "sha256": "9242f5a5a2396d81f63a9ac34d06a06195d3fbd3e49574812791934fc63aad86"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/0074.wav",
-      "sha256": "6c9f7deba417f5cc10f8a3bca90f6325f40d2eba729f5fbb0d2e180671ca96cd"
+      "sha256": "6349108ba1be3854f358e7d50172bc3ad0a0d4b22580428cb0715974e1a58c66"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/0072.wav",
-      "sha256": "63a20ddeb84eddc6ff4103c5281d6c5b36e1c7b206f5fec58eaaee93afea88d5"
+      "sha256": "4827c1a5d65cbb13b65944d1e4d4201aa7a10e6222fd7098795f77209d9deb89"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/0061.wav",
-      "sha256": "5c2d4f375c376213d528d45f79debf6b7666d2d9c5324595c4bb038980bec1e1"
+      "sha256": "7583ef2d5dc317a2fd35e63c8230c8f14691dc108fde2a0b7100e1c838d07905"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/0069.wav",
-      "sha256": "db7888b025ca6ca54af75f8ab2ca583dbfcc221b6fed96e811eb9108ecf05a41"
+      "sha256": "7583ef2d5dc317a2fd35e63c8230c8f14691dc108fde2a0b7100e1c838d07905"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/006e.wav",
-      "sha256": "82b515a934c88374afb363c761452a0d6eba3f74bfcdc3a73e0a71eab85510d2"
+      "sha256": "9242f5a5a2396d81f63a9ac34d06a06195d3fbd3e49574812791934fc63aad86"
     }
-  ]
+  ],
+  "duration": 13.633378684807257,
+  "sha256": "8b073bcc371a9dc199a1a671e8f7f4007fdd162a886c0b10ccad716d48a75de4"
 }

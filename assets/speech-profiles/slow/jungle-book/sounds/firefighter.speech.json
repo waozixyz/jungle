@@ -1,0 +1,63 @@
+{
+  "text": "Firefighter. F. I. R. E. F. I. G. H. T. E. R. Firefighter.",
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.65,
+  "profile": "slow",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "method": "Verified word, literal letter names, word; PCM assembly",
+  "sources": [
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/simple/firefighter.wav",
+      "sha256": "7e63c22897a002497501986b7b127a3ed8bc3882ca85e4ae4313740dc1e0aa6c"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0066.wav",
+      "sha256": "df47196b126c912e93c76318a84a32fcebcb8e4c5c518bff9c6b3f3b09874058"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0069.wav",
+      "sha256": "f27ea56326b064aed947e1c8b2d7b57289868ec49e58b63ff2b87fd05a19d790"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0072.wav",
+      "sha256": "2a3fe7ff12fdf37df27301b6bae995fa718df3c3a620d414e4ed3f300d00bb0c"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0065.wav",
+      "sha256": "2a47a90cb2e553de89fd28af8e07f5f2cba15935c44c72f070384952389a6e3d"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0066.wav",
+      "sha256": "df47196b126c912e93c76318a84a32fcebcb8e4c5c518bff9c6b3f3b09874058"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0069.wav",
+      "sha256": "f27ea56326b064aed947e1c8b2d7b57289868ec49e58b63ff2b87fd05a19d790"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0067.wav",
+      "sha256": "922f1d8139e648873934610213e4ce756464cb7c93de597d8b8dd3fcb2b2e836"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0068.wav",
+      "sha256": "7dcd5b2912537fb0d76339d4b1888229b5e272b3a61d098df98e3f16132b0f4e"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0074.wav",
+      "sha256": "374e06146a66e7fc0362e4eaf976ee3b4fa87e669bfad6a4f556ed690dffe3c8"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0065.wav",
+      "sha256": "2a47a90cb2e553de89fd28af8e07f5f2cba15935c44c72f070384952389a6e3d"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0072.wav",
+      "sha256": "2a3fe7ff12fdf37df27301b6bae995fa718df3c3a620d414e4ed3f300d00bb0c"
+    }
+  ],
+  "duration": 16.011020408163265,
+  "sha256": "446777696621308969b836228ff7f17a5d0a3976f6b10f4ccc806b08f456f965"
+}

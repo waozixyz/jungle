@@ -1,11 +1,12 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/kettle.wav",
-  "model": "google/gemini-3.8-flash-lite-tts",
-  "voice": "Kore",
-  "speed": 1.0,
   "text": "Kettle.",
-  "instructions": "Speak English clearly and naturally at an ordinary conversational speed. Pronounce each provided label exactly once; do not slow down, spell, add words, or explain.",
-  "duration": 1.0747845804988663,
-  "sha256": "17699d3552dc0743aeb7f2496d2675f495b3aae590bb13c33bd16b450a704533",
-  "request_sha256": "a1ac0a54e8187b146a2fcaa53d1aa1a9e93e93a510ef88ad2baede56c4b31365"
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.8,
+  "profile": "normal",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "duration": 0.7893424036281179,
+  "sha256": "764f44b0a77c607fe6714772352a9d0b91ea7a68dbeb4714fc58a1acb6329d06"
 }

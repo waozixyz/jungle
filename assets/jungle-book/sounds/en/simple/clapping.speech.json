@@ -1,11 +1,12 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/clapping.wav",
-  "model": "google/gemini-3.8-flash-lite-tts",
-  "voice": "Kore",
-  "speed": 1,
   "text": "Clapping.",
-  "instructions": "Speak English clearly and naturally at an ordinary conversational speed. Pronounce each provided label exactly once; do not slow down, spell, add words, or explain.",
-  "duration": 1.1165986394557823,
-  "sha256": "e5e64093f40c0da177d8dc2865089707dfe1aebbc3184d5e820388269c94e9a1",
-  "request_sha256": "8e528e4a38afea5990d8c016a09dcf9d03b540626fd51231a703c19fc135484a"
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.8,
+  "profile": "normal",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "duration": 0.8319727891156462,
+  "sha256": "64fcc6613d24577a3c14656c60dbdc909a27f1a5b941ad1a8759b4bc07ce1417"
 }

@@ -1,0 +1,39 @@
+{
+  "text": "Chair. C. H. A. I. R. Chair.",
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 1.0,
+  "profile": "fast",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "method": "Verified word, literal letter names, word; PCM assembly",
+  "sources": [
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/simple/chair.wav",
+      "sha256": "1bda0d5fa85c8f2f89a758b11a9bdb9c49b3c5658db02689bc02c2cf45dab569"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/0063.wav",
+      "sha256": "22e2360aa217440009e09bed7071d32c58367a6927968b01ca267243f85598df"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/0068.wav",
+      "sha256": "2b203c6d95737ef2d6214cda22be1747b5a356a32ac9daeab1f3dbe4200afca3"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/0061.wav",
+      "sha256": "9e3c609744e0993f9d6d807035459f871f42bca60a6d2441e4e7447f21439cfa"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/0069.wav",
+      "sha256": "9e3c609744e0993f9d6d807035459f871f42bca60a6d2441e4e7447f21439cfa"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/0072.wav",
+      "sha256": "3a758143b6963441fa7ed656fbbf205d7d3f88922a63a8c911a8029cc967a185"
+    }
+  ],
+  "duration": 5.737959183673469,
+  "sha256": "25d4b89d33ea0989d99f26eb229748f56e973b31894fe9db7e5ca5e045a48f39"
+}

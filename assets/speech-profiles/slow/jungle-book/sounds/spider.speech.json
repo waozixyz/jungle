@@ -1,0 +1,43 @@
+{
+  "text": "Spider. S. P. I. D. E. R. Spider.",
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.65,
+  "profile": "slow",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "method": "Verified word, literal letter names, word; PCM assembly",
+  "sources": [
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/simple/spider.wav",
+      "sha256": "aa3c8ba9ed60338d1472bcc5c731554694645bd54f1c33818cf2e03ec9bc59b0"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0073.wav",
+      "sha256": "071bdf3ce6ecd325af088e95c2d7e558bbdac97044392968f0f3675d3babd6bf"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0070.wav",
+      "sha256": "f7b9102b6b92cca16f769112106453a92d7683af256facd3179452eaa7f91440"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0069.wav",
+      "sha256": "f27ea56326b064aed947e1c8b2d7b57289868ec49e58b63ff2b87fd05a19d790"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0064.wav",
+      "sha256": "ee1ad4e1ca9955addc9148ecf502b14214f49b2323bd3d8bb637b455aebb450a"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0065.wav",
+      "sha256": "2a47a90cb2e553de89fd28af8e07f5f2cba15935c44c72f070384952389a6e3d"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0072.wav",
+      "sha256": "2a3fe7ff12fdf37df27301b6bae995fa718df3c3a620d414e4ed3f300d00bb0c"
+    }
+  ],
+  "duration": 9.642857142857142,
+  "sha256": "05c596cb5fe71ab11e4a1ce77d41b685f8c0d09d3459958881ccdec0fd8d653f"
+}

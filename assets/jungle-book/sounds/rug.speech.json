@@ -1,24 +1,31 @@
 {
   "text": "Rug. R. U. G. Rug.",
-  "duration": 5.2443990929705215,
-  "sha256": "9c7affd79a083edd4b8bb8ababa491555bd0b8fba321e08f866de53a1203e1dd",
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.8,
+  "profile": "normal",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
   "method": "Verified word, literal letter names, word; PCM assembly",
   "sources": [
     {
       "path": "assets/jungle-book/sounds/en/simple/rug.wav",
-      "sha256": "ba11e2c97bf5dc8f8fd194e3a6a3f79030e7d7cd4e004cfcb507a15fe8e8e4f4"
+      "sha256": "9ea48b17e2705f233a25531a5727bfc083affbfee7124bf45eb2e99caac5f6eb"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/0072.wav",
-      "sha256": "63a20ddeb84eddc6ff4103c5281d6c5b36e1c7b206f5fec58eaaee93afea88d5"
+      "sha256": "4827c1a5d65cbb13b65944d1e4d4201aa7a10e6222fd7098795f77209d9deb89"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/0075.wav",
-      "sha256": "e72ec0c34f73b5d805358f7e33b2fb26293ccd1d45288eea211ef5f6929951d5"
+      "sha256": "0c1881b7cb30dc2c94b14be860e96f339f7e79fe687a168bfdc7210913b38a50"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/0067.wav",
-      "sha256": "72b411c13d54fccafe9468b1b625be908e6f371a82a6835e6e54004ca09a0cfd"
+      "sha256": "11c3ff50d3cbe7296cf14c686e0d89b4311f0889039c5fd2f9ed8cae8bd89869"
     }
-  ]
+  ],
+  "duration": 4.955963718820862,
+  "sha256": "3fa2ce4d174b4ee604a97498d03a074dcc227912290f0c143eb3eaeb355c4e5e"
 }

@@ -1,11 +1,12 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/vegetable_casserole.wav",
-  "model": "google/gemini-3.8-flash-lite-tts",
-  "voice": "Kore",
-  "speed": 1.0,
   "text": "Vegetable casserole.",
-  "instructions": "Speak English clearly and naturally at an ordinary conversational speed. Pronounce each provided label exactly once; do not slow down, spell, add words, or explain.",
-  "duration": 1.9519727891156462,
-  "sha256": "98a91398b9129fff27f439ba9905244553fc9f8f4703c205543668e4d9230d6c",
-  "request_sha256": "e1401d6858d196d108e0dace0475b1d88f8e4eeba519590385d15293fa2cfcdb"
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.8,
+  "profile": "normal",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "duration": 1.749342403628118,
+  "sha256": "f9e6036ec5f5b9ad53436e2d27eb335bfdb1a8fa60719da1fc2a7075da4f8f7a"
 }

@@ -1,11 +1,12 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/story-sounds/en/porridge_07_kitchen.wav",
-  "model": "google/gemini-3.8-flash-lite-tts",
-  "voice": "Kore",
-  "speed": 0.8,
   "text": "The pot keeps cooking. Porridge spills over the table and fills the kitchen.",
-  "instructions": "Read this gentle children's fairy tale in English. Speak only the supplied text, warmly and clearly.",
-  "duration": 8.379410430839002,
-  "sha256": "141d50eef9e5ef187cbb73bfe3075a2c2705f0a4128ab0bb04b8f90b65fc731b",
-  "request_sha256": "471604df9d960b8435195046bef1c6f2789b57896622d7a515422260453216c1"
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.8,
+  "profile": "normal",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "duration": 5.738639455782313,
+  "sha256": "14db1ed22bec923766f550220b2367f536d19f25b3e58b75fb7145cdc437256d"
 }

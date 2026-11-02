@@ -1,24 +1,31 @@
 {
   "text": "Dry. D. R. Y. Dry.",
-  "duration": 4.952018140589569,
-  "sha256": "e8f3c9fd7df93028e2f78939f7df80eafd5d820a1ce22bf1be6e8b3e1a72091b",
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.8,
+  "profile": "normal",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
   "method": "Verified word, literal letter names, word; PCM assembly",
   "sources": [
     {
       "path": "assets/jungle-book/sounds/en/simple/dry.wav",
-      "sha256": "2e3e9c870d1c4229ffdd84d3b557e6764975290524899c6487d03ab77415b403"
+      "sha256": "a9222c9e3da27c32ef34498df3a8417360898d3bff9a5e90cc3afcb48d07e979"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/0064.wav",
-      "sha256": "2ef4393f49eeff7edc405fe6e368ef106051f2bbf1ac2370dadcf5e93000c201"
+      "sha256": "fbba179c78f6818fdbee1fbf168275d0da2653669929afb85129bfae3f84fdba"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/0072.wav",
-      "sha256": "63a20ddeb84eddc6ff4103c5281d6c5b36e1c7b206f5fec58eaaee93afea88d5"
+      "sha256": "4827c1a5d65cbb13b65944d1e4d4201aa7a10e6222fd7098795f77209d9deb89"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/0079.wav",
-      "sha256": "d55308def635355fb88e317074d465db2f71c528eb248efcc95884141080844e"
+      "sha256": "42b5f604b0370f6a76121e8850c26a2e60d31d4053e79c6a234fe8caf31cce9d"
     }
-  ]
+  ],
+  "duration": 5.102222222222222,
+  "sha256": "086ad3ba56c07c55b46b45a2b72ea4d6cd69668afc1ef797931c48ad4a72de88"
 }

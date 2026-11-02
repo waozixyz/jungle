@@ -1,0 +1,51 @@
+{
+  "text": "Omelette. O. M. E. L. E. T. T. E. Omelette.",
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.65,
+  "profile": "slow",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "method": "Verified word, literal letter names, word; PCM assembly",
+  "sources": [
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/simple/omelette.wav",
+      "sha256": "382b3f866ae8dccc2896834cb24a42a3a5cbd3f96901d4a7c60c322ee175e423"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/006f.wav",
+      "sha256": "42d3e3e65e42ae7049359cea69e448ef9663484a1a251f642b04fc284aba9fe6"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/006d.wav",
+      "sha256": "ac055d677127939360553d51ada57008d5b45ddb11db850640932f92c74bd673"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0065.wav",
+      "sha256": "2a47a90cb2e553de89fd28af8e07f5f2cba15935c44c72f070384952389a6e3d"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/006c.wav",
+      "sha256": "7f5afe52d5541c08bf55f3891ac15dd67566299269ea1723a400e9ff743e87f1"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0065.wav",
+      "sha256": "2a47a90cb2e553de89fd28af8e07f5f2cba15935c44c72f070384952389a6e3d"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0074.wav",
+      "sha256": "374e06146a66e7fc0362e4eaf976ee3b4fa87e669bfad6a4f556ed690dffe3c8"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0074.wav",
+      "sha256": "374e06146a66e7fc0362e4eaf976ee3b4fa87e669bfad6a4f556ed690dffe3c8"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0065.wav",
+      "sha256": "2a47a90cb2e553de89fd28af8e07f5f2cba15935c44c72f070384952389a6e3d"
+    }
+  ],
+  "duration": 11.64140589569161,
+  "sha256": "7dae27e4e453549e3a5543f14e6e53bb3b592594d65ac2fd3e5c2433723079d3"
+}

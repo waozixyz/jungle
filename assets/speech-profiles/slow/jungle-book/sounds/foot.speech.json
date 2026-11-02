@@ -1,0 +1,35 @@
+{
+  "text": "Foot. F. O. O. T. Foot.",
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.65,
+  "profile": "slow",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "method": "Verified word, literal letter names, word; PCM assembly",
+  "sources": [
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/simple/foot.wav",
+      "sha256": "4f496e34c545bc217dfa881360c5b51b858a439a0a855536c2cbe14ea34eae6a"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0066.wav",
+      "sha256": "df47196b126c912e93c76318a84a32fcebcb8e4c5c518bff9c6b3f3b09874058"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/006f.wav",
+      "sha256": "42d3e3e65e42ae7049359cea69e448ef9663484a1a251f642b04fc284aba9fe6"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/006f.wav",
+      "sha256": "42d3e3e65e42ae7049359cea69e448ef9663484a1a251f642b04fc284aba9fe6"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0074.wav",
+      "sha256": "374e06146a66e7fc0362e4eaf976ee3b4fa87e669bfad6a4f556ed690dffe3c8"
+    }
+  ],
+  "duration": 6.989342403628118,
+  "sha256": "df45b45bea09918442cd5bf3edf6fc90a60ab96471c2b61c69991a1545233ec6"
+}

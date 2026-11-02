@@ -1,11 +1,12 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/nurse.wav",
-  "model": "google/gemini-3.8-flash-lite-tts",
-  "voice": "Kore",
-  "speed": 1,
   "text": "Nurse.",
-  "instructions": "Speak English clearly and naturally at an ordinary conversational speed. Pronounce each provided label exactly once; do not slow down, spell, add words, or explain.",
-  "duration": 1.2754195011337868,
-  "sha256": "27b5af59fbccb68783189817333006b063ff535fc9a522fece3f8ccbb88a9676",
-  "request_sha256": "25de7ecc28b8b0d5abfae93871b8ad22ae99b374cd714d6ecf4c4a25b112edf0"
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.8,
+  "profile": "normal",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "duration": 0.7680272108843538,
+  "sha256": "9b6014b9daec4e7f0d64491ada0a81cbe469fccafcf70a3486c52ef1b0285af9"
 }

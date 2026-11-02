@@ -1,24 +1,31 @@
 {
   "text": "Ivy. I. V. Y. Ivy.",
-  "duration": 5.15469387755102,
-  "sha256": "860671360d95ce62e60a56f46f4ad39ab10ddc092953e60e8a29a9d1ff227442",
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.8,
+  "profile": "normal",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
   "method": "Verified word, literal letter names, word; PCM assembly",
   "sources": [
     {
       "path": "assets/jungle-book/sounds/en/simple/ivy.wav",
-      "sha256": "d70ae1f13677c09bef61c4b64200f6d6cce1802a22ae912aa5acd1073152d8c4"
+      "sha256": "05e194c92a1b65b27cf53105ff50203ac96ef6220aa6459206344e5f5220c8f3"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/0069.wav",
-      "sha256": "db7888b025ca6ca54af75f8ab2ca583dbfcc221b6fed96e811eb9108ecf05a41"
+      "sha256": "7583ef2d5dc317a2fd35e63c8230c8f14691dc108fde2a0b7100e1c838d07905"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/0076.wav",
-      "sha256": "0de5453c13f2b5d09932e7cd7cedf15b4fb0829a05a9ca9eee74eccf45e57291"
+      "sha256": "fa35e728510798b8422fafaaebf98b576735352d79bdae4bb1ee6a9caa3c6f6f"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/0079.wav",
-      "sha256": "d55308def635355fb88e317074d465db2f71c528eb248efcc95884141080844e"
+      "sha256": "42b5f604b0370f6a76121e8850c26a2e60d31d4053e79c6a234fe8caf31cce9d"
     }
-  ]
+  ],
+  "duration": 4.926893424036281,
+  "sha256": "4afee6f376b78d9678c48bcaf4325d2b73996c6952e4e0ecc9465c4ef0580253"
 }

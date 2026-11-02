@@ -1,11 +1,12 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/icicles.wav",
-  "model": "google/gemini-3.8-flash-lite-tts",
-  "voice": "Kore",
-  "speed": 1.0,
   "text": "Icicles.",
-  "instructions": "Speak English clearly and naturally at an ordinary conversational speed. Pronounce each provided label exactly once; do not slow down, spell, add words, or explain.",
-  "duration": 1.398140589569161,
-  "sha256": "9021f5f0dc326701558e502e85447f097e75f651bda98cd7e85c99edbf6042e5",
-  "request_sha256": "10fbc22077d6fb32818c0a5d2e6c0c292b003d36b7e127601e983c67d8f50493"
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.8,
+  "profile": "normal",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "duration": 1.0240362811791384,
+  "sha256": "18a3829352391da7f10b313b1777095e9f7939e7cb203a70117dfd3e823addd6"
 }

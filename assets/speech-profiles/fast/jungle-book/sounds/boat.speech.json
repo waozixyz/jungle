@@ -1,0 +1,35 @@
+{
+  "text": "Boat. B. O. A. T. Boat.",
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 1.0,
+  "profile": "fast",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "method": "Verified word, literal letter names, word; PCM assembly",
+  "sources": [
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/simple/boat.wav",
+      "sha256": "807dfb1ae990d9b8bb820e73235866b2c2f4137ac9692ced330904372469a06d"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/0062.wav",
+      "sha256": "de1db9376e8bdcb1bce7b0d0e5260f4eafd70d520eda50649fd9e1c55374ca6a"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/006f.wav",
+      "sha256": "b43b655702df5f8fdd6e41a253b3bf4b96e3c21d4e632da49b48703da7543608"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/0061.wav",
+      "sha256": "9e3c609744e0993f9d6d807035459f871f42bca60a6d2441e4e7447f21439cfa"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/0074.wav",
+      "sha256": "c2de6b9e1227ed320bc2cbfa04baefa4e37a09e05e7dcd23bbd9e8f76dfc54ec"
+    }
+  ],
+  "duration": 4.8756462585034015,
+  "sha256": "efbd2c45f057e216fbf735696ab839b034c265e9c6f2964f4e4c7efbb1f27398"
+}

@@ -1,11 +1,12 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/shapes/sounds/en/sizes.wav",
-  "model": "google/gemini-3.8-flash-lite-tts",
-  "voice": "Kore",
-  "speed": 1.0,
   "text": "Small or big?",
-  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
-  "duration": 2.3882086167800454,
-  "sha256": "076d1d6e5b3573b99e78e2febee65f6562639f3ed5ad17c21f349245d3c615a1",
-  "request_sha256": "cc1d29b25450ccda60c50d516a1b8312dda264e5c96c3fb1b342e7f07fef76e8"
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.8,
+  "profile": "normal",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "duration": 1.130702947845805,
+  "sha256": "bfc35ee783dcf868d08c6b9f6ff0a405995fc6bc290c0d9fe7827f212247ceaa"
 }

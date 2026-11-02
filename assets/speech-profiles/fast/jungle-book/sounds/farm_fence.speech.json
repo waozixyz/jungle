@@ -1,0 +1,39 @@
+{
+  "text": "Fence. F. E. N. C. E. Fence.",
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 1.0,
+  "profile": "fast",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "method": "Verified word, literal letter names, word; PCM assembly",
+  "sources": [
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/simple/farm_fence.wav",
+      "sha256": "e2d2cf2d8aece03fdae5e6c22975e5453d95c6a7ffa23615c97208b1a9ce12f7"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/0066.wav",
+      "sha256": "2f0c9abe4742aee54de916c4837fa8f68944d2060930ded067c00c992323689d"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/0065.wav",
+      "sha256": "febaea06cdc2510f95261ec00b009ae316710a1723906d1934813e25da11bf0b"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/006e.wav",
+      "sha256": "89653c3ba64cb8d856f1a0f78657df16071fb0e39496fe96ed190dc6a094ec70"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/0063.wav",
+      "sha256": "22e2360aa217440009e09bed7071d32c58367a6927968b01ca267243f85598df"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/0065.wav",
+      "sha256": "febaea06cdc2510f95261ec00b009ae316710a1723906d1934813e25da11bf0b"
+    }
+  ],
+  "duration": 5.6834467120181404,
+  "sha256": "0f2fe49009db48f53a34546641c04c7497079d1429d2b2b0b4e25b69802b0544"
+}

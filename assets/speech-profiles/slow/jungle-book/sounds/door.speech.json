@@ -1,0 +1,35 @@
+{
+  "text": "Door. D. O. O. R. Door.",
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.65,
+  "profile": "slow",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "method": "Verified word, literal letter names, word; PCM assembly",
+  "sources": [
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/simple/door.wav",
+      "sha256": "a752762551e4231b35ed43d9d4fabf323ee0c8f05c97fbb76e6935d6add82dec"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0064.wav",
+      "sha256": "ee1ad4e1ca9955addc9148ecf502b14214f49b2323bd3d8bb637b455aebb450a"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/006f.wav",
+      "sha256": "42d3e3e65e42ae7049359cea69e448ef9663484a1a251f642b04fc284aba9fe6"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/006f.wav",
+      "sha256": "42d3e3e65e42ae7049359cea69e448ef9663484a1a251f642b04fc284aba9fe6"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0072.wav",
+      "sha256": "2a3fe7ff12fdf37df27301b6bae995fa718df3c3a620d414e4ed3f300d00bb0c"
+    }
+  ],
+  "duration": 7.094965986394558,
+  "sha256": "e93f84b46b4f64e2da938ce6acffebe96bc22a95027fa69718a362202fe1e865"
+}

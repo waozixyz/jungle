@@ -1,0 +1,55 @@
+{
+  "text": "Pitchfork. P. I. T. C. H. F. O. R. K. Pitchfork.",
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.65,
+  "profile": "slow",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "method": "Verified word, literal letter names, word; PCM assembly",
+  "sources": [
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/simple/pitchfork.wav",
+      "sha256": "1cbee5ef23208351a67e4404ce1fd0b99f3a2bdc279d393258dc567bc74837c0"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0070.wav",
+      "sha256": "f7b9102b6b92cca16f769112106453a92d7683af256facd3179452eaa7f91440"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0069.wav",
+      "sha256": "f27ea56326b064aed947e1c8b2d7b57289868ec49e58b63ff2b87fd05a19d790"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0074.wav",
+      "sha256": "374e06146a66e7fc0362e4eaf976ee3b4fa87e669bfad6a4f556ed690dffe3c8"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0063.wav",
+      "sha256": "42789dd324c1f471e26b70b7bb8ce63ffe67f2fa26c6e5148db789b6091523c7"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0068.wav",
+      "sha256": "7dcd5b2912537fb0d76339d4b1888229b5e272b3a61d098df98e3f16132b0f4e"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0066.wav",
+      "sha256": "df47196b126c912e93c76318a84a32fcebcb8e4c5c518bff9c6b3f3b09874058"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/006f.wav",
+      "sha256": "42d3e3e65e42ae7049359cea69e448ef9663484a1a251f642b04fc284aba9fe6"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0072.wav",
+      "sha256": "2a3fe7ff12fdf37df27301b6bae995fa718df3c3a620d414e4ed3f300d00bb0c"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/006b.wav",
+      "sha256": "d1c9c6c308ff9bf4c91145bb6827649a798c0e38be60aec8f87022d18a6899c1"
+    }
+  ],
+  "duration": 13.514557823129252,
+  "sha256": "d94e602e4f6498594af5b0cabc0883faf1488e094760d9dba1ad5fd52dde6748"
+}

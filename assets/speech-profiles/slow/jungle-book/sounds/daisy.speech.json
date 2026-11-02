@@ -1,0 +1,39 @@
+{
+  "text": "Daisy. D. A. I. S. Y. Daisy.",
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.65,
+  "profile": "slow",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "method": "Verified word, literal letter names, word; PCM assembly",
+  "sources": [
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/simple/daisy.wav",
+      "sha256": "390599a07dba137fab924882f1da4284c39d9ba38f86b9b347273ca5e74c2e56"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0064.wav",
+      "sha256": "ee1ad4e1ca9955addc9148ecf502b14214f49b2323bd3d8bb637b455aebb450a"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0061.wav",
+      "sha256": "f27ea56326b064aed947e1c8b2d7b57289868ec49e58b63ff2b87fd05a19d790"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0069.wav",
+      "sha256": "f27ea56326b064aed947e1c8b2d7b57289868ec49e58b63ff2b87fd05a19d790"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0073.wav",
+      "sha256": "071bdf3ce6ecd325af088e95c2d7e558bbdac97044392968f0f3675d3babd6bf"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0079.wav",
+      "sha256": "8323526946e21186b5ef7eef3aa68e47e280f76bc116616063c7efc47259ef2c"
+    }
+  ],
+  "duration": 8.45310657596372,
+  "sha256": "9a4fd36c568705122e24e764815a65e92f1fce355f60b864e19a36e77a1b5662"
+}

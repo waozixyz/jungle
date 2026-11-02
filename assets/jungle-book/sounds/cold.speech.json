@@ -1,28 +1,35 @@
 {
   "text": "Cold. C. O. L. D. Cold.",
-  "duration": 6.421678004535147,
-  "sha256": "a43c7ec50387aa335a3dfde837aca74033048a6005da2639ab2aa6c6cc2bd281",
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.8,
+  "profile": "normal",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
   "method": "Verified word, literal letter names, word; PCM assembly",
   "sources": [
     {
       "path": "assets/jungle-book/sounds/en/simple/cold.wav",
-      "sha256": "ab300be5217d70c7603a0a7087f57c8c71e30d5c9753e9a135052a7f82912004"
+      "sha256": "1f3995f7521a0d8a20d01b3e557316849b8ec2d06d9e4b48c23429714b07220c"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/0063.wav",
-      "sha256": "dbf53703c54bdd08ef6d7e7ffc2f04538e31d670659d2792295b401692a809e3"
+      "sha256": "cfbd4051c6a9aa4d3b3d656fdce4380cbb9df9d65ac9e6a86717abab86865d67"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/006f.wav",
-      "sha256": "557256d28f31daef71402b9bab50ee2b47793354d38fa7f0f7747948b4dbd971"
+      "sha256": "fac709628a916ad774ec43ab8d2d67f7dcfac51dc5394d6d87166dc410b121e9"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/006c.wav",
-      "sha256": "abc6134be52ab3ffc8dfafe30e8157fc2cf565443947108a80ce69b1c9b442bf"
+      "sha256": "b95271e038667e363b27401f8335bade440b98b816df7b0083d3bc66a3ad1cf6"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/0064.wav",
-      "sha256": "2ef4393f49eeff7edc405fe6e368ef106051f2bbf1ac2370dadcf5e93000c201"
+      "sha256": "fbba179c78f6818fdbee1fbf168275d0da2653669929afb85129bfae3f84fdba"
     }
-  ]
+  ],
+  "duration": 5.903265306122449,
+  "sha256": "2cbd43e613f8a16f3b2e83df3a4e98d4ac527e969451930c16a65b9a1881c63f"
 }

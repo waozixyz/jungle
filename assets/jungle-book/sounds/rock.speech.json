@@ -1,28 +1,35 @@
 {
   "text": "Rock. R. O. C. K. Rock.",
-  "duration": 6.661179138321995,
-  "sha256": "64096de9148f94300f357d49495643950a1109c7a99a3be2555baf50445356b0",
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.8,
+  "profile": "normal",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
   "method": "Verified word, literal letter names, word; PCM assembly",
   "sources": [
     {
       "path": "assets/jungle-book/sounds/en/simple/rock.wav",
-      "sha256": "03f8849bced4378b83caacb9b45eb168b44c19e0f8c96adb4685867153242314"
+      "sha256": "01017f2778bb1bd62d094d307ad379be386f53e9626249fbf62527c2c0407010"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/0072.wav",
-      "sha256": "63a20ddeb84eddc6ff4103c5281d6c5b36e1c7b206f5fec58eaaee93afea88d5"
+      "sha256": "4827c1a5d65cbb13b65944d1e4d4201aa7a10e6222fd7098795f77209d9deb89"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/006f.wav",
-      "sha256": "557256d28f31daef71402b9bab50ee2b47793354d38fa7f0f7747948b4dbd971"
+      "sha256": "fac709628a916ad774ec43ab8d2d67f7dcfac51dc5394d6d87166dc410b121e9"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/0063.wav",
-      "sha256": "dbf53703c54bdd08ef6d7e7ffc2f04538e31d670659d2792295b401692a809e3"
+      "sha256": "cfbd4051c6a9aa4d3b3d656fdce4380cbb9df9d65ac9e6a86717abab86865d67"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/006b.wav",
-      "sha256": "75419c037e115fdc256a3e9eb6dce8580740df02ba9f106c8d6a817d66d4f625"
+      "sha256": "8d89167b3b008dadf82e098239cc4b460ba8337c01e9f6c6c65c75cabd7f69e2"
     }
-  ]
+  ],
+  "duration": 5.926349206349206,
+  "sha256": "cab191e9d884afe5efcf81252ddd16e0af48d2def25eb5fd49800f35c3ddbe49"
 }

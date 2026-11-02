@@ -1,11 +1,12 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/eraser.wav",
-  "model": "google/gemini-3.8-flash-lite-tts",
-  "voice": "Kore",
-  "speed": 1,
   "text": "Eraser.",
-  "instructions": "Speak English clearly and naturally at an ordinary conversational speed. Pronounce each provided label exactly once; do not slow down, spell, add words, or explain.",
-  "duration": 1.4360997732426304,
-  "sha256": "15373ec8dc4df9d9298d90882620d83c028301f39a53c180eb37d234f5c1b400",
-  "request_sha256": "7e0340920560a2888f961d5e19d994550d6a34a6e2a3fd2fe87eef60ce8348bf"
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.8,
+  "profile": "normal",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "duration": 0.9173696145124717,
+  "sha256": "5c956ee6ea3b9424ba069fb57bdfd5ea8c23732a2f1496f803bf5b97ebdae513"
 }

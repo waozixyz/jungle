@@ -1,11 +1,12 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/tiger.wav",
-  "model": "google/gemini-3.8-flash-lite-tts",
-  "voice": "Kore",
-  "speed": 1.0,
   "text": "Tiger. T. I. G. E. R. Tiger.",
-  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
-  "duration": 6.956780045351474,
-  "sha256": "f95b1509207022a78f24d0be5c976982f6c70ceed644ce6741e1b143500eeda9",
-  "request_sha256": "74fef6a954be4a3e1189b7bc3311c9a58ed7360b375b2a5ff64b09ea99bbd269"
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.8,
+  "profile": "normal",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "duration": 3.2853061224489797,
+  "sha256": "0272446ebbd3035edc286445ee39f2031e4c7bf52ca7d16549246ef41081a166"
 }

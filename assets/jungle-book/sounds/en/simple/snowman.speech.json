@@ -1,11 +1,12 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/snowman.wav",
-  "model": "google/gemini-3.8-flash-lite-tts",
-  "voice": "Kore",
-  "speed": 1.0,
   "text": "Snowman.",
-  "instructions": "Speak English clearly and naturally at an ordinary conversational speed. Pronounce each provided label exactly once; do not slow down, spell, add words, or explain.",
-  "duration": 1.235374149659864,
-  "sha256": "902abc5acd55d0b1a89ffcd64aa0d8602075ce6223962d10f7d1e7886ff46521",
-  "request_sha256": "2c5cd40ed3c22a8f0abb4efbea64b5d91493f71f49ee33dfcf4826de992c6def"
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.8,
+  "profile": "normal",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "duration": 0.8960090702947846,
+  "sha256": "3129091c50387f8648b0d8be6606e95ff9e1f62e74eee094482376bc3d2faeca"
 }

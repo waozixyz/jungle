@@ -1,0 +1,31 @@
+{
+  "text": "Fog. F. O. G. Fog.",
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.65,
+  "profile": "slow",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "method": "Verified word, literal letter names, word; PCM assembly",
+  "sources": [
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/simple/fog.wav",
+      "sha256": "85a0d74345c09624efc259e2e40dd5d80495941a62d0c515cff63184b726be6a"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0066.wav",
+      "sha256": "df47196b126c912e93c76318a84a32fcebcb8e4c5c518bff9c6b3f3b09874058"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/006f.wav",
+      "sha256": "42d3e3e65e42ae7049359cea69e448ef9663484a1a251f642b04fc284aba9fe6"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0067.wav",
+      "sha256": "922f1d8139e648873934610213e4ce756464cb7c93de597d8b8dd3fcb2b2e836"
+    }
+  ],
+  "duration": 6.2103401360544215,
+  "sha256": "e2bd4a415ce9ce8033dfda968cc83e518eba831df3d2254c1badabcbc555130e"
+}

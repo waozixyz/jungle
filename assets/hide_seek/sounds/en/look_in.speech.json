@@ -1,11 +1,12 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/hide_seek/sounds/en/look_in.wav",
-  "model": "google/gemini-3.8-flash-lite-tts",
-  "voice": "Kore",
-  "speed": 1.0,
   "text": "Look in the basket!",
-  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
-  "duration": 1.7910657596371882,
-  "sha256": "37d41191bbb66fd28aca17a95ac92f0de80c9f592df055ab6e0bd94e8a0000ed",
-  "request_sha256": "0ac84d52589753f2f052009165edd6403e0338b9f8abf503a2b0752c3d28bdea"
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.8,
+  "profile": "normal",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "duration": 1.3653061224489795,
+  "sha256": "8af7630d1d665b0faa4cf8524846ff1f5d4158b75b3f720462327e6f0da9b4e1"
 }

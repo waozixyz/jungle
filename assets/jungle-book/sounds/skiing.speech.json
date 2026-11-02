@@ -1,36 +1,43 @@
 {
   "text": "Skiing. S. K. I. I. N. G. Skiing.",
-  "duration": 8.326802721088436,
-  "sha256": "8e67ef90f4dcd17a23f25e39523dab4739f79a2e14cf05775110373f8c4ae6d6",
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.8,
+  "profile": "normal",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
   "method": "Verified word, literal letter names, word; PCM assembly",
   "sources": [
     {
       "path": "assets/jungle-book/sounds/en/simple/skiing.wav",
-      "sha256": "8bfdd8f4567b7d66aac467b048e6e259aac474fe37080b34f18be92385a0a20b"
+      "sha256": "c9bdebc0775bc7a9fb74daf6759310d5d3a0c22b64ed514ab3370cd87aa6a5f6"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/0073.wav",
-      "sha256": "954e7ffcc810aa20a26fb598cad7cc78902720be9fc04dac0f1ee2792be8c966"
+      "sha256": "08ebe4dcd428a1f4b865d27aa1d0e2731b1c4981744ca9ca6cadbb291053fbaf"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/006b.wav",
-      "sha256": "75419c037e115fdc256a3e9eb6dce8580740df02ba9f106c8d6a817d66d4f625"
+      "sha256": "8d89167b3b008dadf82e098239cc4b460ba8337c01e9f6c6c65c75cabd7f69e2"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/0069.wav",
-      "sha256": "db7888b025ca6ca54af75f8ab2ca583dbfcc221b6fed96e811eb9108ecf05a41"
+      "sha256": "7583ef2d5dc317a2fd35e63c8230c8f14691dc108fde2a0b7100e1c838d07905"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/0069.wav",
-      "sha256": "db7888b025ca6ca54af75f8ab2ca583dbfcc221b6fed96e811eb9108ecf05a41"
+      "sha256": "7583ef2d5dc317a2fd35e63c8230c8f14691dc108fde2a0b7100e1c838d07905"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/006e.wav",
-      "sha256": "82b515a934c88374afb363c761452a0d6eba3f74bfcdc3a73e0a71eab85510d2"
+      "sha256": "9242f5a5a2396d81f63a9ac34d06a06195d3fbd3e49574812791934fc63aad86"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/0067.wav",
-      "sha256": "72b411c13d54fccafe9468b1b625be908e6f371a82a6835e6e54004ca09a0cfd"
+      "sha256": "11c3ff50d3cbe7296cf14c686e0d89b4311f0889039c5fd2f9ed8cae8bd89869"
     }
-  ]
+  ],
+  "duration": 7.9294784580498865,
+  "sha256": "a4733c845559fb273278a6d229c59856b4e26bec6337b6c96666e3adbb139df7"
 }

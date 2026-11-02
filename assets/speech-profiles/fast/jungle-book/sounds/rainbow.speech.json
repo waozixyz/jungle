@@ -1,0 +1,47 @@
+{
+  "text": "Rainbow. R. A. I. N. B. O. W. Rainbow.",
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 1.0,
+  "profile": "fast",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "method": "Verified word, literal letter names, word; PCM assembly",
+  "sources": [
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/simple/rainbow.wav",
+      "sha256": "9c6a33582579e9f6c1f0f3f06c04b01d61a1a62cd6e73798866a5ca9277951f3"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/0072.wav",
+      "sha256": "3a758143b6963441fa7ed656fbbf205d7d3f88922a63a8c911a8029cc967a185"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/0061.wav",
+      "sha256": "9e3c609744e0993f9d6d807035459f871f42bca60a6d2441e4e7447f21439cfa"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/0069.wav",
+      "sha256": "9e3c609744e0993f9d6d807035459f871f42bca60a6d2441e4e7447f21439cfa"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/006e.wav",
+      "sha256": "89653c3ba64cb8d856f1a0f78657df16071fb0e39496fe96ed190dc6a094ec70"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/0062.wav",
+      "sha256": "de1db9376e8bdcb1bce7b0d0e5260f4eafd70d520eda50649fd9e1c55374ca6a"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/006f.wav",
+      "sha256": "b43b655702df5f8fdd6e41a253b3bf4b96e3c21d4e632da49b48703da7543608"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/0077.wav",
+      "sha256": "14d5388ea78da9d12e52968de27605e26ff1a8f3f8236dce070891cd9c2c3bfa"
+    }
+  ],
+  "duration": 7.527482993197279,
+  "sha256": "492876e4ff17a1447983511e52db55409906f8bc63c554682895d75d9fed7617"
+}

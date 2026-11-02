@@ -1,0 +1,39 @@
+{
+  "text": "Maple. M. A. P. L. E. Maple.",
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 1.0,
+  "profile": "fast",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "method": "Verified word, literal letter names, word; PCM assembly",
+  "sources": [
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/simple/maple.wav",
+      "sha256": "e08d7cfdaa80b826b9be4bdb37fdcd47db8fcafa28203a280c36938c21156c78"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/006d.wav",
+      "sha256": "eb9e1f8345e2eafd97c677fa64c856b634565a534947828aad7aeb34801d2aed"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/0061.wav",
+      "sha256": "9e3c609744e0993f9d6d807035459f871f42bca60a6d2441e4e7447f21439cfa"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/0070.wav",
+      "sha256": "3fedac026597ebc1a68d03e4a6ebd609aad39a3d6069370831c8f19fa9b173bd"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/006c.wav",
+      "sha256": "1448a2a073bf1b16114325b6e8ad10a56e59c2b640615ed433b388faad436cca"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/0065.wav",
+      "sha256": "febaea06cdc2510f95261ec00b009ae316710a1723906d1934813e25da11bf0b"
+    }
+  ],
+  "duration": 5.72875283446712,
+  "sha256": "4c3aa2a0fb8900763e35215f1803b7a299be5df62a3b5198ed5b6517adfe9188"
+}

@@ -1,11 +1,12 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/parrot.wav",
-  "model": "google/gemini-3.8-flash-lite-tts",
-  "voice": "Kore",
-  "speed": 1.0,
   "text": "Parrot. P. A. R. R. O. T. Parrot.",
-  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
-  "duration": 8.388979591836735,
-  "sha256": "f162400b07b90f64238f8ee342218aeb2de6860d1fb2d205ae82933ebf89eb9e",
-  "request_sha256": "f687381c0ca2fa0bcaaee09e49bde453109fe0fcc198391668f56f3cc272b9e3"
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.8,
+  "profile": "normal",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "duration": 3.8613605442176873,
+  "sha256": "cf2b87ee5fcfaeb734ad260eabbdb4d568580fc2307a0f743f9bef383fa8fd6e"
 }

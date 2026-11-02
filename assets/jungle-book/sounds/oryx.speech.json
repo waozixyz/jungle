@@ -1,28 +1,35 @@
 {
   "text": "Oryx. O. R. Y. X. Oryx.",
-  "duration": 6.440544217687075,
-  "sha256": "d20f9089e0db616640e11fe43fab29d93eda79911615b0c2d6fd39750182e77b",
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.8,
+  "profile": "normal",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
   "method": "Verified word, literal letter names, word; PCM assembly",
   "sources": [
     {
       "path": "assets/jungle-book/sounds/en/simple/oryx.wav",
-      "sha256": "cfd3f3103518b61416d01834e7f82eeca318394b29b71bc49b11765c0c584032"
+      "sha256": "f45d7e742905c3e4884b9c7890cbc4291ff4e5ca7ad77064952002620fc8ab88"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/006f.wav",
-      "sha256": "557256d28f31daef71402b9bab50ee2b47793354d38fa7f0f7747948b4dbd971"
+      "sha256": "fac709628a916ad774ec43ab8d2d67f7dcfac51dc5394d6d87166dc410b121e9"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/0072.wav",
-      "sha256": "63a20ddeb84eddc6ff4103c5281d6c5b36e1c7b206f5fec58eaaee93afea88d5"
+      "sha256": "4827c1a5d65cbb13b65944d1e4d4201aa7a10e6222fd7098795f77209d9deb89"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/0079.wav",
-      "sha256": "d55308def635355fb88e317074d465db2f71c528eb248efcc95884141080844e"
+      "sha256": "42b5f604b0370f6a76121e8850c26a2e60d31d4053e79c6a234fe8caf31cce9d"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/0078.wav",
-      "sha256": "4ed6c14ce87727707db93569385e51f5e80ff0232fce8e3908d45951311393bb"
+      "sha256": "afd6412fc9e4cf1961f542d8e0f3c3e159f7fd0703b6f715765fc58ba93edcdc"
     }
-  ]
+  ],
+  "duration": 6.249342403628118,
+  "sha256": "f52d57b2e8cd7d2a6d0adaa94827a05d3aa063249b1baad6ec1968319e457a3d"
 }

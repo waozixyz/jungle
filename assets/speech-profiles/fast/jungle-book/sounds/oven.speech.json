@@ -1,0 +1,35 @@
+{
+  "text": "Oven. O. V. E. N. Oven.",
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 1.0,
+  "profile": "fast",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "method": "Verified word, literal letter names, word; PCM assembly",
+  "sources": [
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/simple/oven.wav",
+      "sha256": "08c459761f026d9571c41e3f19f4ad4099fce89b00f465db8e36692e9862e709"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/006f.wav",
+      "sha256": "b43b655702df5f8fdd6e41a253b3bf4b96e3c21d4e632da49b48703da7543608"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/0076.wav",
+      "sha256": "c609c52087cdff60587d4665d1851d8d456e72e2f12b44ecc7ca6f74b4717439"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/0065.wav",
+      "sha256": "febaea06cdc2510f95261ec00b009ae316710a1723906d1934813e25da11bf0b"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/006e.wav",
+      "sha256": "89653c3ba64cb8d856f1a0f78657df16071fb0e39496fe96ed190dc6a094ec70"
+    }
+  ],
+  "duration": 4.8119727891156465,
+  "sha256": "4b865958e3c7afc7be0b683974dfc1edd948161b4619e32bbb712efea8841ef9"
+}

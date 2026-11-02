@@ -1,0 +1,31 @@
+{
+  "text": "Oak. O. A. K. Oak.",
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.65,
+  "profile": "slow",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "method": "Verified word, literal letter names, word; PCM assembly",
+  "sources": [
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/simple/oak.wav",
+      "sha256": "e46928b6506b9c4d6639e46fed55c47af514b85860e93da70b7abbd08ba4c948"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/006f.wav",
+      "sha256": "42d3e3e65e42ae7049359cea69e448ef9663484a1a251f642b04fc284aba9fe6"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0061.wav",
+      "sha256": "f27ea56326b064aed947e1c8b2d7b57289868ec49e58b63ff2b87fd05a19d790"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/006b.wav",
+      "sha256": "d1c9c6c308ff9bf4c91145bb6827649a798c0e38be60aec8f87022d18a6899c1"
+    }
+  ],
+  "duration": 5.950113378684807,
+  "sha256": "e7aa5e7c92c9921257819f120d3ecaa2e6e0e05845254971164e4cde3df77ba4"
+}

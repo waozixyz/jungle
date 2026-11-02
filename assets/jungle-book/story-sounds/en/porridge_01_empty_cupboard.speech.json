@@ -1,11 +1,12 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/story-sounds/en/porridge_01_empty_cupboard.wav",
-  "model": "google/gemini-3.8-flash-lite-tts",
-  "voice": "Kore",
-  "speed": 0.8,
   "text": "Little Rabbit and Mother Rabbit have no food. Little Rabbit goes into the woods.",
-  "instructions": "Read this gentle children's fairy tale in English. Speak only the supplied text, warmly and clearly.",
-  "duration": 9.035419501133786,
-  "sha256": "fcf4de6aab0466200db5b090a433984f23372240aa9dd68d47ca2aa1e4a67917",
-  "request_sha256": "85a5d8c26416db56ec3bbedaf18a82a340a33cbc3201d57d67656a1946ceb553"
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.8,
+  "profile": "normal",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "duration": 6.1440362811791385,
+  "sha256": "9c49a0f474878dc602fb244dc593acf250db0f22d41dcfe67c1f3f3bf8e6099c"
 }

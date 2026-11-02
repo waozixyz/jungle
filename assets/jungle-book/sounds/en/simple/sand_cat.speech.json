@@ -1,11 +1,12 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/sand_cat.wav",
-  "model": "google/gemini-3.8-flash-lite-tts",
-  "voice": "Kore",
-  "speed": 1,
   "text": "Sand cat.",
-  "instructions": "Speak English clearly and naturally at an ordinary conversational speed. Pronounce each provided label exactly once; do not slow down, spell, add words, or explain.",
-  "duration": 1.713877551020408,
-  "sha256": "4f4a1925d07da79532b14ce8d5ac14cba78f9168abd40b0b0814122b469a6e32",
-  "request_sha256": "c61e3dae52c17ff1e4a6304e744dd0d26645225193cb934819d1d0f13ad7248c"
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.8,
+  "profile": "normal",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "duration": 1.0240362811791384,
+  "sha256": "7148e915c393e936bfad6cbd536f202f192d1f9dcd4cfea2a253b01899e94205"
 }

@@ -1,24 +1,31 @@
 {
   "text": "Vet. V. E. T. Vet.",
-  "duration": 5.730793650793651,
-  "sha256": "fd4a44963e9299edcd7a8401d20fe89c4a24c835be24196ea97367ba0c6e5bb1",
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.8,
+  "profile": "normal",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
   "method": "Verified word, literal letter names, word; PCM assembly",
   "sources": [
     {
       "path": "assets/jungle-book/sounds/en/simple/vet.wav",
-      "sha256": "f5f96b670cd126b38f4e3427791c8234959e416ebf34860712ce7aac9d25735d"
+      "sha256": "e0cc66ca1eb39a17ef19e8cf0d73b9206f62a5546afd51719262ab92e4e7727d"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/0076.wav",
-      "sha256": "0de5453c13f2b5d09932e7cd7cedf15b4fb0829a05a9ca9eee74eccf45e57291"
+      "sha256": "fa35e728510798b8422fafaaebf98b576735352d79bdae4bb1ee6a9caa3c6f6f"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/0065.wav",
-      "sha256": "e548362573771ff78a7aff8f49bbe29d40b97c38e1733d05715ccbb411076309"
+      "sha256": "fa2b8e659dd183dc77fc395e58dba5cb43a0e2fce2b1cfba1e6fe1479c71ad4e"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/0074.wav",
-      "sha256": "6c9f7deba417f5cc10f8a3bca90f6325f40d2eba729f5fbb0d2e180671ca96cd"
+      "sha256": "6349108ba1be3854f358e7d50172bc3ad0a0d4b22580428cb0715974e1a58c66"
     }
-  ]
+  ],
+  "duration": 4.785306122448979,
+  "sha256": "4abec087e378757a1ac05bc1fa5293d98cd5ca8a0cb59fae476836f3f83051ff"
 }

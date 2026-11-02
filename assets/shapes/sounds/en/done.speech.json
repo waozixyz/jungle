@@ -1,11 +1,12 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/shapes/sounds/en/done.wav",
-  "model": "google/gemini-3.8-flash-lite-tts",
-  "voice": "Kore",
-  "speed": 1.0,
   "text": "All sorted!",
-  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
-  "duration": 1.4697052154195012,
-  "sha256": "3e04eda56ca250fb7b91433f22be0bf9864dfd8bc92ef2fb99fe26eb1d5b1628",
-  "request_sha256": "a8c5840cedfd07d183fdf855bd002d5857c76a354ea05959064e6f32b7527b4b"
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.8,
+  "profile": "normal",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "duration": 1.1519727891156462,
+  "sha256": "0ba65cea4087a7e702ed86343d7d3155dcd9a1987c2cf0f5037e8cd709eaf0ab"
 }

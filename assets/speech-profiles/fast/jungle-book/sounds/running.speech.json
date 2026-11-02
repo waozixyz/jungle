@@ -1,0 +1,47 @@
+{
+  "text": "Running. R. U. N. N. I. N. G. Running.",
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 1.0,
+  "profile": "fast",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "method": "Verified word, literal letter names, word; PCM assembly",
+  "sources": [
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/simple/running.wav",
+      "sha256": "2f6079f8a3b1a393ec7f104316bc45f8692096344e9996def28f0286573bf48d"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/0072.wav",
+      "sha256": "3a758143b6963441fa7ed656fbbf205d7d3f88922a63a8c911a8029cc967a185"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/0075.wav",
+      "sha256": "8b2033271ae9e2525fa7a60a34bd8604911af7f3efff3371e98ea5449d73f1f6"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/006e.wav",
+      "sha256": "89653c3ba64cb8d856f1a0f78657df16071fb0e39496fe96ed190dc6a094ec70"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/006e.wav",
+      "sha256": "89653c3ba64cb8d856f1a0f78657df16071fb0e39496fe96ed190dc6a094ec70"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/0069.wav",
+      "sha256": "9e3c609744e0993f9d6d807035459f871f42bca60a6d2441e4e7447f21439cfa"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/006e.wav",
+      "sha256": "89653c3ba64cb8d856f1a0f78657df16071fb0e39496fe96ed190dc6a094ec70"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/0067.wav",
+      "sha256": "14ae3937d1cacc7f8f353fdc30d89bd01aa016468c5a7bd5d6c232ef2631a7cd"
+    }
+  ],
+  "duration": 7.227528344671202,
+  "sha256": "8fe68acfaa43ff125fb7f72952b0c476689fdc5acae1d92b5ac11b4368d6f249"
+}

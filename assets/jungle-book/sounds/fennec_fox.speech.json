@@ -1,48 +1,55 @@
 {
   "text": "Fennec fox. F. E. N. N. E. C. F. O. X. Fennec fox.",
-  "duration": 13.454739229024943,
-  "sha256": "130ced09c893f9f71f5f3eac4d5b4b47ef7bb88ab4011c7ef2e8ae0acf620232",
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.8,
+  "profile": "normal",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
   "method": "Verified word, literal letter names, word; PCM assembly",
   "sources": [
     {
       "path": "assets/jungle-book/sounds/en/simple/fennec_fox.wav",
-      "sha256": "b454d727af381e0384584346a6640d71a2d01b614e0d7afe66e9be89db939210"
+      "sha256": "a4c9453adb4e575491abaff24dc56ea5f8f26f2993cd69b02dec05337631fe13"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/0066.wav",
-      "sha256": "0afbdb29ecfa4391bfd32ec963cbb32989558fbc1e2644ba3a9dc26c6bbae6b8"
+      "sha256": "7b2174c40becb335c2fa94863b102828ce9cba4e53c3a183566d1f4655de2d17"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/0065.wav",
-      "sha256": "e548362573771ff78a7aff8f49bbe29d40b97c38e1733d05715ccbb411076309"
+      "sha256": "fa2b8e659dd183dc77fc395e58dba5cb43a0e2fce2b1cfba1e6fe1479c71ad4e"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/006e.wav",
-      "sha256": "82b515a934c88374afb363c761452a0d6eba3f74bfcdc3a73e0a71eab85510d2"
+      "sha256": "9242f5a5a2396d81f63a9ac34d06a06195d3fbd3e49574812791934fc63aad86"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/006e.wav",
-      "sha256": "82b515a934c88374afb363c761452a0d6eba3f74bfcdc3a73e0a71eab85510d2"
+      "sha256": "9242f5a5a2396d81f63a9ac34d06a06195d3fbd3e49574812791934fc63aad86"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/0065.wav",
-      "sha256": "e548362573771ff78a7aff8f49bbe29d40b97c38e1733d05715ccbb411076309"
+      "sha256": "fa2b8e659dd183dc77fc395e58dba5cb43a0e2fce2b1cfba1e6fe1479c71ad4e"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/0063.wav",
-      "sha256": "dbf53703c54bdd08ef6d7e7ffc2f04538e31d670659d2792295b401692a809e3"
+      "sha256": "cfbd4051c6a9aa4d3b3d656fdce4380cbb9df9d65ac9e6a86717abab86865d67"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/0066.wav",
-      "sha256": "0afbdb29ecfa4391bfd32ec963cbb32989558fbc1e2644ba3a9dc26c6bbae6b8"
+      "sha256": "7b2174c40becb335c2fa94863b102828ce9cba4e53c3a183566d1f4655de2d17"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/006f.wav",
-      "sha256": "557256d28f31daef71402b9bab50ee2b47793354d38fa7f0f7747948b4dbd971"
+      "sha256": "fac709628a916ad774ec43ab8d2d67f7dcfac51dc5394d6d87166dc410b121e9"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/0078.wav",
-      "sha256": "4ed6c14ce87727707db93569385e51f5e80ff0232fce8e3908d45951311393bb"
+      "sha256": "afd6412fc9e4cf1961f542d8e0f3c3e159f7fd0703b6f715765fc58ba93edcdc"
     }
-  ]
+  ],
+  "duration": 11.58907029478458,
+  "sha256": "2521120f01804d442b7f893a6d239cdfcadbbba37b479ec3c5c2d40d05043ef2"
 }

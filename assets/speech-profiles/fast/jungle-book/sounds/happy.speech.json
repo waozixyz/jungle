@@ -1,0 +1,39 @@
+{
+  "text": "Happy. H. A. P. P. Y. Happy.",
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 1.0,
+  "profile": "fast",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "method": "Verified word, literal letter names, word; PCM assembly",
+  "sources": [
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/simple/happy.wav",
+      "sha256": "845fb9537f55b1f2237891bf7d722c42eb49c8d8e01c6760ec08a55f65abf00f"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/0068.wav",
+      "sha256": "2b203c6d95737ef2d6214cda22be1747b5a356a32ac9daeab1f3dbe4200afca3"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/0061.wav",
+      "sha256": "9e3c609744e0993f9d6d807035459f871f42bca60a6d2441e4e7447f21439cfa"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/0070.wav",
+      "sha256": "3fedac026597ebc1a68d03e4a6ebd609aad39a3d6069370831c8f19fa9b173bd"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/0070.wav",
+      "sha256": "3fedac026597ebc1a68d03e4a6ebd609aad39a3d6069370831c8f19fa9b173bd"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/0079.wav",
+      "sha256": "71957662b724c6940cdd68b9598fb8e9dd1f36aabeddb450f58c730201d3c9f0"
+    }
+  ],
+  "duration": 5.827256235827664,
+  "sha256": "1aeef325ba735e98737042597749e9ea7108e05b4347d09805ded0f81fe8d807"
+}

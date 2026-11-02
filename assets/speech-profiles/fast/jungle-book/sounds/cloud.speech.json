@@ -1,0 +1,39 @@
+{
+  "text": "Cloud. C. L. O. U. D. Cloud.",
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 1.0,
+  "profile": "fast",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "method": "Verified word, literal letter names, word; PCM assembly",
+  "sources": [
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/simple/cloud.wav",
+      "sha256": "cc58b3a1e2a60ef819925478c04105ff7fb1cf1d16aebd2b599b59d533271d6b"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/0063.wav",
+      "sha256": "22e2360aa217440009e09bed7071d32c58367a6927968b01ca267243f85598df"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/006c.wav",
+      "sha256": "1448a2a073bf1b16114325b6e8ad10a56e59c2b640615ed433b388faad436cca"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/006f.wav",
+      "sha256": "b43b655702df5f8fdd6e41a253b3bf4b96e3c21d4e632da49b48703da7543608"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/0075.wav",
+      "sha256": "8b2033271ae9e2525fa7a60a34bd8604911af7f3efff3371e98ea5449d73f1f6"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/0064.wav",
+      "sha256": "2860040af07dddfec83ddc981391ca727163f054b575dea3f13d598b24f83b69"
+    }
+  ],
+  "duration": 5.7346031746031745,
+  "sha256": "eed5b4f517867ae825061b0747d76a3172bffb41619ebd440ca73ca26d5d1dc2"
+}

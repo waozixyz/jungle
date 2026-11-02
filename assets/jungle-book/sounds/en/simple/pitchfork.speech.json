@@ -1,11 +1,12 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/pitchfork.wav",
-  "model": "google/gemini-3.8-flash-lite-tts",
-  "voice": "Kore",
-  "speed": 1,
   "text": "Pitchfork.",
-  "instructions": "Speak English clearly and naturally at an ordinary conversational speed. Pronounce each provided label exactly once; do not slow down, spell, add words, or explain.",
-  "duration": 1.1934693877551021,
-  "sha256": "123e4051bbed9809deb5fc4d0e6eee3318b038b775d02cfd3c25c6fbb2d3a598",
-  "request_sha256": "721ab0eb94e2cd39a484270b37d7bb868201f15d1e5c284e8adb0cc165e62cf0"
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.8,
+  "profile": "normal",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "duration": 1.0666666666666667,
+  "sha256": "73fbeaaf1e3bf3eb36241caa23a26617adf295d53382b69f405c7d20b06a39da"
 }

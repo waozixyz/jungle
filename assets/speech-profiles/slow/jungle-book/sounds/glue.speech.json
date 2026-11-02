@@ -1,0 +1,35 @@
+{
+  "text": "Glue. G. L. U. E. Glue.",
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.65,
+  "profile": "slow",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "method": "Verified word, literal letter names, word; PCM assembly",
+  "sources": [
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/simple/glue.wav",
+      "sha256": "73c4f10d759179132d3f164122a64cd2ade6a44baa2db1e588f5ca53d44f5d32"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0067.wav",
+      "sha256": "922f1d8139e648873934610213e4ce756464cb7c93de597d8b8dd3fcb2b2e836"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/006c.wav",
+      "sha256": "7f5afe52d5541c08bf55f3891ac15dd67566299269ea1723a400e9ff743e87f1"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0075.wav",
+      "sha256": "4ea6a45c030e84dcf01f52007d7f703298172817e7e626888166d1b7a4d8246c"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0065.wav",
+      "sha256": "2a47a90cb2e553de89fd28af8e07f5f2cba15935c44c72f070384952389a6e3d"
+    }
+  ],
+  "duration": 7.069523809523809,
+  "sha256": "4fcf0c8af175c71eebb1f8e89fa33d9d6194041d467f03a6ea8b49a3b052720b"
+}

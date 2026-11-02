@@ -1,0 +1,35 @@
+{
+  "text": "Seal. S. E. A. L. Seal.",
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.65,
+  "profile": "slow",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "method": "Verified word, literal letter names, word; PCM assembly",
+  "sources": [
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/simple/seal.wav",
+      "sha256": "2a04424082c4986cfd21b913ced731bd7c2180820ba9876a67e1fbb034e249aa"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0073.wav",
+      "sha256": "071bdf3ce6ecd325af088e95c2d7e558bbdac97044392968f0f3675d3babd6bf"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0065.wav",
+      "sha256": "2a47a90cb2e553de89fd28af8e07f5f2cba15935c44c72f070384952389a6e3d"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0061.wav",
+      "sha256": "f27ea56326b064aed947e1c8b2d7b57289868ec49e58b63ff2b87fd05a19d790"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/006c.wav",
+      "sha256": "7f5afe52d5541c08bf55f3891ac15dd67566299269ea1723a400e9ff743e87f1"
+    }
+  ],
+  "duration": 7.036689342403628,
+  "sha256": "d6b939ddd382af1830c08d5c8ee46a954e1dc840542eb6c4e156d3700f56ceb6"
+}

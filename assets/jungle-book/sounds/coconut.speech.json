@@ -1,11 +1,12 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/coconut.wav",
-  "model": "google/gemini-3.8-flash-lite-tts",
-  "voice": "Kore",
-  "speed": 1.0,
   "text": "Coconut. C. O. C. O. N. U. T. Coconut.",
-  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
-  "duration": 8.914512471655328,
-  "sha256": "2f7aeb3003fd187a32bba4defadbca43903f28d79de40c04e94b7a4693b597ec",
-  "request_sha256": "5a645f9725a51043db30653c4c843f6d5b1355f252e68d7d64a0d04c3f5ce87f"
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.8,
+  "profile": "normal",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "duration": 3.92530612244898,
+  "sha256": "99ee8f3635f68e5294b5659110ea0a01277c48b1def3c6c8d512a4c285090b7b"
 }

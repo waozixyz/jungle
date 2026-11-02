@@ -1,0 +1,39 @@
+{
+  "text": "Hippo. H. I. P. P. O. Hippo.",
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 1.0,
+  "profile": "fast",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "method": "Verified word, literal letter names, word; PCM assembly",
+  "sources": [
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/simple/hippo.wav",
+      "sha256": "156d9258920e8f3fe6f491730a37238a1474dc5f181f9a2e9d21ae4d9619f705"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/0068.wav",
+      "sha256": "2b203c6d95737ef2d6214cda22be1747b5a356a32ac9daeab1f3dbe4200afca3"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/0069.wav",
+      "sha256": "9e3c609744e0993f9d6d807035459f871f42bca60a6d2441e4e7447f21439cfa"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/0070.wav",
+      "sha256": "3fedac026597ebc1a68d03e4a6ebd609aad39a3d6069370831c8f19fa9b173bd"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/0070.wav",
+      "sha256": "3fedac026597ebc1a68d03e4a6ebd609aad39a3d6069370831c8f19fa9b173bd"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/006f.wav",
+      "sha256": "b43b655702df5f8fdd6e41a253b3bf4b96e3c21d4e632da49b48703da7543608"
+    }
+  ],
+  "duration": 5.839092970521542,
+  "sha256": "d0980cab08a3a7db9c794d06a106cdc9e37a46dc639867385de523d9b20ac99d"
+}

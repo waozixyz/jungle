@@ -1,5 +1,13 @@
 {
   "version": 1,
+  "narration": {
+    "en": {
+      "model": "kokoro-82m-uint8",
+      "voice": "af_bella",
+      "default_profile": "normal",
+      "profiles": {"slow": 0.65, "normal": 0.8, "fast": 1.0}
+    }
+  },
   "voices": {
     "en": {
       "model": "kokoro",

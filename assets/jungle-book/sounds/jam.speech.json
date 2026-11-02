@@ -1,24 +1,31 @@
 {
   "text": "Jam. J. A. M. Jam.",
-  "duration": 5.299682539682539,
-  "sha256": "916c8af766173db31ad9a9540dd2d644cc5e1e6c23a7a294a0bbdc6ddadde11f",
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.8,
+  "profile": "normal",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
   "method": "Verified word, literal letter names, word; PCM assembly",
   "sources": [
     {
       "path": "assets/jungle-book/sounds/en/simple/jam.wav",
-      "sha256": "fcdbc3498746c8250897610fc439646ebab7f23a126f17a8c6964522fecea04f"
+      "sha256": "2206e3936333d56abe776d9db42b508b28ec44f81570572edfa153116cc1040d"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/006a.wav",
-      "sha256": "928b53d2f44609fc9c28e463070f1f70f4348f595b42e2f4d8332ca3d4d8ce79"
+      "sha256": "dadd4ae287f4f4c02b246739280491fb429a58dd2606a26dda9105fd1d804344"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/0061.wav",
-      "sha256": "5c2d4f375c376213d528d45f79debf6b7666d2d9c5324595c4bb038980bec1e1"
+      "sha256": "7583ef2d5dc317a2fd35e63c8230c8f14691dc108fde2a0b7100e1c838d07905"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/006d.wav",
-      "sha256": "a754f922bd9e9e9b2c5b740425397e1fd8649e1c1eced3d048a2ebfc30f26f71"
+      "sha256": "9b1c34e404bec7d229f761635a0a7c1f1808a1d9897159e630b47cc5786cc58a"
     }
-  ]
+  ],
+  "duration": 5.108027210884353,
+  "sha256": "253b4a97f97bb2f3318634455e3c272cc842cfe2921fce1b2a7500e028ebeda0"
 }

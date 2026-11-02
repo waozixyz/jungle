@@ -1,0 +1,35 @@
+{
+  "text": "Hand. H. A. N. D. Hand.",
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 1.0,
+  "profile": "fast",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "method": "Verified word, literal letter names, word; PCM assembly",
+  "sources": [
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/simple/hand.wav",
+      "sha256": "0040b54c9b394419e631f6788c921c4684139584b080a9527872f949c173b54d"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/0068.wav",
+      "sha256": "2b203c6d95737ef2d6214cda22be1747b5a356a32ac9daeab1f3dbe4200afca3"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/0061.wav",
+      "sha256": "9e3c609744e0993f9d6d807035459f871f42bca60a6d2441e4e7447f21439cfa"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/006e.wav",
+      "sha256": "89653c3ba64cb8d856f1a0f78657df16071fb0e39496fe96ed190dc6a094ec70"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/0064.wav",
+      "sha256": "2860040af07dddfec83ddc981391ca727163f054b575dea3f13d598b24f83b69"
+    }
+  ],
+  "duration": 4.967981859410431,
+  "sha256": "43d70c333a9ac3300f7492de2b2add69f329e2b607dd974fbd58e95eb62ffc3c"
+}

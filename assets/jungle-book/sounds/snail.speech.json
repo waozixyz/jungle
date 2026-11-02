@@ -1,11 +1,12 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/snail.wav",
-  "model": "google/gemini-3.8-flash-lite-tts",
-  "voice": "Kore",
-  "speed": 1.0,
   "text": "Snail. S. N. A. I. L. Snail.",
-  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
-  "duration": 7.391201814058957,
-  "sha256": "d69bd75c708bc41fdb42c2582034d854b33dd8dd20c2f88f01467f4d6016f6c9",
-  "request_sha256": "cefa71f26c6abf853058d1c72e9d99f4e8d9d3c1fd697912dced82d8f8e59a87"
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.8,
+  "profile": "normal",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "duration": 3.3280272108843536,
+  "sha256": "1a1e6e589cebab0c5954609c72d471d0d827f1b67de27da33d166d19e28724d8"
 }

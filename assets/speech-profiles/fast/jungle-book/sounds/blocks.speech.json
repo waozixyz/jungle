@@ -1,0 +1,43 @@
+{
+  "text": "Blocks. B. L. O. C. K. S. Blocks.",
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 1.0,
+  "profile": "fast",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "method": "Verified word, literal letter names, word; PCM assembly",
+  "sources": [
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/simple/blocks.wav",
+      "sha256": "bf4d83eb632932d1de374beb99929fbac5e68759fb0c95aa586a24309e24d021"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/0062.wav",
+      "sha256": "de1db9376e8bdcb1bce7b0d0e5260f4eafd70d520eda50649fd9e1c55374ca6a"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/006c.wav",
+      "sha256": "1448a2a073bf1b16114325b6e8ad10a56e59c2b640615ed433b388faad436cca"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/006f.wav",
+      "sha256": "b43b655702df5f8fdd6e41a253b3bf4b96e3c21d4e632da49b48703da7543608"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/0063.wav",
+      "sha256": "22e2360aa217440009e09bed7071d32c58367a6927968b01ca267243f85598df"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/006b.wav",
+      "sha256": "d8f14ffa640211be0c6060eaa42252f85a7867370bd8f758c7d06b41cff5077b"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/0073.wav",
+      "sha256": "6f15ad9eaa5551af50d8b228676252f8a45d622721794be50a41560c7af1cbbd"
+    }
+  ],
+  "duration": 6.563537414965986,
+  "sha256": "f2bf2f641e6597d3d29b7fd008547e84737eae557c663d978b7e94971d8986f7"
+}

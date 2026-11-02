@@ -1,11 +1,12 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/nightlight.wav",
-  "model": "google/gemini-3.8-flash-lite-tts",
-  "voice": "Kore",
-  "speed": 1,
   "text": "Nightlight.",
-  "instructions": "Speak English clearly and naturally at an ordinary conversational speed. Pronounce each provided label exactly once; do not slow down, spell, add words, or explain.",
-  "duration": 1.4342857142857144,
-  "sha256": "2c42bc37b90a4026dfd345009a9d2b008b96a99d471f986e1ef107f5eb8f7bc7",
-  "request_sha256": "26cf8d324ab1313784900d358c9ab412e977f4d3a5513297c129d54204ef47ae"
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.8,
+  "profile": "normal",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "duration": 0.96,
+  "sha256": "627ba801b48ca9ff460666f93dac772e4e07aeef5d521cb342135a4c1d787e70"
 }

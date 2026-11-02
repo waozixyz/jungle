@@ -1,11 +1,12 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/giraffe.wav",
-  "model": "google/gemini-3.8-flash-lite-tts",
-  "voice": "Kore",
-  "speed": 1.0,
   "text": "Giraffe. G. I. R. A. F. F. E. Giraffe.",
-  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
-  "duration": 9.237596371882086,
-  "sha256": "7b6e04859642b505ef82932bea2c06026cf3bb1faf0df0420f6bcc916e123700",
-  "request_sha256": "370ba3497fcc957e80c214a54787039df73ea94dd945caa94c83a17600e62301"
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.8,
+  "profile": "normal",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "duration": 3.9893424036281178,
+  "sha256": "ca665ddabb05abf15df1be5f5b94b0b77319edcbd2afec397894fb64a7e94b3c"
 }

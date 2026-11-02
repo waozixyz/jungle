@@ -1,0 +1,35 @@
+{
+  "text": "Cold. C. O. L. D. Cold.",
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.65,
+  "profile": "slow",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "method": "Verified word, literal letter names, word; PCM assembly",
+  "sources": [
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/simple/cold.wav",
+      "sha256": "d6155cd84ce79d86e3c65c48d3daba4dcc7bd64944ea3d11ae8959d053c29327"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0063.wav",
+      "sha256": "42789dd324c1f471e26b70b7bb8ce63ffe67f2fa26c6e5148db789b6091523c7"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/006f.wav",
+      "sha256": "42d3e3e65e42ae7049359cea69e448ef9663484a1a251f642b04fc284aba9fe6"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/006c.wav",
+      "sha256": "7f5afe52d5541c08bf55f3891ac15dd67566299269ea1723a400e9ff743e87f1"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0064.wav",
+      "sha256": "ee1ad4e1ca9955addc9148ecf502b14214f49b2323bd3d8bb637b455aebb450a"
+    }
+  ],
+  "duration": 7.234739229024943,
+  "sha256": "3eb70e3b3a38467cc24f63e1088457ee1167dcdc7ccf463f923a72c20ca532ac"
+}

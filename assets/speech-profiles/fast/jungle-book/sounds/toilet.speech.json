@@ -1,0 +1,43 @@
+{
+  "text": "Toilet. T. O. I. L. E. T. Toilet.",
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 1.0,
+  "profile": "fast",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "method": "Verified word, literal letter names, word; PCM assembly",
+  "sources": [
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/simple/toilet.wav",
+      "sha256": "79fd47706481fa7f04280f8339564f0b8262cc3bbffef1953c6b3e51a3b53f6d"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/0074.wav",
+      "sha256": "c2de6b9e1227ed320bc2cbfa04baefa4e37a09e05e7dcd23bbd9e8f76dfc54ec"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/006f.wav",
+      "sha256": "b43b655702df5f8fdd6e41a253b3bf4b96e3c21d4e632da49b48703da7543608"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/0069.wav",
+      "sha256": "9e3c609744e0993f9d6d807035459f871f42bca60a6d2441e4e7447f21439cfa"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/006c.wav",
+      "sha256": "1448a2a073bf1b16114325b6e8ad10a56e59c2b640615ed433b388faad436cca"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/0065.wav",
+      "sha256": "febaea06cdc2510f95261ec00b009ae316710a1723906d1934813e25da11bf0b"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/0074.wav",
+      "sha256": "c2de6b9e1227ed320bc2cbfa04baefa4e37a09e05e7dcd23bbd9e8f76dfc54ec"
+    }
+  ],
+  "duration": 6.431927437641724,
+  "sha256": "f96eba6dc510ce9cc9faa293ade461204e66272983f931dc23b27192995f74d8"
+}

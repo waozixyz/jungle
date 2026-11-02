@@ -1,11 +1,12 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/story-sounds/en/porridge_08_lane.wav",
-  "model": "google/gemini-3.8-flash-lite-tts",
-  "voice": "Kore",
-  "speed": 0.8,
   "text": "The porridge flows out of the door and down the lane. Little Rabbit sees it and hurries home.",
-  "instructions": "Read this gentle children's fairy tale in English. Speak only the supplied text, warmly and clearly.",
-  "duration": 10.72607709750567,
-  "sha256": "6b4ca3f9111666b076076e0c12680a249fa26829d2d576d7999d3ed0a0120674",
-  "request_sha256": "e76f3be4c37a0d5a1fff58c3b3c66b2b06d27bd8892d0f10955f0b1068b5a893"
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.8,
+  "profile": "normal",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "duration": 6.80530612244898,
+  "sha256": "08d96e19d17881fbc056b6e9ec3a5ae38376a452e21bbea846ee3bcebdf32b4b"
 }

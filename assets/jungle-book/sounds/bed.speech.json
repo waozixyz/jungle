@@ -1,24 +1,31 @@
 {
   "text": "Bed. B. E. D. Bed.",
-  "duration": 4.941632653061225,
-  "sha256": "0ebde854f033b4fb8e639e93ed02e4aa671a79bd61b2603810af18068cecfde0",
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.8,
+  "profile": "normal",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
   "method": "Verified word, literal letter names, word; PCM assembly",
   "sources": [
     {
       "path": "assets/jungle-book/sounds/en/simple/bed.wav",
-      "sha256": "3d8478e040c772ec9e95cfeb25d9a1b3d5dad6e9b8241aa88c51c2c0919801f6"
+      "sha256": "bad4c12ee2f06bf026b4f5fe40408145f67197b03f2115b1daf3c7986f5fb5df"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/0062.wav",
-      "sha256": "441efd3d3a4ae1154c64bff6409eb9dd9de1d318211a9c1a930f8b6c859ebe82"
+      "sha256": "948c1550c20d3283a2dade65452b98d37cdf420dca3ed2ba31a3adc6a825dc7c"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/0065.wav",
-      "sha256": "e548362573771ff78a7aff8f49bbe29d40b97c38e1733d05715ccbb411076309"
+      "sha256": "fa2b8e659dd183dc77fc395e58dba5cb43a0e2fce2b1cfba1e6fe1479c71ad4e"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/0064.wav",
-      "sha256": "2ef4393f49eeff7edc405fe6e368ef106051f2bbf1ac2370dadcf5e93000c201"
+      "sha256": "fbba179c78f6818fdbee1fbf168275d0da2653669929afb85129bfae3f84fdba"
     }
-  ]
+  ],
+  "duration": 4.890521541950114,
+  "sha256": "4af8439bd9e12ce09fa19dd60e2378eaad6a693f807a5f69cec214ee4e5fccdb"
 }

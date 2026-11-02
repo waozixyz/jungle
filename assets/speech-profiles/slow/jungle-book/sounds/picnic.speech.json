@@ -1,0 +1,43 @@
+{
+  "text": "Picnic. P. I. C. N. I. C. Picnic.",
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.65,
+  "profile": "slow",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "method": "Verified word, literal letter names, word; PCM assembly",
+  "sources": [
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/simple/picnic.wav",
+      "sha256": "e03db035eacae3889e399ff6cc9ddf3d7a2603324b2d4bf9f1d864ea630ce135"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0070.wav",
+      "sha256": "f7b9102b6b92cca16f769112106453a92d7683af256facd3179452eaa7f91440"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0069.wav",
+      "sha256": "f27ea56326b064aed947e1c8b2d7b57289868ec49e58b63ff2b87fd05a19d790"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0063.wav",
+      "sha256": "42789dd324c1f471e26b70b7bb8ce63ffe67f2fa26c6e5148db789b6091523c7"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/006e.wav",
+      "sha256": "9db179a2b78ca5408b1b57d7e9029e2a19114919c291a74f74dd366f77d03bab"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0069.wav",
+      "sha256": "f27ea56326b064aed947e1c8b2d7b57289868ec49e58b63ff2b87fd05a19d790"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0063.wav",
+      "sha256": "42789dd324c1f471e26b70b7bb8ce63ffe67f2fa26c6e5148db789b6091523c7"
+    }
+  ],
+  "duration": 9.488526077097506,
+  "sha256": "b2c39ab5723dca4c2f648921cd528f5ba7441a507b44db30193c1022ea674a11"
+}

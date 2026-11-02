@@ -1,11 +1,12 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/earwig.wav",
-  "model": "google/gemini-3.8-flash-lite-tts",
-  "voice": "Kore",
-  "speed": 1,
   "text": "Earwig.",
-  "instructions": "Speak English clearly and naturally at an ordinary conversational speed. Pronounce each provided label exactly once; do not slow down, spell, add words, or explain.",
-  "duration": 1.356326530612245,
-  "sha256": "334ba322dd55abb571d3ba57fc1d4e674e7f5df5299d669920a40dd2b523282c",
-  "request_sha256": "17ad0f787f64069f9912fb5378f3c83e8357d5edd6ce98d2e728d900be0f7f56"
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.8,
+  "profile": "normal",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "duration": 0.7680272108843538,
+  "sha256": "d5d066d366f1fea9637f857bf46d066fc5a0201b68916cf0040ec9cba5f24ac7"
 }

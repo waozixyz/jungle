@@ -1,0 +1,43 @@
+{
+  "text": "Jerboa. J. E. R. B. O. A. Jerboa.",
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.65,
+  "profile": "slow",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "method": "Verified word, literal letter names, word; PCM assembly",
+  "sources": [
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/simple/jerboa.wav",
+      "sha256": "ba0d51d1c32703510bfd610c09bd98b4d276a2ce2ce108c3c672b43f5a2d9c49"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/006a.wav",
+      "sha256": "5a95e7ebcf9aef1a81b90caaa1673cc395966703052658e6d1a2dcb7dd9ac7cf"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0065.wav",
+      "sha256": "2a47a90cb2e553de89fd28af8e07f5f2cba15935c44c72f070384952389a6e3d"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0072.wav",
+      "sha256": "2a3fe7ff12fdf37df27301b6bae995fa718df3c3a620d414e4ed3f300d00bb0c"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0062.wav",
+      "sha256": "aa9fb102d77abe2638347503c37ba06d2185a1fc800acaecdb021c871e1373d4"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/006f.wav",
+      "sha256": "42d3e3e65e42ae7049359cea69e448ef9663484a1a251f642b04fc284aba9fe6"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0061.wav",
+      "sha256": "f27ea56326b064aed947e1c8b2d7b57289868ec49e58b63ff2b87fd05a19d790"
+    }
+  ],
+  "duration": 9.937006802721088,
+  "sha256": "518338da58d5c715f115c9335aff837149b0c9a24ac8f306d390948c7df55068"
+}

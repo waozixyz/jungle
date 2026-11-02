@@ -1,11 +1,12 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/cow.wav",
-  "model": "google/gemini-3.8-flash-lite-tts",
-  "voice": "Kore",
-  "speed": 1.0,
   "text": "Cow. C. O. W. Cow.",
-  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
-  "duration": 4.748843537414966,
-  "sha256": "411729f773becea6fc7d4125731f40d54df8ce4f9ffeda0d7c63af1a720478ba",
-  "request_sha256": "17382531c06d5ab9168a6eb3ef04d755ae2435cef20cdc920b8ce8d5bfb721bf"
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.8,
+  "profile": "normal",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "duration": 2.4746938775510205,
+  "sha256": "825a9f5c3b03afaa9464738d63be70b84aa6c407a19c274f26e76355d39b816c"
 }

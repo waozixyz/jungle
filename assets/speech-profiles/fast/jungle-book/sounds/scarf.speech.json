@@ -1,0 +1,39 @@
+{
+  "text": "Scarf. S. C. A. R. F. Scarf.",
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 1.0,
+  "profile": "fast",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "method": "Verified word, literal letter names, word; PCM assembly",
+  "sources": [
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/simple/scarf.wav",
+      "sha256": "7cce904a91d0a5aae74b9e51094de83d8b280b681c6d945a7aa994ac803718ec"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/0073.wav",
+      "sha256": "6f15ad9eaa5551af50d8b228676252f8a45d622721794be50a41560c7af1cbbd"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/0063.wav",
+      "sha256": "22e2360aa217440009e09bed7071d32c58367a6927968b01ca267243f85598df"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/0061.wav",
+      "sha256": "9e3c609744e0993f9d6d807035459f871f42bca60a6d2441e4e7447f21439cfa"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/0072.wav",
+      "sha256": "3a758143b6963441fa7ed656fbbf205d7d3f88922a63a8c911a8029cc967a185"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/0066.wav",
+      "sha256": "2f0c9abe4742aee54de916c4837fa8f68944d2060930ded067c00c992323689d"
+    }
+  ],
+  "duration": 5.824081632653061,
+  "sha256": "66bc47a840d44ed22721f58be282afb9e69e3501ab531bd6ae367d726c4fdb4d"
+}

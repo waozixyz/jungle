@@ -1,11 +1,12 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/monkey.wav",
-  "model": "google/gemini-3.8-flash-lite-tts",
-  "voice": "Kore",
-  "speed": 1.0,
   "text": "Monkey. M. O. N. K. E. Y. Monkey.",
-  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
-  "duration": 8.834467120181406,
-  "sha256": "7900b73732da02f9495bfc8d1d5b6805ff53c6c19de81f4ecdd37287e96430db",
-  "request_sha256": "1459ee5e8fb0c29ae16c5c7a8fe0f64af951c634a4d92ac38c54f0a41ee78066"
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.8,
+  "profile": "normal",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "duration": 3.6053061224489795,
+  "sha256": "b3e0dfcd95320b80420e9893091e9253082260ecc4d785c8e2d279c58eccb576"
 }

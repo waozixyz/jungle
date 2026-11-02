@@ -1,24 +1,31 @@
 {
   "text": "Oak. O. A. K. Oak.",
-  "duration": 4.745986394557823,
-  "sha256": "c940cc382b6af67011864797ccb460cf54b9e93465253a728f96307f0b67b353",
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.8,
+  "profile": "normal",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
   "method": "Verified word, literal letter names, word; PCM assembly",
   "sources": [
     {
       "path": "assets/jungle-book/sounds/en/simple/oak.wav",
-      "sha256": "5d203f9a5388a9af67c4bac86daec5f40854dd313cc43f759e0eca79f90178fb"
+      "sha256": "8047b1fe4c235759015625bde1dd8ae24942b72a826c80f2832cda97d282a5be"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/006f.wav",
-      "sha256": "557256d28f31daef71402b9bab50ee2b47793354d38fa7f0f7747948b4dbd971"
+      "sha256": "fac709628a916ad774ec43ab8d2d67f7dcfac51dc5394d6d87166dc410b121e9"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/0061.wav",
-      "sha256": "5c2d4f375c376213d528d45f79debf6b7666d2d9c5324595c4bb038980bec1e1"
+      "sha256": "7583ef2d5dc317a2fd35e63c8230c8f14691dc108fde2a0b7100e1c838d07905"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/006b.wav",
-      "sha256": "75419c037e115fdc256a3e9eb6dce8580740df02ba9f106c8d6a817d66d4f625"
+      "sha256": "8d89167b3b008dadf82e098239cc4b460ba8337c01e9f6c6c65c75cabd7f69e2"
     }
-  ]
+  ],
+  "duration": 4.8329705215419505,
+  "sha256": "5469c05b7d9a1783863a54e8781ce1092e419c56a07d08abc477145139b05c2e"
 }

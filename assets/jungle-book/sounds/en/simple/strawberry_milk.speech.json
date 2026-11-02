@@ -1,11 +1,12 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/strawberry_milk.wav",
-  "model": "google/gemini-3.8-flash-lite-tts",
-  "voice": "Kore",
-  "speed": 1,
   "text": "Strawberry milk.",
-  "instructions": "Speak English clearly and naturally at an ordinary conversational speed. Pronounce each provided label exactly once; do not slow down, spell, add words, or explain.",
-  "duration": 1.6354648526077098,
-  "sha256": "3ab2b296a0e62fc521253f299796804a4927ba879cd664fbe42d60ec1822022b",
-  "request_sha256": "3d6af28b99e79fe0d130cdaa7eed2e787185c16a29c6d38dd0239e96874a8e88"
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.8,
+  "profile": "normal",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "duration": 1.3866666666666667,
+  "sha256": "f976ffc62c403bf09e9fe1f8fa9b8d61fec7cc1c1828fdd54bfc7f54307512f7"
 }

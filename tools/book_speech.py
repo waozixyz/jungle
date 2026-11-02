@@ -65,4 +65,8 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    if '--bella' in sys.argv or '--validate-bella' in sys.argv:
+        from english_speech import generate, validate
+        validate() if '--validate-bella' in sys.argv else generate()
+    else:
+        main()

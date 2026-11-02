@@ -1,11 +1,12 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/farm_fence.wav",
-  "model": "google/gemini-3.8-flash-lite-tts",
-  "voice": "Kore",
-  "speed": 1,
   "text": "Fence.",
-  "instructions": "Speak English clearly and naturally at normal conversational speed. Say the exact supplied words once. Do not spell or add introductions, explanations or other words.",
-  "duration": 1.28,
-  "sha256": "a505ada308af16768123d0accdad75e8430175ea722ca80858ca630d384b1dc4",
-  "request_sha256": "cdfc7e355da68abbf086dc7219dd872b8491ea9007bf572b1541981ddd9caa0b"
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.8,
+  "profile": "normal",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "duration": 0.7680272108843538,
+  "sha256": "629d4817233aa82c7074392c6743b86c29dfd73b0068776d945f1a54e8a82cb7"
 }

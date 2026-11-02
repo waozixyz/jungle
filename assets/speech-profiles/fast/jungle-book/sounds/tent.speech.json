@@ -1,0 +1,35 @@
+{
+  "text": "Tent. T. E. N. T. Tent.",
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 1.0,
+  "profile": "fast",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "method": "Verified word, literal letter names, word; PCM assembly",
+  "sources": [
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/simple/tent.wav",
+      "sha256": "c6ea6d9a7c2161b251cf6f1c528257dfe9af1b1c6a348022a4b7f7ddf7849fc8"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/0074.wav",
+      "sha256": "c2de6b9e1227ed320bc2cbfa04baefa4e37a09e05e7dcd23bbd9e8f76dfc54ec"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/0065.wav",
+      "sha256": "febaea06cdc2510f95261ec00b009ae316710a1723906d1934813e25da11bf0b"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/006e.wav",
+      "sha256": "89653c3ba64cb8d856f1a0f78657df16071fb0e39496fe96ed190dc6a094ec70"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/0074.wav",
+      "sha256": "c2de6b9e1227ed320bc2cbfa04baefa4e37a09e05e7dcd23bbd9e8f76dfc54ec"
+    }
+  ],
+  "duration": 4.9262131519274375,
+  "sha256": "a6c3e851cc6ccda5eb8a1399d698451fc545de77edd2d4eaebf9d2f466430784"
+}

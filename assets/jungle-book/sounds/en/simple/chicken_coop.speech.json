@@ -1,11 +1,12 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/chicken_coop.wav",
-  "model": "google/gemini-3.8-flash-lite-tts",
-  "voice": "Kore",
-  "speed": 1,
   "text": "Chicken coop.",
-  "instructions": "Speak English clearly and naturally at an ordinary conversational speed. Pronounce each provided label exactly once; do not slow down, spell, add words, or explain.",
-  "duration": 1.3936054421768707,
-  "sha256": "6a332a9e4ce7e1063b5fa031e79e7a89f1345499444d6076f286858ca1291e51",
-  "request_sha256": "f3389231b9f1766943a01fc9c90327c04231633716081692cc013a793fa4955f"
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.8,
+  "profile": "normal",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "duration": 1.1733333333333333,
+  "sha256": "35ebccd29ab1deef198aee253c493d2f805fe1a43ba0023f9617be2845d8ae9e"
 }

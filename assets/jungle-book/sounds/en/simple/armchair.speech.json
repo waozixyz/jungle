@@ -1,11 +1,12 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/armchair.wav",
-  "model": "google/gemini-3.8-flash-lite-tts",
-  "voice": "Kore",
-  "speed": 1.0,
   "text": "Armchair.",
-  "instructions": "Speak English clearly and naturally at an ordinary conversational speed. Pronounce each provided label exactly once; do not slow down, spell, add words, or explain.",
-  "duration": 1.2370068027210885,
-  "sha256": "f7b90e7be26283b6a170d690ad351bb26b8151df804bede214d30616dffee919",
-  "request_sha256": "3b68ed81821e6257268ddb61cc777cbe7bace2357bcf01caca63369b5647f670"
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.8,
+  "profile": "normal",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "duration": 0.9386394557823129,
+  "sha256": "8be1867f1b50ae94526271b76fc09cc271f479eadf0a48618f654c8eaeaae16a"
 }

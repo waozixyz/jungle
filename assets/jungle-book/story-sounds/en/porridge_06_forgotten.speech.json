@@ -1,11 +1,12 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/story-sounds/en/porridge_06_forgotten.wav",
-  "model": "google/gemini-3.8-flash-lite-tts",
-  "voice": "Kore",
+  "text": "Mother says, “Cook, little pot, cook!” But she forgets the words to stop it.",
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
   "speed": 0.8,
-  "text": "Mother says, \u201cCook, little pot, cook!\u201d But she forgets the words to stop it.",
-  "instructions": "Read this gentle children's fairy tale in English. Speak only the supplied text, warmly and clearly.",
-  "duration": 9.294013605442176,
-  "sha256": "fa6587a1cfcd01da894c23864644f679fa89cc69d3a771d8f760ed8a24f6f0b5",
-  "request_sha256": "f9a61cf0a081d179b4f2fc8c4a21b616e0ff13185790d11fc3526fad2b567b77"
+  "profile": "normal",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "duration": 5.802675736961452,
+  "sha256": "10048f3626e556682292515a86932808bae63b9e71465b9e2db83a3594edde32"
 }

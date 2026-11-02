@@ -1,24 +1,31 @@
 {
   "text": "Sad. S. A. D. Sad.",
-  "duration": 6.482403628117914,
-  "sha256": "0130274b6a139abf021da1d43b5abeefe783e071686a146a9f84616c029cb5ec",
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.8,
+  "profile": "normal",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
   "method": "Verified word, literal letter names, word; PCM assembly",
   "sources": [
     {
       "path": "assets/jungle-book/sounds/en/simple/sad.wav",
-      "sha256": "35c4e6ffb530bdfdbf684b4d9c904bb354c7950aef15de871a5249fc39d9da78"
+      "sha256": "c9073bd8bb00b2d5e286c16a6f445f9b3f2e610a1de6f60210e743b81bdd9181"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/0073.wav",
-      "sha256": "954e7ffcc810aa20a26fb598cad7cc78902720be9fc04dac0f1ee2792be8c966"
+      "sha256": "08ebe4dcd428a1f4b865d27aa1d0e2731b1c4981744ca9ca6cadbb291053fbaf"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/0061.wav",
-      "sha256": "5c2d4f375c376213d528d45f79debf6b7666d2d9c5324595c4bb038980bec1e1"
+      "sha256": "7583ef2d5dc317a2fd35e63c8230c8f14691dc108fde2a0b7100e1c838d07905"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/0064.wav",
-      "sha256": "2ef4393f49eeff7edc405fe6e368ef106051f2bbf1ac2370dadcf5e93000c201"
+      "sha256": "fbba179c78f6818fdbee1fbf168275d0da2653669929afb85129bfae3f84fdba"
     }
-  ]
+  ],
+  "duration": 4.842086167800454,
+  "sha256": "8b1e9661af7e391fcb801331ecb995fb98a9a2419a1852094b4acfa6d3c24d06"
 }

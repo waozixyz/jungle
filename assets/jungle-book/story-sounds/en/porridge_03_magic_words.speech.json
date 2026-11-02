@@ -1,11 +1,12 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/story-sounds/en/porridge_03_magic_words.wav",
-  "model": "google/gemini-3.8-flash-lite-tts",
-  "voice": "Kore",
+  "text": "“Cook, little pot, cook!” makes porridge. “Stop, little pot!” makes it stop.",
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
   "speed": 0.8,
-  "text": "\u201cCook, little pot, cook!\u201d makes porridge. \u201cStop, little pot!\u201d makes it stop.",
-  "instructions": "Read this gentle children's fairy tale in English. Speak only the supplied text, warmly and clearly.",
-  "duration": 9.577777777777778,
-  "sha256": "61ead8b774b35075ce5da69c23e2405b9f96119cd3fcf36ea4c928c1f8a6e754",
-  "request_sha256": "17138755e314d98a6153fb19380ac484db1d8e717f908dda39355df43c981bce"
+  "profile": "normal",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "duration": 6.1866666666666665,
+  "sha256": "9d1250fb06b765f1b9ea2d478fe772cd4a29c1f07fd7655f30bc4e9a3a137428"
 }

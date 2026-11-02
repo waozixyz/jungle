@@ -1,11 +1,12 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/drums/sounds/en/free.wav",
-  "model": "google/gemini-3.8-flash-lite-tts",
-  "voice": "Kore",
-  "speed": 1.0,
   "text": "Tap the drums and make music.",
-  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
-  "duration": 3.3134240362811793,
-  "sha256": "34cabf72c10d80d558076322c403cdda5f4228b756635f4caadc36cc6f1d0265",
-  "request_sha256": "84c6eb5c242b64d8edbb0d5e28605bba3b4fb9d545ff1eeb443b4f91247f2134"
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.8,
+  "profile": "normal",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "duration": 2.3680272108843536,
+  "sha256": "e9e2050a4d7cc1934f868d01333f56cf26a8cf1c172e498b4074083c95d7154f"
 }

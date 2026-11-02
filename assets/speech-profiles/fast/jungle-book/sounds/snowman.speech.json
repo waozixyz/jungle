@@ -1,0 +1,47 @@
+{
+  "text": "Snowman. S. N. O. W. M. A. N. Snowman.",
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 1.0,
+  "profile": "fast",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "method": "Verified word, literal letter names, word; PCM assembly",
+  "sources": [
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/simple/snowman.wav",
+      "sha256": "90bda5efc23761aefc4a1d6a32fbddcf6ca3573898e26599e59d85f7957e337a"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/0073.wav",
+      "sha256": "6f15ad9eaa5551af50d8b228676252f8a45d622721794be50a41560c7af1cbbd"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/006e.wav",
+      "sha256": "89653c3ba64cb8d856f1a0f78657df16071fb0e39496fe96ed190dc6a094ec70"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/006f.wav",
+      "sha256": "b43b655702df5f8fdd6e41a253b3bf4b96e3c21d4e632da49b48703da7543608"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/0077.wav",
+      "sha256": "14d5388ea78da9d12e52968de27605e26ff1a8f3f8236dce070891cd9c2c3bfa"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/006d.wav",
+      "sha256": "eb9e1f8345e2eafd97c677fa64c856b634565a534947828aad7aeb34801d2aed"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/0061.wav",
+      "sha256": "9e3c609744e0993f9d6d807035459f871f42bca60a6d2441e4e7447f21439cfa"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters/006e.wav",
+      "sha256": "89653c3ba64cb8d856f1a0f78657df16071fb0e39496fe96ed190dc6a094ec70"
+    }
+  ],
+  "duration": 7.532154195011338,
+  "sha256": "f0a5a0cece0eb9a30f9685fe65248fd07ae7b776f2327c5ee840927da1f95875"
+}

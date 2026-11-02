@@ -1,11 +1,12 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/mushroom.wav",
-  "model": "google/gemini-3.8-flash-lite-tts",
-  "voice": "Kore",
-  "speed": 1,
   "text": "Mushroom.",
-  "instructions": "Speak English clearly and naturally at an ordinary conversational speed. Pronounce each provided label exactly once; do not slow down, spell, add words, or explain.",
-  "duration": 1.3961904761904762,
-  "sha256": "d3ef88766eb7560cea57a455bc3b22ff08837ea8888cf34f17bd40aab4ecb201",
-  "request_sha256": "9e4b19a8637cebf640e1838901e7786f2ad8e44002fb6cf87703e37620d4af86"
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.8,
+  "profile": "normal",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "duration": 0.96,
+  "sha256": "eb45c5dce51c8e85a38da02273d1d369c28cf92748623cc688686f2c30720a8b"
 }

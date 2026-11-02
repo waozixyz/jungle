@@ -1,11 +1,12 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/passport.wav",
-  "model": "google/gemini-3.8-flash-lite-tts",
-  "voice": "Kore",
-  "speed": 1,
   "text": "Passport.",
-  "instructions": "Speak English clearly and naturally at an ordinary conversational speed. Pronounce each provided label exactly once; do not slow down, spell, add words, or explain.",
-  "duration": 1.3494331065759637,
-  "sha256": "6f97e8a9f4f0221552e3054efde14e59db48f525f57609a9836b87c106cadaf5",
-  "request_sha256": "36e0944f785988d96725eb1e577e30948e863afa943f831028ace51ea201b530"
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.8,
+  "profile": "normal",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "duration": 1.0453061224489797,
+  "sha256": "dcfb7109d24ef8d393487520153e33cecbc3ebcafc65adb7b99c5b8e24079152"
 }

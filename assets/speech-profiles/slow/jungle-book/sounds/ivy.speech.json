@@ -1,0 +1,31 @@
+{
+  "text": "Ivy. I. V. Y. Ivy.",
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.65,
+  "profile": "slow",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "method": "Verified word, literal letter names, word; PCM assembly",
+  "sources": [
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/simple/ivy.wav",
+      "sha256": "7de7b2ce3565fb61da510959e4a48162bc470f92e5dc8150ba4ac7d59f83cc10"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0069.wav",
+      "sha256": "f27ea56326b064aed947e1c8b2d7b57289868ec49e58b63ff2b87fd05a19d790"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0076.wav",
+      "sha256": "c1b51d56b682577f2e0c4ebd8e882a8106b9ab4b36ce4eaa00997bfddad994f0"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters/0079.wav",
+      "sha256": "8323526946e21186b5ef7eef3aa68e47e280f76bc116616063c7efc47259ef2c"
+    }
+  ],
+  "duration": 5.939501133786848,
+  "sha256": "06e6aac10c9ca80a569daa907888b6c4c14825465210dbea82f1cec4e37a19c9"
+}

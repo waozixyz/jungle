@@ -1,24 +1,31 @@
 {
   "text": "Fox. F. O. X. Fox.",
-  "duration": 5.9412244897959186,
-  "sha256": "042b26157ab60c9e5ae6e6c886b9b0e6f5e4feeb57b7aaafe92fe93281df618f",
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.8,
+  "profile": "normal",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
   "method": "Verified word, literal letter names, word; PCM assembly",
   "sources": [
     {
       "path": "assets/jungle-book/sounds/en/simple/fox.wav",
-      "sha256": "de6d9f946fa5fd1df386e7f1a19ec358f6d1f07673a9f170575b0b277b918d91"
+      "sha256": "a5fca60e5f3e7876f3d2d46dce67c6b648abe85951e90ea7e9956f21415ce058"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/0066.wav",
-      "sha256": "0afbdb29ecfa4391bfd32ec963cbb32989558fbc1e2644ba3a9dc26c6bbae6b8"
+      "sha256": "7b2174c40becb335c2fa94863b102828ce9cba4e53c3a183566d1f4655de2d17"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/006f.wav",
-      "sha256": "557256d28f31daef71402b9bab50ee2b47793354d38fa7f0f7747948b4dbd971"
+      "sha256": "fac709628a916ad774ec43ab8d2d67f7dcfac51dc5394d6d87166dc410b121e9"
     },
     {
       "path": "assets/jungle-book/sounds/en/letters/0078.wav",
-      "sha256": "4ed6c14ce87727707db93569385e51f5e80ff0232fce8e3908d45951311393bb"
+      "sha256": "afd6412fc9e4cf1961f542d8e0f3c3e159f7fd0703b6f715765fc58ba93edcdc"
     }
-  ]
+  ],
+  "duration": 5.190521541950114,
+  "sha256": "db94b94c348c6ffc68eb22f6b07f4c0457df8c2fdaf9eb1ab0116494a027fcf0"
 }

@@ -1,11 +1,12 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/en/simple/jellyfish.wav",
-  "model": "google/gemini-3.8-flash-lite-tts",
-  "voice": "Kore",
-  "speed": 1,
   "text": "Jellyfish.",
-  "instructions": "Speak English clearly and naturally at an ordinary conversational speed. Pronounce each provided label exactly once; do not slow down, spell, add words, or explain.",
-  "duration": 1.435419501133787,
-  "sha256": "b859068a3da284dcfc6fc4a9cc6c24d176ea0d5249e06e7c6e7e21fe1075b49b",
-  "request_sha256": "63ddf90e1dda238a0ef032093f0474ed2a368b198a32f9cc69c57fd6acfee4b0"
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.8,
+  "profile": "normal",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "duration": 1.0026757369614512,
+  "sha256": "aea0d6242a7df9f5ef5d5841ad11c3053738a60f710905f15cc2b4402b43c08b"
 }

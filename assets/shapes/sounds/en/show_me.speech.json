@@ -1,11 +1,12 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/shapes/sounds/en/show_me.wav",
-  "model": "google/gemini-3.8-flash-lite-tts",
-  "voice": "Kore",
-  "speed": 1.0,
   "text": "Tap a shape. Then tap its matching home.",
-  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
-  "duration": 4.1184580498866215,
-  "sha256": "709879e30570f55540260cd071f26896da2efec38cddd441c03e2af96ce5684f",
-  "request_sha256": "442b83d6eb2f99a67d24e630a1b85a43771bc8c61a96bbefeebb044f184dc7bc"
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.8,
+  "profile": "normal",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "duration": 3.221360544217687,
+  "sha256": "1df1a3b14b6f9e25d803d3583a6cb97ad89f4c0b43e1f1a7e44dbb445990e77a"
 }

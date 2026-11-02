@@ -1,11 +1,12 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/ladybug.wav",
-  "model": "google/gemini-3.8-flash-lite-tts",
-  "voice": "Kore",
-  "speed": 1.0,
   "text": "Ladybug. L. A. D. Y. B. U. G. Ladybug.",
-  "instructions": "Speak English warmly, clearly and naturally, as a friendly adult talking to a child. Use a normal conversational pace with crisp pronunciation and connected phrasing. Do not stretch vowels, separate syllables, whisper, sing, or add exaggerated dramatic pauses. A single word should be pronounced cleanly once. Say only the supplied text.",
-  "duration": 6.591836734693878,
-  "sha256": "df49b64256632c07a49997adbae378d9775bfb8b05fd83e3ffa7ba6d734515a4",
-  "request_sha256": "6628a426d9506d315c0b6fce554c77e6a757e09a33f2dc082904dc1ff5d089a9"
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
+  "speed": 0.8,
+  "profile": "normal",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "duration": 4.650702947845805,
+  "sha256": "437e1fb5aeb8e5dccc51db87bff382e45fb8ba413d8a1f9905b76b62192541be"
 }

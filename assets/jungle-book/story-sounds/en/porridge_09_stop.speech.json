@@ -1,11 +1,12 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/story-sounds/en/porridge_09_stop.wav",
-  "model": "google/gemini-3.8-flash-lite-tts",
-  "voice": "Kore",
+  "text": "“Stop, little pot!” calls Little Rabbit. At once, the pot stops cooking.",
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella",
+  "language": "en",
   "speed": 0.8,
-  "text": "\u201cStop, little pot!\u201d calls Little Rabbit. At once, the pot stops cooking.",
-  "instructions": "Read this gentle children's fairy tale in English. Speak only the supplied text, warmly and clearly.",
-  "duration": 8.724580498866214,
-  "sha256": "e3f7c4564daaeae4545aa058d38ec56b9e881263c7aa8f876b7e7c575a44bbe1",
-  "request_sha256": "7b1ad87eeca32fff09458f260e044eea88509ebefec6a51272dfb4ab062b3a5d"
+  "profile": "normal",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "duration": 5.802675736961452,
+  "sha256": "fcb2f9aea60c0e59f56584836f96b45021a2786f0a2890aece1a4f6b0bbea73d"
 }
