@@ -32,6 +32,8 @@ Matching :: #import, file "../games/matching/jungle_matching.zi";
 HideSeek :: #import, file "../games/hide_seek/jungle_hide_seek.zi";
 Drums :: #import, file "../games/drums/jungle_drums.zi";
 Garden :: #import, file "../games/garden/jungle_garden.zi";
+Fishing :: #import, file "../games/fishing/jungle_fishing.zi";
+BeachFamilies :: #import, file "../games/beach_families/jungle_beach_families.zi";
 PianoKeys :: #import, file "../games/piano/keyboard.zi";
 #import, file "../host/jungle_menu.zi";
 #import, file "../host/jungle_text.zi";
@@ -43,7 +45,7 @@ PianoKeys :: #import, file "../games/piano/keyboard.zi";
 
 // Painted navigation consumes titles; full descriptions, ages and icons remain
 // in games/catalog.txt for native catalog loading.
-web_games: [12]MenuGame = .[
+web_games: [14]MenuGame = .[
     MenuGame.{.title = "Picture Book"},
     MenuGame.{.title = "ABC Book"},
     MenuGame.{.title = "123 Book"},
@@ -56,6 +58,8 @@ web_games: [12]MenuGame = .[
     MenuGame.{.title = "Hide & Seek"},
     MenuGame.{.title = "Music Room"},
     MenuGame.{.title = "Grow a Garden"},
+    MenuGame.{.title = "Little Fishing Boat"},
+    MenuGame.{.title = "Crab Family Counting"},
 ];
 active_game: s32 = -1;
 selected: s32;
@@ -76,6 +80,8 @@ canvas_sequence: s32;
 export_pixels: [CANVAS_PIXELS]u8;
 
 GamePrefix :: () -> string {
+    if active_game == 13 { return "jungle.beach_families/" }
+    if active_game == 12 { return "jungle.fishing/" }
     if active_game == 11 { return "jungle.garden/" }
     if active_game == 10 { return "jungle.drums/" }
     if active_game == 9 { return "jungle.hide_seek/" }
@@ -91,6 +97,8 @@ GamePrefix :: () -> string {
 }
 
 RunGame :: () -> s32 {
+    if active_game == 13 { return BeachFamilies.GameMain() }
+    if active_game == 12 { return Fishing.GameMain() }
     if active_game == 11 { return Garden.GameMain() }
     if active_game == 10 { return Drums.GameMain() }
     if active_game == 9 { return HideSeek.GameMain() }

@@ -9,7 +9,7 @@ LanguageCode :: () -> string {
 LanguageSet :: (code: string) {
     language = ifx code == "de" then 1 else ifx code == "es" then 2 else 0
 }
-UI_COUNT :: 389
+UI_COUNT :: 393
 ui_en_0: [48]string = .[
     "Picture Book",
     "Animal Counting",
@@ -410,12 +410,16 @@ ui_en_336: [48]string = .[
     "Blank page",
     "Zoom",
 ];
-ui_en_384: [5]string = .[
+ui_en_384: [9]string = .[
     "Zoom in",
     "Zoom out",
     "Fit picture",
     "Collection Book",
     "Collected picture",
+    "Little Fishing Boat",
+    "Cast, meet and release",
+    "Crab Family Counting",
+    "Count the crab family",
 ];
 ui_de_0: [48]string = .[
     "Bilderbuch",
@@ -817,12 +821,16 @@ ui_de_336: [48]string = .[
     "Leere Seite",
     "Zoom",
 ];
-ui_de_384: [5]string = .[
+ui_de_384: [9]string = .[
     "Vergrößern",
     "Verkleinern",
     "Bild einpassen",
     "Sammelbuch",
     "Gesammeltes Bild",
+    "Kleines Fischerboot",
+    "Auswerfen, kennenlernen und freilassen",
+    "Krabbenfamilie zählen",
+    "Zähle die Krabbenfamilie",
 ];
 ui_es_0: [48]string = .[
     "Libro ilustrado",
@@ -1224,12 +1232,16 @@ ui_es_336: [48]string = .[
     "Página en blanco",
     "Zoom",
 ];
-ui_es_384: [5]string = .[
+ui_es_384: [9]string = .[
     "Acercar",
     "Alejar",
     "Ajustar imagen",
     "Libro de colección",
     "Imagen coleccionada",
+    "Pequeño bote de pesca",
+    "Lanza, conoce y deja nadar",
+    "Cuenta la familia de cangrejos",
+    "Cuenta la familia de cangrejos",
 ];
 Ui_en :: (at: s32) -> string {
     if at < 48 { return ui_en_0[at - 0] }
@@ -1240,7 +1252,7 @@ Ui_en :: (at: s32) -> string {
     if at < 288 { return ui_en_240[at - 240] }
     if at < 336 { return ui_en_288[at - 288] }
     if at < 384 { return ui_en_336[at - 336] }
-    if at < 389 { return ui_en_384[at - 384] }
+    if at < 393 { return ui_en_384[at - 384] }
     return ""
 }
 Ui_de :: (at: s32) -> string {
@@ -1252,7 +1264,7 @@ Ui_de :: (at: s32) -> string {
     if at < 288 { return ui_de_240[at - 240] }
     if at < 336 { return ui_de_288[at - 288] }
     if at < 384 { return ui_de_336[at - 336] }
-    if at < 389 { return ui_de_384[at - 384] }
+    if at < 393 { return ui_de_384[at - 384] }
     return ""
 }
 Ui_es :: (at: s32) -> string {
@@ -1264,7 +1276,7 @@ Ui_es :: (at: s32) -> string {
     if at < 288 { return ui_es_240[at - 240] }
     if at < 336 { return ui_es_288[at - 288] }
     if at < 384 { return ui_es_336[at - 336] }
-    if at < 389 { return ui_es_384[at - 384] }
+    if at < 393 { return ui_es_384[at - 384] }
     return ""
 }
 Tr :: (text: string) -> string {

@@ -30,10 +30,10 @@ CFLAGS_ZI = -std=c11 -O2 -ffunction-sections -fdata-sections -I'$(TOOLCHAIN)/inc
 APP := build/app
 # Installed shared assets, their manifest and each game's staged bundle files.
 SHARED := $(APP)/assets/shared-assets.txt $(APP)/assets/speech.txt
-STAGED_GAMES := jungle-book jungle-abc jungle-numbers animal-count dino-paint jungle-shapes jungle-jigsaw jungle-hide-seek jungle-matching jungle-drums jungle-garden
+STAGED_GAMES := jungle-book jungle-abc jungle-numbers animal-count dino-paint jungle-shapes jungle-jigsaw jungle-hide-seek jungle-matching jungle-drums jungle-garden jungle-fishing jungle-beach-families
 # Folders too: removing a file changes its folder's time, so staging reruns.
-SHARED_SOURCES := $(shell find assets/jungle assets/jungle-book $(addprefix assets/,abc numbers animal-count dino-paint shapes hide_seek drums garden jigsaw collectibles) 2>/dev/null)
-GAMES := $(APP)/games/jungle-garden.zx $(APP)/games/jungle-drums.zx $(APP)/games/jungle-hide-seek.zx $(APP)/games/jungle-matching.zx $(APP)/games/jungle-shapes.zx $(APP)/games/jungle-book.zx $(APP)/games/jungle-abc.zx $(APP)/games/jungle-numbers.zx $(APP)/games/animal-count.zx $(APP)/games/dino-paint.zx $(APP)/games/jungle-jigsaw.zx $(APP)/games/jungle-piano.zx
+SHARED_SOURCES := $(shell find assets/jungle assets/jungle-book $(addprefix assets/,abc numbers animal-count dino-paint shapes hide_seek drums garden jigsaw collectibles fishing beach_families) 2>/dev/null)
+GAMES := $(APP)/games/jungle-fishing.zx $(APP)/games/jungle-beach-families.zx $(APP)/games/jungle-garden.zx $(APP)/games/jungle-drums.zx $(APP)/games/jungle-hide-seek.zx $(APP)/games/jungle-matching.zx $(APP)/games/jungle-shapes.zx $(APP)/games/jungle-book.zx $(APP)/games/jungle-abc.zx $(APP)/games/jungle-numbers.zx $(APP)/games/animal-count.zx $(APP)/games/dino-paint.zx $(APP)/games/jungle-jigsaw.zx $(APP)/games/jungle-piano.zx
 KRYON_SOURCES = $(wildcard $(KRYON)/src/ui/*.zi $(KRYON)/src/backend/*.zi)
 
 # A package update can change hosted widget records as well as rendering.
@@ -156,6 +156,16 @@ $(APP)/games/jungle-garden.zx: $(wildcard games/garden/*.zi retro/*.zi) build/st
 	'$(ZIRANC)' bundle --root games/garden $(MODULES) --define KRYON_HOSTED_UI \
 		--asset-dir assets=build/stage/jungle-garden/assets --entry jungle_garden:main -o $@ games/garden/jungle_garden.zi
 
+$(APP)/games/jungle-fishing.zx: $(wildcard games/fishing/*.zi retro/*.zi) build/stage/jungle-fishing.files
+	mkdir -p $(APP)/games
+	'$(ZIRANC)' bundle --root games/fishing $(MODULES) --define KRYON_HOSTED_UI \
+		--asset-dir assets=build/stage/jungle-fishing/assets --entry jungle_fishing:main -o $@ games/fishing/jungle_fishing.zi
+
+$(APP)/games/jungle-beach-families.zx: $(wildcard games/beach_families/*.zi retro/*.zi) build/stage/jungle-beach-families.files
+	mkdir -p $(APP)/games
+	'$(ZIRANC)' bundle --root games/beach_families $(MODULES) --define KRYON_HOSTED_UI \
+		--asset-dir assets=build/stage/jungle-beach-families/assets --entry jungle_beach_families:main -o $@ games/beach_families/jungle_beach_families.zi
+
 # Menu pixel art from SVG, Picture Book raster cartoons, then Dino Colors'
 # vector art traced from its generated sheets and compiled into masks.
 # games/paint/paint_pages.zi and its pictures are committed, so a fresh
@@ -192,7 +202,7 @@ build/tests/%: tests/%_test.zi $(wildcard games/*/*.zi host/*.zi retro/*.zi) bui
 		build/ziran/libziran.a -Wl,--gc-sections -lm -lpthread $(TEST_LIBS) -o $@
 
 # Questions, painting and PNG pictures, then every game opened in the app.
-test: build/tests/speed_choice build/tests/title build/tests/paint_preview build/tests/paint_gallery build/tests/paint_gallery_store build/tests/counting_exercises build/tests/paint_layers build/tests/paint_view build/tests/garden build/tests/drums build/tests/hide_seek build/tests/matching build/tests/shapes build/tests/paint build/tests/paint_history build/tests/png build/tests/progress build/tests/document build/tests/counting build/tests/abc build/tests/numbers build/tests/printing build/tests/audio build/tests/voice build/tests/book_preferences build/tests/book_narration build/tests/book_collect build/tests/collection build/tests/paper build/tests/jigsaw build/tests/piano all
+test: build/tests/fishing build/tests/beach_families build/tests/speed_choice build/tests/title build/tests/paint_preview build/tests/paint_gallery build/tests/paint_gallery_store build/tests/counting_exercises build/tests/paint_layers build/tests/paint_view build/tests/garden build/tests/drums build/tests/hide_seek build/tests/matching build/tests/shapes build/tests/paint build/tests/paint_history build/tests/png build/tests/progress build/tests/document build/tests/counting build/tests/abc build/tests/numbers build/tests/printing build/tests/audio build/tests/voice build/tests/book_preferences build/tests/book_narration build/tests/book_collect build/tests/collection build/tests/paper build/tests/jigsaw build/tests/piano all
 	python3 tools/title_scenes.py --check
 	python3 tests/title_guide_test.py
 	python3 tests/title_scenes_test.py
@@ -208,6 +218,8 @@ test: build/tests/speed_choice build/tests/title build/tests/paint_preview build
 	build/tests/drums
 	python3 tools/music_room_audio.py --check
 	build/tests/garden
+	build/tests/fishing
+	build/tests/beach_families
 	build/tests/piano
 	python3 tests/piano_audio_test.py
 	build/tests/jigsaw
@@ -245,6 +257,7 @@ test: build/tests/speed_choice build/tests/title build/tests/paint_preview build
 	python3 tests/export_test.py
 	python3 tests/assets_test.py
 	python3 tests/shared_assets_test.py
+	python3 tests/port_games_integration_test.py
 	python3 tests/speech_manifest_test.py
 	python3 tests/shapes_tutorial_audio_test.py
 	python3 tests/speech_codec_test.py

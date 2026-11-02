@@ -34,7 +34,7 @@ from book_catalog import LANGUAGES
 from speech_codec import EncodeSpeech, SHIPPED, ValidateEncodedSpeech
 from speech_manifest import BuildSpeechManifest
 from web_images import (PREVIEW_FOLDERS, PREVIEW_ROOT, RUNTIME_ROOT,
-                        prepare_native_previews, prepare_runtime_images)
+                        prepare_native_previews, prepare_runtime_images, preview_path)
 
 ROOT = Path(__file__).resolve().parents[1]
 APP = ROOT / 'build/app'
@@ -71,6 +71,7 @@ PICTURES = ('.png', '.webp')
 HOST_ONLY = 'assets/jungle/'
 COUNTING = ('tiger', 'frog', 'butterfly', 'ladybug', 'snail', 'elephant', 'giraffe', 'monkey', 'panda',
             'lion', 'zebra', 'crocodile', 'parrot', 'toucan', 'rabbit', 'cat', 'dog', 'sheep')
+PORT_FOLDERS = ('assets/fishing', 'assets/beach_families')
 
 # Bundled games with staged assets: their source folders and extra files.
 # Picture Book narration is installed; its bundle needs no copy of it.
@@ -100,6 +101,8 @@ GAMES = {
     'jungle-garden': {'folders': ('assets/garden',),
                       'extra': {'assets/jungle-book/collect.wav': 'assets/jungle-book/collect.wav',
                                 'assets/collectibles/sunflower.png': 'assets/collectibles/sunflower.png'}},
+    'jungle-fishing': {'folders': ('assets/fishing',), 'skip': ('assets/fishing/previews/',)},
+    'jungle-beach-families': {'folders': ('assets/beach_families',), 'skip': ('assets/beach_families/previews/',)},
 }
 
 
@@ -147,12 +150,22 @@ def GameFiles(name):
     return files
 
 
+def PortGamePreviews():
+    """Reviewed 128px exports, keyed by their full picture's logical path."""
+    return {f'{folder}/{path.name}': path
+            for folder in PORT_FOLDERS
+            for path in sorted((ROOT / folder / 'previews').glob('*.webp'))
+            if (ROOT / folder / path.name).is_file()}
+
+
 def Previews():
     """{preview path: generated file} for every picture in PREVIEW_FOLDERS."""
     files = {}
     for folder in sorted(PREVIEW_FOLDERS):
         files.update(Folder(folder))
-    return prepare_native_previews(files, ROOT / PREVIEW_CACHE)
+    previews = prepare_native_previews(files, ROOT / PREVIEW_CACHE)
+    previews.update({preview_path(name): path for name, path in PortGamePreviews().items()})
+    return previews
 
 
 # speech can be supplied when staging already built it, avoiding duplicate work;

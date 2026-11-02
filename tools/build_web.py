@@ -9,7 +9,8 @@ import tempfile
 import time
 
 from asset_packs import pack_assets, validate_distribution
-from shared_assets import SPEECH_INDEX, Shipped, Speech, SpeechIndexText, WebFiles, WriteIfChanged
+from shared_assets import (PORT_FOLDERS, PortGamePreviews, SPEECH_INDEX, Shipped,
+                           Speech, SpeechIndexText, WebFiles, WriteIfChanged)
 from web_images import prepare_previews, prepare_web_images
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -145,7 +146,9 @@ def write_previews(files, out, groups=None):
     """
     groups=preview_groups() if groups is None else groups
     stored,names={},{}
-    for name,path in prepare_previews(files,ROOT/'work/web-image-cache').items():
+    previews=prepare_previews(files,ROOT/'work/web-image-cache')
+    previews.update({name:path for name,path in PortGamePreviews().items() if name in files})
+    for name,path in previews.items():
         group=groups.get(name) or preview_group(name)
         if not re.fullmatch(r'[a-z0-9]+(?:-[a-z0-9]+)*',group):raise ValueError('Unsafe preview group: '+group)
         key=f'previews/{group}/{Path(name).parent.name}/{Path(name).stem}.webp'
@@ -166,12 +169,15 @@ def write_previews(files, out, groups=None):
 def stage_assets(out):
     """Pack the game assets and write the browser's startup lists into OUT."""
     files = {}
-    for name in ('jungle','jungle-book','abc','numbers','animal-count','dino-paint','jigsaw','piano','shapes','hide_seek','drums','garden'):
+    for name in ('jungle','jungle-book','abc','numbers','animal-count','dino-paint','jigsaw','piano','shapes','hide_seek','drums','garden',
+                 *(Path(folder).name for folder in PORT_FOLDERS)):
         source=ROOT/'assets'/name
         for path in source.rglob('*'):
             # PaintViewWebRead uses the vectors embedded in the host above.
             # Do not download another copy in the activity asset packs.
             if path.parent == ROOT/'assets/dino-paint/vector':
+                continue
+            if any(path.parent == ROOT/folder/'previews' for folder in PORT_FOLDERS):
                 continue
             if path.is_file() and Shipped(path.relative_to(ROOT).as_posix()) and not path.name.startswith('voice-'):
                 files[path.relative_to(ROOT).as_posix()] = path
