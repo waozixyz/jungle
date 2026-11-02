@@ -84,7 +84,7 @@ try{
   await command('Page.navigate',{url:origin+'/'+page});
   await waitFor('typeof Module!=="undefined"&&Module.FS&&document.getElementById("loading").style.display==="none"','Menu startup timeout');
   await evaluate('bench.opened=[];bench.audio=[];const open=Module.FS.open;Module.FS.open=function(path,...args){bench.opened.push(String(path));if(bench.opened.length>200)bench.opened.shift();return open.call(this,path,...args)};const audio=Module.jungleAudio;Module.jungleAudio=function(path,...args){bench.audio.push(path);return audio.call(this,path,...args)}');
- await waitFor(backend==='dom'?'document.querySelectorAll("[data-kryon-paint=span]").length>5':'bench.frames.length>=5','First rendered frame');
+ await waitFor(backend==='dom'?'document.querySelector("#kryon-dom-paint img")?.complete&&document.querySelectorAll("#kryon-dom-root button").length>=4':'bench.frames.length>=5','First rendered frame');
   const startupMs=performance.now()-navigation,startupBytes=responseBytes;await delay(250);
   const expectedTitle={ 'picture-book':'Picture Book',abc:'ABC Book',numbers:'123 Book',jigsaw:'Jigsaw Puzzles',piano:'Little Piano',counting:'Animal Counting',coloring:'Coloring Book'}[activity];
  const visibleTitle=title=>`[...document.querySelectorAll('[data-kryon-paint=span]')].some(e=>e.textContent.trim()===${JSON.stringify(title)}&&e.getBoundingClientRect().top<56)`;

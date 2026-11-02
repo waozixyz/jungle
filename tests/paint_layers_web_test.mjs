@@ -27,7 +27,12 @@ const titleScenes=JSON.parse(await readFile(new URL('../tools/title_hotspots.jso
 
 const WORKING='/kryon-apps/jungle/jungle.paint/working.txt',HISTORY='/kryon-apps/jungle/jungle.paint/working-undo.txt';
 const CODES='0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_',W=960,H=720,PAPER=15,CLEAR=255;
-const TOOLS=['Image','Color','Story','Erase','Gallery','Print','Undo','New picture','Select'];
+const TOOLS=['Image','Color','Story','Erase','Gallery','Print','Undo','New picture','Select','Pencil'];
+// Read only the small source header for the toolbar inventory. Coordinates
+// still follow LayoutMain independently, at each tested viewport.
+const paintHeaderFile=await open('games/paint/dino_paint.zi','r'),paintHeader=Buffer.alloc(4096);
+await paintHeaderFile.read(paintHeader,0,4096,0);await paintHeaderFile.close();
+const TOOL_COUNT=Number(paintHeader.toString().match(/^TOOL_COUNT :: (\d+)/m)[1]);
 // The saved picture: crayon, composed pixels, scene below the objects and
 // the objects from the bottom up.
 function picture(text){
@@ -88,12 +93,12 @@ function toolbarPoint(index,width,totalHeight){
  let tw,th,columns,left,top;
  if(height>width){
   columns=3;left=pad;tw=Math.floor((width-pad*2-gap*2)/3);th=Math.max(44,Math.min(110,Math.floor(tw*3/4)));
-  let cw=width-pad*2,ch=Math.floor(cw*3/4);const room=height-pad*3-gap*2-th*3;
+  let cw=width-pad*2,ch=Math.floor(cw*3/4);const rows=Math.ceil(TOOL_COUNT/3),room=height-pad*3-gap*(rows-1)-th*rows;
   if(ch>room){ch=room;cw=Math.floor(room*4/3)}
   const below=pad+ch+pad;
-  top=below+Math.floor((height-pad-below-th*3-gap*2)/2);
+  top=below+Math.floor((height-pad-below-th*rows-gap*(rows-1))/2);
  }else{
-  columns=height<440?2:1;const rows=columns===2?5:9;
+  columns=height<440?2:1;const rows=Math.ceil(TOOL_COUNT/columns);
   th=Math.floor((height-pad*2-gap*(rows-1))/rows);tw=Math.max(64,Math.min(Math.floor(th*5/2),Math.floor(width/(columns===2?8:5))));
   const rail=tw*columns+gap*(columns-1),room=height-pad*2;
   let cw=width-pad*3-rail,ch=Math.floor(cw*3/4);
@@ -107,7 +112,7 @@ function toolbarPoint(index,width,totalHeight){
 // Paint's landscape layout in a 960 by 600 page whose title bar is 56 high.
 const layout=(()=>{
  const width=960,height=544,pad=Math.min(20,Math.max(6,Math.floor(height/40))),gap=Math.min(10,Math.max(4,Math.floor(height/80)));
- const toolH=Math.floor((height-pad*2-gap*8)/9),toolW=Math.min(Math.floor(width/5),Math.max(64,Math.floor(toolH*5/2)));
+ const toolH=Math.floor((height-pad*2-gap*(TOOL_COUNT-1))/TOOL_COUNT),toolW=Math.min(Math.floor(width/5),Math.max(64,Math.floor(toolH*5/2)));
  let cw=width-pad*3-toolW,ch=Math.floor(cw*3/4);if(ch>height-pad*2){ch=height-pad*2;cw=Math.floor(ch*4/3)}
  const left=Math.floor((width-toolW-pad-cw)/2),cx=left+toolW+pad,cy=pad+Math.floor((height-pad*2-ch)/2);
  const scale=Math.min(960/320,544/200),rx=Math.trunc((960-scale*320)/2),ry=56+Math.trunc((544-scale*200)/2);
@@ -115,7 +120,7 @@ const layout=(()=>{
   canvas:{x:cx,y:56+cy,w:cw,h:ch},
   toolWidth:toolW,toolHeight:toolH,
   point:(x,y)=>({x:cx+(x+0.5)*cw/W,y:56+cy+(y+0.5)*ch/H}),
-  tool:index=>({x:left+toolW/2,y:56+cy+Math.floor((ch-toolH*9-gap*8)/2)+index*(toolH+gap)+toolH/2}),
+  tool:index=>({x:left+toolW/2,y:56+cy+Math.floor((ch-toolH*TOOL_COUNT-gap*(TOOL_COUNT-1))/2)+index*(toolH+gap)+toolH/2}),
   dialog:(x,y,w,h)=>({x:rx+(x+w/2)*scale,y:ry+(y+h/2)*scale})
  };
 })();

@@ -65,7 +65,7 @@ def main():
         for index, language in selected_languages(args.language):
             with Desktop(binary, data) as desktop:
                 desktop.capture(f"{language}-menu-before")
-                desktop.click(55 + index * 100, 51)
+                desktop.select_language(index)
                 menu = desktop.capture(f"{language}-menu")
                 assert (data / "language.txt").read_text() == language
                 desktop.key("1")

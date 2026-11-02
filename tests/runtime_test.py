@@ -194,6 +194,12 @@ class Desktop:
         time.sleep(.3)
         self.alive()
 
+    def select_language(self, index):
+        """Tap the painted title's actual corner flag, independent of game scaling."""
+        picture = self.capture_actual(f"title-language-{index}")
+        unit = title_unit(*picture.size)
+        self.click_actual(round((22 + 34 * index) * unit), round(17 * unit))
+
     def resize(self, width, height):
         # SDL initially centers this owned window. Growing it in place can
         # put its right/bottom edges outside Xvfb, clipping window captures.

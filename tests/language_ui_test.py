@@ -16,7 +16,7 @@ def main():
             data = Path(temporary)
             with Desktop(args.binary.resolve(), data) as desktop:
                 desktop.capture(f"language-{language}-initial")
-                desktop.click(55 + index * 100, 51)
+                desktop.select_language(index)
                 desktop.capture(f"language-{language}-title")
                 desktop.game("Animal Counting")
                 desktop.capture(f"language-{language}-counting")

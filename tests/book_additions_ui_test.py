@@ -15,7 +15,7 @@ with tempfile.TemporaryDirectory(prefix="jungle-new-books-") as temporary:
     for index, language in enumerate(LANGUAGES):
         with Desktop(ROOT / "build/app/jungle", data) as desktop:
             desktop.capture(f"new-books-{language}-menu")
-            desktop.click(55 + index * 100, 51)
+            desktop.select_language(index)
             desktop.key("1")
             desktop.wait_book(f"new-books-{language}-shelf")
             desktop.key("s")
