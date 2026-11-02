@@ -198,6 +198,7 @@ def staging_test():
                           'jungle-matching/assets/jungle-book/collect.wav',
                           'jungle-hide-seek/assets/jungle-book/collect.wav',
                           'jungle-garden/assets/jungle-book/collect.wav',
+                          'jungle-drums/assets/jungle-book/collect.wav',
                           'animal-count/assets/animal-count/font.png',
                           'animal-count/assets/animal-count/sounds/right.wav'}, staged
         assert (stage / 'jungle-book/assets/jungle-book/collect.wav').is_file()
