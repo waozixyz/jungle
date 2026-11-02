@@ -86,6 +86,31 @@ class TitleVariants(unittest.TestCase):
             self.assertEqual(parents[scenes.index(beach)], next(i for i, s in enumerate(scenes) if s['name']=='campus'))
             self.assertEqual(parents[scenes.index(aquarium)], next(i for i, s in enumerate(scenes) if s['name']=='beach'))
 
+    def test_beach_return_arrow_originates_at_aquarium(self):
+        _, scenes, _, _ = title.Load()
+        for suffix in ('', '-portrait'):
+            with self.subTest(orientation=suffix or 'landscape'):
+                beach = next(s for s in scenes if s['name'] == 'beach'+suffix)
+                arrow = next(h for h in beach['hotspots'] if h['id'] == 'campus-path')
+                aquarium = next(h for h in beach['hotspots'] if h['id'] == 'bunker-door')
+                self.assertEqual(arrow['target'], 'scene:campus')
+                arrow_box = (min(x for x, y in arrow['polygon']), min(y for x, y in arrow['polygon']),
+                             max(x for x, y in arrow['polygon']), max(y for x, y in arrow['polygon']))
+                aquarium_box = (min(x for x, y in aquarium['polygon']), min(y for x, y in aquarium['polygon']),
+                                max(x for x, y in aquarium['polygon']), max(y for x, y in aquarium['polygon']))
+                self.assertLess(arrow_box[2], aquarium_box[0])
+                self.assertLess(arrow_box[2] - aquarium_box[0], 70)
+                self.assertLess(arrow_box[1], aquarium_box[3])
+                self.assertGreater(arrow_box[3], aquarium_box[1])
+                rx, ry, width, height = arrow['glow_rect']
+                self.assertTrue(any(hit(beach, x, y) == 'campus-path'
+                                    for x in range(rx, rx+width, 3)
+                                    for y in range(ry, ry+height, 3)))
+                with Image.open(ROOT/arrow['rest']) as rest:
+                    high = rest.getchannel('A').getextrema()[1]
+                    self.assertGreater(high, 50)
+                    self.assertLess(high, 150)
+
     def test_arrow_foreground_and_visible_rest(self):
         _, scenes, _, _ = title.Load()
         for name, foreground in (('campus', (623, 495)), ('campus-portrait', (563, 683))):

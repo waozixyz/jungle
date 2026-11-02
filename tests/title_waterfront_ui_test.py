@@ -93,6 +93,28 @@ def main():
                     occluded = Image.composite(delta, Image.new('RGB', rest.size), mask)
                     assert max(v[1] for v in ImageStat.Stat(occluded.crop(area)).extrema) < 4, ('arrow painted over tiger',w,h)
                     d.click_actual(x,y)
+                    beach,beach_rest = assert_scene(d,'beach',w,h)
+                    return_arrow = next(t for t in beach['hotspots'] if t['id']=='campus-path')
+                    scale,ox,oy = mapping(beach,w,h)
+                    rx,ry,rw,rh = return_arrow['glow_rect']
+                    area = (max(0,round(ox+rx*scale)),max(65,round(oy+ry*scale)),
+                            min(w,round(ox+(rx+rw)*scale)),min(h,round(oy+(ry+rh)*scale)))
+                    with Image.open(ROOT/beach['image']) as source:
+                        background = source.convert('RGB').resize(
+                            (round(source.width*scale),round(source.height*scale)),Image.Resampling.BILINEAR)
+                    background = background.crop((-round(ox),-round(oy),w-round(ox),h-round(oy)))
+                    resting_signal = max(ImageStat.Stat(ImageChops.difference(
+                        beach_rest.crop(area),background.crop(area))).mean)
+                    assert resting_signal > 1, ('beach resting arrow missing',w,h,resting_signal)
+                    x,y = point(beach,'campus-path',w,h)
+                    move(d,x,y)
+                    hovered = d.capture_actual(f'waterfront-beach-return-hover-{w}')
+                    signal = max(ImageStat.Stat(ImageChops.difference(
+                        beach_rest.crop(area),hovered.crop(area))).mean)
+                    assert signal > .5, ('beach return hover missing',w,h,signal)
+                    d.click_actual(x,y)
+                    assert_scene(d,'campus',w,h)
+                    d.click_actual(*point(campus,'beach-path',w,h))
                     assert_scene(d,'beach',w,h)
                     for origin,target,destination in [('beach','bunker-door','aquarium'),
                                                        ('aquarium','beach-stairs','beach'),
