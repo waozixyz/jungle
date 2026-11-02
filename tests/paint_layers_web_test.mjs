@@ -56,10 +56,18 @@ function picture(text){
   base=runs(W*H);const count=Number(line());
   for(let n=0;n<count;n++){const [x,y,w,h]=line().split(' ').map(Number);objects.push({x,y,w,h,pixels:runs(w*h)})}
  }
+ if(text.startsWith('JUNGLE VECTOR 1\n',at)){
+  line();
+  for(const object of objects){
+   const vector=line().split(' ').map(Number);
+   if(vector.length!==7||vector.some(value=>!Number.isSafeInteger(value))||vector[0]<0)throw Error('Bad saved vector outline');
+   object.vector=vector;
+  }
+ }
  if(at!==text.length)throw Error('Trailing picture data');
  return {crayon,canvas,base,objects};
 }
-const digest=p=>{const hash=createHash('sha256').update(p.canvas).update(p.base);for(const o of p.objects)hash.update(`${o.x} ${o.y} ${o.w} ${o.h}\n`).update(o.pixels);return hash.digest('hex')};
+const digest=p=>{const hash=createHash('sha256').update(p.canvas).update(p.base);for(const o of p.objects){hash.update(`${o.x} ${o.y} ${o.w} ${o.h}\n`).update(o.pixels);if(o.vector)hash.update('vector '+o.vector.join(' ')+'\n')}return hash.digest('hex')};
 // The object owning a pixel: the topmost one not clear there.
 function ownerAt(p,x,y){for(let n=p.objects.length-1;n>=0;n--){const o=p.objects[n];if(x>=o.x&&y>=o.y&&x<o.x+o.w&&y<o.y+o.h&&o.pixels[(y-o.y)*o.w+x-o.x]!==CLEAR)return n}return -1}
 // A pixel whose whole neighborhood passes, so the page's rounding cannot
