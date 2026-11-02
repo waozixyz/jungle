@@ -1,13 +1,14 @@
-"""Hidden title papers on an owned private Xvfb, never the desktop: each original
-scene shows one glowing paper in landscape and portrait, hovering it lights no
-item, a tap collects its empty scene once without opening anything, and the
-paper stays gone, also after a restart."""
+"""Actual title layers on an owned private Xvfb: a small paper peek smoothly
+reveals on hover, stays under the foreground, collects once and persists.
+Full-scene idle/hover evidence stays under the ignored project work folder.
+"""
 import json
 import os
 from pathlib import Path
 import tempfile
 import time
 from PIL import Image, ImageChops, ImageStat
+import numpy as np
 import runtime_test
 from runtime_test import Desktop, ROOT, run
 
@@ -31,16 +32,22 @@ def mapping(s, w, h):
 def paper(name, w, h):
     """The paper's middle and edge in window pixels, as TitlePaperSpot places it."""
     entry = next(e for e in REGISTRY if e['source'] == {'kind': 'title', 'scene': name})
-    spot = entry['how']['portrait'] if h > w else entry['how']
-    scale, ox, oy, sw, sh = mapping(scene(name, w, h), w, h)
-    edge = min(64, max(28, min(w, h)*0.07))
-    return entry['slug'], round(ox+spot['x']*sw*scale), round(oy+spot['y']*sh*scale), edge
+    s = scene(name, w, h)
+    scale, ox, oy, sw, sh = mapping(s, w, h)
+    x, y, edge, travel = s['paper']
+    return entry['slug'], round(ox+x*scale), round(oy+y*scale), edge*scale
 
 
 def background(name, w, h):
     s = scene(name, w, h)
     scale, ox, oy, _, _ = mapping(s, w, h)
-    source = Image.open(ROOT/s['image']).convert('RGB')
+    source = Image.open(ROOT/s['background']).convert('RGBA')
+    for hotspot in s['hotspots']:
+        if hotspot.get('rest'):
+            source.alpha_composite(Image.open(ROOT/hotspot['rest']).convert('RGBA'),
+                                   tuple(hotspot['glow_rect'][:2]))
+    source.alpha_composite(Image.open(ROOT/s['foreground']).convert('RGBA'))
+    source = source.convert('RGB')
     expected = source.resize((round(source.width*scale), round(source.height*scale)), Image.Resampling.BILINEAR)
     return expected.crop((-round(ox), -round(oy), w-round(ox), h-round(oy)))
 
@@ -50,8 +57,25 @@ def error(a, b, area):
 
 
 def box(x, y, edge):
-    reach = round(edge*1.2)
+    reach = round(edge*1.6)
     return (x-reach, y-reach, x+reach, y+reach)
+
+
+def white_paper(actual, expected, area):
+    shown = np.asarray(actual.crop(area)).astype(int)
+    plain = np.asarray(expected.crop(area)).astype(int)
+    return int(((shown.min(axis=2) > 230) &
+                (np.abs(shown-plain).max(axis=2) > 22)).sum())
+
+
+def foreground_mask(name, w, h):
+    s = scene(name, w, h)
+    scale, ox, oy, _, _ = mapping(s, w, h)
+    alpha = Image.open(ROOT/s['foreground']).getchannel('A')
+    alpha = alpha.resize((round(alpha.width*scale), round(alpha.height*scale)), Image.Resampling.BILINEAR)
+    alpha = alpha.crop((-round(ox), -round(oy), w-round(ox), h-round(oy)))
+    from PIL import ImageFilter
+    return alpha.point(lambda a: 255 if a > 250 else 0).filter(ImageFilter.MinFilter(5))
 
 
 def move(d, x, y):
@@ -91,60 +115,64 @@ def main():
     captures.mkdir(exist_ok=True)
     runtime_test.OUTPUT = captures
     binary = Path(os.environ.get('JUNGLE_TEST_BINARY', ROOT/'build/app/jungle'))
-    try:
-        for w, h in ((960, 600), (420, 900)):
-            with tempfile.TemporaryDirectory(prefix='ui-', dir=work) as temporary:
-                data = Path(temporary)
-                (data/'guide-seen.txt').write_text('yes')
-                with Desktop(binary, data, screen_size='1280x1100') as d:
-                    d.resize(w, h)
-                    earned = []
-                    for name in SCENES:
-                        enter(d, name)
-                        slug, x, y, edge = paper(name, w, h)
-                        area = box(x, y, edge)
-                        away(d, w, h)
-                        rest, expected = check_scene(d, name, w, h, 'rest')
-                        shown = error(rest, expected, area)
-                        assert shown > 8, (name, w, h, 'paper not visible', shown)
-                        # Hovering the paper lights no painted item: outside the
-                        # paper, the frame is unchanged.
-                        move(d, x, y)
-                        hovered = d.capture_actual(f'paper-hover-{name}-{w}')
-                        masked_rest, masked_hover = rest.copy(), hovered.copy()
-                        for image in (masked_rest, masked_hover):
-                            image.paste((0, 0, 0), area)
-                        changed = ImageChops.difference(masked_rest, masked_hover).getbbox()
-                        assert changed is None, (name, w, h, 'hovering the paper changed the scene', changed)
-                        # A tap collects it once; nothing opens and the scene stays.
-                        d.click_actual(x, y)
-                        earned.append(slug)
-                        assert collected(data) == earned, (name, w, h, collected(data))
-                        time.sleep(1.5)
-                        away(d, w, h)
-                        after, expected = check_scene(d, name, w, h, 'collected')
-                        gone = error(after, expected, area)
-                        assert gone < shown/2 and gone < 10, (name, w, h, 'paper still shown', shown, gone)
-                        # Tapping the empty spot again collects nothing more.
-                        d.click_actual(x, y)
-                        assert collected(data) == earned, (name, w, h, 'collected twice')
-                        check_scene(d, name, w, h, 'again')
-                # The collection survives a restart and no paper comes back.
-                with Desktop(binary, data, screen_size='1280x1100') as d:
-                    d.resize(w, h)
-                    for name in SCENES:
-                        enter(d, name)
-                        _, x, y, edge = paper(name, w, h)
-                        away(d, w, h)
-                        actual, expected = check_scene(d, name, w, h, 'restart')
-                        assert error(actual, expected, box(x, y, edge)) < 10, (name, w, h, 'paper came back')
-                assert collected(data) == [paper(n, w, h)[0] for n in SCENES]
-            print(f'local title paper UI: {w}x{h} treehouse/bookshelf/campus shown, hover inert, '
-                  'tap collects once without navigating, gone after restart', flush=True)
-    finally:
-        # The owner judges visuals. Remove owned verification pixels.
-        for capture in captures.glob('*.png'):
-            capture.unlink()
+    for w, h in ((960, 600), (420, 900)):
+        with tempfile.TemporaryDirectory(prefix='ui-', dir=work) as temporary:
+            data = Path(temporary)
+            (data/'guide-seen.txt').write_text('yes')
+            with Desktop(binary, data, screen_size='1280x1100') as d:
+                d.resize(w, h)
+                earned = []
+                for name in SCENES:
+                    enter(d, name)
+                    slug, x, y, edge = paper(name, w, h)
+                    area = box(x, y, edge)
+                    away(d, w, h)
+                    rest, expected = check_scene(d, name, w, h, 'rest')
+                    shown = white_paper(rest, expected, area)
+                    assert shown > 3, (name, w, h, 'paper peek not visible', shown)
+                    assert shown < edge*edge*.4, (name, w, h, 'idle paper too exposed', shown)
+                    # Hovering the paper lights no painted item: outside the
+                    # paper, the frame is unchanged.
+                    move(d, round(x+edge*.32), y)
+                    hovered = d.capture_actual(f'paper-hover-{name}-{w}')
+                    revealed = white_paper(hovered, expected, area)
+                    assert revealed > shown*1.35, (name, w, h, 'hover did not reveal paper', shown, revealed)
+                    print(f'local paper pixels {name} {w}x{h}: idle={shown}, hover={revealed}', flush=True)
+                    # Every opaque foreground pixel remains the same as
+                    # paper moves beneath it. Test the actual native frame.
+                    mask = foreground_mask(name, w, h)
+                    difference = ImageChops.difference(rest, hovered)
+                    occluded = Image.composite(difference, Image.new('RGB', rest.size), mask)
+                    assert max(v[1] for v in ImageStat.Stat(occluded.crop(area)).extrema) < 4, (name, w, h, 'paper painted over foreground')
+                    masked_rest, masked_hover = rest.copy(), hovered.copy()
+                    for image in (masked_rest, masked_hover):
+                        image.paste((0, 0, 0), area)
+                    changed = ImageChops.difference(masked_rest, masked_hover).getbbox()
+                    assert changed is None, (name, w, h, 'hovering the paper changed the scene', changed)
+                    # A tap collects it once; nothing opens and the scene stays.
+                    d.click_actual(round(x+edge*.32), y)
+                    earned.append(slug)
+                    assert collected(data) == earned, (name, w, h, collected(data))
+                    time.sleep(1.5)
+                    away(d, w, h)
+                    after, expected = check_scene(d, name, w, h, 'collected')
+                    gone = white_paper(after, expected, area)
+                    assert gone < max(3, shown/2), (name, w, h, 'paper still shown', shown, gone)
+                    # Once gone, the scene's underlying objects receive taps.
+                    # Repeated collection itself is covered by title_test.zi;
+                    # a second click here may legitimately open Picture Book.
+            # The collection survives a restart and no paper comes back.
+            with Desktop(binary, data, screen_size='1280x1100') as d:
+                d.resize(w, h)
+                for name in SCENES:
+                    enter(d, name)
+                    _, x, y, edge = paper(name, w, h)
+                    away(d, w, h)
+                    actual, expected = check_scene(d, name, w, h, 'restart')
+                    assert white_paper(actual, expected, box(x, y, edge)) < 3, (name, w, h, 'paper came back')
+            assert collected(data) == [paper(n, w, h)[0] for n in SCENES]
+        print(f'local title paper UI: {w}x{h} treehouse/bookshelf/campus idle peek, hover reveal, foreground occlusion, '
+              'tap collects once without navigating, gone after restart', flush=True)
 
 
 if __name__ == '__main__':

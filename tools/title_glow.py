@@ -28,7 +28,7 @@ def validate(data):
     games = {line.split('|')[1] for line in
              (ROOT / 'games/catalog.txt').read_text().splitlines() if '|' in line}
     for original in data['scenes']:
-        assert set(original) <= {'name', 'image', 'low', 'hotspots', 'portrait'}
+        assert set(original) <= {'name', 'image', 'low', 'hotspots', 'portrait', 'background', 'foreground', 'paper'}
         variants = [dict(original, width=data['width'], height=data['height'])]
         if 'portrait' in original:
             portrait = original['portrait']
@@ -97,7 +97,9 @@ def glow(h):
         rgba[:, :, channel] = np.rint(outside*(1-interior)+inside*interior).astype(np.uint8)
     rgba[:, :, 3] = np.rint(alpha).clip(0, 255).astype(np.uint8)
     rgba[rgba[:, :, 3] == 0, :3] = 0
-    return occlude(Image.fromarray(rgba), h)
+    # Layered navigation extends under its foreground. Occlusion geometry
+    # remains an input exclusion, never a baked visual notch in this arrow.
+    return Image.fromarray(rgba) if h.get('rest') else occlude(Image.fromarray(rgba), h)
 
 
 def main():

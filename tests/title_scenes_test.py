@@ -6,7 +6,8 @@ import sys
 from pathlib import Path
 import tempfile
 import unittest
-from PIL import Image
+from PIL import Image, ImageFilter
+import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
 spec = importlib.util.spec_from_file_location('title_scenes', ROOT/'tools/title_scenes.py')
@@ -87,7 +88,7 @@ class TitleVariants(unittest.TestCase):
 
     def test_arrow_foreground_and_visible_rest(self):
         _, scenes, _, _ = title.Load()
-        for name, foreground in (('campus', (623, 495)), ('campus-portrait', (581, 682))):
+        for name, foreground in (('campus', (623, 495)), ('campus-portrait', (563, 683))):
             scene = next(s for s in scenes if s['name'] == name)
             arrow = next(h for h in scene['hotspots'] if h['id']=='beach-path')
             self.assertTrue(inside(arrow['polygon'], *foreground))
@@ -98,11 +99,51 @@ class TitleVariants(unittest.TestCase):
                 with Image.open(ROOT/arrow[key]) as image:
                     self.assertEqual(image.size, (w, h))
                     self.assertEqual(image.mode, 'RGBA')
-                    self.assertGreater(image.getchannel('A').getextrema()[1], 128)
-                    self.assertEqual(image.getpixel((foreground[0]-rx, foreground[1]-ry))[3], 0)
+                    maximum = image.getchannel('A').getextrema()[1]
+                    self.assertGreater(maximum, 50)
+                    if key == 'rest':
+                        self.assertLess(maximum, 150)
+                        # The arrow really extends under the tiger. The separate
+                        # foreground, rather than a polygon notch, hides it.
+                        self.assertGreater(image.getpixel((foreground[0]-rx, foreground[1]-ry))[3], 0)
+            with Image.open(ROOT/scene['foreground']) as image:
+                self.assertGreater(image.getpixel(foreground)[3], 240)
             # At least one visible, tappable point remains outside the tiger.
             self.assertTrue(any(hit(scene, x, y)=='beach-path'
                                 for x in range(rx, rx+w, 3) for y in range(ry, ry+h, 3)))
+
+    def test_actual_separated_layers_preserve_approved_art(self):
+        _, scenes, _, _ = title.Load()
+        layered = [s for s in scenes if s.get('foreground')]
+        self.assertEqual(len(layered), 6)
+        for scene in layered:
+            with self.subTest(scene=scene['name']):
+                original = np.asarray(Image.open(ROOT/scene['image']).convert('RGB'))
+                foreground = Image.open(ROOT/scene['foreground']).convert('RGBA')
+                background = np.asarray(Image.open(ROOT/scene['background']).convert('RGB'))
+                pixels = np.asarray(foreground)
+                alpha = pixels[:, :, 3]
+                self.assertEqual(foreground.size, (scene['width'], scene['height']))
+                self.assertEqual((int(alpha.min()), int(alpha.max())), (0, 255))
+                self.assertTrue(np.array_equal(pixels[alpha == 255, :3], original[alpha == 255]))
+                # Reconstructed background is confined to the extracted object,
+                # preserving every unrelated object and accepted scene pixel.
+                outside = np.asarray(foreground.getchannel('A').filter(ImageFilter.MaxFilter(13))) == 0
+                self.assertTrue(np.array_equal(background[outside], original[outside]))
+                self.assertGreater(np.abs(background.astype(int)-original).sum(), 10000)
+                self.assertGreater(float((alpha > 0).mean()), .01)
+                self.assertLess(float((alpha > 0).mean()), .3)
+                x, y, edge, travel = scene['paper']
+                width = edge*.78
+                visible = []
+                for dx in (0, travel):
+                    area = alpha[round(y-edge/2):round(y+edge/2),
+                                 round(x+dx-width/2):round(x+dx+width/2)]
+                    visible.append(float((255-area).mean()/255))
+                self.assertGreater(visible[0], .04)
+                self.assertLess(visible[0], .3)
+                self.assertGreater(visible[1], visible[0]+.2)
+                self.assertLess(visible[1], .75)
 
     def test_waterfront_browser_encodings(self):
         _, scenes, _, _ = title.Load()

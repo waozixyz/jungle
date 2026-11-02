@@ -1512,8 +1512,24 @@
               406
             ]
           }
+        ],
+        "background": "assets/jungle/title/layers/treehouse-portrait-background.webp",
+        "foreground": "assets/jungle/title/layers/treehouse-portrait-foreground.webp",
+        "paper": [
+          599,
+          751,
+          88,
+          28
         ]
-      }
+      },
+      "background": "assets/jungle/title/layers/treehouse-background.webp",
+      "foreground": "assets/jungle/title/layers/treehouse-foreground.webp",
+      "paper": [
+        732,
+        565,
+        84,
+        26
+      ]
     },
     {
       "name": "bookshelf",
@@ -2157,8 +2173,24 @@
               334
             ]
           }
+        ],
+        "background": "assets/jungle/title/layers/bookshelf-portrait-background.webp",
+        "foreground": "assets/jungle/title/layers/bookshelf-portrait-foreground.webp",
+        "paper": [
+          329,
+          411,
+          78,
+          22
         ]
-      }
+      },
+      "background": "assets/jungle/title/layers/bookshelf-background.webp",
+      "foreground": "assets/jungle/title/layers/bookshelf-foreground.webp",
+      "paper": [
+        590,
+        251,
+        78,
+        18
+      ]
     },
     {
       "name": "campus",
@@ -4807,38 +4839,38 @@
             "target": "scene:beach",
             "polygon": [
               [
-                570,
-                680
+                552,
+                688
               ],
               [
-                589,
-                695
+                571,
+                703
               ],
               [
-                648,
-                616
+                630,
+                624
               ],
               [
-                661,
-                637
+                643,
+                645
               ],
               [
-                674,
-                570
+                656,
+                578
               ],
               [
-                611,
-                591
+                593,
+                599
               ],
               [
-                633,
-                602
+                615,
+                610
               ]
             ],
             "glow": "assets/jungle/title/glow/campus-portrait-beach-path.png",
             "glow_rect": [
-              541,
-              542,
+              523,
+              550,
               161,
               182
             ],
@@ -4938,8 +4970,24 @@
               ]
             ]
           }
+        ],
+        "background": "assets/jungle/title/layers/campus-portrait-background.webp",
+        "foreground": "assets/jungle/title/layers/campus-portrait-foreground.webp",
+        "paper": [
+          562,
+          734,
+          70,
+          24
         ]
-      }
+      },
+      "background": "assets/jungle/title/layers/campus-background.webp",
+      "foreground": "assets/jungle/title/layers/campus-foreground.webp",
+      "paper": [
+        722,
+        535,
+        70,
+        24
+      ]
     },
     {
       "name": "beach",

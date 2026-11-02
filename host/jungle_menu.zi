@@ -228,7 +228,9 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
     // a drag that starts on it still pans the picture.
     paper := TitlePaperSpot(title_state.scene, view, bounds.width, bounds.height)
     paper_had := paper.index >= 0 && CollectionHas(collection, collectible_slugs[paper.index])
-    paper_input := TitlePaperPointer(*title_papers, paper, paper_had, px, py, pointer.down,
+    paper_available := TITLE_SCENE_FOREGROUND[title_state.scene] != "" &&
+        TitleReady(TITLE_SCENE_BACKGROUND[title_state.scene]) && TitleReady(TITLE_SCENE_FOREGROUND[title_state.scene])
+    paper_input := TitlePaperPointer(*title_papers, paper, paper_had || !paper_available, px, py, pointer.down,
         pointer.pressed && !blocked, pointer.released, now, collect)
     if paper_input.owned { blocked = true }
     action.paper_collected = paper_input.collected
@@ -253,13 +255,23 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
     scene := title_state.scene
     picture := Rectangle.{bounds.x + view.x, bounds.y + view.y,
         cast(float32)TITLE_SCENE_WIDTH[scene] * view.scale, cast(float32)TITLE_SCENE_HEIGHT[scene] * view.scale}
-    if !TitleReady(TITLE_SCENE_IMAGE[scene]) { TitlePicture(session, TITLE_SCENE_LOW[scene], picture) }
-    TitlePicture(session, TITLE_SCENE_IMAGE[scene], picture)
+    // A real background plate and transparent foreground share the exact
+    // scene transform. Wait for both before exposing anything between them.
+    layered := false
+    if TITLE_SCENE_FOREGROUND[scene] != "" {
+        background_ready := TitleReady(TITLE_SCENE_BACKGROUND[scene])
+        foreground_ready := TitleReady(TITLE_SCENE_FOREGROUND[scene])
+        layered = background_ready && foreground_ready
+    }
+    if layered { TitlePicture(session, TITLE_SCENE_BACKGROUND[scene], picture) }
+    else {
+        if !TitleReady(TITLE_SCENE_IMAGE[scene]) { TitlePicture(session, TITLE_SCENE_LOW[scene], picture) }
+        TitlePicture(session, TITLE_SCENE_IMAGE[scene], picture)
+    }
     first := TITLE_SCENE_FIRST[scene]
     for hotspot: first..first + TITLE_SCENE_HOTSPOTS[scene] - 1 {
-        // Navigation arrows remain visible on touch screens. Their alpha
-        // masks leave the painted foreground (the tiger) in front.
-        if TITLE_HOTSPOT_REST[hotspot] != "" {
+        // Navigation arrows sit between the background and foreground tiger.
+        if TITLE_HOTSPOT_REST[hotspot] != "" && (TITLE_SCENE_FOREGROUND[scene] == "" || layered) {
             rect := hotspot * 4
             TitlePicture(session, TITLE_HOTSPOT_REST[hotspot], Rectangle.{
                 picture.x + cast(float32)TITLE_GLOW_RECT[rect] * view.scale,
@@ -273,6 +285,7 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
         if target >= 0 { unused TitleReady(TITLE_SCENE_LOW[ResolveTitleSceneVariant(target, bounds.width, bounds.height)]); unused TitleReady(TITLE_SCENE_IMAGE[ResolveTitleSceneVariant(target, bounds.width, bounds.height)]) }
     }
     glowing := TitleGlowing(title_state)
+    if paper_input.owned || title_papers.pressed { glowing = -1 }
     guide := TitleGuide(*title_state, now, sound_muted || guide_muted,
         action.sound_toggle || key != 0 || (pointer.pressed && !guide_hover), language)
     guiding := guide.active
@@ -288,6 +301,7 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
         // A slow, gentle pulse over exactly the item.
         wave := Sin(now * 6.283185307 / 1.8)
         alpha := cast(u32)(255.0 * (0.74 + 0.26 * wave))
+        if TITLE_HOTSPOT_REST[glowing] != "" { alpha = cast(u32)(cast(float32)alpha * 0.55) }
         rect := glowing * 4
         TitlePicture(session, TITLE_HOTSPOT_GLOW[glowing], Rectangle.{
             picture.x + cast(float32)TITLE_GLOW_RECT[rect] * view.scale,
@@ -297,9 +311,13 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
     }
     paper = TitlePaperSpot(scene, view, bounds.width, bounds.height)
     if paper.index >= 0 && SecretPaperShown(title_papers.papers[paper.index], paper.index,
-        CollectionHas(collection, collectible_slugs[paper.index])) {
-        SecretPaperDraw(bounds.x + paper.x, bounds.y + paper.y, paper.size, SecretPaperGlow(now), 1.0)
+        CollectionHas(collection, collectible_slugs[paper.index])) && layered {
+        revealed := title_papers.reveal[paper.index]
+        shown := TitlePaperRevealed(paper, revealed)
+        SecretPaperDraw(bounds.x + shown.x, bounds.y + shown.y, shown.size,
+            SecretPaperGlow(now) * (0.08 + revealed * 0.3), 1.0)
     }
+    if layered { TitlePicture(session, TITLE_SCENE_FOREGROUND[scene], picture) }
 
     if guiding {
         guide_anchor = TitleGuideAnchor(*title_state, view, bounds, unit, width, height)

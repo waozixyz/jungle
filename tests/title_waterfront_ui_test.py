@@ -8,6 +8,7 @@ from PIL import Image, ImageChops, ImageStat
 import runtime_test
 from runtime_test import Desktop, ROOT, run
 from title_scenes_test import hit
+from title_paper_ui_test import foreground_mask
 
 
 DATA = json.loads((ROOT/'tools/title_hotspots.json').read_text())
@@ -87,6 +88,10 @@ def main():
                     hovered = d.capture_actual(f'waterfront-hover-{w}')
                     signal = max(ImageStat.Stat(ImageChops.difference(rest.crop(area),hovered.crop(area))).mean)
                     assert signal > .5, ('arrow hover missing',w,h,signal)
+                    mask = foreground_mask('campus', w, h)
+                    delta = ImageChops.difference(rest, hovered)
+                    occluded = Image.composite(delta, Image.new('RGB', rest.size), mask)
+                    assert max(v[1] for v in ImageStat.Stat(occluded.crop(area)).extrema) < 4, ('arrow painted over tiger',w,h)
                     d.click_actual(x,y)
                     assert_scene(d,'beach',w,h)
                     for origin,target,destination in [('beach','bunker-door','aquarium'),
@@ -103,9 +108,8 @@ def main():
                     assert_scene(d,'campus',w,h)
                     print(f'local waterfront UI: {w}x{h} hover, campus/beach/aquarium round trip and Back passed',flush=True)
     finally:
-        # The owner judges visuals. Retain logs, remove owned verification pixels.
-        for capture in captures.glob('*.png'):
-            capture.unlink()
+        # Retain owned private-display evidence requested for layer review.
+        pass
 
 
 if __name__=='__main__':

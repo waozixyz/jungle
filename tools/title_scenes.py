@@ -109,6 +109,18 @@ def Load(source=SOURCE, catalog=CATALOG):
         for key in ('image', 'low'):
             if not (ROOT / scene[key]).is_file():
                 raise SystemExit(f'title scenes: missing {scene[key]}')
+        for key in ('background', 'foreground'):
+            if scene.get(key) and not (ROOT / scene[key]).is_file():
+                raise SystemExit(f'title scenes: missing {scene[key]}')
+        if bool(scene.get('background')) != bool(scene.get('foreground')):
+            raise SystemExit('title scenes: background and foreground must be paired')
+        if scene.get('paper') and not scene.get('foreground'):
+            raise SystemExit('title scenes: hidden paper needs a foreground layer')
+        paper = scene.get('paper')
+        if paper is not None and (len(paper) != 4 or any(type(v) is not int for v in paper) or
+                not 0 <= paper[0] < scene['width'] or not 0 <= paper[1] < scene['height'] or
+                paper[2] <= 0 or paper[3] <= 0):
+            raise SystemExit('title scenes: invalid paper center, size or reveal travel')
     for hotspot in hotspots:
         if not (ROOT / hotspot['glow']).is_file():
             raise SystemExit(f'title scenes: missing {hotspot["glow"]}')
@@ -171,6 +183,10 @@ def Render(data, scenes, parents, hotspots):
         f'TITLE_SCENE_NAME: [{scene_count}]string = .[{Quoted(scene["name"] for scene in scenes)}];',
         f'TITLE_SCENE_IMAGE: [{scene_count}]string = .[{Quoted(scene["image"] for scene in scenes)}];',
         f'TITLE_SCENE_LOW: [{scene_count}]string = .[{Quoted(scene["low"] for scene in scenes)}];',
+        f'TITLE_SCENE_BACKGROUND: [{scene_count}]string = .[{Quoted(s.get("background", "") for s in scenes)}];',
+        f'TITLE_SCENE_FOREGROUND: [{scene_count}]string = .[{Quoted(s.get("foreground", "") for s in scenes)}];',
+        '// Paper center, edge and horizontal reveal travel, all in scene source pixels.',
+        f'TITLE_SCENE_PAPER: [{scene_count * 4}]s32 = .[{Numbers(v for s in scenes for v in s.get("paper", [0, 0, 0, 0]))}];',
         f'TITLE_SCENE_WIDTH: [{scene_count}]s32 = .[{Numbers(s["width"] for s in scenes)}];',
         f'TITLE_SCENE_HEIGHT: [{scene_count}]s32 = .[{Numbers(s["height"] for s in scenes)}];',
         f'TITLE_SCENE_BASE: [{scene_count}]s32 = .[{Numbers(s["base"] for s in scenes)}];',

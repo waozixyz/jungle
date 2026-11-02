@@ -1,25 +1,22 @@
 #!/usr/bin/env python3
-"""Reproduce code-drawn navigation arrows without changing painted scenes.
-
-The polygon, crop and foreground silhouette live in title_hotspots.json.
-Original campus pictures are never rewritten. Both the resting arrow and
-hover glow have transparent pixels wherever the painted tiger sits in front.
+"""Reproduce translucent navigation art. The foreground scene layer occludes
+the complete arrow; hit exclusions are kept independently in the manifest.
 """
 import json
 from PIL import Image, ImageDraw, ImageFilter
-from title_glow import ROOT, glow, occlude
+from title_glow import ROOT, glow
 
 
 def arrow(h):
     x, y, w, height = h['glow_rect']
     points = [((px-x)*3, (py-y)*3) for px, py in h['polygon']]
     shadow = Image.new('RGBA', (w*3, height*3))
-    ImageDraw.Draw(shadow).polygon([(px, py+12) for px, py in points], fill=(30, 100, 88, 100))
+    ImageDraw.Draw(shadow).polygon([(px, py+12) for px, py in points], fill=(30, 100, 88, 42))
     shadow = shadow.filter(ImageFilter.GaussianBlur(7))
     draw = ImageDraw.Draw(shadow)
-    draw.polygon(points, fill=(76, 180, 166, 235))
-    draw.line(points + points[:1], fill=(255, 242, 192, 255), width=9, joint='curve')
-    return occlude(shadow.resize((w, height), Image.Resampling.LANCZOS), h)
+    draw.polygon(points, fill=(76, 180, 166, 88))
+    draw.line(points + points[:1], fill=(255, 242, 192, 120), width=9, joint='curve')
+    return shadow.resize((w, height), Image.Resampling.LANCZOS)
 
 
 def main():
@@ -32,9 +29,11 @@ def main():
                 path = ROOT/h['rest']
                 path.parent.mkdir(parents=True, exist_ok=True)
                 arrow(h).save(path, optimize=True)
-                glow(h).save(ROOT/h['glow'], optimize=True)
+                visual = dict(h)
+                visual.pop('occlusion', None)
+                glow(visual).save(ROOT/h['glow'], optimize=True)
                 count += 1
-    print(f'title navigation: {count} resting arrows and masked glows; painted scenes unchanged')
+    print(f'title navigation: {count} translucent arrows and complete glows; foreground layers own occlusion')
 
 
 if __name__ == '__main__':

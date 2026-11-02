@@ -452,6 +452,7 @@ TitlePaperPlace :: struct {
     x: float32
     y: float32
     size: float32
+    reveal_x: float32
 }
 
 // One paper per registry entry, and whether the pointer's press began on one, and where.
@@ -460,6 +461,8 @@ TitlePapers :: struct {
     pressed: bool
     press_x: float32
     press_y: float32
+    reveal: [COLLECTIBLE_COUNT]float32
+    reveal_at: float64
 }
 
 TitlePaperInput :: struct {
@@ -491,13 +494,31 @@ TitlePaperSpot :: (scene: s32, view: TitleView, width: float32, height: float32)
     place.y = view.y + ny * cast(float32)TITLE_SCENE_HEIGHT[scene] * view.scale
     short := ifx width < height then width else height
     place.size = cast(float32)SecretPaperSize(short, 1.0)
+    if TITLE_SCENE_PAPER[scene * 4 + 2] > 0 {
+        place.x = view.x + cast(float32)TITLE_SCENE_PAPER[scene * 4] * view.scale
+        place.y = view.y + cast(float32)TITLE_SCENE_PAPER[scene * 4 + 1] * view.scale
+        place.size = cast(float32)TITLE_SCENE_PAPER[scene * 4 + 2] * view.scale
+        place.reveal_x = cast(float32)TITLE_SCENE_PAPER[scene * 4 + 3] * view.scale
+    }
     return place
+}
+
+// The paper slides out from under its foreground; the foreground never moves.
+TitlePaperRevealed :: (place: TitlePaperPlace, amount: float32) -> TitlePaperPlace {
+    shown := place
+    shown.x += place.reveal_x * amount * amount * (3.0 - 2.0 * amount)
+    return shown
 }
 
 // Whether window point X, Y finds the paper at PLACE, a little past its edge.
 TitlePaperHit :: (place: TitlePaperPlace, x: float32, y: float32) -> bool {
     if place.index < 0 { return false }
-    return SecretPaperHit(cast(s32)place.x, cast(s32)place.y, cast(s32)place.size, cast(s32)x, cast(s32)y)
+    // A generous touch target around the visible edge, spanning the whole
+    // reveal travel, keeps hover stable as the paper slides under the pointer.
+    reach := place.size * 0.55
+    if reach < 22.0 { reach = 22.0 }
+    return x >= place.x - reach && x <= place.x + place.reveal_x + reach &&
+        y >= place.y - reach && y <= place.y + reach
 }
 
 // One frame of pointer input at window point (x, y) for the paper at PLACE,
@@ -511,6 +532,12 @@ TitlePaperPointer :: (papers: *TitlePapers, place: TitlePaperPlace, collected: b
     paper := *papers.papers[place.index]
     SecretPaperStep(paper, now)
     over := SecretPaperShown(paper.*, place.index, collected) && TitlePaperHit(place, x, y)
+    delta := cast(float32)(now - papers.reveal_at)
+    papers.reveal_at = now
+    if delta < 0.0 { delta = 0.0 }
+    if delta > 0.05 { delta = 0.05 }
+    goal: float32 = ifx over then 1.0 else 0.0
+    papers.reveal[place.index] += (goal - papers.reveal[place.index]) * delta * 12.0
     if pressed {
         papers.pressed = over
         papers.press_x = x
@@ -526,7 +553,8 @@ TitlePaperPointer :: (papers: *TitlePapers, place: TitlePaperPlace, collected: b
             input.owned = true
             // The line art unfolds out of the paper a little larger, then flies.
             edge := cast(s32)place.size
-            start := CollectRect.{cast(s32)place.x - edge, cast(s32)place.y - edge, edge * 2, edge * 2}
+            shown := TitlePaperRevealed(place, papers.reveal[place.index])
+            start := CollectRect.{cast(s32)shown.x - edge, cast(s32)shown.y - edge, edge * 2, edge * 2}
             unused SecretPaperTap(paper, place.index, collected, now, start, collect)
             input.collected = paper.state == SECRET_PAPER_FLYING
         }

@@ -277,6 +277,7 @@ test-ui: all
 	python3 tests/piano_ui_test.py
 	python3 tests/menu_ui_test.py
 	python3 tests/title_waterfront_ui_test.py
+	python3 tests/title_layer_routes_ui_test.py
 	python3 tests/collection_book_ui_test.py
 	python3 tests/collection_book_autoplay_ui_test.py
 	python3 tests/jigsaw_ui_test.py
