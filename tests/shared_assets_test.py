@@ -68,6 +68,9 @@ def fake_tree(root):
     write(root, 'assets/jungle-book/previews/bedtime.jpg', COVER)
     write(root, 'assets/jungle-book/sounds/en/tiger.wav', b'tiger voice')
     write(root, 'assets/jungle-book/sounds/en/tiger.speech.json', b'{}')
+    write(root, 'assets/jungle-book/collect.wav', b'collect')
+    for index, name in enumerate(('magic-pot', 'sunflower', 'drum')):
+        write(root, f'assets/collectibles/{name}.png', picture((80 + index, 90, 100, 255), '.png'))
     write(root, 'assets/jungle-book/sounds/de/simple/lettuce.wav', b'retired voice')
     write(root, 'assets/jungle-book/sounds/en/letters/0061.wav', b'a')
     for name in shared_assets.COUNTING:
@@ -159,6 +162,7 @@ def staging_test():
         files = {path.relative_to(app).as_posix() for path in app.rglob('*') if path.is_file()}
         assert files == {'assets/shared-assets.txt', 'assets/speech.txt', 'assets/jungle/font.png', 'assets/jungle/icon.png',
                          'assets/jungle/icons/icon-64.png', 'assets/jungle/sounds/select.wav',
+                         'assets/jungle-book/collect.wav',
                          'assets/jungle-book/pages/tiger.jpg', 'assets/jungle-book/pages/lion.jpg',
                          'assets/jungle-book/items/tiger.png',
                          'assets/hide_seek/scenes/cottage-yard.png',
@@ -189,9 +193,15 @@ def staging_test():
                           'jungle-abc/assets/abc/sounds/en/letters/0061.wav',
                           'jungle-numbers/assets/numbers/sounds/one.wav',
                           'jungle-numbers/assets/numbers/sounds/two.wav',
+                          'jungle-book/assets/jungle-book/collect.wav',
+                          'jungle-book/assets/collectibles/magic-pot.png',
+                          'jungle-matching/assets/jungle-book/collect.wav',
+                          'jungle-hide-seek/assets/jungle-book/collect.wav',
+                          'jungle-garden/assets/jungle-book/collect.wav',
+                          'jungle-garden/assets/collectibles/sunflower.png',
                           'animal-count/assets/animal-count/font.png',
                           'animal-count/assets/animal-count/sounds/right.wav'}, staged
-        assert (stage / 'jungle-book/assets').is_dir() and not any((stage / 'jungle-book/assets').iterdir())
+        assert (stage / 'jungle-book/assets/jungle-book/collect.wav').is_file()
         # A sound with a picture's bytes keeps its own copy.
         assert (stage / 'animal-count/assets/animal-count/sounds/right.wav').read_bytes() == b'font'
         assert {name: sha(source) for name, source in web.items()} == {
@@ -234,7 +244,7 @@ def real_tree_test():
             assert sha(source) == sha(installed[target]), path
     assert 'assets/jungle-book/font.png' in aliases and 'assets/dino-paint/font.png' in aliases
     assert all(f'assets/animal-count/pictures/{name}.png' in aliases for name in shared_assets.COUNTING)
-    assert set(bundles['jungle-book']) == {'assets/jungle-book/collect.wav'}, 'Picture Book bundle holds only its chime, never the installed book'
+    assert set(bundles['jungle-book']) == {'assets/jungle-book/collect.wav', 'assets/collectibles/magic-pot.png'}, 'Picture Book bundle holds only its chime and collectible, never the installed book'
     sounds = 0
     for name, files in bundles.items():
         for path, source in files.items():
