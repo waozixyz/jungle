@@ -51,6 +51,35 @@ def title_unit(width, height):
     return max(1.0, min(3.0, min(width, height) / 300))
 
 
+def same_title_scene(expected, actual):
+    """Compare the whole home scene, allowing only its faint paper pulse."""
+    from PIL import ImageChops, ImageDraw
+    if expected.size != actual.size:
+        return False
+    title = json.loads((ROOT / "tools/title_hotspots.json").read_text())
+    scene = title["scenes"][0]
+    width, height = actual.size
+    scale = max(width / title["width"], height / title["height"])
+    x, y, edge, _ = scene["paper"]
+    x = (width - title["width"] * scale) / 2 + x * scale
+    y = (height - title["height"] * scale) / 2 + y * scale
+    # SecretPaperDraw's outer halo is 2.2 paper edges wide. Its low title
+    # opacity changes RGB values by at most eight levels across a pulse.
+    radius = edge * scale * 1.1 + 2
+    box = (int(x - radius), int(y - radius), int(x + radius + 1), int(y + radius + 1))
+    difference = ImageChops.difference(expected, actual)
+    if max(high for low, high in difference.crop(box).getextrema()) > 8:
+        return False
+    ImageDraw.Draw(difference).rectangle(box, fill=(0, 0, 0))
+    return difference.getbbox() is None
+
+
+def title_sound_control(picture):
+    unit = title_unit(*picture.size)
+    return picture.crop((round(picture.width - 35 * unit), 0,
+                         picture.width, round(34 * unit)))
+
+
 def run(command, env):
     return subprocess.run(command, env=env, text=True, capture_output=True,
                           check=True, timeout=15).stdout.strip()
@@ -556,12 +585,15 @@ def ui(binary):
         extra = {"PATH": str(fake) + os.pathsep + os.environ["PATH"],
                  "JUNGLE_PRINTER_LOG": str(data / "printed.txt")}
         with Desktop(binary, data, extra) as desktop:
-            menu = desktop.capture("menu")
+            # Home dismisses the first-run guide before taking a scene baseline.
+            desktop.key("Home")
+            assert (data / "guide-seen.txt").read_text() == "yes\n"
+            menu = desktop.capture_actual("menu")
             actual_menu = desktop.capture_actual("menu-sound-control")
             unit = title_unit(*actual_menu.size)
             desktop.click_actual(round(actual_menu.width - 22 * unit), round(17 * unit))
             assert (data / "sound.txt").read_text() == "off\n", "menu mute was not saved"
-            muted_menu = desktop.capture("menu-muted")
+            muted_control = title_sound_control(desktop.capture_actual("menu-muted"))
             desktop.key("F10")
             assert (data / "sound.txt").read_text() == "quiet\n", "F10 did not restore quiet sound"
             desktop.game("Picture Book")
@@ -640,15 +672,16 @@ def ui(binary):
             desktop.key("Escape")
             desktop.key("Escape")
             desktop.key("Home")
-            returned = desktop.capture("menu-return")
-            assert ImageChops.difference(menu, returned).getbbox() is None, "counting did not return home"
+            returned = desktop.capture_actual("menu-return")
+            assert same_title_scene(menu, returned), "counting did not return home"
             print("local UI test: watercolor counting artwork, questions, ladder and progress", flush=True)
             paint_ui(desktop, data)
         # The complete working picture survives process restart without a slot.
         before = (data / "games/jungle.paint/working.txt").read_bytes()
         with Desktop(binary, data, extra) as desktop:
-            restarted = desktop.capture("restart-menu")
-            assert ImageChops.difference(muted_menu, restarted).getbbox() is None, "mute setting did not survive restart"
+            restarted = desktop.capture_actual("restart-menu")
+            assert (data / "sound.txt").read_text() == "off\n", "mute setting did not survive restart"
+            assert ImageChops.difference(muted_control, title_sound_control(restarted)).getbbox() is None, "saved mute was not rendered after restart"
             desktop.game("Coloring Book")
             desktop.capture("paint-recovered")
             assert (data / "games/jungle.paint/working.txt").read_bytes() == before
