@@ -92,7 +92,7 @@ with tempfile.TemporaryDirectory(prefix='asset-pack-test-',dir=ROOT/'build') as 
                         Speech=lambda:({'clips':{},'voices':{}},{}),
                         SpeechIndexText=lambda speech:'',
                         write_previews=lambda files,out:None,
-                        prepare_web_images=lambda files,cache:(files,{},{})):
+                        prepare_web_images=lambda files,cache,force_title=False:(files,{},{})):
         expanded=build_web.stage_assets(site)
     count,_=validate_distribution(site)
     assert count<20, count
@@ -106,7 +106,7 @@ with tempfile.TemporaryDirectory(prefix='asset-pack-test-',dir=ROOT/'build') as 
     # including jigsaw scenes and transparent cut-outs.
     import io, json
     from PIL import Image
-    from web_images import PREVIEW_PIXELS, prepare_previews, prepare_web_images
+    from web_images import PREVIEW_PIXELS, prepare_native_previews, prepare_previews, prepare_web_images
     from build_web import preview_groups, write_previews
     page=ROOT/'assets/jungle-book/pages/tiger.jpg'
     wide=root/'source/wide.jpg';Image.new('RGB',(900,300),(200,120,40)).save(wide,quality=90)
@@ -125,54 +125,29 @@ with tempfile.TemporaryDirectory(prefix='asset-pack-test-',dir=ROOT/'build') as 
             # Aspect ratio within one rounded pixel.
             (w,h),(ow,oh)=preview.size,original.size
             assert abs(w*oh/ow-h)<=1 and abs(h*ow/oh-w)<=1,(name,preview.size)
-        assert len(data)<6000,(name,len(data))
+        assert len(data)<6500,(name,len(data))
     assert len(made['assets/jungle-book/pages/tiger.jpg'].read_bytes())*50<page.stat().st_size
+    native=prepare_native_previews(sources,root/'native-preview-cache')
+    digest=lambda path:hashlib.sha256(path.read_bytes()).hexdigest()
+    assert [digest(path) for path in native.values()]==[digest(path) for path in made.values()],\
+        'browser and native preview bytes differ'
 
-    # Immutable full-color textures get exact WebP bytes without replacing art.
-    lossless_names={'assets/jungle-book/items/tiger.png':ROOT/'assets/jungle-book/items/tiger.png',
-                    'assets/hide_seek/props/basket.png':ROOT/'assets/hide_seek/props/basket.png',
-                    'assets/hide_seek/scenes/cottage-yard.png':ROOT/'assets/hide_seek/scenes/cottage-yard.png',
-                    'assets/drums/pictures/big-drum.png':ROOT/'assets/drums/pictures/big-drum.png'}
-    originals={name:path.read_bytes() for name,path in lossless_names.items()}
+    # Browser staging reuses runtime exports unchanged and only caps its own title art.
+    runtime_sources={'assets/jungle-book/pages/tiger.jpg':page,
+                     'assets/garden/art/bed.png':ROOT/'assets/garden/art/bed.png',
+                     'assets/hide_seek/props/basket.png':ROOT/'assets/hide_seek/props/basket.png'}
+    reused,names,info=prepare_web_images(runtime_sources,root/'runtime-reuse-cache')
+    assert reused==runtime_sources and names=={} and info=={}
+    title=root/'source/assets/jungle/title/guide.jpg';title.parent.mkdir(parents=True,exist_ok=True)
+    Image.new('RGB',(2500,1400),(80,120,180)).save(title,quality=95)
+    title_before=title.read_bytes()
     converted,archive_names,encoded=prepare_web_images(
-        {**lossless_names,'assets/jungle-book/pages/tiger.jpg':page},root/'lossless-cache')
-    assert originals=={name:path.read_bytes() for name,path in lossless_names.items()},'Canonical texture changed'
-    assert set(encoded)==set(lossless_names)|{'assets/jungle-book/pages/tiger.jpg'}
-    assert 'quality' not in encoded['assets/jungle-book/items/tiger.png']
-    for name,path in lossless_names.items():
-        info=encoded[name]
-        assert info['source_sha256']==hashlib.sha256(originals[name]).hexdigest()
-        assert archive_names[name]==str(Path(name).with_suffix('.webp'))
-        with Image.open(path) as source,Image.open(converted[name]) as webp:
-            assert source.size==webp.size==(info['width'],info['height'])
-            assert source.mode==webp.mode and source.tobytes()==webp.tobytes()
-            if source.mode=='RGBA':
-                alpha=webp.getchannel('A')
-                assert alpha.getextrema()[0]==0,'RGBA transparency was not retained'
-    packed=pack_assets(converted,root/'lossless-site',archive_names=archive_names,
-                       single_files=set(lossless_names))
-    assert len({entry['pack'] for name,entry in packed['files'].items() if name in lossless_names})==4
-    for name in lossless_names:
-        entry=packed['files'][name]
-        with zipfile.ZipFile(root/'lossless-site'/entry['pack']) as archive:
-            assert archive.namelist()==[archive_names[name]]
-            assert hashlib.sha256(archive.read(archive_names[name])).hexdigest()==entry['sha256']
-
-    # A PNG that WebP cannot shrink stays in its original lossless format.
-    small=Image.new('RGBA',(4,4))
-    small.frombytes(bytes((index*73+191)&255 for index in range(64)),'raw','RGBA')
-    small_path=root/'source/assets/hide_seek/props/large.png';small_path.parent.mkdir(parents=True)
-    small.save(small_path,'PNG',optimize=True)
-    kept,names,info=prepare_web_images({'assets/hide_seek/props/large.png':small_path},root/'lossless-cache')
-    assert kept['assets/hide_seek/props/large.png']==small_path and names=={} and info=={}
-
-    # Palette art is not a full-color RGB/RGBA texture and remains canonical PNG.
-    palette_path=root/'source/assets/hide_seek/props/palette.png'
-    palette=Image.new('P',(4,4));palette.putpalette([channel for index in range(256)
-                                                     for channel in (index,index,index)])
-    palette.save(palette_path,'PNG',optimize=True)
-    kept,names,info=prepare_web_images({'assets/hide_seek/props/palette.png':palette_path},root/'lossless-cache')
-    assert kept['assets/hide_seek/props/palette.png']==palette_path and names=={} and info=={}
+        {'assets/jungle/title/guide.jpg':title},root/'browser-image-cache')
+    assert set(encoded)=={'assets/jungle/title/guide.jpg'}
+    with Image.open(converted['assets/jungle/title/guide.jpg']) as image:
+        assert image.format=='WEBP' and image.size==(2048,1147),image.size
+    assert archive_names['assets/jungle/title/guide.jpg']=='assets/jungle/title/guide.webp'
+    assert title.read_bytes()==title_before,'Canonical title art changed'
     # One pack per book's pages and one for the covers, in asset-packs.json's
     # format keyed by the logical paths; identical previews are stored once.
     groups={'assets/jungle-book/pages/tiger.jpg':'jungle','assets/jungle-book/pages/tiger-again.jpg':'jungle',

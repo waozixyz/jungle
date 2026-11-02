@@ -124,6 +124,10 @@ WebWrite :: (name: string, value: string) -> bool {
 #program_export
 WebAsset :: (name: string) -> string {
     if name.count > 7 && name[:7] == "canvas-" { return Cat("/", name) }
+    if name.count >= 4 && name[name.count - 4:] == ".jpg"
+            && name.count > 20 && name[:20] == "assets/jungle/title/" {
+        return Cat(name[:name.count - 4], ".webp")
+    }
     return name
 }
 

@@ -30,9 +30,9 @@ CFLAGS_ZI = -std=c11 -O2 -ffunction-sections -fdata-sections -I'$(TOOLCHAIN)/inc
 APP := build/app
 # Installed shared assets, their manifest and each game's staged bundle files.
 SHARED := $(APP)/assets/shared-assets.txt $(APP)/assets/speech.txt
-STAGED_GAMES := jungle-book jungle-abc jungle-numbers animal-count dino-paint jungle-shapes jungle-hide-seek jungle-matching jungle-drums jungle-garden
+STAGED_GAMES := jungle-book jungle-abc jungle-numbers animal-count dino-paint jungle-shapes jungle-jigsaw jungle-hide-seek jungle-matching jungle-drums jungle-garden
 # Folders too: removing a file changes its folder's time, so staging reruns.
-SHARED_SOURCES := $(shell find assets/jungle assets/jungle-book $(addprefix assets/,abc numbers animal-count dino-paint shapes hide_seek drums garden jigsaw) 2>/dev/null)
+SHARED_SOURCES := $(shell find assets/jungle assets/jungle-book $(addprefix assets/,abc numbers animal-count dino-paint shapes hide_seek drums garden jigsaw collectibles) 2>/dev/null)
 GAMES := $(APP)/games/jungle-garden.zx $(APP)/games/jungle-drums.zx $(APP)/games/jungle-hide-seek.zx $(APP)/games/jungle-matching.zx $(APP)/games/jungle-shapes.zx $(APP)/games/jungle-book.zx $(APP)/games/jungle-abc.zx $(APP)/games/jungle-numbers.zx $(APP)/games/animal-count.zx $(APP)/games/dino-paint.zx $(APP)/games/jungle-jigsaw.zx $(APP)/games/jungle-piano.zx
 KRYON_SOURCES = $(wildcard $(KRYON)/src/ui/*.zi $(KRYON)/src/backend/*.zi)
 
@@ -40,10 +40,15 @@ KRYON_SOURCES = $(wildcard $(KRYON)/src/ui/*.zi $(KRYON)/src/backend/*.zi)
 # Rebuild the host and bundles together instead of mixing their layouts.
 $(APP)/jungle $(GAMES): ziran.lock $(KRYON_SOURCES)
 
-.PHONY: all run art sounds test test-ui install locales web
+.PHONY: all run art sounds test test-ui test-web-images install locales web
 
 web:
 	python3 tools/build_web.py
+
+test-web-images: web
+	python3 tests/runtime_images_test.py
+	python3 tests/web_images_test.py
+	python3 tests/runtime_images_web_test.py
 
 locales:
 	python3 tools/locales.py
@@ -120,10 +125,10 @@ $(APP)/games/jungle-piano.zx: $(wildcard games/piano/*.zi retro/*.zi) $(wildcard
 		--asset-dir assets/piano=assets/piano --entry jungle_piano:main -o $@ games/piano/jungle_piano.zi
 
 # Full pictures only: every host clips its own interlocking puzzle pieces.
-$(APP)/games/jungle-jigsaw.zx: $(wildcard games/jigsaw/*.zi retro/*.zi) $(shell find assets/jigsaw -type f)
+$(APP)/games/jungle-jigsaw.zx: $(wildcard games/jigsaw/*.zi retro/*.zi) build/stage/jungle-jigsaw.files
 	mkdir -p $(APP)/games
 	'$(ZIRANC)' bundle --root games/jigsaw $(MODULES) --define KRYON_HOSTED_UI \
-		--asset-dir assets/jigsaw=assets/jigsaw --entry jungle_jigsaw:main -o $@ games/jigsaw/jungle_jigsaw.zi
+		--asset-dir assets=build/stage/jungle-jigsaw/assets --entry jungle_jigsaw:main -o $@ games/jigsaw/jungle_jigsaw.zi
 
 $(APP)/games/jungle-shapes.zx: $(wildcard games/shapes/*.zi retro/*.zi) build/stage/jungle-shapes.files
 	mkdir -p $(APP)/games
@@ -190,6 +195,7 @@ test: build/tests/speed_choice build/tests/title build/tests/paint_preview build
 	python3 tools/title_scenes.py --check
 	python3 tests/title_guide_test.py
 	python3 tests/title_scenes_test.py
+	python3 tests/runtime_images_test.py
 	python3 tests/sweet_porridge_test.py
 	python3 tests/garden_assets_test.py
 	build/tests/speed_choice

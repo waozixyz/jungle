@@ -9,7 +9,7 @@ import tempfile
 import time
 
 from asset_packs import pack_assets, validate_distribution
-from shared_assets import SPEECH_INDEX, Shipped, Speech, SpeechIndexText, WebAliases, WriteIfChanged
+from shared_assets import SPEECH_INDEX, Shipped, Speech, SpeechIndexText, WebFiles, WriteIfChanged
 from web_images import prepare_previews, prepare_web_images
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -175,9 +175,9 @@ def stage_assets(out):
                 continue
             if path.is_file() and Shipped(path.relative_to(ROOT).as_posix()) and not path.name.startswith('voice-'):
                 files[path.relative_to(ROOT).as_posix()] = path
-    # Native hosts' manifest aliases, such as Animal Counting's pictures, name
-    # the same bytes, so the packs store each picture once.
-    files.update(WebAliases())
+    # Runtime aliases supply the same optimized WebP bytes to native and web.
+    runtime_files, runtime_encodings = WebFiles()
+    files.update(runtime_files)
     # Narration ships as the native hosts' Ogg Vorbis clips and speech index,
     # never as the WAVs they compose.
     speech,speech_files=Speech()
@@ -187,28 +187,36 @@ def stage_assets(out):
     WriteIfChanged(index,SpeechIndexText(speech))
     files[SPEECH_INDEX]=index
     files.pop('assets/jungle/covers/count.png', None)
-    images=sorted(name for name in files if Path(name).suffix in ('.png','.jpg'))
+    files,archive_names,encodings=prepare_web_images(
+        files,ROOT/'work/web-image-cache',force_title=True)
+    images=sorted(archive_names.get(name,name) for name in files
+                  if Path(name).suffix in ('.png','.jpg','.webp'))
     # Browser branding must work before the runtime starts. Keep the small
     # menu and its bitmap fonts directly addressable, so the menu opens
     # before the full pack index arrives; pack all game pictures and sounds.
     for name in list(files):
         if (name.startswith('assets/jungle/') and Path(name).suffix != '.wav') or name.endswith('/font.png'):
-            target=out/name;target.parent.mkdir(parents=True,exist_ok=True)
+            target=out/archive_names.get(name,name)
+            target.parent.mkdir(parents=True,exist_ok=True)
             shutil.copy2(files.pop(name),target)
-    # Bound picture downloads while keeping the expanded catalog below the
-    # host's 1,000-file limit. One oversized picture may occupy its own pack.
-    picture_groups={parent:1024*1024 for parent in (
+    # On-demand pictures use bounded directory packs. Opening one picture never
+    # fetches several megabytes of unrelated pages or a whole shelf of covers.
+    runtime_group_bytes={parent:1024*1024 for parent in (
         'assets/jigsaw','assets/jungle-book/pages','assets/jungle-book/previews',
         'assets/jungle-book/items','assets/hide_seek/props','assets/hide_seek/scenes',
-        'assets/drums/pictures')}
+        'assets/drums/pictures') if any(str(Path(name).parent)==parent for name in files)}
     # Speech clips are content-addressed and small; bounded groups avoid a
     # whole-language download while keeping the distribution below host limits.
     speech_groups={str(Path(name).parent):128*1024 for name in files if name.startswith('assets/speech/')}
     write_previews(files,out)
-    files,archive_names,encodings=prepare_web_images(files,ROOT/'work/web-image-cache')
-    manifest=pack_assets(files,out,archive_names=archive_names,group_bytes={**speech_groups,**picture_groups})
+    for name,encoding in runtime_encodings.items():
+        archive_names[name]=str(Path(name).with_suffix('.webp'))
+        encodings[name]=encoding
+    manifest=pack_assets(files,out,archive_names=archive_names,
+                         group_bytes={**speech_groups,**runtime_group_bytes})
     for name,encoding in encodings.items():
-        manifest['files'][name]={**manifest['files'][name],**encoding}
+        if name in manifest['files']:
+            manifest['files'][name]={**manifest['files'][name],**encoding}
     (out/'asset-packs.json').write_text(json.dumps(manifest,separators=(',',':'))+'\n')
     (out/'images.json').write_text(json.dumps(images))
     return manifest

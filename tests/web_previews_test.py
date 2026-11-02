@@ -51,7 +51,7 @@ with tempfile.TemporaryDirectory(prefix='preview-test-', dir=ROOT/'work') as cac
 
 # Desktop and Android previews: the picture's own format at the one preview
 # path every host uses, transparency kept, from a cache holding one set.
-assert preview_path('assets/jigsaw/garden.jpg') == 'assets/previews/jigsaw/garden.jpg'
+assert preview_path('assets/jigsaw/garden.jpg') == 'assets/previews/jigsaw/garden.webp'
 with tempfile.TemporaryDirectory(prefix='native-preview-test-', dir=ROOT/'work') as scratch:
     cache = Path(scratch)/'cache'
     native = prepare_native_previews(samples, cache)
@@ -61,7 +61,7 @@ with tempfile.TemporaryDirectory(prefix='native-preview-test-', dir=ROOT/'work')
     for name, source in samples.items():
         preview = native[preview_path(name)]
         with Image.open(source) as original, Image.open(preview) as small:
-            assert small.format == ('JPEG' if name.endswith('.jpg') else 'PNG'), (name, small.format)
+            assert small.format == 'WEBP', (name, small.format)
             assert max(small.size) == min(PREVIEW_PIXELS, max(original.size)), (name, small.size)
             source_alpha = original.mode in ('RGBA', 'LA') or 'transparency' in original.info
             if source_alpha and name.endswith('.png'):

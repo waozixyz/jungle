@@ -35,6 +35,7 @@ def BuildAndroidEdition(edition, abi, release):
     kryon = package('kryon')
     ziran = package('ziran')
     raylib = package('raylib')
+    webp = package('libwebp')
     environment = os.environ.copy()
     for key in ('DISPLAY', 'WAYLAND_DISPLAY', 'XAUTHORITY', 'DBUS_SESSION_BUS_ADDRESS'):
         environment.pop(key, None)
@@ -55,6 +56,7 @@ def BuildAndroidEdition(edition, abi, release):
     min_sdk = '23' if edition == 'gplay' else '21'
     gradle = ['sh', 'droid/gradlew', '-p', 'droid', '--no-daemon', '--max-workers=1', task,
               '-Pkryon.dir=' + str(kryon), '-Pziran.dir=' + str(ziran), '-Praylib.dir=' + str(raylib / 'src'),
+              '-Pwebp.dir=' + str(webp),
               '-Papp.abis=' + abis, '-Papp.minSdk=' + min_sdk, '-Papp.codegen=c99',
               '-Papp.edition=' + edition, '-Papp.versionCode=' + str(code), '-Papp.versionName=' + name,
               '-Pandroid.aapt2FromMavenOverride=' + str(aapt)]

@@ -69,6 +69,18 @@ PageCount :: () -> s32 { return ifx direct_story then STORY_PAGE_COUNT else cate
 PagePath :: (offset: s32 = 0) -> string {
     return ifx direct_story then story_pictures[page + offset] else page_paths(PageIndex() + offset)
 }
+
+StorySourceRectangles :: (path: string, paper_top: s32) -> (art: Rectangle, paper: Rectangle) {
+    width: float32 = 1536.0
+    height: float32 = 1024.0
+    top: float32 = cast(float32)paper_top
+    if path == PagePath() {
+        width = 1024.0
+        height = 683.0
+        top = cast(float32)paper_top * height / 1024.0
+    }
+    return Rectangle.{0.0, 0.0, width, top}, Rectangle.{0.0, top, width, height - top}
+}
 SaveBookChoice :: (index: s32) {
     unused DocumentWrite(Join("hidden-", category_ids[index], ".txt"), ifx hidden_books[index] then "yes" else "no")
     unused DocumentWrite(Join("skip-", category_ids[index], ".txt"), ifx excluded_books[index] then "yes" else "no")
@@ -538,14 +550,15 @@ ReadingPage :: () {
         layout := StoryPageLayout(book_width, book_height, story_paper_top[page])
         path := RetroImageShown(PagePath())
         if path != "" {
+            art_source, paper_source := StorySourceRectangles(path, story_paper_top[page])
             // Both sections sample the same accepted painting, including its
             // paper texture. The illustrated scene keeps its original aspect.
             Image(retro.session, ImageProps.{.asset_path = path, .preview_path = RetroImagePreview(PagePath()),
-                .full_size = Vector2.{1536, 1024}, .source = Rectangle.{0, 0, 1536, cast(float32)story_paper_top[page]},
+                .full_size = Vector2.{1536, 1024}, .source = art_source,
                 .bounds = RetroRect(layout.x, layout.y, layout.width, layout.art_height), .smooth = true})
             Image(retro.session, ImageProps.{.asset_path = path, .preview_path = RetroImagePreview(PagePath()),
                 .full_size = Vector2.{1536, 1024},
-                .source = Rectangle.{0, cast(float32)story_paper_top[page], 1536, cast(float32)(1024 - story_paper_top[page])},
+                .source = paper_source,
                 .bounds = RetroRect(layout.x, layout.y + layout.art_height, layout.width, layout.paper_height), .smooth = true})
         }
         Text(retro.session, TextProps.{.bounds = RetroRect(layout.x + 20, layout.y + layout.art_height + 10,

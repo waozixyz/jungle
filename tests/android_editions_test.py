@@ -97,6 +97,8 @@ def build_api_test():
         assert all('-Pandroid.useAndroidX=true' not in gradles[name]
                    for name in ('direct', 'fdroid'))
         assert all('-Papp.abis=arm64-v8a,armeabi-v7a' in command for command in gradles.values())
+        assert all(any(part.startswith('-Pwebp.dir=') for part in command)
+                   for command in gradles.values())
 
 
 def release_gate_test():

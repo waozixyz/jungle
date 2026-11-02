@@ -33,7 +33,8 @@ import sys
 from book_catalog import LANGUAGES
 from speech_codec import EncodeSpeech, SHIPPED, ValidateEncodedSpeech
 from speech_manifest import BuildSpeechManifest
-from web_images import PREVIEW_FOLDERS, PREVIEW_ROOT, prepare_native_previews
+from web_images import (PREVIEW_FOLDERS, PREVIEW_ROOT, RUNTIME_ROOT,
+                        prepare_native_previews, prepare_runtime_images)
 
 ROOT = Path(__file__).resolve().parents[1]
 APP = ROOT / 'build/app'
@@ -56,10 +57,12 @@ INSTALLED = ('assets/jungle', 'assets/jungle-book', 'assets/hide_seek/scenes', '
 # Read-only artwork every game may draw from the installed copy.
 SHARED = ('assets/jungle-book/counting/', 'assets/jungle-book/items/',
           'assets/jungle-book/pages/', 'assets/jungle-book/previews/',
-          'assets/hide_seek/scenes/', 'assets/hide_seek/props/', 'assets/dino-paint/art/', 'assets/collectibles/')
+          'assets/hide_seek/scenes/', 'assets/hide_seek/props/', 'assets/dino-paint/art/',
+          'assets/collectibles/', RUNTIME_ROOT)
 # Previews of the pictures in PREVIEW_FOLDERS, generated while staging; their
 # cache holds one set, keyed by each picture's bytes.
 PREVIEW_CACHE = 'build/native-previews'
+RUNTIME_CACHE = 'work/runtime-image-cache'
 # Only pictures and fonts are aliased. Speech is described separately by
 # SPEECH_MANIFEST: canonical clips ship once, encoded under SHIPPED, and the
 # voice WAVs they represent are omitted.
@@ -82,6 +85,7 @@ GAMES = {
                                for name in COUNTING}},
     'dino-paint': {'folders': ('assets/dino-paint',), 'voices': True},
     'jungle-shapes': {'folders': ('assets/shapes',)},
+    'jungle-jigsaw': {'folders': ('assets/jigsaw',)},
     # The hidden paper's chime comes from the book bundle's shared sound.
     'jungle-hide-seek': {'folders': ('assets/hide_seek',),
                          'extra': {'assets/jungle-book/collect.wav': 'assets/jungle-book/collect.wav'}},
@@ -154,8 +158,8 @@ def Previews():
 # speech can be supplied when staging already built it, avoiding duplicate work;
 # speech_files then names the encoded file of each shipped speech path.
 # previews, from Previews(), are installed as they are; they are never aliased.
-def Plan(speech=None, speech_files=None, previews=None):
-    """(installed files, {alias: target}, {game: bundle files}), all checked."""
+def PlanWithRuntime(speech=None, speech_files=None, previews=None):
+    """(installed files, aliases, bundles, runtime exports), all checked."""
     speech = NO_SPEECH if speech is None else speech
     speech_files = {} if speech_files is None else speech_files
     speech_clips = set(speech['clips'])
@@ -164,13 +168,27 @@ def Plan(speech=None, speech_files=None, previews=None):
     for folder in INSTALLED:
         installed.update(Folder(folder))
     games = {name: GameFiles(name) for name in GAMES}
-    # Canonical copies: the menu's files first, then shared art, by path.
+    runtime_sources = {}
+    for files in (installed, *games.values()):
+        for path, source in files.items():
+            if not path.startswith(HOST_ONLY) and Path(path).suffix in PICTURES:
+                runtime_sources[path] = source
+    runtime = prepare_runtime_images(runtime_sources, ROOT / RUNTIME_CACHE)
+    runtime_by_digest = {}
+    aliases = {}
+    for path, export in sorted(runtime.items()):
+        installed[export.target] = export.source
+        aliases[path] = export.target
+        runtime_by_digest.setdefault(export.info['source_sha256'], export.target)
+    for path in aliases:
+        installed.pop(path, None)
+
+    # Canonical copies: the menu's files first, then remaining shared art, by path.
     canonical = {}
     candidates = sorted(installed, key=lambda path: (not path.startswith(HOST_ONLY), path))
     for path in candidates:
         if Path(path).suffix in PICTURES:
             canonical.setdefault(Digest(installed[path], cache), path)
-    aliases = {}
     for path in candidates:
         if path.startswith(HOST_ONLY) or Path(path).suffix not in PICTURES:
             continue
@@ -179,8 +197,12 @@ def Plan(speech=None, speech_files=None, previews=None):
             aliases[path] = target
     for files in games.values():
         for path, source in files.items():
+            if path in aliases:
+                continue
             if Path(path).suffix in PICTURES and not path.startswith(HOST_ONLY):
                 target = canonical.get(Digest(source, cache))
+                if target is None:
+                    target = runtime_by_digest.get(Digest(source, cache))
                 if target and target != path:
                     aliases[path] = target
     for path in aliases:
@@ -201,6 +223,12 @@ def Plan(speech=None, speech_files=None, previews=None):
                       and path not in speech_clips and path not in speech['voices']}
                for name, files in games.items()}
     Check(installed, aliases)
+    return installed, aliases, bundles, runtime
+
+
+def Plan(speech=None, speech_files=None, previews=None):
+    """(installed files, {alias: target}, {game: bundle files}), all checked."""
+    installed, aliases, bundles, _ = PlanWithRuntime(speech, speech_files, previews)
     return installed, aliases, bundles
 
 
@@ -377,8 +405,8 @@ def StageSharedAssets(app=APP, stage=STAGE, speech=None, previews=None):
     app, stage = Path(app), Path(stage)
     speech, speech_files = Speech() if speech is None else speech
     previews = Previews() if previews is None else previews
-    installed, aliases, bundles = Plan(speech, speech_files, previews)
-    Sync(installed, app, INSTALLED + (SHIPPED, PREVIEW_ROOT.rstrip('/')))
+    installed, aliases, bundles, _ = PlanWithRuntime(speech, speech_files, previews)
+    Sync(installed, app, INSTALLED + (SHIPPED, RUNTIME_ROOT.rstrip('/'), PREVIEW_ROOT.rstrip('/')))
     WriteIfChanged(app / MANIFEST, ManifestText(aliases))
     WriteIfChanged(app / SPEECH_INDEX, SpeechIndexText(speech))
     WriteIfChanged(stage / SPEECH_MANIFEST, json.dumps(speech, ensure_ascii=False, separators=(',', ':')) + '\n')
@@ -406,13 +434,26 @@ def StageSharedAssets(app=APP, stage=STAGE, speech=None, previews=None):
     return installed, aliases, bundles
 
 
-def WebAliases():
-    """{alias: source file of its target}, for the browser's asset packs.
+def WebFiles():
+    """({alias: runtime file}, metadata) for the browser's asset packs.
 
-    The packs store identical bytes once, so each alias costs one index entry.
+    Runtime exports are already WebP, so the browser reuses their exact bytes.
     """
-    installed, aliases, _ = Plan()
-    return {path: installed[target] for path, target in aliases.items()}
+    installed, aliases, _, runtime = PlanWithRuntime()
+    runtime_by_target = {export.target: export for export in runtime.values()}
+    files, metadata = {}, {}
+    for path, target in aliases.items():
+        export = runtime_by_target.get(target)
+        if export is None:
+            continue
+        files[path] = installed[target]
+        metadata[path] = {**export.info, 'source_path': path}
+    return files, metadata
+
+
+def WebAliases():
+    """{alias: source file of its target}, for callers needing native staging."""
+    return WebFiles()[0]
 
 
 if __name__ == '__main__':

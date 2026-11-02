@@ -113,7 +113,7 @@ book_assets_installed: bool;
 // installed once beside the app, and game pictures whose identical bytes are
 // installed under another name.
 SHARED_LIMIT :: 16
-ALIAS_LIMIT :: 128
+ALIAS_LIMIT :: 1024
 shared_folders: [SHARED_LIMIT]string;
 shared_count: s32;
 alias_paths: [ALIAS_LIMIT]string;
