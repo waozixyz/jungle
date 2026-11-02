@@ -90,7 +90,7 @@ jobs:
       - name: Install build tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y libsdl2-dev libcairo2-dev libfreetype-dev libfontconfig-dev libpango1.0-dev libgdk-pixbuf-2.0-0 libvorbisfile3 libwebpdemux2 libwebp7 ffmpeg python3-pil imagemagick xvfb xdotool
+          sudo apt-get install -y libsdl2-dev libcairo2-dev libfreetype-dev libfontconfig-dev libpango1.0-dev libgdk-pixbuf-2.0-0 libvorbisfile3 libwebpdemux2 libwebp7 ffmpeg python3-pil python3-numpy imagemagick xvfb xdotool
       - name: Build compiler and select locked source directories
         run: |
           make -j2 -C "$GITHUB_WORKSPACE/ziranlang/ziran" all

@@ -112,7 +112,7 @@ def release_gate_test():
         if line.strip().startswith('sudo apt-get install ')
         for package in line.split()[3:]
     }
-    assert {'libvorbisfile3', 'ffmpeg', 'python3-pil', 'libwebpdemux2', 'libwebp7'} <= installed
+    assert {'libvorbisfile3', 'ffmpeg', 'python3-pil', 'python3-numpy', 'libwebpdemux2', 'libwebp7'} <= installed
     lock = json.loads((ROOT / 'ziran.lock').read_text())
     kryon = next(package['commit'] for package in lock['packages'] if package['name'] == 'kryon')
     assert workflow.count('kryonlabs/kryon/.github/actions/google-free@' + kryon) == 2
