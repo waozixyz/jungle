@@ -270,6 +270,8 @@ test-ui: all
 	python3 tests/hide_seek_levels_test.py
 	python3 tests/piano_ui_test.py
 	python3 tests/menu_ui_test.py
+	python3 tests/collection_book_ui_test.py
+	python3 tests/collection_book_autoplay_ui_test.py
 	python3 tests/jigsaw_ui_test.py
 	python3 tests/runtime_test.py --ui
 	python3 tests/book_ui_test.py
