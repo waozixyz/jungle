@@ -340,6 +340,8 @@ JungleMain :: () -> s64 {
     if !web_initialized {
         LanguageSet(Runner.DocumentReadHost("settings/language.txt"))
         web_muted = Runner.DocumentReadHost("settings/sound.txt") == "off"
+        web_title_guide_muted = Runner.DocumentReadHost("settings/guide-sound.txt") == "off"
+        web_title_guide_seen = Runner.DocumentReadHost("settings/guide-seen.txt") == "yes"
         UpdateSiteLanguage()
         web_initialized = true
     }
@@ -352,6 +354,11 @@ JungleMain :: () -> s64 {
             StopAudio()
             web_title_guide = false
         }
+        if action.guide_mute_toggle {
+            web_title_guide_muted = !web_title_guide_muted
+            unused Runner.DocumentWriteHost("settings/guide-sound.txt", ifx web_title_guide_muted then "off" else "on")
+        }
+        if action.guide_finished { unused Runner.DocumentWriteHost("settings/guide-seen.txt", "yes") }
         if action.guide_voice != "" { PlayAudio(action.guide_voice, true); web_title_guide = true }
         if action.language_changed { unused Runner.DocumentWriteHost("settings/language.txt", LanguageCode()); UpdateSiteLanguage() }
         if action.sound_toggle { ToggleAudio() }
@@ -386,10 +393,3 @@ JungleMain :: () -> s64 {
     }
     return 0
 }
-        web_title_guide_muted = Runner.DocumentReadHost("settings/guide-sound.txt") == "off"
-        web_title_guide_seen = Runner.DocumentReadHost("settings/guide-seen.txt") == "yes"
-        if action.guide_mute_toggle {
-            web_title_guide_muted = !web_title_guide_muted
-            unused Runner.DocumentWriteHost("settings/guide-sound.txt", ifx web_title_guide_muted then "off" else "on")
-        }
-        if action.guide_finished { unused Runner.DocumentWriteHost("settings/guide-seen.txt", "yes") }
