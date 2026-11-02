@@ -51,8 +51,7 @@ with tempfile.TemporaryDirectory(prefix='jungle-playback-') as temporary:
         assert (choices / 'skip-jungle.txt').read_text() == 'yes'
         desktop.click_actual(773, 526)
         desktop.key('Escape')
-        desktop.game("ABC Book")
-        desktop.key('2')
+        desktop.game("123 Book")
         number_one = desktop.capture_actual('playback-number-one')
         time.sleep(4.7)
         number_two = desktop.capture_actual('playback-number-two')
