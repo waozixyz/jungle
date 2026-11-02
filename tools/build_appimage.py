@@ -18,6 +18,8 @@ RUNTIME_SHA256 = '2fca8b443c92510f1483a883f60061ad09b46b978b2631c807cd873a47ec26
 # Speech clips are Ogg Vorbis, decoded by libvorbisfile (host/sound.zi);
 # the AppImage carries it and the two small libraries it needs.
 VORBIS_LIBRARIES = ('libvorbisfile.so.3', 'libvorbis.so.0', 'libogg.so.0')
+# Kryon's Linux image decoder opens the WebP demuxer on demand, outside ldd.
+WEBP_LIBRARIES = ('libwebpdemux.so.2', 'libwebp.so.7')
 
 
 def system_library(listing, name):
@@ -60,17 +62,20 @@ def main():
     libraries = subprocess.check_output([ldconfig, '-p'], text=True)
     pixbuf = system_library(libraries, 'libgdk_pixbuf-2.0.so.0')
     vorbisfile = system_library(libraries, VORBIS_LIBRARIES[0])
+    webpdemux = system_library(libraries, WEBP_LIBRARIES[0])
+    webp = system_library(libraries, WEBP_LIBRARIES[1])
     env = os.environ.copy()
     env.update(APPIMAGE_EXTRACT_AND_RUN='1', ARCH='x86_64', VERSION=(ROOT / 'VERSION').read_text().strip(),
                OMP_NUM_THREADS='1')
     # GdkPixbuf is loaded at runtime for PNG artwork; it is not in ldd output.
     subprocess.run([str(tool), '--appdir', str(appdir), '--deploy-deps-only', str(payload / 'jungle'),
-                    '--library', pixbuf, '--library', vorbisfile, '--desktop-file', str(ROOT / 'packaging/xyz.waozi.jungle.desktop'),
+                    '--library', pixbuf, '--library', vorbisfile, '--library', webpdemux,
+                    '--library', webp, '--desktop-file', str(ROOT / 'packaging/xyz.waozi.jungle.desktop'),
                     '--icon-file', str(ROOT / 'assets/jungle/icons/icon-512.png'), '--icon-filename', 'xyz.waozi.jungle',
                     '--custom-apprun', str(apprun)], env=env, check=True)
-    missing = [name for name in VORBIS_LIBRARIES if not (appdir / 'usr/lib' / name).exists()]
+    missing = [name for name in VORBIS_LIBRARIES + WEBP_LIBRARIES if not (appdir / 'usr/lib' / name).exists()]
     if missing:
-        raise SystemExit('AppImage is missing the speech decoder: ' + ', '.join(missing))
+        raise SystemExit('AppImage is missing runtime decoders: ' + ', '.join(missing))
     # Keep the distribution copyright notices for each bundled library.
     notices = docs / 'bundled-licenses'
     notices.mkdir()
@@ -100,7 +105,11 @@ def main():
                     '--mksquashfs-opt=-mem', '--mksquashfs-opt=256M',
                     str(appdir), str(output)], env=env, check=True)
     output.chmod(0o755)
-    checksum = hashlib.sha256(output.read_bytes()).hexdigest()
+    digest = hashlib.sha256()
+    with output.open('rb') as source:
+        for chunk in iter(lambda: source.read(1024 * 1024), b''):
+            digest.update(chunk)
+    checksum = digest.hexdigest()
     output.with_suffix(output.suffix + '.sha256').write_text(checksum + '  ' + output.name + '\n')
     print('Built ' + str(output.relative_to(ROOT)))
 
