@@ -37,14 +37,10 @@ class TitleVariants(unittest.TestCase):
         _, scenes, _, _ = title.Load()
         for name in ('beach', 'beach-portrait'):
             scene = next(s for s in scenes if s['name'] == name)
-            layout = json.loads((ROOT/'art/generated/port-games/preview-layout.json').read_text())
-            row = next(r for r in layout['scenes'] if r['scene'] == name)
-            original = np.asarray(Image.open(ROOT/f'assets/jungle/title/{name}.webp').convert('RGB'))
+            orientation = 'portrait' if name.endswith('-portrait') else 'landscape'
+            approved = np.asarray(Image.open(ROOT/f'art/generated/world-scene-refresh/beach-{orientation}-clean.png').convert('RGB'))
             plate = np.asarray(Image.open(ROOT/scene['image']).convert('RGB'))
-            x, y, w, h = row['patch']
-            outside = np.ones(original.shape[:2], dtype=bool)
-            outside[y:y+h, x:x+w] = False
-            self.assertTrue(np.array_equal(original[outside], plate[outside]), name)
+            self.assertTrue(np.array_equal(approved, plate), name)
             for ident in ('fishing-boat', 'crab-family'):
                 target = next(h for h in scene['hotspots'] if h['id'] == ident)
                 x, y, w, h = target['glow_rect']
@@ -113,7 +109,7 @@ class TitleVariants(unittest.TestCase):
             self.assertEqual(parents[scenes.index(beach)], next(i for i, s in enumerate(scenes) if s['name']=='campus'))
             self.assertEqual(parents[scenes.index(aquarium)], next(i for i, s in enumerate(scenes) if s['name']=='beach'))
 
-    def test_beach_return_arrow_originates_at_aquarium(self):
+    def test_beach_return_arrow_follows_sandy_campus_path(self):
         _, scenes, _, _ = title.Load()
         for suffix in ('', '-portrait'):
             with self.subTest(orientation=suffix or 'landscape'):
@@ -125,10 +121,9 @@ class TitleVariants(unittest.TestCase):
                              max(x for x, y in arrow['polygon']), max(y for x, y in arrow['polygon']))
                 aquarium_box = (min(x for x, y in aquarium['polygon']), min(y for x, y in aquarium['polygon']),
                                 max(x for x, y in aquarium['polygon']), max(y for x, y in aquarium['polygon']))
+                # The new sandy return path is left of the Aquarium entrance.
                 self.assertLess(arrow_box[2], aquarium_box[0])
-                self.assertLess(arrow_box[2] - aquarium_box[0], 70)
-                self.assertLess(arrow_box[1], aquarium_box[3])
-                self.assertGreater(arrow_box[3], aquarium_box[1])
+                self.assertGreater(arrow_box[1], beach['height'] * .55)
                 rx, ry, width, height = arrow['glow_rect']
                 self.assertTrue(any(hit(beach, x, y) == 'campus-path'
                                     for x in range(rx, rx+width, 3)

@@ -227,10 +227,36 @@ def Render(data, scenes, parents, hotspots):
     return '\n'.join(lines) + '\n'
 
 
+def ExportBeach():
+    """Export the owner's approved, unchanged Beach plates at runtime sizes."""
+    from PIL import Image, ImageDraw, ImageFilter
+    for orientation, stem in [('landscape', 'beach-port'), ('portrait', 'beach-portrait-port')]:
+        source = ROOT / f'art/generated/world-scene-refresh/beach-{orientation}-clean.png'
+        with Image.open(source) as image:
+            image = image.convert('RGB')
+            image.save(ROOT / f'assets/jungle/title/{stem}.webp', lossless=True, exact=True)
+            image.resize((240, round(image.height * 240 / image.width)),
+                         Image.Resampling.LANCZOS).save(
+                ROOT / f'assets/jungle/title/{stem}-low.webp', lossless=True, exact=True)
+    beach = next(s for s in json.loads(SOURCE.read_text())['scenes'] if s['name'] == 'beach')
+    for scene in (beach, beach['portrait']):
+        door = next(h for h in scene['hotspots'] if h['id'] == 'bunker-door')
+        x, y, width, height = door['glow_rect']
+        points = [(px-x, py-y) for px, py in door['polygon']]
+        mask = Image.new('L', (width, height))
+        ImageDraw.Draw(mask).line(points + points[:1], fill=210, width=9, joint='curve')
+        glow = Image.new('RGBA', mask.size, (255, 220, 125, 0))
+        glow.putalpha(mask.filter(ImageFilter.GaussianBlur(5)))
+        glow.save(ROOT / door['glow'])
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument('--check', action='store_true', help='fail when the data file is out of date')
+    parser.add_argument('--export-beach', action='store_true', help='export approved Beach plates losslessly')
     arguments = parser.parse_args()
+    if arguments.export_beach:
+        ExportBeach()
     text = Render(*Load())
     if arguments.check:
         if not OUTPUT.exists() or OUTPUT.read_text() != text:

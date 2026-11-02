@@ -103,6 +103,9 @@ def main():
                         rx, ry, rw, rh = target['glow_rect']
                         area = (max(0, round(ox+rx*scale)), max(65, round(oy+ry*scale)),
                                 min(w, round(ox+(rx+rw)*scale)), min(h, round(oy+(ry+rh)*scale)))
+                        # The complete physical entry remains visible after cover-cropping.
+                        assert 0 <= ox+rx*scale and ox+(rx+rw)*scale <= w, (ident, w, 'sprite cropped horizontally')
+                        assert 65 <= oy+ry*scale and oy+(ry+rh)*scale <= h, (ident, w, 'sprite cropped vertically')
                         # Visible object interiors must really differ from the clean water/sand plate.
                         with Image.open(ROOT/target['rest']) as layer:
                             assert layer.mode == 'RGBA' and layer.getchannel('A').getextrema()[1] > 240
@@ -112,7 +115,17 @@ def main():
                         plate = plate.crop((-round(ox), -round(oy), w-round(ox), h-round(oy)))
                         visible = max(ImageStat.Stat(ImageChops.difference(resting.crop(area), plate.crop(area))).mean)
                         assert visible > 1, (ident, w, 'painted entry not visible', visible)
-                        x, y = point(beach, ident, w, h)
+                        # Click opaque sprite pixels, proving the visible object and
+                        # the production hit shape agree (rather than empty bounds).
+                        with Image.open(ROOT/target['rest']) as layer:
+                            painted = [(round(ox+(rx+px)*scale), round(oy+(ry+py)*scale))
+                                       for py in range(0, rh, 3) for px in range(0, rw, 3)
+                                       if layer.getpixel((px, py))[3] > 220
+                                       and hit(beach, rx+px, ry+py) == ident
+                                       and 10 < ox+(rx+px)*scale < w-10
+                                       and 65 < oy+(ry+py)*scale < h-10]
+                        assert painted, (ident, w, 'no visible opaque hit point')
+                        x, y = painted[len(painted)//2]
                         move(d, x, y)
                         hovered = d.capture_actual(f'port-{ident}-hover-{w}')
                         signal = max(ImageStat.Stat(ImageChops.difference(resting.crop(area), hovered.crop(area))).mean)
@@ -159,7 +172,19 @@ def main():
                     for origin,target,destination in [('beach','bunker-door','aquarium'),
                                                        ('aquarium','beach-stairs','beach'),
                                                        ('beach','campus-path','campus')]:
-                        d.click_actual(*point(scene(origin,w,h),target,w,h))
+                        origin_scene = scene(origin, w, h)
+                        click = point(origin_scene, target, w, h)
+                        if origin == 'beach' and target == 'bunker-door':
+                            _, before = assert_scene(d, 'beach', w, h)
+                            move(d, *click)
+                            hovered = d.capture_actual(f'beach-aquarium-hover-{w}')
+                            scale, ox, oy = mapping(origin_scene, w, h)
+                            door = next(t for t in origin_scene['hotspots'] if t['id'] == target)
+                            rx, ry, rw, rh = door['glow_rect']
+                            area = (max(0, round(ox+rx*scale)), max(65, round(oy+ry*scale)),
+                                    min(w, round(ox+(rx+rw)*scale)), min(h, round(oy+(ry+rh)*scale)))
+                            assert max(ImageStat.Stat(ImageChops.difference(before.crop(area), hovered.crop(area))).mean) > .3, ('new Aquarium arch did not glow', w)
+                        d.click_actual(*click)
                         assert_scene(d,destination,w,h)
                     # Return stairs and Escape share the same parent graph.
                     for name,target in [('campus','beach-path'),('beach','bunker-door')]:
