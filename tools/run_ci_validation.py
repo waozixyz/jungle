@@ -137,6 +137,7 @@ def schedule() -> tuple[Group, ...]:
               "python3 tests/garden_ui_test.py"),
         group("books", "python3 tests/book_interaction_test.py", "python3 tests/book_additions_ui_test.py",
               "python3 tests/abc_sequence_ui_test.py", "python3 tests/playback_ui_test.py",
+              "python3 tests/speed_choices_ui_test.py",
               "python3 tests/sweet_porridge_ui_test.py"),
         Group("performance", (Step(BENCHMARK),), tmpdir="work/p"),
     )
