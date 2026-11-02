@@ -52,11 +52,11 @@ HEADER = f"#jungle-shared-assets-{FORMAT}\n"
 NARRATED = ('assets/jungle-book/story-sounds', 'assets/animal-count/sounds', 'assets/drums/sounds', 'assets/garden/sounds', 'assets/hide_seek/sounds', 'assets/shapes/sounds', 'assets/jungle/title/guide')
 
 # Installed beside the app: the menu's own files and the Picture Book.
-INSTALLED = ('assets/jungle', 'assets/jungle-book', 'assets/hide_seek/scenes', 'assets/hide_seek/props', 'assets/dino-paint/art')
+INSTALLED = ('assets/jungle', 'assets/jungle-book', 'assets/hide_seek/scenes', 'assets/hide_seek/props', 'assets/dino-paint/art', 'assets/collectibles')
 # Read-only artwork every game may draw from the installed copy.
 SHARED = ('assets/jungle-book/counting/', 'assets/jungle-book/items/',
           'assets/jungle-book/pages/', 'assets/jungle-book/previews/',
-          'assets/hide_seek/scenes/', 'assets/hide_seek/props/', 'assets/dino-paint/art/')
+          'assets/hide_seek/scenes/', 'assets/hide_seek/props/', 'assets/dino-paint/art/', 'assets/collectibles/')
 # Previews of the pictures in PREVIEW_FOLDERS, generated while staging; their
 # cache holds one set, keyed by each picture's bytes.
 PREVIEW_CACHE = 'build/native-previews'

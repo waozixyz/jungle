@@ -163,6 +163,7 @@ def staging_test():
         assert files == {'assets/shared-assets.txt', 'assets/speech.txt', 'assets/jungle/font.png', 'assets/jungle/icon.png',
                          'assets/jungle/icons/icon-64.png', 'assets/jungle/sounds/select.wav',
                          'assets/jungle-book/collect.wav',
+                         'assets/collectibles/magic-pot.png', 'assets/collectibles/sunflower.png', 'assets/collectibles/drum.png',
                          'assets/jungle-book/pages/tiger.jpg', 'assets/jungle-book/pages/lion.jpg',
                          'assets/jungle-book/items/tiger.png',
                          'assets/hide_seek/scenes/cottage-yard.png',
@@ -194,11 +195,9 @@ def staging_test():
                           'jungle-numbers/assets/numbers/sounds/one.wav',
                           'jungle-numbers/assets/numbers/sounds/two.wav',
                           'jungle-book/assets/jungle-book/collect.wav',
-                          'jungle-book/assets/collectibles/magic-pot.png',
                           'jungle-matching/assets/jungle-book/collect.wav',
                           'jungle-hide-seek/assets/jungle-book/collect.wav',
                           'jungle-garden/assets/jungle-book/collect.wav',
-                          'jungle-garden/assets/collectibles/sunflower.png',
                           'animal-count/assets/animal-count/font.png',
                           'animal-count/assets/animal-count/sounds/right.wav'}, staged
         assert (stage / 'jungle-book/assets/jungle-book/collect.wav').is_file()
@@ -232,6 +231,11 @@ def unsafe_test():
 
 def real_tree_test():
     installed, aliases, bundles = shared_assets.Plan()
+    for item in json.loads((ROOT / 'tools/collectibles.json').read_text())['collectibles']:
+        if item['pending']:
+            continue
+        path = item['color']
+        assert aliases.get(path, path) in installed, ('album picture is not installed', item['slug'], path)
     pictures = {}
     for path, source in installed.items():
         if source.suffix in shared_assets.PICTURES and not path.startswith(shared_assets.HOST_ONLY):
@@ -244,7 +248,7 @@ def real_tree_test():
             assert sha(source) == sha(installed[target]), path
     assert 'assets/jungle-book/font.png' in aliases and 'assets/dino-paint/font.png' in aliases
     assert all(f'assets/animal-count/pictures/{name}.png' in aliases for name in shared_assets.COUNTING)
-    assert set(bundles['jungle-book']) == {'assets/jungle-book/collect.wav', 'assets/collectibles/magic-pot.png'}, 'Picture Book bundle holds only its chime and collectible, never the installed book'
+    assert set(bundles['jungle-book']) == {'assets/jungle-book/collect.wav'}, 'Picture Book bundle holds only its chime; album pictures are shared'
     sounds = 0
     for name, files in bundles.items():
         for path, source in files.items():
