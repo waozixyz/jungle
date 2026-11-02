@@ -49,7 +49,7 @@ BeachFamilyCountText :: (family: BeachFamily) -> string {
 
 BeachFamilyDoneText :: (family: BeachFamily) -> string {
     count := NumberText(family.family)
-    crabs := BeachFamilyText("crabs", "Krabben", "cangrejos")
+    crabs := ifx family.family == 1 then BeachFamilyText("crab", "Krabbe", "cangrejo") else BeachFamilyText("crabs", "Krabben", "cangrejos")
     opening := BeachFamilyText("", "", "¡")
     closing := BeachFamilyText("!", "!", "!")
     return Cat(opening, BeachFamilyText("A calm family of", "Eine ruhige Familie mit", "Una familia tranquila de"),

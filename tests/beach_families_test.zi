@@ -108,14 +108,17 @@ main :: () -> s32 {
     if BeachFamilyTitle() != "Crab Family" || BeachFamilyPrompt() != "Tap each crab once." ||
         BeachFamilyNextText() != "New family" || BeachFamilyCountText(BeachFamilyRound(1)) != "0 of 2" ||
         BeachFamilyDoneText(BeachFamilyRound(1)) != "A calm family of 2 crabs!" { return 130 }
+    if BeachFamilyDoneText(BeachFamilyRound(0)) != "A calm family of 1 crab!" { return 133 }
     LanguageSet("de")
     if BeachFamilyTitle() != "Krabbenfamilie" || BeachFamilyPrompt() != "Tippe jede Krabbe einmal an." ||
         BeachFamilyNextText() != "Neue Familie" || BeachFamilyCountText(BeachFamilyRound(1)) != "0 von 2" ||
         BeachFamilyDoneText(BeachFamilyRound(1)) != "Eine ruhige Familie mit 2 Krabben!" { return 131 }
+    if BeachFamilyDoneText(BeachFamilyRound(0)) != "Eine ruhige Familie mit 1 Krabbe!" { return 134 }
     LanguageSet("es")
     if BeachFamilyTitle() != "Familia de cangrejos" || BeachFamilyPrompt() != "Toca cada cangrejo una vez." ||
         BeachFamilyNextText() != "Nueva familia" || BeachFamilyCountText(BeachFamilyRound(1)) != "0 de 2" ||
         BeachFamilyDoneText(BeachFamilyRound(1)) != "¡Una familia tranquila de 2 cangrejos!" { return 132 }
+    if BeachFamilyDoneText(BeachFamilyRound(0)) != "¡Una familia tranquila de 1 cangrejo!" { return 135 }
     LanguageSet("en")
     return 0
 }
