@@ -192,7 +192,7 @@ def stage_assets(out):
             shutil.copy2(files.pop(name),target)
     # Bound picture downloads while keeping the expanded catalog below the
     # host's 1,000-file limit. One oversized picture may occupy its own pack.
-    picture_groups={parent:512*1024 for parent in (
+    picture_groups={parent:1024*1024 for parent in (
         'assets/jigsaw','assets/jungle-book/pages','assets/jungle-book/previews',
         'assets/jungle-book/items','assets/hide_seek/props','assets/hide_seek/scenes',
         'assets/drums/pictures')}

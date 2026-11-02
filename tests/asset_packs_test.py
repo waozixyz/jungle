@@ -100,7 +100,7 @@ with tempfile.TemporaryDirectory(prefix='asset-pack-test-',dir=ROOT/'build') as 
     for name,entry in expanded['files'].items():
         if not name.endswith('.png'): continue
         with zipfile.ZipFile(site/entry['pack']) as archive:
-            assert sum(row.file_size for row in archive.infolist())<=512*1024
+            assert sum(row.file_size for row in archive.infolist())<=1024*1024
             assert archive.read(name)==(catalog_root/name).read_bytes()
     # Every supported picture gets a few-KB preview at its own aspect ratio,
     # including jigsaw scenes and transparent cut-outs.
