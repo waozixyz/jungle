@@ -58,6 +58,8 @@ for(const path of paths){
  const entry=manifest.files[path],original=await readFile(source);
  if(entry.encoding==='webp'){
   assert.equal(await JungleAssetPacks.hash(original),entry.source_sha256,path);
+  assert.equal(entry.source_bytes,original.length,path);
+  assert.equal(entry.runtime_bytes,actual.length,path);
   assert.equal(Buffer.from(actual).subarray(0,4).toString(),'RIFF',path);
   assert.equal(Buffer.from(actual).subarray(8,12).toString(),'WEBP',path);
   if(entry.lossless===true){
@@ -74,9 +76,16 @@ for(const path of paths){
    }
    assert.ok(lossless,'Lossless WebP image payload missing: '+path);
   }else{
-   assert.match(path,/\.webp$/);assert.equal(entry.quality,90);
+   // Runtime derivatives include PNG cut-outs; migrated WebP sources below
+   // their size cap are reused byte-for-byte instead of encoded a second time.
+   assert.match(path,/\.(?:png|webp)$/);
+   assert.equal(entry.alpha_quality,100,path);
+   if(entry.reused_source){
+    assert.equal(entry.quality,null,path);
+    assert.deepEqual(Buffer.from(actual),original,path);
+   }else assert.equal(entry.quality,85,path);
   }
-  assert.ok(actual.length<original.length);
+  if(!entry.reused_source)assert.ok(actual.length<original.length,path);
  }else assert.deepEqual(Buffer.from(actual),original,path);
  assert.ok(loader.bytes<=loader.cacheBytes);
 }
