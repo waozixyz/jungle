@@ -28,6 +28,15 @@ TitleView :: struct {
 
 TitleState :: struct {
     not_implemented: bool
+    // An open speech bubble: TITLE_DIALOGUE index + 1, or 0 when closed. It
+    // shows line dialogue_line next to the hotspot that opened it, and owns
+    // every tap and key until it closes.
+    dialogue: s32
+    dialogue_line: s32
+    dialogue_hotspot: s32
+    // The line (and language) last voiced; -1 asks for it to be spoken.
+    dialogue_spoken: s32
+    dialogue_language: s32
     guide_stopped: bool
     guide_at: float64
     guide_step: s32
@@ -76,15 +85,82 @@ TitleDismissNotice :: (state: *TitleState) {
     state.dragging = false
 }
 
+// The scene stays exactly as it was behind a speech bubble.
+TitleDialogueOpen :: (state: *TitleState, hotspot: s32) {
+    state.dialogue = TITLE_HOTSPOT_DIALOGUE[hotspot]
+    state.dialogue_line = 0
+    // The speaker's figure anchors the bubble, even when its camel was tapped.
+    speaker := TITLE_HOTSPOT_SPEAKER[hotspot]
+    state.dialogue_hotspot = ifx speaker >= 0 then speaker else hotspot
+    state.dialogue_spoken = -1
+    state.pending = -1
+    state.pressed = -1
+    state.hovered = -1
+    state.tracking = false
+    state.dragging = false
+}
+
+TitleDialogueClose :: (state: *TitleState) {
+    state.dialogue = 0
+    state.dialogue_line = 0
+    state.dialogue_hotspot = -1
+    state.dialogue_spoken = -1
+    state.pending = -1
+    state.pressed = -1
+    state.tracking = false
+    state.dragging = false
+}
+
+// Shows the next line, or closes the bubble after its last line. True while
+// a line is still showing.
+TitleDialogueAdvance :: (state: *TitleState) -> bool {
+    if state.dialogue <= 0 { return false }
+    if state.dialogue_line + 1 >= TITLE_DIALOGUE_LINES[state.dialogue - 1] {
+        TitleDialogueClose(state)
+        return false
+    }
+    state.dialogue_line += 1
+    state.dialogue_spoken = -1
+    return true
+}
+
+// The entry of the open line in LANGUAGE (0 English, 1 German, 2 Spanish).
+TitleDialogueEntry :: (state: TitleState, language: s32) -> s32 {
+    if state.dialogue <= 0 { return -1 }
+    shown := ifx language < 0 || language > 2 then 0 else language
+    return (TITLE_DIALOGUE_FIRST[state.dialogue - 1] + state.dialogue_line) * 3 + shown
+}
+
+TitleDialogueText :: (state: TitleState, language: s32) -> string {
+    entry := TitleDialogueEntry(state, language)
+    return ifx entry < 0 then "" else TITLE_DIALOGUE_TEXT[entry]
+}
+
+// The recording to start now: once per shown line and language, and never
+// while muted or before the clip exists.
+TitleDialogueVoice :: (state: *TitleState, language: s32, muted: bool) -> string {
+    entry := TitleDialogueEntry(state.*, language)
+    if entry < 0 { return "" }
+    if state.dialogue_spoken == state.dialogue_line && state.dialogue_language == language { return "" }
+    state.dialogue_spoken = state.dialogue_line
+    state.dialogue_language = language
+    if muted { return "" }
+    return TITLE_DIALOGUE_VOICE[entry]
+}
+
 TitleStart :: (state: *TitleState) {
     state.* = TitleState.{.started = true}
     state.guide_spoken_step = -1
+    state.dialogue_hotspot = -1
+    state.dialogue_spoken = -1
     TitleEnter(state, 0)
 }
 
 // Shows SCENE, centered, with nothing glowing.
 TitleEnter :: (state: *TitleState, scene: s32) {
     state.scene = scene
+    state.dialogue = 0
+    state.dialogue_hotspot = -1
     state.selected = -1
     state.hovered = -1
     state.pressed = -1
@@ -201,7 +277,7 @@ TitleGlowing :: (state: TitleState) -> s32 {
 // Shared by physical pointer taps and the sign's accessible button. Every
 // sign click pauses for the same gentle glow, even after mouse hover.
 TitleQueue :: (state: *TitleState, hotspot: s32, now: float64) {
-    if state.not_implemented { return }
+    if state.not_implemented || state.dialogue != 0 { return }
     if hotspot < 0 || hotspot >= TITLE_HOTSPOT_COUNT { return }
     if state.pending == hotspot { return }
     state.pending = hotspot
@@ -220,10 +296,14 @@ TitleSignLift :: (state: TitleState, hotspot: s32, now: float64) -> float32 {
 // A scene hotspot changes scene; a game hotspot reports its game.
 TitleActivate :: (state: *TitleState, hotspot: s32) -> TitleStep {
     step := TitleStep.{.game = -1}
-    if state.not_implemented { return step }
+    if state.not_implemented || state.dialogue != 0 { return step }
     if hotspot < 0 || hotspot >= TITLE_HOTSPOT_COUNT { return step }
     state.pending = -1
     state.pressed = -1
+    if TITLE_HOTSPOT_DIALOGUE[hotspot] != 0 {
+        TitleDialogueOpen(state, hotspot)
+        return step
+    }
     if TITLE_HOTSPOT_NOTICE[hotspot] != 0 {
         state.not_implemented = true
         state.tracking = false
@@ -246,7 +326,7 @@ TitleActivate :: (state: *TitleState, hotspot: s32) -> TitleStep {
 // open an item directly.
 TitleKey :: (state: *TitleState, key: s32) -> TitleStep {
     step := TitleStep.{.game = -1}
-    if state.not_implemented { return step }
+    if state.not_implemented || state.dialogue != 0 { return step }
     if key == 0 { return step }
     state.guide_stopped = true
     first := TITLE_SCENE_FIRST[state.scene]
@@ -290,7 +370,7 @@ TitleKey :: (state: *TitleState, key: s32) -> TitleStep {
 TitlePointer :: (state: *TitleState, view: TitleView, x: float32, y: float32,
     down: bool, pressed: bool, released: bool, blocked: bool, now: float64) -> TitleStep {
     step := TitleStep.{.game = -1}
-    if state.not_implemented { return step }
+    if state.not_implemented || state.dialogue != 0 { return step }
     moved := state.seen && (x != state.last_x || y != state.last_y)
     state.seen = true
     state.last_x = x
@@ -439,6 +519,45 @@ TitleGuideLayout :: (width: s32, height: s32, anchor: TitleGuideRect) -> TitleGu
         hit.x = mascot.x
     }
     return TitleGuidePlace.{.hit = hit, .bubble = bubble, .mascot = mascot, .text = text}
+}
+
+TitleDialoguePlace :: struct {
+    bubble: TitleGuideRect
+    text: TitleGuideRect
+    close: TitleGuideRect
+    // Where the tail meets the bubble edge, and whether that edge is the bottom.
+    tail_x: s32
+    tail_below: bool
+}
+
+// A speech bubble for the speaker in ANCHOR, in the same small window units
+// as the guide: above the head when it fits, otherwise beside the speaker,
+// always inside the window and below the corner controls.
+TitleDialogueLayout :: (width: s32, height: s32, anchor: TitleGuideRect) -> TitleDialoguePlace {
+    bubble_width := ifx width < 200 then width - 12 else ifx width < 340 then width - 24 else 300
+    bubble_height: s32 = 74
+    x := anchor.x + anchor.width / 2 - bubble_width / 2
+    y := anchor.y - bubble_height - 10
+    below := true
+    if y < 40 {
+        // No room above the head: sit beside the face instead.
+        y = anchor.y + 8
+        if anchor.x - bubble_width - 8 >= 6 { x = anchor.x - bubble_width - 8 }
+        else if anchor.x + anchor.width + 8 + bubble_width <= width - 6 { x = anchor.x + anchor.width + 8 }
+        else { y = anchor.y + anchor.height + 10; below = false }
+    }
+    if x + bubble_width > width - 6 { x = width - 6 - bubble_width }
+    if x < 6 { x = 6 }
+    if y + bubble_height > height - 8 { y = height - 8 - bubble_height }
+    if y < 40 { y = 40 }
+    tail := anchor.x + anchor.width / 2
+    if tail < x + 18 { tail = x + 18 }
+    if tail > x + bubble_width - 18 { tail = x + bubble_width - 18 }
+    return TitleDialoguePlace.{
+        .bubble = TitleGuideRect.{x, y, bubble_width, bubble_height},
+        .text = TitleGuideRect.{x + 12, y + 6, bubble_width - 44, bubble_height - 20},
+        .close = TitleGuideRect.{x + bubble_width - 24, y + 6, 18, 18},
+        .tail_x = tail, .tail_below = below}
 }
 
 TitleGuideHotspot :: (step: s32, scene: s32) -> s32 {

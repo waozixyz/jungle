@@ -40,6 +40,7 @@ SoundOffIcon :: #import "mingcute/mingcute_regular_volume_off";
 #import, file "jungle_collection.zi";
 #import, file "jungle_title.zi";
 #import, file "jungle_title_data.zi";
+#import, file "jungle_title_dialogue.zi";
 #import, file "../retro/paper_rules.zi";
 #import, file "../retro/paper_draw.zi";
 #import, file "../retro/collectibles.zi";
@@ -304,6 +305,9 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
     height := cast(s32)(bounds.height / unit)
 
     TitleResolve(*title_state, bounds.width, bounds.height)
+    // Only a bubble already open takes this frame's taps and keys, so the
+    // Enter that opens it does not also turn its first line.
+    dialogue_open := title_state.dialogue != 0
     scene_key := key
     // Scene shortcuts are handled here. Consume the retained key so a later
     // notice cannot replay Escape from a previous return to Campus.
@@ -324,6 +328,8 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
     // The flags and the sound button sit over the picture's corners.
     blocked := title_state.not_implemented || guide_hover || (px < cast(float32)(6 + 3 * 34) * unit && py < 34.0 * unit) ||
         (px > bounds.width - 112.0 && py < 56.0)
+    corner := (px < cast(float32)(6 + 3 * 34) * unit && py < 34.0 * unit) || (px > bounds.width - 112.0 && py < 56.0)
+    if title_state.dialogue != 0 { blocked = true }
     // The hidden paper takes its own hover and tap before the scene sees them;
     // a drag that starts on it still pans the picture.
     paper := TitlePaperSpot(title_state.scene, view, bounds.width, bounds.height)
@@ -396,6 +402,9 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
     }
     glowing := TitleGlowing(title_state)
     if paper_input.owned || title_papers.pressed { glowing = -1 }
+    // While talking, the speaker keeps his own painted colors; the bubble's
+    // tail shows who speaks.
+    if title_state.dialogue != 0 { glowing = -1 }
     guide := TitleGuide(*title_state, now, sound_muted || guide_muted,
         action.sound_toggle || key != 0 || (pointer.pressed && !guide_hover), language)
     guiding := guide.active
@@ -493,6 +502,12 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
             action.guide_mute_toggle = true
             if !guide_muted { action.guide_stop = true }
         }
+    }
+    if title_state.dialogue != 0 {
+        talk := TitleDialogueFrame(session, *title_state, view, unit, width, height, px, py,
+            dialogue_open && pointer.pressed, corner, ifx dialogue_open then key else 0, sound_muted, language)
+        if talk.stop { action.guide_stop = true }
+        if talk.voice != "" { action.guide_voice = talk.voice }
     }
     if title_state.not_implemented {
         actions: [1]ActionModalAction = .[ActionModalAction.{.key = 9711, .label = Tr("Close")}]

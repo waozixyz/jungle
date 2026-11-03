@@ -35,7 +35,7 @@ def main():
         assert receipt['sha256'] == narration.digest(ROOT / name), name
         narration._audio(ROOT / name, receipt['text'])
         counts[language] += 1
-    assert counts == {'de': 1018, 'es': 1016}, counts
+    assert counts == {'de': 1022, 'es': 1020}, counts
     manifest = json.loads((ROOT / 'build/stage/speech-manifest.json').read_text())
     files = {entry['path']: ROOT / 'build/app' / entry['path']
              for entry in manifest['encoded'].values()}

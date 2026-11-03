@@ -1,0 +1,43 @@
+{
+  "provider": "local_speech",
+  "model": "kokoro-german-victoria",
+  "pack": {
+    "repository": "soniqo/Kokoro-82M-German-Victoria-ONNX",
+    "revision": "6f9913452e55d35e0db313808d679dd344329d8e",
+    "files": [
+      {
+        "file": "kokoro-e2e.onnx",
+        "bytes": 3643581,
+        "sha256": "de2dbe0a64c003e74a089606410b3880d091cc976b5a35a8031167aa6e36e2c1"
+      },
+      {
+        "file": "kokoro-e2e.onnx.data",
+        "bytes": 162013184,
+        "sha256": "3f43d770f2fa2c3847e892a3a1db40429f5b242f91e4240d884be738526539ad"
+      },
+      {
+        "file": "voices/df_victoria.bin",
+        "bytes": 1024,
+        "sha256": "8f85dcce3fd854bd341f7c1ed4fab86a59e310dfb9d7da6a11239f087255b07f"
+      },
+      {
+        "file": "vocab_index.json",
+        "bytes": 1842,
+        "sha256": "085b753f40080164896d7cb04355222c3e3118391014355bb28e8d06ece62e0a"
+      }
+    ],
+    "provider_sha256": "7b69a5be5321f0cc35718d2091d98ff0c15ebf8315f5f571793eda8303043481"
+  },
+  "voice": "df_victoria",
+  "speed": 1.0,
+  "kind": "sentence",
+  "text": "Komm wieder, wenn du bereit bist. Mein Kamel wartet auf dich!",
+  "language": "de",
+  "input_identity": {
+    "audio_sha256": "c1e5714e6abdd0625d6ad4a3c99de88f12b56763342137e53454667fdffd75dc",
+    "receipt_sha256": "9c7070bb379d7ee9fd59df0b716e15f0da0b8b7f70f90eff517f993af36074f0"
+  },
+  "request_sha256": "e73fbc50a7e09bbae3c3898b76e5e1f7f7fb7b30acbdf2f7a51a22e9ed36caf7",
+  "sha256": "685c62592ee01c574bc672bb4a30dbb608ae2aca6b5a9485fbe43f82c129722c",
+  "duration": 4.625034013605442
+}

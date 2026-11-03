@@ -1,0 +1,43 @@
+{
+  "provider": "local_speech",
+  "model": "kokoro-german-victoria",
+  "pack": {
+    "repository": "soniqo/Kokoro-82M-German-Victoria-ONNX",
+    "revision": "6f9913452e55d35e0db313808d679dd344329d8e",
+    "files": [
+      {
+        "file": "kokoro-e2e.onnx",
+        "bytes": 3643581,
+        "sha256": "de2dbe0a64c003e74a089606410b3880d091cc976b5a35a8031167aa6e36e2c1"
+      },
+      {
+        "file": "kokoro-e2e.onnx.data",
+        "bytes": 162013184,
+        "sha256": "3f43d770f2fa2c3847e892a3a1db40429f5b242f91e4240d884be738526539ad"
+      },
+      {
+        "file": "voices/df_victoria.bin",
+        "bytes": 1024,
+        "sha256": "8f85dcce3fd854bd341f7c1ed4fab86a59e310dfb9d7da6a11239f087255b07f"
+      },
+      {
+        "file": "vocab_index.json",
+        "bytes": 1842,
+        "sha256": "085b753f40080164896d7cb04355222c3e3118391014355bb28e8d06ece62e0a"
+      }
+    ],
+    "provider_sha256": "7b69a5be5321f0cc35718d2091d98ff0c15ebf8315f5f571793eda8303043481"
+  },
+  "voice": "df_victoria",
+  "speed": 1.0,
+  "kind": "sentence",
+  "text": "Zuerst brauchen wir Wasser, einen Sonnenhut und müssen noch ein bisschen lernen.",
+  "language": "de",
+  "input_identity": {
+    "audio_sha256": "e1e5b7a5fa30accd2c994c595f58186f0b3a05f8d5ebbf34ef7e15904656fa02",
+    "receipt_sha256": "665aeec84f292e75b0ca3ccdb74d2309fd3aeb132175f677b3563ea5000183a6"
+  },
+  "request_sha256": "4378a4887baae05d6567754bd0a288e938fc3fb3069ff31d65441231665a170f",
+  "sha256": "44e7edf0b3935163463c8dfe87d2fd55a175187a83fd105bd54108190db8bd11",
+  "duration": 5.8750113378684805
+}

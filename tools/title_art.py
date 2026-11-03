@@ -98,7 +98,7 @@ def main():
         signs = dict(plan['signs'])
         if orientation=='landscape': signs['Farm'] = [130,490,240,240]
         if orientation=='landscape': signs['Desert'] = [1360,410,210,210]
-        for label,target in [('Beach','scene:beach'),('Farm','scene:farm'),('Desert','notice:Desert')]:
+        for label,target in [('Beach','scene:beach'),('Farm','scene:farm'),('Desert','scene:desert')]:
             hotspot = sign_hotspot(label.lower()+'-path',label,target,signs[label])
             if orientation=='portrait': hotspot['sign']['direction'] = plan['directions'][label]
             scene['hotspots'].append(hotspot)

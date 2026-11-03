@@ -1,0 +1,32 @@
+{
+  "dialogues": [
+    {
+      "id": "desert-guide",
+      "speaker": "Desert guide",
+      "speaker_hotspot": "desert-guide",
+      "voice": "assets/jungle/title/desert/{language}/line{line}.wav",
+      "lines": [
+        {
+          "en": "Hello! This is the big desert.",
+          "de": "Hallo! Das ist die große Wüste.",
+          "es": "¡Hola! Este es el gran desierto."
+        },
+        {
+          "en": "It is very hot, and the other side is far away.",
+          "de": "Es ist sehr heiß, und die andere Seite ist weit weg.",
+          "es": "Hace mucho calor y el otro lado está muy lejos."
+        },
+        {
+          "en": "First we need water, a sun hat and a little more learning.",
+          "de": "Zuerst brauchen wir Wasser, einen Sonnenhut und müssen noch ein bisschen lernen.",
+          "es": "Primero necesitamos agua, un sombrero para el sol y aprender un poco más."
+        },
+        {
+          "en": "Come back when you are ready. My camel will wait for you!",
+          "de": "Komm wieder, wenn du bereit bist. Mein Kamel wartet auf dich!",
+          "es": "Vuelve cuando tengas todo listo. ¡Mi camello te esperará!"
+        }
+      ]
+    }
+  ]
+}

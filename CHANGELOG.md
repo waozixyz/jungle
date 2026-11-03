@@ -13,6 +13,7 @@
 - Read directional arrows on localized signs in both orientations; Farm has no planting panels or game title bar.
 - Show the corrected portrait Campus paths, with clean sideways wooden arrow signs and a single Beach sign.
 - Open the Treehouse's round window to look out over the jungle, with Back to return; the room has no board above the ladder.
+- Follow the Desert sign to the jungle's edge, where a guide and his camel explain in a short spoken chat why we are not ready to cross the desert yet; the path back to Campus runs straight left.
 
 ## 0.1.37
 

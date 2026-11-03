@@ -18,6 +18,8 @@ ROOT = Path(__file__).resolve().parent.parent
 SOURCE = ROOT / 'tools/title_hotspots.json'
 CATALOG = ROOT / 'games/catalog.txt'
 OUTPUT = ROOT / 'host/jungle_title_data.zi'
+DIALOGUE = ROOT / 'tools/title_dialogue.json'
+LANGUAGES = ('en', 'de', 'es')
 # Below Ziran's 4095-character file-scope initializer limit.
 INITIALIZER_LIMIT = 3600
 SIGN_LABELS = {'Beach', 'Farm', 'Desert', 'Campus'}
@@ -71,6 +73,33 @@ def Sign(hotspot, rect):
                     Inside(hotspot.get('occlusion', []), x, y)):
                 raise SystemExit('title scenes: path sign board must stay inside its physical hit area')
     return label, board
+
+
+def Dialogues(source=DIALOGUE):
+    """Tap-through speech bubbles, every line in English, German and Spanish.
+
+    A voice clip is used only once it exists; until then the line is silent.
+    """
+    dialogues = json.loads(Path(source).read_text())['dialogues']
+    ids = [d['id'] for d in dialogues]
+    if len(set(ids)) != len(ids) or not all(isinstance(i, str) and i for i in ids):
+        raise SystemExit('title scenes: dialogue IDs must be unique and present')
+    for dialogue in dialogues:
+        if not dialogue.get('lines') or len(dialogue['lines']) > 8:
+            raise SystemExit(f'title scenes: dialogue {dialogue["id"]} needs one to eight lines')
+        for line in dialogue['lines']:
+            if set(line) != set(LANGUAGES) or not all(isinstance(line[l], str) and line[l].strip() and
+                                                      '\n' not in line[l] and len(line[l]) <= 90 for l in LANGUAGES):
+                raise SystemExit(f'title scenes: dialogue {dialogue["id"]} needs short EN/DE/ES lines')
+        voices = []
+        for number in range(len(dialogue['lines'])):
+            for language in LANGUAGES:
+                path = dialogue.get('voice', '').format(language=language, line=number)
+                voices.append(path if path and (ROOT / path).is_file() else '')
+        dialogue['voices'] = voices
+        if not isinstance(dialogue.get('speaker_hotspot', ''), str):
+            raise SystemExit(f'title scenes: dialogue {dialogue["id"]} speaker_hotspot must be a hotspot ID')
+    return dialogues
 
 
 def Objects(scene):
@@ -159,6 +188,8 @@ def Load(source=SOURCE, catalog=CATALOG):
     if not scenes or len(set(names)) != len(names):
         raise SystemExit('title scenes: scene names must be unique and present')
     titles = [line.split('|')[1] for line in Path(catalog).read_text().splitlines() if '|' in line]
+    dialogues = Dialogues()
+    dialogue_ids = [d['id'] for d in dialogues]
     hotspots = []
     for index, scene in enumerate(scenes):
         if scene['width'] <= 0 or scene['height'] <= 0:
@@ -187,6 +218,8 @@ def Load(source=SOURCE, catalog=CATALOG):
                 scene_target, game = -1, ''
             elif kind == 'notice' and target in ('Farm', 'Desert') and SignLabel(hotspot) == target and scene['name'] in ('campus', 'campus-portrait'):
                 scene_target, game = -1, ''
+            elif kind == 'dialogue' and target in dialogue_ids and not hotspot.get('sign'):
+                scene_target, game = -1, ''
             else:
                 raise SystemExit(f'title scenes: {hotspot["id"]} has target {hotspot["target"]}')
             polygon = [(round(x), round(y)) for x, y in hotspot['polygon']]
@@ -208,7 +241,18 @@ def Load(source=SOURCE, catalog=CATALOG):
                              'rest': hotspot.get('rest', ''), 'occlusion': occlusion,
                              'sign_label': label, 'sign_rect': board,
                              'sign_direction': {'left':1,'right':2,'up':3,'down':4}.get(hotspot.get('sign',{}).get('direction'),0),
-                             'notice': {'Farm': 1, 'Desert': 2}.get(target, 0) if kind == 'notice' else 0})
+                             'notice': {'Farm': 1, 'Desert': 2}.get(target, 0) if kind == 'notice' else 0,
+                             'dialogue': dialogue_ids.index(target) + 1 if kind == 'dialogue' else 0})
+    # Whoever taps a figure in a conversation, its speaker's figure anchors the
+    # bubble and glows: tapping the camel still lets the guide beside it talk.
+    for hotspot in hotspots:
+        hotspot['speaker'] = -1
+        if hotspot['dialogue']:
+            speaker = dialogues[hotspot['dialogue'] - 1].get('speaker_hotspot') or hotspot['id']
+            found = [i for i, h in enumerate(hotspots) if h['scene'] == hotspot['scene'] and h['id'] == speaker]
+            if not found or not hotspots[found[0]]['dialogue']:
+                raise SystemExit(f'title scenes: {hotspot["id"]} has no speaker {speaker} in its scene')
+            hotspot['speaker'] = found[0]
     # Parents: breadth first from the first scene, so Escape always climbs
     # back towards the treehouse.
     parents = [-1] * len(scenes)
@@ -349,8 +393,12 @@ def Render(data, scenes, parents, hotspots):
         f'TITLE_SCENE_HOTSPOTS: [{scene_count}]s32 = .[{Numbers(counts)}];',
         '',
         f'TITLE_HOTSPOT_ID: [{hotspot_count}]string = .[{Quoted(hotspot["id"] for hotspot in hotspots)}];',
-        f'TITLE_HOTSPOT_GUIDE: [{hotspot_count}]s32 = .[{Numbers(1 if h["game"] == "" and h["scene_target"] < 0 and not h["notice"] else 0 for h in hotspots)}];',
+        f'TITLE_HOTSPOT_GUIDE: [{hotspot_count}]s32 = .[{Numbers(1 if h["game"] == "" and h["scene_target"] < 0 and not h["notice"] and not h["dialogue"] else 0 for h in hotspots)}];',
         f'TITLE_HOTSPOT_NOTICE: [{hotspot_count}]s32 = .[{Numbers(h["notice"] for h in hotspots)}];',
+        '// The speech bubble a hotspot opens: TITLE_DIALOGUE index + 1, or 0.',
+        f'TITLE_HOTSPOT_DIALOGUE: [{hotspot_count}]s32 = .[{Numbers(h["dialogue"] for h in hotspots)}];',
+        '// The hotspot whose figure speaks that bubble (its anchor and glow), or -1.',
+        f'TITLE_HOTSPOT_SPEAKER: [{hotspot_count}]s32 = .[{Numbers(h["speaker"] for h in hotspots)}];',
         '// The scene a hotspot leads to, or -1 when it opens TITLE_HOTSPOT_GAME.',
         f'TITLE_HOTSPOT_TARGET: [{hotspot_count}]s32 = .[{Numbers(hotspot["scene_target"] for hotspot in hotspots)}];',
         f'TITLE_HOTSPOT_GAME: [{hotspot_count}]string = .[{Quoted(hotspot["game"] for hotspot in hotspots)}];',
@@ -372,6 +420,28 @@ def Render(data, scenes, parents, hotspots):
         f'TITLE_OCCLUSION_CHUNK: [{hotspot_count}]s32 = .[{Numbers(polygon_chunk[hotspot_count:])}];',
         f'TITLE_OCCLUSION_FIRST: [{hotspot_count}]s32 = .[{Numbers(polygon_first[hotspot_count:])}];',
         f'TITLE_OCCLUSION_COUNT: [{hotspot_count}]s32 = .[{Numbers(polygon_count[hotspot_count:])}];',
+    ]
+    dialogues = Dialogues()
+    first_line, line_count = [], []
+    for dialogue in dialogues:
+        first_line.append(sum(line_count))
+        line_count.append(len(dialogue['lines']))
+    texts = [line[language] for d in dialogues for line in d['lines'] for language in LANGUAGES]
+    voices = [voice for d in dialogues for voice in d['voices']]
+    for values in (texts, voices):
+        if len(Quoted(values)) > INITIALIZER_LIMIT:
+            raise SystemExit('title scenes: dialogue text is too long for one Ziran array')
+    lines += [
+        '',
+        '// Tap-through speech bubbles. Line L of dialogue D in language G (0 EN,',
+        '// 1 DE, 2 ES) is entry (TITLE_DIALOGUE_FIRST[D] + L) * 3 + G.',
+        f'TITLE_DIALOGUE_COUNT :: {len(dialogues)}',
+        f'TITLE_DIALOGUE_ID: [{len(dialogues)}]string = .[{Quoted(d["id"] for d in dialogues)}];',
+        f'TITLE_DIALOGUE_FIRST: [{len(dialogues)}]s32 = .[{Numbers(first_line)}];',
+        f'TITLE_DIALOGUE_LINES: [{len(dialogues)}]s32 = .[{Numbers(line_count)}];',
+        f'TITLE_DIALOGUE_TEXT: [{len(texts)}]string = .[{Quoted(texts)}];',
+        '// Narration for each entry; empty until its recording exists.',
+        f'TITLE_DIALOGUE_VOICE: [{len(voices)}]string = .[{Quoted(voices)}];',
     ]
     for index, (xs, ys) in enumerate(chunks):
         lines += ['', f'TITLE_POINT_X_{index}: [{len(xs)}]s32 = .[{Numbers(xs)}];',

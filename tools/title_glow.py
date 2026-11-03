@@ -22,8 +22,9 @@ ORIGINALS = {'treehouse': 'treehouse-room', 'bookshelf': 'bookshelf-closeup',
 
 def room_owned(scene):
     """Rooms built from object layers, and the window view, come from
-    tools/title_room.py; this tool must not overwrite them with old paintings."""
-    return bool(scene.get('objects') or scene.get('back'))
+    tools/title_room.py; this tool must not overwrite them with old paintings.
+    tools/title_desert.py exports the Desert edge scene and its layers whole."""
+    return bool(scene.get('objects') or scene.get('back')) or scene.get('name') == 'desert'
 
 
 def validate(data):
@@ -53,7 +54,7 @@ def validate_variant(scene, names, games):
         assert h['id'] not in ids
         ids.add(h['id'])
         kind, dest = h['target'].split(':', 1)
-        assert (kind == 'scene' and dest in names) or (kind == 'game' and dest in games) or (kind == 'notice' and dest == 'Desert') or (kind == 'guide' and dest == 'tour') or (kind == 'book' and dest == 'sweet-porridge')
+        assert (kind == 'scene' and dest in names) or (kind == 'game' and dest in games) or (kind == 'notice' and dest == 'Desert') or (kind == 'dialogue' and dest == 'desert-guide') or (kind == 'guide' and dest == 'tour') or (kind == 'book' and dest == 'sweet-porridge')
         assert len(h['polygon']) >= 3
         for p in h['polygon']:
             assert len(p) == 2 and all(type(n) is int for n in p)

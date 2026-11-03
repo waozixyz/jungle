@@ -1,0 +1,92 @@
+// A painted character's tap-through speech bubble on the title scenes (the
+// Desert guide). host/jungle_title.zi opens it from a "dialogue:" hotspot and
+// keeps its line; this draws it beside the speaker and handles taps and keys.
+#import "kryon/session"
+#import "kryon/geometry"
+#import "kryon/text_align"
+#import "kryon/text_props"
+#import "kryon/text_widget"
+#import "kryon/press_props"
+#import "kryon/press_widget"
+#import, file "../retro/retro.zi";
+#import, file "../retro/book_theme.zi";
+#import, file "jungle_title.zi";
+#import, file "jungle_title_data.zi";
+
+TitleDialogueAction :: struct {
+    // A recording to start now, or "".
+    voice: string
+    // Stop the previous line's recording.
+    stop: bool
+}
+
+// The speaker's glow picture in window units (the scene transform divided by
+// the corner-control unit), the same anchor the first-run guide uses.
+TitleDialogueAnchor :: (hotspot: s32, view: TitleView, unit: float32) -> TitleGuideRect {
+    rect := hotspot * 4
+    x := (view.x + cast(float32)TITLE_GLOW_RECT[rect] * view.scale) / unit
+    y := (view.y + cast(float32)TITLE_GLOW_RECT[rect + 1] * view.scale) / unit
+    return TitleGuideRect.{cast(s32)x, cast(s32)y,
+        cast(s32)(cast(float32)TITLE_GLOW_RECT[rect + 2] * view.scale / unit),
+        cast(s32)(cast(float32)TITLE_GLOW_RECT[rect + 3] * view.scale / unit)}
+}
+
+// One frame of the open bubble. A tap anywhere except the corner controls
+// (or Enter, Space or Right) shows the next line and closes after the last;
+// the X and Escape close it at once. PX, PY are window pixels.
+TitleDialogueFrame :: (session: Session, state: *TitleState, view: TitleView, unit: float32, width: s32, height: s32,
+    px: float32, py: float32, pressed: bool, corner: bool, key: s32, muted: bool, language: s32) -> TitleDialogueAction {
+    action: TitleDialogueAction
+    if state.dialogue <= 0 { return action }
+    place := TitleDialogueLayout(width, height, TitleDialogueAnchor(state.dialogue_hotspot, view, unit))
+    bubble := place.bubble
+    BookBox(bubble.x, bubble.y, bubble.width, bubble.height, 0xfbf6eaf6, 0xc9b48eff, 10.0)
+    // A soft tail toward the speaker's head.
+    for offset: cast(s32)0..7 {
+        tail_width := 16 - offset * 2
+        tail_y := ifx place.tail_below then bubble.y + bubble.height - 2 + offset else bubble.y + 1 - offset
+        BookBox(place.tail_x - tail_width / 2, tail_y, tail_width, 1, 0xfbf6eaff)
+    }
+    text := place.text
+    Text(session, TextProps.{.bounds = RetroRect(text.x, text.y, text.width, text.height),
+        .text = TitleDialogueText(state.*, language), .font = cast(s32)(12.0 * unit),
+        .align = TextAlign.TextAlignStart, .vertical_align = TextAlign.TextAlignCenter,
+        .wrap = TextWrap.TextWrapAuto})
+    // Which line this is, as small dots under the text.
+    lines := TITLE_DIALOGUE_LINES[state.dialogue - 1]
+    dots_x := bubble.x + bubble.width / 2 - (lines * 10 - 4) / 2
+    for line: cast(s32)0..lines - 1 {
+        BookBox(dots_x + line * 10, bubble.y + bubble.height - 11, 6, 6,
+            ifx line == state.dialogue_line then cast(u32)0x2e6956ff else cast(u32)0xe6dcc6ff,
+            0xb7a27cff, 3.0)
+    }
+    // A small "more" arrow while further lines follow.
+    if state.dialogue_line + 1 < lines {
+        // A smooth right-pointing triangle, one unit per row.
+        arrow_x := bubble.x + bubble.width - 15
+        arrow_y := bubble.y + bubble.height - 16
+        for row: cast(s32)0..8 {
+            reach := ifx row < 5 then row + 1 else 9 - row
+            BookBox(arrow_x, arrow_y + row, reach, 1, 0x2e6956ff)
+        }
+    }
+    close := place.close
+    close_tap := RetroTap(7600, close.x, close.y, close.width, close.height, "Close")
+    BookBox(close.x, close.y, close.width, close.height,
+        ifx close_tap.down then cast(u32)0xdcebdcf0 else cast(u32)0xf7f1e3ff, 0xbba98bff, 4.0)
+    BookText(close.x, close.y, close.width, close.height, "X", 10, TextAlign.TextAlignCenter, false)
+    on_close := px >= cast(float32)close.x * unit && px < cast(float32)(close.x + close.width) * unit &&
+        py >= cast(float32)close.y * unit && py < cast(float32)(close.y + close.height) * unit
+    if close_tap.clicked || key == 256 || (pressed && on_close) {
+        TitleDialogueClose(state)
+        action.stop = true
+        return action
+    }
+    if (pressed && !corner) || key == 257 || key == 32 || key == 262 {
+        unused TitleDialogueAdvance(state)
+        action.stop = true
+        if state.dialogue == 0 { return action }
+    }
+    action.voice = TitleDialogueVoice(state, language, muted)
+    return action
+}

@@ -143,7 +143,10 @@ is in `tools/book_prompts.json`; the full-size originals are kept in
   localized names, pointing along the actual route. Farm points LEFT at
   Campus; Beach is one sideways plank pointing at its path; retain no old
   floating navigation arrows or testing rooms/strips. Keep shared title-bar Back.
-  Desert shows an availability notice until approved destination art exists.
+  Desert opens the jungle's edge (tools/title_desert.py): a guide and his camel
+  are separate cut-out layers; tapping either opens the guide's tap-through
+  speech bubble beside him (tools/title_dialogue.json, EN/DE/ES, narrated),
+  never a caption along the bottom. A left plank returns to Campus.
 - Campus uses portrait-connected-desert-right (owner-corrected v3: no path
   down; Farm left, Beach up the left side, Desert right) and
   landscape-connected-no-stones-proposal (clean sandy path across to the left,

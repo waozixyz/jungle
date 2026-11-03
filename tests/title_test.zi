@@ -102,7 +102,7 @@ main :: () -> s32 {
             if TitleHit(scene, x, y) != hotspot { return 22 }
             view := TitleFit(400.0, 941.0, 0.0, 0.0, scene)
             if TitleHit(scene, TitleSourceX(view, view.x + x * view.scale), TitleSourceY(view, view.y + y * view.scale)) != hotspot { return 23 }
-            if TITLE_HOTSPOT_GUIDE[hotspot] == 0 && TITLE_HOTSPOT_NOTICE[hotspot] == 0 && (TITLE_HOTSPOT_TARGET[hotspot] >= 0) == (TITLE_HOTSPOT_GAME[hotspot] != "") { return 24 }
+            if TITLE_HOTSPOT_GUIDE[hotspot] == 0 && TITLE_HOTSPOT_NOTICE[hotspot] == 0 && TITLE_HOTSPOT_DIALOGUE[hotspot] == 0 && (TITLE_HOTSPOT_TARGET[hotspot] >= 0) == (TITLE_HOTSPOT_GAME[hotspot] != "") { return 24 }
         }
     }
     if TitleHit(0, -5.0, -5.0) != -1 || TitleHit(TITLE_SCENE_COUNT, 10.0, 10.0) != -1 { return 25 }
@@ -333,30 +333,110 @@ main :: () -> s32 {
     if !step.moved || touch.scene != beach { return 275 }
     unused TitleKey(*touch, 256)
     if touch.scene != campus { return 276 }
-    // The actual Desert notice freezes navigation and drops duplicate activations.
+    // Desert leads to its own painted scene in both orientations. The guide
+    // and his camel open the same tap-through bubble, which freezes the scene
+    // until its last line, and the Campus sign leads back.
     sign = HotspotNamed(campus, "desert-path")
-    if sign < 0 || TITLE_HOTSPOT_NOTICE[sign] != 2 { return 283 }
-    {
-        TitleEnter(*touch, campus)
-        touch.pan_x = 9.0
-        touch.selected = sign
-        step = TitleKey(*touch, 257)
-        if !touch.not_implemented || step.moved || step.game >= 0 { return 284 }
-        unused TitleKey(*touch, 268)
-        unused TitleKey(*touch, 256)
-        unused TitleKey(*touch, 49)
-        unused TitleKey(*touch, 257)
-        TitleQueue(*touch, sign, 8.0)
-        unused TitlePointer(*touch, sign_view, sx, sy, true, true, false, false, 8.1)
-        unused TitlePointer(*touch, sign_view, sx, sy, false, false, true, false, 8.2)
-        unused TitleTick(*touch, 9.0)
-        if touch.scene != campus || touch.pending >= 0 || touch.tracking || touch.pan_x != 9.0 { return 285 }
-        TitleDismissNotice(*touch)
-        if touch.not_implemented || touch.scene != campus || touch.pan_x != 9.0 { return 286 }
-        // Numeric shortcuts use the same gate.
-        unused TitleKey(*touch, 49 + sign - TITLE_SCENE_FIRST[campus])
-        if !touch.not_implemented { return 287 }
-        TitleDismissNotice(*touch)
+    desert := SceneNamed("desert")
+    if sign < 0 || desert < 0 || TITLE_HOTSPOT_NOTICE[sign] != 0 || TITLE_HOTSPOT_TARGET[sign] != desert { return 283 }
+    if TITLE_SCENE_PARENT[desert] != campus || TITLE_DIALOGUE_COUNT != 1 { return 284 }
+    for portrait: cast(s32)0..1 {
+        width: float32 = ifx portrait == 1 then 420.0 else 960.0
+        height: float32 = ifx portrait == 1 then 900.0 else 600.0
+        talk: TitleState
+        TitleStart(*talk)
+        TitleEnter(*talk, campus)
+        TitleResolve(*talk, width, height)
+        path := HotspotNamed(talk.scene, "desert-path")
+        view := TitleFit(width, height, 0.0, 0.0, talk.scene)
+        tx: float32
+        ty: float32
+        if path < 0 || !OwnPoint(talk.scene, path, *tx, *ty) { return 285 }
+        wx := view.x + tx * view.scale
+        wy := view.y + ty * view.scale
+        // A touch tap on the sign glows, then travels.
+        unused TitlePointer(*talk, view, wx, wy, true, true, false, false, 10.0)
+        unused TitlePointer(*talk, view, wx, wy, false, false, true, false, 10.05)
+        if TITLE_SCENE_BASE[talk.scene] != campus { return 286 }
+        step = TitleTick(*talk, 10.06 + TITLE_TAP_SECONDS)
+        TitleResolve(*talk, width, height)
+        if !step.moved || TITLE_SCENE_BASE[talk.scene] != desert { return 287 }
+        if (talk.scene != desert) != (portrait == 1) { return 288 }
+        guide := HotspotNamed(talk.scene, "desert-guide")
+        camel := HotspotNamed(talk.scene, "camel")
+        back := HotspotNamed(talk.scene, "campus-path")
+        if guide < 0 || camel < 0 || back < 0 || TITLE_SCENE_HOTSPOTS[talk.scene] != 3 { return 289 }
+        if TITLE_HOTSPOT_DIALOGUE[guide] != 1 || TITLE_HOTSPOT_DIALOGUE[camel] != 1 || TITLE_HOTSPOT_GAME[guide] != "" { return 290 }
+        if TITLE_SIGN_LABEL[back] != "Campus" || TITLE_SIGN_DIRECTION[back] != 1 || TITLE_HOTSPOT_TARGET[back] != campus { return 291 }
+        if TITLE_HOTSPOT_REST[guide] != "assets/jungle/title/objects/desert-guide.webp" ||
+            TITLE_HOTSPOT_REST[camel] != "assets/jungle/title/objects/desert-camel.webp" { return 292 }
+        // Where the guide and his camel overlap, the guide in front wins.
+        view = TitleFit(width, height, 0.0, 0.0, talk.scene)
+        if !OwnPoint(talk.scene, guide, *tx, *ty) { return 293 }
+        wx = view.x + tx * view.scale
+        wy = view.y + ty * view.scale
+        // A mouse click after hovering opens the bubble at once.
+        unused TitlePointer(*talk, view, wx + 2.0, wy, false, false, false, false, 11.0)
+        unused TitlePointer(*talk, view, wx, wy, false, false, false, false, 11.05)
+        if talk.hovered != guide { return 294 }
+        unused TitlePointer(*talk, view, wx, wy, true, true, false, false, 11.1)
+        step = TitlePointer(*talk, view, wx, wy, false, false, true, false, 11.2)
+        if talk.dialogue != 1 || talk.dialogue_line != 0 || talk.dialogue_hotspot != guide || step.moved || step.game >= 0 { return 295 }
+        if TitleDialogueText(talk, 0) != "Hello! This is the big desert." ||
+            TitleDialogueText(talk, 1) != "Hallo! Das ist die große Wüste." ||
+            TitleDialogueText(talk, 2) != "¡Hola! Este es el gran desierto." { return 296 }
+        // Each line is voiced once per language; muted never plays.
+        unused TitleDialogueVoice(*talk, 0, false)
+        if TitleDialogueVoice(*talk, 0, false) != "" { return 297 }
+        if TitleDialogueVoice(*talk, 1, false) != TITLE_DIALOGUE_VOICE[TitleDialogueEntry(talk, 1)] { return 298 }
+        if TitleDialogueVoice(*talk, 2, true) != "" || talk.dialogue_language != 2 { return 299 }
+        // The open bubble owns taps and keys: no travel, glow or pan.
+        shown := talk.scene
+        unused TitleKey(*talk, 256)
+        unused TitleKey(*talk, 268)
+        unused TitleKey(*talk, 49)
+        unused TitleKey(*talk, 262)
+        TitleQueue(*talk, back, 12.0)
+        unused TitleTick(*talk, 13.0)
+        unused TitlePointer(*talk, view, wx, wy, true, true, false, false, 12.1)
+        unused TitlePointer(*talk, view, wx - 40.0, wy, true, false, false, false, 12.15)
+        unused TitlePointer(*talk, view, wx - 40.0, wy, false, false, true, false, 12.2)
+        if talk.scene != shown || talk.pending >= 0 || talk.tracking || talk.selected >= 0 || talk.pan_x != 0.0 ||
+            talk.dialogue != 1 || talk.dialogue_line != 0 { return 300 }
+        // Tap through every line; the last tap closes the bubble.
+        lines := TITLE_DIALOGUE_LINES[0]
+        if lines < 3 || lines > 6 { return 301 }
+        for line: cast(s32)1..lines - 1 {
+            if !TitleDialogueAdvance(*talk) || talk.dialogue_line != line || talk.dialogue_spoken != -1 { return 302 }
+            for language_index: cast(s32)0..2 { if TitleDialogueText(talk, language_index) == "" { return 303 } }
+        }
+        if TitleDialogueAdvance(*talk) || talk.dialogue != 0 || talk.scene != shown || TitleDialogueText(talk, 0) != "" { return 304 }
+        // The camel opens the same bubble, still spoken by the guide; closing ends it.
+        unused TitleActivate(*talk, camel)
+        if talk.dialogue != 1 || talk.dialogue_hotspot != guide || talk.dialogue_line != 0 { return 305 }
+        TitleDialogueClose(*talk)
+        if talk.dialogue != 0 || talk.dialogue_hotspot != -1 { return 306 }
+        // The bubble stays inside the window, under the corner controls, above the head.
+        unit := (ifx width < height then width else height) / 300.0
+        if unit < 1.0 { unit = 1.0 }
+        units_x := cast(s32)(width / unit)
+        units_y := cast(s32)(height / unit)
+        at := guide * 4
+        anchor := TitleGuideRect.{cast(s32)((view.x + cast(float32)TITLE_GLOW_RECT[at] * view.scale) / unit),
+            cast(s32)((view.y + cast(float32)TITLE_GLOW_RECT[at + 1] * view.scale) / unit),
+            cast(s32)(cast(float32)TITLE_GLOW_RECT[at + 2] * view.scale / unit),
+            cast(s32)(cast(float32)TITLE_GLOW_RECT[at + 3] * view.scale / unit)}
+        place := TitleDialogueLayout(units_x, units_y, anchor)
+        if place.bubble.x < 6 || place.bubble.x + place.bubble.width > units_x - 6 || place.bubble.y < 40 ||
+            place.bubble.y + place.bubble.height > units_y - 8 { return 307 }
+        if !place.tail_below || place.bubble.y + place.bubble.height > anchor.y { return 308 }
+        if place.close.x + place.close.width > place.bubble.x + place.bubble.width || place.text.width < 120 { return 309 }
+        // The Campus sign and Back both return to Campus.
+        step = TitleActivate(*talk, back)
+        if !step.moved || talk.scene != campus { return 310 }
+        TitleEnter(*talk, shown)
+        unused TitleKey(*talk, 256)
+        if talk.scene != campus { return 311 }
     }
 
     // Portrait: dragging pans the picture and never taps; keys center the
