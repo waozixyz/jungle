@@ -17,7 +17,7 @@ def main():
     home = data['scenes'][0]
     campus = next(s for s in data['scenes'] if s['name']=='campus')
     binary = Path(os.environ.get('JUNGLE_TEST_BINARY', root/'build/app/jungle'))
-    for w,h in ((960,600),(420,900)):
+    for w,h in ((960,600),(420,900),(1080,2340),(700,1100)):
         with tempfile.TemporaryDirectory(dir=scratch) as folder:
             state = Path(folder)
             (state/'sound.txt').write_text('off\n')
@@ -25,7 +25,7 @@ def main():
             old = state/'games/jungle.garden/garden.txt'
             old.parent.mkdir(parents=True)
             old.write_text('garden 2 6\n1 100 100 3700 3600 0\n'+'0 0 0 0 0 0\n'*4+'2 100 100 3700 3600 0\n')
-            with rt.Desktop(binary,state,extra_env={'TMPDIR':str(state)},screen_size='1280x1100') as d:
+            with rt.Desktop(binary,state,extra_env={'TMPDIR':str(state)},screen_size='1400x2500') as d:
                 def tap(x,y):
                     rt.run(['xdotool','mousemove','--window',d.window,str(x),str(y)],d.env)
                     time.sleep(.08)
@@ -50,7 +50,9 @@ def main():
                     sign=farm['hotspots'][0]
                     assert sign['sign']['direction']=='right'
                     x,y,_,_=sign['glow_rect'];bx,by,bw,bh=sign['sign']['label_rect']
-                    tap(round(ox+(x+bx+bw/2)*scale),round(oy+(y+by+bh/2)*scale))
+                    fs=max(w/(1024 if h>w else 1672),h/(1536 if h>w else 941))
+                    fx=(w-(1024 if h>w else 1672)*fs)/2;fy=(h-(1536 if h>w else 941)*fs)/2
+                    tap(round(fx+(x+bx+bw/2)*fs),round(fy+(y+by+bh/2)*fs))
                 d.resize(w,h)
                 for locale in range(3):
                     d.key('Home')
@@ -58,9 +60,22 @@ def main():
                     d.key(str(next(i+1 for i,h in enumerate(home['hotspots']) if h['target']=='scene:campus')))
                     time.sleep(.6)
                     view = campus['portrait'] if h>w else campus
-                    scale=max(w/(1024 if h>w else 1672),h/(1536 if h>w else 941))
+                    scale=(min if h>w else max)(w/(1024 if h>w else 1672),h/(1536 if h>w else 941))
                     ox=(w-(1024 if h>w else 1672)*scale)/2
                     oy=(h-(1536 if h>w else 941)*scale)/2
+                    if h>w:
+                        assert ox>=0 and oy>=0 and ox+1024*scale<=w+.01 and oy+1536*scale<=h+.01
+                        actual=d.capture_actual(f'{w}-{locale}-portrait-composition').convert('RGB')
+                        full=Image.open(root/view['image']).convert('RGB')
+                        # Sample untouched paint at the treehouse, left route, pond and
+                        # lower stepping stones. These detect cropping or a stale plate.
+                        for box in ((350,50,650,250),(0,650,120,740),(100,1000,300,1080),(420,1400,570,1500)):
+                            region=tuple(round((ox if i%2==0 else oy)+v*scale) for i,v in enumerate(box))
+                            scaled=full.resize((round(1024*scale),round(1536*scale)),Image.Resampling.BILINEAR)
+                            local=tuple(v-round(ox if i%2==0 else oy) for i,v in enumerate(region))
+                            ref=scaled.crop(local).resize((32,32),Image.Resampling.BILINEAR)
+                            got=actual.crop(region).resize((32,32),Image.Resampling.BILINEAR)
+                            assert max(ImageStat.Stat(ImageChops.difference(ref,got)).mean)<10,('portrait plate or transform',w,box)
                     # The complete Farm board, including its left arrow, stays onscreen.
                     farm_sign=next(t for t in view['hotspots'] if t['id']=='farm-path')
                     x,y,_,_=farm_sign['glow_rect'];bx,by,bw,bh=farm_sign['sign']['label_rect']
@@ -76,11 +91,13 @@ def main():
                             time.sleep(.7)
                             actual=d.capture_actual(f'{w}-{locale}-farm-painting').convert('RGB')
                             full=Image.open(root/('assets/jungle/title/farm-portrait.webp' if h>w else 'assets/jungle/title/farm.webp')).convert('RGB')
-                            fw,fh=round(full.width*scale),round(full.height*scale)
+                            fs=max(w/full.width,h/full.height)
+                            fx=(w-full.width*fs)/2;fy=(h-full.height*fs)/2
+                            fw,fh=round(full.width*fs),round(full.height*fs)
                             expected=full.resize((fw,fh),Image.Resampling.BILINEAR)
                             # Central/lower painting must be the full artwork, without UI or placeholder.
                             region=(round(w*.2),round(h*.48),round(w*.8),round(h*.9))
-                            ref=expected.crop((region[0]-round(ox),region[1]-round(oy),region[2]-round(ox),region[3]-round(oy)))
+                            ref=expected.crop((region[0]-round(fx),region[1]-round(fy),region[2]-round(fx),region[3]-round(fy)))
                             assert max(ImageStat.Stat(ImageChops.difference(actual.crop(region).resize((64,64)),ref.resize((64,64)))).mean)<4,'Farm full painting missing or covered'
                             farm_return()
                         else:d.key('Escape')

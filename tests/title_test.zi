@@ -78,6 +78,17 @@ main :: () -> s32 {
     half := TitleFit(836.0, 470.5, 0.0, 0.0)
     if !Near(TitleSourceX(half, 418.0), 836.0) || !Near(TitleSourceY(half, 100.0), 200.0) { return 15 }
 
+    // Portrait Campus keeps every mapped object visible at phone and tall sizes.
+    campus_portrait := SceneNamed("campus-portrait")
+    campus_widths: [3]float32 = .[420.0, 1080.0, 700.0]
+    campus_heights: [3]float32 = .[900.0, 2340.0, 1100.0]
+    for size: cast(s32)0..2 {
+        view := TitleFit(campus_widths[size], campus_heights[size], 9999.0, 9999.0, campus_portrait)
+        if view.x < 0.0 || view.y < 0.0 || view.pan_x_limit != 0.0 || view.pan_y_limit != 0.0 { return 280 }
+        if view.x + 1024.0 * view.scale > campus_widths[size] + 0.01 ||
+            view.y + 1536.0 * view.scale > campus_heights[size] + 0.01 { return 281 }
+    }
+
     // Every painted item can be hit through the window mapping, and only
     // inside its own scene.
     for scene: cast(s32)0..TITLE_SCENE_COUNT - 1 {

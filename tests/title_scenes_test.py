@@ -49,6 +49,54 @@ class TitleVariants(unittest.TestCase):
                 self.assertEqual(next(h for h in scene['hotspots'] if h['id']=='campus-path')['target'],'scene:campus')
                 self.assertEqual({h['id'] for h in scene['hotspots']}, {'campus-path','bunker-door','fishing-boat','crab-family'})
 
+    def test_portrait_campus_uses_approved_mapping_and_full_background(self):
+        _, scenes, _, _ = title.Load()
+        scene = next(s for s in scenes if s['name'] == 'campus-portrait')
+        plan = json.loads((ROOT/'tools/art_provenance/campus-portrait-v3.json').read_text())
+        canonical = ROOT/plan['source']
+        if canonical.exists():
+            self.assertEqual(json.loads(canonical.read_text())['orientations']['portrait'],
+                             {k:v for k,v in plan.items() if k not in ('source','directions')})
+        self.assertEqual([scene['width'], scene['height']], plan['canvas'])
+        names = {'portrait-music-original.png':'music-hut', 'portrait-piano.png':'piano',
+                 'portrait-picnic.png':'picnic', 'frogs.png':'frogs', 'hiding-tail.png':'hiding-bush'}
+        for obj in plan['objects']:
+            if obj['file'] in names:
+                h = next(h for h in scene['hotspots'] if h['id'] == names[obj['file']])
+                self.assertEqual(h['glow_rect'], obj['scene_rect'])
+                self.assertIn('portrait-', h['rest'])
+                x,y,w,ht = obj['scene_rect']
+                self.assertEqual(hit(scene,x+w/2,y+ht/2),h['id'])
+            else:
+                self.assertEqual(scene['decorations'][0]['rect'],obj['scene_rect'])
+        for label,rect in plan['signs'].items():
+            h = next(h for h in scene['hotspots'] if h.get('sign',{}).get('label') == label)
+            self.assertEqual(h['glow_rect'],rect)
+            self.assertEqual(h['sign']['direction'],plan['directions'][label])
+        for h in scene['hotspots']:
+            x,y,w,ht = h['glow_rect']
+            self.assertTrue(0 <= x < x+w <= scene['width'])
+            self.assertTrue(0 <= y < y+ht <= scene['height'])
+            for px,py in h['polygon']:
+                self.assertTrue(0 <= px <= scene['width'] and 0 <= py <= scene['height'])
+        row = next(r for r in json.loads(APPROVED_TITLE_WEBP.read_text())['images']
+                   if r['path'] == scene['image'])
+        self.assertTrue(row['canonical_source'].endswith('/'+plan['plate']))
+        self.assertEqual((row['width'],row['height']),(1024,1536))
+        # Check the image actually drawn after layers load, not just the fallback.
+        for path in (scene['image'],scene['background']):
+            with Image.open(ROOT/path) as im:
+                self.assertEqual(im.size,(1024,1536))
+                self.assertEqual(hashlib.sha256(im.convert('RGBA').tobytes()).hexdigest(),
+                                 'b92fb237cefd67de931e318d483c7883ad76147da5a69996677f937742bd0d81')
+
+    def test_landscape_campus_is_unchanged(self):
+        data = json.loads((ROOT/'tools/title_hotspots.json').read_text())
+        scene = next(s for s in data['scenes'] if s['name'] == 'campus')
+        scene.pop('portrait')
+        self.assertEqual(hashlib.sha256(json.dumps(scene,sort_keys=True).encode()).hexdigest(),
+                         'a2a369060578673739e50422bebf76b2093a00531b1f475e17269ea99ef034b4')
+
     def test_signs_are_localized_boards_with_travel_arrows(self):
         data,scenes,_,hotspots=title.Load()
         translations=json.loads((ROOT/'locales/ui.json').read_text())

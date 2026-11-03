@@ -70,7 +70,8 @@ def main():
                     sign=dict(label=label,label_rect=board,direction='left' if label in ('Farm','Campus') else 'right' if label=='Desert' else 'up'))
 
     for orientation, scene in [('landscape',campus),('portrait',campus['portrait'])]:
-        plan = mapping['orientations'][orientation]
+        plan = (json.loads((ROOT/'tools/art_provenance/campus-portrait-v3.json').read_text())
+                if orientation=='portrait' else mapping['orientations'][orientation])
         source = LOCAL/'campus-object-layers'/('landscape-connected-no-stones-proposal.png' if orientation=='landscape' else 'portrait-clean-v3-pond-up.png')
         path = background(source, scene['background'])
         background(source, f'assets/jungle/title/campus{"-portrait" if orientation=="portrait" else ""}.webp')
@@ -91,10 +92,12 @@ def main():
                                    polygon=[[x,y],[x+w-1,y],[x+w-1,y+h-1],[x,y+h-1]],occlusion=[])
             else: scene['decorations'].append(dict(path=rest,rect=[x,y,w,h]))
         signs = dict(plan['signs'])
-        signs['Farm'] = [130,490,240,240] if orientation=='landscape' else [160,650,220,220]
+        if orientation=='landscape': signs['Farm'] = [130,490,240,240]
         if orientation=='landscape': signs['Desert'] = [1360,410,210,210]
         for label,target in [('Beach','scene:beach'),('Farm','scene:farm'),('Desert','notice:Desert')]:
-            scene['hotspots'].append(sign_hotspot(label.lower()+'-path',label,target,signs[label]))
+            hotspot = sign_hotspot(label.lower()+'-path',label,target,signs[label])
+            if orientation=='portrait': hotspot['sign']['direction'] = plan['directions'][label]
+            scene['hotspots'].append(hotspot)
 
     beach = next(s for s in data['scenes'] if s['name']=='beach')
     for orientation,scene in [('landscape',beach),('portrait',beach['portrait'])]:
