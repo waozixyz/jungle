@@ -34,3 +34,24 @@ for row,scene in zip(story['pages'],mapping['scenes']):
                 assert .5<clip.getnframes()/22050<30
                 assert abs(clip.getnframes()/22050-receipt['duration'])<1/22050
 print('local Bremen test passed: 11 WebPs, 33 translated pages, 55 measured narration clips, shared catalog and reproducible reader data')
+
+landscape=json.loads((ROOT/'tools/art_provenance/town-musicians-landscape/mapping.json').read_text())
+assert len(landscape['scenes'])==11
+from web_images import prepare_runtime_images
+from PIL import ImageStat
+for row,scene in zip(story['pages'],landscape['scenes']):
+    name=f"assets/jungle-book/pages/{row['asset']}.webp"
+    assert scene['runtime']==name
+    assert GameFiles('jungle-book')[name]==ROOT/name
+    with Image.open(ROOT/name) as picture:
+        assert picture.size==(1536,1024) and picture.format=='WEBP'
+        paper=ImageStat.Stat(picture.convert('RGB').crop((0,row['paper_top'],1536,1024)))
+        assert paper.mean[0]>240 and paper.mean[1]>210 and paper.mean[2]>160
+        assert max(paper.stddev)<15, 'Caption reserve must be quiet paper'
+    assert hashlib.sha256((ROOT/name).read_bytes()).hexdigest()==scene['runtime_sha256']
+    exports=prepare_runtime_images({name:ROOT/name},ROOT/'local/art-development/town-musicians-landscape/test-exports')
+    assert exports[name].info['reused_source']
+reader=(ROOT/'games/book/jungle_book.zi').read_text()
+assert 'ifx portrait then bremen_portraits[at] else bremen_pictures[at]' in reader
+assert 'portrait || selected_story == 1' not in reader
+print('local Bremen landscape test passed: 11 native WebPs, caption reserves, catalog, web exports and orientation selection')

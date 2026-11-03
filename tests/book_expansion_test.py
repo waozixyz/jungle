@@ -250,6 +250,7 @@ class LearningBookTest(unittest.TestCase):
         # Bremen is independently validated by town_musicians_test.py. Keep
         # the historical aggregate intact and exempt only its exact additions.
         bremen = json.loads((ROOT / 'tools/town_musicians.json').read_text())
+        story_assets.update(f"assets/jungle-book/pages/{row['asset']}.webp" for row in bremen['pages'])
         story_assets |= {f"assets/jungle-book/portraits/{row['asset']}.webp" for row in bremen['pages']}
         story_assets |= {f"assets/jungle-book/story-sounds/{language}/{row['asset']}.{suffix}"
                          for row in bremen['pages'] for language in LANGUAGES

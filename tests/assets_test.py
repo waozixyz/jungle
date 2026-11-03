@@ -24,6 +24,8 @@ def main():
     # Each page is one whole watercolor scene whose edges fade into the paper.
     story = json.loads((ROOT / 'tools/sweet_porridge.json').read_text())
     story_pages = {row['asset'] + '.webp' for row in story['pages']}
+    bremen = json.loads((ROOT / 'tools/town_musicians.json').read_text())
+    story_pages.update(row['asset'] + '.webp' for row in bremen['pages'])
     expected = {name + ".webp" for name in NAMES} | story_pages
     actual = {path.name for path in (ROOT / "assets/jungle-book/pages").glob("*")}
     assert actual == expected, "Picture Book has stale or missing scene pages"

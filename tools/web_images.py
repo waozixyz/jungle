@@ -171,6 +171,9 @@ def prepare_runtime_images(files, cache):
     def convert(item):
         name, source = item
         rule = RUNTIME_RULES[str(Path(name).parent)]
+        # Newly exported Bremen landscape paintings ship at native resolution.
+        if str(Path(name).parent) == 'assets/jungle-book/pages' and Path(name).stem.startswith('musicians_'):
+            rule = RuntimeRule(1536, RUNTIME_QUALITY)
         source_bytes = source.read_bytes()
         digest = hashlib.sha256(source_bytes).hexdigest()
         settings = f'runtime-reuse-webp-{rule.long_edge}-{rule.quality}-{RUNTIME_ALPHA_QUALITY}'

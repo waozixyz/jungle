@@ -66,7 +66,7 @@ direct_story: bool;
 story_collection: bool;
 selected_story: s32;
 StoryPicture :: (at: s32, portrait: bool = false) -> string {
-    if selected_story == 1 { return bremen_pictures[at] }
+    if selected_story == 1 { return ifx portrait then bremen_portraits[at] else bremen_pictures[at] }
     return ifx portrait then story_portraits[at] else story_pictures[at]
 }
 StoryTitle :: () -> string { return ifx selected_story == 1 then BremenCaption(0, language) else StoryCaption(0, language) }
@@ -428,7 +428,7 @@ SceneRect :: () -> (x: s32, y: s32, size: s32) {
 // the illustrated section of a story page.
 PagePictureRect :: () -> CollectRect {
     if direct_story {
-        layout := StoryPageLayout(book_width, book_height, story_paper_top[page], selected_story == 1)
+        layout := StoryPageLayout(book_width, book_height, story_paper_top[page])
         return CollectRect.{layout.x, layout.y, layout.width, layout.art_height}
     }
     x, y, size := SceneRect()
@@ -498,7 +498,7 @@ PlaybackAction :: (id: s32, x: s32, y: s32, width: s32, text: string) -> bool {
 PlaybackControls :: (can_hear: bool = true) {
     if direct_story {
         x := book_width / 2 - 22
-        layout := StoryPageLayout(book_width, book_height, story_paper_top[page], selected_story == 1)
+        layout := StoryPageLayout(book_width, book_height, story_paper_top[page])
         y := ifx finished then book_height - 58 else layout.art_height + layout.caption_height + 4
         press := RetroTap(61, x, y, 44, 44, ifx playing then "Pause" else "Play")
         if press.clicked { TogglePlayback() }
@@ -594,19 +594,19 @@ ReadingPage :: () {
     label_x := (book_width - label_width) / 2
     label_y := book_height - label_height - 66
     if StoryBook() {
-        layout := StoryPageLayout(book_width, book_height, story_paper_top[page], selected_story == 1)
+        layout := StoryPageLayout(book_width, book_height, story_paper_top[page])
         portrait := book_height > book_width
         path := RetroImageShown(PagePath())
         paper_path := RetroImageShown(StoryPicture(page))
         if path != "" {
             art_source, unused_paper := StorySourceRectangles(path, story_paper_top[page])
-            if portrait || selected_story == 1 { art_source = Rectangle.{} }
+            if portrait { art_source = Rectangle.{} }
             // Portrait paintings are full scenes: draw all of their pixels.
             Image(retro.session, ImageProps.{.asset_path = path, .preview_path = RetroImagePreview(PagePath()),
-                .full_size = ifx portrait || selected_story == 1 then Vector2.{1024, 1536} else Vector2.{1536, 1024}, .source = art_source,
+                .full_size = ifx portrait then Vector2.{1024, 1536} else Vector2.{1536, 1024}, .source = art_source,
                 .bounds = RetroRect(layout.x, layout.y, layout.width, layout.art_height), .smooth = true})
         }
-        if paper_path != "" && selected_story == 0 {
+        if paper_path != "" {
             unused_art, paper_source := StorySourceRectangles(paper_path, story_paper_top[page])
             // Caption and playback controls always use the accepted blank paper,
             // never the scene at the bottom of the portrait painting.
@@ -614,8 +614,8 @@ ReadingPage :: () {
                 .full_size = Vector2.{1536, 1024}, .source = paper_source,
                 .bounds = RetroRect(layout.x, layout.y + layout.art_height, layout.width, layout.paper_height), .smooth = true})
         }
-        Text(retro.session, TextProps.{.bounds = RetroRect(ifx selected_story == 1 then book_padding else layout.x + 20, layout.y + layout.art_height + 10,
-                ifx selected_story == 1 then book_width - book_padding * 2 else layout.width - 40, layout.caption_height - 20), .text = PageName(), .font = ifx landscape then 22 else 20,
+        Text(retro.session, TextProps.{.bounds = RetroRect(layout.x + 20, layout.y + layout.art_height + 10,
+                layout.width - 40, layout.caption_height - 20), .text = PageName(), .font = ifx landscape then 22 else 20,
             .align = TextAlign.TextAlignCenter, .vertical_align = TextAlign.TextAlignCenter, .wrap = TextWrap.TextWrapAuto})
     } else {
         BookPicture(PagePath(), x, y, size, size)
@@ -639,13 +639,13 @@ ReadingPage :: () {
     }
     if !direct_story { BookBox(label_x + 16, book_height - 62, label_width - 32, 1, 0xdacdb5ff) }
     if direct_story {
-        layout := StoryPageLayout(book_width, book_height, story_paper_top[page], selected_story == 1)
+        layout := StoryPageLayout(book_width, book_height, story_paper_top[page])
         BookText(layout.x + layout.width - 88, layout.art_height + layout.caption_height + 12, 76, 26,
             Join(Number(page + 1), " / ", Number(STORY_PAGE_COUNT)), 16, TextAlign.TextAlignCenter, false)
     }
     turn_height := book_height - 64
     if direct_story {
-        layout := StoryPageLayout(book_width, book_height, story_paper_top[page], selected_story == 1)
+        layout := StoryPageLayout(book_width, book_height, story_paper_top[page])
         turn_height = layout.art_height + layout.caption_height
     }
     touch := RetroTap(12, 0, 0, book_width, turn_height, "Swipe to turn the page", true)

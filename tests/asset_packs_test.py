@@ -180,6 +180,7 @@ with tempfile.TemporaryDirectory(prefix='asset-pack-test-',dir=ROOT/'build') as 
     assert all((ROOT/name).is_file() for name in catalog),'Catalog names a missing picture'
     # The separately validated story keeps its own exact pages beside the books.
     story={row['asset'] for row in json.loads((ROOT/'tools/sweet_porridge.json').read_text())['pages']}
+    story.update(row['asset'] for row in json.loads((ROOT/'tools/town_musicians.json').read_text())['pages'])
     assert len(pages)==len({path.stem for path in (ROOT/'assets/jungle-book/pages').glob('*.webp')}-story)
     assert {catalog[name] for name in catalog if '/previews/' in name}=={'covers'}
 

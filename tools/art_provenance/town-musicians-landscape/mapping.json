@@ -1,0 +1,151 @@
+{
+  "tool": "builtin image_gen.imagegen",
+  "effort_requested": "medium",
+  "layout": "1536x1024 landscape; bottom cream caption paper",
+  "review": "All pages inspected for anatomy, continuity and grounded objects. Pages 01-03 regenerated once to remove premature companions. Owner reviews in game per explicit request.",
+  "scenes": [
+    {
+      "asset": "musicians_00_cover",
+      "source": "local/art-development/town-musicians-landscape/musicians_00_cover.png",
+      "source_sha256": "0983bbaa778c21f86922ae75b0e74c097dc24d012082fc9043287ad4b4b40e9b",
+      "runtime": "assets/jungle-book/pages/musicians_00_cover.webp",
+      "runtime_sha256": "706e1be82357ae84c3d808b03fd7fc82be84b2a776dd3b07856df9acb2a2f0d5",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "quality": 85,
+      "method": 6
+    },
+    {
+      "asset": "musicians_01_donkey",
+      "source": "local/art-development/town-musicians-landscape/musicians_01_donkey.png",
+      "source_sha256": "74b32927dde1ab8789ebe258b01b3f710e8cb5c21c125dd537e077c3256689a7",
+      "runtime": "assets/jungle-book/pages/musicians_01_donkey.webp",
+      "runtime_sha256": "7010cd00f963d76855958a942bc5ab9f7d4db0567c97922ddf04a50ed8b2f6f7",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "quality": 85,
+      "method": 6
+    },
+    {
+      "asset": "musicians_02_dog",
+      "source": "local/art-development/town-musicians-landscape/musicians_02_dog.png",
+      "source_sha256": "2a2eaa28ddc88c6287ed8546fe352e8cd76381b541e0c0836d0e82ea3418ed19",
+      "runtime": "assets/jungle-book/pages/musicians_02_dog.webp",
+      "runtime_sha256": "1119c86e64f8c8602ddc4011b932316d5d523c0bc08c04a539c28f6b6932de00",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "quality": 85,
+      "method": 6
+    },
+    {
+      "asset": "musicians_03_cat",
+      "source": "local/art-development/town-musicians-landscape/musicians_03_cat.png",
+      "source_sha256": "60dbc17c6e146dcb5216f540c0a43f84e41da4bb234cf91c8a837ed77f3a2c85",
+      "runtime": "assets/jungle-book/pages/musicians_03_cat.webp",
+      "runtime_sha256": "d8ec3f370538945b2ee2978faeb8c8c628ad57a01ea767eee697e34da0e1424d",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "quality": 85,
+      "method": 6
+    },
+    {
+      "asset": "musicians_04_rooster",
+      "source": "local/art-development/town-musicians-landscape/musicians_04_rooster.png",
+      "source_sha256": "b47de768474d2859f82fa92c8adf568f59db06c7299d48b6a5da9f4ca01093a5",
+      "runtime": "assets/jungle-book/pages/musicians_04_rooster.webp",
+      "runtime_sha256": "a67a35f6b25be00f0a614ccb2d466539d5bb8c1fe4099b4c5e73f9a455ce6f35",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "quality": 85,
+      "method": 6
+    },
+    {
+      "asset": "musicians_05_woods",
+      "source": "local/art-development/town-musicians-landscape/musicians_05_woods.png",
+      "source_sha256": "871f8defcc71b3fae2fc6b6ec17c9685e823d466910a31bb8ef71717fea73cff",
+      "runtime": "assets/jungle-book/pages/musicians_05_woods.webp",
+      "runtime_sha256": "83de5282a1d485361ab45da692ed345254859eb12657567f58622f9fafeff639",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "quality": 85,
+      "method": 6
+    },
+    {
+      "asset": "musicians_06_cottage",
+      "source": "local/art-development/town-musicians-landscape/musicians_06_cottage.png",
+      "source_sha256": "09cfcb0fb4faf6f9998fe1d7302664463e081c384aa735330f6203abc67993a0",
+      "runtime": "assets/jungle-book/pages/musicians_06_cottage.webp",
+      "runtime_sha256": "37e72ca8ab2939bfc92f8f32a3806fc8b341e7467f9ea29cbcb0b9ebcd50ed11",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "quality": 85,
+      "method": 6
+    },
+    {
+      "asset": "musicians_07_stack",
+      "source": "local/art-development/town-musicians-landscape/musicians_07_stack.png",
+      "source_sha256": "7dd0796630069d826432bbb764070f359c300a2a9d41932648b7412ab86b8d66",
+      "runtime": "assets/jungle-book/pages/musicians_07_stack.webp",
+      "runtime_sha256": "c1f76dbac31d3ce9c28eb5f9d6f497ea26c68cda951e668d27775c877256a38a",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "quality": 85,
+      "method": 6
+    },
+    {
+      "asset": "musicians_08_singing",
+      "source": "local/art-development/town-musicians-landscape/musicians_08_singing.png",
+      "source_sha256": "11df905427687a753663870e744014519fe4e4a4b33e44ff50055a64da759fd3",
+      "runtime": "assets/jungle-book/pages/musicians_08_singing.webp",
+      "runtime_sha256": "6a7a20df2978fa7b1bf1a1f9c272a7513cda857989ea9d4bec7ec08a01501e40",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "quality": 85,
+      "method": 6
+    },
+    {
+      "asset": "musicians_09_rest",
+      "source": "local/art-development/town-musicians-landscape/musicians_09_rest.png",
+      "source_sha256": "45d00b14fe2f468bc3ecb7662b4e3956623bd9e2b691522ca7d0c1cceaeb7eb1",
+      "runtime": "assets/jungle-book/pages/musicians_09_rest.webp",
+      "runtime_sha256": "ee8b0aac9d369160d0ac5b3714bffa98b4e48561b4a8ca0674568d02109fca75",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "quality": 85,
+      "method": 6
+    },
+    {
+      "asset": "musicians_10_home",
+      "source": "local/art-development/town-musicians-landscape/musicians_10_home.png",
+      "source_sha256": "47c20d2cede5ae01d32f975c07b382ef11398e1318fe4e7b1ac28a4c97c63e0b",
+      "runtime": "assets/jungle-book/pages/musicians_10_home.webp",
+      "runtime_sha256": "5b398717cf660ee03d80215468e23151ffe1f4a0b2d88c99276408dc29bc1ef8",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "quality": 85,
+      "method": 6
+    }
+  ]
+}
