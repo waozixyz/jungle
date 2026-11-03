@@ -3,9 +3,14 @@
 API: capture_corpus(root) freezes canonical receipts and original input hashes.
 Generate with generate(root, {'model': 'Qwen3-TTS-...', 'pack': <exact identity>},
 engine, corpus=corpus), where engine is the caller's local_speech.Engine(pack).
-Only engine.write(text, 'Serena', language, output_path) is called, at its natural
-rate. validate(root, corpus) verifies the entire stage. promote(root, corpus) is
-an explicit, separate operation; it backs up every original before replacing any.
+That single identity speaks every clip as Serena at its natural rate. A voice
+plan instead maps each language and content kind (letter, word, sentence) to
+one of its exact local voice identities and may pin retake seeds per clip;
+spelling assemblies follow their sources. Each receipt records its voice, kind
+and seeds. engine.write(text, voice, language, output_path) is called, plus
+seeds=[...] only for a retake. validate(root, corpus) verifies the entire stage.
+promote(root, corpus) is an explicit, separate operation; it backs up every
+original before replacing any, optionally for selected paths only.
 The stage CLI loads local_speech_qwen.py from an explicit --harness-root and
 passes the --pack JSON object to Engine. --provider-module selects another
 safe Python filename under that root. --workers runs independent spawned CPU
@@ -40,7 +45,9 @@ RATE = 22050
 STAGE = Path('work/qwen-narration')
 METHOD = 'Verified word, literal letter names, word; PCM assembly'
 LANGUAGES = {'en', 'de', 'es'}
+KINDS = ('letter', 'word', 'sentence')
 SHA = re.compile(r'^[0-9a-f]{64}$')
+VOICE_NAME = re.compile(r'^[A-Za-z][A-Za-z0-9_-]{0,39}$')
 
 
 def digest(path):
@@ -219,9 +226,113 @@ def _harness(harness):
     return json.loads(json.dumps(identity, allow_nan=False))
 
 
+def content_kind(name, entry):
+    """letter (alphabet clip), word (one word) or sentence; assemblies are spelling."""
+    if 'sources' in entry:
+        return 'spelling'
+    if 'letters' in PurePosixPath(name).parts:
+        return 'letter'
+    return 'word' if len(re.findall(r'\w+', entry['text'])) <= 1 else 'sentence'
+
+
+def _voice_identity(name, value):
+    """A plan voice: speaker name, model and exact pack identity.
+
+    retake_pack is the identity of the (newer) provider that honours pinned
+    seeds; ordinary clips keep pack, so their cached audio stays valid.
+    """
+    if not isinstance(name, str) or not VOICE_NAME.fullmatch(name):
+        raise ValueError(f'unsafe voice name: {name!r}')
+    if not isinstance(value, dict) or not value.get('model') or not value.get('pack'):
+        raise ValueError(f'voice {name} requires nonempty model and exact pack identity')
+    if set(value) - {'provider', 'model', 'pack', 'retake_pack', 'voice', 'speed'}:
+        raise ValueError(f'unknown voice identity keys: {name}')
+    if value.get('provider', 'local_speech') != 'local_speech' or value.get('speed', 1.0) != 1.0:
+        raise ValueError('voice plans use the shared local_speech engine at natural rate 1.0')
+    if value.get('voice', name) != name:
+        raise ValueError(f'voice identity name mismatch: {name}')
+    identity = dict(provider='local_speech', model=value['model'], pack=value['pack'], voice=name, speed=1.0)
+    if value.get('retake_pack'):
+        identity['retake_pack'] = value['retake_pack']
+    return identity
+
+
+def _plan(harness):
+    """Normalize a single identity (Serena everywhere) or a per-kind voice plan."""
+    if not isinstance(harness, dict):
+        raise ValueError('harness must be an identity or voice plan object')
+    if 'voices' not in harness:
+        identity = _harness(harness)
+        return {'voices': {'Serena': identity}, 'default': 'Serena', 'languages': {}, 'retakes': {}}
+    if set(harness) - {'voices', 'default', 'languages', 'retakes'}:
+        raise ValueError('unknown voice plan keys')
+    if not isinstance(harness['voices'], dict) or not harness['voices']:
+        raise ValueError('voice plan requires voices')
+    voices = {name: _voice_identity(name, value) for name, value in harness['voices'].items()}
+    default = harness.get('default', 'Serena')
+    if default not in voices:
+        raise ValueError('voice plan default is not one of its voices')
+    languages = harness.get('languages', {})
+    if not isinstance(languages, dict) or any(
+            language not in LANGUAGES or not isinstance(kinds, dict)
+            or any(kind not in KINDS or voice not in voices for kind, voice in kinds.items())
+            for language, kinds in languages.items()):
+        raise ValueError('voice plan languages map en/de/es kinds to plan voices')
+    retakes = harness.get('retakes', {})
+    if not isinstance(retakes, dict):
+        raise ValueError('voice plan retakes must be an object')
+    for name, retake in retakes.items():
+        if (not isinstance(name, str) or not name.startswith('assets/') or not name.endswith('.wav')
+                or '..' in PurePosixPath(name).parts or not isinstance(retake, dict) or set(retake) != {'seeds'}
+                or not isinstance(retake['seeds'], list) or not 1 <= len(retake['seeds']) <= 8
+                or any(type(seed) is not int or not 0 <= seed < 2 ** 31 for seed in retake['seeds'])):
+            raise ValueError(f'invalid retake: {name}')
+    return json.loads(json.dumps(dict(voices=voices, default=default, languages=languages, retakes=retakes),
+                                 allow_nan=False))
+
+
+def _as_plan(identity):
+    """Accept a normalized plan or one normalized identity (internal callers/tests)."""
+    if 'voices' in identity:
+        return identity
+    return {'voices': {identity['voice']: identity}, 'default': identity['voice'], 'languages': {}, 'retakes': {}}
+
+
+def _clip_identity(plan, name, entry):
+    """Synthesis identity of one leaf clip: its kind's voice plus any retake seeds."""
+    plan = _as_plan(plan)
+    kind = content_kind(name, entry)
+    if kind == 'spelling':
+        raise ValueError(f'assemblies have no synthesis identity: {name}')
+    voice = plan['languages'].get(entry['language'], {}).get(kind, plan['default'])
+    identity = dict(plan['voices'][voice])
+    retake_pack = identity.pop('retake_pack', None)
+    if name in plan['retakes']:
+        identity['seeds'] = list(plan['retakes'][name]['seeds'])
+        if retake_pack:
+            identity['pack'] = retake_pack
+    return identity
+
+
+def _target_identity(plan, name, entry, corpus):
+    """Assemblies speak with their sources; record the voices they contain."""
+    if 'sources' not in entry:
+        return dict(_clip_identity(plan, name, entry), kind=content_kind(name, entry))
+    identities = [_target_identity(plan, source, corpus[source], corpus) for source in entry['sources']]
+    identity = {k: v for k, v in identities[0].items() if k not in ('seeds', 'kind', 'voices')}
+    voices = sorted({v for i in identities for v in i.get('voices', [i['voice']])})
+    identity['kind'] = 'spelling'
+    if voices != [identity['voice']]:
+        identity['voices'] = voices
+    return identity
+
+
 def _request(entry, identity):
-    return _identity(dict(language=entry['language'], text=entry['text'],
-                          pack={k: identity[k] for k in ('provider', 'model', 'pack')}, voice=identity['voice']))
+    request = dict(language=entry['language'], text=entry['text'],
+                   pack={k: identity[k] for k in ('provider', 'model', 'pack')}, voice=identity['voice'])
+    if 'seeds' in identity:
+        request['seeds'] = identity['seeds']
+    return _identity(request)
 
 
 def _metadata(entry, identity, output_root):
@@ -336,7 +447,9 @@ def _cache_clip(cache, name, entry, identity, engine):
             action = 'clip'
             with tempfile.TemporaryDirectory(dir=cache, prefix='synthesis-') as directory:
                 raw, converted = Path(directory) / 'engine.wav', Path(directory) / 'pcm.wav'
-                engine.write(entry['text'], identity['voice'], entry['language'], raw)
+                # Retakes pass their pinned seeds; ordinary requests keep the engine defaults.
+                options = {'seeds': identity['seeds']} if 'seeds' in identity else {}
+                engine.write(entry['text'], identity['voice'], entry['language'], raw, **options)
                 if not raw.is_file() or raw.stat().st_size > 256 * 1024 * 1024:
                     raise ValueError(f'missing or oversized engine output: {name}')
                 subprocess.run(['ffmpeg', '-nostdin', '-v', 'error', '-y', '-threads', '1',
@@ -403,73 +516,123 @@ def _worker_clip(cache, name, entry, identity):
 
 
 def synthesis_requests(corpus, identity):
-    """Stable disjoint claims: identical text/language/voice has ONE owner."""
+    """Stable disjoint claims: identical text/language/voice/seeds has ONE owner.
+
+    identity is one normalized identity or a normalized voice plan.
+    """
     requests = {}
     for name in sorted(corpus):
         entry = corpus[name]
         if 'sources' not in entry:
-            requests.setdefault(_request(entry, identity), (name, entry))
+            requests.setdefault(_request(entry, _clip_identity(identity, name, entry)), (name, entry))
     return requests
+
+
+def _shared(entry, identity):
+    return {k: v for k, v in _metadata(entry, identity, None).items() if k != 'input_identity'}
 
 
 def _pending_requests(cache, corpus, identity):
     return {key: pair for key, pair in synthesis_requests(corpus, identity).items()
-            if not _reusable(cache / (key + '.wav'),
-                             {k: v for k, v in _metadata(pair[1], identity, None).items()
-                              if k != 'input_identity'})}
+            if not _reusable(cache / (key + '.wav'), _shared(pair[1], _clip_identity(identity, *pair)))}
+
+
+def _voice_option(value, voice):
+    """A per-voice dict selects that voice's engine/config; anything else is shared."""
+    if isinstance(value, dict) and not hasattr(value, 'write'):
+        if voice not in value:
+            raise ValueError(f'no local engine configured for voice {voice}')
+        return value[voice]
+    return value
 
 
 def generate(root, harness, engine=None, *, corpus=None, workers=1,
              worker_config=None, resume=False):
     """Resume full staged coverage with bounded independent CPU processes.
 
-    Only the coordinator writes staged targets and dependency assemblies. Workers
-    own disjoint synthesis requests and atomically save the same cache receipts
-    as sequential generation. Each process reuses its own model and seeded RNG.
+    harness is one exact identity (Serena everywhere) or a voice plan. engine
+    and worker_config may be dictionaries keyed by plan voice. Only the
+    coordinator writes staged targets and dependency assemblies. Workers own
+    disjoint synthesis requests and atomically save the same cache receipts as
+    sequential generation. Each process reuses its own model and seeded RNG;
+    voice groups with different configurations run one after another.
     """
     if not isinstance(workers, int) or isinstance(workers, bool) or not 1 <= workers <= 3:
         raise ValueError('workers must be between 1 and 3')
     if workers > 1 and (engine is not None or not worker_config):
         raise ValueError('parallel generation requires a provider configuration, not a shared engine')
     root = Path(root).resolve()
-    identity = _harness(harness)
+    plan = _plan(harness)
     current = capture_corpus(root)
     if corpus is not None and current != corpus:
         raise ValueError('corpus changed since capture; recapture before generation')
     corpus = current
     ordered = _order(root, corpus)
+    for name in plan['retakes']:
+        if name not in corpus or 'sources' in corpus[name]:
+            raise ValueError(f'retake is not a synthesized canonical clip: {name}')
     work = _ignored(root, STAGE)
     with _claim(work / 'coordinator.lock', blocking=False):
         if resume:
             (work / 'pause.request').unlink(missing_ok=True)
         _pause(work)
-        return _generate_locked(root, identity, engine, corpus, ordered, work,
+        return _generate_locked(root, harness, plan, engine, corpus, ordered, work,
                                 workers, worker_config)
 
 
-def _generate_locked(root, identity, engine, corpus, ordered, work, workers, worker_config):
+def _inventory(harness, plan, corpus):
+    if 'voices' not in harness:
+        return {'format': 'jungle-local-narration-1', 'corpus_sha256': _identity(corpus),
+                'identity': plan['voices']['Serena']}
+    return {'format': 'jungle-local-narration-2', 'corpus_sha256': _identity(corpus), 'plan': plan}
+
+
+def _generate_locked(root, harness, plan, engine, corpus, ordered, work, workers, worker_config):
     output_root = _inside(root, (STAGE / 'staged').as_posix())
     cache = _inside(root, (STAGE / 'cache').as_posix())
     cache.mkdir(parents=True, exist_ok=True)
     _write_json(work / 'corpus.json', corpus)
-    _write_json(work / 'inventory.json', {'format': 'jungle-local-narration-1',
-                                        'corpus_sha256': _identity(corpus), 'identity': identity})
-    if workers == 1 and engine is None:
-        engine = _provider_engine(*worker_config)
+    _write_json(work / 'inventory.json', _inventory(harness, plan, corpus))
+    engines = {}
+
+    def engine_for(voice):
+        if engine is not None:
+            return _voice_option(engine, voice)
+        config = tuple(_voice_option(worker_config, voice))
+        key = json.dumps(config, sort_keys=True)
+        if key not in engines:
+            engines.clear()  # keep one loaded model at a time
+            engines[key] = _provider_engine(*config)
+        return engines[key]
+
     _write_json(work / 'coordinator-resources.json', _resources())
-    pool, futures = None, {}
+    pools, futures = [], {}
     if workers > 1:
-        pool = ProcessPoolExecutor(max_workers=workers,
-                                   mp_context=multiprocessing.get_context('spawn'),
-                                   initializer=_worker_init, initargs=(*worker_config, str(cache)))
-        for key, (name, entry) in _pending_requests(cache, corpus, identity).items():
-            futures[key] = pool.submit(_worker_clip, str(cache), name, entry, identity)
+        groups = {}
+        for key, (name, entry) in _pending_requests(cache, corpus, plan).items():
+            identity = _clip_identity(plan, name, entry)
+            config = tuple(_voice_option(worker_config, identity['voice']))
+            groups.setdefault(json.dumps(config, sort_keys=True), (config, []))[1].append(
+                (key, name, entry, identity))
+        for index, (config, items) in enumerate(groups.values(), 1):
+            pool = ProcessPoolExecutor(max_workers=workers,
+                                       mp_context=multiprocessing.get_context('spawn'),
+                                       initializer=_worker_init, initargs=(*config, str(cache)))
+            pools.append(pool)
+            group = {key: pool.submit(_worker_clip, str(cache), name, entry, identity)
+                     for key, name, entry, identity in items}
+            futures.update(group)
+            if index < len(groups):
+                # Bound memory: finish one voice model's requests before the next loads.
+                for future in group.values():
+                    future.result()
+                pool.shutdown(wait=True)
     try:
         for index, name in enumerate(ordered, 1):
             _pause(work)
             entry = corpus[name]
             target = _asset(output_root, name)
-            metadata = _metadata(entry, identity, output_root)
+            metadata = _metadata(entry, _target_identity(plan, name, entry, corpus), output_root)
             if _reusable(target, metadata):
                 print(f'local narration {index}/{len(ordered)} staged: {name}', file=sys.stderr, flush=True)
                 continue
@@ -488,21 +651,22 @@ def _generate_locked(root, identity, engine, corpus, ordered, work, workers, wor
                 if key in futures:
                     action = futures.pop(key).result()
                 else:
-                    action = _cache_clip(cache, name, entry, identity, engine)
+                    identity = _clip_identity(plan, name, entry)
+                    action = _cache_clip(cache, name, entry, identity, engine_for(identity['voice']))
                 _copy(cache / (key + '.wav'), target)
             _save_receipt(target, metadata)
             print(f'local narration {index}/{len(ordered)} {action}: {name}', file=sys.stderr, flush=True)
         validate(root, corpus)
         return corpus
     except BaseException as error:
-        if pool:
+        if pools:
             _write_json(work / 'parallel-failure.json', {
                 'error': repr(error), 'resources': _resources(),
                 'workers': [{'pid': p.pid, 'exitcode': p.exitcode}
-                            for p in pool._processes.values()]})
+                            for pool in pools for p in (pool._processes or {}).values()]})
         raise
     finally:
-        if pool:
+        for pool in pools:
             pool.shutdown(wait=True, cancel_futures=True)
 
 
@@ -515,9 +679,16 @@ def validate(root, corpus):
         raise ValueError('corpus does not cover the entire canonical inventory')
     work = _inside(root, STAGE.as_posix())
     inventory = _json(work / 'inventory.json')
-    if inventory.get('format') != 'jungle-local-narration-1' or inventory.get('corpus_sha256') != _identity(corpus):
+    if (inventory.get('format') not in ('jungle-local-narration-1', 'jungle-local-narration-2')
+            or inventory.get('corpus_sha256') != _identity(corpus)):
         raise ValueError('staged inventory does not match corpus')
-    identity = _harness(inventory['identity'])
+    if inventory['format'] == 'jungle-local-narration-1':
+        plan = _plan(inventory['identity'])
+    else:
+        plan = _plan(inventory['plan'])
+        if plan != inventory['plan']:
+            raise ValueError('staged voice plan is not normalized')
+    identity = plan['voices'][plan['default']]
     if _json(work / 'corpus.json') != corpus:
         raise ValueError('staged corpus snapshot mismatch')
     output_root = _inside(root, (STAGE / 'staged').as_posix())
@@ -529,7 +700,7 @@ def validate(root, corpus):
     total = 0
     for name in ordered:
         path = _asset(output_root, name)
-        metadata = _metadata(corpus[name], identity, output_root)
+        metadata = _metadata(corpus[name], _target_identity(plan, name, corpus[name], corpus), output_root)
         _verified(path, metadata)
         if 'sources' in corpus[name]:
             expected = _assemble(output_root, corpus[name])
@@ -537,27 +708,36 @@ def validate(root, corpus):
                 if clip.readframes(clip.getnframes()) != expected:
                     raise ValueError(f'assembly PCM does not match exact recipe: {name}')
         total += path.stat().st_size
-    return {'paths': len(corpus), 'audio_bytes': total, 'identity': identity}
+    return {'paths': len(corpus), 'audio_bytes': total, 'identity': identity, 'plan': plan}
 
 
-def promote(root, corpus, *, languages=None):
+def promote(root, corpus, *, languages=None, paths=None):
     """Explicit promotion only after full validation; resumable per-file copies.
 
     A stable backup directory records the original audio AND receipts. All
     backups finish before the first replacement. Interrupted WAV/receipt pairs
     can resume only when each file is still original or matches this stage.
+    paths limits promotion to those canonical clips (for example retakes); it
+    must include every assembly built from a selected clip.
     """
     root = Path(root).resolve()
     selected = LANGUAGES if languages is None else set(languages)
     if not selected or not selected <= LANGUAGES:
         raise ValueError('promotion requires supported languages')
+    if paths is not None:
+        paths = set(paths)
+        if not paths or not paths <= set(corpus):
+            raise ValueError('promotion paths must be canonical corpus clips')
+        for name, entry in corpus.items():
+            if name not in paths and paths & set(entry.get('sources', [])):
+                raise ValueError(f'promotion must include dependent assembly: {name}')
     validate(root, corpus)
     inventory = _json(_inside(root, (STAGE / 'inventory.json').as_posix()))
     output_root = _inside(root, (STAGE / 'staged').as_posix())
     backup = _ignored(root, Path('backup/qwen-narration') / _identity(inventory))
     files = []
     for name, entry in sorted(corpus.items()):
-        if entry['language'] not in selected:
+        if entry['language'] not in selected or (paths is not None and name not in paths):
             continue
         original = _asset(root, name)
         staged = _asset(output_root, name)
@@ -579,7 +759,10 @@ def promote(root, corpus, *, languages=None):
         if digest(prior) != original_hash:
             raise ValueError(f'backup verification failed: {prior}')
     journal = backup / 'promotion.json'
-    _write_json(journal, {'inventory': inventory, 'languages': sorted(selected), 'status': 'promoting'})
+    scope = {'inventory': inventory, 'languages': sorted(selected)}
+    if paths is not None:
+        scope['paths'] = sorted(paths)
+    _write_json(journal, dict(scope, status='promoting'))
     for target, source, prior, original_hash, staged_hash in files:
         if digest(target) not in (original_hash, staged_hash):
             raise ValueError(f'asset changed during promotion: {target}')
@@ -587,8 +770,29 @@ def promote(root, corpus, *, languages=None):
             _copy(source, target)
         if digest(target) != staged_hash:
             raise ValueError(f'promoted asset hash mismatch: {target}')
-    _write_json(journal, {'inventory': inventory, 'languages': sorted(selected), 'status': 'complete'})
+    _write_json(journal, dict(scope, status='complete'))
     return backup
+
+
+def settings_plan(root, voices):
+    """Voice plan from speech.json plus exact identities for the voices it names.
+
+    narration.<lang>.voices maps letter/word/sentence to a voice name (default:
+    narration.<lang>.voice for every kind); narration.<lang>.retakes pins seeds
+    for individual clips. English stays Bella and keeps the Serena stage default.
+    """
+    settings = _json(Path(root) / 'speech.json')['narration']
+    languages, retakes = {}, {}
+    for language in sorted(LANGUAGES - {'en'}):
+        entry = settings.get(language, {})
+        languages[language] = dict({kind: entry['voice'] for kind in KINDS}, **entry.get('voices', {}))
+        retakes.update(entry.get('retakes', {}))
+    used = {voice for kinds in languages.values() for voice in kinds.values()} | {'Serena'}
+    missing = used - set(voices)
+    if missing:
+        raise ValueError('no identity for planned voices: ' + ', '.join(sorted(missing)))
+    return _plan(dict(voices={name: voices[name] for name in sorted(used)}, default='Serena',
+                      languages=languages, retakes=retakes))
 
 
 def main():
@@ -600,6 +804,7 @@ def main():
     parser.add_argument('--provider-module', default='local_speech_qwen.py', help='safe Python filename under --harness-root')
     parser.add_argument('--pack', type=Path, help='JSON object passed to Engine, e.g. provider qwen3-tts and model checkpoint path')
     parser.add_argument('--identity', type=Path, help='JSON with model and exact immutable pack identity')
+    parser.add_argument('--voices', type=Path, help='JSON {voice: {model, pack, engine}}; speech.json picks voices per kind')
     parser.add_argument('--workers', type=int, default=1, choices=range(1, 4))
     parser.add_argument('--resume', action='store_true', help='clear a cooperative pause after obtaining the stage lock')
     args = parser.parse_args()
@@ -614,22 +819,33 @@ def main():
     elif args.command == 'validate':
         print(json.dumps(validate(args.root, _json(args.root / STAGE / 'corpus.json'))))
     else:
-        if not all((args.harness_root, args.pack, args.identity)):
-            parser.error('stage requires --harness-root, --pack and --identity')
+        if (not args.harness_root or (args.voices and (args.pack or args.identity))
+                or not (args.voices or (args.pack and args.identity))):
+            parser.error('stage requires --harness-root and either --voices or --pack and --identity')
         if not re.fullmatch(r'[A-Za-z_][A-Za-z0-9_]*\.py', args.provider_module):
             parser.error('--provider-module must be a safe Python basename')
-        identity = _harness(_json(args.identity))
-        pack = _json(args.pack)
-        if not isinstance(pack, dict) or not pack:
-            parser.error('--pack must contain a nonempty JSON object')
-        corpus = capture_corpus(args.root)
         provider = args.harness_root.resolve() / args.provider_module
         if not provider.is_file():
             parser.error(f'standalone local provider not found: {provider}')
+        if args.voices:
+            voices = _json(args.voices)
+            if not isinstance(voices, dict) or not all(
+                    isinstance(v, dict) and isinstance(v.get('engine'), dict) and v['engine'] for v in voices.values()):
+                parser.error('--voices maps each voice to model, pack and a nonempty engine object')
+            identity = settings_plan(args.root, {name: {k: v for k, v in value.items() if k != 'engine'}
+                                                 for name, value in voices.items()})
+            config = {name: (str(provider), voices[name]['engine']) for name in identity['voices']}
+        else:
+            identity = _harness(_json(args.identity))
+            pack = _json(args.pack)
+            if not isinstance(pack, dict) or not pack:
+                parser.error('--pack must contain a nonempty JSON object')
+            config = (str(provider), pack)
+        corpus = capture_corpus(args.root)
         engine = None
         try:
             generate(args.root, identity, engine, corpus=corpus, workers=args.workers,
-                     worker_config=(str(provider), pack), resume=args.resume)
+                     worker_config=config, resume=args.resume)
         except Paused as error:
             print(str(error), file=sys.stderr)
             return 75

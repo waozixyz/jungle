@@ -1,77 +1,43 @@
 {
   "provider": "local_speech",
-  "model": "qwen3-tts-0.6b-customvoice",
+  "model": "kokoro-german-victoria",
   "pack": {
-    "repository": "Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice",
-    "revision": "85e237c12c027371202489a0ec509ded67b5e4b5",
+    "repository": "soniqo/Kokoro-82M-German-Victoria-ONNX",
+    "revision": "6f9913452e55d35e0db313808d679dd344329d8e",
     "files": [
       {
-        "file": "config.json",
-        "bytes": 4908,
-        "sha256": "81aca2b6fac304944d8acf345272d8a9a727d5fc2e2e66b222ab4729340c7455"
+        "file": "kokoro-e2e.onnx",
+        "bytes": 3643581,
+        "sha256": "de2dbe0a64c003e74a089606410b3880d091cc976b5a35a8031167aa6e36e2c1"
       },
       {
-        "file": "generation_config.json",
-        "bytes": 245,
-        "sha256": "f1b90b4513f3b34c62851049e2492d7b4c5940daf1276f89c82b8ef04127f3aa"
+        "file": "kokoro-e2e.onnx.data",
+        "bytes": 162013184,
+        "sha256": "3f43d770f2fa2c3847e892a3a1db40429f5b242f91e4240d884be738526539ad"
       },
       {
-        "file": "merges.txt",
-        "bytes": 1671839,
-        "sha256": "599bab54075088774b1733fde865d5bd747cbcc7a547c5bc12610e874e26f5e3"
+        "file": "voices/df_victoria.bin",
+        "bytes": 1024,
+        "sha256": "8f85dcce3fd854bd341f7c1ed4fab86a59e310dfb9d7da6a11239f087255b07f"
       },
       {
-        "file": "model.safetensors",
-        "bytes": 1811626576,
-        "sha256": "bc3c7e785eb961179c25450d1acff03f839e0002f2f3a5aeb67b5735c0fa2adb"
-      },
-      {
-        "file": "preprocessor_config.json",
-        "bytes": 127,
-        "sha256": "efdde1022ea9d76928bf7a9cd53139138f5ba2e466e837f08f6105ab1af1c119"
-      },
-      {
-        "file": "tokenizer_config.json",
-        "bytes": 7344,
-        "sha256": "dc3c31c3bdaedd5016382bb3cbe07323026775ad51f5a4fb564505992ae4a670"
-      },
-      {
-        "file": "vocab.json",
-        "bytes": 2776833,
-        "sha256": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910"
-      },
-      {
-        "file": "speech_tokenizer/config.json",
-        "bytes": 2336,
-        "sha256": "ee65bb901c876664ab8707c487157aa1a6ee57c65969b28fb5ec9dc211e68167"
-      },
-      {
-        "file": "speech_tokenizer/configuration.json",
-        "bytes": 76,
-        "sha256": "6bc26d64eb5024b4d1dab5a52371958b429256d6c9d59787f1f5294a54e0cebd"
-      },
-      {
-        "file": "speech_tokenizer/model.safetensors",
-        "bytes": 682293092,
-        "sha256": "836b7b357f5ea43e889936a3709af68dfe3751881acefe4ecf0dbd30ba571258"
-      },
-      {
-        "file": "speech_tokenizer/preprocessor_config.json",
-        "bytes": 234,
-        "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
+        "file": "vocab_index.json",
+        "bytes": 1842,
+        "sha256": "085b753f40080164896d7cb04355222c3e3118391014355bb28e8d06ece62e0a"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "7b69a5be5321f0cc35718d2091d98ff0c15ebf8315f5f571793eda8303043481"
   },
-  "voice": "Serena",
+  "voice": "df_victoria",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Schlange. es. ze. ha. el. a. en. ge. e. Schlange.",
   "language": "de",
   "input_identity": {
-    "audio_sha256": "220b683283d52ee05daab55ea69df350b6a43c18b804add5f15d33fd55967481",
-    "receipt_sha256": "23ab918bd4fd3a7624a9385d9cdd30735c91552231536a2322154638d39803b5"
+    "audio_sha256": "0400cba3eee191073429f10c808ea01b15f1a689659a2926fd72bcb7d7a73fe8",
+    "receipt_sha256": "59a4f742a8a4cad551b0c4f8b6a79a3ad92d216ccebf23a4e6b5b67367eb4732"
   },
-  "request_sha256": "d989725196265cf86a09434a4974433537d60f0df5277880b87abfdef5e4c501",
+  "request_sha256": "ff1aaadbadb7c7cd418d32ef83048a42e36aae796a5eb26bfb8be770eaecb191",
   "method": "Verified word, literal letter names, word; PCM assembly",
   "recipe": {
     "method": "Verified word, literal letter names, word; PCM assembly",
@@ -142,41 +108,41 @@
   "sources": [
     {
       "path": "assets/jungle-book/sounds/de/simple/snake.wav",
-      "sha256": "6f287dbf06c6ac5b0a9be20dbf885ebb229731194a7ea438fd02ffe84be85cab"
+      "sha256": "477f474b3e3264fe836d11081434d11a14a014915df6f1e1c9371989f138a07d"
     },
     {
       "path": "assets/jungle-book/sounds/de/letters/0073.wav",
-      "sha256": "6772d30d1959098e0d90c71893216c1acae3ef80b80def8dfeebc7215e8d54cf"
+      "sha256": "977bdcddab04f54c775fdeff4ee6b3c61e3a2864e702aadc9ea7894091cb3de1"
     },
     {
       "path": "assets/jungle-book/sounds/de/letters/0063.wav",
-      "sha256": "dda68b3fdabd64f4d0a2c1f213226063050d307b7a7644f99219b4bb1292d4a4"
+      "sha256": "4a57a6f995d74d65f0ce89effc1a4727b48867a7295349890ed5a9938a7b5594"
     },
     {
       "path": "assets/jungle-book/sounds/de/letters/0068.wav",
-      "sha256": "49ec7844530eb0dc61b295c036d788e793758d2c09129f004102ec56737fe460"
+      "sha256": "ed973d92b90ad79d8d610e593f8712d3fbd4723475e7ecd549550b1d8df9a600"
     },
     {
       "path": "assets/jungle-book/sounds/de/letters/006c.wav",
-      "sha256": "bd23372eba0352e668f73130e205ff9f9593ace49f94f1f80f25e12273974d88"
+      "sha256": "293671c3f51c128127e9361d4a8368f4217fc1889f34416303343ff48aff94d0"
     },
     {
       "path": "assets/jungle-book/sounds/de/letters/0061.wav",
-      "sha256": "96fcd6b536d05a7b797a356fe027d0ea312976cb923994525b7031e893ad7d87"
+      "sha256": "4f9ae082bc049997fe5d685f3a531951f731861accbe83c48e378e3f91f12f7a"
     },
     {
       "path": "assets/jungle-book/sounds/de/letters/006e.wav",
-      "sha256": "dcbdf537841d76367eec57aaf9c42a2e4fcb0010681fb69856ef3127170fe616"
+      "sha256": "19febbef1ac582e7c22a6fe9796b3cbd76e945af32fa30a2640612d8ceb55ce1"
     },
     {
       "path": "assets/jungle-book/sounds/de/letters/0067.wav",
-      "sha256": "1aa0a15bedc56bba2b3711f86acebbefb28b014b9642c68ed99721792d486b28"
+      "sha256": "ce8cd83c7ca6565815e0b38f9121bbca4368b23d4b44c6f2e1de60accd353744"
     },
     {
       "path": "assets/jungle-book/sounds/de/letters/0065.wav",
-      "sha256": "489d57eb5f62397c531adc3666985a630b53b56d37bba81e9cf366feb91bcad5"
+      "sha256": "41d7aed36ebdf5e0aa684386b3ae9711e6612520f5dc752815dfa5b8f33d481d"
     }
   ],
-  "sha256": "0400cba3eee191073429f10c808ea01b15f1a689659a2926fd72bcb7d7a73fe8",
-  "duration": 8.63219954648526
+  "sha256": "477c9156c6375b4f0eadd525df0e152d2dd08c19a0dcd9b55cb3773a9fd72705",
+  "duration": 9.862312925170068
 }

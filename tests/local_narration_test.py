@@ -50,7 +50,7 @@ class Engine:
         write_wave(output, rate=24000, channels=2, silent=self.silent, seconds=self.seconds)
 
 
-class LocalNarrationTest(unittest.TestCase):
+class NarrationFixture(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         if not shutil.which('ffmpeg'):
@@ -110,6 +110,8 @@ class LocalNarrationTest(unittest.TestCase):
     def staged(self, name):
         return self.root / narration.STAGE / 'staged' / name
 
+
+class LocalNarrationTest(NarrationFixture):
     def test_language_identification_and_complete_capture(self):
         self.add('assets/other/explicit.wav', 'Hola', language='Spanish')
         corpus = narration.capture_corpus(self.root, expected_counts={'en': 5, 'de': 1, 'es': 2})
@@ -503,6 +505,175 @@ class LocalNarrationTest(unittest.TestCase):
         self.assertEqual(self.snapshot(), original)
         self.assertFalse((self.root / 'backup').exists())
         narration.validate(self.root, narration.capture_corpus(self.root))
+
+
+class SeededEngine(Engine):
+    """Fixture engine that also accepts pinned retake seeds."""
+    def write(self, text, voice, language, output, seeds=None):
+        self.calls.append((text, voice, language, seeds))
+        write_wave(output, rate=24000, channels=2, silent=self.silent, seconds=self.seconds)
+
+
+RYAN = {'model': 'Qwen3-TTS-fixture', 'pack': {'sha256': 'fixture-pack-1'}}
+RETAKE_PACK = {'sha256': 'fixture-pack-retake'}
+
+
+class VoicePlanTest(NarrationFixture):
+    """Per-kind voices, retake seeds and scoped promotion on disposable fixtures."""
+
+    def setUp(self):
+        super().setUp()
+        self.engine = SeededEngine()
+        self.one = 'assets/jungle-book/sounds/de/simple/one.wav'
+        self.de_a = 'assets/jungle-book/sounds/de/letters/a.wav'
+        self.de_b = 'assets/jungle-book/sounds/de/letters/b.wav'
+        self.lesson = 'assets/jungle-book/sounds/de/lesson.wav'
+        self.add(self.one, 'Ab.')
+        self.add(self.de_a, 'A')
+        self.add(self.de_b, 'B')
+        self.add(self.lesson, 'Ab. A. B. Ab.', sources=[self.one, self.de_a, self.de_b])
+        self.plan = {
+            'voices': {'Serena': dict(IDENTITY, retake_pack=RETAKE_PACK), 'Ryan': RYAN},
+            'default': 'Serena',
+            'languages': {'de': {'word': 'Ryan', 'sentence': 'Ryan', 'letter': 'Serena'}},
+            'retakes': {self.de_a: {'seeds': [7, 8]}},
+        }
+
+    def receipt(self, name):
+        return json.loads(self.staged(name).with_suffix('.speech.json').read_text())
+
+    def test_kinds(self):
+        corpus = narration.capture_corpus(self.root)
+        self.assertEqual(narration.content_kind(self.one, corpus[self.one]), 'word')
+        self.assertEqual(narration.content_kind(self.de_a, corpus[self.de_a]), 'letter')
+        self.assertEqual(narration.content_kind('assets/jungle-book/sounds/de/simple/word.wav',
+                                                corpus['assets/jungle-book/sounds/de/simple/word.wav']), 'sentence')
+        self.assertEqual(narration.content_kind(self.lesson, corpus[self.lesson]), 'spelling')
+
+    def test_plan_routes_voices_pins_retake_seeds_and_records_receipts(self):
+        before = self.snapshot()
+        corpus = narration.generate(self.root, self.plan, self.engine)
+        self.assertEqual(self.snapshot(), before)
+        calls = {(text, language): (voice, seeds) for text, voice, language, seeds in self.engine.calls}
+        self.assertEqual(calls[('Ab.', 'de')], ('Ryan', None))
+        self.assertEqual(calls[('A b', 'de')], ('Ryan', None))
+        self.assertEqual(calls[('B', 'de')], ('Serena', None))
+        self.assertEqual(calls[('A', 'de')], ('Serena', [7, 8]))
+        self.assertEqual(calls[('A', 'en')], ('Serena', None))
+        self.assertEqual(calls[('A b', 'es')], ('Serena', None))
+        word, letter, lesson = self.receipt(self.one), self.receipt(self.de_a), self.receipt(self.lesson)
+        self.assertEqual((word['voice'], word['kind'], word['pack']), ('Ryan', 'word', RYAN['pack']))
+        self.assertNotIn('seeds', word)
+        # Retakes record their seeds and the identity of the provider honouring them.
+        self.assertEqual((letter['voice'], letter['kind'], letter['seeds'], letter['pack']),
+                         ('Serena', 'letter', [7, 8], RETAKE_PACK))
+        self.assertEqual((lesson['voice'], lesson['kind'], lesson['voices']), ('Ryan', 'spelling', ['Ryan', 'Serena']))
+        self.assertNotIn('retake_pack', letter)
+        result = narration.validate(self.root, corpus)
+        self.assertEqual(result['plan']['retakes'], self.plan['retakes'])
+        inventory = json.loads((self.root / narration.STAGE / 'inventory.json').read_text())
+        self.assertEqual(inventory['format'], 'jungle-local-narration-2')
+        # A changed retake seed is a different synthesis request; resume is a noop.
+        self.engine.calls.clear()
+        narration.generate(self.root, self.plan, self.engine)
+        self.assertFalse(self.engine.calls)
+        changed = dict(self.plan, retakes={self.de_a: {'seeds': [9]}})
+        narration.generate(self.root, changed, self.engine)
+        self.assertEqual(self.engine.calls, [('A', 'Serena', 'de', [9])])
+        tampered = json.loads(self.staged(self.de_a).with_suffix('.speech.json').read_text())
+        tampered['voice'] = 'Ryan'
+        narration._write_json(self.staged(self.de_a).with_suffix('.speech.json'), tampered)
+        with self.assertRaisesRegex(ValueError, 'stale'):
+            narration.validate(self.root, corpus)
+
+    def test_engines_per_voice(self):
+        serena, ryan = SeededEngine(), SeededEngine()
+        narration.generate(self.root, self.plan, {'Serena': serena, 'Ryan': ryan})
+        self.assertEqual({c[1] for c in serena.calls}, {'Serena'})
+        self.assertEqual({c[1] for c in ryan.calls}, {'Ryan'})
+        shutil.rmtree(self.root / narration.STAGE)
+        with self.assertRaisesRegex(ValueError, 'no local engine configured for voice Ryan'):
+            narration.generate(self.root, self.plan, {'Serena': serena})
+
+    def test_invalid_plans_fail_before_generation(self):
+        for plan in [dict(self.plan, default='Aiden'),
+                     dict(self.plan, languages={'de': {'story': 'Ryan'}}),
+                     dict(self.plan, languages={'de': {'word': 'Aiden'}}),
+                     dict(self.plan, languages={'fr': {'word': 'Ryan'}}),
+                     dict(self.plan, retakes={self.de_a: {'seeds': []}}),
+                     dict(self.plan, retakes={self.de_a: {'seeds': [-1]}}),
+                     dict(self.plan, retakes={self.de_a: {'seeds': [1], 'voice': 'Ryan'}}),
+                     dict(self.plan, retakes={self.lesson: {'seeds': [1]}}),
+                     dict(self.plan, retakes={'assets/missing.wav': {'seeds': [1]}}),
+                     dict(self.plan, voices={'Ser ena': IDENTITY}),
+                     dict(self.plan, voices={'Ryan': dict(RYAN, speed=.8)}),
+                     dict(self.plan, extra=True)]:
+            with self.subTest(plan=plan), self.assertRaises(ValueError):
+                narration.generate(self.root, plan, self.engine)
+        self.assertFalse(self.engine.calls)
+
+    def test_promote_selected_paths_with_dependents_only(self):
+        corpus = narration.generate(self.root, self.plan, self.engine)
+        before = self.snapshot()
+        with self.assertRaisesRegex(ValueError, 'dependent assembly'):
+            narration.promote(self.root, corpus, paths={self.one})
+        with self.assertRaisesRegex(ValueError, 'canonical'):
+            narration.promote(self.root, corpus, paths={'assets/missing.wav'})
+        self.assertEqual(self.snapshot(), before)
+        chosen = {self.one, self.lesson}
+        backup = narration.promote(self.root, corpus, paths=chosen)
+        after = self.snapshot()
+        changed = {name for name in after if after[name] != before[name]}
+        self.assertEqual(changed, {n.removesuffix('.wav') + suffix for n in chosen for suffix in ('.wav', '.speech.json')})
+        journal = json.loads((backup / 'promotion.json').read_text())
+        self.assertEqual((journal['status'], journal['paths']), ('complete', sorted(chosen)))
+        self.assertTrue((backup / self.one).is_file())
+        self.assertFalse((backup / self.de_a).exists())
+
+    def test_settings_plan_from_speech_json(self):
+        narration._write_json(self.root / 'speech.json', {'narration': {
+            'de': {'voice': 'Serena', 'voices': {'word': 'Ryan', 'sentence': 'Ryan'},
+                   'retakes': {self.de_a: {'seeds': [7, 8]}}},
+            'es': {'voice': 'Serena'}, 'en': {'voice': 'af_bella'}}})
+        plan = narration.settings_plan(self.root, {'Serena': dict(IDENTITY, retake_pack=RETAKE_PACK), 'Ryan': RYAN})
+        self.assertEqual(plan['languages']['de'], {'letter': 'Serena', 'word': 'Ryan', 'sentence': 'Ryan'})
+        self.assertEqual(plan['languages']['es'], {'letter': 'Serena', 'word': 'Serena', 'sentence': 'Serena'})
+        self.assertEqual(plan['retakes'], {self.de_a: {'seeds': [7, 8]}})
+        self.assertNotIn('en', plan['languages'])
+        with self.assertRaisesRegex(ValueError, 'no identity for planned voices: Ryan'):
+            narration.settings_plan(self.root, {'Serena': IDENTITY})
+
+    def test_voices_cli_stages_plan_from_speech_json(self):
+        narration._write_json(self.root / 'speech.json', {'narration': {
+            'de': {'voice': 'Serena', 'voices': {'word': 'Ryan', 'sentence': 'Ryan'},
+                   'retakes': {self.de_a: {'seeds': [7]}}},
+            'es': {'voice': 'Serena'}}})
+        provider = self.root / 'provider'
+        provider.mkdir()
+        (provider / 'local_speech_qwen.py').write_text(
+            'import json,shutil\nfrom pathlib import Path\nclass Engine:\n'
+            '    def __init__(self, pack):\n'
+            '        self.pack = pack\n'
+            '    def write(self, text, voice, language, output, seeds=None):\n'
+            '        assert voice == self.pack["voice"], (voice, self.pack)\n'
+            '        with open(self.pack["log"], "a") as log: log.write(json.dumps([text, voice, language, seeds]) + "\\n")\n'
+            '        shutil.copyfile(self.pack["tone"], output)\n')
+        write_wave(self.root / 'tone.wav', rate=24000, channels=2)
+        log = self.root / 'calls.jsonl'
+        voices = {name: dict(identity, engine={'voice': name, 'tone': str(self.root / 'tone.wav'), 'log': str(log)})
+                  for name, identity in (('Serena', IDENTITY), ('Ryan', RYAN))}
+        narration._write_json(self.root / 'voices.json', voices)
+        command = [sys.executable, str(ROOT / 'tools/local_narration.py'), 'stage', '--root', str(self.root),
+                   '--harness-root', str(provider), '--voices', str(self.root / 'voices.json')]
+        result = subprocess.run(command, text=True, capture_output=True, timeout=60)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(json.loads(result.stdout)['plan']['retakes'], {self.de_a: {'seeds': [7]}})
+        calls = [json.loads(line) for line in log.read_text().splitlines()]
+        self.assertIn(['A', 'Serena', 'de', [7]], calls)
+        self.assertIn(['Ab.', 'Ryan', 'de', None], calls)
+        mixed = subprocess.run(command + ['--pack', str(self.root / 'voices.json')], text=True,
+                               capture_output=True, timeout=60)
+        self.assertEqual(mixed.returncode, 2)
 
 
 if __name__ == '__main__':

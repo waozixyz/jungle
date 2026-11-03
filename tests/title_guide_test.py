@@ -75,8 +75,9 @@ for language in LANGUAGES:
         receipt = verify_recording(path, text)
         if language != "en":
             assert receipt["language"] == language
-            assert receipt["speed"] == 1.0 and receipt["voice"] == "Serena"
-            assert receipt["model"] == "qwen3-tts-0.6b-customvoice"
+            narration = json.loads((ROOT / "speech.json").read_text())["narration"][language]
+            assert receipt["speed"] == 1.0 and receipt["voice"] == narration["voice"]
+            assert receipt["model"] == narration["model"]
             continue
         original = path.relative_to(ROOT).as_posix()
         for profile, speed in speeds.items():

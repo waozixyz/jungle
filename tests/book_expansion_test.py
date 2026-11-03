@@ -30,7 +30,7 @@ REUSED = {'mango', 'banana', 'coconut', 'pineapple', 'flower', 'book',
 # Four covers follow their book's new first page and are checked below instead.
 # The Bella refresh retains all 3309 protected names; english_speech_test.py
 # independently verifies every profile's literal speech and PCM composition.
-ORIGINAL_DIGEST = '71fae25718a5f9ee6d9e6f303d58c13c4e32b236699244d24b456c0bffc79b9a'
+ORIGINAL_DIGEST = '46e7c238e61082bee119525dae5737a34c365e170f8188288c9228ad86523324'
 ORIGINAL_COUNT = 3309
 NEW_COVERS = {'birds': 'owl', 'fruits': 'apricot', 'bedtime': 'toothpaste', 'nature': 'waterfall'}
 NEW_LETTER = 'assets/jungle-book/sounds/es/letters/00fc'

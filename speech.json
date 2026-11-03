@@ -2,8 +2,8 @@
   "version": 1,
   "narration": {
     "de": {
-      "model": "qwen3-tts-0.6b-customvoice",
-      "voice": "Serena",
+      "model": "kokoro-german-victoria",
+      "voice": "df_victoria",
       "default_profile": "normal",
       "profiles": {"normal": 1.0}
     },
@@ -11,7 +11,10 @@
       "model": "qwen3-tts-0.6b-customvoice",
       "voice": "Serena",
       "default_profile": "normal",
-      "profiles": {"normal": 1.0}
+      "profiles": {"normal": 1.0},
+      "retakes": {
+        "assets/jungle-book/sounds/es/simple/crocodile.wav": {"seeds": [6]}
+      }
     },
     "en": {
       "model": "kokoro-82m-uint8",

@@ -5,6 +5,8 @@ The returned inventory lives at work/qwen-profiles/staged/assets/speech-profiles
 Normal mappings refer to the exact natural-rate Qwen stage, without copying it.
 After promoting that stage, the caller may copy the validated slow/fast tree and
 publish this inventory last. validate_inventory checks the resulting asset tree.
+Every recording records the voice and model of its receipt; the inventory's
+voice/model name the stage default and voices lists every voice used.
 """
 from pathlib import Path
 import math
@@ -45,8 +47,19 @@ def _measure(path):
 
 
 def _evidence(path, language):
+    receipt = narration._json(path.with_suffix('.speech.json'))
     return dict(sha256=narration.digest(path), receipt_sha256=narration.digest(path.with_suffix('.speech.json')),
-                frame_count=_measure(path), language=language)
+                frame_count=_measure(path), language=language,
+                voice=receipt.get('voice'), model=receipt.get('model'))
+
+
+def _receipt_identity(receipt):
+    """The exact synthesis identity a receipt claims (retake seeds and kind included)."""
+    identity = {k: receipt[k] for k in ('provider', 'model', 'pack', 'voice', 'speed') if k in receipt}
+    for key in ('seeds', 'kind', 'voices'):
+        if key in receipt:
+            identity[key] = receipt[key]
+    return identity
 
 
 def _parts(entry, profile):
@@ -69,11 +82,13 @@ def stage_profiles(root, corpus):
     result = narration.validate(root, corpus)
     if result['identity']['model'] != MODEL:
         raise ValueError('profiles require the approved Qwen model')
+    default = result['identity']['voice']
     ordered = narration._order(root, corpus)
     output = narration._ignored(root, STAGE / 'staged')
     normal = narration._inside(root, (narration.STAGE / 'staged').as_posix())
-    inventory = dict(format=FORMAT, model=MODEL, voice='Serena', languages=['en', 'de', 'es'],
+    inventory = dict(format=FORMAT, model=MODEL, voice=default, languages=['en', 'de', 'es'],
                      default='normal', corpus_sha256=narration._identity(corpus), profiles={})
+    voices = set()
     for profile, speed in SPEEDS.items():
         mappings, recordings = {}, {}
         for name in ordered:
@@ -86,7 +101,8 @@ def stage_profiles(root, corpus):
                 continue
             target = narration._inside(output, target_name)
             target.parent.mkdir(parents=True, exist_ok=True)
-            metadata = dict(result['identity'], text=entry['text'], language=entry['language'],
+            original = narration._json(source.with_suffix('.speech.json'))
+            metadata = dict(_receipt_identity(original), text=entry['text'], language=entry['language'],
                             speed=speed, profile=profile, original_path=name,
                             source_sha256=narration.digest(source),
                             source_receipt_sha256=narration.digest(source.with_suffix('.speech.json')),
@@ -114,7 +130,9 @@ def stage_profiles(root, corpus):
                                   dict(metadata, sha256=narration.digest(target), frame_count=frames,
                                        duration=frames / narration.RATE))
             recordings[name] = _evidence(target, entry['language'])
+        voices.update(r['voice'] for r in recordings.values())
         inventory['profiles'][profile] = dict(speed=speed, voices=mappings, recordings=recordings)
+    inventory['voices'] = sorted(voices)
     validate_inventory(output, inventory, normal_root=normal)
     narration._write_json(output / 'assets/speech-profiles.json', inventory)
     return inventory
@@ -131,9 +149,12 @@ def validate_inventory(root, inventory, *, normal_root=None):
     normal_root = root if normal_root is None else Path(normal_root).resolve()
     if not isinstance(inventory, dict):
         raise ValueError('speech profile inventory must be an object')
-    if (inventory.get('format'), inventory.get('model'), inventory.get('voice'),
-            inventory.get('languages'), inventory.get('default')) != (
-            FORMAT, MODEL, 'Serena', ['en', 'de', 'es'], 'normal'):
+    voices = inventory.get('voices')
+    if ((inventory.get('format'), inventory.get('model'), inventory.get('languages'), inventory.get('default')) != (
+            FORMAT, MODEL, ['en', 'de', 'es'], 'normal')
+            or not isinstance(voices, list) or not voices or voices != sorted(set(voices))
+            or not all(isinstance(v, str) and narration.VOICE_NAME.fullmatch(v) for v in voices)
+            or inventory.get('voice') not in voices):
         raise ValueError('unsupported multilingual speech profiles')
     profiles = inventory.get('profiles')
     if not isinstance(profiles, dict) or set(profiles) != set(SPEEDS):
@@ -170,15 +191,16 @@ def validate_inventory(root, inventory, *, normal_root=None):
                     or not receipt['text'].strip() or not isinstance(receipt.get('input_identity'), dict)):
                 raise ValueError('invalid profile receipt: ' + target)
             language = narration.identify_language(name, receipt)
+            recorded = entry['recordings'][name]
             if (type(receipt.get('speed')) not in (int, float)
-                    or (receipt.get('provider'), receipt.get('model'), receipt.get('voice'),
-                        receipt.get('speed'), receipt.get('language')) != (
-                        'local_speech', MODEL, 'Serena', speed, language)
-                    or not receipt.get('pack')):
+                    or (receipt.get('provider'), receipt.get('speed'), receipt.get('language')) != (
+                        'local_speech', speed, language)
+                    or not isinstance(recorded, dict) or receipt.get('voice') not in voices
+                    or (receipt.get('voice'), receipt.get('model')) != (recorded.get('voice'), recorded.get('model'))
+                    or not isinstance(receipt.get('model'), str) or not receipt.get('pack')):
                 raise ValueError('profile receipt identity mismatch: ' + target)
             evidence = _evidence(path, language)
-            recorded = entry['recordings'][name]
-            if (not isinstance(recorded, dict) or type(recorded.get('frame_count')) is not int
+            if (type(recorded.get('frame_count')) is not int
                     or evidence != recorded or receipt.get('sha256') != evidence['sha256']):
                 raise ValueError('profile evidence mismatch: ' + target)
             duration = receipt.get('duration')
@@ -193,7 +215,7 @@ def validate_inventory(root, inventory, *, normal_root=None):
             else:
                 original = receipts[name]
                 normal_evidence = profiles['normal']['recordings'][name]
-                if receipt['pack'] != original['pack']:
+                if _receipt_identity(receipt) | {'speed': 1.0} != _receipt_identity(original):
                     raise ValueError('profile pack identity mismatch: ' + target)
                 if (receipt.get('profile'), receipt.get('original_path'), receipt.get('source_sha256'),
                         receipt.get('source_receipt_sha256'), receipt.get('text'), receipt.get('input_identity')) != (
@@ -221,9 +243,8 @@ def validate_inventory(root, inventory, *, normal_root=None):
                     if clip.readframes(clip.getnframes()) != _assembled(normal_root if profile == 'normal' else root, parts):
                         raise ValueError('profile assembly PCM mismatch: ' + target)
     narration._order(normal_root, corpus)
-    identity = narration._harness(receipts[next(iter(receipts))])
     for name, receipt in receipts.items():
-        expected = narration._metadata(corpus[name], identity, normal_root)
+        expected = narration._metadata(corpus[name], _receipt_identity(receipt), normal_root)
         if any(receipt.get(key) != value for key, value in expected.items()):
             raise ValueError('normal profile receipt mismatch: ' + name)
     if narration._identity(corpus) != inventory.get('corpus_sha256'):
