@@ -1,0 +1,17 @@
+{
+  "tool": "built-in image_gen",
+  "source": "local/art-development/art-refresh-033/oak-scene-candidate.png",
+  "original": "backup/picture-book-scenes/art-refresh-033/oak-scene-original.png",
+  "page": "assets/jungle-book/pages/oak.webp",
+  "source_sha256": "1a0d94a2e94aefca4d82ffb01eeea5b4539a0304a7e91dd7efa02e14d038b7ee",
+  "page_sha256": "862dae21dd7bb5cbfc275876bff53287f82c88f011474e34cce01a3c6dd26f7f",
+  "dimensions": [
+    1254,
+    1254
+  ],
+  "prompt": "Use case illustration-story. Create ONE high-resolution square full-scene nature picture-book page for toddlers. Reference image is ONLY for soft hand-painted watercolor, delicate botanical detail, warm cream paper and sage/earth colors; replace all people and reference composition. One clear botanical subject growing naturally rooted in its own setting, recognizable species shape, smooth washes, painterly foliage and gentle airy light. Complete subject and setting, softly feathered painted edges into cream paper. No people, animals, faces on plants, lettering, text, border, watermark, collage or diagram. TREES book: a single beautiful mature OAK tree, complete broad spreading rounded crown and full sturdy branching trunk visible from roots to top, deeply ridged gray-brown bark softly painted. Distinct rounded-lobed oak leaves, a low naturally attached leafy branch near foreground bearing a few small acorns in cups. It stands rooted in a sunlit meadow clearing, moss at trunk base and tiny wildflowers in grass, rolling countryside behind and soft pale-blue sky. Keep canopy inside frame and focus on recognizable oak architecture, not generic foliage.",
+  "reference_images": [
+    "assets/jungle-book/pages/mother.webp"
+  ],
+  "reference_usage": "Style reference for generation; new subject and habitat"
+}

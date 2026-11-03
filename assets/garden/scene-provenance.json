@@ -2,24 +2,28 @@
   "approval": "Owner: corrected 3 is fine as long as the sign is an actual overlay",
   "assets": [
     {
-      "source": "art/generated/world-scene-refresh/garden-landscape-clean-v3.png",
-      "runtime": "assets/garden/art/scene-landscape.png",
-      "sha256": "ce05c400eacfe725812b5bf2bfb4928ea25a825430ad90e369547c760c182802"
+      "source": "local/art-development/world-scene-refresh/garden-landscape-clean-v3.png",
+      "runtime": "assets/garden/art/scene-landscape.webp",
+      "sha256": "b03835754737a0b4c1b153b99565675c5f0992ccedc9262a48e9805d5ce96b38",
+      "source_sha256": "ce05c400eacfe725812b5bf2bfb4928ea25a825430ad90e369547c760c182802"
     },
     {
-      "source": "art/generated/world-scene-refresh/garden-portrait-clean-v3.png",
-      "runtime": "assets/garden/art/scene-portrait.png",
-      "sha256": "b7a7cf8ee5b61aab3366ec99c66b4efff28b4b51807030c085e595197778bde7"
+      "source": "local/art-development/world-scene-refresh/garden-portrait-clean-v3.png",
+      "runtime": "assets/garden/art/scene-portrait.webp",
+      "sha256": "8948877a5bdfb30739306f89afa14f8ca9a118c63faa716a737f0c923c3298f0",
+      "source_sha256": "b7a7cf8ee5b61aab3366ec99c66b4efff28b4b51807030c085e595197778bde7"
     },
     {
-      "source": "art/generated/campus-object-layers/sign-blank.png",
-      "runtime": "assets/garden/art/campus-sign.png",
-      "sha256": "40e2d519cf0b843206c62b5cca684f1c6cd743b69c9a422743d397d445b02cdf"
+      "source": "local/art-development/campus-object-layers/sign-blank.png",
+      "runtime": "assets/garden/art/campus-sign.webp",
+      "sha256": "f12c964b0a53a4a665c080854b5acb0d758e137e4c10d4020a4b2a5524a5c894",
+      "source_sha256": "40e2d519cf0b843206c62b5cca684f1c6cd743b69c9a422743d397d445b02cdf"
     },
     {
-      "source": "art/generated/campus-object-layers/sign-blank-glow.png",
-      "runtime": "assets/garden/art/campus-sign-glow.png",
-      "sha256": "a46eb65b708afc188d9ad68161d07b8fc140f91445dce6333ddc58d0d7054711"
+      "source": "local/art-development/campus-object-layers/sign-blank-glow.png",
+      "runtime": "assets/garden/art/campus-sign-glow.webp",
+      "sha256": "9e0a251d2c4900444dcfa96490191004e7be9f041fe1238c1eceeababeefe03b",
+      "source_sha256": "a46eb65b708afc188d9ad68161d07b8fc140f91445dce6333ddc58d0d7054711"
     }
   ],
   "mapping": "games/garden/garden_scene.zi",
@@ -42,5 +46,6 @@
     330,
     950,
     260
-  ]
+  ],
+  "destination": "Farm / Bauernhof / Granja; existing jungle.garden saves retained"
 }

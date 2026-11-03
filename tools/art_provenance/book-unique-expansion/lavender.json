@@ -1,0 +1,17 @@
+{
+  "tool": "built-in image_gen",
+  "source": "local/art-development/art-refresh-033/lavender-scene-candidate.png",
+  "original": "backup/picture-book-scenes/art-refresh-033/lavender-scene-original.png",
+  "page": "assets/jungle-book/pages/lavender.webp",
+  "source_sha256": "3d33f13bc932d9d4bcf2056fb54cc8b06c218701b15d8b4ff3381590809df3c7",
+  "page_sha256": "953049647b17c01e84b6a4b7b3b29bcddc0ffe86d76d2a8230504e8696a930e0",
+  "dimensions": [
+    1254,
+    1254
+  ],
+  "prompt": "Use case illustration-story. Create ONE high-resolution square full-scene nature picture-book page for toddlers. Reference image is ONLY for soft hand-painted watercolor, delicate botanical detail, warm cream paper and sage/earth colors; replace all people and reference composition. One clear botanical subject growing naturally rooted in its own setting, recognizable species shape, smooth washes, painterly foliage and gentle airy light. Complete subject and setting, softly feathered painted edges into cream paper. No people, animals, faces on plants, lettering, text, border, watermark, collage or diagram. PLANTS book: one large rounded LAVENDER bush rooted in a sunny Mediterranean herb garden beside a low weathered stone wall. Clearly recognizable many slender upright stems ending in soft violet-purple flower spikes, narrow silvery sage-green leaves, airy rounded woody clump at base. Entire plant within frame, no faces, no detached bouquet. Warm gravel garden path, a few limestone stones and hazy distant hill village, gentle late-morning sun. The purple flowering stems are the main focal point and distinguish lavender from roses or daisies.",
+  "reference_images": [
+    "assets/jungle-book/pages/mother.webp"
+  ],
+  "reference_usage": "Style reference for generation; new subject and habitat"
+}

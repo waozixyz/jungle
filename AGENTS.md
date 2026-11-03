@@ -15,7 +15,7 @@ friendly, gentle and obvious.
 ## Picture art (owner feedback, 2026-10-26)
 
 - **One style everywhere:** the title-screen cover style,
-  `art/generated/title-covers.png`: soft cartoonish storybook watercolor on
+  `local/art-development/title-covers.png`: soft cartoonish storybook watercolor on
   warm cream paper, delicate botanical leaves, gentle earthy colors, friendly
   young animals with big gentle eyes. Use its tiger cover as the style
   reference for every picture. Use simplified rounded forms and smooth washes,
@@ -45,7 +45,11 @@ friendly, gentle and obvious.
   or other generation artifacts around a subject (plates, cups, soap…).
 - **Always optimize new images** (owner feedback, 2026-11-02): use
   `tools/image_exports.py` in generation/export workflows. Preserve canonical
-  full-resolution originals and review candidates. New opaque title backgrounds
+  full-resolution originals and review candidates in ignored `local/art-development/`.
+  Never track generated originals, candidates or review outputs. Integrate only
+  owner-approved runtime WebPs under `assets/`; builds and CI must work without
+  the development folder. Keep required provenance metadata in
+  `tools/art_provenance/`. New opaque title backgrounds
   use WebP q50/method 6; full-scene book pages use q85/method 6 at
   native/fullscreen resolution. Transparent
   cut-outs/layers use exact lossless WebP, preserving alpha and clean edges.
@@ -116,3 +120,18 @@ is in `tools/book_prompts.json`; the full-size originals are kept in
 - 123 Book speaks each selected number from one to twenty in the active language, on entry, selection and tap-to-repeat.
 
 - 123 Book opens with autoplay and repeat on by default. Swipes, arrows and number selection keep the current Play/Pause choice. Counting games load 128 px transparent derivatives; preserve the full-size artwork.
+
+- Title scenes use the approved separate signposts with localized names and no
+  direction arrows. Never draw path/navigation arrows over title artwork.
+  Keep the shared title-bar Back arrow. There are no testing rooms, testing
+  strip, build flag or neutral preview destinations in native or web builds.
+  Farm/Bauernhof/Granja opens the existing planting activity in the approved
+  v3 raised-bed scene, retaining jungle.garden identity and garden.txt saves.
+  Desert shows an availability notice until owner-approved destination art exists.
+
+- Campus uses the approved portrait-clean-v3-pond-up and landscape-clean-v2-no-bottom-path
+  plates (keep the accepted stepping stone). Farm is the v3 raised-bed pair,
+  with its entrance from the upper right; Beach uses the approved clean plates.
+  Preserve original source files privately; normal screens ship tracked WebP.
+- Keep fast unit tests and one local native smoke test in both orientations.
+  Retired browser/UI CI gate suites and testing-room fixtures must not return.

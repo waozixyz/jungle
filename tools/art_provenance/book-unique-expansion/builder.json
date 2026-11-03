@@ -1,0 +1,38 @@
+{
+  "tool": "built-in image_gen",
+  "source": "local/art-development/book-people-refresh/builder-candidate.png",
+  "original": "backup/picture-book-scenes/book-expansion-034/builder-original.png",
+  "page": "assets/jungle-book/pages/builder.webp",
+  "source_sha256": "dcba2f04c182d19b692e06e87d8553e90e9b5eabddbbc466bdfed1c42efa6bb3",
+  "page_sha256": "6663f1812dd1103cc8fd5beb308f30219eaf8e09504c1d9c4a4f3060082b07a3",
+  "dimensions": [
+    1254,
+    1254
+  ],
+  "prompt": "Use case illustration-story. ONE square watercolor toddler picture-book page of a BUILDER, matching supplied Family/Actions STYLE reference board's same illustrator. Do not reproduce board/collage/labels. Friendly adult man with softly rounded expressive face and large kind brown eyes like reference father, gentle closed-mouth smile, short curly dark hair under plain yellow hard hat. Sage-green work shirt, ochre work trousers, simple brown boots. Kneels safely on level ground beside a knee-high unfinished brick garden wall; one hand gently places a brick flat on top of wall, the other holds a trowel down beside wall naturally. EXACTLY two arms/hands. Full body visible, upright head three-quarter and glance toward wall, no tiny photographic face. Peaceful garden courtyard, small orderly stack of spare bricks and grounded mortar bucket, leafy tree in background. Person fills page; clear construction activity without dangerous machinery. Soft cream textured paper, warm botanical watercolor washes, sage/ochre palette, delicate pencil accents and feathered scene edges. Natural grounded tools and plausible hand/anatomy. No scaffolding heights, emergency, text, logos, labels, watermark, sharp realism, wrinkles, collage, grid, floating tools or extra limbs. Square high resolution complete scene.",
+  "reference_images": [
+    "assets/jungle-book/pages/mother.webp",
+    "assets/jungle-book/pages/father.webp",
+    "assets/jungle-book/pages/sister.webp",
+    "assets/jungle-book/pages/reading.webp"
+  ],
+  "history": [
+    {
+      "tool": "built-in image_gen",
+      "source": "local/art-development/art-refresh-033/builder-scene-candidate.png",
+      "original": "backup/picture-book-scenes/art-refresh-033/builder-scene-original.png",
+      "page": "assets/jungle-book/pages/builder.webp",
+      "source_sha256": "0c76b7a8c791f369d78e901914d68919b52f17aeb8492507a8494fa73b0d612e",
+      "page_sha256": "fac764f381b15737912690288ad0b2e4ea4e6b37f0fb9956f743825af1f2f26c",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "prompt": "Use case illustration-story. ONE square high-resolution People at Work picture-book scene for babies/toddlers. Use reference ONLY for the Family picture's gentle natural rounded faces, soft hand-painted storybook watercolor, delicate leaves, cream textured paper and muted sage/earth colors. Create a new adult worker and scene, no copied mother pose or dress. Friendly calm expression and natural adult proportions, no giant head, no exaggerated toothy grin, no realistic skin wrinkles or sharp texture. Both arms and hands anatomically connected, exactly two arms/two hands per person, every held tool visibly supported and every object grounded. Whole coherent welcoming work setting, softly feathered edges into warm cream paper, no text, logos, lettering, border or watermark. A friendly adult Black male BUILDER with softly curly dark hair and a short neat beard, yellow hard hat, cream rolled-sleeve shirt, blue work overalls and sturdy brown boots. In a sunny quiet construction yard he bends slightly forward to place ONE terracotta brick on a low straight brick wall. Both gloved hands naturally hold opposite ends of the same brick, brick visibly touching fresh mortar on top of the wall, two arms attached correctly to shoulders. Head in gentle three-quarter front view looking toward brick, warm calm face. Whole figure and boots visible, mortar tray and trowel resting on ground beside wall, simple partly built cottage and a leafy tree in background. No dangerous machinery or floating tools.",
+      "reference_images": [
+        "assets/jungle-book/pages/mother.webp"
+      ]
+    }
+  ],
+  "selection": "Owner explicitly chose After in Gwenview comparison"
+}

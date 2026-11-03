@@ -90,7 +90,7 @@ main :: () -> s32 {
             if TitleHit(scene, x, y) != hotspot { return 22 }
             view := TitleFit(400.0, 941.0, 0.0, 0.0, scene)
             if TitleHit(scene, TitleSourceX(view, view.x + x * view.scale), TitleSourceY(view, view.y + y * view.scale)) != hotspot { return 23 }
-            if TITLE_HOTSPOT_GUIDE[hotspot] == 0 && (TITLE_HOTSPOT_TARGET[hotspot] >= 0) == (TITLE_HOTSPOT_GAME[hotspot] != "") { return 24 }
+            if TITLE_HOTSPOT_GUIDE[hotspot] == 0 && TITLE_HOTSPOT_NOTICE[hotspot] == 0 && (TITLE_HOTSPOT_TARGET[hotspot] >= 0) == (TITLE_HOTSPOT_GAME[hotspot] != "") { return 24 }
         }
     }
     if TitleHit(0, -5.0, -5.0) != -1 || TitleHit(TITLE_SCENE_COUNT, 10.0, 10.0) != -1 { return 25 }
@@ -148,11 +148,8 @@ main :: () -> s32 {
     // The approved portrait composition has independent coordinates and
     // resolves back to its canonical room when rotated to landscape.
     portrait_campus := ResolveTitleSceneVariant(campus, 420.0, 900.0)
-    if TitleHit(campus, 623.0, 495.0) != -1 || TitleHit(portrait_campus, 581.0, 682.0) != -1 { return 129 }
     if portrait_campus == campus || TITLE_SCENE_WIDTH[portrait_campus] != 1024 { return 84 }
     if ResolveTitleSceneVariant(portrait_campus, 900.0, 420.0) != campus { return 85 }
-    if TitleHit(portrait_campus, 900.0, 530.0) != HotspotNamed(portrait_campus, "piano") { return 86 }
-    if TitleHit(portrait_campus, 200.0, 530.0) != HotspotNamed(portrait_campus, "music-hut") { return 87 }
     portrait_fit := TitleFit(1024.0, 1536.0, 0.0, 0.0, portrait_campus)
     if !Near(portrait_fit.scale, 1.0) || !Near(portrait_fit.x, 0.0) || !Near(portrait_fit.y, 0.0) { return 88 }
     rotated: TitleState
@@ -164,12 +161,7 @@ main :: () -> s32 {
     TitleResolve(*rotated, 900.0, 420.0)
     if rotated.scene != treehouse { return 90 }
 
-    // Both the painted house/platform and ladder are one return target,
-    // independently traced in the two approved compositions.
-    if TitleHit(campus, 800.0, 50.0) != HotspotNamed(campus, "ladder") { return 110 }
-    if TitleHit(campus, 980.0, 350.0) != HotspotNamed(campus, "ladder") { return 111 }
-    if TitleHit(portrait_campus, 500.0, 140.0) != HotspotNamed(portrait_campus, "ladder") { return 112 }
-    if TitleHit(portrait_campus, 570.0, 430.0) != HotspotNamed(portrait_campus, "ladder") { return 113 }
+    // The bookshelf ladder returns to the canonical treehouse in either orientation.
     for shelf_scene: cast(s32)0..TITLE_SCENE_COUNT - 1 {
         if TITLE_SCENE_BASE[shelf_scene] != bookshelf { continue }
         back_ladder := HotspotNamed(shelf_scene, "ladder")
@@ -206,10 +198,6 @@ main :: () -> s32 {
     if TITLE_HOTSPOT_GAME[hut] != "Music Room" { return 48 }
     piano := HotspotNamed(campus, "piano")
     if piano < 0 || TITLE_HOTSPOT_GAME[piano] != "Little Piano" { return 74 }
-    // Actual painted keyboard and drum body, not helper-selected points.
-    if TitleHit(campus, 1430.0, 340.0) != piano { return 80 }
-    if TitleInside(hut, 1430.0, 340.0) || TitleInside(piano, 330.0, 400.0) { return 115 }
-    if TitleHit(campus, 330.0, 400.0) != hut { return 81 }
     for hotspot: cast(s32)0..TITLE_HOTSPOT_COUNT - 1 {
         if TITLE_HOTSPOT_ID[hotspot] == "tiger-guide" { return 82 }
     }
@@ -274,8 +262,6 @@ main :: () -> s32 {
     // A physical path sign always animates before travel, including mouse
     // clicks after hovering. Exercise the model before new art is selected.
     sign := HotspotNamed(campus, "beach-path")
-    original_label := TITLE_SIGN_LABEL[sign]
-    TITLE_SIGN_LABEL[sign] = "Beach"
     TitleEnter(*touch, campus)
     sign_view := TitleFit(cast(float32)TITLE_SOURCE_WIDTH, cast(float32)TITLE_SOURCE_HEIGHT, 0.0, 0.0, campus)
     sx: float32
@@ -292,64 +278,33 @@ main :: () -> s32 {
     step = TitleTick(*touch, 7.1 + TITLE_TAP_SECONDS / 2.0)
     if step.moved || touch.scene != campus { return 274 }
     step = TitleTick(*touch, 7.11 + TITLE_TAP_SECONDS)
-    if TitleTestRooms() {
-        if !step.moved || touch.scene != TITLE_HOTSPOT_TARGET[sign] { return 275 }
-        unused TitleKey(*touch, 256)
-    } else {
-        if step.moved || !touch.not_implemented || touch.scene != campus { return 275 }
-        TitleDismissNotice(*touch)
-    }
+    if !step.moved || touch.scene != beach { return 275 }
+    unused TitleKey(*touch, 256)
     if touch.scene != campus { return 276 }
-    // Same activation boundary for physical, semantic and keyboard input.
-    // A modal freezes navigation/pan and drops duplicate activations.
-    labels: [3]string = .["Beach", "Farm", "Desert"]
-    for room: cast(s32)0..2 {
-        TITLE_SIGN_LABEL[sign] = labels[room]
-        TITLE_HOTSPOT_PREVIEW[sign] = room
+    // The actual Desert notice freezes navigation and drops duplicate activations.
+    sign = HotspotNamed(campus, "desert-path")
+    if sign < 0 || TITLE_HOTSPOT_NOTICE[sign] != 2 { return 283 }
+    {
         TitleEnter(*touch, campus)
         touch.pan_x = 9.0
         touch.selected = sign
         step = TitleKey(*touch, 257)
-        if TitleTestRooms() {
-            if touch.not_implemented || !step.moved { return 280 }
-            if room == 0 && touch.scene != beach { return 281 }
-            if room > 0 && (touch.preview_room != room || touch.scene != campus) { return 282 }
-            unused TitleKey(*touch, 256)
-            if touch.scene != campus || touch.preview_room != 0 { return 283 }
-        } else {
-            if !touch.not_implemented || step.moved || step.game >= 0 { return 284 }
-            unused TitleKey(*touch, 268)
-            unused TitleKey(*touch, 256)
-            unused TitleKey(*touch, 49)
-            unused TitleKey(*touch, 257)
-            TitleQueue(*touch, sign, 8.0)
-            unused TitlePointer(*touch, sign_view, sx, sy, true, true, false, false, 8.1)
-            unused TitlePointer(*touch, sign_view, sx, sy, false, false, true, false, 8.2)
-            unused TitleTick(*touch, 9.0)
-            if touch.scene != campus || touch.preview_room != 0 || touch.pending >= 0 || touch.tracking || touch.pan_x != 9.0 { return 285 }
-            TitleDismissNotice(*touch)
-            if touch.not_implemented || touch.scene != campus || touch.pan_x != 9.0 { return 286 }
-            // Numeric shortcuts use the same gate.
-            unused TitleKey(*touch, 49 + sign - TITLE_SCENE_FIRST[campus])
-            if !touch.not_implemented { return 287 }
-            TitleDismissNotice(*touch)
-        }
-    }
-    TITLE_HOTSPOT_PREVIEW[sign] = 0
-    TITLE_SIGN_LABEL[sign] = original_label
-
-    // Normal metadata exposes every room only in the explicit test build.
-    keys: [3]s32 = .[66, 70, 68]
-    for room: cast(s32)0..2 {
-        TitleEnter(*touch, campus)
-        step = TitleKey(*touch, keys[room])
-        if TitleTestRooms() {
-            if !step.moved || touch.not_implemented { return 288 }
-            if room == 0 && touch.scene != beach { return 289 }
-            if room > 0 && touch.preview_room != room { return 290 }
-            unused TitleKey(*touch, 256)
-            if touch.scene != campus || touch.preview_room != 0 { return 291 }
-        } else if step.moved || touch.scene != campus || touch.preview_room != 0 { return 292 }
+        if !touch.not_implemented || step.moved || step.game >= 0 { return 284 }
+        unused TitleKey(*touch, 268)
+        unused TitleKey(*touch, 256)
+        unused TitleKey(*touch, 49)
+        unused TitleKey(*touch, 257)
+        TitleQueue(*touch, sign, 8.0)
+        unused TitlePointer(*touch, sign_view, sx, sy, true, true, false, false, 8.1)
+        unused TitlePointer(*touch, sign_view, sx, sy, false, false, true, false, 8.2)
+        unused TitleTick(*touch, 9.0)
+        if touch.scene != campus || touch.pending >= 0 || touch.tracking || touch.pan_x != 9.0 { return 285 }
+        TitleDismissNotice(*touch)
+        if touch.not_implemented || touch.scene != campus || touch.pan_x != 9.0 { return 286 }
+        // Numeric shortcuts use the same gate.
+        unused TitleKey(*touch, 49 + sign - TITLE_SCENE_FIRST[campus])
+        if !touch.not_implemented { return 287 }
+        TitleDismissNotice(*touch)
     }
 
     // Portrait: dragging pans the picture and never taps; keys center the

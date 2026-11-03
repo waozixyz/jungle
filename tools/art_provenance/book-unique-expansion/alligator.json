@@ -1,0 +1,17 @@
+{
+  "tool": "built-in image_gen",
+  "source": "local/art-development/art-refresh-033/alligator-scene-candidate.png",
+  "original": "backup/picture-book-scenes/art-refresh-033/alligator-scene-original.png",
+  "page": "assets/jungle-book/pages/alligator.webp",
+  "source_sha256": "8d2b9a67daaea43f74693634e2c1874840f22b07c3a9e79af1d58360e8545837",
+  "page_sha256": "594fb90724c82f198d6318c0c2ca0bfdf9354dfd2ae0fd3c901440e5c8bb6f19",
+  "dimensions": [
+    1254,
+    1254
+  ],
+  "prompt": "Use case illustration-story. ONE high-resolution1536+ square Wild Animals picture-book scene. Reference image is ONLY for the gentle watercolor style and quality; replace its subject and setting. Natural animal anatomy and proportions, small-to-normal head relative to body, soft natural eyes, no human grin/lips/eyebrows/eyelashes, closed calm mouth, not chibi. Friendly for babies, simplified rounded forms and smooth hand-painted washes with delicate leafy detail. Warm cream paper with softly feathered painted edges, sage/earth palette and soft light. Full subject wholly visible and physically grounded in its own habitat; coherent scene, no collage, border, text or watermark. NEW Reptiles book page ALLIGATOR. A small American alligator on a mossy cypress-swamp bank, full body and whole tapering tail, four short sturdy legs, broad rounded U-shaped snout clearly wider and blunter than a crocodile's, mouth entirely closed with no teeth showing. Soft dark olive-gray hide with simplified broad scutes and smooth watercolor washes, no sharp realistic wrinkles. Calm small natural eyes; three-quarter front view, head naturally raised slightly toward water lilies. Cypress trunks, ferny bank, pale green swamp water and dappled morning light. Natural friendly animal, no human smile.",
+  "reference_images": [
+    "local/art-development/animal-proportions-review/tiger-scene-candidate.png"
+  ],
+  "reference_usage": "Style reference for generation; new subject and habitat"
+}

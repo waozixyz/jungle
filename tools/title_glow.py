@@ -13,7 +13,7 @@ from PIL import Image, ImageDraw, ImageFilter
 from image_exports import export_image
 
 ROOT = Path(__file__).resolve().parents[1]
-SOURCE = ROOT / 'art/generated/title-world-proposal'
+SOURCE = ROOT / 'local/art-development/title-world-proposal'
 DEBUG = SOURCE / 'hotspot-debug'
 ORIGINALS = {'treehouse': 'treehouse-room', 'bookshelf': 'bookshelf-closeup',
              'campus': 'jungle-campus', 'music': 'music-room',
@@ -29,7 +29,7 @@ def validate(data):
     games = {line.split('|')[1] for line in
              (ROOT / 'games/catalog.txt').read_text().splitlines() if '|' in line}
     for original in data['scenes']:
-        assert set(original) <= {'name', 'image', 'low', 'hotspots', 'portrait', 'background', 'foreground', 'paper'}
+        assert set(original) <= {'name', 'image', 'low', 'hotspots', 'portrait', 'background', 'foreground', 'paper', 'decorations'}
         variants = [dict(original, width=data['width'], height=data['height'])]
         if 'portrait' in original:
             portrait = original['portrait']
@@ -43,11 +43,11 @@ def validate_variant(scene, names, games):
     ids = set()
     for h in scene['hotspots']:
         assert {'id', 'target', 'polygon', 'glow', 'glow_rect'} <= set(h)
-        assert set(h) <= {'id', 'target', 'polygon', 'glow', 'glow_rect', 'rest', 'occlusion'}
+        assert set(h) <= {'id', 'target', 'polygon', 'glow', 'glow_rect', 'rest', 'occlusion', 'sign'}
         assert h['id'] not in ids
         ids.add(h['id'])
         kind, dest = h['target'].split(':', 1)
-        assert (kind == 'scene' and dest in names) or (kind == 'game' and dest in games) or (kind == 'guide' and dest == 'tour') or (kind == 'book' and dest == 'sweet-porridge')
+        assert (kind == 'scene' and dest in names) or (kind == 'game' and dest in games) or (kind == 'notice' and dest == 'Desert') or (kind == 'guide' and dest == 'tour') or (kind == 'book' and dest == 'sweet-porridge')
         assert len(h['polygon']) >= 3
         for p in h['polygon']:
             assert len(p) == 2 and all(type(n) is int for n in p)
@@ -56,7 +56,7 @@ def validate_variant(scene, names, games):
         assert all(type(n) is int for n in h['glow_rect'])
         assert 0 <= x < x+w <= scene['width'] and 0 <= y < y+height <= scene['height']
         assert all(x <= px < x+w and y <= py < y+height for px, py in h['polygon'])
-        assert h['glow'] == f"assets/jungle/title/glow/{scene['name']}-{h['id']}.png"
+        assert h['glow'].endswith(('.png','.webp'))
 
 
 def occlude(image, h):
@@ -119,9 +119,9 @@ def main():
             continue
         variants.append(dict(scene, width=data['width'], height=data['height'], source=SOURCE / (ORIGINALS[scene['name']]+'.png')))
         if 'portrait' in scene:
-            portrait_source = (ROOT / 'art/generated/title-waterfront' / (scene['name'] + '-portrait.png')
+            portrait_source = (ROOT / 'local/art-development/title-waterfront' / (scene['name'] + '-portrait.png')
                                if scene['name'] in ('beach', 'aquarium') else
-                               ROOT / 'art/generated/title-portrait-candidates' / (scene['name'] + '.png'))
+                               ROOT / 'local/art-development/title-portrait-candidates' / (scene['name'] + '.png'))
             variants.append(dict(scene['portrait'], name=scene['name'] + '-portrait', source=portrait_source))
     for scene in variants:
         source = Image.open(scene['source']).convert('RGB')
@@ -138,7 +138,8 @@ def main():
             overlay = glow(h)
             path = ROOT / h['glow']
             path.parent.mkdir(parents=True, exist_ok=True)
-            overlay.save(path, optimize=True)
+            if path.suffix == '.webp': overlay.save(path,'WEBP',lossless=True,exact=True,method=6)
+            else: overlay.save(path, optimize=True)
             composite.alpha_composite(overlay, tuple(h['glow_rect'][:2]))
             color = ['#e33b51', '#165eff', '#019b7c', '#c343e3', '#ff8618'][i % 5]
             points = [tuple(p) for p in h['polygon']]

@@ -153,7 +153,7 @@ class LearningBookTest(unittest.TestCase):
         self.assertIn('content_height := rows *', shelf)
 
     def test_art_and_translations(self):
-        manifest = json.loads((ROOT / 'art/generated/book-learning-expansion/prompts.json').read_text())
+        manifest = json.loads((ROOT / 'tools/art_provenance/book-learning-expansion/prompts.json').read_text())
         prompts = json.loads((ROOT / 'tools/book_prompts.json').read_text())
         rows = json.loads((ROOT / 'locales/ui.json').read_text())
         self.assertEqual(set(manifest), set(LEARNING['words']))

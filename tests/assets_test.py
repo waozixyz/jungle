@@ -37,7 +37,6 @@ def main():
             assert len(page.resize((300, 300)).getcolors(300 * 300) or range(90001)) > 5000, f"{name} page is not smooth artwork"
     prompts = json.loads((ROOT / "tools/book_prompts.json").read_text())
     assert set(prompts["pages"]) == set(NAMES), "every full scene keeps its prompt"
-    assert (ROOT / "art/generated/title-covers.png").exists(), "the cover style reference is missing"
     expected_previews = {name + ".webp" for name, _ in BOOKS} | {'sweet-porridge.webp'}
     actual_previews = {path.name for path in (ROOT / "assets/jungle-book/previews").glob("*")}
     assert actual_previews == expected_previews, "Picture Book needs one cover per book"

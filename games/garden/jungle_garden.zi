@@ -10,7 +10,6 @@
 #import "kryon/svg_icon_props"
 #import "kryon/svg_icon_widget"
 #import "kryon/drawing_props"
-CampusArrow :: #import "mingcute/mingcute_regular_arrow_right_up";
 #import, file "../../host/jungle_text.zi";
 #import, file "garden.zi";
 #import, file "garden_scene.zi";
@@ -70,16 +69,14 @@ CampusSign :: () -> bool {
     Picture(ifx hover || press.down || retro.now - sign_at < 0.16 then "campus-sign-glow" else "campus-sign", x, y + lift, edge, edge)
     font := edge * 14 / 100
     if font < 9 { font = 9 }
-    BookText(x + edge * 150 / 1254, y + lift + edge * 330 / 1254, edge * 750 / 1254, edge * 260 / 1254, Tr("Campus"), font, TextAlign.TextAlignCenter, false)
-    arrow := edge * 170 / 1254
-    SvgIcon(retro.session, SvgIconProps.{.bounds = RetroRect(x + edge * 910 / 1254, y + lift + edge * 375 / 1254, arrow, arrow),
-        .shape = CampusArrow.Shape, .color = ColorFromPacked(0x49351fff)})
+    BookText(x + edge * 150 / 1254, y + lift + edge * 330 / 1254, edge * 950 / 1254, edge * 260 / 1254, Tr("Campus"), font, TextAlign.TextAlignCenter, false)
     return sign_at >= 0 && retro.now - sign_at >= 0.16
 }
 
 Save :: () -> bool { return DocumentWrite("garden.txt", GardenSave(garden)) }
 Picture :: (name: string, x: s32, y: s32, w: s32, h: s32) {
-    path := Cat("assets/garden/art/", name, ".png")
+    extension := ifx name == "scene-landscape" || name == "scene-portrait" || name == "campus-sign" || name == "campus-sign-glow" then ".webp" else ".png"
+    path := Cat("assets/garden/art/", name, extension)
     shown := RetroImageShown(path)
     if shown == "" { return }
     Image(retro.session, ImageProps.{.asset_path = shown,
@@ -233,7 +230,7 @@ Scene :: (now: s64) {
 }
 GameMain :: () -> s32 {
     mode := AppMode()
-    if mode == APP_IDENTIFY { loaded = false; AppIdentity("jungle.garden"); AppDescribe("Grow a Garden", ""); return APP_PROTOCOL }
+    if mode == APP_IDENTIFY { loaded = false; AppIdentity("jungle.garden"); AppDescribe("Farm", ""); return APP_PROTOCOL }
     if mode == APP_SAVE { return ifx !loaded || Save() then 0 else 1 }
     if mode != APP_FRAME { return 0 }
     GameLanguage()

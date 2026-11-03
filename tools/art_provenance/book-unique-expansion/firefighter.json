@@ -1,0 +1,38 @@
+{
+  "tool": "built-in image_gen",
+  "source": "local/art-development/book-people-refresh/firefighter-candidate.png",
+  "original": "backup/picture-book-scenes/book-expansion-034/firefighter-original.png",
+  "page": "assets/jungle-book/pages/firefighter.webp",
+  "source_sha256": "2ecf5238e0bd763849034a3fff42454ea54a0752121d1fbadbcf03b2649317f3",
+  "page_sha256": "9068f5258fca737c93323acf845baf7a612200ef7613eb106bd224d9c9ca43e0",
+  "dimensions": [
+    1254,
+    1254
+  ],
+  "prompt": "Use case illustration-story. Create ONE square watercolor picture-book scene of a FIREFIGHTER. Attached four-picture board is STYLE REFERENCE ONLY; do not reproduce a board/collage or labels. Match the SAME illustrator as Family father and Actions boy: soft rounded illustrated faces, expressive large brown eyes, warm cream textured paper, translucent sage/ochre botanical washes and delicate pencil detail. Friendly adult firefighter with tousled brown hair and yellow helmet, big expressive rounded storybook face like the Family father, simplified cheeks/nose; adult proportions with head about one fifth of height. Full body in yellow protective coat outside a small peaceful fire station. One hand holds a neatly coiled hose and the other rests naturally on the coil. Both feet grounded. Red fire engine softly painted behind, flowers by doorway. Person fills most of picture, clear pleasant calm expression. Complete coherent scene feathered to cream paper at edges. NO photographic face, tiny realistic eyes, wrinkles, gritty emergency, flames, text, logos, labels, watermark, grid, multiple panels, or cropped feet. Exactly two natural arms and hands. Square high resolution. This is an entirely new page using reference style.",
+  "reference_images": [
+    "assets/jungle-book/pages/mother.webp",
+    "assets/jungle-book/pages/father.webp",
+    "assets/jungle-book/pages/sister.webp",
+    "assets/jungle-book/pages/reading.webp"
+  ],
+  "history": [
+    {
+      "tool": "built-in image_gen",
+      "source": "local/art-development/art-refresh-033/firefighter-scene-candidate.png",
+      "original": "backup/picture-book-scenes/art-refresh-033/firefighter-scene-original.png",
+      "page": "assets/jungle-book/pages/firefighter.webp",
+      "source_sha256": "ba4ca469faf4d993a654e15ed434efa9e7f64ea2b37712fc2ab671dbe3380d19",
+      "page_sha256": "8a9f45bdce21bc21fd1c9a0f5ac33c7aa12c522e4e10afe0db0f1debeba8e76d",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "prompt": "Use case illustration-story. ONE square high-resolution People at Work picture-book scene for babies/toddlers. Use reference ONLY for the Family picture's gentle natural rounded faces, soft hand-painted storybook watercolor, delicate leaves, cream textured paper and muted sage/earth colors. Create a new adult worker and scene, no copied mother pose or dress. Friendly calm expression and natural adult proportions, no giant head, no exaggerated toothy grin, no realistic skin wrinkles or sharp texture. Both arms and hands anatomically connected, exactly two arms/two hands per person, every held tool visibly supported and every object grounded. Whole coherent welcoming work setting, softly feathered edges into warm cream paper, no text, logos, lettering, border or watermark. A friendly adult Black male FIREFIGHTER in tidy ocher-yellow protective jacket and trousers with pale reflective strips, sturdy boots and yellow helmet, beside a red fire engine outside a small brick fire station on a sunny morning. Full figure in three-quarter front view, gently kneeling on one knee as he gathers a thick cream hose into a neat coil on the ground. Right gloved hand holds the curved hose section and left gloved hand steadies the coil; hose naturally connected along ground, no floating nozzle or impossible loop. Head raised slightly and gaze toward his hands, warm calm face. Small leafy tree and flowering pot by station door, no fire, danger, smoke or emergency.",
+      "reference_images": [
+        "assets/jungle-book/pages/mother.webp"
+      ]
+    }
+  ],
+  "selection": "Owner explicitly chose After in Gwenview comparison"
+}

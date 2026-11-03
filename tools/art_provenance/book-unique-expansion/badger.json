@@ -1,0 +1,17 @@
+{
+  "tool": "built-in image_gen",
+  "source": "local/art-development/art-refresh-033/badger-scene-candidate.png",
+  "original": "backup/picture-book-scenes/art-refresh-033/badger-scene-original.png",
+  "page": "assets/jungle-book/pages/badger.webp",
+  "source_sha256": "bffdb2891567de948ce8c261454557d7b008f971de492ad23812f2697b8a001a",
+  "page_sha256": "4e5765d27a319899faa48f0c2df4aecc52119567dfd7a6c5501f9420b7628214",
+  "dimensions": [
+    1254,
+    1254
+  ],
+  "prompt": "Use case illustration-story. ONE high-resolution1536+ square Wild Animals picture-book scene. Reference image is ONLY for the gentle watercolor style and quality; replace its subject and setting. Natural animal anatomy and proportions, small-to-normal head relative to body, soft natural eyes, no human grin/lips/eyebrows/eyelashes, closed calm mouth, not chibi. Friendly for babies, simplified rounded forms and smooth hand-painted washes with delicate leafy detail. Warm cream paper with softly feathered painted edges, sage/earth palette and soft light. Full subject wholly visible and physically grounded in its own habitat; coherent scene, no collage, border, text or watermark. NEW Forest book page BADGER. One gentle European badger standing quietly beside its sett entrance under a large beech tree, whole animal visible including four sturdy short legs and short attached tail. Recognizable low stocky gray body, long natural white head with TWO black facial stripes running from muzzle over eyes toward ears, black legs, small rounded ears, calm dark eyes, mouth closed without grin. Head held naturally upright in a three-quarter front view looking toward a fern. Sett is a small unobtrusive earth opening behind, mossy roots, leaf litter, soft woodland flowers and warm gentle early-evening light, no scary darkness.",
+  "reference_images": [
+    "local/art-development/animal-proportions-review/tiger-scene-candidate.png"
+  ],
+  "reference_usage": "Style reference for generation; new subject and habitat"
+}

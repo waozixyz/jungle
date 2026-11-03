@@ -1,0 +1,17 @@
+{
+  "tool": "built-in image_gen",
+  "source": "local/art-development/art-refresh-033/chameleon-scene-candidate.png",
+  "original": "backup/picture-book-scenes/art-refresh-033/chameleon-scene-original.png",
+  "page": "assets/jungle-book/pages/chameleon.webp",
+  "source_sha256": "bcf3e8ded2c3b1f8e1f0631e458e66b978b6e2b9867afcce32f91b21747efd2e",
+  "page_sha256": "fbf5b2258dc411b767daec3e5d993223d6fe801601cab18c5a640d13fa687089",
+  "dimensions": [
+    1254,
+    1254
+  ],
+  "prompt": "Use case illustration-story. ONE high-resolution1536+ square Wild Animals picture-book scene. Reference image is ONLY for the gentle watercolor style and quality; replace its subject and setting. Natural animal anatomy and proportions, small-to-normal head relative to body, soft natural eyes, no human grin/lips/eyebrows/eyelashes, closed calm mouth, not chibi. Friendly for babies, simplified rounded forms and smooth hand-painted washes with delicate leafy detail. Warm cream paper with softly feathered painted edges, sage/earth palette and soft light. Full subject wholly visible and physically grounded in its own habitat; coherent scene, no collage, border, text or watermark. NEW Reptiles book page CHAMELEON. One soft sage-green veiled chameleon moving slowly along a flowering shrub branch in a sunlit leafy garden. Recognizable gently peaked head casque, two natural turret-shaped eyes (one clearly visible, other on far side), small closed mouth, four feet with natural paired grasping toe groups gripping the same supported branch, long tail curled into a spiral attached to the body. Whole animal visible in three-quarter side view with face slightly toward viewer and gaze to nearby leaves. Muted sage/olive skin with pale warm markings, smooth simplified watercolor without detailed scales. Soft pink blossoms and airy garden trees behind, calm clear composition.",
+  "reference_images": [
+    "local/art-development/animal-proportions-review/tiger-scene-candidate.png"
+  ],
+  "reference_usage": "Style reference for generation; new subject and habitat"
+}

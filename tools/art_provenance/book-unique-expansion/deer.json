@@ -1,0 +1,17 @@
+{
+  "tool": "built-in image_gen",
+  "source": "local/art-development/art-refresh-033/deer-scene-candidate.png",
+  "original": "backup/picture-book-scenes/art-refresh-033/deer-scene-original.png",
+  "page": "assets/jungle-book/pages/deer.webp",
+  "source_sha256": "939b6242a1266dec4af0d1aa491aa266ddac5e959603dd156ea077bfea2f9d84",
+  "page_sha256": "d1d413f5e29d9e599aaead6bc990b42139775759edf4eced5da5504aa1de0e34",
+  "dimensions": [
+    1254,
+    1254
+  ],
+  "prompt": "Use case illustration-story. ONE high-resolution1536+ square Wild Animals picture-book scene. Reference image is ONLY for the gentle watercolor style and quality; replace its subject and setting. Natural animal anatomy and proportions, small-to-normal head relative to body, soft natural eyes, no human grin/lips/eyebrows/eyelashes, closed calm mouth, not chibi. Friendly for babies, simplified rounded forms and smooth hand-painted washes with delicate leafy detail. Warm cream paper with softly feathered painted edges, sage/earth palette and soft light. Full subject wholly visible and physically grounded in its own habitat; coherent scene, no collage, border, text or watermark. NEW Forest book page DEER: specifically a European ROE DEER doe (Capreolus capreolus, Reh/Corzo), not red deer or elk. A naturally proportioned graceful small doe with slender long legs, russet-brown summer coat, pale cream rump patch and almost invisible short tail, small delicate head with large natural ears, no antlers and no fawn spots. Full body standing on a sunlit woodland path in a beech and oak forest, four hooves visible and grounded, three-quarter front view, upright head looking gently toward fern at path edge. Soft natural eyes, no human smile, no giant baby head. Ferns, mossy roots and warm light filtering through leaves.",
+  "reference_images": [
+    "local/art-development/animal-proportions-review/tiger-scene-candidate.png"
+  ],
+  "reference_usage": "Style reference for generation; new subject and habitat"
+}

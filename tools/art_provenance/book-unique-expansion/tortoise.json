@@ -1,0 +1,17 @@
+{
+  "tool": "built-in image_gen",
+  "source": "local/art-development/art-refresh-033/tortoise-scene-candidate.png",
+  "original": "backup/picture-book-scenes/art-refresh-033/tortoise-scene-original.png",
+  "page": "assets/jungle-book/pages/tortoise.webp",
+  "source_sha256": "1b5c18b63bbf8bf12cb50851e27f9e1dce81ca6a700692e858b80b2689927f61",
+  "page_sha256": "72ae012ae03051217e272546a4e998593effb16085c3ca8079676da7e359ba6e",
+  "dimensions": [
+    1254,
+    1254
+  ],
+  "prompt": "Use case illustration-story. ONE high-resolution1536+ square Wild Animals picture-book scene. Reference image is ONLY for the gentle watercolor style and quality; replace its subject and setting. Natural animal anatomy and proportions, small-to-normal head relative to body, soft natural eyes, no human grin/lips/eyebrows/eyelashes, closed calm mouth, not chibi. Friendly for babies, simplified rounded forms and smooth hand-painted washes with delicate leafy detail. Warm cream paper with softly feathered painted edges, sage/earth palette and soft light. Full subject wholly visible and physically grounded in its own habitat; coherent scene, no collage, border, text or watermark. NEW Reptiles book page TORTOISE. One naturally proportioned small Hermann's land tortoise walking slowly through a sunny Mediterranean herb meadow. Domed golden brown shell with recognizable large dark-edged scutes, four sturdy rounded land legs with short claws, tiny visible tail, small gentle head extended naturally. Three-quarter front view, head raised toward a clover flower, no grin. Whole shell and feet visible, feet rest on warm soil path, wild thyme and clover around, soft olive trees and limestone stones behind. Smooth gentle painterly anatomy with no excessive wrinkles, distinct from aquatic turtle: domed shell and legs, no flippers.",
+  "reference_images": [
+    "local/art-development/animal-proportions-review/tiger-scene-candidate.png"
+  ],
+  "reference_usage": "Style reference for generation; new subject and habitat"
+}

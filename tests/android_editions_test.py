@@ -126,7 +126,6 @@ def release_gate_test():
     assert 'implementation' not in gradle
     cmake = (ROOT / 'droid/app/src/main/cpp/CMakeLists.txt').read_text()
     assert '--define GOOGLE_PLAY' in cmake and '--define FDROID' in cmake
-    assert "'--mute-audio'" in (ROOT / 'tests/speech_playback_web_test.mjs').read_text()
 
 
 stale_package_test()

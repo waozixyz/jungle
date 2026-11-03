@@ -1,0 +1,17 @@
+{
+  "tool": "built-in image_gen",
+  "source": "local/art-development/art-refresh-033/python-scene-candidate.png",
+  "original": "backup/picture-book-scenes/art-refresh-033/python-scene-original.png",
+  "page": "assets/jungle-book/pages/python.webp",
+  "source_sha256": "367abf5325f891f79b44fa3c264c47106e76727951fe1442d6555337aace685a",
+  "page_sha256": "e8986288b70c1f064ee0220f024a0c596a070eeea4733f176eeb43dd75f021b4",
+  "dimensions": [
+    1254,
+    1254
+  ],
+  "prompt": "Use case illustration-story. ONE high-resolution1536+ square Wild Animals picture-book scene. Reference image is ONLY for the gentle watercolor style and quality; replace its subject and setting. Natural animal anatomy and proportions, small-to-normal head relative to body, soft natural eyes, no human grin/lips/eyebrows/eyelashes, closed calm mouth, not chibi. Friendly for babies, simplified rounded forms and smooth hand-painted washes with delicate leafy detail. Warm cream paper with softly feathered painted edges, sage/earth palette and soft light. Full subject wholly visible and physically grounded in its own habitat; coherent scene, no collage, border, text or watermark. NEW Reptiles book page PYTHON. One small gentle ball python resting in a loose low coil on warm leaf litter beneath broad tropical leaves. Continuous thick but graceful brown/gold patterned body, rounded natural small head visibly connected to neck above the coils, tail tip rests on ground and is fully visible; no limbs, no horns, no smile, no exposed tongue or fangs. Natural small dark eyes with calm gaze slightly beside viewer, closed mouth. Smooth broad patterned watercolor shapes, not photorealistic scales. Distinct leafy forest-edge garden under soft late-afternoon light, mossy log and warm earth, whole snake readable and nonthreatening.",
+  "reference_images": [
+    "local/art-development/animal-proportions-review/tiger-scene-candidate.png"
+  ],
+  "reference_usage": "Style reference for generation; new subject and habitat"
+}

@@ -71,7 +71,6 @@ MenuAction :: struct {
 // child comes back to the same room.
 title_state: TitleState;
 title_papers: TitlePapers;
-title_development_nodes: [3]s32;
 TITLE_PAPER_CHIME :: "assets/jungle-book/collect.wav"
 title_book_requested: string;
 GAME_BAR_HEIGHT :: 56
@@ -179,29 +178,7 @@ TitlePathSign :: (session: Session, hotspot: s32, picture: Rectangle, view: Titl
         cast(float32)TITLE_SIGN_RECT[at + 2] * view.scale,
         cast(float32)TITLE_SIGN_RECT[at + 3] * view.scale}
     label := Tr(TITLE_SIGN_LABEL[hotspot])
-    // Reserve the right side for a vector arrow, leaving the translated name
-    // and semantic button independent of the arrow artwork.
     text_board := board
-    text_board.width = board.width - board.height * 0.85
-    cx := board.x + board.width - board.height * 0.42
-    cy := board.y + board.height * 0.5
-    size := board.height * 0.24
-    dx: float32 = 0.0
-    dy: float32 = 0.0
-    direction := TITLE_SIGN_DIRECTION[hotspot]
-    if direction == 1 { dx = -1.0 }
-    if direction == 2 { dx = 1.0 }
-    if direction == 3 { dy = -1.0 }
-    if direction == 4 { dy = 1.0 }
-    tip := Vector2.{cx + dx * size, cy + dy * size}
-    tail := Vector2.{cx - dx * size, cy - dy * size}
-    wing1 := Vector2.{cx - dy * size * 0.6, cy + dx * size * 0.6}
-    wing2 := Vector2.{cx + dy * size * 0.6, cy - dx * size * 0.6}
-    if direction != 0 {
-        Line(session, LineProps.{.start = tail, .end = tip, .thickness = board.height * 0.07, .color = ColorFromPacked(0x513624ff)})
-        Line(session, LineProps.{.start = wing1, .end = tip, .thickness = board.height * 0.07, .color = ColorFromPacked(0x513624ff)})
-        Line(session, LineProps.{.start = wing2, .end = tip, .thickness = board.height * 0.07, .color = ColorFromPacked(0x513624ff)})
-    }
     font := board.height * 0.68
     letters := Count(label)
     if letters > 0 && cast(float32)letters * font * 0.65 > text_board.width {
@@ -266,52 +243,11 @@ TitleLanguageFlags :: () -> bool {
 // The treehouse title screen. KEY is this frame's key; CHOICE receives the
 // catalog index of a game as it opens, which MenuAction.game reports.
 // COLLECTION is what the child has earned; COLLECT earns a scene's paper.
-TitlePreviewRoom :: (session: Session, bounds: Rectangle, key: s32, now: float64, sound_muted: bool) -> MenuAction {
-    action := MenuAction.{.game = -1}
-    label := ifx title_state.preview_room == 1 then "Farm" else "Desert"
-    unused Box(session, BoxProps.{.bounds = bounds, .fill = ColorFromPacked(0xf7f1e3ff)})
-    bar := GameTitleBar(session, bounds, key, now, label, sound_muted)
-    action.sound_toggle = bar.sound_toggle || key == 299
-    action.collection_open = bar.collection_open
-    Text(session, TextProps.{.bounds = Rectangle.{bounds.x + 24.0, bounds.y + 100.0, bounds.width - 48.0, 90.0},
-        .text = Tr("Development preview"), .font = 24})
-    Text(session, TextProps.{.bounds = Rectangle.{bounds.x + 24.0, bounds.y + 200.0, bounds.width - 48.0, 120.0},
-        .text = Tr("This room is a testing preview."), .font = 18})
-    if key == 256 || bar.back {
-        title_state.preview_room = 0
-        action.navigated = true
-    }
-    return action
-}
-
-TitleDevelopmentControls :: (session: Session, bounds: Rectangle, now: float64) -> bool {
-    if !TitleDevelopmentAvailable(title_state) { return false }
-    labels: [3]string = .["Beach", "Farm", "Desert"]
-    letters: [3]string = .["B", "F", "D"]
-    unused Box(session, BoxProps.{.bounds = Rectangle.{bounds.x + 6.0, bounds.y + bounds.height - 96.0, bounds.width - 12.0, 90.0},
-        .fill = ColorFromPacked(0xf7f1e3ff), .border = ColorFromPacked(0xdacdb5ff), .radius = 8.0})
-    Text(session, TextProps.{.bounds = Rectangle.{bounds.x + 12.0, bounds.y + bounds.height - 88.0, bounds.width - 24.0, 24.0},
-        .text = Tr("Testing rooms"), .font = 16})
-    cell := (bounds.width - 24.0) / 3.0
-    for room: cast(s32)0..2 {
-        area := Rectangle.{bounds.x + 12.0 + cast(float32)room * cell, bounds.y + bounds.height - 60.0, cell - 6.0, 44.0}
-        unused Box(session, BoxProps.{.bounds = area, .fill = ColorFromPacked(0xf7f1e3ff),
-            .border = ColorFromPacked(0xdacdb5ff), .radius = 6.0})
-        button := Press(session, PressProps.{.key = cast(u64)(9720 + room), .bounds = area, .label = Tr(labels[room]), .now = now})
-        title_development_nodes[room] = button.node
-        Text(session, TextProps.{.bounds = area, .text = Cat(Tr(labels[room]), " · ", letters[room]),
-            .font = 16, .align = TextAlign.TextAlignCenter, .vertical_align = TextAlign.TextAlignCenter})
-        if button.clicked { return TitleDevelopmentRoom(*title_state, room).moved }
-    }
-    return false
-}
-
 JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font: string,
     games: []MenuGame, choice: *s32, sound_muted: bool, guide_muted: bool, guide_seen: bool,
     message: string, collection: Collection, collect: SecretPaperCollect) -> MenuAction {
     action := MenuAction.{.game = -1}
     if !title_state.started { TitleStart(*title_state) }
-    if title_state.preview_room != 0 { return TitlePreviewRoom(session, bounds, key, now, sound_muted) }
     if guide_seen {
         TitleGuideSkip(*title_state)
         title_state.guide_finished_reported = true
@@ -328,12 +264,9 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
 
     TitleResolve(*title_state, bounds.width, bounds.height)
     scene_key := key
-    if TitleDevelopmentAvailable(title_state) && (key == 257 || key == 32) {
-        for room: cast(s32)0..2 {
-            node := title_development_nodes[room]
-            if TreeFocusedAt(session, node) && TreeNodeAt(session, node).key == cast(u64)(9720 + room) { scene_key = 0 }
-        }
-    }
+    // Scene shortcuts are handled here. Consume the retained key so a later
+    // notice cannot replay Escape from a previous return to Campus.
+    if !title_state.not_implemented { unused KeyboardTake(session) }
     step := TitleKey(*title_state, scene_key)
     if key == 299 && !title_state.not_implemented { action.sound_toggle = true }
     TitleFocus(*title_state, bounds.width, bounds.height)
@@ -350,7 +283,6 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
     // The flags and the sound button sit over the picture's corners.
     blocked := title_state.not_implemented || guide_hover || (px < cast(float32)(6 + 3 * 34) * unit && py < 34.0 * unit) ||
         (px > bounds.width - 112.0 && py < 56.0)
-    if TitleDevelopmentAvailable(title_state) && py > bounds.height - 94.0 { blocked = true }
     // The hidden paper takes its own hover and tap before the scene sees them;
     // a drag that starts on it still pans the picture.
     paper := TitlePaperSpot(title_state.scene, view, bounds.width, bounds.height)
@@ -378,7 +310,6 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
             if games[index].title == title { action.game = index; choice.* = index }
         }
     }
-    if title_state.preview_room != 0 { return TitlePreviewRoom(session, bounds, 0, now, sound_muted) }
     TitleResolve(*title_state, bounds.width, bounds.height)
     view = TitleFit(bounds.width, bounds.height, title_state.pan_x, title_state.pan_y, title_state.scene)
 
@@ -449,6 +380,18 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
             }
         }
     }
+    if TITLE_DECORATION_COUNT > 0 {
+        for index: cast(s32)0..TITLE_DECORATION_COUNT - 1 {
+            if TITLE_DECORATION_SCENE[index] == scene {
+                at := index * 4
+                TitlePicture(session, TITLE_DECORATION_PATH[index], Rectangle.{
+                    picture.x + cast(float32)TITLE_DECORATION_RECT[at] * view.scale,
+                    picture.y + cast(float32)TITLE_DECORATION_RECT[at + 1] * view.scale,
+                    cast(float32)TITLE_DECORATION_RECT[at + 2] * view.scale,
+                    cast(float32)TITLE_DECORATION_RECT[at + 3] * view.scale})
+            }
+        }
+    }
     paper = TitlePaperSpot(scene, view, bounds.width, bounds.height)
     if paper.index >= 0 && SecretPaperShown(title_papers.papers[paper.index], paper.index,
         CollectionHas(collection, collectible_slugs[paper.index])) && layered {
@@ -488,7 +431,7 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
             tail_y := ifx tail_top then guide_place.bubble.y + 1 + offset else guide_place.bubble.y + guide_place.bubble.height - 2 - offset
             BookBox(tail_x - tail_width / 2, tail_y, tail_width, 1, 0xf7f1e3ff)
         }
-        BookPicture("assets/jungle/title/guide/tiger.png", guide_place.mascot.x, guide_place.mascot.y,
+        BookPicture("assets/jungle/title/guide/tiger.webp", guide_place.mascot.x, guide_place.mascot.y,
             guide_place.mascot.width, guide_place.mascot.height)
         BookText(guide_place.text.x, guide_place.text.y, guide_place.text.width, guide_place.text.height,
             TitleGuideText(guide.step, language), 10, TextAlign.TextAlignStart, false)
@@ -534,7 +477,6 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
     retro.scale = 1.0
     TitlePaperFlights(cast(s32)collection_target.x, cast(s32)collection_target.y,
         cast(s32)collection_target.width, cast(s32)collection_target.height, now)
-    if TitleDevelopmentControls(session, bounds, now) { action.navigated = true }
     return action
 }
 

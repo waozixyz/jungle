@@ -308,14 +308,14 @@ def standalone_stencils(indices=None):
         if unknown:
             raise ValueError(f'Unknown stencil asset IDs: {sorted(unknown)}')
         items = [item for item in items if item['index'] in requested]
-    missing = [str(ROOT / 'art/generated/coloring-stencils' / (item['name'] + '.png'))
+    missing = [str(ROOT / 'local/art-development/coloring-stencils' / (item['name'] + '.png'))
                for item in items
-               if not (ROOT / 'art/generated/coloring-stencils' / (item['name'] + '.png')).is_file()]
+               if not (ROOT / 'local/art-development/coloring-stencils' / (item['name'] + '.png')).is_file()]
     if missing:
         raise FileNotFoundError('Missing stencil PNG inputs:\n' + '\n'.join(missing))
     for item in items:
         index = item['index']
-        source = ROOT / 'art/generated/coloring-stencils' / (item['name'] + '.png')
+        source = ROOT / 'local/art-development/coloring-stencils' / (item['name'] + '.png')
         (OUT / f'dino{index}.svg').write_text(stencil_svg(source, item.get('reinforce', True)))
     print(f'Traced {len(items)} individual stencils.')
 
@@ -325,7 +325,7 @@ def main():
     if '--stencils-only' in sys.argv:
         standalone_stencils()
         return
-    sheet = Image.open(ROOT / 'art/generated/dino-coloring-shapes.png').convert('L')
+    sheet = Image.open(ROOT / 'local/art-development/dino-coloring-shapes.png').convert('L')
     found = components(sheet)
     for index in range(12):
         row, column = divmod(index, 4)
@@ -339,7 +339,7 @@ def main():
             f'width="{width}" height="{height}">\n'
             f'<path id="body" fill="#fff" fill-rule="evenodd" d="{body}"/>\n'
             f'<path id="ink" fill="#000" fill-rule="evenodd" d="{ink}"/>\n</svg>\n')
-    scenery = Image.open(ROOT / 'art/generated/dino-coloring-scenery.png').convert('L')
+    scenery = Image.open(ROOT / 'local/art-development/dino-coloring-scenery.png').convert('L')
     width, height = SCENE_SIZE
     for index in range(6):
         (OUT / f'scene{index + 1}.svg').write_text(

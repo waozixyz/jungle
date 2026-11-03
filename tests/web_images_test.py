@@ -7,6 +7,9 @@ from pathlib import Path
 import zipfile
 
 from PIL import Image, ImageChops, ImageStat
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]/'tools'))
+from web_images import APP_READY_FARM_WEBP
 
 ROOT = Path(__file__).resolve().parents[1]
 WEB = Path(os.environ.get('JUNGLE_WEB_ROOT', ROOT/'build/web'))
@@ -72,6 +75,10 @@ for name in representatives:
 assert converted > 700, converted
 assert {'assets/jungle-book/pages', 'assets/jungle-book/items', 'assets/garden/art',
         'assets/shapes/wooden', 'assets/drums/pictures', 'assets/hide_seek/props'} <= categories, categories
+for name in APP_READY_FARM_WEBP:
+    entry=manifest['files'][name]
+    assert entry['sha256']==hashlib.sha256((ROOT/name).read_bytes()).hexdigest(),name
+
 title_sources = sorted((ROOT/'assets/jungle/title').glob('*.webp'))
 assert title_sources
 for source in title_sources:

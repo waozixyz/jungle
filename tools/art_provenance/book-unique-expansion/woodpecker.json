@@ -1,0 +1,17 @@
+{
+  "tool": "built-in image_gen",
+  "source": "local/art-development/art-refresh-033/woodpecker-scene-candidate.png",
+  "original": "backup/picture-book-scenes/art-refresh-033/woodpecker-scene-original.png",
+  "page": "assets/jungle-book/pages/woodpecker.webp",
+  "source_sha256": "1d91558077d743d3ee6491d653c4a328e89185d858936cf3ae74ad83eb339389",
+  "page_sha256": "e19068969555bfeb21ae667341834d11ae4d401c07f2c19d7fde6cf2f6a73d88",
+  "dimensions": [
+    1254,
+    1254
+  ],
+  "prompt": "Use case illustration-story. ONE high-resolution1536+ square Wild Animals picture-book scene. Reference image is ONLY for the gentle watercolor style and quality; replace its subject and setting. Natural animal anatomy and proportions, small-to-normal head relative to body, soft natural eyes, no human grin/lips/eyebrows/eyelashes, closed calm mouth, not chibi. Friendly for babies, simplified rounded forms and smooth hand-painted washes with delicate leafy detail. Warm cream paper with softly feathered painted edges, sage/earth palette and soft light. Full subject wholly visible and physically grounded in its own habitat; coherent scene, no collage, border, text or watermark. NEW Forest book page WOODPECKER. One great spotted woodpecker clinging naturally upright to the side of a birch trunk in a sunny woodland. Whole bird inside frame, recognizable black-and-white plumage, white shoulder patches, muted red under tail and small red nape patch, straight chisel beak, natural small dark eye. Two feet attached firmly to bark with natural opposed gripping toes, stiff tail pressed against trunk for support, no floating or extra limbs. Three-quarter side-front view, upright head angled toward bark beside a small natural hole. Airy green oak leaves and sunlit forest depth, no other birds.",
+  "reference_images": [
+    "local/art-development/animal-proportions-review/tiger-scene-candidate.png"
+  ],
+  "reference_usage": "Style reference for generation; new subject and habitat"
+}

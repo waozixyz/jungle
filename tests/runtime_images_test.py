@@ -8,7 +8,7 @@ from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'tools'))
-from web_images import prepare_runtime_images
+from web_images import prepare_runtime_images, APP_READY_FARM_WEBP
 
 
 def main():
@@ -62,6 +62,11 @@ def main():
         reused = prepare_runtime_images({name: small}, cache)[name]
         assert reused.info['reused_source'] and reused.info['quality'] is None
         assert reused.source.read_bytes() == small.read_bytes()
+
+        # App-ready Farm WebPs bypass derivative staging; normal bundling uses
+        # these approved native-resolution/lossless files unchanged.
+        farm = {name: ROOT/name for name in APP_READY_FARM_WEBP}
+        assert prepare_runtime_images(farm, cache) == {}
 
     print('local runtime image test: real capped WebP, alpha, magic and provenance passed')
 

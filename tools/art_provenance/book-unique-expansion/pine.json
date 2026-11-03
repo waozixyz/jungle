@@ -1,0 +1,17 @@
+{
+  "tool": "built-in image_gen",
+  "source": "local/art-development/art-refresh-033/pine-scene-candidate.png",
+  "original": "backup/picture-book-scenes/art-refresh-033/pine-scene-original.png",
+  "page": "assets/jungle-book/pages/pine.webp",
+  "source_sha256": "3f4ed34dff7c36d9f20fa4e6cc0440abf25599fc690e1c6510e5bbbd150a4c1e",
+  "page_sha256": "f24a65c04f0e148460761776b720476049e37cc1ddfafc851d3169aac1d3dd05",
+  "dimensions": [
+    1254,
+    1254
+  ],
+  "prompt": "Use case illustration-story. Create ONE high-resolution square full-scene nature picture-book page for toddlers. Reference image is ONLY for soft hand-painted watercolor, delicate botanical detail, warm cream paper and sage/earth colors; replace all people and reference composition. One clear botanical subject growing naturally rooted in its own setting, recognizable species shape, smooth washes, painterly foliage and gentle airy light. Complete subject and setting, softly feathered painted edges into cream paper. No people, animals, faces on plants, lettering, text, border, watermark, collage or diagram. TREES book: ONE young Scots PINE tree standing on a mossy rocky rise above a quiet mountain lake. Entire tree from roots to crown inside frame, pull back with 15 percent pale sky above top and space at both sides. Recognizable evergreen pine architecture: straight reddish-brown trunk with spreading branches and tufted clusters of long thin green NEEDLES, not broad leaves. A low attached branch clearly shows needle bundles and a few natural woody pine cones hanging downward. Golden grass, soft moss and heather at roots, distant blue hills and lake under gentle cool morning light. No flowers or fruit on the pine.",
+  "reference_images": [
+    "assets/jungle-book/pages/mother.webp"
+  ],
+  "reference_usage": "Style reference for generation; new subject and habitat"
+}

@@ -30,10 +30,10 @@ class UniqueBookArtTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.ids = set(json.loads((ROOT/'tools/book_unique_expansion.json').read_text())['words'])
-        cls.meta = {i: json.loads((ROOT/f'art/generated/book-unique-expansion/{i}.json').read_text()) for i in cls.ids}
+        cls.meta = {i: json.loads((ROOT/f'tools/art_provenance/book-unique-expansion/{i}.json').read_text()) for i in cls.ids}
     def test_exact_inventory_and_pages(self):
         self.assertEqual(len(self.ids), 78)
-        self.assertEqual({p.stem for p in (ROOT/'art/generated/book-unique-expansion').glob('*.json')}, self.ids)
+        self.assertEqual({p.stem for p in (ROOT/'tools/art_provenance/book-unique-expansion').glob('*.json')}, self.ids)
         for i, m in self.meta.items():
             with self.subTest(subject=i), Image.open(ROOT/m['page']) as im:
                 self.assertEqual(m['page'], f'assets/jungle-book/pages/{i}.webp')

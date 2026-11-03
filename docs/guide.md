@@ -141,7 +141,7 @@ The shared title-bar Back returns to picture selection, then the main menu.
 All controls are available in English, German and Spanish.
 
 The three original puzzle pictures were made with Codex's built-in imagegen
-tool. Full-size originals and their prompts live in `art/generated/jigsaw`;
+tool. Full-size originals and their prompts live in `local/art-development/jigsaw`;
 `python3 tools/jigsaw_art.py` prepares the three high-resolution pictures in
 `assets/jigsaw`. Every host generates the interlocking piece outlines at runtime
 and clips the original picture without distorting it. No pre-cut piece atlases
@@ -194,7 +194,7 @@ the room to hear their distinct sounds. The guitar rests in a stand, shakers sit
 Listen & Copy starts with two hits and gradually offers longer
 patterns. Copy the order at your own pace; replay and free play are always available.
 
-**Grow a Garden (3+)** has six plants: sunflower, tomato, carrot, strawberry,
+**Farm (3+)** has six plants: sunflower, tomato, carrot, strawberry,
 pumpkin and cabbage. Choose a seed packet, then tap or drag a seed into the soil.
 Choose the watering can to care for thirsty plants. Seeds stay in moist soil
 before sprouting, and plants continue growing between visits. Return to water
@@ -219,10 +219,7 @@ packages, and Ziran. Dependencies are pinned in `ziran.lock`.
 make            # build/app: the program, its assets and the game bundles
 make run
 make test       # counting, complete saves, painting, PNGs and printing
-make test-ui    # real keyboard/mouse play on a separate virtual display
-python3 tests/new_activities_ui_test.py # five new activities, three languages/sizes
-node tests/new_activities_web_test.mjs  # private DOM browser interaction
-JUNGLE_WEB_PAGE=canvas.html node tests/new_activities_web_test.mjs
+make test-ui    # one private-display smoke run, both orientations and three languages
 make install    # ~/.local/bin/jungle and a menu entry
 make web        # Canvas and semantic-DOM browser games in build/web
 ```
@@ -286,7 +283,7 @@ sprites in the sixteen colors with Inkscape and ImageMagick, makes the
 ASCII and Latin-1 letters from GNU Unifont. Picture Book's pages and the
 transparent cut-outs used by Animal Counting and the ABC Book are drawn one
 picture at a time with Codex's built-in imagegen tool, in the style of the
-title-screen covers (`art/generated/title-covers.png`). Their prompts are kept
+title-screen covers (`local/art-development/title-covers.png`). Their prompts are kept
 in `tools/book_prompts.json`; the pages are 1254 pixel WebP files in
 `assets/jungle-book/pages`. `tools/counting_art.py` makes transparent 128 pixel copies for both counting games,
 keeping their full-size sources intact. `tools/book_art.py` makes the book covers from the
@@ -306,8 +303,8 @@ FFmpeg with its libvorbis encoder. The browser edition requires a modern browser
 with Vorbis support, including Safari 18.4 or later.
 The original Bert's Dinosaurs line art is retained in `art/paint`. New library
 pictures are generated individually with built-in image generation; raw sources
-and prompts are retained in `art/generated/coloring-stencils`,
-`art/generated/coloring-scenes` and `art/generated/coloring-library-prompts.json`.
+and prompts are retained in `local/art-development/coloring-stencils`,
+`local/art-development/coloring-scenes` and `local/art-development/coloring-library-prompts.json`.
 `python3 tools/paint_catalog.py --art` traces the added library entries without
 changing the recovered artwork. `make sounds` retains the original game effects;
 `python3 tools/music_room_audio.py --check` verifies the music-room samples and

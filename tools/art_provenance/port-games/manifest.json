@@ -1,0 +1,284 @@
+{
+  "status": "candidate; parent review and owner title choice pending",
+  "assets": [
+    {
+      "sha256": "9d7907301e2d09ac096c7ccd531af12bd267722a9ca7b890cbbdcb0b8cef74d4",
+      "master_sha256": "5515f4e82aa754050ec22a1d5ca719b0dba2fb4022bca4148d17507e4eaf9bd2",
+      "preview_sha256": "c38f8894b15896fba032c581c1c88186c8a81c7339653b56e6113f29a02b803c",
+      "path": "assets/fishing/background.webp",
+      "master": "local/art-development/port-games/backdrop.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "alpha": false,
+      "content_bbox": null,
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "preview": "assets/fishing/previews/background.webp"
+    },
+    {
+      "sha256": "ed8bbd2536bca690595f2a14ceace09ff9bd19a0d3fbc16e19bffd95d663123a",
+      "master_sha256": "6f429fd0389e0d324c4ea1dc14cc5b7ad62b24063b749f9a7980be9c1bc838b1",
+      "preview_sha256": "80f002547551d9c6f67b7a33240e5dd678cac4758949cce1f230c214e7ac4098",
+      "path": "assets/fishing/clownfish.webp",
+      "master": "local/art-development/port-games/clownfish.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "alpha": true,
+      "content_bbox": [
+        0,
+        17,
+        1240,
+        1254
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "preview": "assets/fishing/previews/clownfish.webp"
+    },
+    {
+      "sha256": "58c971bb84a1728a8a57c4bb291818d29cb140f8e01e9e2877adc0ddc05b9759",
+      "master_sha256": "3cc583faf7bab3ba4270efd41080451296c7badfd2687863fb9ffc2ec55dbcbf",
+      "preview_sha256": "3c0657c9fa08ee6e703bc437cb7ae158979a411487eceeba0729c92286c5ad1b",
+      "path": "assets/fishing/blue-tang.webp",
+      "master": "local/art-development/port-games/blue-tang.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "alpha": true,
+      "content_bbox": [
+        0,
+        23,
+        1240,
+        1254
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "preview": "assets/fishing/previews/blue-tang.webp"
+    },
+    {
+      "sha256": "0239ae60d59c9a8e0e3c229b751de62c6fc60c18bb1cfa2b8dff0c77228b8f32",
+      "master_sha256": "8655ecdccb1a47b47ecebe15276861fd9b7f364fbed218e11f941acd11700408",
+      "preview_sha256": "2ad93b75140e10771b4f21a74a4a26d4b9918fd67d7722aeededf65e52bad036",
+      "path": "assets/fishing/butterflyfish.webp",
+      "master": "local/art-development/port-games/butterflyfish.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "alpha": true,
+      "content_bbox": [
+        0,
+        19,
+        1240,
+        1254
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "preview": "assets/fishing/previews/butterflyfish.webp"
+    },
+    {
+      "sha256": "f7d29d213dffe5c41d68406f0f9c880cb2e21de3fd5fdee051a20b44f99cc5e1",
+      "master_sha256": "04f89271c9a15039a05c1525243d47e6ca26e4095111b24877a66a23c175ccdb",
+      "preview_sha256": "81841933850f18bcfe8a6f43b2a24c4f99d893774d24baf577118ff92ce02b7f",
+      "path": "assets/fishing/angelfish.webp",
+      "master": "local/art-development/port-games/angelfish.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "alpha": true,
+      "content_bbox": [
+        0,
+        17,
+        1240,
+        1254
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "preview": "assets/fishing/previews/angelfish.webp"
+    },
+    {
+      "sha256": "506e82ebeebdd5860f7061125d809dcf693fdad93631df0499bff17a10832b8c",
+      "master_sha256": "ad1c891c2fcbbe32f4b3fe697caa89e1395907da056ccf65dc59e9724338eb2f",
+      "preview_sha256": "457df54a8a31fce76a0e58f31201d1edd967ade2d2e62f0ab8b4d037d694edc7",
+      "path": "assets/fishing/parrotfish.webp",
+      "master": "local/art-development/port-games/parrotfish.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "alpha": true,
+      "content_bbox": [
+        0,
+        19,
+        1232,
+        1254
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "preview": "assets/fishing/previews/parrotfish.webp"
+    },
+    {
+      "sha256": "ff26f55e255dc73526294c4d6ed76029170b4c1af36dd4f13bc7af29462c9f63",
+      "master_sha256": "494399dfea73894df7b1498b5a6a5a94b2917ce287ba6a820dcef06d8c5c659d",
+      "preview_sha256": "8db66028f778e4467c0e25d52fc3b00f39a8367e5428797a497b461f32497454",
+      "path": "assets/fishing/pufferfish.webp",
+      "master": "local/art-development/port-games/pufferfish.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "alpha": true,
+      "content_bbox": [
+        0,
+        31,
+        1236,
+        1254
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "preview": "assets/fishing/previews/pufferfish.webp"
+    },
+    {
+      "sha256": "53d5c825d13e6715083c0c9ea3aee031b245b45e4b7cf5555a8692bf7b25206c",
+      "master_sha256": "c16d43575fc62b5711d2e479da431872c2ea061f7f38e3f9374b03ef802b1533",
+      "preview_sha256": "4339fadaec6b63e67f83c5a86d7b5d63231337b1324375cf285a35079bd3b85d",
+      "path": "assets/beach_families/background.webp",
+      "master": "local/art-development/port-games/crab-background.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "alpha": false,
+      "content_bbox": null,
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "preview": "assets/beach_families/previews/background.webp"
+    },
+    {
+      "sha256": "2e88001ca34c699e9a528c587f4f65aa532056e1f44bc91dec9fcb0a153f7331",
+      "master_sha256": "fb658b590f6bdd3890dd2e914adeb9a2075bf8d9ae3bc7ee7639b453db5a1f67",
+      "preview_sha256": "dd918c54c60fff0dc57cd243f801ed07f127c5121b03887da9a727adfc3cdbc1",
+      "path": "assets/fishing/boat.webp",
+      "master": "local/art-development/port-games/boat-approved.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "alpha": true,
+      "content_bbox": [
+        35,
+        17,
+        1518,
+        1024
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "preview": "assets/fishing/previews/boat.webp"
+    },
+    {
+      "sha256": "5a9e9a70d05dc86f1a61648bdd9ee01dcd7c175f7ae499cee1be17e705778a1b",
+      "master_sha256": "5087fa18349dfecbec31e4fd11937c63b44d7d3b497cfa0eda52f396f12e156e",
+      "preview_sha256": "996f40d26676add2645f06ea7cb3323518ac072bfeb27814f4191dbce0f31eee",
+      "path": "assets/beach_families/crab-adult.webp",
+      "master": "local/art-development/port-games/crab-adult-approved.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "alpha": true,
+      "content_bbox": [
+        0,
+        39,
+        1246,
+        1254
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "preview": "assets/beach_families/previews/crab-adult.webp"
+    },
+    {
+      "sha256": "5b705d91e2d4a8f8fddeef7b2ab02116fe5a9a93317b771a6999febcae066b0b",
+      "master_sha256": "1dd071c9d195aa4101ed8e37c48f6b80ee4453d6afaac394591d64ef4ae048c9",
+      "preview_sha256": "3be69b275b750a44604a33a04e9728a683bf9cccfd3701f5083e6b92d3b75208",
+      "path": "assets/beach_families/crab-baby.webp",
+      "master": "local/art-development/port-games/crab-baby-approved.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "alpha": true,
+      "content_bbox": [
+        0,
+        9,
+        1523,
+        1024
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "preview": "assets/beach_families/previews/crab-baby.webp"
+    },
+    {
+      "sha256": "c84133eae951818853fcca525eda9ba1a4c860ddf6466a6b4443032c1cd0395d",
+      "master_sha256": "2e0a507591bb97c06633e622ff0dc4656fb148dd52e2cfebeb94a03845304e57",
+      "preview_sha256": "eaf249f24344903f6a28035396121a6c048adad58f5d8f6ea59d21d5ab20e5b7",
+      "path": "assets/jungle/covers/fishing.webp",
+      "master": "local/art-development/port-games/fishing-cover.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "alpha": false,
+      "content_bbox": null,
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "preview": "assets/jungle/covers/previews/fishing.webp"
+    },
+    {
+      "sha256": "a2fad834a4c18a059359b021defa691eee2a83d4e02f891a43ee47939145a393",
+      "master_sha256": "0405d2f89f1bd8ea15356cb58f739707d887539e66b237a65dd5e92f53b2dd46",
+      "preview_sha256": "071607173f68b7511b88ebb9b08988a8c9ea2e8fd712dd6d03595e3b1e11ac74",
+      "path": "assets/jungle/covers/beach-families.webp",
+      "master": "local/art-development/port-games/crab-cover-approved.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "alpha": false,
+      "content_bbox": null,
+      "anchor": [
+        0.5,
+        0.5
+      ],
+      "preview": "assets/jungle/covers/previews/beach-families.webp"
+    }
+  ]
+}

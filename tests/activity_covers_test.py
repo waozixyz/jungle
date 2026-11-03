@@ -5,7 +5,7 @@ from pathlib import Path
 from PIL import Image
 
 root = Path(__file__).resolve().parents[1]
-records = json.loads((root / 'art/generated/activity-covers/sources.json').read_text())
+records = json.loads((root / 'tools/art_provenance/activity-covers/sources.json').read_text())
 names = {'shapes': 'Shapes & Sorting', 'matching': 'Matching Pairs', 'hide-seek': 'Hide & Seek', 'drums': 'Music Room'}
 assert set(records) == set(names)
 hash_file = lambda p: hashlib.sha256(p.read_bytes()).hexdigest()
@@ -16,7 +16,8 @@ for name, title in names.items():
     with Image.open(path) as im:
         assert im.format == 'WEBP' and im.mode == 'RGB' and im.size == (420, 420)
     assert hash_file(path) == rec['webp_sha256'] and rec['prompt'] and rec['references']
-    for ref, digest in rec['references'].items(): assert hash_file(root / ref) == digest
+    for ref, digest in rec['references'].items():
+        if (root/ref).exists(): assert hash_file(root/ref) == digest
     raw = Path(rec['source_png'])
     if raw.exists(): assert hash_file(raw) == rec['source_sha256']
     lines = (root / 'games/catalog.txt').read_text().splitlines()

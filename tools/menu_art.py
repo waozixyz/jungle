@@ -8,10 +8,10 @@ def main():
     target = ROOT / 'assets/jungle/covers'
     target.mkdir(parents=True, exist_ok=True)
     for name in ('book', 'count', 'paint', 'abc-123'):
-        with Image.open(ROOT / 'art/generated/menu-covers' / (name + '.png')) as cover:
+        with Image.open(ROOT / 'local/art-development/menu-covers' / (name + '.png')) as cover:
             assert cover.width == cover.height
             # Preserve canonical cover pixels; runtime exports control shipped size.
-            export_image(ROOT / 'art/generated/menu-covers' / (name + '.png'),
+            export_image(ROOT / 'local/art-development/menu-covers' / (name + '.png'),
                          target / (('counting' if name == 'count' else name) + '.webp'),
                          'scene', size=(420, 420))
     print('Prepared four watercolor title covers')

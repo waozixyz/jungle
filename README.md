@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="art/generated/branding/logo.png" alt="Jungle Academy" width="700">
+  <img src="assets/jungle/branding/logo.png" alt="Jungle Academy" width="700">
 </p>
 
 # Jungle Academy
@@ -11,6 +11,12 @@ babies and toddlers.
 [**Play in your browser**](https://jungle.waozi.xyz) ·
 [Download for Android or Linux](https://github.com/waozixyz/jungle/releases/latest) ·
 [What's new](CHANGELOG.md)
+
+Generated originals, candidates and review files live only in ignored
+`local/art-development/`. Approved app artwork is integrated as tracked WebP
+under `assets/`; builds and tests do not require the local development folder.
+Small provenance records needed to validate shipped artwork live in
+`tools/art_provenance/`.
 
 ## Little discoveries, every day
 
@@ -54,7 +60,7 @@ babies and toddlers.
   scenes. Explore natural hiding places and discover each animal for yourself.
 - **Music Room (2+):** Tap illustrated drums, a shaker and a bell around a
   watercolor music room, then try copying short rhythms.
-- **Grow a Garden (3+):** Plant seeds, water six kinds of plants and return to care for them as they grow.
+- **Farm (3+):** Plant seeds, water six kinds of plants and return to care for them as they grow.
 
 ## A look inside
 

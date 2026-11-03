@@ -159,7 +159,7 @@ class Exports(unittest.TestCase):
         root = self.root
         (root/'tools').mkdir()
         (root/'games/book').mkdir(parents=True)
-        masters = root/'art/generated/sweet-porridge-portrait'
+        masters = root/'local/art-development/sweet-porridge-portrait'
         masters.mkdir(parents=True)
         Image.open(self.original).save(masters/'fixture.png')
         page = {'asset': 'scene', 'portrait_asset': 'fixture', 'paper_top': 0,
@@ -170,7 +170,7 @@ class Exports(unittest.TestCase):
             path.parent.mkdir(parents=True)
             path.write_text(json.dumps({'text':page[lang], 'duration':1.2}))
         with patch.object(story_book, 'ROOT', root), patch.object(image_exports, 'ROOT', root):
-            story_book.main()
+            story_book.main(export_art=True)
             dest = root/'assets/jungle-book/portraits/fixture.webp'
             with Image.open(dest) as decoded:
                 self.assertEqual(decoded.size, (320,192))
@@ -186,8 +186,8 @@ class Exports(unittest.TestCase):
                 im.putalpha(Image.linear_gradient('L').resize(im.size))
             im.save(root/f'art/title-{kind}.png')
         (root/'tools/manifest.json').write_text('{}')
-        (root/'art/generated/title-layers').mkdir(parents=True)
-        (root/'art/generated/title-layers/prompts.json').write_text(json.dumps({'assets': [
+        (root/'tools/art_provenance/title-layers').mkdir(parents=True)
+        (root/'tools/art_provenance/title-layers/prompts.json').write_text(json.dumps({'assets': [
             {'name': 'fixture', 'source': 'art/title', 'runtime': 'assets/jungle/title/fixture'}]}))
         original_bytes = (root/'art/title-foreground.png').read_bytes()
         calls = []
@@ -205,7 +205,7 @@ class Exports(unittest.TestCase):
 
     def test_title_scene_entrypoints(self):
         root = self.root
-        source_dir = root/'art/generated/title-world-proposal'
+        source_dir = root/'local/art-development/title-world-proposal'
         source_dir.mkdir(parents=True)
         Image.new('RGB',(1672,941),'#abd').save(source_dir/'treehouse-room.png')
         (root/'tools').mkdir()
@@ -224,7 +224,7 @@ class Exports(unittest.TestCase):
             self.assertEqual(im.size, (1672,941))
         with Image.open(root/'assets/jungle/title/tree-low.webp') as im:
             self.assertEqual(im.width, 240)
-        beach_dir = root/'art/generated/world-scene-refresh'
+        beach_dir = root/'local/art-development/world-scene-refresh'
         beach_dir.mkdir(parents=True)
         for orientation in ('landscape','portrait'):
             Image.open(self.original).save(beach_dir/f'beach-{orientation}-clean.png')
@@ -243,7 +243,7 @@ class Exports(unittest.TestCase):
     def test_menu_and_jigsaw_entrypoints_from_originals(self):
         for module, folder, names in [(menu_art, 'menu-covers', ('book','count','paint','abc-123')),
                                       (jigsaw_art, 'jigsaw', jigsaw_art.SCENES)]:
-            directory = self.root/'art/generated'/folder
+            directory = self.root/'local/art-development'/folder
             directory.mkdir(parents=True)
             for name in names:
                 Image.open(self.original).resize((320,320)).save(directory/(name+'.png'))

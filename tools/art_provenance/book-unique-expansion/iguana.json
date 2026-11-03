@@ -1,0 +1,17 @@
+{
+  "tool": "built-in image_gen",
+  "source": "local/art-development/art-refresh-033/iguana-scene-candidate.png",
+  "original": "backup/picture-book-scenes/art-refresh-033/iguana-scene-original.png",
+  "page": "assets/jungle-book/pages/iguana.webp",
+  "source_sha256": "7078318411fb856d1776a63a753bdd3d568273be1905bd6fac0dddcbf5298929",
+  "page_sha256": "99dc27fd56cfc12fa24207e1bc513f50667033588a666db2a64c6d4dec969599",
+  "dimensions": [
+    1254,
+    1254
+  ],
+  "prompt": "Use case illustration-story. ONE high-resolution1536+ square Wild Animals picture-book scene. Reference image is ONLY for the gentle watercolor style and quality; replace its subject and setting. Natural animal anatomy and proportions, small-to-normal head relative to body, soft natural eyes, no human grin/lips/eyebrows/eyelashes, closed calm mouth, not chibi. Friendly for babies, simplified rounded forms and smooth hand-painted washes with delicate leafy detail. Warm cream paper with softly feathered painted edges, sage/earth palette and soft light. Full subject wholly visible and physically grounded in its own habitat; coherent scene, no collage, border, text or watermark. NEW Reptiles book page IGUANA. One gentle green iguana sunning on a broad flat stone beneath low tropical branches. Full long body and complete whip-like banded tail curling naturally along the stone, four splayed legs with natural long toes, modest row of soft triangular dorsal spines, natural round cheek scale and small hanging dewlap below its closed jaw. Recognizable iguana, no horns or chameleon tail spiral. Head upright in three-quarter front view, calm gaze to nearby leaves. Olive/sage watercolor skin with simplified broad color areas, no sharply detailed scale texture. Ferns, warm stone, soft flowing creek and lush morning garden setting.",
+  "reference_images": [
+    "local/art-development/animal-proportions-review/tiger-scene-candidate.png"
+  ],
+  "reference_usage": "Style reference for generation; new subject and habitat"
+}

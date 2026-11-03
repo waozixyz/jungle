@@ -42,6 +42,15 @@ RUNTIME_RULES = {
     'assets/jigsaw': RuntimeRule(1200, RUNTIME_QUALITY),
 }
 
+# Approved Farm scenes and sign layers are already app-ready exports. Keep
+# their native resolution and lossless alpha, without another lossy encode.
+APP_READY_FARM_WEBP = {
+    'assets/garden/art/scene-landscape.webp',
+    'assets/garden/art/scene-portrait.webp',
+    'assets/garden/art/campus-sign.webp',
+    'assets/garden/art/campus-sign-glow.webp',
+}
+
 # These folders receive previews. Runtime WebP replaces the former lossless
 # PNG copies; title art remains host-only and browser-encoded.
 PHOTO_FOLDERS = {'assets/jungle-book/portraits', 'assets/jungle-book/pages', 'assets/jungle-book/previews',
@@ -92,7 +101,8 @@ def prepare_previews(files, cache):
 
     wanted = sorted((name, source) for name, source in files.items()
                     if str(Path(name).parent) in PREVIEW_FOLDERS
-                    and Path(name).suffix in ('.webp', '.png'))
+                    and Path(name).suffix in ('.webp', '.png')
+                    and name not in APP_READY_FARM_WEBP)
     with ThreadPoolExecutor(max_workers=2) as pool:
         return dict(pool.map(convert, wanted))
 
@@ -155,7 +165,8 @@ def prepare_runtime_images(files, cache):
     version = pillow_version + '-' + str(features.version('webp'))
     wanted = sorted((name, Path(source)) for name, source in files.items()
                     if str(Path(name).parent) in RUNTIME_RULES
-                    and Path(name).suffix in ('.webp', '.png'))
+                    and Path(name).suffix in ('.webp', '.png')
+                    and name not in APP_READY_FARM_WEBP)
 
     def convert(item):
         name, source = item

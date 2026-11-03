@@ -1,0 +1,17 @@
+{
+  "tool": "built-in image_gen",
+  "source": "local/art-development/art-refresh-033/hedgehog-scene-candidate.png",
+  "original": "backup/picture-book-scenes/art-refresh-033/hedgehog-scene-original.png",
+  "page": "assets/jungle-book/pages/hedgehog.webp",
+  "source_sha256": "d47e3624677cbaae51f4608c44acb7a9c9242001063cfaf289861a8e6171a783",
+  "page_sha256": "4fbf348d190dfa1fc34cbe7ad7518d3ebabd706d7d1b86cd40f20ece39f715dc",
+  "dimensions": [
+    1254,
+    1254
+  ],
+  "prompt": "Use case illustration-story. ONE high-resolution1536+ square Wild Animals picture-book scene. Reference image is ONLY for the gentle watercolor style and quality; replace its subject and setting. Natural animal anatomy and proportions, small-to-normal head relative to body, soft natural eyes, no human grin/lips/eyebrows/eyelashes, closed calm mouth, not chibi. Friendly for babies, simplified rounded forms and smooth hand-painted washes with delicate leafy detail. Warm cream paper with softly feathered painted edges, sage/earth palette and soft light. Full subject wholly visible and physically grounded in its own habitat; coherent scene, no collage, border, text or watermark. NEW Forest book page HEDGEHOG. One small European hedgehog walking gently over leaf litter beside the opening under a mossy fallen log. Full low rounded body on four short visible natural legs, small pointed muzzle, tiny dark nose, small rounded ears, modest natural eyes. Back covered in softly suggested short brown and cream spines, rounded nonthreatening brushwork, pale brown face and belly, no exaggerated smile or eyelashes. Three-quarter forward view with nose slightly toward a nearby fallen oak leaf. Ferns, woodland violets, golden leaves and soft dappled morning light, whole animal grounded and clearly readable.",
+  "reference_images": [
+    "local/art-development/animal-proportions-review/tiger-scene-candidate.png"
+  ],
+  "reference_usage": "Style reference for generation; new subject and habitat"
+}

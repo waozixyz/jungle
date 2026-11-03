@@ -1,0 +1,17 @@
+{
+  "tool": "built-in image_gen",
+  "source": "local/art-development/art-refresh-033/birch-scene-candidate.png",
+  "original": "backup/picture-book-scenes/art-refresh-033/birch-scene-original.png",
+  "page": "assets/jungle-book/pages/birch.webp",
+  "source_sha256": "0853c2deba7b6e5de3527fb74bd23eb505894bc77b2b4778e78ac672b9dc259d",
+  "page_sha256": "c08f20fe58ec5ec97056ccc76de4a58564e1bfa7e073609d296f3e4c7e5f133d",
+  "dimensions": [
+    1254,
+    1254
+  ],
+  "prompt": "Use case illustration-story. Create ONE high-resolution square full-scene nature picture-book page for toddlers. Reference image is ONLY for soft hand-painted watercolor, delicate botanical detail, warm cream paper and sage/earth colors; replace all people and reference composition. One clear botanical subject growing naturally rooted in its own setting, recognizable species shape, smooth washes, painterly foliage and gentle airy light. Complete subject and setting, softly feathered painted edges into cream paper. No people, animals, faces on plants, lettering, text, border, watermark, collage or diagram. TREES book: ONE silver BIRCH tree growing beside a quiet woodland stream. Pull back to show its complete slender trunk and airy tapered crown with 12 percent empty sky margin above the very top and ample space around branches. Distinct white bark with dark horizontal marks and a few peeling patches, thin gently drooping twigs and small triangular serrated green leaves. A low attached branch clearly shows natural birch leaves and small hanging catkins. Roots in soft grassy stream bank, ferns and delicate white flowers, glistening shallow water and misty woodland beyond. Full-tree species silhouette, no cropped crown.",
+  "reference_images": [
+    "assets/jungle-book/pages/mother.webp"
+  ],
+  "reference_usage": "Style reference for generation; new subject and habitat"
+}

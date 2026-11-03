@@ -11,7 +11,7 @@ def main():
         for stage in ('sprout','small','mature','dry','withered','packet'):
             names.add(f'{kind}-{stage}')
     for name in sorted(names):
-        with Image.open(ROOT/f'assets/garden/art/{name}.png') as full, Image.open(ROOT/f'assets/garden/previews/{name}.png') as preview:
+        with Image.open(ROOT/(f'assets/garden/art/{name}'+('.webp' if name in ('scene-landscape','scene-portrait','campus-sign','campus-sign-glow') else '.png'))) as full, Image.open(ROOT/f'assets/garden/previews/{name}.png') as preview:
             assert max(full.size)>=700,(name,'full art too small',full.size)
             assert max(preview.size)<=128,(name,'preview too large')
             assert full.width*preview.height==full.height*preview.width or abs(full.width/full.height-preview.width/preview.height)<.04,(name,'preview aspect')
@@ -22,7 +22,8 @@ def main():
     provenance = json.loads((ROOT/'assets/garden/scene-provenance.json').read_text())
     for asset in provenance['assets']:
         assert hashlib.sha256((ROOT/asset['runtime']).read_bytes()).hexdigest() == asset['sha256']
-        assert (ROOT/asset['runtime']).read_bytes() == (ROOT/asset['source']).read_bytes()
+        if (ROOT/asset['source']).exists():
+            assert hashlib.sha256((ROOT/asset['source']).read_bytes()).hexdigest() == asset['source_sha256']
     assert not list((ROOT/'assets/garden').rglob('stage-*.wav')),'Guided narration remains packaged'
     assert 'jungle.voice' not in (ROOT/'games/garden/jungle_garden.zi').read_text()
     print(f'local garden assets: {len(names)} full paintings, transparent cutouts and 128px previews passed')

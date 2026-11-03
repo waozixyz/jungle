@@ -6,7 +6,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def main():
-    source = Image.open(ROOT / 'art/generated/branding/app-icon.png').convert('RGB')
+    source = Image.open(ROOT / 'local/art-development/branding/app-icon.png').convert('RGB')
     assert source.width == source.height
     icons = ROOT / 'assets/jungle/icons'
     icons.mkdir(parents=True, exist_ok=True)
@@ -41,7 +41,7 @@ def main():
     <foreground android:drawable="@drawable/ic_launcher_foreground" />
 </adaptive-icon>
 ''')
-    logo = ROOT / 'art/generated/branding/logo.png'
+    logo = ROOT / 'local/art-development/branding/logo.png'
     if logo.exists():
         target = ROOT / 'assets/jungle/branding'
         target.mkdir(parents=True, exist_ok=True)

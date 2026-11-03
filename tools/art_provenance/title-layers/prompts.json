@@ -1,0 +1,90 @@
+{
+  "tool": "built-in image_gen.imagegen",
+  "processing": "Generated extraction alpha is registered to the approved scene, normalized where the tool emitted a translucent halo, and used with the original RGB pixels to preserve accepted artwork. Generated inpainting is used only under that extracted silhouette. Final full-resolution PNG layers are staged as lossless WebP.",
+  "assets": [
+    {
+      "name": "treehouse",
+      "input_extraction": "/home/wao/.codex/generated_images/01a19c67-d5b9-74f3-a888-b41866e98d7a/exec-a5f1656b-0083-44af-96bd-c007574913e5.png",
+      "input_background": "/home/wao/.codex/generated_images/01a19c67-d5b9-74f3-a888-b41866e98d7a/exec-def7238d-75b4-4897-8ac0-7f0c057700ed.png",
+      "extraction_prompt": "Use case: background-extraction. Edit target: supplied existing watercolor scene. Extract ONLY sitting tiger cub, entire tail, paws, ears and fur edges, at roughly x280..770 y153..690 as a genuine transparent RGBA foreground layer. Preserve exact original position, pose, identity, brushwork, shapes, colors and scale. Keep full original 1672x941 canvas and original object position. Everything except named object must be alpha zero, including ground, surrounding leaves, wall and shadows. Do not redraw, recenter, enlarge, crop or stylize. No added objects or white background. This layer will be composited over the same scene and must align precisely.",
+      "background_prompt": "Use case: precise-object-edit. Edit target: supplied existing watercolor title scene. Create background plate for separated layers: remove ONLY sitting tiger cub at x280..770 y153..690, including tail, paws and ears. Reconstruct only woven rug and the plants, wooden wall/window and floor previously hidden by the cub, seamlessly matching adjacent brushwork. Preserve EVERY other pixel and all scene objects and composition. Keep exact original full 1672x941 canvas; no cropping, scaling, style change, text or new object. No trace of the removed subject remains. Original object will be composited separately in its exact original location.",
+      "registration": [
+        0,
+        -1
+      ],
+      "normalize_alpha": false,
+      "source": "local/art-development/title-layers/treehouse",
+      "runtime": "assets/jungle/title/layers/treehouse"
+    },
+    {
+      "name": "treehouse-portrait",
+      "input_extraction": "/home/wao/.codex/generated_images/01a19c67-d5b9-74f3-a888-b41866e98d7a/exec-91f617e3-fc4e-43cb-b69f-dd3e6849e80e.png",
+      "input_background": "/home/wao/.codex/generated_images/01a19c67-d5b9-74f3-a888-b41866e98d7a/exec-97515ba4-06ab-4b6c-948a-578aa22da6a5.png",
+      "extraction_prompt": "Use case: background-extraction. Edit target: supplied existing watercolor scene. Extract ONLY sitting tiger cub, entire tail, paws, ears and fur edges, at roughly x194..635 y392..888 as a genuine transparent RGBA foreground layer. Preserve exact original position, pose, identity, brushwork, shapes, colors and scale. Keep full original 1024x1536 canvas and original object position. Everything except named object must be alpha zero, including ground, surrounding leaves, wall and shadows. Do not redraw, recenter, enlarge, crop or stylize. No added objects or white background. This layer will be composited over the same scene and must align precisely.",
+      "background_prompt": "Use case: precise-object-edit. Edit target: supplied existing watercolor title scene. Create background plate for separated layers: remove ONLY sitting tiger cub at x194..635 y392..888, including tail, paws and ears. Reconstruct only woven rug and the plants, wooden wall/window and floor previously hidden by the cub, seamlessly matching adjacent brushwork. Preserve EVERY other pixel and all scene objects and composition. Keep exact original full 1024x1536 canvas; no cropping, scaling, style change, text or new object. No trace of the removed subject remains. Original object will be composited separately in its exact original location.",
+      "registration": [
+        0,
+        0
+      ],
+      "normalize_alpha": true,
+      "source": "local/art-development/title-layers/treehouse-portrait",
+      "runtime": "assets/jungle/title/layers/treehouse-portrait"
+    },
+    {
+      "name": "campus",
+      "input_extraction": "/home/wao/.codex/generated_images/01a19c67-d5b9-74f3-a888-b41866e98d7a/exec-f0108d10-7bee-4774-b673-fa48d659ba6f.png",
+      "input_background": "/home/wao/.codex/generated_images/01a19c67-d5b9-74f3-a888-b41866e98d7a/exec-7ff4491d-54bd-459a-8236-b470924c6079.png",
+      "extraction_prompt": "Use case: background-extraction. Extract ONLY the reclining tiger cub at center-left, including entire tail, paws, ears and fine fur edges, as a genuine transparent RGBA foreground layer. Preserve exact original pose, facial identity, brushwork, stripe shapes, colors and scale. Keep full original 1672x941 canvas and original tiger position; everything except tiger must be alpha zero, including ground, leaves and shadows. Do not redraw, recenter, enlarge or stylize. No added objects. This layer will be composited over the same scene and must align precisely.",
+      "background_prompt": "Use case: precise-object-edit. Remove ONLY reclining tiger cub including tail, paws and ears. Reconstruct only the ground and foliage pixels previously hidden under that tiger, seamlessly matching adjacent watercolor grass/path. Preserve EVERY other pixel and all scene objects and composition. Keep exact original full 1672x941 canvas; no cropping, scaling, style change, text or new object. No tiger remains. The original tiger will be composited separately in its exact original location.",
+      "registration": [
+        0,
+        0
+      ],
+      "normalize_alpha": false,
+      "source": "local/art-development/title-layers/campus",
+      "runtime": "assets/jungle/title/layers/campus"
+    },
+    {
+      "name": "campus-portrait",
+      "input_extraction": "/home/wao/.codex/generated_images/01a19c67-d5b9-74f3-a888-b41866e98d7a/exec-167eb6ae-c557-42f8-ad27-8e103749462b.png",
+      "input_background": "/home/wao/.codex/generated_images/01a19c67-d5b9-74f3-a888-b41866e98d7a/exec-e2d5f8dc-53c9-4dc6-adc1-e8d3a9d32a93.png",
+      "extraction_prompt": "Use case: background-extraction. Edit target: supplied existing watercolor scene. Extract ONLY reclining tiger cub at center, entire tail, paws, ears and fur edges, at roughly x351..596 y584..762; do not extract the unrelated tail at bottom right as a genuine transparent RGBA foreground layer. Preserve exact original position, pose, identity, brushwork, shapes, colors and scale. Keep full original 1024x1536 canvas and original object position. Everything except named object must be alpha zero, including ground, surrounding leaves, wall and shadows. Do not redraw, recenter, enlarge, crop or stylize. No added objects or white background. This layer will be composited over the same scene and must align precisely.",
+      "background_prompt": "Use case: precise-object-edit. Edit target: supplied existing watercolor title scene. Create background plate for separated layers: remove ONLY reclining tiger cub at center x351..596 y584..762, including tail, paws and ears. Preserve unrelated tail bottom right. Reconstruct only watercolor grass and path previously hidden by the cub, seamlessly matching adjacent brushwork. Preserve EVERY other pixel and all scene objects and composition. Keep exact original full 1024x1536 canvas; no cropping, scaling, style change, text or new object. No trace of the removed subject remains. Original object will be composited separately in its exact original location.",
+      "registration": [
+        0,
+        -32
+      ],
+      "normalize_alpha": true,
+      "source": "local/art-development/title-layers/campus-portrait",
+      "runtime": "assets/jungle/title/layers/campus-portrait"
+    },
+    {
+      "name": "bookshelf",
+      "input_extraction": "/home/wao/.codex/generated_images/01a19c67-d5b9-74f3-a888-b41866e98d7a/exec-da9a931c-fa84-49df-9452-65f8a27a1601.png",
+      "input_background": "/home/wao/.codex/generated_images/01a19c67-d5b9-74f3-a888-b41866e98d7a/exec-bcfa5bd2-047b-4b02-b801-bf1e01e24d6d.png",
+      "extraction_prompt": "Use case: background-extraction. Edit target: supplied existing watercolor scene. Extract ONLY whole top-left upright tiger picture BOOK as one object, including its cover edges and spine, at roughly x329..615 y79..355. Keep all tiger and botanical painting on the book; extract the entire book, not just its painted tiger as a genuine transparent RGBA foreground layer. Preserve exact original position, pose, identity, brushwork, shapes, colors and scale. Keep full original 1672x941 canvas and original object position. Everything except named object must be alpha zero, including ground, surrounding leaves, wall and shadows. Do not redraw, recenter, enlarge, crop or stylize. No added objects or white background. This layer will be composited over the same scene and must align precisely.",
+      "background_prompt": "Use case: precise-object-edit. Edit target: supplied existing watercolor title scene. Create background plate for separated layers: remove ONLY top-left upright tiger picture book at x329..615 y79..355, its whole cover and spine. Reconstruct only wooden back wall and shelf previously hidden by the book, seamlessly matching adjacent brushwork. Preserve EVERY other pixel and all scene objects and composition. Keep exact original full 1672x941 canvas; no cropping, scaling, style change, text or new object. No trace of the removed subject remains. Original object will be composited separately in its exact original location.",
+      "registration": [
+        2,
+        0
+      ],
+      "normalize_alpha": false,
+      "source": "local/art-development/title-layers/bookshelf",
+      "runtime": "assets/jungle/title/layers/bookshelf"
+    },
+    {
+      "name": "bookshelf-portrait",
+      "input_extraction": "/home/wao/.codex/generated_images/01a19c67-d5b9-74f3-a888-b41866e98d7a/exec-9f20e200-0faf-4aea-ad80-bf3a6ae100e9.png",
+      "input_background": "/home/wao/.codex/generated_images/01a19c67-d5b9-74f3-a888-b41866e98d7a/exec-ce58eefd-92ca-488e-9f6e-ae8359aeea79.png",
+      "extraction_prompt": "Use case: background-extraction. Edit target: supplied existing watercolor scene. Extract ONLY whole top-left upright tiger picture BOOK as one object, including its cover edges and spine, at roughly x130..353 y246..520. Keep all tiger and botanical painting on the book; extract entire book, not just its painted tiger as a genuine transparent RGBA foreground layer. Preserve exact original position, pose, identity, brushwork, shapes, colors and scale. Keep full original 1024x1536 canvas and original object position. Everything except named object must be alpha zero, including ground, surrounding leaves, wall and shadows. Do not redraw, recenter, enlarge, crop or stylize. No added objects or white background. This layer will be composited over the same scene and must align precisely.",
+      "background_prompt": "Use case: precise-object-edit. Edit target: supplied existing watercolor title scene. Create background plate for separated layers: remove ONLY top-left upright tiger picture book at x130..353 y246..520, its whole cover and spine. Reconstruct only wooden back wall and shelf previously hidden by the book, seamlessly matching adjacent brushwork. Preserve EVERY other pixel and all scene objects and composition. Keep exact original full 1024x1536 canvas; no cropping, scaling, style change, text or new object. No trace of the removed subject remains. Original object will be composited separately in its exact original location.",
+      "registration": [
+        0,
+        0
+      ],
+      "normalize_alpha": true,
+      "source": "local/art-development/title-layers/bookshelf-portrait",
+      "runtime": "assets/jungle/title/layers/bookshelf-portrait"
+    }
+  ]
+}

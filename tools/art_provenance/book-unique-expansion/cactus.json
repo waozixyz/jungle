@@ -1,0 +1,17 @@
+{
+  "tool": "built-in image_gen",
+  "source": "local/art-development/art-refresh-033/cactus-scene-candidate.png",
+  "original": "backup/picture-book-scenes/art-refresh-033/cactus-scene-original.png",
+  "page": "assets/jungle-book/pages/cactus.webp",
+  "source_sha256": "f8f54402302a0a157cc597aa0323014e615ecfe44deca1a105ec42b17e1a839a",
+  "page_sha256": "77d6db345ec579e647c0dceb74039dae4852499faf78cbcce3b27186178d9787",
+  "dimensions": [
+    1254,
+    1254
+  ],
+  "prompt": "Use case illustration-story. Create ONE high-resolution square full-scene nature picture-book page for toddlers. Reference image is ONLY for soft hand-painted watercolor, delicate botanical detail, warm cream paper and sage/earth colors; replace all people and reference composition. One clear botanical subject growing naturally rooted in its own setting, recognizable species shape, smooth washes, painterly foliage and gentle airy light. Complete subject and setting, softly feathered painted edges into cream paper. No people, animals, faces on plants, lettering, text, border, watermark, collage or diagram. PLANTS book: one prominent small SAGUARO CACTUS growing naturally rooted in sandy stony desert soil, complete upright ribbed green column and TWO upward-curving arms attached anatomically to the trunk, softly suggested short spines rather than threatening sharp needles. No broad leaves, no face. A few tiny pale flowers at crown, warm terracotta rocks, sparse dry grasses and distant rounded desert hills under soft early morning blue sky. Whole plant visible, focus on unmistakable branching cactus silhouette, gentle sage, ocher and earth watercolor.",
+  "reference_images": [
+    "assets/jungle-book/pages/mother.webp"
+  ],
+  "reference_usage": "Style reference for generation; new subject and habitat"
+}

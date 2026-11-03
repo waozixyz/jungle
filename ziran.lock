@@ -2,30 +2,40 @@
   "format": 1,
   "packages": [
     {
-      "commit": "fafa2cea97d0cb379d832086ba45a989fa6f9c8e",
+      "commit": "829a65d769d935c4852f8159e964312c0957260a",
       "dependencies": {},
-      "id": "p5a77c9c35110e925",
-      "name": "raylib",
-      "ref": "fafa2cea97d0cb379d832086ba45a989fa6f9c8e",
+      "id": "p16cd0434af3dff7b",
+      "name": "sdl3",
+      "ref": "829a65d769d935c4852f8159e964312c0957260a",
       "source": true,
-      "url": "https://github.com/raysan5/raylib.git"
+      "url": "https://github.com/libsdl-org/SDL.git"
+    },
+    {
+      "commit": "81f5e70f91ebe63fbe48567d994b8ba2820966e7",
+      "dependencies": {"libwebp": "p3b3c785a0e17e605", "raylib": "pcc7aa76725f2fb2f", "sdl3": "p16cd0434af3dff7b"},
+      "dependency_refs": {"libwebp": "1844042d1ca751e62e61df7617dba19c98588339", "raylib": "fafa2cea97d0cb379d832086ba45a989fa6f9c8e", "sdl3": "829a65d769d935c4852f8159e964312c0957260a"},
+      "id": "p22cd8de98becfb06",
+      "name": "kryon",
+      "ref": "master",
+      "url": "https://github.com/kryonlabs/kryon.git"
     },
     {
       "commit": "1844042d1ca751e62e61df7617dba19c98588339",
       "dependencies": {},
-      "id": "p651a2c7a393977c0",
+      "id": "p3b3c785a0e17e605",
       "name": "libwebp",
       "ref": "1844042d1ca751e62e61df7617dba19c98588339",
       "source": true,
       "url": "https://github.com/webmproject/libwebp.git"
     },
     {
-      "commit": "bab9c3d16e73a47b5f7537347110f30f1e7b717c",
-      "dependencies": {"libwebp": "p651a2c7a393977c0", "raylib": "p5a77c9c35110e925"},
-      "id": "pb40fa303c7f9988a",
-      "name": "kryon",
-      "ref": "master",
-      "url": "https://github.com/kryonlabs/kryon.git"
+      "commit": "fafa2cea97d0cb379d832086ba45a989fa6f9c8e",
+      "dependencies": {},
+      "id": "pcc7aa76725f2fb2f",
+      "name": "raylib",
+      "ref": "fafa2cea97d0cb379d832086ba45a989fa6f9c8e",
+      "source": true,
+      "url": "https://github.com/raysan5/raylib.git"
     },
     {
       "commit": "9cc6872f75447c3a24c16764f9829d0f58751cb0",
@@ -37,11 +47,12 @@
     }
   ],
   "root": {
-    "dependencies": {"kryon": "pb40fa303c7f9988a", "mingcute": "pe1027b9d16704793"},
+    "dependencies": {"kryon": "p22cd8de98becfb06", "mingcute": "pe1027b9d16704793"},
+    "dependency_refs": {"kryon": "master", "mingcute": "master"},
     "name": "Jungle"
   },
   "toolchain": {
-    "commit": "c47f927ca316a0494dff4f2389de3333bc8e08b4",
+    "commit": "e4e8efa4a92f36e2fb0cea1d56b11471afa68621",
     "ref": "master",
     "url": "https://github.com/ziranlang/ziran.git"
   }

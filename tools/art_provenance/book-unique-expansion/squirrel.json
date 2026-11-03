@@ -1,0 +1,17 @@
+{
+  "tool": "built-in image_gen",
+  "source": "local/art-development/art-refresh-033/squirrel-scene-candidate.png",
+  "original": "backup/picture-book-scenes/art-refresh-033/squirrel-scene-original.png",
+  "page": "assets/jungle-book/pages/squirrel.webp",
+  "source_sha256": "4d501c7184e7cf0e49ab590503c4c0734c23679002c06aa42548355c0ba5df3f",
+  "page_sha256": "abe516376de83caf4c7ffa6b43073f6b1a197a5b7b47e19f257be6ecd069cc92",
+  "dimensions": [
+    1254,
+    1254
+  ],
+  "prompt": "Use case illustration-story. ONE high-resolution1536+ square Wild Animals picture-book scene. Reference image is ONLY for the gentle watercolor style and quality; replace its subject and setting. Natural animal anatomy and proportions, small-to-normal head relative to body, soft natural eyes, no human grin/lips/eyebrows/eyelashes, closed calm mouth, not chibi. Friendly for babies, simplified rounded forms and smooth hand-painted washes with delicate leafy detail. Warm cream paper with softly feathered painted edges, sage/earth palette and soft light. Full subject wholly visible and physically grounded in its own habitat; coherent scene, no collage, border, text or watermark. NEW Forest book page SQUIRREL. One European red squirrel sitting naturally on the broad top of an old oak stump, full body and complete bushy tail arched behind, two small forepaws hold ONE acorn at its belly, two hind feet visibly support it on stump. Natural small head, tufted ears, russet fur and cream belly, calm dark side eyes, long natural muzzle without smile. Gentle three-quarter front view looking toward the acorn. Oak leaves and acorns on an attached nearby branch, soft green woodland and sunlit mossy ground; keep surroundings distinct and squirrel whole.",
+  "reference_images": [
+    "local/art-development/animal-proportions-review/tiger-scene-candidate.png"
+  ],
+  "reference_usage": "Style reference for generation; new subject and habitat"
+}

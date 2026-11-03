@@ -1,0 +1,17 @@
+{
+  "tool": "built-in image_gen",
+  "source": "local/art-development/art-refresh-033/rose-scene-candidate.png",
+  "original": "backup/picture-book-scenes/art-refresh-033/rose-scene-original.png",
+  "page": "assets/jungle-book/pages/rose.webp",
+  "source_sha256": "a8ebad9ad914857a26d4c01001d770ac4190bc143e855333b3f6047efad52ece",
+  "page_sha256": "1bfb0e99ccbd22b5a1205b8ad3f299e84d1d1c3ecfa538d4b4320e6a7a92665b",
+  "dimensions": [
+    1254,
+    1254
+  ],
+  "prompt": "Use case illustration-story. Create ONE high-resolution square full-scene nature picture-book page for toddlers. Reference image is ONLY for soft hand-painted watercolor, delicate botanical detail, warm cream paper and sage/earth colors; replace all people and reference composition. One clear botanical subject growing naturally rooted in its own setting, recognizable species shape, smooth washes, painterly foliage and gentle airy light. Complete subject and setting, softly feathered painted edges into cream paper. No people, animals, faces on plants, lettering, text, border, watermark, collage or diagram. PLANTS book: one graceful ROSE bush growing rooted beside a small weathered cottage-garden gate. Three or four soft blush-pink roses with layered rounded petals and several attached closed rosebuds, recognizable green compound leaves with serrated edges on naturally branching stems. Whole rose plant clearly rooted in garden soil, a few small soft thorns suggested rather than emphasized, no flowers floating apart. Quiet sunlit garden wall and pale climbing greenery behind, delicate daisies low on ground, warm morning watercolor. Rose blooms large and clear at thumbnail size, no human features.",
+  "reference_images": [
+    "assets/jungle-book/pages/mother.webp"
+  ],
+  "reference_usage": "Style reference for generation; new subject and habitat"
+}

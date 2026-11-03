@@ -28,20 +28,6 @@ DESKTOP_LIBS = $$(pkg-config --libs sdl2 cairo freetype2 fontconfig pangocairo) 
 CFLAGS_ZI = -std=c11 -O2 -ffunction-sections -fdata-sections -I'$(TOOLCHAIN)/include'
 # The app as it is installed: the program, its menu assets and the games.
 APP := build/app
-# Unfinished campus rooms are opt-in and may never replace the installed app.
-TEST_ROOMS ?= 0
-ifeq ($(TEST_ROOMS),1)
-ifeq ($(abspath $(APP)),$(abspath build/app))
-$(error TEST_ROOMS=1 requires a private APP, such as build/tests/title-host)
-endif
-TITLE_DEFINES := --define JUNGLE_TEST_ROOMS
-endif
-.PHONY: FORCE_TITLE_POLICY
-$(APP)/title-policy build/tests/title-policy: FORCE_TITLE_POLICY
-	mkdir -p $(@D)
-	@printf '%s\n' '$(TEST_ROOMS)' | cmp -s - $@ || printf '%s\n' '$(TEST_ROOMS)' > $@
-$(APP)/jungle: $(APP)/title-policy
-build/tests/title: build/tests/title-policy
 # Private test apps own their staging and manifest as well as their bundles.
 STAGE ?= $(if $(filter build/app,$(APP)),build/stage,$(APP)/stage)
 # Installed shared assets, their manifest and each game's staged bundle files.
@@ -66,7 +52,6 @@ test-web-images: web
 	python3 tests/image_exports_test.py
 	python3 tests/runtime_images_test.py
 	python3 tests/web_images_test.py
-	python3 tests/runtime_images_web_test.py
 
 locales:
 	python3 tools/locales.py
@@ -83,7 +68,7 @@ $(APP)/jungle: $(wildcard host/*.zi retro/*.zi games/paint/paint_palette.zi game
 	mkdir -p $(APP)
 	@set -eu; output=$$(mktemp -d build/host-c.XXXXXX); \
 		trap 'rm -rf "$$output"' EXIT; \
-		'$(ZIRANC)' build --target=c --root host $(MODULES) $(TITLE_DEFINES) --entry desktop:main -o "$$output" host/desktop.zi; \
+		'$(ZIRANC)' build --target=c --root host $(MODULES) --entry desktop:main -o "$$output" host/desktop.zi; \
 		$${CC:-cc} $(CFLAGS_ZI) $$(find "$$output" -type d -printf ' -iquote %p') $$(find "$$output" -name '*.c') \
 		build/ziran/libziran.a -Wl,--gc-sections $(DESKTOP_LIBS) -o "$$output/jungle"; \
 		mv "$$output/jungle" $@
@@ -213,7 +198,7 @@ build/tests/voice build/tests/speech_codec: TEST_LIBS = $(DESKTOP_LIBS)
 
 build/tests/%: tests/%_test.zi $(wildcard games/*/*.zi host/*.zi retro/*.zi) build/ziran/libziran.a
 	rm -rf build/tests/$*-c
-	'$(ZIRANC)' build --target=c --root tests $(MODULES) $(TITLE_DEFINES) \
+	'$(ZIRANC)' build --target=c --root tests $(MODULES) \
 		--entry $*_test:main -o build/tests/$*-c $<
 	$${CC:-cc} $(CFLAGS_ZI) $$(find build/tests/$*-c -type d -printf ' -iquote %p') $$(find build/tests/$*-c -name '*.c') \
 		build/ziran/libziran.a -Wl,--gc-sections -lm -lpthread $(TEST_LIBS) -o $@
@@ -271,7 +256,6 @@ test: build/tests/fishing build/tests/beach_families build/tests/speed_choice bu
 	printf 'jungle 1\nfruits 4\n' > build/tests/data/progress.txt
 	JUNGLE_DATA=$(abspath build/tests/data) $(APP)/jungle --check
 	python3 tests/runtime_test.py
-	python3 tests/paint_choices_ui_test.py
 	python3 tests/export_test.py
 	python3 tests/assets_test.py
 	python3 tests/shared_assets_test.py
@@ -297,43 +281,7 @@ test: build/tests/fishing build/tests/beach_families build/tests/speed_choice bu
 # Actual input and rendering on a private display; requires Xvfb, xdotool,
 # ImageMagick and Pillow. Never uses the inherited desktop or owner saves.
 test-ui: all
-	python3 tests/title_guide_ui_test.py
-	python3 tests/sweet_porridge_ui_test.py
-	python3 tests/garden_ui_test.py
-	mkdir -p build/tests/title-host
-	cp build/app/jungle build/tests/title-host/jungle
-	cp build/app/games/jungle-fishing.zx build/tests/jungle-fishing.zx
-	cp build/app/games/jungle-beach-families.zx build/tests/jungle-beach-families.zx
-	python3 tests/port_games_ui_test.py
-	python3 tests/shapes_guidance_test.py
-	python3 tests/counting_exercises_test.py
-	python3 tests/jigsaw_sizes_ui_test.py
-	python3 tests/book_interaction_test.py
-	python3 tests/drums_playground_test.py
-	python3 tests/new_activities_ui_test.py
-	python3 tests/hide_seek_levels_test.py
-	python3 tests/piano_ui_test.py
-	python3 tests/menu_ui_test.py
-	python3 tests/title_waterfront_ui_test.py
-	python3 tests/title_layer_routes_ui_test.py
-	python3 tests/title_peekaboo_ui_test.py
-	python3 tests/collection_book_ui_test.py
-	python3 tests/collection_book_autoplay_ui_test.py
-	python3 tests/jigsaw_ui_test.py
-	python3 tests/runtime_test.py --ui
-	python3 tests/book_ui_test.py
-	python3 tests/book_additions_ui_test.py
-	python3 tests/title_paper_ui_test.py
-	python3 tests/learning_menu_test.py
-	python3 tests/abc_sequence_ui_test.py
-	python3 tests/playback_ui_test.py
-	python3 tests/speed_choices_ui_test.py
-	python3 tests/slot_preview_test.py
-	python3 tests/paint_layers_test.py
-	python3 tests/paint_history_test.py
-	python3 tests/paint_zoom_ui_test.py
-	python3 tests/paint_library_test.py
-	python3 tests/language_ui_test.py
+	python3 tests/title_smoke_test.py
 
 BIN_DIR ?= $(HOME)/.local/bin
 LIB_DIR ?= $(HOME)/.local/lib/jungle

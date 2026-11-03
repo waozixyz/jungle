@@ -2,11 +2,11 @@
 """Stage title foregrounds and background plates from full-detail PNG sources.
 
 The built-in image_gen extractions/inpainting and prompts are recorded in
-art/generated/title-layers/prompts.json. --finish-generated preserves the
+tools/art_provenance/title-layers/prompts.json. --finish-generated preserves the
 approved scene's RGB, using the generated extraction's actual alpha matte;
 inpainted pixels are restricted to that silhouette. It is an explicit artwork
 preparation step, never part of a normal build. Normal invocation only exports
-the checked-in PNGs through the shared role-specific WebP exporter.
+the ignored local PNG originals through the shared role-specific WebP exporter.
 """
 import argparse
 import json
@@ -52,7 +52,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--finish-generated', action='store_true')
     args = parser.parse_args()
-    manifest = json.loads((ROOT/'art/generated/title-layers/prompts.json').read_text())
+    manifest = json.loads((ROOT/'tools/art_provenance/title-layers/prompts.json').read_text())
     for entry in manifest['assets']:
         if args.finish_generated:
             finish(entry)

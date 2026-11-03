@@ -1,0 +1,17 @@
+{
+  "tool": "built-in image_gen",
+  "source": "local/art-development/art-refresh-033/willow-scene-candidate.png",
+  "original": "backup/picture-book-scenes/art-refresh-033/willow-scene-original.png",
+  "page": "assets/jungle-book/pages/willow.webp",
+  "source_sha256": "198f291eff1474facb9e4073c200563adea2cc50c2570075f93f8839ab3b9e91",
+  "page_sha256": "45f2bb4101a4459cd38a98b2254b641717869e134f50af020fdd98bec92a6782",
+  "dimensions": [
+    1254,
+    1254
+  ],
+  "prompt": "Use case illustration-story. Create ONE high-resolution square full-scene nature picture-book page for toddlers. Reference image is ONLY for soft hand-painted watercolor, delicate botanical detail, warm cream paper and sage/earth colors; replace all people and reference composition. One clear botanical subject growing naturally rooted in its own setting, recognizable species shape, smooth washes, painterly foliage and gentle airy light. Complete subject and setting, softly feathered painted edges into cream paper. No people, animals, faces on plants, lettering, text, border, watermark, collage or diagram. TREES book: ONE graceful weeping WILLOW rooted beside a quiet pond in a sunlit meadow. Complete tree inside frame, wide airy composition with room above crown and around trailing branches. Recognizable low broad domed crown with long flexible branches hanging downward like soft curtains, many narrow elongated sage-green willow leaves, softly twisting sturdy trunk. A few trailing leafy twigs nearly reach the water, but remain visibly attached to branches. Pond shows gentle reflections, reeds and rounded stones; low distant meadow and pale blue sky. The willow is the clear focal point.",
+  "reference_images": [
+    "assets/jungle-book/pages/mother.webp"
+  ],
+  "reference_usage": "Style reference for generation; new subject and habitat"
+}

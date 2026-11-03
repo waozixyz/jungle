@@ -1,0 +1,17 @@
+{
+  "tool": "built-in image_gen",
+  "source": "local/art-development/art-refresh-033/sea_turtle-scene-candidate.png",
+  "original": "backup/picture-book-scenes/art-refresh-033/sea_turtle-scene-original.png",
+  "page": "assets/jungle-book/pages/sea_turtle.webp",
+  "source_sha256": "aa51b852f42cd1150bbf401dd6e8a69996dacddb810d346981b9dc01f407fd6b",
+  "page_sha256": "f2ed882574537e28e96dc53c329626250e069b04ee69b05174fccc6f94baa8e2",
+  "dimensions": [
+    1254,
+    1254
+  ],
+  "prompt": "Use case illustration-story. ONE high-resolution1536+ square Wild Animals picture-book scene. Reference image is ONLY for the gentle watercolor style and quality; replace its subject and setting. Natural animal anatomy and proportions, small-to-normal head relative to body, soft natural eyes, no human grin/lips/eyebrows/eyelashes, closed calm mouth, not chibi. Friendly for babies, simplified rounded forms and smooth hand-painted washes with delicate leafy detail. Warm cream paper with softly feathered painted edges, sage/earth palette and soft light. Full subject wholly visible and physically grounded in its own habitat; coherent scene, no collage, border, text or watermark. NEW Reptiles book page SEA TURTLE. One gentle young green sea turtle swimming naturally through clear shallow turquoise sea above a soft sandy seabed and low seagrass. Whole oval olive-brown shell, naturally small head, exactly FOUR flippers (two long front flippers and two smaller hind flippers), little attached tail, no land feet. Gentle three-quarter front view looking toward seagrass beside camera, natural dark eyes and closed beaklike mouth without smile. Dappled sunlight shafts from surface above, a few soft coral forms at bottom corners, roomy peaceful underwater scene with no other animals. No floating terrestrial props.",
+  "reference_images": [
+    "local/art-development/animal-proportions-review/tiger-scene-candidate.png"
+  ],
+  "reference_usage": "Style reference for generation; new subject and habitat"
+}

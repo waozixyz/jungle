@@ -1,0 +1,38 @@
+{
+  "tool": "built-in image_gen",
+  "source": "local/art-development/book-people-refresh/baker-candidate.png",
+  "original": "backup/picture-book-scenes/book-expansion-034/baker-original.png",
+  "page": "assets/jungle-book/pages/baker.webp",
+  "source_sha256": "60b2be88c39888c2f45ed2ed1710bdbe46cc4d1d9c22d84866756456f3f80952",
+  "page_sha256": "ac763624e873d8a5f658153f4628b13672dd83806ff32097dd77867609af85f7",
+  "dimensions": [
+    1254,
+    1254
+  ],
+  "prompt": "Use case illustration-story. ONE square watercolor toddler picture-book scene of a BAKER. Supplied Family/Actions board is STYLE REFERENCE ONLY; match same illustrator, rounded expressive warm faces, big gentle eyes, soft translucent watercolor and pencil detail on cream textured paper. Do not reproduce board or labels. Friendly adult woman baker with auburn hair in a loose bun, rosy cheeks, simple cream baker cap and pale blue blouse under flour-dusted cream apron. Three-quarter standing behind a LOW solid wooden bakery counter, shaping a small round dough loaf with her two hands flat gently on dough, natural fingers and wrist placement. She looks slightly toward the dough with bright kind visible face, adult proportions like reference mother, simplified illustrated features no photographic face. A few finished golden loaves rest grounded on counter, ceramic flour bowl, rustic oven and wooden bread shelves softly painted behind, window with little basil pot. Early morning warm bakery light. Person occupies most of page, coherent inviting bakery setting distinct from garden. Exactly two arms/hands; all objects supported, dough not floating, oven closed, calm safe scene. Feathered scene edges to warm cream. No text, lettering, logos, labels, watermark, grid, tiny realistic eyes, skin texture, hard wrinkles or photorealism. High resolution square complete scene.",
+  "reference_images": [
+    "assets/jungle-book/pages/mother.webp",
+    "assets/jungle-book/pages/father.webp",
+    "assets/jungle-book/pages/sister.webp",
+    "assets/jungle-book/pages/reading.webp"
+  ],
+  "history": [
+    {
+      "tool": "built-in image_gen",
+      "source": "local/art-development/art-refresh-033/baker-scene-candidate.png",
+      "original": "backup/picture-book-scenes/art-refresh-033/baker-scene-original.png",
+      "page": "assets/jungle-book/pages/baker.webp",
+      "source_sha256": "e5927c4ae9a34aa53a6c619929bd26028dca84c898f1ef8062843d2837dbab01",
+      "page_sha256": "f814f5fdb7ad92855640e9c45a653f61d4b943b029d6f7ed0d1bca98363a7f11",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "prompt": "Use case illustration-story. ONE square high-resolution People at Work picture-book scene for babies/toddlers. Use reference ONLY for the Family picture's gentle natural rounded faces, soft hand-painted storybook watercolor, delicate leaves, cream textured paper and muted sage/earth colors. Create a new adult worker and scene, no copied mother pose or dress. Friendly calm expression and natural adult proportions, no giant head, no exaggerated toothy grin, no realistic skin wrinkles or sharp texture. Both arms and hands anatomically connected, exactly two arms/two hands per person, every held tool visibly supported and every object grounded. Whole coherent welcoming work setting, softly feathered edges into warm cream paper, no text, logos, lettering, border or watermark. A friendly adult male BAKER with warm olive skin, soft wavy brown hair and short beard, cream baker's cap, cream shirt, sage-green apron and earthy trousers. Standing in a cozy sunny bakery, three-quarter front view, both hands naturally knead one mound of dough on a sturdy waist-high wooden worktable. Both wrists and elbows anatomically clear, hands press gently into dough that rests on the floured tabletop. Calm closed-mouth expression and gaze toward hands. Full standing figure and feet visible around table, a few bread loaves on wooden shelf, ceramic flour bowl on counter, warm brick oven softly behind, delicate herb pot near window. No text, labels, floating bread or extra hands.",
+      "reference_images": [
+        "assets/jungle-book/pages/mother.webp"
+      ]
+    }
+  ],
+  "selection": "Owner explicitly chose After in Gwenview comparison"
+}
