@@ -375,6 +375,13 @@ WebService :: (name: string, request: string) -> string {
     }
     if name == "jungle.collect" || name == "jungle.collection" { return WebCollectionService(name, request) }
     if name == "jungle.book-start" { return title_book_requested }
+    // Picture Book's open book downloads alone, then the next one in the
+    // background (index.html jungleBookOpen); "back" once its download was left.
+    if name == "jungle.book-open" {
+        scope := WebScope()
+        defer WebEnd(scope)
+        return ifx WebAsBool(WebCall2(WebModule, WebName("jungleBookOpen"), WebNumber(cast(float64)active_game), WebText(request))) then "back" else "ok"
+    }
     if name == "jungle.language" { return LanguageCode() }
     if name == "jungle.home" { web_home = true; return "ok" }
     if name == "jungle.secondary" { return ifx IsMouseButtonDown(1) then "down" else "up" }
@@ -412,8 +419,8 @@ OpenGame :: (index: s32) {
 WebActivityReady :: (index: s32) -> s32 {
     scope := WebScope()
     defer WebEnd(scope)
-    return cast(s32)WebAsNumber(WebCall4(WebModule, WebName("jungleActivityReady"), WebNumber(cast(float64)index),
-        WebText(LanguageCode()), WebText(english_speech_profile), WebText(Tr(web_games[index].title))))
+    return cast(s32)WebAsNumber(WebCall5(WebModule, WebName("jungleActivityReady"), WebNumber(cast(float64)index),
+        WebText(LanguageCode()), WebText(english_speech_profile), WebText(Tr(web_games[index].title)), WebText(title_book_requested)))
 }
 
 BeginGame :: (index: s32) {

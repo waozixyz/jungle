@@ -248,6 +248,40 @@ PrefetchPicture :: (path: string) {
     unused ImageShowingOf(retro.session, ImageProps.{.asset_path = path})
 }
 
+// The web host downloads only the open book, behind its loading screen, and
+// the next one while it is read (web/index.html jungleBookOpen). This tells it
+// the book, the next one, the orientation and the title whenever one changes,
+// and returns to the shelf once the reader left that download with Back.
+STORY_IDS: [2]string = .["sweet-porridge", "town-musicians"];
+book_signal_id: s32 = -2;
+book_signal_portrait: bool;
+book_signal: string;
+BookDownload :: () {
+    #if #defined(PLATFORM_WEB) {
+        id: s32 = ifx choosing_category then -1 else ifx direct_story then CATEGORY_COUNT + selected_story else category
+        portrait := book_height > book_width
+        if id != book_signal_id || portrait != book_signal_portrait {
+            book_signal_id = id
+            book_signal_portrait = portrait
+            book_signal = ""
+            if id >= 0 {
+                text: Vec(u8)
+                if direct_story {
+                    BuilderPrint(*text, "%|%|%|%", STORY_IDS[selected_story], STORY_IDS[1 - selected_story],
+                        ifx portrait then "portrait" else "landscape", StoryTitle())
+                } else {
+                    // The book the finished screen offers next.
+                    next := NextBookCategory(category, repeat_all)
+                    BuilderPrint(*text, "%|%|%|%", category_ids[category], ifx next >= 0 && next != category then category_ids[next] else "",
+                        ifx portrait then "portrait" else "landscape", Tr(category_names[category]))
+                }
+                book_signal = BuilderFinish(text)
+            }
+        }
+        if AppService("jungle.book-open", book_signal) == "back" && !choosing_category { PictureBookBack() }
+    }
+}
+
 OpenBook :: () {
     if !direct_story && !BookAllowed(category) { return }
     book_tab = category_groups[category]
@@ -738,6 +772,7 @@ GameMain :: () -> s32 {
         category = 0
         book_scroll = 0
         book_tab = 0
+        book_signal_id = -2
         playing = true; paused_at = 0.0; playback_speed = 1
         managing_books = false
         collect_flying = -1
@@ -764,6 +799,7 @@ GameMain :: () -> s32 {
     bounds := AppBounds()
     RetroBegin(AppSession(), bounds, FONT, now, AppKey(), BLACK)
     ResponsiveBook(bounds)
+    BookDownload()
     secondary_down := GameSecondaryDown()
     if secondary_down && !secondary_back_was_down { PictureBookBack() }
     secondary_back_was_down = secondary_down
@@ -783,6 +819,8 @@ GameMain :: () -> s32 {
     if choosing_category { if story_collection { StoryShelf() } else { BookShelf() } }
     else if finished { FinishedBook() }
     else { ReadingPage() }
+    // A book just opened starts downloading before anything asks for it.
+    BookDownload()
     if !choosing_category && !finished && narration.pending &&
         BookPageReadyForNarration(narration, now, PagePicturePresented(PagePath())) {
         unused AppService("jungle.voice", PageVoice())

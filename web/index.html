@@ -126,17 +126,17 @@ let assetPacks,assetPackIndex;
 const directAsset=path=>path.startsWith('assets/jungle/')&&!path.endsWith('.wav')||path.endsWith('/font.png');
 function packIndex(){
  assetPackIndex??=fetchResource('asset-packs.json',response=>response.json())
-  .then(manifest=>assetPacks=new JungleAssetPacks(manifest,path=>fetchResource(path,response=>response.arrayBuffer()),16*1024*1024,forgetResource))
+  .then(manifest=>assetPacks=new JungleAssetPacks(manifest,(path,priority)=>fetchResource(path,response=>response.arrayBuffer(),priority),16*1024*1024,forgetResource))
   .catch(error=>{assetPackIndex=undefined;throw error});
  return assetPackIndex;
 }
-async function assetBytes(path){
+async function assetBytes(path,priority){
  if(typeof Module!=='undefined'&&Module.FS?.analyzePath('/'+path).exists)return Module.FS.readFile('/'+path);
  if(!directAsset(path)){
   const packs=await packIndex();
-  if(Object.hasOwn(packs.manifest.files,path))return packs.read(path);
+  if(Object.hasOwn(packs.manifest.files,path))return packs.read(path,priority);
  }
- return new Uint8Array(await fetchResource(path,response=>response.arrayBuffer()));
+ return new Uint8Array(await fetchResource(path,response=>response.arrayBuffer(),priority));
 }
 // Narration ships as Ogg Vorbis speech clips; assets/speech.txt
 // (tools/shared_assets.py SpeechIndexText) composes each narration path from
@@ -265,7 +265,7 @@ function packedAudio(path,profile="normal"){
 }
 function unavailableImage(path,error){imagePaths.delete(path);console.warn('Picture unavailable:',path,error)}
 async function forgetResource(path){try{await (await caches.open('jungle-assets-v1')).delete(assetUrl(path))}catch{}}
-async function fetchResource(path,read){
+async function fetchResource(path,read,priority='auto'){
  for(let attempt=0;attempt<3;attempt++){
   try{
    const url=assetUrl(path);
@@ -275,7 +275,7 @@ async function fetchResource(path,read){
    if(saved)return await read(saved);
    const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),30000);
    let response;
-   try{response=await fetch(url,{signal:controller.signal});if(response.ok){
+   try{response=await fetch(url,{signal:controller.signal,priority});if(response.ok){
     // Consume under the timeout too: a stalled response body must be retryable.
     const bytes=await response.arrayBuffer();
     response=new Response(bytes,{status:response.status,headers:response.headers});
@@ -298,10 +298,10 @@ async function decodeImage(bytes){
  const url=URL.createObjectURL(new Blob([bytes]));
  try{const image=new Image();image.src=url;await image.decode()}finally{URL.revokeObjectURL(url)}
 }
-async function loadImage(path){
+async function loadImage(path,priority){
  if(Module.FS.analyzePath('/'+path).exists)return;
  if(imageLoads.has(path))return imageLoads.get(path);
- const request=assetBytes(path).then(async bytes=>{
+ const request=assetBytes(path,priority).then(async bytes=>{
   await decodeImage(bytes);
   writeAsset('/'+path,bytes);
  });
@@ -392,9 +392,11 @@ function activityManifest(){
  return activityIndex;
 }
 const overlay=document.getElementById('activity-loading');
-const activityLoader=new JungleActivityLoader(async path=>{
- if(/\.(webp|png|jpg)$/.test(path))return loadImage(path);
- const bytes=await assetBytes(path);writeAsset('/'+path,bytes);
+// Background prefetches wait while any picture on screen is downloading.
+const activityLoader=new JungleActivityLoader(async(path,background)=>{
+ const priority=background?'low':'auto';
+ if(/\.(webp|png|jpg)$/.test(path))return loadImage(path,priority);
+ const bytes=await assetBytes(path,priority);writeAsset('/'+path,bytes);
  if(path.endsWith('.ogg')){
   const index=await speech(),clip=index.clips.find(clip=>clip.path===path);
   if(!clip)throw Error('Missing speech clip: '+path);
@@ -408,8 +410,14 @@ const activityLoader=new JungleActivityLoader(async path=>{
  if(wasHidden&&!overlay.hidden)queueMicrotask(()=>document.getElementById('activity-back').focus());
  const copy=loadingCopy[siteLanguage];
  document.getElementById('activity-title').textContent=state.title||siteCopy[siteLanguage].opening;
- const cover=document.getElementById('activity-cover');
- const path=state.cover||'assets/jungle/branding/logo.webp';if(cover.dataset.path!==path){cover.dataset.path=path;cover.src=assetUrl(path)}
+ // A packed cover, such as a book's from its shelf, shows from the bytes
+ // already here, never from another download.
+ const cover=document.getElementById('activity-cover'),logo='assets/jungle/branding/logo.webp';
+ const path=state.cover||logo;if(cover.dataset.path!==path){
+  cover.dataset.path=path;if(cover.dataset.url){URL.revokeObjectURL(cover.dataset.url);delete cover.dataset.url}
+  if(!directAsset(path)&&Module.FS?.analyzePath('/'+path).exists)cover.src=cover.dataset.url=URL.createObjectURL(new Blob([Module.FS.readFile('/'+path)]));
+  else cover.src=assetUrl(directAsset(path)?path:logo);
+ }
  document.getElementById('activity-message').textContent=state.status==='error'?copy.error:copy.loading;
  const progress=document.getElementById('activity-progress');progress.max=Math.max(1,state.total);progress.value=state.loaded;
  progress.setAttribute('aria-label',copy.loading);
@@ -417,17 +425,63 @@ const activityLoader=new JungleActivityLoader(async path=>{
  document.getElementById('activity-back').textContent=copy.back;
  const retry=document.getElementById('activity-retry');retry.textContent=copy.retry;retry.hidden=state.status!=='error';
  if(state.status==='error')console.error('Activity preload failed:',state.error);
-});
+},()=>fullActive===0);
 document.getElementById('activity-back').onclick=()=>activityLoader.back();
 document.getElementById('activity-retry').onclick=()=>activityLoader.retry();
 overlay.addEventListener('keydown',event=>{event.stopPropagation();if(event.key==='Escape')activityLoader.back()});
-function activityReady(index,language,profile,title){
- return activityLoader.request('game:'+index+':'+language+':'+profile,async()=>{
+// START is the title's book-start request: which Picture Book shelf opens.
+// Its books themselves download one at a time (bookReady).
+function activityReady(index,language,profile,title,start=''){
+ const status=activityLoader.request('game:'+index+':'+language+':'+profile+':'+start,async()=>{
   const manifest=await activityManifest(),activity=manifest.activities[index];
   if(!activity)throw Error('Unknown activity: '+index);
   await speech();
-  return {title,cover:activity.cover,files:[...activity.files,...activity.speech[language][profile]]};
- });
+  const shelf=activity.shelves?Object.hasOwn(activity.shelves,start)?activity.shelves[start]:activity.shelves['']:[];
+  return {title,cover:activity.cover,files:[...activity.files,...shelf,...activity.speech[language][profile]]};
+ },title);
+ return status==='ready'?bookReady(index,language,profile):status;
+}
+// Picture Book reports the open book, the next one, the orientation and the
+// book's title (jungle.book-open; games/book/jungle_book.zi BookDownload).
+// Only that book downloads, behind the loading screen: the current
+// orientation's pictures and the current language's narration. While it is
+// read, the next book downloads in the background (prefetch), which pauses
+// when the reader leaves the book. Back returns to the shelf.
+let openBook;
+function bookRequest(book,id){
+ return ['book:'+book.index+':'+id+':'+book.orientation+':'+book.language+':'+book.profile,async()=>{
+  const found=(await activityManifest()).activities[book.index]?.books?.find(entry=>entry.id===id);
+  if(!found)throw Error('Unknown book: '+id);
+  const speech=found.speech[book.language];
+  return {title:book.title,cover:found.cover,files:[...found.files[book.orientation],...(speech[book.profile]||speech.normal)]};
+ },book.title];
+}
+function bookReady(index,language,profile){
+ const book=openBook;
+ if(book?.index!==index||book.opened||book.back)return 'ready';
+ book.language=language;book.profile=profile;
+ const status=activityLoader.request(...bookRequest(book,book.id));
+ if(status==='cancelled'){book.back=true;activityLoader.cancel();return 'ready'}
+ if(status==='ready'){book.opened=true;prefetchNextBook()}
+ return status;
+}
+function prefetchNextBook(){
+ const book=openBook;
+ if(book?.opened&&book.next)activityLoader.prefetch(...bookRequest(book,book.next));else activityLoader.pausePrefetch();
+}
+// Whether the reader left the book's download with Back.
+function bookOpen(index,request){
+ const [id='',next='',orientation='',title='']=request.split('|');
+ if(!id){if(openBook){openBook=undefined;activityLoader.pausePrefetch()}return false}
+ const side=orientation==='portrait'?'portrait':'landscape';
+ if(openBook?.index===index&&openBook.id===id){
+  if(openBook.back){openBook=undefined;activityLoader.pausePrefetch();return true}
+  if(openBook.next!==next||openBook.orientation!==side){openBook.next=next;openBook.orientation=side;prefetchNextBook()}
+  return false;
+ }
+ activityLoader.pausePrefetch();
+ openBook={index,id,next,orientation:side,title,opened:false,back:false};
+ return false;
 }
 let sceneIndex;
 function sceneManifest(){
@@ -445,7 +499,8 @@ var Module={canvas:document.getElementById('canvas'),locateFile:assetUrl,print:c
  jungleLanguage:updateSiteLanguage,
  jungleActivityReady(...args){const status=activityReady(...args);return status==='ready'?1:status==='cancelled'?-1:0},
  jungleSceneReady(...args){const status=sceneReady(...args);return status==='ready'?1:status==='cancelled'?-1:0},
- junglePreloadReset(){activityLoader.cancel()},
+ jungleBookOpen:bookOpen,
+ junglePreloadReset(){activityLoader.cancel();openBook=undefined;activityLoader.pausePrefetch()},
  jungleActivityStarted(index){window.dispatchEvent(new CustomEvent('jungle-activity-started',{detail:{index}}))},
  jungleAudio:packedAudio,
  jungleVoiceFrames:speechVoiceFrames,
@@ -453,6 +508,8 @@ var Module={canvas:document.getElementById('canvas'),locateFile:assetUrl,print:c
  // are requested, a PREFETCH behind every picture on screen.
  jungleImageReady(path,prefetch=false){
   if(Module.FS.analyzePath('/'+path).exists)return true;
+  // A book opening behind the loading screen brings its own pictures.
+  if(openBook&&!openBook.opened)return false;
   if(imagePaths.has(path)&&!imageLoads.has(path)){loadPreview(path);if(!fullWaiting(path))requestFull(path,prefetch)}
   return false;
  },

@@ -1,4 +1,5 @@
-"""Preload closure for every catalog game, locale and speech profile."""
+"""Preload closure for every catalog game, locale and speech profile, and
+Picture Book's separate shelves and books."""
 from pathlib import Path
 import json
 import sys
@@ -6,8 +7,11 @@ import tempfile
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT/'tools'))
-from activity_assets import build_activity_manifest, source_assets
+from activity_assets import BOOK_MEDIA, book_pack_groups, build_activity_manifest, source_assets
+from book_catalog import BOOKS, BOOK_GROUPS, voice_path
 from shared_assets import GAMES
+
+STORIES = {'sweet-porridge': 'sweet_porridge', 'town-musicians': 'town_musicians'}
 
 
 def test_activity_manifest():
@@ -25,11 +29,25 @@ def test_activity_manifest():
                 clip=f'assets/speech/{language}/{profile}-{folder.replace("/","-")}.ogg'
                 voices[voice]=[{'clip':clip,'start':0,'frames':1}]
                 encoded[clip]={'path':clip};paths.add(clip)
+    languages={}
+    # Every book page's narration in both modes, and every story page's.
+    # Only English has its own slow and fast recordings.
+    book_voices=[(voice_path(name,language,simple),language) for _,names in BOOKS for name in names
+                 for language in ('en','de','es') for simple in (True,False)]
+    for data in STORIES.values():
+        for page in json.loads((ROOT/'tools'/f'{data}.json').read_text())['pages']:
+            book_voices+=[(f'assets/jungle-book/story-sounds/{language}/{page["asset"]}.wav',language) for language in ('en','de','es')]
+    for at,(base,language) in enumerate(book_voices):
+        for profile in ('normal','slow','fast') if language=='en' else ('normal',):
+            voice=base if profile=='normal' else f'assets/speech-profiles/{profile}/'+base[7:]
+            clip=f'assets/speech/{language}/{profile}-book-{at}.ogg'
+            voices[voice]=[{'clip':clip,'start':0,'frames':1}]
+            encoded[clip]={'path':clip};paths.add(clip);languages[clip]={'language':language}
     legacy='assets/jungle-book/sounds/legacy.wav'
     clip='assets/speech/en/normal-legacy.ogg'
     voices[legacy]=[{'clip':clip,'start':0,'frames':1}]
     encoded[clip]={'path':clip};paths.add(clip)
-    speech={'voices':voices,'encoded':encoded,'clips':{clip:{'language':'en'}}}
+    speech={'voices':voices,'encoded':encoded,'clips':{**languages,clip:{'language':'en'}}}
     manifest=build_activity_manifest(ROOT,paths,speech,GAMES)
     rows=[r.split('|') for r in (ROOT/'games/catalog.txt').read_text().splitlines() if '|' in r]
     assert len(manifest['activities'])==len(rows)
@@ -38,25 +56,64 @@ def test_activity_manifest():
         assert activity['cover']==row[3] and activity['cover'] in activity['files']
         assert activity['files']==sorted(set(activity['files']))
         config=GAMES.get(activity['id'],{})
-        for folder in config.get('folders',()):
+        for folder in config.get('folders',()) if activity['id']!='jungle-book' else ():
             expected={p for p in paths if p.startswith(folder+'/')}
             assert expected<=set(activity['files']), (activity['id'],expected-set(activity['files']))
         for lang,profiles in activity['speech'].items():
             for profile,clips in profiles.items():
-                assert all('/'+lang+'/' in clip and ('/'+profile+'-' in clip or clip.endswith('normal-legacy.ogg')) for clip in clips), (activity['id'],lang,profile)
+                # German and Spanish book voices fall back to their normal recording.
+                assert all('/'+lang+'/' in clip and ('/'+profile+'-' in clip or clip.endswith('normal-legacy.ogg')
+                           or (lang!='en' and '/normal-book-' in clip)) for clip in clips), (activity['id'],lang,profile)
         assert clip not in activity['speech']['de']['normal'] and clip not in activity['speech']['es']['normal']
         assert set(activity['files'])<=paths
+    # Picture Book: the shelf holds only covers and shelf art; every page,
+    # portrait, collectible and narration belongs to exactly its own book.
     book=manifest['activities'][0]
-    for folder in ('pages','portraits','items','previews'):
-        expected={p for p in paths if p.startswith('assets/jungle-book/'+folder+'/')}
-        assert expected<=set(book['files']), (folder,expected-set(book['files']))
-    for story in ('sweet_porridge','town_musicians'):
-        data=json.loads((ROOT/'tools'/f'{story}.json').read_text())
-        for page in data['pages']:
-            assert 'assets/jungle-book/pages/'+page['asset']+'.webp' in book['files'], page
-    for lang in ('en','de','es'):
-        for profile in ('normal','slow','fast'):
-            assert len(book['speech'][lang][profile])>=2, (lang,profile)
+    assert book['id']=='jungle-book'
+    assert not [p for p in book['files'] if p.startswith(BOOK_MEDIA)], book['files']
+    narrated={clip for entry in book['books'] for profiles in entry['speech'].values() for clips in profiles.values() for clip in clips}
+    assert not narrated&{clip for profiles in book['speech'].values() for clips in profiles.values() for clip in clips}
+    assert book['shelves']['']==sorted(f'assets/jungle-book/previews/{c}.webp' for c,_ in BOOKS)
+    stories={name:json.loads((ROOT/'tools'/f'{data}.json').read_text())['pages'] for name,data in STORIES.items()}
+    assert book['shelves']['sweet-porridge']==sorted(f'assets/jungle-book/pages/{pages[0]["asset"]}.webp' for pages in stories.values())
+    order=[c for _,members in BOOK_GROUPS for c in members]
+    assert [entry['id'] for entry in book['books']]==order+list(STORIES)
+    catalog=dict(BOOKS)
+    collectibles=json.loads((ROOT/'tools/collectibles.json').read_text())['collectibles']
+    owners={}
+    for entry in book['books']:
+        files=entry['files']
+        if entry['id'] in STORIES:
+            pages=stories[entry['id']]
+            landscape={f'assets/jungle-book/pages/{page["asset"]}.webp' for page in pages}
+            portrait={f'assets/jungle-book/portraits/{page["portrait_asset"]}.webp' for page in pages}|landscape
+            offered={c['color'] for c in collectibles if c['source']['kind']=='story' and c['source']['story']==entry['id']}
+            assert entry['cover']==f'assets/jungle-book/pages/{pages[0]["asset"]}.webp'
+            voices=[f'assets/jungle-book/story-sounds/en/{page["asset"]}.wav' for page in pages]
+        else:
+            landscape=portrait={f'assets/jungle-book/pages/{name}.webp' for name in catalog[entry['id']]}
+            offered={c['color'] for c in collectibles if c['source']['kind']=='book' and c['source']['page'] in landscape}
+            assert entry['cover']==f'assets/jungle-book/previews/{entry["id"]}.webp'
+            voices=[voice_path(name,'en',simple) for name in catalog[entry['id']] for simple in (True,False)]
+        assert set(files['landscape'])==landscape|offered and set(files['portrait'])==portrait|offered, entry['id']
+        for path in files['portrait']:
+            assert owners.setdefault(path,entry['id'])==entry['id'], (path,owners[path],entry['id'])
+        expected={segment['clip'] for path in voices for segment in speech['voices'][path]}
+        assert set(entry['speech']['en']['normal'])==expected, entry['id']
+        assert all(clip.startswith('assets/speech/en/slow-') for clip in entry['speech']['en']['slow'])
+        for lang in ('de','es'):
+            assert entry['speech'][lang]['normal'] and all('/'+lang+'/' in clip for clip in entry['speech'][lang]['normal'])
+            assert 'slow' not in entry['speech'][lang] and 'fast' not in entry['speech'][lang], 'Duplicate profile list'
+    assert {c['color'] for c in collectibles if c['source']['kind'] in ('book','story')}<=set(owners)
+    # Packs follow books: nothing of another book or shelf shares a group.
+    groups=book_pack_groups(manifest)
+    for entry in book['books']:
+        own={groups[path] for orientation in entry['files'].values() for path in orientation}
+        own|={groups[clip] for profiles in entry['speech'].values() for clips in profiles.values() for clip in clips}
+        assert all(group.startswith(('book-'+entry['id'],'speech-')) and (group.startswith('book-') or '-'+entry['id']+'-' in group)
+                   or group=='shelf-sweet-porridge' for group in own), (entry['id'],own)
+    assert {groups[path] for path in book['shelves']['']}=={'shelf-books'}
+    assert {groups[path] for path in book['shelves']['sweet-porridge']}=={'shelf-sweet-porridge'}
     for scene,files in manifest['scenes'].items():
         assert scene in files
         assert all(path in paths for path in files)
@@ -64,7 +121,7 @@ def test_activity_manifest():
     with tempfile.TemporaryDirectory(dir=ROOT/'build') as folder:
         source=Path(folder)/'future.zi';source.write_text('Picture :: "assets/future/"')
         assert source_assets(source)=={'assets/future/'}
-    print('local preload manifest test: every catalog activity, both orientations, stories, locale/profile clips and new source dependencies passed')
+    print('local preload manifest test: every catalog activity, Picture Book shelves with only covers, one book per download, stories per orientation, per-book packs, locale/profile clips and new source dependencies passed')
 
 
 if __name__=='__main__':

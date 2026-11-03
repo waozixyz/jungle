@@ -50,6 +50,16 @@ with tempfile.TemporaryDirectory(prefix='asset-pack-test-',dir=ROOT/'build') as 
     assert isolated['files']['images/a.png']['pack']!=isolated['files']['images/b.png']['pack']
     with zipfile.ZipFile(root/'isolated'/isolated['files']['images/a.png']['pack']) as archive:
         assert archive.namelist()==['images/a.png']
+    # A named group, such as one book's pictures and narration, packs apart
+    # from its folders, in a stable layout; other folders keep their packs.
+    book={'groups':{'images/b.png':'book-b','sounds/es/a.wav':'book-b'},'group_bytes':{'book-b':1<<20}}
+    grouped=pack_assets(inputs, root/'grouped', max_bytes=24000, **book)
+    assert grouped==pack_assets(dict(reversed(list(inputs.items()))), root/'grouped-again', max_bytes=24000, **book)
+    pack=grouped['files']['images/b.png']['pack']
+    assert grouped['files']['sounds/es/a.wav']['pack']==pack!=grouped['files']['images/a.png']['pack']
+    with zipfile.ZipFile(root/'grouped'/pack) as archive:
+        assert sorted(archive.namelist())==['images/b.png','sounds/es/a.wav']
+    assert grouped['files']['words/niño.txt']==first['files']['words/niño.txt']
     samples={}
     for index in range(4):
         name=f'speech/en/{index}.ogg'

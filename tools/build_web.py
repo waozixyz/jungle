@@ -10,7 +10,7 @@ import tempfile
 import time
 
 from asset_packs import pack_assets, validate_distribution
-from activity_assets import build_activity_manifest
+from activity_assets import book_pack_groups, build_activity_manifest
 from shared_assets import GAMES
 from shared_assets import (PORT_FOLDERS, PortGamePreviews, SPEECH_INDEX, Shipped,
                            Speech, SpeechIndexText, WebFiles, WriteIfChanged)
@@ -202,6 +202,7 @@ def stage_assets(out):
     images=sorted(archive_names.get(name,name) for name in files
                   if Path(name).suffix in ('.png','.webp'))
     activity_paths = set(files)
+    activities=build_activity_manifest(ROOT,activity_paths,speech,GAMES) if (ROOT/'games/catalog.txt').exists() else {'format':1,'activities':[],'scenes':{}}
     # Browser branding must work before the runtime starts. Keep the small
     # menu and its bitmap fonts directly addressable, so the menu opens
     # before the full pack index arrives; pack all game pictures and sounds.
@@ -223,13 +224,14 @@ def stage_assets(out):
     for name,encoding in runtime_encodings.items():
         archive_names[name]=str(Path(name).with_suffix('.webp'))
         encodings[name]=encoding
-    manifest=pack_assets(files,out,archive_names=archive_names,
-                         group_bytes={**speech_groups,**runtime_group_bytes})
+    # Each Picture Book book downloads alone (activity_assets.book_pack_groups).
+    book_groups=book_pack_groups(activities)
+    manifest=pack_assets(files,out,archive_names=archive_names,groups=book_groups,
+                         group_bytes={**speech_groups,**runtime_group_bytes,**{group:1024*1024 for group in set(book_groups.values())}})
     for name,encoding in encodings.items():
         if name in manifest['files']:
             manifest['files'][name]={**manifest['files'][name],**encoding}
     (out/'asset-packs.json').write_text(json.dumps(manifest,separators=(',',':'))+'\n')
-    activities=build_activity_manifest(ROOT,activity_paths,speech,GAMES) if (ROOT/'games/catalog.txt').exists() else {'format':1,'activities':[],'scenes':{}}
     (out/'scene-assets.json').write_text(json.dumps(activities.pop('scenes'),separators=(',',':'))+'\n')
     (out/'activity-assets.json').write_text(json.dumps(activities,separators=(',',':'))+'\n')
     (out/'images.json').write_text(json.dumps(images))

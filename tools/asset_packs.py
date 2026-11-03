@@ -13,17 +13,21 @@ import zipfile
 PACK_BYTES = 4 * 1024 * 1024
 
 
-def pack_assets(files, output, max_bytes=PACK_BYTES, *, archive_names=None, single_files=(), group_bytes=None):
+def pack_assets(files, output, max_bytes=PACK_BYTES, *, archive_names=None, single_files=(), group_bytes=None, groups=None):
     """Pack {relative path: source Path}, grouping by directory and size.
 
     Each payload is stored once, even when multiple game paths use it. Packs
     have stable timestamps and content-addressed names for browser/CDN caches.
     On-demand images may use their own packs; short audio clips may use a
     smaller directory budget without multiplying every other activity's packs.
+    GROUPS {path: name} packs named sets, such as one book's pages, apart from
+    their directories; group_bytes budgets them by name. They are packed first,
+    so a group keeps the bytes it shares with another file.
     """
     output = Path(output)
     archive_names = archive_names or {}
     group_bytes = group_bytes or {}
+    groups = groups or {}
     for budget in (max_bytes, *group_bytes.values()):
         if type(budget) is not int or budget <= 0:
             raise ValueError('Asset pack budgets must be positive integers')
@@ -69,7 +73,7 @@ def pack_assets(files, output, max_bytes=PACK_BYTES, *, archive_names=None, sing
                 }
         pending.clear()
 
-    for name, source in sorted(files.items()):
+    for name, source in sorted(files.items(), key=lambda item: (item[0] not in groups, groups.get(item[0], ''), item[0])):
         path = Path(name)
         if path.is_absolute() or '..' in path.parts or str(path) != name:
             raise ValueError('Unsafe asset path: ' + name)
@@ -80,8 +84,8 @@ def pack_assets(files, output, max_bytes=PACK_BYTES, *, archive_names=None, sing
             continue
         # Keep languages and activity directories separate, then split large
         # directories. No pack exceeds max_bytes except one oversized asset.
-        next_group = name if name in single_files else str(path.parent)
-        limit = group_bytes.get(str(path.parent), max_bytes)
+        next_group = groups.get(name) or (name if name in single_files else str(path.parent))
+        limit = group_bytes.get(groups.get(name) or str(path.parent), max_bytes)
         if next_group != group or size + len(data) > limit:
             flush()
             size = 0

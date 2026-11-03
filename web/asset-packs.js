@@ -1,18 +1,20 @@
 // Standard ZIP asset packs, with a build-time index instead of a ZIP parser.
 // Works under any static host/subdirectory; no service worker, Range or CDN API.
+// PRIORITY is the fetch priority of a pack this read downloads ('low' for
+// background prefetches).
 class JungleAssetPacks {
  constructor(manifest, fetchBytes, cacheBytes=16*1024*1024, invalidate=async()=>{}){
   if(manifest.format!==1)throw Error('Unsupported asset pack format');
   this.manifest=manifest;this.fetchBytes=fetchBytes;this.invalidate=invalidate;this.cacheBytes=cacheBytes;
   this.cache=new Map();this.pending=new Map();this.bytes=0;this.zipIndexes=new WeakMap();
  }
- async pack(path){
+ async pack(path,priority){
   if(this.cache.has(path)){
    const bytes=this.cache.get(path);this.cache.delete(path);this.cache.set(path,bytes);return bytes;
   }
   if(this.pending.has(path))return this.pending.get(path);
   const request=(async()=>{
-   const bytes=new Uint8Array(await this.fetchBytes(path));
+   const bytes=new Uint8Array(await this.fetchBytes(path,priority));
    const expected=this.manifest.packs[path];
    if(bytes.length!==expected.size||await JungleAssetPacks.hash(bytes)!==expected.sha256){await this.invalidate(path);throw Error('Damaged asset pack: '+path)}
    while(this.bytes+bytes.length>this.cacheBytes&&this.cache.size){
@@ -65,9 +67,9 @@ class JungleAssetPacks {
   try{return {stream:new DecompressionStream('deflate-raw'),gzip:false}}
   catch{return {stream:new DecompressionStream('gzip'),gzip:true}}
  }
- async read(path){
+ async read(path,priority){
   const entry=this.manifest.files[path];if(!entry)throw Error('Unknown asset: '+path);
-  const pack=await this.pack(entry.pack);
+  const pack=await this.pack(entry.pack,priority);
   if(entry.offset<0||entry.length<0||entry.offset+entry.length>pack.length)throw Error('Invalid asset bounds: '+path);
   const compressed=pack.subarray(entry.offset,entry.offset+entry.length);
   let bytes;
