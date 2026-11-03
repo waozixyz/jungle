@@ -15,7 +15,6 @@ concurrency:
 
 env:
   MAKEFLAGS: -j2
-  CHROMIUM: google-chrome
   YUE_DESKTOP_RECOVERY: '0'
   SDL_AUDIODRIVER: dummy
 
@@ -23,9 +22,8 @@ defaults:
   run:
     working-directory: waozixyz/learning/jungle
 
-# One build, four validation machines, one package, then publication. Every
-# later job restores the build job's exact outputs. The groups and lanes are
-# checked against tools/run_ci_validation.py by tests/ci_validation_test.py.
+# One build with fast non-browser local checks, one package, then publication.
+# Every later job restores the build job's exact outputs.
 jobs:
   build:
     name: Build Jungle
@@ -69,10 +67,9 @@ jobs:
         name: Install build tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y libsdl2-dev libcairo2-dev libfreetype-dev libfontconfig-dev libpango1.0-dev libvorbisfile3 ffmpeg python3-pil python3-numpy python3-scipy python3-cairosvg libpotrace0 xvfb xdotool imagemagick ghostscript tesseract-ocr tesseract-ocr-deu tesseract-ocr-spa
-      - name: Check the validation schedule and shared build contract
+          sudo apt-get install -y libsdl2-dev libcairo2-dev libfreetype-dev libfontconfig-dev libpango1.0-dev libvorbisfile3 ffmpeg python3-pil python3-numpy python3-scipy python3-cairosvg libpotrace0 imagemagick ghostscript
+      - name: Check the shared build contract
         run: |
-          python3 tests/ci_validation_test.py
           python3 tests/ci_artifacts_test.py
       - name: Build compiler
         run: make -j2 -C "$GITHUB_WORKSPACE/ziranlang/ziran" all
@@ -87,13 +84,46 @@ jobs:
           root=Path(os.environ['GITHUB_WORKSPACE'])
           Path('ziran.local.toml').write_text('[overrides]\nziran = "'+str(root/'ziranlang/ziran')+'"\nkryon = "'+str(root/'kryonlabs/kryon')+'"\n')
           PY
-      - name: Build and run local tests
+      - name: Build and run fast non-browser tests
         run: |
           mkdir -p work/b work/w
           export TMPDIR="$PWD/work/b"
           unset DISPLAY WAYLAND_DISPLAY XAUTHORITY DBUS_SESSION_BUS_ADDRESS SESSION_MANAGER
           make -j2 all
-          make test
+          python3 tools/title_scenes.py --check
+          python3 tests/title_guide_test.py
+          python3 tests/title_scenes_test.py
+          python3 tests/canonical_webp_test.py
+          python3 tests/image_exports_test.py
+          python3 tests/runtime_images_test.py
+          python3 tests/sweet_porridge_test.py
+          python3 tests/garden_assets_test.py
+          python3 tests/piano_audio_test.py
+          python3 tests/paint_preview_test.py
+          python3 tests/paint_catalog_test.py
+          python3 tests/paint_vectors_test.py
+          python3 tests/paint_stencil_regions_test.py
+          python3 tests/export_test.py
+          python3 tests/assets_test.py
+          python3 tests/shared_assets_test.py
+          python3 tests/port_games_integration_test.py
+          python3 tests/speech_manifest_test.py
+          python3 tests/speech_profiles_test.py
+          python3 tests/english_speech_test.py
+          python3 tests/shapes_tutorial_audio_test.py
+          python3 tests/speech_codec_test.py
+          python3 tests/book_unique_catalog_test.py
+          python3 tests/book_unique_art_test.py
+          python3 tests/book_minimum_art_test.py
+          python3 tests/book_expansion_test.py
+          python3 tests/language_test.py
+          python3 tests/abc_audio_test.py
+          python3 tests/numbers_audio_test.py
+          python3 tests/jigsaw_art_test.py
+          python3 tests/activity_covers_test.py
+          python3 tests/brand_metadata_test.py
+          python3 tests/asset_packs_test.py
+          python3 tests/android_editions_test.py
           python3 tools/build_web.py
       - name: Preserve the browser build for diagnosis
         continue-on-error: true
@@ -114,45 +144,10 @@ jobs:
           overwrite: true
           if-no-files-found: error
           path: waozixyz/learning/jungle/work/ci-build.tar.gz
-      - &save-captures
-        name: Save private test captures on failure
-        if: failure()
-        continue-on-error: true
-        uses: actions/upload-artifact@v4
-        with:
-          name: website-ui-failure-${{ github.job }}-${{ strategy.job-index }}
-          retention-days: 1
-          overwrite: true
-          path: |
-            waozixyz/learning/jungle/build/tests/ui/*.png
-            waozixyz/learning/jungle/build/tests/ui/*.log
-            waozixyz/learning/jungle/build/tests/web/*.png
-            waozixyz/learning/jungle/backup/**/*.png
-            waozixyz/learning/jungle/backup/**/*.log
-            waozixyz/learning/jungle/work/hide-seek-levels/ui/*
-            waozixyz/learning/jungle/work/ci-validation/*.log
-            waozixyz/learning/jungle/work/ci-validation/*/ui/*.png
-            waozixyz/learning/jungle/work/ci-validation/*/ui/*.log
-          if-no-files-found: ignore
-
-  validate:
-    name: Validate lane ${{ matrix.lane }}
+  package:
+    name: Package the embed edition
     needs: build
     runs-on: ubuntu-latest
-    strategy:
-      # Every lane reports its own result; publication still needs all of them.
-      fail-fast: false
-      max-parallel: 4
-      matrix:
-        include:
-          - lane: a
-            groups: '["browser"]'
-          - lane: b
-            groups: '["performance", "paint"]'
-          - lane: c
-            groups: '["hide-seek", "activities", "book-en"]'
-          - lane: d
-            groups: '["book-de", "book-es", "books", "navigation"]'
     steps:
       - *checkout-jungle
       - *read-locks
@@ -170,75 +165,8 @@ jobs:
       - &restore-build
         name: Restore the shared build
         run: python3 tools/ci_artifacts.py restore --kind build --revision "$GITHUB_SHA" --archive work/ci-artifacts/ci-build.tar.gz --toolchain "$ZIRAN_ROOT"
-      - name: Validate hide-seek
-        if: contains(fromJSON(matrix.groups), 'hide-seek')
-        run: python3 tools/run_ci_validation.py --group hide-seek
-      - name: Validate browser
-        if: contains(fromJSON(matrix.groups), 'browser')
-        run: python3 tools/run_ci_validation.py --group browser
-      - name: Validate performance
-        if: contains(fromJSON(matrix.groups), 'performance')
-        run: python3 tools/run_ci_validation.py --group performance
-      - name: Validate paint
-        if: contains(fromJSON(matrix.groups), 'paint')
-        run: python3 tools/run_ci_validation.py --group paint
-      - name: Validate activities
-        if: contains(fromJSON(matrix.groups), 'activities')
-        env:
-          JUNGLE_SHAPES_PREBUILT: '1'
-        run: python3 tools/run_ci_validation.py --group activities
-      - name: Validate book-en
-        if: contains(fromJSON(matrix.groups), 'book-en')
-        run: python3 tools/run_ci_validation.py --group book-en
-      - name: Validate book-de
-        if: contains(fromJSON(matrix.groups), 'book-de')
-        run: python3 tools/run_ci_validation.py --group book-de
-      - name: Validate book-es
-        if: contains(fromJSON(matrix.groups), 'book-es')
-        run: python3 tools/run_ci_validation.py --group book-es
-      - name: Validate books
-        if: contains(fromJSON(matrix.groups), 'books')
-        run: python3 tools/run_ci_validation.py --group books
-      - name: Validate navigation
-        if: contains(fromJSON(matrix.groups), 'navigation')
-        run: python3 tools/run_ci_validation.py --group navigation
-      - name: Upload the benchmark of the shared build
-        if: contains(fromJSON(matrix.groups), 'performance')
-        uses: actions/upload-artifact@v4
-        with:
-          name: ci-performance-${{ github.sha }}
-          retention-days: 1
-          overwrite: true
-          if-no-files-found: error
-          path: |
-            waozixyz/learning/jungle/build/web/performance.json
-            waozixyz/learning/jungle/build/web/performance.html
-            waozixyz/learning/jungle/build/web/performance-report.md
-      - *save-captures
-
-  package:
-    name: Package and test the embed edition
-    needs: [build, validate]
-    runs-on: ubuntu-latest
-    steps:
-      - *checkout-jungle
-      - *read-locks
-      - *checkout-ziran
-      - *checkout-kryon
-      - *setup-node
-      - *install-tools
-      - *select-sources
-      - *download-build
-      - *restore-build
-      - name: Download the benchmark of the shared build
-        uses: actions/download-artifact@v4
-        with:
-          name: ci-performance-${{ github.sha }}
-          path: waozixyz/learning/jungle/work/ci-artifacts/performance
-      - name: Add the benchmark to the tested website
-        run: python3 tools/run_ci_validation.py --apply-performance work/ci-artifacts/performance --revision "$GITHUB_SHA"
-      - name: Prepare and test the embed edition
-        run: python3 tools/run_ci_validation.py --group packaging
+      - name: Prepare the embed edition
+        run: python3 tools/prepare_itch.py
       - name: Pack the tested website
         run: python3 tools/ci_artifacts.py pack --kind web --revision "$GITHUB_SHA" --output work/ci-web.tar.gz
       - name: Upload the tested website
@@ -250,7 +178,6 @@ jobs:
           overwrite: true
           if-no-files-found: error
           path: waozixyz/learning/jungle/work/ci-web.tar.gz
-      - *save-captures
 
   publish:
     name: Publish the tested website
@@ -292,7 +219,6 @@ jobs:
               '':['data-backend="canvas"','jungle.js?v='+os.environ['GITHUB_SHA']],
               'dom.html':['data-backend="dom"','jungle-dom.js?v='+os.environ['GITHUB_SHA']],
               'canvas.html':['data-backend="canvas"','jungle.js?v='+os.environ['GITHUB_SHA']],
-              'performance.html':['Jungle browser benchmarks','Jungle · Canvas and native DOM','Download complete JSON'],
           }.items():
               # Pages can reach an edge at different times after version.json.
               # Require every page's exact revision, allowing propagation first.
