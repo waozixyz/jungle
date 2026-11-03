@@ -1,40 +1,172 @@
 {
+  "provider": "local_speech",
+  "model": "qwen3-tts-0.6b-customvoice",
+  "pack": {
+    "repository": "Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice",
+    "revision": "85e237c12c027371202489a0ec509ded67b5e4b5",
+    "files": [
+      {
+        "file": "config.json",
+        "bytes": 4908,
+        "sha256": "81aca2b6fac304944d8acf345272d8a9a727d5fc2e2e66b222ab4729340c7455"
+      },
+      {
+        "file": "generation_config.json",
+        "bytes": 245,
+        "sha256": "f1b90b4513f3b34c62851049e2492d7b4c5940daf1276f89c82b8ef04127f3aa"
+      },
+      {
+        "file": "merges.txt",
+        "bytes": 1671839,
+        "sha256": "599bab54075088774b1733fde865d5bd747cbcc7a547c5bc12610e874e26f5e3"
+      },
+      {
+        "file": "model.safetensors",
+        "bytes": 1811626576,
+        "sha256": "bc3c7e785eb961179c25450d1acff03f839e0002f2f3a5aeb67b5735c0fa2adb"
+      },
+      {
+        "file": "preprocessor_config.json",
+        "bytes": 127,
+        "sha256": "efdde1022ea9d76928bf7a9cd53139138f5ba2e466e837f08f6105ab1af1c119"
+      },
+      {
+        "file": "tokenizer_config.json",
+        "bytes": 7344,
+        "sha256": "dc3c31c3bdaedd5016382bb3cbe07323026775ad51f5a4fb564505992ae4a670"
+      },
+      {
+        "file": "vocab.json",
+        "bytes": 2776833,
+        "sha256": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910"
+      },
+      {
+        "file": "speech_tokenizer/config.json",
+        "bytes": 2336,
+        "sha256": "ee65bb901c876664ab8707c487157aa1a6ee57c65969b28fb5ec9dc211e68167"
+      },
+      {
+        "file": "speech_tokenizer/configuration.json",
+        "bytes": 76,
+        "sha256": "6bc26d64eb5024b4d1dab5a52371958b429256d6c9d59787f1f5294a54e0cebd"
+      },
+      {
+        "file": "speech_tokenizer/model.safetensors",
+        "bytes": 682293092,
+        "sha256": "836b7b357f5ea43e889936a3709af68dfe3751881acefe4ecf0dbd30ba571258"
+      },
+      {
+        "file": "speech_tokenizer/preprocessor_config.json",
+        "bytes": 234,
+        "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
+      }
+    ],
+    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+  },
+  "voice": "Serena",
+  "speed": 1.0,
   "text": "Dibujar. de. i. be. u. jota. a. erre. Dibujar.",
-  "duration": 9.47219954648526,
-  "sha256": "d1da1d812dea1d796275af770e31300cbc184cc3a5c7302f6c998971c5f5c83c",
+  "language": "es",
+  "input_identity": {
+    "audio_sha256": "d1da1d812dea1d796275af770e31300cbc184cc3a5c7302f6c998971c5f5c83c",
+    "receipt_sha256": "7a31e349fdeaf9b618116cf703aa66f01be485ffc8ef4a8c41812173aa217335"
+  },
+  "request_sha256": "db37f06659859ffb8f6e674faade45ee67918cedf2aefbe102a04ac1ecaa2814",
   "method": "Verified word, literal letter names, word; PCM assembly",
+  "recipe": {
+    "method": "Verified word, literal letter names, word; PCM assembly",
+    "trim": "book_speech.read_clip",
+    "parts": [
+      {
+        "source": "assets/jungle-book/sounds/es/simple/drawing.wav"
+      },
+      {
+        "silence_frames": 11025
+      },
+      {
+        "source": "assets/jungle-book/sounds/es/letters/0064.wav"
+      },
+      {
+        "silence_frames": 5512
+      },
+      {
+        "source": "assets/jungle-book/sounds/es/letters/0069.wav"
+      },
+      {
+        "silence_frames": 5512
+      },
+      {
+        "source": "assets/jungle-book/sounds/es/letters/0062.wav"
+      },
+      {
+        "silence_frames": 5512
+      },
+      {
+        "source": "assets/jungle-book/sounds/es/letters/0075.wav"
+      },
+      {
+        "silence_frames": 5512
+      },
+      {
+        "source": "assets/jungle-book/sounds/es/letters/006a.wav"
+      },
+      {
+        "silence_frames": 5512
+      },
+      {
+        "source": "assets/jungle-book/sounds/es/letters/0061.wav"
+      },
+      {
+        "silence_frames": 5512
+      },
+      {
+        "source": "assets/jungle-book/sounds/es/letters/0072.wav"
+      },
+      {
+        "silence_frames": 5512
+      },
+      {
+        "silence_frames": 5512
+      },
+      {
+        "source": "assets/jungle-book/sounds/es/simple/drawing.wav"
+      }
+    ]
+  },
   "sources": [
     {
       "path": "assets/jungle-book/sounds/es/simple/drawing.wav",
-      "sha256": "59949df0f96eca2ddd8b2272f1fd7e21b5546168ca2ca72cac5da62b7a3790d3"
+      "sha256": "f0937df7d27cb3249d412e41e49e50520e0b05c95d2ff6ef96bd653a79ef17eb"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0064.wav",
-      "sha256": "d411af9f65c19a7177eb65e16f5d632d5c61cbf1ff12a3039c7e5433b81909c8"
+      "sha256": "25e006449ea3b05ae87e6a5911ce9b09fb6e2b1df8501602d27cdeb330c4f2b3"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0069.wav",
-      "sha256": "483aea36bfe978e61744a41b4b6bb61953f2768335555e40e944c1ca55904d3e"
+      "sha256": "459b9707cfae64975e6f47ee0a5e2043f91e16c00a10ca4f65934968c337c9dc"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0062.wav",
-      "sha256": "09b333e695b639b96b33959e33cafd3a0776f9f6c99605ecda6da84ff02a7b50"
+      "sha256": "00619871acdb5422d8a41f89d7e262200ddf41e2f8ceddfd3bae4eebd8b8d138"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0075.wav",
-      "sha256": "45100893b2ad11a491d585d33a0224106c29bcaaadf588aed658b68a76ca5549"
+      "sha256": "44864170767c91eadc4c6bb700a9985b3be7a2edd07610f59d63bb3342065145"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/006a.wav",
-      "sha256": "99214ab9f04b335fb5322237abd11b749a319beac800589c81f4cdcf4813d59e"
+      "sha256": "e956c592ec274ca806a93b12edc8d6ffa8eba365cac06518eca7087d7db58d4a"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0061.wav",
-      "sha256": "0a315ad8dca872015714fd977d5fe781b73652ee9fc766d98400ebc43c406aad"
+      "sha256": "6aa633c4e7266cf036cf4209e5b3414582f2275e6845b138621ed39f183e766c"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0072.wav",
-      "sha256": "be87f3f70cbe0dc05b4dbdbc726cc65b7702fa86dbd9edbf24bbdb7743780a09"
+      "sha256": "bcb8de295451c41e7629c3b47552eac229eeb084386218c9606520088fe6fa6d"
     }
-  ]
+  ],
+  "sha256": "9c92e11f4e18e249dd05104b4174a625f3aba727d0159ebef368d57c4e5adc59",
+  "duration": 13.113197278911565
 }

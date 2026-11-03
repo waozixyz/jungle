@@ -49,9 +49,10 @@ def verify_legacy_lettuce():
     path = ROOT / 'assets/jungle-book/sounds/de/spelling/lettuce.wav'
     receipt = json.loads(path.with_suffix('.speech.json').read_text())
     assert 'PCM assembly' in receipt['method'], path
-    # This unused historical lesson keeps its original assembly and provenance;
-    # active letter recordings have since been refreshed independently.
-    assert hashlib.sha256(path.read_bytes()).hexdigest() == receipt['sha256'] == '4cf92f6b5f0b9ef546f0caf22bb42c4006704bd4d2052f60bd77abb275271875', path
+    # The migration includes historical lessons, rebuilding their exact recipe
+    # from the same Qwen word and letter recordings as the active lessons.
+    assert receipt['model'] == 'qwen3-tts-0.6b-customvoice', path
+    assert hashlib.sha256(path.read_bytes()).hexdigest() == receipt['sha256'], path
     phrases = receipt['text'].split('. ')
     word = phrases[0]
     assert phrases[-1] == word + '.', receipt['text']

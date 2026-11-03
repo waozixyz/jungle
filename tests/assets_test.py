@@ -103,7 +103,11 @@ def main():
                     seconds = voice.getnframes() / voice.getframerate()
                     assert .3 < seconds < 60 and abs(seconds - receipt["duration"]) < .001
                     assert any(voice.readframes(voice.getnframes())), (name, language, simple)
-                assert path.read_bytes()[36:40] == b"data"
+                # Valid PCM WAVs may include metadata chunks before data.
+                # Inspect the stream rather than assuming a 44-byte header.
+                with wave.open(str(path)) as clip:
+                    assert clip.getcomptype() == 'NONE'
+                    assert len(clip.readframes(clip.getnframes())) == clip.getnframes() * clip.getnchannels() * clip.getsampwidth()
     for name in ("book", "counting", "paint", "piano"):
         with Image.open(ROOT / f"assets/jungle/covers/{name}.webp") as cover:
             assert cover.size == (420, 420) and cover.format == "WEBP"

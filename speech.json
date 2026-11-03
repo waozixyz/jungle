@@ -1,6 +1,18 @@
 {
   "version": 1,
   "narration": {
+    "de": {
+      "model": "qwen3-tts-0.6b-customvoice",
+      "voice": "Serena",
+      "default_profile": "normal",
+      "profiles": {"normal": 1.0}
+    },
+    "es": {
+      "model": "qwen3-tts-0.6b-customvoice",
+      "voice": "Serena",
+      "default_profile": "normal",
+      "profiles": {"normal": 1.0}
+    },
     "en": {
       "model": "kokoro-82m-uint8",
       "voice": "af_bella",

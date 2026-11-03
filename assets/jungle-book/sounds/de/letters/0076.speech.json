@@ -1,11 +1,77 @@
 {
-  "path": "/mnt/storage/Projects/waozixyz/learning/jungle/assets/jungle-book/sounds/de/letters/0076.wav",
-  "model": "google/gemini-3.8-flash-lite-tts",
-  "voice": "Kore",
+  "provider": "local_speech",
+  "model": "qwen3-tts-0.6b-customvoice",
+  "pack": {
+    "repository": "Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice",
+    "revision": "85e237c12c027371202489a0ec509ded67b5e4b5",
+    "files": [
+      {
+        "file": "config.json",
+        "bytes": 4908,
+        "sha256": "81aca2b6fac304944d8acf345272d8a9a727d5fc2e2e66b222ab4729340c7455"
+      },
+      {
+        "file": "generation_config.json",
+        "bytes": 245,
+        "sha256": "f1b90b4513f3b34c62851049e2492d7b4c5940daf1276f89c82b8ef04127f3aa"
+      },
+      {
+        "file": "merges.txt",
+        "bytes": 1671839,
+        "sha256": "599bab54075088774b1733fde865d5bd747cbcc7a547c5bc12610e874e26f5e3"
+      },
+      {
+        "file": "model.safetensors",
+        "bytes": 1811626576,
+        "sha256": "bc3c7e785eb961179c25450d1acff03f839e0002f2f3a5aeb67b5735c0fa2adb"
+      },
+      {
+        "file": "preprocessor_config.json",
+        "bytes": 127,
+        "sha256": "efdde1022ea9d76928bf7a9cd53139138f5ba2e466e837f08f6105ab1af1c119"
+      },
+      {
+        "file": "tokenizer_config.json",
+        "bytes": 7344,
+        "sha256": "dc3c31c3bdaedd5016382bb3cbe07323026775ad51f5a4fb564505992ae4a670"
+      },
+      {
+        "file": "vocab.json",
+        "bytes": 2776833,
+        "sha256": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910"
+      },
+      {
+        "file": "speech_tokenizer/config.json",
+        "bytes": 2336,
+        "sha256": "ee65bb901c876664ab8707c487157aa1a6ee57c65969b28fb5ec9dc211e68167"
+      },
+      {
+        "file": "speech_tokenizer/configuration.json",
+        "bytes": 76,
+        "sha256": "6bc26d64eb5024b4d1dab5a52371958b429256d6c9d59787f1f5294a54e0cebd"
+      },
+      {
+        "file": "speech_tokenizer/model.safetensors",
+        "bytes": 682293092,
+        "sha256": "836b7b357f5ea43e889936a3709af68dfe3751881acefe4ecf0dbd30ba571258"
+      },
+      {
+        "file": "speech_tokenizer/preprocessor_config.json",
+        "bytes": 234,
+        "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
+      }
+    ],
+    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+  },
+  "voice": "Serena",
   "speed": 1.0,
   "text": "fau.",
-  "instructions": "Sprich Deutsch warm und deutlich in einem normalen Gesprächstempo. Sage jeden angegebenen einzelnen Buchstabennamen einmal, mit klarer Aussprache und nur einer kurzen natürlichen Pause danach. Keine gedehnten Vokale, getrennten Silben, übertriebenen Pausen, kein Flüstern, Singen, Wiederholen oder zusätzliche Wörter und Geräusche.",
-  "duration": 1.2,
-  "sha256": "46a98537f88570ec386436b05649661b4206f5fd64386115285e9b27204cc441",
-  "request_sha256": "88209cddb7a299bf7f6b5a3a6ce3488672f9856395e9cb7ecbdf4b056694c82f"
+  "language": "de",
+  "input_identity": {
+    "audio_sha256": "46a98537f88570ec386436b05649661b4206f5fd64386115285e9b27204cc441",
+    "receipt_sha256": "582e56a8f8106c6a9fa80915fe9b61b754545725ca34886cbd198fca3f25df14"
+  },
+  "request_sha256": "3500406260f366630db3a1a72f8b42997b14b30c1fd6f0992f68f73b8802b80f",
+  "sha256": "041e1b3861579cc85ad662f0a7f246471096673870ba625b99f1a5a927e98000",
+  "duration": 1.04
 }

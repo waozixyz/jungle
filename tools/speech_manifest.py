@@ -277,7 +277,7 @@ def ValidateSpeechManifest(manifest, root=ROOT):
 
 
 def AddSpeechProfiles(manifest, root=ROOT):
-    """Include generated English variants, preserving exact spelling recipes.
+    """Include legacy Bella or multilingual Qwen generated profile assets.
 
     The generator publishes its profile inventory only once all three sets are
     complete. Older source trees without that inventory retain normal speech.
@@ -287,6 +287,31 @@ def AddSpeechProfiles(manifest, root=ROOT):
     if not inventory.exists():
         return manifest
     profiles = json.loads(inventory.read_text())
+    if profiles.get('format') == 'jungle-speech-profiles-2':
+        from local_narration_profiles import validate_inventory, profile_path
+        receipts = validate_inventory(root, profiles)
+        for profile in ('normal', 'slow', 'fast'):
+            for original, target in profiles['profiles'][profile]['voices'].items():
+                language = receipts[original]['language']
+                receipt = receipts[original]
+                if 'sources' not in receipt:
+                    clip, _ = _whole_clip(root / target, language, root)
+                    _add_clip(manifest['clips'], clip, None)
+                    manifest['voices'][target] = [_segment(clip)]
+                    continue
+                segments = []
+                for part in receipt['recipe']['parts']:
+                    if 'silence_frames' in part:
+                        segments.append({'silence': part['silence_frames']})
+                        continue
+                    source = profile_path(part['source'], profile)
+                    clip, _ = _whole_clip(root / source, language, root)
+                    _add_clip(manifest['clips'], clip, None)
+                    first, frames, _ = _trimmed_range(root / source, root)
+                    segments.append(_range_segment(source, first, frames))
+                manifest['voices'][target] = segments
+        manifest['counts'].update(clips=len(manifest['clips']), voices=len(manifest['voices']))
+        return manifest
     if (profiles.get('format'), profiles.get('language'), profiles.get('voice'), profiles.get('default')) != (
             'jungle-speech-profiles-1', 'en', 'af_bella', 'normal'):
         raise ValueError('unsupported English speech profiles')

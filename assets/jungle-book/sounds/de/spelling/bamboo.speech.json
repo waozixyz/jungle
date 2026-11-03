@@ -1,36 +1,162 @@
 {
+  "provider": "local_speech",
+  "model": "qwen3-tts-0.6b-customvoice",
+  "pack": {
+    "repository": "Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice",
+    "revision": "85e237c12c027371202489a0ec509ded67b5e4b5",
+    "files": [
+      {
+        "file": "config.json",
+        "bytes": 4908,
+        "sha256": "81aca2b6fac304944d8acf345272d8a9a727d5fc2e2e66b222ab4729340c7455"
+      },
+      {
+        "file": "generation_config.json",
+        "bytes": 245,
+        "sha256": "f1b90b4513f3b34c62851049e2492d7b4c5940daf1276f89c82b8ef04127f3aa"
+      },
+      {
+        "file": "merges.txt",
+        "bytes": 1671839,
+        "sha256": "599bab54075088774b1733fde865d5bd747cbcc7a547c5bc12610e874e26f5e3"
+      },
+      {
+        "file": "model.safetensors",
+        "bytes": 1811626576,
+        "sha256": "bc3c7e785eb961179c25450d1acff03f839e0002f2f3a5aeb67b5735c0fa2adb"
+      },
+      {
+        "file": "preprocessor_config.json",
+        "bytes": 127,
+        "sha256": "efdde1022ea9d76928bf7a9cd53139138f5ba2e466e837f08f6105ab1af1c119"
+      },
+      {
+        "file": "tokenizer_config.json",
+        "bytes": 7344,
+        "sha256": "dc3c31c3bdaedd5016382bb3cbe07323026775ad51f5a4fb564505992ae4a670"
+      },
+      {
+        "file": "vocab.json",
+        "bytes": 2776833,
+        "sha256": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910"
+      },
+      {
+        "file": "speech_tokenizer/config.json",
+        "bytes": 2336,
+        "sha256": "ee65bb901c876664ab8707c487157aa1a6ee57c65969b28fb5ec9dc211e68167"
+      },
+      {
+        "file": "speech_tokenizer/configuration.json",
+        "bytes": 76,
+        "sha256": "6bc26d64eb5024b4d1dab5a52371958b429256d6c9d59787f1f5294a54e0cebd"
+      },
+      {
+        "file": "speech_tokenizer/model.safetensors",
+        "bytes": 682293092,
+        "sha256": "836b7b357f5ea43e889936a3709af68dfe3751881acefe4ecf0dbd30ba571258"
+      },
+      {
+        "file": "speech_tokenizer/preprocessor_config.json",
+        "bytes": 234,
+        "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
+      }
+    ],
+    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+  },
+  "voice": "Serena",
+  "speed": 1.0,
   "text": "Bambus. be. a. em. be. u. es. Bambus.",
-  "duration": 8.425034013605442,
-  "sha256": "dae729defd7100bbc08e9c44ee3683866c358698948d58a657c00aa4ae53f67e",
+  "language": "de",
+  "input_identity": {
+    "audio_sha256": "dae729defd7100bbc08e9c44ee3683866c358698948d58a657c00aa4ae53f67e",
+    "receipt_sha256": "cf82cae179a36d6fcf7f39ee48c2b3d8bcd9fadeabec6ae0bdbb1ed42150d221"
+  },
+  "request_sha256": "bf58ca93473ebe98535a4d74353ffadea2fbaa3c531b4c8604be26870bbb0525",
   "method": "Verified word, literal letter names, word; PCM assembly",
+  "recipe": {
+    "method": "Verified word, literal letter names, word; PCM assembly",
+    "trim": "book_speech.read_clip",
+    "parts": [
+      {
+        "source": "assets/jungle-book/sounds/de/simple/bamboo.wav"
+      },
+      {
+        "silence_frames": 11025
+      },
+      {
+        "source": "assets/jungle-book/sounds/de/letters/0062.wav"
+      },
+      {
+        "silence_frames": 5512
+      },
+      {
+        "source": "assets/jungle-book/sounds/de/letters/0061.wav"
+      },
+      {
+        "silence_frames": 5512
+      },
+      {
+        "source": "assets/jungle-book/sounds/de/letters/006d.wav"
+      },
+      {
+        "silence_frames": 5512
+      },
+      {
+        "source": "assets/jungle-book/sounds/de/letters/0062.wav"
+      },
+      {
+        "silence_frames": 5512
+      },
+      {
+        "source": "assets/jungle-book/sounds/de/letters/0075.wav"
+      },
+      {
+        "silence_frames": 5512
+      },
+      {
+        "source": "assets/jungle-book/sounds/de/letters/0073.wav"
+      },
+      {
+        "silence_frames": 5512
+      },
+      {
+        "silence_frames": 5512
+      },
+      {
+        "source": "assets/jungle-book/sounds/de/simple/bamboo.wav"
+      }
+    ]
+  },
   "sources": [
     {
       "path": "assets/jungle-book/sounds/de/simple/bamboo.wav",
-      "sha256": "44730abc16095e8e7dad6144170826dad78d7bce73b5e3ec042ed729331467e8"
+      "sha256": "2b15bfa744ce3a666da20cc4e11cf927d22a3916b2d1b60d1f527684bea408aa"
     },
     {
       "path": "assets/jungle-book/sounds/de/letters/0062.wav",
-      "sha256": "6820c774d1c9fe5b92e6c223fb5ab3cb8ece43e3349dffbccde09471a0cc30a0"
+      "sha256": "f7b7175a176186041809e8a01e2ca27cb80429a0c3143089f3025b379e008ad9"
     },
     {
       "path": "assets/jungle-book/sounds/de/letters/0061.wav",
-      "sha256": "e2170bfb3683082d7c67da571c7a56a7490d4127d30182209be290c0295da57c"
+      "sha256": "96fcd6b536d05a7b797a356fe027d0ea312976cb923994525b7031e893ad7d87"
     },
     {
       "path": "assets/jungle-book/sounds/de/letters/006d.wav",
-      "sha256": "4fd4c153998a852b39060a75277a9f885099d24229af22d0473d41331ec9a10f"
+      "sha256": "c725b6c426ef2ee43383e46209ff7d81cf4fa3cf904f14cce1fb5371256985d4"
     },
     {
       "path": "assets/jungle-book/sounds/de/letters/0062.wav",
-      "sha256": "6820c774d1c9fe5b92e6c223fb5ab3cb8ece43e3349dffbccde09471a0cc30a0"
+      "sha256": "f7b7175a176186041809e8a01e2ca27cb80429a0c3143089f3025b379e008ad9"
     },
     {
       "path": "assets/jungle-book/sounds/de/letters/0075.wav",
-      "sha256": "b731c18282d664db3932f87c8722271c19a2e42edbee6f4d1c92913891382909"
+      "sha256": "d379d7e692cb111c4d2725709faea31905e6c67f42133e994ab5d76d00042d97"
     },
     {
       "path": "assets/jungle-book/sounds/de/letters/0073.wav",
-      "sha256": "26e37453e7609b63ba4d76e89677b51da07ee8a2baa5b2bf445d7bc0967c27a2"
+      "sha256": "6772d30d1959098e0d90c71893216c1acae3ef80b80def8dfeebc7215e8d54cf"
     }
-  ]
+  ],
+  "sha256": "17e7beb876fab82e29ec4a60b2fa0f5661acca67733a2c19d1fed2bf59e6ab13",
+  "duration": 7.761995464852608
 }

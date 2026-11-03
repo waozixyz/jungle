@@ -26,11 +26,11 @@ LATEST_IDS = ('desert-animals', 'insects', 'people-at-work')
 NATURE_IDS = ('reptiles', 'trees', 'plants', 'forest')
 REUSED = {'mango', 'banana', 'coconut', 'pineapple', 'flower', 'book',
           'backpack', 'duck', 'frog', 'water', 'milk'}
-# Aggregate of established sources, including the approved Bella English refresh.
+# Aggregate of established sources, including Bella English and local Qwen DE/ES.
 # Four covers follow their book's new first page and are checked below instead.
 # The Bella refresh retains all 3309 protected names; english_speech_test.py
 # independently verifies every profile's literal speech and PCM composition.
-ORIGINAL_DIGEST = '48168148f19b2a5a5b514c2d50aa200e876ce0318d3fe6b6355745773097b5ef'
+ORIGINAL_DIGEST = '71fae25718a5f9ee6d9e6f303d58c13c4e32b236699244d24b456c0bffc79b9a'
 ORIGINAL_COUNT = 3309
 NEW_COVERS = {'birds': 'owl', 'fruits': 'apricot', 'bedtime': 'toothpaste', 'nature': 'waterfall'}
 NEW_LETTER = 'assets/jungle-book/sounds/es/letters/00fc'

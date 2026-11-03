@@ -74,8 +74,9 @@ for language in LANGUAGES:
         path = ROOT / f"assets/jungle/title/guide/{language}/step{step}.wav"
         receipt = verify_recording(path, text)
         if language != "en":
-            assert receipt["path"].endswith(f"{language}/step{step}.wav")
-            assert receipt["speed"] == 1.0 and receipt["voice"] == "Kore"
+            assert receipt["language"] == language
+            assert receipt["speed"] == 1.0 and receipt["voice"] == "Serena"
+            assert receipt["model"] == "qwen3-tts-0.6b-customvoice"
             continue
         original = path.relative_to(ROOT).as_posix()
         for profile, speed in speeds.items():
