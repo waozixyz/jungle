@@ -182,20 +182,43 @@ class TitleVariants(unittest.TestCase):
                     with Image.open(ROOT/h['rest']) as rest,Image.open(ROOT/h['glow']) as glow:
                         self.assertEqual(rest.getchannel('A').tobytes(),glow.getchannel('A').tobytes())
 
-    def test_shelf_cover_priority_and_stories_row(self):
+    def test_shelf_first_row_is_one_row_and_inventory_is_complete(self):
         _,scenes,_,_=title.Load()
+        # Painted first-row covers (tiger, frogs, rabbit), stencil spot and inventory.
+        shelf={'bookshelf':([[330,88],[609,102],[610,344],[330,334]],[[630,110],[864,122],[865,358],[630,350]],[[888,127],[1124,143],[1128,372],[888,360]]),
+               'bookshelf-portrait':([[133,248],[347,256],[348,515],[133,504]],[[411,264],[604,272],[605,529],[411,521]],[[656,279],[848,288],[854,540],[656,531]])}
         for scene in scenes:
-            if not scene['name'].startswith('bookshelf'):continue
-            for name in ('tiger','frogs','rabbit'):
-                h=next(h for h in scene['hotspots'] if h['id']=='book-cover-'+name)
-                x,y,w,ht=h['glow_rect']
-                self.assertEqual(hit(scene,x+w/2,y+ht/2),h['id'])
-            row=next(h for h in scene['hotspots'] if h['id']=='picture-books')
-            x,y,w,ht=row['glow_rect']
-            self.assertEqual(hit(scene,x+3,y+3),'picture-books')
+            if scene['name'] not in shelf:continue
+            stem='assets/jungle/title/'+scene['name']
+            glow='assets/jungle/title/glow/'+scene['name']
+            # Before 4d2340cf, plus the approved whole Stories-row glow.
+            self.assertEqual([(h['id'],h['target'],h['glow']) for h in scene['hotspots']],[
+                ('picture-books','game:Picture Book',glow+'-picture-books.webp'),
+                ('book-abc','game:ABC Book',glow+'-book-abc.webp'),
+                ('book-123','game:123 Book',glow+'-book-123.webp'),
+                ('ladder','scene:treehouse',glow+'-ladder.webp'),
+                ('fairy-tale','book:sweet-porridge',glow+'-fairy-tale-hover.webp')])
+            self.assertEqual((scene['image'],scene['low'],scene['background'],scene['foreground']),
+                (stem+'.webp',stem+'-low.webp',stem.replace('title/','title/layers/')+'-background.webp',stem.replace('title/','title/layers/')+'-foreground.webp'))
+            for path in [scene['image'],scene['low'],scene['background'],scene['foreground']]+[h['glow'] for h in scene['hotspots']]:
+                with Image.open(ROOT/path) as im:self.assertEqual(im.format,'WEBP')
+            # One whole-row hotspot owns every first-row book, the tiger included.
+            for cover in shelf[scene['name']]:
+                cx=sum(p[0] for p in cover)/4;cy=sum(p[1] for p in cover)/4
+                for u,v in ((.5,.5),(.12,.15),(.88,.85)):
+                    self.assertEqual(hit(scene,cover[0][0]+(cover[1][0]-cover[0][0])*u,cy+(v-.5)*(cover[2][1]-cover[1][1])),'picture-books')
+            # The stencil's visible edge, right of the tiger, belongs to no book.
+            sx,sy,edge,_=scene['paper']
+            self.assertIsNone(hit(scene,shelf[scene['name']][0][1][0]+edge*.1,sy))
+            self.assertEqual(hit(scene,sx-edge*.3,sy),'picture-books')
             story=next(h for h in scene['hotspots'] if h['id']=='fairy-tale')
             x,y,w,ht=story['glow_rect']
             for u in (.1,.5,.9):self.assertEqual(hit(scene,x+w*u,y+ht*.5),'fairy-tale')
+        paper=next(c for c in json.loads((ROOT/'tools/collectibles.json').read_text())['collectibles'] if c['slug']=='bookshelf-scene')
+        self.assertEqual((paper['source'],paper['how']['kind']),({'kind':'title','scene':'bookshelf'},'paper'))
+        menu=(ROOT/'host/jungle_menu.zi').read_text()
+        self.assertNotIn('book-cover-',menu)
+        self.assertNotIn('!paper_available || shelf,',menu)
 
     def test_no_testing_room_surface(self):
         for name in ('host/jungle_title.zi','host/jungle_menu.zi','tools/build_web.py','Makefile'):

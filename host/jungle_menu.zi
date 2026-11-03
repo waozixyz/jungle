@@ -266,6 +266,21 @@ TitleObjects :: (session: Session, scene: s32, picture: Rectangle, view: TitleVi
     }
 }
 
+// SCENE's waiting paper, then the foreground layer that hides most of it.
+TitlePaperUnder :: (session: Session, scene: s32, picture: Rectangle, view: TitleView, bounds: Rectangle,
+    collection: Collection, layered: bool, now: float64) {
+    if !layered { return }
+    paper := TitlePaperSpot(scene, view, bounds.width, bounds.height)
+    if paper.index >= 0 && SecretPaperShown(title_papers.papers[paper.index], paper.index,
+        CollectionHas(collection, collectible_slugs[paper.index])) {
+        revealed := title_papers.reveal[paper.index]
+        shown := TitlePaperRevealed(paper, revealed)
+        SecretPaperDraw(bounds.x + shown.x, bounds.y + shown.y, shown.size,
+            SecretPaperGlow(now) * (0.08 + revealed * 0.3), 1.0)
+    }
+    TitlePicture(session, TITLE_SCENE_FOREGROUND[scene], picture)
+}
+
 // The treehouse title screen. KEY is this frame's key; CHOICE receives the
 // catalog index of a game as it opens, which MenuAction.game reports.
 // COLLECTION is what the child has earned; COLLECT earns a scene's paper.
@@ -321,8 +336,9 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
             (TITLE_SCENE_FOREGROUND[title_state.scene] != "" && !paper_available) { blocked = true }
     }
     shelf := TITLE_SCENE_NAME[TITLE_SCENE_BASE[title_state.scene]] == "bookshelf"
-    // The shelf has no extra paper overlay; book faces own hover and taps.
-    paper_input := TitlePaperPointer(*title_papers, paper, paper_had || !paper_available || shelf, px, py, pointer.down,
+    // The shelf stencil hides behind the tiger cover. A book face under the
+    // pointer wins, so only the stencil's visible edge reveals and collects it.
+    paper_input := TitlePaperPointer(*title_papers, paper, paper_had || !paper_available || (shelf && pointed >= 0), px, py, pointer.down,
         pointer.pressed && !blocked, pointer.released && !title_state.not_implemented, now, collect)
     if paper_input.owned { blocked = true }
     action.paper_collected = paper_input.collected
@@ -391,17 +407,10 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
     if guide.voice {
         action.guide_voice = TitleGuideVoicePath(guide.step, language)
     }
-    // The separated tiger cover used to cover its own highlight. Restore it
-    // before feedback on the shelf, so every book uses the same paint order.
-    if shelf && layered { TitlePicture(session, TITLE_SCENE_FOREGROUND[scene], picture) }
+    // The separated tiger cover used to cover the first row's highlight. On the
+    // shelf it and the stencil behind it paint before feedback instead.
+    if shelf { TitlePaperUnder(session, scene, picture, view, bounds, collection, layered, now) }
     if glowing >= 0 && TITLE_SIGN_LABEL[glowing] == "" {
-        if shelf && (TITLE_HOTSPOT_ID[glowing] == "book-cover-tiger" || TITLE_HOTSPOT_ID[glowing] == "book-cover-frogs" || TITLE_HOTSPOT_ID[glowing] == "book-cover-rabbit") {
-            at := glowing * 4
-            source := Rectangle.{cast(float32)TITLE_GLOW_RECT[at], cast(float32)TITLE_GLOW_RECT[at+1], cast(float32)TITLE_GLOW_RECT[at+2], cast(float32)TITLE_GLOW_RECT[at+3]}
-            Image(session, ImageProps.{.asset_path = TITLE_SCENE_IMAGE[scene], .source = source,
-                .bounds = Rectangle.{picture.x+(source.x-source.width*0.025)*view.scale, picture.y+(source.y-source.height*0.025)*view.scale,
-                    source.width*1.05*view.scale,source.height*1.05*view.scale}, .smooth = true})
-        }
         // A slow, gentle pulse over exactly the item.
         wave := Sin(now * 6.283185307 / 1.8)
         alpha := cast(u32)(255.0 * (0.74 + 0.26 * wave))
@@ -432,15 +441,7 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
             }
         }
     }
-    paper = TitlePaperSpot(scene, view, bounds.width, bounds.height)
-    if paper.index >= 0 && SecretPaperShown(title_papers.papers[paper.index], paper.index,
-        CollectionHas(collection, collectible_slugs[paper.index])) && layered && !shelf {
-        revealed := title_papers.reveal[paper.index]
-        shown := TitlePaperRevealed(paper, revealed)
-        SecretPaperDraw(bounds.x + shown.x, bounds.y + shown.y, shown.size,
-            SecretPaperGlow(now) * (0.08 + revealed * 0.3), 1.0)
-    }
-    if layered && !shelf { TitlePicture(session, TITLE_SCENE_FOREGROUND[scene], picture) }
+    if !shelf { TitlePaperUnder(session, scene, picture, view, bounds, collection, layered, now) }
 
     if guiding && !title_state.not_implemented {
         guide_anchor = TitleGuideAnchor(*title_state, view, bounds, unit, width, height)

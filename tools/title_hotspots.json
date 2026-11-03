@@ -3987,28 +3987,80 @@
           "target": "game:Picture Book",
           "polygon": [
             [
-              320,
-              85
+              330,
+              88
             ],
             [
-              1139,
-              85
+              609,
+              102
             ],
             [
-              1139,
-              379
+              610,
+              344
             ],
             [
-              320,
-              379
+              330,
+              334
+            ],
+            [
+              330,
+              88
+            ],
+            [
+              630,
+              110
+            ],
+            [
+              864,
+              122
+            ],
+            [
+              865,
+              358
+            ],
+            [
+              630,
+              350
+            ],
+            [
+              630,
+              110
+            ],
+            [
+              330,
+              88
+            ],
+            [
+              888,
+              127
+            ],
+            [
+              1124,
+              143
+            ],
+            [
+              1128,
+              372
+            ],
+            [
+              888,
+              360
+            ],
+            [
+              888,
+              127
+            ],
+            [
+              330,
+              88
             ]
           ],
-          "glow": "assets/jungle/title/glow/bookshelf-picture-books-hover.webp",
+          "glow": "assets/jungle/title/glow/bookshelf-picture-books.webp",
           "glow_rect": [
-            320,
-            85,
-            820,
-            295
+            310,
+            68,
+            839,
+            325
           ]
         },
         {
@@ -4202,93 +4254,6 @@
             995,
             230
           ]
-        },
-        {
-          "id": "book-cover-tiger",
-          "target": "game:Picture Book",
-          "polygon": [
-            [
-              330,
-              88
-            ],
-            [
-              609,
-              102
-            ],
-            [
-              610,
-              344
-            ],
-            [
-              330,
-              334
-            ]
-          ],
-          "glow_rect": [
-            330,
-            88,
-            281,
-            257
-          ],
-          "glow": "assets/jungle/title/glow/bookshelf-book-cover-tiger-hover.webp"
-        },
-        {
-          "id": "book-cover-frogs",
-          "target": "game:Picture Book",
-          "polygon": [
-            [
-              630,
-              110
-            ],
-            [
-              864,
-              122
-            ],
-            [
-              865,
-              358
-            ],
-            [
-              630,
-              350
-            ]
-          ],
-          "glow_rect": [
-            630,
-            110,
-            236,
-            249
-          ],
-          "glow": "assets/jungle/title/glow/bookshelf-book-cover-frogs-hover.webp"
-        },
-        {
-          "id": "book-cover-rabbit",
-          "target": "game:Picture Book",
-          "polygon": [
-            [
-              888,
-              127
-            ],
-            [
-              1124,
-              143
-            ],
-            [
-              1128,
-              372
-            ],
-            [
-              888,
-              360
-            ]
-          ],
-          "glow_rect": [
-            888,
-            127,
-            241,
-            246
-          ],
-          "glow": "assets/jungle/title/glow/bookshelf-book-cover-rabbit-hover.webp"
         }
       ],
       "portrait": {
@@ -4302,28 +4267,80 @@
             "target": "game:Picture Book",
             "polygon": [
               [
-                125,
-                240
+                133,
+                248
               ],
               [
-                859,
-                240
+                347,
+                256
               ],
               [
-                859,
-                549
+                348,
+                515
               ],
               [
-                125,
-                549
+                133,
+                504
+              ],
+              [
+                133,
+                248
+              ],
+              [
+                411,
+                264
+              ],
+              [
+                604,
+                272
+              ],
+              [
+                605,
+                529
+              ],
+              [
+                411,
+                521
+              ],
+              [
+                411,
+                264
+              ],
+              [
+                133,
+                248
+              ],
+              [
+                656,
+                279
+              ],
+              [
+                848,
+                288
+              ],
+              [
+                854,
+                540
+              ],
+              [
+                656,
+                531
+              ],
+              [
+                656,
+                279
+              ],
+              [
+                133,
+                248
               ]
             ],
-            "glow": "assets/jungle/title/glow/bookshelf-portrait-picture-books-hover.webp",
+            "glow": "assets/jungle/title/glow/bookshelf-portrait-picture-books.webp",
             "glow_rect": [
-              125,
-              240,
-              735,
-              310
+              113,
+              228,
+              762,
+              333
             ]
           },
           {
@@ -4601,93 +4618,6 @@
               740,
               335
             ]
-          },
-          {
-            "id": "book-cover-tiger",
-            "target": "game:Picture Book",
-            "polygon": [
-              [
-                133,
-                248
-              ],
-              [
-                347,
-                256
-              ],
-              [
-                348,
-                515
-              ],
-              [
-                133,
-                504
-              ]
-            ],
-            "glow_rect": [
-              133,
-              248,
-              216,
-              268
-            ],
-            "glow": "assets/jungle/title/glow/bookshelf-portrait-book-cover-tiger-hover.webp"
-          },
-          {
-            "id": "book-cover-frogs",
-            "target": "game:Picture Book",
-            "polygon": [
-              [
-                411,
-                264
-              ],
-              [
-                604,
-                272
-              ],
-              [
-                605,
-                529
-              ],
-              [
-                411,
-                521
-              ]
-            ],
-            "glow_rect": [
-              411,
-              264,
-              195,
-              266
-            ],
-            "glow": "assets/jungle/title/glow/bookshelf-portrait-book-cover-frogs-hover.webp"
-          },
-          {
-            "id": "book-cover-rabbit",
-            "target": "game:Picture Book",
-            "polygon": [
-              [
-                656,
-                279
-              ],
-              [
-                848,
-                288
-              ],
-              [
-                854,
-                540
-              ],
-              [
-                656,
-                531
-              ]
-            ],
-            "glow_rect": [
-              656,
-              279,
-              199,
-              262
-            ],
-            "glow": "assets/jungle/title/glow/bookshelf-portrait-book-cover-rabbit-hover.webp"
           }
         ],
         "background": "assets/jungle/title/layers/bookshelf-portrait-background.webp",
