@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Maceta. eme. a. ce. e. te. a. Maceta.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "ad6c431795c8cdfbd1f5f16988235e96fdffc0aa6242c95e1069ba47244306bc",
-    "receipt_sha256": "7783dada7ae5d01306982c567e157a693cbaf3795bb7cd07da40ef3bc3f34a5b"
+    "audio_sha256": "d47df3fe78a695540d3ac80395063a13f051125cb6fb88c91eb776490dc83e70",
+    "receipt_sha256": "77c7c0ba6a0ecb264c07e6d336510acd9fbea9a59f68d2c8f364437f30149764"
   },
   "request_sha256": "047df55db99b0510395c6f15b21542eb7870901e3b960ecf4447c9f816a506bc",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -146,7 +147,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0074.wav",
@@ -157,6 +158,6 @@
       "sha256": "6aa633c4e7266cf036cf4209e5b3414582f2275e6845b138621ed39f183e766c"
     }
   ],
-  "sha256": "d47df3fe78a695540d3ac80395063a13f051125cb6fb88c91eb776490dc83e70",
-  "duration": 7.607437641723356
+  "sha256": "a322606ae9d4221ba3b4e798425953971d4777cf31dedf4107e9065d8bfab5bc",
+  "duration": 7.194149659863945
 }

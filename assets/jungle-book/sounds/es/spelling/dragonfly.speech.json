@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Libélula. ele. i. be. e con tilde. ele. u. ele. a. Libélula.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "570c221d80474886f0863d52ca7fc9156ff2aac428f682ab70cb402fb8bf3a39",
-    "receipt_sha256": "167732789cdb41d460de904bb908434dbe06e2322a19ba859acae1f2fecf891a"
+    "audio_sha256": "cde69256308e64e1194afe2a48346091d1c32292dbfbd468935aa5e8a59e11b9",
+    "receipt_sha256": "d814bf31e49feeb8290a249152e83d1538f7161100f4aff058bf749bb3a837af"
   },
   "request_sha256": "25f37659ee1a1f6fa82416b679d3c416c2cd0af54511f2e963114e8a20ca55dd",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -158,7 +159,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/00e9.wav",
-      "sha256": "e4f8a20c84dd103cfe47ed2f884c06f28dd0eefac8ad49aefe38f6bff0e286c0"
+      "sha256": "4ce16cfe027ffa9981271ca21d8c5d80cfb4568f6e5e76426eb51c4bf0715f0f"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/006c.wav",
@@ -166,7 +167,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0075.wav",
-      "sha256": "44864170767c91eadc4c6bb700a9985b3be7a2edd07610f59d63bb3342065145"
+      "sha256": "3b87b84cb161c4215edf80a9c11c6c6174b305b8343928d100227e10eedac039"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/006c.wav",
@@ -177,6 +178,6 @@
       "sha256": "6aa633c4e7266cf036cf4209e5b3414582f2275e6845b138621ed39f183e766c"
     }
   ],
-  "sha256": "cde69256308e64e1194afe2a48346091d1c32292dbfbd468935aa5e8a59e11b9",
-  "duration": 12.542857142857143
+  "sha256": "d3ee177dc42a9b9759ca3efb9311a2dcf3ec4f9cf3b51d12b0e5804c3f3e327e",
+  "duration": 9.95219954648526
 }

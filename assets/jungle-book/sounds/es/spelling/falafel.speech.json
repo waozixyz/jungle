@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Falafel. efe. a. ele. a. efe. e. ele. Falafel.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "da84ddd2a78c3212fe2c9814af335bf2bec58030b325449102d1f121c82f0837",
-    "receipt_sha256": "219a5f4ed08b731c319d2a6ce60e2d3c3973465152bd46a8cff3dd2732a9485b"
+    "audio_sha256": "9e41bb47d517d2af133b602f85ead26995925337f8884e07854f7727bcebecd5",
+    "receipt_sha256": "9f7d24000e275615651cff753c27427fd85b4e3ec80d5aed56d195bdee1f13bb"
   },
   "request_sha256": "270b60a842f86e8d993916d9daf1b90cede07064ea3ca00c538d5bb617253228",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -160,13 +161,13 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/006c.wav",
       "sha256": "80c3f457c6d6e68850fe11948083e43d7be814d43ef23c0e7b89f21fc7e249a4"
     }
   ],
-  "sha256": "9e41bb47d517d2af133b602f85ead26995925337f8884e07854f7727bcebecd5",
-  "duration": 9.430068027210885
+  "sha256": "d67e887536aa57de57145c539b828b356a08775c488c77504b39c746d9535dd9",
+  "duration": 9.016780045351474
 }

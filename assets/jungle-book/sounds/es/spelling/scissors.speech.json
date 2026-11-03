@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Tijeras. te. i. jota. e. erre. a. ese. Tijeras.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "5c507fb79d2b5ec9925c443d5dcde96f423039a6c107c45586116f52783578c2",
-    "receipt_sha256": "dccf9b10c59b694bb480fb76a07e1229094c4cd36cc2e86747456a5e93310372"
+    "audio_sha256": "352ae85b14cd4c60cea344c69fddab3b3c7fa5f1f5dd4c731cabff3d66f1f0b6",
+    "receipt_sha256": "65fc4a45104a71d8f796c4a37126e415ea07e76cf50e7d85441975d214846b76"
   },
   "request_sha256": "e4e99823473941ca674f000fb8d909d68ff55f0289d0efbb8a7c3ac6275d2d7d",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -148,11 +149,11 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/006a.wav",
-      "sha256": "e956c592ec274ca806a93b12edc8d6ffa8eba365cac06518eca7087d7db58d4a"
+      "sha256": "cc488fc27e5c2d9e43712129cdd5a2c7735586d013e39c01d4cdf370fc69b89c"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0072.wav",
@@ -167,6 +168,6 @@
       "sha256": "37a78a4a88e80a5e9bc1e335ca6b1ffcbfbe700077c1ce525643bd530d29f81e"
     }
   ],
-  "sha256": "352ae85b14cd4c60cea344c69fddab3b3c7fa5f1f5dd4c731cabff3d66f1f0b6",
-  "duration": 10.725396825396825
+  "sha256": "a9b52df8d6e784d3f7e8fc9d4e307a29b9805a216c9f706c16654a563fcac23f",
+  "duration": 9.017414965986395
 }

@@ -61,17 +61,21 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "seeds": [
+    7
+  ],
+  "kind": "word",
   "text": "Jerbo.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "90cfd04b6b556e1b58758a5b77154186e6a6ca008786e020ed7c336dece10731",
-    "receipt_sha256": "2f5b94feac6426757227258d25d11b63b87d4e2516a84fa84ece4225c209a3d5"
+    "audio_sha256": "1d700dcab62f4899e0047f73ef720d0721c6cf73b9fa518b148f9cd0d3be8f20",
+    "receipt_sha256": "017c66c69a632cd7ff534b6ebbc644a2a53af32e995532267e2449c30b594e97"
   },
-  "request_sha256": "5c1c7bab4d9e5e43bc0cc0944edbcba06c38544e3eb71b750b361adb1080c8e9",
-  "sha256": "1d700dcab62f4899e0047f73ef720d0721c6cf73b9fa518b148f9cd0d3be8f20",
-  "duration": 1.04
+  "request_sha256": "a7d46911cda7c590cdb1e8f7b36a882786ac792a2772d23997d8ea630df77cfb",
+  "sha256": "f4d5e5be9c321bc701117f56c079c5452c725afa750a3e0be00aa8f538f26f9e",
+  "duration": 1.36
 }

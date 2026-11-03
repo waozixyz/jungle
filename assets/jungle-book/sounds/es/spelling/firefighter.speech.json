@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Bombero. be. o. eme. be. e. erre. o. Bombero.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "96825d5b37a33926904ac117c42ccd622e86207f3807f6efbc06c8efaaccd928",
-    "receipt_sha256": "1abca05cd66f2fb99e2b86b475424884d5dc19bec6641684e2182e9ec3aac800"
+    "audio_sha256": "47bd44dc6d9c9407ed64aca009abb20ae0c5e24d454506c95f1130eb7aa2421c",
+    "receipt_sha256": "cf9e1527d2cd4928ce7eaeb227aab709c94426349ecc105394d9300978e8e734"
   },
   "request_sha256": "f7b81eaca610d6b7e58c7a0a265d9e9a9cc736736d3bfa126e998450c1b63148",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -156,7 +157,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0072.wav",
@@ -167,6 +168,6 @@
       "sha256": "1e6e9d98b89b6cb8382e5e5150b909f029f100cfc9434c33c877275b112c91fc"
     }
   ],
-  "sha256": "47bd44dc6d9c9407ed64aca009abb20ae0c5e24d454506c95f1130eb7aa2421c",
-  "duration": 9.366575963718821
+  "sha256": "59acd5ec50765f273304bab766ecc9b84dbc815943a29527e6c29a23f4d48a5c",
+  "duration": 8.953287981859411
 }

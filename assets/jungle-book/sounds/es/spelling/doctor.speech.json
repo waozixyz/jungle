@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Médico. eme. e con tilde. de. i. ce. o. Médico.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "3ac8db5b0b53c0fca3ba17e078f2cb505df2445e29ea325ad1e67f1914189e14",
-    "receipt_sha256": "66bdb812a722532438ecf9f4f4f71c4b25329e97d5794d1b02ecdc5203a81e60"
+    "audio_sha256": "a633da666cf676212270e7137ec5c5da2afbaf4726c9b6d11b3efd00235e7aca",
+    "receipt_sha256": "f0a619b2ba291ad95d4066cce0b3cb4255857f39f660d069bb6403b4e43191d8"
   },
   "request_sha256": "2a34582130c26c441da5571184656f92cca4245c2a8a88af367161aaa1ecc1ef",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -138,7 +139,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/00e9.wav",
-      "sha256": "e4f8a20c84dd103cfe47ed2f884c06f28dd0eefac8ad49aefe38f6bff0e286c0"
+      "sha256": "4ce16cfe027ffa9981271ca21d8c5d80cfb4568f6e5e76426eb51c4bf0715f0f"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0064.wav",
@@ -157,6 +158,6 @@
       "sha256": "1e6e9d98b89b6cb8382e5e5150b909f029f100cfc9434c33c877275b112c91fc"
     }
   ],
-  "sha256": "a633da666cf676212270e7137ec5c5da2afbaf4726c9b6d11b3efd00235e7aca",
-  "duration": 8.452063492063493
+  "sha256": "8f92ccebe978e9f970eec8a1b9319853b8eaf4c201fd61a37202497ec1f6e57a",
+  "duration": 8.700861678004536
 }

@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Salvavidas. ese. a. ele. uve. a. uve. i. de. a. ese. Salvavidas.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "7dde63376b26cf48df13ba05a6aa9fbd36471241c695067ee1e71dbaecc3934e",
-    "receipt_sha256": "1d51b051d91dfe6a1fa95329d431e8ea2d5825b04a1b1b0efbdbb59ce01bc1ac"
+    "audio_sha256": "f7624841c7c13a910f9d451b832b46ef68853a20cfad18cf831de99d5569214b",
+    "receipt_sha256": "54c438cd06f70d23a3571d6061f6cd543d5ecca51cf123012a6b1d56fdce711e"
   },
   "request_sha256": "d09d384e2ed29167aeb73d3e76385e86306d82756c2e2bbf0df5c5c877b79da3",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -170,7 +171,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0076.wav",
-      "sha256": "20f8ec164ab8064d828f6435acff19d28b07d52ab9f7c1c75c627042cf4e0df5"
+      "sha256": "8b222cd3c57833eab1161bf992646775b1187742872a9f824e4edd1b1af040f7"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0061.wav",
@@ -178,7 +179,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0076.wav",
-      "sha256": "20f8ec164ab8064d828f6435acff19d28b07d52ab9f7c1c75c627042cf4e0df5"
+      "sha256": "8b222cd3c57833eab1161bf992646775b1187742872a9f824e4edd1b1af040f7"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0069.wav",
@@ -197,6 +198,6 @@
       "sha256": "37a78a4a88e80a5e9bc1e335ca6b1ffcbfbe700077c1ce525643bd530d29f81e"
     }
   ],
-  "sha256": "f7624841c7c13a910f9d451b832b46ef68853a20cfad18cf831de99d5569214b",
-  "duration": 12.942766439909297
+  "sha256": "c8878836d0e05a70b1eb487c60d1d1a6050e4caced60ac4d66d5d53946bad659",
+  "duration": 11.411156462585033
 }

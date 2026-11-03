@@ -61,17 +61,18 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Bádminton. be. a con tilde. de. eme. i. ene. te. o. ene. Bádminton.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "df326c8916f2905d29db1a75a41cea8afd847102ebe045864f1b096c61c957c3",
-    "receipt_sha256": "9166271978dd33dc8328d55d823b37131fa50e98cdfdfb185f1a24aeb440591b"
+    "audio_sha256": "a856fd39532291a17fe4e9c141b0b3ff32596bfcf1a351ced3cfa0ecacc748b4",
+    "receipt_sha256": "43bfff2bea4a8aa7f67c6d87b3967dd0578eb1f27fcceaebc0faaae86bc37da1"
   },
-  "request_sha256": "565effa5228919833a78d5e33d35aedc55986f29ee50b2bc8025398d5a850485",
+  "request_sha256": "325f8bbaa2835e9cd48848b1d8fc1768446fdbe631c30003cdbf103685e87d3a",
   "method": "Verified word, literal letter names, word; PCM assembly",
   "recipe": {
     "method": "Verified word, literal letter names, word; PCM assembly",
@@ -148,7 +149,7 @@
   "sources": [
     {
       "path": "assets/jungle-book/sounds/es/simple/badminton.wav",
-      "sha256": "1db2fbcc72a9f55dd562bc0ea5433db29cd0bcf444907caa8397bb6275941b02"
+      "sha256": "d781ddc7a59dd01d84274e54ca2d317b83c02656ed8f1c0a7aae37c698236cfc"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0062.wav",
@@ -187,6 +188,6 @@
       "sha256": "fbbe3e903f52d9ef0593dc2a86b3bd73e2db751eff9099094c44fc5383accf3e"
     }
   ],
-  "sha256": "a856fd39532291a17fe4e9c141b0b3ff32596bfcf1a351ced3cfa0ecacc748b4",
-  "duration": 12.742176870748299
+  "sha256": "e50b59365014e4b71b89a0c53dd86b645e03d34e9dd916501ffcaf7dc624eae3",
+  "duration": 11.107981859410431
 }

@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Horno. hache. o. erre. ene. o. Horno.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "3d861c8fb25ef318a26f3937a2e6764096e90f834f89a72bed15a33620b0aa9b",
-    "receipt_sha256": "16f38f416670e084b3a9533e0dd7f949499dc0fc8d9780ce1704ee5d6ec121be"
+    "audio_sha256": "852a528b402c71f08ae447a4121e15ad9818dc5cf1167d595bdf75b77a3ea91c",
+    "receipt_sha256": "2449e0e5f8e970f6b29ab676b59b8320f5fee9069ab59ff4f42707b1f34e26aa"
   },
   "request_sha256": "360107d778706a9cd72225276fc112dc6ca397bb31bdab182a794c05a2f0a15a",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -128,7 +129,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0068.wav",
-      "sha256": "f58df945f2887d54ce6ae744a72cce1975e4ed068f83b46803683a0480470031"
+      "sha256": "3ba76c624960ba0752a3cec6e4910c2b8294dcd23e676c88cb4d406e486acfd2"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/006f.wav",
@@ -147,6 +148,6 @@
       "sha256": "1e6e9d98b89b6cb8382e5e5150b909f029f100cfc9434c33c877275b112c91fc"
     }
   ],
-  "sha256": "852a528b402c71f08ae447a4121e15ad9818dc5cf1167d595bdf75b77a3ea91c",
-  "duration": 8.051201814058956
+  "sha256": "05536c7f831d891d9e5659319c21df9350257129a0bc0d5d73666c8e69e78cca",
+  "duration": 6.852607709750567
 }

@@ -61,17 +61,21 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "seeds": [
+    1
+  ],
+  "kind": "letter",
   "text": "uve doble.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "b273b3eda4e2ce7c855a5115d90362ace5c1b0eb705cd152e8b52f9eaff24f37",
-    "receipt_sha256": "36c10d147ba47626bd6eff7037f208690dbf67a2a114679f1a6be3e89126edb6"
+    "audio_sha256": "3e098c6ebf30680ee84684de55a90dc624c208f8589b81e73d41d9afa8d05794",
+    "receipt_sha256": "a551cd7e66f9adf4419805c4058584ca5945f1a8d1347369b998757f29e1bccb"
   },
-  "request_sha256": "935da93eb7488ca9ebb175f765e7385059bfd7089c3b41cab15cdaaf134e1e67",
-  "sha256": "3e098c6ebf30680ee84684de55a90dc624c208f8589b81e73d41d9afa8d05794",
-  "duration": 1.84
+  "request_sha256": "758c25c2182a7df8882382c4b0371bb3b4e78b891489a20738eafb5fb3cadc42",
+  "sha256": "005f7a7a8b4c047c781d37f0e3a1045c92bd6534ff2fb7f3afef5a3d14cd7e79",
+  "duration": 2.0
 }

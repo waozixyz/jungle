@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Mochila. eme. o. ce. hache. i. ele. a. Mochila.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "661e0c10a6eb655946c96ed9f701a81ec21ccacf67d72e1c8a835c1ccc339578",
-    "receipt_sha256": "5494b2594666aa93cd69198de9f1aeedc455185b722b283fe24431dfc290da68"
+    "audio_sha256": "18f2a7754323b878b709b42c13d295ac91feb264082fd4d300136da4da39f8a0",
+    "receipt_sha256": "d4186e25144ac268c0be0753ad83453a947068a76a674021be0e3768f2008a7c"
   },
   "request_sha256": "39db0c4b773bb3ded9ca63d3402ebd0e4ff7ffc241d6323ac38c9047b3bc924f",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -152,7 +153,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0068.wav",
-      "sha256": "f58df945f2887d54ce6ae744a72cce1975e4ed068f83b46803683a0480470031"
+      "sha256": "3ba76c624960ba0752a3cec6e4910c2b8294dcd23e676c88cb4d406e486acfd2"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0069.wav",
@@ -167,6 +168,6 @@
       "sha256": "6aa633c4e7266cf036cf4209e5b3414582f2275e6845b138621ed39f183e766c"
     }
   ],
-  "sha256": "18f2a7754323b878b709b42c13d295ac91feb264082fd4d300136da4da39f8a0",
-  "duration": 9.946984126984127
+  "sha256": "796c28325c6b5b7390e1d4c48980d25e67e871b040b8af38721477760d2c0372",
+  "duration": 8.748390022675737
 }

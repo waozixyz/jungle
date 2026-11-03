@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Veterinario. uve. e. te. e. erre. i. ene. a. erre. i. o. Veterinario.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "e6d192f416b052e551a3aa722d4ee990223324e17fef8d94cb6eb427883dabdd",
-    "receipt_sha256": "7f5b4b78b9d3a296bf78adfcead5d9afb8e6b5d96d21bd3bec635541cd96c797"
+    "audio_sha256": "3c7fd8eb1b284d5b74d3baa5498f09836818b7fd5a311cc8f7ca7d75009b6367",
+    "receipt_sha256": "6ef2a63a28ca705d2f2548447c87eb4a12fbddc199aac434b1ba8d826636abdd"
   },
   "request_sha256": "5bcfb5af125286a8cde29ca8e03fb7f37aaf876743bbc2e89a305b3ce31ffb8e",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -164,11 +165,11 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0076.wav",
-      "sha256": "20f8ec164ab8064d828f6435acff19d28b07d52ab9f7c1c75c627042cf4e0df5"
+      "sha256": "8b222cd3c57833eab1161bf992646775b1187742872a9f824e4edd1b1af040f7"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0074.wav",
@@ -176,7 +177,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0072.wav",
@@ -207,6 +208,6 @@
       "sha256": "1e6e9d98b89b6cb8382e5e5150b909f029f100cfc9434c33c877275b112c91fc"
     }
   ],
-  "sha256": "3c7fd8eb1b284d5b74d3baa5498f09836818b7fd5a311cc8f7ca7d75009b6367",
-  "duration": 13.432199546485261
+  "sha256": "12a30e1d6027152cd83bdb768a5df461e9db172b71c7e7d71f667ba5bc0ea19b",
+  "duration": 11.839818594104308
 }

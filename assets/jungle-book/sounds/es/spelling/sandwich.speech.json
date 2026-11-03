@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Sándwich. ese. a con tilde. ene. de. uve doble. i. ce. hache. Sándwich.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "aff4c94bd1c9733b302a3c9286e922919d2de3272597e55534a1795102de0556",
-    "receipt_sha256": "ec38b99c4de0693971706507b1b294f1422adb38daa3f0d4af323206f6a32576"
+    "audio_sha256": "ad842cfd1ecf59bf8a0de5c38bbbf4ce518514afcfcf3ba990c24942b7ef3572",
+    "receipt_sha256": "e41f4a76ddf3c8a04d46a5fdcb8a3fed9e45b6da6e64837454c17c7f7e54a7e2"
   },
   "request_sha256": "91c410c904fed2f547328f27a4658d98d468313142bb3586f2123039779c64b5",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -162,7 +163,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0077.wav",
-      "sha256": "3e098c6ebf30680ee84684de55a90dc624c208f8589b81e73d41d9afa8d05794"
+      "sha256": "005f7a7a8b4c047c781d37f0e3a1045c92bd6534ff2fb7f3afef5a3d14cd7e79"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0069.wav",
@@ -174,9 +175,9 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0068.wav",
-      "sha256": "f58df945f2887d54ce6ae744a72cce1975e4ed068f83b46803683a0480470031"
+      "sha256": "3ba76c624960ba0752a3cec6e4910c2b8294dcd23e676c88cb4d406e486acfd2"
     }
   ],
-  "sha256": "ad842cfd1ecf59bf8a0de5c38bbbf4ce518514afcfcf3ba990c24942b7ef3572",
-  "duration": 12.550068027210884
+  "sha256": "204a061bd3a31ac0c4285ab7f7d31acd70d0dd548c38f1d5a6c874dbd3b72d57",
+  "duration": 11.456916099773242
 }

@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Primavera. pe. erre. i. eme. a. uve. e. erre. a. Primavera.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "cb35f5870815b24a5273fc29cbab5a61dc07467f7de5e760f975640fba6749be",
-    "receipt_sha256": "ae6ccd58d8e28091fba18c869bcdcccdf0d3f6cd754dab021757cf941b0dd0af"
+    "audio_sha256": "39839dafdb43aee1c0b7ccdafb54483069028fd6c9f62eb45d0046c8541897d7",
+    "receipt_sha256": "367c52dbc0e8c4784fb3461735ff7c6451db8bc6fb4e0f2d49ff0e3f07cae77e"
   },
   "request_sha256": "834a05125f6ee0ba4ca05b175d91566c59fd56956e47e9b24de2ba56795b6c10",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -172,11 +173,11 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0076.wav",
-      "sha256": "20f8ec164ab8064d828f6435acff19d28b07d52ab9f7c1c75c627042cf4e0df5"
+      "sha256": "8b222cd3c57833eab1161bf992646775b1187742872a9f824e4edd1b1af040f7"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0072.wav",
@@ -187,6 +188,6 @@
       "sha256": "6aa633c4e7266cf036cf4209e5b3414582f2275e6845b138621ed39f183e766c"
     }
   ],
-  "sha256": "39839dafdb43aee1c0b7ccdafb54483069028fd6c9f62eb45d0046c8541897d7",
-  "duration": 11.453333333333333
+  "sha256": "9ca7624dccf49afdbbdbccb8b8f3de58fe48b3d253b81339b4a29fccfd99068c",
+  "duration": 10.274240362811792
 }

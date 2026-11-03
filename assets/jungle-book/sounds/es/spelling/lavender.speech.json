@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Lavanda. ele. a. uve. a. ene. de. a. Lavanda.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "ce2126d08887b0810352725af901e3f1a1f4850823f55431fa042f0e795da453",
-    "receipt_sha256": "d580e133a8d9e0eea3369f8f0995daf41dcb9f1176254f90ddf5d6201394ed8d"
+    "audio_sha256": "2e2962fb8cab444f4e826e93481d730cd59b796b218cf038a987d212f88d4410",
+    "receipt_sha256": "38a067b538e52a1fc762fb6c30c5aa02ce3458120fe5d3a22d894d3fd2c65eb2"
   },
   "request_sha256": "f7d4c7c4efb153b96bc20c2174b170844ca5b5186f9afcc894abcb9213f77316",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -148,7 +149,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0076.wav",
-      "sha256": "20f8ec164ab8064d828f6435acff19d28b07d52ab9f7c1c75c627042cf4e0df5"
+      "sha256": "8b222cd3c57833eab1161bf992646775b1187742872a9f824e4edd1b1af040f7"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0061.wav",
@@ -167,6 +168,6 @@
       "sha256": "6aa633c4e7266cf036cf4209e5b3414582f2275e6845b138621ed39f183e766c"
     }
   ],
-  "sha256": "2e2962fb8cab444f4e826e93481d730cd59b796b218cf038a987d212f88d4410",
-  "duration": 8.605124716553288
+  "sha256": "8de76d6a10530bbef3d4c71b14be335686d0bda1481fa33ed242e99d4bcff3ba",
+  "duration": 7.839319727891157
 }

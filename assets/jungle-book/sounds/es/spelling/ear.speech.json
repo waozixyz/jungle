@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Oreja. o. erre. e. jota. a. Oreja.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "00e2651ed136d81b6f418c5485e505eea4cba15d8e03e2a54cbb27d23cd4ef08",
-    "receipt_sha256": "8a8ca63e2c6799e7b5840ecd785f1f9aae086560cb6cccfa73e9e7d553ce69a2"
+    "audio_sha256": "7f8c01da1d2f71fc559eb8d5eacb01ca8dc38be442ed0c55fa73de46d135b942",
+    "receipt_sha256": "deea382b8c1c866dff9524df0ae86cf0eae35dee952f1f7702e4a406727c6f38"
   },
   "request_sha256": "e4891a9d1bd6487d4a1dc2a9e9bc58d4cdea7f47786fc491cfe50cd0c69492ef",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -136,17 +137,17 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/006a.wav",
-      "sha256": "e956c592ec274ca806a93b12edc8d6ffa8eba365cac06518eca7087d7db58d4a"
+      "sha256": "cc488fc27e5c2d9e43712129cdd5a2c7735586d013e39c01d4cdf370fc69b89c"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0061.wav",
       "sha256": "6aa633c4e7266cf036cf4209e5b3414582f2275e6845b138621ed39f183e766c"
     }
   ],
-  "sha256": "7f8c01da1d2f71fc559eb8d5eacb01ca8dc38be442ed0c55fa73de46d135b942",
-  "duration": 10.113061224489796
+  "sha256": "2f7d4707ea9c9222820cd34ac2206d89b9f16591869ad62b19bf51070b09316e",
+  "duration": 8.405079365079365
 }

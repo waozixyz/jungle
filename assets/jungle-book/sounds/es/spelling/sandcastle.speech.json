@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Castillo de arena. ce. a. ese. te. i. ele. ele. o. de. e. a. erre. e. ene. a. Castillo de arena.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "a339820e1f0e42e62e305c25cab814061ad191bcfabfe415bbe90887877b5d1b",
-    "receipt_sha256": "c6602f376f181f218d88a106dc958440cb3214e670c0fb4775790207135bdca8"
+    "audio_sha256": "143bd616192894be63418301b260ad8dbceb158603667424ad893c4a50d0442a",
+    "receipt_sha256": "5d606760bc76da29ddc3cbc195c08b3b078bf0dbf26830aa13f6cb5f971aea4f"
   },
   "request_sha256": "08fc3de8c2f11e8b8796fff2b48bf2f47724be9230d8440f54c516b2461bf437",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -230,7 +231,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0061.wav",
@@ -242,7 +243,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/006e.wav",
@@ -253,6 +254,6 @@
       "sha256": "6aa633c4e7266cf036cf4209e5b3414582f2275e6845b138621ed39f183e766c"
     }
   ],
-  "sha256": "143bd616192894be63418301b260ad8dbceb158603667424ad893c4a50d0442a",
-  "duration": 17.167755102040815
+  "sha256": "a33601e48f49d4c80d2a19766746dbedcac44c025d808d1c0d165ea251154a3c",
+  "duration": 16.341179138321994
 }

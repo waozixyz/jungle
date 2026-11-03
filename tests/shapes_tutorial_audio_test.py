@@ -12,7 +12,7 @@ import shared_assets
 
 old = {'en': '1df1a3b14b6f9e25d803d3583a6cb97ad89f4c0b43e1f1a7e44dbb445990e77a', 'de': '9df5e6c88d32812aa2f3df487886b8bff6b565b8b4b3d9a1867e70af16842732', 'es': '163fee0758023af9e6eaf78c883f50b59ccfc39ef4542d0cc43b641af18aa692'}
 texts = {'en': 'Hold, drag, let go.', 'de': 'Halten, ziehen, loslassen.', 'es': 'Presiona, arrastra y suelta.'}
-fingerprints = {'en': 'fbbb6f27caf7b5403332eb39105a25deafbc294cbbb4d65f51b18152236ab35c', 'de': 'bc977737213ae2b2dd214a5c2909f66732842d2639270a8cd31458ee5767f51a', 'es': 'e19f1cfd38f3ac23aa10df5971bf38829141c9b90a577ed474f9e4262dfc73ac'}
+fingerprints = {'en': 'fbbb6f27caf7b5403332eb39105a25deafbc294cbbb4d65f51b18152236ab35c', 'de': 'bc977737213ae2b2dd214a5c2909f66732842d2639270a8cd31458ee5767f51a', 'es': '7c671d2dd0fa1a184ccb90a3732505f146d8e5c57270c8e4557a5a3d969bc391'}
 voices = shared_assets.NarratedVoices(root)
 for lang, expected in texts.items():
     folder = root / 'assets/shapes/sounds' / lang

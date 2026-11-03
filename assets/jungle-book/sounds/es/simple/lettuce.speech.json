@@ -61,17 +61,21 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "seeds": [
+    8
+  ],
+  "kind": "word",
   "text": "Lechuga.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "a57080b043218df9c8e6952d299d92f8cdb3531c77b32c0b10f9db6398b6ebf6",
-    "receipt_sha256": "32a9f82100abe89f50e63f9478c519d58aa1ea9a1d1fe9ea347f3889c9c837ed"
+    "audio_sha256": "dabfd7fa216cc882fa467ba8f8f326bab576cb0d64921c4f6bca2cd203fa2911",
+    "receipt_sha256": "f7c218a4c43f05359cad85c9d3a1f292233c9e9ea6b47eacdd876e6f58cc4384"
   },
-  "request_sha256": "1650ad8bb8a42476d6cb09474864eab846c77bc4498b23350d006e737369ef22",
-  "sha256": "dabfd7fa216cc882fa467ba8f8f326bab576cb0d64921c4f6bca2cd203fa2911",
-  "duration": 1.36
+  "request_sha256": "8e270f694dac79a00d43fbfd7521b04c10ffa8f8b48e1dcb514134838c2c54ef",
+  "sha256": "28dbf34af9d3bf02822694fcca4d1f2a10c8fc95c650da98317ae70c7dd1098a",
+  "duration": 1.28
 }

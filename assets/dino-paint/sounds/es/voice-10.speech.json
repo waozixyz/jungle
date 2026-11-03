@@ -61,17 +61,21 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "seeds": [
+    1
+  ],
+  "kind": "word",
   "text": "Pteranodón.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "c239836d740f1173b436dd34624d87db1e295841944eef176f53b23109905814",
-    "receipt_sha256": "52b164d6eda8a2a7971055ad4de58569ffe7e6c4d22ff2e39c73aabdc68d931e"
+    "audio_sha256": "9efd5013da533a351c4c4bc1d6428781e42714a5eff4230fe350e24ccafbe1ef",
+    "receipt_sha256": "e466e2990184fe162aa9c1701035e6456ac9fbafb4490b10fbba8aef4e7d6bbf"
   },
-  "request_sha256": "98a3367d2902eb5343bdbe121d31ea8129487ed14a3ed9e555f9b68aeece1ab2",
-  "sha256": "9efd5013da533a351c4c4bc1d6428781e42714a5eff4230fe350e24ccafbe1ef",
-  "duration": 6.64
+  "request_sha256": "0c1cc56a56d8446100b94050e0fb321126195a97910be64c9b72963efe42effc",
+  "sha256": "fb1ba27f07fa0bde5114d318490f76dc5b101a0f229951b5603b2852deb84bd9",
+  "duration": 1.76
 }

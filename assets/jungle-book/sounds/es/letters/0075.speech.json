@@ -61,17 +61,21 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "seeds": [
+    6
+  ],
+  "kind": "letter",
   "text": "u.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "45100893b2ad11a491d585d33a0224106c29bcaaadf588aed658b68a76ca5549",
-    "receipt_sha256": "70d99832d652fe8d3d71cda8940f302b9ff730c61f152e93a2285229037399d8"
+    "audio_sha256": "44864170767c91eadc4c6bb700a9985b3be7a2edd07610f59d63bb3342065145",
+    "receipt_sha256": "edf9b28337937f5e4b7cdc90633eac32b66e68e9c7a17ea8cf081b54993604b4"
   },
-  "request_sha256": "7c45fb404c72afffbee0fa7113236e93584687213414efa58d337cebab68f5b4",
-  "sha256": "44864170767c91eadc4c6bb700a9985b3be7a2edd07610f59d63bb3342065145",
-  "duration": 4.16
+  "request_sha256": "1c32988c0a6e1f5725577b47c61775787f20cd6f6a0f6a6547702ac7850ea1cf",
+  "sha256": "3b87b84cb161c4215edf80a9c11c6c6174b305b8343928d100227e10eedac039",
+  "duration": 0.72
 }

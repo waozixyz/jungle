@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Escorpión. e. ese. ce. o. erre. pe. i. o con tilde. ene. Escorpión.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "03b0aceddb536c6607d48fc6578831477869f80ca046144981088c35eacbfd55",
-    "receipt_sha256": "60e13fd414448cf0179487a72d54fed5a5a04d4eeee5066799c3f0664901c6a2"
+    "audio_sha256": "36be705a14c75b0d3017897bfb0aebb9c6a629b07adb1800ec0a1c4ae2978d1f",
+    "receipt_sha256": "796d2ffefa1b8a96ee8fe265ff75fc0ea133a24f5fcec3469c81eea787b031e8"
   },
   "request_sha256": "e57e659d29b687cf9a9f291e0f41a879ca5f1d87ab91edfd5aafd3531953ac54",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -152,7 +153,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0073.wav",
@@ -180,13 +181,13 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/00f3.wav",
-      "sha256": "176468535c890c6db7da584aa13d1f340fe2ef8b5776a395cca56f77f779f302"
+      "sha256": "f5e6ab54c33da48891c1070a091009b287e805777eb8944dc57f7aaa12c2f79b"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/006e.wav",
       "sha256": "fbbe3e903f52d9ef0593dc2a86b3bd73e2db751eff9099094c44fc5383accf3e"
     }
   ],
-  "sha256": "36be705a14c75b0d3017897bfb0aebb9c6a629b07adb1800ec0a1c4ae2978d1f",
-  "duration": 12.985124716553289
+  "sha256": "d5f267997603067b7438173f0288c7d78512648dcaa56073a94b7c6e2f156dd3",
+  "duration": 11.022947845804989
 }

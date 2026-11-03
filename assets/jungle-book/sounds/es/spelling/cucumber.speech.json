@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Pepino. pe. e. pe. i. ene. o. Pepino.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "72f503452f7a2e573c8d17b6af12e25602f0bf2c30cb6abb7c34be65ae0f7816",
-    "receipt_sha256": "fbd3900967defd96aa847d23a5e947ed03372707cb85b97148d4541966bee1b3"
+    "audio_sha256": "37875531e0af78660144f9a915abf305df8d4fc916de162038bd752c96c2d445",
+    "receipt_sha256": "4ff806dd8619e847f84ea3cf2a35d2e21b9e5705037103b9a7587b004d3ca550"
   },
   "request_sha256": "883cccc6446cf94c35eccb7e63423e1abdbf0e3b871059d3220f65ce53302024",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -138,7 +139,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0070.wav",
@@ -157,6 +158,6 @@
       "sha256": "1e6e9d98b89b6cb8382e5e5150b909f029f100cfc9434c33c877275b112c91fc"
     }
   ],
-  "sha256": "37875531e0af78660144f9a915abf305df8d4fc916de162038bd752c96c2d445",
-  "duration": 7.572426303854876
+  "sha256": "4b4c4736270961fa8396c6b7302257a0f084d18f24815011538972c8d4cb306a",
+  "duration": 7.1591383219954645
 }

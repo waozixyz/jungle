@@ -61,17 +61,18 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Coliflor. ce. o. ele. i. efe. ele. o. erre. Coliflor.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "555de71aa9b14be0e3cd936840d8c56a81561c141269327c8bec1e2e4d3d9586",
-    "receipt_sha256": "8aba7f8c85e27b8a80e5731b1a46417e6f40ea90c03d1396b3be8c22eb185311"
+    "audio_sha256": "26dd2accb34dbb5a47776fc6382f5ca340b911d1714816f1a09e709167c0af8a",
+    "receipt_sha256": "e0060877a9811ec47dccbb369bd8f459cbc6efabc8281ee2c5dc4d5c6528fe3d"
   },
-  "request_sha256": "3744532b28ad447551ebcd0398204b35f736d36b4268f16cd633962dd2a4e8c4",
+  "request_sha256": "a02b2d02d55340392261eea5e99ea02c07daed74408363010c3ee0816dfd910a",
   "method": "Verified word, literal letter names, word; PCM assembly",
   "recipe": {
     "method": "Verified word, literal letter names, word; PCM assembly",
@@ -142,7 +143,7 @@
   "sources": [
     {
       "path": "assets/jungle-book/sounds/es/simple/cauliflower.wav",
-      "sha256": "88450c3944308a03a268d045c3dd66450f3606eb770d351dd14553b0d47a35b4"
+      "sha256": "eb440dc29a8f1ecb384a5e604ae8812f97032968bf744394d10364d4656e09c7"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0063.wav",
@@ -177,6 +178,6 @@
       "sha256": "bcb8de295451c41e7629c3b47552eac229eeb084386218c9606520088fe6fa6d"
     }
   ],
-  "sha256": "26dd2accb34dbb5a47776fc6382f5ca340b911d1714816f1a09e709167c0af8a",
-  "duration": 9.816961451247165
+  "sha256": "8bc3af9cba1b23fc0ab312fa9069a4339a98f362177dba3a8eae8cab8d5dc543",
+  "duration": 10.358639455782313
 }

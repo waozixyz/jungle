@@ -61,17 +61,21 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "seeds": [
+    5
+  ],
+  "kind": "word",
   "text": "Cacao.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "95612abd573cb29abc28606a43629bf3896313e53093fb4619557fbee4dd666e",
-    "receipt_sha256": "322e915c202a9a46ad376bf7318f66322feeacad44ed0355a637763d08678907"
+    "audio_sha256": "88dbdea064b71e5d7d8855899d05daa848957e0dc4eada8a9c161cbe3c9f199d",
+    "receipt_sha256": "b60ce5668dfc7035a5acc89b5c063e1da758ce396cc715d996db07812f16e7bb"
   },
-  "request_sha256": "a86d0dcb8154dcecf5f60ca60c0211e7c7f4d0956a3800ed9ef48ef60b1063aa",
-  "sha256": "88dbdea064b71e5d7d8855899d05daa848957e0dc4eada8a9c161cbe3c9f199d",
-  "duration": 1.52
+  "request_sha256": "55edd551e71b0d5f465c139f28cdfc033a55aa86d18b4623968683e16deab26a",
+  "sha256": "22b9548b039797006b36190618c9a6cdba4cb725f108fff2a8f61172a229c924",
+  "duration": 1.36
 }

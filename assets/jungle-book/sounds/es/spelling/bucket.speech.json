@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Cubo. ce. u. be. o. Cubo.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "2e8a015b33d68a2192295ad6c05d839064e0e67b086b9e6f2e512a30d0d5aafd",
-    "receipt_sha256": "4dcd2833cad9cde2e865f990f1f853efdfd6e2ac74d86466ffe7a98d87942af2"
+    "audio_sha256": "7de12689272e7ff7e6da78632a38e7f019022de89c1fefb36a6d468b7cd089ef",
+    "receipt_sha256": "9c6e8252949ca368966e1caae64b793a029ef9cfa95e6e94cfd5c8195d0cf202"
   },
   "request_sha256": "70b57f7b2b88aa3f66088519fd8c5e88d9a07296785c534a947d2048c090c637",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -126,7 +127,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0075.wav",
-      "sha256": "44864170767c91eadc4c6bb700a9985b3be7a2edd07610f59d63bb3342065145"
+      "sha256": "3b87b84cb161c4215edf80a9c11c6c6174b305b8343928d100227e10eedac039"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0062.wav",
@@ -137,6 +138,6 @@
       "sha256": "1e6e9d98b89b6cb8382e5e5150b909f029f100cfc9434c33c877275b112c91fc"
     }
   ],
-  "sha256": "7de12689272e7ff7e6da78632a38e7f019022de89c1fefb36a6d468b7cd089ef",
-  "duration": 8.579773242630386
+  "sha256": "e445bf3ba5da785466fa0b7404e7a5e1841403274ae62c1cbd3e6307079ca0a3",
+  "duration": 5.740317460317461
 }

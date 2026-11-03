@@ -61,17 +61,21 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "seeds": [
+    7
+  ],
+  "kind": "sentence",
   "text": "Tortuga terrestre.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "30ae77dac898cda39a34cfb7902cd9bcc55b6f26b760bc43c2e1cb236eb7feba",
-    "receipt_sha256": "1c48b962a1537748d2fd350f33619412b6f598fb338f1bbd516fe3a35cb7760f"
+    "audio_sha256": "a0dee016baf668f60440c2bb430d5e9f80c15803ee7d048ffa2e228f2cf36b69",
+    "receipt_sha256": "0c6a237b940b3f70cbe74cce70bae08088e650331d37ebe45b24504d3da77276"
   },
-  "request_sha256": "9d583b96dbc0ec89c40425bb9b10f7db617814e68f7da394f503c24315f33c5e",
-  "sha256": "a0dee016baf668f60440c2bb430d5e9f80c15803ee7d048ffa2e228f2cf36b69",
-  "duration": 1.92
+  "request_sha256": "84a6de08acd9026e9505bb99edb20de76d93787651d0c9c9e904d281f1aedae4",
+  "sha256": "5e52ddf9d2f854c700603a1c8198dc34b4104160c52fc26926a6c7bc88c16fa0",
+  "duration": 2.32
 }

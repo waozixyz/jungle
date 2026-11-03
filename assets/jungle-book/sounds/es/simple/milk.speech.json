@@ -61,17 +61,21 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "seeds": [
+    9
+  ],
+  "kind": "word",
   "text": "Leche.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "47942e82be52a8727d13432eec8c14e7d1f299e5b9f1e518f97b25d0d0e5db40",
-    "receipt_sha256": "12a64b396cfca9692b4f20a492616f8f484a3b838d140f5dcd24de03861aa174"
+    "audio_sha256": "218d7815331b176db73b275ab3ea0dc923c049bccd553a73750310831cd4501c",
+    "receipt_sha256": "e49bc87de33d138ecd6c5d5472fafb345b7dd9f0bd9120ed6f7ff0132c7f4ed5"
   },
-  "request_sha256": "403fe464fceae124319fb90e4613cffd19243d26a054b70e3cdb6ea8a0285a86",
-  "sha256": "218d7815331b176db73b275ab3ea0dc923c049bccd553a73750310831cd4501c",
-  "duration": 0.96
+  "request_sha256": "b4b7c6600d57252d25bdebe705061fab668f77d53ea0e626dfdab26cbb221785",
+  "sha256": "844cad41453edfacdb1c58dff45026ff48ba122792f840edd9eec7cdbd0ac6c7",
+  "duration": 1.12
 }

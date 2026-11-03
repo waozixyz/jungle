@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Tetera. te. e. te. e. erre. a. Tetera.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "6a7b61658bacab9949f4b8980e0ace4814a0798cd24c42e7678d83e73653c6b2",
-    "receipt_sha256": "13898f35510b005c8710e123cb8684649aa04fb2e3311b01f273727423cd90db"
+    "audio_sha256": "fdcc1aeceb89ed24145ce953a42701799214ad4e7bdf166e8fb66f90dbf19c30",
+    "receipt_sha256": "5c3c354db45b785f5b8592c1d308ccf15da5287923b3b01cfc5c77a0f67082f8"
   },
   "request_sha256": "67b3eea1a1dda9afcdf7908d20a8aff82eed40e836b3c4ad7405058c2a147a91",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -138,7 +139,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0074.wav",
@@ -146,7 +147,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0072.wav",
@@ -157,6 +158,6 @@
       "sha256": "6aa633c4e7266cf036cf4209e5b3414582f2275e6845b138621ed39f183e766c"
     }
   ],
-  "sha256": "fdcc1aeceb89ed24145ce953a42701799214ad4e7bdf166e8fb66f90dbf19c30",
-  "duration": 8.082448979591836
+  "sha256": "4cc0f2c8fe26bc55ae600473065d219b8d666bc595b57e9f9570cb724d674dd7",
+  "duration": 7.255873015873016
 }

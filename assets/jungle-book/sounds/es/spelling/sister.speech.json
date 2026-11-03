@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Hermana. hache. e. erre. eme. a. ene. a. Hermana.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "09308d43b088df0fd0663e788362ae256eb0783b12479b59b537185013b0fed9",
-    "receipt_sha256": "102cbc1be0e1e88a1a572d1077ed77df79199364f815593eca2a2f92c8d52faa"
+    "audio_sha256": "4a466b94ad15f61e3a4f033db4003210a96d4881b9c5739f7bada012f30b2b3c",
+    "receipt_sha256": "0a694336c82e96d5f61e3de0a01f40f01e890410cf7ce6b8291855d0ef69957e"
   },
   "request_sha256": "881f37eeaa87302848d7ff0cb1ec234489dab84d24f0397351e562266e8c8dcd",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -140,11 +141,11 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0068.wav",
-      "sha256": "f58df945f2887d54ce6ae744a72cce1975e4ed068f83b46803683a0480470031"
+      "sha256": "3ba76c624960ba0752a3cec6e4910c2b8294dcd23e676c88cb4d406e486acfd2"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0072.wav",
@@ -167,6 +168,6 @@
       "sha256": "6aa633c4e7266cf036cf4209e5b3414582f2275e6845b138621ed39f183e766c"
     }
   ],
-  "sha256": "4a466b94ad15f61e3a4f033db4003210a96d4881b9c5739f7bada012f30b2b3c",
-  "duration": 9.796054421768707
+  "sha256": "ed368a98204de6ccedda37a1ddc5b1292edcfcfaee24a82e3a9df90982563907",
+  "duration": 8.184172335600907
 }

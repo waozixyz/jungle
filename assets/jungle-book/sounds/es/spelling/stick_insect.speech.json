@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Insecto palo. i. ene. ese. e. ce. te. o. pe. a. ele. o. Insecto palo.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "cf82544282516a1ec442ab2113a5a8fd384a2643c4b185df96439aa6fdaa8f38",
-    "receipt_sha256": "b70a05ac5e1276ff81d7cd795c940b0e734fddb488c3e153d7b7f0c0d3dd3754"
+    "audio_sha256": "a3f2754f60488a3bc51569bd1c8bf8f7c9885b66fcd0124e931e221fc61c7802",
+    "receipt_sha256": "109013257d5d37b147eb3079b1fdbd4fdaa9d93056f6b78492558c06e566ac26"
   },
   "request_sha256": "278ffee7bc8aa86ea00481916ac5614f13b55b0911b7834d865c75206532478e",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -179,7 +180,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0063.wav",
@@ -210,6 +211,6 @@
       "sha256": "1e6e9d98b89b6cb8382e5e5150b909f029f100cfc9434c33c877275b112c91fc"
     }
   ],
-  "sha256": "a3f2754f60488a3bc51569bd1c8bf8f7c9885b66fcd0124e931e221fc61c7802",
-  "duration": 13.659319727891157
+  "sha256": "2f0cdcdfcb64cba1a43c52c806e4b5e8eda3f0a65413fcc4eb061b60b67c12f9",
+  "duration": 13.246031746031745
 }

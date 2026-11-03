@@ -61,17 +61,21 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "seeds": [
+    1
+  ],
+  "kind": "word",
   "text": "Corzo.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "5e7f0f0f73b50595fe72bbcf4091f7df520f6a5969e88fa5b29fadba00b8aa10",
-    "receipt_sha256": "2906201090c6a676bd6d6cb353bfd20b8b5accb5269f55f564bc8289b68e0701"
+    "audio_sha256": "55f4c852beae660d1e65bd2ddc6c1a039e0dc12ca1af94747592fcbca2ddcb7a",
+    "receipt_sha256": "65cc1579fa9d8d05c728307e616ac3da8ae24636427f728cb22e29def32d720e"
   },
-  "request_sha256": "47cd2ff65b9e9406b27f2c21260b1b6c518afa5ae81c8b8fa97585135564a6c9",
-  "sha256": "55f4c852beae660d1e65bd2ddc6c1a039e0dc12ca1af94747592fcbca2ddcb7a",
-  "duration": 1.12
+  "request_sha256": "0eabbd6a3b67a9e7cb4f30d3a78c28b7d4e5baee7cd81fa708dafa066f774e87",
+  "sha256": "7f27e1e6501c59cc087da2350b46d6a940766c25a5cc3017ab885d915c778f99",
+  "duration": 1.36
 }

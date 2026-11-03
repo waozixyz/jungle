@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Toalla de playa. te. o. a. ele. ele. a. de. e. pe. ele. a. ye. a. Toalla de playa.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "b18e4f394fd0599b3e02e66feaa4d9a57011d8d0c5140bbadd7a7827c90297aa",
-    "receipt_sha256": "136460094df224d72093fcdcc2d8610f9fa9dd0defb241445c0ec13e29c8d591"
+    "audio_sha256": "c5c93c6468b9650337d22fb75c0564a6ffc3865ce84b5d69cad4d5b59d7fd725",
+    "receipt_sha256": "cc3f565e3e75be53d1883dfe02f1a80a49da8f42230a6bc0ddeff1f3e7ecc545"
   },
   "request_sha256": "ec65c2ab3be74f854685303b3532c895162ceb814e0ab11672d71a98956ce576",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -210,7 +211,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0070.wav",
@@ -233,6 +234,6 @@
       "sha256": "6aa633c4e7266cf036cf4209e5b3414582f2275e6845b138621ed39f183e766c"
     }
   ],
-  "sha256": "c5c93c6468b9650337d22fb75c0564a6ffc3865ce84b5d69cad4d5b59d7fd725",
-  "duration": 14.80408163265306
+  "sha256": "dd7c5d00295f8b0e7432d86664dced02ca2ea351c9b6e260ada7bc0a3b8de57b",
+  "duration": 14.39079365079365
 }

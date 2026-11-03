@@ -61,17 +61,18 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Constructor. ce. o. ene. ese. te. erre. u. ce. te. o. erre. Constructor.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "d44f2ffce0d641bcb84e8843890bb19db2337d4980b02c60852e81e9af4b9ae5",
-    "receipt_sha256": "6b43b1c36bc97d60d15abbefd602ce828b9d96e824e87618812c9cf653a92493"
+    "audio_sha256": "13c2c833d1dc18c3cff3fd5b45e7b01df442ebc770b9acc515afc90e3d2eb5c7",
+    "receipt_sha256": "71cf17aa633720cedb6e4cb7ec96d925bea96b36e0f43334cbcc9acf084a0388"
   },
-  "request_sha256": "072e6588c88022444e2aad6d1fe9c3f90d3f8f93a00f86d21e03ed3f582b3fa1",
+  "request_sha256": "0f1ece04f3655b6ee1171fa0e3c3eb013edb4af67c94730b422b6f47d6f093b6",
   "method": "Verified word, literal letter names, word; PCM assembly",
   "recipe": {
     "method": "Verified word, literal letter names, word; PCM assembly",
@@ -160,7 +161,7 @@
   "sources": [
     {
       "path": "assets/jungle-book/sounds/es/simple/builder.wav",
-      "sha256": "70f417877193e64f43974b8e042bd0abd18f457f0cc383aaf48b5bf1f60e84f5"
+      "sha256": "08ec839d3b9d0785555fbbe675170a961a8e36d139d28b8e8d564f614ec4fa2e"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0063.wav",
@@ -188,7 +189,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0075.wav",
-      "sha256": "44864170767c91eadc4c6bb700a9985b3be7a2edd07610f59d63bb3342065145"
+      "sha256": "3b87b84cb161c4215edf80a9c11c6c6174b305b8343928d100227e10eedac039"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0063.wav",
@@ -207,6 +208,6 @@
       "sha256": "bcb8de295451c41e7629c3b47552eac229eeb084386218c9606520088fe6fa6d"
     }
   ],
-  "sha256": "13c2c833d1dc18c3cff3fd5b45e7b01df442ebc770b9acc515afc90e3d2eb5c7",
-  "duration": 15.238684807256236
+  "sha256": "ea6004be1f58b5dd8d7ea95e3eb6e5e2c20173535faa77dc32994ee0df2f8800",
+  "duration": 12.548798185941044
 }

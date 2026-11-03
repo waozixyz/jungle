@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Mecánico. eme. e. ce. a con tilde. ene. i. ce. o. Mecánico.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "9fd33fd0235d6757d155c5f6b0b70747f7ac4f8e20d3e70f66897a1fbe42d479",
-    "receipt_sha256": "aa2301f7b62dfefa5489253a49f95112e33d00406aeb06bea4f942003a580ddc"
+    "audio_sha256": "26479c23a2ee1cd1decebc8e323183e5e4bdd9da1fd6a555be2eaf88ec376d96",
+    "receipt_sha256": "c2bc800a7860320c7daf1b85079aacc9e5c60d21b21bea220fc538847059eb4f"
   },
   "request_sha256": "d9eb2a9113fc41060da798131617b1d223d0bf46e4e8874992876e0d39bac913",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -150,7 +151,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0063.wav",
@@ -177,6 +178,6 @@
       "sha256": "1e6e9d98b89b6cb8382e5e5150b909f029f100cfc9434c33c877275b112c91fc"
     }
   ],
-  "sha256": "26479c23a2ee1cd1decebc8e323183e5e4bdd9da1fd6a555be2eaf88ec376d96",
-  "duration": 11.001269841269842
+  "sha256": "6c04b09b5c1b768034a70ef8c29733e46f9b80dcacbb70140ab0268ec8f76769",
+  "duration": 10.58798185941043
 }

@@ -61,17 +61,21 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "seeds": [
+    2
+  ],
+  "kind": "sentence",
   "text": "Paca de heno.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "91e72a29519c6bc9235cc0f455ea2f7873be0a54ffa71cf1bf65a87ae537fc71",
-    "receipt_sha256": "3ee914f6f1962b768fd6939713687bbde4ab738ca9cbd3ffd0e3d7994a9635d6"
+    "audio_sha256": "5b1742b43aa75faeac50caa1dbf63c63904102dcd2dedd4b35b383eddb81b63a",
+    "receipt_sha256": "b32a352513398127d08b0a86c91b4417f733dde6d138e85761dbab5d895cf23a"
   },
-  "request_sha256": "e066a628f45da07798f8fdd6306aae47af03cb10c1f7a5e285792b9e9148468c",
-  "sha256": "5b1742b43aa75faeac50caa1dbf63c63904102dcd2dedd4b35b383eddb81b63a",
-  "duration": 1.44
+  "request_sha256": "f616e9a68216a2015aad9ec12d6115b8665e14324f13b04a4197be16604b701d",
+  "sha256": "a095696be61efa38ed866b08d2044f2cc71611d2e310a56703bee9a2807298f8",
+  "duration": 1.6
 }

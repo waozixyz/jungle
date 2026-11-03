@@ -61,17 +61,21 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "seeds": [
+    7
+  ],
+  "kind": "word",
   "text": "Roble.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "2c3d833256efded30aa7ba5f5f41d97913e5e122541312c2999eef873e94bf96",
-    "receipt_sha256": "2d84b236bcdd1c3a359ddca223c8f8252669d4d49da7b73fc184439707bc9823"
+    "audio_sha256": "253db61784ab8bc140de713e8cf2a136ee46985e52e521fad2635063f91cd443",
+    "receipt_sha256": "7dd3d6183ab782be5b6da15cdfd6a5e699513715b34244e375a95d1ed257528f"
   },
-  "request_sha256": "4bd85d8c885c43f61d557f0f15b42bc7a435e1bd90a8ea2c1fc023c81752eb09",
-  "sha256": "253db61784ab8bc140de713e8cf2a136ee46985e52e521fad2635063f91cd443",
-  "duration": 1.36
+  "request_sha256": "df77afc7c6c5cb9dac0e13986737bbd649aa72a952a99b392168c46b5e5735ff",
+  "sha256": "1492c6efc3068043bceb89218bafd48dfe4d341d607b8aa2eab00914cdba735f",
+  "duration": 1.04
 }

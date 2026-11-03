@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Invierno. i. ene. uve. i. e. erre. ene. o. Invierno.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "2bceaa7812ccc93bc97e56b98231c2873b5e1c0f494cc112fc09f0f363d701f4",
-    "receipt_sha256": "b899712413fed01c44cf5767b645bac51917c7bfc521c1d5724c92c88c2b666c"
+    "audio_sha256": "9eb0187f3f0a89ed9a7f43fb369c1a886ec283e07e5c0619ee6bc6f64e666be3",
+    "receipt_sha256": "f428a833bd99df05f04d3c9c931000ca473a7fe3f02824ca2a69ea26d589c1f9"
   },
   "request_sha256": "c4bed57214453da0487040f0295ba172ecd2bdce34b6c0facbbf5eba0802ce78",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -154,7 +155,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0076.wav",
-      "sha256": "20f8ec164ab8064d828f6435acff19d28b07d52ab9f7c1c75c627042cf4e0df5"
+      "sha256": "8b222cd3c57833eab1161bf992646775b1187742872a9f824e4edd1b1af040f7"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0069.wav",
@@ -162,7 +163,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0072.wav",
@@ -177,6 +178,6 @@
       "sha256": "1e6e9d98b89b6cb8382e5e5150b909f029f100cfc9434c33c877275b112c91fc"
     }
   ],
-  "sha256": "9eb0187f3f0a89ed9a7f43fb369c1a886ec283e07e5c0619ee6bc6f64e666be3",
-  "duration": 11.037687074829932
+  "sha256": "26f3805e09ad9f99be110848177afd6dd5d570a0f7c52922748d450226dc0daf",
+  "duration": 9.85859410430839
 }

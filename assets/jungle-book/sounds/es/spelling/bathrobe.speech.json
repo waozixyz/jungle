@@ -61,17 +61,18 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Albornoz. a. ele. be. o. erre. ene. o. zeta. Albornoz.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "b0ef5ff6f3669ecb2eaafa2bff3ede3289902449f34fa41d85595e8e8610b51d",
-    "receipt_sha256": "63d9d94cd7867c0ac4bedfad4f08324a9db473cb6102bd71536aee9e7e09dfa3"
+    "audio_sha256": "a17c4077afa873da8862139df451ce431b90e41f8b993e53a6ed61088bbc6bd2",
+    "receipt_sha256": "ff340843757e318a4ade0a32703168b88fb843e66e5dcb5bf0cef93df51cabf7"
   },
-  "request_sha256": "a85b8cfff4f0849d64b34c9e9cba69b16247ba9468812e760eb2a5e1c75dbe3e",
+  "request_sha256": "1ac77642ead7406fff81814bb2f0bd444e2db5fa341125757652046e78219c59",
   "method": "Verified word, literal letter names, word; PCM assembly",
   "recipe": {
     "method": "Verified word, literal letter names, word; PCM assembly",
@@ -142,7 +143,7 @@
   "sources": [
     {
       "path": "assets/jungle-book/sounds/es/simple/bathrobe.wav",
-      "sha256": "0b458cf740acd721db4570329b93edc89e1e553789bba88f9304c11826b16cbb"
+      "sha256": "00965138aac8305e29dfdb5aa4f9a4ad4ce227ddcc0822cabc1f835fb9490f98"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0061.wav",
@@ -177,6 +178,6 @@
       "sha256": "7595e05c3867a6b0580a77d1a763672064117bc9be88682aebd83d9acdde6aac"
     }
   ],
-  "sha256": "a17c4077afa873da8862139df451ce431b90e41f8b993e53a6ed61088bbc6bd2",
-  "duration": 9.854331065759638
+  "sha256": "44e67c6633cdc828a03ad1ea840161acf466d1ce3f46ba13dde67a702e235a9a",
+  "duration": 10.366439909297052
 }

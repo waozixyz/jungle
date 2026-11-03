@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Regadera. erre. e. ge. a. de. e. erre. a. Regadera.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "4382080039ae60ea6961ec00ea89a052ca08f1131f6b59aa428c6c0ca776e245",
-    "receipt_sha256": "ef743b80ecff286e9494dbef37cc9e2a9c6724266be70528702d1e775562eef4"
+    "audio_sha256": "01255f4b061dbbaaea27f4ba949f3574707bc2666b21bf99761289cfc00e24f5",
+    "receipt_sha256": "e4633d8eb2f829331ea6a314a8bd150071cf88a50f1465b530ff763096135a05"
   },
   "request_sha256": "aba51bbf9c2d79b584ce7174a060e96db5053c2e78a8f70b65f658e457a4b063",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -150,11 +151,11 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0067.wav",
-      "sha256": "b9dc856adc034192f400896227ac36a2f401544bcbd4c6b46822046969f0f756"
+      "sha256": "afc0ecf2e57c9512a9426f85b007091ef4ce8b428ec2537aaf2a89baf093c518"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0061.wav",
@@ -166,7 +167,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0072.wav",
@@ -177,6 +178,6 @@
       "sha256": "6aa633c4e7266cf036cf4209e5b3414582f2275e6845b138621ed39f183e766c"
     }
   ],
-  "sha256": "01255f4b061dbbaaea27f4ba949f3574707bc2666b21bf99761289cfc00e24f5",
-  "duration": 9.583038548752835
+  "sha256": "69b5b6ea5a623dce541ab6cbf3cb20bd1851f3b74fd531f82a2944894cab1563",
+  "duration": 8.63015873015873
 }

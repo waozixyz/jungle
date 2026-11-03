@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Estofado. e. ese. te. o. efe. a. de. o. Estofado.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "770c15284c3e88e4cb21df48aa79283bf1253e9049a24411bda21c00f8194507",
-    "receipt_sha256": "8d594911c5d70cb9a53aacd222602cae913bcf635c1f534aeea5fd24f77eeead"
+    "audio_sha256": "04a717a9c9aa924f11642e14719e4932bf2b53b86d6dd8ad7b4573a21ace0566",
+    "receipt_sha256": "bab0e62f05e6b1c7408eb5835e20aaf6d7f5e639220c49a52fc70fab885fd38d"
   },
   "request_sha256": "8ef62250e804e60633ede883b25a3a282f71122ef3314308c322740ed26285ec",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -146,7 +147,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0073.wav",
@@ -177,6 +178,6 @@
       "sha256": "1e6e9d98b89b6cb8382e5e5150b909f029f100cfc9434c33c877275b112c91fc"
     }
   ],
-  "sha256": "04a717a9c9aa924f11642e14719e4932bf2b53b86d6dd8ad7b4573a21ace0566",
-  "duration": 9.705714285714286
+  "sha256": "cf39a120b6e5803fa4295c49a613faa5965d1b1060335cb28007c96c8a1b6cc6",
+  "duration": 9.292426303854874
 }

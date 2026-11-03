@@ -61,17 +61,18 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Árbol. a con tilde. erre. be. o. ele. Árbol.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "85753d823a4aa7eef0e96a994c689da26eac87632e3355eaa85fa27f5c7cf27a",
-    "receipt_sha256": "d105cbf6d366563c5bd5bbf9f6670ead199bbcc175ccb22ee676d912454068ad"
+    "audio_sha256": "2fde316afbb87d682238c1723c67996b281ade6801cc9a6f37bfcba46b4855f5",
+    "receipt_sha256": "49f5428d02c16c55e77ea11b453cb5654a786259b27dce9a01c7ac72cf65137a"
   },
-  "request_sha256": "432f85dd8e300e92bf92703225ea9abdc652aeee74e239c1436616e9b11a5a6e",
+  "request_sha256": "27b60b9574d8f9f2d57347270d875dfefc70bb9131b9bf40fda4bdef25adc498",
   "method": "Verified word, literal letter names, word; PCM assembly",
   "recipe": {
     "method": "Verified word, literal letter names, word; PCM assembly",
@@ -124,7 +125,7 @@
   "sources": [
     {
       "path": "assets/jungle-book/sounds/es/simple/tree.wav",
-      "sha256": "762b79a28fe7552706f1d6cf5a966f2f699ae2947b437ad6710bd092aef963b5"
+      "sha256": "8a2f15ab0b1a44ba22f9bb8bc330ced0fd8377e7b35f1f1dc5335532bd72bc3d"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/00e1.wav",
@@ -147,6 +148,6 @@
       "sha256": "80c3f457c6d6e68850fe11948083e43d7be814d43ef23c0e7b89f21fc7e249a4"
     }
   ],
-  "sha256": "2fde316afbb87d682238c1723c67996b281ade6801cc9a6f37bfcba46b4855f5",
-  "duration": 7.035555555555556
+  "sha256": "c51946826bc7094d2dfcef5354dcf76e8e68fe1cac54eddb9985d9a16e09af96",
+  "duration": 7.028934240362812
 }

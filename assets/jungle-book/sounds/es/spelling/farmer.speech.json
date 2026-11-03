@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Granjero. ge. erre. a. ene. jota. e. erre. o. Granjero.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "858f28b490f005319d9c4cf77bf23dee5b0316ac83cf8d846fc23fc566a11fbe",
-    "receipt_sha256": "eae01321cb13c4486e32f0c352b5900c026a11a57f8a1fa7532f386bc5c850fe"
+    "audio_sha256": "2f69b6443c7e2a1d5d50be4e4bb3c9f17b0e5d7c2233f5e35d87feb1dd944c8d",
+    "receipt_sha256": "08f85375b18b4689b35ae7ff4ccad98728d6f62edb77148c867ba172cfa0f627"
   },
   "request_sha256": "7fb07296646a48a3005a9b88ba0cecdf5811382fc0de09509dd3a0713380a134",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -146,7 +147,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0067.wav",
-      "sha256": "b9dc856adc034192f400896227ac36a2f401544bcbd4c6b46822046969f0f756"
+      "sha256": "afc0ecf2e57c9512a9426f85b007091ef4ce8b428ec2537aaf2a89baf093c518"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0072.wav",
@@ -162,11 +163,11 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/006a.wav",
-      "sha256": "e956c592ec274ca806a93b12edc8d6ffa8eba365cac06518eca7087d7db58d4a"
+      "sha256": "cc488fc27e5c2d9e43712129cdd5a2c7735586d013e39c01d4cdf370fc69b89c"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0072.wav",
@@ -177,6 +178,6 @@
       "sha256": "1e6e9d98b89b6cb8382e5e5150b909f029f100cfc9434c33c877275b112c91fc"
     }
   ],
-  "sha256": "2f69b6443c7e2a1d5d50be4e4bb3c9f17b0e5d7c2233f5e35d87feb1dd944c8d",
-  "duration": 11.498004535147393
+  "sha256": "e997eb5638ae25ee1f3db14d63ee18de06a93dda9810a482b66ec2bdeee5e462",
+  "duration": 9.663718820861678
 }

@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Vestido. uve. e. ese. te. i. de. o. Vestido.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "205dd23a6e7c084db736275c7620a3442cf033ef1c828f24d42336d70ba63e67",
-    "receipt_sha256": "b99976ecf192a2256c6e251142840027f388abb53ae4fc34f78d7075b17ecbe6"
+    "audio_sha256": "6f8c9e92d8b91492dd592c5cfbd86e37752a86aa3fa0fc92d69ac4a6646ade6b",
+    "receipt_sha256": "f458cded48412461cba406d697077f2ce2f7943a5274f76a22d6501f1b34167a"
   },
   "request_sha256": "3a067123ee8ad6d35bab3ab1da1a6ddcdfa8950497625ba80c124a30c804388f",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -140,11 +141,11 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0076.wav",
-      "sha256": "20f8ec164ab8064d828f6435acff19d28b07d52ab9f7c1c75c627042cf4e0df5"
+      "sha256": "8b222cd3c57833eab1161bf992646775b1187742872a9f824e4edd1b1af040f7"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0073.wav",
@@ -167,6 +168,6 @@
       "sha256": "1e6e9d98b89b6cb8382e5e5150b909f029f100cfc9434c33c877275b112c91fc"
     }
   ],
-  "sha256": "6f8c9e92d8b91492dd592c5cfbd86e37752a86aa3fa0fc92d69ac4a6646ade6b",
-  "duration": 9.966575963718821
+  "sha256": "b32504070f9d161c1f341d864a9cb1d710bd22aa6f7fecbb0e35edd4a5d2053d",
+  "duration": 8.78748299319728
 }

@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Suricata. ese. u. erre. i. ce. a. te. a. Suricata.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "a125532be557e5dc54bbe86d1dc991a00881f6de04c87aa80d426da9499da1e4",
-    "receipt_sha256": "cd1272021334732b7d21118cc45015128bfc42fa71a9700b13d57b36fae410a1"
+    "audio_sha256": "ce58c4ee12d2a16a5496abcf6685958bede8f5a01ff08af091099c0eaf5b4b9d",
+    "receipt_sha256": "866216629a6adf28dd679f46b7c1d2d688fd9ff358f4660e94cfd94b5ef38078"
   },
   "request_sha256": "9aee83ac4122fc7f590484b8687e21d6efd743e095c35d4ea4b7b56097ea5792",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -150,7 +151,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0075.wav",
-      "sha256": "44864170767c91eadc4c6bb700a9985b3be7a2edd07610f59d63bb3342065145"
+      "sha256": "3b87b84cb161c4215edf80a9c11c6c6174b305b8343928d100227e10eedac039"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0072.wav",
@@ -177,6 +178,6 @@
       "sha256": "6aa633c4e7266cf036cf4209e5b3414582f2275e6845b138621ed39f183e766c"
     }
   ],
-  "sha256": "ce58c4ee12d2a16a5496abcf6685958bede8f5a01ff08af091099c0eaf5b4b9d",
-  "duration": 12.366485260770975
+  "sha256": "92a699b72f70dfc2c2624084de584e07191cf2b08f84b0aa352edfe1ce47dca8",
+  "duration": 9.52702947845805
 }

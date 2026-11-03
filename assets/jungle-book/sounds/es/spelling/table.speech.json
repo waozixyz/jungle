@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Mesa. eme. e. ese. a. Mesa.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "48001fbae0065e3fcc773e3be5c1c6f957258838923e92f9cc060f72cdd8bc36",
-    "receipt_sha256": "c65f820d5ca5ae0e3efd4b14ebb9261b3846cea839cd8fc010970fc2687b69a4"
+    "audio_sha256": "4fffc7cae03b3a94facac690c1a51621fd53db837b8319da6ee02542eb35c986",
+    "receipt_sha256": "e1ff625b99c5c8c1de9012cc5981a05b8913319b14790ece99cb1b7078a6a34d"
   },
   "request_sha256": "8218a40ada3398c4f322660a2258ed7899d9f9a79ced10cd29698673a2e57126",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -126,7 +127,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0073.wav",
@@ -137,6 +138,6 @@
       "sha256": "6aa633c4e7266cf036cf4209e5b3414582f2275e6845b138621ed39f183e766c"
     }
   ],
-  "sha256": "4fffc7cae03b3a94facac690c1a51621fd53db837b8319da6ee02542eb35c986",
-  "duration": 6.343356009070295
+  "sha256": "accecad75e11b99bf1bee59cb7c92dea38343b6443d2f2c536f0c812987a8193",
+  "duration": 5.9300680272108846
 }

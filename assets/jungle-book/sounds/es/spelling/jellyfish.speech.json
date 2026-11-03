@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Medusa. eme. e. de. u. ese. a. Medusa.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "268ab49e5b805ec553f0a999ab35b0ad1a5a31b39f4d27ef5eebedd4a39b1be2",
-    "receipt_sha256": "3e96cccd031bca690351cac76214fef6a4e213bb8aa65e62e127b463b01f9acf"
+    "audio_sha256": "e3f67d9765d6ab9ad24eb2dd383e39f70cce27a03e279cca9d0cb4a7e9145ec0",
+    "receipt_sha256": "e1ed079a82b458deea2019cfd346c187a15ee794849ce47e20d3b42c0f045a2c"
   },
   "request_sha256": "7ccb0ad2678e5392704dfdae52598e2b791f2e372478b9cd60f9c1c40f8495d6",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -138,7 +139,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0064.wav",
@@ -146,7 +147,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0075.wav",
-      "sha256": "44864170767c91eadc4c6bb700a9985b3be7a2edd07610f59d63bb3342065145"
+      "sha256": "3b87b84cb161c4215edf80a9c11c6c6174b305b8343928d100227e10eedac039"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0073.wav",
@@ -157,6 +158,6 @@
       "sha256": "6aa633c4e7266cf036cf4209e5b3414582f2275e6845b138621ed39f183e766c"
     }
   ],
-  "sha256": "e3f67d9765d6ab9ad24eb2dd383e39f70cce27a03e279cca9d0cb4a7e9145ec0",
-  "duration": 10.605759637188209
+  "sha256": "cd9563d353dfc9cb948a6ba3771e51d4553bf29f49e5bf13f81d010d7b744e4d",
+  "duration": 7.353015873015873
 }

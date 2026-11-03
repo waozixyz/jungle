@@ -61,17 +61,21 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "seeds": [
+    1
+  ],
+  "kind": "word",
   "text": "Burro.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "4c2d507824b32ab772b8be6b01ecd0f38f8838e16ee841278395c58a3bcf72ce",
-    "receipt_sha256": "ba011f1571533c814d55f38bafae3fc928c9eeb6b658429dbfe4b5e71825890f"
+    "audio_sha256": "e5545cde63373b8da315bf722e08d0465d7d9f6a09bf74f6fc0ba68ccf5ee71f",
+    "receipt_sha256": "440b1728fe7cf91ceeb0a4bbc9c37d99970bd595fe8d6bb2d4ff065f88bdbf63"
   },
-  "request_sha256": "09ae95f32f0159f35d679f279c3efb758faa5df821f422f966d90cfab4be979f",
-  "sha256": "e5545cde63373b8da315bf722e08d0465d7d9f6a09bf74f6fc0ba68ccf5ee71f",
-  "duration": 0.96
+  "request_sha256": "214d28714a3997da73f1e147e97ece9ee62b8ccdd276e44179030747454a22cd",
+  "sha256": "d11689f935bef2b6592764d61238ea853a0471b1e0e43056fa882425bfd03398",
+  "duration": 1.44
 }

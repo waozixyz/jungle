@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Hervidor. hache. e. erre. uve. i. de. o. erre. Hervidor.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "b0a9003525401a4e61760bd78b4f5179b7098e9f77fe43f2f269c8fc7941430a",
-    "receipt_sha256": "432b185726beba352cf7f0aec1a32d892469f45b3d1a7a37a60cf5c358d1b4ab"
+    "audio_sha256": "ed1f057cbf2a2ca45cdd435d59eb3846587ba859ecfdc61ac17ee5e0e8f44ab4",
+    "receipt_sha256": "cb061c282e219bf2c3b289a8cdb740790505c595add1692d382cdc6a345e7a68"
   },
   "request_sha256": "b2b24d31f56091dc381a16aeba2c7cd9362fc3cc4009e4243773e49888a48444",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -146,11 +147,11 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0068.wav",
-      "sha256": "f58df945f2887d54ce6ae744a72cce1975e4ed068f83b46803683a0480470031"
+      "sha256": "3ba76c624960ba0752a3cec6e4910c2b8294dcd23e676c88cb4d406e486acfd2"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0072.wav",
@@ -158,7 +159,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0076.wav",
-      "sha256": "20f8ec164ab8064d828f6435acff19d28b07d52ab9f7c1c75c627042cf4e0df5"
+      "sha256": "8b222cd3c57833eab1161bf992646775b1187742872a9f824e4edd1b1af040f7"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0069.wav",
@@ -177,6 +178,6 @@
       "sha256": "bcb8de295451c41e7629c3b47552eac229eeb084386218c9606520088fe6fa6d"
     }
   ],
-  "sha256": "ed1f057cbf2a2ca45cdd435d59eb3846587ba859ecfdc61ac17ee5e0e8f44ab4",
-  "duration": 12.175963718820862
+  "sha256": "f53c37fdd25d38b2f4ae94a41b52e375930dc059ddcd16fcf3eb2aca506a6f62",
+  "duration": 9.79827664399093
 }

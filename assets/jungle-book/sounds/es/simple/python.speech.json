@@ -61,17 +61,21 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "seeds": [
+    2
+  ],
+  "kind": "word",
   "text": "Pitón.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "24dbfe1645053a42c8a4b9644380d6131e6bd792a71adf31f09be411f21b64fe",
-    "receipt_sha256": "c3725fbf6604c54aa1f634b1cf9f85808d977c972e982f89fdac8ee413c1a1ea"
+    "audio_sha256": "55b053a8d1d97803000ad810dd79024049a170cc81bffd1f7fb25868e57d35e1",
+    "receipt_sha256": "d56e50f9cf4e336d014578edd34e01c24a02482e85631c50f8a5c67a86d1c99f"
   },
-  "request_sha256": "b70ac83310afafb5788ac9d03d553222f560092665590f9471fda1a2bae8dd42",
-  "sha256": "55b053a8d1d97803000ad810dd79024049a170cc81bffd1f7fb25868e57d35e1",
-  "duration": 5.28
+  "request_sha256": "ae40f77021a6a6b3e533a5c5ee4d103e4abdc6d20228e153fcace96a4c42dcf1",
+  "sha256": "1d0c9674d6e309b327abb85b29768cc02bd441fbbdb74f2052634032767c41d6",
+  "duration": 1.84
 }

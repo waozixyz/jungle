@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Geco. ge. e. ce. o. Geco.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "923d489ad904661dcb758437ef7125b7e9ac075ac92e3e563a6cf6156a686555",
-    "receipt_sha256": "d356a3724be01055da776c4444f4dbde546b70e8d30c4562628bd34dcd2fd453"
+    "audio_sha256": "7a58546fff4ffedb02f9c1f70441baa5bd46a700b50b9d5f73c138060515d814",
+    "receipt_sha256": "f9fad07ea2c94278c8034b19a4094f416a6986bc68f5e5ca4a79d6a7f360ece4"
   },
   "request_sha256": "f407a84ff94afe9f773f82e3664a4688a78e1c2e1ac6a474a583a7f020b45f14",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -122,11 +123,11 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0067.wav",
-      "sha256": "b9dc856adc034192f400896227ac36a2f401544bcbd4c6b46822046969f0f756"
+      "sha256": "afc0ecf2e57c9512a9426f85b007091ef4ce8b428ec2537aaf2a89baf093c518"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0063.wav",
@@ -137,6 +138,6 @@
       "sha256": "1e6e9d98b89b6cb8382e5e5150b909f029f100cfc9434c33c877275b112c91fc"
     }
   ],
-  "sha256": "7a58546fff4ffedb02f9c1f70441baa5bd46a700b50b9d5f73c138060515d814",
-  "duration": 5.736235827664399
+  "sha256": "643c35bf160fcdc9760884196f774ff7f1b97e853762286bce07bcbcb612ecf0",
+  "duration": 5.196643990929705
 }

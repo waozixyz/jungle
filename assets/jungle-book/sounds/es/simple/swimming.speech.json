@@ -61,17 +61,21 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "seeds": [
+    1
+  ],
+  "kind": "word",
   "text": "Nadar.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "aa558b9415e3fc8a59a56420a8c643dafb5b1a65801137493127846cbcf88096",
-    "receipt_sha256": "2c955335420b8733601bacf5e55b0f8d97169c92619bacc39c15bb3e05908b12"
+    "audio_sha256": "c26665c768de6712b5286f18caffd034c0a18f31dfb821ad64f0c92ba74009fd",
+    "receipt_sha256": "0c535e107fdf2d4839565e5fa37a94a3a5d5dd4a9209b1a0e4e8ecd13a3431ef"
   },
-  "request_sha256": "756e31f774ac6b5c1452583dff491ba2b13c2ee59ca383571552df3fe9df2a73",
-  "sha256": "c26665c768de6712b5286f18caffd034c0a18f31dfb821ad64f0c92ba74009fd",
-  "duration": 1.12
+  "request_sha256": "71d6eae9b2242e2ea6feb8f4647f9c1a562a92f8d395e45077f7a2eb7b5d580f",
+  "sha256": "5d9addb21c18a363923f403bcd432bfebc27fcc59f88a45987e90bd6912caf44",
+  "duration": 1.36
 }

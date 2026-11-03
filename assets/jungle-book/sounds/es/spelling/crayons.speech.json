@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Ceras. ce. e. erre. a. ese. Ceras.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "0ad4485a0f03f0e384c72cd4d5d83795c556077f3dd0c884bf75357a6050da2f",
-    "receipt_sha256": "51786b87cf596e32665e8667d3d4b659b61aafbf12c993ce56be16e3e08ef6c3"
+    "audio_sha256": "ac40ac61b07a60eba477cdc231e18934113aa6b242dee2a355fc53c19586a4c9",
+    "receipt_sha256": "44461411f277c4217d12726a2d873e945ed892528f1af6b7f3b58acdfad82f6a"
   },
   "request_sha256": "fa5baa2ecee5e1ab4969889fe9f6914a8e6c62bb33b1d97756887ed2b99f91d2",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -132,7 +133,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0072.wav",
@@ -147,6 +148,6 @@
       "sha256": "37a78a4a88e80a5e9bc1e335ca6b1ffcbfbe700077c1ce525643bd530d29f81e"
     }
   ],
-  "sha256": "ac40ac61b07a60eba477cdc231e18934113aa6b242dee2a355fc53c19586a4c9",
-  "duration": 7.039773242630385
+  "sha256": "6a5cd0c31c124b02d39ba76fedf0ece5c66cfabe25975ca49713a9cf20eefee1",
+  "duration": 6.626485260770975
 }

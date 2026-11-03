@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Abuela. a. be. u. e. ele. a. Abuela.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "24dfbae91bcdd11f6747dd3dffff0679ef8f6edde70d25b7c3268a515c91e54d",
-    "receipt_sha256": "ef3b8da9e0ebaa7bc1a28828130612610eed0e3484c892eb9620819358692c81"
+    "audio_sha256": "4e4898b74f180e44fe3dfbd1a17135653838d936ead782b97205e7f03e8f9d9e",
+    "receipt_sha256": "a3ef970716d9ee97a5ef6777403c711d6ac576f9f1937cb37e73195272139b93"
   },
   "request_sha256": "874d695534ac834759f0b3fe2b51fc59b6c82cc42cff9e9658a77fd8926c3e1a",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -142,11 +143,11 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0075.wav",
-      "sha256": "44864170767c91eadc4c6bb700a9985b3be7a2edd07610f59d63bb3342065145"
+      "sha256": "3b87b84cb161c4215edf80a9c11c6c6174b305b8343928d100227e10eedac039"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/006c.wav",
@@ -157,6 +158,6 @@
       "sha256": "6aa633c4e7266cf036cf4209e5b3414582f2275e6845b138621ed39f183e766c"
     }
   ],
-  "sha256": "4e4898b74f180e44fe3dfbd1a17135653838d936ead782b97205e7f03e8f9d9e",
-  "duration": 10.309024943310657
+  "sha256": "91620de7c45b1c3970496d1d61aadc042c0f0c581faf9a4c81cda6c8dcd93628",
+  "duration": 7.056281179138322
 }

@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Regla. erre. e. ge. ele. a. Regla.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "30b19cbb420ecb7bf60b94e7ac8dd26050e2cb69735c1511149d0fcba47e8339",
-    "receipt_sha256": "1fb04b7494ceac12f1ca97c507e410dd95c7e196d19c6993e4fbbb64720fa240"
+    "audio_sha256": "167f93de0b098250c7eda504f7d02a409d1bb86d1a1ac4e186259a102ed96319",
+    "receipt_sha256": "4100a29309eec3705ba7f6edd092473f0a52075abaca27814ff7dcf7864fe52b"
   },
   "request_sha256": "a6675764e72d17e5a8c1aa0b17a6244ff13a84f9a385d893cc2050b4ba9a6b2f",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -132,11 +133,11 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0067.wav",
-      "sha256": "b9dc856adc034192f400896227ac36a2f401544bcbd4c6b46822046969f0f756"
+      "sha256": "afc0ecf2e57c9512a9426f85b007091ef4ce8b428ec2537aaf2a89baf093c518"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/006c.wav",
@@ -147,6 +148,6 @@
       "sha256": "6aa633c4e7266cf036cf4209e5b3414582f2275e6845b138621ed39f183e766c"
     }
   ],
-  "sha256": "167f93de0b098250c7eda504f7d02a409d1bb86d1a1ac4e186259a102ed96319",
-  "duration": 6.975555555555555
+  "sha256": "fd59bbf0977e3bff730c5d7d64f4bdab0cc56011057325b2ba7a4c10ffa2b282",
+  "duration": 6.435963718820862
 }

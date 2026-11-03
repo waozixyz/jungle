@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Maleta. eme. a. ele. e. te. a. Maleta.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "880adc38786a855647658e7a547a33188d9f0ee38d1816ad31e9669a7a70c141",
-    "receipt_sha256": "1147f5cc9caf6729ce21d024e417b8713aa94d42e19048d8efe166e2d037fc37"
+    "audio_sha256": "392ff1c473433a3a4f08b97b4c5805d0b808efed863631116437afa606283798",
+    "receipt_sha256": "be186dbe91a3e946c0e5fee715afeb2ee45b87e5326998b2897af8efcc91a777"
   },
   "request_sha256": "2905b49065c212c1e4e200d8f9a6db055a2245a305ec85610f91e9de774a90e3",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -146,7 +147,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0074.wav",
@@ -157,6 +158,6 @@
       "sha256": "6aa633c4e7266cf036cf4209e5b3414582f2275e6845b138621ed39f183e766c"
     }
   ],
-  "sha256": "392ff1c473433a3a4f08b97b4c5805d0b808efed863631116437afa606283798",
-  "duration": 7.802358276643991
+  "sha256": "1a27f2ee32f827fec2f42aca59178af42cc7e57c97ed84f58bc9640debc9018c",
+  "duration": 7.38907029478458
 }

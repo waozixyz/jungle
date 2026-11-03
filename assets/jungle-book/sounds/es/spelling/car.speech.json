@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Coche. ce. o. ce. hache. e. Coche.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "7b5d643f08e52f5ea27517827164392c1219887d77062228fb853238904f5309",
-    "receipt_sha256": "099fc940ae1337085f8ff1de94c258cd47f301bece664412eff5593736cdfdc7"
+    "audio_sha256": "777599edf0d2343768b58659f9c390bcc2e3cd8a61502a5ba0abf6d49db2e4d6",
+    "receipt_sha256": "a8ef2c5a972f9227be7401fd5aecbbab49213282fcba8dea5aec04ac47bb879b"
   },
   "request_sha256": "1bc3588ceca3736bdfbca22a40776737118b608f2a60bb09fca4e1b086827a0e",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -140,13 +141,13 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0068.wav",
-      "sha256": "f58df945f2887d54ce6ae744a72cce1975e4ed068f83b46803683a0480470031"
+      "sha256": "3ba76c624960ba0752a3cec6e4910c2b8294dcd23e676c88cb4d406e486acfd2"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     }
   ],
-  "sha256": "777599edf0d2343768b58659f9c390bcc2e3cd8a61502a5ba0abf6d49db2e4d6",
-  "duration": 8.68108843537415
+  "sha256": "21f17508116207dc87e91f4558ff5f7883eaef64728b0772cce54afd231d1bd6",
+  "duration": 7.0692063492063495
 }

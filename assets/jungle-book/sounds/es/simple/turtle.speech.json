@@ -61,17 +61,21 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "seeds": [
+    2
+  ],
+  "kind": "word",
   "text": "Tortuga.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "f901087a7680cb51dcd87e214b6ec286844de989bce68da9941d1dd22052120c",
-    "receipt_sha256": "dc382d740892bbe96fbad920efa1870c8432076b8034b78fd320c942d0c4cea2"
+    "audio_sha256": "66297b1a2e3ca11a1fe07882fe2db32d9f72f81f8c51ffa9138739273b84dcf2",
+    "receipt_sha256": "f5c9d57b59fca5a0259ddaa771143a809acc93383b896a4c20757bf937f72b10"
   },
-  "request_sha256": "aeeac6594bd4ef5f061c1d1ec5ee7efe4efd32f4eac20cb9ba5085e4db53e8f1",
-  "sha256": "66297b1a2e3ca11a1fe07882fe2db32d9f72f81f8c51ffa9138739273b84dcf2",
-  "duration": 1.12
+  "request_sha256": "3670256b71da52460bd8b319a45e4af67c2c3f87c242b974467c01e3b6eaa533",
+  "sha256": "6bc029bd8b4c5fdbbc1124fac3987d8a75649b7aaa2a96b0ad8a91f5b6786bf5",
+  "duration": 1.76
 }

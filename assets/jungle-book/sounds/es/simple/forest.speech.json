@@ -61,17 +61,21 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "seeds": [
+    8
+  ],
+  "kind": "word",
   "text": "Bosque.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "fd8747e3613997e3417efbde74d02719d43566a1bf835941374e37303ae3de58",
-    "receipt_sha256": "e569bc5f6f5a94c19de5a547022373fd7cb3a3366b208c60e0d345f92abc2cc8"
+    "audio_sha256": "5a0fc3a9c801c12d4c09a99faf6349af395a8fc9dd2b68f61a501b79c3e91fa1",
+    "receipt_sha256": "efe52193f587525148df952792a8a47d790ed208bde051ca97c5817fec80a21c"
   },
-  "request_sha256": "24ac933186755d87207485d9a30539128031d082e4ba2d69a0f57682b278246b",
-  "sha256": "5a0fc3a9c801c12d4c09a99faf6349af395a8fc9dd2b68f61a501b79c3e91fa1",
-  "duration": 6.0
+  "request_sha256": "1b5aa2b3be8be800fb3e3f85fe778022c5503cace39d20fe0e5b30b867bb6542",
+  "sha256": "edf5ad379b8a5bd0418fd59b6da520bbd451bd9a61260656f927885e2d9f451c",
+  "duration": 1.28
 }

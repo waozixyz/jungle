@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Arcoíris. a. erre. ce. o. i con tilde. erre. i. ese. Arcoíris.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "785056c26df402279fa3585778c379b1ad722d6919e9b1aa08d05a829952d74f",
-    "receipt_sha256": "853e147c9a9d8ff254b8e7f211bbb32ea918f43671432517280fffa25d444ac0"
+    "audio_sha256": "353452cb4adb4af1920bcb96f35461b13e2a3653d7f6722af9d806ff2c42fff1",
+    "receipt_sha256": "2f37d4eeb0d9f2065ef0b193173fbf877101703958e57911c3836a1a6a7c5e13"
   },
   "request_sha256": "63ec11d69227dfd47475a307242cc6fc46c9b672ea5cf8864f94f349cbff66a8",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -162,7 +163,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/00ed.wav",
-      "sha256": "4f31421570bb349fba2663269049881fcd3b21149707149ba1a838dee4ffedda"
+      "sha256": "e622d0f81c8886e24e5091b04ae2311e418b89a26136bec5995e73d4f540a6ad"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0072.wav",
@@ -177,6 +178,6 @@
       "sha256": "37a78a4a88e80a5e9bc1e335ca6b1ffcbfbe700077c1ce525643bd530d29f81e"
     }
   ],
-  "sha256": "353452cb4adb4af1920bcb96f35461b13e2a3653d7f6722af9d806ff2c42fff1",
-  "duration": 11.826893424036282
+  "sha256": "1921c04e6a5477e25af2481fc91726a21cbd5f81984cca637b390384c523d4f3",
+  "duration": 10.468253968253968
 }

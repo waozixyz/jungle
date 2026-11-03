@@ -61,17 +61,18 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Pollo asado. pe. o. ele. ele. o. a. ese. a. de. o. Pollo asado.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "acca147a829214272d6444a7573927287513adf5681bdae45f29c57f72a48189",
-    "receipt_sha256": "8b643a58e01422fc8a03a2dcb256753afbd65aa0212d748cc485c2907a105292"
+    "audio_sha256": "793cba5a9f666306f4e2b5735a1c7c650df0b9df0afe79a0c9e1c065cc58b68a",
+    "receipt_sha256": "06964461f7046137fd3f0205ebdc8a8a5f506054633d273a60b990a82ca9a739"
   },
-  "request_sha256": "6488a9827e18f70d9adda5bfbb8bc32c33d369e824c7270b25a22030b12ca34e",
+  "request_sha256": "e9ec38e225a620e3ec0a18b5f9800ca0ac48690f4514a10100ffbca642dfee19",
   "method": "Verified word, literal letter names, word; PCM assembly",
   "recipe": {
     "method": "Verified word, literal letter names, word; PCM assembly",
@@ -157,7 +158,7 @@
   "sources": [
     {
       "path": "assets/jungle-book/sounds/es/simple/roast_chicken.wav",
-      "sha256": "e948bfe448cc5d81507dc404a69579d93679074104fe5c452c00288c3743b795"
+      "sha256": "d7e23ead1c7c65560721ed3e6a473da182ded1cb2f1138ee45f4595420f6f409"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0070.wav",
@@ -200,6 +201,6 @@
       "sha256": "1e6e9d98b89b6cb8382e5e5150b909f029f100cfc9434c33c877275b112c91fc"
     }
   ],
-  "sha256": "793cba5a9f666306f4e2b5735a1c7c650df0b9df0afe79a0c9e1c065cc58b68a",
-  "duration": 19.586530612244896
+  "sha256": "e3c463010aed48f96f7f3ff84b8e9487133a749e53a27c10f792dda7a0f7f85a",
+  "duration": 11.780453514739229
 }

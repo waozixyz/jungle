@@ -61,17 +61,21 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "seeds": [
+    7
+  ],
+  "kind": "word",
   "text": "Helicóptero.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "3855991c02fb91deb2724814501a6b4adb3f11e07be96dec4c2c1d3e1dd4a40b",
-    "receipt_sha256": "bd63c74bc85dbe99576a34d1347069d760b52148cff1d88ee7156629729847d9"
+    "audio_sha256": "73ff43c08fec2c1afa08781cad6ab340e1f159bb6506a9835c00bc6072752445",
+    "receipt_sha256": "0135dba94a5eb81750d4459822a733142af86eda0e7b83d97685d1b17c4f1133"
   },
-  "request_sha256": "51add652e0c0c1fcd378acad9978e76eec221a21c7e541125f05c4458cb13eee",
-  "sha256": "73ff43c08fec2c1afa08781cad6ab340e1f159bb6506a9835c00bc6072752445",
-  "duration": 1.44
+  "request_sha256": "28920680508556a01a44ce6497fc3185b1108921c5b4dd6feb8fce5e204b03b7",
+  "sha256": "7d6a0d6a6638122a1e85ebd223020a46a48001d5aec2ec4eabf6c16742e614d3",
+  "duration": 1.52
 }

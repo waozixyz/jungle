@@ -61,17 +61,21 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "seeds": [
+    8
+  ],
+  "kind": "word",
   "text": "Triste.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "26c8a1e5eaa2556ef22213909d7393030736d2e02adbb2ed0201d3f707df8b80",
-    "receipt_sha256": "d5cb804b4ae5cd1adf1a431a4f84fc3944a33293955eb306c9c519ae1a19fde1"
+    "audio_sha256": "1bd463d68b68e2cd7909daa431b3d096e51f6c780da712f46b753a98579be458",
+    "receipt_sha256": "0d5828cb92346e35e2c20d6e0049702c4ec76cbde5902020ac679e4bdd1a4371"
   },
-  "request_sha256": "441dce2e6aa54a449309d0c44c7a80f7b60160aefac5f6cdafd5e1c06248776e",
-  "sha256": "1bd463d68b68e2cd7909daa431b3d096e51f6c780da712f46b753a98579be458",
-  "duration": 1.12
+  "request_sha256": "ea0845c3be6b4314453e5a0e5266ca8a63766782011a53c1a12cf28b3ac792f3",
+  "sha256": "d8f077d261861afbc56784219d19045d1869c0e8a0856b7dbfb203b830df7f39",
+  "duration": 1.2
 }

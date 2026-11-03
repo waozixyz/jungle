@@ -61,17 +61,18 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Tortilla. te. o. erre. te. i. ele. ele. a. Tortilla.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "c98dbe8b0cc398ad0603014731757e80f6241022345f3a24bc65e3131d4dc64d",
-    "receipt_sha256": "573e4ee508d868b508e96ac01559a1504d034e5df836db914b940c76dffc5484"
+    "audio_sha256": "8c5786f17e1451946ebcfe0a4a1dac381a97a51c5e652305d5dfa9d354f22067",
+    "receipt_sha256": "7a735fda2b847b18a57ea24d1d1554b0bc479f85be3d873fd4c14fbfbb5ab2bc"
   },
-  "request_sha256": "17d9d06285b55cec906c61be9b563b14425786800e3b8a6079b8599fe5b381ae",
+  "request_sha256": "aaee23919a69dced23d44d4515dc6da8d92fa6fd8cbcd319a02fc9b2bfb1d811",
   "method": "Verified word, literal letter names, word; PCM assembly",
   "recipe": {
     "method": "Verified word, literal letter names, word; PCM assembly",
@@ -142,7 +143,7 @@
   "sources": [
     {
       "path": "assets/jungle-book/sounds/es/simple/omelette.wav",
-      "sha256": "a14a5e37aef7924c14629c57f6a3991d64d40598fb2436d2d4b12b0f8adb11f1"
+      "sha256": "228a150089af8e2b7998f67a27407114342520f50b610cb7eda158169abb5e95"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0074.wav",
@@ -177,6 +178,6 @@
       "sha256": "6aa633c4e7266cf036cf4209e5b3414582f2275e6845b138621ed39f183e766c"
     }
   ],
-  "sha256": "8c5786f17e1451946ebcfe0a4a1dac381a97a51c5e652305d5dfa9d354f22067",
-  "duration": 17.199818594104308
+  "sha256": "f0af20268ed182f13815d41d045af1471da8b89e78e85c1a5541e3f4bd35293b",
+  "duration": 9.88
 }

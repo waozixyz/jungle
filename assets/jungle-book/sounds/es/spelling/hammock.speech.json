@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Hamaca. hache. a. eme. a. ce. a. Hamaca.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "1d0a00a037b0f40889149e6ac45f27cdf701cfd7af2449546ccef0c21f28bff6",
-    "receipt_sha256": "4626d9b4b97bbb466a0fc895c55fa572c8fbf8ab816dce1f556952080eaa0fb8"
+    "audio_sha256": "4e1b464d24871b3021aa664e9acdfb35f4ffbea33032d72e174c1b26e222db86",
+    "receipt_sha256": "a3b0688a097461419a1f2e99e3dc42fd6235009d13a11db0d18974d6c0d6437e"
   },
   "request_sha256": "04a539c9f895fa2ac7842784c0ecfe2ac3a9f70e0d1cfb2945f7f7a49996e931",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -134,7 +135,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0068.wav",
-      "sha256": "f58df945f2887d54ce6ae744a72cce1975e4ed068f83b46803683a0480470031"
+      "sha256": "3ba76c624960ba0752a3cec6e4910c2b8294dcd23e676c88cb4d406e486acfd2"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0061.wav",
@@ -157,6 +158,6 @@
       "sha256": "6aa633c4e7266cf036cf4209e5b3414582f2275e6845b138621ed39f183e766c"
     }
   ],
-  "sha256": "4e1b464d24871b3021aa664e9acdfb35f4ffbea33032d72e174c1b26e222db86",
-  "duration": 8.831609977324263
+  "sha256": "89c816ab41f95c71782406a81840caa5ec66eb1c250c52ca8225e55239f57dd4",
+  "duration": 7.633015873015873
 }

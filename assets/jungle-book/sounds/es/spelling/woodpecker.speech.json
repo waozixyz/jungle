@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Pájaro carpintero. pe. a con tilde. jota. a. erre. o. ce. a. erre. pe. i. ene. te. e. erre. o. Pájaro carpintero.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "f991df541a36927097aa606e8f6c85b48876a23c9fe2244601b6751caa65e7e3",
-    "receipt_sha256": "dca40039fb45280f9c418bb377da6991ef842fcb0bde1b5662d573c0c689e6e8"
+    "audio_sha256": "8df16b834a51310a39844797a9926e55927075bfed070a71d8ce6435435a74c3",
+    "receipt_sha256": "475ebdff3e77de0574b864ac478adf1d9595b1498023d8b92822eae8bcdcea68"
   },
   "request_sha256": "0f39b52ebc1eedb36cfdc309075dc855e86fb4e96eae582e23a986ba2a95d7fe",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -205,7 +206,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/006a.wav",
-      "sha256": "e956c592ec274ca806a93b12edc8d6ffa8eba365cac06518eca7087d7db58d4a"
+      "sha256": "cc488fc27e5c2d9e43712129cdd5a2c7735586d013e39c01d4cdf370fc69b89c"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0061.wav",
@@ -249,7 +250,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0072.wav",
@@ -260,6 +261,6 @@
       "sha256": "1e6e9d98b89b6cb8382e5e5150b909f029f100cfc9434c33c877275b112c91fc"
     }
   ],
-  "sha256": "8df16b834a51310a39844797a9926e55927075bfed070a71d8ce6435435a74c3",
-  "duration": 19.67111111111111
+  "sha256": "1b2e3f8504c09d88ec54861f727ccc91d228973211d34d6711ed4e65b37045b1",
+  "duration": 17.963129251700682
 }

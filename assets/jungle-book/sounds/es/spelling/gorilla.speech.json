@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Gorila. ge. o. erre. i. ele. a. Gorila.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "7ea125d260e8201ec1eb7e810dc2cbd213c6a6eba9ebf9484ce17b6e25fa1dff",
-    "receipt_sha256": "aef2d5481e0fdc6cc1f3dfd76d480b2a044ff92abc7e3458039eeb04483f39d0"
+    "audio_sha256": "86691bcafa2b31c9c0cfe95f7db4c5588154e66c22acb09c3081d0338c9ae53f",
+    "receipt_sha256": "152b4202478f93fb9a5bbeae74b24e1a12580203121c8c1793736a5c2cf13c42"
   },
   "request_sha256": "5b1a682ff67bc113aa5a0c149dacca7232224faf8c80c66017928ddae9e3e30f",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -134,7 +135,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0067.wav",
-      "sha256": "b9dc856adc034192f400896227ac36a2f401544bcbd4c6b46822046969f0f756"
+      "sha256": "afc0ecf2e57c9512a9426f85b007091ef4ce8b428ec2537aaf2a89baf093c518"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/006f.wav",
@@ -157,6 +158,6 @@
       "sha256": "6aa633c4e7266cf036cf4209e5b3414582f2275e6845b138621ed39f183e766c"
     }
   ],
-  "sha256": "86691bcafa2b31c9c0cfe95f7db4c5588154e66c22acb09c3081d0338c9ae53f",
-  "duration": 7.377641723356009
+  "sha256": "15099b00fc14807fe8371ac7eef22bec8074aa8892c5c596b4b5dfe5e2cb72ce",
+  "duration": 7.251337868480726
 }

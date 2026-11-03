@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Petirrojo. pe. e. te. i. erre. erre. o. jota. o. Petirrojo.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "38480bee17182e2a4de33a56040181dc7036f7e8534c9c2e01a3ddb9ee2e7f8f",
-    "receipt_sha256": "ed57d2f0377c2c98778dfdf1c1a384718a7aede98b0e4c78b587a1c80ef6762f"
+    "audio_sha256": "fa2a528afddd7e1f3a7cbea761860f8003ebff059b164ae4a1df6d91b0a39c66",
+    "receipt_sha256": "cdd2ec4f5f4b8e1745fc75cec597d5a4fad63c2da7b5fe504fe7662f511ea501"
   },
   "request_sha256": "3c45f605fe05d62e003bdf24fac7f6521f9c31ff05ec7c6e33b612ceb3eb3c66",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -156,7 +157,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0074.wav",
@@ -180,13 +181,13 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/006a.wav",
-      "sha256": "e956c592ec274ca806a93b12edc8d6ffa8eba365cac06518eca7087d7db58d4a"
+      "sha256": "cc488fc27e5c2d9e43712129cdd5a2c7735586d013e39c01d4cdf370fc69b89c"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/006f.wav",
       "sha256": "1e6e9d98b89b6cb8382e5e5150b909f029f100cfc9434c33c877275b112c91fc"
     }
   ],
-  "sha256": "fa2a528afddd7e1f3a7cbea761860f8003ebff059b164ae4a1df6d91b0a39c66",
-  "duration": 12.500226757369614
+  "sha256": "0594114d0979db24c6504dac633aa7ac59bced49f77c2dccdfd40ed3301dec9e",
+  "duration": 10.792244897959185
 }

@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Tía. te. i con tilde. a. Tía.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "bb6eed461e0006f3881f35cb91f99e7d0507462b486063f236d83f5427f27c49",
-    "receipt_sha256": "e0c476e5d542543aca2a9436623711f4443f4ecaaeca4f6e1afd94949dc91883"
+    "audio_sha256": "d7d3147e3d3b3e24c4809a2dc7a5dd6a25d67364bdf24381ff87da3a3c43c32a",
+    "receipt_sha256": "d5df6558bea82ac0cc8110c5931ecc6ca5ae7faba1cb6ab627db4e21ed2317e4"
   },
   "request_sha256": "9b538fc767083651343039f187388ac7e2f039eca2a62497662d9c0be106b148",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -120,13 +121,13 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/00ed.wav",
-      "sha256": "4f31421570bb349fba2663269049881fcd3b21149707149ba1a838dee4ffedda"
+      "sha256": "e622d0f81c8886e24e5091b04ae2311e418b89a26136bec5995e73d4f540a6ad"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0061.wav",
       "sha256": "6aa633c4e7266cf036cf4209e5b3414582f2275e6845b138621ed39f183e766c"
     }
   ],
-  "sha256": "d7d3147e3d3b3e24c4809a2dc7a5dd6a25d67364bdf24381ff87da3a3c43c32a",
-  "duration": 6.343537414965986
+  "sha256": "4f70ed2e1d68305e2561cc43ea494d68d15ce72696d5fb1598b2d27c6a9ae622",
+  "duration": 4.984897959183673
 }

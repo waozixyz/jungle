@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Gachas. ge. a. ce. hache. a. ese. Gachas.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "0448b0ff1a2d411808f3a498afbf889d70f202a139076d1867780eb88e812cb1",
-    "receipt_sha256": "67a6575f38deea119e6471c95b7446583b8703cd05f5d0b4e539ce825c350ea4"
+    "audio_sha256": "938bd5e2713a16a9f4d492e930eaf54d1bb44cae020d8631f6597d6493a8cc7c",
+    "receipt_sha256": "77e99a3bd299654c8d4fd018b31635eadbd46a753a6976914af7b2ee59344bce"
   },
   "request_sha256": "999419072311b174d1b2dba6c6940a13b105746c1f185f5a04b141f13393a395",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -134,7 +135,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0067.wav",
-      "sha256": "b9dc856adc034192f400896227ac36a2f401544bcbd4c6b46822046969f0f756"
+      "sha256": "afc0ecf2e57c9512a9426f85b007091ef4ce8b428ec2537aaf2a89baf093c518"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0061.wav",
@@ -146,7 +147,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0068.wav",
-      "sha256": "f58df945f2887d54ce6ae744a72cce1975e4ed068f83b46803683a0480470031"
+      "sha256": "3ba76c624960ba0752a3cec6e4910c2b8294dcd23e676c88cb4d406e486acfd2"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0061.wav",
@@ -157,6 +158,6 @@
       "sha256": "37a78a4a88e80a5e9bc1e335ca6b1ffcbfbe700077c1ce525643bd530d29f81e"
     }
   ],
-  "sha256": "938bd5e2713a16a9f4d492e930eaf54d1bb44cae020d8631f6597d6493a8cc7c",
-  "duration": 9.063310657596372
+  "sha256": "ec9492f0978f9e9685ac9cb38af688bf15670f69e2bf6ae305969a6711e37030",
+  "duration": 7.738412698412699
 }

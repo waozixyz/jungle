@@ -61,17 +61,21 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "seeds": [
+    11
+  ],
+  "kind": "word",
   "text": "Jabón.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "a48d5fef7f727b990d70d1aaec37cdffd103aaae34aeeaba4b7a93c2e80d92c4",
-    "receipt_sha256": "899d071235e4c92f371d59629930c63e45c0175cf37894e71c2627b7772c6b3f"
+    "audio_sha256": "6a9e582ecee021d6ddf8d087ae2725958889ec5ca5cadff86a5e1a39d951dd99",
+    "receipt_sha256": "bd4e96fa2502955b31f6004c0c9658d8f668bc49cebdd65d77f06ba055ec321d"
   },
-  "request_sha256": "a5c785e6be0574cc0c35124c663ea468448cbf42448beb92b4200904bca48aa1",
-  "sha256": "6a9e582ecee021d6ddf8d087ae2725958889ec5ca5cadff86a5e1a39d951dd99",
-  "duration": 1.12
+  "request_sha256": "6a0c96b0cd2eb89a06b97054e57676aea6ebe81049e7353df40e1aa8c89111ed",
+  "sha256": "0f35dc18966739095e9bf415fb2e198915ec295776e33f7dc6be127c914b1054",
+  "duration": 1.28
 }

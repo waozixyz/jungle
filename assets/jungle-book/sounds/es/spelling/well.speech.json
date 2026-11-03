@@ -61,17 +61,18 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Pozo. pe. o. zeta. o. Pozo.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "e9b9a10b2677f983997240d06972d5464849067d2edd974e09fc5d047e03e880",
-    "receipt_sha256": "49863100d380001a0737ccfe921b88c3310cc6747dc4dca35011a928b87dde0a"
+    "audio_sha256": "c028e510eedef5aa74887627a386c52dee24b42c9f19b1779acad4ca308b87db",
+    "receipt_sha256": "759d2426b657155987967d7d03bf42e1d5d0ef554875d299cb8af4963954e4fa"
   },
-  "request_sha256": "165595e655c384820a479d5f016143ef8bfc5543b46b7da15cf5140b246e4562",
+  "request_sha256": "d6f39df4c6fb41a3c26dd123258bb8e7ff6a23a0b1d04849cb35258c8107a5ed",
   "method": "Verified word, literal letter names, word; PCM assembly",
   "recipe": {
     "method": "Verified word, literal letter names, word; PCM assembly",
@@ -118,7 +119,7 @@
   "sources": [
     {
       "path": "assets/jungle-book/sounds/es/simple/well.wav",
-      "sha256": "c802007622f8f3c1a1f88717aaf91a9cbb2f02ce86623b3be490ddb84134d7d9"
+      "sha256": "2aed5ca0c3f96f23703705618d1311b03043a43bd6f11c7da8e2164b65e24d3e"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0070.wav",
@@ -137,6 +138,6 @@
       "sha256": "1e6e9d98b89b6cb8382e5e5150b909f029f100cfc9434c33c877275b112c91fc"
     }
   ],
-  "sha256": "c028e510eedef5aa74887627a386c52dee24b42c9f19b1779acad4ca308b87db",
-  "duration": 5.867573696145125
+  "sha256": "55b3319255244890777cbafee84a6e9637a4840278d7707af08a1d5918c054d3",
+  "duration": 5.999818594104308
 }

@@ -61,17 +61,21 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "seeds": [
+    6
+  ],
+  "kind": "word",
   "text": "Tucán.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "40667d24eabbb73b37fccf306dd68205c14d6feb0453607da95e5ac80f26ebb9",
-    "receipt_sha256": "7b03f1402555fe7972431ae09cae352daa8a0f71bb54c4a608121d49fded32f5"
+    "audio_sha256": "fe44a6ce2ece3bffb052bc12349ce672a1e8e8b3f74cd15e444c090563f0c61a",
+    "receipt_sha256": "b694e44ca15a2c4b680057842834169cc749d72991a29d8028332153270102c2"
   },
-  "request_sha256": "b92e916ea5b28a6bd2e7614e8274310525fef0788de6eebef30eadb6576b3f3e",
-  "sha256": "fe44a6ce2ece3bffb052bc12349ce672a1e8e8b3f74cd15e444c090563f0c61a",
-  "duration": 1.12
+  "request_sha256": "0d12b58dbd5b7ff62d527afa52ce0d30d67938ced36d942b933fd3f511db988d",
+  "sha256": "cb8ddf66dd011c37d3f61fb3d596fd53898c7342053f559144573daad8f6af56",
+  "duration": 1.52
 }

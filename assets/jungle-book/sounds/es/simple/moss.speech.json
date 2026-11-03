@@ -61,17 +61,21 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "seeds": [
+    1
+  ],
+  "kind": "word",
   "text": "Musgo.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "55de8b0d022984afe8188923cf6a37d0c847de3b41f4b004d4dd714deb8b3ef0",
-    "receipt_sha256": "8a58418eeb17af793ebf9d8c73f90446d605b6605470cb9e8987af38dc6ea108"
+    "audio_sha256": "6e8e8fd3c92896bdc229358b2d38d7d6e953ceeba877d51b91105b8d394f3fbd",
+    "receipt_sha256": "a13f5b99e9c5a77dc0bf483836e4cf255aa27123a57fe27f79d903a187943648"
   },
-  "request_sha256": "f02144375a70975c05c661c34e36b036253db6e98e9a91710dbf442e0606775b",
-  "sha256": "6e8e8fd3c92896bdc229358b2d38d7d6e953ceeba877d51b91105b8d394f3fbd",
-  "duration": 1.2
+  "request_sha256": "fe0f724c3e98d8774f6b2f5d037f29a2658f1d57269f9aeaa7a2c36e96639475",
+  "sha256": "a723744a1d62ce1af5162ede01a5d3b161a937d8b4c1f8555f29ff6c85e73ab7",
+  "duration": 1.28
 }

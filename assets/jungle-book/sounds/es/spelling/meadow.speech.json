@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Pradera. pe. erre. a. de. e. erre. a. Pradera.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "6caf0ac96480dc2c2186a8b83f5d42d57d62c306c17e5a4c7d06e1613f3f2cbb",
-    "receipt_sha256": "ab48abe6ee731da4e8f65a935e9e63d14a1c435881737e474c9ad3f7cb79cfbe"
+    "audio_sha256": "7cab5eeb352314653835ede3e6c3314f2ca0e44d76cb0207503d75342cee5b14",
+    "receipt_sha256": "99761a45a755c9590a3545ecd1ada09cf1b7b00b67ddbe177261b2356a1f2ab0"
   },
   "request_sha256": "bca61cd62de1b777d180cc2341308333fc4e090b36c21d533e8a2ff410c3969d",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -156,7 +157,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0072.wav",
@@ -167,6 +168,6 @@
       "sha256": "6aa633c4e7266cf036cf4209e5b3414582f2275e6845b138621ed39f183e766c"
     }
   ],
-  "sha256": "7cab5eeb352314653835ede3e6c3314f2ca0e44d76cb0207503d75342cee5b14",
-  "duration": 8.724172335600906
+  "sha256": "4fe6922dff43c236102e71361217b6c8c9f29018477b404c531f96155d43d895",
+  "duration": 8.310884353741496
 }

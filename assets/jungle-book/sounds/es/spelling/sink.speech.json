@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Lavabo. ele. a. uve. a. be. o. Lavabo.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "5d203ef72cdc657567ba70dd354fa97f6b897cc22aeb48105d9341e6e602ddfd",
-    "receipt_sha256": "67bcf7594ae9e3769a87af6ed7e5f574f2c4cd62e97562eb682b29ed0b5d9fa0"
+    "audio_sha256": "b074697ae46bdf308ca5854ac73287041192308bdca159d356b3fc6ba23f841c",
+    "receipt_sha256": "7db42968eca77c947bacb7f60748e42ca49227276f2ecc71894f6c6d682424ff"
   },
   "request_sha256": "e920279f91c99407de86249bc91c0e490d5da449f0e03393e2b856c31c300d54",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -142,7 +143,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0076.wav",
-      "sha256": "20f8ec164ab8064d828f6435acff19d28b07d52ab9f7c1c75c627042cf4e0df5"
+      "sha256": "8b222cd3c57833eab1161bf992646775b1187742872a9f824e4edd1b1af040f7"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0061.wav",
@@ -157,6 +158,6 @@
       "sha256": "1e6e9d98b89b6cb8382e5e5150b909f029f100cfc9434c33c877275b112c91fc"
     }
   ],
-  "sha256": "b074697ae46bdf308ca5854ac73287041192308bdca159d356b3fc6ba23f841c",
-  "duration": 8.072108843537414
+  "sha256": "f423e4e59346a29a5a945b3a522f7a336b018aa7c47a597812ee420ea8cfb702",
+  "duration": 7.306303854875283
 }

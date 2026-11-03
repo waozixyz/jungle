@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Peine. pe. e. i. ene. e. Peine.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "2de9a93b5264135a7ad94cd7923d6ef6dc5683db3cc01908b1dfccd71855d0cd",
-    "receipt_sha256": "5f694c1de83d5c70fd2e66f9f8baf081b7db4e567a2b07312a79342622edc0c6"
+    "audio_sha256": "f42cf4c06d71cd3b8d4b7afe266b8e45ed7b55643da73386edc17528ca7e39c4",
+    "receipt_sha256": "a3a28a5ef6c3f42848ff249721f32ae389998b5ea51f334b293e0d806543b208"
   },
   "request_sha256": "9f65bf2e30220cfab36e640f8aef8468179eea521643af7ba97e471653975606",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -132,7 +133,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0069.wav",
@@ -144,9 +145,9 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     }
   ],
-  "sha256": "f42cf4c06d71cd3b8d4b7afe266b8e45ed7b55643da73386edc17528ca7e39c4",
-  "duration": 7.046575963718821
+  "sha256": "adf03e5e98f71719393d52eb1545937d2eb2132a8636efb03420acf8356cdcf8",
+  "duration": 6.22
 }

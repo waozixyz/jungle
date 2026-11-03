@@ -61,17 +61,21 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "seeds": [
+    1
+  ],
+  "kind": "word",
   "text": "Flor.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "b1bb39dd52ae473bed04c49eef08a2321c6b274dce28d0c916f571b562d69f9e",
-    "receipt_sha256": "ce5f9d0ed0df66d8f622c3a18283cdfd8774ce924c4e7eca74ce4ba95d3a9332"
+    "audio_sha256": "31b13b76f3524b0209e6d14f42b7f77b016fe44ad77a6565609bf41191f47565",
+    "receipt_sha256": "139260cbc7db85a4369bce693bcb9af1e14d880a5199748d3a693095fd997e77"
   },
-  "request_sha256": "0007c4be4799096d05efc6bfeed0deaec0f4d56b4df3f8a07ff29ec67c06ef21",
-  "sha256": "31b13b76f3524b0209e6d14f42b7f77b016fe44ad77a6565609bf41191f47565",
+  "request_sha256": "510a66f6ceae3020b241f6235a685c7541b14778d270580110c2e961051da462",
+  "sha256": "85320cb7a54e9131d822fb6f808c1b93d99f6bd2ed966a12d0f2702d7d6192c9",
   "duration": 1.2
 }

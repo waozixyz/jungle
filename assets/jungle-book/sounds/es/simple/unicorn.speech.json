@@ -61,17 +61,21 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "seeds": [
+    2
+  ],
+  "kind": "word",
   "text": "Unicornio.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "6d92eda241f411478aaea9bea9dc73a9ade0cccdc72671d03dae165052cd5574",
-    "receipt_sha256": "cd1117c0e99c212fa16b164779d1f3c43116ad475fe4077651634fb8f60c85f7"
+    "audio_sha256": "28134b41834d9ebaebf33f3d2f5b1577e551c1ce0d6093c51c2c755088f21061",
+    "receipt_sha256": "49ea5536368cf011644479068e5958901813066d91ac2cd76a5a792dd6e5ba0d"
   },
-  "request_sha256": "0a7305a6fd5c74a962ed653e27e6d3e1f74e636e70c72a698c7b7344ac075da7",
-  "sha256": "28134b41834d9ebaebf33f3d2f5b1577e551c1ce0d6093c51c2c755088f21061",
-  "duration": 1.52
+  "request_sha256": "e4186db7f468e8b77384c0066c059b291dafd532ceb0ae474d700777f92be633",
+  "sha256": "62bb9d11bc602a3cc306523e39dd199832eb4cece44badb56dfb751fb9680931",
+  "duration": 1.44
 }

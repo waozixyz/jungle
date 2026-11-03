@@ -61,17 +61,21 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "seeds": [
+    1
+  ],
+  "kind": "word",
   "text": "Mango.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "7aa0b1e006a4b061f236a029f2666f63a0b3c135f584fb671f3e12335af0a145",
-    "receipt_sha256": "127e94e87026219dbc87358b9c4a56c0f7239f80ef1b1882f2f0947c6f973678"
+    "audio_sha256": "80d4d160513747a6514ff429b351d647b31a0176369a914a803af6baa2efa1a2",
+    "receipt_sha256": "b306b19f0b785579cd979cb34215411681dbbd53540424271df4a51e9df3549c"
   },
-  "request_sha256": "5984ea412c7814a5fac5109d64faa851f8ce89b54c79ba869082f24ea895bdcd",
-  "sha256": "80d4d160513747a6514ff429b351d647b31a0176369a914a803af6baa2efa1a2",
-  "duration": 1.36
+  "request_sha256": "f4a960b358f5b5d0ebf4410efdcfcb2113e3498026b9026398287f2503b6f3c7",
+  "sha256": "d11d8b0d23be06394662b94b4b5680d591796c5e310e062d36945702586da453",
+  "duration": 1.12
 }

@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Concha. ce. o. ene. ce. hache. a. Concha.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "98b02eff254d9ac1e72fd2f0a9f8b0805b4342882bef1746074a7bd3baaf82cd",
-    "receipt_sha256": "d91c5ab258680843373f29040c7e0056d98b23151606f3842f995aa1dc69e93a"
+    "audio_sha256": "27bb16c2f4a31fdcf401df770750e875375297793d55ecc3365ba4639cd6fbed",
+    "receipt_sha256": "6da2e4bef441d50b6b004230e737edeb367309cee607c3af90d490d20a93710f"
   },
   "request_sha256": "f81d39e56460a7072afab46258813d14c4a78179a3de58735f6d06472ed038fa",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -150,13 +151,13 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0068.wav",
-      "sha256": "f58df945f2887d54ce6ae744a72cce1975e4ed068f83b46803683a0480470031"
+      "sha256": "3ba76c624960ba0752a3cec6e4910c2b8294dcd23e676c88cb4d406e486acfd2"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0061.wav",
       "sha256": "6aa633c4e7266cf036cf4209e5b3414582f2275e6845b138621ed39f183e766c"
     }
   ],
-  "sha256": "27bb16c2f4a31fdcf401df770750e875375297793d55ecc3365ba4639cd6fbed",
-  "duration": 8.774240362811792
+  "sha256": "cf521c3c5a36e3392e4140a2ad283f270b38a5a19157357be16682f0f047927b",
+  "duration": 7.575646258503402
 }

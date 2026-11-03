@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Maracuyá. eme. a. erre. a. ce. u. ye. a con tilde. Maracuyá.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "d3e50d60bada3b364cec39128fc6e404e34c781af1471530ca8ee69ce80e430b",
-    "receipt_sha256": "1418f747b9ccb34b6017b7c3e4e66d4180c1a83d207cc6316259f27c8699ddcf"
+    "audio_sha256": "488f1e7af90490fab01b84f2481b3793a8b69fde02c7bb9575e5c402977e17a6",
+    "receipt_sha256": "82342588aebbbc29b8f2669a4bfa6bbbdc70639e0d7e8decbd2f220d59d5146f"
   },
   "request_sha256": "018dafd63893d2a15ef48eee05bfab0a4199a78b40a4006cab52c3bc09107b7a",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -166,7 +167,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0075.wav",
-      "sha256": "44864170767c91eadc4c6bb700a9985b3be7a2edd07610f59d63bb3342065145"
+      "sha256": "3b87b84cb161c4215edf80a9c11c6c6174b305b8343928d100227e10eedac039"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0079.wav",
@@ -177,6 +178,6 @@
       "sha256": "7590063009f5fd8159234b85b3d3721640524ff202bf9c8a54c8818d7d58019d"
     }
   ],
-  "sha256": "488f1e7af90490fab01b84f2481b3793a8b69fde02c7bb9575e5c402977e17a6",
-  "duration": 13.000634920634921
+  "sha256": "655c886cddc8d9d98d6b9a3537a4b3e7e6598c4d27aff7cca98f5f860ba4e17a",
+  "duration": 10.161179138321996
 }

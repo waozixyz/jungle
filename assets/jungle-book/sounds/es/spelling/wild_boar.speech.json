@@ -61,17 +61,18 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Jabalí. jota. a. be. a. ele. i con tilde. Jabalí.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "7e4aa428b51070bba22d882f261975281288c045d4dfeb5715c013fa6d45b68b",
-    "receipt_sha256": "6844919595c6024f9660aba3e923b0c08db5bfdc58cabe5be0eed1d33611aa8c"
+    "audio_sha256": "399f075f018f0def8be8ba2cb9e70be40f9bdd0f572da6c675c9e0dc145fbd72",
+    "receipt_sha256": "3187a79325bbcd0180ff71d1d5da8baed0ebd2c6c93d72b6de8e1c1affee11d7"
   },
-  "request_sha256": "eacb2ee475ea8e4815eb00df6a72ff7881a71cff2a0a53b1868f3422e6e34f4d",
+  "request_sha256": "cc3bbf60424a7968aca4eb42ce7040409c24405eb57cdbb0dad8c502aee67b53",
   "method": "Verified word, literal letter names, word; PCM assembly",
   "recipe": {
     "method": "Verified word, literal letter names, word; PCM assembly",
@@ -130,11 +131,11 @@
   "sources": [
     {
       "path": "assets/jungle-book/sounds/es/simple/wild_boar.wav",
-      "sha256": "a028c9598da48044af64b4e55921e4b53185090b2ee444820db8194817d125a1"
+      "sha256": "24b5c41b62e5cfb3d30791d28e0ba5c885cea9470d6b086ddd814ec48719b5df"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/006a.wav",
-      "sha256": "e956c592ec274ca806a93b12edc8d6ffa8eba365cac06518eca7087d7db58d4a"
+      "sha256": "cc488fc27e5c2d9e43712129cdd5a2c7735586d013e39c01d4cdf370fc69b89c"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0061.wav",
@@ -154,9 +155,9 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/00ed.wav",
-      "sha256": "4f31421570bb349fba2663269049881fcd3b21149707149ba1a838dee4ffedda"
+      "sha256": "e622d0f81c8886e24e5091b04ae2311e418b89a26136bec5995e73d4f540a6ad"
     }
   ],
-  "sha256": "399f075f018f0def8be8ba2cb9e70be40f9bdd0f572da6c675c9e0dc145fbd72",
-  "duration": 12.158503401360544
+  "sha256": "d90b50649cc879d81922786957f5173e11b65265658a576930db0d4686876c97",
+  "duration": 8.269795918367347
 }

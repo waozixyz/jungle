@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Cordero. ce. o. erre. de. e. erre. o. Cordero.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "700939819f2aa687d46d2149e7ce325cb608e9784da2d59985d22281b1bb79cf",
-    "receipt_sha256": "7a44c11a82454c5774b2daec24eed3c2744864098135346c4a279c7640ca8e96"
+    "audio_sha256": "71ef03b23dfb959915927eed6b533b6a4d31ea1449943cb0f4cd337219001d0e",
+    "receipt_sha256": "7baeccbd1e890dbb5b0fb2d805e318416c8131864be49a9b042259e89c640833"
   },
   "request_sha256": "fc9bef3ac445d6610d730b247750db5caf360c1f61b150e41c82d45cd6ef12b1",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -156,7 +157,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0072.wav",
@@ -167,6 +168,6 @@
       "sha256": "1e6e9d98b89b6cb8382e5e5150b909f029f100cfc9434c33c877275b112c91fc"
     }
   ],
-  "sha256": "71ef03b23dfb959915927eed6b533b6a4d31ea1449943cb0f4cd337219001d0e",
-  "duration": 9.492471655328798
+  "sha256": "83648fc6e294189f6deaa9860251965134571bf07330b964027b44df348784c2",
+  "duration": 9.079183673469387
 }

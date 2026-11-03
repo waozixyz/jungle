@@ -61,17 +61,18 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Corzo. ce. o. erre. zeta. o. Corzo.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "da5ab7f494e8dafeff278b54b4681752ba11e4b9855f8c7cb02d73a682c72297",
-    "receipt_sha256": "3d1cde9135f0c22ab12ba9d0a0633d21fd6d8cced65755ce595e67962bfd8a26"
+    "audio_sha256": "c71130a664bc29c5b8cf5c0a7a5b3d1672cbd2801dcb03e9a0b292cbb48e350f",
+    "receipt_sha256": "e0390866bd3817fc339735a3ac2df0faf428c6063ae4a8d544c7a8377234bd85"
   },
-  "request_sha256": "17fe3cdb64cc9ecdbe47e846e931c75c03ae9bce5888201f536fdcdfbf451567",
+  "request_sha256": "7a09f44aba1158e55bc4281d4c24e703301433da74295613a6a9893080e5348b",
   "method": "Verified word, literal letter names, word; PCM assembly",
   "recipe": {
     "method": "Verified word, literal letter names, word; PCM assembly",
@@ -124,7 +125,7 @@
   "sources": [
     {
       "path": "assets/jungle-book/sounds/es/simple/deer.wav",
-      "sha256": "55f4c852beae660d1e65bd2ddc6c1a039e0dc12ca1af94747592fcbca2ddcb7a"
+      "sha256": "7f27e1e6501c59cc087da2350b46d6a940766c25a5cc3017ab885d915c778f99"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0063.wav",
@@ -147,6 +148,6 @@
       "sha256": "1e6e9d98b89b6cb8382e5e5150b909f029f100cfc9434c33c877275b112c91fc"
     }
   ],
-  "sha256": "c71130a664bc29c5b8cf5c0a7a5b3d1672cbd2801dcb03e9a0b292cbb48e350f",
-  "duration": 6.902176870748299
+  "sha256": "e4dec63bc5315cfd44f81864339ff6e1539bf5c5fba3086ba305f5a0977e3265",
+  "duration": 7.170022675736962
 }

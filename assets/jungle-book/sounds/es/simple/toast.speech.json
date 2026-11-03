@@ -61,17 +61,21 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "seeds": [
+    5
+  ],
+  "kind": "word",
   "text": "Tostada.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "4ac262ad55b0f9fc01c00852600f2b1dd9336d8c2a4d4f4a82e62c8760ece231",
-    "receipt_sha256": "e3bda87c31d910b5066ca028ed5d57b29c2873df78f93dba5f98eb484d4f6a31"
+    "audio_sha256": "d802d73f96e19fe7fb9a3102fb7145873e1173869deb8771ab78c1fee4628829",
+    "receipt_sha256": "00864c512b6d5e05ca5e5708f45d8fc2d9f08980f0063c3ef48c64720306c408"
   },
-  "request_sha256": "ed2ef9756987ddccddae3f1d95110ea6cc99bd1f7fb227c04f47903d3448e66f",
-  "sha256": "d802d73f96e19fe7fb9a3102fb7145873e1173869deb8771ab78c1fee4628829",
-  "duration": 1.04
+  "request_sha256": "38db53cae4980b1ed77c0c663e594ea35a325b79a7a97df9649ebc52679c067e",
+  "sha256": "747cc3d7614a539990ed77e11e04c169be3b4ef8ef472eae2bc5cf0dc4bf5288",
+  "duration": 1.44
 }

@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Silo de grano. ese. i. ele. o. de. e. ge. erre. a. ene. o. Silo de grano.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "2b2e2bebeb13adf916a18740e52628f6010f521c9238342fdfebdc3ff79bd686",
-    "receipt_sha256": "c31dd02fc93e2df6433db6a230cdffc78fee7a9cc4ee0b51de6455fa94c01531"
+    "audio_sha256": "4908440ea02c51dfa4f24b955777c077a522066b222e0854c50c40deede61849",
+    "receipt_sha256": "07077251a8a2bff9e6049b65ab73e28beb68196089e82cf8bad7b9b71bd6bf28"
   },
   "request_sha256": "c86c29f978313bd2e9b9496a767d0e441b74ad512e54dd0a2e93de712b5d8e5a",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -190,11 +191,11 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0067.wav",
-      "sha256": "b9dc856adc034192f400896227ac36a2f401544bcbd4c6b46822046969f0f756"
+      "sha256": "afc0ecf2e57c9512a9426f85b007091ef4ce8b428ec2537aaf2a89baf093c518"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0072.wav",
@@ -213,6 +214,6 @@
       "sha256": "1e6e9d98b89b6cb8382e5e5150b909f029f100cfc9434c33c877275b112c91fc"
     }
   ],
-  "sha256": "4908440ea02c51dfa4f24b955777c077a522066b222e0854c50c40deede61849",
-  "duration": 13.767755102040816
+  "sha256": "1b56f05932abeb473a145f1e82ab70e5fcba90f13f40699a228174880104117b",
+  "duration": 13.228163265306122
 }

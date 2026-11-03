@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Viento. uve. i. e. ene. te. o. Viento.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "60109aff34671b77b0440d28e95561a0c521281d8d1c165c163f55cb5c6e6c80",
-    "receipt_sha256": "ab211b685ac898af0590808c35a0f5a295eb589d8c06d1ee0cdc0579a02d2996"
+    "audio_sha256": "ce7228e6322a64e2fe2d223e34135a44c2683d1e1f6f7ccc53caec5b43342d03",
+    "receipt_sha256": "b2d33a10cef610c698eb4a1c88bceb6aca47e9421ef2357cbd79061395abc55c"
   },
   "request_sha256": "504a389281b8537f93fe2fd19f5bd289b099279c0f4a28719000a76af327cd3d",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -134,7 +135,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0076.wav",
-      "sha256": "20f8ec164ab8064d828f6435acff19d28b07d52ab9f7c1c75c627042cf4e0df5"
+      "sha256": "8b222cd3c57833eab1161bf992646775b1187742872a9f824e4edd1b1af040f7"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0069.wav",
@@ -142,7 +143,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/006e.wav",
@@ -157,6 +158,6 @@
       "sha256": "1e6e9d98b89b6cb8382e5e5150b909f029f100cfc9434c33c877275b112c91fc"
     }
   ],
-  "sha256": "ce7228e6322a64e2fe2d223e34135a44c2683d1e1f6f7ccc53caec5b43342d03",
-  "duration": 8.5637641723356
+  "sha256": "4085db196dab6bae05ab14ae652a50e5d0e6ab52fc60035366c261bf6a56bffc",
+  "duration": 7.384671201814059
 }

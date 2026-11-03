@@ -61,17 +61,18 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Unicornio. u. ene. i. ce. o. erre. ene. i. o. Unicornio.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "68de4d66172a160c06d15453b274ee4e7d26dfbcef734ea1851ea6b0dff0ac8f",
-    "receipt_sha256": "8bca5f32487a989c726364108525da73cbf5272eb65f29a15438cfd3be98283a"
+    "audio_sha256": "6523e0e757b9ee2bd5ba1a566aa8ac566562b7fc549d35d659283270099e991e",
+    "receipt_sha256": "0b1695bc49deca2239ba3fc93cebb438d11787db32bba618263b0f1f01be05a2"
   },
-  "request_sha256": "56b15f36533d400c48bf1bd58a7e8b2e5d2034f627e5350a293d175264dc3d7a",
+  "request_sha256": "090dbdc2c7083848cdbf6c391998508b8a72299671cb80edca09e8238d05e08c",
   "method": "Verified word, literal letter names, word; PCM assembly",
   "recipe": {
     "method": "Verified word, literal letter names, word; PCM assembly",
@@ -148,11 +149,11 @@
   "sources": [
     {
       "path": "assets/jungle-book/sounds/es/simple/unicorn.wav",
-      "sha256": "28134b41834d9ebaebf33f3d2f5b1577e551c1ce0d6093c51c2c755088f21061"
+      "sha256": "62bb9d11bc602a3cc306523e39dd199832eb4cece44badb56dfb751fb9680931"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0075.wav",
-      "sha256": "44864170767c91eadc4c6bb700a9985b3be7a2edd07610f59d63bb3342065145"
+      "sha256": "3b87b84cb161c4215edf80a9c11c6c6174b305b8343928d100227e10eedac039"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/006e.wav",
@@ -187,6 +188,6 @@
       "sha256": "1e6e9d98b89b6cb8382e5e5150b909f029f100cfc9434c33c877275b112c91fc"
     }
   ],
-  "sha256": "6523e0e757b9ee2bd5ba1a566aa8ac566562b7fc549d35d659283270099e991e",
-  "duration": 13.177097505668934
+  "sha256": "70f9db485241383b423e67c491b91aa4a373d5723a6fc64c2d73a89ce56660bd",
+  "duration": 10.182539682539682
 }

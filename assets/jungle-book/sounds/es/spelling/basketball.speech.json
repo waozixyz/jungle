@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Baloncesto. be. a. ele. o. ene. ce. e. ese. te. o. Baloncesto.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "704c031603bf9f3c8913d2878ded954840398ef36052fa05762a46b7d4490a82",
-    "receipt_sha256": "c902840f9e035094f715b800587a95455e4eba7d1871081844f6a2971d0c9f49"
+    "audio_sha256": "c042731a0e2e9aa3850ee4dda9250a52eae34e1d8a30c63152ecba7618c22721",
+    "receipt_sha256": "d146dfc36a9d635f844fb3bb1c1b7f82df02c655ea773da90502a9cc952a12a6"
   },
   "request_sha256": "dc4868d2bca4b0a3af113d3a2fe42746cfce95a1457e36fffa3dd8112c0bca17",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -182,7 +183,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0073.wav",
@@ -197,6 +198,6 @@
       "sha256": "1e6e9d98b89b6cb8382e5e5150b909f029f100cfc9434c33c877275b112c91fc"
     }
   ],
-  "sha256": "c042731a0e2e9aa3850ee4dda9250a52eae34e1d8a30c63152ecba7618c22721",
-  "duration": 11.794739229024943
+  "sha256": "29968e32aafebb85ff01313476015ab36f526c4451324fae0274dfb514bc3e82",
+  "duration": 11.381451247165533
 }

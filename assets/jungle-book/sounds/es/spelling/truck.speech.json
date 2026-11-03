@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Camión. ce. a. eme. i. o con tilde. ene. Camión.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "6df868edb0c00f2e899ebe65f5a0824aa324392291bf02023f2c09c2adc8b2be",
-    "receipt_sha256": "84a392795a90d795e5f58a385be5eda9b691027c4c4e666e02fa37f947122753"
+    "audio_sha256": "1cfefc10fa1caa05d47f70a963f9f196f6cbca1641b8cb367d993d33b76cf753",
+    "receipt_sha256": "c779797720031bc79e9ef46a711b455d5912009918d58e4bc717ecfc45ca8ae5"
   },
   "request_sha256": "0f3d03f52fb19e851f45dc59541f4c8663e3968e4070c7ba33cc1d8060839b92",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -150,13 +151,13 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/00f3.wav",
-      "sha256": "176468535c890c6db7da584aa13d1f340fe2ef8b5776a395cca56f77f779f302"
+      "sha256": "f5e6ab54c33da48891c1070a091009b287e805777eb8944dc57f7aaa12c2f79b"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/006e.wav",
       "sha256": "fbbe3e903f52d9ef0593dc2a86b3bd73e2db751eff9099094c44fc5383accf3e"
     }
   ],
-  "sha256": "1cfefc10fa1caa05d47f70a963f9f196f6cbca1641b8cb367d993d33b76cf753",
-  "duration": 9.055918367346939
+  "sha256": "6766df2f4f99504c9a556de0073748e1d90f094ca493fc17acf3b37f7060392e",
+  "duration": 7.50702947845805
 }

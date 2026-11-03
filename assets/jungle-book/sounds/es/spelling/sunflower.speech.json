@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Girasol. ge. i. erre. a. ese. o. ele. Girasol.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "1fff11592ec53512883c002d80f6987a256984dd0ac6302d2058f952123312a6",
-    "receipt_sha256": "629230fb79e1224a27139bbd749e5571a1bf1957af39940f1d47323f77f2cc41"
+    "audio_sha256": "72ed97663af3212a5eb344c86d79d53d812dfc6264669fe0211fbc09aed99125",
+    "receipt_sha256": "12f829a1e0a86a5b17860b41b42c2dc9b4243b1d49c7fe53bbece7d9ee622f57"
   },
   "request_sha256": "2e6e78a71a88bfb01676b76e11c67c1bf24113c36b3f81b1ecd6ea83044138d7",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -140,7 +141,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0067.wav",
-      "sha256": "b9dc856adc034192f400896227ac36a2f401544bcbd4c6b46822046969f0f756"
+      "sha256": "afc0ecf2e57c9512a9426f85b007091ef4ce8b428ec2537aaf2a89baf093c518"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0069.wav",
@@ -167,6 +168,6 @@
       "sha256": "80c3f457c6d6e68850fe11948083e43d7be814d43ef23c0e7b89f21fc7e249a4"
     }
   ],
-  "sha256": "72ed97663af3212a5eb344c86d79d53d812dfc6264669fe0211fbc09aed99125",
-  "duration": 9.240272108843538
+  "sha256": "769f677a8bd8f05131f1ef8cd6d4fd1f85c08d60ffba4a82a2431e2721ec2bb8",
+  "duration": 9.113968253968254
 }

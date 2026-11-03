@@ -61,17 +61,21 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "seeds": [
+    4
+  ],
+  "kind": "word",
   "text": "Pulpo.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "383e41da6facb2ad9aa5fcbf438f5aca026c4d0a4d33f097d29a6547a2b2ef10",
-    "receipt_sha256": "0f1bf8ce848d3f917c52bfd64d21a352ec095f6dbbf96dc87ec143b4756a2f7e"
+    "audio_sha256": "03d2f93687a544fc2038e4ebb47aaa963ea921fdea10d428ca29ca4800d3464e",
+    "receipt_sha256": "88c95dec481cd70e0c1fbbc9675a6eed044c544770802293d66aa1de2a39fb8b"
   },
-  "request_sha256": "bc17becb57fd07c46a4a8b42681460fbc3ae36ef34fed43d7ccca06f0cacdc81",
-  "sha256": "03d2f93687a544fc2038e4ebb47aaa963ea921fdea10d428ca29ca4800d3464e",
-  "duration": 1.44
+  "request_sha256": "08dd0dfa6141127cdff9816596a996d4155f2e2e5b121fc3f196171343b9917c",
+  "sha256": "d6bd10facf7c774e1a41d9f530de00e42cec2a5ccecabf8bcdff957ec6030017",
+  "duration": 1.68
 }

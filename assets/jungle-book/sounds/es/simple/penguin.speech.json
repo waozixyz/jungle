@@ -61,17 +61,21 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "seeds": [
+    3
+  ],
+  "kind": "word",
   "text": "Pingüino.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "bc101f70ea8db15cbc87e280f3d940ebc1f32c60dde304fe19691051194ee6db",
-    "receipt_sha256": "3544abd9f776d1413ded2c3b4c57595fc8b95195dfc05e6455bd07c94b3e7165"
+    "audio_sha256": "d958d41c10418e0b4b34e5f8791aedf7131f40cd79bc4abf4ccc7fef30275a00",
+    "receipt_sha256": "353ddb54fab5b7a0c7e0c994590c7ac5d5d16c06f8fcd16bbac0bcc45ebdf200"
   },
-  "request_sha256": "cc6e94e461ee2aef5e21e978f2874a06036a94f7a330840584355382c657ee4a",
-  "sha256": "d958d41c10418e0b4b34e5f8791aedf7131f40cd79bc4abf4ccc7fef30275a00",
+  "request_sha256": "39028b028787f3332b374a7daa032af1fe6e729d454acdfcd6d4052a69425616",
+  "sha256": "e9c3e70090f1b6ce6708e40ecda267b8b97f129b1b44a0f5f8964c3097ef0fa1",
   "duration": 1.76
 }

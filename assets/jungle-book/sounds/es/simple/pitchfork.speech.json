@@ -61,17 +61,21 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "seeds": [
+    1
+  ],
+  "kind": "word",
   "text": "Horca.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "b92627de7ab76e506e029d51f50aad160ac6327b7d4fdcbca2753a5292f74e7d",
-    "receipt_sha256": "7155584951e2a3450c9d8bbeec20eb1f7ad3fbcf94443328c967b04f6eac76ef"
+    "audio_sha256": "a16bef2f0d7cbf80bd97305de82c7d72704e8210b2c3ec89a2ee65d6a04461c5",
+    "receipt_sha256": "917e2fa3d5a924e17e1ffa461d537069cca48586f970c19ae0dcfdfc00402e73"
   },
-  "request_sha256": "b1b04018c678f2e5f265af7d2fff125959f1ba7fb85152b4e4ee09255128039a",
-  "sha256": "a16bef2f0d7cbf80bd97305de82c7d72704e8210b2c3ec89a2ee65d6a04461c5",
-  "duration": 1.36
+  "request_sha256": "acb2151b0116b99c6d1d7b7526b549d80538ac9e2e165e4b8d1f5fa475ff48ef",
+  "sha256": "16b80e1ab0da6737e44ec3b8a9b029e79a4b194c7eaf38c23972c9821b755ed5",
+  "duration": 1.52
 }

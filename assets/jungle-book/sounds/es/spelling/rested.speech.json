@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Descansado. de. e. ese. ce. a. ene. ese. a. de. o. Descansado.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "707f2b2640d3d61cb329c14b530ca8f5b9a29de39d5a69108db729b5d5c4e2ad",
-    "receipt_sha256": "8fb34acc564b4a9ac5303546cc058a1d92d743d2966e2c1c7dce71e850c1616d"
+    "audio_sha256": "301bb8b9fa03d6887680153bd402b1e8cebee7e821f296c29f28e87450554494",
+    "receipt_sha256": "4d04a7a4f9435ce64a4c3f16f9bbb6e7551012afd7f4ea921e4681f9c2cac2c5"
   },
   "request_sha256": "d0716815b01282b029326d6a652af81918b1bb9aee00ce70d498a26a09f4fc27",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -162,7 +163,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0073.wav",
@@ -197,6 +198,6 @@
       "sha256": "1e6e9d98b89b6cb8382e5e5150b909f029f100cfc9434c33c877275b112c91fc"
     }
   ],
-  "sha256": "301bb8b9fa03d6887680153bd402b1e8cebee7e821f296c29f28e87450554494",
-  "duration": 12.023310657596372
+  "sha256": "b1c37b447c562d273c9a3f7d85285f7a8faa4220b036c2b8a2ab1bc0ab347d93",
+  "duration": 11.610022675736962
 }

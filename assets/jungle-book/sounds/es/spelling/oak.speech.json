@@ -61,17 +61,18 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Roble. erre. o. be. ele. e. Roble.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "3cfd91dc132110ba4331c29ca30a8ef23ec4613df5e9df2f69cb537f8c6787d1",
-    "receipt_sha256": "9eb01360aa61633af9fe6c1010ffee53ddee8da496a6b9f13874c0eaa73910d4"
+    "audio_sha256": "5e525b56c22e0d3f9ed19efaed9080fcea931829ef39b1bee4884e62d219594c",
+    "receipt_sha256": "2b8bbfdb568b9bd092d4c97be093cfcda44570963373b1583f2a3bb781a6ae81"
   },
-  "request_sha256": "7caaa75e24eb9f0a3f90de91a7d7844f42024ba995b12402f60090475e9b02c6",
+  "request_sha256": "719d2dc1cc0b68553f9e19a58a37f32a904a6caf0a629fc797689b8354353fec",
   "method": "Verified word, literal letter names, word; PCM assembly",
   "recipe": {
     "method": "Verified word, literal letter names, word; PCM assembly",
@@ -124,7 +125,7 @@
   "sources": [
     {
       "path": "assets/jungle-book/sounds/es/simple/oak.wav",
-      "sha256": "253db61784ab8bc140de713e8cf2a136ee46985e52e521fad2635063f91cd443"
+      "sha256": "1492c6efc3068043bceb89218bafd48dfe4d341d607b8aa2eab00914cdba735f"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0072.wav",
@@ -144,9 +145,9 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     }
   ],
-  "sha256": "5e525b56c22e0d3f9ed19efaed9080fcea931829ef39b1bee4884e62d219594c",
-  "duration": 7.283356009070295
+  "sha256": "8042431f57aa961c4e2155c12b96685b61ac8355123fd85b817bd4a517d18321",
+  "duration": 6.395238095238096
 }

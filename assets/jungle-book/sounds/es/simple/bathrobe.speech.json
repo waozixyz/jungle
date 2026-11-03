@@ -61,17 +61,21 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "seeds": [
+    9
+  ],
+  "kind": "word",
   "text": "Albornoz.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "4ef4ebce4ae798a52b29c0118ad2ad1f6b0cfb8d1a661009e0609f117fd8e3ff",
-    "receipt_sha256": "3458b40955b87ff40ed3c9f25de194c47b496801209db34bf6cd6a4a5780bac3"
+    "audio_sha256": "0b458cf740acd721db4570329b93edc89e1e553789bba88f9304c11826b16cbb",
+    "receipt_sha256": "05ac6a9484609bef541f9df2919cac58db83682bb9a58031bb9210f0dbc194e0"
   },
-  "request_sha256": "c75113f492726ef050d8480b7a96649b1d71ebbf9eed55d4a60a0baba479269d",
-  "sha256": "0b458cf740acd721db4570329b93edc89e1e553789bba88f9304c11826b16cbb",
-  "duration": 1.52
+  "request_sha256": "c813c7e07249bcc0b33d40355a895cacde8ebe08a3c42068051f35798973afc7",
+  "sha256": "00965138aac8305e29dfdb5aa4f9a4ad4ce227ddcc0822cabc1f835fb9490f98",
+  "duration": 1.84
 }

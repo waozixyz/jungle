@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Niebla. ene. i. e. be. ele. a. Niebla.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "50b284251996844213985657544ffb48639e8a88beb7f7945b9ea958d348a6a2",
-    "receipt_sha256": "86bf98965c4d745b6e2e89533025c6a9211657139f3548bb983bcad248469c74"
+    "audio_sha256": "d1b57a8f60c5729a8df610675237ee265c3a14c149d93b69eadeacd171bb90d6",
+    "receipt_sha256": "579b3c1554b1f364a230d4034838e80b803b890c94e5dd81c705d62e8386e8dd"
   },
   "request_sha256": "e4d7bb637efd9759b5e13e756740015af375b79d3cacec1b10afe06c9a44a430",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -142,7 +143,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0062.wav",
@@ -157,6 +158,6 @@
       "sha256": "6aa633c4e7266cf036cf4209e5b3414582f2275e6845b138621ed39f183e766c"
     }
   ],
-  "sha256": "d1b57a8f60c5729a8df610675237ee265c3a14c149d93b69eadeacd171bb90d6",
-  "duration": 7.537868480725623
+  "sha256": "765c6295cab485f3210d544dac147df7373975e72628dd53448bb63c176834db",
+  "duration": 7.124580498866213
 }

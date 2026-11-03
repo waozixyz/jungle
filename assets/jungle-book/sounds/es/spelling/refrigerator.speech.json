@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Nevera. ene. e. uve. e. erre. a. Nevera.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "8148fd9678e92570ce773644159ebf33c881055ab64209a58c634089f0395686",
-    "receipt_sha256": "928a10a4f54a0cfdd655df9e508d91f32ed4739ba86037202b667bccc77890db"
+    "audio_sha256": "8192004ed475056d883e8a347538c27183836bcc8c9077d948c06261021f4460",
+    "receipt_sha256": "72fe4cbf22b67d1715df31fe5d005e7e755bc67307261e032dbaaee6f7369d1e"
   },
   "request_sha256": "d09a729199739dbbf8d32d464eae8be4d534edb6166f90ade4be3947bea06fab",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -138,15 +139,15 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0076.wav",
-      "sha256": "20f8ec164ab8064d828f6435acff19d28b07d52ab9f7c1c75c627042cf4e0df5"
+      "sha256": "8b222cd3c57833eab1161bf992646775b1187742872a9f824e4edd1b1af040f7"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0072.wav",
@@ -157,6 +158,6 @@
       "sha256": "6aa633c4e7266cf036cf4209e5b3414582f2275e6845b138621ed39f183e766c"
     }
   ],
-  "sha256": "8192004ed475056d883e8a347538c27183836bcc8c9077d948c06261021f4460",
-  "duration": 8.673605442176871
+  "sha256": "b2f480ad537d9981e27d00134cd49ebd25fd2078670df1700d1223fef0bf8ce8",
+  "duration": 7.081224489795918
 }

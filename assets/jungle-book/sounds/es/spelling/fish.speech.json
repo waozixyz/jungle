@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Pescado. pe. e. ese. ce. a. de. o. Pescado.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "49611e120a3ad84c51c1039725e53d44d25bdc16cedd30814a62cce61d64d83f",
-    "receipt_sha256": "3390e1cf8aacd357829651700f727379b2b4d1ec46bba560863147b6e6389f0c"
+    "audio_sha256": "c2a8b8bf39817f2f855e04a2fc6eae105a92640c2ece9bae37be5f0d59740751",
+    "receipt_sha256": "c23963fab7ae35946af814120b08f0404227fa623312ca7e442dd954fa3e516f"
   },
   "request_sha256": "6eae77c8e9f8053e331e71c9414e9fc3228a891b4b96d5326b0e3113f8c2ca4b",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -144,7 +145,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0073.wav",
@@ -167,6 +168,6 @@
       "sha256": "1e6e9d98b89b6cb8382e5e5150b909f029f100cfc9434c33c877275b112c91fc"
     }
   ],
-  "sha256": "c2a8b8bf39817f2f855e04a2fc6eae105a92640c2ece9bae37be5f0d59740751",
-  "duration": 9.812517006802722
+  "sha256": "f681672476428d63f9c6cb44623e993af1a915c42df4489eb8bd05b7c2ca9ec3",
+  "duration": 9.399229024943311
 }

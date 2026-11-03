@@ -61,17 +61,21 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "seeds": [
+    6
+  ],
+  "kind": "word",
   "text": "Cuchara.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "45c15f1fa8370c6e1ad6d7e69adcec8da8a5cbd4087240e8f6ff038e9e57c01c",
-    "receipt_sha256": "45a544205b319c1e5f2ea8d4091f6bd2d8b444124f10385203be42fa9b2c628f"
+    "audio_sha256": "9d1df94b92f31353f775786d7ce9859b9534e10ff625e883f60c122683eee252",
+    "receipt_sha256": "b5bbf560a900844e44ef541d7ceb1acc5655168bdc872fc8c575fa75b5c5609a"
   },
-  "request_sha256": "7afad884a82328e9a2a44016f9ff9103ad544a3b77350a57ce02706f49ee96dc",
-  "sha256": "9d1df94b92f31353f775786d7ce9859b9534e10ff625e883f60c122683eee252",
+  "request_sha256": "81bb57b05654676f9ae044729532cdf017e123715615c7c4659ebf23312c44a5",
+  "sha256": "dc327fb358728b7e13e1ac87006d26e2e19f3d5b7df5996ce2e6dd19f7115c85",
   "duration": 1.44
 }

@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Contento. ce. o. ene. te. e. ene. te. o. Contento.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "f9eafbca0f349ffa68caab8fc81390074d1a7a4b7f86c4d7027c78ede80a40ae",
-    "receipt_sha256": "f85332cdfae593056fa47ce1cf541ece6499f28792dc83349d3f1a5b9aaa02b1"
+    "audio_sha256": "556d90dd09dfb8b0b2b5f7cf503d742773be12eefb95e0b013aeb0167e36a077",
+    "receipt_sha256": "082357ddc4190746f74e4a4854551e3875791ba4446db6f8e7b8fec062560841"
   },
   "request_sha256": "a276843a63b38b276d24f918c975a7ffe60e07ade8c1e4b35ee74820b130d521",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -162,7 +163,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/006e.wav",
@@ -177,6 +178,6 @@
       "sha256": "1e6e9d98b89b6cb8382e5e5150b909f029f100cfc9434c33c877275b112c91fc"
     }
   ],
-  "sha256": "556d90dd09dfb8b0b2b5f7cf503d742773be12eefb95e0b013aeb0167e36a077",
-  "duration": 9.725034013605443
+  "sha256": "284d4bc41f7df09e5d532932968038b78a7d9a10e09cef3761dad91ca76e729a",
+  "duration": 9.311746031746031
 }

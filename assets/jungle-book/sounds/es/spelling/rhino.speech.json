@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Rinoceronte. erre. i. ene. o. ce. e. erre. o. ene. te. e. Rinoceronte.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "c9b0dfae24a77b6a77e5d1d6f1b8c79e7f31f6dadf3e7c1f252bf8e8e1df50c0",
-    "receipt_sha256": "a2d5a71cbc0c2bc092027fcdfdb45c2c4673c8b6a33ad37eaba872b77e44b12f"
+    "audio_sha256": "7757884a3bb2be40faaafaa39ce3e505176df018f5a4ad2ab06a0cac6e1f7977",
+    "receipt_sha256": "fc1a7b9b29533ac92a1cb4cc0611b5cc97d3aaf84164d8cc9e80a8a8c1ed6203"
   },
   "request_sha256": "eca2eb438929e3a99f836a4726adfa4a00526b321b4657cd06adcf46e6dbf33d",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -184,7 +185,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0072.wav",
@@ -204,9 +205,9 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     }
   ],
-  "sha256": "7757884a3bb2be40faaafaa39ce3e505176df018f5a4ad2ab06a0cac6e1f7977",
-  "duration": 13.557369614512472
+  "sha256": "7e4f56e42f14b39aecc62e42e3d888e64ce0ce0b2acb624d4a84d348284a18af",
+  "duration": 12.73079365079365
 }

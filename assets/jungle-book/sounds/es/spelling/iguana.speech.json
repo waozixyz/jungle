@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Iguana. i. ge. u. a. ene. a. Iguana.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "533970147237ac03ec21cdf34399bfaf83895f9376d45fd77d750dd264f4e7d8",
-    "receipt_sha256": "7ae8fa17da3ef80f53857322d5b7276aa464bedd1e0c900dd5b38a99ea79178b"
+    "audio_sha256": "495858788d74c4b0e8201d44a16b85f29dc9b9698d474340f32fcb597789ffe6",
+    "receipt_sha256": "d5f7f07da3d62ca543c66b24a56a56794be7c07c3990668419964bb6d2982ba8"
   },
   "request_sha256": "274a94f96c7af70edc8ec60cd770a0fda4e5a4e01e1c4fe9424272521e34fa25",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -138,11 +139,11 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0067.wav",
-      "sha256": "b9dc856adc034192f400896227ac36a2f401544bcbd4c6b46822046969f0f756"
+      "sha256": "afc0ecf2e57c9512a9426f85b007091ef4ce8b428ec2537aaf2a89baf093c518"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0075.wav",
-      "sha256": "44864170767c91eadc4c6bb700a9985b3be7a2edd07610f59d63bb3342065145"
+      "sha256": "3b87b84cb161c4215edf80a9c11c6c6174b305b8343928d100227e10eedac039"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0061.wav",
@@ -157,6 +158,6 @@
       "sha256": "6aa633c4e7266cf036cf4209e5b3414582f2275e6845b138621ed39f183e766c"
     }
   ],
-  "sha256": "495858788d74c4b0e8201d44a16b85f29dc9b9698d474340f32fcb597789ffe6",
-  "duration": 9.44204081632653
+  "sha256": "a0a6a1335349766efdc142cbdb573c2213f82797fb5c68f605b8cfbf80554e48",
+  "duration": 6.476281179138322
 }

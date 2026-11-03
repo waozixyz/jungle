@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Tío. te. i con tilde. o. Tío.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "0677db8770445b800d65eb9ec4f2701365a06a52ae5f3aad63933f5368b8893d",
-    "receipt_sha256": "afaa696f1092f49cd52d4a2d25c5b164619c12353d5a1fed3e7614f111bfa971"
+    "audio_sha256": "fa6c6a6f2cabf5f859a0e365c8dc5a5ec5b00961204fee06329129a4f7683af3",
+    "receipt_sha256": "fbf6b80796796715187009e99662274bab7f79551159455abbd5530eb6127673"
   },
   "request_sha256": "fe13442b0e64a29e0a134773892ac00a743dee6f3588852a7c031552165939a1",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -120,13 +121,13 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/00ed.wav",
-      "sha256": "4f31421570bb349fba2663269049881fcd3b21149707149ba1a838dee4ffedda"
+      "sha256": "e622d0f81c8886e24e5091b04ae2311e418b89a26136bec5995e73d4f540a6ad"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/006f.wav",
       "sha256": "1e6e9d98b89b6cb8382e5e5150b909f029f100cfc9434c33c877275b112c91fc"
     }
   ],
-  "sha256": "fa6c6a6f2cabf5f859a0e365c8dc5a5ec5b00961204fee06329129a4f7683af3",
-  "duration": 6.4333786848072565
+  "sha256": "eca0aff45a9fb2cc82b458efad371fab9b5a75d0287c75ee165cb57be3aa1345",
+  "duration": 5.074739229024943
 }

@@ -61,17 +61,21 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "seeds": [
+    1
+  ],
+  "kind": "word",
   "text": "Hurón.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "2322b33f0fe1f3046cfbc2158c66a3e2f97141d2d60102671cab082280d95323",
-    "receipt_sha256": "30e00d2c03134815b8ef6ff08c49292e3a2879c443ed9541c9fb4a6c42717980"
+    "audio_sha256": "fa184d180ede6c206da52e42dacfbe801ecba124096ade0a2c04fa816a56dd55",
+    "receipt_sha256": "84d8d1c868b6458ac6f7694980e483ce4ce0b4c26a07aa9471f4df67aa4ee39a"
   },
-  "request_sha256": "79dca0f6b2a988de2fb571f7b21a0680debf60e7af5a742c941195b7786c3615",
-  "sha256": "fa184d180ede6c206da52e42dacfbe801ecba124096ade0a2c04fa816a56dd55",
-  "duration": 1.6
+  "request_sha256": "9fdabf5fecad3512c71d14e4dd2b5c49d6b843b16fe3736e11e59912b8f89b69",
+  "sha256": "b1fe7364035c37d22d5d42e5ee60ba13e2d91cc9c543ef03820862b91b2f1e3f",
+  "duration": 1.2
 }

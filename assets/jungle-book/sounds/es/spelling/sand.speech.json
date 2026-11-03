@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Arena. a. erre. e. ene. a. Arena.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "f2f2b873843d00caf1bdd7da3d0b3e8f210a232da5f75ae2342e06fb086b6729",
-    "receipt_sha256": "4c152549fb7129357362b5cf28940a244c9353bd696acbb917d79a353edd1766"
+    "audio_sha256": "03ca91874163e38e12ebcc8e49a845653c878baae9637f8ba6425fd6e76d49bb",
+    "receipt_sha256": "a1d5c23a18e718c2ab128c4c3c17fa1e903efc15faab5eba0d741d5691e4325c"
   },
   "request_sha256": "b139cacca22a87f988e76f68f61f85b20a468979d21a9684886f8950b2d3cfaf",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -136,7 +137,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/006e.wav",
@@ -147,6 +148,6 @@
       "sha256": "6aa633c4e7266cf036cf4209e5b3414582f2275e6845b138621ed39f183e766c"
     }
   ],
-  "sha256": "03ca91874163e38e12ebcc8e49a845653c878baae9637f8ba6425fd6e76d49bb",
-  "duration": 6.4136961451247165
+  "sha256": "eda526dfd9bbe165d1de1143c025c9178d6ec361a05990403659140dc70b05ac",
+  "duration": 6.000408163265306
 }

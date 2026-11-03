@@ -61,17 +61,21 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "seeds": [
+    7
+  ],
+  "kind": "word",
   "text": "Quince.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "cd025e3f6c6d87afee2677c4a7bc76530a961ea5a0e85016e491db58ddba0854",
-    "receipt_sha256": "9b96041fcaddc44eeb7eb6e18af73491d6918c889d2dcba47b5d79a78b4db77d"
+    "audio_sha256": "22234cff35143d76cea6a92fd07fccce43c75265ecd54fdced1b571fb1ae7a04",
+    "receipt_sha256": "4761a81e6f5b187691f2b0728e4ead5ad8a79ec0224cc2af13ea11dc57cf5f8e"
   },
-  "request_sha256": "5fff67ba3f5177b02b4e699a50031baa88990658ac74aaeb89c567f4190a298e",
-  "sha256": "22234cff35143d76cea6a92fd07fccce43c75265ecd54fdced1b571fb1ae7a04",
-  "duration": 5.76
+  "request_sha256": "6ff16ee16ebc45e10418f0098abe67f79f4384a7ba4eb6dcea69fc2ffff6f3f5",
+  "sha256": "c40a1054fb9abd0e6568927e88cc4aba5f3f87f24502038f2ae2c12075b76d53",
+  "duration": 1.28
 }

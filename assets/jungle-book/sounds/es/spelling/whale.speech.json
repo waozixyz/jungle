@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Ballena. be. a. ele. ele. e. ene. a. Ballena.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "08ae8163be9c88947fac14aa4f95ef19f3f48ec93a16913d0c5fd1ed7e08269a",
-    "receipt_sha256": "34d80d009bfab35f56c92bff70bcbf6456c87e88ff691a291f8b404cf8632808"
+    "audio_sha256": "da7f369efdfbadf8093c320cc9ec387ff39a707eec03e69aec9a7e9306dda890",
+    "receipt_sha256": "7244d6ab1a853b27c2337cc3bfd7d30bba23dd3e13d9dbc4c60794c89e8e7754"
   },
   "request_sha256": "17c97fef0a4149a933ddd9f156d8a8d5b7335e694029db53266daa776d4862ee",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -156,7 +157,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/006e.wav",
@@ -167,6 +168,6 @@
       "sha256": "6aa633c4e7266cf036cf4209e5b3414582f2275e6845b138621ed39f183e766c"
     }
   ],
-  "sha256": "da7f369efdfbadf8093c320cc9ec387ff39a707eec03e69aec9a7e9306dda890",
-  "duration": 7.9635827664399095
+  "sha256": "ce6527f6852ec239eabc7498873fb9d124d34c79d66dfeb00ff76e23864ba4fb",
+  "duration": 7.550294784580499
 }

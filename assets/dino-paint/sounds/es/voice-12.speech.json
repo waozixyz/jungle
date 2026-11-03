@@ -61,17 +61,21 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "seeds": [
+    16
+  ],
+  "kind": "word",
   "text": "Coritosaurio.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "24f1f2b5898f38b1ab7ebbb4d176f0b87e190dfed5e74db2de254385647b7b7c",
-    "receipt_sha256": "3cdf77ed2ad317e1adade74394391fca90d84b91c30643ab74e84b3e6334094b"
+    "audio_sha256": "11b3bc74414fc03e1901eaefc40f90f468f23e58e9702e1487f28c2f1fcefac7",
+    "receipt_sha256": "a2f37ec47b2d37834e4511037f66cbe14fedcff939ac3e5883abdb148400ab57"
   },
-  "request_sha256": "ad7008ed912509f16e259e696d6dffd991edca67dbf38f73a9eb44ec28836d7c",
-  "sha256": "11b3bc74414fc03e1901eaefc40f90f468f23e58e9702e1487f28c2f1fcefac7",
-  "duration": 2.24
+  "request_sha256": "d1992f01670d5883b2bcb93b0bfd02be1b654b280303c4596741d901422e5042",
+  "sha256": "4d82b76689e2374aa9b4dd488a8498b816b5f0cb57bb98ffedc7cac69364869a",
+  "duration": 1.52
 }

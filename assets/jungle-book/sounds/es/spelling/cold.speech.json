@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Frío. efe. erre. i con tilde. o. Frío.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "c9d144f4c109e76645fbbcff88ad9ee56944bd15d9016efc29270362751db492",
-    "receipt_sha256": "3bed16e64cbc4440227ef5ae062bd1e50770c7f5f3ccf82a61a4ced1a879bcda"
+    "audio_sha256": "d50252eb4c1a6e199a12d767221b25689381f815d65fe787e7ca3b978bdd04cc",
+    "receipt_sha256": "b3964162213759612f1c9e2394fa37097f426e23364ee4add8d052ce8d25c79e"
   },
   "request_sha256": "fafecd6bab97e251d2cc279298af6be70761dd0ec7c4cad813479f1f5cadbf16",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -130,13 +131,13 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/00ed.wav",
-      "sha256": "4f31421570bb349fba2663269049881fcd3b21149707149ba1a838dee4ffedda"
+      "sha256": "e622d0f81c8886e24e5091b04ae2311e418b89a26136bec5995e73d4f540a6ad"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/006f.wav",
       "sha256": "1e6e9d98b89b6cb8382e5e5150b909f029f100cfc9434c33c877275b112c91fc"
     }
   ],
-  "sha256": "d50252eb4c1a6e199a12d767221b25689381f815d65fe787e7ca3b978bdd04cc",
-  "duration": 7.7411337868480725
+  "sha256": "d9dea98ab7472e53744752c8479e31e9d028b8f5728ab0f9f03301403e2f443e",
+  "duration": 6.38249433106576
 }

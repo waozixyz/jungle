@@ -61,17 +61,21 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "seeds": [
+    1
+  ],
+  "kind": "word",
   "text": "Pijama.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "4cd04b8f88466fca9dd04f38f5596e177eb7198c5762a92e6a240bdac6816d21",
-    "receipt_sha256": "6ed93fa2b5a526d9e1ecadc2bd7541f0568f7666598752d0f643361a00018293"
+    "audio_sha256": "f22a1b7070f3f668c05e6f147b4c76d021edd60edd618865293d1848b93d69a7",
+    "receipt_sha256": "a5c926e37d3ffa464b41ebd29bf13688200e6d70db381a2e16b4d3a99ae77561"
   },
-  "request_sha256": "6c0260d258082cecf0674ac5087f78d1a79cfe6f434e35d21154985785af94db",
-  "sha256": "f22a1b7070f3f668c05e6f147b4c76d021edd60edd618865293d1848b93d69a7",
-  "duration": 1.52
+  "request_sha256": "ca1dc218a1efeeb85660375ce94d856dbab1a6f6524f5c72ffbc28a724d04c09",
+  "sha256": "ca1a969b9c51b93efda1e03392edd318ef6c2dce83ef21cb51750b3ea52aeab2",
+  "duration": 1.2
 }

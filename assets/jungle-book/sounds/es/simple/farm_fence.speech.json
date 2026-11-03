@@ -61,17 +61,21 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "seeds": [
+    1
+  ],
+  "kind": "word",
   "text": "Valla.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "fe8818b69050f4a655408732bdb9b8965e493323dcf2f09e429eb0fd296a7681",
-    "receipt_sha256": "34d14efeb7caf0be9b27aff00488f36ba0284d3cba899605893ba0be7bc05f4a"
+    "audio_sha256": "55a27d36849c01324754805af7a4fdc2a1681a3b25a19844668d72d1596ceb3d",
+    "receipt_sha256": "3731800576be0a2fa0f5eca1600945836f8ced3fc578d04bc8c0ab7dbc5ece5c"
   },
-  "request_sha256": "9e323fd023ebfece0e133005e83f8fa1db2962bb120fab8d044665324a25e7e9",
-  "sha256": "55a27d36849c01324754805af7a4fdc2a1681a3b25a19844668d72d1596ceb3d",
-  "duration": 1.36
+  "request_sha256": "279e3cd642bba6dbc06ecb5b4cc658d45be703c348b0aa6e32b0f7fcd8d4c9fa",
+  "sha256": "52e24050b4a0f5cc2337e350de2665a30c1aeaf0300c4ae7b99679dfc69d1e5d",
+  "duration": 1.12
 }

@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Águila. a con tilde. ge. u. i. ele. a. Águila.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "4a88822c6f1a1dcc39bf468beb4e85fa67b3ece08d742c255444ad0a83d61921",
-    "receipt_sha256": "f8eeec40d266e87e2836060120d9a072d046cce084fa97a03926e20c5b6781c6"
+    "audio_sha256": "52dd2119bbe20fa6eaeaaca9d6cbf257b1aaa04008b34e7e6eb1f33a0321f50f",
+    "receipt_sha256": "d4e369699699acb4c881f2005f7a700f14dc977c7dbf68f56aa79ace1a6db27e"
   },
   "request_sha256": "e5411f6d4e95fc32b12411a9e18bf1044f9a05b13d6543582d112656c89f5dfc",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -138,11 +139,11 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0067.wav",
-      "sha256": "b9dc856adc034192f400896227ac36a2f401544bcbd4c6b46822046969f0f756"
+      "sha256": "afc0ecf2e57c9512a9426f85b007091ef4ce8b428ec2537aaf2a89baf093c518"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0075.wav",
-      "sha256": "44864170767c91eadc4c6bb700a9985b3be7a2edd07610f59d63bb3342065145"
+      "sha256": "3b87b84cb161c4215edf80a9c11c6c6174b305b8343928d100227e10eedac039"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0069.wav",
@@ -157,6 +158,6 @@
       "sha256": "6aa633c4e7266cf036cf4209e5b3414582f2275e6845b138621ed39f183e766c"
     }
   ],
-  "sha256": "52dd2119bbe20fa6eaeaaca9d6cbf257b1aaa04008b34e7e6eb1f33a0321f50f",
-  "duration": 10.49827664399093
+  "sha256": "49cf602d6402f9aea8e0dd22f89fb0c9ce2b242d643141818784e407727dd7df",
+  "duration": 7.532517006802721
 }

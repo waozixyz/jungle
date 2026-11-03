@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Maestro. eme. a. e. ese. te. erre. o. Maestro.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "8f1b909e98c8671656da93ab67a3a04bec3ca3d79a3da277bef54b8c0a071493",
-    "receipt_sha256": "e737a17f4c462d74de8f47395cf50a975168f0491d92c3e666606a194e7e3975"
+    "audio_sha256": "c22e798cd94c493d90e2cda4e803ff9fe3984fc16fdd0df72429b6ce015e1328",
+    "receipt_sha256": "d5ff68424db4800199326449a3488fdc854cfe6efbab47b9ffafbe38b7e48039"
   },
   "request_sha256": "3f66f243adbf7f78cbd16e7816d238e38b5f4974c49b518d6b850dade982c761",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -148,7 +149,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0073.wav",
@@ -167,6 +168,6 @@
       "sha256": "1e6e9d98b89b6cb8382e5e5150b909f029f100cfc9434c33c877275b112c91fc"
     }
   ],
-  "sha256": "c22e798cd94c493d90e2cda4e803ff9fe3984fc16fdd0df72429b6ce015e1328",
-  "duration": 9.023219954648527
+  "sha256": "de2d52302111e3a1931b04c7c4abab842fe3d58e7b736fdf089829070df2b637",
+  "duration": 8.609931972789116
 }

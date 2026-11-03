@@ -61,17 +61,18 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Tostada. te. o. ese. te. a. de. a. Tostada.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "3aa31bf38f1d18b7e156a7781ae57078401792480b48bd358539d1b3208735b2",
-    "receipt_sha256": "c3808835617e0e4ecb17c9867583880399311b34b8fb901e1ba494195ecd0bc0"
+    "audio_sha256": "8c7240b86a414cd758239985687b3958698b30646d4477df0f0c5faaae8cc165",
+    "receipt_sha256": "17f3de448616d7a57a1ac21ac3bb26582604d632ac90072efe15972c8f8edfa9"
   },
-  "request_sha256": "14ec450f967dd27eceac7ebe5d549d0953a3fba76916a07992608c7366021dd5",
+  "request_sha256": "7de242f05593ade1f82bc7eeedc6f54f59c516bda902dae27a46f0c52185c0a1",
   "method": "Verified word, literal letter names, word; PCM assembly",
   "recipe": {
     "method": "Verified word, literal letter names, word; PCM assembly",
@@ -136,7 +137,7 @@
   "sources": [
     {
       "path": "assets/jungle-book/sounds/es/simple/toast.wav",
-      "sha256": "d802d73f96e19fe7fb9a3102fb7145873e1173869deb8771ab78c1fee4628829"
+      "sha256": "747cc3d7614a539990ed77e11e04c169be3b4ef8ef472eae2bc5cf0dc4bf5288"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0074.wav",
@@ -167,6 +168,6 @@
       "sha256": "6aa633c4e7266cf036cf4209e5b3414582f2275e6845b138621ed39f183e766c"
     }
   ],
-  "sha256": "8c7240b86a414cd758239985687b3958698b30646d4477df0f0c5faaae8cc165",
-  "duration": 7.95092970521542
+  "sha256": "834c3107c3996b1a14d168b0627a052eed76c3d50a11db095d937054c9adddf0",
+  "duration": 8.642539682539683
 }

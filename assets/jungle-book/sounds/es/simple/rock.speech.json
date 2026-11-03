@@ -61,17 +61,21 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "seeds": [
+    2
+  ],
+  "kind": "word",
   "text": "Piedra.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "6012cdbbbfe862d9c13c47d34e1a0ab4f81a03772ecc7c9befb623ac8f6078af",
-    "receipt_sha256": "f7fffbe693e64c525df994f265d21eceafdc49e42ae55c1422d4f81ec60b24b6"
+    "audio_sha256": "273be35ba0a2b35844c428d038d4cc33d681685abd0e69460968d0d5963846eb",
+    "receipt_sha256": "bc375703dc7349f53c90f59887b1e8d4f16a19caee0f2f30d0aec8a99c49396c"
   },
-  "request_sha256": "49e6f0c05c2376a1e84132511dfc618ccb128c8270ae4fdbfe88d618c632e303",
-  "sha256": "273be35ba0a2b35844c428d038d4cc33d681685abd0e69460968d0d5963846eb",
-  "duration": 1.28
+  "request_sha256": "045d5a4580354ddfc75027b5c61c390b2579113043b695a7b703125e38a4fa3b",
+  "sha256": "7b8884fbbef8e31216b9a391a983d5a441bd12a237b459cca7a42785fa2e62e9",
+  "duration": 1.12
 }

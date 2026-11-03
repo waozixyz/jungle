@@ -61,17 +61,21 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "seeds": [
+    1
+  ],
+  "kind": "word",
   "text": "Diplodoco.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "e925a0403121fda973b520a9beb1fea0b825687a2da3701f781ab16b55a6bc7d",
-    "receipt_sha256": "1c4e3b4a576bc7be540c8688dcb6ab68bef0bf1fec016955e22d546816c2eaf7"
+    "audio_sha256": "5ce7240c81be9203054a6a3d122dba6a1a68ee4b3c1ff6bccbc30cc620829007",
+    "receipt_sha256": "764c29bbf217505f0f192e76413672345d08dc50c962822d6e3ca0ae71ff09f1"
   },
-  "request_sha256": "33bbc4574b89184342630f3c31f7d6ec007af71da450db0e9467a359a7f95b53",
-  "sha256": "5ce7240c81be9203054a6a3d122dba6a1a68ee4b3c1ff6bccbc30cc620829007",
-  "duration": 1.44
+  "request_sha256": "5c66980a59a7918e685a0e17e89e053a242207ec01dae4e32d25fd50f402c75e",
+  "sha256": "e13ff28a61421328834476efa7270a928ad7177f32a0317d56f198eb575861f4",
+  "duration": 1.6
 }

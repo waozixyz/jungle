@@ -61,17 +61,21 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "seeds": [
+    1
+  ],
+  "kind": "word",
   "text": "Fénec.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "09a756b86447f020fd63652ce9a42ba0c874284357f19663b95be2883d59ddb2",
-    "receipt_sha256": "1002a2e40ee6ea2ca96780378dc56f60d4f8ddd0e4642d141ae2a19a0dac8bf2"
+    "audio_sha256": "49ba8eb6330c413cccc0550f61b419e80cf955ec3d0d57cc11c0efd2f5557157",
+    "receipt_sha256": "6f6feb489f04ca3982c2b5380909184c0bc92a69ae1de0e4d6e1b609ceb7e726"
   },
-  "request_sha256": "8e46c0c338c381c4fbe5f2025cf1bd89f00a8f47a88c168a3b1a5d1ffde8d94e",
-  "sha256": "49ba8eb6330c413cccc0550f61b419e80cf955ec3d0d57cc11c0efd2f5557157",
-  "duration": 1.04
+  "request_sha256": "2244677e77b48bb22ff64e609e2841fe59d0b3e14da93925dcb3e56989f47679",
+  "sha256": "b2a3d88f85529e6fd8b0208889ea34ec232f8b8b2305e15d0358c3ecf73f6211",
+  "duration": 1.2
 }

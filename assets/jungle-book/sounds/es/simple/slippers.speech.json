@@ -61,17 +61,21 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "seeds": [
+    2
+  ],
+  "kind": "word",
   "text": "Pantuflas.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "0e1fc69c38bce57a0f77e41784b243b5c78dd6a1a01813387b4789b0346d53b2",
-    "receipt_sha256": "6fb7a8a15b4bed7d11e2d10bf7db6c10b4ff935524d8b6c810b398a45d0adab5"
+    "audio_sha256": "afff06ff33a92bf5d14721bd7076b8bdf1f4e62de5df58fcd4b451c0898967e1",
+    "receipt_sha256": "8845d6fdf8352c4656cd0224078025b2cc6f0d9cec9e1a3255e8ec8e1ea9ed76"
   },
-  "request_sha256": "78e25678b6a8bfa7e4e1933d9bd55102d68035263e2e3c7828d16ea5e15ada76",
-  "sha256": "afff06ff33a92bf5d14721bd7076b8bdf1f4e62de5df58fcd4b451c0898967e1",
-  "duration": 1.44
+  "request_sha256": "84d0335f2cc70cf9ef86f5d5ba79323a4f58e2fe8cef49f8f58fb1a46c4306ae",
+  "sha256": "ff0fdb9c7529dab14db748f858a68974cbe2dedceae9f194aa70652f093e24b3",
+  "duration": 1.6
 }

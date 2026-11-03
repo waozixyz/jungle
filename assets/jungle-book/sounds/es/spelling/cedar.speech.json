@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Cedro. ce. e. de. erre. o. Cedro.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "dc2cd7e79fa5227f463cd8b0d27dba9cd273f03dac4b3ec1bcc3d1a91e8635b9",
-    "receipt_sha256": "60b432331435b65a794bf0db4b551da5ce6b2314ed2cb43eb26ba3fd9cdebb47"
+    "audio_sha256": "67b1a341768a27d732a8ea6eb4c2c5bd6c686afa660f05cb0b2a0efda2189453",
+    "receipt_sha256": "51994e01958b6ba773549239ae4c4cc3b775dec947619976ee18e7146495622e"
   },
   "request_sha256": "52a37ec4553d4e1d250f4b3dbc7498afd9e255a4e3790d86ca0add9184bb2303",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -132,7 +133,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0064.wav",
@@ -147,6 +148,6 @@
       "sha256": "1e6e9d98b89b6cb8382e5e5150b909f029f100cfc9434c33c877275b112c91fc"
     }
   ],
-  "sha256": "67b1a341768a27d732a8ea6eb4c2c5bd6c686afa660f05cb0b2a0efda2189453",
-  "duration": 7.427165532879819
+  "sha256": "9e2b0f603a89aa434231e31633bb9e1e99460d38a54138ef16a0a8813eb6e86c",
+  "duration": 7.013877551020408
 }

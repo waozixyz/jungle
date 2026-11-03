@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Frijoles. efe. erre. i. jota. o. ele. e. ese. Frijoles.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "b8c09cf753fb2c86b1cf925eb82b3e077dc926f8759251fe1804bdc842fd3944",
-    "receipt_sha256": "ca7d7e49f7b9b08ba3441c69cc5db9d8280a87e503233833eac157b18839c803"
+    "audio_sha256": "04c3871b3aa34cc7cf2e6e12ac1937a1927f67f0805f7c2061291b5dc4c5add7",
+    "receipt_sha256": "6bd0d45e35abee20a9b6126706071078e2a262832b7416bd0ea00f4375ef1060"
   },
   "request_sha256": "f09abc3868d3385d4ba15cf33b13a25d21d59efd9d3b0f55a17ce7c68e286f59",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -158,7 +159,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/006a.wav",
-      "sha256": "e956c592ec274ca806a93b12edc8d6ffa8eba365cac06518eca7087d7db58d4a"
+      "sha256": "cc488fc27e5c2d9e43712129cdd5a2c7735586d013e39c01d4cdf370fc69b89c"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/006f.wav",
@@ -170,13 +171,13 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0073.wav",
       "sha256": "37a78a4a88e80a5e9bc1e335ca6b1ffcbfbe700077c1ce525643bd530d29f81e"
     }
   ],
-  "sha256": "04c3871b3aa34cc7cf2e6e12ac1937a1927f67f0805f7c2061291b5dc4c5add7",
-  "duration": 11.725532879818594
+  "sha256": "652a0f6823f59a28244d3a02ad483f8da7591fdabf2d0b127495f94362d89628",
+  "duration": 10.017551020408163
 }

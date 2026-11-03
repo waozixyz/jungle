@@ -61,17 +61,21 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "seeds": [
+    3
+  ],
+  "kind": "sentence",
   "text": "¡Arriba en el árbol!",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "6d0721d2d1c0be93f1608bd69e52103226c1b6ac849a2c3faad6741e79cb38a0",
-    "receipt_sha256": "1344f3a8f7b72e5595ebcd80e0f4ad7e55cadcababe3af1dce5ba7ff5fc78a5a"
+    "audio_sha256": "d53f59262e43f65eb8e7d4a56f63a1da74570164bdecfb609b35252e4132981e",
+    "receipt_sha256": "359c4125430a4e0e7cc113a51be19de736f15fd27cc5dfc5a80175656cd1f427"
   },
-  "request_sha256": "2a186ed130147c28e0afba368fddfceaaf4e4485d5d528791eb1647511f58492",
-  "sha256": "d53f59262e43f65eb8e7d4a56f63a1da74570164bdecfb609b35252e4132981e",
-  "duration": 3.84
+  "request_sha256": "de246d0509e4fc499565b30829b36e7999b284d711cb70c291214bd1cc2e909b",
+  "sha256": "319d283a2aad418c95f009e6aef278e146c1d55827e0340efddbc92ccaea1a26",
+  "duration": 1.76
 }

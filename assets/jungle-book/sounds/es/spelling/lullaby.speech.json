@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Canción de cuna. ce. a. ene. ce. i. o con tilde. ene. de. e. ce. u. ene. a. Canción de cuna.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "5f19d2f85636d5a0acf94846dcbf412dc231c49723fa60214a91d782700965c9",
-    "receipt_sha256": "7423de4bb1b60e26308e8a910252fa27ed7e8afc416a5b6bc68090e54837e8d7"
+    "audio_sha256": "02b7f24fa18e66f45c833da6b2934acf769a995471e2ca8a83a43c3af84c14ed",
+    "receipt_sha256": "7f6624132b417d4514424012138b0d457e3068d9d61eed68c45983c4cdee9818"
   },
   "request_sha256": "a4e8b1c56775c6aad7dc8822730f4b657292c388fe682e347f24e654c3edb678",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -202,7 +203,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/00f3.wav",
-      "sha256": "176468535c890c6db7da584aa13d1f340fe2ef8b5776a395cca56f77f779f302"
+      "sha256": "f5e6ab54c33da48891c1070a091009b287e805777eb8944dc57f7aaa12c2f79b"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/006e.wav",
@@ -214,7 +215,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0063.wav",
@@ -222,7 +223,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0075.wav",
-      "sha256": "44864170767c91eadc4c6bb700a9985b3be7a2edd07610f59d63bb3342065145"
+      "sha256": "3b87b84cb161c4215edf80a9c11c6c6174b305b8343928d100227e10eedac039"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/006e.wav",
@@ -233,6 +234,6 @@
       "sha256": "6aa633c4e7266cf036cf4209e5b3414582f2275e6845b138621ed39f183e766c"
     }
   ],
-  "sha256": "02b7f24fa18e66f45c833da6b2934acf769a995471e2ca8a83a43c3af84c14ed",
-  "duration": 19.69469387755102
+  "sha256": "8c7427e96cdfe3fdd9046a335474ce62809bdf5d09c6c4739e43a76afc738ea1",
+  "duration": 14.893061224489795
 }

@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Caballito de mar. ce. a. be. a. ele. ele. i. te. o. de. e. eme. a. erre. Caballito de mar.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "f4a0cab85d588c3c201d7c33f3ace7be7fc2a911f760f2c4250a2a7f224c120f",
-    "receipt_sha256": "abaf59f0c4d594051dad82886775f52a60bb5f5f2b5ff918f7124ab60fbfc635"
+    "audio_sha256": "9a2e18d173c726d769de2956e561dd51654d9f1eae0baa4c6d6632ad5a8730bf",
+    "receipt_sha256": "64b345f5530293c46237ca87e98b00e2b5355e98857ce675eb17a8138549c125"
   },
   "request_sha256": "a471f121ba644c27635eb964bd8e6cf924f9a0ce9f7a6eb39c205159ebf63b6e",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -228,7 +229,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/006d.wav",
@@ -243,6 +244,6 @@
       "sha256": "bcb8de295451c41e7629c3b47552eac229eeb084386218c9606520088fe6fa6d"
     }
   ],
-  "sha256": "9a2e18d173c726d769de2956e561dd51654d9f1eae0baa4c6d6632ad5a8730bf",
-  "duration": 16.54920634920635
+  "sha256": "6323f41f970b1bc3ecf0b1a918a4470a2b6b65c28eaf25658d90edda497322a8",
+  "duration": 16.13591836734694
 }

@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Camello. ce. a. eme. e. ele. ele. o. Camello.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "5ac6ad5f451eb2ab6bf21d59e26f13af10538a5619a0525bd8e340ad9c8626a2",
-    "receipt_sha256": "24be27ccbe83edbca83158002a7f2ff7443167c7a3eff21393fc506ac7af9529"
+    "audio_sha256": "8a5b257acc1d84f0612d23ddafb638802273f4cad62d772af83cf16064dc83ca",
+    "receipt_sha256": "53be6cc6770b70683d1512643b3672d75e78275b50de657954787a66e0f7a858"
   },
   "request_sha256": "35dee0ea574353a449e271ebfd4bc8073b5ea53317be140435782a32c03c74b4",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -152,7 +153,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/006c.wav",
@@ -167,6 +168,6 @@
       "sha256": "1e6e9d98b89b6cb8382e5e5150b909f029f100cfc9434c33c877275b112c91fc"
     }
   ],
-  "sha256": "8a5b257acc1d84f0612d23ddafb638802273f4cad62d772af83cf16064dc83ca",
-  "duration": 8.64907029478458
+  "sha256": "481360bebff722f06001f8baaf63461d50be06ef567fa55b7e67cc793491b5ed",
+  "duration": 8.23578231292517
 }

@@ -61,17 +61,18 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Plato. pe. ele. a. te. o. Plato.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "355924802760d229bce68d4d6f38fdfbbddb061efa0be0fc5bba4264f7857974",
-    "receipt_sha256": "e1458a578f05f1ad739325d630665a0dd04b55b6382042ce0c7f77a1868654a9"
+    "audio_sha256": "606fb98bb99fd0173c7ef8e3b54b31445abc752550413f1a1b5b83016b197513",
+    "receipt_sha256": "a7290fa4a45bd50155576e73cc57981d5a6d9299112a0d7ee8e42759c998cff6"
   },
-  "request_sha256": "1549ba069cd46093cab0457a095a945c604a61197e45e0755d6b7bddfdb6f803",
+  "request_sha256": "e252335d73ac3673bf315a286d21c3e9cb12debaa3993be95bf61ca40ab81147",
   "method": "Verified word, literal letter names, word; PCM assembly",
   "recipe": {
     "method": "Verified word, literal letter names, word; PCM assembly",
@@ -124,7 +125,7 @@
   "sources": [
     {
       "path": "assets/jungle-book/sounds/es/simple/plate.wav",
-      "sha256": "fb555d881b6956540301d1524437dbee7be9379f3a9a6eb5fcb0c107a3e4bd11"
+      "sha256": "a54db95591bcd65902316cda04f9d9c55f952d754be84d69bdfb6e11e20394d0"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0070.wav",
@@ -147,6 +148,6 @@
       "sha256": "1e6e9d98b89b6cb8382e5e5150b909f029f100cfc9434c33c877275b112c91fc"
     }
   ],
-  "sha256": "606fb98bb99fd0173c7ef8e3b54b31445abc752550413f1a1b5b83016b197513",
-  "duration": 6.801904761904762
+  "sha256": "3aa76c5d8477d34e31676f868c93234dd56a40edac7c4540a0bc42c34568d769",
+  "duration": 6.453605442176871
 }

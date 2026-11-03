@@ -61,17 +61,18 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Nadar. ene. a. de. a. erre. Nadar.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "3e92570837218d56fdcd721635732385b8dca6853895c93fb9da5b0ebf0109af",
-    "receipt_sha256": "265619067d9e99ef52c41abefebeba63087787d3c7bbc2b85891038b0574be97"
+    "audio_sha256": "345d8e6031fc78f8a7a29603ee9f8c6817a4e30b29a9dd30a5c3fa22ad8114b3",
+    "receipt_sha256": "45de1aaf4e0e89fcc2e0942105bb4f1b5bd3d1d217ac15c66fba9b257221580a"
   },
-  "request_sha256": "54cfcd9b596fbdb2033065db6b0709b15c329fa0b9cfe933f96d97026a3a3a7c",
+  "request_sha256": "d890c02ef0b2d89fe576040a59a57d888681833b67b18f649d598f4538fec8bb",
   "method": "Verified word, literal letter names, word; PCM assembly",
   "recipe": {
     "method": "Verified word, literal letter names, word; PCM assembly",
@@ -124,7 +125,7 @@
   "sources": [
     {
       "path": "assets/jungle-book/sounds/es/simple/swimming.wav",
-      "sha256": "c26665c768de6712b5286f18caffd034c0a18f31dfb821ad64f0c92ba74009fd"
+      "sha256": "5d9addb21c18a363923f403bcd432bfebc27fcc59f88a45987e90bd6912caf44"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/006e.wav",
@@ -147,6 +148,6 @@
       "sha256": "bcb8de295451c41e7629c3b47552eac229eeb084386218c9606520088fe6fa6d"
     }
   ],
-  "sha256": "345d8e6031fc78f8a7a29603ee9f8c6817a4e30b29a9dd30a5c3fa22ad8114b3",
-  "duration": 6.113106575963719
+  "sha256": "580162e8614952ffe6f2c741315758938ff3eeaa0967e2fe2b9dad86e45407a8",
+  "duration": 6.412607709750567
 }

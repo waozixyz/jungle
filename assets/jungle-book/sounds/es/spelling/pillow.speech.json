@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Almohada. a. ele. eme. o. hache. a. de. a. Almohada.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "1e83f0981efff4a4efa91e61e053eeb9062298c5e7355d6c3d5d7d11266a5b0b",
-    "receipt_sha256": "598c1ca4326738e2b2e0faf848661ad61859983fa505d42755cfbe2f1730dcef"
+    "audio_sha256": "abac37f93da77881402278294417070c60e74468bd9731569cc95ea1631056f6",
+    "receipt_sha256": "44a77d828d74c4c60c131b1dbb2db1f3cf070b852db98ef8683325c741799fa6"
   },
   "request_sha256": "5dde496bfc1adb8ade4694cc931b97fa9472c60dd8979af44bc31fb8d1117b2d",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -162,7 +163,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0068.wav",
-      "sha256": "f58df945f2887d54ce6ae744a72cce1975e4ed068f83b46803683a0480470031"
+      "sha256": "3ba76c624960ba0752a3cec6e4910c2b8294dcd23e676c88cb4d406e486acfd2"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0061.wav",
@@ -177,6 +178,6 @@
       "sha256": "6aa633c4e7266cf036cf4209e5b3414582f2275e6845b138621ed39f183e766c"
     }
   ],
-  "sha256": "abac37f93da77881402278294417070c60e74468bd9731569cc95ea1631056f6",
-  "duration": 10.637596371882086
+  "sha256": "e6992840fbe1e81dbb77da415e594e0af0276100ea9c631628a93e64f27538e6",
+  "duration": 9.439002267573697
 }

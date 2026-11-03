@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Aplaudir. a. pe. ele. a. u. de. i. erre. Aplaudir.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "709d8c755aceea8a45d3e41c7fce9e348aa6edb3a0a88df91e9eb52f7ea93f56",
-    "receipt_sha256": "9caf47d9081018f0740c6a6aa2bcc825da621f709ece31919af61f2a25c64e85"
+    "audio_sha256": "c151c9f96a040aab26f35af054f9bf817e0d393ed5f912bd5a484a809a637c4b",
+    "receipt_sha256": "48b4502de3f2e3d7455c58bd285f6d4313eb40b8b380ed1de652a8c1d7e23f09"
   },
   "request_sha256": "ac545f5ac56bc3bbde17f3954ced26062989a7d34f64098794bf88db5fb58f2e",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -162,7 +163,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0075.wav",
-      "sha256": "44864170767c91eadc4c6bb700a9985b3be7a2edd07610f59d63bb3342065145"
+      "sha256": "3b87b84cb161c4215edf80a9c11c6c6174b305b8343928d100227e10eedac039"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0064.wav",
@@ -177,6 +178,6 @@
       "sha256": "bcb8de295451c41e7629c3b47552eac229eeb084386218c9606520088fe6fa6d"
     }
   ],
-  "sha256": "c151c9f96a040aab26f35af054f9bf817e0d393ed5f912bd5a484a809a637c4b",
-  "duration": 11.78140589569161
+  "sha256": "6e02575cb2418181fbbb67c03ba7267c344523249d284a2152da4d9f66116955",
+  "duration": 8.941950113378685
 }

@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Órix. o con tilde. erre. i. equis. Órix.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "dd58e83a864834d551111fba29626a838610e76c61a8b90cdc80210ec8e9d3b4",
-    "receipt_sha256": "9fbb3a84be1edd09df1c51679653a7847018231fe46f9c3b623399750c43260c"
+    "audio_sha256": "28a1a8c4739f90688f2936f1514b191e94c5655e112e61e01494b5f784641cf1",
+    "receipt_sha256": "779d03fe00dc35b8693ea78b8043a689a0dfe14dc3b9bc9de4a4bd4fcac3e9e1"
   },
   "request_sha256": "3456bffa3f2cf1f373c3050110e8e45753a99f17217f30c3c74c19b96157336f",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -122,7 +123,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/00f3.wav",
-      "sha256": "176468535c890c6db7da584aa13d1f340fe2ef8b5776a395cca56f77f779f302"
+      "sha256": "f5e6ab54c33da48891c1070a091009b287e805777eb8944dc57f7aaa12c2f79b"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0072.wav",
@@ -137,6 +138,6 @@
       "sha256": "1ddafa56ceda79e4e68d86cffb9071b22144d0a541209f1ca986a1d02a8c82ca"
     }
   ],
-  "sha256": "28a1a8c4739f90688f2936f1514b191e94c5655e112e61e01494b5f784641cf1",
-  "duration": 8.309614512471656
+  "sha256": "c32a5a0bad83caa70399a3caecf5260343e25253ca4423ef5a6f7a571e9cac4e",
+  "duration": 6.760725623582767
 }

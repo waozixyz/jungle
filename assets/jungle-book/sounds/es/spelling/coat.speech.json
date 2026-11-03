@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Abrigo. a. be. erre. i. ge. o. Abrigo.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "0cc1a3d46af8e17ffb80b9edd402a1c684474f9bbfac0502ba7c8b9b1feb6e22",
-    "receipt_sha256": "5a68caa706a17931376c800686887e79f81beabd041990e4b8056e24ad0bcf08"
+    "audio_sha256": "464d1edbce3d406f51026225ac308ba14ef3c3363680f40f2004bfe04e69c4c0",
+    "receipt_sha256": "13fa6a486e5138d5bd546778d563a959c9efbc9a647a05fcc01218b8c971e829"
   },
   "request_sha256": "e53b662dd4e04612c8e8778e6f4ad39d21579f7f24f57dbb28f78c46de55015b",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -150,13 +151,13 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0067.wav",
-      "sha256": "b9dc856adc034192f400896227ac36a2f401544bcbd4c6b46822046969f0f756"
+      "sha256": "afc0ecf2e57c9512a9426f85b007091ef4ce8b428ec2537aaf2a89baf093c518"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/006f.wav",
       "sha256": "1e6e9d98b89b6cb8382e5e5150b909f029f100cfc9434c33c877275b112c91fc"
     }
   ],
-  "sha256": "464d1edbce3d406f51026225ac308ba14ef3c3363680f40f2004bfe04e69c4c0",
-  "duration": 7.108027210884353
+  "sha256": "aa0033950f51da6bf39ad9973fa8153e457aa8ec57187facf4d4480895603e81",
+  "duration": 6.98172335600907
 }

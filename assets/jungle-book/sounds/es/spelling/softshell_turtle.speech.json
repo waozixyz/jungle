@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Tortuga de caparazón blando. te. o. erre. te. u. ge. a. de. e. ce. a. pe. a. erre. a. zeta. o con tilde. ene. be. ele. a. ene. de. o. Tortuga de caparazón blando.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "00024958f5ae0262d20ef1030c27de883933a29ab6ac3cd9b0e4d651c5037c05",
-    "receipt_sha256": "4b6926f9b410f7bfb104245b80dbc25f44a599f9e6b2903963ab5c8b2df45b74"
+    "audio_sha256": "27078dc91d48ae09d911b573d07d5e29b76a5ef6d49c66c3f2fe71db2bf49251",
+    "receipt_sha256": "270f94e20530b38f3ff4be167954c6e8b64e80a2cf17f3dbcbea0480e757a12a"
   },
   "request_sha256": "611cde1ad3d37b96963f85c7cc2ce51e92ef967016697920e15e21b745ff0e82",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -267,11 +268,11 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0075.wav",
-      "sha256": "44864170767c91eadc4c6bb700a9985b3be7a2edd07610f59d63bb3342065145"
+      "sha256": "3b87b84cb161c4215edf80a9c11c6c6174b305b8343928d100227e10eedac039"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0067.wav",
-      "sha256": "b9dc856adc034192f400896227ac36a2f401544bcbd4c6b46822046969f0f756"
+      "sha256": "afc0ecf2e57c9512a9426f85b007091ef4ce8b428ec2537aaf2a89baf093c518"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0061.wav",
@@ -283,7 +284,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0063.wav",
@@ -315,7 +316,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/00f3.wav",
-      "sha256": "176468535c890c6db7da584aa13d1f340fe2ef8b5776a395cca56f77f779f302"
+      "sha256": "f5e6ab54c33da48891c1070a091009b287e805777eb8944dc57f7aaa12c2f79b"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/006e.wav",
@@ -346,6 +347,6 @@
       "sha256": "1e6e9d98b89b6cb8382e5e5150b909f029f100cfc9434c33c877275b112c91fc"
     }
   ],
-  "sha256": "27078dc91d48ae09d911b573d07d5e29b76a5ef6d49c66c3f2fe71db2bf49251",
-  "duration": 31.791700680272108
+  "sha256": "01ba91ac0195dd41c7a97f5a7334754c4512d900a53497b190ecd275616628a5",
+  "duration": 26.8637641723356
 }

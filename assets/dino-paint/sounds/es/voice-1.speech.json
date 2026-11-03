@@ -61,17 +61,21 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "seeds": [
+    13
+  ],
+  "kind": "word",
   "text": "Tiranosaurio.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "55942313f15c01a6c40cef5188a0be574aca016843c30774bde29553f74a63bd",
-    "receipt_sha256": "b23ea348b113489b720398f6ec26e87b1115a9de1db9af16854f813030843733"
+    "audio_sha256": "110ef6ff1c241751f3cb1aa23e31ef63b980793dd868f70ce8a0a7677d7bf0a9",
+    "receipt_sha256": "dfab6f961481d8e96a01b27094f0ceffa8b1d3ca57f328cac2baf1658c624863"
   },
-  "request_sha256": "3d193e869de85244b73aa1e3296bc457b2f633973c34455f3aa0917c8e6c11ef",
-  "sha256": "110ef6ff1c241751f3cb1aa23e31ef63b980793dd868f70ce8a0a7677d7bf0a9",
-  "duration": 1.52
+  "request_sha256": "b529a4cb310907c1817d39bb17663edd24d1232124bc9a47b6bf72fbe537e731",
+  "sha256": "88483ebec65822f79d336bd57584fa7a293c27f225cd44c72ef95cb74781b8b6",
+  "duration": 2.24
 }

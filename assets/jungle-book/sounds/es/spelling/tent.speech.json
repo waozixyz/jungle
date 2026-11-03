@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Tienda. te. i. e. ene. de. a. Tienda.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "96292c303493758f9d058b300027bd3a96182d89dd167548a17f27ffcfe8b701",
-    "receipt_sha256": "2e188c843ac2951760864d31c1dbfb8619c05146f1bac2ba4405f882db20ef17"
+    "audio_sha256": "938409ad29e5335759eb77ac41dd0d02bca8f0c3127a5939e24051dc4c81f0c3",
+    "receipt_sha256": "3533dd218d6fee43c5782769e4bef6b5c9fd9d043d0f1623f3aa48b0785396da"
   },
   "request_sha256": "e86ba9144345bfacbb8f03ba3704ae2e5c568b06cc8b704994364aa266287b29",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -142,7 +143,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/006e.wav",
@@ -157,6 +158,6 @@
       "sha256": "6aa633c4e7266cf036cf4209e5b3414582f2275e6845b138621ed39f183e766c"
     }
   ],
-  "sha256": "938409ad29e5335759eb77ac41dd0d02bca8f0c3127a5939e24051dc4c81f0c3",
-  "duration": 7.2470748299319725
+  "sha256": "5ca44b85db4f33fee215132ab2e8ea7eb0a5d22512008f3f65332136c078da0a",
+  "duration": 6.833786848072562
 }

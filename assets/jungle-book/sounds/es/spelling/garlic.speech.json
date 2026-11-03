@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Ajo. a. jota. o. Ajo.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "2ffb561c7e72b53a28cc1215030ba625788a923889ebf22860614c7b46def6c4",
-    "receipt_sha256": "d3d4a0810e57062839e9a940b1cfd7bd433121f142d90bad782a5f9601ff474e"
+    "audio_sha256": "0167e868533e81d143b07b5d1eef82911bb8509620fe0dc4efe860bba35bd759",
+    "receipt_sha256": "b2215e9e2eec09b6d072eac33c3d4b6ce8698ddbe88737e83704c19cecff8c19"
   },
   "request_sha256": "d725254a8709b8c0adf9138c79893e16946bc15ab748c6cd6baa5c881767b5e6",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -120,13 +121,13 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/006a.wav",
-      "sha256": "e956c592ec274ca806a93b12edc8d6ffa8eba365cac06518eca7087d7db58d4a"
+      "sha256": "cc488fc27e5c2d9e43712129cdd5a2c7735586d013e39c01d4cdf370fc69b89c"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/006f.wav",
       "sha256": "1e6e9d98b89b6cb8382e5e5150b909f029f100cfc9434c33c877275b112c91fc"
     }
   ],
-  "sha256": "0167e868533e81d143b07b5d1eef82911bb8509620fe0dc4efe860bba35bd759",
-  "duration": 6.514875283446712
+  "sha256": "5c13ce4076c91b1daa1b7ee2a8b3961de406d76ee6c0378880827082bc18e7cc",
+  "duration": 5.2201814058956915
 }

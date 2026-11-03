@@ -61,17 +61,21 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "seeds": [
+    5
+  ],
+  "kind": "word",
   "text": "Relámpago.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "b5e467fb5abcf9b95cec5473e5a1a980d065e8fb397c371e46ac0f41bd84ed16",
-    "receipt_sha256": "0a98fa4165294aeec270148e089d9c11d97d64b39e8f6b2f208b5421dc4498b3"
+    "audio_sha256": "ef351ba387190a5ed53f667c8f6b8e55b61fba5cc75a140a9ac9e9e5b182db61",
+    "receipt_sha256": "740f40ec61689e8ce10ed7ea82657c065afb82e1a8c5681ba2a6049705731839"
   },
-  "request_sha256": "f6d7c6986a5916430003008efe446406cf026afec25ec653cfe762d518152c78",
-  "sha256": "ef351ba387190a5ed53f667c8f6b8e55b61fba5cc75a140a9ac9e9e5b182db61",
-  "duration": 3.2
+  "request_sha256": "7a0726e5aef713a906ac66184d174aafbbe53bcd19ea930b98cbff8244db75a4",
+  "sha256": "db7180e14dcc243e0896b1130ae69c0666921c9a189326035520fb48a708d707",
+  "duration": 1.92
 }

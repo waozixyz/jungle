@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Flamenco. efe. ele. a. eme. e. ene. ce. o. Flamenco.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "a2fdb7d6c3ef6b84a15b2282ddd136bcfa802b3e617cb9375dc7ebacc5b6f12b",
-    "receipt_sha256": "7aba6b1ed6c409fd6191ca8688cb44b422119b8f34271dbc6c5a058dc5bc5ca8"
+    "audio_sha256": "efa8edaf90d423356680fb50353457ec7c683b7c3b831b4d978d1b1502f7a144",
+    "receipt_sha256": "6597f0969afbf48b4782e54e3ef9e4919878c19883f57c7e1b069e8e3fc5868a"
   },
   "request_sha256": "d6641dbfee2df035f9b462c602a7937f5accd669ff1dec3c3a2e8fa16582994d",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -162,7 +163,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/006e.wav",
@@ -177,6 +178,6 @@
       "sha256": "1e6e9d98b89b6cb8382e5e5150b909f029f100cfc9434c33c877275b112c91fc"
     }
   ],
-  "sha256": "efa8edaf90d423356680fb50353457ec7c683b7c3b831b4d978d1b1502f7a144",
-  "duration": 9.412154195011338
+  "sha256": "4c85307c725410fd90c20779ad5b496e28be1b8d8534b84881fd0c7acd118948",
+  "duration": 8.998866213151928
 }

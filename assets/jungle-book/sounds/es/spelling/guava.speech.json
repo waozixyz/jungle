@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Guayaba. ge. u. a. ye. a. be. a. Guayaba.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "b51d41a4ecc78866fa0f9262beac49f63fc5915b29c4489cba371a46419d13f2",
-    "receipt_sha256": "37418498871ab793c57492f6a7d4a04e1b02b42ea220bb7243c2dd275ec8fcfb"
+    "audio_sha256": "d5f3c014c65770d8318eb56130a364fb125aed16374990bd1593f66f62b11585",
+    "receipt_sha256": "05b0aaa10d9507882b8a518a498f0f60533345b22e97e78c98e5d9a87f3e605b"
   },
   "request_sha256": "ed1ed8bcda8d0d362964818f360455e1f86d979fe9bfdce54610745273386751",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -140,11 +141,11 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0067.wav",
-      "sha256": "b9dc856adc034192f400896227ac36a2f401544bcbd4c6b46822046969f0f756"
+      "sha256": "afc0ecf2e57c9512a9426f85b007091ef4ce8b428ec2537aaf2a89baf093c518"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0075.wav",
-      "sha256": "44864170767c91eadc4c6bb700a9985b3be7a2edd07610f59d63bb3342065145"
+      "sha256": "3b87b84cb161c4215edf80a9c11c6c6174b305b8343928d100227e10eedac039"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0061.wav",
@@ -167,6 +168,6 @@
       "sha256": "6aa633c4e7266cf036cf4209e5b3414582f2275e6845b138621ed39f183e766c"
     }
   ],
-  "sha256": "d5f3c014c65770d8318eb56130a364fb125aed16374990bd1593f66f62b11585",
-  "duration": 11.327120181405895
+  "sha256": "7dbb578a0c36643d2afff4a5dd09feac81d85143aeac5eafe6d2526342d9fcdd",
+  "duration": 8.361360544217687
 }

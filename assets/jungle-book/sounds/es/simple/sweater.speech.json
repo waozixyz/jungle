@@ -61,17 +61,21 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "seeds": [
+    1
+  ],
+  "kind": "word",
   "text": "Suéter.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "964dd5739d6573fe6fa67c4d24decf3965091aeb7e257d062dfbadab71c41bd6",
-    "receipt_sha256": "2360d55dbc53183ec9f89aea984e4f758ac6d8715ade8e1de5dd8b2b66397193"
+    "audio_sha256": "a522ed5132ab7c60352e571d69e520f58592ea534de2968b1654ad374becfd30",
+    "receipt_sha256": "5f959c8607d3bcafe94b50c9a5f93895261dab29329d0d87524f372316fe0a42"
   },
-  "request_sha256": "86d772be9546ab0abe940310f6767c8d04e8728f747b6a90885e45c86733a6ad",
-  "sha256": "a522ed5132ab7c60352e571d69e520f58592ea534de2968b1654ad374becfd30",
-  "duration": 1.2
+  "request_sha256": "b36705f148f1aa128fa13a3d45c57402764452e28ae3e27c8a96f59dc4c33253",
+  "sha256": "385f5c832c9b970200742e159b94e27fa8debf1dc9178e84b2b159e2147f478d",
+  "duration": 1.36
 }

@@ -61,17 +61,21 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "seeds": [
+    4
+  ],
+  "kind": "word",
   "text": "Coliflor.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "979595a22fdc6bb585b1078297e4976d28f876c21ba0616c2f34bc89da9a4930",
-    "receipt_sha256": "9adb7c6862ac5d1dba89ee3206966af60b8720b99f1b364bb6b91b5399ede70f"
+    "audio_sha256": "88450c3944308a03a268d045c3dd66450f3606eb770d351dd14553b0d47a35b4",
+    "receipt_sha256": "33ae6bae6e4249974511a39dd1ffcc45ac3b8bb5de1a277e970b0ad92e3da2af"
   },
-  "request_sha256": "235cd1fd94d13cda7bd85f733c2d12b3bc721a1a8ed2bbe9dfe3760978a9808f",
-  "sha256": "88450c3944308a03a268d045c3dd66450f3606eb770d351dd14553b0d47a35b4",
-  "duration": 1.36
+  "request_sha256": "b8b08d3bc8e27e9e7cec45b7524d4ca228808ac626de4bc217f25dab9b873736",
+  "sha256": "eb440dc29a8f1ecb384a5e604ae8812f97032968bf744394d10364d4656e09c7",
+  "duration": 1.76
 }

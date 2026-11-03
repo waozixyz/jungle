@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Camión de bomberos. ce. a. eme. i. o con tilde. ene. de. e. be. o. eme. be. e. erre. o. ese. Camión de bomberos.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "ac012b4ffad89dcf42e3f12d05e8b6f4afcc124b6ec32ecd9139e5ec2ee8b943",
-    "receipt_sha256": "b28caf53821fbdc247d3c3f562e730a288cb62344cda6097ba90e30ed398f747"
+    "audio_sha256": "4f7faebc1ca47f022c6ab36bb3fea81e33e278f77dbe703887d35a4a28686f71",
+    "receipt_sha256": "17d5263ae70014a69e9c5f91dbb7de4da20a89c291ef2839f18976f54060b1e2"
   },
   "request_sha256": "18c5f88bda8f8ff4dbf36de25e9314436b1cc56fd8d6a0bb0f654179b81af15e",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -216,7 +217,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/00f3.wav",
-      "sha256": "176468535c890c6db7da584aa13d1f340fe2ef8b5776a395cca56f77f779f302"
+      "sha256": "f5e6ab54c33da48891c1070a091009b287e805777eb8944dc57f7aaa12c2f79b"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/006e.wav",
@@ -228,7 +229,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0062.wav",
@@ -248,7 +249,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0072.wav",
@@ -263,6 +264,6 @@
       "sha256": "37a78a4a88e80a5e9bc1e335ca6b1ffcbfbe700077c1ce525643bd530d29f81e"
     }
   ],
-  "sha256": "4f7faebc1ca47f022c6ab36bb3fea81e33e278f77dbe703887d35a4a28686f71",
-  "duration": 20.316281179138322
+  "sha256": "dd440e28635e3f7327840769db2225014b42033411bbd12df9f14bfab38c1ede",
+  "duration": 17.940816326530612
 }

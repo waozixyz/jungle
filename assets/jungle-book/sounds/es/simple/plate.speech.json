@@ -61,17 +61,21 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "seeds": [
+    5
+  ],
+  "kind": "word",
   "text": "Plato.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "8747a01b77c03c7b3dc0b21128130d862a6535b386700e89bac4003c7129d863",
-    "receipt_sha256": "b9be29f4abb512176b75d5c51eb81b9a143688a9e91068c622afbcef12f18bfc"
+    "audio_sha256": "fb555d881b6956540301d1524437dbee7be9379f3a9a6eb5fcb0c107a3e4bd11",
+    "receipt_sha256": "f37a06c69b501aa1f13e661846a9c591ae6ec64ac2f0c9873e327be151869278"
   },
-  "request_sha256": "43b4997971c2adfcfcce9ab7f080c8faf0661b1cfc41341d5a7a0ce3a75030ba",
-  "sha256": "fb555d881b6956540301d1524437dbee7be9379f3a9a6eb5fcb0c107a3e4bd11",
+  "request_sha256": "eb3d02dc2df1a9cff80a27f9f47470ed4b6ebe9aa6e5f858dd885360b6056344",
+  "sha256": "a54db95591bcd65902316cda04f9d9c55f952d754be84d69bdfb6e11e20394d0",
   "duration": 1.36
 }

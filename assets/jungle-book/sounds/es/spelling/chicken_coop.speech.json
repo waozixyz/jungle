@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Gallinero. ge. a. ele. ele. i. ene. e. erre. o. Gallinero.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "f4c4a596453a77fde716d37d70401bb9a9f432890cd24edea3065970739e8e64",
-    "receipt_sha256": "8f421ef1a25d038db695d07b5b73d3a1bc67de681bf7538f051987358c0c6d73"
+    "audio_sha256": "a8cc9ba4b55901a5095203022772bd54c8bb061c6334248dd82bb9450366e28b",
+    "receipt_sha256": "70dc18134034009069ba0843bfc205647d30c6078b75d059815b8ff7ee164e32"
   },
   "request_sha256": "f29a29fd29995ff75b4319d2c385f05ff52aa7f540abcc56aec91d5096c3f24c",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -152,7 +153,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0067.wav",
-      "sha256": "b9dc856adc034192f400896227ac36a2f401544bcbd4c6b46822046969f0f756"
+      "sha256": "afc0ecf2e57c9512a9426f85b007091ef4ce8b428ec2537aaf2a89baf093c518"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0061.wav",
@@ -176,7 +177,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0072.wav",
@@ -187,6 +188,6 @@
       "sha256": "1e6e9d98b89b6cb8382e5e5150b909f029f100cfc9434c33c877275b112c91fc"
     }
   ],
-  "sha256": "a8cc9ba4b55901a5095203022772bd54c8bb061c6334248dd82bb9450366e28b",
-  "duration": 10.18421768707483
+  "sha256": "e45c1c6ec0402c85b2b259512eb65af740b17dea635a36829e156cf6d38adb35",
+  "duration": 9.644625850340136
 }

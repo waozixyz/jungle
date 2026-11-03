@@ -61,17 +61,18 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Tortitas. te. o. erre. te. i. te. a. ese. Tortitas.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "d1b39de08e148559276e8c6d7b27f7b5ad8daffef042d0cf564898fab4f32847",
-    "receipt_sha256": "a4f2f6de0b9b090fbe659ad04714778c166f7f3b2e28f12792139255d22a550c"
+    "audio_sha256": "94c2e3eda2619c7eaa2bb114adaf32036737b586f5520ade486d1ea006a3feb0",
+    "receipt_sha256": "ab722f507d3352626a4f12b37ddc34c33dc7227b37d9e4c8db6a6e0bc829ea0a"
   },
-  "request_sha256": "c63bf4b9c735eb210f806d195a48014e01df301d4b9e937d9df0814f77912e88",
+  "request_sha256": "47e76b76639e9343d1801eda5bf81a0e531519668231c9a06d96c14a2b397e52",
   "method": "Verified word, literal letter names, word; PCM assembly",
   "recipe": {
     "method": "Verified word, literal letter names, word; PCM assembly",
@@ -142,7 +143,7 @@
   "sources": [
     {
       "path": "assets/jungle-book/sounds/es/simple/pancakes.wav",
-      "sha256": "8100b2eaf0ea1a6cc2889a73e9df0cb25bb62fff271042a9e04a5c21b435b59d"
+      "sha256": "048621b4ad56aea6a44f171b9c1a407d6f8d986957ec8ceb94adea044def7d02"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0074.wav",
@@ -177,6 +178,6 @@
       "sha256": "37a78a4a88e80a5e9bc1e335ca6b1ffcbfbe700077c1ce525643bd530d29f81e"
     }
   ],
-  "sha256": "94c2e3eda2619c7eaa2bb114adaf32036737b586f5520ade486d1ea006a3feb0",
-  "duration": 10.846530612244898
+  "sha256": "3c34263ea87c6fa70c1a2dec4bb524d45d9a5a004c73e2b87d2d0326f987f783",
+  "duration": 9.969342403628119
 }

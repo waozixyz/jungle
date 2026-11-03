@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Ambulancia. a. eme. be. u. ele. a. ene. ce. i. a. Ambulancia.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "7d4dfc24b58ffece25a92e2cc9889307799730dae38c55348f47d9a303eff6d7",
-    "receipt_sha256": "3be85ad56082d44d1cf7a1a76fbe34ee66abc667fd2bc8238f0cbd9828c79ad9"
+    "audio_sha256": "575e72761796590de8883e693ed49d42f80a43d8346195486b7ace87ecb8dd6a",
+    "receipt_sha256": "bea0d92a3f8154bd5b7f16284029e276c3b4d0c80c6df647502ad9f6932d3704"
   },
   "request_sha256": "4922cc03a5f5aa70101ce329f973f8a2db6415df356013dd81d551211978095b",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -170,7 +171,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0075.wav",
-      "sha256": "44864170767c91eadc4c6bb700a9985b3be7a2edd07610f59d63bb3342065145"
+      "sha256": "3b87b84cb161c4215edf80a9c11c6c6174b305b8343928d100227e10eedac039"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/006c.wav",
@@ -197,6 +198,6 @@
       "sha256": "6aa633c4e7266cf036cf4209e5b3414582f2275e6845b138621ed39f183e766c"
     }
   ],
-  "sha256": "575e72761796590de8883e693ed49d42f80a43d8346195486b7ace87ecb8dd6a",
-  "duration": 14.389569160997732
+  "sha256": "79b1250e300eaaf312aa9d5eac7f5e42da9192e68fe7ccb78d98e2ad2c9eb811",
+  "duration": 11.550113378684808
 }

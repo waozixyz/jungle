@@ -61,17 +61,21 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "seeds": [
+    1
+  ],
+  "kind": "word",
   "text": "Grillo.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "c8f98c17e5e138b2931aec8855bab55880200ace509b3c7b43e0f03e243a4e74",
-    "receipt_sha256": "a61912ab1fdc88bcf1fdb829663bc909c5e35177d6086e6f9601de37fc226c1c"
+    "audio_sha256": "5cfbb3f2f00853cb791c0d532fc35e9ae0b30a513d3b3ef749297d9262fa0089",
+    "receipt_sha256": "63a81a602634b4c04df22b5d77b23a4df49983dc9cef17aec48258b6f4276e81"
   },
-  "request_sha256": "71cddf32049df66c59ca2c351942e541a7a7ba746c9e3278cbdf6b93a7ac26b3",
-  "sha256": "5cfbb3f2f00853cb791c0d532fc35e9ae0b30a513d3b3ef749297d9262fa0089",
-  "duration": 1.12
+  "request_sha256": "e6f79869d54632b4134d303df6c07f48c0175007461447276c45253a5d5b10ea",
+  "sha256": "427a0183755813e55b8f347f6cb7ebe9f6a254875abffc01f3e3bc365f3727a3",
+  "duration": 1.28
 }

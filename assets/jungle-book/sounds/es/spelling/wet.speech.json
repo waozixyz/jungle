@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Mojado. eme. o. jota. a. de. o. Mojado.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "41a0b6c50373e67fd25e73e705ddc70c40fa6f681bd2091819efa0ac94c3199e",
-    "receipt_sha256": "e836aec944fc1af815c3236b1dc988846de20bf06d0ec1e88e064ce10812d4e5"
+    "audio_sha256": "caa7093c9864cb68afff8b1176d056867f6b53bf51286872603011811e1bd9d4",
+    "receipt_sha256": "b2c40289ca6ba31a534bb21b146a284bedf1dc9c902f815663fd59928e1d5dca"
   },
   "request_sha256": "27be7c984e4b7f9cda0ab986655c2bdcbd27d472e98f17da6650576feb715353",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -142,7 +143,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/006a.wav",
-      "sha256": "e956c592ec274ca806a93b12edc8d6ffa8eba365cac06518eca7087d7db58d4a"
+      "sha256": "cc488fc27e5c2d9e43712129cdd5a2c7735586d013e39c01d4cdf370fc69b89c"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0061.wav",
@@ -157,6 +158,6 @@
       "sha256": "1e6e9d98b89b6cb8382e5e5150b909f029f100cfc9434c33c877275b112c91fc"
     }
   ],
-  "sha256": "caa7093c9864cb68afff8b1176d056867f6b53bf51286872603011811e1bd9d4",
-  "duration": 9.380453514739228
+  "sha256": "f0132dd955c2717cf7726ee1425cb284922f409a9934f15175e58c16ec4edb41",
+  "duration": 8.08575963718821
 }

@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Dragón barbudo. de. erre. a. ge. o con tilde. ene. be. a. erre. be. u. de. o. Dragón barbudo.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "eb610af6e96c3a40db4195367acd8d65ef6768b82344aa8f31cf0e696687d302",
-    "receipt_sha256": "e5e582c87c1d6b33059dc938c7c09c44339c05464ae22f43ae57f45f65bfcd88"
+    "audio_sha256": "0c4f6286c4c712824e41ac2ffad1f669e755fdc2bfd9198cf8928230ed2845bf",
+    "receipt_sha256": "41abdd78ab9eb347438e6154b867247bb90e5040501df7797516474bdc810a6e"
   },
   "request_sha256": "2228f483d8b408ee53e89b3c167488556694b6209584a4fc20691dc17f564eb9",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -191,11 +192,11 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0067.wav",
-      "sha256": "b9dc856adc034192f400896227ac36a2f401544bcbd4c6b46822046969f0f756"
+      "sha256": "afc0ecf2e57c9512a9426f85b007091ef4ce8b428ec2537aaf2a89baf093c518"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/00f3.wav",
-      "sha256": "176468535c890c6db7da584aa13d1f340fe2ef8b5776a395cca56f77f779f302"
+      "sha256": "f5e6ab54c33da48891c1070a091009b287e805777eb8944dc57f7aaa12c2f79b"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/006e.wav",
@@ -219,7 +220,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0075.wav",
-      "sha256": "44864170767c91eadc4c6bb700a9985b3be7a2edd07610f59d63bb3342065145"
+      "sha256": "3b87b84cb161c4215edf80a9c11c6c6174b305b8343928d100227e10eedac039"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0064.wav",
@@ -230,6 +231,6 @@
       "sha256": "1e6e9d98b89b6cb8382e5e5150b909f029f100cfc9434c33c877275b112c91fc"
     }
   ],
-  "sha256": "0c4f6286c4c712824e41ac2ffad1f669e755fdc2bfd9198cf8928230ed2845bf",
-  "duration": 20.116417233560092
+  "sha256": "badf68885934a2d8962de4a0f85033f23a072820d37adbb1c6bfc4bf7e482295",
+  "duration": 15.601768707482993
 }

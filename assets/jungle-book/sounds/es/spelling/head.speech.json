@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Cabeza. ce. a. be. e. zeta. a. Cabeza.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "0905f09774bf30cb7c7c5134c445afcbb4cd2a17e0c44e2d35edb89b9ccc7c06",
-    "receipt_sha256": "bbd57378bf8d8f6d8a0143d9baf88d2904747bcc0cbee9fe0f7a7b4d8ca05fd4"
+    "audio_sha256": "7965936d94cdec3414c2a86e0263d825c649470b7b8af6dadc15751533e8cee6",
+    "receipt_sha256": "880d299f5f506a76f745fb93059c936cfc46bad19785e1c426a46aed34975e6c"
   },
   "request_sha256": "530244712a54aaa8ebdd2a97b7eb9dbb2a2f5524b9068bacdb6c023d369fdb30",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -146,7 +147,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/007a.wav",
@@ -157,6 +158,6 @@
       "sha256": "6aa633c4e7266cf036cf4209e5b3414582f2275e6845b138621ed39f183e766c"
     }
   ],
-  "sha256": "7965936d94cdec3414c2a86e0263d825c649470b7b8af6dadc15751533e8cee6",
-  "duration": 7.629206349206349
+  "sha256": "cea27071e4faecd2771b8631762c557c9aeac0d8b723204fa49e94de68efc967",
+  "duration": 7.215918367346939
 }

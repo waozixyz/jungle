@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Cometa. ce. o. eme. e. te. a. Cometa.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "f5331076839bd0f8cb15226c3837915a43bc0dd7de82c0ab96f370631e3be322",
-    "receipt_sha256": "530ce348b60af278834eed36c8bb7b1cdcad177e68dfbdcd68ab97d7e3c2cba0"
+    "audio_sha256": "1c38fbd1f152fa75dc5e333532d57804d1566b64c360cb006ae6ed42db9b317a",
+    "receipt_sha256": "1ac1d662d15cb0727f5f37cbd45e20b4828fccfa66be5f9a2730eaecdce951e1"
   },
   "request_sha256": "38166d8678dab893020bd60835e3d6c391268eb1c996ca386b6b5da5a3f14dff",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -146,7 +147,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0074.wav",
@@ -157,6 +158,6 @@
       "sha256": "6aa633c4e7266cf036cf4209e5b3414582f2275e6845b138621ed39f183e766c"
     }
   ],
-  "sha256": "1c38fbd1f152fa75dc5e333532d57804d1566b64c360cb006ae6ed42db9b317a",
-  "duration": 7.890929705215419
+  "sha256": "e24282367cea70b66cdff79041b28443d780ffd1fd4425949f8a5d746d00b3bf",
+  "duration": 7.477641723356009
 }

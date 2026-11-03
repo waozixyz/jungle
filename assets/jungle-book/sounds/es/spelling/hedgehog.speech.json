@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Erizo. e. erre. i. zeta. o. Erizo.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "7fe079b73a2c8f78efa91aad0c5ee5ea920da0e53b97c218d0964be8e59b40e5",
-    "receipt_sha256": "27ada849d195132ef60fbe95bd73b1f9ca80639d620176b8fead6c2fcea1a55d"
+    "audio_sha256": "75c63e75fd2637befc1776d5395476133aa273e17e33937a8003efd27730d957",
+    "receipt_sha256": "84f34c7185506440958878358939440ab0d8d25e28abcf39a802895dee8ba90f"
   },
   "request_sha256": "08372dfef6f87ef7bc8c7f9ee7f2d96c1d04a2835eef32f1a7ae49462ac34403",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -128,7 +129,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0072.wav",
@@ -147,6 +148,6 @@
       "sha256": "1e6e9d98b89b6cb8382e5e5150b909f029f100cfc9434c33c877275b112c91fc"
     }
   ],
-  "sha256": "75c63e75fd2637befc1776d5395476133aa273e17e33937a8003efd27730d957",
-  "duration": 7.013741496598639
+  "sha256": "a4c52ff7797079508a5eef7947264089d3d02e5998f0a63a6f1cd763dbb5db23",
+  "duration": 6.600453514739229
 }

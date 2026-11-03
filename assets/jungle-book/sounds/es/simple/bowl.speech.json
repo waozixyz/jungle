@@ -61,17 +61,21 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "seeds": [
+    1
+  ],
+  "kind": "word",
   "text": "Cuenco.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "0c5a60024ea9a00c02e54088dc02baa409f8b3d46818b157b517952ca8977959",
-    "receipt_sha256": "81883d2cb7b026f5d3b53dd82995725a287355e70b4c64b28fe31762ea66a76c"
+    "audio_sha256": "ae2b1c6c1f99f23ef5480396ef1cfe90014bcdb6bf049418e0e046d39dcc6d38",
+    "receipt_sha256": "2bbe4d042c753f6a847f10f7adadaf9a8ff46872318997c2394c9abfff2ba596"
   },
-  "request_sha256": "ab0ede02c7ea5461d113ee805502c014810e75ee1d93b048f1334f27eb672d81",
-  "sha256": "ae2b1c6c1f99f23ef5480396ef1cfe90014bcdb6bf049418e0e046d39dcc6d38",
-  "duration": 2.0
+  "request_sha256": "1604fb5aa3c04737043e0b2ac2de32f50e53225842806f9f85c28b2c4f3afd8a",
+  "sha256": "8d091ed674c5ef0f698f32f93a8dcb7d7a15a5b13cabbe42e1cd5ca2800c9496",
+  "duration": 1.2
 }

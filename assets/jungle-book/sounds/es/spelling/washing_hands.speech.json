@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Lavarse las manos. ele. a. uve. a. erre. ese. e. ele. a. ese. eme. a. ene. o. ese. Lavarse las manos.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "d1430604b49094510891f739b616b5beb3b63742fccf63c942825fccf589cc84",
-    "receipt_sha256": "d94fe8b336fbfda0a7ba67d69f650634075bb660a3f0e126787746fa85ab681a"
+    "audio_sha256": "98b67ba8e658079ead551d59fc05d3e1ffe493bbf0a17c2653f8b8ec2a417ce2",
+    "receipt_sha256": "e2a047c83f5696ce75a2622072fb52a7efd54674fc42861a0d203c0e7c6a18e8"
   },
   "request_sha256": "54f4e9ee2a0515f1261f1a5cdfe85c617dc9afba94839b6a37153eb92a350be7",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -202,7 +203,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0076.wav",
-      "sha256": "20f8ec164ab8064d828f6435acff19d28b07d52ab9f7c1c75c627042cf4e0df5"
+      "sha256": "8b222cd3c57833eab1161bf992646775b1187742872a9f824e4edd1b1af040f7"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0061.wav",
@@ -218,7 +219,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/006c.wav",
@@ -253,6 +254,6 @@
       "sha256": "37a78a4a88e80a5e9bc1e335ca6b1ffcbfbe700077c1ce525643bd530d29f81e"
     }
   ],
-  "sha256": "98b67ba8e658079ead551d59fc05d3e1ffe493bbf0a17c2653f8b8ec2a417ce2",
-  "duration": 17.856825396825396
+  "sha256": "fdf08ce1d8bf4365f4b679df66c8793719aab4d5490991083bec91f19cbdb06b",
+  "duration": 16.677732426303855
 }

@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Zumo de manzana. zeta. u. eme. o. de. e. eme. a. ene. zeta. a. ene. a. Zumo de manzana.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "634076a27738b272f6523b3dc1a57dce3bb4ecc6d52505e01549baf61da72482",
-    "receipt_sha256": "f3cf978bd5796e1ef34adf71f26552d9633bbbb9c0519720dff7e068d612782e"
+    "audio_sha256": "e0337e1880ca3756c26f08d209f17767f57efd943c063675fc0ace658a95c923",
+    "receipt_sha256": "3ebf8029050e6d7ebf5b1e9479975d4eb2c71387a26e1818f4c034811dc4b787"
   },
   "request_sha256": "e09d8e47b666866b7eb4020cf2b4f5097a20bd972636eeb6f80807584243a5a5",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -186,7 +187,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0075.wav",
-      "sha256": "44864170767c91eadc4c6bb700a9985b3be7a2edd07610f59d63bb3342065145"
+      "sha256": "3b87b84cb161c4215edf80a9c11c6c6174b305b8343928d100227e10eedac039"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/006d.wav",
@@ -202,7 +203,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/006d.wav",
@@ -233,6 +234,6 @@
       "sha256": "6aa633c4e7266cf036cf4209e5b3414582f2275e6845b138621ed39f183e766c"
     }
   ],
-  "sha256": "e0337e1880ca3756c26f08d209f17767f57efd943c063675fc0ace658a95c923",
-  "duration": 17.823673469387757
+  "sha256": "8778f4c21b7bd906b277a7947ba1b3352ff33b3f6432cc73b7de88d5b8f4163b",
+  "duration": 14.57092970521542
 }

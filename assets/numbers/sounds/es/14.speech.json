@@ -61,17 +61,21 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "seeds": [
+    9
+  ],
+  "kind": "word",
   "text": "Catorce.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "c48d172d2f73fe6c915d8821769d619409f3ddb67711488b424fe8448cfc8277",
-    "receipt_sha256": "206c4813f2cae803ff5fd9f111000afa4d8270a514f93fe062d99473adca03f2"
+    "audio_sha256": "fccfb6bf196b01a05ea7723bb4b43f4d568e9c3b6d414b9657fa51b722bff327",
+    "receipt_sha256": "e33cca88a2e4e6d811cc89914871011781fea762fba46e45bc95652816b3176d"
   },
-  "request_sha256": "445c7a6a9273462fb7e79d1c1ca6a7f40037a1c0bbb56b65f258c6450f782e43",
-  "sha256": "fccfb6bf196b01a05ea7723bb4b43f4d568e9c3b6d414b9657fa51b722bff327",
-  "duration": 1.44
+  "request_sha256": "04e817a3ab57591ff4f1ee92c147a09e6c40aa959613e9a3bf9986f7522689ba",
+  "sha256": "213a6dbaf695300ec22d48e7916fbe72e4480e2e9578872a787583b75e4d22b6",
+  "duration": 1.52
 }

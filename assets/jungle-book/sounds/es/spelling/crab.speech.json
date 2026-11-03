@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Cangrejo. ce. a. ene. ge. erre. e. jota. o. Cangrejo.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "61b75b72cbb882558b8c6c8ad77d6533431a21c506c0937fa8db879dae33a404",
-    "receipt_sha256": "b45981a398a2cc722b636b6c82a9c2f90063284f0cc9772ba887274c509a2e88"
+    "audio_sha256": "dd660318d8f5cdde0880d71518e1595131b2991903540ddf72bf0bb0c3af147f",
+    "receipt_sha256": "dab1dbabb8846e71eee299cc7c5f575fb40d522ce300d9d5b12fc3af36ad5573"
   },
   "request_sha256": "8cbe4bbd36525a11d9281bc23b5322b301328fca092a53ecbd6d7234246d84a8",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -158,7 +159,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0067.wav",
-      "sha256": "b9dc856adc034192f400896227ac36a2f401544bcbd4c6b46822046969f0f756"
+      "sha256": "afc0ecf2e57c9512a9426f85b007091ef4ce8b428ec2537aaf2a89baf093c518"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0072.wav",
@@ -166,17 +167,17 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/006a.wav",
-      "sha256": "e956c592ec274ca806a93b12edc8d6ffa8eba365cac06518eca7087d7db58d4a"
+      "sha256": "cc488fc27e5c2d9e43712129cdd5a2c7735586d013e39c01d4cdf370fc69b89c"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/006f.wav",
       "sha256": "1e6e9d98b89b6cb8382e5e5150b909f029f100cfc9434c33c877275b112c91fc"
     }
   ],
-  "sha256": "dd660318d8f5cdde0880d71518e1595131b2991903540ddf72bf0bb0c3af147f",
-  "duration": 10.975918367346939
+  "sha256": "b06a38ba3f4b5e52be29e48a4b2ad496a486a41ebd6f3d5e76f28914f8d318dc",
+  "duration": 9.141632653061224
 }

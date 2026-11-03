@@ -61,17 +61,21 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "seeds": [
+    2
+  ],
+  "kind": "word",
   "text": "Oveja.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "6fe577abc32192fd2456a2c81399bcdc58c4b356e27aa7075ab8bd3d905e0bbf",
-    "receipt_sha256": "f7aeea6ce7bcf011b00d28da5e75dcbc2461db8660e58367c2dd088606065211"
+    "audio_sha256": "f86ebd16cea1cc6af9f891456b908691c8f17c01e2a592c30a82000fcf7267a5",
+    "receipt_sha256": "850217e69945946f4ba0a5dc837034dea6fa7172f6e83124002eeed226eb41ba"
   },
-  "request_sha256": "2d4913f52d34c33b7c82b5760e9e64ac2d87334220f56e251b626e75309bd2ff",
-  "sha256": "f86ebd16cea1cc6af9f891456b908691c8f17c01e2a592c30a82000fcf7267a5",
-  "duration": 1.36
+  "request_sha256": "72ece90b2b62e9b2f292c907b7caa298e4bbdf0fd5dc4b02153806bc7ad52a84",
+  "sha256": "b42033a3f94696376472c06d8e0c7c8e3f87777ebcd105460431b8934177db8e",
+  "duration": 1.84
 }

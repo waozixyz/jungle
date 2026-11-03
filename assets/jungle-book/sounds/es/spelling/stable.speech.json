@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Establo. e. ese. te. a. be. ele. o. Establo.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "b905b0e76238dee0652233ff4d73da071ce7b7d6951c462d0a758379ece62689",
-    "receipt_sha256": "b0e64258544d0cb2702e4da3e438faa0f4788d78f7de00b76b9ef321ea38e22d"
+    "audio_sha256": "39e06975d21f8e0e066060eda4708e1a8d3bd651b977548d2513229ed34fe3fb",
+    "receipt_sha256": "a8802de58861b65c664d6e305c10bd15ee3c48105e5b1b2992c2b2ae0bf58fcf"
   },
   "request_sha256": "0c61b200acde375ebae463f99c5daabf89f5dedf1e3ddfb0a5e1ecf0a1c4a267",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -140,7 +141,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0073.wav",
@@ -167,6 +168,6 @@
       "sha256": "1e6e9d98b89b6cb8382e5e5150b909f029f100cfc9434c33c877275b112c91fc"
     }
   ],
-  "sha256": "39e06975d21f8e0e066060eda4708e1a8d3bd651b977548d2513229ed34fe3fb",
-  "duration": 9.087573696145125
+  "sha256": "e2024d426b676a57bfcfaed1c24dc6a464612de2c9c1c20a8938515395101bd4",
+  "duration": 8.674285714285714
 }

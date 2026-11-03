@@ -61,17 +61,21 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "seeds": [
+    2
+  ],
+  "kind": "word",
   "text": "Rastrillo.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "add627922d72322d5fa31a9aa5fe7910b2ed92a2d93fcb02d64b381770267f69",
-    "receipt_sha256": "20cc6a975ddf9439b286dce1ab27025c3595d986322564b069434c877c2a86d7"
+    "audio_sha256": "701b1f97ca9496e40184015539586b92d6b6e0e4222f7bc2e3b052b1bb8c8faf",
+    "receipt_sha256": "7838c055cd5069947a7b085664251b85db7358f2054191f5a45d38aee1823b02"
   },
-  "request_sha256": "811ee8c5df9532a95e8f9d17aa77ef7ab690d593dd31f733de67b601edc0586c",
-  "sha256": "701b1f97ca9496e40184015539586b92d6b6e0e4222f7bc2e3b052b1bb8c8faf",
-  "duration": 1.36
+  "request_sha256": "639c06b58c2a4577114c6d9cb575698188deec60e796f7f68ab13fe9771cc7d6",
+  "sha256": "2d80cc3c91808ecb77cf66dc8802dd5fd913670d4a45ccbe1a431faa101e0404",
+  "duration": 1.52
 }

@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Hambre. hache. a. eme. be. erre. e. Hambre.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "219f441f22de5c4f8cf0ad8cb330f01f3239defc3bf901636dbcca120636fcc8",
-    "receipt_sha256": "27bc15906d500e15334bf0c089c9268e07464781c6a7b97dd21afc2073667d1c"
+    "audio_sha256": "f6b467ac17a86ffd8b93b2db02c726ad2de5ecfcfa63c31c40fae24b960beeaf",
+    "receipt_sha256": "acbdb6ff834144e3038d3352d99e7991eae3d961ff30ef89e4cb4be9146649d0"
   },
   "request_sha256": "34f25f140f97c1547ee4951ccfcdc8c4863d1cfd6eb1cdc5e3b221aee08531f5",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -134,7 +135,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0068.wav",
-      "sha256": "f58df945f2887d54ce6ae744a72cce1975e4ed068f83b46803683a0480470031"
+      "sha256": "3ba76c624960ba0752a3cec6e4910c2b8294dcd23e676c88cb4d406e486acfd2"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0061.wav",
@@ -154,9 +155,9 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     }
   ],
-  "sha256": "f6b467ac17a86ffd8b93b2db02c726ad2de5ecfcfa63c31c40fae24b960beeaf",
-  "duration": 9.02984126984127
+  "sha256": "4715de1476d5c84512aa2c4f9b006710f0eae8796cb9262626d26f3395806db8",
+  "duration": 7.417959183673469
 }

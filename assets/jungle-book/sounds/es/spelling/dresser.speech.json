@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Cómoda. ce. o con tilde. eme. o. de. a. Cómoda.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "535be05e8fde1ce27dfa04990ecc2ea80548e40d9a42fac38103c8c8e5e29dad",
-    "receipt_sha256": "484eff49ab3b23f37acfb4889b2d8a2e488f255b38413c1f2e693877c0659dfb"
+    "audio_sha256": "77ed9fe98cb62480b63deda15be5fe08aef04f4670ad2058787fcdbc642c9aa4",
+    "receipt_sha256": "5050d711b1833ba6fca6e501ec43bc2a2f8e8a5531c838fd1637d9c002a90072"
   },
   "request_sha256": "d2b70677fd5b4ce047574b167bed8beb1f9c6d82f0c0258c69f843d223fcd282",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -138,7 +139,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/00f3.wav",
-      "sha256": "176468535c890c6db7da584aa13d1f340fe2ef8b5776a395cca56f77f779f302"
+      "sha256": "f5e6ab54c33da48891c1070a091009b287e805777eb8944dc57f7aaa12c2f79b"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/006d.wav",
@@ -157,6 +158,6 @@
       "sha256": "6aa633c4e7266cf036cf4209e5b3414582f2275e6845b138621ed39f183e766c"
     }
   ],
-  "sha256": "77ed9fe98cb62480b63deda15be5fe08aef04f4670ad2058787fcdbc642c9aa4",
-  "duration": 9.19111111111111
+  "sha256": "814d88cb6439c44a1297ec5be6f9ccdd0ddc035fb1d2982dc4da08f32d76fe95",
+  "duration": 7.642222222222222
 }

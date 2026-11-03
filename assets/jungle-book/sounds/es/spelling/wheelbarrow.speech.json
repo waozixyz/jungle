@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Carretilla. ce. a. erre. erre. e. te. i. ele. ele. a. Carretilla.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "9ca44e6cbfa838fbd39b55dc3a2952438df86f7c6e659aed8808a45f0cfcdca5",
-    "receipt_sha256": "25f80e47205c68ff272692b863aaa089672949201f1ab3633f752851b96bf5e2"
+    "audio_sha256": "711275f99af2745e828664dc256b2bd9f22c16d0ce6fb39456b085f47e177500",
+    "receipt_sha256": "7e540fa7b0c8f8be5bcd42a9a94fc88f6a5ed82794cea161b7ad77b076ab32fc"
   },
   "request_sha256": "1c90d643d66831de1b7b3146f2124c01b502100b82eff8da3c6e77ada807fcf8",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -174,7 +175,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0074.wav",
@@ -197,6 +198,6 @@
       "sha256": "6aa633c4e7266cf036cf4209e5b3414582f2275e6845b138621ed39f183e766c"
     }
   ],
-  "sha256": "711275f99af2745e828664dc256b2bd9f22c16d0ce6fb39456b085f47e177500",
-  "duration": 11.920544217687075
+  "sha256": "648a7f8e779232590a1235038f6eecbe7879810ffb732a207a73991ad626addd",
+  "duration": 11.507256235827665
 }

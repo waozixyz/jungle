@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Luz nocturna. ele. u. zeta. ene. o. ce. te. u. erre. ene. a. Luz nocturna.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "e01f4da3163d39e33a3a989ef9497bf02a949f9c4e11a43ea44153436a0c00b5",
-    "receipt_sha256": "a032a248cfdc74baaac5f02caeedf718f41ee9da6ee2bb9fffa847ed428080de"
+    "audio_sha256": "2d30a6b658cfaa8e7364a5304c4302830824b81f6907c861df202aae8d03e226",
+    "receipt_sha256": "3cc54d1e0aef615acf63a0c5f7021f5a00ad8297336c531dc06c62bb5b36578f"
   },
   "request_sha256": "44fef098ab84a42e6625448dfa319700cfdb7d508a247cc13be4e0810a6596dd",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -171,7 +172,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0075.wav",
-      "sha256": "44864170767c91eadc4c6bb700a9985b3be7a2edd07610f59d63bb3342065145"
+      "sha256": "3b87b84cb161c4215edf80a9c11c6c6174b305b8343928d100227e10eedac039"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/007a.wav",
@@ -195,7 +196,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0075.wav",
-      "sha256": "44864170767c91eadc4c6bb700a9985b3be7a2edd07610f59d63bb3342065145"
+      "sha256": "3b87b84cb161c4215edf80a9c11c6c6174b305b8343928d100227e10eedac039"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0072.wav",
@@ -210,6 +211,6 @@
       "sha256": "6aa633c4e7266cf036cf4209e5b3414582f2275e6845b138621ed39f183e766c"
     }
   ],
-  "sha256": "2d30a6b658cfaa8e7364a5304c4302830824b81f6907c861df202aae8d03e226",
-  "duration": 18.46816326530612
+  "sha256": "c27f97ec1090b387b99dfb5eb5bfe266e161c44e4ef128ed8c07d37b21983aeb",
+  "duration": 12.789251700680271
 }

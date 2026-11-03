@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Palmera. pe. a. ele. eme. e. erre. a. Palmera.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "048c2c4e065ab125cbd8244f2bf315e978d9a1eab2f6fe3d0d64c60b78e4561a",
-    "receipt_sha256": "79ff97f3c556d403dc0f319b6769abd75a00d7ae15d419a21b1465c5eb35f543"
+    "audio_sha256": "408202ad7648ad2be3b5dcf22477f15fd12ea0cee871ea4d09c432ba7cf6bef9",
+    "receipt_sha256": "b02ac35c7fb6ac85e5fed6ffb7b421795c909d81b7f7a04576bfa7b433b66869"
   },
   "request_sha256": "7dd3040c7d5832708133cba689aca9f6fa06686e9fad3f61ec840c56c97acd84",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -156,7 +157,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0072.wav",
@@ -167,6 +168,6 @@
       "sha256": "6aa633c4e7266cf036cf4209e5b3414582f2275e6845b138621ed39f183e766c"
     }
   ],
-  "sha256": "408202ad7648ad2be3b5dcf22477f15fd12ea0cee871ea4d09c432ba7cf6bef9",
-  "duration": 8.919274376417233
+  "sha256": "45a243a7753f7a9e94f124b5a44c53e2430222f84658263794256ac648793827",
+  "duration": 8.505986394557823
 }

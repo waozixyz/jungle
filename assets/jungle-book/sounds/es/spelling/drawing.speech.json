@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Dibujar. de. i. be. u. jota. a. erre. Dibujar.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "d1da1d812dea1d796275af770e31300cbc184cc3a5c7302f6c998971c5f5c83c",
-    "receipt_sha256": "7a31e349fdeaf9b618116cf703aa66f01be485ffc8ef4a8c41812173aa217335"
+    "audio_sha256": "9c92e11f4e18e249dd05104b4174a625f3aba727d0159ebef368d57c4e5adc59",
+    "receipt_sha256": "d39f4c88e0a0735f02f2acf3468d7a9aef76218b0914f41af0b715038bd74a81"
   },
   "request_sha256": "db37f06659859ffb8f6e674faade45ee67918cedf2aefbe102a04ac1ecaa2814",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -152,11 +153,11 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0075.wav",
-      "sha256": "44864170767c91eadc4c6bb700a9985b3be7a2edd07610f59d63bb3342065145"
+      "sha256": "3b87b84cb161c4215edf80a9c11c6c6174b305b8343928d100227e10eedac039"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/006a.wav",
-      "sha256": "e956c592ec274ca806a93b12edc8d6ffa8eba365cac06518eca7087d7db58d4a"
+      "sha256": "cc488fc27e5c2d9e43712129cdd5a2c7735586d013e39c01d4cdf370fc69b89c"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0061.wav",
@@ -167,6 +168,6 @@
       "sha256": "bcb8de295451c41e7629c3b47552eac229eeb084386218c9606520088fe6fa6d"
     }
   ],
-  "sha256": "9c92e11f4e18e249dd05104b4174a625f3aba727d0159ebef368d57c4e5adc59",
-  "duration": 13.113197278911565
+  "sha256": "e11c73a262592f819d5f2389e2b7ceff74f8728647d9d8fc2df6d3cbc0e6f35b",
+  "duration": 8.97904761904762
 }

@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Cebolla. ce. e. be. o. ele. ele. a. Cebolla.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "190300817f5ffbf98666dd985849f68dfd72a7f82d499978ad4eb5defc3a3651",
-    "receipt_sha256": "1f8724a624f8684d81ec1de03fba2ac41c13dbb613d25fafec9ee2fd70db39d4"
+    "audio_sha256": "b7b81dba1716494ff322eaa35db5ddbd433e236c650a384575da180e86541885",
+    "receipt_sha256": "1ebd5423fd2f9dd7e08dad2a2770b3b06be2a72640a8c55c5a950b581ad62bf4"
   },
   "request_sha256": "782fd1922936e340502f419c026c1b5962cbb463e69655d412d1868a84a8702a",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -144,7 +145,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0062.wav",
@@ -167,6 +168,6 @@
       "sha256": "6aa633c4e7266cf036cf4209e5b3414582f2275e6845b138621ed39f183e766c"
     }
   ],
-  "sha256": "b7b81dba1716494ff322eaa35db5ddbd433e236c650a384575da180e86541885",
-  "duration": 9.090657596371882
+  "sha256": "eecaa7713301047378d2022714f79d51fd19474ae63fa6220f32beed5ab03a55",
+  "duration": 8.677369614512472
 }

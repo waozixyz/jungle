@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Pasaporte. pe. a. ese. a. pe. o. erre. te. e. Pasaporte.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "b54f7cb351d4d08a88674909ef09770cc6ff49ac6acb6f97b7dc816c22197ed6",
-    "receipt_sha256": "adf2ac697284f2c5b4cf858e48954c52588251a32844784ec6b3ffb09de9902d"
+    "audio_sha256": "a6fa41224cfd082854449ea2d999a423f0b88977e3749ae7a06d0269a30b835f",
+    "receipt_sha256": "f0725cc13f09d491e3fff33a39b760af843bfa8208b1538671d30c7a60b19e25"
   },
   "request_sha256": "a5100c6c579773a13d3f992ee22434143250e3fa48f42d8748bfd5f8389e36bf",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -184,9 +185,9 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     }
   ],
-  "sha256": "a6fa41224cfd082854449ea2d999a423f0b88977e3749ae7a06d0269a30b835f",
-  "duration": 11.017732426303855
+  "sha256": "768b76b90527efb4b7347d32c975c3a30d150a5895a8af7904b897ed6a0d22ad",
+  "duration": 10.604444444444445
 }

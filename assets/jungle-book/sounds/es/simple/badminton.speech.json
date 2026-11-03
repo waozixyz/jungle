@@ -61,17 +61,21 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "seeds": [
+    2
+  ],
+  "kind": "word",
   "text": "Bádminton.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "ef487a64543a716a3eaa9b1df5eed0ca2b3ff312213f023d4e32dd3ee73bc046",
-    "receipt_sha256": "a0127e437b974ffe37da2d8c02bf369493a3a1f8eae23e98c98615386fe91ecf"
+    "audio_sha256": "1db2fbcc72a9f55dd562bc0ea5433db29cd0bcf444907caa8397bb6275941b02",
+    "receipt_sha256": "98215b1496bf38fd5b9b856c1e56af3b181a86129b9c8488dee9b1a1212bdce1"
   },
-  "request_sha256": "15efe69e57a41aa148b452bc5650d9d01f0a0891eefea57239042739643a9b29",
-  "sha256": "1db2fbcc72a9f55dd562bc0ea5433db29cd0bcf444907caa8397bb6275941b02",
-  "duration": 2.4
+  "request_sha256": "6411d08b8529f32f3a00a7f12c8bfee9b79c449154096484b7c9e2f27ed1e076",
+  "sha256": "d781ddc7a59dd01d84274e54ca2d317b83c02656ed8f1c0a7aae37c698236cfc",
+  "duration": 1.6
 }

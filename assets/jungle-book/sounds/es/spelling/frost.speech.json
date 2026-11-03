@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Escarcha. e. ese. ce. a. erre. ce. hache. a. Escarcha.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "e99093c7bc75d54d220b3f0351612bd59705529797f6f45af6884fcb2a6684ff",
-    "receipt_sha256": "1770b23fa37b87925a92cdd0b8ac973e939da9e0026786b7c94e2a038a6d109e"
+    "audio_sha256": "f905bae794af0eeec8dc487053af417ad3a892029c35d91c69475ffb5d235b39",
+    "receipt_sha256": "67379a6f1ad2306e9c13d5f660c05954bad50b931710924ebe1384d9b3db81a4"
   },
   "request_sha256": "aa0d2f8c5031bea8f5ed5f2cea3066dbaf54f45ed7d44596f9a6b93a90dc5c32",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -146,7 +147,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0073.wav",
@@ -170,13 +171,13 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0068.wav",
-      "sha256": "f58df945f2887d54ce6ae744a72cce1975e4ed068f83b46803683a0480470031"
+      "sha256": "3ba76c624960ba0752a3cec6e4910c2b8294dcd23e676c88cb4d406e486acfd2"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0061.wav",
       "sha256": "6aa633c4e7266cf036cf4209e5b3414582f2275e6845b138621ed39f183e766c"
     }
   ],
-  "sha256": "f905bae794af0eeec8dc487053af417ad3a892029c35d91c69475ffb5d235b39",
-  "duration": 11.245487528344672
+  "sha256": "ed2d0e0c759281a5cd584a644adb43e60841f6ec0311dd6cf016077d63162c24",
+  "duration": 9.63360544217687
 }

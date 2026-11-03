@@ -61,17 +61,21 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "seeds": [
+    1
+  ],
+  "kind": "word",
   "text": "Dieciséis.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "9b9ed93f0f2ad21a445fb97289cdfcbc4c4a9e7afc4f51519fe1ff245f37636b",
-    "receipt_sha256": "cf179d70ea546ff60cc8f2f68f4742e3d3bbaea8d255b0c2432d179dfd6c188e"
+    "audio_sha256": "5a0580aac43ce7c295bb5aa0c2a58e77103b8b51865fae6cff861a69b56f805a",
+    "receipt_sha256": "8ee470137ff2a9e04ef00ae6937377b0f50429b8cd61fbf21b571f987d3cc808"
   },
-  "request_sha256": "45957be30ce531541ab88c18775e238ea0c5bd1aefca4324898886f266625d78",
-  "sha256": "5a0580aac43ce7c295bb5aa0c2a58e77103b8b51865fae6cff861a69b56f805a",
-  "duration": 1.2
+  "request_sha256": "ee2ad8385dbd8168818f4ff98b36c2438d47b4634d0028dea1bc036aaf1a5384",
+  "sha256": "10b682e08d36be1ea0a860125e2df895c68c5da8d4ff2def416f1a1a532ede3e",
+  "duration": 1.68
 }

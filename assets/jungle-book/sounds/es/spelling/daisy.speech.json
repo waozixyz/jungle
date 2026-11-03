@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Margarita. eme. a. erre. ge. a. erre. i. te. a. Margarita.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "347af845a523dda0edd738fbc7c5d6272482516514c2d163f7ced8b018048fd7",
-    "receipt_sha256": "90179e0ad3beb1081deb5db7396bdc6e8ff4b13c37a9996854865b3518c52af7"
+    "audio_sha256": "4a36bbca64860db36b614d3fbef21c5f580e2fa1e418280b70a0a56e687292f2",
+    "receipt_sha256": "092866cad7817697a7afb66bfad075599209b6b617c4270ef07f36a5627a295d"
   },
   "request_sha256": "ed93a904058448a34bf822fd6d56d8387efb05a22b20561708b6ee228c2d03ac",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -164,7 +165,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0067.wav",
-      "sha256": "b9dc856adc034192f400896227ac36a2f401544bcbd4c6b46822046969f0f756"
+      "sha256": "afc0ecf2e57c9512a9426f85b007091ef4ce8b428ec2537aaf2a89baf093c518"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0061.wav",
@@ -187,6 +188,6 @@
       "sha256": "6aa633c4e7266cf036cf4209e5b3414582f2275e6845b138621ed39f183e766c"
     }
   ],
-  "sha256": "4a36bbca64860db36b614d3fbef21c5f580e2fa1e418280b70a0a56e687292f2",
-  "duration": 11.802630385487529
+  "sha256": "429ae20e0a1291b4a76deaca216223799a17bbd88ffb70329948c8f9e98e7ee1",
+  "duration": 11.676326530612245
 }

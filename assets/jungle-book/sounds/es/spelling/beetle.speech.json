@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Escarabajo. e. ese. ce. a. erre. a. be. a. jota. o. Escarabajo.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "fd8513caa0301816508f8073fa6b2e1f46028ed5ec2b647e9eab9fa9dcd1e129",
-    "receipt_sha256": "43d45d251f79a999895080dc06647487e59af3e5a58a6a4a7b6dfe8dcc0194a8"
+    "audio_sha256": "660c8c7dad6234f7b0f86880e39c3b707567930815321a10941a0e4f3a661de6",
+    "receipt_sha256": "b46e87ac5fa15a265c84b94c51f85d51d2abb5941c97d9c212549dbb89035df8"
   },
   "request_sha256": "3ee82dcc9937e63d361e441c4f15c90e0b2e8b131a4cb240fb4ac7c43e48bf5d",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -158,7 +159,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0073.wav",
@@ -190,13 +191,13 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/006a.wav",
-      "sha256": "e956c592ec274ca806a93b12edc8d6ffa8eba365cac06518eca7087d7db58d4a"
+      "sha256": "cc488fc27e5c2d9e43712129cdd5a2c7735586d013e39c01d4cdf370fc69b89c"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/006f.wav",
       "sha256": "1e6e9d98b89b6cb8382e5e5150b909f029f100cfc9434c33c877275b112c91fc"
     }
   ],
-  "sha256": "660c8c7dad6234f7b0f86880e39c3b707567930815321a10941a0e4f3a661de6",
-  "duration": 13.110793650793651
+  "sha256": "dda10eee799e84b0dc198b8cbe4d156e6e23764bafe0604dc4b7869ee88dcbce",
+  "duration": 11.40281179138322
 }

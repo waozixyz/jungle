@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Cartera. ce. a. erre. te. e. erre. a. Cartera.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "f6eba520768da3c7a8470702ab5b028757f94a44627b9fa396e0ec9652b29c24",
-    "receipt_sha256": "42d7a92266756ec83b20a0bd9e13a70f2c5534e4adb65c7f23a961175b1ea871"
+    "audio_sha256": "60131e326b67332bfa9d0f5cdbe7cfc80963be90e11a8a7bffd0b08e47005d8f",
+    "receipt_sha256": "c85d3e95f3394d3908be65cc322afde21550a7ede6eb183a9dfcd24e158dd332"
   },
   "request_sha256": "4f55c30b252965fe8b57e2ca3578c22d4ee00f84107ab368ca1889688f901c75",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -156,7 +157,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0072.wav",
@@ -167,6 +168,6 @@
       "sha256": "6aa633c4e7266cf036cf4209e5b3414582f2275e6845b138621ed39f183e766c"
     }
   ],
-  "sha256": "60131e326b67332bfa9d0f5cdbe7cfc80963be90e11a8a7bffd0b08e47005d8f",
-  "duration": 8.841179138321996
+  "sha256": "4dcaeda90d899527fdc18c2ac74273cd36360583cf5172a91db2e761630e9354",
+  "duration": 8.427891156462586
 }

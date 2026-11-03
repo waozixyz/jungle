@@ -61,17 +61,21 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "seeds": [
+    3
+  ],
+  "kind": "word",
   "text": "Árbol.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "32cd3864198e57fe3307bb939762422bf6d87c0a60819d71340a7bc577ded441",
-    "receipt_sha256": "def200b42ca8a9436e0bae12eff0f76a2571e977818a1091f8d1c80266918ae4"
+    "audio_sha256": "762b79a28fe7552706f1d6cf5a966f2f699ae2947b437ad6710bd092aef963b5",
+    "receipt_sha256": "9b3d60dcbb61a0ecd1ff44f3e0c56de651598dc7f4ccc1a089cacb2e3b3851a0"
   },
-  "request_sha256": "24cfdd8518a82806ef099cd8aee2f24aeb1dbc51e6600eccb35cf9e488de3070",
-  "sha256": "762b79a28fe7552706f1d6cf5a966f2f699ae2947b437ad6710bd092aef963b5",
-  "duration": 1.12
+  "request_sha256": "51b0966a641a6640295be9dc62f96660141df5bcc22e9037e45245dd8d10d83a",
+  "sha256": "8a2f15ab0b1a44ba22f9bb8bc330ced0fd8377e7b35f1f1dc5335532bd72bc3d",
+  "duration": 1.04
 }

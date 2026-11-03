@@ -61,17 +61,21 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "seeds": [
+    5
+  ],
+  "kind": "word",
   "text": "Fútbol.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "f9095d75e5717fcd445264876d5eca3453c435a85f1c719808fa4bfc22dd46b0",
-    "receipt_sha256": "3ad8463d45b20dac762b118e4eb08ca20f1d8306fc1b091eee8ad10e4e839c50"
+    "audio_sha256": "2a362b5ca843caeee735ba0692c23d5b523a0240908bf141a54085dd64c33540",
+    "receipt_sha256": "9ab695b2781f4726b9fc719927bc4bce82745e6fa0d6c9736038e08dae4ad29e"
   },
-  "request_sha256": "e3f215b75c187286f2fa95b3b01f57d7fd77e5c7f20e74f4ceea5ddc27429af5",
-  "sha256": "2a362b5ca843caeee735ba0692c23d5b523a0240908bf141a54085dd64c33540",
+  "request_sha256": "487959887db19f0b9c7ec0f801c2bcfeb45527175705a8e28523b8770b07ad0e",
+  "sha256": "1956f3c85ffe01e104a95833f983df179fc198173c9c2bd9952b5e4d8ed4a8d1",
   "duration": 1.28
 }

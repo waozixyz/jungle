@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Estrellas. e. ese. te. erre. e. ele. ele. a. ese. Estrellas.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "37efb64ad50bc0a87db3521b18114e4ba5bf04e747b672433743df006148618f",
-    "receipt_sha256": "4c212516b7a76667ad714c7a986f270de1dd7d5adbb9c059cabcab5328384202"
+    "audio_sha256": "5f09e169eb6e0b0bc2fa06c35a5db60540da9d332a51fe8cf3e8af34736a3802",
+    "receipt_sha256": "ba614afd0f199cc2f5a2d83bd15e2ae4eba1d48d674f20bf3c47396ef0eeb445"
   },
   "request_sha256": "48740b8418e79844e105b4ac425be12d1695f759ca6b62c66177bd427fba6212",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -152,7 +153,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0073.wav",
@@ -168,7 +169,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/006c.wav",
@@ -187,6 +188,6 @@
       "sha256": "37a78a4a88e80a5e9bc1e335ca6b1ffcbfbe700077c1ce525643bd530d29f81e"
     }
   ],
-  "sha256": "5f09e169eb6e0b0bc2fa06c35a5db60540da9d332a51fe8cf3e8af34736a3802",
-  "duration": 11.082131519274377
+  "sha256": "25107b50c8cf5ba4cd771d8659c3bda2519d798ea67d85b2642c429b35450965",
+  "duration": 10.255555555555556
 }

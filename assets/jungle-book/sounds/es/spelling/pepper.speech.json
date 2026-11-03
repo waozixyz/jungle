@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Pimiento. pe. i. eme. i. e. ene. te. o. Pimiento.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "99207e6d5b6f108b5b42f080f473ff4841a24dffe608f4a78a36d01a0369ffa1",
-    "receipt_sha256": "e25f99af36950b4f5240d44508869078c58efbdcb2e6d743853ea2d426cab3a7"
+    "audio_sha256": "04cef76d597847f514210262dbc31a33778a225fe241e54c31c2922075be5660",
+    "receipt_sha256": "018e14ccadfc0b75145e308aa5944ea6ad28a9abca4cbee4d6718f1e9bb84349"
   },
   "request_sha256": "6e6e18653089e3a7fa0f0284be7aa19b86ca71a9deb975279b0fbfd35dcd3e3f",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -162,7 +163,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/006e.wav",
@@ -177,6 +178,6 @@
       "sha256": "1e6e9d98b89b6cb8382e5e5150b909f029f100cfc9434c33c877275b112c91fc"
     }
   ],
-  "sha256": "04cef76d597847f514210262dbc31a33778a225fe241e54c31c2922075be5660",
-  "duration": 9.34249433106576
+  "sha256": "2329a5bbd52cc5467fddbba138e356eef365e332f6f221e3b5c43462a6bc0a97",
+  "duration": 8.92920634920635
 }

@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Plántula. pe. ele. a con tilde. ene. te. u. ele. a. Plántula.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "4484e032b6e452396112217f57dbca2046264c95972751690c82dc009a1b135c",
-    "receipt_sha256": "58fed70019abe14e091b0b57659b1ed8f5a0ea55ab33599bd4d062c3add7f310"
+    "audio_sha256": "693c224f7aa01fb5804ef780888aad327a3a7bd4c513485ab2b87da8813b86e0",
+    "receipt_sha256": "76f4110a753cf71bac1459febd08431aec768d4bba710a5ce4c75582137cc3b3"
   },
   "request_sha256": "ea324304e3b0eb7c2b31a12e1ac9ddde02f6780de8ef0dd9671dbc130406512b",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -166,7 +167,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0075.wav",
-      "sha256": "44864170767c91eadc4c6bb700a9985b3be7a2edd07610f59d63bb3342065145"
+      "sha256": "3b87b84cb161c4215edf80a9c11c6c6174b305b8343928d100227e10eedac039"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/006c.wav",
@@ -177,6 +178,6 @@
       "sha256": "6aa633c4e7266cf036cf4209e5b3414582f2275e6845b138621ed39f183e766c"
     }
   ],
-  "sha256": "693c224f7aa01fb5804ef780888aad327a3a7bd4c513485ab2b87da8813b86e0",
-  "duration": 13.296462585034014
+  "sha256": "429e352bd9ec367fa57a10c9d20ebf47de5da62f5eb578267c59ff97fd1fe510",
+  "duration": 10.457006802721088
 }

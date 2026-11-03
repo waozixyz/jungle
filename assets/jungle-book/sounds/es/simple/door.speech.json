@@ -61,17 +61,21 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "seeds": [
+    3
+  ],
+  "kind": "word",
   "text": "Puerta.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "02651e7e744f2c29becdd6776d38d4595d9d2e44dcfc34520b3b07c77bfe2c42",
-    "receipt_sha256": "e5fb3bf03bd6fa648d157c1e5299c1ddf7025e693c8f66ecc8cb2414638d89f0"
+    "audio_sha256": "c74034558e7f4802e0d77bd04ce2e7447f3fd802f183ee35e359cb1164a47435",
+    "receipt_sha256": "52034356c9bc5a531a896079104063452bc3b439b719e9884ad1bcb1a71fca50"
   },
-  "request_sha256": "4cc5e1c646f80e4c931a1ea87815f7c37668c9def90b9d6b0c0fbe52da3cff3e",
-  "sha256": "c74034558e7f4802e0d77bd04ce2e7447f3fd802f183ee35e359cb1164a47435",
+  "request_sha256": "2f85f487b153662fa410fd6402ed8120d46c5d32b9d6070febebe44b8e312566",
+  "sha256": "e5c6a6d9701cd167fa4f07a9e5418a7fa3b2e8f6b7e7ae4e29912d1d771409fc",
   "duration": 1.2
 }

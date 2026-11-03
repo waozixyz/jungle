@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Sartén. ese. a. erre. te. e con tilde. ene. Sartén.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "0d09f4db90817bf46d8bbf5df15d5f7fbe9493efe67e96b190fbc4cd5b41314c",
-    "receipt_sha256": "c99a0d55279ff05fd1d6b4377fb0913235e1d30d17ec2e9333c3ba985abe38e0"
+    "audio_sha256": "835fc8cb09db775787c7ca03fb77695fa55ffd3e73b854628485bf65638f59cc",
+    "receipt_sha256": "92a6bce9076c0c56bcb78796ff2c58924067c9d41141b241b51715a92e07243e"
   },
   "request_sha256": "7877cfe0ecde936d2c08d8a2a279c9fad33804ea50691e3cf0ca04f9f4670561",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -150,13 +151,13 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/00e9.wav",
-      "sha256": "e4f8a20c84dd103cfe47ed2f884c06f28dd0eefac8ad49aefe38f6bff0e286c0"
+      "sha256": "4ce16cfe027ffa9981271ca21d8c5d80cfb4568f6e5e76426eb51c4bf0715f0f"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/006e.wav",
       "sha256": "fbbe3e903f52d9ef0593dc2a86b3bd73e2db751eff9099094c44fc5383accf3e"
     }
   ],
-  "sha256": "835fc8cb09db775787c7ca03fb77695fa55ffd3e73b854628485bf65638f59cc",
-  "duration": 7.993197278911564
+  "sha256": "e1d8b7a8a12a947d13ea040a0227d6894d28431a4f5308fd8ed5d775a03527fa",
+  "duration": 8.241995464852607
 }

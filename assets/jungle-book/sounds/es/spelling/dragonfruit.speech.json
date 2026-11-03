@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Pitahaya. pe. i. te. a. hache. a. ye. a. Pitahaya.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "a8d4713832d9e1e18e99e7c895203a2c0ed4b1087330e0ff73cfc855352b17f4",
-    "receipt_sha256": "4557e4d25fa4ebb29533338929f0bc752af5b2bfcb7457105db6431e2979e4f5"
+    "audio_sha256": "9392eda68fee5d2e31ff65359a8730476c908192d1651bae24718698c27b9b87",
+    "receipt_sha256": "385126b424a97341ede85f29ec61f2d918181cbb03333c0217f14c50d41ccb3e"
   },
   "request_sha256": "86e4d00d4abe6b8ef5df32591c9c2330cf33ac3d86336ea7a2aa7c965a44f0ad",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -162,7 +163,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0068.wav",
-      "sha256": "f58df945f2887d54ce6ae744a72cce1975e4ed068f83b46803683a0480470031"
+      "sha256": "3ba76c624960ba0752a3cec6e4910c2b8294dcd23e676c88cb4d406e486acfd2"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0061.wav",
@@ -177,6 +178,6 @@
       "sha256": "6aa633c4e7266cf036cf4209e5b3414582f2275e6845b138621ed39f183e766c"
     }
   ],
-  "sha256": "9392eda68fee5d2e31ff65359a8730476c908192d1651bae24718698c27b9b87",
-  "duration": 11.186213151927438
+  "sha256": "db2781f9b498e5801dc87c3e3d49948f6d77fdedb0cd69412023270b65390a88",
+  "duration": 9.987619047619047
 }

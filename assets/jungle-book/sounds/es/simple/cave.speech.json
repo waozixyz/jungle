@@ -61,17 +61,21 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "seeds": [
+    2
+  ],
+  "kind": "word",
   "text": "Cueva.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "7dc3d3e04da7e501979b158354d52fe6102b3707c6e15a8140de5de304ff66cf",
-    "receipt_sha256": "7dae189d3d838a2d65224147d310299fd52b077e735fc18f912a24b7c57781af"
+    "audio_sha256": "3d9ab50fb0a9d7c85abb5d402fba979210e9efadddf355e9654530736d5c9fa4",
+    "receipt_sha256": "89ce83e19b67426ac6d07422586f63e62287c6c804d40116b91f427bd1453812"
   },
-  "request_sha256": "31baf589a62e9d74ffa5fa9763404d094f956a60dbcd3f82e890684ff0fd9fbf",
-  "sha256": "3d9ab50fb0a9d7c85abb5d402fba979210e9efadddf355e9654530736d5c9fa4",
-  "duration": 2.16
+  "request_sha256": "9d09f1f6148f0d5b5cb03b19efecc64f0c351297ae6279a42138d05f72eafabe",
+  "sha256": "5422a1629470b221c93ee07a5cc5d5f3ee498884eea6be3d6a3b76658eb3fce2",
+  "duration": 1.2
 }

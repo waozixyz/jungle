@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Sed. ese. e. de. Sed.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "df1e14c72751195376d96d386e5521c0a6b587ecd38ac26b22e346f5ba12a326",
-    "receipt_sha256": "efb09c00e864968da2ed5f32694c1d8a27db342446f635a4010f900f2c376053"
+    "audio_sha256": "976f1b61677a9eedafb8a4e8d3373b8de6e2ddd0bdf78e86f083d88ffb9c6a11",
+    "receipt_sha256": "8799a1df28ea7609154dcce9b6080791d73d2392415960f837dc39c8d286e1db"
   },
   "request_sha256": "005d0350e9c4aa2f16e35d70f15a2a8c5c4e9ecba2e811235acb3f49a027f8d6",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -120,13 +121,13 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0064.wav",
       "sha256": "25e006449ea3b05ae87e6a5911ce9b09fb6e2b1df8501602d27cdeb330c4f2b3"
     }
   ],
-  "sha256": "976f1b61677a9eedafb8a4e8d3373b8de6e2ddd0bdf78e86f083d88ffb9c6a11",
-  "duration": 4.784580498866213
+  "sha256": "c1a9e548938d2312bea60fa996181ef32f68175abfe9ccb9bc207ad3bfdbd679",
+  "duration": 4.371292517006803
 }

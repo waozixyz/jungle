@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Caballito del diablo. ce. a. be. a. ele. ele. i. te. o. de. e. ele. de. i. a. be. ele. o. Caballito del diablo.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "01d73daa0e31d8ed47a509b8b6b8d7f8950980f337e9dfb19d5665e9d57bcb73",
-    "receipt_sha256": "02f364f33f7fde0d7958322c43bf59f50a379a864ba68430bbe182a2e16f2202"
+    "audio_sha256": "4957b0157408d260b56c9e2eea1d94627aac4a2038651d907500425fe4454edd",
+    "receipt_sha256": "fe8339aa5ef81aa9f7367e41dcabdcd8882dfc3cd0c83a685552753bbd1fc6ca"
   },
   "request_sha256": "416c35a1aa8ab95f55241e9f7acdb1eac4d8ab2457a3a479872fd9e0c307ed59",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -252,7 +253,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/006c.wav",
@@ -283,6 +284,6 @@
       "sha256": "1e6e9d98b89b6cb8382e5e5150b909f029f100cfc9434c33c877275b112c91fc"
     }
   ],
-  "sha256": "4957b0157408d260b56c9e2eea1d94627aac4a2038651d907500425fe4454edd",
-  "duration": 20.541632653061225
+  "sha256": "9e07b7d3267f2e615b6733f087d69acc76bdd1a3bac28808bd8eb64c258a0479",
+  "duration": 20.128344671201813
 }

@@ -61,17 +61,21 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "seeds": [
+    10
+  ],
+  "kind": "word",
   "text": "Hipopótamo.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "4f6508703a990e750e4028261960e6152cb94c4be5b3fda5e28c3df926e8aa40",
-    "receipt_sha256": "c916da8b6d0d6838c2c135ea52cf5b5c143387592186a736d39de306aae33d28"
+    "audio_sha256": "5a2998355acb5fde4f397655487bb5f0ec28074552188c059af8a03a86384249",
+    "receipt_sha256": "391ef765274eb5d496740661e852d2a074dba942e3fe28756f19af3a7bc20755"
   },
-  "request_sha256": "472e17d191b5f804c37490bd7e0362418dae0743f1f1c5ad9ccc5459779f34b7",
-  "sha256": "5a2998355acb5fde4f397655487bb5f0ec28074552188c059af8a03a86384249",
-  "duration": 1.84
+  "request_sha256": "0b571c5d8a34f29cc1422a8ee5d0fbf5cddccb56939f12026f3529cb7081efad",
+  "sha256": "427d79996bcfa7ed4bac230c0d2ded92f0bd209f199b5cf538b1ab06ff095b07",
+  "duration": 1.92
 }

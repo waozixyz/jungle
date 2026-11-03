@@ -61,17 +61,21 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "seeds": [
+    10
+  ],
+  "kind": "word",
   "text": "Hámster.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "bb946a06c048388f227c04d8d00e8bc17afeb29cac30d545e1ef8fdbf4177fd9",
-    "receipt_sha256": "36c96dcc1270944e8961b79ac5c123b399fef0d89f841ab0bc1f9176cbfcf621"
+    "audio_sha256": "30175e38a177745644fb8af9deee0cfe27eca051b2df6ae9ce7b0661a9be6008",
+    "receipt_sha256": "e948647c0b37ce043e3359326c12d5f3deef69b3e2775d8edf95a36fa76d0fdf"
   },
-  "request_sha256": "2cec51ed3149e69edcd96a26f6a6a8042948513dba2cb9180192906f974ae466",
-  "sha256": "30175e38a177745644fb8af9deee0cfe27eca051b2df6ae9ce7b0661a9be6008",
-  "duration": 1.36
+  "request_sha256": "3ada9b732485b8bba2289c6da1d170c5e68c5e3f33ba854f197a816a297fbf0d",
+  "sha256": "d2eaa07b6822765be99e6174dc94360dbc3964f020fd746bab9f36bc9a66484d",
+  "duration": 1.52
 }

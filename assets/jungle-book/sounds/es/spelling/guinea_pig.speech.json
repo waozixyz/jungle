@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Conejillo de Indias. ce. o. ene. e. jota. i. ele. ele. o. de. e. i. ene. de. i. a. ese. Conejillo de Indias.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "1f1f415f68f5dd5ca0a2ffca81dc40158e95d36985191b4c7b3c6f4a8e06f078",
-    "receipt_sha256": "df732de65e98e49496995c06e57fd26983a0905f393691e309df80e474f4f79a"
+    "audio_sha256": "b7fb272f1bfd298c1882ea5e4c78d9e71bfa7872884bc64d817789f8df95e134",
+    "receipt_sha256": "cc58a86f78dc803e2c12a7da402d4068cc24f6b21d62bce2b355ac01ec510593"
   },
   "request_sha256": "bf89d745a621f22545ebcbcb1a32f430193be975ec01d7e4267ffa1b21cfa721",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -218,11 +219,11 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/006a.wav",
-      "sha256": "e956c592ec274ca806a93b12edc8d6ffa8eba365cac06518eca7087d7db58d4a"
+      "sha256": "cc488fc27e5c2d9e43712129cdd5a2c7735586d013e39c01d4cdf370fc69b89c"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0069.wav",
@@ -246,7 +247,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0069.wav",
@@ -273,6 +274,6 @@
       "sha256": "37a78a4a88e80a5e9bc1e335ca6b1ffcbfbe700077c1ce525643bd530d29f81e"
     }
   ],
-  "sha256": "b7fb272f1bfd298c1882ea5e4c78d9e71bfa7872884bc64d817789f8df95e134",
-  "duration": 21.447619047619046
+  "sha256": "29a7e1cf99609ac8b5b8006e40b604ce9332ba1a513d1e7687d80a424cf59abe",
+  "duration": 19.326349206349207
 }

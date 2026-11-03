@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Tulipán. te. u. ele. i. pe. a con tilde. ene. Tulipán.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "4a2a2d5fe6f73521bf633072f8992f3ba99dd6138eb7dc4147258e1afa1900ba",
-    "receipt_sha256": "19687fe08bf662d6428e8d41308f52e65368b761632355900ac66d74f6cb5bd0"
+    "audio_sha256": "83c3230ab719419e6e121e8fc92b21707d73aa51cd4a929453190cbe569de7ac",
+    "receipt_sha256": "916ab4c81aec560f3710480df25031fbc7183863d001b142700f896ad387148b"
   },
   "request_sha256": "2f8325a39e7822b68b93058f729a18dc8f832a256244c6d49d12925d5d47afac",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -144,7 +145,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0075.wav",
-      "sha256": "44864170767c91eadc4c6bb700a9985b3be7a2edd07610f59d63bb3342065145"
+      "sha256": "3b87b84cb161c4215edf80a9c11c6c6174b305b8343928d100227e10eedac039"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/006c.wav",
@@ -167,6 +168,6 @@
       "sha256": "fbbe3e903f52d9ef0593dc2a86b3bd73e2db751eff9099094c44fc5383accf3e"
     }
   ],
-  "sha256": "83c3230ab719419e6e121e8fc92b21707d73aa51cd4a929453190cbe569de7ac",
-  "duration": 11.979319727891156
+  "sha256": "fbe01bfd68eb21227e4332075dee9f19ea67e39ca58e6f9da9a6368e0088804f",
+  "duration": 9.139863945578231
 }

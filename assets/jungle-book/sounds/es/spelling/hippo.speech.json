@@ -61,17 +61,18 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Hipopótamo. hache. i. pe. o. pe. o con tilde. te. a. eme. o. Hipopótamo.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "57f9ee1d461f9517b4057825f3f0e8139fd30124b7cda3d963c1f712b0edad53",
-    "receipt_sha256": "707f413c96d62bf1f15f418655ab2896b777f2dcf3ea83beb356f52c5f5531d0"
+    "audio_sha256": "0d0da44ce9fffbca652de328a00f95251aa82f20b023874210bffb67164328f0",
+    "receipt_sha256": "c1321c114821a9bcf5d534377568cc0120d2589df66ae70933de9a6963889650"
   },
-  "request_sha256": "ed35c83111c5049e6adee4afe860753f2cc1d82d2ee473a36a878423b243d8be",
+  "request_sha256": "c7383df9bef849b0149a76ca92e6b71de453fd48467e743237f84d44a951c5d4",
   "method": "Verified word, literal letter names, word; PCM assembly",
   "recipe": {
     "method": "Verified word, literal letter names, word; PCM assembly",
@@ -154,11 +155,11 @@
   "sources": [
     {
       "path": "assets/jungle-book/sounds/es/simple/hippo.wav",
-      "sha256": "5a2998355acb5fde4f397655487bb5f0ec28074552188c059af8a03a86384249"
+      "sha256": "427d79996bcfa7ed4bac230c0d2ded92f0bd209f199b5cf538b1ab06ff095b07"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0068.wav",
-      "sha256": "f58df945f2887d54ce6ae744a72cce1975e4ed068f83b46803683a0480470031"
+      "sha256": "3ba76c624960ba0752a3cec6e4910c2b8294dcd23e676c88cb4d406e486acfd2"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0069.wav",
@@ -178,7 +179,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/00f3.wav",
-      "sha256": "176468535c890c6db7da584aa13d1f340fe2ef8b5776a395cca56f77f779f302"
+      "sha256": "f5e6ab54c33da48891c1070a091009b287e805777eb8944dc57f7aaa12c2f79b"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0074.wav",
@@ -197,6 +198,6 @@
       "sha256": "1e6e9d98b89b6cb8382e5e5150b909f029f100cfc9434c33c877275b112c91fc"
     }
   ],
-  "sha256": "0d0da44ce9fffbca652de328a00f95251aa82f20b023874210bffb67164328f0",
-  "duration": 15.173877551020409
+  "sha256": "da6cdfa65d4764d4a16d0bf6ef1a754c8e1373e95f4b6788e24795f7212e37ed",
+  "duration": 12.65795918367347
 }

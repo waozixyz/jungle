@@ -61,17 +61,21 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "seeds": [
+    4
+  ],
+  "kind": "sentence",
   "text": "Tortuga marina.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "489f445a19e45c85ca56ee97d335ffd5976cced9b55ede14421448fa9932187a",
-    "receipt_sha256": "9c1b2cffb3426f874687675dcc120685ac0fd8584de411f8fd320651156b6b05"
+    "audio_sha256": "5cdfee54e4b7d086ba3e60dd763ab7d31456cfff744ab66c704a9b83e2679038",
+    "receipt_sha256": "4028d498b101318868f6e5ba9a9d5933a50aae35c259322888b580257347b583"
   },
-  "request_sha256": "39bc80af447aed909be00ad0a2fbf4c4184c0cb5edaed9a64c9ed58347cd8340",
-  "sha256": "5cdfee54e4b7d086ba3e60dd763ab7d31456cfff744ab66c704a9b83e2679038",
-  "duration": 1.52
+  "request_sha256": "7b120bd0a2bdeb588801902244964944491f7a143341f800a3ca2c79dfa71908",
+  "sha256": "6f4fcf6ed237567e035796a78ec1afc0655935a83d3e7c690957152dbd6ba2f2",
+  "duration": 2.48
 }

@@ -61,17 +61,21 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "seeds": [
+    3
+  ],
+  "kind": "sentence",
   "text": "Pollo asado.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "aacfa01fc8135d0e8e8ed6c44c12c4b17bf9c7724f778956c1aa3177532f6c02",
-    "receipt_sha256": "ba61ed0dabe0847d3f1f8d4097c6cd4caef3711c3fd895ff63afc9a374ff6bcf"
+    "audio_sha256": "e948bfe448cc5d81507dc404a69579d93679074104fe5c452c00288c3743b795",
+    "receipt_sha256": "dce778e75c2db475420db74e879928150350239678cae7a474324972b542b4ef"
   },
-  "request_sha256": "a4baf34b158bce8208c130114481b1f5d4fdc8ee63bb9b4b4b58039439c1d2b3",
-  "sha256": "e948bfe448cc5d81507dc404a69579d93679074104fe5c452c00288c3743b795",
-  "duration": 5.52
+  "request_sha256": "5d8f4aecc553d123f6fe2d2ad3c26c71629d5b7d6aa66deb94553aa00abcc62b",
+  "sha256": "d7e23ead1c7c65560721ed3e6a473da182ded1cb2f1138ee45f4595420f6f409",
+  "duration": 1.76
 }

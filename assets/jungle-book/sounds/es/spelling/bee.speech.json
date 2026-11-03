@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Abeja. a. be. e. jota. a. Abeja.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "de75f889e13eacefbb3a4b61f11076131fb5d25e381bf7d72f210b6715fcdb75",
-    "receipt_sha256": "08d617767c6090787f3390435744f200d4a70ed6a2c0dee9e685ec732a3d2da2"
+    "audio_sha256": "043a05672320df9b478ebeb711b56c70cfab6898676a70c2e7a52fd70d886734",
+    "receipt_sha256": "bf5f36b76cc7dcf5080b5fda11184eb2b9ce20685de874ff99348a9b1b2cea57"
   },
   "request_sha256": "cec6ed0a909ea113347e354147a88fe2405ad7649ba1e7cf12002ac8a2abbfd7",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -136,17 +137,17 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/006a.wav",
-      "sha256": "e956c592ec274ca806a93b12edc8d6ffa8eba365cac06518eca7087d7db58d4a"
+      "sha256": "cc488fc27e5c2d9e43712129cdd5a2c7735586d013e39c01d4cdf370fc69b89c"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0061.wav",
       "sha256": "6aa633c4e7266cf036cf4209e5b3414582f2275e6845b138621ed39f183e766c"
     }
   ],
-  "sha256": "043a05672320df9b478ebeb711b56c70cfab6898676a70c2e7a52fd70d886734",
-  "duration": 8.297913832199546
+  "sha256": "eb96a033945dcacc56199e453d1a96066908c94202348d2517d683c52b93a187",
+  "duration": 6.589931972789116
 }

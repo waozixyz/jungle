@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Sillón. ese. i. ele. ele. o con tilde. ene. Sillón.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "161e9623fcff28f07eee6b7b0b9a1b8e7faba524e975bc955cefd15c9e3fa480",
-    "receipt_sha256": "ea75c5dc983d19fcbef98f6ad7f9c3a9db33c06c77baed5dc86cfb206944e880"
+    "audio_sha256": "0a8425fd976d6f9f286d4e7b4b9c5359826e7edf4a4cdb9d4a2aab8f3ba166ad",
+    "receipt_sha256": "5684d2707786e3f8a1d87f1f3acf058bfa1f0dc1feaf691e23aae96d7e1982c4"
   },
   "request_sha256": "c5e4362bae5f7723a26a879e9ad954e8f7aa28cca93c266cf31dcd89274c4f35",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -150,13 +151,13 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/00f3.wav",
-      "sha256": "176468535c890c6db7da584aa13d1f340fe2ef8b5776a395cca56f77f779f302"
+      "sha256": "f5e6ab54c33da48891c1070a091009b287e805777eb8944dc57f7aaa12c2f79b"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/006e.wav",
       "sha256": "fbbe3e903f52d9ef0593dc2a86b3bd73e2db751eff9099094c44fc5383accf3e"
     }
   ],
-  "sha256": "0a8425fd976d6f9f286d4e7b4b9c5359826e7edf4a4cdb9d4a2aab8f3ba166ad",
-  "duration": 9.222993197278912
+  "sha256": "3c4a87483de9a32bd84eb587172e44560688be6bbd9a797709d1bc8670137607",
+  "duration": 7.674104308390023
 }

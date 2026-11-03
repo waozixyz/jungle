@@ -61,17 +61,21 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "seeds": [
+    2
+  ],
+  "kind": "word",
   "text": "Río.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "3e6bed56bd1171cd133b8183afb88429191c9a5448412959c625e33490c321cc",
-    "receipt_sha256": "dbf0e06d56c3fb3bc42127a20999fcf715d25f50e01767c7c666f97be7d0dafb"
+    "audio_sha256": "7fe9ca33b2b891d6765247b6228f2ff0a66d6771c56cd92de499fba39c70e3ab",
+    "receipt_sha256": "3df534a4b147f1508e87e37febb01d2a2f6abeeb68b3d32ef149aae7ee536e51"
   },
-  "request_sha256": "60350b8552ebbb8003d24f05bdc211cb7d1aef2d717c214d118fa863f3c5e384",
-  "sha256": "7fe9ca33b2b891d6765247b6228f2ff0a66d6771c56cd92de499fba39c70e3ab",
-  "duration": 1.68
+  "request_sha256": "a37e4e1be26d034bee6ba395f8185671ae0b6122cf8927095b2327089363c7cf",
+  "sha256": "fb56f8092cf071f4099f1f681aea445148f0f8838e626e7839246130b719c481",
+  "duration": 1.2
 }

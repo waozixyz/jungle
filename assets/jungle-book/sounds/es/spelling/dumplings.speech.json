@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Empanadillas. e. eme. pe. a. ene. a. de. i. ele. ele. a. ese. Empanadillas.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "ce1c2f0204573e8f6e7d147cc0b1cb635e5a36b78aeab643ff72b5978005e18a",
-    "receipt_sha256": "80110edfa2f8b3bf395eca1581b4e9bfda91403e03240cfac7928520495e2aaa"
+    "audio_sha256": "1761f03bb57b8bac67a3b1ef749e8953dc0efdc9237d5808c24d8cd058437fdc",
+    "receipt_sha256": "4eea5373123f9b2dd298093a2fa08cd464169785359d6675377680347fc5d841"
   },
   "request_sha256": "29f17c26f3caccf8344e4f23f6e00fe1b6ab56e1efeea7de9e54f93d3ebf523c",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -170,7 +171,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/006d.wav",
@@ -217,6 +218,6 @@
       "sha256": "37a78a4a88e80a5e9bc1e335ca6b1ffcbfbe700077c1ce525643bd530d29f81e"
     }
   ],
-  "sha256": "1761f03bb57b8bac67a3b1ef749e8953dc0efdc9237d5808c24d8cd058437fdc",
-  "duration": 13.303537414965986
+  "sha256": "2b725d25646299aedd9d42af3abfeb01168fdb2e7b59e7e790110a138e72c699",
+  "duration": 12.890249433106575
 }

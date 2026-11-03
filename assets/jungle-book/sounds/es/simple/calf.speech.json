@@ -61,17 +61,21 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "seeds": [
+    1
+  ],
+  "kind": "word",
   "text": "Ternero.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "50039eb7a4c343e176c45c01e23b76d73ae30fe19a9bf7e2d308c44c423f6c19",
-    "receipt_sha256": "9da698df5b3d7063fe8386782a12e8637e988be39dae0a19397090dd3c710651"
+    "audio_sha256": "640e2f7ec3e30988fcc6b5a5159105938d955e2b7a5c779bd0e5b3219004f3bf",
+    "receipt_sha256": "d6bf1c326b7ad43da1521f3caff997df834fa6bc4926cec52d0de02e76f47d9a"
   },
-  "request_sha256": "1e182c9bee1d139269f58acc8f52b60d8a25d9ef6d4faa6ed1a066f46c1c3aed",
-  "sha256": "640e2f7ec3e30988fcc6b5a5159105938d955e2b7a5c779bd0e5b3219004f3bf",
-  "duration": 2.88
+  "request_sha256": "6e3d81d801d5097dff2f2e1686e046b8137f338446f30bc7041d6fef4297ca54",
+  "sha256": "7872fbaa2407ed42ec6a5faaf062946b6680f6e4cc329db34ede023592426119",
+  "duration": 1.2
 }

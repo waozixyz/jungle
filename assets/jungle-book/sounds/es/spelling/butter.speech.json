@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Mantequilla. eme. a. ene. te. e. cu. u. i. ele. ele. a. Mantequilla.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "3e53a92c5eba02d7e86f603450ab88bddc10708822c20e069feff3fcd6412ca3",
-    "receipt_sha256": "ee3092d04b543869ea61b37d68f9586a4b497664475c9dc0f03b0af2a72ec285"
+    "audio_sha256": "c411555536d556248a0cc1636d6b99fe1f9b64985248ea0110cb4807f53ee786",
+    "receipt_sha256": "b8cee73e7dc0ab16281adb2956e1aaa8787cb3bb7eaf98d4893c3f34cb196854"
   },
   "request_sha256": "622c48a096df31ad2ce2dfb4671c8df6e3f9e0e4f28016151948b5b40d00657c",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -180,7 +181,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0071.wav",
@@ -188,7 +189,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0075.wav",
-      "sha256": "44864170767c91eadc4c6bb700a9985b3be7a2edd07610f59d63bb3342065145"
+      "sha256": "3b87b84cb161c4215edf80a9c11c6c6174b305b8343928d100227e10eedac039"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0069.wav",
@@ -207,6 +208,6 @@
       "sha256": "6aa633c4e7266cf036cf4209e5b3414582f2275e6845b138621ed39f183e766c"
     }
   ],
-  "sha256": "c411555536d556248a0cc1636d6b99fe1f9b64985248ea0110cb4807f53ee786",
-  "duration": 15.391519274376417
+  "sha256": "71118557861c0f5bfa92646d9209f0b00b5e73c609ca8f981cd5a7c59656ed76",
+  "duration": 12.138775510204082
 }

@@ -61,17 +61,21 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "seeds": [
+    1
+  ],
+  "kind": "word",
   "text": "Arce.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "5f174151bf822a83a0953ae9985908b5679fdd09039c854a8b4e26c17b1cf064",
-    "receipt_sha256": "2934de67684aec024b1820d3e0c3963296365124905095209c1a3f9a1fde7242"
+    "audio_sha256": "a8f095f61b36dea2302b6aa27c6f4b9e65aca24aa4cf2b39ba58ce449b6fb349",
+    "receipt_sha256": "fe58c4e95c5bf13a97a1a37545419b45c716fbae633d184135d78a036904ee01"
   },
-  "request_sha256": "ff9deadfadf6cd30e240fef9d698b48d320ae175add3e6317c576d7fded9aa38",
-  "sha256": "a8f095f61b36dea2302b6aa27c6f4b9e65aca24aa4cf2b39ba58ce449b6fb349",
+  "request_sha256": "cc5f957f3262044cc0b4fdd6f7a70753acd3bf986239650fd6d73dc0ac68a847",
+  "sha256": "2d5f032edb83f0d582889655ba4fc2f9702fb8da623ccef42108f532f712a4fa",
   "duration": 0.96
 }

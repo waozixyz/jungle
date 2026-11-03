@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Verano. uve. e. erre. a. ene. o. Verano.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "29111b636ba6c8d84e1b0e626c2e31933867debeb76477af5625b5dd9073d651",
-    "receipt_sha256": "d82b235f6e5cc8702b17085af42157b170e414585734f57b887aeeab5a8cba09"
+    "audio_sha256": "e09cd8eec82742d853169a3d3ff8e5e6e22bbc1c84ad8c67d2eaaabe7a750b4a",
+    "receipt_sha256": "e7f9c0808d24efc27f6a3b54895b7e9de360d270aaaf96d9a9e29153c1e331e6"
   },
   "request_sha256": "2f3dd766ea1a0c38a694044d2d046a4593832aaa1aabac62d15dfaac97816f6b",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -134,11 +135,11 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0076.wav",
-      "sha256": "20f8ec164ab8064d828f6435acff19d28b07d52ab9f7c1c75c627042cf4e0df5"
+      "sha256": "8b222cd3c57833eab1161bf992646775b1187742872a9f824e4edd1b1af040f7"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0072.wav",
@@ -157,6 +158,6 @@
       "sha256": "1e6e9d98b89b6cb8382e5e5150b909f029f100cfc9434c33c877275b112c91fc"
     }
   ],
-  "sha256": "e09cd8eec82742d853169a3d3ff8e5e6e22bbc1c84ad8c67d2eaaabe7a750b4a",
-  "duration": 8.178458049886622
+  "sha256": "b78206017ea4d4c8ee161a2cda35f8e81540f2e56b6bcf37d6deb3f9517eaf86",
+  "duration": 6.999365079365079
 }

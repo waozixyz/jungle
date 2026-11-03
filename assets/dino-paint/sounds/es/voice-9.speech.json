@@ -61,17 +61,21 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "seeds": [
+    6
+  ],
+  "kind": "word",
   "text": "Protoceratops.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "44817e2fa336b1b23557b5f6e2b9c2018695f843e30d72dd4dd64fd70deab7bb",
-    "receipt_sha256": "abd2d4228d846a945b6f67127128dc60fd5619adbfc3cbadb0050cf22dfa20d4"
+    "audio_sha256": "d807e1459bb65d6d5214ff21361b6c2fa424abf0fa549094d674ef5a0ebba067",
+    "receipt_sha256": "1debcd0322217374cc4861e56d8b6b71749fc3cfa4953178df539e9ad9cbe870"
   },
-  "request_sha256": "00405dee513641b2dd9d9eb488528995de224cdfc631e690da2a898fcf123ae7",
-  "sha256": "d807e1459bb65d6d5214ff21361b6c2fa424abf0fa549094d674ef5a0ebba067",
-  "duration": 1.92
+  "request_sha256": "1f9d536b7c607f65b7a37979e0b1cb583e0a4023945e6b7d0f22969ec033eff0",
+  "sha256": "45fb7388d33c4aaf0410077c641b886c02a1bab5e79cb4139904f5a4a4f73c61",
+  "duration": 2.08
 }

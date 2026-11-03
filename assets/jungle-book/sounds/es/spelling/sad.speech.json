@@ -61,17 +61,18 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Triste. te. erre. i. ese. te. e. Triste.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "192914275fdb7011f2067df0f2a78bb99766a6357ddb4bf5b723586f7d26441d",
-    "receipt_sha256": "03e6afa9e7f1c8443142d27ace1246be17a8858e9357558f9e08822930fada4d"
+    "audio_sha256": "cff18ccd3eee2ec44a642afae0b56ad73dd877ddd7d53fbcaf27bc82a961bd9e",
+    "receipt_sha256": "f1327d401e888ec7c1c67e623994b03553b6029e717147ead24abb4448983c00"
   },
-  "request_sha256": "0c138dcbf27c13128e2bc3351536eaaf66e9b90ec68e7df7c1f3cf5cb8c6ad54",
+  "request_sha256": "6098eeba5574501815830ee29eff9ed6b67946b0f06e16d25bcaa3282b6ee4e3",
   "method": "Verified word, literal letter names, word; PCM assembly",
   "recipe": {
     "method": "Verified word, literal letter names, word; PCM assembly",
@@ -130,7 +131,7 @@
   "sources": [
     {
       "path": "assets/jungle-book/sounds/es/simple/sad.wav",
-      "sha256": "1bd463d68b68e2cd7909daa431b3d096e51f6c780da712f46b753a98579be458"
+      "sha256": "d8f077d261861afbc56784219d19045d1869c0e8a0856b7dbfb203b830df7f39"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0074.wav",
@@ -154,9 +155,9 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     }
   ],
-  "sha256": "cff18ccd3eee2ec44a642afae0b56ad73dd877ddd7d53fbcaf27bc82a961bd9e",
-  "duration": 7.777687074829932
+  "sha256": "c5c6a0b4819d4d2b18e8b7306af2d061224b1975c8702824bd34c36801ae7dd5",
+  "duration": 7.4491156462585035
 }

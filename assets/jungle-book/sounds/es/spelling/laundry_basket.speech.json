@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Cesto de ropa. ce. e. ese. te. o. de. e. erre. o. pe. a. Cesto de ropa.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "4f594ae694b92778fbe7ce904a6b42f992e2d56033d2f13d7230f2a3cfe4f869",
-    "receipt_sha256": "552bf3e42d12b2a384f0f0aa0043f1fface5ecd14a6f31348a0672f5eba007e9"
+    "audio_sha256": "425ee1e48b4ed32d2f9b120eedaea2226ef9cbbfd11e7edc2bc7ad79b4c9c063",
+    "receipt_sha256": "60e6c94df15cbbd987046df7955508f7f1ae212cc43120f52376804749b9138e"
   },
   "request_sha256": "e20cf7bf83be0a7ead5187bb070e3a4552c7015fc2fd7125cff8114bdf76e57c",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -174,7 +175,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0073.wav",
@@ -194,7 +195,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0072.wav",
@@ -213,6 +214,6 @@
       "sha256": "6aa633c4e7266cf036cf4209e5b3414582f2275e6845b138621ed39f183e766c"
     }
   ],
-  "sha256": "425ee1e48b4ed32d2f9b120eedaea2226ef9cbbfd11e7edc2bc7ad79b4c9c063",
-  "duration": 13.962222222222222
+  "sha256": "eccac9972e466a5b98184012f6d48c1ef4e55d3d948a021012de0d13ced43e66",
+  "duration": 13.135646258503401
 }

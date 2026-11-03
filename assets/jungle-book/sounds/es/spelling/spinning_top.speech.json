@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Peonza. pe. e. o. ene. zeta. a. Peonza.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "d331659ee441ed38b42edaec22b10bfb3c6a68fd3cd38a2735476cf716124de6",
-    "receipt_sha256": "24b09740cad5bfc5ee84d830855caca2c26f43d2f1d193fb011b24da4e7542ac"
+    "audio_sha256": "aed30bd68c7e8d088ca63a30be460fe7f1830d7f26a08c62d45d7d433df2a2af",
+    "receipt_sha256": "d8703931410c2093595b2ea16b9f05c1ae04492ab912461abde66ab5c498cbea"
   },
   "request_sha256": "1b9a484e689d5171c1fcccb1a9bea558d615112bb237691529fca83446648f2c",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -138,7 +139,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/006f.wav",
@@ -157,6 +158,6 @@
       "sha256": "6aa633c4e7266cf036cf4209e5b3414582f2275e6845b138621ed39f183e766c"
     }
   ],
-  "sha256": "aed30bd68c7e8d088ca63a30be460fe7f1830d7f26a08c62d45d7d433df2a2af",
-  "duration": 8.105668934240363
+  "sha256": "bc77ce5ec5efcedf0078b19a71833961f4f48d0af58b179d850c38fb823b78cd",
+  "duration": 7.692380952380953
 }

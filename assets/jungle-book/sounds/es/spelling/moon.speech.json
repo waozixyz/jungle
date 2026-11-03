@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Luna. ele. u. ene. a. Luna.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "f7ccd3ceb8025140ce2feb403c84ced1302caa01af3383ab7dfd742a8bb5aac9",
-    "receipt_sha256": "207d84c22819e09c31664c3ce7c6ca8cd7ca8dd452ac0f6bb298c33aaac6a2ac"
+    "audio_sha256": "4604725bdea7cf60f2a14fd586f3db7473d48b9434e40aef05e17d4943f11d8a",
+    "receipt_sha256": "094a258a0829a176543a6efd040b5447cd62237db0a4f4bdbdfab921da0976fd"
   },
   "request_sha256": "5c2f39c27548bb8ff8f9a866666a5458d2a80f3e55064705e0ece64a2e7d3e3b",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -126,7 +127,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0075.wav",
-      "sha256": "44864170767c91eadc4c6bb700a9985b3be7a2edd07610f59d63bb3342065145"
+      "sha256": "3b87b84cb161c4215edf80a9c11c6c6174b305b8343928d100227e10eedac039"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/006e.wav",
@@ -137,6 +138,6 @@
       "sha256": "6aa633c4e7266cf036cf4209e5b3414582f2275e6845b138621ed39f183e766c"
     }
   ],
-  "sha256": "4604725bdea7cf60f2a14fd586f3db7473d48b9434e40aef05e17d4943f11d8a",
-  "duration": 7.88140589569161
+  "sha256": "e77eb6077d5c6ca4b25b77cf4fef7fc24685a2b46fbfe07091fee4f400c6ef2b",
+  "duration": 5.041950113378685
 }

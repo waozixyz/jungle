@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Zanahoria. zeta. a. ene. a. hache. o. erre. i. a. Zanahoria.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "53e411598145843260ac3241505c4aa0a1ac12301dfed49f30053b7bd1518cb9",
-    "receipt_sha256": "a0172e32af756c994691a7aeaf8d16344c710bcbc9239a446598b10dc76007a4"
+    "audio_sha256": "9b5319b0b7d89b63cafa9b3db42e129aa66405f578e070a87c638eb4ba269f8c",
+    "receipt_sha256": "b1fc178674f6bb4af5d035ae6d84797bf7097ca025b9022cbaf54f435f858765"
   },
   "request_sha256": "c1d8c4e749f6f76ca09a300c23f8094b955794ca3a2fabcdbac3f81f31de68cc",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -168,7 +169,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0068.wav",
-      "sha256": "f58df945f2887d54ce6ae744a72cce1975e4ed068f83b46803683a0480470031"
+      "sha256": "3ba76c624960ba0752a3cec6e4910c2b8294dcd23e676c88cb4d406e486acfd2"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/006f.wav",
@@ -187,6 +188,6 @@
       "sha256": "6aa633c4e7266cf036cf4209e5b3414582f2275e6845b138621ed39f183e766c"
     }
   ],
-  "sha256": "9b5319b0b7d89b63cafa9b3db42e129aa66405f578e070a87c638eb4ba269f8c",
-  "duration": 11.537777777777778
+  "sha256": "f2a3e32594b1d3358adc89cf644cf1fcbd8c07015cd7c4efca07f1abd643c200",
+  "duration": 10.339183673469387
 }

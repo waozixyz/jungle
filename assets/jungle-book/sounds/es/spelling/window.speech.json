@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Ventana. uve. e. ene. te. a. ene. a. Ventana.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "222f64be8e94bd4afcd0dabf155dca31c4831fe2c787f14ccae1d7ce9926a5ea",
-    "receipt_sha256": "39cde7156e164d3d47e5fa3a7c4d96698727d1d41b633be75594c84e540255bb"
+    "audio_sha256": "78b11938e15bd222a7a191e5598b490484044735dc7d64568071f3ec9f17ebbb",
+    "receipt_sha256": "7d19a0dc27a1791eba5ffca088010c6e21d404e41960196d34feb0a7e3f6b822"
   },
   "request_sha256": "53907275e15e847974de072e81accb9481df0d18ba7e1ca0e5e8ffd94bd0e966",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -140,11 +141,11 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0076.wav",
-      "sha256": "20f8ec164ab8064d828f6435acff19d28b07d52ab9f7c1c75c627042cf4e0df5"
+      "sha256": "8b222cd3c57833eab1161bf992646775b1187742872a9f824e4edd1b1af040f7"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/006e.wav",
@@ -167,6 +168,6 @@
       "sha256": "6aa633c4e7266cf036cf4209e5b3414582f2275e6845b138621ed39f183e766c"
     }
   ],
-  "sha256": "78b11938e15bd222a7a191e5598b490484044735dc7d64568071f3ec9f17ebbb",
-  "duration": 9.367074829931973
+  "sha256": "ac36a7d92c8276d4873c33954f8119ca344968121dbaf08a43b5e366be3f30b9",
+  "duration": 8.187981859410431
 }

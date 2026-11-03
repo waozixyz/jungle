@@ -61,17 +61,18 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Hojas caídas. hache. o. jota. a. ese. ce. a. i con tilde. de. a. ese. Hojas caídas.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "c30a147e656efe070cdc1bfb009840d293b4d16aecf3a57a8aef64e02c498e73",
-    "receipt_sha256": "c6e33a762a65959dee87b053250a22c2f830e3d21f95637744113b9907ee92b0"
+    "audio_sha256": "ed97faae0baf632fbf3e89b57dd04438aa5a7a1906bd5e81641354a4cc9ee6dd",
+    "receipt_sha256": "65785548e10d8eb5bfb9be1bbe953a29bde509bf40bae17397d57371a0e650c2"
   },
-  "request_sha256": "fd81e558c004aaa5f1efadae7060016b8f66bf2970aa56bd978ef6bc455e2507",
+  "request_sha256": "00a4674028668b1647c5fca3b01679dbbaef594020f85a27d2dc192b66ca97ee",
   "method": "Verified word, literal letter names, word; PCM assembly",
   "recipe": {
     "method": "Verified word, literal letter names, word; PCM assembly",
@@ -163,11 +164,11 @@
   "sources": [
     {
       "path": "assets/jungle-book/sounds/es/simple/fallen_leaves.wav",
-      "sha256": "5c74ec44cc3531ce002e62f0d0e131260c5e91fec9e29b3a2b1848ab0cc4ad14"
+      "sha256": "db50e951fd3b142a6bfd5330dafd0a0f24cdb54068f0d129b8681fc5fc2c566b"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0068.wav",
-      "sha256": "f58df945f2887d54ce6ae744a72cce1975e4ed068f83b46803683a0480470031"
+      "sha256": "3ba76c624960ba0752a3cec6e4910c2b8294dcd23e676c88cb4d406e486acfd2"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/006f.wav",
@@ -175,7 +176,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/006a.wav",
-      "sha256": "e956c592ec274ca806a93b12edc8d6ffa8eba365cac06518eca7087d7db58d4a"
+      "sha256": "cc488fc27e5c2d9e43712129cdd5a2c7735586d013e39c01d4cdf370fc69b89c"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0061.wav",
@@ -195,7 +196,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/00ed.wav",
-      "sha256": "4f31421570bb349fba2663269049881fcd3b21149707149ba1a838dee4ffedda"
+      "sha256": "e622d0f81c8886e24e5091b04ae2311e418b89a26136bec5995e73d4f540a6ad"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0064.wav",
@@ -210,6 +211,6 @@
       "sha256": "37a78a4a88e80a5e9bc1e335ca6b1ffcbfbe700077c1ce525643bd530d29f81e"
     }
   ],
-  "sha256": "ed97faae0baf632fbf3e89b57dd04438aa5a7a1906bd5e81641354a4cc9ee6dd",
-  "duration": 17.40997732426304
+  "sha256": "35be35ce26a82ee1e154f9554e894e273595eea39b2da83381d74d68e78e6b91",
+  "duration": 13.828344671201814
 }

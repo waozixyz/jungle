@@ -61,17 +61,18 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Río. erre. i con tilde. o. Río.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "b914d8d8e16d0e38d9e7d6a84d42bf0422dbc14b989c93383b0bf76a9ee6a338",
-    "receipt_sha256": "300c9cbe1257758ac05cc585efaaf3b32bbf03119ddcbaf39cd2ba37e8607234"
+    "audio_sha256": "4cb5fdfdfd83c2fee0554464762e6e55336501a5f6a4459fe01bd14c5c89e628",
+    "receipt_sha256": "651c606198b767b81046c770f9d8cdecf4d1fa385cd01a9e0f16ba498e19a2e3"
   },
-  "request_sha256": "68c20d38f417e60400c051ad7c7c71773307e396b0ed9415646b0adaf48638be",
+  "request_sha256": "abf96f52b91f9f3fbd466780feb1028ef9904985800cd29ec0f8f96d914d4f02",
   "method": "Verified word, literal letter names, word; PCM assembly",
   "recipe": {
     "method": "Verified word, literal letter names, word; PCM assembly",
@@ -112,7 +113,7 @@
   "sources": [
     {
       "path": "assets/jungle-book/sounds/es/simple/river.wav",
-      "sha256": "7fe9ca33b2b891d6765247b6228f2ff0a66d6771c56cd92de499fba39c70e3ab"
+      "sha256": "fb56f8092cf071f4099f1f681aea445148f0f8838e626e7839246130b719c481"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0072.wav",
@@ -120,13 +121,13 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/00ed.wav",
-      "sha256": "4f31421570bb349fba2663269049881fcd3b21149707149ba1a838dee4ffedda"
+      "sha256": "e622d0f81c8886e24e5091b04ae2311e418b89a26136bec5995e73d4f540a6ad"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/006f.wav",
       "sha256": "1e6e9d98b89b6cb8382e5e5150b909f029f100cfc9434c33c877275b112c91fc"
     }
   ],
-  "sha256": "4cb5fdfdfd83c2fee0554464762e6e55336501a5f6a4459fe01bd14c5c89e628",
-  "duration": 7.64920634920635
+  "sha256": "f06d28a6cff84ee6e2576931e000decb606d6a57a5942663e688cdbb11e26c35",
+  "duration": 5.486666666666666
 }

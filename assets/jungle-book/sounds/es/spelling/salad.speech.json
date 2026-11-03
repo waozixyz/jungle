@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Ensalada. e. ene. ese. a. ele. a. de. a. Ensalada.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "843a19dc4ba10ebfc3cb8dff22093057f8338d3d254d3d2a07971001623fe970",
-    "receipt_sha256": "4fe128f33defa1fc2d68cd7be433617ff49c2684e0a9d7bad8ba997da653168f"
+    "audio_sha256": "c13e4ce798d83ba6d9ee6b8f973b48d4d10dc090c624d7b596e3a9832cb27e14",
+    "receipt_sha256": "be04104ee9ec3f9db15b29fc4346249938b1034236be9a329589d315a283d0e4"
   },
   "request_sha256": "b33b1b9324821980bc407cd05d67670a3f7de9098bde47f94e01ce0357e7d5c1",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -146,7 +147,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/006e.wav",
@@ -177,6 +178,6 @@
       "sha256": "6aa633c4e7266cf036cf4209e5b3414582f2275e6845b138621ed39f183e766c"
     }
   ],
-  "sha256": "c13e4ce798d83ba6d9ee6b8f973b48d4d10dc090c624d7b596e3a9832cb27e14",
-  "duration": 9.589297052154196
+  "sha256": "323a918a139f898b9e553c454fa4c86b32efca97a577f72845231f8a881984e8",
+  "duration": 9.176009070294784
 }

@@ -61,17 +61,18 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Grillo. ge. erre. i. ele. ele. o. Grillo.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "50286d65fe22e7d928edae78e796e995d13cb10219bb58169a05e206db26aa6e",
-    "receipt_sha256": "f2a75f660057d0657adaae239d4730fd4f014204c7a704accc6413fe8ad20cf0"
+    "audio_sha256": "d77354fd4ab3be013e8e10db492703f968872c64534647d5120981efe342cb7d",
+    "receipt_sha256": "830c54fc30bec9e2d788fcb4dedeb96ec35afebeb6db6db42d54fc380d165512"
   },
-  "request_sha256": "642589c9d4a0bf847f921b516a84c4a3faf3e85b3afbdd8a396ebeeb8f6acf7d",
+  "request_sha256": "5bcf74c0c4b01b0ea1f5fe7f7bb042d4aba75736619def2d514629b668d55016",
   "method": "Verified word, literal letter names, word; PCM assembly",
   "recipe": {
     "method": "Verified word, literal letter names, word; PCM assembly",
@@ -130,11 +131,11 @@
   "sources": [
     {
       "path": "assets/jungle-book/sounds/es/simple/cricket.wav",
-      "sha256": "5cfbb3f2f00853cb791c0d532fc35e9ae0b30a513d3b3ef749297d9262fa0089"
+      "sha256": "427a0183755813e55b8f347f6cb7ebe9f6a254875abffc01f3e3bc365f3727a3"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0067.wav",
-      "sha256": "b9dc856adc034192f400896227ac36a2f401544bcbd4c6b46822046969f0f756"
+      "sha256": "afc0ecf2e57c9512a9426f85b007091ef4ce8b428ec2537aaf2a89baf093c518"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0072.wav",
@@ -157,6 +158,6 @@
       "sha256": "1e6e9d98b89b6cb8382e5e5150b909f029f100cfc9434c33c877275b112c91fc"
     }
   ],
-  "sha256": "d77354fd4ab3be013e8e10db492703f968872c64534647d5120981efe342cb7d",
-  "duration": 7.18249433106576
+  "sha256": "69d424926db7128d192e4d410468b55380992d4c94da5986695794f87ddf4dac",
+  "duration": 7.13546485260771
 }

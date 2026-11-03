@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Té. te. e con tilde. Té.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "7e9ba0b5382ad9755ea1a6b40c350c5f98197d38845821c0d4944dd246fc439c",
-    "receipt_sha256": "1c2e9c3867edcec5d2f8527784061ea7e4b9ea38c4f3ac7a325a1d35c3f3822d"
+    "audio_sha256": "a611c8963f7eb25fa9856ef6e142e9ad645170d9c1ae360ad86bb8f7db669a2a",
+    "receipt_sha256": "92b28c945b67b1778cf913db256b4724c80c3494dec3f04e3cde12b92946ea33"
   },
   "request_sha256": "1c79c5d15ade8d3e82211bd6080b3634e8d60267b2f68ec1bc556a925c88883b",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -114,9 +115,9 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/00e9.wav",
-      "sha256": "e4f8a20c84dd103cfe47ed2f884c06f28dd0eefac8ad49aefe38f6bff0e286c0"
+      "sha256": "4ce16cfe027ffa9981271ca21d8c5d80cfb4568f6e5e76426eb51c4bf0715f0f"
     }
   ],
-  "sha256": "a611c8963f7eb25fa9856ef6e142e9ad645170d9c1ae360ad86bb8f7db669a2a",
-  "duration": 4.166485260770975
+  "sha256": "a3f638767f9d051b6c5de4c23e001bbeb2acaf650e6db9ac8d12315e04c801de",
+  "duration": 4.415283446712018
 }

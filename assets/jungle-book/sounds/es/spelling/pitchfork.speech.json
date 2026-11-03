@@ -61,17 +61,18 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Horca. hache. o. erre. ce. a. Horca.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "6eb42b52483bba2e9c79dca75d7b411f7038e2a975e7156bae02c4388fade177",
-    "receipt_sha256": "d06ed90d99777f3fe662f860fc327c422238c628d2525c21c5e0bd08e6faabbc"
+    "audio_sha256": "4baecd0b80af1f9440cf5ffd139ca720c29f1c4ebffd4ae80858ac1677557e84",
+    "receipt_sha256": "1c9065ac6fea15718babf2852df1590c863986de1300f4ff6decaadcdf76eb7c"
   },
-  "request_sha256": "6443ada2ac9bd1b79d4f41fd3a5cd6cb520ae2f7d1215b92c8190f5724d7d1da",
+  "request_sha256": "dc1338093f6d35319b1334f5fce3a9a5420b0aa0644a3b4e4e6eb342655a7602",
   "method": "Verified word, literal letter names, word; PCM assembly",
   "recipe": {
     "method": "Verified word, literal letter names, word; PCM assembly",
@@ -124,11 +125,11 @@
   "sources": [
     {
       "path": "assets/jungle-book/sounds/es/simple/pitchfork.wav",
-      "sha256": "a16bef2f0d7cbf80bd97305de82c7d72704e8210b2c3ec89a2ee65d6a04461c5"
+      "sha256": "16b80e1ab0da6737e44ec3b8a9b029e79a4b194c7eaf38c23972c9821b755ed5"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0068.wav",
-      "sha256": "f58df945f2887d54ce6ae744a72cce1975e4ed068f83b46803683a0480470031"
+      "sha256": "3ba76c624960ba0752a3cec6e4910c2b8294dcd23e676c88cb4d406e486acfd2"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/006f.wav",
@@ -147,6 +148,6 @@
       "sha256": "6aa633c4e7266cf036cf4209e5b3414582f2275e6845b138621ed39f183e766c"
     }
   ],
-  "sha256": "4baecd0b80af1f9440cf5ffd139ca720c29f1c4ebffd4ae80858ac1677557e84",
-  "duration": 8.39079365079365
+  "sha256": "e093369577d542b9a3849349a2b3eb73cedaf059072c35ac80cc5712b7064da9",
+  "duration": 7.476734693877551
 }

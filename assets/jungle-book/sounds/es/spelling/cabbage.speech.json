@@ -61,17 +61,18 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Col. ce. o. ele. Col.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "6c736dfe03e5c8f1cc998df1f0bb31724685f6d010966dbc3aca422d4ce60501",
-    "receipt_sha256": "6c01beb75a9208da604b1968c6effb6b6bd4685225fbb785e8b26cf0ddc16338"
+    "audio_sha256": "27ad8cb346cdf6027157fa1dddcb01eaa35e93b381dc2a5865c29e1575a5d24e",
+    "receipt_sha256": "84f4293f209a546bb751c105433f3f2ae97f9829331ee8d3e3b5dcf112cc4e74"
   },
-  "request_sha256": "083ee4ecb8496df7ed31d6b9d0976d305d3c6521d88b818543aeeab68a606a1d",
+  "request_sha256": "9ffb05404283394b663bdad5661feca5bdae093f7249b18b58f59581f79c2324",
   "method": "Verified word, literal letter names, word; PCM assembly",
   "recipe": {
     "method": "Verified word, literal letter names, word; PCM assembly",
@@ -112,7 +113,7 @@
   "sources": [
     {
       "path": "assets/jungle-book/sounds/es/simple/cabbage.wav",
-      "sha256": "c9620ef8c843e92b36156259ba8089f54c5ccb060fc9aa5ce156bf64771b6dbc"
+      "sha256": "1f54c287073bf7cad54978e2754c04d1500be8c5f66cd8198bfa18f24c8f7c14"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0063.wav",
@@ -127,6 +128,6 @@
       "sha256": "80c3f457c6d6e68850fe11948083e43d7be814d43ef23c0e7b89f21fc7e249a4"
     }
   ],
-  "sha256": "27ad8cb346cdf6027157fa1dddcb01eaa35e93b381dc2a5865c29e1575a5d24e",
-  "duration": 4.745170068027211
+  "sha256": "13c64d4212cdbdb9b7eb3b2cb025a0ea6ab755bf3eebc8b674ac90a04cbd2cee",
+  "duration": 5.641315192743765
 }

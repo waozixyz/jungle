@@ -61,17 +61,21 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "seeds": [
+    1
+  ],
+  "kind": "word",
   "text": "Mariquita.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "ebd5732173c89f8f9747148817b76dcda7796c43f78c9e932a24f39693cf4751",
-    "receipt_sha256": "51b122874c07cdbd508df7b6f9197b9f8479a57304e2032188eadd84c1262e52"
+    "audio_sha256": "4c3d00cad00b603c2a6ac39dd128691ffd3f6e0e341887eb0537eec7a152cdbf",
+    "receipt_sha256": "b37a91ef19d39ba73abd426e8bcb6dd37ad2b2fa74c32744a926258eb5c5ee9b"
   },
-  "request_sha256": "788b23ea4f4826afcc260ce7812eac3f87d98bd8c835b7b9a9b01f32d6009536",
-  "sha256": "4c3d00cad00b603c2a6ac39dd128691ffd3f6e0e341887eb0537eec7a152cdbf",
-  "duration": 2.24
+  "request_sha256": "f388f15d325ba6c71927066366d8f5929272ac0fddd997ecc9f2f4849ec0884b",
+  "sha256": "c7a4d4a5f47db872ab91171d09a55536cd4ee9007de68e9ea74a567f19a33cbc",
+  "duration": 1.76
 }

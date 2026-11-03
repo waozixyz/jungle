@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Manguera. eme. a. ene. ge. u. e. erre. a. Manguera.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "e0913bdf509e0fd0b437353c6e482e5fec6c2324171d8df9d8c75d1dc5582d5c",
-    "receipt_sha256": "5cd034b65ead4514ca8972f27a39257cf48118f333da66d15beba650f50124af"
+    "audio_sha256": "ae36cac3f5fbe5429fa76cbcda85aeb93fc3f5f0f198b583dc0e6a6935d11a47",
+    "receipt_sha256": "7ebe988b7402c4b63fa6847238444c075d42093cb36513f65c201a1519c51344"
   },
   "request_sha256": "88462feed174edfde1ba8d2d3aff47e447cb4a85204b2fb4439889470b224e4e",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -158,15 +159,15 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0067.wav",
-      "sha256": "b9dc856adc034192f400896227ac36a2f401544bcbd4c6b46822046969f0f756"
+      "sha256": "afc0ecf2e57c9512a9426f85b007091ef4ce8b428ec2537aaf2a89baf093c518"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0075.wav",
-      "sha256": "44864170767c91eadc4c6bb700a9985b3be7a2edd07610f59d63bb3342065145"
+      "sha256": "3b87b84cb161c4215edf80a9c11c6c6174b305b8343928d100227e10eedac039"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0072.wav",
@@ -177,6 +178,6 @@
       "sha256": "6aa633c4e7266cf036cf4209e5b3414582f2275e6845b138621ed39f183e766c"
     }
   ],
-  "sha256": "ae36cac3f5fbe5429fa76cbcda85aeb93fc3f5f0f198b583dc0e6a6935d11a47",
-  "duration": 12.325124716553288
+  "sha256": "c710aec767a42f697e6e4761da74c14b15979cffa89f94c78e8d1bf06c2d09a3",
+  "duration": 8.946077097505668
 }

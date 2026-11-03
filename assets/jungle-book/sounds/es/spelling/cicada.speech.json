@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Cigarra. ce. i. ge. a. erre. erre. a. Cigarra.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "a44e239d9eb114ba6a7202273b3f506114a0d6b6ba6a360a5931116895e1ff08",
-    "receipt_sha256": "a833758a907972b6ca53c42840dc151db5a64c3f6a71f13ef8b3a114b3f01835"
+    "audio_sha256": "b85e09c81288412cd5820cca6252c3f708dde77ae325b0979f5b7064221f2463",
+    "receipt_sha256": "608b521a213850c506af5167683d6eb16358921184b85479031d762fcb882992"
   },
   "request_sha256": "0a8640079f1592ba5be25199131a7ce57df5bfe66788de46baab28bf8848b2d6",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -148,7 +149,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0067.wav",
-      "sha256": "b9dc856adc034192f400896227ac36a2f401544bcbd4c6b46822046969f0f756"
+      "sha256": "afc0ecf2e57c9512a9426f85b007091ef4ce8b428ec2537aaf2a89baf093c518"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0061.wav",
@@ -167,6 +168,6 @@
       "sha256": "6aa633c4e7266cf036cf4209e5b3414582f2275e6845b138621ed39f183e766c"
     }
   ],
-  "sha256": "b85e09c81288412cd5820cca6252c3f708dde77ae325b0979f5b7064221f2463",
-  "duration": 8.891791383219955
+  "sha256": "7cf3b789a61964d681f29dbcde356bcc0768e4c9487a99261e332ba779b432bc",
+  "duration": 8.765487528344671
 }

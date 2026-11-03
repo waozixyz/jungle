@@ -61,17 +61,18 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Rastrillo. erre. a. ese. te. erre. i. ele. ele. o. Rastrillo.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "9bc31177bf5896fd64fa27e6ade363d0e35a87652ab7e80c6eab0a3f06e9ce2f",
-    "receipt_sha256": "eb90045354f6e85bf7703a2cd8aea2405f7cbf23f729c2117ee160d1b299a58b"
+    "audio_sha256": "04e074c055ea813d93e56dc3cb388eb95a8c6bf16a3390471395541c816bc147",
+    "receipt_sha256": "b9a667da1845f759afb72a287bab14e7ef393d8b80e640b16da9dde6276e74c1"
   },
-  "request_sha256": "4767605df0b528f9cd5da8bd2f9027c69132bae238abb618529660d19ac5b790",
+  "request_sha256": "467baf05703ec589b694d7588ae373abecc8afa05af1dcf53efab683efa2e9b8",
   "method": "Verified word, literal letter names, word; PCM assembly",
   "recipe": {
     "method": "Verified word, literal letter names, word; PCM assembly",
@@ -148,7 +149,7 @@
   "sources": [
     {
       "path": "assets/jungle-book/sounds/es/simple/rake.wav",
-      "sha256": "701b1f97ca9496e40184015539586b92d6b6e0e4222f7bc2e3b052b1bb8c8faf"
+      "sha256": "2d80cc3c91808ecb77cf66dc8802dd5fd913670d4a45ccbe1a431faa101e0404"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0072.wav",
@@ -187,6 +188,6 @@
       "sha256": "1e6e9d98b89b6cb8382e5e5150b909f029f100cfc9434c33c877275b112c91fc"
     }
   ],
-  "sha256": "04e074c055ea813d93e56dc3cb388eb95a8c6bf16a3390471395541c816bc147",
-  "duration": 10.107029478458049
+  "sha256": "792e77247be76b7a5a095fdcb3cf652246a074948061509121ca9e6f60acd215",
+  "duration": 10.67156462585034
 }

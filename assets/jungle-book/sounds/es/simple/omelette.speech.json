@@ -61,17 +61,21 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "seeds": [
+    10
+  ],
+  "kind": "word",
   "text": "Tortilla.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "fd8110f60f468f0b6448bb2200f5479e56a8882b70ecb6d5972e52e4a803dc47",
-    "receipt_sha256": "179b5e5e716c5e741bb100ac656d9186a809d24ed264f8f4f920eda1b01dfa54"
+    "audio_sha256": "a14a5e37aef7924c14629c57f6a3991d64d40598fb2436d2d4b12b0f8adb11f1",
+    "receipt_sha256": "33adc46da31eeb1a1a565a3c0afb4ca922200ff577f370d51e8a9d59d6ff8a23"
   },
-  "request_sha256": "a84de6e274fa1a713ba58d617c3aeb4bced5fff5be3d2c90a413f1e9988597f8",
-  "sha256": "a14a5e37aef7924c14629c57f6a3991d64d40598fb2436d2d4b12b0f8adb11f1",
-  "duration": 5.36
+  "request_sha256": "eb8945d166bfc036f24851a97170533a83cfb136a6473772e7e0c52efd4c33e2",
+  "sha256": "228a150089af8e2b7998f67a27407114342520f50b610cb7eda158169abb5e95",
+  "duration": 1.52
 }

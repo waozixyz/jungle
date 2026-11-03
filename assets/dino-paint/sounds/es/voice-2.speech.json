@@ -61,17 +61,21 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "seeds": [
+    2
+  ],
+  "kind": "word",
   "text": "Estegosaurio.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "21896a4e64876224f8440a2af4dab0bdb02e8ab190ae7abaff18af6fe3d20757",
-    "receipt_sha256": "b8aff79625a742d3f1bf48e74061b8b67f0784d40fd3c6d9cc77d7d79dffb20b"
+    "audio_sha256": "f2edff7030463b32519c266925bf24b557e8254808986c8c220844ce29da65cc",
+    "receipt_sha256": "e3789904e935b85a6566f2874a85a5cf80a77c34bef2795c71368bd36d212439"
   },
-  "request_sha256": "f197bd06c03f8fa43718c50d9bf91cc8a08047da4a44dbeb5a261cb21849684d",
-  "sha256": "f2edff7030463b32519c266925bf24b557e8254808986c8c220844ce29da65cc",
-  "duration": 1.52
+  "request_sha256": "7a047e91b360d7c6d341db8474679ab838aa055054ed18cc54ed5122df879517",
+  "sha256": "e1a0682af23462811d9ac2cb68d73fb973b3ded60871797432bad3d216ecfc01",
+  "duration": 2.16
 }

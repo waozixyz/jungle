@@ -61,17 +61,21 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "seeds": [
+    6
+  ],
+  "kind": "word",
   "text": "Hiedra.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "b96bef6003205b29fc62e7024dc737ac948c3ec9a381e20caf7c854d97b0fbce",
-    "receipt_sha256": "58c85ee11f462e6c28b421ab6cd9bef97f732f57f288237b2655d13e4dcd3688"
+    "audio_sha256": "9f3c8a154ebfa677634db019fb10c57ca11d24a867e27fead878ffd12f9cc6a6",
+    "receipt_sha256": "4a2312104dd13b4578de18d4c2f635e3b17502524b5502ad30ab717b43729aa2"
   },
-  "request_sha256": "f7e705e68c1de1bd36efc89a1486ee12ee5e941a8b0b50762ed81451c7e6be88",
-  "sha256": "9f3c8a154ebfa677634db019fb10c57ca11d24a867e27fead878ffd12f9cc6a6",
-  "duration": 1.44
+  "request_sha256": "b47bf67f2bda66b0c2b02bf1166f020c3cec242cb1d96e9ef0559d688bdea9fc",
+  "sha256": "047766fff3f88089423d849e886c77b98282a0cf9f814a7fa3889cb8a38e4691",
+  "duration": 1.2
 }

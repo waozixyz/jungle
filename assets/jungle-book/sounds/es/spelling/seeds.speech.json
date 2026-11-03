@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Semillas. ese. e. eme. i. ele. ele. a. ese. Semillas.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "d9b295e5972b59620808788858a885f01a0c437c1b0f4580f4cdebc89e2baa66",
-    "receipt_sha256": "32d03d2b298b20e7ae474d5db237ef82f9bc1cfbfe90b7ad5b17dfcb12fd0181"
+    "audio_sha256": "25174514a707083d7e612deca6112d1225a6e3ade654402bcc61b386bbfbf6e3",
+    "receipt_sha256": "214e821666e35951a7f6857e65a2bae55ae4796ce7ffa58c56040120dcd8ab96"
   },
   "request_sha256": "ad5aa955b6315fcc7dcbf87f5465b7854079a4d2b558930f7b1ed2913dd769d7",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -150,7 +151,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/006d.wav",
@@ -177,6 +178,6 @@
       "sha256": "37a78a4a88e80a5e9bc1e335ca6b1ffcbfbe700077c1ce525643bd530d29f81e"
     }
   ],
-  "sha256": "25174514a707083d7e612deca6112d1225a6e3ade654402bcc61b386bbfbf6e3",
-  "duration": 10.081179138321996
+  "sha256": "8efc1e87f38bc7d3eb9dd59f97ec1c0034f2438330681ddaf4c60522164c74a3",
+  "duration": 9.667891156462584
 }

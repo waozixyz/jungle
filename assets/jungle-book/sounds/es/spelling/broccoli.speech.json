@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Brócoli. be. erre. o con tilde. ce. o. ele. i. Brócoli.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "71ccca6ee66adcc48e95370b24243e6f1b6261c41eeb766311bda3c4518bdbf7",
-    "receipt_sha256": "3e76a74d2d7430861f505eda7200c6b9a57d00b688ced66e09ecc41342802b31"
+    "audio_sha256": "f6da5f61511b715f6e60a69e47b8bb4f1f2c5650503224139d3d5f64b02b1688",
+    "receipt_sha256": "4cfbb01ec93510b5448bea2a1026b5ff4ea1b1b1fa2bb445488733b4a50de42e"
   },
   "request_sha256": "55861a22f7e367f4bfd04642a40f3f237518b64e36d821aaf020525dac6ffee1",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -148,7 +149,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/00f3.wav",
-      "sha256": "176468535c890c6db7da584aa13d1f340fe2ef8b5776a395cca56f77f779f302"
+      "sha256": "f5e6ab54c33da48891c1070a091009b287e805777eb8944dc57f7aaa12c2f79b"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0063.wav",
@@ -167,6 +168,6 @@
       "sha256": "459b9707cfae64975e6f47ee0a5e2043f91e16c00a10ca4f65934968c337c9dc"
     }
   ],
-  "sha256": "f6da5f61511b715f6e60a69e47b8bb4f1f2c5650503224139d3d5f64b02b1688",
-  "duration": 10.68390022675737
+  "sha256": "f31dc1d304854d45d064c93287601ce5aa5065846c236dfefa19297ba647d215",
+  "duration": 9.13501133786848
 }

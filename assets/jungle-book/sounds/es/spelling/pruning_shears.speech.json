@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Tijeras de podar. te. i. jota. e. erre. a. ese. de. e. pe. o. de. a. erre. Tijeras de podar.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "90366ebbce9b6795697561c6d6882e452c99eb9b492d3148943300bb77e2dbe4",
-    "receipt_sha256": "e78a999068b292aabed324a250ec7e2361673b8c0d49d837bdefd1afedef91e0"
+    "audio_sha256": "c0b49f5ca98cf72f86ba33054da3390738d2d0ab0a5a1d6eca36921ae5e981bc",
+    "receipt_sha256": "3bb2da1700bca17584f240fded393283d52f075f2d1b8235f15c1226080fac9c"
   },
   "request_sha256": "2987cff84199c08ae70a57ef08f38f320c7dd43622089c84613102c56541a274",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -196,11 +197,11 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/006a.wav",
-      "sha256": "e956c592ec274ca806a93b12edc8d6ffa8eba365cac06518eca7087d7db58d4a"
+      "sha256": "cc488fc27e5c2d9e43712129cdd5a2c7735586d013e39c01d4cdf370fc69b89c"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0072.wav",
@@ -220,7 +221,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0070.wav",
@@ -243,6 +244,6 @@
       "sha256": "bcb8de295451c41e7629c3b47552eac229eeb084386218c9606520088fe6fa6d"
     }
   ],
-  "sha256": "c0b49f5ca98cf72f86ba33054da3390738d2d0ab0a5a1d6eca36921ae5e981bc",
-  "duration": 18.23814058956916
+  "sha256": "0ab3b2e0044e59163162598e18184b11a1c9e4a2ada29b791d4e51c8806df66a",
+  "duration": 16.11687074829932
 }

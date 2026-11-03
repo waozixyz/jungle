@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Ducha. de. u. ce. hache. a. Ducha.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "19fc8a9c087b8d352e0f247b84f4ecaf8e095ab766cb27a99fc6e1a0ca469646",
-    "receipt_sha256": "ea95847a5ca8cefa47037c9d1f39fc403f002494dde1990daf92626e7ccaddf7"
+    "audio_sha256": "1ceb3676c51597c5a4eec215f9fccea5e81c3040e6d2bb935a3b385f3551f856",
+    "receipt_sha256": "b1e30d1962738b7660ad9bc5752e6d80848038b775ebc117ddfe1227da009a2b"
   },
   "request_sha256": "78c9a3b02e620ae6340ec8125270f3a7c6f42c7980d937cbb3ac0e55afae83dc",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -132,7 +133,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0075.wav",
-      "sha256": "44864170767c91eadc4c6bb700a9985b3be7a2edd07610f59d63bb3342065145"
+      "sha256": "3b87b84cb161c4215edf80a9c11c6c6174b305b8343928d100227e10eedac039"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0063.wav",
@@ -140,13 +141,13 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0068.wav",
-      "sha256": "f58df945f2887d54ce6ae744a72cce1975e4ed068f83b46803683a0480470031"
+      "sha256": "3ba76c624960ba0752a3cec6e4910c2b8294dcd23e676c88cb4d406e486acfd2"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0061.wav",
       "sha256": "6aa633c4e7266cf036cf4209e5b3414582f2275e6845b138621ed39f183e766c"
     }
   ],
-  "sha256": "1ceb3676c51597c5a4eec215f9fccea5e81c3040e6d2bb935a3b385f3551f856",
-  "duration": 10.599773242630386
+  "sha256": "825a1601f9e79ddb752223658bcda187d05fe35e44627c91e9ce817414931e9c",
+  "duration": 6.56172335600907
 }

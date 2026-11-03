@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Periquito. pe. e. erre. i. cu. u. i. te. o. Periquito.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "742c7ee837fecf123690146f50e378136f8bd35b539aee4ca67f2e33a9a6a4d9",
-    "receipt_sha256": "33aeed123f50c031cdafb8d51e83b1c6216f00fb50b1499cacdbad853b8bf8e4"
+    "audio_sha256": "2b002d4afd0d4bb01b24feeccc2d4d8ee61ffb8aaccbde1efa2f8a207b2f7a25",
+    "receipt_sha256": "7f793a01d69a5e9c6b3d174597c78c68b63ce936ddb1b6c7c0fedf0f2872a200"
   },
   "request_sha256": "fac49abdb305ecbe8aaa18d8c573203543d92bc9e842612e34dbb0c9ece67885",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -156,7 +157,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0072.wav",
@@ -172,7 +173,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0075.wav",
-      "sha256": "44864170767c91eadc4c6bb700a9985b3be7a2edd07610f59d63bb3342065145"
+      "sha256": "3b87b84cb161c4215edf80a9c11c6c6174b305b8343928d100227e10eedac039"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0069.wav",
@@ -187,6 +188,6 @@
       "sha256": "1e6e9d98b89b6cb8382e5e5150b909f029f100cfc9434c33c877275b112c91fc"
     }
   ],
-  "sha256": "2b002d4afd0d4bb01b24feeccc2d4d8ee61ffb8aaccbde1efa2f8a207b2f7a25",
-  "duration": 13.6837641723356
+  "sha256": "6bbf198c3284e7094d1e25a4f849a9dc96eccba13b7f06866553c228f5ac15e2",
+  "duration": 10.431020408163265
 }

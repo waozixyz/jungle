@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Seta. ese. e. te. a. Seta.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "c9547bbc86afd414d92bb2d74f559a4c3730271cff703511ab803885caf68270",
-    "receipt_sha256": "323c2087a5ea9e6964c27d7e4f0897fc4878586a782cb998c8a7013d91b12281"
+    "audio_sha256": "cfcc817213a64300dbfb37307af2d96607acc10193eaa1efc760f7d60b451029",
+    "receipt_sha256": "b84461ae17947eb27825eb23d5151853c3c9df9963ecff3bbe7b0781a991b283"
   },
   "request_sha256": "51db95d4f12fd360f4cdb01df0c6d992b606b5eb5e98e605c6fd113584e40b1e",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -126,7 +127,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0074.wav",
@@ -137,6 +138,6 @@
       "sha256": "6aa633c4e7266cf036cf4209e5b3414582f2275e6845b138621ed39f183e766c"
     }
   ],
-  "sha256": "cfcc817213a64300dbfb37307af2d96607acc10193eaa1efc760f7d60b451029",
-  "duration": 5.87546485260771
+  "sha256": "edc363f7c739444d017c4935afee7a795c8a84f197d9724fa9fd4246ff8d4663",
+  "duration": 5.4621768707483
 }

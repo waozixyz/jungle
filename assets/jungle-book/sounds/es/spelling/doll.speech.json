@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Muñeca. eme. u. eñe. e. ce. a. Muñeca.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "d847cd1c235eb4b5f6ebf6b62708b114d21f08a3e71f360404a4e452b69df172",
-    "receipt_sha256": "c02631184f457d47e40bef5677080e7f667d068e261c9cdc650046c220bd640d"
+    "audio_sha256": "3a1351a2cdd5f018f99d0d3d2d47099620e0eba235b71096166f4142535317f1",
+    "receipt_sha256": "d9f1be7d102e219b90ea89062026f84414e7698996bd06235f840900e80727a0"
   },
   "request_sha256": "ae8564f29bf1a5f36983e7ac8da2c0c4aa4f0d7a0afe8c596ae7cc491969f8f8",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -138,7 +139,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0075.wav",
-      "sha256": "44864170767c91eadc4c6bb700a9985b3be7a2edd07610f59d63bb3342065145"
+      "sha256": "3b87b84cb161c4215edf80a9c11c6c6174b305b8343928d100227e10eedac039"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/00f1.wav",
@@ -146,7 +147,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0063.wav",
@@ -157,6 +158,6 @@
       "sha256": "6aa633c4e7266cf036cf4209e5b3414582f2275e6845b138621ed39f183e766c"
     }
   ],
-  "sha256": "3a1351a2cdd5f018f99d0d3d2d47099620e0eba235b71096166f4142535317f1",
-  "duration": 10.58920634920635
+  "sha256": "b0fb9a3ed5ce7bda44741c849d3368bc18c020fcdc577eb6617d2f28a6ac0741",
+  "duration": 7.336462585034013
 }

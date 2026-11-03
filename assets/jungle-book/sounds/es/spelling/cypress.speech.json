@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Ciprés. ce. i. pe. erre. e con tilde. ese. Ciprés.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "815a8d22a01b2346a0239669370f4e84f9567a9bb0fea56887507039c8fe8cbf",
-    "receipt_sha256": "bddd1a8028966ccb37dcb9657c5c241f5ff6a66b9c08cf66ce65c86fdff4ed44"
+    "audio_sha256": "519e7683409d1cb5330d3dbcfb4e1c52277f4f5ce8cb1836a61ea7b6c7fe83ad",
+    "receipt_sha256": "26db35505e691b981e552c9723225116b668ce1a999dee74a3afd0612d743494"
   },
   "request_sha256": "6fa762093a1ae94641eb56e9da689a986f20744f0d9d11e1036dc3d853a662d8",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -150,13 +151,13 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/00e9.wav",
-      "sha256": "e4f8a20c84dd103cfe47ed2f884c06f28dd0eefac8ad49aefe38f6bff0e286c0"
+      "sha256": "4ce16cfe027ffa9981271ca21d8c5d80cfb4568f6e5e76426eb51c4bf0715f0f"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0073.wav",
       "sha256": "37a78a4a88e80a5e9bc1e335ca6b1ffcbfbe700077c1ce525643bd530d29f81e"
     }
   ],
-  "sha256": "519e7683409d1cb5330d3dbcfb4e1c52277f4f5ce8cb1836a61ea7b6c7fe83ad",
-  "duration": 8.18984126984127
+  "sha256": "57accb3315dcce03f3dddd50ddc2c0f392e1af30bb0660ce17e7c06266eb4f8b",
+  "duration": 8.438639455782313
 }

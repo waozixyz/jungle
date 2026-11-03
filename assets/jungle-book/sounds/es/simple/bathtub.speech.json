@@ -61,17 +61,21 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "seeds": [
+    2
+  ],
+  "kind": "word",
   "text": "Bañera.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "c1965c171c24b3e66cede72a55b5d7b40af4e616fb5d691f71eb4b2224c5fc65",
-    "receipt_sha256": "4562ae19cad3fead41a27ef827b6f39ef99bb6a1a5fbc2e5817b2f91ee6b482a"
+    "audio_sha256": "4905ff1f968a976844c22872fd5bf1285fcdca36077a66cac11f96471a777d66",
+    "receipt_sha256": "25b22b27c824e7fd52a0f84f94295cc47cc9d4e37286ca6690c303b5e939b3f1"
   },
-  "request_sha256": "40f6f89394864fa04d18b6842db372383990705027aca0c2706be27ee10ae482",
-  "sha256": "4905ff1f968a976844c22872fd5bf1285fcdca36077a66cac11f96471a777d66",
-  "duration": 1.2
+  "request_sha256": "dded61a59538a36c932fb091b615cd931e95e7387ff2b666d36b59b3ff4f440f",
+  "sha256": "b69ff3169ee603d72677e581db487d987eedb314e92a2689afb48fc218a359be",
+  "duration": 1.52
 }

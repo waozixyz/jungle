@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Correr. ce. o. erre. erre. e. erre. Correr.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "20ee81754441a31a2e47708528cff41101f874cdc866ab0d59c9b18540a12293",
-    "receipt_sha256": "33a47ce86d6ec41be5018e037794698fac51e46a25f24070236c5d677473ed6d"
+    "audio_sha256": "d4f44ad17d9fe7ac2cd8bcb38efd7d0cb9516f44c27b292c2d04745fffd52c66",
+    "receipt_sha256": "425028a2648b19f0e4266effb2e969684d53b514d03df64fcf7bfab6d4e294e8"
   },
   "request_sha256": "48cb945684712890f1ef590a8e5d812ce5c7a0f726c4caecef150544086c5ee7",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -150,13 +151,13 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0072.wav",
       "sha256": "bcb8de295451c41e7629c3b47552eac229eeb084386218c9606520088fe6fa6d"
     }
   ],
-  "sha256": "d4f44ad17d9fe7ac2cd8bcb38efd7d0cb9516f44c27b292c2d04745fffd52c66",
-  "duration": 8.30063492063492
+  "sha256": "c9888e5a95b8a16061e53d17f98e32179dba43911d42937a8b5d74282a746893",
+  "duration": 7.887346938775511
 }

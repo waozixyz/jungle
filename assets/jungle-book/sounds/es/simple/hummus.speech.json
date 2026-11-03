@@ -61,17 +61,21 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "seeds": [
+    9
+  ],
+  "kind": "word",
   "text": "Hummus.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "e1ba9ef2e12b158e47041b885b78be0882537e42923f854a76a0b229ddabe22f",
-    "receipt_sha256": "3848121d649f499cbe8064be39cd237a6a4a1406a792e36d6be9ab215245767d"
+    "audio_sha256": "825e9a252ac5156908961640ecea869fddc41aa9fec0b103eecc9a460394afe7",
+    "receipt_sha256": "29491ae4f56f769afd5e61a9cd2442d71e117d8d4b0527108bd6d8553b16f9ed"
   },
-  "request_sha256": "e4a987d4354c0b6620a5328acce3eabb2ff30544c761cd2a59b6cdfbe28d3044",
-  "sha256": "825e9a252ac5156908961640ecea869fddc41aa9fec0b103eecc9a460394afe7",
-  "duration": 1.04
+  "request_sha256": "865107bee536e4601b08e61747860d7c4a1901feafdcf5355003e0c78868da66",
+  "sha256": "bfea8b69d3e3435f33b6fe77b4708e22dd1b36492412cd747b9a5ed53cb88c4f",
+  "duration": 1.36
 }

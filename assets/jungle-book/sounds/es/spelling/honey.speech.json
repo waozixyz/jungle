@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Miel. eme. i. e. ele. Miel.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "b8fa7f8e5c3ca1176cd3671c3b914348220ae80fb31983433a978c2ee6b06627",
-    "receipt_sha256": "301e99f77071f6c064b9a27acb01dca64e8af16bbf7a409dbede7840f13e324e"
+    "audio_sha256": "96480d35e858816bff8ffb67290586f2e8c5576d93cfc91048c60384430d9f61",
+    "receipt_sha256": "02c59de6350714a97a1b7f0b3516799ce88564b3d8750bbc8f8fa22c870171c0"
   },
   "request_sha256": "f1ceab37135414be41165733bda2f10d07d4d602b8153005f057702851aaac36",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -130,13 +131,13 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/006c.wav",
       "sha256": "80c3f457c6d6e68850fe11948083e43d7be814d43ef23c0e7b89f21fc7e249a4"
     }
   ],
-  "sha256": "96480d35e858816bff8ffb67290586f2e8c5576d93cfc91048c60384430d9f61",
-  "duration": 6.238049886621315
+  "sha256": "bbb65e4a8877d2f197325997bb44baed4c8f7611ff02f399ddd4613426a4f48b",
+  "duration": 5.824761904761905
 }

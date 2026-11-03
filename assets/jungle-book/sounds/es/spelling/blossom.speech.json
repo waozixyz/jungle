@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Flor de árbol. efe. ele. o. erre. de. e. a con tilde. erre. be. o. ele. Flor de árbol.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "5d27f4542a23d99b2289382a19a93df8cb2d52df74df5fdf6f6811f64d03a8bc",
-    "receipt_sha256": "6c42698d971d0ea5d619e87a142a7f8773085af5c5644eefdd7da49dba2f6cf4"
+    "audio_sha256": "4bfc42b3567cdaea1eaac721205b823f004651569b8d3e283fd5fa8acd7e6186",
+    "receipt_sha256": "d00fdbcad711ddfed8d206d8e52b7a24b4fd3e3f4dda9fd6b328b5bbdd941dd8"
   },
   "request_sha256": "ea571788e0036af73d9bb3d48e1af7cbd6de1479382abfbb042b40ed064bf4dd",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -190,7 +191,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/00e1.wav",
@@ -213,6 +214,6 @@
       "sha256": "80c3f457c6d6e68850fe11948083e43d7be814d43ef23c0e7b89f21fc7e249a4"
     }
   ],
-  "sha256": "4bfc42b3567cdaea1eaac721205b823f004651569b8d3e283fd5fa8acd7e6186",
-  "duration": 14.372925170068028
+  "sha256": "719dfec5ab2c8f03ab5d236e1c11e3be915a4fa97caae2e889e08fbfeee0d498",
+  "duration": 13.959637188208617
 }

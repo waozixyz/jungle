@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Autobús. a. u. te. o. be. u con tilde. ese. Autobús.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "a7e026b4cb0ddd0ddd6903e0de698482ae0cfeab5a837a2c2b7fe10d25175781",
-    "receipt_sha256": "708af7d615a96840aeecf3754c1a8564ef35a83c056e475c1dc411135e878605"
+    "audio_sha256": "da3385229665cbb403fd70da1f3752b35e77228b98568175428a2eec066c4488",
+    "receipt_sha256": "f282de6b03fa8fc9ed83232fb37996e23c82f74634089ac1f5c9c43f36c3b12f"
   },
   "request_sha256": "85a39de027f261bb8d7c1393daf6ed9551fdacd07b89659f1fc7ca7bc52748da",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -144,7 +145,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0075.wav",
-      "sha256": "44864170767c91eadc4c6bb700a9985b3be7a2edd07610f59d63bb3342065145"
+      "sha256": "3b87b84cb161c4215edf80a9c11c6c6174b305b8343928d100227e10eedac039"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0074.wav",
@@ -160,13 +161,13 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/00fa.wav",
-      "sha256": "16bea4cd9b4fd05841d49d890a0c8d875171ceecfbde61668dd91bf98df909c4"
+      "sha256": "deb6c885b8f59ef57b1e44dd51f1a4b45de1f6f9fb83800c970a4159e75fae58"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0073.wav",
       "sha256": "37a78a4a88e80a5e9bc1e335ca6b1ffcbfbe700077c1ce525643bd530d29f81e"
     }
   ],
-  "sha256": "da3385229665cbb403fd70da1f3752b35e77228b98568175428a2eec066c4488",
-  "duration": 13.352925170068028
+  "sha256": "48915844011ed2caf8ee3dce28f525f631cab0171c59cd85adca536d9c63296b",
+  "duration": 9.206303854875284
 }

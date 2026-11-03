@@ -61,17 +61,21 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "seeds": [
+    1
+  ],
+  "kind": "word",
   "text": "Pozo.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "4d838827cff4a542c04b12fd625a334d154f4cab3dee54444ea51fbe981e20e4",
-    "receipt_sha256": "f5cd30e90f7d755e5451c0e6ca734cc7c015796f078a8bcca2643bd55b504b85"
+    "audio_sha256": "c802007622f8f3c1a1f88717aaf91a9cbb2f02ce86623b3be490ddb84134d7d9",
+    "receipt_sha256": "d20ffa80768b7c9378e30d9a08f0a596cdec790a4aa1d670a76ca75c60984c0b"
   },
-  "request_sha256": "9823efd8743c206bfd087d797875c6fcec57fcdefc767b1b6d60041cf8118385",
-  "sha256": "c802007622f8f3c1a1f88717aaf91a9cbb2f02ce86623b3be490ddb84134d7d9",
-  "duration": 1.12
+  "request_sha256": "c3d8c135a3de248af31696f3dcd77774ca5c4dba7c2aa0e06500a92220f7074f",
+  "sha256": "2aed5ca0c3f96f23703705618d1311b03043a43bd6f11c7da8e2164b65e24d3e",
+  "duration": 1.28
 }

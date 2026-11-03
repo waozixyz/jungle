@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Lluvia. ele. ele. u. uve. i. a. Lluvia.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "fde272740c73a10e1fb590fce15e5f42e82052540d56291968338a2b5f81f5d4",
-    "receipt_sha256": "4132d34a592ca35f8178446de18f382b885fd751fc86a7f570198069ff4f56fa"
+    "audio_sha256": "cd8f7dbdf6eac6d8b15aea91134d417066a5ac0dca9b392a6cfa29e8ca29ca50",
+    "receipt_sha256": "2b5905fc0fb0349b826927bef9e3678789649e5cc20f22c112d132f264d2a8f0"
   },
   "request_sha256": "075e0372d3e7417607173c7fe1ba3fbaca893a2f5aea173213395811cc27de4f",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -142,11 +143,11 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0075.wav",
-      "sha256": "44864170767c91eadc4c6bb700a9985b3be7a2edd07610f59d63bb3342065145"
+      "sha256": "3b87b84cb161c4215edf80a9c11c6c6174b305b8343928d100227e10eedac039"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0076.wav",
-      "sha256": "20f8ec164ab8064d828f6435acff19d28b07d52ab9f7c1c75c627042cf4e0df5"
+      "sha256": "8b222cd3c57833eab1161bf992646775b1187742872a9f824e4edd1b1af040f7"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0069.wav",
@@ -157,6 +158,6 @@
       "sha256": "6aa633c4e7266cf036cf4209e5b3414582f2275e6845b138621ed39f183e766c"
     }
   ],
-  "sha256": "cd8f7dbdf6eac6d8b15aea91134d417066a5ac0dca9b392a6cfa29e8ca29ca50",
-  "duration": 11.200816326530612
+  "sha256": "e9e2eaa02cbb2f356babfa06e2ddc1a4019da44f447ff35c95423f440dbd8a85",
+  "duration": 7.595555555555555
 }

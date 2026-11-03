@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Tenis. te. e. ene. i. ese. Tenis.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "c8ebe22c391e2066d8954f88bfc0492ba9ae4adc92904ce2f227cb8c066460de",
-    "receipt_sha256": "e398f4f860b9976fddbf2b92f8afb83064aa77c19402c5ca74cff705b2f7e236"
+    "audio_sha256": "72bac1d1fd1765f98a6f6510be5feac8f909ffe8450008a5b2d03b5892c46808",
+    "receipt_sha256": "2c8cf6778c27aa3a909c85458723ac28941be1030ad2f7a3282740ac7d34f973"
   },
   "request_sha256": "b6e4b13917879b0a186fb9d17ecf4795455f0c5b1c5fcdbae94b33757e64a679",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -132,7 +133,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/006e.wav",
@@ -147,6 +148,6 @@
       "sha256": "37a78a4a88e80a5e9bc1e335ca6b1ffcbfbe700077c1ce525643bd530d29f81e"
     }
   ],
-  "sha256": "72bac1d1fd1765f98a6f6510be5feac8f909ffe8450008a5b2d03b5892c46808",
-  "duration": 7.270385487528345
+  "sha256": "39b6e63440b3095f72705e51952f8678721264814e483a48c52c8eb06decc8fb",
+  "duration": 6.857097505668934
 }

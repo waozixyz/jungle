@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Pez dorado. pe. e. zeta. de. o. erre. a. de. o. Pez dorado.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "3ad7fd49c8401368241601b500d73a6663894733222be3ce3481d1ee05689717",
-    "receipt_sha256": "4ad2ec15441b390d5b79370f0d20ea40133f68d71714c820db1ab0d9ccf21d4b"
+    "audio_sha256": "6d1f406172ecd2cad70be8a98e883b3b57f89f5233d98abba6cceec0d5c7d540",
+    "receipt_sha256": "414fb4eec9709dac2d338cb1ca2748ac83f468f4bf7d8cbb86da74d80b9ef29e"
   },
   "request_sha256": "8c9629be435a995107fddede51fb8c87492ac5f87a5f23268e6aae1fc5e2a10e",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -159,7 +160,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/007a.wav",
@@ -190,6 +191,6 @@
       "sha256": "1e6e9d98b89b6cb8382e5e5150b909f029f100cfc9434c33c877275b112c91fc"
     }
   ],
-  "sha256": "6d1f406172ecd2cad70be8a98e883b3b57f89f5233d98abba6cceec0d5c7d540",
-  "duration": 11.61501133786848
+  "sha256": "72342be16f7d495654f9704c0de211010d819601937f7c8f94973cd36163028f",
+  "duration": 11.20172335600907
 }

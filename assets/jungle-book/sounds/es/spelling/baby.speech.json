@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Bebé. be. e. be. e con tilde. Bebé.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "a7a3bc29ed56eb641b451d2cc80b9a1adbda2943b08abc6f1a6a8f00875608a7",
-    "receipt_sha256": "7972162c92219b2f81c17601f43e2a6efbe938ed73c775084c9a6c7a0ad8e9cb"
+    "audio_sha256": "a4c0f5f1e10b1683b16dbb8b4143d3f0071edfa1ced58c370ea0e0eb6ec99b9d",
+    "receipt_sha256": "bdd821b4cf2b485e1e5f54468f2afce8aef0bd638c7ea99312bc47ddbc5142b9"
   },
   "request_sha256": "14b088aae71251828fb7f160e1437e2121a0dd6c37067f9e2e9f6fb9708befdf",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -126,7 +127,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0062.wav",
@@ -134,9 +135,9 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/00e9.wav",
-      "sha256": "e4f8a20c84dd103cfe47ed2f884c06f28dd0eefac8ad49aefe38f6bff0e286c0"
+      "sha256": "4ce16cfe027ffa9981271ca21d8c5d80cfb4568f6e5e76426eb51c4bf0715f0f"
     }
   ],
-  "sha256": "a4c0f5f1e10b1683b16dbb8b4143d3f0071edfa1ced58c370ea0e0eb6ec99b9d",
-  "duration": 6.5010430839002264
+  "sha256": "c8f4ea1d5e630c6e6ca915555b576cf5c6bc2940ecbf0d3e8c5c346c0ec3a47c",
+  "duration": 6.336553287981859
 }

@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Seco. ese. e. ce. o. Seco.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "6da6da8dd08923a026364ec7944c32039a0a9dfd6c6ec860064b85e04482df65",
-    "receipt_sha256": "fc7d56512b294a95c966ada51f55592b29e6248d33adbd8b0c4c71dcfe08b958"
+    "audio_sha256": "aebc552701c1ae4633a5347561e06dd0b2882a271563a605f5175e45f98f0325",
+    "receipt_sha256": "b8349fbe5dfdac64dd9feffb05d1927e0543ad9aa219b19886d7f8bc8783931a"
   },
   "request_sha256": "52498b7bd586f89c72b86c2dfc10fc84fecc49e32b9d64017c35f0ea99ae78c3",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -126,7 +127,7 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0065.wav",
-      "sha256": "d804de46c4cacd6c80ad829d7dd690ca0b29811b898177a623f85f3f371e8fd9"
+      "sha256": "2c2ea067b0034ed1e4e196ed92cd633f1c4f22d293c98f8afbf3480d2ed2f066"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0063.wav",
@@ -137,6 +138,6 @@
       "sha256": "1e6e9d98b89b6cb8382e5e5150b909f029f100cfc9434c33c877275b112c91fc"
     }
   ],
-  "sha256": "aebc552701c1ae4633a5347561e06dd0b2882a271563a605f5175e45f98f0325",
-  "duration": 6.168072562358277
+  "sha256": "e2460fa9e47bc2d93d608ec09c142fd4b29b74e98109f4839cd279db76bed8c5",
+  "duration": 5.754784580498867
 }

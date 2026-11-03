@@ -65,11 +65,12 @@
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Kiwi. ka. i. uve doble. i. Kiwi.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "77ccd2d0cd7a3dde27c00bc7193b386ee7f01c01974ac37724ddee37cdaf3c39",
-    "receipt_sha256": "6ac6163dd45e93c1dcdaf610530b7e42cec5e9e0ce30f2fd6739299b8054be53"
+    "audio_sha256": "d76cd11963731a83ed88eba8143de6d439b6752758abb1584e52bf5b7feba5b5",
+    "receipt_sha256": "001ce953fc8d611e61ee5c4610423ce5cde3b94d52e3d78082a4ab4d7e7c27ef"
   },
   "request_sha256": "19121a14af0d6e52dedfe1e3a3ab008eb2f0d45a532e8c3871ffaaa61e1325ab",
   "method": "Verified word, literal letter names, word; PCM assembly",
@@ -130,13 +131,13 @@
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0077.wav",
-      "sha256": "3e098c6ebf30680ee84684de55a90dc624c208f8589b81e73d41d9afa8d05794"
+      "sha256": "005f7a7a8b4c047c781d37f0e3a1045c92bd6534ff2fb7f3afef5a3d14cd7e79"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0069.wav",
       "sha256": "459b9707cfae64975e6f47ee0a5e2043f91e16c00a10ca4f65934968c337c9dc"
     }
   ],
-  "sha256": "d76cd11963731a83ed88eba8143de6d439b6752758abb1584e52bf5b7feba5b5",
-  "duration": 6.944761904761905
+  "sha256": "bfdbeec27f47ce668be1ee64c114afa6b2a569dad8cd7352ccd24e77a3e09f16",
+  "duration": 7.050204081632653
 }

@@ -61,17 +61,18 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "kind": "spelling",
   "text": "Cacao. ce. a. ce. a. o. Cacao.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "55eecb00c784e5a7bd0e8e9b533d3ce96dfff149eff735e204914fd712ebc3c6",
-    "receipt_sha256": "390868e58de9050c5161043a7988cd338ef3b8462b070bfb909e9879fd45c856"
+    "audio_sha256": "8b39cb7e3df1f6d020d8aff5fa4091826e772bae2cf9af1fe65cc432397d1c8d",
+    "receipt_sha256": "c039dd86c75e2221137c264608ca66fa5d2d7dc2c2e83ad7fdb529d083c87c68"
   },
-  "request_sha256": "cc58855c10088c1c2646dfccf41638073814c90f3cce5b925a100c40072beddd",
+  "request_sha256": "aebc128810fe42fd25e54a49322d31d5cc9a598a613e95f72ba12db32a45a275",
   "method": "Verified word, literal letter names, word; PCM assembly",
   "recipe": {
     "method": "Verified word, literal letter names, word; PCM assembly",
@@ -124,7 +125,7 @@
   "sources": [
     {
       "path": "assets/jungle-book/sounds/es/simple/cocoa.wav",
-      "sha256": "88dbdea064b71e5d7d8855899d05daa848957e0dc4eada8a9c161cbe3c9f199d"
+      "sha256": "22b9548b039797006b36190618c9a6cdba4cb725f108fff2a8f61172a229c924"
     },
     {
       "path": "assets/jungle-book/sounds/es/letters/0063.wav",
@@ -147,6 +148,6 @@
       "sha256": "1e6e9d98b89b6cb8382e5e5150b909f029f100cfc9434c33c877275b112c91fc"
     }
   ],
-  "sha256": "8b39cb7e3df1f6d020d8aff5fa4091826e772bae2cf9af1fe65cc432397d1c8d",
-  "duration": 7.088299319727891
+  "sha256": "9af928604088db33104b83a0b3d379e733208ccbd79a5cb748125a573c00da38",
+  "duration": 6.79641723356009
 }

@@ -61,17 +61,21 @@
         "sha256": "fcb3805e597e786d4067706e602f6688524640f8d3396790e2e09b5942fcbdfb"
       }
     ],
-    "provider_sha256": "2a5b82d2f7c282014e11e2cc46fb3fb4d2a24c74c459ea04824fe377efc87413"
+    "provider_sha256": "977e89dbd7ac214e4352a23489d02b3067f78a5d29854369a613acc6252b62ed"
   },
   "voice": "Serena",
   "speed": 1.0,
+  "seeds": [
+    1
+  ],
+  "kind": "sentence",
   "text": "Toca el altavoz.",
   "language": "es",
   "input_identity": {
-    "audio_sha256": "f4e2be8779a6ce599ffae477254c182f7942b8968fab091c1ee28d82a781da06",
-    "receipt_sha256": "0bb768bd266c86c13ad76d0237f36f6f743ab9d835a8df9a1293469f3343f64c"
+    "audio_sha256": "02a06944be10a90e352159742c8ba5dc61d1afecda3810367b63efb8225e335c",
+    "receipt_sha256": "8c339eaf8f15c24f5ae5aba73383808919cbfda6114b4918cdafcdc1a5cae51d"
   },
-  "request_sha256": "f32210d5711cc7d63ae6263e5cb3ea5e19e2db3054d6ad6e65d5c09b809d7060",
-  "sha256": "02a06944be10a90e352159742c8ba5dc61d1afecda3810367b63efb8225e335c",
-  "duration": 1.52
+  "request_sha256": "0a9f0baa9eb7a36f9b11475a64ceea57e2ec826f6c8a4b8e6a2566785e5353a6",
+  "sha256": "782a563d914485ad40d18206591475df3171278091ec956a88a0ae9193b2ca12",
+  "duration": 1.92
 }
