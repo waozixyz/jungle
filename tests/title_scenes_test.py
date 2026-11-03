@@ -37,7 +37,7 @@ class TitleVariants(unittest.TestCase):
         for scene in scenes:
             if scene['name'].startswith('campus'):
                 routes={h['id']:h['target'] for h in scene['hotspots']}
-                self.assertEqual(routes['farm-path'],'scene:farm')
+                self.assertEqual(routes['farm-path'],'game:Farm')
                 self.assertEqual(routes['jungle-path'],'scene:jungle-path')
                 self.assertNotIn('beach-path',routes)
                 self.assertEqual(routes['desert-path'],'scene:desert')

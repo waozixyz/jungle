@@ -103,6 +103,17 @@ TitleBarAction :: struct {
     collection_shown: bool
 }
 
+// The Farm painting has its own Campus sign; sound remains a floating host control.
+FarmEntranceSound :: (session: Session, bounds: Rectangle, key: s32, now: float64, muted: bool) -> bool {
+    retro = Retro.{.session=session,.x=bounds.x,.y=bounds.y,.scale=1.0,.now=now,.key=key}
+    x := cast(s32)bounds.width-56
+    sound := RetroTap(9002,x,6,44,44,Tr(ifx muted then "Sound off · F10" else "Sound on · F10"))
+    BookBox(x,6,44,44,0xf3ecdcff,0xdacdb5ff,12.0)
+    SvgIcon(session,SvgIconProps.{.bounds=RetroRect(x+7,13,30,30),
+        .shape=ifx muted then SoundOffIcon.Shape else SoundOnIcon.Shape,.color=ColorFromPacked(0x3e332aff)})
+    return sound.clicked
+}
+
 // Back on the left, the game's name, and sound on or off on the right.
 GameTitleBar :: (session: Session, bounds: Rectangle, key: s32, now: float64, title: string, sound_muted: bool) -> TitleBarAction {
     retro = Retro.{.session = session, .font = "assets/jungle/font.png", .now = now, .key = key,

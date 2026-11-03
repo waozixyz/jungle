@@ -60,7 +60,7 @@ Small provenance records needed to validate shipped artwork live in
   scenes. Explore natural hiding places and discover each animal for yourself.
 - **Music Room (2+):** Tap illustrated drums, a shaker and a bell around a
   watercolor music room, then try copying short rhythms.
-- **Farm (3+):** Plant seeds, water six kinds of plants and return to care for them as they grow.
+- **Farm (3+):** Choose one of four painted gardens. Drag seeds from the bag anywhere on the soil; each sinks in after a short rest or when watered, then a sapling rises. Water, harvest, sell your basket and buy garden helpers. Goji sometimes visits. Each garden keeps its own plants; supplies are shared. Farm play is silent.
 
 ## A look inside
 

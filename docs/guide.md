@@ -194,11 +194,34 @@ the room to hear their distinct sounds. The guitar rests in a stand, shakers sit
 Listen & Copy starts with two hits and gradually offers longer
 patterns. Copy the order at your own pace; replay and free play are always available.
 
-**Farm (3+)** has six plants: sunflower, tomato, carrot, strawberry,
-pumpkin and cabbage. Choose a seed packet, then tap or drag a seed into the soil.
-Choose the watering can to care for thirsty plants. Seeds stay in moist soil
-before sprouting, and plants continue growing between visits. Return to water
-them; neglected plants can dry out and wither, leaving room to plant again.
+**Farm (3+)** opens the original painting as a chooser for four gardens, with
+its own Campus sign and a floating sound button. Tap any raised bed to enter.
+Drag a seed from the seed bag and drop it anywhere on the plowed soil; drops
+just outside the soil snap back inside, and seeds never land on top of each
+other. Tap the bag to choose which owned seed it holds. A placed seed can be
+picked up and moved again, or dropped off the soil to return to the bag. Left
+alone for three seconds it sinks into the soil, or water it to plant it at
+once; then a sapling rises. Each garden can hold 64 plants and remembers their
+positions. The nine crops are sunflower, tomato, carrot, strawberry, pumpkin,
+cabbage, beans, corn and cucumber.
+
+Choose the watering can and tap a growing plant. Water lasts twenty seconds; dry plants
+wait safely and ripe crops never wither. Choose the basket and tap a ripe crop to
+put it in the basket. Growth, planting, watering and picking are animated.
+Goji the gopher visits from time to time and takes one plant. The market shows
+owned seeds and produce; buy individual seeds or sell the whole basket for
+three times the seed price. Rich soil costs 60 coins and reduces growing time
+by a quarter. The 90-coin water helper keeps all four gardens watered.
+
+Seeds, produce, coins and helpers are shared; plant positions stay separate.
+Menu pauses growth. Sky view returns to the four beds, and Save and return to
+Campus leaves Farm. There is no tutorial or help screen. Back closes a panel, returns to the
+chooser, then Campus. Progress saves after actions and every five seconds,
+with a checksummed backup and recovery of damaged saves. The previous garden
+save stays untouched. Farm is silent and preserves other activities' audio.
+
+Keyboard: 1–4 opens a garden from the chooser; 1–9 selects seeds while playing;
+P, W and H choose the hand, watering can and basket; I opens Seeds; S opens the market.
 
 These ages are flexible guides. Each activity remembers its own learning state,
 uses English, German or Spanish, and shares the title bar's Back and sound controls.

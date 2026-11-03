@@ -1,0 +1,719 @@
+{
+  "generator": "built-in image_gen; one picture per call",
+  "durable_request": "bac0957ca6d5540329ff8f51de56b3867960",
+  "baseline_preserved": {
+    "assets/garden/play/cabbage.webp": "f7b0031ce24fad1544d66cafd1af077b3faec1507225227d87e1dd260320232d",
+    "assets/garden/play/carrot.webp": "195cc63532d697a10849bace4aee2ea16d5c3f251f1dc3a127daa6a75f996980",
+    "assets/garden/play/compost-bag.webp": "3c19995631e3bdf7e3766544566ab27f1b82305a0749fbba97cce84ad5e71885",
+    "assets/garden/play/garden-landscape.webp": "f55fb0e592900dc663f532b9e01ade7c16e71e455b2cb62ca2b68c67711a8c86",
+    "assets/garden/play/garden-portrait.webp": "d341e5cb15fa735887688276c8e9bbc6ee30fb70be72088d71707e00f3658a58",
+    "assets/garden/play/harvest-basket.webp": "9d4610a969c130d6c55d9d81d4db3e8ff7e8ccca749b8d963cc5cb6cd4f40292",
+    "assets/garden/play/market-stall.webp": "c628696341633557285d6f379a6c856f30aed037524b12e47732a09c53bffb66",
+    "assets/garden/play/pumpkin.webp": "361eeb5a0aa96a9560467e975c5ad60d7630c4d5f6114366655f6da123e03aeb",
+    "assets/garden/play/seed-pouch.webp": "3c0c3b88e1bc46b4621a2f6db7d182789452cf2fd995208af228671aa042344e",
+    "assets/garden/play/sprinkler.webp": "ea5eb7ad843ca729c386d0740ceb89f0d7d506c944b034451660154b14f191e1",
+    "assets/garden/play/sprout.webp": "cfc9f60d1ba86455a0faaf4e006584f0be706b5aebc16e0c11cef7f508025aae",
+    "assets/garden/play/strawberry.webp": "0369aef8a79344048c17e5ebda005582d07acdee13b93d4381f54a9b450b84f7",
+    "assets/garden/play/sunflower.webp": "83bf4b90798403491e3f944f6f99b69ff658a56c5b158bb66febfe2f5885c900",
+    "assets/garden/play/tomato.webp": "26a939d6b170f64d07ab89985d089ca798222ebb9714dfe0a0bd45d62a4d3552",
+    "assets/garden/play/watering-can.webp": "ee202cfbe318049070bc70a801b43fd3208a4f179026e7ec6101bec53f522168",
+    "assets/garden/art/scene-landscape.webp": "b03835754737a0b4c1b153b99565675c5f0992ccedc9262a48e9805d5ce96b38",
+    "assets/garden/art/scene-portrait.webp": "8948877a5bdfb30739306f89afa14f8ca9a118c63faa716a737f0c923c3298f0"
+  },
+  "assets": [
+    {
+      "name": "beans",
+      "source": "local/art-development/four-gardens/beans.png",
+      "source_sha256": "d0e4f81ebdfdf6d9db7ebbcc5a04029ed3beb0d7ba78cee1ba5a17f10baf0141",
+      "runtime": "assets/garden/play/beans.webp",
+      "runtime_sha256": "f537ce014c66d36c820bf7a866af5f26a427c5600fd39912df963a1b34da3e03",
+      "dimensions": [
+        1024,
+        1024
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "visible_bbox": [
+        0.09961,
+        0.16211,
+        0.89941,
+        0.95996
+      ],
+      "export_role": "cutout",
+      "lossless": true,
+      "rgba_fidelity": "exact including hidden RGB",
+      "native_no_upscale": true,
+      "candidate": "local/art-development/four-gardens/anchored/beans-extended.png",
+      "candidate_sha256": "0678cc0ad7665d73b7ed15a38222981425c40467cf7ff4dcaff2a575e8b99b6a",
+      "framing_bounds": [
+        0.1,
+        0.05,
+        0.9,
+        0.96
+      ],
+      "prompt": "One mature compact leafy bean plant with green pods; full plant, true alpha, Jungle watercolor style; stem anchor .5,.96",
+      "native_master_dimensions": [
+        1254,
+        1254
+      ],
+      "fidelity_reference": "local/art-development/four-gardens/anchored/beans-extended.png",
+      "framing_note": "Visible alpha bbox >16 used for fit; full RGBA inside crop retained; transparent padding, Lanczos downsample only.",
+      "sha256": "f537ce014c66d36c820bf7a866af5f26a427c5600fd39912df963a1b34da3e03",
+      "source_role": "canonical native full-resolution master",
+      "candidate_role": "runtime framing candidate",
+      "generation_id": "exec-554c1c56-0b56-4dd7-85bc-6f9eee7d44fc"
+    },
+    {
+      "name": "corn",
+      "source": "local/art-development/four-gardens/corn.png",
+      "source_sha256": "f108103711936a16ba8e7f3e155bd55f00b5ef036f08b7d1db03daff0d524e47",
+      "runtime": "assets/garden/play/corn.webp",
+      "runtime_sha256": "6db42dbd63650ae70f08fc27b9c00b150c5d7f9ec3e3f179ed946bc3639f482e",
+      "dimensions": [
+        1024,
+        1024
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "visible_bbox": [
+        0.1748,
+        0.0498,
+        0.8252,
+        0.95996
+      ],
+      "export_role": "cutout",
+      "lossless": true,
+      "rgba_fidelity": "exact including hidden RGB",
+      "native_no_upscale": true,
+      "candidate": "local/art-development/four-gardens/anchored/corn-extended.png",
+      "candidate_sha256": "dbba087e7a8338b35d8c14bf3f72d74da169a82a293b9a872d81fca0a1a1fde5",
+      "framing_bounds": [
+        0.1,
+        0.05,
+        0.9,
+        0.96
+      ],
+      "prompt": "Use case: illustration-story. Generate ONE standalone 1024x1024 transparent RGBA game cutout. One entire friendly upright mature corn stalk with two ears, partly open green husks showing rounded golden kernels; all leaves in frame. Stem base (.50,.96), plant within x .10-.90 y .05-.96. Style: match existing Jungle garden crops and tiger-cover botanical art, soft rounded warm earthy storybook watercolor, gentle smooth washes, simplified natural anatomy. True alpha background with generous transparent margins, crisp clean silhouette edges. No ground, dirt, pot, shadow patch, halo, background, text, watermark, faces except gopher, teeth or scary details. One picture only, never grid or atlas.",
+      "native_master_dimensions": [
+        1254,
+        1254
+      ],
+      "fidelity_reference": "local/art-development/four-gardens/anchored/corn-extended.png",
+      "framing_note": "Visible alpha bbox >16 used for fit; full RGBA inside crop retained; transparent padding, Lanczos downsample only.",
+      "sha256": "6db42dbd63650ae70f08fc27b9c00b150c5d7f9ec3e3f179ed946bc3639f482e",
+      "source_role": "canonical native full-resolution master",
+      "candidate_role": "runtime framing candidate",
+      "generation_id": "exec-154323af-d7f6-4994-8383-2dfbe5253d4d"
+    },
+    {
+      "name": "cucumber",
+      "source": "local/art-development/four-gardens/cucumber.png",
+      "source_sha256": "d13be5f7a38769898bd2a0df9102a950426d71896dcce8d2933e15542bf2a695",
+      "runtime": "assets/garden/play/cucumber.webp",
+      "runtime_sha256": "0051238d0a7170822eaef981a3647f897c34af2442bd45a5dc96f57ae92cd864",
+      "dimensions": [
+        1024,
+        1024
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "visible_bbox": [
+        0.09961,
+        0.06738,
+        0.89941,
+        0.95996
+      ],
+      "export_role": "cutout",
+      "lossless": true,
+      "rgba_fidelity": "exact including hidden RGB",
+      "native_no_upscale": true,
+      "candidate": "local/art-development/four-gardens/anchored/cucumber-extended.png",
+      "candidate_sha256": "6d682b40f074b124b93e5784da29807b32720f65b09cf88bf084646b5dded06d",
+      "framing_bounds": [
+        0.1,
+        0.05,
+        0.9,
+        0.96
+      ],
+      "prompt": "Use case: illustration-story. Generate ONE standalone 1024x1024 transparent RGBA game cutout. One entire compact cucumber vine plant with rounded green leaves and three green cucumbers; all foliage and fruit in frame. Stem base (.50,.96), plant within x .10-.90 y .05-.96. Style: match existing Jungle garden crops and tiger-cover botanical art, soft rounded warm earthy storybook watercolor, gentle smooth washes, simplified natural anatomy. True alpha background with generous transparent margins, crisp clean silhouette edges. No ground, dirt, pot, shadow patch, halo, background, text, watermark, faces except gopher, teeth or scary details. One picture only, never grid or atlas.",
+      "native_master_dimensions": [
+        1254,
+        1254
+      ],
+      "fidelity_reference": "local/art-development/four-gardens/anchored/cucumber-extended.png",
+      "framing_note": "Visible alpha bbox >16 used for fit; full RGBA inside crop retained; transparent padding, Lanczos downsample only.",
+      "sha256": "0051238d0a7170822eaef981a3647f897c34af2442bd45a5dc96f57ae92cd864",
+      "source_role": "canonical native full-resolution master",
+      "candidate_role": "runtime framing candidate",
+      "generation_id": "exec-83e87d93-9174-4d8b-bf7a-335e847cb34c"
+    },
+    {
+      "name": "seed-sunflower",
+      "source": "local/art-development/four-gardens/seed-sunflower.png",
+      "source_sha256": "0749ddbc6b3fbed06f3bb8fc735d1f48187fda5db4c2dff0d0f1f46b41866245",
+      "runtime": "assets/garden/play/seed-sunflower.webp",
+      "runtime_sha256": "d359eaa59947dfd4334a2003a40ad2305fa1c46be95cb5d5676d0ef7c9fd35ea",
+      "dimensions": [
+        1024,
+        1024
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "visible_bbox": [
+        0.2002,
+        0.20508,
+        0.7998,
+        0.7959
+      ],
+      "export_role": "cutout",
+      "lossless": true,
+      "rgba_fidelity": "exact including hidden RGB",
+      "native_no_upscale": true,
+      "candidate": "local/art-development/four-gardens/anchored/seed-sunflower-extended.png",
+      "candidate_sha256": "7bf7d9a79875a26bd8f7c893939f18b0a74d335fdd1361d688bd280406e7857f",
+      "framing_bounds": [
+        0.2,
+        0.2,
+        0.8,
+        0.8
+      ],
+      "prompt": "Use case: illustration-story. Generate ONE standalone 1024x1024 transparent RGBA game cutout. ONLY five dark striped sunflower seeds, loosely clustered at center (.50,.50) within bbox x .20-.80 y .20-.80. Separated recognizable shapes readable when whole canvas displayed at 32–48 pixels. No plants, packets, hands, bowls or other objects. Style: match existing Jungle garden crops and tiger-cover botanical art, soft rounded warm earthy storybook watercolor, gentle smooth washes, simplified natural anatomy. True alpha background with generous transparent margins, crisp clean silhouette edges. No ground, dirt, pot, shadow patch, halo, background, text, watermark, faces except gopher, teeth or scary details. One picture only, never grid or atlas.",
+      "native_master_dimensions": [
+        1254,
+        1254
+      ],
+      "fidelity_reference": "local/art-development/four-gardens/anchored/seed-sunflower-extended.png",
+      "framing_note": "Visible alpha bbox >16 used for fit; full RGBA inside crop retained; transparent padding, Lanczos downsample only.",
+      "sha256": "d359eaa59947dfd4334a2003a40ad2305fa1c46be95cb5d5676d0ef7c9fd35ea",
+      "source_role": "canonical native full-resolution master",
+      "candidate_role": "runtime framing candidate",
+      "generation_id": "exec-b1304614-3d8e-44ca-b3fe-d50484a02ea5"
+    },
+    {
+      "name": "seed-tomato",
+      "source": "local/art-development/four-gardens/seed-tomato.png",
+      "source_sha256": "b7c6cc94101ce862e086d2d9c8373b68a26f1562e8d2620210cd9ab2acb8ab2c",
+      "runtime": "assets/garden/play/seed-tomato.webp",
+      "runtime_sha256": "aa2fe5023dddef87d7c1ff66e99ec19cb597883ac2fd784fa04004ca458a185b",
+      "dimensions": [
+        1024,
+        1024
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "visible_bbox": [
+        0.2002,
+        0.26367,
+        0.7998,
+        0.7373
+      ],
+      "export_role": "cutout",
+      "lossless": true,
+      "rgba_fidelity": "exact including hidden RGB",
+      "native_no_upscale": true,
+      "candidate": "local/art-development/four-gardens/anchored/seed-tomato-extended.png",
+      "candidate_sha256": "fd361fd2141ac77337098836b6817c31b8a4ec1d8a57517100a2f0f44338ccfc",
+      "framing_bounds": [
+        0.2,
+        0.2,
+        0.8,
+        0.8
+      ],
+      "prompt": "Use case: illustration-story. Generate ONE standalone 1024x1024 transparent RGBA game cutout. ONLY six small cream tomato seeds, loosely clustered at center (.50,.50) within bbox x .20-.80 y .20-.80. Separated recognizable shapes readable when whole canvas displayed at 32–48 pixels. No plants, packets, hands, bowls or other objects. Style: match existing Jungle garden crops and tiger-cover botanical art, soft rounded warm earthy storybook watercolor, gentle smooth washes, simplified natural anatomy. True alpha background with generous transparent margins, crisp clean silhouette edges. No ground, dirt, pot, shadow patch, halo, background, text, watermark, faces except gopher, teeth or scary details. One picture only, never grid or atlas.",
+      "native_master_dimensions": [
+        1254,
+        1254
+      ],
+      "fidelity_reference": "local/art-development/four-gardens/anchored/seed-tomato-extended.png",
+      "framing_note": "Visible alpha bbox >16 used for fit; full RGBA inside crop retained; transparent padding, Lanczos downsample only.",
+      "sha256": "aa2fe5023dddef87d7c1ff66e99ec19cb597883ac2fd784fa04004ca458a185b",
+      "source_role": "canonical native full-resolution master",
+      "candidate_role": "runtime framing candidate",
+      "generation_id": "exec-1d39b0e3-ca2f-4762-8664-eeb1c92737e8"
+    },
+    {
+      "name": "seed-carrot",
+      "source": "local/art-development/four-gardens/seed-carrot.png",
+      "source_sha256": "a1825a9a35d977bb1035b3ca8b855d18beb7af85678d32f3ccb9a703dfe31a2f",
+      "runtime": "assets/garden/play/seed-carrot.webp",
+      "runtime_sha256": "6c524bffa688a65d39ecb11b6fc4204d52ee9a4e5f380185f2c19c977f2f938f",
+      "dimensions": [
+        1024,
+        1024
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "visible_bbox": [
+        0.2002,
+        0.25195,
+        0.7998,
+        0.74902
+      ],
+      "export_role": "cutout",
+      "lossless": true,
+      "rgba_fidelity": "exact including hidden RGB",
+      "native_no_upscale": true,
+      "candidate": "local/art-development/four-gardens/anchored/seed-carrot-extended.png",
+      "candidate_sha256": "ed43c9b2e0653e8009fcd020e97bed73d45c24de4b175ce5097d02f2b925dfa7",
+      "framing_bounds": [
+        0.2,
+        0.2,
+        0.8,
+        0.8
+      ],
+      "prompt": "Use case: illustration-story. Generate ONE standalone 1024x1024 transparent RGBA game cutout. ONLY six slim brown carrot seeds, loosely clustered at center (.50,.50) within bbox x .20-.80 y .20-.80. Separated recognizable shapes readable when whole canvas displayed at 32–48 pixels. No plants, packets, hands, bowls or other objects. Style: match existing Jungle garden crops and tiger-cover botanical art, soft rounded warm earthy storybook watercolor, gentle smooth washes, simplified natural anatomy. True alpha background with generous transparent margins, crisp clean silhouette edges. No ground, dirt, pot, shadow patch, halo, background, text, watermark, faces except gopher, teeth or scary details. One picture only, never grid or atlas.",
+      "native_master_dimensions": [
+        1254,
+        1254
+      ],
+      "fidelity_reference": "local/art-development/four-gardens/anchored/seed-carrot-extended.png",
+      "framing_note": "Visible alpha bbox >16 used for fit; full RGBA inside crop retained; transparent padding, Lanczos downsample only.",
+      "sha256": "6c524bffa688a65d39ecb11b6fc4204d52ee9a4e5f380185f2c19c977f2f938f",
+      "source_role": "canonical native full-resolution master",
+      "candidate_role": "runtime framing candidate",
+      "generation_id": "exec-6619b451-593b-459b-9359-5c314982c982"
+    },
+    {
+      "name": "seed-strawberry",
+      "source": "local/art-development/four-gardens/seed-strawberry.png",
+      "source_sha256": "524e8a1c59c93c9d721921fe6524a3c1da200afff54779dd1c2e1de6fa4ebecf",
+      "runtime": "assets/garden/play/seed-strawberry.webp",
+      "runtime_sha256": "13b25757637008cf4cf7b41ab21d2564d9600fdc5d32b538478e7e3a06134b7c",
+      "dimensions": [
+        1024,
+        1024
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "visible_bbox": [
+        0.24023,
+        0.2002,
+        0.76074,
+        0.7998
+      ],
+      "export_role": "cutout",
+      "lossless": true,
+      "rgba_fidelity": "exact including hidden RGB",
+      "native_no_upscale": true,
+      "candidate": "local/art-development/four-gardens/anchored/seed-strawberry-extended.png",
+      "candidate_sha256": "a3a11cc7e333afbd23ddc9babe613c7a278f1f18cd24023f16c66c8fcc6c9ad3",
+      "framing_bounds": [
+        0.2,
+        0.2,
+        0.8,
+        0.8
+      ],
+      "prompt": "Use case: illustration-story. Generate ONE standalone 1024x1024 transparent RGBA game cutout. ONLY seven tiny golden strawberry seeds, loosely clustered at center (.50,.50) within bbox x .20-.80 y .20-.80. Separated recognizable shapes readable when whole canvas displayed at 32–48 pixels. No plants, packets, hands, bowls or other objects. Style: match existing Jungle garden crops and tiger-cover botanical art, soft rounded warm earthy storybook watercolor, gentle smooth washes, simplified natural anatomy. True alpha background with generous transparent margins, crisp clean silhouette edges. No ground, dirt, pot, shadow patch, halo, background, text, watermark, faces except gopher, teeth or scary details. One picture only, never grid or atlas.",
+      "native_master_dimensions": [
+        1254,
+        1254
+      ],
+      "fidelity_reference": "local/art-development/four-gardens/anchored/seed-strawberry-extended.png",
+      "framing_note": "Visible alpha bbox >16 used for fit; full RGBA inside crop retained; transparent padding, Lanczos downsample only.",
+      "sha256": "13b25757637008cf4cf7b41ab21d2564d9600fdc5d32b538478e7e3a06134b7c",
+      "source_role": "canonical native full-resolution master",
+      "candidate_role": "runtime framing candidate",
+      "generation_id": "exec-1387c829-6b8d-4bb4-873c-3e678e030f34"
+    },
+    {
+      "name": "seed-pumpkin",
+      "source": "local/art-development/four-gardens/seed-pumpkin.png",
+      "source_sha256": "017873cf34bb02da879d9067483ba9f5d78b290470b81880973c6ac6dc7d6bb5",
+      "runtime": "assets/garden/play/seed-pumpkin.webp",
+      "runtime_sha256": "ad4f2d3ebbabc6270b6c57e9d474fc0d99d1da173340dfd343298f0a6e786951",
+      "dimensions": [
+        1024,
+        1024
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "visible_bbox": [
+        0.2002,
+        0.22656,
+        0.7998,
+        0.77441
+      ],
+      "export_role": "cutout",
+      "lossless": true,
+      "rgba_fidelity": "exact including hidden RGB",
+      "native_no_upscale": true,
+      "candidate": "local/art-development/four-gardens/anchored/seed-pumpkin-extended.png",
+      "candidate_sha256": "3176274812a44b0d64a05d3ef69fb4b2b0e66fe93c2da630c33c7abea847020f",
+      "framing_bounds": [
+        0.2,
+        0.2,
+        0.8,
+        0.8
+      ],
+      "prompt": "Use case: illustration-story. Generate ONE standalone 1024x1024 transparent RGBA game cutout. ONLY five broad flat cream pumpkin seeds, loosely clustered at center (.50,.50) within bbox x .20-.80 y .20-.80. Separated recognizable shapes readable when whole canvas displayed at 32–48 pixels. No plants, packets, hands, bowls or other objects. Style: match existing Jungle garden crops and tiger-cover botanical art, soft rounded warm earthy storybook watercolor, gentle smooth washes, simplified natural anatomy. True alpha background with generous transparent margins, crisp clean silhouette edges. No ground, dirt, pot, shadow patch, halo, background, text, watermark, faces except gopher, teeth or scary details. One picture only, never grid or atlas.",
+      "native_master_dimensions": [
+        1254,
+        1254
+      ],
+      "fidelity_reference": "local/art-development/four-gardens/anchored/seed-pumpkin-extended.png",
+      "framing_note": "Visible alpha bbox >16 used for fit; full RGBA inside crop retained; transparent padding, Lanczos downsample only.",
+      "sha256": "ad4f2d3ebbabc6270b6c57e9d474fc0d99d1da173340dfd343298f0a6e786951",
+      "source_role": "canonical native full-resolution master",
+      "candidate_role": "runtime framing candidate",
+      "generation_id": "exec-f62d8b35-6bc3-4090-9edd-631e3db327b4"
+    },
+    {
+      "name": "seed-cabbage",
+      "source": "local/art-development/four-gardens/seed-cabbage.png",
+      "source_sha256": "b2ac37eb8402c844b9a055430b3b9df4ee0f1e3215e63a19fe9c1c774971d652",
+      "runtime": "assets/garden/play/seed-cabbage.webp",
+      "runtime_sha256": "4990c6ede839331274d8b28e9c5af366f4d51f204dc40e0e77d40dd2672bc2fb",
+      "dimensions": [
+        1024,
+        1024
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "visible_bbox": [
+        0.2002,
+        0.21973,
+        0.7998,
+        0.78027
+      ],
+      "export_role": "cutout",
+      "lossless": true,
+      "rgba_fidelity": "exact including hidden RGB",
+      "native_no_upscale": true,
+      "candidate": "local/art-development/four-gardens/anchored/seed-cabbage-extended.png",
+      "candidate_sha256": "cb218932a159bdbf1693e0968ddb2faa067b5904b6f0c415ecefdd51a3fb69fd",
+      "framing_bounds": [
+        0.2,
+        0.2,
+        0.8,
+        0.8
+      ],
+      "prompt": "Use case: illustration-story. Generate ONE standalone 1024x1024 transparent RGBA game cutout. ONLY six round brown cabbage seeds, loosely clustered at center (.50,.50) within bbox x .20-.80 y .20-.80. Separated recognizable shapes readable when whole canvas displayed at 32–48 pixels. No plants, packets, hands, bowls or other objects. Style: match existing Jungle garden crops and tiger-cover botanical art, soft rounded warm earthy storybook watercolor, gentle smooth washes, simplified natural anatomy. True alpha background with generous transparent margins, crisp clean silhouette edges. No ground, dirt, pot, shadow patch, halo, background, text, watermark, faces except gopher, teeth or scary details. One picture only, never grid or atlas.",
+      "native_master_dimensions": [
+        1254,
+        1254
+      ],
+      "fidelity_reference": "local/art-development/four-gardens/anchored/seed-cabbage-extended.png",
+      "framing_note": "Visible alpha bbox >16 used for fit; full RGBA inside crop retained; transparent padding, Lanczos downsample only.",
+      "sha256": "4990c6ede839331274d8b28e9c5af366f4d51f204dc40e0e77d40dd2672bc2fb",
+      "source_role": "canonical native full-resolution master",
+      "candidate_role": "runtime framing candidate",
+      "generation_id": "exec-0609dc73-3c9a-4e6e-9e83-412d6aca432a"
+    },
+    {
+      "name": "seed-beans",
+      "source": "local/art-development/four-gardens/seed-beans.png",
+      "source_sha256": "4ce381d18f32bf081bc4020f37c09cf64fa4cd01270e51648c388a031878481c",
+      "runtime": "assets/garden/play/seed-beans.webp",
+      "runtime_sha256": "4f0b35f4496c9df9da135c33f1156e88cf8a3cce0b1fe1ce0a96dc36c8cd7133",
+      "dimensions": [
+        1024,
+        1024
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "visible_bbox": [
+        0.2002,
+        0.23926,
+        0.7998,
+        0.76074
+      ],
+      "export_role": "cutout",
+      "lossless": true,
+      "rgba_fidelity": "exact including hidden RGB",
+      "native_no_upscale": true,
+      "candidate": "local/art-development/four-gardens/anchored/seed-beans-extended.png",
+      "candidate_sha256": "fc21e20154fd0245195909d595fe0a6c5953e073ecd16cf9079254c82fd9320b",
+      "framing_bounds": [
+        0.2,
+        0.2,
+        0.8,
+        0.8
+      ],
+      "prompt": "Use case: illustration-story. Generate ONE standalone 1024x1024 transparent RGBA game cutout. ONLY four large cream bean seeds, loosely clustered at center (.50,.50) within bbox x .20-.80 y .20-.80. Separated recognizable shapes readable when whole canvas displayed at 32–48 pixels. No plants, packets, hands, bowls or other objects. Style: match existing Jungle garden crops and tiger-cover botanical art, soft rounded warm earthy storybook watercolor, gentle smooth washes, simplified natural anatomy. True alpha background with generous transparent margins, crisp clean silhouette edges. No ground, dirt, pot, shadow patch, halo, background, text, watermark, faces except gopher, teeth or scary details. One picture only, never grid or atlas.",
+      "native_master_dimensions": [
+        1254,
+        1254
+      ],
+      "fidelity_reference": "local/art-development/four-gardens/anchored/seed-beans-extended.png",
+      "framing_note": "Visible alpha bbox >16 used for fit; full RGBA inside crop retained; transparent padding, Lanczos downsample only.",
+      "sha256": "4f0b35f4496c9df9da135c33f1156e88cf8a3cce0b1fe1ce0a96dc36c8cd7133",
+      "source_role": "canonical native full-resolution master",
+      "candidate_role": "runtime framing candidate",
+      "generation_id": "exec-9d54f785-ccb2-457f-a967-d95f3d74b9d6"
+    },
+    {
+      "name": "seed-corn",
+      "source": "local/art-development/four-gardens/seed-corn.png",
+      "source_sha256": "a793552e51ae3f9a85cd0042e0a552287ba0e6bf75c60ee8173d228683f11a0d",
+      "runtime": "assets/garden/play/seed-corn.webp",
+      "runtime_sha256": "52c227ef1722e5f72cc6fb47b53d84e3f21dbcd1a1f668a14c2aa13ecd26547e",
+      "dimensions": [
+        1024,
+        1024
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "visible_bbox": [
+        0.2002,
+        0.23047,
+        0.7998,
+        0.76855
+      ],
+      "export_role": "cutout",
+      "lossless": true,
+      "rgba_fidelity": "exact including hidden RGB",
+      "native_no_upscale": true,
+      "candidate": "local/art-development/four-gardens/anchored/seed-corn-extended.png",
+      "candidate_sha256": "473c7d664073112446bd616639c33de639d82a9e399c3eeaca658909738fd4d0",
+      "framing_bounds": [
+        0.2,
+        0.2,
+        0.8,
+        0.8
+      ],
+      "prompt": "Use case: illustration-story. Generate ONE standalone 1024x1024 transparent RGBA game cutout. ONLY five rounded golden corn kernels, loosely clustered at center (.50,.50) within bbox x .20-.80 y .20-.80. Separated recognizable shapes readable when whole canvas displayed at 32–48 pixels. No plants, packets, hands, bowls or other objects. Style: match existing Jungle garden crops and tiger-cover botanical art, soft rounded warm earthy storybook watercolor, gentle smooth washes, simplified natural anatomy. True alpha background with generous transparent margins, crisp clean silhouette edges. No ground, dirt, pot, shadow patch, halo, background, text, watermark, faces except gopher, teeth or scary details. One picture only, never grid or atlas.",
+      "native_master_dimensions": [
+        1254,
+        1254
+      ],
+      "fidelity_reference": "local/art-development/four-gardens/anchored/seed-corn-extended.png",
+      "framing_note": "Visible alpha bbox >16 used for fit; full RGBA inside crop retained; transparent padding, Lanczos downsample only.",
+      "sha256": "52c227ef1722e5f72cc6fb47b53d84e3f21dbcd1a1f668a14c2aa13ecd26547e",
+      "source_role": "canonical native full-resolution master",
+      "candidate_role": "runtime framing candidate",
+      "generation_id": "exec-0d746d54-7d0f-41ae-a836-02d5340a89d4"
+    },
+    {
+      "name": "seed-cucumber",
+      "source": "local/art-development/four-gardens/seed-cucumber.png",
+      "source_sha256": "1c12438b56a119750cbccb2673ded6d65d133b9172d365f59d179e02dc275ddd",
+      "runtime": "assets/garden/play/seed-cucumber.webp",
+      "runtime_sha256": "f32b6e98b0cb207045590339742456c8f696ad709cda5531f1facb3172387b6d",
+      "dimensions": [
+        1024,
+        1024
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "visible_bbox": [
+        0.2002,
+        0.25,
+        0.7998,
+        0.75
+      ],
+      "export_role": "cutout",
+      "lossless": true,
+      "rgba_fidelity": "exact including hidden RGB",
+      "native_no_upscale": true,
+      "candidate": "local/art-development/four-gardens/anchored/seed-cucumber-extended.png",
+      "candidate_sha256": "9d6e391fa55a3f0f6ccb06b083a06a0bb8aafcaacfeb159b9c5be4fa864cf4b4",
+      "framing_bounds": [
+        0.2,
+        0.2,
+        0.8,
+        0.8
+      ],
+      "prompt": "Use case: illustration-story. Generate ONE standalone 1024x1024 transparent RGBA game cutout. ONLY six slim cream cucumber seeds, loosely clustered at center (.50,.50) within bbox x .20-.80 y .20-.80. Separated recognizable shapes readable when whole canvas displayed at 32–48 pixels. No plants, packets, hands, bowls or other objects. Style: match existing Jungle garden crops and tiger-cover botanical art, soft rounded warm earthy storybook watercolor, gentle smooth washes, simplified natural anatomy. True alpha background with generous transparent margins, crisp clean silhouette edges. No ground, dirt, pot, shadow patch, halo, background, text, watermark, faces except gopher, teeth or scary details. One picture only, never grid or atlas.",
+      "native_master_dimensions": [
+        1254,
+        1254
+      ],
+      "fidelity_reference": "local/art-development/four-gardens/anchored/seed-cucumber-extended.png",
+      "framing_note": "Visible alpha bbox >16 used for fit; full RGBA inside crop retained; transparent padding, Lanczos downsample only.",
+      "sha256": "f32b6e98b0cb207045590339742456c8f696ad709cda5531f1facb3172387b6d",
+      "source_role": "canonical native full-resolution master",
+      "candidate_role": "runtime framing candidate",
+      "generation_id": "exec-dd47ef5b-baaf-45b8-ac12-d0046663ea31"
+    },
+    {
+      "name": "hand-cupped",
+      "source": "local/art-development/four-gardens/hand-cupped.png",
+      "source_sha256": "4bb3cc71b1e9ba89e321053cac5d7ff7f5b63230337c55442128226a2ded3f99",
+      "runtime": "assets/garden/play/hand-cupped.webp",
+      "runtime_sha256": "b922741fadf59b6b394d77430647f8de97e2724a8c2b2e551e189c66c5063dfa",
+      "dimensions": [
+        1024,
+        1024
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "visible_bbox": [
+        0.12012,
+        0.19629,
+        0.94043,
+        0.94434
+      ],
+      "export_role": "cutout",
+      "lossless": true,
+      "rgba_fidelity": "exact including hidden RGB",
+      "native_no_upscale": true,
+      "candidate": "local/art-development/four-gardens/anchored/hand-cupped-extended.png",
+      "candidate_sha256": "af31d36bc044d50df8adbef292531c28f425d728de55667f3e9551eed6a1f5fa",
+      "framing_bounds": [
+        0.12,
+        0.18,
+        0.94,
+        0.96
+      ],
+      "prompt": "Use case: illustration-story. Generate ONE standalone 1024x1024 transparent RGBA game cutout. ONE friendly stylized human RIGHT hand with EXACTLY FIVE anatomically natural digits, three-quarter palm up softly cupped, EMPTY palm bowl centered at (.40,.38) for later seed overlay. Wrist bottom right. Whole hand within x .12-.94 y .18-.96. Same warm tan smooth watercolor as pointer hand. No seeds, detailed nails or wrinkles. Style: match existing Jungle garden crops and tiger-cover botanical art, soft rounded warm earthy storybook watercolor, gentle smooth washes, simplified natural anatomy. True alpha background with generous transparent margins, crisp clean silhouette edges. No ground, dirt, pot, shadow patch, halo, background, text, watermark, faces except gopher, teeth or scary details. One picture only, never grid or atlas.",
+      "native_master_dimensions": [
+        1254,
+        1254
+      ],
+      "fidelity_reference": "local/art-development/four-gardens/anchored/hand-cupped-extended.png",
+      "framing_note": "Visible alpha bbox >16 used for fit; full RGBA inside crop retained; transparent padding, Lanczos downsample only.",
+      "sha256": "b922741fadf59b6b394d77430647f8de97e2724a8c2b2e551e189c66c5063dfa",
+      "source_role": "canonical native full-resolution master",
+      "candidate_role": "runtime framing candidate",
+      "generation_id": "exec-c05ad63b-980c-42f3-a8ae-4b467e8d63ed"
+    },
+    {
+      "name": "goji",
+      "source": "local/art-development/four-gardens/goji.png",
+      "source_sha256": "e57ef27ae3f92eb785797fa49447ae70ec9a808257bdeaae4f5591dddf94b281",
+      "runtime": "assets/garden/play/goji.webp",
+      "runtime_sha256": "58308836ebdc3f45fbb5e8996735f197077906ccde200cbe9fb20366eb7d8535",
+      "dimensions": [
+        1024,
+        1024
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "visible_bbox": [
+        0.17969,
+        0.125,
+        0.81934,
+        0.94043
+      ],
+      "export_role": "cutout",
+      "lossless": true,
+      "rgba_fidelity": "exact including hidden RGB",
+      "native_no_upscale": true,
+      "candidate": "local/art-development/four-gardens/anchored/goji-extended.png",
+      "candidate_sha256": "a0e3862b2bb3d1a63ae08ff514a6acbb8e2119fc65c2270167ce8d6dba120cb8",
+      "framing_bounds": [
+        0.18,
+        0.12,
+        0.82,
+        0.94
+      ],
+      "prompt": "Use case: illustration-story. Generate ONE standalone 1024x1024 transparent RGBA game cutout. ONE friendly rounded brown garden gopher emerging waist up, small round ears, exactly two natural front paws, small nose, calm eyes looking slightly past viewer. CLOSED gentle mouth, NO exposed teeth, no human smile or clothing. Complete head and paws in frame. Subject within x .18-.82 y .12-.94; bottom ground anchor (.50,.94). Neutral calm pose. No soil, hole or ground. Style: match existing Jungle garden crops and tiger-cover botanical art, soft rounded warm earthy storybook watercolor, gentle smooth washes, simplified natural anatomy. True alpha background with generous transparent margins, crisp clean silhouette edges. No ground, dirt, pot, shadow patch, halo, background, text, watermark, faces except gopher, teeth or scary details. One picture only, never grid or atlas.",
+      "native_master_dimensions": [
+        1254,
+        1254
+      ],
+      "fidelity_reference": "local/art-development/four-gardens/anchored/goji-extended.png",
+      "framing_note": "Visible alpha bbox >16 used for fit; full RGBA inside crop retained; transparent padding, Lanczos downsample only.",
+      "sha256": "58308836ebdc3f45fbb5e8996735f197077906ccde200cbe9fb20366eb7d8535",
+      "source_role": "canonical native full-resolution master",
+      "candidate_role": "runtime framing candidate",
+      "generation_id": "exec-6b7c3f9a-644f-4855-bb5f-545eb51672d4"
+    }
+  ],
+  "review": "local/art-development/four-gardens/review/extended-contact.jpg",
+  "status": "generated, locally validated and visually reviewed; application integration owned by Farm task",
+  "native_size_note": "Built-in generator returned 1254-square native masters despite 1024-square prompt; native masters retained; runtime framing downsampled and transparently padded to1024-square; never upscaled.",
+  "anchors": {
+    "hand-cupped": {
+      "seed_overlay_anchor": [
+        0.46,
+        0.55
+      ],
+      "pixel_anchor": [
+        471,
+        563
+      ],
+      "method": "visual inspection of empty central palm bowl; differs from requested .40,.38"
+    },
+    "beans": {
+      "ground_anchor": [
+        0.5,
+        0.96
+      ]
+    },
+    "corn": {
+      "ground_anchor": [
+        0.5,
+        0.96
+      ]
+    },
+    "cucumber": {
+      "ground_anchor": [
+        0.5,
+        0.96
+      ]
+    },
+    "goji": {
+      "ground_anchor": [
+        0.5,
+        0.94
+      ]
+    }
+  },
+  "seed_usage": {
+    "inventory_canvas_px": [
+      32,
+      40,
+      48
+    ],
+    "held_seed_canvas_relative_to_hand": 0.375,
+    "example": "64px hand /24px seed canvas =>14.4px visible seed cluster",
+    "seed_canvas_anchor": [
+      0.5,
+      0.5
+    ]
+  },
+  "review_notes": [
+    "Cohesive rounded earthy watercolor batch, seed types/counts recognizable; no packets or hands in seed assets.",
+    "Both right hands visually have exactly5 natural digits; matching smooth tan material.",
+    "Goji has complete paws/head, closed mouth and no teeth.",
+    "Fullsize contrasting cream/dark edge samples reviewed; no paper backgrounds, ground patches or visible halos.",
+    "Native generator output1254-square despite1024 prompt. Original masters retained; runtime1024 frames only downsample and pad; exact lossless is measured against framed candidate.",
+    "Hand landmarks are actual visual measurements; use these instead of requested coordinates."
+  ],
+  "local_tests": [
+    {
+      "command": "python3 local/art-development/four-gardens/validate_extended.py",
+      "result": "15/15 exports exact RGBA;17/17 baseline hashes unchanged"
+    },
+    {
+      "command": "python3 tests/image_exports_test.py",
+      "result": "14tests OK"
+    },
+    {
+      "command": "python3 tests/webp_standard_test.py",
+      "result": "2tests OK"
+    }
+  ],
+  "retired": {
+    "hand-pointer": "Replaced by the app-wide Jungle hand cursor (assets/jungle/hand-cursor.webp); the master stays in local/art-development/four-gardens/hand-pointer.png"
+  }
+}

@@ -92,15 +92,14 @@ def main():
                             time.sleep(.7)
                             actual=d.capture_actual(f'{w}-{locale}-farm-painting').convert('RGB')
                             full=Image.open(root/('assets/jungle/title/farm-portrait.webp' if h>w else 'assets/jungle/title/farm.webp')).convert('RGB')
-                            fs=max(w/full.width,h/full.height)
+                            fs=min(w/full.width,h/full.height)
                             fx=(w-full.width*fs)/2;fy=(h-full.height*fs)/2
-                            fw,fh=round(full.width*fs),round(full.height*fs)
-                            expected=full.resize((fw,fh),Image.Resampling.BILINEAR)
-                            # Central/lower painting must be the full artwork, without UI or placeholder.
-                            region=(round(w*.2),round(h*.48),round(w*.8),round(h*.9))
-                            ref=expected.crop((region[0]-round(fx),region[1]-round(fy),region[2]-round(fx),region[3]-round(fy)))
-                            assert max(ImageStat.Stat(ImageChops.difference(actual.crop(region).resize((64,64)),ref.resize((64,64)))).mean)<4,'Farm full painting missing or covered'
-                            scene_return('farm')
+                            # Sample unchanged foliage away from chooser markers.
+                            box=(15,220,90,350) if h>w else (30,150,150,270)
+                            region=tuple(round((fx if i%2==0 else fy)+v*fs) for i,v in enumerate(box))
+                            ref=full.crop(box).resize((region[2]-region[0],region[3]-region[1]),Image.Resampling.BILINEAR)
+                            assert max(ImageStat.Stat(ImageChops.difference(actual.crop(region).resize((8,8)),ref.resize((8,8)))).mean)<10,'Farm chooser painting missing or title bar still present'
+                            d.key('Escape')
                         elif ident=='jungle-path':scene_return('jungle-path')
                         else:d.key('Escape')
                         wait_for(before,'returned',opened=False)
@@ -111,7 +110,6 @@ def main():
                     d.key('Home')
                     d.key(str(next(i+1 for i,h in enumerate(home['hotspots']) if h['target']=='scene:campus')))
                     time.sleep(.6)
-                    centered=d.capture_actual('centered-campus')
                     for _ in range(next(i+1 for i,t in enumerate(view['hotspots']) if t['id']=='farm-path')):
                         d.key('Right')
                     before=d.capture_actual('keyboard-campus')
@@ -119,7 +117,9 @@ def main():
                     time.sleep(.5)
                     wait_for(before,f'{w}-{locale}-keyboard-farm')
                     d.key('Escape')
-                    wait_for(centered,'keyboard-returned',opened=False)
+                    # Keyboard focus pans the wide Campus before opening Farm.
+                    # Return to that actual view, as the pointer routes do.
+                    wait_for(before,'keyboard-returned',opened=False)
                 d.alive()
             print(f'local smoke: {w}x{h}, EN/DE/ES, Farm/Jungle Path/Desert, pointer and keyboard, Campus return and garden save passed',flush=True)
 

@@ -1,0 +1,200 @@
+#import, file "../games/garden/farm.zi";
+#import, file "../host/jungle_text.zi";
+Apart :: (f: FarmState, garden: s32) -> bool {
+    for a: cast(s32)0..FARM_CAPACITY-1 { for b: cast(s32)a+1..FARM_CAPACITY-1 {
+        p := f.plots[FarmIndex(garden,a)]; q := f.plots[FarmIndex(garden,b)]
+        if p.kind > 0 && q.kind > 0 && FarmNear(p,q.u,q.v) { return false }
+    } }
+    return true
+}
+#program_export
+main :: () -> s32 {
+    // Free placement: a seed lies exactly where it is dropped, in any garden.
+    f := FarmNew()
+    for garden: cast(s32)0..3 {
+        kind := garden+1; before := f.seeds[kind-1]
+        if FarmSow(*f,garden,kind,1234,6789) != 0 || f.seeds[kind-1] != before-1 || f.selected != kind { return 1 }
+        p := f.plots[FarmIndex(garden,0)]
+        if p.kind != kind || p.u != 1234 || p.v != 6789 || !FarmLoose(p) || p.rest != 0 || p.growth != 0 { return 2 }
+        if FarmSow(*f,garden,kind,5000,4321) != 1 || f.plots[FarmIndex(garden,1)].u != 5000 { return 3 }
+    }
+    // Near misses snap gently inside the soil; real misses are refused.
+    g := FarmNew()
+    if FarmSow(*g,0,3,-900,10900) != 0 || g.plots[0].u != FARM_EDGE || g.plots[0].v != 10000-FARM_EDGE { return 4 }
+    stock := g.seeds[2]
+    if FarmSow(*g,0,3,-FARM_SNAP-1,5000) >= 0 || FarmSow(*g,0,3,5000,10000+FARM_SNAP+1) >= 0 || g.seeds[2] != stock { return 5 }
+    if FarmSow(*g,-1,3,5000,5000) >= 0 || FarmSow(*g,4,3,5000,5000) >= 0 || FarmSow(*g,0,0,5000,5000) >= 0 || FarmSow(*g,0,10,5000,5000) >= 0 { return 6 }
+    // A seed dropped on another rolls to the nearest spot with a little room.
+    if FarmSow(*g,0,3,5000,5000) != 1 || FarmSow(*g,0,3,5000,5000) != 2 { return 7 }
+    a := g.plots[1]; b := g.plots[2]
+    du := a.u-b.u; dv := a.v-b.v
+    if FarmNear(a,b.u,b.v) || du*du+dv*dv > 1400*1400 || !Apart(g,0) { return 8 }
+    // Up to 64 seeds share a garden, never on top of each other; then it is full.
+    crowded := FarmNew(); crowded.seeds[2] = 999
+    for row: cast(s32)0..7 { for col: cast(s32)0..7 {
+        if FarmSow(*crowded,0,3,FARM_EDGE+col*1300,FARM_EDGE+row*1300) < 0 { return 9 }
+    } }
+    if FarmSow(*crowded,0,3,5000,5000) >= 0 || crowded.seeds[2] != 999-64 || !Apart(crowded,0) { return 10 }
+    if FarmSow(*crowded,1,3,10000,10000) != 0 || crowded.plots[64].u != 10000-FARM_EDGE { return 11 }
+    // Seeds run out: an empty bag sows nothing.
+    empty := FarmNew(); empty.seeds[2] = 0
+    if FarmSow(*empty,0,3,5000,5000) >= 0 { return 12 }
+
+    // A loose seed can be picked up and moved; its rest starts over.
+    m := FarmNew()
+    unused FarmSow(*m,1,2,3000,3000)
+    FarmTick(*m,2000)
+    if m.plots[64].rest != 2000 { return 13 }
+    if !FarmMove(*m,1,0,7000,6000) || m.plots[64].u != 7000 || m.plots[64].v != 6000 || m.plots[64].rest != 0 { return 14 }
+    FarmTick(*m,2000)
+    if !FarmLoose(m.plots[64]) { return 15 }
+    // A drag that ends off the soil does not move it; unsowing puts it back in the bag.
+    if FarmMove(*m,1,0,-5000,5000) || m.plots[64].u != 7000 || m.plots[64].rest != 2000 { return 16 }
+    stock = m.seeds[1]
+    if !FarmUnsow(*m,1,0) || m.seeds[1] != stock+1 || m.plots[64].kind != 0 { return 17 }
+    if FarmUnsow(*m,1,0) || FarmMove(*m,1,0,5000,5000) { return 18 }
+    // Moving onto another seed nudges it beside, and a seed may stay where it is.
+    unused FarmSow(*m,1,2,3000,3000); unused FarmSow(*m,1,2,6000,3000)
+    if !FarmMove(*m,1,1,3100,3000) || !Apart(m,1) || m.plots[65].u == 3100 { return 19 }
+    if !FarmMove(*m,1,0,3000,3000) || m.plots[64].u != 3000 || m.plots[64].v != 3000 { return 20 }
+    // A full bag keeps the seed on the soil rather than losing it.
+    m.seeds[1] = 999
+    if FarmUnsow(*m,1,0) || m.plots[64].kind != 2 { return 21 }
+
+    // Rest timer: untouched for FARM_REST, the seed sinks in by itself.
+    r := FarmNew(); unused FarmSow(*r,0,1,5000,5000)
+    FarmTick(*r,FARM_REST-1)
+    if !FarmLoose(r.plots[0]) || FarmRise(r.plots[0]) != 0 { return 22 }
+    // Held in the hand, time does not count as rest.
+    FarmTick(*r,5000,0)
+    if r.plots[0].rest != FARM_REST-1 { return 23 }
+    FarmTick(*r,1)
+    if FarmLoose(r.plots[0]) || FarmRisen(r.plots[0]) || FarmRise(r.plots[0]) != 0 { return 24 }
+    // Once sown it stays in the ground.
+    if FarmMove(*r,0,0,3000,3000) || FarmUnsow(*r,0,0) || r.plots[0].u != 5000 { return 25 }
+    // Sapling rise: halfway, then fully up; no growth while it rises.
+    FarmTick(*r,FARM_RISE/2)
+    if FarmRise(r.plots[0]) != 50 || r.plots[0].growth != 0 { return 26 }
+    FarmTick(*r,FARM_RISE)
+    if !FarmRisen(r.plots[0]) || FarmRise(r.plots[0]) != 100 || r.plots[0].rest != FARM_SOWN { return 27 }
+    // A dry sapling waits; a watered one grows through its stages.
+    FarmTick(*r,5000)
+    if r.plots[0].growth != 0 { return 28 }
+    if !FarmWater(*r,0,0) { return 29 }
+    FarmTick(*r,1000)
+    if r.plots[0].growth != 1000 || r.plots[0].moisture != 19000 || r.plots[0].rest != FARM_SOWN { return 30 }
+
+    // Water sinks a loose seed at once; the rise does not use up the water.
+    w := FarmNew(); unused FarmSow(*w,2,4,4000,4000)
+    FarmTick(*w,500)
+    if !FarmWater(*w,2,0) || FarmLoose(w.plots[128]) || w.plots[128].rest != FARM_REST || w.plots[128].moisture != 20000 { return 31 }
+    if FarmMove(*w,2,0,6000,6000) { return 32 }
+    FarmTick(*w,FARM_RISE)
+    if !FarmRisen(w.plots[128]) || w.plots[128].moisture != 20000 || w.plots[128].growth != 0 { return 33 }
+    FarmTick(*w,1000)
+    if w.plots[128].growth != 1000 { return 34 }
+    // The sprinkler grows saplings but never sows a loose seed for the child.
+    sp := FarmNew(); sp.sprinkler = true; unused FarmSow(*sp,0,1,5000,5000)
+    FarmTick(*sp,FARM_REST-1)
+    if !FarmLoose(sp.plots[0]) || sp.plots[0].moisture != 0 { return 35 }
+    FarmTick(*sp,1); FarmTick(*sp,FARM_RISE); FarmTick(*sp,2000)
+    if sp.plots[0].growth != 2000 { return 36 }
+
+    // Every crop: sow, rest, rise, three drinks, harvest.
+    for kind: cast(s32)1..FARM_CROPS {
+        fresh := FarmNew(); fresh.selected = 1; fresh.seeds[kind-1] = 1
+        if FarmSow(*fresh,3,kind,8765,1234) != 0 || fresh.selected != kind { return 37 }
+        FarmTick(*fresh,99999)
+        if !FarmRisen(fresh.plots[192]) || fresh.plots[192].growth != 0 { return 38 }
+        FarmTick(*fresh,99999)
+        if fresh.plots[192].growth != 0 { return 39 }
+        for drink: cast(s32)0..2 { unused FarmWater(*fresh,3,0); FarmTick(*fresh,20000) }
+        if !FarmReady(fresh,192) || FarmWater(*fresh,3,0) { return 40 }
+        if !FarmHarvest(*fresh,3,0) || fresh.produce[kind-1] != 1 || fresh.plots[192].kind != 0 { return 41 }
+    }
+
+    // Economy: harvest, trade, buy, upgrades.
+    e := FarmNew()
+    unused FarmSow(*e,2,3,5000,5000); unused FarmWater(*e,2,0)
+    FarmTick(*e,FARM_RISE); FarmTick(*e,20000)
+    if !FarmReady(e,128) || FarmHarvest(*e,1,0) { return 42 }
+    if !FarmHarvest(*e,2,0) || e.produce[2] != 1 || FarmHarvest(*e,2,0) { return 43 }
+    coins := e.coins
+    if !FarmTrade(*e) || e.coins != coins+6 || FarmTrade(*e) { return 44 }
+    if !FarmBuy(*e,5) || e.seeds[4] != 4 || e.selected != 5 { return 45 }
+    e.coins = 200
+    if !FarmUpgrade(*e,0) || FarmUpgrade(*e,0) || !FarmUpgrade(*e,1) || e.coins != 50 { return 46 }
+    e.coins = 0
+    if FarmBuy(*e,3) || FarmUpgrade(*e,0) { return 47 }
+    e.coins = FARM_MONEY_LIMIT; e.produce[2] = 1
+    if FarmTrade(*e) || e.produce[2] != 1 { return 48 }
+
+    // Goji only visits sown plants; a loose seed is safe in the child's care.
+    visitor := FarmVisitor.{.wait=20000,.target=-1}
+    goji := FarmNew(); unused FarmSow(*goji,2,3,5000,5000)
+    if FarmVisitorTick(*goji,*visitor,2,20000) || visitor.target != -1 || visitor.wait != 3000 { return 49 }
+    FarmTick(*goji,FARM_SOWN)
+    visitor = FarmVisitor.{.wait=20000,.target=-1}
+    if FarmVisitorTick(*goji,*visitor,2,20000) || visitor.target != 0 { return 50 }
+    if FarmVisitorTick(*goji,*visitor,2,2159) || goji.plots[128].kind == 0 { return 51 }
+    if !FarmVisitorTick(*goji,*visitor,2,1) || goji.plots[128].kind != 0 || visitor.target != -1 { return 52 }
+
+    // Saves keep loose seeds, their rest, rising saplings and grown crops.
+    s := FarmNew(); s.seeds[2] = 20
+    unused FarmSow(*s,3,3,7777,8888); FarmTick(*s,FARM_SOWN); unused FarmWater(*s,3,0); FarmTick(*s,500)
+    unused FarmSow(*s,1,3,3333,4444); unused FarmWater(*s,1,0); FarmTick(*s,600)
+    unused FarmSow(*s,0,3,1111,2222); FarmTick(*s,500)
+    unused FarmSow(*s,0,3,5555,6666)
+    restored: FarmState
+    saved := FarmSave(s)
+    if saved[:12] != "farm-four 3\n" { return 53 }
+    if !FarmRead(saved,*restored) || FarmSave(restored) != saved { return 54 }
+    if restored.plots[0].rest != 500 || restored.plots[1].rest != 0 || restored.plots[64].rest != FARM_REST+1100 || FarmRise(restored.plots[64]) != 91 { return 55 }
+    if restored.plots[1].u != 5555 || restored.plots[1].v != 6666 || restored.plots[192].growth != 1600 || !FarmLoose(restored.plots[0]) { return 56 }
+    for cut: cast(s64)0..saved.count-1 {
+        if FarmRead(saved[:cut],*restored) || FarmSave(restored) != saved { return 57 }
+    }
+    if FarmRead(Cat(saved,"0"),*restored) || FarmRead("farm-four 3\n9999999999999",*restored) { return 58 }
+    // One valid-looking changed field must fail the checksum transactionally.
+    if FarmRead(Cat(saved[:12],"9",saved[13:]),*restored) || FarmSave(restored) != saved { return 59 }
+    // A loose seed cannot have grown, and rest cannot exceed a full rise.
+    bad := s; bad.plots[1].growth = 5
+    if FarmRead(FarmSave(bad),*restored) { return 60 }
+    bad = s; bad.plots[0].rest = FARM_SOWN+1
+    if FarmRead(FarmSave(bad),*restored) { return 61 }
+    if !FarmRead(FarmSave(crowded),*restored) { return 62 }
+    other := FarmNew()
+    restored.plots[0].kind = 6
+    if crowded.plots[0].kind != 3 || other.plots[0].kind != 0 { return 63 }
+
+    // Version two saves: every plot was already sown and keeps its place.
+    two: Vec(u8)
+    BuilderPrint(*two,"farm-four 2\n30 0 0 0 3\n")
+    for i: cast(s32)0..8 { BuilderPrint(*two,"3 0\n") }
+    for i: cast(s32)0..255 {
+        if i==64 { BuilderPrint(*two,"3 1000 0 2000 3000\n") } else { BuilderPrint(*two,"0 0 0 0 0\n") }
+    }
+    body := BuilderFinish(two)
+    if !FarmRead(Cat(body,NumberText(FarmChecksum(body)),"\n"),*restored) { return 64 }
+    p := restored.plots[64]
+    if p.kind != 3 || p.growth != 1000 || p.u != 2000 || p.v != 3000 || !FarmRisen(p) { return 65 }
+    if !FarmRead(FarmSave(restored),*other) || FarmSave(other) != FarmSave(restored) { return 66 }
+    // Version one saves migrate all four beds without touching legacy garden.txt.
+    legacy: Vec(u8)
+    BuilderPrint(*legacy,"farm-four 1\n30 0 0 0 3\n")
+    for i: cast(s32)0..5 { BuilderPrint(*legacy,"3 0\n") }
+    for i: cast(s32)0..23 {
+        BuilderPrint(*legacy,"% 0 0\n",ifx i%6==5 then i/6+1 else 0)
+    }
+    if !FarmRead(BuilderFinish(legacy),*restored) { return 67 }
+    for garden: cast(s32)0..3 {
+        q := restored.plots[FarmIndex(garden,5)]
+        if q.kind != garden+1 || q.u != 8500 || q.v != 8000 || !FarmRisen(q) { return 68 }
+    }
+    if !FarmRead(FarmSave(restored),*other) || FarmSave(other) != FarmSave(restored) { return 69 }
+    at: s64 = 0
+    if FarmField("1000000006\n",*at,1000000006,#char "\n") != 1000000006 { return 70 }
+    at = 0
+    if FarmField("999999999999999999999\n",*at,1000000006,#char "\n") != -1 { return 71 }
+    return 0
+}

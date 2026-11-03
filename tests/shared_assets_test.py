@@ -64,6 +64,9 @@ def fake_tree(root):
     """A miniature assets/ with every kind of duplicate the real one has."""
     font = b'font'
     write(root, 'assets/jungle/font.png', font)
+    for i, name in enumerate(('right', 'right-glow', 'left', 'left-glow')):
+        write(root, f'assets/jungle/title/objects/wood-arrow-{name}.webp',
+              picture((170+i*20, 120, 50, 255), '.webp'))
     write(root, 'assets/jungle/icon.png', b'icon')
     write(root, 'assets/jungle/icons/icon-64.png', b'icon')
     write(root, 'assets/jungle/sounds/select.wav', b'select')
@@ -168,7 +171,11 @@ def staging_test():
                     for name in shared_assets.COUNTING}
         expected.update({'assets/animal-count/latin.png': 'assets/jungle/font.png',
                          'assets/dino-paint/font.png': 'assets/jungle/font.png',
-                         'assets/jungle-book/font.png': 'assets/jungle/font.png'})
+                         'assets/jungle-book/font.png': 'assets/jungle/font.png',
+                         'assets/garden/play/campus-arrow.webp': 'assets/jungle/title/objects/wood-arrow-right.webp',
+                         'assets/garden/play/campus-arrow-glow.webp': 'assets/jungle/title/objects/wood-arrow-right-glow.webp',
+                         'assets/garden/play/market-arrow.webp': 'assets/jungle/title/objects/wood-arrow-left.webp',
+                         'assets/garden/play/market-arrow-glow.webp': 'assets/jungle/title/objects/wood-arrow-left-glow.webp'})
         assert set(parsed) == set(expected) | RUNTIME_LOGICAL, set(parsed) ^ (set(expected) | RUNTIME_LOGICAL)
         assert parsed.items() >= expected.items()
         runtime_targets = {parsed[name] for name in RUNTIME_LOGICAL}
@@ -177,6 +184,10 @@ def staging_test():
         files = {path.relative_to(app).as_posix() for path in app.rglob('*') if path.is_file()}
         assert files == {'assets/shared-assets.txt', 'assets/speech.txt', 'assets/jungle/font.png', 'assets/jungle/icon.png',
                          'assets/jungle/icons/icon-64.png', 'assets/jungle/sounds/select.wav',
+                         'assets/jungle/title/objects/wood-arrow-right.webp',
+                         'assets/jungle/title/objects/wood-arrow-right-glow.webp',
+                         'assets/jungle/title/objects/wood-arrow-left.webp',
+                         'assets/jungle/title/objects/wood-arrow-left-glow.webp',
                          'assets/jungle-book/collect.wav',
                          'assets/dino-paint/art/dino1.png', *runtime_targets, *PREVIEWED,
                          *{f'assets/jungle-book/counting/{name}.webp' for name in shared_assets.COUNTING}}, files

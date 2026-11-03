@@ -8,11 +8,11 @@
 
 - Stories now includes Town Musicians of Bremen, with eleven landscape and portrait illustrations and English, German and Spanish narration.
 
-- Follow the connected sandy path left from Campus to the full-screen Farm scene, with a painted Campus return sign.
+- Follow the Farm sign into four independently saved gardens. Drag seeds from the bag anywhere on the soil and move them again. A seed sinks in after a short rest or when watered, then a sapling rises. Water and harvest with animated tools, sell crops and buy helpers. Goji visits; there is no tutorial, help screen or crop-field text; saves are safe and play is silent.
 - A friendly cartoon hand is the pointer everywhere: every scene, menu, book and game, crisp on any screen and with clean edges.
 - Highlight the shelf's first row and Stories row each as one whole row, find the stencil hidden beside the tiger book again, and return using the shelf Back button.
 - Place the crab family on the Port's sand.
-- Read directional arrows on localized signs in both orientations; Farm has no planting panels or game title bar.
+- Read directional arrows on localized signs in both orientations. The original Farm painting remains the garden chooser.
 - Show the corrected portrait Campus paths, with clean sideways wooden arrow signs and a single Beach sign.
 - Open the Treehouse's round window to look out over the jungle, with Back to return; the room has no board above the ladder.
 - Follow the Desert sign to the jungle's edge, where a guide and his camel explain in a short spoken chat why we are not ready to cross the desert yet; the path back to Campus runs straight left.

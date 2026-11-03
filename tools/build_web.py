@@ -188,6 +188,12 @@ def stage_assets(out):
     # Runtime aliases supply the same optimized WebP bytes to native and web.
     runtime_files, runtime_encodings = WebFiles()
     files.update(runtime_files)
+    # A game's own copy of a shared picture (GAMES extras, such as the Farm
+    # chooser's Campus sign) ships under the game's path, as natively.
+    for config in GAMES.values():
+        for name, target in config.get('extra', {}).items():
+            if name != target and name not in files and (ROOT/target).is_file():
+                files[name] = ROOT/target
     # Narration ships as the native hosts' Ogg Vorbis clips and speech index,
     # never as the WAVs they compose.
     speech,speech_files=Speech()

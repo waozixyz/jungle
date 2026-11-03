@@ -160,9 +160,10 @@ is in `tools/book_prompts.json`; the full-size originals are kept in
   old left path removed and the frogs on the rocks; Farm left, Desert right) and
   landscape-connected-no-stones-proposal (clean sandy path across to the left,
   no stepping stones). Farm shows only owner-selected 27.png landscape and
-  19.png portrait from owner-farm-beach-source, as a full-screen title scene with the normal scene controls and a right-pointing
-  Campus return sign, without a game title bar or activity overlays;
-  preserve jungle.garden identity and leave existing garden.txt saves untouched.
+  19.png portrait from owner-farm-beach-source, as the Farm subapp's full-screen
+  garden chooser with a right-pointing Campus return sign and no game title bar.
+  Garden play has free seed drag-and-drop and no text tutorial, help screen or
+  crop-field messages; preserve jungle.garden identity and leave existing garden.txt saves untouched.
   The Port uses the approved clean plates plus its Market path. Keep originals private and ship WebPs.
 - Farm entrance fields (tools/farm_fields.py, run after the painting changes;
   make test runs --check) find each raised bed in the painting: the whole bed

@@ -90,7 +90,8 @@ jobs:
           export TMPDIR="$PWD/work/b"
           unset DISPLAY WAYLAND_DISPLAY XAUTHORITY DBUS_SESSION_BUS_ADDRESS SESSION_MANAGER
           make -j2 all
-          make -j2 build/tests/printing build/tests/paint_preview
+          make -j2 build/tests/printing build/tests/paint_preview build/tests/farm
+          build/tests/farm
           python3 tools/title_scenes.py --check
           python3 tests/title_guide_test.py
           python3 tests/title_scenes_test.py
@@ -104,6 +105,7 @@ jobs:
           python3 tests/sweet_porridge_test.py
           python3 tests/town_musicians_test.py
           python3 tests/garden_assets_test.py
+          python3 tests/farm_assets_test.py
           python3 tests/piano_audio_test.py
           python3 tests/paint_preview_test.py
           python3 tests/paint_catalog_test.py

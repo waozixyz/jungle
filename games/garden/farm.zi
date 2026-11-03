@@ -1,0 +1,303 @@
+// Silent, value-owned farming. Positions are relative to the soil, never pixels.
+#import, file "../../host/jungle_text.zi";
+
+FARM_GARDENS :: 4
+FARM_CAPACITY :: 64
+FARM_CROPS :: 9
+FARM_MONEY_LIMIT :: 1000000
+// A dropped seed lies loose on the soil until it rests untouched for
+// FARM_REST ms (or is watered); then it sinks in and its sapling rises.
+FARM_REST :: 3000
+FARM_RISE :: 1200
+FARM_SOWN :: FARM_REST + FARM_RISE
+// Drops this far outside the soil still snap gently inside it.
+FARM_SNAP :: 1500
+FARM_EDGE :: 400
+FarmPlot :: struct { kind: s32; growth: s32; moisture: s32; u: s32; v: s32; rest: s32 }
+FarmState :: struct {
+    plots: [256]FarmPlot
+    seeds: [9]s32
+    produce: [9]s32
+    coins: s32
+    harvested: s32
+    compost: bool
+    sprinkler: bool
+    selected: s32
+}
+FarmVisitor :: struct { wait: s32; elapsed: s32; target: s32; visits: s32; u: s32; v: s32; kind: s32 }
+FarmNew :: () -> FarmState {
+    f := FarmState.{.coins = 30, .selected = 3}
+    // Keep the six Jungle crops and the three additional original vegetables.
+    for i: cast(s32)0..5 { f.seeds[i] = 3 }
+    f.seeds[2] = 5; f.seeds[6] = 3; f.seeds[7] = 1
+    return f
+}
+FarmPrice :: (kind: s32) -> s32 {
+    prices: [9]s32 = .[3, 6, 2, 4, 8, 5, 3, 5, 4]
+    if kind < 1 || kind > FARM_CROPS { return 0 }
+    return prices[kind - 1]
+}
+FarmDuration :: (kind: s32, compost: bool) -> s32 {
+    times: [9]s32 = .[24000, 32000, 18000, 28000, 45000, 36000, 24000, 36000, 28000]
+    if kind < 1 || kind > FARM_CROPS { return 0 }
+    return times[kind - 1] * (ifx compost then 3 else 4) / 4
+}
+FarmIndex :: (garden: s32, slot: s32) -> s32 {
+    if garden < 0 || garden >= FARM_GARDENS || slot < 0 || slot >= FARM_CAPACITY { return -1 }
+    return garden * FARM_CAPACITY + slot
+}
+FarmReady :: (f: FarmState, index: s32) -> bool {
+    if index < 0 || index >= 256 { return false }
+    p := f.plots[index]
+    return p.kind > 0 && p.growth >= FarmDuration(p.kind, f.compost)
+}
+FarmSoil :: (u: s32, v: s32) -> bool { return u >= 0 && u <= 10000 && v >= 0 && v <= 10000 }
+FarmNear :: (a: FarmPlot, u: s32, v: s32) -> bool {
+    du := a.u-u; dv := a.v-v
+    return du*du + dv*dv < 1000000
+}
+// A loose seed can still be picked up; a sown one has sunk into the soil.
+FarmLoose :: (p: FarmPlot) -> bool { return p.kind > 0 && p.rest < FARM_REST }
+FarmRisen :: (p: FarmPlot) -> bool { return p.kind > 0 && p.rest >= FARM_SOWN }
+// Percent of the sink-and-rise animation: 0 loose, 100 sapling fully up.
+FarmRise :: (p: FarmPlot) -> s32 {
+    if p.kind == 0 || p.rest < FARM_REST { return 0 }
+    if p.rest >= FARM_SOWN { return 100 }
+    return (p.rest-FARM_REST)*100/FARM_RISE
+}
+FarmHit :: (f: FarmState, garden: s32, u: s32, v: s32, ignore: s32 = -1) -> s32 {
+    if garden < 0 || garden >= FARM_GARDENS { return -1 }
+    for slot: cast(s32)0..FARM_CAPACITY-1 {
+        p := f.plots[FarmIndex(garden,slot)]
+        if slot != ignore && p.kind > 0 && FarmNear(p,u,v) { return slot }
+    }
+    return -1
+}
+// Where a seed dropped at u,v comes to rest: snapped gently inside the soil
+// and nudged to the nearest spot with a little room. False off the soil.
+FarmSpot :: (f: FarmState, garden: s32, u: s32, v: s32, ignore: s32, spot_u: *s32, spot_v: *s32) -> bool {
+    if garden < 0 || garden >= FARM_GARDENS { return false }
+    if u < -FARM_SNAP || u > 10000+FARM_SNAP || v < -FARM_SNAP || v > 10000+FARM_SNAP { return false }
+    cu := u; cv := v
+    if cu < FARM_EDGE { cu = FARM_EDGE }; if cu > 10000-FARM_EDGE { cu = 10000-FARM_EDGE }
+    if cv < FARM_EDGE { cv = FARM_EDGE }; if cv > 10000-FARM_EDGE { cv = 10000-FARM_EDGE }
+    if FarmHit(f,garden,cu,cv,ignore) < 0 { spot_u.* = cu; spot_v.* = cv; return true }
+    // Sixteen directions (x1000), searched ring by ring for the closest room.
+    dx: [16]s32 = .[1000,924,707,383,0,-383,-707,-924,-1000,-924,-707,-383,0,383,707,924]
+    dy: [16]s32 = .[0,383,707,924,1000,924,707,383,0,-383,-707,-924,-1000,-924,-707,-383]
+    for ring: cast(s32)1..10 {
+        for d: cast(s32)0..15 {
+            nu := cu+dx[d]*ring*200/1000; nv := cv+dy[d]*ring*200/1000
+            if nu < FARM_EDGE || nu > 10000-FARM_EDGE || nv < FARM_EDGE || nv > 10000-FARM_EDGE { continue }
+            if FarmHit(f,garden,nu,nv,ignore) < 0 { spot_u.* = nu; spot_v.* = nv; return true }
+        }
+    }
+    return false
+}
+// Takes one seed of kind from the bag and lays it loose on the soil.
+FarmSow :: (f: *FarmState, garden: s32, kind: s32, u: s32, v: s32) -> s32 {
+    if garden < 0 || garden >= FARM_GARDENS || kind < 1 || kind > FARM_CROPS { return -1 }
+    if f.seeds[kind-1] <= 0 { return -1 }
+    su: s32; sv: s32
+    if !FarmSpot(f.*,garden,u,v,-1,*su,*sv) { return -1 }
+    for slot: cast(s32)0..FARM_CAPACITY-1 {
+        index := FarmIndex(garden,slot)
+        if f.plots[index].kind != 0 { continue }
+        f.plots[index] = FarmPlot.{.kind=kind,.u=su,.v=sv}
+        f.seeds[kind-1] -= 1; f.selected = kind; return slot
+    }
+    return -1
+}
+// Moves a loose seed; its rest starts over.
+FarmMove :: (f: *FarmState, garden: s32, slot: s32, u: s32, v: s32) -> bool {
+    i := FarmIndex(garden,slot)
+    if i < 0 || !FarmLoose(f.plots[i]) { return false }
+    su: s32; sv: s32
+    if !FarmSpot(f.*,garden,u,v,slot,*su,*sv) { return false }
+    f.plots[i].u = su; f.plots[i].v = sv; f.plots[i].rest = 0; return true
+}
+// Puts a loose seed back into the bag.
+FarmUnsow :: (f: *FarmState, garden: s32, slot: s32) -> bool {
+    i := FarmIndex(garden,slot)
+    if i < 0 || !FarmLoose(f.plots[i]) { return false }
+    kind := f.plots[i].kind
+    if f.seeds[kind-1] >= 999 { return false }
+    f.seeds[kind-1] += 1; f.plots[i] = FarmPlot.{}; return true
+}
+// Time passes for every plot except one held in the hand (index or -1).
+FarmTick :: (f: *FarmState, milliseconds: s32, held: s32 = -1) {
+    if milliseconds <= 0 { return }
+    for i: cast(s32)0..255 {
+        p := *f.plots[i]
+        if p.kind == 0 || i == held || FarmReady(f.*, i) { continue }
+        if p.rest < FARM_SOWN {
+            p.rest += milliseconds
+            if p.rest > FARM_SOWN { p.rest = FARM_SOWN }
+            continue
+        }
+        wet := ifx f.sprinkler then milliseconds else p.moisture
+        if wet > milliseconds { wet = milliseconds }
+        remaining := FarmDuration(p.kind, f.compost) - p.growth
+        if wet > remaining { wet = remaining }
+        p.growth += wet
+        if f.sprinkler { p.moisture = 20000 } else { p.moisture -= wet }
+    }
+}
+// Water sinks a loose seed into the soil at once and gives 20 s of growth.
+FarmWater :: (f: *FarmState, garden: s32, slot: s32) -> bool {
+    i := FarmIndex(garden, slot)
+    if i < 0 || f.plots[i].kind == 0 || FarmReady(f.*, i) { return false }
+    if f.plots[i].rest < FARM_REST { f.plots[i].rest = FARM_REST }
+    f.plots[i].moisture = 20000; return true
+}
+FarmHarvest :: (f: *FarmState, garden: s32, slot: s32) -> bool {
+    i := FarmIndex(garden, slot)
+    if i < 0 || !FarmReady(f.*, i) { return false }
+    kind := f.plots[i].kind
+    if f.produce[kind-1] >= 999 { return false }
+    f.produce[kind-1] += 1
+    if f.harvested < FARM_MONEY_LIMIT { f.harvested += 1 }
+    f.plots[i] = FarmPlot.{}; return true
+}
+FarmVisitorTick :: (f: *FarmState, visitor: *FarmVisitor, garden: s32, milliseconds: s32) -> bool {
+    if garden < 0 || garden >= FARM_GARDENS || milliseconds <= 0 { return false }
+    if visitor.target >= 0 {
+        visitor.elapsed += milliseconds
+        if visitor.elapsed < 2160 { return false }
+        index := FarmIndex(garden,visitor.target)
+        p := f.plots[index]
+        taken := p.kind == visitor.kind && p.u == visitor.u && p.v == visitor.v
+        if taken { f.plots[index] = FarmPlot.{} }
+        visitor.target = -1; visitor.elapsed = 0; visitor.visits += 1
+        visitor.wait = 20000 + (visitor.visits*7 % 20)*1000
+        return taken
+    }
+    visitor.wait -= milliseconds
+    if visitor.wait > 0 { return false }
+    for step: cast(s32)0..FARM_CAPACITY-1 {
+        slot := (visitor.visits*17+step) % FARM_CAPACITY
+        if !FarmRisen(f.plots[FarmIndex(garden,slot)]) { continue }
+        p := f.plots[FarmIndex(garden,slot)]
+        visitor.target = slot; visitor.elapsed = 0
+        visitor.u = p.u; visitor.v = p.v; visitor.kind = p.kind
+        return false
+    }
+    visitor.wait = 3000; return false
+}
+FarmBuy :: (f: *FarmState, kind: s32) -> bool {
+    if kind < 1 || kind > FARM_CROPS { return false }
+    price := FarmPrice(kind)
+    if f.coins < price || f.seeds[kind-1] >= 999 { return false }
+    f.coins -= price; f.seeds[kind-1] += 1; f.selected = kind; return true
+}
+FarmBasket :: (f: FarmState) -> s32 {
+    value: s32
+    for i: cast(s32)0..FARM_CROPS-1 { value += f.produce[i] * FarmPrice(i+1) * 3 }
+    return value
+}
+FarmTrade :: (f: *FarmState) -> bool {
+    value := FarmBasket(f.*)
+    if value == 0 || f.coins + value > FARM_MONEY_LIMIT { return false }
+    f.coins += value
+    for i: cast(s32)0..FARM_CROPS-1 { f.produce[i] = 0 }
+    return true
+}
+FarmUpgrade :: (f: *FarmState, which: s32) -> bool {
+    if which == 0 && !f.compost && f.coins >= 60 {
+        f.coins -= 60; f.compost = true
+        for i: cast(s32)0..255 {
+            limit := FarmDuration(f.plots[i].kind,true)
+            if f.plots[i].growth > limit { f.plots[i].growth = limit }
+        }
+        return true
+    }
+    if which == 1 && !f.sprinkler && f.coins >= 90 {
+        f.coins -= 90; f.sprinkler = true; return true
+    }
+    return false
+}
+FarmChecksum :: (text: string) -> s32 {
+    sum: s64 = 0
+    for byte: text { sum = (sum*131 + cast(s64)byte) % 1000000007 }
+    return cast(s32)sum
+}
+FarmSave :: (f: FarmState) -> string {
+    out: Vec(u8)
+    BuilderPrint(*out,"farm-four 3\n% % % % %\n",f.coins,f.harvested,
+        ifx f.compost then 1 else 0,ifx f.sprinkler then 1 else 0,f.selected)
+    for i: cast(s32)0..FARM_CROPS-1 { BuilderPrint(*out,"% %\n",f.seeds[i],f.produce[i]) }
+    for p: f.plots { BuilderPrint(*out,"% % % % % %\n",p.kind,p.growth,p.moisture,p.u,p.v,p.rest) }
+    body := BuilderFinish(out)
+    return Cat(body,NumberText(FarmChecksum(body)),"\n")
+}
+FarmField :: (text: string, at: *s64, limit: s32, separator: u8) -> s32 {
+    if at.* >= text.count || text[at.*] < #char "0" || text[at.*] > #char "9" { return -1 }
+    n: s32 = 0
+    while at.* < text.count && text[at.*] >= #char "0" && text[at.*] <= #char "9" {
+        digit := cast(s32)(text[at.*]-#char "0")
+        if n > limit/10 || (n == limit/10 && digit > limit%10) { return -1 }
+        n = n*10+digit; at.* += 1
+    }
+    if at.* >= text.count || text[at.*] != separator { return -1 }
+    at.* += 1; return n
+}
+FarmRead :: (text: string, result: *FarmState) -> bool {
+    if text.count < 20 || text.count > 16384 { return false }
+    old := text[:12] == "farm-four 1\n"
+    // Version 2 had no loose seeds: every plot was already sown.
+    two := text[:12] == "farm-four 2\n"
+    if !old && !two && text[:12] != "farm-four 3\n" { return false }
+    at: s64 = 12
+    f: FarmState
+    f.coins = FarmField(text,*at,FARM_MONEY_LIMIT,#char " ")
+    f.harvested = FarmField(text,*at,FARM_MONEY_LIMIT,#char " ")
+    c := FarmField(text,*at,1,#char " "); s := FarmField(text,*at,1,#char " ")
+    f.selected = FarmField(text,*at,ifx old then 6 else FARM_CROPS,#char "\n")
+    if f.coins < 0 || f.harvested < 0 || c < 0 || s < 0 || f.selected < 1 { return false }
+    f.compost = c == 1; f.sprinkler = s == 1
+    crops: s32 = ifx old then 6 else FARM_CROPS
+    for i: cast(s32)0..crops-1 {
+        f.seeds[i] = FarmField(text,*at,999,#char " ")
+        f.produce[i] = FarmField(text,*at,999,#char "\n")
+        if f.seeds[i] < 0 || f.produce[i] < 0 { return false }
+    }
+    count: s32 = ifx old then 24 else 256
+    for i: cast(s32)0..count-1 {
+        index := ifx old then (i/6)*FARM_CAPACITY+i%6 else i
+        p := *f.plots[index]
+        p.kind = FarmField(text,*at,ifx old then 6 else FARM_CROPS,#char " ")
+        p.growth = FarmField(text,*at,45000,#char " ")
+        p.moisture = FarmField(text,*at,20000,ifx old then #char "\n" else #char " ")
+        if p.kind < 0 || p.growth < 0 || p.moisture < 0 { return false }
+        if old && p.kind > 0 {
+            p.u = 1500+(i%3)*3500; p.v = ifx i%6 < 3 then 2000 else 8000
+            limit := FarmDuration(p.kind,f.compost)
+            if p.growth > limit { p.growth = limit }
+        } else if !old {
+            p.u = FarmField(text,*at,10000,#char " ")
+            p.v = FarmField(text,*at,10000,ifx two then #char "\n" else #char " ")
+            if p.u < 0 || p.v < 0 { return false }
+            if !two {
+                p.rest = FarmField(text,*at,FARM_SOWN,#char "\n")
+                if p.rest < 0 { return false }
+            }
+        }
+        if (old || two) && p.kind > 0 { p.rest = FARM_SOWN }
+        if p.kind == 0 && (p.growth != 0 || p.moisture != 0 || p.u != 0 || p.v != 0 || p.rest != 0) { return false }
+        if p.rest < FARM_SOWN && p.growth != 0 { return false }
+        if p.growth > FarmDuration(p.kind,f.compost) { return false }
+        if p.kind > 0 {
+            for other: cast(s32)0..index-1 {
+                if other/FARM_CAPACITY != index/FARM_CAPACITY { continue }
+                if f.plots[other].kind > 0 && FarmNear(f.plots[other],p.u,p.v) { return false }
+            }
+        }
+    }
+    if !old {
+        checksum_at := at
+        checksum := FarmField(text,*at,1000000006,#char "\n")
+        if checksum < 0 || checksum != FarmChecksum(text[:checksum_at]) { return false }
+    }
+    if at != text.count { return false }
+    result.* = f; return true
+}

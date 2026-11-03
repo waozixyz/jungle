@@ -297,7 +297,10 @@ HostAwardUnlock :: (index: s32) {
     SoundPlay(ifx SoundSamples(TITLE_PAPER_CHIME) != "" then TITLE_PAPER_CHIME else "assets/jungle/sounds/select.wav")
 }
 
+game_farm_entrance: bool = true;
+
 GameAllows :: (context: *void, name: string) -> bool {
+    if name == "jungle.farm-view" { return TextFromCString(*game.app.id[0]) == "jungle.garden" }
     return name == "jungle.voice-frames" || name == "jungle.speech-profile" || name == "jungle.collect" || name == "jungle.collection" || name == "jungle.book-start" || name == "jungle.language" || name == "jungle.voice" || name == "jungle.voice-state" || name == "jungle.voice-control" || name == "jungle.sound" || name == "jungle.home" || name == "jungle.canvas" ||
         name == "jungle.paint-preview" || name == "jungle.paint-ops" || name == "jungle.paint-colors" || name == "jungle.paint-ink" || name == "jungle.paint-tile" || name == "jungle.touches" || name == "jungle.export" || name == "jungle.print" || name == "jungle.secondary" || name == "jungle.piano-held" || BundleAppAllows(context, name)
 }
@@ -388,6 +391,12 @@ GameServices :: (context: *void, module: *u8, function: *u8,
         if service == "jungle.book-start" { result.* = Reply(title_book_requested); return 1 }
         if service == "jungle.language" {
             result.* = Reply(LanguageCode())
+            return 1
+        }
+        if service == "jungle.farm-view" && TextFromCString(*game.app.id[0]) == "jungle.garden" {
+            if request == "entrance" { game_farm_entrance = true }
+            if request == "garden" { game_farm_entrance = false }
+            result.* = Reply(ifx game_farm_entrance then "entrance" else "garden")
             return 1
         }
         if service == "jungle.voice" {
@@ -487,6 +496,7 @@ SharedBookAssets :: (bundle: string) -> bool {
 }
 
 OpenGame :: (index: s32) -> bool {
+    game_farm_entrance = true
     bytes, found := ShippedRead(Cat("games/", games[index].bundle_name))
     if !found { message = "THAT GAME IS MISSING."; return false }
     defer { ShippedFree(bytes) }
@@ -540,7 +550,8 @@ GameFrame :: (bounds: Rectangle, pointer: PointerFrame, secondary: SecondaryPoin
     if title_back_pending && key == 0 { key = KEY_ESCAPE; title_back_pending = false }
     if title_speed_pending && key == 0 { key = ABC_SPEED_KEY; title_speed_pending = false }
     if key != 0 { KeyboardSend(app.session, key) }
-    app.bounds = Rectangle.{bounds.x, bounds.y + cast(float32)GAME_BAR_HEIGHT, bounds.width, bounds.height - cast(float32)GAME_BAR_HEIGHT}
+    farm_entrance := TextFromCString(*app.id[0]) == "jungle.garden" && game_farm_entrance
+    app.bounds = ifx farm_entrance then bounds else Rectangle.{bounds.x, bounds.y + cast(float32)GAME_BAR_HEIGHT, bounds.width, bounds.height - cast(float32)GAME_BAR_HEIGHT}
     app.scale = 1.0
     app.font = 18
     app.key = key
@@ -561,6 +572,11 @@ GameFrame :: (bounds: Rectangle, pointer: PointerFrame, secondary: SecondaryPoin
     WidgetHostEnd()
     bundle_drawing_app = null
     if !ok { TreeCancel(app.session); game.failed = true; return false }
+    if farm_entrance {
+        if FarmEntranceSound(app.session,bounds,key,seconds,sound_muted) { ToggleSound() }
+        AwardShowFrame(app.session, bounds, 0, AwardCornerTarget(bounds), true, seconds)
+        return EndFrame(app.session) == FrameStatus.FrameOk
+    }
     bar := GameTitleBar(app.session, bounds, key, seconds, games[chosen].title, sound_muted)
     if bar.collection_open { CollectionBookOpen(); SoundStop() }
     if bar.back { title_back_pending = true }

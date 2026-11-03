@@ -5319,7 +5319,7 @@
         },
         {
           "id": "farm-path",
-          "target": "scene:farm",
+          "target": "game:Farm",
           "glow_rect": [
             130,
             490,
@@ -5810,7 +5810,7 @@
           },
           {
             "id": "farm-path",
-            "target": "scene:farm",
+            "target": "game:Farm",
             "glow_rect": [
               80,
               770,
@@ -7305,6 +7305,7 @@
     },
     {
       "name": "farm",
+      "subapp": "Farm",
       "image": "assets/jungle/title/farm.webp",
       "low": "assets/jungle/title/farm-low.webp",
       "hotspots": [

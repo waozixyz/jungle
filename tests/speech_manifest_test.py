@@ -191,6 +191,10 @@ def staging_test():
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_bytes(data)
         files = {
+            'assets/jungle/title/objects/wood-arrow-right.webp': picture('WEBP', (140, 100, 60)),
+            'assets/jungle/title/objects/wood-arrow-right-glow.webp': picture('WEBP', (180, 140, 80)),
+            'assets/jungle/title/objects/wood-arrow-left.webp': picture('WEBP', (150, 110, 70)),
+            'assets/jungle/title/objects/wood-arrow-left-glow.webp': picture('WEBP', (190, 150, 90)),
             'assets/jungle/font.png': picture('PNG', (10, 20, 30)),
             'assets/jungle-book/font.png': picture('PNG', (10, 20, 30)),
             'assets/jungle-book/collect.wav': b'collection chime',

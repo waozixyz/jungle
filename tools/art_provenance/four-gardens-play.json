@@ -1,0 +1,300 @@
+{
+  "owner_request": "avery cool now relpac all assets with new one  abit in the directino of the farm image inside jnugle well cautalyl excaly taht one but it will be fulyl a relpcament of that page in that kid games style but fulyl funciotnal as a subapp inside jungle",
+  "generator": "built-in image_gen (Codex); original Jungle watercolor farm art; existing assets/garden/art chooser scenes unchanged",
+  "layout": {
+    "planting_area": [
+      0.16,
+      0.32,
+      0.84,
+      0.76
+    ],
+    "anchors_x": [
+      0.28,
+      0.5,
+      0.72
+    ],
+    "anchors_y": [
+      0.48,
+      0.69
+    ],
+    "geometry_note": "Original prompt planting_area is aspirational; landscape back rim reaches about y .38. All six anchors lie on clear soil in both orientations; conservative common soil rectangle is x .18-.82, y .40-.74. Preserve scene aspect ratio.",
+    "common_clear_soil": [
+      0.18,
+      0.4,
+      0.82,
+      0.74
+    ]
+  },
+  "assets": [
+    {
+      "name": "garden-landscape",
+      "generation_id": "exec-b590ac29-7de1-49a1-af5a-64caf2bdb147",
+      "prompt": "Use case illustration-story. Create ONE 1536x1024 landscape background for Jungle toddler farming game. Match inspected canonical tiger cover: soft rounded storybook watercolor, warm cream light, gentle earthy greens, smooth washes, warm bamboo. Inspired by approved farm reference but close inside ONE bamboo raised garden, slightly elevated child view. ONE huge empty smooth brown soil bed centered: entire normalized rectangle x .16-.84 y .32-.76 must be empty plantable soil, including anchors (.28,.48),(.50,.48),(.72,.48),(.28,.69),(.50,.69),(.72,.69). Bamboo rim outside that rectangle; tropical foliage frames outer edges, distant bamboo garden shelter only near top, cream sunny sky/headroom. Native controls will overlay margins. No crops, tools, animals, people, grid, buttons, lettering, watermark. Full bleed complete scene, no collage. Simple rounded forms, not photorealistic.",
+      "source": "local/art-development/four-gardens/garden-landscape.png",
+      "source_sha256": "16ccfa8449a0eba45287d38dd06997c9327aaea9fb4f3066da32ad2476bd27d7",
+      "runtime": "assets/garden/play/garden-landscape.webp",
+      "sha256": "f55fb0e592900dc663f532b9e01ade7c16e71e455b2cb62ca2b68c67711a8c86",
+      "export_role": "scene",
+      "lossless": false,
+      "quality": 85,
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "original": "local/art-development/four-gardens/garden-landscape.png"
+    },
+    {
+      "name": "garden-portrait",
+      "generation_id": "exec-1f55ff5f-7588-4317-ba57-70dce72d89c7",
+      "prompt": "Create ONE 1024x1536 portrait background matching the provided landscape game's same single bamboo bed and tropical watercolor world. Soft rounded toddler storybook watercolor warm cream sunny light earthy greens ochre bamboo, smooth washes. Reframe naturally vertically: one huge EMPTY brown soil bed occupying x .10-.90 y .30-.80, with ALL x .16-.84 y .32-.76 clear soil including six planting anchors columns .28 .50 .72 rows .48 .69. Put back bamboo rim ABOVE y .30 and front rim BELOW .80. Gentle tropical foliage edges only, distant small bamboo shelter near upper right, sky headroom, native controls use margins. No crops tools animals people words UI grid watermark or collage. No stretching.",
+      "source": "local/art-development/four-gardens/garden-portrait.png",
+      "source_sha256": "c64bc3ef9873c3494a3df164d5d18e338b63358e4d728626cef8219ea6e3c060",
+      "runtime": "assets/garden/play/garden-portrait.webp",
+      "sha256": "d341e5cb15fa735887688276c8e9bbc6ee30fb70be72088d71707e00f3658a58",
+      "export_role": "scene",
+      "lossless": false,
+      "quality": 85,
+      "post": "six baked planting holes removed by feathered clone of adjacent soil; raw kept at local/art-development/four-gardens/garden-portrait-raw-holes.png",
+      "dimensions": [
+        1024,
+        1536
+      ],
+      "original": "local/art-development/four-gardens/garden-portrait-raw-holes.png"
+    },
+    {
+      "name": "sunflower",
+      "generation_id": "exec-82222c8d-2fa0-45de-b5b4-2eb98c587e52",
+      "prompt": "Use case illustration-story. ONE 1024x1024 square transparent cutout: cheerful mature natural SUNFLOWER plant, single large golden yellow flower with brown center, upright sturdy green stem and few broad rounded leaves. No face. Soft cartoonish storybook watercolor matching Jungle canonical tiger cover, simplified rounded forms, warm gentle earthy colors, smooth washes, no hard botanical realism. Whole subject fits inside x .15-.85 y .08-.92, stem ground anchor bottom center (.50,.92). Single clear readable plant, no dirt patch, pot, ground, shadow puddle, white paper, halo, frame, text, watermark or extra objects. Genuine transparent background and clean alpha edges.",
+      "source": "local/art-development/four-gardens/anchored/sunflower.png",
+      "source_sha256": "e1670a6a4114163cf3907d893c3b3e79df45caf19f9fbcc8cdfc98926bb9ed6d",
+      "runtime": "assets/garden/play/sunflower.webp",
+      "sha256": "83bf4b90798403491e3f944f6f99b69ff658a56c5b158bb66febfe2f5885c900",
+      "export_role": "cutout",
+      "lossless": true,
+      "quality": null,
+      "post": "lossless translate [10, 16] px to shared bottom-center anchor row 1205; raw kept at local/art-development/four-gardens/sunflower.png",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "original": "local/art-development/four-gardens/sunflower.png"
+    },
+    {
+      "name": "tomato",
+      "generation_id": "exec-5076df51-87c8-4cb0-83df-1743ad89791c",
+      "prompt": "ONE square 1024x1024 transparent cutout of one compact mature upright tomato bush with a few broad green leaves and five plump red tomatoes, sturdy connected natural branching stems. Jungle toddler game asset in cohesive soft cartoonish storybook watercolor, warm gentle earthy greens and smooth washes, simplified friendly rounded forms like canonical tiger cover. Natural anatomy, no faces. Entire single plant centered, base at bottom center (.50,.92), all edges within .08-.92. Clear simple silhouette for touch-size icons. Genuinely transparent background, clean alpha edges. NO ground/dirt patch, pot, shadows outside object, paper, halo, frame, text, watermark, extra objects or collage.",
+      "source": "local/art-development/four-gardens/anchored/tomato.png",
+      "source_sha256": "e66739b0e541fb2f1c77ac1427000f94ac3c8396f6bc961d0be14d00e0c70f51",
+      "runtime": "assets/garden/play/tomato.webp",
+      "sha256": "26a939d6b170f64d07ab89985d089ca798222ebb9714dfe0a0bd45d62a4d3552",
+      "export_role": "cutout",
+      "lossless": true,
+      "quality": null,
+      "post": "lossless translate [6, -17] px to shared bottom-center anchor row 1205; raw kept at local/art-development/four-gardens/tomato.png",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "original": "local/art-development/four-gardens/tomato.png"
+    },
+    {
+      "name": "carrot",
+      "generation_id": "exec-c5472e46-a035-40bf-9bfa-160aa4622f77",
+      "prompt": "ONE square 1024x1024 transparent cutout of one identifiable plump orange carrot with lush rounded feathery green leafy tops growing upright; orange tapered root fully visible below its leaves. Jungle toddler game asset in cohesive soft cartoonish storybook watercolor, warm gentle earthy greens and smooth washes, simplified friendly rounded forms like canonical tiger cover. Natural anatomy, no faces. Entire single plant centered, base at bottom center (.50,.92), all edges within .08-.92. Clear simple silhouette for touch-size icons. Genuinely transparent background, clean alpha edges. NO ground/dirt patch, pot, shadows outside object, paper, halo, frame, text, watermark, extra objects or collage.",
+      "source": "local/art-development/four-gardens/anchored/carrot.png",
+      "source_sha256": "2c45fb8d8d77c52dcb251845100203158742213f3a8e654952be9cc5cf211deb",
+      "runtime": "assets/garden/play/carrot.webp",
+      "sha256": "195cc63532d697a10849bace4aee2ea16d5c3f251f1dc3a127daa6a75f996980",
+      "export_role": "cutout",
+      "lossless": true,
+      "quality": null,
+      "post": "lossless translate [20, -23] px to shared bottom-center anchor row 1205; raw kept at local/art-development/four-gardens/carrot.png",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "original": "local/art-development/four-gardens/carrot.png"
+    },
+    {
+      "name": "strawberry",
+      "generation_id": "exec-79ed5163-dfc3-49e2-973b-b368e1012b32",
+      "prompt": "ONE square 1024x1024 transparent cutout of one compact upright strawberry plant with rounded serrated green leaves, three plump red berries and a small white blossom. Jungle toddler game asset in cohesive soft cartoonish storybook watercolor, warm gentle earthy greens and smooth washes, simplified friendly rounded forms like canonical tiger cover. Natural anatomy, no faces. Entire single plant centered, base at bottom center (.50,.92), all edges within .08-.92. Clear simple silhouette for touch-size icons. Genuinely transparent background, clean alpha edges. NO ground/dirt patch, pot, shadows outside object, paper, halo, frame, text, watermark, extra objects or collage.",
+      "source": "local/art-development/four-gardens/anchored/strawberry.png",
+      "source_sha256": "4344c19e7c69f6fbb308fe763ac8b39cd7ed8df1c452285ff9a66b4b14401dfd",
+      "runtime": "assets/garden/play/strawberry.webp",
+      "sha256": "0369aef8a79344048c17e5ebda005582d07acdee13b93d4381f54a9b450b84f7",
+      "export_role": "cutout",
+      "lossless": true,
+      "quality": null,
+      "post": "lossless translate [2, 10] px to shared bottom-center anchor row 1205; raw kept at local/art-development/four-gardens/strawberry.png",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "original": "local/art-development/four-gardens/strawberry.png"
+    },
+    {
+      "name": "pumpkin",
+      "generation_id": "exec-58164c19-62de-47bb-beb8-c48db9894593",
+      "prompt": "ONE square 1024x1024 transparent cutout of one compact mature pumpkin vine with one plump orange pumpkin, a short naturally connected curling stem and a few broad green leaves. Match this batch's gentle Jungle toddler watercolor garden: soft cartoonish storybook watercolor, warm gentle earthy greens, golden light, smooth washes, simplified rounded forms, natural plant anatomy, no faces. Entire single plant centered with bottom-center ground anchor (.50,.92), margins .08 all sides. Distinct silhouette readable small. Genuinely transparent background clean edges. NO ground/dirt patch, pot, shadow puddle, paper, halo, frame, text, watermark, clutter or collage.",
+      "source": "local/art-development/four-gardens/anchored/pumpkin.png",
+      "source_sha256": "5a6218cf45bfe48d04c9418a6adf7db74c4baee496ef694eb800d2caf636fa57",
+      "runtime": "assets/garden/play/pumpkin.webp",
+      "sha256": "361eeb5a0aa96a9560467e975c5ad60d7630c4d5f6114366655f6da123e03aeb",
+      "export_role": "cutout",
+      "lossless": true,
+      "quality": null,
+      "post": "lossless translate [30, 17] px to shared bottom-center anchor row 1205; raw kept at local/art-development/four-gardens/pumpkin.png",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "original": "local/art-development/four-gardens/pumpkin.png"
+    },
+    {
+      "name": "cabbage",
+      "generation_id": "exec-c7dd0716-d2ea-41ce-b44b-f002e16d848a",
+      "prompt": "ONE square 1024x1024 transparent cutout of one fresh rounded pale green cabbage head cupped by a few broad dark green outer leaves, gentle simple leaf veins. Match this batch's gentle Jungle toddler watercolor garden: soft cartoonish storybook watercolor, warm gentle earthy greens, golden light, smooth washes, simplified rounded forms, natural plant anatomy, no faces. Entire single plant centered with bottom-center ground anchor (.50,.92), margins .08 all sides. Distinct silhouette readable small. Genuinely transparent background clean edges. NO ground/dirt patch, pot, shadow puddle, paper, halo, frame, text, watermark, clutter or collage.",
+      "source": "local/art-development/four-gardens/anchored/cabbage.png",
+      "source_sha256": "9e372319ed69a2f3d15453489c315dbba8918ff9df0842b77f7f3522f8d8929f",
+      "runtime": "assets/garden/play/cabbage.webp",
+      "sha256": "f7b0031ce24fad1544d66cafd1af077b3faec1507225227d87e1dd260320232d",
+      "export_role": "cutout",
+      "lossless": true,
+      "quality": null,
+      "post": "lossless translate [6, -21] px to shared bottom-center anchor row 1205; raw kept at local/art-development/four-gardens/cabbage.png",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "original": "local/art-development/four-gardens/cabbage.png"
+    },
+    {
+      "name": "sprout",
+      "generation_id": "exec-53880b6f-e651-40f9-880e-adb051aa197e",
+      "prompt": "ONE square 1024x1024 transparent cutout of one tiny upright two-leaf sprout, exactly two rounded green leaves on a short connected stem. Match this batch's gentle Jungle toddler watercolor garden: soft cartoonish storybook watercolor, warm gentle earthy greens, golden light, smooth washes, simplified rounded forms, natural plant anatomy, no faces. Entire single plant centered with bottom-center ground anchor (.50,.92), margins .08 all sides. Distinct silhouette readable small. Genuinely transparent background clean edges. NO ground/dirt patch, pot, shadow puddle, paper, halo, frame, text, watermark, clutter or collage.",
+      "source": "local/art-development/four-gardens/anchored/sprout.png",
+      "source_sha256": "ee432dcecd3636cf7781c32e04be1d1445e26b0285c58a82dbe8b76b644f78cf",
+      "runtime": "assets/garden/play/sprout.webp",
+      "sha256": "cfc9f60d1ba86455a0faaf4e006584f0be706b5aebc16e0c11cef7f508025aae",
+      "export_role": "cutout",
+      "lossless": true,
+      "quality": null,
+      "post": "lossless translate [16, 36] px to shared bottom-center anchor row 1205; raw kept at local/art-development/four-gardens/sprout.png",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "original": "local/art-development/four-gardens/sprout.png"
+    },
+    {
+      "name": "watering-can",
+      "generation_id": "exec-f9775f30-c8e1-4967-a684-0646492b23a1",
+      "prompt": "ONE square 1024x1024 transparent cutout: one sage green watering can, rounded body, large loop handle and short spout with round sprinkler rose. Jungle toddler farming game, soft rounded cartoonish storybook watercolor, smooth washes, gentle earthy greens warm bamboo ochre, matching canonical tiger-cover illustration world. Single object fully visible centered with .10 margin, readable at small touch-control size. Natural recognizable object anatomy, no face or anthropomorphism. True transparent background, clean alpha edges, no white paper background or halo, no floor ground patch shadow puddle frame text labels numbers watermark clutter or collage.",
+      "source": "local/art-development/four-gardens/watering-can.png",
+      "source_sha256": "6aca862bf6a337101856e42c2f1573b6c62c0e0833dddeaa5ba35a4eea80c43e",
+      "runtime": "assets/garden/play/watering-can.webp",
+      "sha256": "ee202cfbe318049070bc70a801b43fd3208a4f179026e7ec6101bec53f522168",
+      "export_role": "cutout",
+      "lossless": true,
+      "quality": null,
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "original": "local/art-development/four-gardens/watering-can.png"
+    },
+    {
+      "name": "harvest-basket",
+      "generation_id": "exec-24b163b9-0ca6-4668-8817-a0e44ba7e93a",
+      "prompt": "ONE square 1024x1024 transparent cutout: one warm bamboo woven harvest basket with a broad arched handle and open top, holding a few simple orange and red harvested vegetables. Jungle toddler farming game, soft rounded cartoonish storybook watercolor, smooth washes, gentle earthy greens warm bamboo ochre, matching canonical tiger-cover illustration world. Single object fully visible centered with .10 margin, readable at small touch-control size. Natural recognizable object anatomy, no face or anthropomorphism. True transparent background, clean alpha edges, no white paper background or halo, no floor ground patch shadow puddle frame text labels numbers watermark clutter or collage.",
+      "source": "local/art-development/four-gardens/harvest-basket.png",
+      "source_sha256": "980c0f9f232aab921fe98d229b187729ebf8e3dc31ff0729b67a783aa49dda86",
+      "runtime": "assets/garden/play/harvest-basket.webp",
+      "sha256": "9d4610a969c130d6c55d9d81d4db3e8ff7e8ccca749b8d963cc5cb6cd4f40292",
+      "export_role": "cutout",
+      "lossless": true,
+      "quality": null,
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "original": "local/art-development/four-gardens/harvest-basket.png"
+    },
+    {
+      "name": "seed-pouch",
+      "generation_id": "exec-7b8ff3e5-9511-48e6-b037-73294ffce154",
+      "prompt": "ONE square 1024x1024 transparent cutout: one small ochre paper seed pouch, folded top, a single large simple painted green sprout symbol on its front, no letters. Jungle toddler farming game, soft rounded cartoonish storybook watercolor, smooth washes, gentle earthy greens warm bamboo ochre, matching canonical tiger-cover illustration world. Single object fully visible centered with .10 margin, readable at small touch-control size. Natural recognizable object anatomy, no face or anthropomorphism. True transparent background, clean alpha edges, no white paper background or halo, no floor ground patch shadow puddle frame text labels numbers watermark clutter or collage.",
+      "source": "local/art-development/four-gardens/seed-pouch.png",
+      "source_sha256": "788d26c4705ece7d52abe7ba2f375c0cbd4475ca46aaf084ef5bdf82eb0d5621",
+      "runtime": "assets/garden/play/seed-pouch.webp",
+      "sha256": "3c0c3b88e1bc46b4621a2f6db7d182789452cf2fd995208af228671aa042344e",
+      "export_role": "cutout",
+      "lossless": true,
+      "quality": null,
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "original": "local/art-development/four-gardens/seed-pouch.png"
+    },
+    {
+      "name": "compost-bag",
+      "generation_id": "exec-594798db-0831-4df9-887c-b6f69650f658",
+      "prompt": "ONE square 1024x1024 transparent cutout: one squat open burlap sack filled with rich dark compost, folded wide lip, a single large green leaf emblem on front, no writing. Jungle toddler farming game, soft rounded cartoonish storybook watercolor, smooth washes, gentle earthy greens warm bamboo ochre, matching canonical tiger-cover illustration world. Single object fully visible centered with .10 margin, readable at small touch-control size. Natural recognizable object anatomy, no face or anthropomorphism. True transparent background, clean alpha edges, no white paper background or halo, no floor ground patch shadow puddle frame text labels numbers watermark tiny clutter or collage.",
+      "source": "local/art-development/four-gardens/compost-bag.png",
+      "source_sha256": "56755c67c3c77abc1f3138121b4070ea73bb8517f19515d94b465f787a37afce",
+      "runtime": "assets/garden/play/compost-bag.webp",
+      "sha256": "3c19995631e3bdf7e3766544566ab27f1b82305a0749fbba97cce84ad5e71885",
+      "export_role": "cutout",
+      "lossless": true,
+      "quality": null,
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "original": "local/art-development/four-gardens/compost-bag.png"
+    },
+    {
+      "name": "sprinkler",
+      "generation_id": "exec-d1087be2-07be-4857-884a-9ed3ddae9ad9",
+      "prompt": "ONE square 1024x1024 transparent cutout: one simple friendly rounded sage-green garden sprinkler with low circular base, short vertical stem and two curved brass spray arms, no water cloud. Jungle toddler farming game, soft rounded cartoonish storybook watercolor, smooth washes, gentle earthy greens warm bamboo ochre, matching canonical tiger-cover illustration world. Single object fully visible centered with .10 margin, readable at small touch-control size. Natural recognizable object anatomy, no face or anthropomorphism. True transparent background, clean alpha edges, no white paper background or halo, no floor ground patch shadow puddle frame text labels numbers watermark tiny clutter or collage.",
+      "source": "local/art-development/four-gardens/sprinkler.png",
+      "source_sha256": "871e836580be582a0a39f031cdd04d6e75509bcad38decf7f723befc12540ed7",
+      "runtime": "assets/garden/play/sprinkler.webp",
+      "sha256": "ea5eb7ad843ca729c386d0740ceb89f0d7d506c944b034451660154b14f191e1",
+      "export_role": "cutout",
+      "lossless": true,
+      "quality": null,
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "original": "local/art-development/four-gardens/sprinkler.png"
+    },
+    {
+      "name": "market-stall",
+      "generation_id": "exec-d207e58f-c548-4886-935a-4648a91523f2",
+      "prompt": "ONE square 1024x1024 transparent cutout: one small bamboo produce market stall with warm cream and sage striped cloth canopy, two sturdy supports and counter with three simple baskets of orange red and green vegetables, no merchant or sign. Jungle toddler farming game, soft rounded cartoonish storybook watercolor, smooth washes, gentle earthy greens warm bamboo ochre, matching canonical tiger-cover illustration world. Single object fully visible centered with .10 margin, readable at small touch-control size. Natural recognizable object anatomy, no face or anthropomorphism. True transparent background, clean alpha edges, no white paper background or halo, no floor ground patch shadow puddle frame text labels numbers watermark tiny clutter or collage.",
+      "source": "local/art-development/four-gardens/market-stall.png",
+      "source_sha256": "9356e2d88f7ef54cb0ac2e58d35bd166d693c42c031876422131d3dea1cef720",
+      "runtime": "assets/garden/play/market-stall.webp",
+      "sha256": "c628696341633557285d6f379a6c856f30aed037524b12e47732a09c53bffb66",
+      "export_role": "cutout",
+      "lossless": true,
+      "quality": null,
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "original": "local/art-development/four-gardens/market-stall.png"
+    }
+  ],
+  "style_reference": "local/art-development/title-covers.png (upper-left tiger cover)",
+  "review": {
+    "status": "batch visually reviewed; ready for native integration",
+    "evidence": "local/art-development/four-gardens/qa/current-runtime-batch.jpg",
+    "validation": "local/art-development/four-gardens/qa/validation.json",
+    "notes": "Current portrait soil is clean; no baked planting depressions. All 13 cutouts reviewed against checkerboard and dark green; no visible paper halo, clipping, labels or watermark. Faint generated alpha residue <=8/255 retained for exact source fidelity. No runtime assets regenerated or modified during finalization. Existing approved chooser artwork remains byte-identical to HEAD."
+  }
+}

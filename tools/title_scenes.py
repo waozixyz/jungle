@@ -280,6 +280,13 @@ def Load(source=SOURCE, catalog=CATALOG):
                 seen.add(hotspot['scene_target'])
                 parents[hotspot['scene_target']] = current
                 queue.append(hotspot['scene_target'])
+            # Retained chooser art belongs to its native catalog app.
+            if hotspot['scene'] == current and hotspot['game']:
+                for index, scene in enumerate(scenes):
+                    if scene.get('subapp') == hotspot['game'] and index not in seen:
+                        seen.add(index)
+                        parents[index] = current
+                        queue.append(index)
     for index, scene in enumerate(scenes):
         if scene['base'] != index:
             seen.add(index)
@@ -287,8 +294,7 @@ def Load(source=SOURCE, catalog=CATALOG):
     unreachable = [names[index] for index in range(len(scenes)) if index not in seen]
     if unreachable:
         raise SystemExit('title scenes: unreachable scenes ' + ', '.join(unreachable))
-    # Keep the legacy Farm bundle/save identity installed, without a game route.
-    missing = sorted(set(titles) - {'Farm'} - {hotspot['game'] for hotspot in hotspots})
+    missing = sorted(set(titles) - {hotspot['game'] for hotspot in hotspots})
     if missing:
         raise SystemExit('title scenes: catalog games without a hotspot: ' + ', '.join(missing))
     for scene in scenes:

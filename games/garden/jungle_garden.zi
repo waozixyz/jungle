@@ -1,25 +1,731 @@
-// Farm is the approved painting; the host owns Back and sound controls.
+// Native silent Farm: the approved painting opens four independently tended gardens.
 #import "kryon/app_context"
 #import "kryon/app_protocol"
+#import "kryon/frame_snapshot"
+#import "kryon/input_protocol"
+#import "kryon/cursor"
+#import "kryon/geometry"
+#import "kryon/drawing_props"
+#import "kryon/text_align"
 #import "kryon/image_props"
 #import "kryon/image_widget"
+#import "kryon/shape_props"
+#import "kryon/shape_widget"
 #import, file "../../retro/retro.zi";
 #import, file "../../retro/game.zi";
+#import, file "../../retro/book_theme.zi";
+#import, file "farm.zi";
+#import, file "garden.zi";
+#import, file "../../host/jungle_text.zi";
+#import, file "../../retro/language.zi";
+#import, file "garden_scene.zi";
 
-GameMain :: () -> s32 {
-    mode := AppMode()
-    if mode == APP_IDENTIFY { AppIdentity("jungle.garden"); AppDescribe("Farm", ""); return APP_PROTOCOL }
-    // Legacy garden.txt is deliberately neither read nor rewritten.
-    if mode != APP_FRAME { return 0 }
-    if AppKey() == KEY_ESCAPE { GameHome(); return 0 }
-    bounds := AppBounds()
-    path := ifx bounds.width < bounds.height then "assets/garden/art/scene-portrait.webp" else "assets/garden/art/scene-landscape.webp"
-    shown := RetroImageShown(path)
-    if shown != "" {
-        Image(AppSession(), ImageProps.{.asset_path = shown, .preview_path = RetroImagePreview(path),
-            .bounds = bounds, .fit = ImageFit.ImageFitContain, .smooth = true, .alt_text = "Farm"})
+farm: FarmState;
+loaded: bool;
+save_blocked: bool;
+save_failed: bool;
+last_good: string;
+active_garden: s32 = -1;
+panel: s32; // 0 soil, 1 seeds, 2 market, 3 helpers, 4 paused menu
+tool: s32; // hand, water, harvest
+width: s32;
+height: s32;
+portrait: bool;
+last_tick: float64;
+last_save: float64;
+visitors: [4]FarmVisitor;
+input: FrameInputSnapshot;
+mx: s32;
+my: s32;
+soil_x: s32;
+soil_y: s32;
+soil_w: s32;
+soil_h: s32;
+// The painted mound's trimmed size, in its own pixels.
+MOUND_W :: 1184
+MOUND_H :: 406
+FarmEffect :: struct { action: s32; kind: s32; u: s32; v: s32; garden: s32; start: float64 }
+effects: [32]FarmEffect;
+effect_next: s32;
+sale_start: float64;
+sale_amount: s32;
+// The seed in the hand: its kind (0 none) and the lifted loose seed's slot,
+// or -1 for a new seed from the bag. A press starts on the bag (1), a loose
+// seed (2) or anywhere else (3) and becomes a drag once it moves.
+drag_kind: s32;
+drag_slot: s32 = -1;
+press: s32;
+press_slot: s32 = -1;
+press_x: s32;
+press_y: s32;
+// A seed dropped off the soil flies back into the bag.
+fly_kind: s32;
+fly_start: float64;
+fly_x: s32;
+fly_y: s32;
+
+Save :: (flush: bool = false) -> bool {
+    if !loaded || save_blocked { return false }
+    next := FarmSave(farm)
+    save_failed = false
+    if next != last_good {
+        if last_good != "" { save_failed = !DocumentWrite("farm-four-gardens.backup",last_good) }
+        if !save_failed { save_failed = !DocumentWrite("farm-four-gardens.txt",next) }
+        if !save_failed { last_good = next }
     }
-    return 0
+    if !save_failed && flush { save_failed = !DocumentFlush() }
+    return !save_failed
+}
+Changed :: () { unused Save() }
+Load :: () {
+    farm = FarmNew()
+    primary := DocumentRead("farm-four-gardens.txt"); status := DocumentStatus()
+    if status == DOCUMENT_READY && FarmRead(primary,*farm) {
+        last_good = primary
+    } else if status == DOCUMENT_ERROR {
+        save_blocked = true
+    } else {
+        backup := DocumentRead("farm-four-gardens.backup"); backup_status := DocumentStatus()
+        if backup_status == DOCUMENT_READY && FarmRead(backup,*farm) {
+            if status != DOCUMENT_MISSING {
+                unused DocumentRead("farm-four-gardens.damaged")
+                if DocumentStatus() != DOCUMENT_MISSING || !DocumentWrite("farm-four-gardens.damaged",primary) || !DocumentFlush() { save_blocked = true }
+            }
+            if !save_blocked {
+                last_good = backup
+                if !DocumentWrite("farm-four-gardens.txt",backup) || !DocumentFlush() { save_blocked = true }
+            }
+        } else if status != DOCUMENT_MISSING || backup_status != DOCUMENT_MISSING { save_blocked = true }
+    }
+    loaded = true; last_tick = retro.now; last_save = retro.now
+    if !save_blocked { unused Save(true) }
+}
+Picture :: (name: string, x: s32, y: s32, w: s32, h: s32) {
+    BookPicture(Cat("assets/garden/play/",name,".webp"),x,y,w,h)
+}
+Label :: (text: string, x: s32, y: s32, w: s32, h: s32, size: s32 = 18) {
+    BookText(x,y,w,h,text,size,TextAlign.TextAlignCenter,false)
+}
+Tap :: (key: s32, x: s32, y: s32, w: s32, h: s32, label: string) -> bool {
+    return RetroTap(key,x,y,w,h,label).clicked
+}
+Dot :: (x: s32, y: s32, radius: s32, color: u32) {
+    Circle(retro.session,CircleProps.{.center=Vector2.{retro.x+cast(float32)x*retro.scale,
+        retro.y+cast(float32)y*retro.scale},.radius=cast(float32)radius*retro.scale,.fill=ColorFromPacked(color)})
+}
+Button :: (key: s32, x: s32, y: s32, w: s32, h: s32, text: string, selected: bool = false) -> bool {
+    hit := RetroTap(key,x,y,w,h,text)
+    BookBox(x,y,w,h,ifx selected || hit.down then cast(u32)0xddebd7ff else cast(u32)0xfff7e8ef,0xbda77bff,12.0)
+    Label(text,x+4,y+3,w-8,h-6,17)
+    return hit.clicked
+}
+CropArt :: (kind: s32) -> string {
+    names: [9]string = .["sunflower","tomato","carrot","strawberry","pumpkin","cabbage","beans","corn","cucumber"]
+    if kind<1 || kind>FARM_CROPS { return "sprout" }
+    return names[kind-1]
+}
+CropName :: (kind: s32) -> string {
+    if kind <= 6 { return GardenName(kind) }
+    if kind == 7 { return GardenText("Beans","Bohnen","Frijoles") }
+    if kind == 8 { return GardenText("Corn","Mais","Maíz") }
+    return GardenText("Cucumber","Gurke","Pepino")
+}
+SeedArt :: (kind: s32) -> string { return Cat("seed-",CropArt(kind)) }
+HeldHand :: (x: s32, y: s32, size: s32, kind: s32) {
+    // Anchors measured on the final alpha artwork, not the generation prompt.
+    Picture("hand-cupped",x-size*46/100,y-size*55/100,size,size)
+    if kind>0 {
+        seed_size:=size*3/8
+        Picture(SeedArt(kind),x-seed_size/2,y-seed_size/2,seed_size,seed_size)
+    }
+}
+View :: (entrance: bool) { unused AppService("jungle.farm-view",ifx entrance then "entrance" else "garden") }
+// Nothing is taken from the bag or soil until a drop, so letting go of a
+// drag midway leaves the farm exactly as it was.
+CancelDrag :: () { drag_kind = 0; drag_slot = -1; press = 0; press_slot = -1 }
+OpenGarden :: (garden: s32) { active_garden = garden; panel = 0; tool = 0; CancelDrag(); View(false) }
+Sky :: () { unused Save(true); CancelDrag(); active_garden = -1; panel = 0; View(true) }
+GardenTitle :: (garden: s32) -> string {
+    return Cat(GardenText("Garden ", "Garten ", "Jardín "), NumberText(garden + 1))
+}
+// A bed's crops in the entrance painting, standing in its soil back to front
+// and sized by how wide the bed is at their depth, as in the garden itself.
+FieldPreview :: (garden: s32, x: s32, y: s32, scale: float64) {
+    q := GardenQuad(garden, portrait)
+    order: [64]s32; count: s32=0
+    for slot: cast(s32)0..FARM_CAPACITY-1 {
+        p:=farm.plots[FarmIndex(garden,slot)]
+        if p.kind==0 { continue }
+        at:=count
+        while at>0 && farm.plots[FarmIndex(garden,order[at-1])].v>p.v {
+            order[at]=order[at-1]; at-=1
+        }
+        order[at]=slot; count+=1
+    }
+    for item: cast(s32)0..count-1 {
+        slot:=order[item]
+        index:=FarmIndex(garden,slot); p:=farm.plots[index]
+        u:=cast(float64)p.u/10000.0; v:=cast(float64)p.v/10000.0
+        at:=GardenBlend(q,u,v)
+        left:=GardenBlend(q,0.0,v); right:=GardenBlend(q,1.0,v)
+        dx:=right.x-left.x; dy:=right.y-left.y
+        if dx<0.0 { dx=-dx }; if dy<0.0 { dy=-dy }
+        // The bed's width along its turned rows, close enough without a root.
+        across:=ifx dx>dy then dx+dy*3.0/8.0 else dy+dx*3.0/8.0
+        edge:=cast(s32)(across*scale/10.0)
+        if edge<6 { edge=6 }
+        px:=x+cast(s32)(at.x*scale); py:=y+cast(s32)(at.y*scale)
+        if FarmLoose(p) { SeedPicture(p.kind,px,py-edge/4,edge*55/100); continue }
+        stage:=p.growth*20/FarmDuration(p.kind,farm.compost)
+        size:=edge*(70+stage*30/20)/100
+        Picture(ifx stage<7 then "sprout" else CropArt(p.kind),px-size/2,py-size*96/100,size,size)
+    }
+}
+// The Farm entrance: the painting's four beds carry no labels. Pointing at a
+// bed lights the whole field, soil and bamboo frame; a tap opens it.
+Chooser :: () {
+    iw: s32 = ifx portrait then 1024 else 1671
+    ih: s32 = ifx portrait then 1536 else 941
+    scale := cast(float32)width / cast(float32)iw
+    if cast(float32)height / cast(float32)ih < scale { scale = cast(float32)height / cast(float32)ih }
+    w := cast(s32)(cast(float32)iw*scale); h := cast(s32)(cast(float32)ih*scale)
+    x := (width-w)/2; y := (height-h)/2
+    orientation := ifx portrait then "portrait" else "landscape"
+    BookPicture(Cat("assets/garden/art/scene-",orientation,".webp"), x,y,w,h)
+    picture_scale := cast(float64)scale
+    lit: s32 = -1
+    if input.available && mx>=x && mx<x+w && my>=y && my<y+h {
+        lit = GardenFieldAt(cast(float64)(mx-x)/picture_scale,cast(float64)(my-y)/picture_scale,portrait)
+    }
+    for garden: cast(s32)0..3 {
+        fx, fy, fw, fh := GardenFieldRect(garden,portrait)
+        gx := x+cast(s32)(cast(float64)fx*picture_scale)
+        gy := y+cast(s32)(cast(float64)fy*picture_scale)
+        gw := cast(s32)(cast(float64)fw*picture_scale)
+        gh := cast(s32)(cast(float64)fh*picture_scale)
+        if lit == garden { BookPicture(Cat("assets/garden/art/field-",orientation,"-",NumberText(garden),".webp"),gx,gy,gw,gh) }
+        FieldPreview(garden,x,y,picture_scale)
+    }
+    // Front beds first, so a tap where frames overlap opens the nearer bed.
+    for back: cast(s32)0..3 {
+        garden := 3-back
+        fx, fy, fw, fh := GardenFieldRect(garden,portrait)
+        gx := x+cast(s32)(cast(float64)fx*picture_scale)
+        gy := y+cast(s32)(cast(float64)fy*picture_scale)
+        gw := cast(s32)(cast(float64)fw*picture_scale)
+        gh := cast(s32)(cast(float64)fh*picture_scale)
+        hit := RetroTap(100+garden,gx,gy,gw,gh,GardenTitle(garden))
+        if hit.clicked {
+            // A pointer opens the field it is really on; keyboard activation
+            // has no point and opens the focused bed.
+            pointed := hit.x != 0.0 || hit.y != 0.0
+            target := garden
+            if pointed {
+                target = GardenFieldAt(cast(float64)(RetroPointX(hit.x)-x)/picture_scale,cast(float64)(RetroPointY(hit.y)-y)/picture_scale,portrait)
+            }
+            if target >= 0 { OpenGarden(target); return }
+        }
+        if retro.key == 49+garden { OpenGarden(garden); return }
+    }
+    // Retain the painted right-pointing Campus return sign.
+    sx := x + w*(ifx portrait then 600 else 1260)/iw
+    sy := y + h*(ifx portrait then 300 else 90)/ih
+    edge := w*240/iw
+    if edge < 72 { edge = 72 }
+    // The bundle's own copy of the title scene's arrow sign (tools/shared_assets.py).
+    sign := RetroTap(109,sx,sy+edge/5,edge,edge/2,Tr("Campus"))
+    Picture(ifx sign.down then "campus-arrow-glow" else "campus-arrow",sx,sy,edge,edge)
+    Label(Tr("Campus"),sx+edge*8/100,sy+edge*26/100,edge*53/100,edge*23/100,16)
+    if sign.clicked { GameHome(); return }
+    // The path at the painting's left edge leads to the Market street.
+    mw := w*170/iw
+    if mw < 64 { mw = 64 }
+    msx := x
+    msy := y + h*(ifx portrait then 383 else 278)/ih
+    market := RetroTap(110,msx,msy+mw/5,mw,mw/2,Tr("Market"))
+    Picture(ifx market.down then "market-arrow-glow" else "market-arrow",msx,msy,mw,mw)
+    Label(Tr("Market"),msx+mw*504/1254,msy+mw*330/1254,mw*650/1254,mw*280/1254,16)
+    if market.clicked { unused Save(true); unused AppService("jungle.home","scene:market") }
+}
+SoilLayout :: () {
+    iw: s32 = ifx portrait then 1024 else 1536
+    ih: s32 = ifx portrait then 1536 else 1024
+    scale := cast(float32)width/cast(float32)iw
+    if cast(float32)height/cast(float32)ih < scale { scale = cast(float32)height/cast(float32)ih }
+    w := cast(s32)(cast(float32)iw*scale); h := cast(s32)(cast(float32)ih*scale)
+    x := (width-w)/2; y := (height-h)/2
+    BookPicture(ifx portrait then "assets/garden/play/garden-portrait.webp" else "assets/garden/play/garden-landscape.webp",x,y,w,h)
+    soil_x = x+w*15/100; soil_w = w*70/100
+    soil_y = y+h*(ifx portrait then 36 else 43)/100
+    soil_h = h*(ifx portrait then 39 else 32)/100
+}
+PlantX :: (u: s32) -> s32 { return soil_x+u*soil_w/10000 }
+PlantY :: (v: s32) -> s32 { return soil_y+v*soil_h/10000 }
+StartAnimation :: (which: s32, p: FarmPlot) {
+    effects[effect_next]=FarmEffect.{.action=which,.kind=p.kind,.u=p.u,.v=p.v,.garden=active_garden,.start=retro.now}
+    effect_next=(effect_next+1)%32
+}
+PlantEdge :: () -> s32 {
+    edge:=soil_w/10
+    if edge>68 { edge=68 }; if edge<32 { edge=32 }
+    return edge
+}
+SeedEdge :: () -> s32 { return PlantEdge() }
+// A sown plant starts as a sapling at 70% and grows to the full edge.
+PlantSize :: (p: FarmPlot) -> s32 {
+    return PlantEdge()*(70+p.growth*20/FarmDuration(p.kind,farm.compost)*30/20)/100
+}
+HitPlant :: (x: s32, y: s32) -> s32 {
+    if active_garden<0 { return -1 }
+    found: s32=-1; depth: s32=-1
+    for slot: cast(s32)0..FARM_CAPACITY-1 {
+        p:=farm.plots[FarmIndex(active_garden,slot)]
+        if p.kind==0 || FarmLoose(p) { continue }
+        size:=PlantSize(p)
+        if size<24 { size=24 }
+        px:=PlantX(p.u); py:=PlantY(p.v)
+        if x>=px-size/2-6 && x<=px+size/2+6 && y>=py-size*96/100-6 && y<=py+12 && p.v>=depth {
+            found=slot; depth=p.v
+        }
+    }
+    return found
+}
+// The front-most loose seed under a finger; seeds are small, so the touch
+// area is generous.
+HitSeed :: (x: s32, y: s32) -> s32 {
+    if active_garden<0 { return -1 }
+    found: s32=-1; depth: s32=-1
+    reach:=SeedEdge()*3/4+8
+    for slot: cast(s32)0..FARM_CAPACITY-1 {
+        p:=farm.plots[FarmIndex(active_garden,slot)]
+        if !FarmLoose(p) || slot==drag_slot { continue }
+        dx:=x-PlantX(p.u); dy:=y-(PlantY(p.v)-SeedEdge()/4)
+        if dx*dx+dy*dy<=reach*reach && p.v>=depth { found=slot; depth=p.v }
+    }
+    return found
+}
+WaterPlot :: (slot: s32) {
+    p:=farm.plots[FarmIndex(active_garden,slot)]
+    if FarmWater(*farm,active_garden,slot) { StartAnimation(2,p); Changed() }
+}
+PickPlot :: (slot: s32) {
+    p:=farm.plots[FarmIndex(active_garden,slot)]
+    if FarmHarvest(*farm,active_garden,slot) {
+        if visitors[active_garden].target == slot {
+            visitors[active_garden].target = -1; visitors[active_garden].wait = 20000
+        }
+        StartAnimation(3,p); Changed()
+    }
+}
+// A freshly turned little mound marks every sown seed; it darkens when wet.
+// The plant stands in the dimple near the top of the mound.
+MoundPicture :: (x: s32, y: s32, width: s32, wet: bool) {
+    h:=width*MOUND_H/MOUND_W
+    Picture(ifx wet then "soil-mound-wet" else "soil-mound",x-width/2,y-h*30/100,width,h)
+}
+SeedPicture :: (kind: s32, x: s32, y: s32, size: s32) {
+    if size>0 { Picture(SeedArt(kind),x-size/2,y-size/2,size,size) }
+}
+Plants :: () {
+    edge := PlantEdge(); seed := SeedEdge()
+    order: [64]s32; count: s32=0
+    for slot: cast(s32)0..FARM_CAPACITY-1 {
+        p:=farm.plots[FarmIndex(active_garden,slot)]
+        if p.kind==0 || slot==drag_slot { continue }
+        at:=count
+        while at>0 && farm.plots[FarmIndex(active_garden,order[at-1])].v>p.v {
+            order[at]=order[at-1]; at-=1
+        }
+        order[at]=slot; count+=1
+    }
+    // Stable exact depth order also defines which overlapping crop owns a tap.
+    for item: cast(s32)0..count-1 {
+        slot:=order[item]
+        index := FarmIndex(active_garden,slot); p := farm.plots[index]
+        x := PlantX(p.u); y := PlantY(p.v)
+        wet := p.moisture>0 || (farm.sprinkler && !FarmLoose(p))
+        if FarmLoose(p) {
+            // A loose seed lies on top of the soil in a soft warm light, so
+            // even small brown seeds stand out from the earth.
+            Dot(x,y-seed/4,seed*45/100,0xfff3c238)
+            Dot(x,y,seed/4,0x3a24182e)
+            SeedPicture(p.kind,x,y-seed/4,seed)
+            continue
+        }
+        rise := FarmRise(p)
+        if rise < 100 {
+            // The seed sinks while a mound closes over it, then the sapling
+            // rises out of the mound with a gentle overshoot and settle.
+            mound := ifx rise<40 then edge*(40+rise*3/2)/100 else edge
+            MoundPicture(x,y,mound,wet)
+            if rise<40 { SeedPicture(p.kind,x,y-seed/4+seed*rise/80,seed*(40-rise)/40) }
+            else {
+                t:=(rise-40)*100/60
+                ease:=100-(100-t)*(100-t)/100+t*(100-t)/250
+                size:=edge*70/100*ease/100
+                if size>0 { Picture("sprout",x-size/2,y-size*96/100,size,size) }
+            }
+            continue
+        }
+        ready := FarmReady(farm,index); duration := FarmDuration(p.kind,farm.compost)
+        stage := p.growth*20/duration
+        size := PlantSize(p)
+        MoundPicture(x,y,edge,wet)
+        if ready { Dot(x,y-edge/3,edge/2,0xffdf6a33) }
+        Picture(ifx stage<7 then "sprout" else CropArt(p.kind),x-size/2,y-size*96/100,size,size)
+        bar:=y+edge*MOUND_H/MOUND_W*70/100+3
+        BookBox(x-edge/3,bar,edge*2/3,3,0xdac7a5ff)
+        BookBox(x-edge/3,bar,edge*2/3*p.growth/duration,3,0x5c9a50ff)
+        if !ready { BookBox(x-edge/3,bar+4,edge*2/3*p.moisture/20000,2,0x77b9dbff) }
+    }
+    visitor := visitors[active_garden]
+    if visitor.target >= 0 {
+        frame := visitor.elapsed/120
+        rise := ifx frame<5 then frame+1 else ifx frame>12 then 18-frame else 6
+        gx := PlantX(visitor.u); gy := PlantY(visitor.v)
+        Dot(gx,gy+6,edge/3,0x402a20dd)
+        Picture("goji",gx-edge/2,gy-edge*rise/6,edge,edge*rise/6)
+    }
+}
+HandEffectIndex :: () -> s32 {
+    latest: s32=-1
+    for i: cast(s32)0..31 {
+        effect:=effects[i]
+        elapsed:=retro.now-effect.start
+        duration: float64=ifx effect.action==3 then 1.25 else 0.60
+        if effect.action!=3 || effect.garden!=active_garden || elapsed<0.0 || elapsed>=duration { continue }
+        if latest<0 || effect.start>=effects[latest].start { latest=i }
+    }
+    return latest
+}
+OverSoil :: () -> bool {
+    return input.available && input.focused && mx>=0 && my>=0 && mx<width && my<height && active_garden>=0 && panel==0 && ((mx>=soil_x && mx<=soil_x+soil_w && my>=soil_y && my<=soil_y+soil_h) || HitPlant(mx,my)>=0)
+}
+DrawEffect :: (effect: FarmEffect, draw_hand: bool) {
+    animation:=effect.action; animation_kind:=effect.kind
+    elapsed:=retro.now-effect.start
+    duration: float64=ifx animation==3 then 1.25 else 0.60
+    if animation==0 || effect.garden!=active_garden || elapsed<0.0 || elapsed>=duration { return }
+    frame := cast(s32)(elapsed/0.12)
+    x := PlantX(effect.u); y := PlantY(effect.v)
+    if animation == 1 {
+        // A little puff of soil where the seed lands.
+        if frame<4 { for i: cast(s32)0..4 { Dot(x+(i-2)*(frame*3+5),y+2-frame,2,0xae7b43cc) } }
+    } else if animation == 2 {
+        Picture("watering-can",x+3,y-80+frame*2,76,76)
+        for drop: cast(s32)0..5 {
+            dy := (cast(s32)(elapsed*180.0)+drop*13)%65
+            Dot(x-14+drop*5,y-64+dy,2,0x90d2f4dd)
+        }
+    } else if elapsed<0.60 {
+        // Five 120ms pluck frames keep the vegetable in the lifting hand.
+        lift:=frame*6
+        Picture(CropArt(animation_kind),x-28+(frame%2)*3,y-55-lift,56,56)
+        if draw_hand { HeldHand(x,y-14-lift,70,0) }
+        for star: cast(s32)0..3 { Dot(x+(star-2)*14,y-20-lift,2,0xffdf68ff) }
+    } else {
+        // The entire vegetable follows a curved path into the actual basket.
+        cell: s32=(width-24)/4
+        bx: s32=12+2*cell+cell/2-2; by: s32=height-60
+        flight_ms: s32=cast(s32)((elapsed-0.60)*1000.0)
+        t: s32=flight_ms*100/650
+        if t>100 { t=100 }
+        ease:=t*t*(300-2*t)/10000
+        px:=x+(bx-x)*ease/100
+        py:=y-52+(by-y+52)*ease/100-60*4*t*(100-t)/10000
+        edge:=56-36*t/100
+        if draw_hand { HeldHand(cast(s32)px,cast(s32)py+edge/3,70-30*cast(s32)t/100,0) }
+        Picture(CropArt(animation_kind),cast(s32)px-edge/2,cast(s32)py-edge/2,edge,edge)
+        // The painted basket rim covers the arriving crop naturally.
+        Picture("harvest-basket",bx-23,height-81,46,46)
+    }
+}
+ActionAnimation :: () {
+    // Rapid actions keep every seed and crop effect, with one placing hand.
+    hand:=HandEffectIndex()
+    for i: cast(s32)0..31 { DrawEffect(effects[i],i==hand) }
+}
+SaleAnimation :: () {
+    if sale_amount<=0 { return }
+    elapsed:=retro.now-sale_start
+    if elapsed<0.0 || elapsed>=1.1 { return }
+    t:=cast(s32)(elapsed*1000.0)/11
+    sx:=width*3/4; sy:=height-32
+    stall_x:=width-32
+    if t<42 {
+        x:=sx+(stall_x-sx)*t/42
+        y:=sy+(25-sy)*t/42
+        Picture("harvest-basket",x-24,y-24,48,48)
+    } else {
+        for coin: cast(s32)0..4 {
+            progress: s32=(cast(s32)t-42)*100/58-coin*5
+            if progress<0 { continue }; if progress>100 { progress=100 }
+            x:=stall_x+(width/2-stall_x)*progress/100
+            y:=25+(height-100)*progress/100-45*4*progress*(100-progress)/10000
+            Dot(x,y,7,0xe8af36ff); Dot(x-1,y-1,4,0xffe58aff)
+        }
+        Label(Cat("+",NumberText(sale_amount)),width/2-45,height-116,90,28,22)
+    }
+}
+
+// Four picture buttons: the seed bag to drag seeds from (a tap opens it),
+// the watering can, the basket and the helpers.
+Toolbar :: () {
+    y := height-82; cell := (width-24)/4
+    labels: [4]string = .[GardenText("Seeds","Samen","Semillas"),GardenText("Water","Gießen","Regar"),GardenText("Pick","Ernten","Recoger"),GardenText("Helpers","Helfer","Ayudas")]
+    arts: [4]string = .["seed-pouch","watering-can","harvest-basket","compost-bag"]
+    for i: cast(s32)0..3 {
+        x:=12+i*cell
+        // The bag is a drag surface, so a press on it reaches the page's
+        // pointer in every renderer and a seed can leave it.
+        hit := RetroTap(400+i,x,y,cell-4,74,labels[i],i==0)
+        lit := (i==1 || i==2) && i==tool
+        BookBox(x,y,cell-4,74,ifx lit || (hit.down && i>0) || (i==0 && press==1 && drag_kind==0) then cast(u32)0xdbead7ef else cast(u32)0xfff6e6e8,0xbda77bff,14.0)
+        art: s32=ifx lit then 66 else 58
+        Picture(arts[i],x+cell/2-2-art/2,y+37-art/2,art,art)
+        if i==0 {
+            stock:=farm.seeds[farm.selected-1]
+            if stock>0 { SeedPicture(farm.selected,x+cell/2+16,y+52,30) }
+            BookBox(x+5,y+5,30,22,0xfffaf0e6,0,11.0)
+            Label(NumberText(stock),x+5,y+5,30,22,15)
+        }
+        if i>0 && hit.clicked {
+            if i<3 { tool=ifx tool==i then 0 else i }
+            else { CancelDrag(); panel=3 }
+        }
+    }
+}
+// Seeds are dragged from the bag onto the soil, picked up and moved while
+// they are still loose, and watered or harvested with a tap.
+Seeding :: () {
+    bx: s32=12; by: s32=height-82; bw: s32=(width-24)/4-4; bh: s32=74
+    if input.pointer.pressed && press==0 && drag_kind==0 {
+        press_x=mx; press_y=my; press=3
+        if mx>=bx && mx<bx+bw && my>=by && my<by+bh { press=1 }
+        else if my>44 && my<height-86 {
+            seed:=HitSeed(mx,my)
+            if seed>=0 { press=2; press_slot=seed }
+            else if tool>0 {
+                plant:=HitPlant(mx,my)
+                if plant>=0 { if tool==1 { WaterPlot(plant) } else { PickPlot(plant) } }
+            }
+        }
+    }
+    if press>0 && press<3 && drag_kind==0 && input.pointer.down {
+        dx:=mx-press_x; dy:=my-press_y
+        if dx*dx+dy*dy>=100 {
+            if press==1 && farm.seeds[farm.selected-1]>0 { drag_kind=farm.selected; drag_slot=-1 }
+            if press==2 {
+                p:=farm.plots[FarmIndex(active_garden,press_slot)]
+                if FarmLoose(p) { drag_kind=p.kind; drag_slot=press_slot }
+            }
+        }
+    }
+    if press>0 && !input.pointer.down {
+        if drag_kind>0 { DropSeed() }
+        else if press==1 { tool=0; panel=1 }
+        else if press==2 && tool==1 { WaterPlot(press_slot) }
+        CancelDrag()
+    }
+}
+FlyHome :: (kind: s32) { fly_kind=kind; fly_start=retro.now; fly_x=mx; fly_y=my }
+DropSeed :: () {
+    u:=(mx-soil_x)*10000/soil_w; v:=(my-soil_y)*10000/soil_h
+    if drag_slot>=0 {
+        if FarmMove(*farm,active_garden,drag_slot,u,v) { StartAnimation(1,farm.plots[FarmIndex(active_garden,drag_slot)]) }
+        else if FarmUnsow(*farm,active_garden,drag_slot) { FlyHome(drag_kind) }
+    } else {
+        slot:=FarmSow(*farm,active_garden,drag_kind,u,v)
+        if slot>=0 { StartAnimation(1,farm.plots[FarmIndex(active_garden,slot)]) } else { FlyHome(drag_kind) }
+    }
+    Changed()
+}
+// The seed in the hand, the soft spot it will land on, and a refused seed
+// flying home to the bag.
+HeldSeed :: () {
+    seed:=SeedEdge()
+    if fly_kind>0 {
+        t:=cast(s32)((retro.now-fly_start)*1000.0)*100/400
+        if t>=100 { fly_kind=0 }
+        else {
+            bx:=12+(width-24)/8; by:=height-45
+            SeedPicture(fly_kind,fly_x+(bx-fly_x)*t/100,fly_y+(by-fly_y)*t/100-30*4*t*(100-t)/10000,seed*(100-t/2)/100)
+        }
+    }
+    if drag_kind==0 { return }
+    u:=(mx-soil_x)*10000/soil_w; v:=(my-soil_y)*10000/soil_h
+    su: s32; sv: s32
+    if FarmSpot(farm,active_garden,u,v,drag_slot,*su,*sv) {
+        Dot(PlantX(su),PlantY(sv),seed/2,0xfff3c24a)
+        Dot(PlantX(su),PlantY(sv),seed/4,0x3a24183a)
+    }
+    SeedPicture(drag_kind,mx,my-seed/3,seed*3/2)
+}
+Play :: () {
+    SoilLayout(); Plants()
+    if panel==0 { Seeding() }
+    if Button(410,8,8,72,34,GardenText("Menu","Menü","Menú")) { CancelDrag(); panel=4; Changed() }
+    if Button(411,width-88,8,80,34,GardenText("Market","Markt","Mercado")) || retro.key==83 { CancelDrag(); panel=2 }
+    // Coins as a picture and a number, no words over the crops.
+    BookBox(width/2-48,8,96,34,0xfff6e6d9,0,14.0)
+    Dot(width/2-24,25,11,0xe8af36ff); Dot(width/2-25,24,7,0xffe58aff)
+    Label(NumberText(farm.coins),width/2-10,8,52,34,17)
+    if farm.sprinkler { Picture("sprinkler",width-66,height-157,56,56) }
+    if farm.compost { Picture("compost-bag",width-116,height-151,44,44) }
+    Toolbar(); ActionAnimation(); HeldSeed()
+}
+PanelTop :: (title: string) {
+    BookBox(0,0,width,height,0xf3efdfff)
+    Label(title,66,8,width-132,34,22)
+    if Button(600,8,8,50,34,GardenText("Back","Zurück","Atrás")) { panel=0 }
+}
+Seeds :: (shop: bool) {
+    PanelTop(ifx shop then GardenText("Seed market","Samenmarkt","Mercado de semillas") else GardenText("Your seeds","Deine Samen","Tus semillas"))
+    if shop { Picture("market-stall",width-62,0,60,48) }
+    gap: s32=8; cell: s32=(width-32)/3
+    row: s32=(height-180)/3
+    if row>150 { row=150 }
+    for kind: cast(s32)1..FARM_CROPS {
+        x:=8+(kind-1)%3*(cell+gap); y:=52+(kind-1)/3*(row+4)
+        hit := RetroTap(620+kind,x,y,cell,row,CropName(kind))
+        BookBox(x,y,cell,row,ifx farm.selected==kind then cast(u32)0xdcebd7ff else cast(u32)0xfff7e9ff,0xc0ad87ff,14.0)
+        wide:=cell>=180
+        edge:=ifx wide then row-12 else row-45
+        if edge>76 { edge=76 }; if edge<30 { edge=30 }
+        Picture(CropArt(kind),ifx wide then x+5 else x+cell/2-edge/2,y+2,edge,edge)
+        tx:=ifx wide then x+edge+10 else x+3
+        tw:=ifx wide then cell-edge-16 else cell-6
+        Label(CropName(kind),tx,ifx wide then y+8 else y+row-43,tw,22,17)
+        counts_x:=ifx wide then tx else x+3
+        counts_w:=ifx wide then tw else cell-6
+        Picture(SeedArt(kind),counts_x,y+row-24,22,22)
+        Label(NumberText(farm.seeds[kind-1]),counts_x+23,y+row-23,counts_w/2-23,21,16)
+        Picture("harvest-basket",counts_x+counts_w/2,y+row-24,22,22)
+        Label(NumberText(farm.produce[kind-1]),counts_x+counts_w/2+23,y+row-23,counts_w/2-23,21,16)
+        if hit.clicked || retro.key==48+kind {
+            farm.selected=kind; tool=0; Changed()
+            if !shop { panel=0 }
+        }
+    }
+    if shop {
+        Label(Cat(GardenText("Coins ","Münzen ","Monedas "),NumberText(farm.coins)," · ",CropName(farm.selected)," · ",NumberText(FarmDuration(farm.selected,farm.compost)/1000)," s · ",GardenText("sell ","Verkauf ","venta "),NumberText(FarmPrice(farm.selected)*3)),8,height-87,width-16,24,15)
+        if Button(650,8,height-55,(width-24)/2,44,Cat(GardenText("Buy seed · ","Samen kaufen · ","Comprar semilla · "),NumberText(FarmPrice(farm.selected)))) {
+            if FarmBuy(*farm,farm.selected) { Changed(); tool=0 }
+        }
+        if Button(651,16+(width-24)/2,height-55,(width-24)/2,44,Cat(GardenText("Sell basket · ","Korb verkaufen · ","Vender cesta · "),NumberText(FarmBasket(farm)))) {
+            before:=farm.coins
+            if FarmTrade(*farm) { sale_amount=farm.coins-before; sale_start=retro.now; Changed() }
+        }
+        SaleAnimation()
+    }
+}
+Helpers :: () {
+    PanelTop(GardenText("Garden helpers","Gartenhelfer","Ayudas del jardín"))
+    w: s32=(width-36)/2; y: s32=height/2-125
+    for which: cast(s32)0..1 {
+        x:=12+which*(w+12)
+        BookBox(x,y,w,245,0xfff7e8ff,0xc4ae83ff,18.0)
+        Picture(ifx which==0 then "compost-bag" else "sprinkler",x+w/2-48,y+8,96,96)
+        Label(ifx which==0 then GardenText("Rich soil","Gute Erde","Tierra fértil") else GardenText("Water helper","Wasserhelfer","Ayuda de riego"),x+4,y+108,w-8,26,18)
+        Label(ifx which==0 then GardenText("25% less growing time","25 % weniger Zeit","25 % menos tiempo") else GardenText("Waters all four gardens","Gießt alle vier Gärten","Riega los cuatro jardines"),x+5,y+140,w-10,25,15)
+        installed:=ifx which==0 then farm.compost else farm.sprinkler
+        if Button(670+which,x+8,y+183,w-16,48,ifx installed then GardenText("Installed ✓","Eingebaut ✓","Instalada ✓") else Cat(GardenText("Buy · ","Kaufen · ","Comprar · "),NumberText(ifx which==0 then 60 else 90)),installed) {
+            if FarmUpgrade(*farm,which) { Changed() }
+        }
+    }
+    Label(Cat(GardenText("Coins: ","Münzen: ","Monedas: "),NumberText(farm.coins)),8,height-48,width-16,34,18)
+}
+Menu :: () {
+    PanelTop(GardenText("Your garden is resting","Dein Garten ruht sich aus","Tu jardín está descansando"))
+    texts: [5]string = .[GardenText("Continue growing","Weitergärtnern","Seguir cultivando"),GardenText("Market","Markt","Mercado"),GardenText("Garden helpers","Gartenhelfer","Ayudas del jardín"),GardenText("Sky view · four gardens","Himmelblick · vier Gärten","Vista del cielo · cuatro jardines"),GardenText("Save and return to Campus","Speichern und zum Campus","Guardar y volver al Campus")]
+    row: s32=(height-(ifx save_failed then 115 else 70))/5
+    if row>62 { row=62 }
+    for i: cast(s32)0..4 {
+        if Button(700+i,width/2-150,54+i*row,300,row-7,texts[i]) {
+            if i==0 { panel=0 }
+            if i==1 { panel=2 }
+            if i==2 { panel=3 }
+            if i==3 { Sky() }
+            if i==4 && Save(true) { GameHome() }
+        }
+    }
+}
+// The chosen tool is the cursor everywhere in an open garden, until another
+// tool is chosen; otherwise the request is withdrawn and Jungle's hand shows.
+Hand :: () {
+    in_garden:=loaded && !save_blocked && active_garden>=0 && panel==0
+    if in_garden && tool==1 {
+        unused CursorSet(retro.session,CursorProps.{.asset_path="assets/garden/play/cursor-watering-can.webp",.width=32,.height=32,.hotspot_x=2,.hotspot_y=14})
+    } else if in_garden && tool==2 {
+        unused CursorSet(retro.session,CursorProps.{.asset_path="assets/garden/play/cursor-harvest-basket.webp",.width=32,.height=32,.hotspot_x=16,.hotspot_y=16})
+    } else {
+        unused CursorSet(retro.session,.{})
+    }
+}
+GameMain :: () -> s32 {
+    mode:=AppMode()
+    if mode==APP_IDENTIFY {
+        loaded=false; save_blocked=false; save_failed=false; last_good=""; active_garden=-1; panel=0; tool=0
+        last_tick=0; last_save=0; effect_next=0; sale_amount=0; fly_kind=0; CancelDrag()
+        for i: cast(s32)0..31 { effects[i]=FarmEffect.{} }
+        for i: cast(s32)0..3 { visitors[i]=FarmVisitor.{.wait=20000,.target=-1} }
+        AppIdentity("jungle.garden"); AppDescribe("Farm",""); return APP_PROTOCOL
+    }
+    if mode==APP_SAVE { return ifx !loaded || save_blocked || Save(true) then 0 else 1 }
+    if mode!=APP_FRAME { return 0 }
+    GameLanguage(); View(active_garden<0)
+    bounds:=AppBounds()
+    if bounds.width<=0 || bounds.height<=0 { return 0 }
+    scale: float32=(ifx bounds.width<bounds.height then bounds.width else bounds.height)/400.0
+    if scale>1.8 { scale=1.8 }
+    retro=Retro.{.session=AppSession(),.x=bounds.x,.y=bounds.y,.scale=scale,.now=AppNow(),.key=AppKey()}
+    input=CaptureFrameInput(retro.session)
+    mx=cast(s32)((input.pointer.x-retro.x)/scale); my=cast(s32)((input.pointer.y-retro.y)/scale)
+    BookPalette(); width=cast(s32)(bounds.width/scale); height=cast(s32)(bounds.height/scale); portrait=width<height
+    BookBox(0,0,width,height,0xf3efdfff)
+    if !loaded && DocumentStorageReady() { Load() }
+    if !loaded {
+        if retro.key==KEY_ESCAPE { GameHome() }
+        Label(GardenText("Opening your gardens…","Deine Gärten werden geöffnet…","Abriendo tus jardines…"),10,height/2-30,width-20,60); Hand(); return 0
+    }
+    if retro.key==KEY_ESCAPE {
+        CancelDrag()
+        if panel!=0 { panel=0 }
+        else if active_garden>=0 { Sky() }
+        else { unused Save(true); GameHome() }
+        last_tick=retro.now; return 0
+    }
+    if save_blocked {
+        Label(GardenText("Your saved garden is safe. Please try again later.","Dein gespeicherter Garten ist sicher. Bitte versuche es später erneut.","Tu jardín guardado está a salvo. Vuelve a intentarlo más tarde."),12,height/2-40,width-24,80)
+        if Button(780,width/2-110,height/2+65,220,44,Tr("Campus")) { GameHome() }
+        Hand(); return 0
+    }
+    if active_garden>=0 && panel==0 {
+        if retro.key==80 { tool=0 }; if retro.key==87 { tool=1 }; if retro.key==72 { tool=2 }
+        if retro.key==73 { CancelDrag(); panel=1 }
+        if retro.key>=49 && retro.key<=57 { farm.selected=retro.key-48; tool=0; Changed() }
+    }
+    dt:=cast(s32)((retro.now-last_tick)*1000.0); last_tick=retro.now
+    paused:=panel==4
+    if active_garden>=0 && !paused && dt>0 && dt<=1000 && (!input.available || input.focused) {
+        // A seed in the hand, or under a resting finger, is being touched.
+        held:=ifx drag_slot>=0 then FarmIndex(active_garden,drag_slot) else ifx press==2 then FarmIndex(active_garden,press_slot) else -1
+        FarmTick(*farm,dt,held)
+        if FarmVisitorTick(*farm,*visitors[active_garden],active_garden,dt) { Changed() }
+    }
+    if retro.now-last_save>=5.0 { unused Save(); last_save=retro.now }
+    if active_garden<0 { Chooser() }
+    else if panel==1 || panel==2 { Seeds(panel==2) }
+    else if panel==3 { Helpers() }
+    else if panel==4 { Menu() }
+    else { Play() }
+    // The only words that can appear: a failed save, so the garden is kept open.
+    if save_failed {
+        y:=ifx panel==4 then height-42 else ifx panel==1 || panel==2 then height-119 else ifx panel>0 then height-87 else 50
+        BookBox(8,y,width-16,28,0xfff8e8ef,0,10.0)
+        Label(GardenText("Could not save. Please keep the garden open.","Speichern fehlgeschlagen. Bitte den Garten offen lassen.","No se pudo guardar. Mantén el jardín abierto."),12,y,width-24,28,15)
+    }
+    Hand(); return 0
 }
 #if !#defined(PLATFORM_WEB) {
     #program_export

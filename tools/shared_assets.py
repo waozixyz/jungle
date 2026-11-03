@@ -98,9 +98,14 @@ GAMES = {
                      'extra': {'assets/jungle-book/collect.wav': 'assets/jungle-book/collect.wav',
                                'assets/collectibles/drum.webp': 'assets/collectibles/drum.webp'}},
     # The hidden paper's chime and the colored sunflower it flies.
+    # The Farm chooser draws the title scene's own Campus arrow sign.
     'jungle-garden': {'folders': ('assets/garden',),
                       'extra': {'assets/jungle-book/collect.wav': 'assets/jungle-book/collect.wav',
-                                'assets/collectibles/sunflower.webp': 'assets/collectibles/sunflower.webp'}},
+                                'assets/collectibles/sunflower.webp': 'assets/collectibles/sunflower.webp',
+                                'assets/garden/play/campus-arrow.webp': 'assets/jungle/title/objects/wood-arrow-right.webp',
+                                'assets/garden/play/campus-arrow-glow.webp': 'assets/jungle/title/objects/wood-arrow-right-glow.webp',
+                                'assets/garden/play/market-arrow.webp': 'assets/jungle/title/objects/wood-arrow-left.webp',
+                                'assets/garden/play/market-arrow-glow.webp': 'assets/jungle/title/objects/wood-arrow-left-glow.webp'}},
     'jungle-fishing': {'folders': ('assets/fishing',), 'skip': ('assets/fishing/previews/',)},
     'jungle-beach-families': {'folders': ('assets/beach_families',), 'skip': ('assets/beach_families/previews/',)},
 }
