@@ -320,5 +320,15 @@ install: all
 test: test-paint-picker-layout
 test-paint-picker-layout: build/tests/paint_picker_layout
 	build/tests/paint_picker_layout
+# One award per game, granted once, saved, migrated and shipped, then
+# celebrated once in the real app on a private display.
+test: test-awards
+test-ui: test-awards-ui
+.PHONY: test-awards test-awards-ui
+test-awards: build/tests/awards
+	build/tests/awards
+	python3 tests/awards_assets_test.py
+test-awards-ui: all
+	python3 tests/awards_smoke_test.py
 
 endif # native rules for default, local or mixed goals

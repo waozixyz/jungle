@@ -46,6 +46,8 @@
 #import, file "printing.zi";
 #import, file "jungle_collection.zi";
 #import "kryon/cursor"
+#import, file "jungle_awards.zi";
+#import, file "jungle_award_show.zi";
 
 #import, file "../retro/language.zi";
 #import, file "../games/piano/keyboard.zi";
@@ -270,6 +272,27 @@ HostCollectionService :: (service: string, request: string) -> string {
         if !saved { unused RemoveFile(next) }
     }
     return reply
+}
+
+// <data>/awards.txt, written whole beside the old file and renamed over it,
+// as the collection is. An unreadable or invalid file is never written over.
+awards_setting: string;
+
+HostAwardsSave :: () {
+    if awards_setting == "" || !awards_earned.valid { return }
+    next := Cat(awards_setting, ".new")
+    saved := WriteEntireFile(next, AwardsText(awards_earned)) && RenamePath(next, awards_setting)
+    if !saved { unused RemoveFile(next) }
+}
+
+// The first opening of game INDEX unlocks it: its award, a chime and the
+// celebration over the game's first moments.
+HostAwardUnlock :: (index: s32) {
+    award := AwardForBundle(games[index].bundle_name)
+    if !AwardGrant(*awards_earned, award) { return }
+    HostAwardsSave()
+    AwardShowBegin(*award_show, award)
+    SoundPlay(ifx SoundSamples(TITLE_PAPER_CHIME) != "" then TITLE_PAPER_CHIME else "assets/jungle/sounds/select.wav")
 }
 
 GameAllows :: (context: *void, name: string) -> bool {
@@ -540,6 +563,8 @@ GameFrame :: (bounds: Rectangle, pointer: PointerFrame, secondary: SecondaryPoin
     if bar.back { title_back_pending = true }
     if bar.speed_toggle { title_speed_pending = true }
     if bar.sound_toggle { ToggleSound() }
+    AwardShowFrame(app.session, bounds, GAME_BAR_HEIGHT, ifx bar.collection_shown then bar.collection else AwardCornerTarget(bounds),
+        !bar.collection_shown, seconds)
     return EndFrame(app.session) == FrameStatus.FrameOk
 }
 
@@ -612,7 +637,7 @@ Start :: (index: s32) {
     if playing { return }
     chosen = index
     SoundPlay("assets/jungle/sounds/start.wav")
-    unused OpenGame(index)
+    if OpenGame(index) { HostAwardUnlock(index) }
 }
 
 // Jungle's first version kept Jungle Math's levels in one progress file;
@@ -712,8 +737,17 @@ JungleOpen :: (checking: bool) -> bool {
     saved_collection, collection_found := ReadEntireFile(collection_setting)
     if collection_found { jungle_collection = CollectionParse(saved_collection) }
     else if !PathExists(collection_setting) { jungle_collection = CollectionParse("") }
+    awards_setting = Cat(base, "/awards.txt")
+    saved_awards, awards_found := ReadEntireFile(awards_setting)
+    if awards_found { awards_earned = AwardsParse(saved_awards) }
+    else if !PathExists(awards_setting) { awards_earned = AwardsParse("") }
     unused CreateDirectory(data_root)
     KeepMathLevels(base)
     KeepAnimalLevels()
+    // Games opened before awards existed have their folders: their awards
+    // come quietly, with no celebration.
+    opened: [AWARD_COUNT]bool
+    for index: cast(s32)0..AWARD_COUNT - 1 { opened[index] = PathExists(Cat(data_root, "/", award_apps[index])) }
+    if AwardsMigrate(*awards_earned, opened[:]) > 0 { HostAwardsSave() }
     return true
 }

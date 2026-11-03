@@ -97,6 +97,10 @@ TitleBarAction :: struct {
     sound_toggle: bool
     speed_toggle: bool
     collection_open: bool
+    // Where the Collection Book button is, when the bar shows it: an award
+    // flies into it.
+    collection: CollectRect
+    collection_shown: bool
 }
 
 // Back on the left, the game's name, and sound on or off on the right.
@@ -112,7 +116,12 @@ GameTitleBar :: (session: Session, bounds: Rectangle, key: s32, now: float64, ti
         .bounds = Rectangle.{bounds.x, bounds.y, bounds.width, cast(float32)GAME_BAR_HEIGHT},
         .height = GAME_BAR_HEIGHT, .title = Tr(ifx title == "Picture Book" && title_book_requested == "sweet-porridge" then "Stories" else title), .has_leading_action = true,
         .leading_label = Tr("Back"), .trailing_width = ifx collection_book_open then 60 else ifx abc then 205 else 110}, options[:])
-    if !collection_book_open && title != "Farm" { action.collection_open = CollectionBookButton(ifx abc then width - 200 else width - 106, 6) }
+    if !collection_book_open && title != "Farm" {
+        collection_x := ifx abc then width - 200 else width - 106
+        action.collection_open = CollectionBookButton(collection_x, 6)
+        action.collection = CollectRect.{.x = collection_x, .y = 6, .width = 44, .height = 44}
+        action.collection_shown = true
+    }
     action.back = bar.clicked_leading
     sound := RetroTap(9002, width - 56, 6, 44, 44, ifx sound_muted then "Sound off · F10" else "Sound on · F10")
     BookBox(width - 56, 6, 44, 44, ifx sound.down then cast(u32)0xdcebdcff else cast(u32)0xf3ecdcff, 0xdacdb5ff, 4.0)

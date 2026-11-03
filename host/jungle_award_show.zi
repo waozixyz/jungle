@@ -1,0 +1,87 @@
+// Draws award_show over a game, with no words: the badge pops up among
+// golden sparkles in the middle of the game, rests, then flies into the
+// Collection Book button, which glows once. The host plays its chime.
+#import "std/math"
+#import "kryon/session"
+#import "kryon/geometry"
+#import "kryon/image_props"
+#import "kryon/image_widget"
+#import, file "../retro/retro.zi";
+#import, file "../retro/paper_draw.zi";
+#import, file "../retro/collect_flight.zi";
+#import, file "jungle_awards.zi";
+
+// BOUNDS is the whole window, the game's area starts AREA_TOP below its top
+// and TARGET is the Collection Book button, all in window pixels from
+// BOUNDS' corner. FADE is for a screen without that button.
+AwardShowFrame :: (session: Session, bounds: Rectangle, area_top: s32, target: CollectRect, fade: bool, now: float64) {
+    if !award_show.active { return }
+    retro = Retro.{.session = session, .x = bounds.x, .y = bounds.y, .scale = 1.0, .now = now}
+    shown := RetroImageShown(award_pictures[award_show.index])
+    elapsed := AwardShowStep(*award_show, shown != "", now)
+    if elapsed < 0.0 { return }
+    width := cast(s32)bounds.width
+    height := cast(s32)bounds.height
+    area := height - area_top
+    place := AwardPlaceAt(width / 2, area_top + area / 2, AwardSize(width, area), target, elapsed, fade)
+    if place.glow > 0.0 { AwardGlow(target, place.glow) }
+    if place.alpha <= 0.0 { return }
+    rect := place.rect
+    cx := rect.x + rect.width / 2
+    cy := rect.y + rect.height / 2
+    if place.sparkle > 0.0 {
+        // A warm round halo behind the badge.
+        for ring: 0..2 {
+            side := cast(float32)rect.width * (1.5 - cast(float32)ring * 0.2)
+            SecretPaperBox(bounds.x + cast(float32)cx - side / 2.0, bounds.y + cast(float32)cy - side / 2.0, side, side,
+                0xfff4d6ff, place.alpha * place.sparkle * (0.14 + cast(float32)ring * 0.12), side / 2.0)
+        }
+    }
+    level := cast(u32)(255.0 * (ifx place.alpha > 1.0 then 1.0 else place.alpha))
+    Image(session, ImageProps.{.asset_path = shown, .bounds = RetroRect(rect.x, rect.y, rect.width, rect.height),
+        .fit = ImageFit.ImageFitContain, .smooth = true, .tint = ifx level >= 255 then cast(u32)0 else 0xffffff00 | level})
+    AwardSparkles(cx, cy, rect.width, place.sparkle * place.alpha, elapsed, place.flying)
+}
+
+// Golden dots around the badge: they burst out as it pops and twinkle while it
+// rests; flying, they trail close behind it and fade.
+AwardSparkles :: (cx: s32, cy: s32, size: s32, strength: float32, elapsed: float32, flying: bool) {
+    if strength <= 0.0 { return }
+    burst := elapsed / AWARD_POP_SECONDS
+    if burst > 1.0 { burst = 1.0 }
+    reach := cast(float32)size * (ifx flying then 0.62 else 0.45 + 0.3 * burst)
+    for at: 0..11 {
+        angle := cast(float64)at * 0.5235987756 + cast(float64)elapsed * 0.6
+        twinkle := 0.6 + 0.4 * cast(float32)Sin(cast(float64)elapsed * 7.0 + cast(float64)at * 1.7)
+        far := reach * (ifx at % 2 == 0 then 1.0 else 0.82)
+        dot := cast(float32)size * (ifx at % 3 == 0 then 0.07 else 0.045)
+        if dot < 3.0 { dot = 3.0 }
+        x := retro.x + cast(float32)cx + far * cast(float32)Cos(angle) - dot / 2.0
+        y := retro.y + cast(float32)cy + far * cast(float32)Sin(angle) - dot / 2.0
+        SecretPaperBox(x, y, dot, dot, ifx at % 3 == 0 then cast(u32)0xfff0b4ff else cast(u32)0xffffffff,
+            strength * twinkle, dot / 2.0)
+    }
+}
+
+// The Collection Book button's soft glow as the badge lands in it.
+AwardGlow :: (target: CollectRect, strength: float32) {
+    cx := retro.x + cast(float32)(target.x + target.width / 2)
+    cy := retro.y + cast(float32)(target.y + target.height / 2)
+    for ring: 0..2 {
+        side := cast(float32)target.width * (2.0 - cast(float32)ring * 0.35)
+        SecretPaperBox(cx - side / 2.0, cy - side / 2.0, side, side, 0xfff0b4ff,
+            strength * (0.18 + cast(float32)ring * 0.14), side / 2.0)
+    }
+}
+
+// Where an award goes on a screen without the Collection Book button: the
+// top right corner, fading as it arrives.
+AwardCornerTarget :: (bounds: Rectangle) -> CollectRect {
+    return CollectRect.{.x = cast(s32)bounds.width - 56, .y = 6, .width = 44, .height = 44}
+}
+
+// Starts loading award INDEX's picture where pictures load on demand (web),
+// so a new game's celebration is ready when the game begins.
+AwardPictureWarm :: (index: s32) {
+    if index >= 0 && index < AWARD_COUNT { unused RetroImageShown(award_pictures[index]) }
+}

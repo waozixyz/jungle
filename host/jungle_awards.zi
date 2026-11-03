@@ -1,0 +1,268 @@
+// Jungle's awards: one painted badge for each game. Nothing in Jungle is
+// locked, so a game unlocks the first time a child opens it, and that opening
+// gives its award with a short wordless celebration. Awards are saved in
+// <data>/awards.txt (web: settings/awards.txt) and shown in the Collection Book.
+// Pure, so tests can check granting, saving, migration and the celebration path.
+#import "std/math"
+#import, file "../retro/collect_flight.zi";
+
+AWARD_COUNT :: 14
+AWARDS_HEADER :: "JUNGLE AWARDS 1\n"
+AWARDS_HEADER_LINE :: "JUNGLE AWARDS 1"
+AWARDS_TEXT_LIMIT :: 8192
+AWARD_SLUG_LIMIT :: 64
+
+// games/catalog.txt order, which is also the web host's game index.
+award_bundles: [14]string = .["jungle-book.zx", "jungle-abc.zx", "jungle-numbers.zx", "animal-count.zx",
+    "dino-paint.zx", "jungle-jigsaw.zx", "jungle-piano.zx", "jungle-shapes.zx", "jungle-matching.zx",
+    "jungle-hide-seek.zx", "jungle-drums.zx", "jungle-garden.zx", "jungle-fishing.zx", "jungle-beach-families.zx"];
+// Each game's own data folder (its app identity). A folder made by an earlier
+// version means the game was already opened, so its award comes quietly.
+award_apps: [14]string = .["jungle.book", "jungle.abc", "jungle.numbers", "jungle.animals",
+    "jungle.paint", "jungle.jigsaw", "jungle.piano", "jungle.shapes", "jungle.matching",
+    "jungle.hide_seek", "jungle.drums", "jungle.garden", "jungle.fishing", "jungle.beach_families"];
+award_slugs: [14]string = .["award-picture-book", "award-abc", "award-123", "award-counting",
+    "award-coloring", "award-jigsaw", "award-piano", "award-shapes", "award-matching",
+    "award-hide-seek", "award-music", "award-farm", "award-fishing", "award-beach"];
+award_pictures: [14]string = .["assets/jungle/awards/picture-book.webp", "assets/jungle/awards/abc.webp",
+    "assets/jungle/awards/123.webp", "assets/jungle/awards/counting.webp", "assets/jungle/awards/coloring.webp",
+    "assets/jungle/awards/jigsaw.webp", "assets/jungle/awards/piano.webp", "assets/jungle/awards/shapes.webp",
+    "assets/jungle/awards/matching.webp", "assets/jungle/awards/hide-seek.webp", "assets/jungle/awards/music.webp",
+    "assets/jungle/awards/farm.webp", "assets/jungle/awards/fishing.webp", "assets/jungle/awards/beach.webp"];
+
+// A missing or empty file parses as no awards, valid. A bad header or line
+// parses as no awards with valid = false: such a file is never written over.
+// Slugs a newer version added are kept, in order, after the known ones.
+Awards :: struct {
+    earned: [AWARD_COUNT]bool
+    later: string
+    valid: bool
+}
+
+AwardForBundle :: (bundle: string) -> s32 {
+    for index: cast(s32)0..AWARD_COUNT - 1 {
+        if award_bundles[index] == bundle { return index }
+    }
+    return -1
+}
+
+AwardBySlug :: (slug: string) -> s32 {
+    for index: cast(s32)0..AWARD_COUNT - 1 {
+        if award_slugs[index] == slug { return index }
+    }
+    return -1
+}
+
+AwardSlugValid :: (slug: string) -> bool {
+    if slug.count < 1 || slug.count > AWARD_SLUG_LIMIT { return false }
+    for at: cast(s64)0..slug.count - 1 {
+        letter := slug[at]
+        if (letter >= #char "a" && letter <= #char "z") || (letter >= #char "0" && letter <= #char "9") ||
+            (at > 0 && at + 1 < slug.count && letter == #char "-") { continue }
+        return false
+    }
+    return true
+}
+
+AwardLineHas :: (lines: string, slug: string) -> bool {
+    at: s64 = 0
+    while at < lines.count {
+        end := at
+        while end < lines.count && lines[end] != cast(u8)10 { end += 1 }
+        if lines[at:end] == slug { return true }
+        at = end + 1
+    }
+    return false
+}
+
+AwardsParse :: (text: string) -> Awards {
+    parsed: Awards
+    if text.count == 0 { parsed.valid = true; return parsed }
+    if text.count > AWARDS_TEXT_LIMIT || text.count < AWARDS_HEADER_LINE.count ||
+        text[:AWARDS_HEADER_LINE.count] != AWARDS_HEADER_LINE { return parsed }
+    at := AWARDS_HEADER_LINE.count
+    if at < text.count {
+        if text[at] == cast(u8)13 {
+            if at + 1 >= text.count || text[at + 1] != cast(u8)10 { return parsed }
+            at += 2
+        } else if text[at] == cast(u8)10 { at += 1 } else { return parsed }
+    }
+    earned: [AWARD_COUNT]bool
+    later_text: string
+    while at < text.count {
+        end := at
+        while end < text.count && text[end] != cast(u8)10 { end += 1 }
+        line := text[at:end]
+        if line.count > 0 && line[line.count - 1] == cast(u8)13 { line = line[:line.count - 1] }
+        at = end + 1
+        if line.count == 0 { continue }
+        if !AwardSlugValid(line) { return parsed }
+        index := AwardBySlug(line)
+        if index >= 0 { earned[index] = true }
+        else if !AwardLineHas(later_text, line) {
+            bytes: Vec(u8)
+            BuilderPrint(*bytes, "%", later_text)
+            BuilderPrint(*bytes, "%", line)
+            BuilderPrint(*bytes, "\n")
+            later_text = BuilderFinish(bytes)
+        }
+    }
+    parsed.earned = earned
+    parsed.later = later_text
+    parsed.valid = true
+    return parsed
+}
+
+// The canonical file: the header, earned awards in catalog order, then later slugs.
+AwardsText :: (awards: Awards) -> string {
+    bytes: Vec(u8)
+    BuilderPrint(*bytes, "%", AWARDS_HEADER)
+    for index: cast(s32)0..AWARD_COUNT - 1 {
+        if awards.earned[index] { BuilderPrint(*bytes, "%\n", award_slugs[index]) }
+    }
+    BuilderPrint(*bytes, "%", awards.later)
+    return BuilderFinish(bytes)
+}
+
+AwardsCount :: (awards: Awards) -> s32 {
+    count: s32 = 0
+    for index: cast(s32)0..AWARD_COUNT - 1 {
+        if awards.earned[index] { count += 1 }
+    }
+    return count
+}
+
+// Gives award INDEX: true only the first time, which is when to celebrate.
+AwardGrant :: (awards: *Awards, index: s32) -> bool {
+    if index < 0 || index >= AWARD_COUNT || awards.earned[index] { return false }
+    awards.earned[index] = true
+    return true
+}
+
+// Gives, without any celebration, the award of every game OPENED before (its
+// data folder exists). Returns how many were new, so the host saves once.
+AwardsMigrate :: (awards: *Awards, opened: []bool) -> s32 {
+    added: s32 = 0
+    for index: cast(s32)0..AWARD_COUNT - 1 {
+        if index < opened.count && opened[index] && AwardGrant(awards, index) { added += 1 }
+    }
+    return added
+}
+
+// The celebration: the badge pops up in the middle with sparkles and a chime,
+// rests a moment, then flies into the Collection Book button, which glows.
+AWARD_POP_SECONDS :: 0.45
+AWARD_REST_SECONDS :: 1.15
+AWARD_FLY_SECONDS :: 0.9
+AWARD_GLOW_SECONDS :: 0.45
+// The whole show: pop, rest, flight and glow.
+AWARD_SHOW_SECONDS :: 2.95
+// A web picture still loading after this long is skipped; the award is kept.
+AWARD_WAIT_SECONDS :: 6.0
+
+// One show at a time: a later award replaces it. The first frame that sees
+// the show marks SEEN and ASKED, so every host steps it with its own frame
+// clock; READY and STARTED are set by the first frame that can draw the badge.
+AwardShow :: struct {
+    active: bool
+    seen: bool
+    ready: bool
+    index: s32
+    asked: float64
+    started: float64
+}
+
+award_show: AwardShow;
+// The awards of this person, loaded by the host at start. The Collection Book
+// shows them; only a valid file is ever written over.
+awards_earned: Awards;
+
+AwardShowBegin :: (show: *AwardShow, index: s32) {
+    if index < 0 || index >= AWARD_COUNT { return }
+    show.active = true
+    show.seen = false
+    show.ready = false
+    show.index = index
+}
+
+// Advances SHOW at NOW. SHOWN is whether its badge can be drawn this frame.
+// Returns the seconds into the show, or -1 while it waits or is over.
+AwardShowStep :: (show: *AwardShow, shown: bool, now: float64) -> float32 {
+    if !show.active { return -1.0 }
+    if !show.seen { show.seen = true; show.asked = now }
+    if !show.ready {
+        if !shown {
+            if now - show.asked > AWARD_WAIT_SECONDS { show.active = false }
+            return -1.0
+        }
+        show.ready = true
+        show.started = now
+    }
+    elapsed := cast(float32)(now - show.started)
+    if elapsed >= AWARD_SHOW_SECONDS { show.active = false; return -1.0 }
+    return elapsed
+}
+
+// Where the badge is ELAPSED seconds into its show: SPARKLE (0..1) for its
+// twinkle and halo, ALPHA for its own fade and GLOW for the button's glow.
+AwardPlace :: struct {
+    rect: CollectRect
+    sparkle: float32
+    alpha: float32
+    glow: float32
+    flying: bool
+}
+
+AwardEaseBack :: (progress: float32) -> float32 {
+    at: float32 = ifx progress < 0.0 then 0.0 else ifx progress > 1.0 then 1.0 else progress
+    t := at - 1.0
+    return 1.0 + 2.7 * t * t * t + 1.7 * t * t
+}
+
+// CENTER is the middle of the game area, SIZE the badge's full size there and
+// TARGET the Collection Book button. FADE makes the badge fade as it arrives,
+// for a screen without the button.
+AwardPlaceAt :: (center_x: s32, center_y: s32, size: s32, target: CollectRect, elapsed: float32, fade: bool) -> AwardPlace {
+    place: AwardPlace
+    full := CollectRect.{.x = center_x - size / 2, .y = center_y - size / 2, .width = size, .height = size}
+    if elapsed < AWARD_POP_SECONDS {
+        scale := AwardEaseBack(elapsed / AWARD_POP_SECONDS)
+        if scale < 0.12 { scale = 0.12 }
+        side := cast(s32)(cast(float32)size * scale)
+        place.rect = CollectRect.{.x = center_x - side / 2, .y = center_y - side / 2, .width = side, .height = side}
+        place.sparkle = elapsed / AWARD_POP_SECONDS
+        place.alpha = 1.0
+        return place
+    }
+    rest := elapsed - AWARD_POP_SECONDS
+    if rest < AWARD_REST_SECONDS {
+        bob := cast(s32)(cast(float32)size * 0.025 * cast(float32)Sin(cast(float64)(rest * 6.283185307 / AWARD_REST_SECONDS)))
+        place.rect = CollectRect.{.x = full.x, .y = full.y - bob, .width = full.width, .height = full.height}
+        place.sparkle = 1.0
+        place.alpha = 1.0
+        return place
+    }
+    fly := rest - AWARD_REST_SECONDS
+    if fly < AWARD_FLY_SECONDS {
+        progress := fly / AWARD_FLY_SECONDS
+        place.rect = CollectFlight(full, target, progress)
+        place.sparkle = 1.0 - progress * progress
+        place.alpha = ifx fade then 1.0 - progress * progress else 1.0
+        place.flying = true
+        return place
+    }
+    glow := fly - AWARD_FLY_SECONDS
+    place.rect = target
+    place.alpha = 0.0
+    if glow < AWARD_GLOW_SECONDS && !fade { place.glow = 1.0 - glow / AWARD_GLOW_SECONDS }
+    return place
+}
+
+// The badge's size: about two fifths of the game area's shorter side.
+AwardSize :: (width: s32, height: s32) -> s32 {
+    short := ifx width < height then width else height
+    size := short * 2 / 5
+    if size < 96 { size = 96 }
+    if size > 320 { size = 320 }
+    return size
+}

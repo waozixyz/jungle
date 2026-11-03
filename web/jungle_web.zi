@@ -47,6 +47,9 @@ PianoKeys :: #import, file "../games/piano/keyboard.zi";
 #import, file "../host/jungle_collection.zi";
 #import, file "../host/jungle_cursor.zi";
 #import "kryon/cursor"
+#import, file "../host/jungle_awards.zi";
+#import, file "../host/jungle_award_show.zi";
+#import "app_files"
 
 // Painted navigation consumes titles; full descriptions, ages and icons remain
 // in games/catalog.txt for native catalog loading.
@@ -309,6 +312,11 @@ web_collection: Collection;
 // A title scene's paper: true only the first time its line art is collected.
 WebTitlePaperCollect :: (slug: string) -> bool { return WebCollectionService("jungle.collect", slug) == "new" }
 
+// The awards, in the settings/awards.txt document; see host/jungle_awards.zi.
+WebAwardsSave :: () {
+    if awards_earned.valid { unused Runner.DocumentWriteHost("settings/awards.txt", AwardsText(awards_earned)) }
+}
+
 WebCollectionService :: (service: string, request: string) -> string {
     reply, changed := CollectionService(*web_collection, service, request)
     if changed { unused Runner.DocumentWriteHost("settings/collection.txt", CollectionText(web_collection)) }
@@ -438,6 +446,12 @@ BeginGame :: (index: s32) {
     unused RunGame()
     Runner.canvas_app_mode = APP_FRAME
     PlayAudio("assets/jungle/sounds/start.wav", false)
+    // The web game index is the catalog's, as the award table's is.
+    if AwardGrant(*awards_earned, index) {
+        WebAwardsSave()
+        AwardShowBegin(*award_show, index)
+        PlayAudio(TITLE_PAPER_CHIME, false)
+    }
 }
 
 #program_export
@@ -459,11 +473,21 @@ JungleMain :: () -> s64 {
         web_title_guide_muted = Runner.DocumentReadHost("settings/guide-sound.txt") == "off"
         web_title_guide_seen = Runner.DocumentReadHost("settings/guide-seen.txt") == "yes"
         web_collection = CollectionParse(Runner.DocumentReadHost("settings/collection.txt"))
+        awards_earned = AwardsParse(Runner.DocumentReadHost("settings/awards.txt"))
+        // A game that saved before awards existed has its folder: its award
+        // comes quietly.
+        opened: [AWARD_COUNT]bool
+        for index: cast(s32)0..AWARD_COUNT - 1 {
+            opened[index] = PathExists(Cat(Runner.canvas_app_files.root, "/", award_apps[index]))
+        }
+        if AwardsMigrate(*awards_earned, opened[:]) > 0 { WebAwardsSave() }
         UpdateSiteLanguage()
         web_initialized = true
     }
     key := AppKey()
     if web_loading_game >= 0 {
+        // A new game's award picture loads with it, ready for its celebration.
+        if web_loading_game < AWARD_COUNT && !awards_earned.earned[web_loading_game] { AwardPictureWarm(web_loading_game) }
         status := WebActivityReady(web_loading_game)
         if status == -1 {
             web_loading_game = -1
@@ -542,6 +566,8 @@ JungleMain :: () -> s64 {
         if bar.back { web_back_pending = true }
         if bar.speed_toggle { web_speed_pending = true }
         if bar.sound_toggle { ToggleAudio() }
+        AwardShowFrame(AppSession(), full_bounds, GAME_BAR_HEIGHT,
+            ifx bar.collection_shown then bar.collection else AwardCornerTarget(full_bounds), !bar.collection_shown, AppNow())
         if web_home {
             Runner.canvas_app_mode = APP_SAVE
             unused RunGame()

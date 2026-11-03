@@ -1,0 +1,221 @@
+{
+  "owner_request": "Each game we unlock should give us some award automatically.",
+  "generator": "Harmony generate_image (Codex built-in image generation); original Jungle watercolor",
+  "style_reference": "local/art-development/title-covers.png",
+  "method": "one shared empty badge and one transparent emblem per game, each generated alone; tools/award_art.py centers the emblem in the badge circle and exports exact lossless WebP",
+  "badge_master": "local/art-development/awards/badge.png",
+  "badge_sha256": "88b1cd341eaa5dffcc05ce0c704506827c96828c37aa0cef424be16e0be91b3b",
+  "prompts": "local/art-development/awards/prompts.json",
+  "awards": [
+    {
+      "game": "jungle-book.zx",
+      "award": "award-picture-book",
+      "emblem": "An open picture book with a leaf bookmark",
+      "emblem_master": "local/art-development/awards/emblems/picture-book.png",
+      "emblem_sha256": "68a1b339f13961f1ce950d500472dcd75e8e976f299152026e5207ac2bb998fd",
+      "master": "local/art-development/awards/composed/picture-book.png",
+      "master_sha256": "85776e0499794f7963335ef2536619fcb817f263ab31708742b14139684224c4",
+      "runtime": "assets/jungle/awards/picture-book.webp",
+      "sha256": "546123de98a0662f2eacfb1634ed4eebad04f0676b90c5aea5fe8b6a061e773b",
+      "size": [
+        384,
+        384
+      ]
+    },
+    {
+      "game": "jungle-abc.zx",
+      "award": "award-abc",
+      "emblem": "A wooden letter A block",
+      "emblem_master": "local/art-development/awards/emblems/abc.png",
+      "emblem_sha256": "4107348e2190cdf30d05257d36caada55cb8ecf53c181fa462df0c34c4d9ac91",
+      "master": "local/art-development/awards/composed/abc.png",
+      "master_sha256": "0d26b4f61be039a34f68935e50a841e2522f090e3425e5d6728c57214c0c5386",
+      "runtime": "assets/jungle/awards/abc.webp",
+      "sha256": "be5056cf89479050dae898c4cd683a73623386a2bb3afedf2571710c16c21f85",
+      "size": [
+        384,
+        384
+      ]
+    },
+    {
+      "game": "jungle-numbers.zx",
+      "award": "award-123",
+      "emblem": "Wooden 1 2 3 blocks",
+      "emblem_master": "local/art-development/awards/emblems/123.png",
+      "emblem_sha256": "0184be78e629f077a7c40eae6c4462a34b346dbca08105ef6abbf3ecd3b3ea08",
+      "master": "local/art-development/awards/composed/123.png",
+      "master_sha256": "243a9a237b66606d148dfc3476e86e5578c62e9f702416f17cf410f01887be74",
+      "runtime": "assets/jungle/awards/123.webp",
+      "sha256": "fee2604776b7d9a8362e32795d5fa9e2c0c9fa17e91b17fab6d8b17c7a28b2c4",
+      "size": [
+        384,
+        384
+      ]
+    },
+    {
+      "game": "animal-count.zx",
+      "award": "award-counting",
+      "emblem": "A wooden abacus",
+      "emblem_master": "local/art-development/awards/emblems/counting.png",
+      "emblem_sha256": "79a239270b04cd11baf694181329d4ece616632f71bb6c5c709378829a63f09e",
+      "master": "local/art-development/awards/composed/counting.png",
+      "master_sha256": "d8c76a23211c9817755d44135d8c5271e76f936bd636d8464461a3259cd806d0",
+      "runtime": "assets/jungle/awards/counting.webp",
+      "sha256": "339a651764012be59d4c3cbfdb9377f415b67fe590eac113bede144d1d915685",
+      "size": [
+        384,
+        384
+      ]
+    },
+    {
+      "game": "dino-paint.zx",
+      "award": "award-coloring",
+      "emblem": "A paint palette and brush",
+      "emblem_master": "local/art-development/awards/emblems/coloring.png",
+      "emblem_sha256": "cc9eb94f653c4edaf69473912b3961a3835605d4b208336f8789a8f224849df0",
+      "master": "local/art-development/awards/composed/coloring.png",
+      "master_sha256": "6b9d6dde44c7156fdc80309029ce50319dd9816f9bc9828fa8551e52f6d246f4",
+      "runtime": "assets/jungle/awards/coloring.webp",
+      "sha256": "7c1692b19783a23503318440fc0229408fb6057b4a717324d1e8f50e6fcceee9",
+      "size": [
+        384,
+        384
+      ]
+    },
+    {
+      "game": "jungle-jigsaw.zx",
+      "award": "award-jigsaw",
+      "emblem": "A green puzzle piece",
+      "emblem_master": "local/art-development/awards/emblems/jigsaw.png",
+      "emblem_sha256": "0b5c3c7945743278978f68f17be37c2e8586b2de4f268761aa93d87bb4fcbe57",
+      "master": "local/art-development/awards/composed/jigsaw.png",
+      "master_sha256": "2c8ac8681241c493dfaed04400f3a9a8fb29ed5b58dcfa1c8944a1135c9722c6",
+      "runtime": "assets/jungle/awards/jigsaw.webp",
+      "sha256": "ec1481f85834b644fdb5de48621242f29b809335506139e614407eea05a911d9",
+      "size": [
+        384,
+        384
+      ]
+    },
+    {
+      "game": "jungle-piano.zx",
+      "award": "award-piano",
+      "emblem": "A toy piano and a music note",
+      "emblem_master": "local/art-development/awards/emblems/piano.png",
+      "emblem_sha256": "a183e757d5584da75a26d0f4371a90181147aa4fbe3a3d2a0650d8cd1bfebd65",
+      "master": "local/art-development/awards/composed/piano.png",
+      "master_sha256": "15798275ff5179d3ff32fbd338ddf186466a726959112623052e098374e010f3",
+      "runtime": "assets/jungle/awards/piano.webp",
+      "sha256": "0b3d3544698a0cafeb3103506cc6211c31e98dbce340fb05b1c869d9e7bf49fe",
+      "size": [
+        384,
+        384
+      ]
+    },
+    {
+      "game": "jungle-shapes.zx",
+      "award": "award-shapes",
+      "emblem": "A circle, square and triangle",
+      "emblem_master": "local/art-development/awards/emblems/shapes.png",
+      "emblem_sha256": "f39aba450ea98851fd6bd5abf4b3f242be2dfd3502c0848d05145ae179ee3a7b",
+      "master": "local/art-development/awards/composed/shapes.png",
+      "master_sha256": "a4ddeaaff104a692408fccf1b6c7175cf8762dedb8abc8b12d7bcaf3c4c92b83",
+      "runtime": "assets/jungle/awards/shapes.webp",
+      "sha256": "81fd369fd49eeab7bd15f9de385ade037b265159f4b9f2612014a56b6210e006",
+      "size": [
+        384,
+        384
+      ]
+    },
+    {
+      "game": "jungle-matching.zx",
+      "award": "award-matching",
+      "emblem": "Two matching butterfly cards",
+      "emblem_master": "local/art-development/awards/emblems/matching.png",
+      "emblem_sha256": "27af29483dc0511a3d8fd09c2098f81e0010f7b1dc73965a67748b33614fdd7b",
+      "master": "local/art-development/awards/composed/matching.png",
+      "master_sha256": "190e3f2355be0028691fd92ea568d6782b9d5f4bbfa61ce394c631195c7214b7",
+      "runtime": "assets/jungle/awards/matching.webp",
+      "sha256": "72b24983731d59d19657491dcaa7859863acd8e9f938577ffddb482825a2908f",
+      "size": [
+        384,
+        384
+      ]
+    },
+    {
+      "game": "jungle-hide-seek.zx",
+      "award": "award-hide-seek",
+      "emblem": "A bunny peeking from a bush",
+      "emblem_master": "local/art-development/awards/emblems/hide-seek.png",
+      "emblem_sha256": "a88c64d2da7f194920bee3b029bb486a9a7f097135b3d738c77062c814f7a443",
+      "master": "local/art-development/awards/composed/hide-seek.png",
+      "master_sha256": "4910e804341dc3fcd1667abc77d1a2b5b0b027c871d1d27fbc72347411c93efa",
+      "runtime": "assets/jungle/awards/hide-seek.webp",
+      "sha256": "22967b56c41f8539eac6631208988e694ec5d2c271b915104ff04dc7763be2f0",
+      "size": [
+        384,
+        384
+      ]
+    },
+    {
+      "game": "jungle-drums.zx",
+      "award": "award-music",
+      "emblem": "Two maracas",
+      "emblem_master": "local/art-development/awards/emblems/music.png",
+      "emblem_sha256": "da8db60e8dbd94a2a4dab7b944d7b43b8ba9a95b6b8a52c4464b02d27f1c9cd1",
+      "master": "local/art-development/awards/composed/music.png",
+      "master_sha256": "46fa4dd51c2c5b154a9d87aa30f6b24932686769c14c6cf397c16040600504ab",
+      "runtime": "assets/jungle/awards/music.webp",
+      "sha256": "77026efeffb2b6618014950eb9118f604a62136e73925eab87110185b7c0aff8",
+      "size": [
+        384,
+        384
+      ]
+    },
+    {
+      "game": "jungle-garden.zx",
+      "award": "award-farm",
+      "emblem": "A watering can and a seedling",
+      "emblem_master": "local/art-development/awards/emblems/farm.png",
+      "emblem_sha256": "48f485bc5511fa3baef0ff2dae56cc3df8884a089b764b546f3d7b7757ff9327",
+      "master": "local/art-development/awards/composed/farm.png",
+      "master_sha256": "4d60bf32dd33a6603513bc5f15ba3d642ed5f387c14e296cf1a5346955373807",
+      "runtime": "assets/jungle/awards/farm.webp",
+      "sha256": "ea39c55513496563785d61afdd5fa12512d6c84abb868e923b5fdb027752fffd",
+      "size": [
+        384,
+        384
+      ]
+    },
+    {
+      "game": "jungle-fishing.zx",
+      "award": "award-fishing",
+      "emblem": "A little sailboat",
+      "emblem_master": "local/art-development/awards/emblems/fishing.png",
+      "emblem_sha256": "9b604be8890f1501fe2159560ec58a7aa5b946bda27e3e55ec61a7381ffe0a10",
+      "master": "local/art-development/awards/composed/fishing.png",
+      "master_sha256": "62f7b158d98d6fb4993476c046eb60faccf3487e178fb1bed27391815762d67e",
+      "runtime": "assets/jungle/awards/fishing.webp",
+      "sha256": "ad57a08015928bf1459e17960529d3b0718276221034d34e1be117dbc1fbe83d",
+      "size": [
+        384,
+        384
+      ]
+    },
+    {
+      "game": "jungle-beach-families.zx",
+      "award": "award-beach",
+      "emblem": "A seashell and a starfish",
+      "emblem_master": "local/art-development/awards/emblems/beach.png",
+      "emblem_sha256": "878c613d04cab78d81591230fcb1e5668629be8e36d71a34118903211ba02d08",
+      "master": "local/art-development/awards/composed/beach.png",
+      "master_sha256": "dea1e16994a72728160bc00c24566cee64ba5402980c709d3523ff4c995b524b",
+      "runtime": "assets/jungle/awards/beach.webp",
+      "sha256": "b9a43d977da58a80fde12479716c91f3ef55c30d65a83da04cda3c4323059232",
+      "size": [
+        384,
+        384
+      ]
+    }
+  ]
+}

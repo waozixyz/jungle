@@ -1,0 +1,100 @@
+#import, file "../host/jungle_awards.zi";
+#import, file "../retro/collect_flight.zi";
+#import "std/stdio_linux"
+
+catalog_bundles: [14]string = .["jungle-book.zx", "jungle-abc.zx", "jungle-numbers.zx", "animal-count.zx",
+    "dino-paint.zx", "jungle-jigsaw.zx", "jungle-piano.zx", "jungle-shapes.zx", "jungle-matching.zx",
+    "jungle-hide-seek.zx", "jungle-drums.zx", "jungle-garden.zx", "jungle-fishing.zx", "jungle-beach-families.zx"];
+
+#program_export
+main :: () -> s32 {
+    // One distinct award for every unlockable game, in catalog order.
+    if AWARD_COUNT != 14 || AWARD_SHOW_SECONDS != AWARD_POP_SECONDS + AWARD_REST_SECONDS + AWARD_FLY_SECONDS + AWARD_GLOW_SECONDS { return 1 }
+    for index: cast(s32)0..AWARD_COUNT - 1 {
+        if AwardForBundle(catalog_bundles[index]) != index || AwardBySlug(award_slugs[index]) != index { return 2 }
+        if !AwardSlugValid(award_slugs[index]) || award_apps[index].count < 8 || award_apps[index][:7] != "jungle." { return 3 }
+        for other: cast(s32)0..AWARD_COUNT - 1 {
+            if other != index && (award_slugs[other] == award_slugs[index] || award_pictures[other] == award_pictures[index] ||
+                award_apps[other] == award_apps[index]) { return 4 }
+        }
+    }
+    if AwardForBundle("jungle-math.zx") != -1 || AwardForBundle("") != -1 || AwardBySlug("monkey") != -1 { return 5 }
+
+    // Opening a game grants its award once: a second opening never celebrates again.
+    awards := AwardsParse("")
+    if !awards.valid || AwardsCount(awards) != 0 || AwardsText(awards) != "JUNGLE AWARDS 1\n" { return 6 }
+    farm := AwardForBundle("jungle-garden.zx")
+    if !AwardGrant(*awards, farm) || AwardGrant(*awards, farm) || AwardsCount(awards) != 1 { return 7 }
+    if AwardGrant(*awards, -1) || AwardGrant(*awards, AWARD_COUNT) || AwardsCount(awards) != 1 { return 8 }
+    if !AwardGrant(*awards, 0) || AwardsText(awards) != "JUNGLE AWARDS 1\naward-picture-book\naward-farm\n" { return 9 }
+
+    // Saved and read back unchanged; duplicates collapse to catalog order and
+    // slugs from a newer version are kept after the known ones.
+    again := AwardsParse(AwardsText(awards))
+    if !again.valid || AwardsText(again) != AwardsText(awards) || !again.earned[farm] || !again.earned[0] { return 10 }
+    mixed := AwardsParse("JUNGLE AWARDS 1\r\naward-farm\r\naward-later\naward-abc\naward-farm\naward-later\n\n")
+    if !mixed.valid || AwardsText(mixed) != "JUNGLE AWARDS 1\naward-abc\naward-farm\naward-later\n" { return 11 }
+    if AwardGrant(*mixed, AwardBySlug("award-abc")) || AwardsCount(mixed) != 2 { return 12 }
+    header := AwardsParse("JUNGLE AWARDS 1")
+    if !header.valid || AwardsCount(header) != 0 { return 13 }
+
+    // A damaged or foreign file is invalid, so the host never writes over it.
+    if AwardsParse("JUNGLE AWARDS 2\naward-abc\n").valid || AwardsParse("JUNGLE AWARDS 10\n").valid ||
+        AwardsParse("JUNGLE COLLECTION 1\nmonkey\n").valid || AwardsParse("JUNGLE AWARDS 1\nNot An Award\n").valid ||
+        AwardsParse("JUNGLE AWARDS 1\raward-abc\n").valid { return 14 }
+    broken := AwardsParse("JUNGLE AWARDS 1\naward-abc\n-bad\n")
+    if broken.valid || AwardsCount(broken) != 0 { return 15 }
+
+    // Saves from before awards: every game already opened gets its award
+    // quietly, once, and only those games.
+    old := AwardsParse("")
+    opened: [AWARD_COUNT]bool
+    opened[0] = true
+    opened[AwardForBundle("jungle-hide-seek.zx")] = true
+    opened[farm] = true
+    if AwardsMigrate(*old, opened[:]) != 3 || AwardsCount(old) != 3 { return 16 }
+    if AwardsMigrate(*old, opened[:]) != 0 || AwardsCount(old) != 3 { return 17 }
+    if AwardGrant(*old, farm) || AwardGrant(*old, 0) { return 18 }
+    if !AwardGrant(*old, AwardForBundle("jungle-piano.zx")) { return 19 }
+    // A shorter list only speaks for the games it covers.
+    few: [2]bool
+    few[1] = true
+    if AwardsMigrate(*old, few[:]) != 1 { return 20 }
+    kept := AwardsParse(AwardsText(old))
+    if AwardsText(kept) != "JUNGLE AWARDS 1\naward-picture-book\naward-abc\naward-piano\naward-hide-seek\naward-farm\n" { return 21 }
+
+    // The celebration waits for its picture, then pops, rests, flies and ends.
+    show: AwardShow
+    if AwardShowStep(*show, true, 1.0) != -1.0 { return 22 }
+    AwardShowBegin(*show, AWARD_COUNT)
+    if show.active { return 23 }
+    AwardShowBegin(*show, farm)
+    if AwardShowStep(*show, false, 10.0) != -1.0 || !show.active { return 24 }
+    if AwardShowStep(*show, true, 11.0) != 0.0 { return 25 }
+    if AwardShowStep(*show, true, 12.0) != 1.0 { return 26 }
+    if AwardShowStep(*show, true, 11.0 + AWARD_SHOW_SECONDS + 0.01) != -1.0 || show.active { return 27 }
+    AwardShowBegin(*show, 0)
+    if AwardShowStep(*show, false, 50.0) != -1.0 || AwardShowStep(*show, false, 50.0 + AWARD_WAIT_SECONDS + 0.1) != -1.0 ||
+        show.active { return 28 }
+
+    target := CollectRect.{.x = 700, .y = 6, .width = 44, .height = 44}
+    start := AwardPlaceAt(400, 300, 200, target, 0.0, false)
+    if start.rect.width >= 60 || start.rect.x + start.rect.width / 2 != 400 || start.flying { return 29 }
+    popped := AwardPlaceAt(400, 300, 200, target, AWARD_POP_SECONDS, false)
+    if popped.rect.width != 200 || popped.rect.x != 300 || popped.alpha != 1.0 || popped.sparkle != 1.0 { return 30 }
+    middle := AwardPlaceAt(400, 300, 200, target, AWARD_POP_SECONDS * 0.7, false)
+    if middle.rect.width <= 200 { return 31 }
+    landing: float32 = AWARD_POP_SECONDS + AWARD_REST_SECONDS + AWARD_FLY_SECONDS * 0.5
+    flying := AwardPlaceAt(400, 300, 200, target, landing, false)
+    if !flying.flying || flying.rect.width >= 200 || flying.rect.width <= 44 || flying.rect.x <= 300 { return 32 }
+    faded := AwardPlaceAt(400, 300, 200, target, landing, true)
+    if faded.alpha >= 1.0 || faded.alpha <= 0.0 { return 33 }
+    landed := AwardPlaceAt(400, 300, 200, target, cast(float32)(AWARD_POP_SECONDS + AWARD_REST_SECONDS + AWARD_FLY_SECONDS + 0.05), false)
+    if landed.alpha != 0.0 || landed.glow <= 0.0 || landed.rect.x != 700 { return 34 }
+    corner := AwardPlaceAt(400, 300, 200, target, cast(float32)(AWARD_POP_SECONDS + AWARD_REST_SECONDS + AWARD_FLY_SECONDS + 0.05), true)
+    if corner.glow != 0.0 { return 35 }
+    if AwardSize(1280, 664) != 265 || AwardSize(200, 150) != 96 || AwardSize(3000, 2000) != 320 { return 36 }
+
+    WriteOutput("local awards test passed\n")
+    return 0
+}

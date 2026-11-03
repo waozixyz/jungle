@@ -9,6 +9,7 @@
 #import, file "../retro/collectibles.zi";
 // Host-owned album: visiting it never unloads or reinitializes the active game.
 #import, file "jungle_collection.zi";
+#import, file "jungle_awards.zi";
 #import, file "jungle_text.zi";
 #import, file "../retro/book_theme.zi";
 AlbumIcon :: #import "mingcute/mingcute_regular_book_2";
@@ -58,9 +59,37 @@ CollectionBookButton :: (x: s32, y: s32, compact: bool = false) -> bool {
     return button.clicked
 }
 
+// The book's pages hold the awards first, then the collected pictures: album
+// index I below AWARD_COUNT is award I, after that collectible I - AWARD_COUNT.
+ALBUM_COUNT :: AWARD_COUNT + COLLECTIBLE_COUNT
+// A faint stand-in for what is still to find.
+ALBUM_MISSING_TINT :: 0xd4cfc560
+
 AlbumPicture :: (index: s32, x: s32, y: s32, width: s32, height: s32) {
-    path := ifx album_images[index] != "" then album_images[index] else AlbumPicturePath(index)
+    if index < AWARD_COUNT {
+        Image(retro.session, ImageProps.{.asset_path = RetroImageShown(award_pictures[index]),
+            .bounds = RetroRect(x, y, width, height), .fit = ImageFit.ImageFitContain, .smooth = true})
+        return
+    }
+    item := index - AWARD_COUNT
+    path := ifx album_images[item] != "" then album_images[item] else AlbumPicturePath(item)
     BookPicture(path, x, y, width, height)
+}
+
+AlbumHas :: (collection: Collection, index: s32) -> bool {
+    if index < AWARD_COUNT { return awards_earned.earned[index] }
+    return CollectionHas(collection, collectible_slugs[index - AWARD_COUNT])
+}
+
+AlbumMissing :: (index: s32) -> string {
+    if index < AWARD_COUNT { return award_pictures[index] }
+    item := index - AWARD_COUNT
+    return ifx album_outlines[item] != "" then album_outlines[item] else AlbumOutlinePath(item)
+}
+
+// Award cells answer taps 9200 + I, collected pictures 9100 + their own index.
+AlbumTapId :: (index: s32) -> s32 {
+    return ifx index < AWARD_COUNT then 9200 + index else 9100 + index - AWARD_COUNT
 }
 
 AlbumContent :: (collection: Collection, width: s32, height: s32) {
@@ -75,27 +104,26 @@ AlbumContent :: (collection: Collection, width: s32, height: s32) {
     rows := (height - 188) / 130
     if rows < 1 { rows = 1 }
     capacity := columns * rows
-    pages := (COLLECTIBLE_COUNT + capacity - 1) / capacity
+    pages := (ALBUM_COUNT + capacity - 1) / capacity
     if album_page >= pages { album_page = pages - 1 }
     cell_width := (width - 24) / columns
     cell_height := (height - 180) / rows
     if cell_height > 190 { cell_height = 190 }
     for slot: cast(s32)0..capacity - 1 {
         index := album_page * capacity + slot
-        if index >= COLLECTIBLE_COUNT { break }
+        if index >= ALBUM_COUNT { break }
         x := 12 + slot % columns * cell_width
         y := 130 + slot / columns * cell_height
-        has := CollectionHas(collection, collectible_slugs[index])
+        has := AlbumHas(collection, index)
         BookBox(x, y, cell_width - 8, cell_height - 8, ifx has then cast(u32)0xf3ecdcff else cast(u32)0xf4f2ebff, 0xdacdb5ff, 8.0)
         if has {
-            press := RetroTap(9100 + index, x, y, cell_width - 8, cell_height - 8, Tr("Collected picture"))
+            press := RetroTap(AlbumTapId(index), x, y, cell_width - 8, cell_height - 8, Tr("Collected picture"))
             AlbumPicture(index, x + 8, y + 8, cell_width - 24, cell_height - 24)
             if press.clicked { album_selected = index }
         } else {
-            path := ifx album_outlines[index] != "" then album_outlines[index] else AlbumOutlinePath(index)
-            Image(retro.session, ImageProps.{.asset_path = RetroImageShown(path),
+            Image(retro.session, ImageProps.{.asset_path = RetroImageShown(AlbumMissing(index)),
                 .bounds = RetroRect(x + 8, y + 8, cell_width - 24, cell_height - 24),
-                .fit = ImageFit.ImageFitContain, .smooth = true, .tint = 0xd4cfc560})
+                .fit = ImageFit.ImageFitContain, .smooth = true, .tint = ALBUM_MISSING_TINT})
         }
     }
     if album_page > 0 {

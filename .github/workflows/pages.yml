@@ -129,6 +129,9 @@ jobs:
           python3 tests/brand_metadata_test.py
           python3 tests/asset_packs_test.py
           python3 tests/android_editions_test.py
+          make -j2 build/tests/awards
+          build/tests/awards
+          python3 tests/awards_assets_test.py
           python3 tools/build_web.py
       - name: Preserve the browser build for diagnosis
         continue-on-error: true
