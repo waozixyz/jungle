@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- Prepare every activity’s pictures and selected-language narration before play, with a gentle progress screen, Back, retry and cached reopening.
+
 - Stories now includes Town Musicians of Bremen, with eleven landscape and portrait illustrations and English, German and Spanish narration.
 
 - Follow the connected sandy path left from Campus to the full-screen Farm scene, with a painted Campus return sign.

@@ -26,6 +26,7 @@ const fs=new Set(),started=[],deferred=new Map(),log=[];
 Module.FS={analyzePath:path=>({exists:fs.has(path)}),mkdirTree(){},writeFile(path){fs.add(path)}};
 function defer(key){let resolve,reject;const promise=new Promise((a,b)=>{resolve=a;reject=b});deferred.set(key,{resolve,reject});started.push(key);return promise}
 function assetBytes(path){return defer('full:'+path)}
+async function decodeImage(bytes){}
 let previewNames=new Set();
 function previews(){return Promise.resolve({manifest:{files:Object.fromEntries([...previewNames].map(name=>[name,{}]))},read:path=>defer('preview:'+path)})}
 const settle=async()=>{for(let at=0;at<20;at++)await Promise.resolve()};
@@ -96,6 +97,34 @@ const frame=(current,ahead)=>{for(const path of ahead)Module.jungleImageReady(pa
  deferred.get('full:'+page('k')).reject(Error('offline'));await settle();
  clock=1e6;frame(page('k'),[]);await settle();
  check('gives up after fullAttempts',fulls().length===fullAttempts&&!imagePaths.has(page('k')),fulls());
+ // The actual download adapter retries transient network failures and
+ // reports permanent offline failure after its bounded attempts.
+ const nativeFetch=window.fetch;let attempts=0;
+ window.fetch=async()=>{attempts++;if(attempts<3)throw TypeError('network down');return new Response(new Uint8Array([7]))};
+ check('network retry downloads before success',(await fetchResource('retry-fixture',r=>r.arrayBuffer())).byteLength===1&&attempts===3,attempts);
+ attempts=0;window.fetch=async()=>{attempts++;throw TypeError('offline')};
+ try{await fetchResource('offline-fixture',r=>r.arrayBuffer())}catch{}
+ check('offline failure is bounded',attempts===3,attempts);window.fetch=nativeFetch;
+ // A corrupt persistent pack must be evicted so Retry can get fresh bytes.
+ const bytes=new Uint8Array([1,2,3]),digest=await JungleAssetPacks.hash(bytes);
+ let corrupted=true,invalidated=false;
+ const packed=new JungleAssetPacks({format:1,packs:{'pack.zip':{size:3,sha256:digest}},files:{}},async()=>corrupted?new Uint8Array([0]):bytes,16,async()=>{invalidated=true});
+ try{await packed.pack('pack.zip')}catch{}
+ check('damaged cached pack invalidated',invalidated);
+ corrupted=false;check('damaged pack retry succeeds',(await packed.pack('pack.zip')).length===3);
+ // Progress is driven by completion, with retries, deduplication and Back.
+ const loads=[],states=[];let fail=true;
+ const loader=new JungleActivityLoader(async path=>{loads.push(path);if(path==='bad'&&fail)throw Error('offline')},s=>states.push([s.status,s.loaded,s.total]));
+ const definition=async()=>({files:['ok','bad','ok'],title:'Picture Book'});
+ check('activity is gated',loader.request('book',definition)==='loading');await settle();
+ check('failed preload offers retry',loader.state.status==='error'&&!loader.completed.has('book'),states);
+ check('failed file never advances progress',loader.state.loaded<loader.state.total,states);
+ fail=false;loader.retry();await settle();
+ check('retry completes all distinct files',loader.state.status==='ready'&&loader.state.loaded===2&&loader.state.total===2,states);
+ const before=loads.length;check('cached open ready immediately',loader.request('book',definition)==='ready'&&loads.length===before);
+ let release;const cancelled=new JungleActivityLoader(()=>new Promise(resolve=>release=resolve),()=>{});
+ cancelled.request('other',async()=>({files:['page']}));await settle();cancelled.back();release();await settle();
+ check('Back prevents late activity start',cancelled.state.status==='cancelled'&&!cancelled.completed.has('other'));
 })().catch(error=>log.push({name:'harness',ok:false,detail:String(error&&error.stack||error)}))
  .finally(()=>document.body.setAttribute('data-results',JSON.stringify(log)));
 </script>
@@ -105,7 +134,8 @@ const frame=(current,ahead)=>{for(const path of ahead)Module.jungleImageReady(pa
 def harness_html():
     # JUNGLE_INDEX checks another revision, such as the released page.
     page = Path(os.environ.get('JUNGLE_INDEX', ROOT/'web/index.html')).read_text()
-    page = page.replace('<script src="asset-packs.js"></script>', '')
+    page = page.replace('<script src="asset-packs.js"></script>', '<script>'+(ROOT/'web/asset-packs.js').read_text()+'</script>')
+    page = page.replace('<script src="activity-loader.js"></script>', '<script>'+ (ROOT/'web/activity-loader.js').read_text()+'</script>')
     page = page.replace('<script src="jungle.js" defer></script>', '')
     return page.replace('</body>', SCENARIOS + '</body>')
 

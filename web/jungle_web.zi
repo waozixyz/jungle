@@ -36,6 +36,8 @@ Fishing :: #import, file "../games/fishing/jungle_fishing.zi";
 BeachFamilies :: #import, file "../games/beach_families/jungle_beach_families.zi";
 PianoKeys :: #import, file "../games/piano/keyboard.zi";
 #import, file "../host/jungle_menu.zi";
+#import, file "../host/jungle_title.zi";
+#import, file "../host/jungle_title_data.zi";
 #import, file "../host/jungle_text.zi";
 #import, file "../host/canvas_png.zi";
 #import, file "../games/paint/paint_palette.zi";
@@ -63,6 +65,7 @@ web_games: [14]MenuGame = .[
     MenuGame.{.title = "Crab Family Counting"},
 ];
 active_game: s32 = -1;
+web_loading_game: s32 = -1;
 selected: s32;
 web_initialized: bool;
 web_muted: bool;
@@ -400,11 +403,28 @@ UpdateSiteLanguage :: () {
     unused WebCall1(WebModule, WebName("jungleLanguage"), WebText(LanguageCode()))
 }
 
+// Never identify or frame a game until its complete activity is ready.
 OpenGame :: (index: s32) {
+    StopAudio()
+    web_loading_game = index
+}
+
+WebActivityReady :: (index: s32) -> s32 {
+    scope := WebScope()
+    defer WebEnd(scope)
+    return cast(s32)WebAsNumber(WebCall4(WebModule, WebName("jungleActivityReady"), WebNumber(cast(float64)index),
+        WebText(LanguageCode()), WebText(english_speech_profile), WebText(Tr(web_games[index].title))))
+}
+
+BeginGame :: (index: s32) {
     abc_title_speed = 1; web_speed_pending = false
     WebKeyboard(false)
     selected = index
     active_game = index
+    web_loading_game = -1
+    scope := WebScope()
+    defer WebEnd(scope)
+    unused WebCall1(WebModule, WebName("jungleActivityStarted"), WebNumber(cast(float64)index))
     Runner.canvas_app_mode = APP_IDENTIFY
     unused RunGame()
     Runner.canvas_app_mode = APP_FRAME
@@ -433,11 +453,46 @@ JungleMain :: () -> s64 {
         web_initialized = true
     }
     key := AppKey()
+    if web_loading_game >= 0 {
+        status := WebActivityReady(web_loading_game)
+        if status == -1 {
+            web_loading_game = -1
+            scope := WebScope()
+            defer WebEnd(scope)
+            unused WebCall0(WebModule, WebName("junglePreloadReset"))
+        } else if status == 1 { BeginGame(web_loading_game) }
+        return 0
+    }
+    if active_game >= 0 {
+        status := WebActivityReady(active_game)
+        if status == -1 {
+            Runner.canvas_app_mode = APP_SAVE
+            unused RunGame()
+            Runner.canvas_app_mode = APP_FRAME
+            StopAudio()
+            WebKeyboard(false)
+            active_game = -1
+            scope := WebScope()
+            defer WebEnd(scope)
+            unused WebCall0(WebModule, WebName("junglePreloadReset"))
+        }
+        if status != 1 { StopAudio(); return 0 }
+    }
     if collection_book_open {
         if CollectionBookFrame(AppSession(), AppBounds(), key, AppNow(), web_muted, web_collection) { ToggleAudio() }
         return 0
     }
     if active_game < 0 {
+        if !title_state.started { TitleStart(*title_state) }
+        TitleResolve(*title_state, AppBounds().width, AppBounds().height)
+        scope := WebScope()
+        defer WebEnd(scope)
+        scene_status := cast(s32)WebAsNumber(WebCall1(WebModule, WebName("jungleSceneReady"), WebText(TITLE_SCENE_IMAGE[title_state.scene])))
+        if scene_status == -1 {
+            TitleStart(*title_state)
+            unused WebCall0(WebModule, WebName("junglePreloadReset"))
+        }
+        if scene_status != 1 { return 0 }
         action := JungleMenu(AppSession(), AppBounds(), key, AppNow(), "assets/jungle/font.png", web_games[:],
             *selected, web_muted, web_title_guide_muted, web_title_guide_seen, "", web_collection, WebTitlePaperCollect)
         if action.paper_collected { PlayAudio(TITLE_PAPER_CHIME, false) }

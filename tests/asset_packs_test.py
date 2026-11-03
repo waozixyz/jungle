@@ -192,3 +192,7 @@ with tempfile.TemporaryDirectory(prefix='asset-pack-test-',dir=ROOT/'build') as 
     assert {catalog[name] for name in catalog if '/previews/' in name}=={'covers'}
 
 print('local asset pack test: lossless ZIP/seek round trips, aliases, Unicode, empty files, stable output, upload gates and reproducible content-addressed book previews passed')
+
+# Activity preload closure belongs to the same build-data suite.
+from activity_preload_test import test_activity_manifest
+test_activity_manifest()

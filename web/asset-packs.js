@@ -1,9 +1,9 @@
 // Standard ZIP asset packs, with a build-time index instead of a ZIP parser.
 // Works under any static host/subdirectory; no service worker, Range or CDN API.
 class JungleAssetPacks {
- constructor(manifest, fetchBytes, cacheBytes=16*1024*1024){
+ constructor(manifest, fetchBytes, cacheBytes=16*1024*1024, invalidate=async()=>{}){
   if(manifest.format!==1)throw Error('Unsupported asset pack format');
-  this.manifest=manifest;this.fetchBytes=fetchBytes;this.cacheBytes=cacheBytes;
+  this.manifest=manifest;this.fetchBytes=fetchBytes;this.invalidate=invalidate;this.cacheBytes=cacheBytes;
   this.cache=new Map();this.pending=new Map();this.bytes=0;this.zipIndexes=new WeakMap();
  }
  async pack(path){
@@ -14,7 +14,7 @@ class JungleAssetPacks {
   const request=(async()=>{
    const bytes=new Uint8Array(await this.fetchBytes(path));
    const expected=this.manifest.packs[path];
-   if(bytes.length!==expected.size||await JungleAssetPacks.hash(bytes)!==expected.sha256)throw Error('Damaged asset pack: '+path);
+   if(bytes.length!==expected.size||await JungleAssetPacks.hash(bytes)!==expected.sha256){await this.invalidate(path);throw Error('Damaged asset pack: '+path)}
    while(this.bytes+bytes.length>this.cacheBytes&&this.cache.size){
     const oldest=this.cache.keys().next().value;this.bytes-=this.cache.get(oldest).length;this.cache.delete(oldest);
    }

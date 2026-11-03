@@ -50,15 +50,30 @@ body textarea,body [contenteditable]:not([contenteditable="false"]){-webkit-user
 #kryon-dom-root button[aria-label="Hiding place"],
 #kryon-dom-root button[aria-label="Versteck"],
 #kryon-dom-root button[aria-label="Escondite"]{outline:none!important}
+/* Cream paper, painted cover and soft leaf colors, shared by both renderers. */
+#activity-loading{position:fixed;inset:0;z-index:10000;display:grid;place-items:center;padding:max(16px,env(safe-area-inset-top));background:radial-gradient(ellipse at 15% 10%,#dce8cddd,transparent 55%),radial-gradient(ellipse at 95% 90%,#c6ddc5bb,transparent 50%),#faf4e5;color:#4c4936}
+#activity-loading[hidden]{display:none}
+#activity-paper{width:min(90vw,480px);max-height:95dvh;overflow:auto;text-align:center;padding:24px;border:2px solid #ddd1ac;border-radius:46% 5% 6% 5% / 4% 7% 6% 6%;background:#fffaf0;box-shadow:0 6px 28px #626e3920}
+#activity-cover{width:min(36vw,180px);height:min(28vh,180px);object-fit:contain}
+#activity-title{font:600 clamp(22px,5vw,32px)/1.2 Georgia,serif;margin:12px 0}
+#activity-progress{width:100%;height:24px;accent-color:#7d9d58;border-radius:20px}
+#activity-message{min-height:2.6em;line-height:1.4}
+#activity-loading button{font:inherit;border:2px solid #a6b786;border-radius:24px;padding:12px 24px;margin:4px;background:#edf0d7;color:#3f5136;cursor:pointer}
+@media(max-height:480px) and (orientation:landscape){#activity-paper{width:min(94vw,700px);display:grid;grid-template-columns:180px 1fr;gap:0 24px;padding:16px}#activity-cover{grid-row:1/6;width:170px;height:170px;align-self:center}#activity-title{margin:0}}
 </style>
 </head>
 <body>
 <div id="canvas-frame"><canvas id="canvas" tabindex="0" aria-label="Jungle Academy learning games"></canvas></div>
 <div id="loading" role="status"><img id="brand-logo" src="/assets/jungle/branding/logo.webp" alt="Jungle Academy"><p id="status">Opening your books…</p></div>
+<section id="activity-loading" hidden aria-modal="true" role="dialog" aria-labelledby="activity-title"><div id="activity-paper">
+<img id="activity-cover" alt=""><h1 id="activity-title"></h1><p id="activity-message" role="status" aria-live="polite"></p>
+<progress id="activity-progress" max="1" value="0"></progress><span id="activity-count"></span>
+<div><button id="activity-back" type="button"></button><button id="activity-retry" type="button" hidden></button></div></div></section>
 <textarea id="mobile-input" disabled aria-label="Story text" autocapitalize="sentences" autocomplete="off" spellcheck="false"></textarea>
 <section id="print-sheet"><img id="print-picture" alt="Your dinosaur picture"><pre id="print-story"></pre></section>
 <section id="performance-panel" hidden aria-label="Performance details"></section>
 <script src="asset-packs.js"></script>
+<script src="activity-loader.js"></script>
 <script>
 const buildRevision='__JUNGLE_BUILD_REVISION__';
 const backend=document.documentElement.dataset.backend||'canvas';
@@ -111,11 +126,12 @@ let assetPacks,assetPackIndex;
 const directAsset=path=>path.startsWith('assets/jungle/')&&!path.endsWith('.wav')||path.endsWith('/font.png');
 function packIndex(){
  assetPackIndex??=fetchResource('asset-packs.json',response=>response.json())
-  .then(manifest=>assetPacks=new JungleAssetPacks(manifest,path=>fetchResource(path,response=>response.arrayBuffer())))
+  .then(manifest=>assetPacks=new JungleAssetPacks(manifest,path=>fetchResource(path,response=>response.arrayBuffer()),16*1024*1024,forgetResource))
   .catch(error=>{assetPackIndex=undefined;throw error});
  return assetPackIndex;
 }
 async function assetBytes(path){
+ if(typeof Module!=='undefined'&&Module.FS?.analyzePath('/'+path).exists)return Module.FS.readFile('/'+path);
  if(!directAsset(path)){
   const packs=await packIndex();
   if(Object.hasOwn(packs.manifest.files,path))return packs.read(path);
@@ -180,7 +196,13 @@ function speechPreflight(bytes,frames){
  return first.length>=30&&first[0]===1&&String.fromCharCode(...first.subarray(1,7))==='vorbis'&&first[11]===1&&
   new DataView(first.buffer,first.byteOffset+12,4).getUint32(0,true)===speechRate&&granule===BigInt(frames);
 }
+const decodedSpeech=new Map();
 async function speechClip(clip){
+ if(decodedSpeech.has(clip.path))return decodedSpeech.get(clip.path);
+ const pending=decodeSpeechClip(clip).catch(error=>{decodedSpeech.delete(clip.path);throw error});
+ decodedSpeech.set(clip.path,pending);return pending;
+}
+async function decodeSpeechClip(clip){
  const bytes=await assetBytes(clip.path);
  if(!speechPreflight(bytes,clip.frames))throw Error('Malformed speech clip: '+clip.path);
  const audio=await new OfflineAudioContext(1,1,speechRate).decodeAudioData(bytes.slice().buffer);
@@ -242,14 +264,27 @@ function packedAudio(path,profile="normal"){
  return audio;
 }
 function unavailableImage(path,error){imagePaths.delete(path);console.warn('Picture unavailable:',path,error)}
+async function forgetResource(path){try{await (await caches.open('jungle-assets-v1')).delete(assetUrl(path))}catch{}}
 async function fetchResource(path,read){
  for(let attempt=0;attempt<3;attempt++){
   try{
-   const response=await fetch(assetUrl(path));
+   const url=assetUrl(path);
+   const cacheable=/^(packs\/|assets\/)/.test(path);
+   let cache;try{if(cacheable)cache=await caches.open('jungle-assets-v1')}catch{}
+   const saved=cache&&await cache.match(url);
+   if(saved)return await read(saved);
+   const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),30000);
+   let response;
+   try{response=await fetch(url,{signal:controller.signal});if(response.ok){
+    // Consume under the timeout too: a stalled response body must be retryable.
+    const bytes=await response.arrayBuffer();
+    response=new Response(bytes,{status:response.status,headers:response.headers});
+   }}finally{clearTimeout(timer)}
+   if(response.ok&&cache)try{await cache.put(url,response.clone())}catch{}
    if(response.ok)return await read(response);
    if(![408,429,500,502,503,504].includes(response.status)||attempt===2)throw Error(path+' (HTTP '+response.status+')');
   }catch(error){
-   if(!(error instanceof TypeError)||attempt===2)throw error;
+   if(attempt===2)throw error;
   }
   await new Promise(resolve=>setTimeout(resolve,250*(attempt+1)));
  }
@@ -259,12 +294,19 @@ function writeAsset(file,bytes){
  Module.FS.writeFile(file,bytes);
 }
 // A picture's file appears only once its full, verified bytes are here.
+async function decodeImage(bytes){
+ const url=URL.createObjectURL(new Blob([bytes]));
+ try{const image=new Image();image.src=url;await image.decode()}finally{URL.revokeObjectURL(url)}
+}
 async function loadImage(path){
  if(Module.FS.analyzePath('/'+path).exists)return;
  if(imageLoads.has(path))return imageLoads.get(path);
- const request=assetBytes(path).then(bytes=>writeAsset('/'+path,bytes));
+ const request=assetBytes(path).then(async bytes=>{
+  await decodeImage(bytes);
+  writeAsset('/'+path,bytes);
+ });
  imageLoads.set(path,request);
- try{return await request}catch(error){imageLoads.delete(path);throw error}
+ try{return await request}catch(error){imageLoads.delete(path);if(directAsset(path))await forgetResource(path);throw error}
 }
 // Few-KB previews (tools/web_images.py) stand in for book pictures while
 // their full bytes download. Kryon caches Canvas textures and DOM object URLs
@@ -276,7 +318,7 @@ let previewIndex;
 const previewLoads=new Map(),previewSettled=new Set(),previewFile=path=>'/assets/previews/'+path.slice(7);
 function previews(){
  previewIndex??=fetchResource('preview-images.json',response=>response.json())
-  .then(manifest=>new JungleAssetPacks(manifest,path=>fetchResource(path,response=>response.arrayBuffer()),4*1024*1024))
+  .then(manifest=>new JungleAssetPacks(manifest,path=>fetchResource(path,response=>response.arrayBuffer()),4*1024*1024,forgetResource))
   .catch(error=>{previewIndex=undefined;throw error});
  return previewIndex;
 }
@@ -339,8 +381,72 @@ function pumpFull(){
   loadImage(next).then(()=>fullFailures.delete(next),error=>fullFailed(next,error)).finally(()=>{fullActive--;if(prefetch)fullPrefetching--;pumpFull()});
  }
 }
+const loadingCopy={
+ en:{loading:'Gathering everything for you…',error:'We could not get everything yet. Check your connection and try again.',back:'Back',retry:'Try again'},
+ de:{loading:'Wir holen alles für dich…',error:'Wir konnten noch nicht alles laden. Prüfe deine Verbindung und versuche es noch einmal.',back:'Zurück',retry:'Noch einmal'},
+ es:{loading:'Estamos preparando todo para ti…',error:'Todavía no pudimos cargar todo. Revisa tu conexión e inténtalo de nuevo.',back:'Atrás',retry:'Reintentar'}
+};
+let activityIndex;
+function activityManifest(){
+ activityIndex??=fetchResource('activity-assets.json',r=>r.json()).catch(error=>{activityIndex=undefined;throw error});
+ return activityIndex;
+}
+const overlay=document.getElementById('activity-loading');
+const activityLoader=new JungleActivityLoader(async path=>{
+ if(/\.(webp|png|jpg)$/.test(path))return loadImage(path);
+ const bytes=await assetBytes(path);writeAsset('/'+path,bytes);
+ if(path.endsWith('.ogg')){
+  const index=await speech(),clip=index.clips.find(clip=>clip.path===path);
+  if(!clip)throw Error('Missing speech clip: '+path);
+  await speechClip(clip);
+ }
+},state=>{
+ const wasHidden=overlay.hidden;
+ overlay.hidden=state.status==='ready'||state.status==='cancelled';
+ for(const id of ['canvas-frame','kryon-dom-root','kryon-dom-paint']){const surface=document.getElementById(id);if(surface)surface.inert=!overlay.hidden}
+ if(!wasHidden&&overlay.hidden)document.getElementById('canvas').focus();
+ if(wasHidden&&!overlay.hidden)queueMicrotask(()=>document.getElementById('activity-back').focus());
+ const copy=loadingCopy[siteLanguage];
+ document.getElementById('activity-title').textContent=state.title||siteCopy[siteLanguage].opening;
+ const cover=document.getElementById('activity-cover');
+ const path=state.cover||'assets/jungle/branding/logo.webp';if(cover.dataset.path!==path){cover.dataset.path=path;cover.src=assetUrl(path)}
+ document.getElementById('activity-message').textContent=state.status==='error'?copy.error:copy.loading;
+ const progress=document.getElementById('activity-progress');progress.max=Math.max(1,state.total);progress.value=state.loaded;
+ progress.setAttribute('aria-label',copy.loading);
+ document.getElementById('activity-count').textContent=state.total?state.loaded+' / '+state.total:'';
+ document.getElementById('activity-back').textContent=copy.back;
+ const retry=document.getElementById('activity-retry');retry.textContent=copy.retry;retry.hidden=state.status!=='error';
+ if(state.status==='error')console.error('Activity preload failed:',state.error);
+});
+document.getElementById('activity-back').onclick=()=>activityLoader.back();
+document.getElementById('activity-retry').onclick=()=>activityLoader.retry();
+overlay.addEventListener('keydown',event=>{event.stopPropagation();if(event.key==='Escape')activityLoader.back()});
+function activityReady(index,language,profile,title){
+ return activityLoader.request('game:'+index+':'+language+':'+profile,async()=>{
+  const manifest=await activityManifest(),activity=manifest.activities[index];
+  if(!activity)throw Error('Unknown activity: '+index);
+  await speech();
+  return {title,cover:activity.cover,files:[...activity.files,...activity.speech[language][profile]]};
+ });
+}
+let sceneIndex;
+function sceneManifest(){
+ sceneIndex??=fetchResource('scene-assets.json',r=>r.json()).catch(error=>{sceneIndex=undefined;throw error});
+ return sceneIndex;
+}
+function sceneReady(path){
+ return activityLoader.request('scene:'+path,async()=>{
+  const manifest=await sceneManifest(),files=manifest[path];
+  if(!files)throw Error('Unknown scene: '+path);
+  return {title:siteCopy[siteLanguage].opening,cover:path,files};
+ });
+}
 var Module={canvas:document.getElementById('canvas'),locateFile:assetUrl,print:console.log,printErr:console.error,
  jungleLanguage:updateSiteLanguage,
+ jungleActivityReady(...args){const status=activityReady(...args);return status==='ready'?1:status==='cancelled'?-1:0},
+ jungleSceneReady(...args){const status=sceneReady(...args);return status==='ready'?1:status==='cancelled'?-1:0},
+ junglePreloadReset(){activityLoader.cancel()},
+ jungleActivityStarted(index){window.dispatchEvent(new CustomEvent('jungle-activity-started',{detail:{index}}))},
  jungleAudio:packedAudio,
  jungleVoiceFrames:speechVoiceFrames,
  // Whether PATH's full picture is here; otherwise its preview and full bytes
@@ -359,8 +465,8 @@ var Module={canvas:document.getElementById('canvas'),locateFile:assetUrl,print:c
   fetchResource('images.json',response=>response.json()).then(async paths=>{
    imagePaths=new Set(paths);
    // Open once the menu's own pictures are here, with bounded parallel
-   // downloads. Each game's pictures load when it first shows them
-   // (jungleImageReady), so opening never downloads every puzzle and page.
+   // downloads. Activities wait for their complete generated preload list;
+   // title scenes fetch only their own pictures through the short loader.
    // A blocked optional picture must not prevent the game from starting.
    // Story letters use the shared bitmap atlases. Load these tiny fonts
    // before typing can draw them; they do not request lazy images themselves.

@@ -10,6 +10,8 @@ import tempfile
 import time
 
 from asset_packs import pack_assets, validate_distribution
+from activity_assets import build_activity_manifest
+from shared_assets import GAMES
 from shared_assets import (PORT_FOLDERS, PortGamePreviews, SPEECH_INDEX, Shipped,
                            Speech, SpeechIndexText, WebFiles, WriteIfChanged)
 from web_images import prepare_previews, prepare_web_images
@@ -30,7 +32,7 @@ def package(name):
 
 def write_pages(out, revision):
     html=(ROOT/'web/index.html').read_text().replace('__JUNGLE_BUILD_REVISION__',revision)
-    html=re.sub(r'((?:src|href)=\")(/?(?:assets/[^\"?]+|favicon\.ico|site\.webmanifest|(?:jungle(?:-dom)?|asset-packs)\.js))(\")',
+    html=re.sub(r'((?:src|href)=\")(/?(?:assets/[^\"?]+|favicon\.ico|site\.webmanifest|(?:jungle(?:-dom)?|asset-packs|activity-loader)\.js))(\")',
                 lambda match:match[1]+match[2]+'?v='+revision+match[3],html)
     html=re.sub(r'((?:src|href)=\")/(?!/)',r'\1',html)
     (out/'index.html').write_text(html)
@@ -111,6 +113,7 @@ def build(out):
     (out/'site.webmanifest').write_text(json.dumps(manifest,indent=2)+'\n')
     shutil.copy2(ROOT/'assets/jungle/icons/favicon.ico',out/'favicon.ico')
     shutil.copy2(ROOT/'web/asset-packs.js',out/'asset-packs.js')
+    shutil.copy2(ROOT/'web/activity-loader.js',out/'activity-loader.js')
     manifest=stage_assets(out)
     (out/'version.json').write_text(json.dumps({'version':(ROOT/'VERSION').read_text().strip(),'revision':revision,
         'runtimes':{'canvas':(out/'jungle.js').stat().st_size,'dom':(out/'jungle-dom.js').stat().st_size}}))
@@ -198,6 +201,7 @@ def stage_assets(out):
         files,ROOT/'work/web-image-cache',force_title=True)
     images=sorted(archive_names.get(name,name) for name in files
                   if Path(name).suffix in ('.png','.webp'))
+    activity_paths = set(files)
     # Browser branding must work before the runtime starts. Keep the small
     # menu and its bitmap fonts directly addressable, so the menu opens
     # before the full pack index arrives; pack all game pictures and sounds.
@@ -225,6 +229,9 @@ def stage_assets(out):
         if name in manifest['files']:
             manifest['files'][name]={**manifest['files'][name],**encoding}
     (out/'asset-packs.json').write_text(json.dumps(manifest,separators=(',',':'))+'\n')
+    activities=build_activity_manifest(ROOT,activity_paths,speech,GAMES) if (ROOT/'games/catalog.txt').exists() else {'format':1,'activities':[],'scenes':{}}
+    (out/'scene-assets.json').write_text(json.dumps(activities.pop('scenes'),separators=(',',':'))+'\n')
+    (out/'activity-assets.json').write_text(json.dumps(activities,separators=(',',':'))+'\n')
     (out/'images.json').write_text(json.dumps(images))
     return manifest
 
