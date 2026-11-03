@@ -67,13 +67,14 @@ def main():
         return dict(id=ident, target=target, glow_rect=rect, rest=sign, glow=sign_glow,
                     polygon=[[x+bx-1,y+by-1],[x+bx+bw+1,y+by-1],
                              [x+bx+bw+1,y+by+bh+1],[x+bx-1,y+by+bh+1]],
-                    sign=dict(label=label,label_rect=board))
+                    sign=dict(label=label,label_rect=board,direction='left' if label in ('Farm','Campus') else 'right' if label=='Desert' else 'up'))
 
     for orientation, scene in [('landscape',campus),('portrait',campus['portrait'])]:
         plan = mapping['orientations'][orientation]
-        source = LOCAL/'campus-object-layers'/('landscape-clean-v2-no-bottom-path.png' if orientation=='landscape' else 'portrait-clean-v3-pond-up.png')
+        source = LOCAL/'campus-object-layers'/('landscape-connected-no-stones-proposal.png' if orientation=='landscape' else 'portrait-clean-v3-pond-up.png')
         path = background(source, scene['background'])
-        scene['image'] = path
+        background(source, f'assets/jungle/title/campus{"-portrait" if orientation=="portrait" else ""}.webp')
+        scene['image'] = f'assets/jungle/title/campus{"-portrait" if orientation=="portrait" else ""}.webp'
         with Image.open(source) as im:
             background(source, scene['low'], size=(240,round(im.height*240/im.width)))
         scene['hotspots'] = [h for h in scene['hotspots'] if h['id'] not in ('garden','beach-path','farm-path','desert-path')]
@@ -90,9 +91,9 @@ def main():
                                    polygon=[[x,y],[x+w-1,y],[x+w-1,y+h-1],[x,y+h-1]],occlusion=[])
             else: scene['decorations'].append(dict(path=rest,rect=[x,y,w,h]))
         signs = dict(plan['signs'])
-        signs['Farm'] = [70,490,220,220] if orientation=='landscape' else [160,650,220,220]
+        signs['Farm'] = [130,490,240,240] if orientation=='landscape' else [160,650,220,220]
         if orientation=='landscape': signs['Desert'] = [1360,410,210,210]
-        for label,target in [('Beach','scene:beach'),('Farm','game:Farm'),('Desert','notice:Desert')]:
+        for label,target in [('Beach','scene:beach'),('Farm','scene:farm'),('Desert','notice:Desert')]:
             scene['hotspots'].append(sign_hotspot(label.lower()+'-path',label,target,signs[label]))
 
     beach = next(s for s in data['scenes'] if s['name']=='beach')
@@ -100,9 +101,21 @@ def main():
         background(LOCAL/f'world-scene-refresh/beach-{orientation}-clean.png',scene['image'])
         with Image.open(ROOT/scene['image']) as im:
             background(LOCAL/f'world-scene-refresh/beach-{orientation}-clean.png', scene['low'],size=(240,round(im.height*240/im.width)))
+        crab=next(h for h in scene['hotspots'] if h['id']=='crab-family')
+        x,y,w,h=crab['glow_rect']
+        nx,ny,nw,nh=[400,570,200,60] if orientation=='landscape' else [155,770,220,66]
+        crab['polygon']=[[round(nx+(px-x)*nw/w),round(ny+(py-y)*nh/h)] for px,py in crab['polygon']]
+        crab['glow_rect']=[nx,ny,nw,nh]
         old = next(i for i,h in enumerate(scene['hotspots']) if h['id']=='campus-path')
         scene['hotspots'][old] = sign_hotspot('campus-path','Campus','scene:campus',
-                                             [80,570,220,220] if orientation=='landscape' else [330,860,220,220])
+                                             [555,710,220,220] if orientation=='landscape' else [210,980,220,220])
+
+    farm = next(scene for scene in data['scenes'] if scene['name']=='farm')
+    for orientation,scene,source_name in [('landscape',farm,'27.png'),('portrait',farm['portrait'],'19.png')]:
+        source=LOCAL/'owner-farm-beach-source'/source_name
+        background(source,scene['image'])
+        with Image.open(source) as image:
+            background(source,scene['low'],size=(240,round(image.height*240/image.width)))
 
     # Every image referenced by the title scene graph is app-ready WebP,
     # including utility glows. Existing lossy WebPs are reused unchanged.
@@ -145,7 +158,8 @@ def main():
     provenance_path = ROOT/'assets/garden/scene-provenance.json'
     provenance = json.loads(provenance_path.read_text())
     for row in provenance['assets']:
-        source = ROOT/row['source']
+        source = LOCAL/'owner-farm-beach-source'/('27.png' if 'landscape' in row['runtime'] else '19.png') if Path(row['runtime']).stem.startswith('scene-') else ROOT/row['source']
+        row['source'] = str(source.relative_to(ROOT))
         target = Path(row['runtime']).with_suffix('.webp')
         if target.stem.startswith('scene-'): background(source,str(target))
         else: export_image(source,ROOT/target,'cutout')
@@ -153,7 +167,7 @@ def main():
         row['source_sha256'] = digest(source)
         row['sha256'] = digest(ROOT/target)
         (ROOT/target.with_suffix('.png')).unlink(missing_ok=True)
-    provenance['destination'] = 'Farm / Bauernhof / Granja; existing jungle.garden saves retained'
+    provenance['destination'] = 'Farm / Bauernhof / Granja; painting only, existing jungle.garden saves untouched'
     provenance_path.write_text(json.dumps(provenance,indent=2)+'\n')
     approved['total_bytes'] = sum(r['bytes'] for r in approved['images'])
     approved_path.write_text(json.dumps(approved,indent=2)+'\n')

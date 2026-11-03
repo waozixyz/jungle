@@ -111,7 +111,7 @@ GameTitleBar :: (session: Session, bounds: Rectangle, key: s32, now: float64, ti
         .bounds = Rectangle.{bounds.x, bounds.y, bounds.width, cast(float32)GAME_BAR_HEIGHT},
         .height = GAME_BAR_HEIGHT, .title = Tr(ifx title == "Picture Book" && title_book_requested == "sweet-porridge" then "Sweet Porridge" else title), .has_leading_action = true,
         .leading_label = Tr("Back"), .trailing_width = ifx collection_book_open then 60 else ifx abc then 205 else 110}, options[:])
-    if !collection_book_open { action.collection_open = CollectionBookButton(ifx abc then width - 200 else width - 106, 6) }
+    if !collection_book_open && title != "Farm" { action.collection_open = CollectionBookButton(ifx abc then width - 200 else width - 106, 6) }
     action.back = bar.clicked_leading
     sound := RetroTap(9002, width - 56, 6, 44, 44, ifx sound_muted then "Sound off · F10" else "Sound on · F10")
     BookBox(width - 56, 6, 44, 44, ifx sound.down then cast(u32)0xdcebdcff else cast(u32)0xf3ecdcff, 0xdacdb5ff, 4.0)
@@ -178,7 +178,21 @@ TitlePathSign :: (session: Session, hotspot: s32, picture: Rectangle, view: Titl
         cast(float32)TITLE_SIGN_RECT[at + 2] * view.scale,
         cast(float32)TITLE_SIGN_RECT[at + 3] * view.scale}
     label := Tr(TITLE_SIGN_LABEL[hotspot])
+    // Pigment strokes stay inside the wooden board, beside its localized name.
+    direction := TITLE_SIGN_DIRECTION[hotspot]
+    cx := board.x + board.height * 0.42
+    cy := board.y + board.height * 0.5
+    reach := board.height * 0.23
+    dx: float32 = ifx direction == 1 then -reach else ifx direction == 2 then reach else 0.0
+    dy: float32 = ifx direction == 3 then -reach else ifx direction == 4 then reach else 0.0
+    ink := ColorFromPacked(0x684322ff)
+    stroke := board.height * 0.09
+    Line(session, LineProps.{.start = Vector2.{cx-dx,cy-dy}, .end = Vector2.{cx+dx,cy+dy}, .thickness = stroke, .color = ink})
+    Line(session, LineProps.{.start = Vector2.{cx+dy*0.8,cy-dx*0.8}, .end = Vector2.{cx+dx,cy+dy}, .thickness = stroke, .color = ink})
+    Line(session, LineProps.{.start = Vector2.{cx-dy*0.8,cy+dx*0.8}, .end = Vector2.{cx+dx,cy+dy}, .thickness = stroke, .color = ink})
     text_board := board
+    text_board.x += board.height * 0.9
+    text_board.width -= board.height * 0.95
     font := board.height * 0.68
     letters := Count(label)
     if letters > 0 && cast(float32)letters * font * 0.65 > text_board.width {
@@ -294,7 +308,9 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
         if !TitleReady(TITLE_HOTSPOT_REST[pointed]) ||
             (TITLE_SCENE_FOREGROUND[title_state.scene] != "" && !paper_available) { blocked = true }
     }
-    paper_input := TitlePaperPointer(*title_papers, paper, paper_had || !paper_available, px, py, pointer.down,
+    shelf := TITLE_SCENE_NAME[TITLE_SCENE_BASE[title_state.scene]] == "bookshelf"
+    // The shelf has no extra paper overlay; book faces own hover and taps.
+    paper_input := TitlePaperPointer(*title_papers, paper, paper_had || !paper_available || shelf, px, py, pointer.down,
         pointer.pressed && !blocked, pointer.released && !title_state.not_implemented, now, collect)
     if paper_input.owned { blocked = true }
     action.paper_collected = paper_input.collected
@@ -361,7 +377,17 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
     if guide.voice {
         action.guide_voice = TitleGuideVoicePath(guide.step, language)
     }
+    // The separated tiger cover used to cover its own highlight. Restore it
+    // before feedback on the shelf, so every book uses the same paint order.
+    if shelf && layered { TitlePicture(session, TITLE_SCENE_FOREGROUND[scene], picture) }
     if glowing >= 0 && TITLE_SIGN_LABEL[glowing] == "" {
+        if shelf && (TITLE_HOTSPOT_ID[glowing] == "book-cover-tiger" || TITLE_HOTSPOT_ID[glowing] == "book-cover-frogs" || TITLE_HOTSPOT_ID[glowing] == "book-cover-rabbit") {
+            at := glowing * 4
+            source := Rectangle.{cast(float32)TITLE_GLOW_RECT[at], cast(float32)TITLE_GLOW_RECT[at+1], cast(float32)TITLE_GLOW_RECT[at+2], cast(float32)TITLE_GLOW_RECT[at+3]}
+            Image(session, ImageProps.{.asset_path = TITLE_SCENE_IMAGE[scene], .source = source,
+                .bounds = Rectangle.{picture.x+(source.x-source.width*0.025)*view.scale, picture.y+(source.y-source.height*0.025)*view.scale,
+                    source.width*1.05*view.scale,source.height*1.05*view.scale}, .smooth = true})
+        }
         // A slow, gentle pulse over exactly the item.
         wave := Sin(now * 6.283185307 / 1.8)
         alpha := cast(u32)(255.0 * (0.74 + 0.26 * wave))
@@ -394,13 +420,13 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
     }
     paper = TitlePaperSpot(scene, view, bounds.width, bounds.height)
     if paper.index >= 0 && SecretPaperShown(title_papers.papers[paper.index], paper.index,
-        CollectionHas(collection, collectible_slugs[paper.index])) && layered {
+        CollectionHas(collection, collectible_slugs[paper.index])) && layered && !shelf {
         revealed := title_papers.reveal[paper.index]
         shown := TitlePaperRevealed(paper, revealed)
         SecretPaperDraw(bounds.x + shown.x, bounds.y + shown.y, shown.size,
             SecretPaperGlow(now) * (0.08 + revealed * 0.3), 1.0)
     }
-    if layered { TitlePicture(session, TITLE_SCENE_FOREGROUND[scene], picture) }
+    if layered && !shelf { TitlePicture(session, TITLE_SCENE_FOREGROUND[scene], picture) }
 
     if guiding && !title_state.not_implemented {
         guide_anchor = TitleGuideAnchor(*title_state, view, bounds, unit, width, height)
@@ -461,7 +487,12 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
         if modal.action != 0 { TitleDismissNotice(*title_state) }
         return action
     }
-    action.language_changed = TitleLanguageFlags()
+    if shelf {
+        back := RetroTap(7501, 6, 6, 44, 30, Tr("Back"))
+        BookBox(6, 6, 44, 30, 0xf7f1e3ee, 0xdacdb5ff, 4)
+        BookText(6, 6, 44, 30, Tr("Back"), 11, TextAlign.TextAlignCenter)
+        if back.clicked { unused TitleKey(*title_state, KEY_ESCAPE); action.navigated = true }
+    } else { action.language_changed = TitleLanguageFlags() }
     sound_label := ifx sound_muted then "Sound off · F10" else "Sound on · F10"
     sound := RetroTap(500, width - 32, 6, 26, 22, sound_label)
     BookBox(width - 32, 6, 26, 22, ifx sound.down then cast(u32)0xdcebdcf0 else cast(u32)0xf7f1e3d8, 0xdacdb5ff, 4.0)

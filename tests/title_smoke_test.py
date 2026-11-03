@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 import tempfile
 import time
-from PIL import ImageChops, ImageStat
+from PIL import Image, ImageChops, ImageStat
 import runtime_test as rt
 
 
@@ -45,20 +45,12 @@ def main():
                         assert time.monotonic()<deadline,(w,locale,name,difference)
                         time.sleep(.15)
                 def farm_return():
-                    # The painted Campus sign uses Farm's contained scene layout.
-                    bh=h-56
-                    scale=min(w/400,bh/640) if h>w else min(bh/430,w/760)
-                    scale=min(scale,1.8)
-                    width,height=int(w/scale),int(bh/scale)
-                    tray=180 if width<600 else 94
-                    aw,ah=(1024,1536) if h>w else (1671,941)
-                    sw,sh=width,width*ah//aw
-                    if sh>height-tray:sh=height-tray;sw=sh*aw//ah
-                    sx,sy=(width-sw)//2,tray+(height-tray-sh)//2
-                    rect=(680,320,180,180) if h>w else (1400,80,210,210)
-                    x,y,edge,_=rect
-                    tap(round((sx+(x+edge*625/1254)*sw/aw)*scale),
-                        round(56+(sy+(y+edge*460/1254)*sh/ah)*scale))
+                    farm=next(s for s in data['scenes'] if s['name']=='farm')
+                    farm=farm['portrait'] if h>w else farm
+                    sign=farm['hotspots'][0]
+                    assert sign['sign']['direction']=='right'
+                    x,y,_,_=sign['glow_rect'];bx,by,bw,bh=sign['sign']['label_rect']
+                    tap(round(ox+(x+bx+bw/2)*scale),round(oy+(y+by+bh/2)*scale))
                 d.resize(w,h)
                 for locale in range(3):
                     d.key('Home')
@@ -69,29 +61,46 @@ def main():
                     scale=max(w/(1024 if h>w else 1672),h/(1536 if h>w else 941))
                     ox=(w-(1024 if h>w else 1672)*scale)/2
                     oy=(h-(1536 if h>w else 941)*scale)/2
+                    # The complete Farm board, including its left arrow, stays onscreen.
+                    farm_sign=next(t for t in view['hotspots'] if t['id']=='farm-path')
+                    x,y,_,_=farm_sign['glow_rect'];bx,by,bw,bh=farm_sign['sign']['label_rect']
+                    assert ox+(x+bx)*scale>=0 and ox+(x+bx+bw)*scale<=w
+                    assert farm_sign['sign']['direction']=='left'
                     for ident in ('farm-path','beach-path','desert-path'):
                         target=next(t for t in view['hotspots'] if t['id']==ident)
                         x,y,_,_=target['glow_rect'];bx,by,bw,bh=target['sign']['label_rect']
                         before=d.capture_actual('campus')
                         tap(round(ox+(x+bx+bw/2)*scale),round(oy+(y+by+bh/2)*scale))
                         wait_for(before,f'{w}-{locale}-{ident}')
-                        if ident=='farm-path':farm_return()
+                        if ident=='farm-path':
+                            time.sleep(.7)
+                            actual=d.capture_actual(f'{w}-{locale}-farm-painting').convert('RGB')
+                            full=Image.open(root/('assets/jungle/title/farm-portrait.webp' if h>w else 'assets/jungle/title/farm.webp')).convert('RGB')
+                            fw,fh=round(full.width*scale),round(full.height*scale)
+                            expected=full.resize((fw,fh),Image.Resampling.BILINEAR)
+                            # Central/lower painting must be the full artwork, without UI or placeholder.
+                            region=(round(w*.2),round(h*.48),round(w*.8),round(h*.9))
+                            ref=expected.crop((region[0]-round(ox),region[1]-round(oy),region[2]-round(ox),region[3]-round(oy)))
+                            assert max(ImageStat.Stat(ImageChops.difference(actual.crop(region).resize((64,64)),ref.resize((64,64)))).mean)<4,'Farm full painting missing or covered'
+                            farm_return()
                         else:d.key('Escape')
                         wait_for(before,'returned',opened=False)
-                    saved=old.read_text().splitlines()
-                    assert saved[0]=='garden 3 6' and saved[1].split()[0]=='1' and saved[-1].split()[0]=='2','existing garden plants lost'
+                    assert old.read_text().startswith('garden 2 6\n1 100 100 3700 3600 0\n'), 'existing garden save changed'
                     assert not (state/'games/jungle.farm').exists(),'duplicate Farm save identity'
 
                     # Keyboard uses the same actual Farm hotspot and return path.
                     d.key('Home')
                     d.key(str(next(i+1 for i,h in enumerate(home['hotspots']) if h['target']=='scene:campus')))
+                    time.sleep(.6)
+                    centered=d.capture_actual('centered-campus')
                     for _ in range(next(i+1 for i,t in enumerate(view['hotspots']) if t['id']=='farm-path')):
                         d.key('Right')
                     before=d.capture_actual('keyboard-campus')
                     d.key('Return')
+                    time.sleep(.5)
                     wait_for(before,f'{w}-{locale}-keyboard-farm')
                     d.key('Escape')
-                    wait_for(before,'keyboard-returned',opened=False)
+                    wait_for(centered,'keyboard-returned',opened=False)
                 d.alive()
             print(f'local smoke: {w}x{h}, EN/DE/ES, Farm/Beach/Desert, pointer and keyboard, Campus return and garden save passed',flush=True)
 

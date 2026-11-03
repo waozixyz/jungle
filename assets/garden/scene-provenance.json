@@ -2,13 +2,13 @@
   "approval": "Owner: corrected 3 is fine as long as the sign is an actual overlay",
   "assets": [
     {
-      "source": "local/art-development/world-scene-refresh/garden-landscape-clean-v3.png",
+      "source": "local/art-development/owner-farm-beach-source/27.png",
       "runtime": "assets/garden/art/scene-landscape.webp",
       "sha256": "b03835754737a0b4c1b153b99565675c5f0992ccedc9262a48e9805d5ce96b38",
       "source_sha256": "ce05c400eacfe725812b5bf2bfb4928ea25a825430ad90e369547c760c182802"
     },
     {
-      "source": "local/art-development/world-scene-refresh/garden-portrait-clean-v3.png",
+      "source": "local/art-development/owner-farm-beach-source/19.png",
       "runtime": "assets/garden/art/scene-portrait.webp",
       "sha256": "8948877a5bdfb30739306f89afa14f8ca9a118c63faa716a737f0c923c3298f0",
       "source_sha256": "b7a7cf8ee5b61aab3366ec99c66b4efff28b4b51807030c085e595197778bde7"
@@ -47,5 +47,5 @@
     950,
     260
   ],
-  "destination": "Farm / Bauernhof / Granja; existing jungle.garden saves retained"
+  "destination": "Farm / Bauernhof / Granja; painting only, existing jungle.garden saves untouched"
 }

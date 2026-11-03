@@ -1541,80 +1541,28 @@
           "target": "game:Picture Book",
           "polygon": [
             [
-              330,
-              88
+              320,
+              85
             ],
             [
-              609,
-              102
+              1139,
+              85
             ],
             [
-              610,
-              344
+              1139,
+              379
             ],
             [
-              330,
-              334
-            ],
-            [
-              330,
-              88
-            ],
-            [
-              630,
-              110
-            ],
-            [
-              864,
-              122
-            ],
-            [
-              865,
-              358
-            ],
-            [
-              630,
-              350
-            ],
-            [
-              630,
-              110
-            ],
-            [
-              330,
-              88
-            ],
-            [
-              888,
-              127
-            ],
-            [
-              1124,
-              143
-            ],
-            [
-              1128,
-              372
-            ],
-            [
-              888,
-              360
-            ],
-            [
-              888,
-              127
-            ],
-            [
-              330,
-              88
+              320,
+              379
             ]
           ],
-          "glow": "assets/jungle/title/glow/bookshelf-picture-books.webp",
+          "glow": "assets/jungle/title/glow/bookshelf-picture-books-hover.webp",
           "glow_rect": [
-            310,
-            68,
-            839,
-            325
+            320,
+            85,
+            820,
+            295
           ]
         },
         {
@@ -1785,29 +1733,116 @@
           "target": "book:sweet-porridge",
           "polygon": [
             [
-              347,
-              626
+              345,
+              625
             ],
             [
-              731,
-              634
+              1339,
+              625
             ],
             [
-              734,
-              851
+              1339,
+              854
             ],
             [
-              348,
-              850
+              345,
+              854
             ]
           ],
-          "glow": "assets/jungle/title/glow/bookshelf-fairy-tale.webp",
+          "glow": "assets/jungle/title/glow/bookshelf-fairy-tale-hover.webp",
           "glow_rect": [
-            327,
-            606,
-            428,
-            266
+            345,
+            625,
+            995,
+            230
           ]
+        },
+        {
+          "id": "book-cover-tiger",
+          "target": "game:Picture Book",
+          "polygon": [
+            [
+              330,
+              88
+            ],
+            [
+              609,
+              102
+            ],
+            [
+              610,
+              344
+            ],
+            [
+              330,
+              334
+            ]
+          ],
+          "glow_rect": [
+            330,
+            88,
+            281,
+            257
+          ],
+          "glow": "assets/jungle/title/glow/bookshelf-book-cover-tiger-hover.webp"
+        },
+        {
+          "id": "book-cover-frogs",
+          "target": "game:Picture Book",
+          "polygon": [
+            [
+              630,
+              110
+            ],
+            [
+              864,
+              122
+            ],
+            [
+              865,
+              358
+            ],
+            [
+              630,
+              350
+            ]
+          ],
+          "glow_rect": [
+            630,
+            110,
+            236,
+            249
+          ],
+          "glow": "assets/jungle/title/glow/bookshelf-book-cover-frogs-hover.webp"
+        },
+        {
+          "id": "book-cover-rabbit",
+          "target": "game:Picture Book",
+          "polygon": [
+            [
+              888,
+              127
+            ],
+            [
+              1124,
+              143
+            ],
+            [
+              1128,
+              372
+            ],
+            [
+              888,
+              360
+            ]
+          ],
+          "glow_rect": [
+            888,
+            127,
+            241,
+            246
+          ],
+          "glow": "assets/jungle/title/glow/bookshelf-book-cover-rabbit-hover.webp"
         }
       ],
       "portrait": {
@@ -1821,80 +1856,28 @@
             "target": "game:Picture Book",
             "polygon": [
               [
-                133,
-                248
+                125,
+                240
               ],
               [
-                347,
-                256
+                859,
+                240
               ],
               [
-                348,
-                515
+                859,
+                549
               ],
               [
-                133,
-                504
-              ],
-              [
-                133,
-                248
-              ],
-              [
-                411,
-                264
-              ],
-              [
-                604,
-                272
-              ],
-              [
-                605,
-                529
-              ],
-              [
-                411,
-                521
-              ],
-              [
-                411,
-                264
-              ],
-              [
-                133,
-                248
-              ],
-              [
-                656,
-                279
-              ],
-              [
-                848,
-                288
-              ],
-              [
-                854,
-                540
-              ],
-              [
-                656,
-                531
-              ],
-              [
-                656,
-                279
-              ],
-              [
-                133,
-                248
+                125,
+                549
               ]
             ],
-            "glow": "assets/jungle/title/glow/bookshelf-portrait-picture-books.webp",
+            "glow": "assets/jungle/title/glow/bookshelf-portrait-picture-books-hover.webp",
             "glow_rect": [
-              113,
-              228,
-              762,
-              333
+              125,
+              240,
+              735,
+              310
             ]
           },
           {
@@ -2149,29 +2132,116 @@
             "target": "book:sweet-porridge",
             "polygon": [
               [
-                151,
-                982
+                125,
+                965
               ],
               [
-                418,
-                987
+                864,
+                965
               ],
               [
-                423,
-                1275
+                864,
+                1299
               ],
               [
-                152,
-                1274
+                125,
+                1299
               ]
             ],
-            "glow": "assets/jungle/title/glow/bookshelf-portrait-fairy-tale.webp",
+            "glow": "assets/jungle/title/glow/bookshelf-portrait-fairy-tale-hover.webp",
             "glow_rect": [
-              131,
-              962,
-              313,
-              334
+              125,
+              965,
+              740,
+              335
             ]
+          },
+          {
+            "id": "book-cover-tiger",
+            "target": "game:Picture Book",
+            "polygon": [
+              [
+                133,
+                248
+              ],
+              [
+                347,
+                256
+              ],
+              [
+                348,
+                515
+              ],
+              [
+                133,
+                504
+              ]
+            ],
+            "glow_rect": [
+              133,
+              248,
+              216,
+              268
+            ],
+            "glow": "assets/jungle/title/glow/bookshelf-portrait-book-cover-tiger-hover.webp"
+          },
+          {
+            "id": "book-cover-frogs",
+            "target": "game:Picture Book",
+            "polygon": [
+              [
+                411,
+                264
+              ],
+              [
+                604,
+                272
+              ],
+              [
+                605,
+                529
+              ],
+              [
+                411,
+                521
+              ]
+            ],
+            "glow_rect": [
+              411,
+              264,
+              195,
+              266
+            ],
+            "glow": "assets/jungle/title/glow/bookshelf-portrait-book-cover-frogs-hover.webp"
+          },
+          {
+            "id": "book-cover-rabbit",
+            "target": "game:Picture Book",
+            "polygon": [
+              [
+                656,
+                279
+              ],
+              [
+                848,
+                288
+              ],
+              [
+                854,
+                540
+              ],
+              [
+                656,
+                531
+              ]
+            ],
+            "glow_rect": [
+              656,
+              279,
+              199,
+              262
+            ],
+            "glow": "assets/jungle/title/glow/bookshelf-portrait-book-cover-rabbit-hover.webp"
           }
         ],
         "background": "assets/jungle/title/layers/bookshelf-portrait-background.webp",
@@ -2194,7 +2264,7 @@
     },
     {
       "name": "campus",
-      "image": "assets/jungle/title/layers/campus-background.webp",
+      "image": "assets/jungle/title/campus.webp",
       "low": "assets/jungle/title/campus-low.webp",
       "hotspots": [
         {
@@ -2855,46 +2925,48 @@
               47,
               136,
               37
-            ]
+            ],
+            "direction": "up"
           }
         },
         {
           "id": "farm-path",
-          "target": "game:Farm",
+          "target": "scene:farm",
           "glow_rect": [
-            70,
+            130,
             490,
-            220,
-            220
+            240,
+            240
           ],
           "rest": "assets/jungle/title/objects/wood-sign.webp",
           "glow": "assets/jungle/title/objects/wood-sign-glow.webp",
           "polygon": [
             [
-              95,
-              547
+              158,
+              552
             ],
             [
-              264,
-              547
+              342,
+              552
             ],
             [
-              264,
-              595
+              342,
+              604
             ],
             [
-              95,
-              595
+              158,
+              604
             ]
           ],
           "sign": {
             "label": "Farm",
             "label_rect": [
-              26,
-              58,
-              167,
-              46
-            ]
+              29,
+              63,
+              182,
+              50
+            ],
+            "direction": "left"
           }
         },
         {
@@ -2933,14 +3005,15 @@
               55,
               159,
               44
-            ]
+            ],
+            "direction": "right"
           }
         }
       ],
       "portrait": {
         "width": 1024,
         "height": 1536,
-        "image": "assets/jungle/title/layers/campus-portrait-background.webp",
+        "image": "assets/jungle/title/campus-portrait.webp",
         "low": "assets/jungle/title/campus-portrait-low.webp",
         "hotspots": [
           {
@@ -3307,12 +3380,13 @@
                 43,
                 125,
                 34
-              ]
+              ],
+              "direction": "up"
             }
           },
           {
             "id": "farm-path",
-            "target": "game:Farm",
+            "target": "scene:farm",
             "glow_rect": [
               160,
               650,
@@ -3346,7 +3420,8 @@
                 58,
                 167,
                 46
-              ]
+              ],
+              "direction": "left"
             }
           },
           {
@@ -3385,7 +3460,8 @@
                 58,
                 167,
                 46
-              ]
+              ],
+              "direction": "right"
             }
           }
         ],
@@ -3438,8 +3514,8 @@
           "id": "campus-path",
           "target": "scene:campus",
           "glow_rect": [
-            80,
-            570,
+            555,
+            710,
             220,
             220
           ],
@@ -3447,20 +3523,20 @@
           "glow": "assets/jungle/title/objects/wood-sign-glow.webp",
           "polygon": [
             [
-              105,
-              627
+              580,
+              767
             ],
             [
-              274,
-              627
+              749,
+              767
             ],
             [
-              274,
-              675
+              749,
+              815
             ],
             [
-              105,
-              675
+              580,
+              815
             ]
           ],
           "sign": {
@@ -3470,7 +3546,8 @@
               58,
               167,
               46
-            ]
+            ],
+            "direction": "left"
           }
         },
         {
@@ -3641,249 +3718,249 @@
           "target": "game:Crab Family Counting",
           "polygon": [
             [
-              760,
-              883
+              400,
+              597
             ],
             [
-              766,
-              862
+              405,
+              580
             ],
             [
-              772,
-              856
+              410,
+              575
             ],
             [
-              778,
-              853
+              415,
+              572
             ],
             [
-              805,
-              850
+              437,
+              570
             ],
             [
-              847,
-              853
+              472,
+              572
             ],
             [
-              853,
-              856
+              477,
+              575
             ],
             [
-              859,
-              865
+              481,
+              582
             ],
             [
-              862,
-              880
+              484,
+              595
             ],
             [
-              862,
-              898
+              484,
+              609
             ],
             [
-              847,
-              904
+              472,
+              614
             ],
             [
-              793,
-              907
+              427,
+              617
             ],
             [
-              772,
-              907
+              410,
+              617
             ],
             [
-              763,
-              901
+              402,
+              612
             ],
             [
-              760,
-              886
+              400,
+              600
             ],
             [
-              760,
-              883
+              400,
+              597
             ],
             [
-              897,
-              885
+              513,
+              599
             ],
             [
-              903,
-              867
+              518,
+              584
             ],
             [
-              906,
-              861
+              520,
+              579
             ],
             [
-              912,
-              858
+              525,
+              577
             ],
             [
-              942,
-              852
+              550,
+              572
             ],
             [
-              984,
-              855
+              584,
+              574
             ],
             [
-              993,
-              861
+              592,
+              579
             ],
             [
-              996,
-              867
+              594,
+              584
             ],
             [
-              1002,
-              894
+              599,
+              606
             ],
             [
-              1002,
-              897
+              599,
+              609
             ],
             [
-              978,
-              909
+              579,
+              618
             ],
             [
-              909,
-              909
+              523,
+              618
             ],
             [
-              900,
-              903
+              515,
+              614
             ],
             [
-              897,
-              888
+              513,
+              601
             ],
             [
-              897,
-              885
+              513,
+              599
             ],
             [
-              760,
-              883
+              400,
+              597
             ],
             [
-              760,
-              883
+              400,
+              597
             ],
             [
-              832,
-              913
+              459,
+              622
             ],
             [
-              835,
-              898
+              462,
+              609
             ],
             [
-              838,
-              895
+              464,
+              607
             ],
             [
-              853,
-              892
+              477,
+              605
             ],
             [
-              880,
-              895
+              499,
+              607
             ],
             [
-              883,
-              898
+              501,
+              609
             ],
             [
-              886,
-              904
+              504,
+              614
             ],
             [
-              886,
-              913
+              504,
+              622
             ],
             [
-              883,
-              919
+              501,
+              627
             ],
             [
-              847,
-              919
+              472,
+              627
             ],
             [
-              838,
-              916
+              464,
+              624
             ],
             [
-              832,
-              913
+              459,
+              622
             ],
             [
-              760,
-              883
+              400,
+              597
             ],
             [
-              760,
-              883
+              400,
+              597
             ],
             [
-              902,
-              913
+              517,
+              622
             ],
             [
-              905,
-              901
+              519,
+              612
             ],
             [
-              908,
-              898
+              522,
+              609
             ],
             [
-              920,
-              895
+              532,
+              607
             ],
             [
-              932,
-              895
+              542,
+              607
             ],
             [
-              947,
-              898
+              554,
+              609
             ],
             [
-              950,
-              901
+              556,
+              612
             ],
             [
-              950,
-              910
+              556,
+              619
             ],
             [
-              947,
-              919
+              554,
+              627
             ],
             [
-              905,
-              919
+              519,
+              627
             ],
             [
-              902,
-              913
+              517,
+              622
             ],
             [
-              760,
-              883
+              400,
+              597
             ]
           ],
           "rest": "assets/jungle/title/navigation/beach-crab-family.webp",
           "glow": "assets/jungle/title/glow/beach-crab-family.webp",
           "glow_rect": [
-            760,
-            850,
-            243,
-            73
+            400,
+            570,
+            200,
+            60
           ]
         }
       ],
@@ -3897,8 +3974,8 @@
             "id": "campus-path",
             "target": "scene:campus",
             "glow_rect": [
-              330,
-              860,
+              210,
+              980,
               220,
               220
             ],
@@ -3906,20 +3983,20 @@
             "glow": "assets/jungle/title/objects/wood-sign-glow.webp",
             "polygon": [
               [
-                355,
-                917
+                235,
+                1037
               ],
               [
-                524,
-                917
+                404,
+                1037
               ],
               [
-                524,
-                965
+                404,
+                1085
               ],
               [
-                355,
-                965
+                235,
+                1085
               ]
             ],
             "sign": {
@@ -3929,7 +4006,8 @@
                 58,
                 167,
                 46
-              ]
+              ],
+              "direction": "left"
             }
           },
           {
@@ -4100,249 +4178,249 @@
             "target": "game:Crab Family Counting",
             "polygon": [
               [
-                430,
-                1033
+                155,
+                800
               ],
               [
-                436,
-                1012
+                160,
+                781
               ],
               [
-                442,
-                1006
+                166,
+                775
               ],
               [
-                448,
-                1003
+                171,
+                773
               ],
               [
-                475,
-                1000
+                196,
+                770
               ],
               [
-                517,
-                1003
+                234,
+                773
               ],
               [
-                523,
-                1006
+                239,
+                775
               ],
               [
-                529,
-                1015
+                245,
+                784
               ],
               [
-                532,
-                1030
+                247,
+                797
               ],
               [
-                532,
-                1048
+                247,
+                813
               ],
               [
-                517,
-                1054
+                234,
+                819
               ],
               [
-                463,
-                1057
+                185,
+                822
               ],
               [
-                442,
-                1057
+                166,
+                822
               ],
               [
-                433,
-                1051
+                158,
+                816
               ],
               [
-                430,
-                1036
+                155,
+                803
               ],
               [
-                430,
-                1033
+                155,
+                800
               ],
               [
-                567,
-                1035
+                279,
+                802
               ],
               [
-                573,
-                1017
+                284,
+                785
               ],
               [
-                576,
-                1011
+                287,
+                780
               ],
               [
-                582,
-                1008
+                293,
+                777
               ],
               [
-                612,
-                1002
+                320,
+                772
               ],
               [
-                654,
-                1005
+                358,
+                775
               ],
               [
-                663,
-                1011
+                366,
+                780
               ],
               [
-                666,
-                1017
+                369,
+                785
               ],
               [
-                672,
-                1044
+                374,
+                810
               ],
               [
-                672,
-                1047
+                374,
+                812
               ],
               [
-                648,
-                1059
+                352,
+                823
               ],
               [
-                579,
-                1059
+                290,
+                823
               ],
               [
-                570,
-                1053
+                282,
+                818
               ],
               [
-                567,
-                1038
+                279,
+                804
               ],
               [
-                567,
-                1035
+                279,
+                802
               ],
               [
-                430,
-                1033
+                155,
+                800
               ],
               [
-                430,
-                1033
+                155,
+                800
               ],
               [
-                502,
-                1063
+                220,
+                827
               ],
               [
-                505,
-                1048
+                223,
+                813
               ],
               [
-                508,
-                1045
+                226,
+                811
               ],
               [
-                523,
-                1042
+                239,
+                808
               ],
               [
-                550,
-                1045
+                264,
+                811
               ],
               [
-                553,
-                1048
+                266,
+                813
               ],
               [
-                556,
-                1054
+                269,
+                819
               ],
               [
-                556,
-                1063
+                269,
+                827
               ],
               [
-                553,
-                1069
+                266,
+                832
               ],
               [
-                517,
-                1069
+                234,
+                832
               ],
               [
-                508,
-                1066
+                226,
+                830
               ],
               [
-                502,
-                1063
+                220,
+                827
               ],
               [
-                430,
-                1033
+                155,
+                800
               ],
               [
-                430,
-                1033
+                155,
+                800
               ],
               [
-                572,
-                1063
+                284,
+                827
               ],
               [
-                575,
-                1051
+                286,
+                816
               ],
               [
-                578,
-                1048
+                289,
+                813
               ],
               [
-                590,
-                1045
+                300,
+                811
               ],
               [
-                602,
-                1045
+                311,
+                811
               ],
               [
-                617,
-                1048
+                324,
+                813
               ],
               [
-                620,
-                1051
+                327,
+                816
               ],
               [
-                620,
-                1060
+                327,
+                824
               ],
               [
-                617,
-                1069
+                324,
+                832
               ],
               [
-                575,
-                1069
+                286,
+                832
               ],
               [
-                572,
-                1063
+                284,
+                827
               ],
               [
-                430,
-                1033
+                155,
+                800
               ]
             ],
             "rest": "assets/jungle/title/navigation/beach-portrait-crab-family.webp",
             "glow": "assets/jungle/title/glow/beach-portrait-crab-family.webp",
             "glow_rect": [
-              430,
-              1000,
-              243,
-              73
+              155,
+              770,
+              220,
+              66
             ]
           }
         ]
@@ -4647,6 +4725,101 @@
             ]
           }
         ]
+      }
+    },
+    {
+      "name": "farm",
+      "image": "assets/jungle/title/farm.webp",
+      "low": "assets/jungle/title/farm-low.webp",
+      "hotspots": [
+        {
+          "id": "campus-path",
+          "target": "scene:campus",
+          "glow_rect": [
+            1260,
+            90,
+            240,
+            240
+          ],
+          "rest": "assets/jungle/title/objects/wood-sign.webp",
+          "glow": "assets/jungle/title/objects/wood-sign-glow.webp",
+          "polygon": [
+            [
+              1288,
+              152
+            ],
+            [
+              1472,
+              152
+            ],
+            [
+              1472,
+              204
+            ],
+            [
+              1288,
+              204
+            ]
+          ],
+          "sign": {
+            "label": "Campus",
+            "label_rect": [
+              29,
+              63,
+              182,
+              50
+            ],
+            "direction": "right"
+          }
+        }
+      ],
+      "portrait": {
+        "image": "assets/jungle/title/farm-portrait.webp",
+        "low": "assets/jungle/title/farm-portrait-low.webp",
+        "hotspots": [
+          {
+            "id": "campus-path",
+            "target": "scene:campus",
+            "glow_rect": [
+              600,
+              300,
+              240,
+              240
+            ],
+            "rest": "assets/jungle/title/objects/wood-sign.webp",
+            "glow": "assets/jungle/title/objects/wood-sign-glow.webp",
+            "polygon": [
+              [
+                628,
+                362
+              ],
+              [
+                812,
+                362
+              ],
+              [
+                812,
+                414
+              ],
+              [
+                628,
+                414
+              ]
+            ],
+            "sign": {
+              "label": "Campus",
+              "label_rect": [
+                29,
+                63,
+                182,
+                50
+              ],
+              "direction": "right"
+            }
+          }
+        ],
+        "width": 1024,
+        "height": 1536
       }
     }
   ]

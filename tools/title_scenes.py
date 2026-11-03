@@ -46,6 +46,8 @@ def Sign(hotspot, rect):
     if sign is None:
         return '', [0, 0, 0, 0]
     label = SignLabel(hotspot)
+    if sign.get('direction') not in ('left','right','up','down'):
+        raise SystemExit('title scenes: every sign needs a travel direction')
     board = sign.get('label_rect', [])
     if (not isinstance(board, list) or len(board) != 4 or
             any(type(v) is not int for v in board) or
@@ -138,6 +140,7 @@ def Load(source=SOURCE, catalog=CATALOG):
                              'game': game, 'glow': hotspot['glow'], 'rect': rect, 'polygon': polygon,
                              'rest': hotspot.get('rest', ''), 'occlusion': occlusion,
                              'sign_label': label, 'sign_rect': board,
+                             'sign_direction': {'left':1,'right':2,'up':3,'down':4}.get(hotspot.get('sign',{}).get('direction'),0),
                              'notice': {'Farm': 1, 'Desert': 2}.get(target, 0) if kind == 'notice' else 0})
     # Parents: breadth first from the first scene, so Escape always climbs
     # back towards the treehouse.
@@ -158,7 +161,8 @@ def Load(source=SOURCE, catalog=CATALOG):
     unreachable = [names[index] for index in range(len(scenes)) if index not in seen]
     if unreachable:
         raise SystemExit('title scenes: unreachable scenes ' + ', '.join(unreachable))
-    missing = sorted(set(titles) - {hotspot['game'] for hotspot in hotspots})
+    # Keep the legacy Farm bundle/save identity installed, without a game route.
+    missing = sorted(set(titles) - {'Farm'} - {hotspot['game'] for hotspot in hotspots})
     if missing:
         raise SystemExit('title scenes: catalog games without a hotspot: ' + ', '.join(missing))
     for scene in scenes:
@@ -271,6 +275,7 @@ def Render(data, scenes, parents, hotspots):
         f'TITLE_HOTSPOT_GLOW: [{hotspot_count}]string = .[{Quoted(hotspot["glow"] for hotspot in hotspots)}];',
         '// Optional always-visible navigation art; shares the glow rectangle.',
         f'TITLE_HOTSPOT_REST: [{hotspot_count}]string = .[{Quoted(hotspot["rest"] for hotspot in hotspots)}];',
+        f'TITLE_SIGN_DIRECTION: [{hotspot_count}]s32 = .[{Numbers(h["sign_direction"] for h in hotspots)}];',
         '// Localized at runtime; the blank sign sprite never contains language-specific lettering.',
         f'TITLE_SIGN_LABEL: [{hotspot_count}]string = .[{Quoted(h["sign_label"] for h in hotspots)}];',
         '// Text board bounds relative to the hotspot sprite, in source pixels.',

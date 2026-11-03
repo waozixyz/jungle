@@ -2,7 +2,7 @@
   "format": "jungle-approved-title-webp-1",
   "quality": 50,
   "method": 6,
-  "total_bytes": 2412262,
+  "total_bytes": 3580946,
   "images": [
     {
       "name": "bookshelf-background",
@@ -63,30 +63,54 @@
     {
       "name": "campus-background",
       "path": "assets/jungle/title/layers/campus-background.webp",
-      "bytes": 256842,
-      "sha256": "6f35d1b5c2da57148971d0f25d6c88bdf660cb7eae0a2c79f0751881856f447b",
+      "bytes": 272796,
+      "sha256": "b0fe00b713fbb0edb7dd03d8e6ac852fdaf1f07fafb247a4e9442dfd7cc880a2",
       "width": 1672,
       "height": 941,
-      "decoded_rgba_sha256": "f298a8e4532447059e3aaa106622050749a09e1497ae72dec75b5dd887b252c7",
-      "canonical_source": "local/art-development/campus-object-layers/landscape-clean-v2-no-bottom-path.png",
-      "canonical_bytes": 3207993,
-      "canonical_sha256": "c4a7fa54d0a3178f44a27f02d71333fb9275cf55ea3d71ad3b2f034fef3d5d1a"
+      "decoded_rgba_sha256": "0ed364f1c05c67da59e7b517642b894e73f29401ce490a8d0339ff446558b2f1",
+      "canonical_source": "local/art-development/campus-object-layers/landscape-connected-no-stones-proposal.png",
+      "canonical_bytes": 3455282,
+      "canonical_sha256": "f104559c5f53c1512849a9a8997ff6a25b94aeb4fa845ced0cde75aed1549061"
+    },
+    {
+      "name": "campus",
+      "path": "assets/jungle/title/campus.webp",
+      "bytes": 272796,
+      "sha256": "b0fe00b713fbb0edb7dd03d8e6ac852fdaf1f07fafb247a4e9442dfd7cc880a2",
+      "width": 1672,
+      "height": 941,
+      "decoded_rgba_sha256": "0ed364f1c05c67da59e7b517642b894e73f29401ce490a8d0339ff446558b2f1",
+      "canonical_source": "local/art-development/campus-object-layers/landscape-connected-no-stones-proposal.png",
+      "canonical_bytes": 3455282,
+      "canonical_sha256": "f104559c5f53c1512849a9a8997ff6a25b94aeb4fa845ced0cde75aed1549061"
     },
     {
       "name": "campus-low",
       "path": "assets/jungle/title/campus-low.webp",
-      "bytes": 9348,
-      "sha256": "07e59633264a54c36e32693ac83e8b3fe6df814710342e11e52b8b48b8cd2a82",
+      "bytes": 9864,
+      "sha256": "aace32b387672314f270fdbc7c701efd9104362ec302dbcb243eb8d1a7f49cd9",
       "width": 240,
       "height": 135,
-      "decoded_rgba_sha256": "42e2a62efce5e90b977d77dd7e89a03b6f0b30d0e65f7ee9156f2264b28fd526",
-      "canonical_source": "local/art-development/campus-object-layers/landscape-clean-v2-no-bottom-path.png",
-      "canonical_bytes": 3207993,
-      "canonical_sha256": "c4a7fa54d0a3178f44a27f02d71333fb9275cf55ea3d71ad3b2f034fef3d5d1a"
+      "decoded_rgba_sha256": "b5cd2bbfbb4ab7f93a7f0e4892da1b26df47988d5d942858350a04fc758ba017",
+      "canonical_source": "local/art-development/campus-object-layers/landscape-connected-no-stones-proposal.png",
+      "canonical_bytes": 3455282,
+      "canonical_sha256": "f104559c5f53c1512849a9a8997ff6a25b94aeb4fa845ced0cde75aed1549061"
     },
     {
       "name": "campus-portrait-background",
       "path": "assets/jungle/title/layers/campus-portrait-background.webp",
+      "bytes": 290176,
+      "sha256": "59e6427d17028b64cd54fa7eda8b08c0b177fd15835c6782b5108c3b288754d0",
+      "width": 1024,
+      "height": 1536,
+      "decoded_rgba_sha256": "b92fb237cefd67de931e318d483c7883ad76147da5a69996677f937742bd0d81",
+      "canonical_source": "local/art-development/campus-object-layers/portrait-clean-v3-pond-up.png",
+      "canonical_bytes": 3482858,
+      "canonical_sha256": "edd45d4bce0d20e0da4bb307f1b52bf22b71c732cf6c62e5facbb5cba2f95233"
+    },
+    {
+      "name": "campus-portrait",
+      "path": "assets/jungle/title/campus-portrait.webp",
       "bytes": 290176,
       "sha256": "59e6427d17028b64cd54fa7eda8b08c0b177fd15835c6782b5108c3b288754d0",
       "width": 1024,
@@ -164,7 +188,7 @@
       "width": 1671,
       "height": 941,
       "decoded_rgba_sha256": "65fad8b7024bee53931173fe6eb66cf50e4d246f6e1bb6edafdf3ab79cebc45b",
-      "canonical_source": "local/art-development/world-scene-refresh/garden-landscape-clean-v3.png",
+      "canonical_source": "local/art-development/owner-farm-beach-source/27.png",
       "canonical_bytes": 3378695,
       "canonical_sha256": "ce05c400eacfe725812b5bf2bfb4928ea25a825430ad90e369547c760c182802"
     },
@@ -176,7 +200,55 @@
       "width": 1024,
       "height": 1536,
       "decoded_rgba_sha256": "3e06e44548ad2208e5f94ce4a9025a0c794b0d2c20202f55b44da8b70cbc25ea",
-      "canonical_source": "local/art-development/world-scene-refresh/garden-portrait-clean-v3.png",
+      "canonical_source": "local/art-development/owner-farm-beach-source/19.png",
+      "canonical_bytes": 3382690,
+      "canonical_sha256": "b7a7cf8ee5b61aab3366ec99c66b4efff28b4b51807030c085e595197778bde7"
+    },
+    {
+      "name": "farm",
+      "path": "assets/jungle/title/farm.webp",
+      "bytes": 275270,
+      "sha256": "b03835754737a0b4c1b153b99565675c5f0992ccedc9262a48e9805d5ce96b38",
+      "width": 1671,
+      "height": 941,
+      "decoded_rgba_sha256": "65fad8b7024bee53931173fe6eb66cf50e4d246f6e1bb6edafdf3ab79cebc45b",
+      "canonical_source": "local/art-development/owner-farm-beach-source/27.png",
+      "canonical_bytes": 3378695,
+      "canonical_sha256": "ce05c400eacfe725812b5bf2bfb4928ea25a825430ad90e369547c760c182802"
+    },
+    {
+      "name": "farm-low",
+      "path": "assets/jungle/title/farm-low.webp",
+      "bytes": 9616,
+      "sha256": "d37a2440ee37bcf2e13f365cb6e5427c336558f7d305c744a74e88f4fbab8d83",
+      "width": 240,
+      "height": 135,
+      "decoded_rgba_sha256": "34a294dc813c338e200e12b85b089f0f882e8a572f436962be9cf29934b7867b",
+      "canonical_source": "local/art-development/owner-farm-beach-source/27.png",
+      "canonical_bytes": 3378695,
+      "canonical_sha256": "ce05c400eacfe725812b5bf2bfb4928ea25a825430ad90e369547c760c182802"
+    },
+    {
+      "name": "farm-portrait",
+      "path": "assets/jungle/title/farm-portrait.webp",
+      "bytes": 279478,
+      "sha256": "8948877a5bdfb30739306f89afa14f8ca9a118c63faa716a737f0c923c3298f0",
+      "width": 1024,
+      "height": 1536,
+      "decoded_rgba_sha256": "3e06e44548ad2208e5f94ce4a9025a0c794b0d2c20202f55b44da8b70cbc25ea",
+      "canonical_source": "local/art-development/owner-farm-beach-source/19.png",
+      "canonical_bytes": 3382690,
+      "canonical_sha256": "b7a7cf8ee5b61aab3366ec99c66b4efff28b4b51807030c085e595197778bde7"
+    },
+    {
+      "name": "farm-portrait-low",
+      "path": "assets/jungle/title/farm-portrait-low.webp",
+      "bytes": 24878,
+      "sha256": "fe98c5f4661730f4701b0ba5d6de65eb624c6e8550101a725a12ac465a361b3d",
+      "width": 240,
+      "height": 360,
+      "decoded_rgba_sha256": "86e971c85380b0497808539392386d023554e12c8b2b7f2d3770484829155ee3",
+      "canonical_source": "local/art-development/owner-farm-beach-source/19.png",
       "canonical_bytes": 3382690,
       "canonical_sha256": "b7a7cf8ee5b61aab3366ec99c66b4efff28b4b51807030c085e595197778bde7"
     }

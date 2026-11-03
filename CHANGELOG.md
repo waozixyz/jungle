@@ -1,5 +1,12 @@
 # Changelog
 
+## [Unreleased]
+
+- Follow the connected sandy path left from Campus to the full-screen Farm scene, with a painted Campus return sign.
+- Highlight visible shelf books individually, the Stories row together, and return using the shelf Back button.
+- Place the crab family on the Beach sand beside its relocated Campus sign.
+- Read directional arrows on localized signs in both orientations; Farm has no planting panels or game title bar.
+
 ## 0.1.37
 
 Released 2026-11-02.

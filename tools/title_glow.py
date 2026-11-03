@@ -17,7 +17,7 @@ SOURCE = ROOT / 'local/art-development/title-world-proposal'
 DEBUG = SOURCE / 'hotspot-debug'
 ORIGINALS = {'treehouse': 'treehouse-room', 'bookshelf': 'bookshelf-closeup',
              'campus': 'jungle-campus', 'music': 'music-room',
-             'beach': '../title-waterfront/beach', 'aquarium': '../title-waterfront/aquarium'}
+             'farm': '../owner-farm-beach-source/27', 'beach': '../title-waterfront/beach', 'aquarium': '../title-waterfront/aquarium'}
 
 
 def validate(data):

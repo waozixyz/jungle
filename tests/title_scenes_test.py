@@ -37,7 +37,7 @@ class TitleVariants(unittest.TestCase):
         for scene in scenes:
             if scene['name'].startswith('campus'):
                 routes={h['id']:h['target'] for h in scene['hotspots']}
-                self.assertEqual(routes['farm-path'],'game:Farm')
+                self.assertEqual(routes['farm-path'],'scene:farm')
                 self.assertEqual(routes['beach-path'],'scene:beach')
                 self.assertEqual(routes['desert-path'],'notice:Desert')
                 self.assertNotIn('garden',routes)
@@ -49,7 +49,7 @@ class TitleVariants(unittest.TestCase):
                 self.assertEqual(next(h for h in scene['hotspots'] if h['id']=='campus-path')['target'],'scene:campus')
                 self.assertEqual({h['id'] for h in scene['hotspots']}, {'campus-path','bunker-door','fishing-boat','crab-family'})
 
-    def test_signs_are_localized_opaque_boards_without_arrows(self):
+    def test_signs_are_localized_boards_with_travel_arrows(self):
         data,scenes,_,hotspots=title.Load()
         translations=json.loads((ROOT/'locales/ui.json').read_text())
         for label,expected in {'Beach':['Strand','Playa'],'Farm':['Bauernhof','Granja'],'Desert':['Wüste','Desierto']}.items():
@@ -57,13 +57,14 @@ class TitleVariants(unittest.TestCase):
         for scene in scenes:
             for h in scene['hotspots']:
                 if not h.get('sign'):continue
-                self.assertNotIn('direction',h['sign'])
+                self.assertIn(h['sign']['direction'], ('left','right','up','down'))
+                if h['id']=='farm-path':self.assertEqual(h['sign']['direction'],'left')
                 x,y,w,ht=h['glow_rect'];bx,by,bw,bh=h['sign']['label_rect']
                 self.assertEqual(hit(scene,x+bx+bw/2,y+by+bh/2),h['id'])
                 with Image.open(ROOT/h['rest']) as im:
                     self.assertEqual(im.format,'WEBP')
                     self.assertGreater(im.convert('RGBA').getpixel((round((bx+bw/2)*im.width/w),round((by+bh/2)*im.height/ht)))[3],200)
-        self.assertNotIn('TITLE_SIGN_DIRECTION',(ROOT/'host/jungle_title_data.zi').read_text())
+        self.assertIn('TITLE_SIGN_DIRECTION',(ROOT/'host/jungle_title_data.zi').read_text())
 
     def test_approved_webp_fingerprints(self):
         approved=json.loads(APPROVED_TITLE_WEBP.read_text())
@@ -91,6 +92,21 @@ class TitleVariants(unittest.TestCase):
                     self.assertTrue(h['rest'].endswith('.webp'))
                     with Image.open(ROOT/h['rest']) as rest,Image.open(ROOT/h['glow']) as glow:
                         self.assertEqual(rest.getchannel('A').tobytes(),glow.getchannel('A').tobytes())
+
+    def test_shelf_cover_priority_and_stories_row(self):
+        _,scenes,_,_=title.Load()
+        for scene in scenes:
+            if not scene['name'].startswith('bookshelf'):continue
+            for name in ('tiger','frogs','rabbit'):
+                h=next(h for h in scene['hotspots'] if h['id']=='book-cover-'+name)
+                x,y,w,ht=h['glow_rect']
+                self.assertEqual(hit(scene,x+w/2,y+ht/2),h['id'])
+            row=next(h for h in scene['hotspots'] if h['id']=='picture-books')
+            x,y,w,ht=row['glow_rect']
+            self.assertEqual(hit(scene,x+3,y+3),'picture-books')
+            story=next(h for h in scene['hotspots'] if h['id']=='fairy-tale')
+            x,y,w,ht=story['glow_rect']
+            for u in (.1,.5,.9):self.assertEqual(hit(scene,x+w*u,y+ht*.5),'fairy-tale')
 
     def test_no_testing_room_surface(self):
         for name in ('host/jungle_title.zi','host/jungle_menu.zi','tools/build_web.py','Makefile'):

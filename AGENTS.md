@@ -121,17 +121,16 @@ is in `tools/book_prompts.json`; the full-size originals are kept in
 
 - 123 Book opens with autoplay and repeat on by default. Swipes, arrows and number selection keep the current Play/Pause choice. Counting games load 128 px transparent derivatives; preserve the full-size artwork.
 
-- Title scenes use the approved separate signposts with localized names and no
-  direction arrows. Never draw path/navigation arrows over title artwork.
-  Keep the shared title-bar Back arrow. There are no testing rooms, testing
-  strip, build flag or neutral preview destinations in native or web builds.
-  Farm/Bauernhof/Granja opens the existing planting activity in the approved
-  v3 raised-bed scene, retaining jungle.garden identity and garden.txt saves.
-  Desert shows an availability notice until owner-approved destination art exists.
-
-- Campus uses the approved portrait-clean-v3-pond-up and landscape-clean-v2-no-bottom-path
-  plates (keep the accepted stepping stone). Farm is the v3 raised-bed pair,
-  with its entrance from the upper right; Beach uses the approved clean plates.
-  Preserve original source files privately; normal screens ship tracked WebP.
+- Title scenes use separate painted signposts with localized names and arrows
+  pointing along the actual route. Farm points LEFT at Campus; retain no old
+  floating navigation arrows or testing rooms/strips. Keep shared title-bar Back.
+  Desert shows an availability notice until approved destination art exists.
+- Campus uses portrait-clean-v3-pond-up and
+  landscape-connected-no-stones-proposal (clean sandy path across to the left,
+  no stepping stones). Farm shows only owner-selected 27.png landscape and
+  19.png portrait from owner-farm-beach-source, as a full-screen title scene with the normal scene controls and a right-pointing
+  Campus return sign, without a game title bar or activity overlays;
+  preserve jungle.garden identity and leave existing garden.txt saves untouched.
+  Beach uses the approved clean plates. Keep originals private and ship WebPs.
 - Keep fast unit tests and one local native smoke test in both orientations.
   Retired browser/UI CI gate suites and testing-room fixtures must not return.
