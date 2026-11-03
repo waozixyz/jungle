@@ -160,9 +160,24 @@ try{
  await pixelClick(34,28,true);await pixelClick(34,28,true);await openCatalog('Coloring Book');await shot('paint-phone');
  // Paint mixes responsive screen coordinates with the book's virtual dialogs.
  const paintWidth=390,paintHeight=788,paintPad=9,paintGap=4;
- const paintToolWidth=121,paintToolHeight=90,paintCanvas={x:9,y:65,w:372,h:279};
- const paintTool=async index=>pixelClick(paintPad+index%3*(paintToolWidth+paintGap)+paintToolWidth/2,
-  56+399+Math.floor(index/3)*(paintToolHeight+paintGap)+paintToolHeight/2,true);
+ const paintCanvas={x:9,y:65,w:372,h:279};
+ // LayoutMain centers the complete toolbar below/beside the picture.
+ // The same calculation covers the later desktop Story interaction.
+ const paintTool=async(index,width=390,totalHeight=844,touch=true)=>{
+  const height=totalHeight-56,pad=Math.max(6,Math.min(20,Math.floor(Math.min(width,height)/40))),gap=Math.max(4,Math.min(10,Math.floor(Math.min(width,height)/80)));
+  let columns,tw,th,left,top;
+  if(height>width){
+   columns=3;left=pad;tw=Math.floor((width-pad*2-gap*2)/3);th=Math.max(44,Math.min(110,Math.floor(tw*3/4)));
+   const rows=4,room=height-pad*3-gap*(rows-1)-th*rows,ch=Math.min(Math.floor((width-pad*2)*3/4),room),below=pad+ch+pad;
+   top=below+Math.floor((height-pad-below-th*rows-gap*(rows-1))/2);
+  }else{
+   columns=height<560?2:1;const rows=Math.ceil(11/columns);th=Math.floor((height-pad*2-gap*(rows-1))/rows);
+   tw=Math.max(64,Math.min(Math.floor(th*5/2),Math.floor(width/(columns===2?8:5))));
+   const rail=tw*columns+gap*(columns-1),ch=Math.min(Math.floor((width-pad*3-rail)*3/4),height-pad*2),cw=Math.floor(ch*4/3);
+   left=Math.floor((width-rail-pad-cw)/2);top=pad+Math.floor((height-pad*2-ch)/2)+Math.floor((ch-th*rows-gap*(rows-1))/2);
+  }
+  await pixelClick(left+index%columns*(tw+gap)+tw/2,56+top+Math.floor(index/columns)*(th+gap)+th/2,touch);
+ };
  const paintPoint=(x,y)=>({x:paintCanvas.x+x*paintCanvas.w/960,y:paintCanvas.y+y*paintCanvas.h/720});
  const legacy=async(x,y)=>pixelClick(x*paintWidth/320,56+(paintHeight-paintWidth*200/320)/2+y*paintWidth/320,true);
  const stencilPad=16,stencilGap=10,stencilTabWidth=174,stencilCardHeight=178;
@@ -187,7 +202,7 @@ try{
  await paintTool(4);await legacy(253,38);await legacy(60,80);
  const story=await paintText('slot-0.txt');if(!story?.includes('Niño, piña'))throw Error('Mobile story lost accented text');
  // Desktop typing takes the canvas keypress route, without the phone editor.
- await resize(1280,800,false);await pixelClick(159,270);
+ await resize(1280,800,false);await paintTool(2,1280,800,false);
  await pixelClick(82,56+54*3.72); // Start of the second story line.
  await evaluate('document.getElementById("mobile-input").blur();Module.canvas.focus()');
  for(const text of 'Desktop ñ'){
