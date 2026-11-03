@@ -1,0 +1,16 @@
+{
+  "hand-cursor": {
+    "generation_request": "c4a212fe74a4bc7f77af330d3814d456f9fa",
+    "prompt": "A single friendly cartoon pointing hand for a toddlers' app mouse cursor, on a fully transparent background (real alpha, no paper, no white matte, no shadow, no glow). A small chubby child's right hand seen from the back, index finger extended straight up and slightly tilted to the upper left (about 20 degrees), the other three fingers curled into a soft fist with the thumb tucked alongside. Style: soft storybook watercolor look matching a gentle jungle picture book (warm peach skin wash with a slightly darker peach shade on the curled fingers, tiny pink fingertip blush), but drawn for icon legibility: a bold, smooth, even dark warm-brown outline (#4a2e1f) around the whole silhouette, clean closed shapes, no texture noise, no stray paint specks, no fingernail detail except one simple rounded nail shape on the index finger. Short rounded wrist ending in a small leaf-green cuff with a clean outline. The hand fills the square canvas, fingertip touching near the top-left area, centered composition, large simple shapes that stay readable when shrunk to 32 pixels. Square 1024x1024, transparent PNG.",
+    "source_png": "local/art-development/cursor/hand-generated-v1.png",
+    "source_sha256": "3ff7a07be1c9b514abc28b32f26587635b2abbd03a48ffaab576c2c47e67927b",
+    "cleaned": "tools/cursor_art.py: largest alpha component, opaque interior, outline-coloured soft edge, outer stroke, premultiplied 128 px resize",
+    "webp": "assets/jungle/hand-cursor.webp",
+    "webp_sha256": "c8406ece4e02ba799b849320d44f2fa4d9d516286b2f05e7869dba228c531d6f",
+    "units": 32,
+    "hotspot": [
+      8,
+      1
+    ]
+  }
+}

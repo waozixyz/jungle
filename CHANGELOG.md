@@ -9,6 +9,7 @@
 - Stories now includes Town Musicians of Bremen, with eleven landscape and portrait illustrations and English, German and Spanish narration.
 
 - Follow the connected sandy path left from Campus to the full-screen Farm scene, with a painted Campus return sign.
+- A friendly cartoon hand is the pointer everywhere: every scene, menu, book and game, crisp on any screen and with clean edges.
 - Highlight the shelf's first row and Stories row each as one whole row, find the stencil hidden beside the tiger book again, and return using the shelf Back button.
 - Place the crab family on the Beach sand beside its relocated Campus sign.
 - Read directional arrows on localized signs in both orientations; Farm has no planting panels or game title bar.

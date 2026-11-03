@@ -11,15 +11,6 @@
       "url": "https://github.com/libsdl-org/SDL.git"
     },
     {
-      "commit": "81f5e70f91ebe63fbe48567d994b8ba2820966e7",
-      "dependencies": {"libwebp": "p3b3c785a0e17e605", "raylib": "pcc7aa76725f2fb2f", "sdl3": "p16cd0434af3dff7b"},
-      "dependency_refs": {"libwebp": "1844042d1ca751e62e61df7617dba19c98588339", "raylib": "fafa2cea97d0cb379d832086ba45a989fa6f9c8e", "sdl3": "829a65d769d935c4852f8159e964312c0957260a"},
-      "id": "p22cd8de98becfb06",
-      "name": "kryon",
-      "ref": "master",
-      "url": "https://github.com/kryonlabs/kryon.git"
-    },
-    {
       "commit": "1844042d1ca751e62e61df7617dba19c98588339",
       "dependencies": {},
       "id": "p3b3c785a0e17e605",
@@ -27,6 +18,15 @@
       "ref": "1844042d1ca751e62e61df7617dba19c98588339",
       "source": true,
       "url": "https://github.com/webmproject/libwebp.git"
+    },
+    {
+      "commit": "4f1e8d4610a9d6dec72d5977e8dc88bb4da42f5c",
+      "dependencies": {"libwebp": "p3b3c785a0e17e605", "raylib": "pcc7aa76725f2fb2f", "sdl3": "p16cd0434af3dff7b"},
+      "dependency_refs": {"libwebp": "1844042d1ca751e62e61df7617dba19c98588339", "raylib": "fafa2cea97d0cb379d832086ba45a989fa6f9c8e", "sdl3": "829a65d769d935c4852f8159e964312c0957260a"},
+      "id": "pb8d6d774c0d97649",
+      "name": "kryon",
+      "ref": "master",
+      "url": "https://github.com/kryonlabs/kryon.git"
     },
     {
       "commit": "fafa2cea97d0cb379d832086ba45a989fa6f9c8e",
@@ -47,7 +47,7 @@
     }
   ],
   "root": {
-    "dependencies": {"kryon": "p22cd8de98becfb06", "mingcute": "pe1027b9d16704793"},
+    "dependencies": {"kryon": "pb8d6d774c0d97649", "mingcute": "pe1027b9d16704793"},
     "dependency_refs": {"kryon": "master", "mingcute": "master"},
     "name": "Jungle"
   },

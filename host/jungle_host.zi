@@ -45,6 +45,7 @@
 #import, file "../games/paint/paint_picture.zi";
 #import, file "printing.zi";
 #import, file "jungle_collection.zi";
+#import "kryon/cursor"
 
 #import, file "../retro/language.zi";
 #import, file "../games/piano/keyboard.zi";
@@ -523,6 +524,7 @@ GameFrame :: (bounds: Rectangle, pointer: PointerFrame, secondary: SecondaryPoin
     app.area_input.now_seconds = seconds
     if BeginFrame(app.session, cast(u64)1, bounds) != FrameStatus.FrameOk { return false }
     if collection_book_open {
+        unused CursorSet(app.session, .{})
         if CollectionBookFrame(app.session, bounds, key, seconds, sound_muted, jungle_collection) { ToggleSound() }
         return EndFrame(app.session) == FrameStatus.FrameOk
     }

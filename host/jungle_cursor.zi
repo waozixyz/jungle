@@ -1,0 +1,11 @@
+// Jungle's one application cursor: the friendly hand, on every scene, menu,
+// book and game. tools/cursor_art.py makes the image and its hotspot; hosts
+// draw it at 32 logical units at their own pixel density. A game may choose a
+// tool cursor with CursorSet and withdraw it with .{}; it then returns here.
+#import "kryon/cursor"
+
+JUNGLE_CURSOR_ASSET :: "assets/jungle/hand-cursor.webp";
+
+JungleHandCursor :: () -> CursorProps {
+    return CursorProps.{.asset_path = JUNGLE_CURSOR_ASSET, .width = 32, .height = 32, .hotspot_x = 8, .hotspot_y = 1}
+}

@@ -45,6 +45,8 @@ PianoKeys :: #import, file "../games/piano/keyboard.zi";
 #import, file "../retro/language.zi";
 #import, file "../retro/speech_profile.zi";
 #import, file "../host/jungle_collection.zi";
+#import, file "../host/jungle_cursor.zi";
+#import "kryon/cursor"
 
 // Painted navigation consumes titles; full descriptions, ages and icons remain
 // in games/catalog.txt for native catalog loading.
@@ -450,6 +452,7 @@ JungleMain :: () -> s64 {
     if mode == APP_SAVE { return cast(s64)RunGame() }
     if mode != APP_FRAME { return 0 }
     if !web_initialized {
+        unused CursorSetDefault(JungleHandCursor())
         LanguageSet(Runner.DocumentReadHost("settings/language.txt"))
         SpeechProfileSet(Runner.DocumentReadHost("settings/speech-profile.txt"))
         web_muted = Runner.DocumentReadHost("settings/sound.txt") == "off"
@@ -485,6 +488,8 @@ JungleMain :: () -> s64 {
         }
         if status != 1 { StopAudio(); return 0 }
     }
+    // Games share this session; only a drawing game keeps its own cursor.
+    if collection_book_open || active_game < 0 { unused CursorSet(AppSession(), .{}) }
     if collection_book_open {
         if CollectionBookFrame(AppSession(), AppBounds(), key, AppNow(), web_muted, web_collection) { ToggleAudio() }
         return 0
