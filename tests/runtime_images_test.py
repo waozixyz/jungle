@@ -41,7 +41,7 @@ def main():
             assert payload[:4] == b'RIFF' and payload[8:12] == b'WEBP'
             assert len(payload) < path.stat().st_size
             assert export.info['source_sha256'] == hashlib.sha256(path.read_bytes()).hexdigest()
-            assert export.info['source_path'] == name and export.info['quality'] == 85
+            assert export.info['source_path'] == name and export.info['quality'] == (None if has_alpha else 85)
             with Image.open(export.source) as decoded:
                 decoded.load()
                 assert decoded.format == 'WEBP' and decoded.mode == ('RGBA' if has_alpha else 'RGB')
@@ -49,6 +49,9 @@ def main():
                     export.info['runtime_width'], export.info['runtime_height'])
                 if has_alpha:
                     assert decoded.getchannel('A').getextrema()[0] == 0
+                    expected = alpha.copy()
+                    expected.thumbnail((long_edge, long_edge), Image.Resampling.LANCZOS)
+                    assert decoded.convert('RGBA').tobytes() == expected.tobytes()
             assert export.target.startswith('assets/runtime-images/')
             assert export.target.endswith(hashlib.sha256(payload).hexdigest() + '.webp')
 

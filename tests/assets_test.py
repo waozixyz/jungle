@@ -46,22 +46,22 @@ def main():
         with Image.open(path) as preview:
             assert preview.size == ((768, 512) if path.name == 'sweet-porridge.webp' else (768, 768))
     assert not (ROOT / "assets/jungle-book/backgrounds").exists(), "scenes replace the shared backdrops"
-    with Image.open(ROOT / "assets/jungle/book.png") as icon:
+    with Image.open(ROOT / "assets/jungle/book.webp") as icon:
         assert icon.size == (64, 64), "Picture Book needs a generated raster icon"
     # Counting uses cut-outs; Picture Book and ABC examples use full scenes.
     # New words need no unused duplicate cut-out.
-    expected = {name + ".png" for name in prompts["cutouts"]}
-    actual = {path.name for path in (ROOT / "assets/jungle-book/items").glob("*.png")}
+    expected = {name + ".webp" for name in prompts["cutouts"]}
+    actual = {path.name for path in (ROOT / "assets/jungle-book/items").glob("*.webp")}
     assert actual == expected, "Picture Book has stale or missing cut-outs"
     assert set(prompts["cutouts"]) <= set(NAMES), "cut-outs must belong to a real word"
     counting = {'tiger','frog','butterfly','ladybug','snail','elephant','giraffe','monkey','panda','lion','zebra','crocodile','parrot','toucan','rabbit','cat','dog','sheep','duck','hen','pig','cow'}
     assert counting <= set(prompts["cutouts"]), "a counting animal has no cut-out"
-    assert {p.stem for p in (ROOT / 'assets/jungle-book/counting').glob('*.png')} == counting
+    assert {p.stem for p in (ROOT / 'assets/jungle-book/counting').glob('*.webp')} == counting
     original_bytes = 0
     counting_bytes = 0
     for name in counting:
-        original = ROOT / f'assets/jungle-book/items/{name}.png'
-        small = ROOT / f'assets/jungle-book/counting/{name}.png'
+        original = ROOT / f'assets/jungle-book/items/{name}.webp'
+        small = ROOT / f'assets/jungle-book/counting/{name}.webp'
         with Image.open(original) as source, Image.open(small) as picture:
             assert picture.size == (128, 128) and picture.mode == 'RGBA', name
             assert picture.getchannel('A').getextrema() == (0, 255), name
@@ -73,7 +73,7 @@ def main():
                  'crocodile','parrot','toucan','gorilla','hippo','rhino','snake','bear'}
     assert set(json.loads((ROOT / 'tools/book_art_refresh.json').read_text())['cutouts']) == refreshed
     farm_cutouts = set(json.loads((ROOT / 'tools/book_farm_refresh.json').read_text())['cutouts'])
-    for path in sorted((ROOT / "assets/jungle-book/items").glob("*.png")):
+    for path in sorted((ROOT / "assets/jungle-book/items").glob("*.webp")):
         with Image.open(path) as sprite:
             edge = 1254 if path.stem in refreshed | farm_cutouts else 420
             assert sprite.size == (edge, edge), f"{path.name} must preserve its {edge} pixel cut-out"
@@ -135,7 +135,7 @@ def main():
             assert levels[0] > 10000, "dinosaur erased its surrounding scenery"
             assert sum(levels[1:255]) > 100, "dinosaur edges are not smooth"
         for kind in ("preview",):
-            with Image.open(art / f"dino{number}-{kind}.png") as picture:
+            with Image.open(art / f"dino{number}-{kind}.webp") as picture:
                 assert picture.mode == "RGBA" and picture.getbbox()
         if number <= 12:
             with wave.open(str(ROOT / f"assets/dino-paint/sounds/voice-{number}.wav")) as voice:

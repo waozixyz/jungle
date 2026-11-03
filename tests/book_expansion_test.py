@@ -41,7 +41,8 @@ def digest(path):
         return hashlib.file_digest(source, 'sha256').hexdigest()
 
 
-MIGRATED = json.loads((ROOT / 'tools/canonical_webp.json').read_text())['files']
+_receipt = json.loads((ROOT / 'tools/canonical_webp.json').read_text())
+MIGRATED = _receipt['files'] | _receipt['png_migration']['files']
 CANONICAL_NAMES = {entry['source']: name for name, entry in MIGRATED.items()}
 
 
@@ -75,6 +76,7 @@ def preserved_digest(name):
                   'assets/jungle-book/previews/people-at-work.webp',
                   'assets/jungle-book/previews/farm.webp', 'assets/jungle/book.png'})
     minimum_pages = {f'assets/jungle-book/pages/{name}.webp' for name in MINIMUM['words']}
+    allowed = {canonical_name(name) for name in allowed}
     assert set(refresh) <= allowed | minimum_pages, 'Unrequested original asset in art refresh'
     assert {path for path, entry in refresh.items() if entry['previous_sha256'] is None} == minimum_pages, \
         'Only the exact 109 new scenes may have no historical fingerprint'

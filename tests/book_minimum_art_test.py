@@ -62,7 +62,7 @@ class MinimumBookArtTest(unittest.TestCase):
                         self.assertEqual(image.format, 'PNG')
                         self.assertEqual(list(image.size), entry['source_png_dimensions'])
                         image.verify()
-                self.assertFalse((ROOT / f'assets/jungle-book/items/{name}.png').exists())
+                self.assertFalse((ROOT / f'assets/jungle-book/items/{name}.webp').exists())
 
     def test_all_327_normal_word_recordings(self):
         self.assertEqual(LANGUAGES, ('en', 'de', 'es'))

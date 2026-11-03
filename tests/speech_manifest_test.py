@@ -182,10 +182,10 @@ def staging_test():
         root = Path(directory)
         source, app, stage = root / 'source', root / 'app', root / 'stage'
         for index, name in enumerate(shared_assets.COUNTING):
-            path = source / f'assets/jungle-book/counting/{name}.png'
+            path = source / f'assets/jungle-book/counting/{name}.webp'
             path.parent.mkdir(parents=True, exist_ok=True)
-            path.write_bytes(picture('PNG', (index, 120, 40)))
-        for name, data in (('assets/jungle-book/items/tiger.png', picture('PNG', (200, 120, 40))),
+            path.write_bytes(picture('WEBP', (index, 120, 40)))
+        for name, data in (('assets/jungle-book/items/tiger.webp', picture('WEBP', (200, 120, 40))),
                            ('assets/jungle-book/previews/jungle.webp', picture('WEBP', (40, 90, 160)))):
             path = source / name
             path.parent.mkdir(parents=True, exist_ok=True)
@@ -194,9 +194,9 @@ def staging_test():
             'assets/jungle/font.png': picture('PNG', (10, 20, 30)),
             'assets/jungle-book/font.png': picture('PNG', (10, 20, 30)),
             'assets/jungle-book/collect.wav': b'collection chime',
-            'assets/collectibles/magic-pot.png': picture('PNG', (80, 90, 100)),
-            'assets/collectibles/drum.png': picture('PNG', (81, 90, 100)),
-            'assets/collectibles/sunflower.png': picture('PNG', (82, 90, 100)),
+            'assets/collectibles/magic-pot.webp': picture('WEBP', (80, 90, 100)),
+            'assets/collectibles/drum.webp': picture('WEBP', (81, 90, 100)),
+            'assets/collectibles/sunflower.webp': picture('WEBP', (82, 90, 100)),
             'assets/jungle-book/pages/tiger.webp': picture('WEBP', (180, 160, 60)),
             'assets/jungle-book/portraits/tiger.webp': picture('WEBP', (180, 160, 60)),
             'assets/jungle-book/sounds/tiger.wav': b'assembled',
@@ -204,8 +204,8 @@ def staging_test():
             'assets/abc/sounds/en/letters/0061.wav': b'duplicate letter',
             'assets/numbers/sounds/one.wav': b'number',
             'assets/animal-count/font.png': picture('PNG', (30, 20, 10)),
-            'assets/hide_seek/scenes/cottage-yard.png': picture('PNG', (90, 150, 70)),
-            'assets/hide_seek/props/basket.png': picture('PNG', (150, 100, 50)),
+            'assets/hide_seek/scenes/cottage-yard.webp': picture('WEBP', (90, 150, 70)),
+            'assets/hide_seek/props/basket.webp': picture('WEBP', (150, 100, 50)),
             'assets/dino-paint/art/scene1-thumb.webp': picture('WEBP', (40, 80, 120)),
         }
         for name, data in files.items():

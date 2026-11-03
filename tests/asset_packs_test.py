@@ -112,7 +112,7 @@ with tempfile.TemporaryDirectory(prefix='asset-pack-test-',dir=ROOT/'build') as 
     wide=root/'source/wide.webp';Image.new('RGB',(900,300),(200,120,40)).save(wide,quality=90)
     sources={'assets/jungle-book/pages/tiger.webp':page,'assets/jungle-book/pages/tiger-again.webp':page,
              'assets/jungle-book/previews/wide.webp':wide,'assets/jigsaw/tiger.webp':page,
-             'assets/jungle-book/items/tiger.png':ROOT/'assets/jungle-book/items/tiger.png'}
+             'assets/jungle-book/items/tiger.webp':ROOT/'assets/jungle-book/items/tiger.webp'}
     made=prepare_previews(sources,root/'preview-cache')
     assert set(made)==set(sources),made
     assert made==prepare_previews(sources,root/'preview-cache'),'Cached previews changed'
@@ -125,7 +125,14 @@ with tempfile.TemporaryDirectory(prefix='asset-pack-test-',dir=ROOT/'build') as 
             # Aspect ratio within one rounded pixel.
             (w,h),(ow,oh)=preview.size,original.size
             assert abs(w*oh/ow-h)<=1 and abs(h*ow/oh-w)<=1,(name,preview.size)
-        assert len(data)<6500,(name,len(data))
+            alpha = 'A' in original.getbands() and original.getchannel('A').getextrema()[0] < 255
+            if alpha:
+                expected = original.convert('RGBA')
+                expected.thumbnail((PREVIEW_PIXELS, PREVIEW_PIXELS), Image.Resampling.LANCZOS)
+                assert preview.convert('RGBA').tobytes() == expected.tobytes(), name
+        # Lossless transparent previews retain RGB as well as alpha; opaque
+        # photographic previews keep their established lossy size budget.
+        assert len(data)<(40_000 if alpha else 6500),(name,len(data))
     assert len(made['assets/jungle-book/pages/tiger.webp'].read_bytes())*50<page.stat().st_size
     native=prepare_native_previews(sources,root/'native-preview-cache')
     digest=lambda path:hashlib.sha256(path.read_bytes()).hexdigest()
@@ -134,8 +141,8 @@ with tempfile.TemporaryDirectory(prefix='asset-pack-test-',dir=ROOT/'build') as 
 
     # Browser staging reuses runtime exports unchanged and only caps its own title art.
     runtime_sources={'assets/jungle-book/pages/tiger.webp':page,
-                     'assets/garden/art/bed.png':ROOT/'assets/garden/art/bed.png',
-                     'assets/hide_seek/props/basket.png':ROOT/'assets/hide_seek/props/basket.png'}
+                     'assets/garden/art/bed.webp':ROOT/'assets/garden/art/bed.webp',
+                     'assets/hide_seek/props/basket.webp':ROOT/'assets/hide_seek/props/basket.webp'}
     reused,names,info=prepare_web_images(runtime_sources,root/'runtime-reuse-cache')
     assert reused==runtime_sources and names=={} and info=={}
     title=root/'source/assets/jungle/title/guide.webp';title.parent.mkdir(parents=True,exist_ok=True)

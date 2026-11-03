@@ -11,7 +11,7 @@ def main():
         for stage in ('sprout','small','mature','dry','withered','packet'):
             names.add(f'{kind}-{stage}')
     for name in sorted(names):
-        with Image.open(ROOT/(f'assets/garden/art/{name}'+('.webp' if name in ('scene-landscape','scene-portrait','campus-sign','campus-sign-glow') else '.png'))) as full, Image.open(ROOT/f'assets/garden/previews/{name}.png') as preview:
+        with Image.open(ROOT/f'assets/garden/art/{name}.webp') as full, Image.open(ROOT/f'assets/garden/previews/{name}.webp') as preview:
             assert max(full.size)>=700,(name,'full art too small',full.size)
             assert max(preview.size)<=128,(name,'preview too large')
             assert full.width*preview.height==full.height*preview.width or abs(full.width/full.height-preview.width/preview.height)<.04,(name,'preview aspect')

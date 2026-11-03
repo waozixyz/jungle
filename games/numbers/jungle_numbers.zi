@@ -27,18 +27,18 @@ word_es: [20]string = .["Uno", "Dos", "Tres", "Cuatro", "Cinco", "Seis", "Siete"
     "Once", "Doce", "Trece", "Catorce", "Quince", "Dieciséis", "Diecisiete", "Dieciocho", "Diecinueve", "Veinte"];
 // Every counted thing is one of the book's watercolor animals.
 items: [12]string = .[
-    "assets/jungle-book/counting/tiger.png",
-    "assets/jungle-book/counting/frog.png",
-    "assets/jungle-book/counting/butterfly.png",
-    "assets/jungle-book/counting/ladybug.png",
-    "assets/jungle-book/counting/duck.png",
-    "assets/jungle-book/counting/hen.png",
-    "assets/jungle-book/counting/cat.png",
-    "assets/jungle-book/counting/dog.png",
-    "assets/jungle-book/counting/pig.png",
-    "assets/jungle-book/counting/cow.png",
-    "assets/jungle-book/counting/rabbit.png",
-    "assets/jungle-book/counting/monkey.png",
+    "assets/jungle-book/counting/tiger.webp",
+    "assets/jungle-book/counting/frog.webp",
+    "assets/jungle-book/counting/butterfly.webp",
+    "assets/jungle-book/counting/ladybug.webp",
+    "assets/jungle-book/counting/duck.webp",
+    "assets/jungle-book/counting/hen.webp",
+    "assets/jungle-book/counting/cat.webp",
+    "assets/jungle-book/counting/dog.webp",
+    "assets/jungle-book/counting/pig.webp",
+    "assets/jungle-book/counting/cow.webp",
+    "assets/jungle-book/counting/rabbit.webp",
+    "assets/jungle-book/counting/monkey.webp",
 ];
 
 numbers_width: s32;

@@ -19,6 +19,7 @@ import xml.etree.ElementTree as ET
 import cairosvg
 import numpy
 from PIL import Image
+from image_exports import export_painted_image
 
 ROOT = Path(__file__).resolve().parents[1]
 ART = ROOT / 'art/paint'
@@ -100,7 +101,7 @@ def main():
             # Lines keep pixels they half cover; the body keeps whole ones.
             add(numpy.asarray(render(ink, w, h).getchannel('A')) >= 96)
             add(numpy.asarray(render(body, w, h).getchannel('A')) >= 128)
-        render(svg, *fit(width, height, 240, 376)).save(ASSETS / f'dino{index}-preview.png', optimize=True)
+        export_painted_image(render(svg, *fit(width, height, 240, 376)), ASSETS / f'dino{index}-preview.webp')
     starts.append(len(pieces))
 
     def table(name, kind, values):

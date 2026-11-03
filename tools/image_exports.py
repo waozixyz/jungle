@@ -15,7 +15,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 TITLE_BACKGROUND_QUALITY = 50
 PRESETS = {'title-background': TITLE_BACKGROUND_QUALITY, 'book-page': 85,
-           'scene': 85, 'cutout': None}
+           'scene': 85, 'cutout': None, 'exact': None}
 
 
 @dataclass(frozen=True)
@@ -96,8 +96,30 @@ def export_image(source, destination, role, *, size=None):
         raise ValueError('An export must not overwrite its original')
     # Cache lives beside project sources, never in shipping assets.
     root = ROOT
-    export = optimize_new_image_exports(source, role, root / 'work/image-exports', size=size)
+    if destination.suffix.lower() != '.webp':
+        raise ValueError('Runtime image exports must use a .webp destination')
+    export = optimize_new_image_exports(source, role, root / 'local/art-development/image-exports', size=size)
     destination.parent.mkdir(parents=True, exist_ok=True)
     if not destination.exists() or destination.read_bytes() != export.source.read_bytes():
         shutil.copyfile(export.source, destination)
     return export
+
+
+def export_painted_image(picture, destination, role='exact'):
+    """Keep a generated/painted master privately, then export the runtime WebP."""
+    destination = Path(destination)
+    relative = destination.relative_to(ROOT)
+    master = ROOT / 'local/art-development/masters' / relative.with_suffix('.png')
+    master.parent.mkdir(parents=True, exist_ok=True)
+    picture.save(master, 'PNG')
+    return export_image(master, destination, role)
+
+
+if __name__ == '__main__':
+    import argparse
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('source', type=Path)
+    parser.add_argument('destination', type=Path)
+    parser.add_argument('--role', choices=PRESETS, required=True)
+    options = parser.parse_args()
+    export_image(options.source, options.destination, options.role)

@@ -869,7 +869,7 @@ PlacementView :: (chosen_tool: s32) {
     quad: [4]Vector2 = .[corners[0], corners[1], corners[3], corners[2]]
     if placement_flip { quad[0] = corners[1]; quad[1] = corners[0]; quad[2] = corners[2]; quad[3] = corners[3] }
     number := FormatInteger(dino + 1, digits_a[:])
-    Image(retro.session, ImageProps.{.asset_path = Join(ART, Join("dino", number, "-preview.png")),
+    Image(retro.session, ImageProps.{.asset_path = Join(ART, Join("dino", number, "-preview.webp")),
         .bounds = CanvasScreen(), .mesh = ImageMesh.{.columns = 2, .rows = 2, .points = quad[:]}})
     for at: cast(s32)0..3 { SelectionLine(corners[at], corners[(at + 1) % 4]) }
     SelectionLine(SelectionPoint(0.0, -hh, center, plan.degrees), handle)
@@ -1335,7 +1335,7 @@ StencilPickerContent :: (l: StencilPickerLayout) {
         }
         dw := cast(s32)(cast(float32)DinoWidth(index, DINO_SIZES) * fit)
         dh := cast(s32)(cast(float32)DinoHeight(index, DINO_SIZES) * fit)
-        RetroSprite(Join(ART, Join("dino", number, "-preview.png")),
+        RetroSprite(Join(ART, Join("dino", number, "-preview.webp")),
             x + (l.card_width - dw) / 2, y + 5 + (image_height - dh) / 2, dw, dh, -1, true)
         font := stencil_label_fonts[index]
         Text(retro.session, TextProps.{.bounds = RetroRect(x + 6, y + l.card_height - 4 - label_height,
@@ -1515,7 +1515,7 @@ SizePicker :: () {
         if 94.0 / cast(float32)DinoHeight(dino, DINO_SIZES) < fit { fit = 94.0 / cast(float32)DinoHeight(dino, DINO_SIZES) }
         dw := cast(s32)(cast(float32)DinoWidth(dino, DINO_SIZES) * fit * cast(float32)(index + 1) / 4.0)
         dh := cast(s32)(cast(float32)DinoHeight(dino, DINO_SIZES) * fit * cast(float32)(index + 1) / 4.0)
-        RetroSprite(Join(ART, Join("dino", number, "-preview.png")),
+        RetroSprite(Join(ART, Join("dino", number, "-preview.webp")),
             x + (64 - dw) / 2, y + 4 + (96 - dh) / 2, dw, dh, -1, true)
         BookText(x + 2, y + 103, 60, 17, size_names[index], 11)
         if press.clicked {

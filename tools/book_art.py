@@ -10,6 +10,7 @@ import json
 from math import ceil
 import sys
 from PIL import Image
+from image_exports import export_painted_image
 from book_catalog import BOOKS, BOOK_GROUPS, NAMES, PAGE_NAMES, PENDING_MEDIA, WORDS, LANGUAGES, narration, voice_path, TITLES
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -36,7 +37,7 @@ def main():
             with Image.open(SCENES / (names[0] + ".webp")) as cover:
                 cover.convert("RGB").resize((768, 768), Image.Resampling.LANCZOS).save(previews / (category + ".webp"), quality=90, method=6)
         with Image.open(SCENES / (NAMES[0] + ".webp")) as first:
-            first.convert("RGB").resize((64, 64), Image.Resampling.LANCZOS).save(ROOT / "assets/jungle/book.png", optimize=True)
+            export_painted_image(first.convert("RGB").resize((64, 64), Image.Resampling.LANCZOS), ROOT / "assets/jungle/book.webp")
         sheet = Image.new("RGB", (840, 210 * ceil(len(NAMES) / 4)), "#fcf2d4")
         for at, name in enumerate(NAMES):
             with Image.open(SCENES / (name + ".webp")) as page:

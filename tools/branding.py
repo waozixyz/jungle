@@ -2,6 +2,7 @@
 """Export the generated brand artwork into platform icon formats."""
 from pathlib import Path
 from PIL import Image
+from image_exports import export_painted_image
 ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -47,7 +48,7 @@ def main():
         target.mkdir(parents=True, exist_ok=True)
         with Image.open(logo) as image:
             image.thumbnail((1200,600), Image.Resampling.LANCZOS)
-            image.save(target / 'logo.png', optimize=True)
+            export_painted_image(image, target / 'logo.webp')
     print('Exported website, desktop and Android brand icons')
 
 

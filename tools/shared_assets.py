@@ -78,11 +78,11 @@ PORT_FOLDERS = ('assets/fishing', 'assets/beach_families')
 GAMES = {
     # The Sweet Porridge pot tap flies the colored magic pot.
     'jungle-book': {'folders': ('assets/jungle-book',), 'skip': ('assets/jungle-book/sounds/', 'assets/jungle-book/story-sounds/'),
-                    'extra': {'assets/collectibles/magic-pot.png': 'assets/collectibles/magic-pot.png'}},
+                    'extra': {'assets/collectibles/magic-pot.webp': 'assets/collectibles/magic-pot.webp'}},
     'jungle-abc': {'folders': ('assets/abc',)},
     'jungle-numbers': {'folders': ('assets/numbers',)},
     'animal-count': {'folders': ('assets/animal-count',),
-                     'extra': {f'assets/animal-count/pictures/{name}.png': f'assets/jungle-book/counting/{name}.png'
+                     'extra': {f'assets/animal-count/pictures/{name}.webp': f'assets/jungle-book/counting/{name}.webp'
                                for name in COUNTING}},
     'dino-paint': {'folders': ('assets/dino-paint',), 'voices': True},
     'jungle-shapes': {'folders': ('assets/shapes',)},
@@ -96,11 +96,11 @@ GAMES = {
     # The hidden paper's chime and the colored drum it flies.
     'jungle-drums': {'folders': ('assets/drums',),
                      'extra': {'assets/jungle-book/collect.wav': 'assets/jungle-book/collect.wav',
-                               'assets/collectibles/drum.png': 'assets/collectibles/drum.png'}},
+                               'assets/collectibles/drum.webp': 'assets/collectibles/drum.webp'}},
     # The hidden paper's chime and the colored sunflower it flies.
     'jungle-garden': {'folders': ('assets/garden',),
                       'extra': {'assets/jungle-book/collect.wav': 'assets/jungle-book/collect.wav',
-                                'assets/collectibles/sunflower.png': 'assets/collectibles/sunflower.png'}},
+                                'assets/collectibles/sunflower.webp': 'assets/collectibles/sunflower.webp'}},
     'jungle-fishing': {'folders': ('assets/fishing',), 'skip': ('assets/fishing/previews/',)},
     'jungle-beach-families': {'folders': ('assets/beach_families',), 'skip': ('assets/beach_families/previews/',)},
 }

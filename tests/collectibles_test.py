@@ -18,7 +18,7 @@ def mutate(field: str, value):
     elif field == "high-id":
         registry["collectibles"][0]["id"] = 252
     elif field == "missing-color":
-        registry["collectibles"][0]["color"] = "assets/collectibles/missing.png"
+        registry["collectibles"][0]["color"] = "assets/collectibles/missing.webp"
     else:
         registry["collectibles"][0][field] = value
     return registry
@@ -63,7 +63,7 @@ def test_allows_pending_color_to_be_missing(tmp_path: Path):
     registry = load_registry()
     for entry in registry["collectibles"]:
         entry["pending"] = True
-        entry["color"] = f"assets/collectibles/{entry['slug']}.png"
+        entry["color"] = f"assets/collectibles/{entry['slug']}.webp"
     validate_registry(registry, ROOT)
 
 

@@ -14,6 +14,15 @@ friendly, gentle and obvious.
 
 ## Picture art (owner feedback, 2026-10-26)
 
+- **WebP is standard for every generated image:** finish every image generation
+  with a WebP export via `tools/image_exports.py`. Opaque title backgrounds use
+  q50/method 6, full-scene book pages use q85/method 6, and transparent
+  cut-outs and layers use exact lossless WebP. Keep masters in ignored
+  `local/art-development/`; track only the runtime WebP.
+  Painted previews and palette artwork also use the `exact` lossless role.
+  PNG is reserved for the exact technical exceptions documented in
+  `tools/asset_png_allowlist.json`; `tests/webp_standard_test.py` enforces
+  this in the fast CI suite.
 - **One style everywhere:** the title-screen cover style,
   `local/art-development/title-covers.png`: soft cartoonish storybook watercolor on
   warm cream paper, delicate botanical leaves, gentle earthy colors, friendly

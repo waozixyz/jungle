@@ -67,7 +67,7 @@ Save :: () -> bool { return DocumentWrite(SAVE_FILE, HideSeekText(game)) }
 
 Seed :: () -> s32 { return cast(s32)(cast(s64)(retro.now * 1000.0) % 2147483646) }
 
-ItemPath :: (animal: s32) -> string { return Cat("assets/jungle-book/items/", hide_animals[animal], ".png") }
+ItemPath :: (animal: s32) -> string { return Cat("assets/jungle-book/items/", hide_animals[animal], ".webp") }
 CuePath :: (cue: string) -> string { return HideSeekCuePath(cue, LanguageCode()) }
 
 // Speaks one cue. Friends are never named: the game only says
@@ -147,7 +147,7 @@ AnimalGrounded :: (animal: s32, cx: s32, base: s32, edge: s32) {
 
 PropPath :: (kind: s32) -> string {
     names: [4]string = .["basket", "bush", "table", "tree"]
-    return Cat("assets/hide_seek/props/", names[kind], ".png")
+    return Cat("assets/hide_seek/props/", names[kind], ".webp")
 }
 
 BasketFront :: (art: HideSeekArt) {
@@ -202,7 +202,7 @@ LookPlace :: (place: s32) {
 ScenePath :: () -> string {
     names: [4]string = .["cottage-yard", "fenced-garden", "cozy-house", "farm-courtyard"]
     at := ifx game.scene < 0 || game.scene >= HIDE_SCENES then 0 else game.scene
-    return Cat("assets/hide_seek/scenes/", names[at], ".png")
+    return Cat("assets/hide_seek/scenes/", names[at], ".webp")
 }
 
 Scene :: (top: s32, bottom: s32) {

@@ -23,12 +23,12 @@ def convert(path):
     size = path.stat().st_size
     with Image.open(path) as source:
         source.load()
-        image = source.convert('RGBA' if path.suffix.lower() == '.png' else 'RGB')
+        image = source.convert('RGBA' if 'A' in source.getbands() else 'RGB')
         options = []
-        for quality in ((100,) if path.suffix.lower() == '.png' else (90, 85, 80)):
+        for quality in ((100,) if 'A' in image.getbands() else (90, 85, 80)):
             candidate = folder / f'q{quality}.webp'
             image.save(candidate, 'WEBP', quality=quality, lossless=quality == 100,
-                       exact=True, method=4)
+                       exact=True, method=6)
             with Image.open(candidate) as decoded:
                 decoded = decoded.convert(image.mode)
                 exact = decoded.tobytes() == image.tobytes()

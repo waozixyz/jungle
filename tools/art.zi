@@ -73,9 +73,14 @@ Sprite :: (source: string, target: string, width: s32, height: s32) -> bool {
     "-dither", "None", "-remap", "build/art/palette.ppm", colors]
     cut: [7]string = .["convert", raw, "-alpha", "extract", "-threshold", "50%", mask]
     // No dates or other metadata, so drawing the same art writes the same file.
+    unused CreateDirectory("local")
+    unused CreateDirectory("local/art-development")
+    unused CreateDirectory("local/art-development/retro-sprites")
+    master := Cat("local/art-development/retro-sprites/", source[source.count - 8:source.count - 4], ".png")
     join: [12]string = .["convert", colors, mask, "-alpha", "off", "-compose", "CopyOpacity", "-composite",
-    "-strip", "-define", "png:exclude-chunks=date,time", Cat("PNG32:", target)]
-    return Run(draw[:]) && Run(flatten[:]) && Run(cut[:]) && Run(join[:])
+    "-strip", "-define", "png:exclude-chunks=date,time", Cat("PNG32:", master)]
+    export: [6]string = .["python3", "tools/image_exports.py", master, target, "--role", "exact"]
+    return Run(draw[:]) && Run(flatten[:]) && Run(cut[:]) && Run(join[:]) && Run(export[:])
 }
 
 // The ASCII and Latin-1 letters of GNU Unifont, 16 to a row, white on clear.
@@ -113,8 +118,8 @@ main :: (argc: s32, argv: **u8) -> s32 {
     ok := Palette() && Font()
     fonts: [4]string = .["assets/animal-count/latin.png", "assets/jungle/font.png", "assets/dino-paint/font.png", "assets/jungle-book/font.png"]
     for target: fonts { ok = ok && CopyFile("build/art/font.png", target) }
-    ok = ok && Sprite("art/items/frog.svg", "assets/jungle/math.png", 32, 32)
-    ok = ok && Sprite("art/icons/dino.svg", "assets/jungle/paint.png", 32, 32)
+    ok = ok && Sprite("art/items/frog.svg", "assets/jungle/math.webp", 32, 32)
+    ok = ok && Sprite("art/icons/dino.svg", "assets/jungle/paint.webp", 32, 32)
     if !ok { return 1 }
     Report("art: menu and fonts written to assets/\n")
     return 0

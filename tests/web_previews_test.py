@@ -41,12 +41,15 @@ with tempfile.TemporaryDirectory(prefix='preview-test-', dir=ROOT/'work') as cac
             if source_alpha:
                 lowest = original.convert('RGBA').getchannel('A').getextrema()[0]
                 assert small.mode == 'RGBA', (name, small.mode)
+                expected = original.convert('RGBA')
+                expected.thumbnail((PREVIEW_PIXELS, PREVIEW_PIXELS), Image.Resampling.LANCZOS)
+                assert small.convert('RGBA').tobytes() == expected.tobytes(), name
                 if lowest == 0:
                     assert small.getchannel('A').getextrema()[0] < 16, (name, 'transparency lost')
                     transparent += 1
             else:
                 assert small.mode == 'RGB', (name, small.mode)
-        assert preview.stat().st_size < 12_000, (name, preview.stat().st_size)
+        assert preview.stat().st_size < (40_000 if source_alpha else 12_000), (name, preview.stat().st_size)
     assert transparent >= 2, transparent
 
 # Desktop and Android previews: the picture's own format at the one preview
@@ -64,8 +67,11 @@ with tempfile.TemporaryDirectory(prefix='native-preview-test-', dir=ROOT/'work')
             assert small.format == 'WEBP', (name, small.format)
             assert max(small.size) == min(PREVIEW_PIXELS, max(original.size)), (name, small.size)
             source_alpha = original.mode in ('RGBA', 'LA') or 'transparency' in original.info
-            if source_alpha and name.endswith('.png'):
+            if source_alpha:
                 assert small.mode == 'RGBA', (name, small.mode)
+                expected = original.convert('RGBA')
+                expected.thumbnail((PREVIEW_PIXELS, PREVIEW_PIXELS), Image.Resampling.LANCZOS)
+                assert small.convert('RGBA').tobytes() == expected.tobytes(), name
                 if original.convert('RGBA').getchannel('A').getextrema()[0] == 0:
                     assert small.getchannel('A').getextrema()[0] < 16, (name, 'transparency lost')
                     native_transparent += 1
@@ -82,8 +88,8 @@ with tempfile.TemporaryDirectory(prefix='native-preview-test-', dir=ROOT/'work')
     again = prepare_native_previews({one: changed}, cache)
     assert list(again) == [preview_path(one)] and again[preview_path(one)] != native[preview_path(one)]
     assert sorted(cache.iterdir()) == [again[preview_path(one)]], sorted(cache.iterdir())
-assert preview_group('assets/hide_seek/scenes/cottage-yard.png') == 'hide-seek-scenes'
-assert preview_group('assets/jungle-book/items/alpaca.png') == 'jungle-book-items'
+assert preview_group('assets/hide_seek/scenes/cottage-yard.webp') == 'hide-seek-scenes'
+assert preview_group('assets/jungle-book/items/alpaca.webp') == 'jungle-book-items'
 assert preview_group('assets/jigsaw/garden.webp') == 'jigsaw'
 assert preview_group('assets/jungle/title/treehouse.webp') == 'jungle-title'
 print(f'local web preview test: {len(previews)} stand-ins from {len(PREVIEW_FOLDERS)} folders, '

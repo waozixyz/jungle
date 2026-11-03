@@ -90,7 +90,7 @@ class Exports(unittest.TestCase):
                 runtime = prepare_runtime_images({name: ready}, self.root/'runtime')[name]
                 self.assertTrue(runtime.info['reused_source'])
                 self.assertEqual(runtime.source.read_bytes(), expected)
-            shutil.rmtree(self.root/'work/image-exports')
+            shutil.rmtree(self.root/'local/art-development/image-exports')
             cold, _, _ = prepare_web_images({name: ready}, self.root/'web-cold')
             self.assertEqual(warm[name].read_bytes(), expected)
             self.assertEqual(cold[name].read_bytes(), expected)
@@ -130,11 +130,27 @@ class Exports(unittest.TestCase):
             image_exports.export_image(self.original, dest, 'title-background')
             before = dest.read_bytes()
             modified = dest.stat().st_mtime_ns
-            shutil.rmtree(self.root/'work/image-exports')
+            shutil.rmtree(self.root/'local/art-development/image-exports')
             image_exports.export_image(self.original, dest, 'title-background')
             self.assertEqual(dest.read_bytes(), before)
             self.assertEqual(dest.stat().st_mtime_ns, modified)
             self.assertFalse(list((self.root/'work').rglob('*.json')))
+
+    def test_runtime_destination_requires_webp(self):
+        with self.assertRaisesRegex(ValueError, 'webp destination'):
+            image_exports.export_image(self.original, self.root/'runtime.png', 'book-page')
+
+    def test_painted_palette_is_exact_and_master_stays_private(self):
+        picture = Image.new('RGB', (32, 16))
+        picture.putdata([(i % 256, (i*7) % 256, (i*13) % 256) for i in range(512)])
+        destination = self.root/'assets/palette.webp'
+        with patch.object(image_exports, 'ROOT', self.root):
+            result = image_exports.export_painted_image(picture, destination)
+        self.assertTrue(result.lossless)
+        with Image.open(destination) as decoded:
+            self.assertEqual(decoded.convert('RGB').tobytes(), picture.tobytes())
+        self.assertTrue((self.root/'local/art-development/masters/assets/palette.png').is_file())
+        self.assertEqual(list(destination.parent.iterdir()), [destination])
 
     def test_book_original_export_then_staging_is_cache_independent(self):
         original = self.root/'large-original.png'

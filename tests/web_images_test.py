@@ -24,7 +24,7 @@ for name, entry in manifest['files'].items():
     original_path = ROOT/name
     original_bytes = original_path.read_bytes()
     assert entry['source_sha256'] == hashlib.sha256(original_bytes).hexdigest(), name
-    assert (entry['quality'] is None if entry.get('reused_source') else entry['quality'] == 85), entry
+    assert (entry['quality'] is None if entry.get('reused_source') or entry.get('alpha') else entry['quality'] == 85), entry
     assert entry.get('alpha_quality') == 100, entry
     if entry.get('reused_source'):
         assert entry['runtime_bytes'] == entry['source_bytes'] and entry['sha256'] == entry['source_sha256'], name
@@ -54,9 +54,9 @@ for name, entry in manifest['files'].items():
     categories.add(str(Path(name).parent))
 
 representatives = (
-    'assets/jungle-book/pages/tiger.webp', 'assets/garden/art/bed.png',
-    'assets/hide_seek/props/basket.png', 'assets/shapes/wooden/backdrop.png',
-    'assets/drums/pictures/room.png')
+    'assets/jungle-book/pages/tiger.webp', 'assets/garden/art/bed.webp',
+    'assets/hide_seek/props/basket.webp', 'assets/shapes/wooden/backdrop.webp',
+    'assets/drums/pictures/room.webp')
 for name in representatives:
     entry = manifest['files'][name]
     with zipfile.ZipFile(WEB/entry['pack']) as archive, Image.open(ROOT/name) as original:

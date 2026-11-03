@@ -22,7 +22,7 @@ album_outlines: [COLLECTIBLE_COUNT]string;
 AlbumOutlinePath :: (index: s32) -> string {
     scene := collectible_paint_kinds[index] == COLLECTIBLE_PAINT_SCENE
     return Cat("assets/dino-paint/art/", ifx scene then "scene" else "dino",
-        NumberText(collectible_paint_arts[index]), ifx scene then "-thumb.webp" else "-preview.png")
+        NumberText(collectible_paint_arts[index]), ifx scene then "-thumb.webp" else "-preview.webp")
 }
 
 AlbumPicturePath :: (index: s32) -> string {

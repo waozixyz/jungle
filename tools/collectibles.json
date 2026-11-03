@@ -6,7 +6,7 @@
       "slug": "monkey",
       "source": {"kind": "book", "page": "assets/jungle-book/pages/monkey.webp"},
       "how": {"kind": "tap", "x": 0.48, "y": 0.5, "rx": 0.33, "ry": 0.26},
-      "color": "assets/jungle-book/items/monkey.png",
+      "color": "assets/jungle-book/items/monkey.webp",
       "pending": false,
       "paint": {"kind": "stencil", "category": "animals", "art": 56}
     },
@@ -15,7 +15,7 @@
       "slug": "panda",
       "source": {"kind": "book", "page": "assets/jungle-book/pages/panda.webp"},
       "how": {"kind": "tap", "x": 0.47, "y": 0.54, "rx": 0.27, "ry": 0.29},
-      "color": "assets/jungle-book/items/panda.png",
+      "color": "assets/jungle-book/items/panda.webp",
       "pending": false,
       "paint": {"kind": "stencil", "category": "animals", "art": 57}
     },
@@ -24,7 +24,7 @@
       "slug": "zebra",
       "source": {"kind": "book", "page": "assets/jungle-book/pages/zebra.webp"},
       "how": {"kind": "tap", "x": 0.47, "y": 0.5, "rx": 0.3, "ry": 0.37},
-      "color": "assets/jungle-book/items/zebra.png",
+      "color": "assets/jungle-book/items/zebra.webp",
       "pending": false,
       "paint": {"kind": "stencil", "category": "animals", "art": 58}
     },
@@ -33,7 +33,7 @@
       "slug": "pig",
       "source": {"kind": "book", "page": "assets/jungle-book/pages/pig.webp"},
       "how": {"kind": "tap", "x": 0.5, "y": 0.5, "rx": 0.33, "ry": 0.31},
-      "color": "assets/jungle-book/items/pig.png",
+      "color": "assets/jungle-book/items/pig.webp",
       "pending": false,
       "paint": {"kind": "stencil", "category": "animals", "art": 59}
     },
@@ -42,7 +42,7 @@
       "slug": "ladybug",
       "source": {"kind": "book", "page": "assets/jungle-book/pages/ladybug.webp"},
       "how": {"kind": "tap", "x": 0.46, "y": 0.49, "rx": 0.26, "ry": 0.19},
-      "color": "assets/jungle-book/items/ladybug.png",
+      "color": "assets/jungle-book/items/ladybug.webp",
       "pending": false,
       "paint": {"kind": "stencil", "category": "animals", "art": 60}
     },
@@ -51,7 +51,7 @@
       "slug": "snail",
       "source": {"kind": "book", "page": "assets/jungle-book/pages/snail.webp"},
       "how": {"kind": "tap", "x": 0.4, "y": 0.53, "rx": 0.31, "ry": 0.18},
-      "color": "assets/jungle-book/items/snail.png",
+      "color": "assets/jungle-book/items/snail.webp",
       "pending": false,
       "paint": {"kind": "stencil", "category": "animals", "art": 61}
     },
@@ -60,7 +60,7 @@
       "slug": "magic-pot",
       "source": {"kind": "story", "story": "sweet-porridge", "page": "porridge_02_gift"},
       "how": {"kind": "tap", "x": 0.55, "y": 0.38, "rx": 0.075, "ry": 0.11},
-      "color": "assets/collectibles/magic-pot.png",
+      "color": "assets/collectibles/magic-pot.webp",
       "pending": false,
       "paint": {"kind": "stencil", "category": "objects", "art": 62}
     },
@@ -69,7 +69,7 @@
       "slug": "toucan",
       "source": {"kind": "game", "game": "jungle-hide-seek.zx"},
       "how": {"kind": "paper"},
-      "color": "assets/jungle-book/items/toucan.png",
+      "color": "assets/jungle-book/items/toucan.webp",
       "pending": false,
       "paint": {"kind": "stencil", "category": "animals", "art": 63}
     },
@@ -78,7 +78,7 @@
       "slug": "parrot",
       "source": {"kind": "game", "game": "jungle-matching.zx"},
       "how": {"kind": "paper"},
-      "color": "assets/jungle-book/items/parrot.png",
+      "color": "assets/jungle-book/items/parrot.webp",
       "pending": false,
       "paint": {"kind": "stencil", "category": "animals", "art": 64}
     },
@@ -87,7 +87,7 @@
       "slug": "sunflower",
       "source": {"kind": "game", "game": "jungle-garden.zx"},
       "how": {"kind": "paper"},
-      "color": "assets/collectibles/sunflower.png",
+      "color": "assets/collectibles/sunflower.webp",
       "pending": false,
       "paint": {"kind": "stencil", "category": "objects", "art": 65}
     },
@@ -96,7 +96,7 @@
       "slug": "drum",
       "source": {"kind": "game", "game": "jungle-drums.zx"},
       "how": {"kind": "paper"},
-      "color": "assets/collectibles/drum.png",
+      "color": "assets/collectibles/drum.webp",
       "pending": false,
       "paint": {"kind": "stencil", "category": "objects", "art": 66}
     },

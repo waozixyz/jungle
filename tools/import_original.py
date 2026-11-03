@@ -37,7 +37,7 @@ def sprite(raw):
 
 
 def animal(source):
-    output = ROOT / "assets/animal-count"
+    output = ROOT / "local/art-development/imported/animal-count"
     items = output / "items"
     items.mkdir(parents=True, exist_ok=True)
     table = (source / "ANIMALS.TAB").read_bytes()
@@ -86,7 +86,7 @@ def dinosaur_bodies(source):
     strokes form the actual boundary; everything enclosed by it covers older
     artwork, including the white spaces between interior detail lines.
     """
-    output = ROOT / "assets/dino-paint/art"
+    output = ROOT / "local/art-development/imported/dino-paint/art"
     for index in range(12):
         raw = (source / f"BDA{300 + index}.DOT").read_bytes()
         commands = [(chr(raw[at]), *struct.unpack_from("<hh", raw, at + 1))

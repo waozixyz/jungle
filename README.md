@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/jungle/branding/logo.png" alt="Jungle Academy" width="700">
+  <img src="assets/jungle/branding/logo.webp" alt="Jungle Academy" width="700">
 </p>
 
 # Jungle Academy

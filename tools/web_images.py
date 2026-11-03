@@ -83,7 +83,7 @@ def prepare_previews(files, cache):
             alpha = _alpha(image)
         mode = 'RGBA' if alpha else 'RGB'
         key = hashlib.sha256(
-            f'preview-{digest}-{version}-{PREVIEW_PIXELS}-{PREVIEW_QUALITY}-{mode}'.encode()
+            f'preview-{digest}-{version}-{PREVIEW_PIXELS}-{PREVIEW_QUALITY}-{mode}-lossless-alpha-v2'.encode()
         ).hexdigest()
         target = cache/(key+'.webp')
         if not target.exists():
@@ -93,7 +93,7 @@ def prepare_previews(files, cache):
                 with tempfile.NamedTemporaryFile(dir=cache, suffix='.webp', delete=False) as temporary:
                     staged = Path(temporary.name)
                 try:
-                    picture.save(staged, 'WEBP', quality=PREVIEW_QUALITY, method=6, exact=alpha)
+                    picture.save(staged, 'WEBP', quality=100 if alpha else PREVIEW_QUALITY, method=6, exact=alpha, lossless=alpha)
                     staged.replace(target)
                 finally:
                     staged.unlink(missing_ok=True)
@@ -128,7 +128,7 @@ def prepare_native_previews(files, cache):
     cache = Path(cache)
     cache.mkdir(parents=True, exist_ok=True)
     settings = (f'native-preview-webp-{pillow_version}-{features.version("webp")}'
-                f'-{PREVIEW_PIXELS}-{NATIVE_PREVIEW_QUALITY}')
+                f'-{PREVIEW_PIXELS}-{NATIVE_PREVIEW_QUALITY}-lossless-alpha-v2')
 
     def convert(item):
         name, source = item
@@ -143,7 +143,7 @@ def prepare_native_previews(files, cache):
             with tempfile.NamedTemporaryFile(dir=cache, suffix='.webp', delete=False) as temporary:
                 staged = Path(temporary.name)
             try:
-                picture.save(staged, 'WEBP', quality=NATIVE_PREVIEW_QUALITY, method=6, exact=alpha)
+                picture.save(staged, 'WEBP', quality=100 if alpha else NATIVE_PREVIEW_QUALITY, method=6, exact=alpha, lossless=alpha)
                 staged.replace(target)
             finally:
                 staged.unlink(missing_ok=True)
@@ -176,7 +176,7 @@ def prepare_runtime_images(files, cache):
             rule = RuntimeRule(1536, RUNTIME_QUALITY)
         source_bytes = source.read_bytes()
         digest = hashlib.sha256(source_bytes).hexdigest()
-        settings = f'runtime-reuse-webp-{rule.long_edge}-{rule.quality}-{RUNTIME_ALPHA_QUALITY}'
+        settings = f'runtime-reuse-webp-{rule.long_edge}-{rule.quality}-{RUNTIME_ALPHA_QUALITY}-lossless-alpha-v2'
         key = hashlib.sha256((digest+version+settings).encode()).hexdigest()
         target = cache/(key+'.webp')
         if target.exists() and (target.stat().st_size < 12
@@ -199,7 +199,7 @@ def prepare_runtime_images(files, cache):
                     if reuse:
                         shutil.copyfile(source, staged)
                     else:
-                        picture.save(staged, 'WEBP', quality=rule.quality, lossless=False,
+                        picture.save(staged, 'WEBP', quality=100 if alpha else rule.quality, lossless=alpha,
                                      exact=True, alpha_quality=RUNTIME_ALPHA_QUALITY, method=6)
                     staged.replace(target)
                 finally:
@@ -216,7 +216,7 @@ def prepare_runtime_images(files, cache):
                 'source_bytes': len(source_bytes), 'runtime_bytes': runtime_size,
                 'width': width, 'height': height,
                 'runtime_width': decoded.width, 'runtime_height': decoded.height,
-                'quality': None if reuse else rule.quality, 'reused_source': reuse, 'long_edge': rule.long_edge,
+                'quality': None if reuse or alpha else rule.quality, 'reused_source': reuse, 'long_edge': rule.long_edge,
                 'alpha_quality': RUNTIME_ALPHA_QUALITY, 'alpha': alpha,
             }
             if alpha:
@@ -260,7 +260,7 @@ def prepare_web_images(files, cache, force_title=False):
         if parent not in WEB_PHOTO_FOLDERS or suffix not in ('.webp', '.png'):
             return name, source, None
         digest = hashlib.sha256(source.read_bytes()).hexdigest()
-        settings = f'browser-{WEBP_LONG_EDGE}-{WEBP_QUALITY}'
+        settings = f'browser-{WEBP_LONG_EDGE}-{WEBP_QUALITY}-lossless-alpha-v2'
         key = hashlib.sha256((digest+version+settings).encode()).hexdigest()
         target = cache/(key+'.webp')
         if target.exists() and (target.stat().st_size < 12
@@ -275,7 +275,7 @@ def prepare_web_images(files, cache, force_title=False):
                 with tempfile.NamedTemporaryFile(dir=cache, suffix='.webp', delete=False) as temporary:
                     staged = Path(temporary.name)
                 try:
-                    picture.save(staged, 'WEBP', quality=WEBP_QUALITY, method=6,
+                    picture.save(staged, 'WEBP', quality=100 if alpha else WEBP_QUALITY, method=6, lossless=alpha,
                                  exact=True, alpha_quality=RUNTIME_ALPHA_QUALITY)
                     staged.replace(target)
                 finally:

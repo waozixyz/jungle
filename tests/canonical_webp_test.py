@@ -1,4 +1,4 @@
-"""Canonical image migration preserves dimensions, PNGs and recoverable sources."""
+"""Enforce WebP artwork and verify exact migrations without private masters."""
 import hashlib
 import json
 from pathlib import Path
@@ -10,6 +10,30 @@ from PIL import Image
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def noncanonical_rasters(names, allowlist):
+    return sorted(name for name in names
+                  if Path(name).suffix.lower() in ('.png', '.jpg', '.jpeg')
+                  and name not in allowlist)
+
+
+def enforce_standard():
+    allowed = json.loads((ROOT / 'tools/asset_png_allowlist.json').read_text())['files']
+    assert all(name.startswith('assets/') and not any(c in name for c in '*?[')
+               and len(reason.strip()) > 30 for name, reason in allowed.items())
+    # Include tracked files and new candidates; omit tracked removals before commit.
+    names = subprocess.check_output(['git', 'ls-files', '-z', '--cached', '--others',
+                                     '--exclude-standard', 'assets'], cwd=ROOT).decode().split('\0')
+    names = {name for name in names if (ROOT / name).is_file()}
+    bad = noncanonical_rasters(names, allowed)
+    assert not bad, 'Export artwork via tools/image_exports.py; undocumented PNG/JPEG: ' + ', '.join(bad)
+    assert set(allowed) <= names, 'Remove stale PNG allowlist entries'
+    # The validator must reject new paths, JPEGs and case variants, including
+    # a PNG beside an allowed font. No folder-wide exemptions.
+    assert noncanonical_rasters(['assets/new.PNG', 'assets/new.JPEG',
+                                 'assets/animal-count/new.png', *allowed], allowed) == [
+        'assets/animal-count/new.png', 'assets/new.JPEG', 'assets/new.PNG']
+
+
 def digest(path):
     with path.open('rb') as source:
         return hashlib.file_digest(source, 'sha256').hexdigest()
@@ -17,6 +41,7 @@ def digest(path):
 
 def main():
     receipt = json.loads((ROOT / 'tools/canonical_webp.json').read_text())
+    enforce_standard()
     rows = receipt['files']
     assert len(rows) == 555
     assert sum(row['bytes'] for row in rows.values()) < sum(row['original_bytes'] for row in rows.values())
@@ -36,7 +61,27 @@ def main():
         original = ROOT / 'backup/jpeg-webp-migration' / row['source']
         if original.exists():
             assert digest(original) == row['original_sha256'], name
+    migrated = receipt.get('png_migration', {}).get('files', {})
+    migrated_sources = {row['source']: name for name, row in migrated.items()}
+    for name, row in migrated.items():
+        path = ROOT / name
+        assert path.suffix == '.webp' and digest(path) == row['sha256'], name
+        assert not (ROOT / row['source']).exists(), row['source']
+        with Image.open(path) as image:
+            assert image.format == 'WEBP' and list(image.size) == row['dimensions'], name
+            assert hashlib.sha256(image.convert('RGBA').tobytes()).hexdigest() == row['rgba_sha256'], name
+        if row['lossless']:
+            assert row['rgba_sha256'] == row['original_rgba_sha256'], name
+        else:
+            assert row['quality'] == 85 and row['role'] == 'scene', name
+        assert row['method'] == 6
+        original = ROOT / row['master']
+        if original.exists():
+            assert digest(original) == row['original_sha256'], name
     for name, expected in receipt['preserved_png_sha256'].items():
+        if name in migrated_sources:
+            assert migrated[migrated_sources[name]]['original_sha256'] == expected, name
+            continue
         if name in layers:
             layer=layers[name]
             assert layer['original_sha256']==expected,name
@@ -63,8 +108,8 @@ def main():
         if name == 'tools/canonical_webp.json' or name.startswith('tools/art_provenance/'):
             continue
         assert not re.search(r'assets/[^\s\"\'<>]*\.jpe?g\b', path.read_text(), re.I), name
-    print(f'local canonical image test: {len(rows)} real WebP masters, dimensions/pixel receipts, '
-          f"{len(receipt['preserved_png_sha256'])} unchanged PNGs and no active JPEG payloads/references passed")
+    print(f'local canonical image test: {len(rows)} historical WebPs, {len(migrated)} PNG migrations; '
+          'WebP standard, exact-path technical PNG allowlist and dimensions/pixel receipts passed')
 
 
 if __name__ == '__main__':
