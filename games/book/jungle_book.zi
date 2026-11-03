@@ -73,8 +73,11 @@ StoryPicture :: (at: s32, portrait: bool = false) -> string {
     if selected_story == 1 { return ifx portrait then bremen_portraits[at] else bremen_pictures[at] }
     return ifx portrait then story_portraits[at] else story_pictures[at]
 }
-StoryTitle :: () -> string { return ifx selected_story == 1 then BremenCaption(0, language) else StoryCaption(0, language) }
-StoryPages :: () -> s32 { return ifx selected_story == 1 then BREMEN_PAGE_COUNT else STORY_PAGE_COUNT }
+StoryTitleOf :: (story: s32) -> string { return ifx story == 1 then BremenCaption(0, language) else StoryCaption(0, language) }
+StoryPagesOf :: (story: s32) -> s32 { return ifx story == 1 then BREMEN_PAGE_COUNT else STORY_PAGE_COUNT }
+StoryCoverOf :: (story: s32) -> string { return ifx story == 1 then bremen_pictures[0] else story_pictures[0] }
+StoryTitle :: () -> string { return StoryTitleOf(selected_story) }
+StoryPages :: () -> s32 { return StoryPagesOf(selected_story) }
 // Each page's painting shapes, paper line and paper colour come from the
 // selected book's generated data, measured from its shipped pictures.
 StoryPaperTop :: (at: s32) -> s32 { return ifx selected_story == 1 then bremen_paper_top[at] else story_paper_top[at] }
@@ -267,7 +270,7 @@ BookDownload :: () {
             if id >= 0 {
                 text: Vec(u8)
                 if direct_story {
-                    BuilderPrint(*text, "%|%|%|%", STORY_IDS[selected_story], STORY_IDS[1 - selected_story],
+                    BuilderPrint(*text, "%|%|%|%", STORY_IDS[selected_story], STORY_IDS[NextStory(selected_story)],
                         ifx portrait then "portrait" else "landscape", StoryTitle())
                 } else {
                     // The book the finished screen offers next.
@@ -593,7 +596,10 @@ PlaybackControls :: (can_hear: bool = true) {
     }
 }
 
+// A finished book offers the next one: the next story, or the next book on
+// the shelf; the last one goes back to the first.
 FinishedBook :: () {
+    next_story := NextStory(selected_story)
     next_category := ifx direct_story then category else NextBookCategory(category, repeat_all)
     automatic := next_category >= 0 && repeat_all && playing
     if next_category < 0 { next_category = category }
@@ -629,10 +635,10 @@ FinishedBook :: () {
     }
     // The next book's cover, framed like a card on the shelf.
     BookBox(cover_x - 6, cover_y - 6, cover + 12, cover + 12, 0xfffcf3ff, 0xdacdb5ff, 14.0)
-    BookPicture(ifx direct_story then StoryPicture(0) else category_previews[next_category], cover_x, cover_y, cover, cover)
-    BookText(text_x, text_y, text_width, 44, ifx direct_story then StoryTitle() else category_names[next_category], 34)
+    BookPicture(ifx direct_story then StoryCoverOf(next_story) else category_previews[next_category], cover_x, cover_y, cover, cover)
+    BookText(text_x, text_y, text_width, 44, ifx direct_story then StoryTitleOf(next_story) else category_names[next_category], 34)
     count_text: Vec(u8)
-    BuilderPrint(*count_text, "% %", ifx direct_story then StoryPages() else category_counts[next_category], Tr("pages"))
+    BuilderPrint(*count_text, "% %", ifx direct_story then StoryPagesOf(next_story) else category_counts[next_category], Tr("pages"))
     BookText(text_x, text_y + 42, text_width, 24, BuilderFinish(count_text), 19, TextAlign.TextAlignCenter, false, true)
     // A quiet bar shows when the next book opens by itself.
     progress := ((ifx playing then retro.now else paused_at) - finished_started) / FINISHED_SECONDS
@@ -643,10 +649,10 @@ FinishedBook :: () {
     if automatic { BookBox(text_x + 20, text_y + 100, cast(s32)(cast(float64)bar_width * progress), 8, 0x2e6956ff, 0, 4.0) }
     button_width := (text_width - book_gap) / 2
     all_books := TouchButton(40, text_x, text_y + 124, button_width, 52, ifx direct_story then "Bookshelf" else "All books")
-    next_book := TouchButton(41, text_x + button_width + book_gap, text_y + 124, button_width, 52, ifx direct_story then "Read again" else "Read this book", true)
+    next_book := TouchButton(41, text_x + button_width + book_gap, text_y + 124, button_width, 52, "Read this book", true)
     if all_books || retro.key == KEY_ESCAPE { PictureBookBack() }
     else if next_book || retro.key == KEY_ENTER || retro.key == KEY_RIGHT || (automatic && retro.now - finished_started >= FINISHED_SECONDS) {
-        category = next_category
+        if direct_story { selected_story = next_story } else { category = next_category }
         OpenBook()
     }
     if retro.key == KEY_LEFT { Turn(-1) }

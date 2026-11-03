@@ -7,8 +7,9 @@ not here shows the painted loading screen and fetches only that book's packs
 downloads. While it is read the next book downloads in the background at low
 priority, and that book then opens with zero requests. Leaving the book pauses
 the prefetch, Back on a book's download returns to the shelf, Try again
-recovers a failed one, the fairy-tale shelf fetches only its two covers, and a
-fresh runtime opens cached books from Cache Storage without the network.
+recovers a failed one, the fairy-tale shelf fetches only its two covers, a
+finished story opens the next one (the last the first) without a request, and
+a fresh runtime opens cached books from Cache Storage without the network.
 
 Python stdlib + private headless Chromium; no desktop pixels or Node. Reuses
 only the existing test's bounded CDP transport and browser lifecycle.
@@ -98,6 +99,17 @@ def open_book(c, key, book, wait=True):
 def back_to_shelf(c):
     c.key('Escape')
     c.until('openBook===undefined', 'back on the shelf', 30)
+
+
+def read_to_next(c, book, upcoming):
+    """Turn every page of BOOK, then once more from its finished screen; it
+    must open UPCOMING, never BOOK again."""
+    for _ in range(40):
+        if c.evaluate(f'openBook?.id==="{upcoming}"'):
+            break
+        assert c.evaluate(f'openBook?.id==="{book}"'), c.evaluate('openBook?.id')
+        c.key('ArrowRight')
+    c.until(f'openBook?.id==="{upcoming}"&&openBook.opened', upcoming+' after '+book, 60)
 
 
 def enter(c, title):
@@ -228,6 +240,14 @@ def run(base, renderer, revision=None, controlled=True):
         c.until(f'activityLoader.completed.has("book:0:town-musicians:{orientation}:en:normal")', 'next story prefetched', 240)
         assert all(f == 'low' for f in c.evaluate(f'loadingProbe.fetches.slice({story["fetches"]}).filter(f=>f.t>{state["t"]}).map(f=>f.priority)'))
         print(f'{renderer}: fairy-tale shelf fetched only its covers; the {orientation} story only its own {len(during)} packs, the next one in the background', flush=True)
+        # Finishing a story opens the next one at once from its prefetch, and
+        # the last story goes back to the first; no story repeats itself.
+        finish = mark(c)
+        read_to_next(c, 'sweet-porridge', 'town-musicians')
+        read_to_next(c, 'town-musicians', 'sweet-porridge')
+        assert not fetched(c, finish['fetches'], 'f.priority!=="low"'), fetched(c, finish['fetches'])
+        assert not c.evaluate(f'loadingProbe.overlay.slice({finish["overlay"]}).some(o=>o.shown)'), 'a finished story showed the loading screen'
+        print(f'{renderer}: finished stories opened the next and wrapped to the first, with zero requests', flush=True)
         back_to_shelf(c)
         left = c.evaluate('performance.now()')
         c.key('Escape')

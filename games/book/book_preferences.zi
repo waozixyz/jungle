@@ -14,6 +14,11 @@ LoadBookChoice :: (index: s32, hidden: string, skipped: string) {
     excluded_books[index] = skipped == "yes"
 }
 
+// Stories read in story-shelf order and the last one goes back to the first,
+// so a finished story never starts itself again.
+STORY_COUNT :: 2
+NextStory :: (story: s32) -> s32 { return (story + 1) % STORY_COUNT }
+
 NextBookCategory :: (category: s32, automatic: bool = false) -> s32 {
     current: s32 = 0
     for slot: cast(s32)0..CATEGORY_COUNT - 1 {

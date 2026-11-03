@@ -116,5 +116,12 @@ main :: () -> s32 {
     if !BookAllowed(last, true) { return 28 }
     LoadBookChoice(last, "no", "yes")
     if hidden_books[last] || !excluded_books[last] || hidden_books[30] != true { return 29 }
+
+    // A finished story opens the next one, the last back to the first, and
+    // never itself.
+    for story: cast(s32)0..STORY_COUNT - 1 {
+        if NextStory(story) == story || NextStory(story) != (story + 1) % STORY_COUNT { return 30 }
+    }
+    if NextStory(0) != 1 || NextStory(STORY_COUNT - 1) != 0 { return 31 }
     return 0
 }
