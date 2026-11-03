@@ -10,6 +10,7 @@
 - Highlight visible shelf books individually, the Stories row together, and return using the shelf Back button.
 - Place the crab family on the Beach sand beside its relocated Campus sign.
 - Read directional arrows on localized signs in both orientations; Farm has no planting panels or game title bar.
+- Show the corrected portrait Campus paths, with clean sideways wooden arrow signs and a single Beach sign.
 
 ## 0.1.37
 

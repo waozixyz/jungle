@@ -57,22 +57,26 @@ def main():
         export_image(light, ROOT/highlighted, 'cutout')
         return rest, highlighted
 
-    sign, sign_glow = sprite(LOCAL/'campus-object-layers/sign-blank.png', 'wood-sign')
+
+    # Sideways planks only. Landscape Beach stands left of its uphill path and
+    # points at it; portrait directions come from the portrait mapping.
+    LANDSCAPE_SIGN_DIRECTIONS = {'Farm':'left','Beach':'right','Desert':'right'}
 
     def sign_hotspot(ident, label, target, rect):
         x,y,w,h = rect
         board = [round(150*w/1254), round(330*h/1254), round(950*w/1254), round(260*h/1254)]
         # Only the painted board is a semantic/pointer target, not empty alpha.
         bx,by,bw,bh = board
-        return dict(id=ident, target=target, glow_rect=rect, rest=sign, glow=sign_glow,
+        # title_signs.apply_signs supplies the plank sprite, glow and outline.
+        return dict(id=ident, target=target, glow_rect=rect, rest='', glow='',
                     polygon=[[x+bx-1,y+by-1],[x+bx+bw+1,y+by-1],
                              [x+bx+bw+1,y+by+bh+1],[x+bx-1,y+by+bh+1]],
-                    sign=dict(label=label,label_rect=board,direction='left' if label in ('Farm','Campus') else 'right' if label=='Desert' else 'up'))
+                    sign=dict(label=label,label_rect=board,direction=LANDSCAPE_SIGN_DIRECTIONS[label]))
 
     for orientation, scene in [('landscape',campus),('portrait',campus['portrait'])]:
         plan = (json.loads((ROOT/'tools/art_provenance/campus-portrait-v3.json').read_text())
                 if orientation=='portrait' else mapping['orientations'][orientation])
-        source = LOCAL/'campus-object-layers'/('landscape-connected-no-stones-proposal.png' if orientation=='landscape' else 'portrait-clean-v3-pond-up.png')
+        source = LOCAL/'campus-object-layers'/('landscape-connected-no-stones-proposal.png' if orientation=='landscape' else plan['plate'])
         path = background(source, scene['background'])
         background(source, f'assets/jungle/title/campus{"-portrait" if orientation=="portrait" else ""}.webp')
         scene['image'] = f'assets/jungle/title/campus{"-portrait" if orientation=="portrait" else ""}.webp'
@@ -174,6 +178,8 @@ def main():
     provenance_path.write_text(json.dumps(provenance,indent=2)+'\n')
     approved['total_bytes'] = sum(r['bytes'] for r in approved['images'])
     approved_path.write_text(json.dumps(approved,indent=2)+'\n')
+    from title_signs import apply_signs
+    apply_signs(data)
     manifest.write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n')
     print('Integrated approved Campus, Beach and v3 Farm WebPs; no private sources required by builds')
 

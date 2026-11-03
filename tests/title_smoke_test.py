@@ -44,11 +44,11 @@ def main():
                             return picture
                         assert time.monotonic()<deadline,(w,locale,name,difference)
                         time.sleep(.15)
-                def farm_return():
-                    farm=next(s for s in data['scenes'] if s['name']=='farm')
+                def scene_return(name):
+                    farm=next(s for s in data['scenes'] if s['name']==name)
                     farm=farm['portrait'] if h>w else farm
                     sign=farm['hotspots'][0]
-                    assert sign['sign']['direction']=='right'
+                    assert sign['sign']['direction']==('right' if name=='farm' else 'left')
                     x,y,_,_=sign['glow_rect'];bx,by,bw,bh=sign['sign']['label_rect']
                     fs=max(w/(1024 if h>w else 1672),h/(1536 if h>w else 941))
                     fx=(w-(1024 if h>w else 1672)*fs)/2;fy=(h-(1536 if h>w else 941)*fs)/2
@@ -68,8 +68,8 @@ def main():
                         actual=d.capture_actual(f'{w}-{locale}-portrait-composition').convert('RGB')
                         full=Image.open(root/view['image']).convert('RGB')
                         # Sample untouched paint at the treehouse, left route, pond and
-                        # lower stepping stones. These detect cropping or a stale plate.
-                        for box in ((350,50,650,250),(0,650,120,740),(100,1000,300,1080),(420,1400,570,1500)):
+                        # right-hand desert. These detect cropping or a stale plate.
+                        for box in ((300,50,500,200),(350,950,500,1050),(100,1350,250,1450),(900,300,1010,400)):
                             region=tuple(round((ox if i%2==0 else oy)+v*scale) for i,v in enumerate(box))
                             scaled=full.resize((round(1024*scale),round(1536*scale)),Image.Resampling.BILINEAR)
                             local=tuple(v-round(ox if i%2==0 else oy) for i,v in enumerate(region))
@@ -99,7 +99,8 @@ def main():
                             region=(round(w*.2),round(h*.48),round(w*.8),round(h*.9))
                             ref=expected.crop((region[0]-round(fx),region[1]-round(fy),region[2]-round(fx),region[3]-round(fy)))
                             assert max(ImageStat.Stat(ImageChops.difference(actual.crop(region).resize((64,64)),ref.resize((64,64)))).mean)<4,'Farm full painting missing or covered'
-                            farm_return()
+                            scene_return('farm')
+                        elif ident=='beach-path':scene_return('beach')
                         else:d.key('Escape')
                         wait_for(before,'returned',opened=False)
                     assert old.read_text().startswith('garden 2 6\n1 100 100 3700 3600 0\n'), 'existing garden save changed'

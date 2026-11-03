@@ -88,14 +88,20 @@ class TitleVariants(unittest.TestCase):
             with Image.open(ROOT/path) as im:
                 self.assertEqual(im.size,(1024,1536))
                 self.assertEqual(hashlib.sha256(im.convert('RGBA').tobytes()).hexdigest(),
-                                 'b92fb237cefd67de931e318d483c7883ad76147da5a69996677f937742bd0d81')
+                                 'de1f59855f43c3cbefc20f6ba555eb41d18d58ad76db4430e187bef791699052')
 
-    def test_landscape_campus_is_unchanged(self):
+    def test_landscape_campus_art_and_placements_are_unchanged(self):
+        # Painted art and every placement; routes, sign faces and directions
+        # are checked by their own tests so destinations can evolve freely.
         data = json.loads((ROOT/'tools/title_hotspots.json').read_text())
         scene = next(s for s in data['scenes'] if s['name'] == 'campus')
         scene.pop('portrait')
+        for h in scene['hotspots']:
+            h.pop('target',None)
+            if h.pop('sign',None):
+                for key in ('rest','glow','polygon'): h.pop(key,None)
         self.assertEqual(hashlib.sha256(json.dumps(scene,sort_keys=True).encode()).hexdigest(),
-                         'a2a369060578673739e50422bebf76b2093a00531b1f475e17269ea99ef034b4')
+                         '2e6fcd8512b477e7244497193d443fd756c9dfd0df0e5bf1a718352896dcc6dd')
 
     def test_signs_are_localized_boards_with_travel_arrows(self):
         data,scenes,_,hotspots=title.Load()
@@ -105,14 +111,49 @@ class TitleVariants(unittest.TestCase):
         for scene in scenes:
             for h in scene['hotspots']:
                 if not h.get('sign'):continue
-                self.assertIn(h['sign']['direction'], ('left','right','up','down'))
+                self.assertIn(h['sign']['direction'], ('left','right'))
+                self.assertEqual(h['rest'], 'assets/jungle/title/objects/wood-arrow-'+h['sign']['direction']+'.webp')
                 if h['id']=='farm-path':self.assertEqual(h['sign']['direction'],'left')
                 x,y,w,ht=h['glow_rect'];bx,by,bw,bh=h['sign']['label_rect']
                 self.assertEqual(hit(scene,x+bx+bw/2,y+by+bh/2),h['id'])
                 with Image.open(ROOT/h['rest']) as im:
                     self.assertEqual(im.format,'WEBP')
                     self.assertGreater(im.convert('RGBA').getpixel((round((bx+bw/2)*im.width/w),round((by+bh/2)*im.height/ht)))[3],200)
-        self.assertIn('TITLE_SIGN_DIRECTION',(ROOT/'host/jungle_title_data.zi').read_text())
+                # The post is scenery; the arrowhead itself is a real target.
+                self.assertNotEqual(hit(scene,x+w*.5,y+ht*.9),h['id'])
+                tip = min(h['polygon'],key=lambda p:p[0]) if h['sign']['direction']=='left' else max(h['polygon'],key=lambda p:p[0])
+                cx,cy=x+bx+bw/2,y+by+bh/2
+                tx,ty=cx+(tip[0]-cx)*.88,cy+(tip[1]-cy)*.88
+                self.assertEqual(hit(scene,tx,ty),h['id'])
+                with Image.open(ROOT/h['rest']) as im:
+                    self.assertGreater(im.getchannel('A').getpixel((round((tx-x)*im.width/w),round((ty-y)*im.height/ht))),100)
+        self.assertIn('TITLE_SIGN_DIRECTION' ,(ROOT/'host/jungle_title_data.zi').read_text())
+        renderer=(ROOT/'host/jungle_menu.zi').read_text().split('TitlePathSign ::')[1].split('TitleLanguageFlags ::')[0]
+        self.assertNotIn('Line(session',renderer)
+        self.assertNotIn('text_board.x +=',renderer)
+
+    def test_signs_are_sideways_intact_planks(self):
+        # Owner: Beach is one sideways plank pointing at its path, never an
+        # upward arrow; a snapped, splintered plank end read as a broken sign.
+        data = json.loads((ROOT/'tools/title_hotspots.json').read_text())
+        campus = next(s for s in data['scenes'] if s['name'] == 'campus')
+        for view, direction in ((campus, 'right'), (campus['portrait'], 'left')):
+            beach = [h for h in view['hotspots'] if h.get('target') == 'scene:beach']
+            self.assertEqual(len(beach), 1)
+            self.assertEqual(beach[0]['sign']['direction'], direction)
+        self.assertFalse(list((ROOT/'assets/jungle/title/objects').glob('wood-arrow-up*')))
+        self.assertNotIn('wood-arrow-up', (ROOT/'host/jungle_title_data.zi').read_text())
+        with Image.open(ROOT/'assets/jungle/title/objects/wood-arrow-right.webp') as right, \
+             Image.open(ROOT/'assets/jungle/title/objects/wood-arrow-left.webp') as left:
+            self.assertEqual(right.convert('RGBA').transpose(Image.Transpose.FLIP_LEFT_RIGHT).tobytes(),
+                             left.convert('RGBA').tobytes())
+            alpha = right.convert('RGBA').getchannel('A').load()
+        tail = [next(x for x in range(1254) if alpha[x, y] > 128) for y in range(330, 620, 2)]
+        shaft = [x for x in range(120, 780, 4) if not 480 <= x <= 670]
+        top = [next(y for y in range(1254) if alpha[x, y] > 128) for x in shaft]
+        bottom = [next(y for y in range(760, 0, -1) if alpha[x, y] > 128) for x in shaft]
+        for edge in (tail, top, bottom):
+            self.assertLessEqual(max(edge) - min(edge), 4, 'chipped or splintered plank edge')
 
     def test_approved_webp_fingerprints(self):
         approved=json.loads(APPROVED_TITLE_WEBP.read_text())

@@ -2898,35 +2898,47 @@
             180,
             180
           ],
-          "rest": "assets/jungle/title/objects/wood-sign.webp",
-          "glow": "assets/jungle/title/objects/wood-sign-glow.webp",
+          "rest": "assets/jungle/title/objects/wood-arrow-right.webp",
+          "glow": "assets/jungle/title/objects/wood-arrow-right-glow.webp",
           "polygon": [
             [
-              261,
-              346
+              248,
+              340
             ],
             [
-              399,
-              346
+              356,
+              340
             ],
             [
-              399,
-              385
+              356,
+              325
             ],
             [
-              261,
-              385
+              413,
+              369
+            ],
+            [
+              356,
+              410
+            ],
+            [
+              356,
+              396
+            ],
+            [
+              248,
+              396
             ]
           ],
           "sign": {
             "label": "Beach",
             "label_rect": [
-              22,
+              14,
               47,
-              136,
-              37
+              93,
+              40
             ],
-            "direction": "up"
+            "direction": "right"
           }
         },
         {
@@ -2938,33 +2950,45 @@
             240,
             240
           ],
-          "rest": "assets/jungle/title/objects/wood-sign.webp",
-          "glow": "assets/jungle/title/objects/wood-sign-glow.webp",
+          "rest": "assets/jungle/title/objects/wood-arrow-left.webp",
+          "glow": "assets/jungle/title/objects/wood-arrow-left-glow.webp",
           "polygon": [
             [
-              158,
-              552
+              359,
+              544
             ],
             [
-              342,
-              552
+              215,
+              544
             ],
             [
-              342,
-              604
+              215,
+              523
             ],
             [
-              158,
-              604
+              139,
+              582
+            ],
+            [
+              215,
+              637
+            ],
+            [
+              215,
+              618
+            ],
+            [
+              359,
+              618
             ]
           ],
           "sign": {
             "label": "Farm",
             "label_rect": [
-              29,
+              96,
               63,
-              182,
-              50
+              124,
+              54
             ],
             "direction": "left"
           }
@@ -2978,33 +3002,45 @@
             210,
             210
           ],
-          "rest": "assets/jungle/title/objects/wood-sign.webp",
-          "glow": "assets/jungle/title/objects/wood-sign-glow.webp",
+          "rest": "assets/jungle/title/objects/wood-arrow-right.webp",
+          "glow": "assets/jungle/title/objects/wood-arrow-right-glow.webp",
           "polygon": [
             [
-              1384,
-              464
+              1369,
+              457
             ],
             [
-              1545,
-              464
+              1495,
+              457
             ],
             [
-              1545,
-              510
+              1495,
+              439
             ],
             [
-              1384,
-              510
+              1562,
+              490
+            ],
+            [
+              1495,
+              538
+            ],
+            [
+              1495,
+              522
+            ],
+            [
+              1369,
+              522
             ]
           ],
           "sign": {
             "label": "Desert",
             "label_rect": [
-              25,
+              17,
               55,
-              159,
-              44
+              109,
+              47
             ],
             "direction": "right"
           }
@@ -3021,25 +3057,25 @@
             "target": "game:Music Room",
             "polygon": [
               [
-                135,
+                115,
                 490
               ],
               [
-                264,
+                244,
                 490
               ],
               [
-                264,
+                244,
                 588
               ],
               [
-                135,
+                115,
                 588
               ]
             ],
             "glow": "assets/jungle/title/objects/portrait-portrait-music-original-glow.webp",
             "glow_rect": [
-              135,
+              115,
               490,
               130,
               99
@@ -3083,171 +3119,171 @@
             "target": "scene:treehouse",
             "polygon": [
               [
-                299,
+                245,
                 28
               ],
               [
-                335,
+                275,
                 10
               ],
               [
-                419,
+                344,
                 0
               ],
               [
-                594,
+                487,
                 0
-              ],
-              [
-                639,
-                20
-              ],
-              [
-                670,
-                59
-              ],
-              [
-                689,
-                111
-              ],
-              [
-                690,
-                162
-              ],
-              [
-                738,
-                171
-              ],
-              [
-                777,
-                196
-              ],
-              [
-                783,
-                215
-              ],
-              [
-                765,
-                240
-              ],
-              [
-                711,
-                258
-              ],
-              [
-                667,
-                271
-              ],
-              [
-                615,
-                281
-              ],
-              [
-                605,
-                320
-              ],
-              [
-                613,
-                358
-              ],
-              [
-                615,
-                399
-              ],
-              [
-                620,
-                443
-              ],
-              [
-                632,
-                486
-              ],
-              [
-                639,
-                524
-              ],
-              [
-                649,
-                550
-              ],
-              [
-                615,
-                563
-              ],
-              [
-                560,
-                560
-              ],
-              [
-                546,
-                536
-              ],
-              [
-                544,
-                499
-              ],
-              [
-                531,
-                451
               ],
               [
                 524,
-                411
+                20
               ],
               [
-                514,
-                369
+                549,
+                59
               ],
               [
-                507,
-                323
+                565,
+                111
               ],
               [
-                501,
-                282
+                566,
+                162
               ],
               [
-                488,
-                239
+                605,
+                171
+              ],
+              [
+                637,
+                196
+              ],
+              [
+                642,
+                215
+              ],
+              [
+                627,
+                240
+              ],
+              [
+                583,
+                258
+              ],
+              [
+                547,
+                271
+              ],
+              [
+                504,
+                281
+              ],
+              [
+                496,
+                320
+              ],
+              [
+                503,
+                358
+              ],
+              [
+                504,
+                399
+              ],
+              [
+                508,
+                443
+              ],
+              [
+                518,
+                486
+              ],
+              [
+                524,
+                524
+              ],
+              [
+                532,
+                550
+              ],
+              [
+                504,
+                563
               ],
               [
                 459,
+                560
+              ],
+              [
+                448,
+                536
+              ],
+              [
+                446,
+                499
+              ],
+              [
+                435,
+                451
+              ],
+              [
+                430,
+                411
+              ],
+              [
+                421,
+                369
+              ],
+              [
+                416,
+                323
+              ],
+              [
+                411,
+                282
+              ],
+              [
+                400,
+                239
+              ],
+              [
+                376,
                 235
               ],
               [
-                395,
+                324,
                 235
               ],
               [
-                337,
+                276,
                 220
               ],
               [
-                294,
+                241,
                 201
               ],
               [
-                292,
+                239,
                 179
               ],
               [
-                306,
+                251,
                 157
               ],
               [
-                310,
+                254,
                 114
               ],
               [
-                312,
+                256,
                 72
               ]
             ],
             "glow": "assets/jungle/title/glow/campus-portrait-ladder.webp",
             "glow_rect": [
-              260,
+              213,
               0,
-              555,
+              455,
               596
             ]
           },
@@ -3257,25 +3293,25 @@
             "polygon": [
               [
                 65,
-                790
+                1160
               ],
               [
                 314,
-                790
+                1160
               ],
               [
                 314,
-                961
+                1331
               ],
               [
                 65,
-                961
+                1331
               ]
             ],
             "glow": "assets/jungle/title/objects/portrait-frogs-glow.webp",
             "glow_rect": [
               65,
-              790,
+              1160,
               250,
               172
             ],
@@ -3318,25 +3354,25 @@
             "target": "game:Little Piano",
             "polygon": [
               [
-                819,
+                645,
                 462
               ],
               [
-                1004,
+                830,
                 462
               ],
               [
-                1004,
+                830,
                 637
               ],
               [
-                819,
+                645,
                 637
               ]
             ],
             "glow": "assets/jungle/title/objects/portrait-portrait-piano-glow.webp",
             "glow_rect": [
-              819,
+              645,
               462,
               186,
               176
@@ -3348,38 +3384,50 @@
             "id": "beach-path",
             "target": "scene:beach",
             "glow_rect": [
-              280,
-              435,
-              165,
-              165
+              10,
+              550,
+              190,
+              190
             ],
-            "rest": "assets/jungle/title/objects/wood-sign.webp",
-            "glow": "assets/jungle/title/objects/wood-sign-glow.webp",
+            "rest": "assets/jungle/title/objects/wood-arrow-left.webp",
+            "glow": "assets/jungle/title/objects/wood-arrow-left-glow.webp",
             "polygon": [
               [
-                299,
-                477
+                192,
+                593
               ],
               [
-                426,
-                477
+                78,
+                593
               ],
               [
-                426,
-                513
+                78,
+                577
               ],
               [
-                299,
-                513
+                17,
+                623
+              ],
+              [
+                78,
+                666
+              ],
+              [
+                78,
+                651
+              ],
+              [
+                192,
+                651
               ]
             ],
             "sign": {
               "label": "Beach",
               "label_rect": [
-                20,
-                43,
-                125,
-                34
+                76,
+                50,
+                98,
+                42
               ],
               "direction": "left"
             }
@@ -3388,38 +3436,50 @@
             "id": "farm-path",
             "target": "scene:farm",
             "glow_rect": [
-              160,
-              1100,
-              220,
-              220
+              80,
+              770,
+              230,
+              230
             ],
-            "rest": "assets/jungle/title/objects/wood-sign.webp",
-            "glow": "assets/jungle/title/objects/wood-sign-glow.webp",
+            "rest": "assets/jungle/title/objects/wood-arrow-left.webp",
+            "glow": "assets/jungle/title/objects/wood-arrow-left-glow.webp",
             "polygon": [
               [
-                185,
-                1157
+                300,
+                822
               ],
               [
-                354,
-                1157
+                162,
+                822
               ],
               [
-                354,
-                1205
+                162,
+                802
               ],
               [
-                185,
-                1205
+                89,
+                858
+              ],
+              [
+                162,
+                910
+              ],
+              [
+                162,
+                893
+              ],
+              [
+                300,
+                893
               ]
             ],
             "sign": {
               "label": "Farm",
               "label_rect": [
-                26,
-                58,
-                167,
-                46
+                92,
+                61,
+                119,
+                51
               ],
               "direction": "left"
             }
@@ -3433,33 +3493,45 @@
               220,
               220
             ],
-            "rest": "assets/jungle/title/objects/wood-sign.webp",
-            "glow": "assets/jungle/title/objects/wood-sign-glow.webp",
+            "rest": "assets/jungle/title/objects/wood-arrow-right.webp",
+            "glow": "assets/jungle/title/objects/wood-arrow-right-glow.webp",
             "polygon": [
               [
-                655,
-                657
+                640,
+                649
               ],
               [
-                824,
-                657
+                772,
+                649
               ],
               [
-                824,
-                705
+                772,
+                631
               ],
               [
-                655,
-                705
+                841,
+                684
+              ],
+              [
+                772,
+                734
+              ],
+              [
+                772,
+                717
+              ],
+              [
+                640,
+                717
               ]
             ],
             "sign": {
               "label": "Desert",
               "label_rect": [
-                26,
+                18,
                 58,
-                167,
-                46
+                114,
+                49
               ],
               "direction": "right"
             }
@@ -3519,33 +3591,45 @@
             220,
             220
           ],
-          "rest": "assets/jungle/title/objects/wood-sign.webp",
-          "glow": "assets/jungle/title/objects/wood-sign-glow.webp",
+          "rest": "assets/jungle/title/objects/wood-arrow-left.webp",
+          "glow": "assets/jungle/title/objects/wood-arrow-left-glow.webp",
           "polygon": [
             [
-              580,
-              767
+              765,
+              759
             ],
             [
-              749,
-              767
+              633,
+              759
             ],
             [
-              749,
-              815
+              633,
+              741
             ],
             [
-              580,
-              815
+              564,
+              794
+            ],
+            [
+              633,
+              844
+            ],
+            [
+              633,
+              827
+            ],
+            [
+              765,
+              827
             ]
           ],
           "sign": {
             "label": "Campus",
             "label_rect": [
-              26,
+              88,
               58,
-              167,
-              46
+              114,
+              49
             ],
             "direction": "left"
           }
@@ -3979,33 +4063,45 @@
               220,
               220
             ],
-            "rest": "assets/jungle/title/objects/wood-sign.webp",
-            "glow": "assets/jungle/title/objects/wood-sign-glow.webp",
+            "rest": "assets/jungle/title/objects/wood-arrow-left.webp",
+            "glow": "assets/jungle/title/objects/wood-arrow-left-glow.webp",
             "polygon": [
               [
-                235,
-                1037
+                420,
+                1029
               ],
               [
-                404,
-                1037
+                288,
+                1029
               ],
               [
-                404,
-                1085
+                288,
+                1011
               ],
               [
-                235,
-                1085
+                219,
+                1064
+              ],
+              [
+                288,
+                1114
+              ],
+              [
+                288,
+                1097
+              ],
+              [
+                420,
+                1097
               ]
             ],
             "sign": {
               "label": "Campus",
               "label_rect": [
-                26,
+                88,
                 58,
-                167,
-                46
+                114,
+                49
               ],
               "direction": "left"
             }
@@ -4741,33 +4837,45 @@
             240,
             240
           ],
-          "rest": "assets/jungle/title/objects/wood-sign.webp",
-          "glow": "assets/jungle/title/objects/wood-sign-glow.webp",
+          "rest": "assets/jungle/title/objects/wood-arrow-right.webp",
+          "glow": "assets/jungle/title/objects/wood-arrow-right-glow.webp",
           "polygon": [
             [
-              1288,
-              152
+              1271,
+              144
             ],
             [
-              1472,
-              152
+              1415,
+              144
             ],
             [
-              1472,
-              204
+              1415,
+              123
             ],
             [
-              1288,
-              204
+              1491,
+              182
+            ],
+            [
+              1415,
+              237
+            ],
+            [
+              1415,
+              218
+            ],
+            [
+              1271,
+              218
             ]
           ],
           "sign": {
             "label": "Campus",
             "label_rect": [
-              29,
+              19,
               63,
-              182,
-              50
+              124,
+              54
             ],
             "direction": "right"
           }
@@ -4786,33 +4894,45 @@
               240,
               240
             ],
-            "rest": "assets/jungle/title/objects/wood-sign.webp",
-            "glow": "assets/jungle/title/objects/wood-sign-glow.webp",
+            "rest": "assets/jungle/title/objects/wood-arrow-right.webp",
+            "glow": "assets/jungle/title/objects/wood-arrow-right-glow.webp",
             "polygon": [
               [
-                628,
-                362
+                611,
+                354
               ],
               [
-                812,
-                362
+                755,
+                354
               ],
               [
-                812,
-                414
+                755,
+                333
               ],
               [
-                628,
-                414
+                831,
+                392
+              ],
+              [
+                755,
+                447
+              ],
+              [
+                755,
+                428
+              ],
+              [
+                611,
+                428
               ]
             ],
             "sign": {
               "label": "Campus",
               "label_rect": [
-                29,
+                19,
                 63,
-                182,
-                50
+                124,
+                54
               ],
               "direction": "right"
             }

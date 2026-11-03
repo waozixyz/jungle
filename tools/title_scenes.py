@@ -46,8 +46,9 @@ def Sign(hotspot, rect):
     if sign is None:
         return '', [0, 0, 0, 0]
     label = SignLabel(hotspot)
-    if sign.get('direction') not in ('left','right','up','down'):
-        raise SystemExit('title scenes: every sign needs a travel direction')
+    # Owner: signs are sideways planks pointing along the path, never up/down.
+    if sign.get('direction') not in ('left','right'):
+        raise SystemExit('title scenes: every sign needs a sideways travel direction')
     board = sign.get('label_rect', [])
     if (not isinstance(board, list) or len(board) != 4 or
             any(type(v) is not int for v in board) or

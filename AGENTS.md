@@ -130,11 +130,14 @@ is in `tools/book_prompts.json`; the full-size originals are kept in
 
 - 123 Book opens with autoplay and repeat on by default. Swipes, arrows and number selection keep the current Play/Pause choice. Counting games load 128 px transparent derivatives; preserve the full-size artwork.
 
-- Title scenes use separate painted signposts with localized names and arrows
-  pointing along the actual route. Farm points LEFT at Campus; retain no old
+- Title scenes use separate signposts: sideways arrow-shaped wooden planks
+  (left or right only, never an upward arrow) with clean intact ends and
+  localized names, pointing along the actual route. Farm points LEFT at
+  Campus; Beach is one sideways plank pointing at its path; retain no old
   floating navigation arrows or testing rooms/strips. Keep shared title-bar Back.
   Desert shows an availability notice until approved destination art exists.
-- Campus uses portrait-clean-v3-pond-up and
+- Campus uses portrait-connected-desert-right (owner-corrected v3: no path
+  down; Farm left, Beach up the left side, Desert right) and
   landscape-connected-no-stones-proposal (clean sandy path across to the left,
   no stepping stones). Farm shows only owner-selected 27.png landscape and
   19.png portrait from owner-farm-beach-source, as a full-screen title scene with the normal scene controls and a right-pointing

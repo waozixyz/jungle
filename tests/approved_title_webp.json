@@ -2,7 +2,7 @@
   "format": "jungle-approved-title-webp-1",
   "quality": 50,
   "method": 6,
-  "total_bytes": 3580946,
+  "total_bytes": 3637468,
   "images": [
     {
       "name": "bookshelf-background",
@@ -95,42 +95,6 @@
       "canonical_source": "local/art-development/campus-object-layers/landscape-connected-no-stones-proposal.png",
       "canonical_bytes": 3455282,
       "canonical_sha256": "f104559c5f53c1512849a9a8997ff6a25b94aeb4fa845ced0cde75aed1549061"
-    },
-    {
-      "name": "campus-portrait-background",
-      "path": "assets/jungle/title/layers/campus-portrait-background.webp",
-      "bytes": 290176,
-      "sha256": "59e6427d17028b64cd54fa7eda8b08c0b177fd15835c6782b5108c3b288754d0",
-      "width": 1024,
-      "height": 1536,
-      "decoded_rgba_sha256": "b92fb237cefd67de931e318d483c7883ad76147da5a69996677f937742bd0d81",
-      "canonical_source": "local/art-development/campus-object-layers/portrait-clean-v3-pond-up.png",
-      "canonical_bytes": 3482858,
-      "canonical_sha256": "edd45d4bce0d20e0da4bb307f1b52bf22b71c732cf6c62e5facbb5cba2f95233"
-    },
-    {
-      "name": "campus-portrait",
-      "path": "assets/jungle/title/campus-portrait.webp",
-      "bytes": 290176,
-      "sha256": "59e6427d17028b64cd54fa7eda8b08c0b177fd15835c6782b5108c3b288754d0",
-      "width": 1024,
-      "height": 1536,
-      "decoded_rgba_sha256": "b92fb237cefd67de931e318d483c7883ad76147da5a69996677f937742bd0d81",
-      "canonical_source": "local/art-development/campus-object-layers/portrait-clean-v3-pond-up.png",
-      "canonical_bytes": 3482858,
-      "canonical_sha256": "edd45d4bce0d20e0da4bb307f1b52bf22b71c732cf6c62e5facbb5cba2f95233"
-    },
-    {
-      "name": "campus-portrait-low",
-      "path": "assets/jungle/title/campus-portrait-low.webp",
-      "bytes": 26742,
-      "sha256": "ea78e4027887677ef8b278c029656ad912aa7716f07d603f641570aa6fbe05ec",
-      "width": 240,
-      "height": 360,
-      "decoded_rgba_sha256": "b84b85952e8e6b0f0ed8df3722c4da6e419a78a28da52741791ce7e1ee273b29",
-      "canonical_source": "local/art-development/campus-object-layers/portrait-clean-v3-pond-up.png",
-      "canonical_bytes": 3482858,
-      "canonical_sha256": "edd45d4bce0d20e0da4bb307f1b52bf22b71c732cf6c62e5facbb5cba2f95233"
     },
     {
       "name": "beach-port",
@@ -251,6 +215,42 @@
       "canonical_source": "local/art-development/owner-farm-beach-source/19.png",
       "canonical_bytes": 3382690,
       "canonical_sha256": "b7a7cf8ee5b61aab3366ec99c66b4efff28b4b51807030c085e595197778bde7"
+    },
+    {
+      "name": "campus-portrait",
+      "path": "assets/jungle/title/campus-portrait.webp",
+      "bytes": 317592,
+      "sha256": "69dc27ed130c59d8a175ba2559b3cd069dd7b656f82aa9fc55b397a9e0895151",
+      "width": 1024,
+      "height": 1536,
+      "decoded_rgba_sha256": "de1f59855f43c3cbefc20f6ba555eb41d18d58ad76db4430e187bef791699052",
+      "canonical_source": "local/art-development/campus-object-layers/portrait-connected-desert-right.png",
+      "canonical_bytes": 3581158,
+      "canonical_sha256": "7caee1f7a2a55642008692b447c42c951d77428e58c5449c06ac4bfef1e8ef69"
+    },
+    {
+      "name": "campus-portrait-background",
+      "path": "assets/jungle/title/layers/campus-portrait-background.webp",
+      "bytes": 317592,
+      "sha256": "69dc27ed130c59d8a175ba2559b3cd069dd7b656f82aa9fc55b397a9e0895151",
+      "width": 1024,
+      "height": 1536,
+      "decoded_rgba_sha256": "de1f59855f43c3cbefc20f6ba555eb41d18d58ad76db4430e187bef791699052",
+      "canonical_source": "local/art-development/campus-object-layers/portrait-connected-desert-right.png",
+      "canonical_bytes": 3581158,
+      "canonical_sha256": "7caee1f7a2a55642008692b447c42c951d77428e58c5449c06ac4bfef1e8ef69"
+    },
+    {
+      "name": "campus-portrait-low",
+      "path": "assets/jungle/title/campus-portrait-low.webp",
+      "bytes": 28432,
+      "sha256": "aae47eee9b56baef000e078dd8dc8003c0cdf787ca8230a367cc93ac99300a68",
+      "width": 240,
+      "height": 360,
+      "decoded_rgba_sha256": "12d4103980aca5c8a8c5b49346c43a64ee6de71bf010ac5345491aed958c7425",
+      "canonical_source": "local/art-development/campus-object-layers/portrait-connected-desert-right.png",
+      "canonical_bytes": 3581158,
+      "canonical_sha256": "7caee1f7a2a55642008692b447c42c951d77428e58c5449c06ac4bfef1e8ef69"
     }
   ]
 }

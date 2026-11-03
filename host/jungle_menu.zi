@@ -178,21 +178,8 @@ TitlePathSign :: (session: Session, hotspot: s32, picture: Rectangle, view: Titl
         cast(float32)TITLE_SIGN_RECT[at + 2] * view.scale,
         cast(float32)TITLE_SIGN_RECT[at + 3] * view.scale}
     label := Tr(TITLE_SIGN_LABEL[hotspot])
-    // Pigment strokes stay inside the wooden board, beside its localized name.
-    direction := TITLE_SIGN_DIRECTION[hotspot]
-    cx := board.x + board.height * 0.42
-    cy := board.y + board.height * 0.5
-    reach := board.height * 0.23
-    dx: float32 = ifx direction == 1 then -reach else ifx direction == 2 then reach else 0.0
-    dy: float32 = ifx direction == 3 then -reach else ifx direction == 4 then reach else 0.0
-    ink := ColorFromPacked(0x684322ff)
-    stroke := board.height * 0.09
-    Line(session, LineProps.{.start = Vector2.{cx-dx,cy-dy}, .end = Vector2.{cx+dx,cy+dy}, .thickness = stroke, .color = ink})
-    Line(session, LineProps.{.start = Vector2.{cx+dy*0.8,cy-dx*0.8}, .end = Vector2.{cx+dx,cy+dy}, .thickness = stroke, .color = ink})
-    Line(session, LineProps.{.start = Vector2.{cx-dy*0.8,cy+dx*0.8}, .end = Vector2.{cx+dx,cy+dy}, .thickness = stroke, .color = ink})
+    // The wooden silhouette supplies the direction; the whole board holds its name.
     text_board := board
-    text_board.x += board.height * 0.9
-    text_board.width -= board.height * 0.95
     font := board.height * 0.68
     letters := Count(label)
     if letters > 0 && cast(float32)letters * font * 0.65 > text_board.width {

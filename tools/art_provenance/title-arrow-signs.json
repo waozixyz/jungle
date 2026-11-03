@@ -1,0 +1,92 @@
+{
+  "owner_request": "The sign itself is an arrow-shaped wooden plank; no arrow painted inside. Sideways planks only, with clean intact ends (no snapped or splintered wood).",
+  "generator": "built-in image_gen edit of the right plank; left is its exact mirror",
+  "assets": [
+    {
+      "direction": "right",
+      "source": "local/art-development/sign-reference/wood-arrow-right.png",
+      "source_sha256": "9cf385d16cc09ed8062f37f8330eb551cc80538abfbbd96f7fbadb7b9db0be3e",
+      "runtime": "assets/jungle/title/objects/wood-arrow-right.webp",
+      "sha256": "46a780cf6462330fb40c68a741f222a8faecbe0e2a7a813d09420bcf9b520509",
+      "label_rect": [
+        100,
+        330,
+        650,
+        280
+      ],
+      "polygon": [
+        [
+          55,
+          282
+        ],
+        [
+          808,
+          282
+        ],
+        [
+          808,
+          175
+        ],
+        [
+          1205,
+          480
+        ],
+        [
+          808,
+          766
+        ],
+        [
+          808,
+          668
+        ],
+        [
+          55,
+          668
+        ]
+      ]
+    },
+    {
+      "direction": "left",
+      "source": "local/art-development/sign-reference/wood-arrow-left.png",
+      "source_sha256": "843a4e73de222b159d2593cc7c067b8c29a78f79829c391874159a6f13f457ca",
+      "runtime": "assets/jungle/title/objects/wood-arrow-left.webp",
+      "sha256": "ff5c551500f0476be0f3cf686724218a209b33fd8000dd35f6aff76b2ad0cb4e",
+      "label_rect": [
+        504,
+        330,
+        650,
+        280
+      ],
+      "polygon": [
+        [
+          1199,
+          282
+        ],
+        [
+          446,
+          282
+        ],
+        [
+          446,
+          175
+        ],
+        [
+          49,
+          480
+        ],
+        [
+          446,
+          766
+        ],
+        [
+          446,
+          668
+        ],
+        [
+          1199,
+          668
+        ]
+      ]
+    }
+  ]
+}
