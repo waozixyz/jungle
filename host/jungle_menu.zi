@@ -241,6 +241,31 @@ TitleLanguageFlags :: () -> bool {
     return changed
 }
 
+// Whether every separate object layer of SCENE is decoded. Asking also
+// starts loading them, so the room never appears with an object missing.
+TitleObjectsReady :: (scene: s32) -> bool {
+    ready := true
+    first := TITLE_SCENE_OBJECT_FIRST[scene]
+    for layer: first..first + TITLE_SCENE_OBJECTS[scene] - 1 {
+        if !TitleReady(TITLE_OBJECT_PATH[layer]) { ready = false }
+    }
+    return ready
+}
+
+// SCENE's movable objects in list order over its clean room plate, each in
+// its own source-pixel rect from tools/title_hotspots.json.
+TitleObjects :: (session: Session, scene: s32, picture: Rectangle, view: TitleView) {
+    first := TITLE_SCENE_OBJECT_FIRST[scene]
+    for layer: first..first + TITLE_SCENE_OBJECTS[scene] - 1 {
+        at := layer * 4
+        TitlePicture(session, TITLE_OBJECT_PATH[layer], Rectangle.{
+            picture.x + cast(float32)TITLE_OBJECT_RECT[at] * view.scale,
+            picture.y + cast(float32)TITLE_OBJECT_RECT[at + 1] * view.scale,
+            cast(float32)TITLE_OBJECT_RECT[at + 2] * view.scale,
+            cast(float32)TITLE_OBJECT_RECT[at + 3] * view.scale})
+    }
+}
+
 // The treehouse title screen. KEY is this frame's key; CHOICE receives the
 // catalog index of a game as it opens, which MenuAction.game reports.
 // COLLECTION is what the child has earned; COLLECT earns a scene's paper.
@@ -328,10 +353,12 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
     if TITLE_SCENE_FOREGROUND[scene] != "" {
         background_ready := TitleReady(TITLE_SCENE_BACKGROUND[scene])
         foreground_ready := TitleReady(TITLE_SCENE_FOREGROUND[scene])
-        layered = background_ready && foreground_ready
+        layered = background_ready && foreground_ready && TitleObjectsReady(scene)
     }
-    if layered { TitlePicture(session, TITLE_SCENE_BACKGROUND[scene], picture) }
-    else {
+    if layered {
+        TitlePicture(session, TITLE_SCENE_BACKGROUND[scene], picture)
+        TitleObjects(session, scene, picture, view)
+    } else {
         if !TitleReady(TITLE_SCENE_IMAGE[scene]) { TitlePicture(session, TITLE_SCENE_LOW[scene], picture) }
         TitlePicture(session, TITLE_SCENE_IMAGE[scene], picture)
     }
@@ -474,7 +501,7 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
         if modal.action != 0 { TitleDismissNotice(*title_state) }
         return action
     }
-    if shelf {
+    if shelf || TITLE_SCENE_BACK[scene] != 0 {
         back := RetroTap(7501, 6, 6, 44, 30, Tr("Back"))
         BookBox(6, 6, 44, 30, 0xf7f1e3ee, 0xdacdb5ff, 4)
         BookText(6, 6, 44, 30, Tr("Back"), 11, TextAlign.TextAlignCenter)

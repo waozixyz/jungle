@@ -93,7 +93,8 @@ main :: () -> s32 {
     // inside its own scene.
     for scene: cast(s32)0..TITLE_SCENE_COUNT - 1 {
         first := TITLE_SCENE_FIRST[scene]
-        if TITLE_SCENE_HOTSPOTS[scene] < 1 { return 20 }
+        // Only a look-only view (the window's outside view) has none; it has Back.
+        if TITLE_SCENE_HOTSPOTS[scene] < 1 && TITLE_SCENE_BACK[scene] == 0 { return 20 }
         for hotspot: first..first + TITLE_SCENE_HOTSPOTS[scene] - 1 {
             x: float32
             y: float32
@@ -181,6 +182,46 @@ main :: () -> s32 {
         TitleEnter(*returning, shelf_scene)
         back_step := TitleActivate(*returning, back_ladder)
         if !back_step.moved || TITLE_SCENE_BASE[returning.scene] != treehouse { return 114 }
+    }
+
+    // The round window glows under the mouse and opens the outside view in
+    // either orientation; that view has only Back, which (like Escape)
+    // returns to the room. The room itself is a plate plus object layers.
+    window_view := SceneNamed("window")
+    if window_view < 0 || TITLE_SCENE_BACK[window_view] != 1 || TITLE_SCENE_HOTSPOTS[window_view] != 0 { return 130 }
+    if TITLE_SCENE_PARENT[window_view] != treehouse || TITLE_SCENE_BACK[treehouse] != 0 { return 131 }
+    if TITLE_SCENE_PORTRAIT[window_view] == window_view || TITLE_SCENE_BACK[TITLE_SCENE_PORTRAIT[window_view]] != 1 { return 132 }
+    if TITLE_SCENE_OBJECTS[treehouse] < 10 || TITLE_SCENE_OBJECTS[TITLE_SCENE_PORTRAIT[treehouse]] < 10 { return 133 }
+    for portrait: cast(s32)0..1 {
+        looking: TitleState
+        TitleStart(*looking)
+        width: float32 = ifx portrait == 1 then 420.0 else 960.0
+        height: float32 = ifx portrait == 1 then 900.0 else 600.0
+        TitleResolve(*looking, width, height)
+        if TITLE_SCENE_BASE[looking.scene] != treehouse || (looking.scene != treehouse) != (portrait == 1) { return 134 }
+        window := HotspotNamed(looking.scene, "window")
+        wx: float32
+        wy: float32
+        if window < 0 || TITLE_HOTSPOT_TARGET[window] != window_view || !OwnPoint(looking.scene, window, *wx, *wy) { return 135 }
+        look_view := TitleFit(width, height, 0.0, 0.0, looking.scene)
+        sx := look_view.x + wx * look_view.scale
+        sy := look_view.y + wy * look_view.scale
+        // A mouse that moves onto the window hovers it.
+        unused TitlePointer(*looking, look_view, sx + 2.0, sy, false, false, false, false, 2.95)
+        unused TitlePointer(*looking, look_view, sx, sy, false, false, false, false, 3.0)
+        if !looking.hover_mode || TitleGlowing(looking) != window { return 136 }
+        unused TitlePointer(*looking, look_view, sx, sy, true, true, false, false, 3.1)
+        opened := TitlePointer(*looking, look_view, sx, sy, false, false, true, false, 3.2)
+        if !opened.moved || opened.game >= 0 || TITLE_SCENE_BASE[looking.scene] != window_view { return 137 }
+        TitleResolve(*looking, width, height)
+        if looking.scene != ResolveTitleSceneVariant(window_view, width, height) || TITLE_SCENE_BACK[looking.scene] != 1 { return 138 }
+        // Nothing to select outside: arrows, Enter and number keys stay put.
+        for key: cast(s32)262..265 { if TitleKey(*looking, key).moved || looking.selected >= 0 { return 139 } }
+        if TitleKey(*looking, 257).moved || TitleKey(*looking, 49).moved || TITLE_SCENE_BASE[looking.scene] != window_view { return 140 }
+        if TitleHit(looking.scene, wx, wy) != -1 { return 141 }
+        back := TitleKey(*looking, 256)
+        TitleResolve(*looking, width, height)
+        if !back.moved || TITLE_SCENE_BASE[looking.scene] != treehouse { return 142 }
     }
 
     // Keyboard: arrows glow items in order, Enter opens a scene or game,

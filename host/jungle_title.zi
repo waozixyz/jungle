@@ -253,6 +253,8 @@ TitleKey :: (state: *TitleState, key: s32) -> TitleStep {
     count := TITLE_SCENE_HOTSPOTS[state.scene]
     if key == 262 || key == 264 || key == 263 || key == 265 {
         state.hover_mode = false
+        // A look-only view has nothing to select; Escape and Back still leave.
+        if count <= 0 { return step }
         forward := key == 262 || key == 264
         if state.selected < first || state.selected >= first + count {
             state.selected = ifx forward then first else first + count - 1

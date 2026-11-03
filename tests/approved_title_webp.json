@@ -2,7 +2,7 @@
   "format": "jungle-approved-title-webp-1",
   "quality": 50,
   "method": 6,
-  "total_bytes": 3637468,
+  "total_bytes": 4289000,
   "images": [
     {
       "name": "bookshelf-background",
@@ -35,30 +35,26 @@
     {
       "name": "treehouse-background",
       "path": "assets/jungle/title/layers/treehouse-background.webp",
-      "bytes": 177070,
-      "sha256": "1c2c66ebb7d36f2fa335c9f2fa1cb71c7fab6a08f7fb992e87aa622881cf3e6c",
+      "bytes": 126626,
+      "sha256": "b8e6bb5b720b3cd449fe6b51eec0c2d2e61236763a17b0529b498843cfd923b7",
       "width": 1672,
       "height": 941,
-      "decoded_rgba_sha256": "bb4e0816842ad36497ca9891335241288ae2114bf6420095659646461f1ac1f2",
-      "canonical_source": "local/art-development/title-layers/treehouse-background.png",
-      "canonical_bytes": 2852012,
-      "canonical_sha256": "307e457f59f3294816f901aa3b18fbf0df14ac66348f3d315347e08e3447b8a1",
-      "original_sha256": "6f522501a58492f5ea989e8e8f37bdbd8a4cdf39dea4a6f6ae28d67ba6edaa7a",
-      "original_bytes": 2120442
+      "decoded_rgba_sha256": "9ebdb1c0c352c06454f4e6158db098402dc3bc0c4f6e3bf7df74545af751132c",
+      "canonical_source": "local/art-development/treehouse-room/export/landscape-plate.png",
+      "canonical_bytes": 2662456,
+      "canonical_sha256": "a57d79252cf583426b8f680f63a97d452eaef81e344f5c80af33ed2d35d1175a"
     },
     {
       "name": "treehouse-portrait-background",
       "path": "assets/jungle/title/layers/treehouse-portrait-background.webp",
-      "bytes": 213446,
-      "sha256": "24c287910feeea9da7a0219921dbfa35dda140bfe0cd9024901367ae468da6e5",
+      "bytes": 163684,
+      "sha256": "7af55985a7a3e756a8e6028a8148581185b367d32cb7244cb07f75bbe745491a",
       "width": 1024,
       "height": 1536,
-      "decoded_rgba_sha256": "fa2aa6ba873daa1e2999c37ed0f67d3f9c28d9351af72dc5e86a6624a8af26ea",
-      "canonical_source": "local/art-development/title-layers/treehouse-portrait-background.png",
-      "canonical_bytes": 3067881,
-      "canonical_sha256": "6eece5242648f02d4f1515b8060c87395e9f2439a7e610b615dc1638e08f9d06",
-      "original_sha256": "c6a44e7199d20b724da9981e247b660d9e7bc6fc8493afc7b8cf133681fb3e56",
-      "original_bytes": 2321292
+      "decoded_rgba_sha256": "1190e98343ba7a7165e5977474851bef58a9fd0148426a82bcb80cc837b5c5fd",
+      "canonical_source": "local/art-development/treehouse-room/export/portrait-plate.png",
+      "canonical_bytes": 2840655,
+      "canonical_sha256": "25706f2e916ab11e28c354dace58f3e6e37ca46ffb6858fb0caaffade4856d94"
     },
     {
       "name": "campus-background",
@@ -251,6 +247,102 @@
       "canonical_source": "local/art-development/campus-object-layers/portrait-connected-desert-right.png",
       "canonical_bytes": 3581158,
       "canonical_sha256": "7caee1f7a2a55642008692b447c42c951d77428e58c5449c06ac4bfef1e8ef69"
+    },
+    {
+      "name": "treehouse",
+      "path": "assets/jungle/title/treehouse.webp",
+      "bytes": 174590,
+      "sha256": "d9b0157666ffe97d989f125c6a21debd9654c1897bc4e2d3ea4cebf41fd25a92",
+      "width": 1672,
+      "height": 941,
+      "decoded_rgba_sha256": "1c022b72581abbacd45374a1a9345300a5c29a3c1365d076b46a9a84f86ca52f",
+      "canonical_source": "local/art-development/treehouse-room/export/landscape-composite.png",
+      "canonical_bytes": 2876166,
+      "canonical_sha256": "6ffb0bf37088441ff8d8bda8d868d444e732bb76286d3e6ca98a85b7fae8d5f9"
+    },
+    {
+      "name": "treehouse-low",
+      "path": "assets/jungle/title/treehouse-low.webp",
+      "bytes": 8294,
+      "sha256": "8dd5abad201fba4c086f696ea4d7612c09779545d31ef40b64ed5ca54b629d2b",
+      "width": 240,
+      "height": 135,
+      "decoded_rgba_sha256": "13b2c79b28694058468d578aeaeb68bc3ab9d952140256deeaf928dc01fcef50",
+      "canonical_source": "local/art-development/treehouse-room/export/landscape-composite.png",
+      "canonical_bytes": 2876166,
+      "canonical_sha256": "6ffb0bf37088441ff8d8bda8d868d444e732bb76286d3e6ca98a85b7fae8d5f9"
+    },
+    {
+      "name": "window",
+      "path": "assets/jungle/title/window.webp",
+      "bytes": 142816,
+      "sha256": "4351b02b68a00d565b61889b4e1cebbd54f4853d903be38576aeb24000b3cf00",
+      "width": 1672,
+      "height": 941,
+      "decoded_rgba_sha256": "782ac6787281088611d246c13db8e526aca507caad720b25935887c341f1a0aa",
+      "canonical_source": "local/art-development/treehouse-room/gen-landscape-window.png",
+      "canonical_bytes": 2946516,
+      "canonical_sha256": "a6726e0c8372ca299f9eea91258496febbde0f1817af3c3dd853a8cc0a62ce89"
+    },
+    {
+      "name": "window-low",
+      "path": "assets/jungle/title/window-low.webp",
+      "bytes": 6976,
+      "sha256": "b58792911cd52aee821f659e19f5b072fea4c59aa37b4bd440b7231118598526",
+      "width": 240,
+      "height": 135,
+      "decoded_rgba_sha256": "49a73e496a0e8c7609923d81757a4cfe6ed8999c54b9e818422214f7b5eb6910",
+      "canonical_source": "local/art-development/treehouse-room/gen-landscape-window.png",
+      "canonical_bytes": 2946516,
+      "canonical_sha256": "a6726e0c8372ca299f9eea91258496febbde0f1817af3c3dd853a8cc0a62ce89"
+    },
+    {
+      "name": "treehouse-portrait",
+      "path": "assets/jungle/title/treehouse-portrait.webp",
+      "bytes": 216486,
+      "sha256": "e540ac8ea8d77694ac1e6d37da1b9fd202bb34ca036858d3148092b9cde380ab",
+      "width": 1024,
+      "height": 1536,
+      "decoded_rgba_sha256": "271f3ad66f9b767510225112fda98496f5837b9a0528e659bfb09aa6c3f347c8",
+      "canonical_source": "local/art-development/treehouse-room/export/portrait-composite.png",
+      "canonical_bytes": 3091519,
+      "canonical_sha256": "29867cddb430c21b46be1a831b54ab2ba896935fc1d13adbe77023c6b9b9fbbd"
+    },
+    {
+      "name": "treehouse-portrait-low",
+      "path": "assets/jungle/title/treehouse-portrait-low.webp",
+      "bytes": 22584,
+      "sha256": "26fd299f55185bdbac66e82a4e902c70964e92bc9448eea5f8cef6126f392876",
+      "width": 240,
+      "height": 360,
+      "decoded_rgba_sha256": "a9b5a22dc5e817dd49c623a4dd46f5d46f7d8a4c01ded78dac6b9041a49f7fc0",
+      "canonical_source": "local/art-development/treehouse-room/export/portrait-composite.png",
+      "canonical_bytes": 3091519,
+      "canonical_sha256": "29867cddb430c21b46be1a831b54ab2ba896935fc1d13adbe77023c6b9b9fbbd"
+    },
+    {
+      "name": "window-portrait",
+      "path": "assets/jungle/title/window-portrait.webp",
+      "bytes": 162020,
+      "sha256": "1f81b04c7f3c41ae9aeea0ccb6a9179fea4c7109f643f987a35b1ca7c3b6236d",
+      "width": 1024,
+      "height": 1536,
+      "decoded_rgba_sha256": "5a08f19f8183fa23c5fd7cedce601a12fa02579362a8d806132bd8b976361f27",
+      "canonical_source": "local/art-development/treehouse-room/gen-portrait-window.png",
+      "canonical_bytes": 3015616,
+      "canonical_sha256": "b7ffa5bf39c946e021585a70ff8f8496023d2d3cc246c53e965f32413aa6e77d"
+    },
+    {
+      "name": "window-portrait-low",
+      "path": "assets/jungle/title/window-portrait-low.webp",
+      "bytes": 17972,
+      "sha256": "852fc774fb9bb59a9e3eba314b5c073dd015a15a6fbbde22b70d8e5eda85254d",
+      "width": 240,
+      "height": 360,
+      "decoded_rgba_sha256": "327496e6d9fc4b5c4d87e1e48bae2e38a5ac07d4b5059d1ef8b4f467b203e192",
+      "canonical_source": "local/art-development/treehouse-room/gen-portrait-window.png",
+      "canonical_bytes": 3015616,
+      "canonical_sha256": "b7ffa5bf39c946e021585a70ff8f8496023d2d3cc246c53e965f32413aa6e77d"
     }
   ]
 }

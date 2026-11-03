@@ -73,6 +73,66 @@ def Sign(hotspot, rect):
     return label, board
 
 
+def Objects(scene):
+    """Validate a room's separate object layers, drawn in list order over its
+    clean background plate. A hotspot with "object" belongs to that layer:
+    its glow picture shares the layer's rect and its hit shape stays inside."""
+    objects = scene.get('objects', [])
+    if not isinstance(objects, list):
+        raise SystemExit('title scenes: objects must be a list')
+    if objects and not scene.get('background'):
+        raise SystemExit('title scenes: object layers need a clean background plate')
+    ids = [layer.get('id') for layer in objects]
+    if len(set(ids)) != len(ids) or not all(isinstance(i, str) and i for i in ids):
+        raise SystemExit('title scenes: object IDs must be unique and present')
+    for layer in objects:
+        rect = layer.get('rect')
+        if set(layer) != {'id', 'image', 'rect'}:
+            raise SystemExit(f'title scenes: object {layer["id"]} needs exactly id, image and rect')
+        if (not isinstance(rect, list) or len(rect) != 4 or any(type(v) is not int for v in rect) or
+                rect[0] < 0 or rect[1] < 0 or rect[2] <= 0 or rect[3] <= 0 or
+                rect[0] + rect[2] > scene['width'] or rect[1] + rect[3] > scene['height']):
+            raise SystemExit(f'title scenes: object {layer["id"]} rect must lie inside the scene')
+        if not layer['image'].endswith('.webp') or not (ROOT / layer['image']).is_file():
+            raise SystemExit(f'title scenes: object {layer["id"]} needs an existing WebP image')
+    by_id = {layer['id']: layer for layer in objects}
+    for hotspot in scene['hotspots']:
+        if 'object' not in hotspot:
+            continue
+        layer = by_id.get(hotspot['object'])
+        if layer is None:
+            raise SystemExit(f'title scenes: hotspot {hotspot["id"]} names a missing object')
+        x, y, width, height = layer['rect']
+        if hotspot['glow_rect'] != layer['rect'] or any(
+                not (x <= px <= x + width and y <= py <= y + height) for px, py in hotspot['polygon']):
+            raise SystemExit(f'title scenes: hotspot {hotspot["id"]} must follow its object; '
+                             'run python3 tools/title_scenes.py')
+
+
+def Follow(data):
+    """Move and scale each object's hotspot with its layer. True when changed."""
+    changed = False
+    for base in data['scenes']:
+        for scene, width, height in ((base, data['width'], data['height']),
+                                     (base.get('portrait'), None, None)):
+            if not scene:
+                continue
+            width = width or scene['width']
+            height = height or scene['height']
+            layers = {layer['id']: layer for layer in scene.get('objects', [])}
+            for hotspot in scene['hotspots']:
+                layer = layers.get(hotspot.get('object'))
+                if layer is None or hotspot['glow_rect'] == layer['rect']:
+                    continue
+                (x, y, w, h), (nx, ny, nw, nh) = hotspot['glow_rect'], layer['rect']
+                hotspot['polygon'] = [[min(width - 1, max(0, round(nx + (px - x) * nw / w))),
+                                       min(height - 1, max(0, round(ny + (py - y) * nh / h)))]
+                                      for px, py in hotspot['polygon']]
+                hotspot['glow_rect'] = list(layer['rect'])
+                changed = True
+    return changed
+
+
 def Load(source=SOURCE, catalog=CATALOG):
     """The validated scenes, their parents and the flattened hotspots."""
     data = json.loads(Path(source).read_text())
@@ -92,7 +152,9 @@ def Load(source=SOURCE, catalog=CATALOG):
         labels = lambda items: {h['id']: SignLabel(h) for h in items}
         if labels(scene['hotspots']) != labels(portrait['hotspots']):
             raise SystemExit('title scenes: portrait path sign labels must match landscape')
-        scenes.append(dict(portrait, name=scene['name'] + '-portrait', base=index))
+        # A look-only view keeps its Back button when rotated.
+        scenes.append(dict(portrait, name=scene['name'] + '-portrait', base=index,
+                           **({'back': scene['back']} if 'back' in scene else {})))
     names = [scene['name'] for scene in scenes]
     if not scenes or len(set(names)) != len(names):
         raise SystemExit('title scenes: scene names must be unique and present')
@@ -103,8 +165,12 @@ def Load(source=SOURCE, catalog=CATALOG):
             raise SystemExit('title scenes: dimensions must be positive')
         if len({h['id'] for h in scene['hotspots']}) != len(scene['hotspots']):
             raise SystemExit('title scenes: duplicate hotspot ID')
-        if not scene['hotspots']:
+        # A look-only view (the window's outside view) needs its Back button.
+        if not scene['hotspots'] and scene.get('back') is not True:
             raise SystemExit(f'title scenes: {scene["name"]} has no hotspots')
+        if 'back' in scene and scene['back'] is not True:
+            raise SystemExit('title scenes: back is either true or absent')
+        Objects(scene)
         for hotspot in scene['hotspots']:
             kind, _, target = hotspot['target'].partition(':')
             if kind == 'scene':
@@ -214,7 +280,8 @@ def Render(data, scenes, parents, hotspots):
     first, counts = [], []
     for index in range(len(scenes)):
         own = [position for position, hotspot in enumerate(hotspots) if hotspot['scene'] == index]
-        first.append(own[0])
+        # A look-only view starts its empty range where the next scene begins.
+        first.append(own[0] if own else sum(counts))
         counts.append(len(own))
     # Ziran limits a file-scope initializer to 4095 characters, so the points
     # are split into chunks, each holding whole polygons.
@@ -238,6 +305,10 @@ def Render(data, scenes, parents, hotspots):
     scene_count, hotspot_count = len(scenes), len(hotspots)
     decorations = [(i,layer) for i,scene in enumerate(scenes) for layer in scene.get("decorations", [])]
     portrait = [next((i for i, s in enumerate(scenes) if s['base'] == scene['base'] and i != s['base']), scene['base']) for scene in scenes]
+    room_objects, object_first = [], []
+    for scene in scenes:
+        object_first.append(len(room_objects))
+        room_objects += scene.get('objects', [])
     lines = [
         '// Generated by tools/title_scenes.py from tools/title_hotspots.json; do not edit.',
         '// Scene pictures and hotspot polygons are in source pixels.',
@@ -250,6 +321,16 @@ def Render(data, scenes, parents, hotspots):
         f'TITLE_DECORATION_SCENE: [{len(decorations)}]s32 = .[{Numbers(i for i,_ in decorations)}];',
         f'TITLE_DECORATION_PATH: [{len(decorations)}]string = .[{Quoted(layer["path"] for _,layer in decorations)}];',
         f'TITLE_DECORATION_RECT: [{len(decorations)*4}]s32 = .[{Numbers(v for _,layer in decorations for v in layer["rect"])}];',
+        '// Separate room objects, drawn in this order over the clean background',
+        '// plate. Each scene\'s layers are TITLE_SCENE_OBJECT_FIRST .. + TITLE_SCENE_OBJECTS - 1.',
+        f'TITLE_OBJECT_COUNT :: {len(room_objects)}',
+        f'TITLE_OBJECT_ID: [{len(room_objects)}]string = .[{Quoted(layer["id"] for layer in room_objects)}];',
+        f'TITLE_OBJECT_PATH: [{len(room_objects)}]string = .[{Quoted(layer["image"] for layer in room_objects)}];',
+        f'TITLE_OBJECT_RECT: [{len(room_objects) * 4}]s32 = .[{Numbers(v for layer in room_objects for v in layer["rect"])}];',
+        f'TITLE_SCENE_OBJECT_FIRST: [{scene_count}]s32 = .[{Numbers(object_first)}];',
+        f'TITLE_SCENE_OBJECTS: [{scene_count}]s32 = .[{Numbers(len(s.get("objects", [])) for s in scenes)}];',
+        '// 1 where a look-only view shows the top-left Back button.',
+        f'TITLE_SCENE_BACK: [{scene_count}]s32 = .[{Numbers(1 if s.get("back") else 0 for s in scenes)}];',
         f'TITLE_SCENE_NAME: [{scene_count}]string = .[{Quoted(scene["name"] for scene in scenes)}];',
         f'TITLE_SCENE_IMAGE: [{scene_count}]string = .[{Quoted(scene["image"] for scene in scenes)}];',
         f'TITLE_SCENE_LOW: [{scene_count}]string = .[{Quoted(scene["low"] for scene in scenes)}];',
@@ -336,6 +417,12 @@ def main():
     arguments = parser.parse_args()
     if arguments.export_beach:
         ExportBeach()
+    # Moving or resizing an object layer carries its hotspot along. --check
+    # reports a stale hotspot instead of writing.
+    data = json.loads(SOURCE.read_text())
+    if not arguments.check and Follow(data):
+        SOURCE.write_text(json.dumps(data, indent=2, ensure_ascii=False) + '\n')
+        print(f'title scenes: moved object hotspots in {SOURCE.relative_to(ROOT)}')
     text = Render(*Load())
     if arguments.check:
         if not OUTPUT.exists() or OUTPUT.read_text() != text:

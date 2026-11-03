@@ -20,16 +20,22 @@ ORIGINALS = {'treehouse': 'treehouse-room', 'bookshelf': 'bookshelf-closeup',
              'farm': '../owner-farm-beach-source/27', 'beach': '../title-waterfront/beach', 'aquarium': '../title-waterfront/aquarium'}
 
 
+def room_owned(scene):
+    """Rooms built from object layers, and the window view, come from
+    tools/title_room.py; this tool must not overwrite them with old paintings."""
+    return bool(scene.get('objects') or scene.get('back'))
+
+
 def validate(data):
     """Fail before writing on malformed geometry or unresolved destinations."""
     assert set(data) == {'width', 'height', 'scenes'}
     assert (data['width'], data['height']) == (1672, 941)
     names = {s['name'] for s in data['scenes']}
-    assert names <= set(ORIGINALS)
+    assert {s['name'] for s in data['scenes'] if not room_owned(s)} <= set(ORIGINALS)
     games = {line.split('|')[1] for line in
              (ROOT / 'games/catalog.txt').read_text().splitlines() if '|' in line}
     for original in data['scenes']:
-        assert set(original) <= {'name', 'image', 'low', 'hotspots', 'portrait', 'background', 'foreground', 'paper', 'decorations'}
+        assert set(original) <= {'name', 'image', 'low', 'hotspots', 'portrait', 'background', 'foreground', 'paper', 'decorations', 'objects', 'back'}
         variants = [dict(original, width=data['width'], height=data['height'])]
         if 'portrait' in original:
             portrait = original['portrait']
@@ -43,7 +49,7 @@ def validate_variant(scene, names, games):
     ids = set()
     for h in scene['hotspots']:
         assert {'id', 'target', 'polygon', 'glow', 'glow_rect'} <= set(h)
-        assert set(h) <= {'id', 'target', 'polygon', 'glow', 'glow_rect', 'rest', 'occlusion', 'sign'}
+        assert set(h) <= {'id', 'target', 'polygon', 'glow', 'glow_rect', 'rest', 'occlusion', 'sign', 'object'}
         assert h['id'] not in ids
         ids.add(h['id'])
         kind, dest = h['target'].split(':', 1)
@@ -115,7 +121,7 @@ def main():
     count = 0
     variants = []
     for scene in data['scenes']:
-        if args.scenes and scene['name'] not in args.scenes:
+        if args.scenes and scene['name'] not in args.scenes or room_owned(scene):
             continue
         variants.append(dict(scene, width=data['width'], height=data['height'], source=SOURCE / (ORIGINALS[scene['name']]+'.png')))
         if 'portrait' in scene:

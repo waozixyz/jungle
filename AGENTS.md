@@ -109,6 +109,14 @@ is in `tools/book_prompts.json`; the full-size originals are kept in
   item. Hovering an item glows exactly that item; a tap glows briefly, then
   opens it. Scenes and hotspots come from `tools/title_hotspots.json` through
   `tools/title_scenes.py`; only small flags and the sound button sit on top.
+- The first Treehouse room is a clean background plate with every piece of
+  furniture as its own transparent layer (`"objects"` in
+  `tools/title_hotspots.json`, drawn in list order). Customize it by adding,
+  moving or swapping a layer, then run `python3 tools/title_scenes.py`;
+  hotspots with `"object"` follow their layer. `tools/title_room.py` rebuilds
+  the layers from the ignored masters in `local/art-development/treehouse-room/`.
+  No picture board hangs above the ladder. The round window opens a look-only
+  view outside with only the top-left Back button.
 - Picture Book includes Clothing and Seasons, with the same full-scene art
   and complete English, German and Spanish names and narration as every book.
 

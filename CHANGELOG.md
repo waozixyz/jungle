@@ -11,6 +11,7 @@
 - Place the crab family on the Beach sand beside its relocated Campus sign.
 - Read directional arrows on localized signs in both orientations; Farm has no planting panels or game title bar.
 - Show the corrected portrait Campus paths, with clean sideways wooden arrow signs and a single Beach sign.
+- Open the Treehouse's round window to look out over the jungle, with Back to return; the room has no board above the ladder.
 
 ## 0.1.37
 
