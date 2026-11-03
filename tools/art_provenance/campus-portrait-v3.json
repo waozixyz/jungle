@@ -1,125 +1,125 @@
 {
-  "source": "local/art-development/campus-object-layers/mapping-portrait-v3.json",
-  "canvas": [
-    1024,
-    1536
+ "source": "local/art-development/campus-object-layers/mapping-portrait-v3.json",
+ "canvas": [
+  1024,
+  1536
+ ],
+ "plate": "portrait-jungle-path-between.png",
+ "signs": {
+  "Jungle Path": [
+   305,
+   478,
+   160,
+   160
   ],
-  "plate": "portrait-connected-desert-right.png",
-  "signs": {
-    "Beach": [
-      10,
-      550,
-      190,
-      190
-    ],
-    "Farm": [
-      80,
-      770,
-      230,
-      230
-    ],
-    "Desert": [
-      630,
-      600,
-      220,
-      220
-    ]
+  "Farm": [
+   80,
+   770,
+   230,
+   230
+  ],
+  "Desert": [
+   630,
+   600,
+   220,
+   220
+  ]
+ },
+ "objects": [
+  {
+   "file": "portrait-music-original.png",
+   "source_content_bounds": [
+    68,
+    481,
+    390,
+    727
+   ],
+   "scene_rect": [
+    115,
+    490,
+    130,
+    99
+   ]
   },
-  "objects": [
-    {
-      "file": "portrait-music-original.png",
-      "source_content_bounds": [
-        68,
-        481,
-        390,
-        727
-      ],
-      "scene_rect": [
-        115,
-        490,
-        130,
-        99
-      ]
-    },
-    {
-      "file": "portrait-piano.png",
-      "source_content_bounds": [
-        661,
-        482,
-        1001,
-        802
-      ],
-      "scene_rect": [
-        645,
-        462,
-        186,
-        176
-      ]
-    },
-    {
-      "file": "portrait-picnic.png",
-      "source_content_bounds": [
-        443,
-        758,
-        1024,
-        1042
-      ],
-      "scene_rect": [
-        533,
-        766,
-        484,
-        237
-      ]
-    },
-    {
-      "file": "frogs.png",
-      "source_content_bounds": [
-        213,
-        122,
-        1331,
-        890
-      ],
-      "scene_rect": [
-        65,
-        1160,
-        250,
-        172
-      ]
-    },
-    {
-      "file": "triceratops.png",
-      "source_content_bounds": [
-        373,
-        88,
-        1197,
-        953
-      ],
-      "scene_rect": [
-        580,
-        1078,
-        260,
-        260
-      ]
-    },
-    {
-      "file": "hiding-tail.png",
-      "source_content_bounds": [
-        780,
-        1173,
-        954,
-        1430
-      ],
-      "scene_rect": [
-        890,
-        1220,
-        87,
-        120
-      ]
-    }
-  ],
-  "directions": {
-    "Beach": "left",
-    "Farm": "left",
-    "Desert": "right"
+  {
+   "file": "portrait-piano.png",
+   "source_content_bounds": [
+    661,
+    482,
+    1001,
+    802
+   ],
+   "scene_rect": [
+    645,
+    462,
+    186,
+    176
+   ]
+  },
+  {
+   "file": "portrait-picnic.png",
+   "source_content_bounds": [
+    443,
+    758,
+    1024,
+    1042
+   ],
+   "scene_rect": [
+    533,
+    766,
+    484,
+    237
+   ]
+  },
+  {
+   "file": "frogs.png",
+   "source_content_bounds": [
+    213,
+    122,
+    1331,
+    890
+   ],
+   "scene_rect": [
+    45,
+    1032,
+    250,
+    172
+   ]
+  },
+  {
+   "file": "triceratops.png",
+   "source_content_bounds": [
+    373,
+    88,
+    1197,
+    953
+   ],
+   "scene_rect": [
+    580,
+    1078,
+    260,
+    260
+   ]
+  },
+  {
+   "file": "hiding-tail.png",
+   "source_content_bounds": [
+    780,
+    1173,
+    954,
+    1430
+   ],
+   "scene_rect": [
+    890,
+    1220,
+    87,
+    120
+   ]
   }
+ ],
+ "directions": {
+  "Jungle Path": "up",
+  "Farm": "left",
+  "Desert": "right"
+ }
 }

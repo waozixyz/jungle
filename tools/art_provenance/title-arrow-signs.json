@@ -1,6 +1,6 @@
 {
-  "owner_request": "The sign itself is an arrow-shaped wooden plank; no arrow painted inside. Sideways planks only, with clean intact ends (no snapped or splintered wood).",
-  "generator": "built-in image_gen edit of the right plank; left is its exact mirror",
+  "owner_request": "The sign itself is an arrow-shaped wooden plank; no arrow painted inside. Sideways planks with clean intact ends (no snapped or splintered wood); on Campus the sign to the Jungle Path stands upright, pointing up the path.",
+  "generator": "built-in image_gen edit of the right plank; left is its exact mirror; up is a generate_image edit of the right plank into an upward arrow board",
   "assets": [
     {
       "direction": "right",
@@ -85,6 +85,49 @@
         [
           1199,
           668
+        ]
+      ]
+    },
+    {
+      "direction": "up",
+      "source": "local/art-development/sign-reference/wood-arrow-up.png",
+      "source_sha256": "46f3398ea8661fff2b0b41bcd5635c8c4f240ca9df4fa4c2cf494e4c5e276e18",
+      "runtime": "assets/jungle/title/objects/wood-arrow-up.webp",
+      "sha256": "3fe4395240e7af64112c3945a86ea08c7cbee643e58600028252422b3eaa2258",
+      "label_rect": [
+        150,
+        380,
+        955,
+        280
+      ],
+      "polygon": [
+        [
+          77,
+          338
+        ],
+        [
+          326,
+          338
+        ],
+        [
+          626,
+          34
+        ],
+        [
+          924,
+          338
+        ],
+        [
+          1175,
+          338
+        ],
+        [
+          1175,
+          705
+        ],
+        [
+          77,
+          705
         ]
       ]
     }

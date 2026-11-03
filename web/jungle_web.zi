@@ -75,6 +75,8 @@ selected: s32;
 web_initialized: bool;
 web_muted: bool;
 web_home: bool;
+// The title scene a game's way out leads to ("scene:market"), as on the desktop, or -1.
+web_scene_from_game: s32 = -1;
 // The title bar's back arrow reaches the game as Escape on the next frame.
 web_back_pending: bool;
 web_speed_pending: bool;
@@ -393,7 +395,11 @@ WebService :: (name: string, request: string) -> string {
         return ifx WebAsBool(WebCall2(WebModule, WebName("jungleBookOpen"), WebNumber(cast(float64)active_game), WebText(request))) then "back" else "ok"
     }
     if name == "jungle.language" { return LanguageCode() }
-    if name == "jungle.home" { web_home = true; return "ok" }
+    if name == "jungle.home" {
+        if request.count > 6 && request[:6] == "scene:" { web_scene_from_game = TitleSceneNamed(request[6:]) }
+        web_home = true
+        return "ok"
+    }
     if name == "jungle.secondary" { return ifx IsMouseButtonDown(1) then "down" else "up" }
     if name == "jungle.sound" || name == "jungle.voice" {
         PlayAudio(request, name == "jungle.voice")
@@ -576,6 +582,10 @@ JungleMain :: () -> s64 {
             WebKeyboard(false)
             active_game = -1
             web_home = false
+            if web_scene_from_game >= 0 {
+                unused TitleOpenSceneFromGame(*title_state, web_scene_from_game)
+                web_scene_from_game = -1
+            }
         }
     }
     return 0

@@ -65,6 +65,10 @@ def main():
     migrated_sources = {row['source']: name for name, row in migrated.items()}
     for name, row in migrated.items():
         path = ROOT / name
+        # A repainted, re-approved export supersedes its migration receipt.
+        if name in approved:
+            assert digest(path) == approved[name]['sha256'], name
+            continue
         assert path.suffix == '.webp' and digest(path) == row['sha256'], name
         assert not (ROOT / row['source']).exists(), row['source']
         with Image.open(path) as image:

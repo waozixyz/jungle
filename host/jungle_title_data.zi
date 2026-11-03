@@ -2,11 +2,11 @@
 // Scene pictures and hotspot polygons are in source pixels.
 TITLE_SOURCE_WIDTH :: 1672
 TITLE_SOURCE_HEIGHT :: 941
-TITLE_SCENE_COUNT :: 16
-TITLE_HOTSPOT_COUNT :: 58
+TITLE_SCENE_COUNT :: 20
+TITLE_HOTSPOT_COUNT :: 82
 
 TITLE_DECORATION_COUNT :: 2
-TITLE_DECORATION_SCENE: [2]s32 = .[2, 10];
+TITLE_DECORATION_SCENE: [2]s32 = .[2, 12];
 TITLE_DECORATION_PATH: [2]string = .["assets/jungle/title/objects/landscape-triceratops.webp", "assets/jungle/title/objects/portrait-triceratops.webp"];
 TITLE_DECORATION_RECT: [8]s32 = .[1380, 550, 190, 200, 580, 1078, 260, 260];
 // Separate room objects, drawn in this order over the clean background
@@ -81,29 +81,33 @@ TITLE_OBJECT_RECT: [116]s32 = .[
     0, 543, 258, 322, 0, 738, 106, 173, 643, 533, 141, 198, 718, 318, 306, 470, 136, 727, 700, 269, 0, 864, 452, 297,
     420, 993, 272, 215, 514, 814, 510, 414, 863, 1041, 161, 211, 747, 1144, 277, 357, 0, 936, 539, 600,
 ];
-TITLE_SCENE_OBJECT_FIRST: [16]s32 = .[0, 15, 15, 15, 15, 15, 15, 15, 15, 29, 29, 29, 29, 29, 29, 29];
-TITLE_SCENE_OBJECTS: [16]s32 = .[15, 0, 0, 0, 0, 0, 0, 0, 14, 0, 0, 0, 0, 0, 0, 0];
+TITLE_SCENE_OBJECT_FIRST: [20]s32 = .[0, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 29, 29, 29, 29, 29, 29, 29, 29, 29];
+TITLE_SCENE_OBJECTS: [20]s32 = .[15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 14, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 // 1 where a look-only view shows the top-left Back button.
-TITLE_SCENE_BACK: [16]s32 = .[0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0];
-TITLE_SCENE_NAME: [16]string = .[
+TITLE_SCENE_BACK: [20]s32 = .[0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0];
+TITLE_SCENE_NAME: [20]string = .[
     "treehouse",
     "bookshelf",
     "campus",
-    "beach",
+    "port",
     "aquarium",
     "farm",
     "window",
     "desert",
+    "jungle-path",
+    "market",
     "treehouse-portrait",
     "bookshelf-portrait",
     "campus-portrait",
-    "beach-portrait",
+    "port-portrait",
     "aquarium-portrait",
     "farm-portrait",
     "window-portrait",
     "desert-portrait",
+    "jungle-path-portrait",
+    "market-portrait",
 ];
-TITLE_SCENE_IMAGE: [16]string = .[
+TITLE_SCENE_IMAGE: [20]string = .[
     "assets/jungle/title/treehouse.webp",
     "assets/jungle/title/bookshelf.webp",
     "assets/jungle/title/campus.webp",
@@ -112,6 +116,8 @@ TITLE_SCENE_IMAGE: [16]string = .[
     "assets/jungle/title/farm.webp",
     "assets/jungle/title/window.webp",
     "assets/jungle/title/desert.webp",
+    "assets/jungle/title/jungle-path.webp",
+    "assets/jungle/title/market.webp",
     "assets/jungle/title/treehouse-portrait.webp",
     "assets/jungle/title/bookshelf-portrait.webp",
     "assets/jungle/title/campus-portrait.webp",
@@ -120,8 +126,10 @@ TITLE_SCENE_IMAGE: [16]string = .[
     "assets/jungle/title/farm-portrait.webp",
     "assets/jungle/title/window-portrait.webp",
     "assets/jungle/title/desert-portrait.webp",
+    "assets/jungle/title/jungle-path-portrait.webp",
+    "assets/jungle/title/market-portrait.webp",
 ];
-TITLE_SCENE_LOW: [16]string = .[
+TITLE_SCENE_LOW: [20]string = .[
     "assets/jungle/title/treehouse-low.webp",
     "assets/jungle/title/bookshelf-low.webp",
     "assets/jungle/title/campus-low.webp",
@@ -130,6 +138,8 @@ TITLE_SCENE_LOW: [16]string = .[
     "assets/jungle/title/farm-low.webp",
     "assets/jungle/title/window-low.webp",
     "assets/jungle/title/desert-low.webp",
+    "assets/jungle/title/jungle-path-low.webp",
+    "assets/jungle/title/market-low.webp",
     "assets/jungle/title/treehouse-portrait-low.webp",
     "assets/jungle/title/bookshelf-portrait-low.webp",
     "assets/jungle/title/campus-portrait-low.webp",
@@ -138,11 +148,15 @@ TITLE_SCENE_LOW: [16]string = .[
     "assets/jungle/title/farm-portrait-low.webp",
     "assets/jungle/title/window-portrait-low.webp",
     "assets/jungle/title/desert-portrait-low.webp",
+    "assets/jungle/title/jungle-path-portrait-low.webp",
+    "assets/jungle/title/market-portrait-low.webp",
 ];
-TITLE_SCENE_BACKGROUND: [16]string = .[
+TITLE_SCENE_BACKGROUND: [20]string = .[
     "assets/jungle/title/layers/treehouse-background.webp",
     "assets/jungle/title/layers/bookshelf-background.webp",
     "assets/jungle/title/layers/campus-background.webp",
+    "",
+    "",
     "",
     "",
     "",
@@ -156,11 +170,15 @@ TITLE_SCENE_BACKGROUND: [16]string = .[
     "",
     "",
     "",
+    "",
+    "",
 ];
-TITLE_SCENE_FOREGROUND: [16]string = .[
+TITLE_SCENE_FOREGROUND: [20]string = .[
     "assets/jungle/title/layers/treehouse-foreground.webp",
     "assets/jungle/title/layers/bookshelf-foreground.webp",
     "assets/jungle/title/layers/campus-foreground.webp",
+    "",
+    "",
     "",
     "",
     "",
@@ -174,24 +192,27 @@ TITLE_SCENE_FOREGROUND: [16]string = .[
     "",
     "",
     "",
+    "",
+    "",
 ];
 // Paper center, edge and horizontal reveal travel, all in scene source pixels.
-TITLE_SCENE_PAPER: [64]s32 = .[
+TITLE_SCENE_PAPER: [80]s32 = .[
     732, 565, 84, 26, 590, 251, 78, 18, 722, 535, 70, 24, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 599, 751, 88, 28, 329, 411, 78, 22, 562, 734, 70, 24, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 599, 751, 88, 28, 329, 411, 78, 22,
+    562, 734, 70, 24, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0,
 ];
-TITLE_SCENE_WIDTH: [16]s32 = .[1672, 1672, 1672, 1672, 1672, 1672, 1672, 1672, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024];
-TITLE_SCENE_HEIGHT: [16]s32 = .[941, 941, 941, 941, 941, 941, 941, 941, 1536, 1536, 1536, 1536, 1536, 1536, 1536, 1536];
-TITLE_SCENE_BASE: [16]s32 = .[0, 1, 2, 3, 4, 5, 6, 7, 0, 1, 2, 3, 4, 5, 6, 7];
-TITLE_SCENE_PORTRAIT: [16]s32 = .[8, 9, 10, 11, 12, 13, 14, 15, 8, 9, 10, 11, 12, 13, 14, 15];
+TITLE_SCENE_WIDTH: [20]s32 = .[1672, 1672, 1672, 1672, 1672, 1672, 1672, 1672, 1672, 1672, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024];
+TITLE_SCENE_HEIGHT: [20]s32 = .[941, 941, 941, 941, 941, 941, 941, 941, 941, 941, 1536, 1536, 1536, 1536, 1536, 1536, 1536, 1536, 1536, 1536];
+TITLE_SCENE_BASE: [20]s32 = .[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+TITLE_SCENE_PORTRAIT: [20]s32 = .[10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19];
 // The scene Escape returns to; -1 for the first scene.
-TITLE_SCENE_PARENT: [16]s32 = .[-1, 0, 0, 2, 3, 2, 0, 2, -1, 0, 0, 2, 3, 2, 0, 2];
+TITLE_SCENE_PARENT: [20]s32 = .[-1, 0, 0, 8, 3, 2, 0, 2, 2, 3, -1, 0, 0, 8, 3, 2, 0, 2, 2, 3];
 // Each scene's hotspots are TITLE_SCENE_FIRST .. + TITLE_SCENE_HOTSPOTS - 1, in reading order.
-TITLE_SCENE_FIRST: [16]s32 = .[0, 6, 11, 20, 24, 25, 26, 26, 29, 35, 40, 49, 53, 54, 55, 55];
-TITLE_SCENE_HOTSPOTS: [16]s32 = .[6, 5, 9, 4, 1, 1, 0, 3, 6, 5, 9, 4, 1, 1, 0, 3];
+TITLE_SCENE_FIRST: [20]s32 = .[0, 6, 11, 20, 25, 26, 27, 27, 30, 35, 41, 47, 52, 61, 66, 67, 68, 68, 71, 76];
+TITLE_SCENE_HOTSPOTS: [20]s32 = .[6, 5, 9, 5, 1, 1, 0, 3, 5, 6, 6, 5, 9, 5, 1, 1, 0, 3, 5, 6];
 
-TITLE_HOTSPOT_ID: [58]string = .[
+TITLE_HOTSPOT_ID: [82]string = .[
     "shape-sorter",
     "bookshelf",
     "puzzle-table",
@@ -209,18 +230,30 @@ TITLE_HOTSPOT_ID: [58]string = .[
     "frogs",
     "hiding-bush",
     "piano",
-    "beach-path",
+    "jungle-path",
     "farm-path",
     "desert-path",
-    "campus-path",
+    "jungle-path",
     "bunker-door",
     "fishing-boat",
     "crab-family",
-    "beach-stairs",
+    "market-path",
+    "port-stairs",
     "campus-path",
     "campus-path",
     "camel",
     "desert-guide",
+    "parrot",
+    "sloth",
+    "butterfly",
+    "port-path",
+    "campus-path",
+    "toy-shop",
+    "fish-stall",
+    "bakery",
+    "fruit-stall",
+    "port-path",
+    "farm-path",
     "shape-sorter",
     "bookshelf",
     "puzzle-table",
@@ -238,48 +271,72 @@ TITLE_HOTSPOT_ID: [58]string = .[
     "frogs",
     "hiding-bush",
     "piano",
-    "beach-path",
+    "jungle-path",
     "farm-path",
     "desert-path",
-    "campus-path",
+    "jungle-path",
     "bunker-door",
     "fishing-boat",
     "crab-family",
-    "beach-stairs",
+    "market-path",
+    "port-stairs",
     "campus-path",
     "campus-path",
     "camel",
     "desert-guide",
+    "parrot",
+    "sloth",
+    "butterfly",
+    "port-path",
+    "campus-path",
+    "toy-shop",
+    "fish-stall",
+    "bakery",
+    "fruit-stall",
+    "port-path",
+    "farm-path",
 ];
-TITLE_HOTSPOT_GUIDE: [58]s32 = .[
+TITLE_HOTSPOT_GUIDE: [82]s32 = .[
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 ];
-TITLE_HOTSPOT_NOTICE: [58]s32 = .[
+// 1 for a decorative painted item that only glows (a Market shop, a parrot).
+TITLE_HOTSPOT_LOOK: [82]s32 = .[
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+    1, 1, 0, 0, 1, 1, 1, 1, 0, 0,
+];
+TITLE_HOTSPOT_NOTICE: [82]s32 = .[
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 ];
 // The speech bubble a hotspot opens: TITLE_DIALOGUE index + 1, or 0.
-TITLE_HOTSPOT_DIALOGUE: [58]s32 = .[
+TITLE_HOTSPOT_DIALOGUE: [82]s32 = .[
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 1, 1,
+    0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 ];
 // The hotspot whose figure speaks that bubble (its anchor and glow), or -1.
-TITLE_HOTSPOT_SPEAKER: [58]s32 = .[
+TITLE_HOTSPOT_SPEAKER: [82]s32 = .[
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-    -1, -1, -1, 28, 28, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-    -1, -1, -1, -1, -1, -1, -1, -1, 57, 57,
+    -1, -1, -1, -1, 29, 29, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 70, 70, -1,
+    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
 ];
 // The scene a hotspot leads to, or -1 when it opens TITLE_HOTSPOT_GAME.
-TITLE_HOTSPOT_TARGET: [58]s32 = .[
-    -1, 1, -1, -1, 2, 6, -1, -1, -1, 0, -1, -1, -1, 0, -1, -1, -1, 3, 5, 7, 2, 4, -1, -1,
-    3, 2, 2, -1, -1, -1, 1, -1, -1, 2, 6, -1, -1, -1, 0, -1, -1, -1, 0, -1, -1, -1, 3, 5,
-    7, 2, 4, -1, -1, 3, 2, 2, -1, -1,
+TITLE_HOTSPOT_TARGET: [82]s32 = .[
+    -1, 1, -1, -1, 2, 6, -1, -1, -1, 0, -1, -1, -1, 0, -1, -1, -1, 8, 5, 7, 8, 4, -1, -1,
+    9, 3, 2, 2, -1, -1, -1, -1, -1, 3, 2, -1, -1, -1, -1, 3, -1, -1, 1, -1, -1, 2, 6, -1,
+    -1, -1, 0, -1, -1, -1, 0, -1, -1, -1, 8, 5, 7, 8, 4, -1, -1, 9, 3, 2, 2, -1, -1, -1,
+    -1, -1, 3, 2, -1, -1, -1, -1, 3, -1,
 ];
-TITLE_HOTSPOT_GAME: [58]string = .[
+TITLE_HOTSPOT_GAME: [82]string = .[
     "Shapes & Sorting",
     "",
     "Jigsaw Puzzles",
@@ -309,6 +366,18 @@ TITLE_HOTSPOT_GAME: [58]string = .[
     "",
     "",
     "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "Farm",
     "Shapes & Sorting",
     "",
     "Jigsaw Puzzles",
@@ -338,8 +407,20 @@ TITLE_HOTSPOT_GAME: [58]string = .[
     "",
     "",
     "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "Farm",
 ];
-TITLE_HOTSPOT_GLOW: [58]string = .[
+TITLE_HOTSPOT_GLOW_0: [58]string = .[
     "assets/jungle/title/room/landscape-shape-sorter-glow.webp",
     "assets/jungle/title/room/landscape-bookshelf-glow.webp",
     "assets/jungle/title/room/landscape-puzzle-table-glow.webp",
@@ -357,18 +438,30 @@ TITLE_HOTSPOT_GLOW: [58]string = .[
     "assets/jungle/title/objects/landscape-frogs-glow.webp",
     "assets/jungle/title/glow/campus-hiding-bush.webp",
     "assets/jungle/title/objects/landscape-landscape-piano-glow.webp",
-    "assets/jungle/title/objects/wood-arrow-right-glow.webp",
+    "assets/jungle/title/objects/wood-arrow-up-glow.webp",
     "assets/jungle/title/objects/wood-arrow-left-glow.webp",
     "assets/jungle/title/objects/wood-arrow-right-glow.webp",
     "assets/jungle/title/objects/wood-arrow-left-glow.webp",
     "assets/jungle/title/glow/beach-bunker-door.webp",
     "assets/jungle/title/glow/beach-fishing-boat.webp",
     "assets/jungle/title/glow/beach-crab-family.webp",
+    "assets/jungle/title/objects/wood-arrow-right-glow.webp",
     "assets/jungle/title/glow/aquarium-beach-stairs.webp",
     "assets/jungle/title/objects/wood-arrow-right-glow.webp",
     "assets/jungle/title/objects/wood-arrow-left-glow.webp",
     "assets/jungle/title/objects/desert-camel-glow.webp",
     "assets/jungle/title/objects/desert-guide-glow.webp",
+    "assets/jungle/title/glow/jungle-path-parrot.webp",
+    "assets/jungle/title/glow/jungle-path-sloth.webp",
+    "assets/jungle/title/glow/jungle-path-butterfly.webp",
+    "assets/jungle/title/objects/wood-arrow-left-glow.webp",
+    "assets/jungle/title/objects/wood-arrow-right-glow.webp",
+    "assets/jungle/title/glow/market-toy-shop.webp",
+    "assets/jungle/title/glow/market-fish-stall.webp",
+    "assets/jungle/title/glow/market-bakery.webp",
+    "assets/jungle/title/glow/market-fruit-stall.webp",
+    "assets/jungle/title/objects/wood-arrow-left-glow.webp",
+    "assets/jungle/title/objects/wood-arrow-right-glow.webp",
     "assets/jungle/title/room/portrait-shape-sorter-glow.webp",
     "assets/jungle/title/room/portrait-bookshelf-glow.webp",
     "assets/jungle/title/room/portrait-puzzle-table-glow.webp",
@@ -386,21 +479,40 @@ TITLE_HOTSPOT_GLOW: [58]string = .[
     "assets/jungle/title/objects/portrait-frogs-glow.webp",
     "assets/jungle/title/objects/portrait-hiding-tail-glow.webp",
     "assets/jungle/title/objects/portrait-portrait-piano-glow.webp",
-    "assets/jungle/title/objects/wood-arrow-left-glow.webp",
+];
+TITLE_HOTSPOT_GLOW_1: [24]string = .[
+    "assets/jungle/title/objects/wood-arrow-up-glow.webp",
     "assets/jungle/title/objects/wood-arrow-left-glow.webp",
     "assets/jungle/title/objects/wood-arrow-right-glow.webp",
     "assets/jungle/title/objects/wood-arrow-left-glow.webp",
     "assets/jungle/title/glow/beach-portrait-bunker-door.webp",
     "assets/jungle/title/glow/beach-portrait-fishing-boat.webp",
     "assets/jungle/title/glow/beach-portrait-crab-family.webp",
+    "assets/jungle/title/objects/wood-arrow-right-glow.webp",
     "assets/jungle/title/glow/aquarium-portrait-beach-stairs.webp",
     "assets/jungle/title/objects/wood-arrow-right-glow.webp",
     "assets/jungle/title/objects/wood-arrow-left-glow.webp",
     "assets/jungle/title/objects/desert-camel-glow.webp",
     "assets/jungle/title/objects/desert-guide-glow.webp",
+    "assets/jungle/title/glow/jungle-path-portrait-parrot.webp",
+    "assets/jungle/title/glow/jungle-path-portrait-sloth.webp",
+    "assets/jungle/title/glow/jungle-path-portrait-butterfly.webp",
+    "assets/jungle/title/objects/wood-arrow-left-glow.webp",
+    "assets/jungle/title/objects/wood-arrow-right-glow.webp",
+    "assets/jungle/title/glow/market-portrait-toy-shop.webp",
+    "assets/jungle/title/glow/market-portrait-fish-stall.webp",
+    "assets/jungle/title/glow/market-portrait-bakery.webp",
+    "assets/jungle/title/glow/market-portrait-fruit-stall.webp",
+    "assets/jungle/title/objects/wood-arrow-left-glow.webp",
+    "assets/jungle/title/objects/wood-arrow-right-glow.webp",
 ];
+TitleHotspotGlow :: (index: s32) -> string {
+    if index < 58 { return TITLE_HOTSPOT_GLOW_0[index - 0] }
+    if index < 82 { return TITLE_HOTSPOT_GLOW_1[index - 58] }
+    return ""
+}
 // Optional always-visible navigation art; shares the glow rectangle.
-TITLE_HOTSPOT_REST: [58]string = .[
+TITLE_HOTSPOT_REST_0: [82]string = .[
     "",
     "",
     "",
@@ -418,18 +530,30 @@ TITLE_HOTSPOT_REST: [58]string = .[
     "assets/jungle/title/objects/landscape-frogs.webp",
     "",
     "assets/jungle/title/objects/landscape-landscape-piano.webp",
-    "assets/jungle/title/objects/wood-arrow-right.webp",
+    "assets/jungle/title/objects/wood-arrow-up.webp",
     "assets/jungle/title/objects/wood-arrow-left.webp",
     "assets/jungle/title/objects/wood-arrow-right.webp",
     "assets/jungle/title/objects/wood-arrow-left.webp",
     "",
     "assets/jungle/title/navigation/beach-fishing-boat.webp",
     "assets/jungle/title/navigation/beach-crab-family.webp",
+    "assets/jungle/title/objects/wood-arrow-right.webp",
     "",
     "assets/jungle/title/objects/wood-arrow-right.webp",
     "assets/jungle/title/objects/wood-arrow-left.webp",
     "assets/jungle/title/objects/desert-camel.webp",
     "assets/jungle/title/objects/desert-guide.webp",
+    "",
+    "",
+    "",
+    "assets/jungle/title/objects/wood-arrow-left.webp",
+    "assets/jungle/title/objects/wood-arrow-right.webp",
+    "",
+    "",
+    "",
+    "",
+    "assets/jungle/title/objects/wood-arrow-left.webp",
+    "assets/jungle/title/objects/wood-arrow-right.webp",
     "",
     "",
     "",
@@ -447,26 +571,43 @@ TITLE_HOTSPOT_REST: [58]string = .[
     "assets/jungle/title/objects/portrait-frogs.webp",
     "assets/jungle/title/objects/portrait-hiding-tail.webp",
     "assets/jungle/title/objects/portrait-portrait-piano.webp",
-    "assets/jungle/title/objects/wood-arrow-left.webp",
+    "assets/jungle/title/objects/wood-arrow-up.webp",
     "assets/jungle/title/objects/wood-arrow-left.webp",
     "assets/jungle/title/objects/wood-arrow-right.webp",
     "assets/jungle/title/objects/wood-arrow-left.webp",
     "",
     "assets/jungle/title/navigation/beach-portrait-fishing-boat.webp",
     "assets/jungle/title/navigation/beach-portrait-crab-family.webp",
+    "assets/jungle/title/objects/wood-arrow-right.webp",
     "",
     "assets/jungle/title/objects/wood-arrow-right.webp",
     "assets/jungle/title/objects/wood-arrow-left.webp",
     "assets/jungle/title/objects/desert-camel.webp",
     "assets/jungle/title/objects/desert-guide.webp",
+    "",
+    "",
+    "",
+    "assets/jungle/title/objects/wood-arrow-left.webp",
+    "assets/jungle/title/objects/wood-arrow-right.webp",
+    "",
+    "",
+    "",
+    "",
+    "assets/jungle/title/objects/wood-arrow-left.webp",
+    "assets/jungle/title/objects/wood-arrow-right.webp",
 ];
-TITLE_SIGN_DIRECTION: [58]s32 = .[
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 1, 2, 1, 0, 0, 0,
-    0, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1,
-    2, 1, 0, 0, 0, 0, 2, 1, 0, 0,
+TitleHotspotRest :: (index: s32) -> string {
+    if index < 82 { return TITLE_HOTSPOT_REST_0[index - 0] }
+    return ""
+}
+TITLE_SIGN_DIRECTION: [82]s32 = .[
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 1, 2, 1, 0, 0, 0,
+    2, 0, 2, 1, 0, 0, 0, 0, 0, 1, 2, 0, 0, 0, 0, 1, 2, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 1, 2, 1, 0, 0, 0, 2, 0, 2, 1, 0, 0, 0,
+    0, 0, 1, 2, 0, 0, 0, 0, 1, 2,
 ];
 // Localized at runtime; the blank sign sprite never contains language-specific lettering.
-TITLE_SIGN_LABEL: [58]string = .[
+TITLE_SIGN_LABEL: [82]string = .[
     "",
     "",
     "",
@@ -484,16 +625,30 @@ TITLE_SIGN_LABEL: [58]string = .[
     "",
     "",
     "",
-    "Beach",
+    "Jungle Path",
     "Farm",
     "Desert",
+    "Jungle Path",
+    "",
+    "",
+    "",
+    "Market",
+    "",
+    "Campus",
     "Campus",
     "",
     "",
     "",
     "",
+    "",
+    "Port",
     "Campus",
-    "Campus",
+    "",
+    "",
+    "",
+    "",
+    "Port",
+    "Farm",
     "",
     "",
     "",
@@ -511,77 +666,101 @@ TITLE_SIGN_LABEL: [58]string = .[
     "",
     "",
     "",
-    "",
-    "",
-    "Beach",
+    "Jungle Path",
     "Farm",
     "Desert",
+    "Jungle Path",
+    "",
+    "",
+    "",
+    "Market",
+    "",
+    "Campus",
     "Campus",
     "",
     "",
     "",
     "",
-    "Campus",
+    "",
+    "Port",
     "Campus",
     "",
     "",
+    "",
+    "",
+    "Port",
+    "Farm",
 ];
 // Text board bounds relative to the hotspot sprite, in source pixels.
-TITLE_SIGN_RECT: [232]s32 = .[
+TITLE_SIGN_RECT: [328]s32 = .[
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 14, 47, 93, 40,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 22, 55, 137, 40,
     96, 63, 124, 54, 17, 55, 109, 47, 88, 58, 114, 49, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 19, 63, 124, 54, 93, 61, 120, 52, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    15, 50, 98, 42, 0, 0, 0, 0, 19, 63, 124, 54, 93, 61, 120, 52, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 76, 50, 98, 42, 17, 55, 109, 47, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 88, 58, 114, 49, 18, 58, 114, 49, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 76, 50, 98, 42, 92, 61, 119, 51,
-    18, 58, 114, 49, 88, 58, 114, 49, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    19, 63, 124, 54, 96, 63, 124, 54, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 19, 48, 122, 36, 92, 61, 119, 51,
+    18, 58, 114, 49, 88, 58, 114, 49, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 49, 96, 41,
+    0, 0, 0, 0, 19, 63, 124, 54, 96, 63, 124, 54, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 76, 50, 98, 42, 16, 53, 104, 45, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 74, 49, 96, 41, 16, 53, 104, 45,
 ];
 // x, y, width, height of each glow picture.
-TITLE_GLOW_RECT: [232]s32 = .[
+TITLE_GLOW_RECT: [328]s32 = .[
     0, 630, 498, 293, 7, 0, 502, 646, 534, 646, 691, 295, 851, 227, 441, 405, 1347, 439, 319, 362, 485, 0, 681, 479,
     310, 68, 839, 325, 379, 374, 391, 237, 743, 390, 490, 238, 1475, 394, 197, 511, 345, 625, 995, 230, 70, 350, 180, 120,
     553, 550, 480, 166, 522, 0, 804, 522, 1090, 494, 220, 173, 512, 141, 250, 305, 1352, 284, 169, 141, 240, 300, 180, 180,
     130, 490, 240, 240, 1360, 410, 210, 210, 555, 710, 220, 220, 1092, 267, 563, 488, 100, 300, 330, 133, 400, 570, 200, 60,
-    40, 17, 562, 791, 1260, 90, 240, 240, 232, 584, 232, 232, 948, 352, 382, 420, 826, 430, 186, 362, 0, 864, 452, 297,
+    1360, 740, 190, 190, 40, 17, 562, 791, 1260, 90, 240, 240, 232, 584, 232, 232, 948, 352, 382, 420, 826, 430, 186, 362,
+    159, 241, 209, 292, 1176, 53, 209, 170, 1368, 605, 197, 179, 100, 500, 190, 190, 1360, 330, 210, 210, 288, 208, 339, 425,
+    602, 198, 319, 437, 891, 174, 396, 461, 1264, 198, 391, 442, 100, 610, 220, 220, 1350, 610, 220, 220, 0, 864, 452, 297,
     0, 17, 395, 770, 514, 814, 510, 414, 718, 318, 306, 470, 747, 1144, 277, 357, 326, 0, 633, 591, 113, 228, 762, 333,
     44, 539, 459, 405, 463, 566, 510, 386, 869, 489, 155, 947, 125, 965, 740, 335, 115, 490, 130, 99, 533, 766, 484, 237,
-    213, 0, 455, 596, 65, 1160, 250, 172, 890, 1220, 87, 120, 645, 462, 186, 176, 10, 550, 190, 190, 80, 770, 230, 230,
-    630, 600, 220, 220, 210, 980, 220, 220, 654, 390, 369, 490, 180, 440, 265, 107, 155, 770, 220, 66, 40, 350, 491, 950,
-    600, 300, 240, 240, 184, 1112, 240, 240, 422, 528, 431, 474, 250, 600, 218, 424,
+    213, 0, 455, 596, 45, 1032, 250, 172, 890, 1220, 87, 120, 645, 462, 186, 176, 305, 478, 160, 160, 80, 770, 230, 230,
+    630, 600, 220, 220, 210, 980, 220, 220, 654, 390, 369, 490, 180, 440, 265, 107, 155, 770, 220, 66, 660, 860, 185, 185,
+    40, 350, 491, 950, 600, 300, 240, 240, 184, 1112, 240, 240, 422, 528, 431, 474, 250, 600, 218, 424, 121, 464, 318, 455,
+    575, 118, 317, 285, 664, 665, 255, 238, 178, 300, 190, 190, 640, 1100, 200, 200, 352, 44, 463, 371, 52, 372, 405, 421,
+    534, 298, 490, 457, 226, 714, 798, 533, 176, 175, 185, 185, 640, 1250, 200, 200,
 ];
 // Each polygon is TITLE_POLYGON_COUNT points from TITLE_POLYGON_FIRST in
 // its chunk of TitlePointsX and TitlePointsY.
-TITLE_POLYGON_CHUNK: [58]s32 = .[
+TITLE_POLYGON_CHUNK: [82]s32 = .[
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2,
-    2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+    0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2,
+    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+    3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
 ];
-TITLE_POLYGON_FIRST: [58]s32 = .[
+TITLE_POLYGON_FIRST: [82]s32 = .[
     0, 41, 111, 166, 237, 280, 336, 353, 357, 361, 384, 388, 392, 396, 464, 468, 518, 522, 529, 536, 543, 550, 563, 584,
-    0, 32, 39, 46, 104, 162, 216, 336, 388, 446, 487, 543, 560, 566, 571, 612, 616, 620, 624, 664, 668, 672, 0, 7,
-    14, 21, 28, 40, 62, 121, 154, 161, 168, 226,
+    643, 0, 32, 39, 46, 104, 162, 220, 278, 336, 343, 350, 359, 369, 380, 392, 399, 406, 460, 580, 0, 58, 99, 155,
+    172, 178, 183, 224, 228, 232, 236, 276, 280, 284, 288, 295, 302, 309, 316, 328, 350, 409, 416, 449, 456, 463, 521, 579,
+    0, 58, 116, 123, 130, 141, 152, 164, 180, 187,
 ];
-TITLE_POLYGON_COUNT: [58]s32 = .[
+TITLE_POLYGON_COUNT: [82]s32 = .[
     41, 70, 55, 71, 43, 56, 17, 4, 4, 23, 4, 4, 4, 68, 4, 50, 4, 7, 7, 7, 7, 13, 21, 59,
-    32, 7, 7, 58, 58, 54, 120, 52, 58, 41, 56, 17, 6, 5, 41, 4, 4, 4, 40, 4, 4, 4, 7, 7,
-    7, 7, 12, 22, 59, 33, 7, 7, 58, 58,
+    7, 32, 7, 7, 58, 58, 58, 58, 58, 7, 7, 9, 10, 11, 12, 7, 7, 54, 120, 52, 58, 41, 56, 17,
+    6, 5, 41, 4, 4, 4, 40, 4, 4, 4, 7, 7, 7, 7, 12, 22, 59, 7, 33, 7, 7, 58, 58, 58,
+    58, 58, 7, 7, 11, 11, 12, 16, 7, 7,
 ];
-TITLE_OCCLUSION_CHUNK: [58]s32 = .[
-    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
-    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
-    2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+TITLE_OCCLUSION_CHUNK: [82]s32 = .[
+    3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+    3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+    3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+    3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
 ];
-TITLE_OCCLUSION_FIRST: [58]s32 = .[
-    284, 284, 284, 284, 284, 284, 370, 370, 370, 370, 370, 370, 370, 370, 370, 370, 370, 370, 370, 370, 370, 370, 370, 370,
-    370, 370, 370, 370, 370, 370, 370, 370, 370, 370, 370, 437, 437, 437, 437, 437, 437, 437, 437, 437, 437, 437, 437, 437,
-    437, 437, 437, 437, 437, 437, 437, 437, 437, 437,
+TITLE_OCCLUSION_FIRST: [82]s32 = .[
+    194, 194, 194, 194, 194, 194, 280, 280, 280, 280, 280, 280, 280, 280, 280, 280, 280, 280, 280, 280, 280, 280, 280, 280,
+    280, 280, 280, 280, 280, 280, 280, 280, 280, 280, 280, 280, 280, 280, 280, 280, 280, 280, 280, 280, 280, 280, 280, 347,
+    347, 347, 347, 347, 347, 347, 347, 347, 347, 347, 347, 347, 347, 347, 347, 347, 347, 347, 347, 347, 347, 347, 347, 347,
+    347, 347, 347, 347, 347, 347, 347, 347, 347, 347,
 ];
-TITLE_OCCLUSION_COUNT: [58]s32 = .[
+TITLE_OCCLUSION_COUNT: [82]s32 = .[
     0, 0, 0, 0, 0, 86, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 67, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 67, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 ];
 
@@ -621,7 +800,7 @@ TITLE_DIALOGUE_VOICE: [12]string = .[
     "assets/jungle/title/desert/es/line3.wav",
 ];
 
-TITLE_POINT_X_0: [643]s32 = .[
+TITLE_POINT_X_0: [650]s32 = .[
     163, 305, 309, 310, 316, 322, 337, 361, 374, 374, 380, 396, 402, 430, 438, 448, 472, 470, 413, 405, 388, 391, 387, 364,
     347, 333, 322, 325, 309, 289, 289, 285, 251, 216, 207, 140, 19, 16, 19, 79, 163, 135, 217, 212, 224, 223, 217, 224,
     238, 246, 246, 250, 267, 260, 249, 271, 299, 306, 313, 387, 393, 399, 432, 437, 431, 447, 434, 442, 453, 473, 475, 470,
@@ -643,14 +822,15 @@ TITLE_POINT_X_0: [643]s32 = .[
     967, 960, 962, 975, 974, 969, 966, 968, 962, 955, 952, 955, 948, 944, 940, 942, 936, 931, 928, 932, 925, 919, 918, 923,
     916, 849, 770, 695, 626, 589, 565, 554, 1090, 1309, 1309, 1090, 560, 575, 565, 567, 583, 589, 601, 595, 607, 620, 617, 631,
     637, 654, 665, 668, 678, 694, 710, 721, 719, 711, 698, 693, 700, 705, 715, 724, 736, 738, 750, 761, 761, 749, 740, 727,
-    719, 707, 700, 686, 671, 666, 650, 640, 629, 616, 602, 596, 583, 576, 1352, 1520, 1520, 1352, 248, 356, 356, 413, 356, 356,
-    248, 359, 215, 215, 139, 215, 215, 359, 1369, 1495, 1495, 1562, 1495, 1495, 1369, 765, 633, 633, 564, 633, 633, 765, 1110, 1104,
+    719, 707, 700, 686, 671, 666, 650, 640, 629, 616, 602, 596, 583, 576, 1352, 1520, 1520, 1352, 251, 287, 330, 373, 409, 409,
+    251, 359, 215, 215, 139, 215, 215, 359, 1369, 1495, 1495, 1562, 1495, 1495, 1369, 765, 633, 633, 564, 633, 633, 765, 1110, 1104,
     1140, 1220, 1320, 1440, 1545, 1618, 1642, 1610, 1505, 1340, 1210, 100, 103, 112, 118, 415, 421, 424, 427, 427, 367, 361, 244, 220,
     202, 187, 163, 139, 127, 115, 103, 100, 400, 405, 410, 415, 437, 472, 477, 481, 484, 484, 472, 427, 410, 402, 400, 400,
     513, 518, 520, 525, 550, 584, 592, 594, 599, 599, 579, 523, 515, 513, 513, 400, 400, 459, 462, 464, 477, 499, 501, 504,
-    504, 501, 472, 464, 459, 400, 400, 517, 519, 522, 532, 542, 554, 556, 556, 554, 519, 517, 400,
+    504, 501, 472, 464, 459, 400, 400, 517, 519, 522, 532, 542, 554, 556, 556, 554, 519, 517, 400, 1368, 1482, 1482, 1543, 1482,
+    1482, 1368,
 ];
-TITLE_POINT_Y_0: [643]s32 = .[
+TITLE_POINT_Y_0: [650]s32 = .[
     654, 694, 700, 767, 773, 767, 762, 762, 767, 824, 830, 835, 829, 775, 774, 780, 826, 836, 842, 835, 859, 885, 889, 884,
     897, 891, 886, 862, 843, 856, 881, 885, 897, 886, 875, 893, 846, 835, 695, 673, 654, 5, 5, 17, 46, 63, 75, 82,
     84, 78, 59, 50, 34, 26, 30, 5, 5, 11, 5, 5, 12, 5, 5, 11, 17, 35, 48, 56, 57, 76, 81, 81,
@@ -672,124 +852,173 @@ TITLE_POINT_Y_0: [643]s32 = .[
     465, 463, 453, 449, 428, 420, 410, 399, 367, 361, 351, 339, 306, 303, 291, 283, 251, 247, 234, 225, 194, 188, 177, 167,
     138, 119, 113, 102, 85, 62, 35, 0, 494, 494, 666, 666, 335, 320, 312, 303, 296, 286, 287, 273, 263, 263, 252, 250,
     236, 238, 247, 228, 211, 195, 189, 193, 205, 218, 228, 241, 258, 247, 245, 254, 254, 270, 273, 286, 397, 391, 382, 386,
-    375, 381, 372, 379, 369, 354, 356, 345, 353, 343, 348, 337, 344, 336, 284, 284, 424, 424, 340, 340, 325, 369, 410, 396,
-    396, 544, 544, 523, 582, 637, 618, 618, 457, 457, 439, 490, 538, 522, 522, 759, 759, 741, 794, 844, 827, 827, 676, 463,
+    375, 381, 372, 379, 369, 354, 356, 345, 353, 343, 348, 337, 344, 336, 284, 284, 424, 424, 349, 349, 305, 349, 349, 401,
+    401, 544, 544, 523, 582, 637, 618, 618, 457, 457, 439, 490, 538, 522, 522, 759, 759, 741, 794, 844, 827, 827, 676, 463,
     374, 312, 279, 282, 320, 381, 480, 657, 710, 742, 724, 330, 324, 309, 303, 300, 300, 303, 351, 375, 426, 429, 429, 426,
     423, 420, 414, 402, 393, 375, 345, 336, 597, 580, 575, 572, 570, 572, 575, 582, 595, 609, 614, 617, 617, 612, 600, 597,
     599, 584, 579, 577, 572, 574, 579, 584, 606, 609, 618, 618, 614, 601, 599, 597, 597, 622, 609, 607, 605, 607, 609, 614,
-    622, 627, 627, 624, 622, 597, 597, 622, 612, 609, 607, 607, 609, 612, 619, 627, 627, 622, 597,
+    622, 627, 627, 624, 622, 597, 597, 622, 612, 609, 607, 607, 609, 612, 619, 627, 627, 622, 597, 783, 783, 767, 813, 856,
+    841, 841,
 ];
 
-TITLE_POINT_X_1: [676]s32 = .[
+TITLE_POINT_X_1: [632]s32 = .[
     70, 74, 89, 127, 180, 258, 327, 382, 407, 399, 346, 349, 371, 356, 406, 414, 441, 446, 467, 472, 515, 531, 566, 574,
     482, 316, 177, 153, 135, 113, 93, 77, 1271, 1415, 1415, 1491, 1415, 1415, 1271, 454, 315, 315, 241, 315, 315, 454, 970, 970,
     960, 959, 953, 950, 952, 977, 976, 976, 978, 982, 988, 995, 1010, 1044, 1047, 1051, 1048, 1043, 1043, 1047, 1045, 1039, 1032, 1021,
     1013, 1014, 1014, 1301, 1304, 1302, 1301, 1296, 1294, 1296, 1301, 1319, 1327, 1328, 1326, 1317, 1310, 1310, 1308, 1299, 1303, 1295, 1285, 1271,
     1255, 1245, 1231, 1212, 1198, 1068, 1036, 1036, 882, 876, 872, 838, 827, 827, 840, 840, 834, 832, 832, 838, 838, 838, 839, 839,
     840, 839, 838, 838, 838, 837, 836, 836, 836, 836, 835, 835, 835, 980, 977, 961, 979, 983, 981, 978, 975, 971, 968, 965,
-    963, 960, 957, 960, 993, 998, 1000, 1000, 999, 1002, 1011, 1011, 1005, 946, 946, 941, 938, 938, 127, 138, 252, 272, 275, 276,
-    270, 252, 251, 208, 177, 174, 174, 166, 126, 21, 7, 5, 16, 127, 312, 333, 347, 347, 340, 350, 357, 384, 394, 401,
-    427, 425, 420, 380, 362, 359, 353, 340, 344, 340, 319, 304, 296, 279, 282, 272, 272, 290, 296, 290, 290, 296, 312, 127,
-    217, 234, 261, 269, 271, 267, 290, 298, 307, 315, 319, 316, 318, 312, 305, 327, 332, 318, 312, 317, 334, 345, 341, 350,
-    354, 346, 340, 353, 365, 369, 366, 357, 348, 357, 354, 346, 364, 364, 359, 364, 361, 356, 350, 346, 355, 357, 350, 352,
-    350, 346, 340, 339, 350, 351, 340, 345, 335, 341, 335, 336, 350, 350, 343, 337, 348, 350, 340, 338, 149, 40, 15, 14,
-    18, 17, 14, 17, 16, 9, 5, 7, 15, 15, 11, 8, 9, 15, 15, 9, 14, 14, 7, 14, 8, 5, 13, 9,
-    9, 18, 39, 78, 87, 87, 98, 92, 81, 81, 93, 90, 95, 108, 120, 129, 139, 150, 161, 174, 190, 196, 209, 217,
-    771, 858, 938, 989, 1006, 1018, 1018, 1005, 984, 1015, 1016, 1011, 996, 974, 955, 929, 920, 893, 846, 840, 844, 825, 799, 781,
-    781, 782, 776, 735, 729, 725, 719, 704, 679, 669, 675, 668, 654, 644, 610, 600, 568, 546, 538, 595, 561, 553, 552, 564,
-    593, 649, 696, 771, 892, 904, 913, 912, 918, 965, 977, 983, 998, 1009, 1008, 1018, 1016, 1007, 1018, 1018, 1011, 1005, 999, 978,
-    970, 960, 950, 928, 925, 934, 928, 867, 861, 863, 848, 834, 830, 824, 793, 787, 776, 756, 742, 753, 743, 743, 746, 760,
-    796, 786, 787, 803, 807, 813, 834, 839, 838, 844, 872, 878, 884, 892, 865, 885, 891, 891, 904, 964, 973, 982, 1001, 1009,
-    1010, 1018, 1018, 1001, 983, 988, 972, 959, 963, 912, 911, 898, 827, 820, 809, 771, 785, 781, 782, 796, 810, 806, 808, 824,
-    841, 840, 833, 835, 842, 854, 865, 934, 932, 927, 918, 905, 889, 870, 848, 824, 797, 769, 738, 707, 675, 642, 609, 577,
-    546, 515, 487, 460, 436, 414, 395, 379, 366, 357, 352, 350, 352, 357, 366, 379, 395, 414, 436, 460, 487, 515, 546, 577,
-    609, 642, 675, 707, 738, 769, 797, 824, 848, 870, 889, 905, 918, 927, 932, 133, 347, 348, 133, 133, 411, 604, 605, 411,
-    411, 133, 656, 848, 854, 656, 656, 133, 76, 221, 468, 470, 105, 76, 495, 712, 925, 940, 505, 990, 1008, 1015, 1017, 1023,
-    1023, 1023, 1023, 894, 885, 887, 901, 918, 911, 910, 921, 932, 923, 921, 932, 946, 940, 936, 948, 960, 967, 960, 961, 974,
-    982, 973, 974, 989, 993, 984, 981, 990, 991, 988, 979, 979, 125, 864, 864, 125, 115, 244, 244, 115, 533, 1016, 1016, 533,
-    245, 275, 344, 487, 524, 549, 565, 566, 605, 637, 642, 627, 583, 547, 504, 496, 503, 504, 508, 518, 524, 532, 504, 459,
-    448, 446, 435, 430, 421, 416, 411, 400, 376, 324, 276, 241, 239, 251, 254, 256, 65, 314, 314, 65, 890, 976, 976, 890,
-    645, 830, 830, 645,
+    963, 960, 957, 960, 993, 998, 1000, 1000, 999, 1002, 1011, 1011, 1005, 946, 946, 941, 938, 938, 284, 270, 261, 244, 232, 223,
+    217, 212, 208, 203, 200, 195, 193, 188, 188, 183, 178, 175, 173, 173, 192, 190, 188, 186, 184, 182, 180, 180, 180, 196,
+    204, 207, 214, 217, 219, 223, 229, 232, 232, 234, 237, 283, 284, 296, 296, 290, 299, 306, 311, 313, 345, 350, 351, 353,
+    353, 350, 339, 339, 1190, 1190, 1190, 1190, 1191, 1193, 1193, 1190, 1190, 1190, 1190, 1211, 1212, 1211, 1212, 1213, 1213, 1214, 1215, 1217,
+    1219, 1223, 1228, 1230, 1235, 1239, 1245, 1255, 1255, 1309, 1320, 1325, 1331, 1334, 1339, 1341, 1343, 1346, 1347, 1349, 1351, 1352, 1370, 1370,
+    1370, 1370, 1370, 1370, 1368, 1352, 1349, 1346, 1342, 1336, 1329, 1248, 1244, 1244, 1388, 1383, 1382, 1383, 1385, 1388, 1393, 1395, 1399, 1401,
+    1402, 1403, 1404, 1406, 1407, 1409, 1416, 1414, 1412, 1411, 1410, 1411, 1411, 1413, 1414, 1418, 1416, 1415, 1415, 1460, 1495, 1507, 1508, 1508,
+    1508, 1508, 1514, 1517, 1526, 1529, 1530, 1532, 1528, 1532, 1539, 1544, 1550, 1550, 1514, 1512, 1511, 1474, 1469, 1463, 1457, 1449, 1440, 1440,
+    282, 168, 168, 107, 168, 168, 282, 1369, 1495, 1495, 1562, 1495, 1495, 1369, 465, 612, 612, 592, 592, 322, 322, 302, 302, 616,
+    644, 644, 898, 906, 886, 886, 652, 652, 616, 1085, 1180, 1272, 1272, 1252, 1252, 925, 925, 905, 905, 990, 1282, 1302, 1302, 1600,
+    1612, 1636, 1640, 1630, 1630, 1288, 1288, 1278, 310, 178, 178, 109, 178, 178, 310, 1360, 1492, 1492, 1561, 1492, 1492, 1360, 127, 138,
+    252, 272, 275, 276, 270, 252, 251, 208, 177, 174, 174, 166, 126, 21, 7, 5, 16, 127, 312, 333, 347, 347, 340, 350,
+    357, 384, 394, 401, 427, 425, 420, 380, 362, 359, 353, 340, 344, 340, 319, 304, 296, 279, 282, 272, 272, 290, 296, 290,
+    290, 296, 312, 127, 217, 234, 261, 269, 271, 267, 290, 298, 307, 315, 319, 316, 318, 312, 305, 327, 332, 318, 312, 317,
+    334, 345, 341, 350, 354, 346, 340, 353, 365, 369, 366, 357, 348, 357, 354, 346, 364, 364, 359, 364, 361, 356, 350, 346,
+    355, 357, 350, 352, 350, 346, 340, 339, 350, 351, 340, 345, 335, 341, 335, 336, 350, 350, 343, 337, 348, 350, 340, 338,
+    149, 40, 15, 14, 18, 17, 14, 17, 16, 9, 5, 7, 15, 15, 11, 8, 9, 15, 15, 9, 14, 14, 7, 14,
+    8, 5, 13, 9, 9, 18, 39, 78, 87, 87, 98, 92, 81, 81, 93, 90, 95, 108, 120, 129, 139, 150, 161, 174,
+    190, 196, 209, 217, 771, 858, 938, 989, 1006, 1018, 1018, 1005, 984, 1015, 1016, 1011, 996, 974, 955, 929, 920, 893, 846, 840,
+    844, 825, 799, 781, 781, 782, 776, 735, 729, 725, 719, 704, 679, 669, 675, 668, 654, 644, 610, 600, 568, 546, 538, 595,
+    561, 553, 552, 564, 593, 649, 696, 771,
 ];
-TITLE_POINT_Y_1: [676]s32 = .[
+TITLE_POINT_Y_1: [632]s32 = .[
     302, 211, 143, 101, 65, 45, 54, 99, 156, 245, 295, 331, 369, 398, 434, 467, 499, 532, 558, 596, 637, 668, 694, 721,
     749, 780, 762, 696, 619, 549, 495, 423, 144, 144, 123, 182, 237, 218, 218, 636, 636, 616, 673, 726, 708, 708, 352, 367,
     382, 397, 412, 427, 442, 457, 472, 487, 502, 517, 532, 547, 562, 577, 592, 607, 622, 637, 652, 667, 682, 697, 712, 727,
     742, 757, 771, 771, 756, 741, 726, 711, 696, 681, 666, 651, 636, 621, 606, 591, 576, 561, 546, 531, 516, 501, 486, 471,
     456, 441, 426, 411, 396, 381, 366, 352, 430, 443, 456, 469, 482, 495, 507, 520, 533, 546, 559, 572, 585, 598, 611, 624,
     637, 650, 662, 676, 689, 701, 714, 727, 740, 753, 766, 779, 791, 791, 778, 765, 752, 739, 726, 713, 700, 688, 675, 661,
-    649, 636, 623, 610, 597, 584, 571, 558, 545, 532, 519, 506, 494, 481, 468, 455, 442, 430, 889, 889, 922, 929, 934, 1049,
-    1058, 1069, 1118, 1135, 1122, 1113, 1106, 1100, 1116, 1069, 1059, 932, 924, 889, 990, 991, 999, 1052, 1060, 1068, 1062, 1009, 1006, 1010,
-    1057, 1066, 1072, 1071, 1071, 1068, 1074, 1094, 1110, 1120, 1114, 1127, 1128, 1116, 1093, 1082, 1074, 1068, 1062, 1054, 1001, 994, 990, 889,
-    42, 46, 70, 69, 73, 83, 108, 102, 102, 107, 116, 121, 128, 129, 138, 155, 166, 169, 176, 189, 198, 213, 219, 228,
-    245, 242, 248, 260, 261, 268, 282, 274, 281, 309, 307, 315, 332, 340, 345, 368, 372, 367, 373, 387, 398, 408, 418, 439,
-    441, 437, 443, 451, 463, 477, 487, 502, 515, 542, 554, 612, 628, 639, 637, 643, 653, 668, 677, 705, 740, 762, 752, 722,
-    717, 571, 566, 544, 450, 443, 431, 420, 411, 381, 376, 353, 344, 338, 322, 313, 298, 276, 268, 229, 221, 193, 179, 171,
-    154, 144, 131, 137, 131, 116, 97, 91, 99, 95, 77, 72, 65, 57, 61, 50, 47, 49, 63, 51, 53, 47, 49, 42,
-    839, 843, 859, 882, 896, 914, 984, 1004, 1022, 1111, 1122, 1129, 1135, 1135, 1128, 1048, 1042, 1050, 1055, 1061, 1146, 1157, 1157, 1146,
-    1078, 1061, 1055, 1052, 1058, 1078, 1083, 1087, 1085, 1078, 1048, 1041, 1039, 1056, 1188, 1196, 1203, 1196, 1183, 1022, 990, 972, 931, 905,
-    881, 858, 847, 839, 343, 344, 351, 368, 374, 371, 362, 344, 343, 350, 370, 379, 403, 411, 513, 731, 728, 682, 676, 681,
-    688, 758, 762, 760, 748, 693, 685, 677, 683, 707, 712, 708, 677, 671, 667, 673, 729, 733, 727, 669, 656, 645, 634, 625,
-    418, 405, 388, 376, 357, 353, 357, 364, 372, 378, 377, 371, 347, 343, 1169, 1172, 1179, 1185, 1199, 1223, 1226, 1218, 1220, 1227,
-    1237, 1246, 1268, 1278, 1350, 1368, 1400, 1455, 1472, 1476, 1470, 1460, 1423, 1431, 1473, 1468, 1416, 1410, 1397, 1378, 1323, 1314, 1298, 1277,
-    1216, 1204, 1196, 1183, 1176, 1177, 1169, 282, 314, 345, 376, 405, 433, 459, 483, 504, 522, 538, 550, 559, 564, 566, 564, 559,
-    550, 538, 522, 504, 483, 459, 433, 405, 376, 345, 314, 282, 250, 219, 188, 159, 131, 105, 81, 60, 42, 26, 14, 5,
-    0, 0, 0, 5, 14, 26, 42, 60, 81, 105, 131, 159, 188, 219, 250, 248, 256, 515, 504, 248, 264, 272, 529, 521,
-    264, 248, 279, 288, 540, 531, 279, 248, 575, 571, 600, 911, 903, 855, 601, 598, 634, 919, 918, 505, 511, 543, 611, 624,
-    1420, 1380, 1420, 1389, 1373, 1359, 1347, 1287, 1283, 1256, 1243, 1179, 1171, 1145, 1126, 1067, 1057, 1032, 1017, 944, 919, 907, 878, 861,
-    796, 786, 759, 748, 694, 686, 659, 640, 611, 559, 547, 526, 965, 965, 1299, 1299, 490, 490, 588, 588, 766, 766, 1002, 1002,
-    28, 10, 0, 0, 20, 59, 111, 162, 171, 196, 215, 240, 258, 271, 281, 320, 358, 399, 443, 486, 524, 550, 563, 560,
-    536, 499, 451, 411, 369, 323, 282, 239, 235, 235, 220, 201, 179, 157, 114, 72, 1160, 1160, 1331, 1331, 1220, 1220, 1339, 1339,
-    462, 462, 637, 637,
+    649, 636, 623, 610, 597, 584, 571, 558, 545, 532, 519, 506, 494, 481, 468, 455, 442, 430, 255, 264, 273, 283, 292, 302,
+    311, 321, 330, 339, 349, 358, 368, 377, 387, 396, 405, 415, 424, 434, 443, 453, 462, 471, 481, 490, 500, 509, 518, 518,
+    508, 499, 489, 480, 470, 461, 452, 442, 433, 423, 414, 404, 395, 386, 376, 367, 357, 348, 338, 329, 320, 310, 301, 291,
+    282, 272, 263, 255, 67, 72, 77, 82, 87, 92, 97, 102, 107, 112, 117, 122, 127, 132, 138, 143, 148, 153, 158, 163,
+    168, 173, 178, 183, 188, 193, 198, 203, 208, 208, 202, 197, 192, 187, 182, 177, 172, 167, 162, 157, 152, 147, 142, 137,
+    131, 126, 121, 116, 111, 106, 101, 96, 91, 86, 81, 76, 71, 67, 619, 624, 629, 635, 640, 645, 651, 656, 662, 667,
+    672, 678, 683, 689, 694, 699, 705, 710, 716, 721, 726, 732, 737, 743, 748, 753, 759, 764, 769, 769, 763, 758, 752, 747,
+    742, 736, 731, 725, 720, 715, 709, 704, 698, 693, 688, 682, 677, 671, 666, 661, 655, 650, 644, 639, 634, 628, 623, 619,
+    543, 543, 527, 573, 616, 601, 601, 377, 377, 359, 410, 458, 442, 442, 222, 318, 350, 358, 618, 618, 360, 352, 318, 212,
+    212, 290, 290, 368, 372, 620, 620, 600, 600, 188, 232, 318, 345, 350, 620, 620, 350, 345, 318, 232, 236, 236, 282, 268,
+    212, 212, 365, 372, 625, 625, 372, 365, 659, 659, 641, 694, 744, 727, 727, 659, 659, 641, 694, 744, 727, 727, 889, 889,
+    922, 929, 934, 1049, 1058, 1069, 1118, 1135, 1122, 1113, 1106, 1100, 1116, 1069, 1059, 932, 924, 889, 990, 991, 999, 1052, 1060, 1068,
+    1062, 1009, 1006, 1010, 1057, 1066, 1072, 1071, 1071, 1068, 1074, 1094, 1110, 1120, 1114, 1127, 1128, 1116, 1093, 1082, 1074, 1068, 1062, 1054,
+    1001, 994, 990, 889, 42, 46, 70, 69, 73, 83, 108, 102, 102, 107, 116, 121, 128, 129, 138, 155, 166, 169, 176, 189,
+    198, 213, 219, 228, 245, 242, 248, 260, 261, 268, 282, 274, 281, 309, 307, 315, 332, 340, 345, 368, 372, 367, 373, 387,
+    398, 408, 418, 439, 441, 437, 443, 451, 463, 477, 487, 502, 515, 542, 554, 612, 628, 639, 637, 643, 653, 668, 677, 705,
+    740, 762, 752, 722, 717, 571, 566, 544, 450, 443, 431, 420, 411, 381, 376, 353, 344, 338, 322, 313, 298, 276, 268, 229,
+    221, 193, 179, 171, 154, 144, 131, 137, 131, 116, 97, 91, 99, 95, 77, 72, 65, 57, 61, 50, 47, 49, 63, 51,
+    53, 47, 49, 42, 839, 843, 859, 882, 896, 914, 984, 1004, 1022, 1111, 1122, 1129, 1135, 1135, 1128, 1048, 1042, 1050, 1055, 1061,
+    1146, 1157, 1157, 1146, 1078, 1061, 1055, 1052, 1058, 1078, 1083, 1087, 1085, 1078, 1048, 1041, 1039, 1056, 1188, 1196, 1203, 1196, 1183, 1022,
+    990, 972, 931, 905, 881, 858, 847, 839,
 ];
 
-TITLE_POINT_X_2: [437]s32 = .[
-    192, 78, 78, 17, 78, 78, 192, 300, 162, 162, 89, 162, 162, 300, 640, 772, 772, 841, 772, 772, 640, 420, 288, 288,
+TITLE_POINT_X_2: [637]s32 = .[
+    892, 904, 913, 912, 918, 965, 977, 983, 998, 1009, 1008, 1018, 1016, 1007, 1018, 1018, 1011, 1005, 999, 978, 970, 960, 950, 928,
+    925, 934, 928, 867, 861, 863, 848, 834, 830, 824, 793, 787, 776, 756, 742, 753, 743, 743, 746, 760, 796, 786, 787, 803,
+    807, 813, 834, 839, 838, 844, 872, 878, 884, 892, 865, 885, 891, 891, 904, 964, 973, 982, 1001, 1009, 1010, 1018, 1018, 1001,
+    983, 988, 972, 959, 963, 912, 911, 898, 827, 820, 809, 771, 785, 781, 782, 796, 810, 806, 808, 824, 841, 840, 833, 835,
+    842, 854, 865, 934, 932, 927, 918, 905, 889, 870, 848, 824, 797, 769, 738, 707, 675, 642, 609, 577, 546, 515, 487, 460,
+    436, 414, 395, 379, 366, 357, 352, 350, 352, 357, 366, 379, 395, 414, 436, 460, 487, 515, 546, 577, 609, 642, 675, 707,
+    738, 769, 797, 824, 848, 870, 889, 905, 918, 927, 932, 133, 347, 348, 133, 133, 411, 604, 605, 411, 411, 133, 656, 848,
+    854, 656, 656, 133, 76, 221, 468, 470, 105, 76, 495, 712, 925, 940, 505, 990, 1008, 1015, 1017, 1023, 1023, 1023, 1023, 894,
+    885, 887, 901, 918, 911, 910, 921, 932, 923, 921, 932, 946, 940, 936, 948, 960, 967, 960, 961, 974, 982, 973, 974, 989,
+    993, 984, 981, 990, 991, 988, 979, 979, 125, 864, 864, 125, 115, 244, 244, 115, 533, 1016, 1016, 533, 245, 275, 344, 487,
+    524, 549, 565, 566, 605, 637, 642, 627, 583, 547, 504, 496, 503, 504, 508, 518, 524, 532, 504, 459, 448, 446, 435, 430,
+    421, 416, 411, 400, 376, 324, 276, 241, 239, 251, 254, 256, 45, 294, 294, 45, 890, 976, 976, 890, 645, 830, 830, 645,
+    315, 347, 385, 423, 455, 455, 315, 300, 162, 162, 89, 162, 162, 300, 640, 772, 772, 841, 772, 772, 640, 420, 288, 288,
     219, 288, 288, 420, 668, 666, 690, 743, 818, 898, 967, 1010, 1010, 952, 860, 760, 180, 189, 195, 432, 438, 441, 444, 444,
     441, 438, 393, 384, 315, 282, 264, 249, 237, 228, 210, 198, 192, 180, 155, 160, 166, 171, 196, 234, 239, 245, 247, 247,
     234, 185, 166, 158, 155, 155, 279, 284, 287, 293, 320, 358, 366, 369, 374, 374, 352, 290, 282, 279, 279, 155, 155, 220,
     223, 226, 239, 264, 266, 269, 269, 266, 234, 226, 220, 155, 155, 284, 286, 289, 300, 311, 324, 327, 327, 324, 286, 284,
-    155, 68, 68, 82, 124, 180, 218, 251, 274, 278, 275, 273, 276, 291, 303, 312, 324, 355, 354, 390, 399, 439, 449, 485,
-    503, 429, 253, 160, 133, 120, 101, 94, 88, 76, 611, 755, 755, 831, 755, 755, 611, 413, 269, 269, 193, 269, 269, 413,
-    447, 447, 435, 435, 428, 425, 426, 455, 454, 454, 456, 460, 467, 475, 492, 530, 534, 538, 535, 530, 530, 534, 531, 525,
-    517, 505, 495, 496, 496, 820, 824, 821, 821, 815, 813, 815, 821, 841, 850, 851, 849, 839, 830, 831, 829, 819, 823, 814,
-    802, 787, 769, 757, 741, 720, 704, 557, 522, 522, 316, 308, 304, 264, 252, 251, 267, 267, 259, 257, 257, 264, 264, 264,
-    265, 265, 266, 265, 264, 264, 264, 263, 262, 262, 262, 262, 261, 261, 261, 430, 427, 409, 429, 434, 432, 428, 424, 420,
-    417, 413, 410, 407, 403, 407, 446, 452, 454, 454, 452, 456, 466, 466, 459, 390, 390, 385, 382, 382, 552, 574, 601, 637,
-    672, 691, 737, 752, 761, 766, 761, 738, 728, 741, 737, 740, 735, 736, 722, 727, 716, 720, 704, 695, 702, 733, 740, 741,
-    755, 763, 765, 752, 737, 704, 698, 668, 629, 598, 584, 570, 540, 497, 476, 463, 428, 412, 390, 319, 294, 284, 288, 310,
-    338, 399, 405, 403, 411, 424, 447, 468, 474, 468, 473, 469, 474, 470, 477, 476, 483, 496, 507, 501, 507, 500, 502, 492,
-    494, 490, 492, 509, 503, 507, 502, 504, 519, 552, 431, 455, 479, 515, 560, 601, 609, 622, 628, 622, 592, 600, 592, 573,
-    555, 560, 591, 603, 622, 627, 620, 605, 565, 565, 557, 546, 535, 511, 474, 468, 468, 462, 452, 445, 411, 381, 360, 349,
-    329, 312, 306, 291, 244, 209, 201, 206, 227, 265, 292, 299, 302, 315, 323, 343, 352, 359, 361, 373, 399, 383, 382, 389,
-    399, 394, 395, 411, 431,
+    155, 668, 779, 779, 838, 779, 779, 668, 68, 68, 82, 124, 180, 218, 251, 274, 278, 275, 273, 276, 291, 303, 312, 324,
+    355, 354, 390, 399, 439, 449, 485, 503, 429, 253, 160, 133, 120, 101, 94, 88, 76, 611, 755, 755, 831, 755, 755, 611,
+    413, 269, 269, 193, 269, 269, 413, 447, 447, 435, 435, 428, 425, 426, 455, 454, 454, 456, 460, 467, 475, 492, 530, 534,
+    538, 535, 530, 530, 534, 531, 525, 517, 505, 495, 496, 496, 820, 824, 821, 821, 815, 813, 815, 821, 841, 850, 851, 849,
+    839, 830, 831, 829, 819, 823, 814, 802, 787, 769, 757, 741, 720, 704, 557, 522, 522, 316, 308, 304, 264, 252, 251, 267,
+    267, 259, 257, 257, 264, 264, 264, 265, 265, 266, 265, 264, 264, 264, 263, 262, 262, 262, 262, 261, 261, 261, 430, 427,
+    409, 429, 434, 432, 428, 424, 420, 417, 413, 410, 407, 403, 407, 446, 452, 454, 454, 452, 456, 466, 466, 459, 390, 390,
+    385, 382, 382, 319, 303, 293, 285, 276, 261, 244, 229, 218, 208, 201, 193, 186, 180, 170, 159, 153, 155, 152, 150, 165,
+    159, 153, 148, 146, 144, 139, 135, 135, 156, 169, 176, 184, 192, 199, 206, 213, 220, 226, 312, 321, 321, 322, 332, 348,
+    358, 368, 372, 374, 378, 412, 422, 424, 424, 422, 419, 412, 412,
 ];
-TITLE_POINT_Y_2: [437]s32 = .[
-    593, 593, 577, 623, 666, 651, 651, 822, 822, 802, 858, 910, 893, 893, 649, 649, 631, 684, 734, 717, 717, 1029, 1029, 1011,
+TITLE_POINT_Y_2: [637]s32 = .[
+    343, 344, 351, 368, 374, 371, 362, 344, 343, 350, 370, 379, 403, 411, 513, 731, 728, 682, 676, 681, 688, 758, 762, 760,
+    748, 693, 685, 677, 683, 707, 712, 708, 677, 671, 667, 673, 729, 733, 727, 669, 656, 645, 634, 625, 418, 405, 388, 376,
+    357, 353, 357, 364, 372, 378, 377, 371, 347, 343, 1169, 1172, 1179, 1185, 1199, 1223, 1226, 1218, 1220, 1227, 1237, 1246, 1268, 1278,
+    1350, 1368, 1400, 1455, 1472, 1476, 1470, 1460, 1423, 1431, 1473, 1468, 1416, 1410, 1397, 1378, 1323, 1314, 1298, 1277, 1216, 1204, 1196, 1183,
+    1176, 1177, 1169, 282, 314, 345, 376, 405, 433, 459, 483, 504, 522, 538, 550, 559, 564, 566, 564, 559, 550, 538, 522, 504,
+    483, 459, 433, 405, 376, 345, 314, 282, 250, 219, 188, 159, 131, 105, 81, 60, 42, 26, 14, 5, 0, 0, 0, 5,
+    14, 26, 42, 60, 81, 105, 131, 159, 188, 219, 250, 248, 256, 515, 504, 248, 264, 272, 529, 521, 264, 248, 279, 288,
+    540, 531, 279, 248, 575, 571, 600, 911, 903, 855, 601, 598, 634, 919, 918, 505, 511, 543, 611, 624, 1420, 1380, 1420, 1389,
+    1373, 1359, 1347, 1287, 1283, 1256, 1243, 1179, 1171, 1145, 1126, 1067, 1057, 1032, 1017, 944, 919, 907, 878, 861, 796, 786, 759, 748,
+    694, 686, 659, 640, 611, 559, 547, 526, 965, 965, 1299, 1299, 490, 490, 588, 588, 766, 766, 1002, 1002, 28, 10, 0, 0,
+    20, 59, 111, 162, 171, 196, 215, 240, 258, 271, 281, 320, 358, 399, 443, 486, 524, 550, 563, 560, 536, 499, 451, 411,
+    369, 323, 282, 239, 235, 235, 220, 201, 179, 157, 114, 72, 1032, 1032, 1203, 1203, 1220, 1220, 1339, 1339, 462, 462, 637, 637,
+    521, 521, 482, 521, 521, 568, 568, 822, 822, 802, 858, 910, 893, 893, 649, 649, 631, 684, 734, 717, 717, 1029, 1029, 1011,
     1064, 1114, 1097, 1097, 811, 573, 491, 433, 402, 412, 459, 531, 790, 851, 867, 856, 464, 446, 443, 440, 440, 443, 485, 494,
     500, 503, 542, 545, 545, 542, 539, 536, 533, 530, 521, 509, 500, 470, 800, 781, 775, 773, 770, 773, 775, 784, 797, 813,
     819, 822, 822, 816, 803, 800, 802, 785, 780, 777, 772, 775, 780, 785, 810, 812, 823, 823, 818, 804, 802, 800, 800, 827,
     813, 811, 808, 811, 813, 819, 827, 832, 832, 830, 827, 800, 800, 827, 816, 813, 811, 811, 813, 816, 824, 832, 832, 827,
-    800, 697, 537, 461, 403, 378, 383, 416, 461, 538, 649, 723, 746, 783, 849, 915, 980, 1007, 1038, 1081, 1100, 1156, 1180, 1210,
-    1228, 1256, 1272, 1270, 1197, 1102, 1032, 939, 870, 801, 354, 354, 333, 392, 447, 428, 428, 1166, 1166, 1145, 1204, 1259, 1240, 1240,
-    528, 545, 562, 579, 596, 612, 630, 646, 663, 680, 697, 714, 731, 748, 765, 782, 799, 816, 833, 849, 867, 883, 900, 917,
-    934, 951, 968, 985, 1001, 1001, 984, 967, 950, 933, 916, 899, 882, 866, 848, 832, 815, 798, 781, 764, 747, 730, 713, 696,
-    679, 662, 645, 629, 611, 595, 578, 561, 544, 528, 600, 615, 630, 645, 660, 676, 691, 706, 721, 736, 751, 766, 782, 797,
-    812, 827, 842, 857, 872, 888, 903, 918, 933, 948, 963, 979, 993, 1009, 1023, 1023, 1008, 992, 978, 962, 947, 932, 917, 902,
-    887, 871, 856, 841, 826, 811, 796, 781, 765, 750, 735, 720, 705, 690, 675, 659, 644, 629, 614, 600, 149, 159, 190, 188,
-    200, 213, 196, 197, 208, 219, 246, 287, 295, 315, 319, 332, 340, 350, 368, 373, 379, 384, 388, 401, 421, 455, 474, 494,
-    505, 522, 549, 606, 628, 657, 678, 686, 687, 679, 662, 681, 688, 687, 680, 660, 661, 649, 668, 664, 649, 622, 602, 578,
-    567, 561, 555, 537, 514, 496, 485, 487, 481, 457, 451, 446, 438, 434, 427, 415, 392, 366, 355, 346, 340, 334, 328, 314,
-    301, 297, 283, 252, 236, 218, 201, 185, 162, 149, 398, 404, 431, 432, 453, 439, 440, 445, 461, 488, 527, 555, 579, 602,
-    613, 633, 676, 710, 730, 771, 803, 826, 859, 870, 878, 878, 885, 886, 878, 871, 855, 849, 855, 876, 884, 881, 874, 851,
-    852, 848, 842, 862, 862, 846, 825, 806, 783, 769, 768, 761, 731, 712, 704, 697, 699, 692, 658, 619, 574, 545, 526, 500,
-    490, 470, 433, 405, 398,
+    800, 902, 902, 886, 931, 973, 959, 959, 697, 537, 461, 403, 378, 383, 416, 461, 538, 649, 723, 746, 783, 849, 915, 980,
+    1007, 1038, 1081, 1100, 1156, 1180, 1210, 1228, 1256, 1272, 1270, 1197, 1102, 1032, 939, 870, 801, 354, 354, 333, 392, 447, 428, 428,
+    1166, 1166, 1145, 1204, 1259, 1240, 1240, 528, 545, 562, 579, 596, 612, 630, 646, 663, 680, 697, 714, 731, 748, 765, 782, 799,
+    816, 833, 849, 867, 883, 900, 917, 934, 951, 968, 985, 1001, 1001, 984, 967, 950, 933, 916, 899, 882, 866, 848, 832, 815,
+    798, 781, 764, 747, 730, 713, 696, 679, 662, 645, 629, 611, 595, 578, 561, 544, 528, 600, 615, 630, 645, 660, 676, 691,
+    706, 721, 736, 751, 766, 782, 797, 812, 827, 842, 857, 872, 888, 903, 918, 933, 948, 963, 979, 993, 1009, 1023, 1023, 1008,
+    992, 978, 962, 947, 932, 917, 902, 887, 871, 856, 841, 826, 811, 796, 781, 765, 750, 735, 720, 705, 690, 675, 659, 644,
+    629, 614, 600, 478, 493, 508, 523, 539, 554, 569, 584, 600, 615, 630, 645, 661, 676, 691, 706, 722, 737, 752, 767, 783,
+    798, 813, 828, 844, 859, 874, 889, 904, 904, 888, 873, 858, 843, 827, 812, 797, 782, 766, 751, 736, 721, 705, 690, 675,
+    660, 644, 629, 614, 599, 583, 568, 553, 538, 522, 507, 492, 478,
+];
+
+TITLE_POINT_X_3: [347]s32 = .[
+    698, 632, 626, 636, 640, 620, 611, 602, 597, 592, 590, 589, 589, 590, 593, 593, 599, 603, 613, 623, 640, 654, 661, 671,
+    682, 689, 705, 721, 721, 808, 827, 840, 848, 855, 860, 865, 869, 872, 875, 877, 877, 877, 877, 877, 876, 876, 875, 874,
+    871, 868, 865, 861, 855, 806, 804, 795, 764, 764, 852, 840, 832, 825, 820, 814, 810, 806, 803, 777, 778, 678, 678, 681,
+    688, 696, 707, 716, 725, 732, 742, 751, 766, 769, 775, 782, 795, 806, 806, 839, 839, 836, 901, 901, 898, 902, 903, 904,
+    904, 902, 901, 899, 893, 885, 888, 889, 889, 889, 886, 885, 884, 883, 882, 883, 883, 883, 881, 881, 360, 246, 246, 185,
+    246, 246, 360, 649, 769, 769, 832, 769, 769, 649, 402, 422, 424, 570, 700, 800, 760, 760, 424, 424, 366, 66, 332, 442,
+    442, 408, 434, 420, 275, 118, 80, 66, 776, 900, 1022, 1022, 990, 990, 720, 605, 600, 548, 560, 700, 262, 300, 560, 808,
+    842, 900, 1010, 990, 842, 842, 760, 760, 320, 300, 296, 240, 353, 242, 242, 183, 242, 242, 353, 649, 769, 769, 832, 769,
+    769, 649, 552, 574, 601, 637, 672, 691, 737, 752, 761, 766, 761, 738, 728, 741, 737, 740, 735, 736, 722, 727, 716, 720,
+    704, 695, 702, 733, 740, 741, 755, 763, 765, 752, 737, 704, 698, 668, 629, 598, 584, 570, 540, 497, 476, 463, 428, 412,
+    390, 319, 294, 284, 288, 310, 338, 399, 405, 403, 411, 424, 447, 468, 474, 468, 473, 469, 474, 470, 477, 476, 483, 496,
+    507, 501, 507, 500, 502, 492, 494, 490, 492, 509, 503, 507, 502, 504, 519, 552, 431, 455, 479, 515, 560, 601, 609, 622,
+    628, 622, 592, 600, 592, 573, 555, 560, 591, 603, 622, 627, 620, 605, 565, 565, 557, 546, 535, 511, 474, 468, 468, 462,
+    452, 445, 411, 381, 360, 349, 329, 312, 306, 291, 244, 209, 201, 206, 227, 265, 292, 299, 302, 315, 323, 343, 352, 359,
+    361, 373, 399, 383, 382, 389, 399, 394, 395, 411, 431,
+];
+TITLE_POINT_Y_3: [347]s32 = .[
+    132, 141, 150, 159, 168, 177, 187, 196, 205, 214, 223, 232, 242, 251, 260, 269, 278, 288, 297, 306, 315, 324, 333, 343,
+    352, 361, 370, 379, 388, 388, 378, 369, 360, 351, 342, 332, 323, 314, 305, 296, 287, 277, 268, 259, 250, 241, 231, 222,
+    213, 204, 195, 186, 176, 167, 158, 149, 140, 132, 679, 686, 694, 701, 709, 716, 724, 731, 739, 746, 754, 761, 769, 776,
+    784, 791, 799, 806, 814, 821, 829, 836, 844, 851, 859, 866, 874, 881, 888, 888, 880, 873, 865, 858, 850, 843, 835, 828,
+    820, 813, 805, 798, 790, 783, 775, 768, 760, 753, 745, 738, 730, 723, 715, 708, 700, 693, 685, 679, 343, 343, 327, 373,
+    416, 401, 401, 1145, 1145, 1128, 1177, 1222, 1207, 1207, 58, 58, 108, 82, 118, 192, 204, 400, 400, 205, 196, 386, 386, 418,
+    502, 506, 690, 748, 778, 762, 745, 600, 312, 330, 372, 430, 430, 740, 740, 720, 450, 458, 410, 330, 838, 778, 742, 728,
+    728, 770, 888, 905, 862, 1232, 1232, 1170, 1170, 1150, 884, 882, 217, 217, 201, 246, 288, 274, 274, 1295, 1295, 1278, 1327, 1372,
+    1357, 1357, 149, 159, 190, 188, 200, 213, 196, 197, 208, 219, 246, 287, 295, 315, 319, 332, 340, 350, 368, 373, 379, 384,
+    388, 401, 421, 455, 474, 494, 505, 522, 549, 606, 628, 657, 678, 686, 687, 679, 662, 681, 688, 687, 680, 660, 661, 649,
+    668, 664, 649, 622, 602, 578, 567, 561, 555, 537, 514, 496, 485, 487, 481, 457, 451, 446, 438, 434, 427, 415, 392, 366,
+    355, 346, 340, 334, 328, 314, 301, 297, 283, 252, 236, 218, 201, 185, 162, 149, 398, 404, 431, 432, 453, 439, 440, 445,
+    461, 488, 527, 555, 579, 602, 613, 633, 676, 710, 730, 771, 803, 826, 859, 870, 878, 878, 885, 886, 878, 871, 855, 849,
+    855, 876, 884, 881, 874, 851, 852, 848, 842, 862, 862, 846, 825, 806, 783, 769, 768, 761, 731, 712, 704, 697, 699, 692,
+    658, 619, 574, 545, 526, 500, 490, 470, 433, 405, 398,
 ];
 
 TitlePointsX :: (chunk: s32) -> []s32 {
     if chunk == 0 { return TITLE_POINT_X_0[:] }
     if chunk == 1 { return TITLE_POINT_X_1[:] }
     if chunk == 2 { return TITLE_POINT_X_2[:] }
+    if chunk == 3 { return TITLE_POINT_X_3[:] }
     return TITLE_POINT_X_0[:0]
 }
 
@@ -797,5 +1026,6 @@ TitlePointsY :: (chunk: s32) -> []s32 {
     if chunk == 0 { return TITLE_POINT_Y_0[:] }
     if chunk == 1 { return TITLE_POINT_Y_1[:] }
     if chunk == 2 { return TITLE_POINT_Y_2[:] }
+    if chunk == 3 { return TITLE_POINT_Y_3[:] }
     return TITLE_POINT_Y_0[:0]
 }

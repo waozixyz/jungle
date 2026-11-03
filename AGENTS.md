@@ -139,21 +139,34 @@ is in `tools/book_prompts.json`; the full-size originals are kept in
 - 123 Book opens with autoplay and repeat on by default. Swipes, arrows and number selection keep the current Play/Pause choice. Counting games load 128 px transparent derivatives; preserve the full-size artwork.
 
 - Title scenes use separate signposts: sideways arrow-shaped wooden planks
-  (left or right only, never an upward arrow) with clean intact ends and
-  localized names, pointing along the actual route. Farm points LEFT at
-  Campus; Beach is one sideways plank pointing at its path; retain no old
-  floating navigation arrows or testing rooms/strips. Keep shared title-bar Back.
+  (left or right) with clean intact ends and localized names, pointing along
+  the actual route. The one upright plank is Campus's sign up its path to the
+  Jungle Path. Farm points LEFT at Campus; retain no old floating navigation
+  arrows or testing rooms/strips. Keep shared title-bar Back.
+- The Beach is the Port (scene id port; "beach" stays an alias). Campus leads
+  up to the tropical Jungle Path (tools/title_places.py): its parrot, sloth and
+  butterfly only glow; right returns to Campus, left goes on to the Port. The
+  Port's right-hand sandy path leads to the Market, a text-free shopping street
+  whose animal shops only glow; its left sign returns to the Port and its right
+  sign opens the Farm game, whose own left-edge path sign goes back to the
+  Market (AppService "jungle.home" "scene:market"). Path edits regenerate only
+  a crop around the join (local/art-development/market, campus-object-layers).
   Desert opens the jungle's edge (tools/title_desert.py): a guide and his camel
   are separate cut-out layers; tapping either opens the guide's tap-through
   speech bubble beside him (tools/title_dialogue.json, EN/DE/ES, narrated),
   never a caption along the bottom. A left plank returns to Campus.
-- Campus uses portrait-connected-desert-right (owner-corrected v3: no path
-  down; Farm left, Beach up the left side, Desert right) and
+- Campus uses portrait-jungle-path-between (portrait-connected-desert-right
+  with its Jungle Path starting between the treehouse and the music hut, the
+  old left path removed and the frogs on the rocks; Farm left, Desert right) and
   landscape-connected-no-stones-proposal (clean sandy path across to the left,
   no stepping stones). Farm shows only owner-selected 27.png landscape and
   19.png portrait from owner-farm-beach-source, as a full-screen title scene with the normal scene controls and a right-pointing
   Campus return sign, without a game title bar or activity overlays;
   preserve jungle.garden identity and leave existing garden.txt saves untouched.
-  Beach uses the approved clean plates. Keep originals private and ship WebPs.
+  The Port uses the approved clean plates plus its Market path. Keep originals private and ship WebPs.
+- Farm entrance fields (tools/farm_fields.py, run after the painting changes;
+  make test runs --check) find each raised bed in the painting: the whole bed
+  is the hover outline and a lossless glow, the soil's four corners are where
+  crops stand in perspective. The fields carry no labels or numbers.
 - Keep fast unit tests and one local native smoke test in both orientations.
   Retired browser/UI CI gate suites and testing-room fixtures must not return.

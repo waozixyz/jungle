@@ -22,7 +22,10 @@ DIALOGUE = ROOT / 'tools/title_dialogue.json'
 LANGUAGES = ('en', 'de', 'es')
 # Below Ziran's 4095-character file-scope initializer limit.
 INITIALIZER_LIMIT = 3600
-SIGN_LABELS = {'Beach', 'Farm', 'Desert', 'Campus'}
+SIGN_LABELS = {'Port', 'Farm', 'Desert', 'Campus', 'Market', 'Jungle Path'}
+# Retired scene names that still resolve, so older links and saved routes
+# keep working: the Beach became the Port.
+SCENE_ALIASES = {'beach': 'port'}
 
 
 def Inside(polygon, x, y):
@@ -48,9 +51,12 @@ def Sign(hotspot, rect):
     if sign is None:
         return '', [0, 0, 0, 0]
     label = SignLabel(hotspot)
-    # Owner: signs are sideways planks pointing along the path, never up/down.
-    if sign.get('direction') not in ('left','right'):
-        raise SystemExit('title scenes: every sign needs a sideways travel direction')
+    # Owner: signs are planks pointing along the path, sideways by default.
+    # Only Campus's route up into the Jungle Path stands as an upright plank.
+    if sign.get('direction') not in ('left','right','up'):
+        raise SystemExit('title scenes: every sign needs a travel direction')
+    if sign['direction'] == 'up' and hotspot.get('target') != 'scene:jungle-path':
+        raise SystemExit('title scenes: only the Campus route up to the Jungle Path is an upright sign')
     board = sign.get('label_rect', [])
     if (not isinstance(board, list) or len(board) != 4 or
             any(type(v) is not int for v in board) or
@@ -191,6 +197,11 @@ def Load(source=SOURCE, catalog=CATALOG):
     dialogues = Dialogues()
     dialogue_ids = [d['id'] for d in dialogues]
     hotspots = []
+    for scene in scenes:
+        for hotspot in scene['hotspots']:
+            kind, _, target = hotspot['target'].partition(':')
+            if kind == 'scene' and target in SCENE_ALIASES:
+                hotspot['target'] = 'scene:' + SCENE_ALIASES[target]
     for index, scene in enumerate(scenes):
         if scene['width'] <= 0 or scene['height'] <= 0:
             raise SystemExit('title scenes: dimensions must be positive')
@@ -220,6 +231,9 @@ def Load(source=SOURCE, catalog=CATALOG):
                 scene_target, game = -1, ''
             elif kind == 'dialogue' and target in dialogue_ids and not hotspot.get('sign'):
                 scene_target, game = -1, ''
+            elif kind == 'look' and target and not hotspot.get('sign'):
+                # A decorative painted item: it glows on hover and tap, nothing opens.
+                scene_target, game = -1, ''
             else:
                 raise SystemExit(f'title scenes: {hotspot["id"]} has target {hotspot["target"]}')
             polygon = [(round(x), round(y)) for x, y in hotspot['polygon']]
@@ -242,6 +256,7 @@ def Load(source=SOURCE, catalog=CATALOG):
                              'sign_label': label, 'sign_rect': board,
                              'sign_direction': {'left':1,'right':2,'up':3,'down':4}.get(hotspot.get('sign',{}).get('direction'),0),
                              'notice': {'Farm': 1, 'Desert': 2}.get(target, 0) if kind == 'notice' else 0,
+                             'look': 1 if kind == 'look' else 0,
                              'dialogue': dialogue_ids.index(target) + 1 if kind == 'dialogue' else 0})
     # Whoever taps a figure in a conversation, its speaker's figure anchors the
     # bubble and glows: tapping the camel still lets the guide beside it talk.
@@ -309,6 +324,23 @@ def Quoted(values):
     if sum(len(value) + 2 for value in values) < 200:
         return ', '.join(values)
     return '\n    ' + ',\n    '.join(values) + ',\n'
+
+
+def ChunkedStrings(name, accessor, values):
+    """A string table in pieces below INITIALIZER_LIMIT, read through ACCESSOR(index)."""
+    chunks = [[]]
+    for value in values:
+        if chunks[-1] and len(Quoted(chunks[-1] + [value])) > INITIALIZER_LIMIT:
+            chunks.append([])
+        chunks[-1].append(value)
+    lines, body, end = [], [], 0
+    for index, chunk in enumerate(chunks):
+        if len(Quoted(chunk)) > INITIALIZER_LIMIT:
+            raise SystemExit(f'title scenes: one {name} entry is too long for a Ziran array')
+        lines.append(f'{name}_{index}: [{len(chunk)}]string = .[{Quoted(chunk)}];')
+        body.append(f'    if index < {end + len(chunk)} {{ return {name}_{index}[index - {end}] }}')
+        end += len(chunk)
+    return lines + [f'{accessor} :: (index: s32) -> string {{', *body, '    return ""', '}']
 
 
 def Numbers(values):
@@ -393,7 +425,9 @@ def Render(data, scenes, parents, hotspots):
         f'TITLE_SCENE_HOTSPOTS: [{scene_count}]s32 = .[{Numbers(counts)}];',
         '',
         f'TITLE_HOTSPOT_ID: [{hotspot_count}]string = .[{Quoted(hotspot["id"] for hotspot in hotspots)}];',
-        f'TITLE_HOTSPOT_GUIDE: [{hotspot_count}]s32 = .[{Numbers(1 if h["game"] == "" and h["scene_target"] < 0 and not h["notice"] and not h["dialogue"] else 0 for h in hotspots)}];',
+        f'TITLE_HOTSPOT_GUIDE: [{hotspot_count}]s32 = .[{Numbers(1 if h["game"] == "" and h["scene_target"] < 0 and not h["notice"] and not h["dialogue"] and not h["look"] else 0 for h in hotspots)}];',
+        '// 1 for a decorative painted item that only glows (a Market shop, a parrot).',
+        f'TITLE_HOTSPOT_LOOK: [{hotspot_count}]s32 = .[{Numbers(h["look"] for h in hotspots)}];',
         f'TITLE_HOTSPOT_NOTICE: [{hotspot_count}]s32 = .[{Numbers(h["notice"] for h in hotspots)}];',
         '// The speech bubble a hotspot opens: TITLE_DIALOGUE index + 1, or 0.',
         f'TITLE_HOTSPOT_DIALOGUE: [{hotspot_count}]s32 = .[{Numbers(h["dialogue"] for h in hotspots)}];',
@@ -402,9 +436,9 @@ def Render(data, scenes, parents, hotspots):
         '// The scene a hotspot leads to, or -1 when it opens TITLE_HOTSPOT_GAME.',
         f'TITLE_HOTSPOT_TARGET: [{hotspot_count}]s32 = .[{Numbers(hotspot["scene_target"] for hotspot in hotspots)}];',
         f'TITLE_HOTSPOT_GAME: [{hotspot_count}]string = .[{Quoted(hotspot["game"] for hotspot in hotspots)}];',
-        f'TITLE_HOTSPOT_GLOW: [{hotspot_count}]string = .[{Quoted(hotspot["glow"] for hotspot in hotspots)}];',
+        *ChunkedStrings('TITLE_HOTSPOT_GLOW', 'TitleHotspotGlow', (hotspot['glow'] for hotspot in hotspots)),
         '// Optional always-visible navigation art; shares the glow rectangle.',
-        f'TITLE_HOTSPOT_REST: [{hotspot_count}]string = .[{Quoted(hotspot["rest"] for hotspot in hotspots)}];',
+        *ChunkedStrings('TITLE_HOTSPOT_REST', 'TitleHotspotRest', (hotspot['rest'] for hotspot in hotspots)),
         f'TITLE_SIGN_DIRECTION: [{hotspot_count}]s32 = .[{Numbers(h["sign_direction"] for h in hotspots)}];',
         '// Localized at runtime; the blank sign sprite never contains language-specific lettering.',
         f'TITLE_SIGN_LABEL: [{hotspot_count}]string = .[{Quoted(h["sign_label"] for h in hotspots)}];',
@@ -454,19 +488,20 @@ def Render(data, scenes, parents, hotspots):
     return '\n'.join(lines) + '\n'
 
 
-def ExportBeach():
-    """Export the owner's approved, unchanged Beach plates at runtime sizes."""
+def ExportPort():
+    """Export the Port plates at runtime sizes: the owner's approved plates with
+    only the sandy path to the Market added at the right (tools/title_places.py)."""
     from PIL import Image, ImageDraw, ImageFilter
     from image_exports import export_image
     for orientation, stem in [('landscape', 'beach-port'), ('portrait', 'beach-portrait-port')]:
-        source = ROOT / f'local/art-development/world-scene-refresh/beach-{orientation}-clean.png'
+        source = ROOT / f'local/art-development/market/port-{orientation}-market-path.png'
         with Image.open(source) as image:
             image = image.convert('RGB')
             export_image(source, ROOT / f'assets/jungle/title/{stem}.webp', 'title-background')
             export_image(source, ROOT / f'assets/jungle/title/{stem}-low.webp',
                          'title-background', size=(240, round(image.height * 240 / image.width)))
-    beach = next(s for s in json.loads(SOURCE.read_text())['scenes'] if s['name'] == 'beach')
-    for scene in (beach, beach['portrait']):
+    port = next(s for s in json.loads(SOURCE.read_text())['scenes'] if s['name'] == 'port')
+    for scene in (port, port['portrait']):
         door = next(h for h in scene['hotspots'] if h['id'] == 'bunker-door')
         x, y, width, height = door['glow_rect']
         points = [(px-x, py-y) for px, py in door['polygon']]
@@ -483,10 +518,10 @@ def ExportBeach():
 def main():
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument('--check', action='store_true', help='fail when the data file is out of date')
-    parser.add_argument('--export-beach', action='store_true', help='export approved Beach plates with the title preset')
+    parser.add_argument('--export-port', action='store_true', help='export approved Port plates with the title preset')
     arguments = parser.parse_args()
-    if arguments.export_beach:
-        ExportBeach()
+    if arguments.export_port:
+        ExportPort()
     # Moving or resizing an object layer carries its hotspot along. --check
     # reports a stale hotspot instead of writing.
     data = json.loads(SOURCE.read_text())

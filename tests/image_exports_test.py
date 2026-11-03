@@ -248,18 +248,18 @@ class Exports(unittest.TestCase):
             self.assertEqual(im.size, (1672,941))
         with Image.open(root/'assets/jungle/title/tree-low.webp') as im:
             self.assertEqual(im.width, 240)
-        beach_dir = root/'local/art-development/world-scene-refresh'
-        beach_dir.mkdir(parents=True)
+        port_dir = root/'local/art-development/market'
+        port_dir.mkdir(parents=True)
         for orientation in ('landscape','portrait'):
-            Image.open(self.original).save(beach_dir/f'beach-{orientation}-clean.png')
+            Image.open(self.original).save(port_dir/f'port-{orientation}-market-path.png')
         door = {'id':'bunker-door','glow_rect':[0,0,30,30],
                 'polygon':[[2,2],[25,2],[25,25]],'glow':'assets/jungle/title/door.png'}
-        manifest = root/'tools/beach.json'
-        manifest.write_text(json.dumps({'scenes':[{'name':'beach','hotspots':[door],
+        manifest = root/'tools/port.json'
+        manifest.write_text(json.dumps({'scenes':[{'name':'port','hotspots':[door],
                                                   'portrait':{'hotspots':[door]}}]}))
         with patch.object(title_scenes, 'ROOT', root), patch.object(title_scenes, 'SOURCE', manifest), \
              patch.object(image_exports, 'ROOT', root):
-            title_scenes.ExportBeach()
+            title_scenes.ExportPort()
         for stem in ('beach-port','beach-portrait-port'):
             with Image.open(root/f'assets/jungle/title/{stem}.webp') as im:
                 self.assertEqual(im.size,(320,192))

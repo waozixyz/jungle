@@ -1,0 +1,64 @@
+{
+  "owner_request": "A path at the left of the Farm to a Market shopping street that also connects back to the Port (the Beach, renamed); a tropical Jungle Path between Campus and the Port, right Campus, left Port; the Campus sign to it upright; in portrait its path between the treehouse and the drums, and the frogs on the rocks.",
+  "generator": "Harmony generate_image (Codex built-in image generation); original Jungle watercolor",
+  "style_reference": "assets/jungle/title/farm-portrait.webp and campus-portrait.webp (style only)",
+  "method": "Whole new Market and Jungle Path plates; path edits regenerated only a crop around the join and were feathered into the unchanged plates. Shop outlines are traced by hand; animal outlines come from offline BiRefNet cutouts of each crop. Glows are lossless rims from those outlines.",
+  "assets": [
+    {
+      "master": "local/art-development/jungle-path/jungle-path-landscape.png",
+      "master_sha256": "f8128586fd08b86844f5ff0a987eb09e954660505d2f38dcd43e994fff807191",
+      "runtime": "assets/jungle/title/jungle-path.webp",
+      "sha256": "a4fd4f9ecacb99a6e8033decc25280dd429ba2bfa8eefc8eeb9ba73a9d95fa11",
+      "low": "assets/jungle/title/jungle-path-low.webp",
+      "low_sha256": "2bb6b7325284bb3b4b016c560c9a36cd0b465850f6da504e2f2820ae53e5880f"
+    },
+    {
+      "master": "local/art-development/jungle-path/jungle-path-portrait.png",
+      "master_sha256": "5e8a11758067768b9e6be2df80fc5408430c8cb7e21e2c62eb7bdee2e0f933da",
+      "runtime": "assets/jungle/title/jungle-path-portrait.webp",
+      "sha256": "dec0c809fdd5a0813b85438ac04e737921acc5a6fc1da29a75123cb0cd6277f5",
+      "low": "assets/jungle/title/jungle-path-portrait-low.webp",
+      "low_sha256": "f938818ac99c87e342363361d137f3d5b3a81c819ac8370fa536ce80fa37dc76"
+    },
+    {
+      "master": "local/art-development/market/market-landscape.png",
+      "master_sha256": "cd8392f37a80b22a7149cee3c6fd02b9a8c1c5381c36bc0eb0bb40c108bafc50",
+      "runtime": "assets/jungle/title/market.webp",
+      "sha256": "4b1e401ec7720d218d036f4d6c6cdb46dcfd6480a960fad0bed28ac603f5f5b8",
+      "low": "assets/jungle/title/market-low.webp",
+      "low_sha256": "0fc7c3075fab27a96f4e2d21ff9bd0b8d9660a1efc91acd0d48bb1b51fa8d24f"
+    },
+    {
+      "master": "local/art-development/market/market-portrait.png",
+      "master_sha256": "44e44ba016dc89155a312177454f78b1cc1142385f631264ce0f9e1f3f70c274",
+      "runtime": "assets/jungle/title/market-portrait.webp",
+      "sha256": "3863956f24a6f313be2182a8381852f850914a6582bdc82d5022a165f43cd2db",
+      "low": "assets/jungle/title/market-portrait-low.webp",
+      "low_sha256": "4146eccbe48a7a658f9004e4c18f0e35f5fb16ed676f3bbdd0725fac6e3aeb04"
+    },
+    {
+      "master": "local/art-development/market/port-landscape-market-path.png",
+      "master_sha256": "1d72833ebbf4bbf10306cf9b1068d190bcb1eff9747096a69baba4f2c5731776",
+      "runtime": "assets/jungle/title/beach-port.webp",
+      "sha256": "076af0246ea9c3ed54a0a1ef6cc08f1b49b2d690fc4fe2582e5ae4a80a4f9e44",
+      "low": "assets/jungle/title/beach-port-low.webp",
+      "low_sha256": "7e84a5b3fec0c97598f0eca92d9b6ffaf3be9f700200f9342896a33c213de2a2"
+    },
+    {
+      "master": "local/art-development/market/port-portrait-market-path.png",
+      "master_sha256": "a071c371ba2b998646a6e2c67f7af8f93ebebdd331011008770366644b744c1d",
+      "runtime": "assets/jungle/title/beach-portrait-port.webp",
+      "sha256": "f5f4883c89d69b809bb7fb73266b5404485fa2545ed44f67fe026eb6963682ca",
+      "low": "assets/jungle/title/beach-portrait-port-low.webp",
+      "low_sha256": "3ed193ad75fe88b12f211e2ac60133d930da473f5093a95e98626b9030964a30"
+    },
+    {
+      "master": "local/art-development/farm-fields/farm-landscape-left-path.png",
+      "master_sha256": "bc5176081ced1f312e58de49b9d5efde06da99278b27eaa24980e87c30843a14",
+      "runtime": "assets/jungle/title/farm.webp",
+      "sha256": "20f26ce393358aaf6718eeefdd897b42a945662601903ed517da050a196790de",
+      "low": "assets/jungle/title/farm-low.webp",
+      "low_sha256": "abfa98174333cb9d10104c55181fac3f4a212bfdc00a42c8f935db391799be8a"
+    }
+  ]
+}

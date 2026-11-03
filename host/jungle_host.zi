@@ -99,6 +99,8 @@ sound_setting: string;
 speech_profile_setting: string;
 language_setting: string;
 home_requested: bool;
+// The title scene a game's way out leads to ("scene:market" asks for the Market), or -1.
+title_scene_from_game: s32 = -1;
 guide_sound_setting: string;
 guide_seen_setting: string;
 // The title bar's back arrow reaches the game as Escape on the next frame,
@@ -402,6 +404,7 @@ GameServices :: (context: *void, module: *u8, function: *u8,
             return 1
         }
         if service == "jungle.home" {
+            if request.count > 6 && request[:6] == "scene:" { title_scene_from_game = TitleSceneNamed(request[6:]) }
             home_requested = true
             result.* = Reply("ok")
             return 1
@@ -594,6 +597,11 @@ Menu :: (session: Session, bounds: Rectangle, key: s32) {
     if collection_book_open {
         if CollectionBookFrame(session, bounds, key, JungleSeconds(), sound_muted, jungle_collection) { ToggleSound() }
         return
+    }
+    if title_scene_from_game >= 0 {
+        scene := title_scene_from_game
+        title_scene_from_game = -1
+        if TitleOpenSceneFromGame(*title_state, scene) { SoundPlay("assets/jungle/sounds/select.wav") }
     }
     action := JungleMenu(session, bounds, key, JungleSeconds(), FONT, games[:game_count], *chosen,
         sound_muted, title_guide_muted, title_guide_seen, message, jungle_collection, TitlePaperCollect)

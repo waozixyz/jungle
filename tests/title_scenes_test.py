@@ -38,16 +38,31 @@ class TitleVariants(unittest.TestCase):
             if scene['name'].startswith('campus'):
                 routes={h['id']:h['target'] for h in scene['hotspots']}
                 self.assertEqual(routes['farm-path'],'scene:farm')
-                self.assertEqual(routes['beach-path'],'scene:beach')
+                self.assertEqual(routes['jungle-path'],'scene:jungle-path')
+                self.assertNotIn('beach-path',routes)
                 self.assertEqual(routes['desert-path'],'scene:desert')
                 self.assertNotIn('garden',routes)
                 farm=next(h for h in scene['hotspots'] if h['id']=='farm-path')
                 music=next(h for h in scene['hotspots'] if h['id']=='music-hut')
                 self.assertLess(farm['glow_rect'][0], music['glow_rect'][0]+music['glow_rect'][2])
                 self.assertGreater(farm['glow_rect'][1],music['glow_rect'][1]+music['glow_rect'][3])
-            if scene['name'].startswith('beach'):
-                self.assertEqual(next(h for h in scene['hotspots'] if h['id']=='campus-path')['target'],'scene:campus')
-                self.assertEqual({h['id'] for h in scene['hotspots']}, {'campus-path','bunker-door','fishing-boat','crab-family'})
+            # Owner: the Beach is the Port; its way home is the Jungle Path,
+            # which leads on to Campus, and a shopping street joins it to the Farm.
+            routes={h['id']:(h['target'],h.get('sign',{}).get('direction')) for h in scene['hotspots']}
+            if scene['name'].startswith('port'):
+                self.assertEqual(set(routes), {'jungle-path','bunker-door','fishing-boat','crab-family','market-path'})
+                self.assertEqual(routes['jungle-path'],('scene:jungle-path','left'))
+                self.assertEqual(routes['market-path'],('scene:market','right'))
+            if scene['name'].startswith('jungle-path'):
+                self.assertEqual(routes['port-path'],('scene:port','left'))
+                self.assertEqual(routes['campus-path'],('scene:campus','right'))
+            if scene['name'].startswith('market'):
+                self.assertEqual(routes['port-path'],('scene:port','left'))
+                self.assertEqual(routes['farm-path'],('game:Farm','right'))
+                shops={h['id'] for h in scene['hotspots'] if h['target'].startswith('look:')}
+                self.assertEqual(shops,{'toy-shop','fish-stall','bakery','fruit-stall'})
+        self.assertNotIn('beach',{scene['name'] for scene in scenes})
+        self.assertEqual(title.SCENE_ALIASES,{'beach':'port'})
 
     def test_portrait_campus_uses_approved_mapping_and_full_background(self):
         _, scenes, _, _ = title.Load()
@@ -88,7 +103,7 @@ class TitleVariants(unittest.TestCase):
             with Image.open(ROOT/path) as im:
                 self.assertEqual(im.size,(1024,1536))
                 self.assertEqual(hashlib.sha256(im.convert('RGBA').tobytes()).hexdigest(),
-                                 'de1f59855f43c3cbefc20f6ba555eb41d18d58ad76db4430e187bef791699052')
+                                 'a359d64e5b7023b627ee02bbcf44037184433095a0b383b7a99c3b5ef7acc6ae')
 
     def test_landscape_campus_art_and_placements_are_unchanged(self):
         # Painted art and every placement; routes, sign faces and directions
@@ -101,19 +116,23 @@ class TitleVariants(unittest.TestCase):
             if h.pop('sign',None):
                 for key in ('rest','glow','polygon'): h.pop(key,None)
         self.assertEqual(hashlib.sha256(json.dumps(scene,sort_keys=True).encode()).hexdigest(),
-                         '2e6fcd8512b477e7244497193d443fd756c9dfd0df0e5bf1a718352896dcc6dd')
+                         'f7db4f42a9575424033c3074a0936c53207b4fb31a9afb35e5c1b3ceac5e64e2')
 
     def test_signs_are_localized_boards_with_travel_arrows(self):
         data,scenes,_,hotspots=title.Load()
         translations=json.loads((ROOT/'locales/ui.json').read_text())
-        for label,expected in {'Beach':['Strand','Playa'],'Farm':['Bauernhof','Granja'],'Desert':['Wüste','Desierto']}.items():
+        for label,expected in {'Port':['Hafen','Puerto'],'Market':['Markt','Mercado'],'Jungle Path':['Dschungelpfad','Sendero de la selva'],
+                               'Farm':['Bauernhof','Granja'],'Desert':['Wüste','Desierto']}.items():
             self.assertEqual(translations[label],expected)
         for scene in scenes:
             for h in scene['hotspots']:
                 if not h.get('sign'):continue
-                self.assertIn(h['sign']['direction'], ('left','right'))
+                # Only Campus's sign up into the Jungle Path stands upright.
+                upright = scene['name'].startswith('campus') and h['target'] == 'scene:jungle-path'
+                self.assertEqual(h['sign']['direction'] == 'up', upright, (scene['name'], h['id']))
+                self.assertIn(h['sign']['direction'], ('left','right','up'))
                 self.assertEqual(h['rest'], 'assets/jungle/title/objects/wood-arrow-'+h['sign']['direction']+'.webp')
-                if h['id']=='farm-path':self.assertEqual(h['sign']['direction'],'left')
+                if h['id']=='farm-path':self.assertEqual(h['sign']['direction'],'right' if scene['name'].startswith('market') else 'left')
                 x,y,w,ht=h['glow_rect'];bx,by,bw,bh=h['sign']['label_rect']
                 self.assertEqual(hit(scene,x+bx+bw/2,y+by+bh/2),h['id'])
                 with Image.open(ROOT/h['rest']) as im:
@@ -121,7 +140,9 @@ class TitleVariants(unittest.TestCase):
                     self.assertGreater(im.convert('RGBA').getpixel((round((bx+bw/2)*im.width/w),round((by+bh/2)*im.height/ht)))[3],200)
                 # The post is scenery; the arrowhead itself is a real target.
                 self.assertNotEqual(hit(scene,x+w*.5,y+ht*.9),h['id'])
-                tip = min(h['polygon'],key=lambda p:p[0]) if h['sign']['direction']=='left' else max(h['polygon'],key=lambda p:p[0])
+                tip = (min(h['polygon'],key=lambda p:p[0]) if h['sign']['direction']=='left' else
+                       min(h['polygon'],key=lambda p:p[1]) if h['sign']['direction']=='up' else
+                       max(h['polygon'],key=lambda p:p[0]))
                 cx,cy=x+bx+bw/2,y+by+bh/2
                 tx,ty=cx+(tip[0]-cx)*.88,cy+(tip[1]-cy)*.88
                 self.assertEqual(hit(scene,tx,ty),h['id'])
@@ -133,16 +154,20 @@ class TitleVariants(unittest.TestCase):
         self.assertNotIn('text_board.x +=',renderer)
 
     def test_signs_are_sideways_intact_planks(self):
-        # Owner: Beach is one sideways plank pointing at its path, never an
-        # upward arrow; a snapped, splintered plank end read as a broken sign.
+        # Owner (2026-11-03): Campus's sign to the Port's side stands upright,
+        # one plank pointing up its path into the Jungle Path; every other
+        # sign, the Port's own included, is a sideways plank. A snapped,
+        # splintered plank end read as a broken sign.
         data = json.loads((ROOT/'tools/title_hotspots.json').read_text())
         campus = next(s for s in data['scenes'] if s['name'] == 'campus')
-        for view, direction in ((campus, 'right'), (campus['portrait'], 'left')):
-            beach = [h for h in view['hotspots'] if h.get('target') == 'scene:beach']
-            self.assertEqual(len(beach), 1)
-            self.assertEqual(beach[0]['sign']['direction'], direction)
-        self.assertFalse(list((ROOT/'assets/jungle/title/objects').glob('wood-arrow-up*')))
-        self.assertNotIn('wood-arrow-up', (ROOT/'host/jungle_title_data.zi').read_text())
+        for view in (campus, campus['portrait']):
+            path = [h for h in view['hotspots'] if h.get('target') == 'scene:jungle-path']
+            self.assertEqual(len(path), 1)
+            self.assertEqual(path[0]['sign']['direction'], 'up')
+            self.assertEqual(path[0]['rest'], 'assets/jungle/title/objects/wood-arrow-up.webp')
+        upright = [h['id'] for s in data['scenes'] for view in (s, s.get('portrait') or {})
+                   for h in view.get('hotspots', []) if h.get('sign', {}).get('direction') == 'up']
+        self.assertEqual(upright, ['jungle-path', 'jungle-path'])
         with Image.open(ROOT/'assets/jungle/title/objects/wood-arrow-right.webp') as right, \
              Image.open(ROOT/'assets/jungle/title/objects/wood-arrow-left.webp') as left:
             self.assertEqual(right.convert('RGBA').transpose(Image.Transpose.FLIP_LEFT_RIGHT).tobytes(),
@@ -154,6 +179,21 @@ class TitleVariants(unittest.TestCase):
         bottom = [next(y for y in range(760, 0, -1) if alpha[x, y] > 128) for x in shaft]
         for edge in (tail, top, bottom):
             self.assertLessEqual(max(edge) - min(edge), 4, 'chipped or splintered plank edge')
+
+    def test_signs_stay_onscreen_when_cover_fit(self):
+        # A portrait scene fills a phone's height and crops its sides; a
+        # landscape scene crops a 16:10 window's. Every sign stays whole on
+        # screen there. Campus portrait and the world map fit inside instead.
+        data = json.loads((ROOT/'tools/title_hotspots.json').read_text())
+        for scene in data['scenes']:
+            for view, low, high in ((scene, 100, 1572), (scene.get('portrait'), 175, 850)):
+                if not view or scene['name'] == 'map' or (scene['name'] == 'campus' and high == 850):
+                    continue
+                for hotspot in view['hotspots']:
+                    if 'sign' in hotspot:
+                        xs = [x for x, _ in hotspot['polygon']]
+                        self.assertGreaterEqual(min(xs), low, (scene['name'], hotspot['id']))
+                        self.assertLessEqual(max(xs), high, (scene['name'], hotspot['id']))
 
     def test_approved_webp_fingerprints(self):
         approved=json.loads(APPROVED_TITLE_WEBP.read_text())
@@ -175,7 +215,7 @@ class TitleVariants(unittest.TestCase):
     def test_new_runtime_title_layers_are_webp(self):
         _,scenes,_,_=title.Load()
         for scene in scenes:
-            if not scene['name'].startswith(('campus','beach')):continue
+            if not scene['name'].startswith(('campus','port','market','jungle-path')):continue
             for h in scene['hotspots']:
                 if h.get('sign') or scene['name'].startswith('campus') and h.get('rest'):
                     self.assertTrue(h['rest'].endswith('.webp'))

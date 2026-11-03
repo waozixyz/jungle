@@ -153,6 +153,18 @@ main :: () -> s32 {
         }
         rx, ry := GardenSceneMap(20.0,20.0,orientation == 1)
         if GardenSoil(rx,ry) { return 44 }
+        // The Farm entrance: every bed's soil, where its crops stand, lies in
+        // that bed's whole-field hover outline and inside its glow; the sky does not.
+        for bed: cast(s32)0..3 {
+            q := GardenQuad(bed,orientation == 1)
+            fx, fy, fw, fh := GardenFieldRect(bed,orientation == 1)
+            for corner: cast(s32)0..4 {
+                at := ifx corner == 4 then GardenBlend(q,0.5,0.5) else q[corner]
+                if GardenFieldAt(at.x,at.y,orientation == 1) != bed { return 45 }
+                if at.x < cast(float64)fx || at.y < cast(float64)fy || at.x >= cast(float64)(fx+fw) || at.y >= cast(float64)(fy+fh) { return 46 }
+            }
+        }
+        if GardenFieldAt(10.0,10.0,orientation == 1) != -1 { return 47 }
     }
     return 0
 }

@@ -1,63 +1,14 @@
 // Save coordinates remain in the original continuous bed. Four quadrants map
 // onto inset soil quads in each approved painting; no save data is rewritten.
+#import, file "garden_fields.zi";
 GardenPoint :: struct { x: float64; y: float64 }
 GardenQuad :: (bed: s32, portrait: bool) -> [4]GardenPoint {
     q: [4]GardenPoint
-    if portrait && bed == 0 {
-        q[0] = GardenPoint.{.x = 230.0, .y = 480.0}
-        q[1] = GardenPoint.{.x = 415.0, .y = 520.0}
-        q[2] = GardenPoint.{.x = 300.0, .y = 585.0}
-        q[3] = GardenPoint.{.x = 95.0, .y = 535.0}
-        return q
-    }
-    if portrait && bed == 1 {
-        q[0] = GardenPoint.{.x = 780.0, .y = 515.0}
-        q[1] = GardenPoint.{.x = 960.0, .y = 555.0}
-        q[2] = GardenPoint.{.x = 810.0, .y = 645.0}
-        q[3] = GardenPoint.{.x = 605.0, .y = 590.0}
-        return q
-    }
-    if portrait && bed == 2 {
-        q[0] = GardenPoint.{.x = 220.0, .y = 730.0}
-        q[1] = GardenPoint.{.x = 415.0, .y = 790.0}
-        q[2] = GardenPoint.{.x = 250.0, .y = 870.0}
-        q[3] = GardenPoint.{.x = 65.0, .y = 800.0}
-        return q
-    }
-    if portrait && bed == 3 {
-        q[0] = GardenPoint.{.x = 780.0, .y = 845.0}
-        q[1] = GardenPoint.{.x = 950.0, .y = 900.0}
-        q[2] = GardenPoint.{.x = 730.0, .y = 1040.0}
-        q[3] = GardenPoint.{.x = 490.0, .y = 970.0}
-        return q
-    }
-    if !portrait && bed == 0 {
-        q[0] = GardenPoint.{.x = 470.0, .y = 325.0}
-        q[1] = GardenPoint.{.x = 690.0, .y = 352.0}
-        q[2] = GardenPoint.{.x = 560.0, .y = 380.0}
-        q[3] = GardenPoint.{.x = 310.0, .y = 350.0}
-        return q
-    }
-    if !portrait && bed == 1 {
-        q[0] = GardenPoint.{.x = 1170.0, .y = 360.0}
-        q[1] = GardenPoint.{.x = 1480.0, .y = 392.0}
-        q[2] = GardenPoint.{.x = 1330.0, .y = 435.0}
-        q[3] = GardenPoint.{.x = 1020.0, .y = 393.0}
-        return q
-    }
-    if !portrait && bed == 2 {
-        q[0] = GardenPoint.{.x = 300.0, .y = 460.0}
-        q[1] = GardenPoint.{.x = 600.0, .y = 510.0}
-        q[2] = GardenPoint.{.x = 415.0, .y = 565.0}
-        q[3] = GardenPoint.{.x = 130.0, .y = 510.0}
-        return q
-    }
-    if !portrait && bed == 3 {
-        q[0] = GardenPoint.{.x = 1190.0, .y = 540.0}
-        q[1] = GardenPoint.{.x = 1500.0, .y = 600.0}
-        q[2] = GardenPoint.{.x = 1190.0, .y = 695.0}
-        q[3] = GardenPoint.{.x = 850.0, .y = 636.0}
-        return q
+    if bed < 0 || bed > 3 { return q }
+    // The painted soil's corners, found in each painting by tools/farm_fields.py.
+    first := (bed + (ifx portrait then 4 else 0)) * 4
+    for corner: cast(s32)0..3 {
+        q[corner] = GardenPoint.{.x = cast(float64)GARDEN_SOIL_X[first + corner], .y = cast(float64)GARDEN_SOIL_Y[first + corner]}
     }
     return q
 }
@@ -97,4 +48,31 @@ GardenSceneMap :: (x: float64, y: float64, portrait: bool) -> (sx: s32, sy: s32)
         return sx, sy
     }
     return -1000, -1000
+}
+// The bed whose whole painted field, soil and bamboo frame, holds painting
+// pixel X, Y, or -1. Front beds come first: they are painted over the back ones.
+GardenFieldAt :: (x: float64, y: float64, portrait: bool) -> s32 {
+    for back: cast(s32)0..3 {
+        bed := 3 - back
+        field := bed + (ifx portrait then 4 else 0)
+        first := GARDEN_FIELD_FIRST[field]
+        last := first + GARDEN_FIELD_POINTS[field] - 1
+        inside := false
+        j := last
+        for i: first..last {
+            xi := cast(float64)GARDEN_FIELD_X[i]; yi := cast(float64)GARDEN_FIELD_Y[i]
+            xj := cast(float64)GARDEN_FIELD_X[j]; yj := cast(float64)GARDEN_FIELD_Y[j]
+            below_i := yi > y; below_j := yj > y
+            if below_i != below_j && x < (xj - xi) * (y - yi) / (yj - yi) + xi { inside = !inside }
+            j = i
+        }
+        if inside { return bed }
+    }
+    return -1
+}
+// The rectangle a bed's whole-field glow covers, in painting pixels.
+GardenFieldRect :: (bed: s32, portrait: bool) -> (x: s32, y: s32, w: s32, h: s32) {
+    if bed < 0 || bed > 3 { return 0, 0, 0, 0 }
+    at := (bed + (ifx portrait then 4 else 0)) * 4
+    return GARDEN_FIELD_GLOW[at], GARDEN_FIELD_GLOW[at + 1], GARDEN_FIELD_GLOW[at + 2], GARDEN_FIELD_GLOW[at + 3]
 }

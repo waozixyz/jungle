@@ -102,7 +102,7 @@ main :: () -> s32 {
             if TitleHit(scene, x, y) != hotspot { return 22 }
             view := TitleFit(400.0, 941.0, 0.0, 0.0, scene)
             if TitleHit(scene, TitleSourceX(view, view.x + x * view.scale), TitleSourceY(view, view.y + y * view.scale)) != hotspot { return 23 }
-            if TITLE_HOTSPOT_GUIDE[hotspot] == 0 && TITLE_HOTSPOT_NOTICE[hotspot] == 0 && TITLE_HOTSPOT_DIALOGUE[hotspot] == 0 && (TITLE_HOTSPOT_TARGET[hotspot] >= 0) == (TITLE_HOTSPOT_GAME[hotspot] != "") { return 24 }
+            if TITLE_HOTSPOT_GUIDE[hotspot] == 0 && TITLE_HOTSPOT_NOTICE[hotspot] == 0 && TITLE_HOTSPOT_DIALOGUE[hotspot] == 0 && TITLE_HOTSPOT_LOOK[hotspot] == 0 && (TITLE_HOTSPOT_TARGET[hotspot] >= 0) == (TITLE_HOTSPOT_GAME[hotspot] != "") { return 24 }
         }
     }
     if TitleHit(0, -5.0, -5.0) != -1 || TitleHit(TITLE_SCENE_COUNT, 10.0, 10.0) != -1 { return 25 }
@@ -114,28 +114,33 @@ main :: () -> s32 {
     if TITLE_SCENE_PARENT[bookshelf] != treehouse || TITLE_SCENE_PARENT[campus] != treehouse { return 31 }
 
     // Every waterfront route works with the actual touch delay in both
-    // compositions. Rotation resolves each canonical destination, then Back
-    // climbs aquarium -> beach -> campus without launching an activity.
-    beach := SceneNamed("beach")
+    // compositions: Campus, the Jungle Path, the Port (once the Beach), its
+    // Aquarium and the Market street. Rotation resolves each canonical
+    // destination, then Back climbs aquarium -> port -> jungle path -> campus
+    // without launching an activity.
+    jungle_path := SceneNamed("jungle-path")
+    port := SceneNamed("port")
+    market := SceneNamed("market")
     aquarium := SceneNamed("aquarium")
-    if beach < 0 || aquarium < 0 { return 120 }
-    if TITLE_SCENE_PARENT[beach] != campus || TITLE_SCENE_PARENT[aquarium] != beach { return 121 }
+    if jungle_path < 0 || port < 0 || market < 0 || aquarium < 0 || SceneNamed("beach") >= 0 { return 120 }
+    if TITLE_SCENE_PARENT[jungle_path] != campus || TITLE_SCENE_PARENT[port] != jungle_path ||
+       TITLE_SCENE_PARENT[aquarium] != port || TITLE_SCENE_PARENT[market] != port { return 121 }
     for portrait: cast(s32)0..1 {
         route: TitleState
         TitleStart(*route)
         width: float32 = ifx portrait == 1 then 420.0 else 960.0
         height: float32 = ifx portrait == 1 then 900.0 else 600.0
-        origins: [4]s32 = .[campus, beach, aquarium, beach]
-        destinations: [4]s32 = .[beach, aquarium, beach, campus]
-        entrances: [4]string = .["beach-path", "bunker-door", "beach-stairs", "campus-path"]
-        for leg: cast(s32)0..3 {
+        origins: [8]s32 = .[campus, jungle_path, port, aquarium, port, market, port, jungle_path]
+        destinations: [8]s32 = .[jungle_path, port, aquarium, port, market, port, jungle_path, campus]
+        entrances: [8]string = .["jungle-path", "port-path", "bunker-door", "port-stairs", "market-path", "port-path", "jungle-path", "campus-path"]
+        for leg: cast(s32)0..7 {
             TitleEnter(*route, origins[leg])
             TitleResolve(*route, width, height)
             hotspot := HotspotNamed(route.scene, entrances[leg])
             x: float32
             y: float32
             if hotspot < 0 || !OwnPoint(route.scene, hotspot, *x, *y) { return 122 }
-            if leg == 0 && TITLE_HOTSPOT_REST[hotspot] == "" { return 123 }
+            if leg == 0 && TitleHotspotRest(hotspot) == "" { return 123 }
             route_view := TitleFit(width, height, 0.0, 0.0, route.scene)
             sx := route_view.x + x * route_view.scale
             sy := route_view.y + y * route_view.scale
@@ -151,10 +156,31 @@ main :: () -> s32 {
         TitleResolve(*route, width, height)
         unused TitleKey(*route, 256)
         TitleResolve(*route, width, height)
-        if TITLE_SCENE_BASE[route.scene] != beach { return 127 }
+        if TITLE_SCENE_BASE[route.scene] != port { return 127 }
         unused TitleKey(*route, 256)
         TitleResolve(*route, width, height)
-        if TITLE_SCENE_BASE[route.scene] != campus { return 128 }
+        if TITLE_SCENE_BASE[route.scene] != jungle_path { return 128 }
+        unused TitleKey(*route, 256)
+        TitleResolve(*route, width, height)
+        if TITLE_SCENE_BASE[route.scene] != campus { return 129 }
+        // The Market's shops are only to look at: a tap lights the shop and
+        // neither travels nor opens a game.
+        TitleEnter(*route, market)
+        TitleResolve(*route, width, height)
+        shop := HotspotNamed(route.scene, "bakery")
+        shop_x: float32
+        shop_y: float32
+        if shop < 0 || TITLE_HOTSPOT_LOOK[shop] == 0 || !OwnPoint(route.scene, shop, *shop_x, *shop_y) { return 150 }
+        shop_view := TitleFit(width, height, 0.0, 0.0, route.scene)
+        unused TitlePointer(*route, shop_view, shop_view.x + shop_x * shop_view.scale, shop_view.y + shop_y * shop_view.scale, true, true, false, false, 20.0)
+        unused TitlePointer(*route, shop_view, shop_view.x + shop_x * shop_view.scale, shop_view.y + shop_y * shop_view.scale, false, false, true, false, 20.1)
+        looked := TitleTick(*route, 20.11 + TITLE_TAP_SECONDS)
+        if looked.moved || looked.game >= 0 || TITLE_SCENE_BASE[route.scene] != market { return 151 }
+        // The Farm's path to the Market, and the Beach's old name, open from a game.
+        TitleEnter(*route, campus)
+        if TitleSceneNamed("market") != market || TitleSceneNamed("beach") != port || TitleSceneNamed("nowhere") != -1 { return 152 }
+        if !TitleOpenSceneFromGame(*route, market) || route.scene != market { return 153 }
+        if TitleOpenSceneFromGame(*route, -1) || route.scene != market { return 154 }
     }
 
     // The approved portrait composition has independent coordinates and
@@ -313,7 +339,7 @@ main :: () -> s32 {
 
     // A physical path sign always animates before travel, including mouse
     // clicks after hovering. Exercise the model before new art is selected.
-    sign := HotspotNamed(campus, "beach-path")
+    sign := HotspotNamed(campus, "jungle-path")
     TitleEnter(*touch, campus)
     sign_view := TitleFit(cast(float32)TITLE_SOURCE_WIDTH, cast(float32)TITLE_SOURCE_HEIGHT, 0.0, 0.0, campus)
     sx: float32
@@ -330,7 +356,7 @@ main :: () -> s32 {
     step = TitleTick(*touch, 7.1 + TITLE_TAP_SECONDS / 2.0)
     if step.moved || touch.scene != campus { return 274 }
     step = TitleTick(*touch, 7.11 + TITLE_TAP_SECONDS)
-    if !step.moved || touch.scene != beach { return 275 }
+    if !step.moved || touch.scene != jungle_path { return 275 }
     unused TitleKey(*touch, 256)
     if touch.scene != campus { return 276 }
     // Desert leads to its own painted scene in both orientations. The guide
@@ -368,8 +394,8 @@ main :: () -> s32 {
         if guide < 0 || camel < 0 || back < 0 || TITLE_SCENE_HOTSPOTS[talk.scene] != 3 { return 289 }
         if TITLE_HOTSPOT_DIALOGUE[guide] != 1 || TITLE_HOTSPOT_DIALOGUE[camel] != 1 || TITLE_HOTSPOT_GAME[guide] != "" { return 290 }
         if TITLE_SIGN_LABEL[back] != "Campus" || TITLE_SIGN_DIRECTION[back] != 1 || TITLE_HOTSPOT_TARGET[back] != campus { return 291 }
-        if TITLE_HOTSPOT_REST[guide] != "assets/jungle/title/objects/desert-guide.webp" ||
-            TITLE_HOTSPOT_REST[camel] != "assets/jungle/title/objects/desert-camel.webp" { return 292 }
+        if TitleHotspotRest(guide) != "assets/jungle/title/objects/desert-guide.webp" ||
+            TitleHotspotRest(camel) != "assets/jungle/title/objects/desert-camel.webp" { return 292 }
         // Where the guide and his camel overlap, the guide in front wins.
         view = TitleFit(width, height, 0.0, 0.0, talk.scene)
         if !OwnPoint(talk.scene, guide, *tx, *ty) { return 293 }

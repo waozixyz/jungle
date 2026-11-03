@@ -168,7 +168,7 @@ TitlePicture :: (session: Session, path: string, bounds: Rectangle, tint: u32 = 
 // the separate sprite, including its tiny tap animation.
 TitlePathSign :: (session: Session, hotspot: s32, picture: Rectangle, view: TitleView,
     glowing: bool, blocked: bool, now: float64) {
-    sprite := TITLE_HOTSPOT_REST[hotspot]
+    sprite := TitleHotspotRest(hotspot)
     if !TitleReady(sprite) { return }
     at := hotspot * 4
     lift := TitleSignLift(title_state, hotspot, now)
@@ -180,7 +180,7 @@ TitlePathSign :: (session: Session, hotspot: s32, picture: Rectangle, view: Titl
     TitlePicture(session, sprite, wood)
     if glowing {
         alpha := cast(u32)(255.0 * (0.36 + 0.12 * Sin(now * 6.283185307 / 1.8)))
-        TitlePicture(session, TITLE_HOTSPOT_GLOW[hotspot], wood, cast(u32)0xffffff00 | alpha)
+        TitlePicture(session, TitleHotspotGlow(hotspot), wood, cast(u32)0xffffff00 | alpha)
     }
     board := Rectangle.{
         wood.x + cast(float32)TITLE_SIGN_RECT[at] * view.scale,
@@ -347,7 +347,7 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
         TitleReady(TITLE_SCENE_BACKGROUND[title_state.scene]) && TitleReady(TITLE_SCENE_FOREGROUND[title_state.scene])
     pointed := TitleHit(title_state.scene, TitleSourceX(view, px), TitleSourceY(view, py))
     if pointed >= 0 && TITLE_SIGN_LABEL[pointed] != "" {
-        if !TitleReady(TITLE_HOTSPOT_REST[pointed]) ||
+        if !TitleReady(TitleHotspotRest(pointed)) ||
             (TITLE_SCENE_FOREGROUND[title_state.scene] != "" && !paper_available) { blocked = true }
     }
     shelf := TITLE_SCENE_NAME[TITLE_SCENE_BASE[title_state.scene]] == "bookshelf"
@@ -396,16 +396,16 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
     first := TITLE_SCENE_FIRST[scene]
     for hotspot: first..first + TITLE_SCENE_HOTSPOTS[scene] - 1 {
         // Separate navigation objects sit behind the foreground tiger.
-        if TITLE_HOTSPOT_REST[hotspot] != "" && TITLE_SIGN_LABEL[hotspot] == "" && (TITLE_SCENE_FOREGROUND[scene] == "" || layered) {
+        if TitleHotspotRest(hotspot) != "" && TITLE_SIGN_LABEL[hotspot] == "" && (TITLE_SCENE_FOREGROUND[scene] == "" || layered) {
             rect := hotspot * 4
-            TitlePicture(session, TITLE_HOTSPOT_REST[hotspot], Rectangle.{
+            TitlePicture(session, TitleHotspotRest(hotspot), Rectangle.{
                 picture.x + cast(float32)TITLE_GLOW_RECT[rect] * view.scale,
                 picture.y + cast(float32)TITLE_GLOW_RECT[rect + 1] * view.scale,
                 cast(float32)TITLE_GLOW_RECT[rect + 2] * view.scale,
                 cast(float32)TITLE_GLOW_RECT[rect + 3] * view.scale})
         }
         // Each glow and every scene one step away loads ahead of use.
-        unused TitleReady(TITLE_HOTSPOT_GLOW[hotspot])
+        unused TitleReady(TitleHotspotGlow(hotspot))
         target := TITLE_HOTSPOT_TARGET[hotspot]
         if target >= 0 { unused TitleReady(TITLE_SCENE_LOW[ResolveTitleSceneVariant(target, bounds.width, bounds.height)]); unused TitleReady(TITLE_SCENE_IMAGE[ResolveTitleSceneVariant(target, bounds.width, bounds.height)]) }
     }
@@ -432,9 +432,9 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
         // A slow, gentle pulse over exactly the item.
         wave := Sin(now * 6.283185307 / 1.8)
         alpha := cast(u32)(255.0 * (0.74 + 0.26 * wave))
-        if TITLE_HOTSPOT_REST[glowing] != "" { alpha = cast(u32)(cast(float32)alpha * 0.55) }
+        if TitleHotspotRest(glowing) != "" { alpha = cast(u32)(cast(float32)alpha * 0.55) }
         rect := glowing * 4
-        TitlePicture(session, TITLE_HOTSPOT_GLOW[glowing], Rectangle.{
+        TitlePicture(session, TitleHotspotGlow(glowing), Rectangle.{
             picture.x + cast(float32)TITLE_GLOW_RECT[rect] * view.scale,
             picture.y + cast(float32)TITLE_GLOW_RECT[rect + 1] * view.scale,
             cast(float32)TITLE_GLOW_RECT[rect + 2] * view.scale,

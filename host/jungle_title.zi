@@ -294,6 +294,24 @@ TitleSignLift :: (state: TitleState, hotspot: s32, now: float64) -> float32 {
 }
 
 // A scene hotspot changes scene; a game hotspot reports its game.
+// The base title scene called NAME, or -1. "beach" is the Port's old name.
+TitleSceneNamed :: (name: string) -> s32 {
+    wanted := ifx name == "beach" then "port" else name
+    for scene: cast(s32)0..TITLE_SCENE_COUNT - 1 {
+        if TITLE_SCENE_BASE[scene] == scene && TITLE_SCENE_NAME[scene] == wanted { return scene }
+    }
+    return -1
+}
+
+// Into title SCENE from a game's own way out, as if its sign had been
+// followed (the Farm's path to the Market).
+TitleOpenSceneFromGame :: (state: *TitleState, scene: s32) -> bool {
+    if scene < 0 || scene >= TITLE_SCENE_COUNT || TITLE_SCENE_BASE[scene] != scene { return false }
+    state.not_implemented = false
+    TitleEnter(state, scene)
+    return true
+}
+
 TitleActivate :: (state: *TitleState, hotspot: s32) -> TitleStep {
     step := TitleStep.{.game = -1}
     if state.not_implemented || state.dialogue != 0 { return step }
@@ -304,6 +322,8 @@ TitleActivate :: (state: *TitleState, hotspot: s32) -> TitleStep {
         TitleDialogueOpen(state, hotspot)
         return step
     }
+    // A decorative painted item (a Market shop, a parrot) only glows.
+    if TITLE_HOTSPOT_LOOK[hotspot] != 0 { return step }
     if TITLE_HOTSPOT_NOTICE[hotspot] != 0 {
         state.not_implemented = true
         state.tracking = false

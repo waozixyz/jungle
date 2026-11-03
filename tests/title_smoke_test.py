@@ -47,8 +47,9 @@ def main():
                 def scene_return(name):
                     farm=next(s for s in data['scenes'] if s['name']==name)
                     farm=farm['portrait'] if h>w else farm
-                    sign=farm['hotspots'][0]
-                    assert sign['sign']['direction']==('right' if name=='farm' else 'left')
+                    # The scene's own sign back to Campus.
+                    sign=next(t for t in farm['hotspots'] if t['target']=='scene:campus')
+                    assert sign['sign']['direction']==('right' if name in ('farm','jungle-path') else 'left')
                     x,y,_,_=sign['glow_rect'];bx,by,bw,bh=sign['sign']['label_rect']
                     fs=max(w/(1024 if h>w else 1672),h/(1536 if h>w else 941))
                     fx=(w-(1024 if h>w else 1672)*fs)/2;fy=(h-(1536 if h>w else 941)*fs)/2
@@ -81,7 +82,7 @@ def main():
                     x,y,_,_=farm_sign['glow_rect'];bx,by,bw,bh=farm_sign['sign']['label_rect']
                     assert ox+(x+bx)*scale>=0 and ox+(x+bx+bw)*scale<=w
                     assert farm_sign['sign']['direction']=='left'
-                    for ident in ('farm-path','beach-path','desert-path'):
+                    for ident in ('farm-path','jungle-path','desert-path'):
                         target=next(t for t in view['hotspots'] if t['id']==ident)
                         x,y,_,_=target['glow_rect'];bx,by,bw,bh=target['sign']['label_rect']
                         before=d.capture_actual('campus')
@@ -100,7 +101,7 @@ def main():
                             ref=expected.crop((region[0]-round(fx),region[1]-round(fy),region[2]-round(fx),region[3]-round(fy)))
                             assert max(ImageStat.Stat(ImageChops.difference(actual.crop(region).resize((64,64)),ref.resize((64,64)))).mean)<4,'Farm full painting missing or covered'
                             scene_return('farm')
-                        elif ident=='beach-path':scene_return('beach')
+                        elif ident=='jungle-path':scene_return('jungle-path')
                         else:d.key('Escape')
                         wait_for(before,'returned',opened=False)
                     assert old.read_text().startswith('garden 2 6\n1 100 100 3700 3600 0\n'), 'existing garden save changed'
@@ -120,7 +121,7 @@ def main():
                     d.key('Escape')
                     wait_for(centered,'keyboard-returned',opened=False)
                 d.alive()
-            print(f'local smoke: {w}x{h}, EN/DE/ES, Farm/Beach/Desert, pointer and keyboard, Campus return and garden save passed',flush=True)
+            print(f'local smoke: {w}x{h}, EN/DE/ES, Farm/Jungle Path/Desert, pointer and keyboard, Campus return and garden save passed',flush=True)
 
 
 if __name__=='__main__':main()

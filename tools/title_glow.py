@@ -17,14 +17,16 @@ SOURCE = ROOT / 'local/art-development/title-world-proposal'
 DEBUG = SOURCE / 'hotspot-debug'
 ORIGINALS = {'treehouse': 'treehouse-room', 'bookshelf': 'bookshelf-closeup',
              'campus': 'jungle-campus', 'music': 'music-room',
-             'farm': '../owner-farm-beach-source/27', 'beach': '../title-waterfront/beach', 'aquarium': '../title-waterfront/aquarium'}
+             'farm': '../owner-farm-beach-source/27', 'port': '../market/port-landscape-market-path', 'aquarium': '../title-waterfront/aquarium'}
 
 
 def room_owned(scene):
     """Rooms built from object layers, and the window view, come from
     tools/title_room.py; this tool must not overwrite them with old paintings.
-    tools/title_desert.py exports the Desert edge scene and its layers whole."""
-    return bool(scene.get('objects') or scene.get('back')) or scene.get('name') == 'desert'
+    tools/title_desert.py exports the Desert edge scene and its layers whole;
+    tools/title_places.py the Market, the Jungle Path and the Farm with its
+    path to the Market."""
+    return bool(scene.get('objects') or scene.get('back')) or scene.get('name') in ('desert', 'market', 'jungle-path', 'farm')
 
 
 def validate(data):
@@ -54,7 +56,7 @@ def validate_variant(scene, names, games):
         assert h['id'] not in ids
         ids.add(h['id'])
         kind, dest = h['target'].split(':', 1)
-        assert (kind == 'scene' and dest in names) or (kind == 'game' and dest in games) or (kind == 'notice' and dest == 'Desert') or (kind == 'dialogue' and dest == 'desert-guide') or (kind == 'guide' and dest == 'tour') or (kind == 'book' and dest == 'sweet-porridge')
+        assert (kind == 'scene' and dest in names) or (kind == 'game' and dest in games) or (kind == 'notice' and dest == 'Desert') or (kind == 'dialogue' and dest == 'desert-guide') or (kind == 'guide' and dest == 'tour') or (kind == 'book' and dest == 'sweet-porridge') or (kind == 'look' and bool(dest) and not h.get('sign')) or (kind == 'locked' and dest == h['id'] and not h.get('sign'))
         assert len(h['polygon']) >= 3
         for p in h['polygon']:
             assert len(p) == 2 and all(type(n) is int for n in p)
@@ -126,8 +128,10 @@ def main():
             continue
         variants.append(dict(scene, width=data['width'], height=data['height'], source=SOURCE / (ORIGINALS[scene['name']]+'.png')))
         if 'portrait' in scene:
-            portrait_source = (ROOT / 'local/art-development/title-waterfront' / (scene['name'] + '-portrait.png')
-                               if scene['name'] in ('beach', 'aquarium') else
+            portrait_source = (ROOT / 'local/art-development/market/port-portrait-market-path.png'
+                               if scene['name'] == 'port' else
+                               ROOT / 'local/art-development/title-waterfront' / (scene['name'] + '-portrait.png')
+                               if scene['name'] == 'aquarium' else
                                ROOT / 'local/art-development/title-portrait-candidates' / (scene['name'] + '.png'))
             variants.append(dict(scene['portrait'], name=scene['name'] + '-portrait', source=portrait_source))
     for scene in variants:

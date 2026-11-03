@@ -216,6 +216,7 @@ test: build/tests/fishing build/tests/beach_families build/tests/speed_choice bu
 	python3 tests/runtime_images_test.py
 	python3 tests/sweet_porridge_test.py
 	python3 tests/garden_assets_test.py
+	python3 tools/farm_fields.py --check
 	build/tests/speed_choice
 	build/tests/title
 	build/tests/shapes
