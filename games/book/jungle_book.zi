@@ -18,6 +18,7 @@
 #import, file "book_pages.zi";
 #import, file "book_voice.zi";
 #import, file "sweet_porridge.zi";
+#import, file "town_musicians.zi";
 #import, file "story_layout.zi";
 #import "image_widget";
 #import "drawing_props";
@@ -62,6 +63,13 @@ paused_at: float64;
 managing_books: bool;
 secondary_back_was_down: bool;
 direct_story: bool;
+story_collection: bool;
+selected_story: s32;
+StoryPicture :: (at: s32, portrait: bool = false) -> string {
+    if selected_story == 1 { return bremen_pictures[at] }
+    return ifx portrait then story_portraits[at] else story_pictures[at]
+}
+StoryTitle :: () -> string { return ifx selected_story == 1 then BremenCaption(0, language) else StoryCaption(0, language) }
 collect_flying: s32 = -1;
 collect_started: float64;
 collect_start: CollectRect;
@@ -69,7 +77,7 @@ StoryBook :: () -> bool { return direct_story }
 PageCount :: () -> s32 { return ifx direct_story then STORY_PAGE_COUNT else category_counts[category] }
 PagePath :: (offset: s32 = 0) -> string {
     if direct_story {
-        return ifx book_height > book_width then story_portraits[page + offset] else story_pictures[page + offset]
+        return StoryPicture(page + offset, book_height > book_width)
     }
     return page_paths(PageIndex() + offset)
 }
@@ -78,7 +86,7 @@ StorySourceRectangles :: (path: string, paper_top: s32) -> (art: Rectangle, pape
     width: float32 = 1536.0
     height: float32 = 1024.0
     top: float32 = cast(float32)paper_top
-    if path == story_pictures[page] {
+    if path == StoryPicture(page) {
         width = 1024.0
         height = 683.0
         top = cast(float32)paper_top * height / 1024.0
@@ -118,14 +126,14 @@ Number :: (value: s32) -> string {
 
 PageIndex :: () -> s32 { return category_starts[category] + page }
 PageName :: () -> string {
-    if direct_story { return StoryCaption(page, language) }
+    if direct_story { return ifx selected_story == 1 then BremenCaption(page, language) else StoryCaption(page, language) }
     at := PageIndex()
     if language == 1 { return page_names_de(at) }
     if language == 2 { return page_names_es(at) }
     return page_names_en(at)
 }
 PageVoice :: () -> string {
-    if direct_story { return StoryVoice(page, language) }
+    if direct_story { return ifx selected_story == 1 then BremenVoice(page, language) else StoryVoice(page, language) }
     at := PageIndex()
     if language == 1 { return ifx simple then VoicePath_de_simple(at) else VoicePath_de_spelling(at) }
     if language == 2 { return ifx simple then VoicePath_es_simple(at) else VoicePath_es_spelling(at) }
@@ -134,7 +142,7 @@ PageVoice :: () -> string {
 PageHold :: () -> float64 {
     measured := SpeechFramesParse(AppService("jungle.voice-frames", PageVoice()))
     if direct_story {
-        duration := ifx measured > 0 then cast(float64)measured / 22050.0 else StorySeconds(page, language)
+        duration := ifx measured > 0 then cast(float64)measured / 22050.0 else (ifx selected_story == 1 then BremenSeconds(page, language) else StorySeconds(page, language))
         return duration + (ifx playback_speed == 0 then 5.0 else ifx playback_speed == 2 then 1.0 else 3.0)
     }
     at := PageIndex()
@@ -368,11 +376,35 @@ BookShelf :: () {
     if retro.key == KEY_ESCAPE { PictureBookBack() }
 }
 
+// Storybooks share a collection, so selecting the painted stories row does
+// not immediately begin a particular tale.
+StoryShelf :: () {
+    if TouchButton(979, book_padding, book_padding, 100, 48, "Back") { GameHome() }
+    BookText(book_padding + 112, book_padding, book_width - book_padding * 2 - 112, 48, "Stories", 30)
+    for index: cast(s32)0..1 {
+        x := book_padding + (index % shelf_columns) * (shelf_card_width + book_gap)
+        y := book_padding + 64 + (index / shelf_columns) * (shelf_card_height + book_gap)
+        title := ifx index == 1 then BremenCaption(0, language) else StoryCaption(0, language)
+        press := RetroTap(980 + index, x, y, shelf_card_width, shelf_card_height, title)
+        BookBox(x, y, shelf_card_width, shelf_card_height, 0xf7f1e3ff, 0xdacdb5ff, 9.0)
+        picture := shelf_card_height - 14
+        BookPicture(ifx index == 1 then bremen_pictures[0] else story_pictures[0], x + 7, y + 7, picture, picture)
+        Text(retro.session, TextProps.{.bounds = RetroRect(x + picture + 14, y + 7, shelf_card_width - picture - 24, shelf_card_height - 14),
+            .text = title, .font = 20, .align = TextAlign.TextAlignStart, .vertical_align = TextAlign.TextAlignCenter, .wrap = TextWrap.TextWrapAuto})
+        if press.clicked || retro.key == 49 + index || (retro.key == KEY_ENTER && index == 0) {
+            selected_story = index
+            direct_story = true
+            OpenBook()
+        }
+    }
+    if retro.key == KEY_ESCAPE { GameHome() }
+}
+
 // The scenes fade into this paper, so a page reaches every edge of the screen.
 PagePaper :: () { BookBox(0, 0, book_width, book_height, 0xfcf2d4ff) }
 
 PictureBookBack :: () {
-    if direct_story { NarrationCancel(*narration); unused AppService("jungle.voice", ""); GameHome(); return }
+    if direct_story { NarrationCancel(*narration); unused AppService("jungle.voice", ""); direct_story = false; choosing_category = true; finished = false; return }
     if !choosing_category || finished {
         choosing_category = true
         finished = false
@@ -396,7 +428,7 @@ SceneRect :: () -> (x: s32, y: s32, size: s32) {
 // the illustrated section of a story page.
 PagePictureRect :: () -> CollectRect {
     if direct_story {
-        layout := StoryPageLayout(book_width, book_height, story_paper_top[page])
+        layout := StoryPageLayout(book_width, book_height, story_paper_top[page], selected_story == 1)
         return CollectRect.{layout.x, layout.y, layout.width, layout.art_height}
     }
     x, y, size := SceneRect()
@@ -405,7 +437,7 @@ PagePictureRect :: () -> CollectRect {
 
 // The current page's subject while it can still be collected, or -1.
 PageCollectible :: () -> s32 {
-    index := BookCollectIndex(ifx direct_story then story_pictures[page] else PagePath(), direct_story)
+    index := BookCollectIndex(ifx direct_story then StoryPicture(page) else PagePath(), direct_story)
     if index < 0 || GameCollected(collectible_ids[index]) { return -1 }
     return index
 }
@@ -466,7 +498,7 @@ PlaybackAction :: (id: s32, x: s32, y: s32, width: s32, text: string) -> bool {
 PlaybackControls :: (can_hear: bool = true) {
     if direct_story {
         x := book_width / 2 - 22
-        layout := StoryPageLayout(book_width, book_height, story_paper_top[page])
+        layout := StoryPageLayout(book_width, book_height, story_paper_top[page], selected_story == 1)
         y := ifx finished then book_height - 58 else layout.art_height + layout.caption_height + 4
         press := RetroTap(61, x, y, 44, 44, ifx playing then "Pause" else "Play")
         if press.clicked { TogglePlayback() }
@@ -526,8 +558,8 @@ FinishedBook :: () {
     }
     // The next book's cover, framed like a card on the shelf.
     BookBox(cover_x - 6, cover_y - 6, cover + 12, cover + 12, 0xfffcf3ff, 0xdacdb5ff, 14.0)
-    BookPicture(ifx direct_story then story_pictures[0] else category_previews[next_category], cover_x, cover_y, cover, cover)
-    BookText(text_x, text_y, text_width, 44, ifx direct_story then "Sweet Porridge" else category_names[next_category], 34)
+    BookPicture(ifx direct_story then StoryPicture(0) else category_previews[next_category], cover_x, cover_y, cover, cover)
+    BookText(text_x, text_y, text_width, 44, ifx direct_story then StoryTitle() else category_names[next_category], 34)
     count_text: Vec(u8)
     BuilderPrint(*count_text, "% %", ifx direct_story then STORY_PAGE_COUNT else category_counts[next_category], Tr("pages"))
     BookText(text_x, text_y + 42, text_width, 24, BuilderFinish(count_text), 19, TextAlign.TextAlignCenter, false, true)
@@ -562,28 +594,28 @@ ReadingPage :: () {
     label_x := (book_width - label_width) / 2
     label_y := book_height - label_height - 66
     if StoryBook() {
-        layout := StoryPageLayout(book_width, book_height, story_paper_top[page])
+        layout := StoryPageLayout(book_width, book_height, story_paper_top[page], selected_story == 1)
         portrait := book_height > book_width
         path := RetroImageShown(PagePath())
-        paper_path := RetroImageShown(story_pictures[page])
+        paper_path := RetroImageShown(StoryPicture(page))
         if path != "" {
             art_source, unused_paper := StorySourceRectangles(path, story_paper_top[page])
-            if portrait { art_source = Rectangle.{} }
+            if portrait || selected_story == 1 { art_source = Rectangle.{} }
             // Portrait paintings are full scenes: draw all of their pixels.
             Image(retro.session, ImageProps.{.asset_path = path, .preview_path = RetroImagePreview(PagePath()),
-                .full_size = ifx portrait then Vector2.{1024, 1536} else Vector2.{1536, 1024}, .source = art_source,
+                .full_size = ifx portrait || selected_story == 1 then Vector2.{1024, 1536} else Vector2.{1536, 1024}, .source = art_source,
                 .bounds = RetroRect(layout.x, layout.y, layout.width, layout.art_height), .smooth = true})
         }
-        if paper_path != "" {
+        if paper_path != "" && selected_story == 0 {
             unused_art, paper_source := StorySourceRectangles(paper_path, story_paper_top[page])
             // Caption and playback controls always use the accepted blank paper,
             // never the scene at the bottom of the portrait painting.
-            Image(retro.session, ImageProps.{.asset_path = paper_path, .preview_path = RetroImagePreview(story_pictures[page]),
+            Image(retro.session, ImageProps.{.asset_path = paper_path, .preview_path = RetroImagePreview(StoryPicture(page)),
                 .full_size = Vector2.{1536, 1024}, .source = paper_source,
                 .bounds = RetroRect(layout.x, layout.y + layout.art_height, layout.width, layout.paper_height), .smooth = true})
         }
-        Text(retro.session, TextProps.{.bounds = RetroRect(layout.x + 20, layout.y + layout.art_height + 10,
-                layout.width - 40, layout.caption_height - 20), .text = PageName(), .font = ifx landscape then 22 else 20,
+        Text(retro.session, TextProps.{.bounds = RetroRect(ifx selected_story == 1 then book_padding else layout.x + 20, layout.y + layout.art_height + 10,
+                ifx selected_story == 1 then book_width - book_padding * 2 else layout.width - 40, layout.caption_height - 20), .text = PageName(), .font = ifx landscape then 22 else 20,
             .align = TextAlign.TextAlignCenter, .vertical_align = TextAlign.TextAlignCenter, .wrap = TextWrap.TextWrapAuto})
     } else {
         BookPicture(PagePath(), x, y, size, size)
@@ -607,13 +639,13 @@ ReadingPage :: () {
     }
     if !direct_story { BookBox(label_x + 16, book_height - 62, label_width - 32, 1, 0xdacdb5ff) }
     if direct_story {
-        layout := StoryPageLayout(book_width, book_height, story_paper_top[page])
+        layout := StoryPageLayout(book_width, book_height, story_paper_top[page], selected_story == 1)
         BookText(layout.x + layout.width - 88, layout.art_height + layout.caption_height + 12, 76, 26,
             Join(Number(page + 1), " / ", Number(STORY_PAGE_COUNT)), 16, TextAlign.TextAlignCenter, false)
     }
     turn_height := book_height - 64
     if direct_story {
-        layout := StoryPageLayout(book_width, book_height, story_paper_top[page])
+        layout := StoryPageLayout(book_width, book_height, story_paper_top[page], selected_story == 1)
         turn_height = layout.art_height + layout.caption_height
     }
     touch := RetroTap(12, 0, 0, book_width, turn_height, "Swipe to turn the page", true)
@@ -655,6 +687,8 @@ GameMain :: () -> s32 {
         finished = false
         settings_loaded = false
         direct_story = false
+        story_collection = false
+        selected_story = 0
         NarrationCancel(*narration)
         swipe_tracking = false
         secondary_back_was_down = false
@@ -673,7 +707,8 @@ GameMain :: () -> s32 {
     if mode != APP_FRAME { return 0 }
     GameLanguage()
     if !settings_loaded {
-        direct_story = AppService("jungle.book-start", "") == "sweet-porridge"
+        story_collection = AppService("jungle.book-start", "") == "sweet-porridge"
+        direct_story = false
         simple = true
         if !direct_story { simple = DocumentRead("mode.txt") != "spelling" }
         repeat_all = DocumentRead("repeat.txt") != "off"
@@ -687,10 +722,6 @@ GameMain :: () -> s32 {
     bounds := AppBounds()
     RetroBegin(AppSession(), bounds, FONT, now, AppKey(), BLACK)
     ResponsiveBook(bounds)
-    if settings_loaded && choosing_category && direct_story {
-        category = 0
-        OpenBook()
-    }
     secondary_down := GameSecondaryDown()
     if secondary_down && !secondary_back_was_down { PictureBookBack() }
     secondary_back_was_down = secondary_down
@@ -707,7 +738,7 @@ GameMain :: () -> s32 {
         quiet := ifx playback_speed == 0 then 5.0 else ifx playback_speed == 1 then 3.0 else 1.0
         if now - page_started >= PageHold() && voice_idle_started > 0.0 && now - voice_idle_started >= quiet { Turn(1) }
     }
-    if choosing_category { BookShelf() }
+    if choosing_category { if story_collection { StoryShelf() } else { BookShelf() } }
     else if finished { FinishedBook() }
     else { ReadingPage() }
     if !choosing_category && !finished && narration.pending &&

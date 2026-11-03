@@ -98,6 +98,7 @@ jobs:
           python3 tests/image_exports_test.py
           python3 tests/runtime_images_test.py
           python3 tests/sweet_porridge_test.py
+          python3 tests/town_musicians_test.py
           python3 tests/garden_assets_test.py
           python3 tests/piano_audio_test.py
           python3 tests/paint_preview_test.py

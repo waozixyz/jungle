@@ -109,7 +109,7 @@ GameTitleBar :: (session: Session, bounds: Rectangle, key: s32, now: float64, ti
     abc := title == "ABC Book" || title == "123 Book" || title == "Picture Book"
     bar := TitleBar(session, TitleBarProps.{.key = 9001,
         .bounds = Rectangle.{bounds.x, bounds.y, bounds.width, cast(float32)GAME_BAR_HEIGHT},
-        .height = GAME_BAR_HEIGHT, .title = Tr(ifx title == "Picture Book" && title_book_requested == "sweet-porridge" then "Sweet Porridge" else title), .has_leading_action = true,
+        .height = GAME_BAR_HEIGHT, .title = Tr(ifx title == "Picture Book" && title_book_requested == "sweet-porridge" then "Stories" else title), .has_leading_action = true,
         .leading_label = Tr("Back"), .trailing_width = ifx collection_book_open then 60 else ifx abc then 205 else 110}, options[:])
     if !collection_book_open && title != "Farm" { action.collection_open = CollectionBookButton(ifx abc then width - 200 else width - 106, 6) }
     action.back = bar.clicked_leading

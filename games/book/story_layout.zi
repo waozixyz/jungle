@@ -1,10 +1,10 @@
 // Preserve the complete scene in either orientation; resize only caption paper.
 StoryLayout :: struct { x: s32; y: s32; width: s32; art_height: s32; paper_height: s32; caption_height: s32; }
-StoryPageLayout :: (width: s32, height: s32, paper_top: s32) -> StoryLayout {
+StoryPageLayout :: (width: s32, height: s32, paper_top: s32, full_portrait: bool = false) -> StoryLayout {
     caption: s32 = ifx width >= height then 120 else 140
     available: s32 = height - caption - 52
-    source_width: s32 = ifx height > width then 1024 else 1536
-    source_height: s32 = ifx height > width then 1536 else paper_top
+    source_width: s32 = ifx height > width || full_portrait then 1024 else 1536
+    source_height: s32 = ifx height > width || full_portrait then 1536 else paper_top
     span := width
     if span * source_height / source_width > available { span = available * source_width / source_height }
     art := span * source_height / source_width

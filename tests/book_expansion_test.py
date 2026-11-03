@@ -247,6 +247,13 @@ class LearningBookTest(unittest.TestCase):
                          for suffix in ('wav', 'speech.json')}
         story_assets |= {f"assets/jungle-book/portraits/{row['portrait_asset']}.webp" for row in story['pages']}
         story_assets.add('assets/jungle-book/previews/sweet-porridge.webp')
+        # Bremen is independently validated by town_musicians_test.py. Keep
+        # the historical aggregate intact and exempt only its exact additions.
+        bremen = json.loads((ROOT / 'tools/town_musicians.json').read_text())
+        story_assets |= {f"assets/jungle-book/portraits/{row['asset']}.webp" for row in bremen['pages']}
+        story_assets |= {f"assets/jungle-book/story-sounds/{language}/{row['asset']}.{suffix}"
+                         for row in bremen['pages'] for language in LANGUAGES
+                         for suffix in ('wav', 'speech.json')}
         # The new collection feedback sound is not historical book artwork.
         # Exempt its exact path, preserving the original count and digest.
         added_sounds = {'assets/jungle-book/collect.wav'}

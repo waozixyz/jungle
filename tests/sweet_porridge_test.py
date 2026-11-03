@@ -59,7 +59,7 @@ for row in story['pages']:
             assert 0.5 < audio.getnframes()/22050 < 30
             assert abs(receipt['duration'] - audio.getnframes()/22050) < 1/22050
 voices = NarratedVoices(ROOT)
-assert len([p for p in voices if '/story-sounds/' in p]) == 33
+assert len([p for p in voices if '/story-sounds/' in p and '/porridge_' in p]) == 33
 previews = prepare_native_previews(files, ROOT/'work/porridge-portrait-integration/preview-test')
 for name in files:
     with Image.open(previews[preview_path(name)]) as image: assert max(image.size) == 128
