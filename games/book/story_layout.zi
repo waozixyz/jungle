@@ -1,14 +1,37 @@
+#import "geometry"
 // Preserve the complete scene in either orientation; resize only caption paper.
 StoryLayout :: struct { x: s32; y: s32; width: s32; art_height: s32; paper_height: s32; caption_height: s32; }
-StoryPageLayout :: (width: s32, height: s32, paper_top: s32, full_portrait: bool = false) -> StoryLayout {
+// ART_WIDTH × ART_HEIGHT is the scene's own shape from the book's data: the
+// whole portrait painting, or a landscape painting above its paper line.
+// The scene keeps exactly that shape at every window size.
+StoryPageLayout :: (width: s32, height: s32, art_width: s32, art_height: s32) -> StoryLayout {
     caption: s32 = ifx width >= height then 120 else 140
     available: s32 = height - caption - 52
-    source_width: s32 = ifx height > width || full_portrait then 1024 else 1536
-    source_height: s32 = ifx height > width || full_portrait then 1536 else paper_top
+    // Fill the width, or the height left above the caption, and round the
+    // other side to the nearest pixel of the scene's shape.
     span := width
-    if span * source_height / source_width > available { span = available * source_width / source_height }
-    art := span * source_height / source_width
+    art := (span * art_height + art_width / 2) / art_width
+    if art > available {
+        art = available
+        span = (available * art_width + art_height / 2) / art_height
+    }
     // Start at the top of the actual book page. Its painted paper continues
     // down to the bottom, including behind the closely associated controls.
     return StoryLayout.{(width - span) / 2, 0, span, art, height - art, caption}
+}
+
+// The caption's text box: on the paper below the scene, never over it.
+StoryCaptionBounds :: (layout: StoryLayout) -> (x: s32, y: s32, width: s32, height: s32) {
+    return layout.x + 20, layout.y + layout.art_height + 10, layout.width - 40, layout.caption_height - 20
+}
+
+// A landscape painting's scene above its paper line and the paper below it,
+// in the pixels of the texture actually shown (TEXTURE_WIDTH × TEXTURE_HEIGHT).
+// Runtime copies and previews can be smaller than the PAINTING_HEIGHT painting,
+// so the line is kept as its share of the painting, never as fixed pixels.
+StorySourceRectangles :: (texture_width: s32, texture_height: s32, paper_top: s32, painting_height: s32) -> (art: Rectangle, paper: Rectangle) {
+    width := cast(float32)texture_width
+    height := cast(float32)texture_height
+    top := height * cast(float32)paper_top / cast(float32)painting_height
+    return Rectangle.{0.0, 0.0, width, top}, Rectangle.{0.0, top, width, height - top}
 }

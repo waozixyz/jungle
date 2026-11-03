@@ -4,6 +4,37 @@ import shutil
 from web_images import prepare_runtime_images
 from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
+
+def page_geometry(rows):
+    """Each page's painting sizes, paper line and paper colour, read from the
+    shipped pictures: the reader lays out any story from these, so its
+    pictures keep their exact aspect ratio and the caption sits on paper."""
+    from PIL import Image
+    from web_images import runtime_size
+    sizes = {'picture_width': [], 'picture_height': [], 'portrait_width': [], 'portrait_height': [],
+             'picture_runtime_width': [], 'picture_runtime_height': []}
+    for row in rows:
+        for kind, folder, key in (('picture', 'pages', 'asset'), ('portrait', 'portraits', 'portrait_asset')):
+            name = f"assets/jungle-book/{folder}/{row[key]}.webp"
+            with Image.open(ROOT/name) as image:
+                sizes[kind+'_width'].append(image.width)
+                sizes[kind+'_height'].append(image.height)
+                if kind == 'picture':
+                    # Hosts crop the landscape picture's runtime copy, which
+                    # can be smaller than the painting (tools/web_images.py).
+                    width, height = runtime_size(name, image.size)
+                    sizes['picture_runtime_width'].append(width)
+                    sizes['picture_runtime_height'].append(height)
+    for row, height in zip(rows, sizes['picture_height']):
+        assert 0 < row['paper_top'] < height, row['asset']
+        assert len(row['paper_color']) == 7 and row['paper_color'][0] == '#', row['asset']
+    colors = [int(row['paper_color'][1:], 16) << 8 | 0xff for row in rows]
+    return [(name, values, 's32') for name, values in sizes.items()] + [
+        ('paper_top', [row['paper_top'] for row in rows], 's32'), ('paper_color', colors, 'u32')]
+
+def literal(value, kind):
+    return f'0x{value:08x}' if kind == 'u32' else json.dumps(value, ensure_ascii=False)
+
 def main(export_art=False):
     story = json.loads((ROOT/'tools/sweet_porridge.json').read_text())
     rows=story['pages']
@@ -22,10 +53,11 @@ def main(export_art=False):
     out += f'STORY_PAGE_COUNT :: {len(rows)}\n'
     def array(name,values,kind='string'):
         nonlocal out
-        out += f'{name}: [{len(values)}]{kind} = .[' + ', '.join(json.dumps(v,ensure_ascii=False) for v in values) + '];\n'
+        out += f'{name}: [{len(values)}]{kind} = .[' + ', '.join(literal(v,kind) for v in values) + '];\n'
     array('story_pictures',[f"assets/jungle-book/pages/{r['asset']}.webp" for r in rows])
     array('story_portraits',[f"assets/jungle-book/portraits/{r['portrait_asset']}.webp" for r in rows])
-    array('story_paper_top',[r['paper_top'] for r in rows],'s32')
+    for name,values,kind in page_geometry(rows):
+        array('story_'+name,values,kind)
     for lang in ('en','de','es'):
         array('story_caption_'+lang,[r[lang] for r in rows])
         paths=[f"assets/jungle-book/story-sounds/{lang}/{r['asset']}.wav" for r in rows]

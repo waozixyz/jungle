@@ -48,6 +48,10 @@ for row,scene in zip(story['pages'],landscape['scenes']):
         paper=ImageStat.Stat(picture.convert('RGB').crop((0,row['paper_top'],1536,1024)))
         assert paper.mean[0]>240 and paper.mean[1]>210 and paper.mean[2]>160
         assert max(paper.stddev)<15, 'Caption reserve must be quiet paper'
+        # The reader fills the page around the scene with this paper colour.
+        color=tuple(int(row['paper_color'][at:at+2],16) for at in (1,3,5))
+        median=ImageStat.Stat(picture.convert('RGB').crop((0,row['paper_top'],1536,1024))).median
+        assert all(abs(a-b)<=6 for a,b in zip(color,median)), (row['asset'],color,median)
     assert hashlib.sha256((ROOT/name).read_bytes()).hexdigest()==scene['runtime_sha256']
     exports=prepare_runtime_images({name:ROOT/name},ROOT/'local/art-development/town-musicians-landscape/test-exports')
     assert exports[name].info['reused_source']
@@ -55,3 +59,10 @@ reader=(ROOT/'games/book/jungle_book.zi').read_text()
 assert 'ifx portrait then bremen_portraits[at] else bremen_pictures[at]' in reader
 assert 'portrait || selected_story == 1' not in reader
 print('local Bremen landscape test passed: 11 native WebPs, caption reserves, catalog, web exports and orientation selection')
+# The real reader layout: every page of both stories keeps its painting's
+# exact shape at phone, tablet and desktop sizes, and its caption stays on the
+# paper below the scene.
+subprocess.run(['make','--no-print-directory','-s','build/tests/story_layout'],cwd=ROOT,check=True)
+layout=subprocess.run([str(ROOT/'build/tests/story_layout')],capture_output=True,text=True)
+assert layout.returncode==0, layout.stdout+layout.stderr
+print(layout.stdout.strip())

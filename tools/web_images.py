@@ -158,6 +158,25 @@ def prepare_native_previews(files, cache):
     return previews
 
 
+def runtime_rule(name):
+    """The runtime encoding for asset NAME, in a RUNTIME_RULES folder."""
+    rule = RUNTIME_RULES[str(Path(name).parent)]
+    # Newly exported Bremen landscape paintings ship at native resolution.
+    if str(Path(name).parent) == 'assets/jungle-book/pages' and Path(name).stem.startswith('musicians_'):
+        rule = RuntimeRule(1536, RUNTIME_QUALITY)
+    return rule
+
+
+def runtime_size(name, size):
+    """The pixel size of NAME's runtime copy when its picture is SIZE, as
+    prepare_runtime_images makes it; readers crop runtime textures with it."""
+    if str(Path(name).parent) not in RUNTIME_RULES or name in APP_READY_FARM_WEBP:
+        return tuple(size)
+    picture = Image.new('L', tuple(size))
+    picture.thumbnail((runtime_rule(name).long_edge,) * 2, Image.Resampling.LANCZOS)
+    return picture.size
+
+
 def prepare_runtime_images(files, cache):
     """Export optimized runtime WebP derivatives without touching sources."""
     cache = Path(cache)
@@ -170,10 +189,7 @@ def prepare_runtime_images(files, cache):
 
     def convert(item):
         name, source = item
-        rule = RUNTIME_RULES[str(Path(name).parent)]
-        # Newly exported Bremen landscape paintings ship at native resolution.
-        if str(Path(name).parent) == 'assets/jungle-book/pages' and Path(name).stem.startswith('musicians_'):
-            rule = RuntimeRule(1536, RUNTIME_QUALITY)
+        rule = runtime_rule(name)
         source_bytes = source.read_bytes()
         digest = hashlib.sha256(source_bytes).hexdigest()
         settings = f'runtime-reuse-webp-{rule.long_edge}-{rule.quality}-{RUNTIME_ALPHA_QUALITY}-lossless-alpha-v2'

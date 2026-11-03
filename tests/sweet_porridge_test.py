@@ -49,6 +49,8 @@ for row in story['pages']:
         paper=picture.convert('RGB').crop((0,row['paper_top'],1536,1024))
         from PIL import ImageStat
         assert min(ImageStat.Stat(paper).mean)>200
+        color=tuple(int(row['paper_color'][at:at+2],16) for at in (1,3,5))
+        assert all(abs(a-b)<=6 for a,b in zip(color,ImageStat.Stat(paper).median)), (row['asset'],color)
     for language in ('en','de','es'):
         path = ROOT/f"assets/jungle-book/story-sounds/{language}/{row['asset']}.wav"
         receipt = json.loads(path.with_suffix('.speech.json').read_text())

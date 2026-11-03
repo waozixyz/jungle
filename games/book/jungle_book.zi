@@ -20,6 +20,10 @@
 #import, file "sweet_porridge.zi";
 #import, file "town_musicians.zi";
 #import, file "story_layout.zi";
+// The browser measures the picture or preview it shows (StoryTexture).
+#if #defined(PLATFORM_WEB) {
+    StoryRaster :: #import "canvas_raster";
+}
 #import "image_widget";
 #import "drawing_props";
 #import "svg_icon_props";
@@ -70,11 +74,55 @@ StoryPicture :: (at: s32, portrait: bool = false) -> string {
     return ifx portrait then story_portraits[at] else story_pictures[at]
 }
 StoryTitle :: () -> string { return ifx selected_story == 1 then BremenCaption(0, language) else StoryCaption(0, language) }
+StoryPages :: () -> s32 { return ifx selected_story == 1 then BREMEN_PAGE_COUNT else STORY_PAGE_COUNT }
+// Each page's painting shapes, paper line and paper colour come from the
+// selected book's generated data, measured from its shipped pictures.
+StoryPaperTop :: (at: s32) -> s32 { return ifx selected_story == 1 then bremen_paper_top[at] else story_paper_top[at] }
+StoryPaperColor :: (at: s32) -> u32 { return ifx selected_story == 1 then bremen_paper_color[at] else story_paper_color[at] }
+StoryPaintingHeight :: (at: s32) -> s32 { return ifx selected_story == 1 then bremen_picture_height[at] else story_picture_height[at] }
+// The landscape picture's runtime copy, which hosts draw; it can be smaller
+// than the painting.
+StoryRuntimeSize :: (at: s32) -> (width: s32, height: s32) {
+    if selected_story == 1 { return bremen_picture_runtime_width[at], bremen_picture_runtime_height[at] }
+    return story_picture_runtime_width[at], story_picture_runtime_height[at]
+}
+// The scene's shape: the whole portrait painting, or the landscape painting
+// above its paper line.
+StoryArtSize :: (at: s32, portrait: bool) -> (width: s32, height: s32) {
+    if selected_story == 1 {
+        if portrait { return bremen_portrait_width[at], bremen_portrait_height[at] }
+        return bremen_picture_width[at], bremen_paper_top[at]
+    }
+    if portrait { return story_portrait_width[at], story_portrait_height[at] }
+    return story_picture_width[at], story_paper_top[at]
+}
+StoryPageNow :: () -> StoryLayout {
+    art_width, art_height := StoryArtSize(page, book_height > book_width)
+    return StoryPageLayout(book_width, book_height, art_width, art_height)
+}
+// What to draw for PATH now: the asset, its few-KB preview stand-in and the
+// pixel size of the texture its source rectangle is in. RUNTIME_WIDTH ×
+// RUNTIME_HEIGHT is the shipped runtime copy; Kryon maps that rectangle onto
+// the preview while the picture loads (ImageProps.full_size).
+StoryShown :: struct { path: string; preview: string; width: s32; height: s32; }
+StoryTexture :: (path: string, runtime_width: s32, runtime_height: s32) -> StoryShown {
+    #if #defined(PLATFORM_WEB) {
+        // The web loader switches the path itself, from preview to picture,
+        // so measure whichever is decoded.
+        shown := RetroImageShown(path)
+        if shown == "" { return StoryShown.{} }
+        return StoryShown.{shown, "", StoryRaster.ImageWidth(shown), StoryRaster.ImageHeight(shown)}
+    }
+    #if !#defined(PLATFORM_WEB) {
+        return StoryShown.{path, RetroImagePreview(path), runtime_width, runtime_height}
+    }
+    return StoryShown.{}
+}
 collect_flying: s32 = -1;
 collect_started: float64;
 collect_start: CollectRect;
 StoryBook :: () -> bool { return direct_story }
-PageCount :: () -> s32 { return ifx direct_story then STORY_PAGE_COUNT else category_counts[category] }
+PageCount :: () -> s32 { return ifx direct_story then StoryPages() else category_counts[category] }
 PagePath :: (offset: s32 = 0) -> string {
     if direct_story {
         return StoryPicture(page + offset, book_height > book_width)
@@ -82,17 +130,6 @@ PagePath :: (offset: s32 = 0) -> string {
     return page_paths(PageIndex() + offset)
 }
 
-StorySourceRectangles :: (path: string, paper_top: s32) -> (art: Rectangle, paper: Rectangle) {
-    width: float32 = 1536.0
-    height: float32 = 1024.0
-    top: float32 = cast(float32)paper_top
-    if path == StoryPicture(page) {
-        width = 1024.0
-        height = 683.0
-        top = cast(float32)paper_top * height / 1024.0
-    }
-    return Rectangle.{0.0, 0.0, width, top}, Rectangle.{0.0, top, width, height - top}
-}
 SaveBookChoice :: (index: s32) {
     unused DocumentWrite(Join("hidden-", category_ids[index], ".txt"), ifx hidden_books[index] then "yes" else "no")
     unused DocumentWrite(Join("skip-", category_ids[index], ".txt"), ifx excluded_books[index] then "yes" else "no")
@@ -428,7 +465,7 @@ SceneRect :: () -> (x: s32, y: s32, size: s32) {
 // the illustrated section of a story page.
 PagePictureRect :: () -> CollectRect {
     if direct_story {
-        layout := StoryPageLayout(book_width, book_height, story_paper_top[page])
+        layout := StoryPageNow()
         return CollectRect.{layout.x, layout.y, layout.width, layout.art_height}
     }
     x, y, size := SceneRect()
@@ -498,7 +535,7 @@ PlaybackAction :: (id: s32, x: s32, y: s32, width: s32, text: string) -> bool {
 PlaybackControls :: (can_hear: bool = true) {
     if direct_story {
         x := book_width / 2 - 22
-        layout := StoryPageLayout(book_width, book_height, story_paper_top[page])
+        layout := StoryPageNow()
         y := ifx finished then book_height - 58 else layout.art_height + layout.caption_height + 4
         press := RetroTap(61, x, y, 44, 44, ifx playing then "Pause" else "Play")
         if press.clicked { TogglePlayback() }
@@ -561,7 +598,7 @@ FinishedBook :: () {
     BookPicture(ifx direct_story then StoryPicture(0) else category_previews[next_category], cover_x, cover_y, cover, cover)
     BookText(text_x, text_y, text_width, 44, ifx direct_story then StoryTitle() else category_names[next_category], 34)
     count_text: Vec(u8)
-    BuilderPrint(*count_text, "% %", ifx direct_story then STORY_PAGE_COUNT else category_counts[next_category], Tr("pages"))
+    BuilderPrint(*count_text, "% %", ifx direct_story then StoryPages() else category_counts[next_category], Tr("pages"))
     BookText(text_x, text_y + 42, text_width, 24, BuilderFinish(count_text), 19, TextAlign.TextAlignCenter, false, true)
     // A quiet bar shows when the next book opens by itself.
     progress := ((ifx playing then retro.now else paused_at) - finished_started) / FINISHED_SECONDS
@@ -594,28 +631,33 @@ ReadingPage :: () {
     label_x := (book_width - label_width) / 2
     label_y := book_height - label_height - 66
     if StoryBook() {
-        layout := StoryPageLayout(book_width, book_height, story_paper_top[page])
+        layout := StoryPageNow()
         portrait := book_height > book_width
-        path := RetroImageShown(PagePath())
-        paper_path := RetroImageShown(StoryPicture(page))
-        if path != "" {
-            art_source, unused_paper := StorySourceRectangles(path, story_paper_top[page])
+        // The page's own paper reaches every edge, so the margins beside a
+        // scene match the painted paper below it.
+        BookBox(0, 0, book_width, book_height, StoryPaperColor(page))
+        runtime_width, runtime_height := StoryRuntimeSize(page)
+        // Portrait paintings are full scenes: draw all of their pixels.
+        art := StoryTexture(PagePath(), ifx portrait then 0 else runtime_width, ifx portrait then 0 else runtime_height)
+        paper := StoryTexture(StoryPicture(page), runtime_width, runtime_height)
+        if art.path != "" {
+            art_source, unused_paper := StorySourceRectangles(art.width, art.height, StoryPaperTop(page), StoryPaintingHeight(page))
             if portrait { art_source = Rectangle.{} }
-            // Portrait paintings are full scenes: draw all of their pixels.
-            Image(retro.session, ImageProps.{.asset_path = path, .preview_path = RetroImagePreview(PagePath()),
-                .full_size = ifx portrait then Vector2.{1024, 1536} else Vector2.{1536, 1024}, .source = art_source,
-                .bounds = RetroRect(layout.x, layout.y, layout.width, layout.art_height), .smooth = true})
+            Image(retro.session, ImageProps.{.asset_path = art.path, .preview_path = art.preview,
+                .full_size = Vector2.{cast(float32)art.width, cast(float32)art.height}, .source = art_source,
+                .fit = ImageFit.ImageFitContain, .bounds = RetroRect(layout.x, layout.y, layout.width, layout.art_height), .smooth = true})
         }
-        if paper_path != "" {
-            unused_art, paper_source := StorySourceRectangles(paper_path, story_paper_top[page])
-            // Caption and playback controls always use the accepted blank paper,
-            // never the scene at the bottom of the portrait painting.
-            Image(retro.session, ImageProps.{.asset_path = paper_path, .preview_path = RetroImagePreview(StoryPicture(page)),
-                .full_size = Vector2.{1536, 1024}, .source = paper_source,
+        if paper.path != "" {
+            unused_art, paper_source := StorySourceRectangles(paper.width, paper.height, StoryPaperTop(page), StoryPaintingHeight(page))
+            // Caption and playback controls always use the accepted blank paper
+            // below the landscape painting's paper line, never the scene.
+            Image(retro.session, ImageProps.{.asset_path = paper.path, .preview_path = paper.preview,
+                .full_size = Vector2.{cast(float32)paper.width, cast(float32)paper.height}, .source = paper_source,
                 .bounds = RetroRect(layout.x, layout.y + layout.art_height, layout.width, layout.paper_height), .smooth = true})
         }
-        Text(retro.session, TextProps.{.bounds = RetroRect(layout.x + 20, layout.y + layout.art_height + 10,
-                layout.width - 40, layout.caption_height - 20), .text = PageName(), .font = ifx landscape then 22 else 20,
+        caption_x, caption_y, caption_width, caption_height := StoryCaptionBounds(layout)
+        Text(retro.session, TextProps.{.bounds = RetroRect(caption_x, caption_y, caption_width, caption_height),
+            .text = PageName(), .font = ifx landscape then 22 else 20,
             .align = TextAlign.TextAlignCenter, .vertical_align = TextAlign.TextAlignCenter, .wrap = TextWrap.TextWrapAuto})
     } else {
         BookPicture(PagePath(), x, y, size, size)
@@ -639,13 +681,13 @@ ReadingPage :: () {
     }
     if !direct_story { BookBox(label_x + 16, book_height - 62, label_width - 32, 1, 0xdacdb5ff) }
     if direct_story {
-        layout := StoryPageLayout(book_width, book_height, story_paper_top[page])
+        layout := StoryPageNow()
         BookText(layout.x + layout.width - 88, layout.art_height + layout.caption_height + 12, 76, 26,
-            Join(Number(page + 1), " / ", Number(STORY_PAGE_COUNT)), 16, TextAlign.TextAlignCenter, false)
+            Join(Number(page + 1), " / ", Number(StoryPages())), 16, TextAlign.TextAlignCenter, false)
     }
     turn_height := book_height - 64
     if direct_story {
-        layout := StoryPageLayout(book_width, book_height, story_paper_top[page])
+        layout := StoryPageNow()
         turn_height = layout.art_height + layout.caption_height
     }
     touch := RetroTap(12, 0, 0, book_width, turn_height, "Swipe to turn the page", true)

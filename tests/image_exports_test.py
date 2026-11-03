@@ -178,8 +178,12 @@ class Exports(unittest.TestCase):
         masters = root/'local/art-development/sweet-porridge-portrait'
         masters.mkdir(parents=True)
         Image.open(self.original).save(masters/'fixture.png')
-        page = {'asset': 'scene', 'portrait_asset': 'fixture', 'paper_top': 0,
-                'en': 'Hello', 'de': 'Hallo', 'es': 'Hola'}
+        # The reader's page geometry comes from the shipped landscape picture.
+        pages = root/'assets/jungle-book/pages'
+        pages.mkdir(parents=True)
+        Image.open(self.original).save(pages/'scene.webp', quality=85)
+        page = {'asset': 'scene', 'portrait_asset': 'fixture', 'paper_top': 160,
+                'paper_color': '#f4e3c4', 'en': 'Hello', 'de': 'Hallo', 'es': 'Hola'}
         (root/'tools/sweet_porridge.json').write_text(json.dumps({'pages':[page]}))
         for lang in ('en','de','es'):
             path = root/f'assets/jungle-book/story-sounds/{lang}/scene.speech.json'
@@ -190,7 +194,11 @@ class Exports(unittest.TestCase):
             dest = root/'assets/jungle-book/portraits/fixture.webp'
             with Image.open(dest) as decoded:
                 self.assertEqual(decoded.size, (320,192))
-            self.assertTrue((root/'games/book/sweet_porridge.zi').exists())
+            book = (root/'games/book/sweet_porridge.zi').read_text()
+            self.assertIn('story_picture_width: [1]s32 = .[320];', book)
+            self.assertIn('story_portrait_height: [1]s32 = .[192];', book)
+            self.assertIn('story_paper_top: [1]s32 = .[160];', book)
+            self.assertIn('story_paper_color: [1]u32 = .[0xf4e3c4ff];', book)
 
     def test_title_layer_entrypoint(self):
         root = self.root

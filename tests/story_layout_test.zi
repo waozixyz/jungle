@@ -1,0 +1,130 @@
+// Every story page keeps its painting's exact shape and puts its caption on
+// the paper below the scene, at phone, tablet and desktop window sizes, with
+// each texture a host may show: the painting, a smaller runtime copy or the
+// few-KB preview.
+#import "geometry"
+#import "image"
+#import, file "../games/book/story_layout.zi";
+#import, file "../games/book/sweet_porridge.zi";
+#import, file "../games/book/town_musicians.zi";
+#import "std/stdio_linux"
+
+WINDOW_WIDTHS: [12]s32 = .[420, 900, 1280, 1920, 360, 640, 768, 1024, 2560, 1000, 1080, 2400];
+WINDOW_HEIGHTS: [12]s32 = .[900, 420, 800, 1080, 640, 360, 1024, 768, 1080, 1000, 2400, 1080];
+
+Near :: (value: float32, expected: float32, tolerance: float32) -> bool {
+    difference := value - expected
+    if difference < 0.0 { difference = -difference }
+    return difference <= tolerance * expected
+}
+
+// 0 when the page at this window size is undistorted and its caption stays on
+// paper; otherwise the failing check. RUNTIME_WIDTH × RUNTIME_HEIGHT is the
+// landscape picture's shipped runtime copy, which the reader crops for the
+// scene and for the caption paper; the portrait is drawn whole. With PREVIEW
+// the 128 px previews stand in, and Kryon maps the crops onto them
+// (ImagePreviewSource with the runtime size as full_size).
+CheckPage :: (width: s32, height: s32, painting_width: s32, painting_height: s32,
+    portrait_width: s32, portrait_height: s32, paper_top: s32, runtime_width: s32, runtime_height: s32,
+    preview: bool) -> s32 {
+    portrait := height > width
+    art_width := ifx portrait then portrait_width else painting_width
+    art_height := ifx portrait then portrait_height else paper_top
+    layout := StoryPageLayout(width, height, art_width, art_height)
+    if layout.width <= 0 || layout.art_height <= 0 || layout.x < 0 || layout.x + layout.width > width { return 1 }
+    if layout.art_height > height - layout.caption_height - 52 { return 2 }
+    // The scene's box has the scene's shape, to the pixel.
+    error := layout.width * art_height - layout.art_height * art_width
+    if error < 0 { error = -error }
+    if error >= art_width { return 3 }
+
+    art_source, paper_source := StorySourceRectangles(runtime_width, runtime_height, paper_top, painting_height)
+    runtime := Vector2.{cast(float32)runtime_width, cast(float32)runtime_height}
+    paper_width := ifx preview then 128 else runtime_width
+    paper_height := ifx preview then 85 else runtime_height
+    if preview {
+        art_source = ImagePreviewSource(art_source, runtime, 128, 85)
+        paper_source = ImagePreviewSource(paper_source, runtime, 128, 85)
+    }
+    // The scene's texture: the landscape copy, or the whole portrait.
+    texture_width := ifx portrait then (ifx preview then 85 else portrait_width) else paper_width
+    texture_height := ifx portrait then (ifx preview then 128 else portrait_height) else paper_height
+    if portrait { art_source = Rectangle.{} }
+    bounds := Rectangle.{cast(float32)layout.x, cast(float32)layout.y, cast(float32)layout.width, cast(float32)layout.art_height}
+    drawn := ImageFitBounds(bounds, art_source, texture_width, texture_height, 1)
+    // Drawn exactly at the shown texture's shape, which is the painting's
+    // shape up to that texture's own whole-pixel rounding.
+    source_width := ifx portrait then cast(float32)texture_width else art_source.width
+    source_height := ifx portrait then cast(float32)texture_height else art_source.height
+    if !Near(drawn.width / drawn.height, source_width / source_height, 0.0001) { return 4 }
+    rounding := 1.0 / cast(float32)texture_width + 1.0 / cast(float32)texture_height
+    if !Near(drawn.width / drawn.height, cast(float32)art_width / cast(float32)art_height, rounding) { return 5 }
+    // It fills its box, nothing outside it and no gap beyond the shown
+    // texture's own rounding (a pixel for the picture itself).
+    if drawn.x < bounds.x - 0.01 || drawn.y < bounds.y - 0.01 ||
+        drawn.x + drawn.width > bounds.x + bounds.width + 0.01 ||
+        drawn.y + drawn.height > bounds.y + bounds.height + 0.01 { return 6 }
+    if drawn.width < bounds.width * (1.0 - rounding) - 1.0 || drawn.height < bounds.height * (1.0 - rounding) - 1.0 { return 7 }
+    exact := !preview && (portrait || (runtime_width == painting_width && runtime_height == painting_height))
+    if exact && (drawn.width < bounds.width - 1.0 || drawn.height < bounds.height - 1.0) { return 7 }
+
+    // The caption paper starts at the painting's paper line, so no scene
+    // appears under the caption.
+    line := cast(float32)paper_height * cast(float32)paper_top / cast(float32)painting_height
+    if !Near(paper_source.y, line, 0.0001) || paper_source.y + paper_source.height > cast(float32)paper_height + 0.01 { return 8 }
+    if !portrait && art_source.y + art_source.height > paper_source.y + 0.01 { return 9 }
+
+    // The caption is on that paper, below the drawn scene and inside the page,
+    // with the playback controls below it.
+    caption_x, caption_y, caption_width, caption_height := StoryCaptionBounds(layout)
+    if caption_width <= 0 || caption_height <= 0 { return 10 }
+    if cast(float32)caption_y < drawn.y + drawn.height { return 11 }
+    if caption_y < layout.y + layout.art_height || caption_x < layout.x || caption_x + caption_width > layout.x + layout.width { return 12 }
+    if caption_y + caption_height > layout.art_height + layout.caption_height || layout.art_height + layout.caption_height + 46 > height { return 13 }
+    if layout.art_height + layout.paper_height != height { return 14 }
+    return 0
+}
+
+// Every page of a book at every window size, as each host draws it.
+CheckBook :: (name: string, pages: s32, picture_width: []s32, picture_height: []s32,
+    portrait_width: []s32, portrait_height: []s32, paper_top: []s32, paper_color: []u32,
+    runtime_width: []s32, runtime_height: []s32) -> bool {
+    for at: cast(s32)0..pages - 1 {
+        if (paper_color[at] & 0xff) != 0xff || (paper_color[at] >> 24) < 0xe0 { print("% page %: paper colour is not paper\n", name, at); return false }
+        for size: cast(s32)0..11 {
+            width := WINDOW_WIDTHS[size]
+            height := WINDOW_HEIGHTS[size]
+            portrait := height > width
+            for texture: cast(s32)0..1 {
+                failed := CheckPage(width, height, picture_width[at], picture_height[at],
+                    portrait_width[at], portrait_height[at], paper_top[at], runtime_width[at], runtime_height[at], texture == 1)
+                if failed != 0 {
+                    print("% page % at % x % (preview %): check % failed\n", name, at, width, height, texture, failed)
+                    return false
+                }
+            }
+        }
+    }
+    return true
+}
+
+#program_export
+main :: () -> s32 {
+    if !CheckBook("Sweet Porridge", STORY_PAGE_COUNT, story_picture_width[:], story_picture_height[:],
+        story_portrait_width[:], story_portrait_height[:], story_paper_top[:], story_paper_color[:],
+        story_picture_runtime_width[:], story_picture_runtime_height[:]) { return 1 }
+    if !CheckBook("Town Musicians of Bremen", BREMEN_PAGE_COUNT, bremen_picture_width[:], bremen_picture_height[:],
+        bremen_portrait_width[:], bremen_portrait_height[:], bremen_paper_top[:], bremen_paper_color[:],
+        bremen_picture_runtime_width[:], bremen_picture_runtime_height[:]) { return 2 }
+    // Sweet Porridge's landscape pages ship as 1024 × 683 runtime copies,
+    // Bremen's at their native 1536 × 1024.
+    if story_picture_runtime_width[0] != 1024 || story_picture_runtime_height[0] != 683 ||
+        bremen_picture_runtime_width[0] != 1536 || bremen_picture_runtime_height[0] != 1024 { return 4 }
+    // The former fixed 1024 × 683 crop would show only part of a native
+    // 1536 × 1024 Bremen painting; the paper line is a share of the texture.
+    art, paper := StorySourceRectangles(1536, 1024, bremen_paper_top[1], bremen_picture_height[1])
+    if art.width != 1536.0 || art.height != cast(float32)bremen_paper_top[1] || paper.y != art.height || paper.height != 1024.0 - art.height { return 3 }
+    print("story layout test passed: % + % pages, 12 window sizes, runtime pictures and previews\n",
+        STORY_PAGE_COUNT, BREMEN_PAGE_COUNT)
+    return 0
+}
