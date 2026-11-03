@@ -560,6 +560,7 @@ JungleMain :: () -> s64 {
         if action.language_changed { unused Runner.DocumentWriteHost("settings/language.txt", LanguageCode()); UpdateSiteLanguage() }
         if action.sound_toggle { ToggleAudio() }
         if action.navigated { PlayAudio("assets/jungle/sounds/select.wav", false) }
+        if action.locked_cue { PlayAudio(TITLE_NOT_YET_CUE, false) }
         if action.collection_open { CollectionBookOpen(); StopAudio(); web_title_guide = false }
         if action.game >= 0 { OpenGame(action.game) }
     } else {

@@ -102,7 +102,7 @@ main :: () -> s32 {
             if TitleHit(scene, x, y) != hotspot { return 22 }
             view := TitleFit(400.0, 941.0, 0.0, 0.0, scene)
             if TitleHit(scene, TitleSourceX(view, view.x + x * view.scale), TitleSourceY(view, view.y + y * view.scale)) != hotspot { return 23 }
-            if TITLE_HOTSPOT_GUIDE[hotspot] == 0 && TITLE_HOTSPOT_NOTICE[hotspot] == 0 && TITLE_HOTSPOT_DIALOGUE[hotspot] == 0 && TITLE_HOTSPOT_LOOK[hotspot] == 0 && (TITLE_HOTSPOT_TARGET[hotspot] >= 0) == (TITLE_HOTSPOT_GAME[hotspot] != "") { return 24 }
+            if TITLE_HOTSPOT_GUIDE[hotspot] == 0 && TITLE_HOTSPOT_NOTICE[hotspot] == 0 && TITLE_HOTSPOT_DIALOGUE[hotspot] == 0 && TITLE_HOTSPOT_LOCKED[hotspot] == 0 && TITLE_HOTSPOT_LOOK[hotspot] == 0 && (TITLE_HOTSPOT_TARGET[hotspot] >= 0) == (TITLE_HOTSPOT_GAME[hotspot] != "") { return 24 }
         }
     }
     if TitleHit(0, -5.0, -5.0) != -1 || TitleHit(TITLE_SCENE_COUNT, 10.0, 10.0) != -1 { return 25 }
@@ -536,6 +536,8 @@ main :: () -> s32 {
     }
     paper_failure := TitlePaperChecks()
     if paper_failure != 0 { return paper_failure }
+    map_failure := TitleMapChecks()
+    if map_failure != 0 { return map_failure }
     Report("local title scene test passed\n")
     return 0
 }
@@ -673,6 +675,110 @@ TitlePaperChecks :: () -> s32 {
         tapped := TitlePaperPointer(*touch, place, false, place.x + place.size * 0.32, place.y,
             false, false, true, 9.1, PaperCollect)
         if !tapped.collected || paper_collects != 1 { return 267 }
+    }
+    return 0
+}
+
+// The world map: every landmark is hovered and opens its place, a locked one
+// stays with a wobble, Back returns where the map was opened, every other scene
+// shows the map button, and the landmarks stay whole at every window size.
+TitleMapChecks :: () -> s32 {
+    map: s32 = TITLE_MAP_SCENE
+    if map < 0 || TITLE_SCENE_NAME[map] != "map" || TITLE_SCENE_BACK[map] == 0 { return 700 }
+    tall := TITLE_SCENE_PORTRAIT[map]
+    if tall == map || TITLE_SCENE_BASE[tall] != map { return 701 }
+    for scene: cast(s32)0..TITLE_SCENE_COUNT - 1 {
+        if TitleMapEntry(scene) == TitleOnMap(scene) { return 702 }
+    }
+    campus := SceneNamed("campus")
+    desert := SceneNamed("desert")
+    if campus < 0 || desert < 0 { return 703 }
+    locked: s32 = 0
+    for portrait: cast(s32)0..1 {
+        width: float32 = ifx portrait == 1 then 420.0 else 960.0
+        height: float32 = ifx portrait == 1 then 900.0 else 600.0
+        shown := ifx portrait == 1 then tall else map
+        first := TITLE_SCENE_FIRST[shown]
+        if TITLE_SCENE_HOTSPOTS[shown] != TITLE_SCENE_HOTSPOTS[map] || TITLE_SCENE_HOTSPOTS[map] < 8 { return 704 }
+        for hotspot: first..first + TITLE_SCENE_HOTSPOTS[shown] - 1 {
+            if TitleHotspotRest(hotspot) == "" || TitleHotspotGlow(hotspot) == "" { return 705 }
+            x: float32
+            y: float32
+            if !OwnPoint(shown, hotspot, *x, *y) { return 706 }
+            state: TitleState
+            TitleStart(*state)
+            TitleEnter(*state, campus)
+            if !TitleMapOpen(*state, campus) || !TitleOnMap(state.scene) { return 707 }
+            TitleResolve(*state, width, height)
+            if state.scene != shown { return 708 }
+            view := TitleFit(width, height, 0.0, 0.0, state.scene)
+            sx := view.x + x * view.scale
+            sy := view.y + y * view.scale
+            // A mouse over the landmark highlights it; a click travels there.
+            unused TitlePointer(*state, view, sx + 2.0, sy, false, false, false, false, 2.95)
+            unused TitlePointer(*state, view, sx, sy, false, false, false, false, 3.0)
+            if TitleGlowing(state) != hotspot { return 709 }
+            unused TitlePointer(*state, view, sx, sy, true, true, false, false, 3.1)
+            step := TitlePointer(*state, view, sx, sy, false, false, true, false, 3.2)
+            if TITLE_HOTSPOT_LOCKED[hotspot] != 0 {
+                if portrait == 0 { locked += 1 }
+                if state.scene != shown || step.moved || step.game >= 0 || !state.locked_cue ||
+                    state.locked_hotspot != hotspot + 1 { return 710 }
+                state.locked_cue = false
+                state.locked_at = 3.2
+                if TitleLockedWobble(state, hotspot, 3.3) == 0.0 || TitleLockedWobble(state, hotspot, 3.9) != 0.0 ||
+                    TitleLockedWobble(state, first, 3.3) != 0.0 && first != hotspot { return 711 }
+            } else if TITLE_HOTSPOT_TARGET[hotspot] >= 0 {
+                if !step.moved || step.game >= 0 || state.scene != TITLE_HOTSPOT_TARGET[hotspot] || TitleOnMap(state.scene) { return 712 }
+            } else {
+                // A game plays over its usual scene, so leaving it lands there.
+                if step.game != hotspot || TITLE_HOTSPOT_GAME[hotspot] == "" || TITLE_HOTSPOT_HOME[hotspot] < 0 ||
+                    state.scene != TITLE_HOTSPOT_HOME[hotspot] { return 713 }
+            }
+        }
+    }
+    if locked < 1 { return 714 }
+    // Back (the button sends Escape) returns to where the map was opened.
+    back: TitleState
+    TitleStart(*back)
+    TitleEnter(*back, TITLE_SCENE_PORTRAIT[desert])
+    if !TitleMapOpen(*back, back.scene) { return 715 }
+    returned := TitleKey(*back, 256)
+    if !returned.moved || returned.game >= 0 || back.scene != desert || back.map_from != 0 { return 716 }
+    if TitleMapOpen(*back, map) || TitleMapOpen(*back, tall) { return 717 }
+    // Opened from the Farm game, Back opens the Farm again over Campus.
+    farm: TitleState
+    TitleStart(*farm)
+    TitleEnter(*farm, campus)
+    if !TitleMapOpenFromGame(*farm, "Farm") || !TitleOnMap(farm.scene) { return 718 }
+    returned = TitleKey(*farm, 256)
+    if returned.game < 0 || TITLE_HOTSPOT_GAME[returned.game] != "Farm" || farm.scene != campus { return 719 }
+    // Without an origin, Back climbs to the treehouse.
+    lost: TitleState
+    TitleStart(*lost)
+    TitleEnter(*lost, map)
+    unused TitleKey(*lost, 256)
+    if lost.scene != 0 { return 720 }
+    // Phones, tablets and desktops in both orientations: no panning, and every
+    // landmark whole inside the window.
+    sizes: [16]float32 = .[360.0, 800.0, 412.0, 915.0, 768.0, 1024.0, 1080.0, 1920.0,
+        800.0, 360.0, 1024.0, 768.0, 1366.0, 768.0, 1920.0, 1080.0]
+    for size: cast(s32)0..7 {
+        width := sizes[size * 2]
+        height := sizes[size * 2 + 1]
+        shown := ResolveTitleSceneVariant(map, width, height)
+        if (shown == tall) != (height > width) { return 721 }
+        view := TitleFit(width, height, 0.0, 0.0, shown)
+        if view.pan_x_limit != 0.0 || view.pan_y_limit != 0.0 { return 722 }
+        first := TITLE_SCENE_FIRST[shown]
+        for hotspot: first..first + TITLE_SCENE_HOTSPOTS[shown] - 1 {
+            at := hotspot * 4
+            left := view.x + cast(float32)TITLE_GLOW_RECT[at] * view.scale
+            top := view.y + cast(float32)TITLE_GLOW_RECT[at + 1] * view.scale
+            right := left + cast(float32)TITLE_GLOW_RECT[at + 2] * view.scale
+            bottom := top + cast(float32)TITLE_GLOW_RECT[at + 3] * view.scale
+            if left < -0.5 || top < -0.5 || right > width + 0.5 || bottom > height + 0.5 { return 723 }
+        }
     }
     return 0
 }

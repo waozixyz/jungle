@@ -31,6 +31,7 @@
 }
 SoundOnIcon :: #import "mingcute/mingcute_regular_volume";
 SoundOffIcon :: #import "mingcute/mingcute_regular_volume_off";
+MapIcon :: #import "mingcute/mingcute_regular_map";
 #import, file "../retro/speed_choice.zi";
 #import, file "../retro/retro.zi";
 #import, file "../retro/book_theme.zi";
@@ -66,6 +67,22 @@ MenuAction :: struct {
     collection_open: bool
     // A scene's hidden paper was just collected: the host plays its chime.
     paper_collected: bool
+    // A world-map landmark that is not open yet was tapped: the host plays
+    // the gentle "not yet" cue.
+    locked_cue: bool
+}
+
+// The world map's wordless way in, among every painted scene's corner
+// controls; X, Y, WIDTH and HEIGHT are retro units.
+TITLE_NOT_YET_CUE :: "assets/jungle/sounds/not-yet.wav"
+title_map_back: bool;
+
+TitleMapButton :: (x: s32, y: s32, width: s32, height: s32, icon: s32) -> bool {
+    button := RetroTap(7601, x, y, width, height, Tr("World map"))
+    BookBox(x, y, width, height, ifx button.down then cast(u32)0xdcebdcf0 else cast(u32)0xf7f1e3d8, 0xdacdb5ff, 4.0)
+    SvgIcon(retro.session, SvgIconProps.{.bounds = RetroRect(x + (width - icon) / 2, y + (height - icon) / 2, icon, icon),
+        .shape = MapIcon.Shape, .color = ColorFromPacked(0x2e6956ff)})
+    return button.clicked
 }
 
 // The scene shown and what glows in it; kept while a game plays, so a
@@ -329,6 +346,8 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
     // Enter that opens it does not also turn its first line.
     dialogue_open := title_state.dialogue != 0
     scene_key := key
+    // The map's Back button, pressed last frame, goes where the map came from.
+    if title_map_back { title_map_back = false; if scene_key == 0 { scene_key = KEY_ESCAPE } }
     // Scene shortcuts are handled here. Consume the retained key so a later
     // notice cannot replay Escape from a previous return to Campus.
     if !title_state.not_implemented { unused KeyboardTake(session) }
@@ -349,6 +368,10 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
     blocked := title_state.not_implemented || guide_hover || (px < cast(float32)(6 + 3 * 34) * unit && py < 34.0 * unit) ||
         (px > bounds.width - 112.0 && py < 56.0)
     corner := (px < cast(float32)(6 + 3 * 34) * unit && py < 34.0 * unit) || (px > bounds.width - 112.0 && py < 56.0)
+    // The map button, left of the Collection Book.
+    map_hit := TitleMapEntry(title_state.scene) && px >= cast(float32)(width - 96) * unit &&
+        px < cast(float32)(width - 70) * unit && py < 34.0 * unit
+    if map_hit { blocked = true; corner = true }
     if title_state.dialogue != 0 { blocked = true }
     // The hidden paper takes its own hover and tap before the scene sees them;
     // a drag that starts on it still pans the picture.
@@ -370,6 +393,11 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
     action.paper_collected = paper_input.collected
     if step.game < 0 { step = TitlePointer(*title_state, view, px, py, pointer.down, pointer.pressed, pointer.released, blocked, now) }
     if step.game < 0 { step = TitleTick(*title_state, now) }
+    if title_state.locked_cue {
+        title_state.locked_cue = false
+        title_state.locked_at = now
+        action.locked_cue = true
+    }
     if guide_hover && !title_state.guide_finished_reported { title_state.guide_stopped = false }
     if step.moved { action.navigated = true }
     if step.game >= 0 {
@@ -385,7 +413,8 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
 
     // Cream while the first picture arrives, then the low-resolution
     // picture until the clean one is decoded.
-    unused Box(session, BoxProps.{.bounds = bounds, .fill = ColorFromPacked(0xe3ece4ff)})
+    paper_fill: u32 = ifx TitleOnMap(title_state.scene) then cast(u32)TITLE_MAP_PAPER else cast(u32)0xe3ece4ff
+    unused Box(session, BoxProps.{.bounds = bounds, .fill = ColorFromPacked(paper_fill)})
     scene := title_state.scene
     picture := Rectangle.{bounds.x + view.x, bounds.y + view.y,
         cast(float32)TITLE_SCENE_WIDTH[scene] * view.scale, cast(float32)TITLE_SCENE_HEIGHT[scene] * view.scale}
@@ -409,8 +438,9 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
         // Separate navigation objects sit behind the foreground tiger.
         if TitleHotspotRest(hotspot) != "" && TITLE_SIGN_LABEL[hotspot] == "" && (TITLE_SCENE_FOREGROUND[scene] == "" || layered) {
             rect := hotspot * 4
+            wobble := TitleLockedWobble(title_state, hotspot, now) * view.scale
             TitlePicture(session, TitleHotspotRest(hotspot), Rectangle.{
-                picture.x + cast(float32)TITLE_GLOW_RECT[rect] * view.scale,
+                picture.x + cast(float32)TITLE_GLOW_RECT[rect] * view.scale + wobble,
                 picture.y + cast(float32)TITLE_GLOW_RECT[rect + 1] * view.scale,
                 cast(float32)TITLE_GLOW_RECT[rect + 2] * view.scale,
                 cast(float32)TITLE_GLOW_RECT[rect + 3] * view.scale})
@@ -443,10 +473,11 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
         // A slow, gentle pulse over exactly the item.
         wave := Sin(now * 6.283185307 / 1.8)
         alpha := cast(u32)(255.0 * (0.74 + 0.26 * wave))
-        if TitleHotspotRest(glowing) != "" { alpha = cast(u32)(cast(float32)alpha * 0.55) }
+        // The world map's landmarks keep their full halo; it lies around them.
+        if TitleHotspotRest(glowing) != "" && !TitleOnMap(scene) { alpha = cast(u32)(cast(float32)alpha * 0.55) }
         rect := glowing * 4
         TitlePicture(session, TitleHotspotGlow(glowing), Rectangle.{
-            picture.x + cast(float32)TITLE_GLOW_RECT[rect] * view.scale,
+            picture.x + cast(float32)TITLE_GLOW_RECT[rect] * view.scale + TitleLockedWobble(title_state, glowing, now) * view.scale,
             picture.y + cast(float32)TITLE_GLOW_RECT[rect + 1] * view.scale,
             cast(float32)TITLE_GLOW_RECT[rect + 2] * view.scale,
             cast(float32)TITLE_GLOW_RECT[rect + 3] * view.scale}, cast(u32)0xffffff00 | alpha)
@@ -541,7 +572,8 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
         back := RetroTap(7501, 6, 6, 44, 30, Tr("Back"))
         BookBox(6, 6, 44, 30, 0xf7f1e3ee, 0xdacdb5ff, 4)
         BookText(6, 6, 44, 30, Tr("Back"), 11, TextAlign.TextAlignCenter)
-        if back.clicked { unused TitleKey(*title_state, KEY_ESCAPE); action.navigated = true }
+        if back.clicked && TitleOnMap(scene) { title_map_back = true }
+        else if back.clicked { unused TitleKey(*title_state, KEY_ESCAPE); action.navigated = true }
     } else { action.language_changed = TitleLanguageFlags() }
     sound_label := ifx sound_muted then "Sound off · F10" else "Sound on · F10"
     sound := RetroTap(500, width - 32, 6, 26, 22, sound_label)
@@ -552,6 +584,9 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
     if message != "" {
         BookBox(width / 2 - 90, height - 30, 180, 22, 0xf7f1e3e8, 0xdacdb5ff, 6.0)
         BookText(width / 2 - 86, height - 30, 172, 22, message, 10)
+    }
+    if TitleMapEntry(scene) && TitleMapButton(width - 96, 6, 26, 22, 16) && TitleMapOpen(*title_state, scene) {
+        action.navigated = true
     }
     collection_target := RetroRect(width - 64, 6, 26, 22)
     action.collection_open = CollectionBookButton(width - 64, 6, true)

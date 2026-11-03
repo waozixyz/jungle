@@ -68,7 +68,22 @@ TitleState :: struct {
     pan_y: float32
     // Center the keyboard selection when the picture overflows the window.
     focus: bool
+    // The world map's way back: the scene it opened from, or the map
+    // landmark whose game it opened from, each plus one; 0 for none.
+    map_from: s32
+    map_game: s32
+    // A tap on a landmark that is not open yet asks once for the gentle
+    // "not yet" cue; that landmark (plus one) then wobbles from locked_at.
+    locked_cue: bool
+    locked_hotspot: s32
+    locked_at: float64
 }
+
+// The world map's paper, around its painted edge where the window is wider
+// or taller than the landmarks need (tools/title_world_map.py paints it).
+TITLE_MAP_PAPER :: 0xfde9caff
+// How long a landmark that is not open yet wobbles after a tap.
+TITLE_LOCKED_SECONDS :: 0.6
 
 TitleStep :: struct {
     // The hotspot whose game opens now, or -1.
@@ -183,6 +198,15 @@ TitleFit :: (width: float32, height: float32, pan_x: float32, pan_y: float32, sc
     if TITLE_SCENE_NAME[scene] == "campus-portrait" {
         scale = ifx across < down then across else down
     }
+    // The world map shows every landmark at once: it never crops into them,
+    // and its paper edge meets TITLE_MAP_PAPER instead.
+    safe := scene * 4
+    if TITLE_SCENE_SAFE[safe + 2] > 0 && TITLE_SCENE_SAFE[safe + 3] > 0 {
+        fit_x := width / cast(float32)TITLE_SCENE_SAFE[safe + 2]
+        fit_y := height / cast(float32)TITLE_SCENE_SAFE[safe + 3]
+        fit := ifx fit_x < fit_y then fit_x else fit_y
+        if fit > 0.0 && fit < scale { scale = fit }
+    }
     if scale <= 0.0 { scale = 1.0 }
     picture_width := cast(float32)TITLE_SCENE_WIDTH[scene] * scale
     picture_height := cast(float32)TITLE_SCENE_HEIGHT[scene] * scale
@@ -193,7 +217,87 @@ TitleFit :: (width: float32, height: float32, pan_x: float32, pan_y: float32, sc
     if view.pan_y_limit < 0.0 { view.pan_y_limit = 0.0 }
     view.x = (width - picture_width) / 2.0 + TitleClamp(pan_x, view.pan_x_limit)
     view.y = (height - picture_height) / 2.0 + TitleClamp(pan_y, view.pan_y_limit)
+    if TITLE_SCENE_SAFE[safe + 2] > 0 && TITLE_SCENE_SAFE[safe + 3] > 0 {
+        // No panning: centered, then moved just enough to hold the landmarks.
+        view.pan_x_limit = 0.0
+        view.pan_y_limit = 0.0
+        view.x = (width - picture_width) / 2.0
+        view.y = (height - picture_height) / 2.0
+        left := view.x + cast(float32)TITLE_SCENE_SAFE[safe] * scale
+        right := left + cast(float32)TITLE_SCENE_SAFE[safe + 2] * scale
+        top := view.y + cast(float32)TITLE_SCENE_SAFE[safe + 1] * scale
+        bottom := top + cast(float32)TITLE_SCENE_SAFE[safe + 3] * scale
+        if left < 0.0 { view.x -= left } else if right > width { view.x -= right - width }
+        if top < 0.0 { view.y -= top } else if bottom > height { view.y -= bottom - height }
+    }
     return view
+}
+
+// Whether SCENE shows the world map button: every painted scene but the map.
+TitleMapEntry :: (scene: s32) -> bool {
+    if TITLE_MAP_SCENE < 0 || scene < 0 || scene >= TITLE_SCENE_COUNT { return false }
+    return TITLE_SCENE_BASE[scene] != TITLE_MAP_SCENE
+}
+
+TitleOnMap :: (scene: s32) -> bool {
+    return TITLE_MAP_SCENE >= 0 && scene >= 0 && scene < TITLE_SCENE_COUNT && TITLE_SCENE_BASE[scene] == TITLE_MAP_SCENE
+}
+
+// Opens the world map from SCENE; its Back returns there.
+TitleMapOpen :: (state: *TitleState, scene: s32) -> bool {
+    if state.not_implemented || state.dialogue != 0 || !TitleMapEntry(scene) { return false }
+    state.map_from = TITLE_SCENE_BASE[scene] + 1
+    state.map_game = 0
+    state.locked_hotspot = 0
+    TitleEnter(state, TITLE_MAP_SCENE)
+    return true
+}
+
+// Opens the world map from the game TITLE (the Farm's painted entrance), with
+// the title still showing the scene behind that game; Back reopens the game.
+TitleMapOpenFromGame :: (state: *TitleState, title: string) -> bool {
+    if TITLE_MAP_SCENE < 0 { return false }
+    found: s32 = -1
+    first := TITLE_SCENE_FIRST[TITLE_MAP_SCENE]
+    for hotspot: first..first + TITLE_SCENE_HOTSPOTS[TITLE_MAP_SCENE] - 1 {
+        if found < 0 && TITLE_HOTSPOT_GAME[hotspot] == title { found = hotspot }
+    }
+    if found < 0 { return false }
+    from := ifx TitleMapEntry(state.scene) then TITLE_SCENE_BASE[state.scene] else TITLE_HOTSPOT_HOME[found]
+    state.not_implemented = false
+    state.dialogue = 0
+    state.map_from = (ifx from >= 0 then from else 0) + 1
+    state.map_game = found + 1
+    state.locked_hotspot = 0
+    TitleEnter(state, TITLE_MAP_SCENE)
+    return true
+}
+
+// Back from the world map: to the scene it opened from (the treehouse when
+// unknown), and to the game it opened from, if any.
+TitleMapBack :: (state: *TitleState) -> TitleStep {
+    step := TitleStep.{.game = -1}
+    from := state.map_from - 1
+    game := state.map_game - 1
+    state.map_from = 0
+    state.map_game = 0
+    state.locked_hotspot = 0
+    TitleEnter(state, ifx from >= 0 then from else TITLE_SCENE_PARENT[TITLE_MAP_SCENE])
+    if game >= 0 { step.game = game } else { step.moved = true }
+    return step
+}
+
+// A sideways wobble, in source pixels, of a tapped landmark that is not open yet.
+TitleLockedWobble :: (state: TitleState, hotspot: s32, now: float64) -> float32 {
+    if state.locked_hotspot != hotspot + 1 { return 0.0 }
+    age := cast(float32)(now - state.locked_at)
+    if age < 0.0 || age > cast(float32)TITLE_LOCKED_SECONDS { return 0.0 }
+    fade := 1.0 - age / cast(float32)TITLE_LOCKED_SECONDS
+    // Four soft side-to-side swings that settle back to rest.
+    phase := age * 4.0 + 0.25
+    phase -= cast(float32)cast(s32)phase
+    swing := ifx phase < 0.5 then phase * 4.0 - 1.0 else 3.0 - phase * 4.0
+    return 9.0 * fade * swing
 }
 
 // Canonical destinations resolve on each frame, including after rotation.
@@ -331,11 +435,21 @@ TitleActivate :: (state: *TitleState, hotspot: s32) -> TitleStep {
         state.hovered = -1
         return step
     }
+    // A landmark that is not open yet stays where it is: no text, only a cue.
+    if TITLE_HOTSPOT_LOCKED[hotspot] != 0 {
+        state.locked_cue = true
+        state.locked_hotspot = hotspot + 1
+        return step
+    }
     target := TITLE_HOTSPOT_TARGET[hotspot]
     if target >= 0 {
         TitleEnter(state, target)
         step.moved = true
     } else {
+        // A game opened from the world map plays over the scene with its own
+        // sign, so leaving the game lands where it normally does.
+        home := TITLE_HOTSPOT_HOME[hotspot]
+        if home >= 0 { TitleEnter(state, home) }
         step.game = hotspot
     }
     return step
@@ -370,6 +484,7 @@ TitleKey :: (state: *TitleState, key: s32) -> TitleStep {
         TitleEnter(state, 0)
     } else if key == 256 {
         state.hover_mode = false
+        if TitleOnMap(state.scene) { return TitleMapBack(state) }
         parent := TITLE_SCENE_PARENT[state.scene]
         if parent >= 0 { TitleEnter(state, parent); step.moved = true }
     } else if key == 257 {

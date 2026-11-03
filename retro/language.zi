@@ -9,7 +9,7 @@ LanguageCode :: () -> string {
 LanguageSet :: (code: string) {
     language = ifx code == "de" then 1 else ifx code == "es" then 2 else 0
 }
-UI_COUNT :: 401
+UI_COUNT :: 402
 ui_en_0: [48]string = .[
     "Picture Book",
     "Animal Counting",
@@ -410,11 +410,12 @@ ui_en_336: [48]string = .[
     "Blank page",
     "Zoom",
 ];
-ui_en_384: [17]string = .[
+ui_en_384: [18]string = .[
     "Zoom in",
     "Zoom out",
     "Fit picture",
     "Collection Book",
+    "World map",
     "Collected picture",
     "Little Fishing Boat",
     "Cast, meet and release",
@@ -829,11 +830,12 @@ ui_de_336: [48]string = .[
     "Leere Seite",
     "Zoom",
 ];
-ui_de_384: [17]string = .[
+ui_de_384: [18]string = .[
     "Vergrößern",
     "Verkleinern",
     "Bild einpassen",
     "Sammelbuch",
+    "Weltkarte",
     "Gesammeltes Bild",
     "Kleines Fischerboot",
     "Auswerfen, kennenlernen und freilassen",
@@ -1248,11 +1250,12 @@ ui_es_336: [48]string = .[
     "Página en blanco",
     "Zoom",
 ];
-ui_es_384: [17]string = .[
+ui_es_384: [18]string = .[
     "Acercar",
     "Alejar",
     "Ajustar imagen",
     "Libro de colección",
+    "Mapa del mundo",
     "Imagen coleccionada",
     "Pequeño bote de pesca",
     "Lanza, conoce y deja nadar",
@@ -1276,7 +1279,7 @@ Ui_en :: (at: s32) -> string {
     if at < 288 { return ui_en_240[at - 240] }
     if at < 336 { return ui_en_288[at - 288] }
     if at < 384 { return ui_en_336[at - 336] }
-    if at < 401 { return ui_en_384[at - 384] }
+    if at < 402 { return ui_en_384[at - 384] }
     return ""
 }
 Ui_de :: (at: s32) -> string {
@@ -1288,7 +1291,7 @@ Ui_de :: (at: s32) -> string {
     if at < 288 { return ui_de_240[at - 240] }
     if at < 336 { return ui_de_288[at - 288] }
     if at < 384 { return ui_de_336[at - 336] }
-    if at < 401 { return ui_de_384[at - 384] }
+    if at < 402 { return ui_de_384[at - 384] }
     return ""
 }
 Ui_es :: (at: s32) -> string {
@@ -1300,7 +1303,7 @@ Ui_es :: (at: s32) -> string {
     if at < 288 { return ui_es_240[at - 240] }
     if at < 336 { return ui_es_288[at - 288] }
     if at < 384 { return ui_es_336[at - 336] }
-    if at < 401 { return ui_es_384[at - 384] }
+    if at < 402 { return ui_es_384[at - 384] }
     return ""
 }
 Tr :: (text: string) -> string {

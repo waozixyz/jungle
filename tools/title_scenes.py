@@ -168,6 +168,26 @@ def Follow(data):
     return changed
 
 
+# The world map (tools/title_world_map.py writes it from
+# tools/title_world_map.json): every area is a painted landmark. It opens from
+# each scene's map button, so no hotspot leads to it, and Back returns to
+# where it was opened. Its "locked:" landmarks stay faded and answer "not yet".
+MAP = 'map'
+# Transparent margin kept around the landmarks, which always stay in view.
+MAP_MARGIN = 16
+
+
+def MapSafe(scene, hotspots):
+    """The world map's landmark area in source pixels; zeros elsewhere."""
+    if scene['name'] not in (MAP, MAP + '-portrait') or not hotspots:
+        return [0, 0, 0, 0]
+    left = max(0, min(h['rect'][0] for h in hotspots) - MAP_MARGIN)
+    top = max(0, min(h['rect'][1] for h in hotspots) - MAP_MARGIN)
+    right = min(scene['width'], max(h['rect'][0] + h['rect'][2] for h in hotspots) + MAP_MARGIN)
+    bottom = min(scene['height'], max(h['rect'][1] + h['rect'][3] for h in hotspots) + MAP_MARGIN)
+    return [left, top, right - left, bottom - top]
+
+
 def Load(source=SOURCE, catalog=CATALOG):
     """The validated scenes, their parents and the flattened hotspots."""
     data = json.loads(Path(source).read_text())
@@ -226,6 +246,8 @@ def Load(source=SOURCE, catalog=CATALOG):
                     raise SystemExit(f'title scenes: {hotspot["id"]} opens {target}, which is not in the catalog')
                 scene_target, game = -1, target
             elif kind == 'guide' and target == 'tour':
+                scene_target, game = -1, ''
+            elif kind == 'locked' and target and scene['name'] in (MAP, MAP + '-portrait') and not hotspot.get('sign'):
                 scene_target, game = -1, ''
             elif kind == 'notice' and target in ('Farm', 'Desert') and SignLabel(hotspot) == target and scene['name'] in ('campus', 'campus-portrait'):
                 scene_target, game = -1, ''
@@ -287,6 +309,13 @@ def Load(source=SOURCE, catalog=CATALOG):
                         seen.add(index)
                         parents[index] = current
                         queue.append(index)
+    # Without a remembered origin, Back from the world map climbs to the treehouse.
+    for index, scene in enumerate(scenes):
+        if scene['name'] == MAP and index not in seen:
+            if scene.get('back') is not True:
+                raise SystemExit('title scenes: the world map needs its Back button')
+            seen.add(index)
+            parents[index] = 0
     for index, scene in enumerate(scenes):
         if scene['base'] != index:
             seen.add(index)
@@ -460,6 +489,25 @@ def Render(data, scenes, parents, hotspots):
         f'TITLE_OCCLUSION_CHUNK: [{hotspot_count}]s32 = .[{Numbers(polygon_chunk[hotspot_count:])}];',
         f'TITLE_OCCLUSION_FIRST: [{hotspot_count}]s32 = .[{Numbers(polygon_first[hotspot_count:])}];',
         f'TITLE_OCCLUSION_COUNT: [{hotspot_count}]s32 = .[{Numbers(polygon_count[hotspot_count:])}];',
+    ]
+    map_scene = next((i for i, s in enumerate(scenes) if s['name'] == MAP), -1)
+    on_map = lambda h: scenes[h['scene']]['base'] == map_scene
+    # A game opened from the map plays over the scene whose own sign opens it.
+    homes = [next((other['scene'] for other in hotspots if not on_map(other) and other['game'] == h['game']), -1)
+             if on_map(h) and h['game'] else -1 for h in hotspots]
+    targets = {(s['name'], h['id']): h['target'] for s in scenes for h in s['hotspots']}
+    locked = [1 if targets[(scenes[h['scene']]['name'], h['id'])].startswith('locked:') else 0 for h in hotspots]
+    lines += [
+        '',
+        '// The world map (its landscape scene; -1 without one). Every other scene',
+        '// shows its map button; Back returns to where the map was opened.',
+        f'TITLE_MAP_SCENE :: {map_scene}',
+        '// 1 for a landmark that is not open yet: faded, it answers with the "not yet" cue.',
+        f'TITLE_HOTSPOT_LOCKED: [{hotspot_count}]s32 = .[{Numbers(locked)}];',
+        '// The scene shown behind a game opened from the map, or -1.',
+        f'TITLE_HOTSPOT_HOME: [{hotspot_count}]s32 = .[{Numbers(homes)}];',
+        '// The map\'s landmark area (x, y, width, height), always kept in view; zeros elsewhere.',
+        f'TITLE_SCENE_SAFE: [{scene_count * 4}]s32 = .[{Numbers(v for i, s in enumerate(scenes) for v in MapSafe(s, [h for h in hotspots if h["scene"] == i]))}];',
     ]
     dialogues = Dialogues()
     first_line, line_count = [], []

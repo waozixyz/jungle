@@ -17,6 +17,7 @@
 - Open the Treehouse's round window to look out over the jungle, with Back to return; the room has no board above the ladder.
 - Follow the Desert sign to the jungle's edge, where a guide and his camel explain in a short spoken chat why we are not ready to cross the desert yet; the path back to Campus runs straight left.
 - Win a painted award badge the first time each game opens: it pops up with sparkles and a chime, then flies into the Collection Book, which now shows every award. Games opened before get their awards quietly.
+- Open the painted world map from the map button on any scene: Port, Beach, Aquarium, Market, Farm, Campus, Treehouse and Desert are each a landmark that lights up under the pointer and travels there; beyond the Desert the map fades into darkness that softly answers "not yet", and Back returns where you were.
 - The Beach is now the Port. Campus's upright sign leads up a tropical Jungle Path with a parrot, a sloth and a butterfly, on to the Port; from the Port a sandy path leads to a Market street of animal shops, which joins the Farm.
 - On the Farm, pointing at a crop field lights up the whole field, crops stand inside their soil in both orientations, the fields carry no numbers, and a path at the left leads to the Market.
 

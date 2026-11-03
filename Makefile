@@ -334,5 +334,14 @@ test-awards: build/tests/awards
 	python3 tests/awards_assets_test.py
 test-awards-ui: all
 	python3 tests/awards_smoke_test.py
+# The world map: every area a landmark, with the map button on every scene.
+test: test-world-map
+test-ui: test-world-map-ui
+.PHONY: test-world-map test-world-map-ui
+test-world-map:
+	python3 tests/title_world_map_test.py
+test-world-map-ui: all web
+	python3 tests/world_map_smoke_test.py
+	python3 tests/world_map_web_test.py --web-root build/web
 
 endif # native rules for default, local or mixed goals

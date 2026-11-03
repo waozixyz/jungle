@@ -1,0 +1,27 @@
+{
+  "scene": "map",
+  "paper": "fde9ca",
+  "plates": {"landscape": "plate-landscape-v2.png", "portrait": "plate-portrait-v2.png"},
+  "landmarks": [
+    {"id": "port", "target": "scene:port", "layer": "port-v2.png",
+     "landscape": [160, 30, 250], "portrait": [75, 184, 230]},
+    {"id": "beach", "target": "scene:port", "layer": "beach.png",
+     "landscape": [580, 184, 360], "portrait": [580, 258, 380]},
+    {"id": "aquarium", "target": "scene:aquarium", "layer": "aquarium.png",
+     "landscape": [665, 22, 190], "portrait": [560, 110, 170]},
+    {"id": "market", "target": "scene:market", "layer": "market.png",
+     "landscape": [45, 555, 300], "portrait": [45, 628, 290]},
+    {"id": "farm", "target": "game:Farm", "covers": ["farm"], "layer": "farm.png",
+     "landscape": [370, 455, 280], "portrait": [360, 862, 270]},
+    {"id": "jungle-path", "target": "scene:jungle-path", "layer": "jungle-path.png",
+     "landscape": [700, 400, 200], "portrait": [705, 487, 170]},
+    {"id": "campus", "target": "scene:campus", "layer": "campus.png",
+     "landscape": [630, 615, 380], "portrait": [635, 617, 320]},
+    {"id": "treehouse", "target": "scene:treehouse", "covers": ["bookshelf", "window"], "layer": "treehouse.png",
+     "landscape": [990, 360, 300], "portrait": [45, 1110, 300]},
+    {"id": "desert", "target": "scene:desert", "layer": "desert.png",
+     "landscape": [1240, 470, 230], "portrait": [445, 1187, 230]},
+    {"id": "darkness", "target": "locked:darkness", "layer": "darkness.png",
+     "landscape": [1452, 590, 200], "portrait": [720, 1250, 260]}
+  ]
+}

@@ -1,0 +1,171 @@
+{
+  "owner_request": "Design a world map inspired by the painted style, where each area we can go to is a distinct building or landmark that can be selected.",
+  "generator": "Harmony generate_image (Codex built-in image generation); original Jungle watercolor",
+  "style_reference": "the Jungle title paintings (treehouse, Campus, Port, Desert edge)",
+  "layout": "owner 2026-11-03: Market, Farm, Campus with the Treehouse, Desert from left to right; the Port above the Market, the Beach right of the Port and the Aquarium above the Beach; the Jungle Path between the Beach and Campus; beyond the Desert the world fades into darkness (no mountain yet).",
+  "method": "Codex paints a clean background plate per orientation from a position guide and each landmark as its own transparent layer, shared by both orientations; a cream halo glows from each silhouette; the darkness beyond the Desert is a locked layer that answers \"not yet\"; the outer band fades into the flat paper shown around the map.",
+  "assets": [
+    {
+      "landmark": "port",
+      "target": "scene:port",
+      "master": "local/art-development/world-map/layers/port-v2.png",
+      "master_sha256": "f31a4fd529a900609a5c72f5a621ad1903dd10100e056ccc0983c77e48f4533e",
+      "runtime": "assets/jungle/title/world-map/port.webp",
+      "sha256": "9c3dca23fb888af663aae4deb3bd029e66c061a059813f6c66804f380675310a",
+      "glow": "assets/jungle/title/world-map/port-glow.webp",
+      "glow_sha256": "f7e10e929aca549d1283b90e4cfd4feb9a8f7f2909222c7296a70d25f6ee6786",
+      "size": [
+        290,
+        334
+      ]
+    },
+    {
+      "landmark": "beach",
+      "target": "scene:port",
+      "master": "local/art-development/world-map/layers/beach.png",
+      "master_sha256": "9695a2e7e00c3113a6708a825a8fdd74dc34ed18daca3b3394b786e340022048",
+      "runtime": "assets/jungle/title/world-map/beach.webp",
+      "sha256": "f77f442a1fe7710444ed2cada848924d42bbadf6d96c306aa90d0a335b0c2ee0",
+      "glow": "assets/jungle/title/world-map/beach-glow.webp",
+      "glow_sha256": "4ff8d74b7e099bbbcb2b89bc9ee1455f11df2e9d2e4021c33f5b357d94e1b971",
+      "size": [
+        420,
+        244
+      ]
+    },
+    {
+      "landmark": "aquarium",
+      "target": "scene:aquarium",
+      "master": "local/art-development/world-map/layers/aquarium.png",
+      "master_sha256": "65b338299d7b3c783281f2cb5bb1babdd30508d1b4dcb59206f77ba25beaeea4",
+      "runtime": "assets/jungle/title/world-map/aquarium.webp",
+      "sha256": "466145f6f0f931a5e523bd5f83654528281135449091fe38bab2d4a24351cb05",
+      "glow": "assets/jungle/title/world-map/aquarium-glow.webp",
+      "glow_sha256": "5a4d492077089014fe768c09db7e2757368b8c99c7e8e886d8ffdff3c8060a1d",
+      "size": [
+        230,
+        168
+      ]
+    },
+    {
+      "landmark": "market",
+      "target": "scene:market",
+      "master": "local/art-development/world-map/layers/market.png",
+      "master_sha256": "508e38d02276e94fce5d5d86b61a9d4c5879bd5a18d9f225fadfcc62409141b0",
+      "runtime": "assets/jungle/title/world-map/market.webp",
+      "sha256": "b1a28b8e028eae227390d40fb43b733fd598f9ba0de881e7a66c79d67d2551be",
+      "glow": "assets/jungle/title/world-map/market-glow.webp",
+      "glow_sha256": "78cd3a6f584b2a6d47f689a5886834157c7fe8a05623fcd233fb25c4ea2c6c25",
+      "size": [
+        340,
+        188
+      ]
+    },
+    {
+      "landmark": "farm",
+      "target": "game:Farm",
+      "master": "local/art-development/world-map/layers/farm.png",
+      "master_sha256": "ab2631de5c4a2429abd934ebb8a0eb7ab64a7b7777630d59430315d4f9e3d2e1",
+      "runtime": "assets/jungle/title/world-map/farm.webp",
+      "sha256": "9aa074b28967f366ab773634a90c6bc622bae4c32fe961c3985cdcfc88d812e1",
+      "glow": "assets/jungle/title/world-map/farm-glow.webp",
+      "glow_sha256": "c94444e72ecc67ea55e8d1fe8ac0adc8c0418ccaecb2e272ff64ffbe1ec3bcac",
+      "size": [
+        320,
+        247
+      ]
+    },
+    {
+      "landmark": "jungle-path",
+      "target": "scene:jungle-path",
+      "master": "local/art-development/world-map/layers/jungle-path.png",
+      "master_sha256": "0ba19705482595caddbb82f5fda2b283a42b060ab001fd7a74be95ca5538d08c",
+      "runtime": "assets/jungle/title/world-map/jungle-path.webp",
+      "sha256": "322938cdfd7dd63cc42cef5a90470b2167ce51f606c5cb370d890651c7677fab",
+      "glow": "assets/jungle/title/world-map/jungle-path-glow.webp",
+      "glow_sha256": "eed1006763cb7928b7a4b83ff4818d5039413d37ae06c7476fd9d1b0e3fdfc46",
+      "size": [
+        240,
+        177
+      ]
+    },
+    {
+      "landmark": "campus",
+      "target": "scene:campus",
+      "master": "local/art-development/world-map/layers/campus.png",
+      "master_sha256": "0c0f5186deb0645007b5129424cf8268692e7c53dc29b35a0eb3dff6ca9ff64b",
+      "runtime": "assets/jungle/title/world-map/campus.webp",
+      "sha256": "9688bdba260a6f4c63ee594f2ecabfe71980539b91c26729c92f5a8a37824ab0",
+      "glow": "assets/jungle/title/world-map/campus-glow.webp",
+      "glow_sha256": "aff8e92d36a152c08996c716a02a6498b8de8f087d49636834906d8c411b0ab1",
+      "size": [
+        420,
+        250
+      ]
+    },
+    {
+      "landmark": "treehouse",
+      "target": "scene:treehouse",
+      "master": "local/art-development/world-map/layers/treehouse.png",
+      "master_sha256": "710025dd31a932d82f72ed10a71a1dbd35c840e7822a75f2bfe1c2e4a8a6581b",
+      "runtime": "assets/jungle/title/world-map/treehouse.webp",
+      "sha256": "5829ddad4c2d87563d1b9747e713ddd39f95efa37e9d546d6dcdefdd044e746e",
+      "glow": "assets/jungle/title/world-map/treehouse-glow.webp",
+      "glow_sha256": "a61f82d8ac9c017289e9bce4b480ae226b59892b8d14bbec312a8bcafa42d8ea",
+      "size": [
+        340,
+        238
+      ]
+    },
+    {
+      "landmark": "desert",
+      "target": "scene:desert",
+      "master": "local/art-development/world-map/layers/desert.png",
+      "master_sha256": "5f76dc08c129307790809c267989cbadfb2e7b94044561f0733d9e90a5fdfe89",
+      "runtime": "assets/jungle/title/world-map/desert.webp",
+      "sha256": "8cc2eb823c1b28ad331e689956506861a1ff2897ed0825f54ed506936c51af99",
+      "glow": "assets/jungle/title/world-map/desert-glow.webp",
+      "glow_sha256": "835d2a0532286bd9b1d9591a5d77d95fbca752ad43c0c2b6d1d2b2ce213d6cd0",
+      "size": [
+        270,
+        205
+      ]
+    },
+    {
+      "landmark": "darkness",
+      "target": "locked:darkness",
+      "master": "local/art-development/world-map/layers/darkness.png",
+      "master_sha256": "1a159d948d566b09a902e94ca4083336fdf249cdb5ac08340703b033de95fd3f",
+      "runtime": "assets/jungle/title/world-map/darkness.webp",
+      "sha256": "8ad31159dff7f2f0e5b6cd05766e7dd1813a9d768b04b96d84f4328584b55482",
+      "glow": "assets/jungle/title/world-map/darkness-glow.webp",
+      "glow_sha256": "f8df06be10a7abd031343b808c3cf62396275cefcea2e386e7b3c6e7409e8648",
+      "size": [
+        300,
+        225
+      ]
+    },
+    {
+      "plate": "landscape",
+      "generated": "local/art-development/world-map/plate-landscape-v2.png",
+      "generated_sha256": "f163b3e36292979e3f02c5b7d2227fe81bc4736cf1cabba154ee923506ca7fa7",
+      "master": "local/art-development/world-map/map-landscape-plate.png",
+      "master_sha256": "1dbd8187d91dcb61379826ddbaa535b8c67a541ec6eaec2ce4a1db76ebc9b5b5",
+      "runtime": "assets/jungle/title/world-map.webp",
+      "sha256": "b448dad75831e49d300b5ba457627bf566b97257c78a86a300eccf7447c86f40",
+      "low": "assets/jungle/title/world-map-low.webp",
+      "low_sha256": "1c2cd1733211235c42363862e31b7a45f6db798cacfbd270038c090e1a1efa69"
+    },
+    {
+      "plate": "portrait",
+      "generated": "local/art-development/world-map/plate-portrait-v2.png",
+      "generated_sha256": "0f482243c559ae5f658a382561af452b7d863cb7206c06add4b7b9c0de58f60e",
+      "master": "local/art-development/world-map/map-portrait-plate.png",
+      "master_sha256": "7c27b4c66359cadbef3201477a4eb30c891491eb9d944ddaf9090b835718170b",
+      "runtime": "assets/jungle/title/world-map-portrait.webp",
+      "sha256": "543d0816ac9cc687d90e08e1fc62433c29ff4f86dcce5717301b9db4306de8d0",
+      "low": "assets/jungle/title/world-map-portrait-low.webp",
+      "low_sha256": "bfdb2bf37fb6ad9c6a3a32555d2866b8743156989203bb8d1530e5e11df643af"
+    }
+  ]
+}
