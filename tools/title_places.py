@@ -67,14 +67,14 @@ SIGNS = {
                      ('farm-path','game:Farm','Farm','right',[640,1250,200,200])],
     },
     'jungle-path': {
-        'landscape': [('port-path','scene:port','Port','left',[100,500,190,190]),
-                      ('campus-path','scene:campus','Campus','right',[1360,330,210,210])],
-        'portrait': [('port-path','scene:port','Port','left',[178,300,190,190]),
-                     ('campus-path','scene:campus','Campus','right',[640,1100,200,200])],
+        'landscape': [('port-path','scene:beach','Beach','diagonal-left',[100,500,190,190]),
+                      ('campus-path','scene:campus','Campus','diagonal-right',[1360,330,210,210])],
+        'portrait': [('port-path','scene:beach','Beach','diagonal-left',[178,300,190,190]),
+                     ('campus-path','scene:campus','Campus','diagonal-right',[640,1100,200,200])],
     },
 }
-# The Port's way to the Market leaves along its new sandy path at the right.
-PORT_MARKET = {'landscape': [1360,740,190,190], 'portrait': [660,860,185,185]}
+# Port: Market left, Beach right.
+PORT_MARKET = {'landscape': [100,450,300,300], 'portrait': [175,800,300,300]}
 # Campus: the upright Jungle Path sign. Landscape keeps its place beside the
 # path up into the jungle; portrait stands where the new path starts between
 # the treehouse and the drums.
@@ -83,7 +83,7 @@ FROGS_PORTRAIT = [45,1032,250,172]
 PLATES = {
     'market': 'market/market-{o}.png',
     'jungle-path': 'jungle-path/jungle-path-{o}.png',
-    'port': 'market/port-{o}-market-path.png',
+    'port': 'beach-port-redo/port-{o}.png',
     'farm': 'farm-fields/farm-landscape-left-path.png',
     'campus-portrait': 'campus-wide/campus-portrait-drums-clean.png',
 }
@@ -265,10 +265,10 @@ def main():
         source = LOCAL/PLATES['port'].format(o=orientation)
         if source.is_file():
             ledger.plate(source, view['image'], view['low'])
-        old = next(h for h in view['hotspots'] if h['id'] in ('campus-path', 'jungle-path'))
-        resign(old, 'jungle-path', 'scene:jungle-path', 'Jungle Path', old['sign']['direction'])
+        old = next(h for h in view['hotspots'] if h['id'] in ('campus-path', 'jungle-path', 'beach-path'))
+        resign(old, 'beach-path', 'scene:beach', 'Beach', 'right', [550,950,300,300] if orientation == 'portrait' else [1270,450,300,300])
         view['hotspots'] = [h for h in view['hotspots'] if h['id'] != 'market-path']
-        view['hotspots'].append(sign('market-path', 'scene:market', 'Market', 'right', PORT_MARKET[orientation]))
+        view['hotspots'].append(sign('market-path', 'scene:market', 'Market', 'left', PORT_MARKET[orientation]))
     farm = LOCAL/PLATES['farm']
     if farm.is_file():
         # The Farm game's entrance draws the same painting as the title scene.

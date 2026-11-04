@@ -147,26 +147,27 @@ main :: () -> s32 {
     if TITLE_SCENE_PARENT[bookshelf] != treehouse || TITLE_SCENE_PARENT[campus] != treehouse { return 31 }
 
     // Every waterfront route works with the actual touch delay in both
-    // compositions: Campus, the Jungle Path, the Port (once the Beach), its
-    // Aquarium and the Market street. Rotation resolves each canonical
-    // destination, then Back climbs aquarium -> port -> jungle path -> campus
+    // compositions: Campus, Jungle Path, Beach, Port, Aquarium and Market.
+    // Rotation resolves each canonical destination; Back climbs from
+    // Aquarium through Beach and Jungle Path to Campus
     // without launching an activity.
     jungle_path := SceneNamed("jungle-path")
+    beach := SceneNamed("beach")
     port := SceneNamed("port")
     market := SceneNamed("market")
     aquarium := SceneNamed("aquarium")
-    if jungle_path < 0 || port < 0 || market < 0 || aquarium < 0 || SceneNamed("beach") >= 0 { return 120 }
-    if TITLE_SCENE_PARENT[jungle_path] != campus || TITLE_SCENE_PARENT[port] != jungle_path ||
-       TITLE_SCENE_PARENT[aquarium] != port || TITLE_SCENE_PARENT[market] != port { return 121 }
+    if jungle_path < 0 || port < 0 || market < 0 || aquarium < 0 || beach < 0 { return 120 }
+    if TITLE_SCENE_PARENT[jungle_path] != campus || TITLE_SCENE_PARENT[port] != market || TITLE_SCENE_PARENT[beach] != jungle_path ||
+       TITLE_SCENE_PARENT[aquarium] != beach || TITLE_SCENE_PARENT[market] != port { return 121 }
     for portrait: cast(s32)0..1 {
         route: TitleState
         TitleStart(*route)
         width: float32 = ifx portrait == 1 then 420.0 else 960.0
         height: float32 = ifx portrait == 1 then 900.0 else 600.0
-        origins: [8]s32 = .[campus, jungle_path, port, aquarium, port, market, port, jungle_path]
-        destinations: [8]s32 = .[jungle_path, port, aquarium, port, market, port, jungle_path, campus]
-        entrances: [8]string = .["jungle-path", "port-path", "bunker-door", "port-stairs", "market-path", "port-path", "jungle-path", "campus-path"]
-        for leg: cast(s32)0..7 {
+        origins: [10]s32 = .[campus, jungle_path, beach, aquarium, beach, port, market, port, beach, jungle_path]
+        destinations: [10]s32 = .[jungle_path, beach, aquarium, beach, port, market, port, beach, jungle_path, campus]
+        entrances: [10]string = .["jungle-path", "port-path", "aquarium-path", "beach-stairs", "port-path", "market-path", "port-path", "beach-path", "campus-path", "campus-path"]
+        for leg: cast(s32)0..9 {
             TitleEnter(*route, origins[leg])
             TitleResolve(*route, width, height)
             hotspot := HotspotNamed(route.scene, entrances[leg])
@@ -189,7 +190,7 @@ main :: () -> s32 {
         TitleResolve(*route, width, height)
         unused TitleKey(*route, 256)
         TitleResolve(*route, width, height)
-        if TITLE_SCENE_BASE[route.scene] != port { return 127 }
+        if TITLE_SCENE_BASE[route.scene] != beach { return 127 }
         unused TitleKey(*route, 256)
         TitleResolve(*route, width, height)
         if TITLE_SCENE_BASE[route.scene] != jungle_path { return 128 }
@@ -209,9 +210,9 @@ main :: () -> s32 {
         unused TitlePointer(*route, shop_view, shop_view.x + shop_x * shop_view.scale, shop_view.y + shop_y * shop_view.scale, false, false, true, false, 20.1)
         looked := TitleTick(*route, 20.11 + TITLE_TAP_SECONDS)
         if looked.moved || looked.game >= 0 || TITLE_SCENE_BASE[route.scene] != market { return 151 }
-        // The Farm's path to the Market, and the Beach's old name, open from a game.
+        // The Farm's path to the Market and the separate Beach open from a game.
         TitleEnter(*route, campus)
-        if TitleSceneNamed("market") != market || TitleSceneNamed("beach") != port || TitleSceneNamed("nowhere") != -1 { return 152 }
+        if TitleSceneNamed("market") != market || TitleSceneNamed("beach") != beach || TitleSceneNamed("nowhere") != -1 { return 152 }
         if !TitleOpenSceneFromGame(*route, market) || route.scene != market { return 153 }
         if TitleOpenSceneFromGame(*route, -1) || route.scene != market { return 154 }
     }

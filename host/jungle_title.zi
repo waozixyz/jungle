@@ -399,11 +399,10 @@ TitleSignLift :: (state: TitleState, hotspot: s32, now: float64) -> float32 {
 }
 
 // A scene hotspot changes scene; a game hotspot reports its game.
-// The base title scene called NAME, or -1. "beach" is the Port's old name.
+// The base title scene called NAME, or -1.
 TitleSceneNamed :: (name: string) -> s32 {
-    wanted := ifx name == "beach" then "port" else name
     for scene: cast(s32)0..TITLE_SCENE_COUNT - 1 {
-        if TITLE_SCENE_BASE[scene] == scene && TITLE_SCENE_NAME[scene] == wanted { return scene }
+        if TITLE_SCENE_BASE[scene] == scene && TITLE_SCENE_NAME[scene] == name { return scene }
     }
     return -1
 }

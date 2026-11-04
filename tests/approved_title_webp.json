@@ -2,7 +2,7 @@
   "format": "jungle-approved-title-webp-1",
   "quality": 50,
   "method": 6,
-  "total_bytes": 5139844,
+  "total_bytes": 5373900,
   "images": [
     {
       "name": "bookshelf-background",
@@ -91,54 +91,6 @@
       "canonical_source": "local/art-development/campus-wide/campus-drums-clean.png",
       "canonical_bytes": 3178265,
       "canonical_sha256": "b2ff767f0beed0ebab06a8172031f04178375202069668606f5abc47eb88081a"
-    },
-    {
-      "name": "beach-port",
-      "path": "assets/jungle/title/beach-port.webp",
-      "bytes": 211632,
-      "sha256": "076af0246ea9c3ed54a0a1ef6cc08f1b49b2d690fc4fe2582e5ae4a80a4f9e44",
-      "width": 1672,
-      "height": 941,
-      "decoded_rgba_sha256": "89b6ae3e516b80bd6e60b8f1546226a04b53e1a07453039cc9e18c546c92ab98",
-      "canonical_source": "local/art-development/market/port-landscape-market-path.png",
-      "canonical_bytes": 3054999,
-      "canonical_sha256": "1d72833ebbf4bbf10306cf9b1068d190bcb1eff9747096a69baba4f2c5731776"
-    },
-    {
-      "name": "beach-port-low",
-      "path": "assets/jungle/title/beach-port-low.webp",
-      "bytes": 7914,
-      "sha256": "7e84a5b3fec0c97598f0eca92d9b6ffaf3be9f700200f9342896a33c213de2a2",
-      "width": 240,
-      "height": 135,
-      "decoded_rgba_sha256": "1c63e25d968fc64e38020232f7d90b04d297161deba45eddb53a218ef5c33201",
-      "canonical_source": "local/art-development/market/port-landscape-market-path.png",
-      "canonical_bytes": 3054999,
-      "canonical_sha256": "1d72833ebbf4bbf10306cf9b1068d190bcb1eff9747096a69baba4f2c5731776"
-    },
-    {
-      "name": "beach-portrait-port",
-      "path": "assets/jungle/title/beach-portrait-port.webp",
-      "bytes": 265070,
-      "sha256": "f5f4883c89d69b809bb7fb73266b5404485fa2545ed44f67fe026eb6963682ca",
-      "width": 1024,
-      "height": 1536,
-      "decoded_rgba_sha256": "55f69f63b52cca30e6e3f9b0d6f66986c01053d1b21980e1995a49616a0e520f",
-      "canonical_source": "local/art-development/market/port-portrait-market-path.png",
-      "canonical_bytes": 3345255,
-      "canonical_sha256": "a071c371ba2b998646a6e2c67f7af8f93ebebdd331011008770366644b744c1d"
-    },
-    {
-      "name": "beach-portrait-port-low",
-      "path": "assets/jungle/title/beach-portrait-port-low.webp",
-      "bytes": 21602,
-      "sha256": "3ed193ad75fe88b12f211e2ac60133d930da473f5093a95e98626b9030964a30",
-      "width": 240,
-      "height": 360,
-      "decoded_rgba_sha256": "915a12001dee5dd1e949fcddca2bcc3752110cfa960cd9af32e1d3b729823ee9",
-      "canonical_source": "local/art-development/market/port-portrait-market-path.png",
-      "canonical_bytes": 3345255,
-      "canonical_sha256": "a071c371ba2b998646a6e2c67f7af8f93ebebdd331011008770366644b744c1d"
     },
     {
       "name": "scene-landscape",
@@ -439,6 +391,102 @@
       "canonical_source": "local/art-development/market/market-portrait.png",
       "canonical_bytes": 2990543,
       "canonical_sha256": "44e44ba016dc89155a312177454f78b1cc1142385f631264ce0f9e1f3f70c274"
+    },
+    {
+      "name": "beach-port",
+      "path": "assets/jungle/title/beach-port.webp",
+      "bytes": 173572,
+      "sha256": "5d04c3af929a78d0112641c9b77a1892cb73a63f2ef13b8aca4581c43bc6b8e2",
+      "width": 1672,
+      "height": 941,
+      "decoded_rgba_sha256": "4e22a68962b19860f3e7c696a2303c549aa2408e14dc0d88299ba6a7f1f8134d",
+      "canonical_source": "local/art-development/beach-port-redo/port-landscape.png",
+      "canonical_bytes": 3176895,
+      "canonical_sha256": "bc5ca80ce0e321d06c6e37d9193359cb34318134f4926f859b1ae33d431224ff"
+    },
+    {
+      "name": "beach-port-low",
+      "path": "assets/jungle/title/beach-port-low.webp",
+      "bytes": 6622,
+      "sha256": "2410abc88c8883e7ca31dd3ce2df037bbb4ef01da457d207fb880860768195de",
+      "width": 240,
+      "height": 135,
+      "decoded_rgba_sha256": "61e38e53f2f5f5bd2e90b3d9195cb94686fe3fb7e6ecc393e986ea404c985587",
+      "canonical_source": "local/art-development/beach-port-redo/port-landscape.png",
+      "canonical_bytes": 3176895,
+      "canonical_sha256": "bc5ca80ce0e321d06c6e37d9193359cb34318134f4926f859b1ae33d431224ff"
+    },
+    {
+      "name": "beach-portrait-port",
+      "path": "assets/jungle/title/beach-portrait-port.webp",
+      "bytes": 166278,
+      "sha256": "81847eae316ecce4ee258473096b7645c0eb2f7e9231cc567797689c3a7bcb0e",
+      "width": 1024,
+      "height": 1536,
+      "decoded_rgba_sha256": "c2de90ce1b2f2eee861987d6302a17a859a9e39623f91244ae136ffd5b6e6e40",
+      "canonical_source": "local/art-development/beach-port-redo/port-portrait.png",
+      "canonical_bytes": 3194931,
+      "canonical_sha256": "a5f14593ebe610b0ab6dfa6df266e91674f948d66d2fb9c02d96f027cbf3729a"
+    },
+    {
+      "name": "beach-portrait-port-low",
+      "path": "assets/jungle/title/beach-portrait-port-low.webp",
+      "bytes": 14708,
+      "sha256": "a87a496f9da4514197ae8bf66391c572c03667a9663ef3753bb310bb9942f6dd",
+      "width": 240,
+      "height": 360,
+      "decoded_rgba_sha256": "9d39c8e7eba4797a81b8327fb63c9c55243f1ee9d3efd6663ddfe64d5d9236b7",
+      "canonical_source": "local/art-development/beach-port-redo/port-portrait.png",
+      "canonical_bytes": 3194931,
+      "canonical_sha256": "a5f14593ebe610b0ab6dfa6df266e91674f948d66d2fb9c02d96f027cbf3729a"
+    },
+    {
+      "name": "beach",
+      "path": "assets/jungle/title/beach.webp",
+      "bytes": 172054,
+      "sha256": "309ce28ecfd1f06db33dca98637f572920a8a11debf6bc4ffa8b12e5d1edf28f",
+      "width": 1672,
+      "height": 941,
+      "decoded_rgba_sha256": "6d3142a992fcede7b1f233ce7cedc27040b873558e7aa6c480958ef50062ccd2",
+      "canonical_source": "local/art-development/beach-port-redo/beach-landscape.png",
+      "canonical_bytes": 2968415,
+      "canonical_sha256": "8bb34a5e0012ab7a5b15d54fc55b632848c1c25384f173805bf14bb14025b85a"
+    },
+    {
+      "name": "beach-low",
+      "path": "assets/jungle/title/beach-low.webp",
+      "bytes": 6108,
+      "sha256": "439a03b7b45c148faa7cbe7a7d02e608a34c0698472cb48387cdbec48593986e",
+      "width": 240,
+      "height": 135,
+      "decoded_rgba_sha256": "ed0a130224681bffbc180a901b1e5704c146f99e26f6cb29ee871c40703d604c",
+      "canonical_source": "local/art-development/beach-port-redo/beach-landscape.png",
+      "canonical_bytes": 2968415,
+      "canonical_sha256": "8bb34a5e0012ab7a5b15d54fc55b632848c1c25384f173805bf14bb14025b85a"
+    },
+    {
+      "name": "beach-portrait",
+      "path": "assets/jungle/title/beach-portrait.webp",
+      "bytes": 187098,
+      "sha256": "4f0cd19d5e6032fa726fef9fa9debe061119453c3bc4e10837c6d0024f60b7c7",
+      "width": 1024,
+      "height": 1536,
+      "decoded_rgba_sha256": "dfe1f0f5c07b2a22461128ba4662668d275268f3e1e3d056819b19473105b2e0",
+      "canonical_source": "local/art-development/beach-port-redo/beach-portrait.png",
+      "canonical_bytes": 3113638,
+      "canonical_sha256": "38895ca6631048736d822ca874d0957054aec353ba461121c25fb36b66a3b401"
+    },
+    {
+      "name": "beach-portrait-low",
+      "path": "assets/jungle/title/beach-portrait-low.webp",
+      "bytes": 13834,
+      "sha256": "e6ae21c531c6a6c4e64bd5a535e72d6983a43134f3e94f2386550ceb260cf877",
+      "width": 240,
+      "height": 360,
+      "decoded_rgba_sha256": "10df58de576b09db50a725d40e0d9eaaf693bd202d7ccabf56af71263977d935",
+      "canonical_source": "local/art-development/beach-port-redo/beach-portrait.png",
+      "canonical_bytes": 3113638,
+      "canonical_sha256": "38895ca6631048736d822ca874d0957054aec353ba461121c25fb36b66a3b401"
     }
   ]
 }

@@ -50,19 +50,54 @@ class TitleVariants(unittest.TestCase):
             # which leads on to Campus, and a shopping street joins it to the Farm.
             routes={h['id']:(h['target'],h.get('sign',{}).get('direction')) for h in scene['hotspots']}
             if scene['name'].startswith('port'):
-                self.assertEqual(set(routes), {'jungle-path','bunker-door','fishing-boat','crab-family','market-path'})
-                self.assertEqual(routes['jungle-path'],('scene:jungle-path','left'))
-                self.assertEqual(routes['market-path'],('scene:market','right'))
+                self.assertEqual(set(routes), {'beach-path','fishing-boat','market-path'})
+                self.assertEqual(routes['beach-path'],('scene:beach','right'))
+                self.assertEqual(routes['market-path'],('scene:market','left'))
             if scene['name'].startswith('jungle-path'):
-                self.assertEqual(routes['port-path'],('scene:port','left'))
-                self.assertEqual(routes['campus-path'],('scene:campus','right'))
+                self.assertEqual(routes['port-path'],('scene:beach','diagonal-left'))
+                self.assertEqual(routes['campus-path'],('scene:campus','diagonal-right'))
             if scene['name'].startswith('market'):
                 self.assertEqual(routes['port-path'],('scene:port','left'))
                 self.assertEqual(routes['farm-path'],('game:Farm','right'))
                 shops={h['id'] for h in scene['hotspots'] if h['target'].startswith('look:')}
                 self.assertEqual(shops,{'toy-shop','fish-stall','bakery','fruit-stall'})
-        self.assertNotIn('beach',{scene['name'] for scene in scenes})
-        self.assertEqual(title.SCENE_ALIASES,{'beach':'port'})
+        self.assertIn('beach',{scene['name'] for scene in scenes})
+        self.assertEqual(title.SCENE_ALIASES,{})
+        names = [s['name'] for s in scenes]
+        self.assertEqual(parents[names.index('port')], names.index('market'))
+        self.assertEqual(parents[names.index('aquarium')], names.index('beach'))
+
+    def test_beach_has_three_destination_paths_and_crabs(self):
+        _,scenes,_,_=title.Load()
+        for scene in scenes:
+            if scene['name'].startswith('beach'):
+                routes={h['id']:h for h in scene['hotspots']}
+                for ident,target,label,direction in (
+                    ('port-path','scene:port','Port','left'),
+                    ('campus-path','scene:jungle-path','Campus','right'),
+                    ('aquarium-path','scene:aquarium','Aquarium','right')):
+                    self.assertEqual(routes[ident]['target'],target)
+                    self.assertEqual(routes[ident]['sign']['label'],label)
+                    self.assertEqual(routes[ident]['sign']['direction'],direction)
+                self.assertEqual(routes['crab-family']['target'],'game:Crab Family Counting')
+                self.assertEqual(routes['fishing-boat']['target'],'game:Little Fishing Boat')
+            if scene['name'].startswith('aquarium'):
+                self.assertEqual(scene['hotspots'][0]['target'],'scene:beach')
+            for hotspot in scene['hotspots']:
+                self.assertNotEqual(hotspot.get('sign',{}).get('label'),'Jungle Path')
+
+    def test_beach_crabs_are_a_separate_transparent_overlay(self):
+        _,scenes,_,_=title.Load()
+        for scene in scenes:
+            if not scene['name'].startswith('beach'):
+                continue
+            hotspot=next(h for h in scene['hotspots'] if h['id']=='crab-family')
+            self.assertEqual(hotspot['rest'],'assets/jungle/title/objects/beach-crab-family.webp')
+            with Image.open(ROOT/hotspot['rest']) as sprite:
+                self.assertEqual(sprite.mode,'RGBA')
+                self.assertEqual(sprite.getchannel('A').getextrema(),(0,255))
+            x,y,w,h=hotspot['glow_rect']
+            self.assertEqual(hit(scene,x+w*.3,y+h*.4),'crab-family')
 
     def test_portrait_campus_uses_approved_mapping_and_full_background(self):
         _, scenes, _, _ = title.Load()
@@ -128,7 +163,7 @@ class TitleVariants(unittest.TestCase):
             for h in scene['hotspots']:
                 if not h.get('sign'):continue
                 # Only Campus's sign up into the Jungle Path stands upright.
-                upright = scene['name'].startswith('campus') and h['target'] == 'scene:jungle-path'
+                upright = scene['name'].startswith('jungle-path') or (scene['name'].startswith('campus') and h['target'] == 'scene:jungle-path')
                 self.assertEqual(h['sign']['direction'].startswith('diagonal-'), upright, (scene['name'], h['id']))
                 self.assertIn(h['sign']['direction'], ('left','right','diagonal-left','diagonal-right'))
                 self.assertEqual(h['rest'], 'assets/jungle/title/objects/wood-arrow-'+h['sign']['direction']+'.webp')
@@ -145,7 +180,7 @@ class TitleVariants(unittest.TestCase):
                        max(h['polygon'],key=lambda p:p[0]))
                 cx,cy=x+bx+bw/2,y+by+bh/2
                 tx,ty=cx+(tip[0]-cx)*.88,cy+(tip[1]-cy)*.88
-                self.assertEqual(hit(scene,tx,ty),h['id'])
+                self.assertEqual(hit(scene,tx,ty),h['id'], (scene['name'],h['id']))
                 with Image.open(ROOT/h['rest']) as im:
                     self.assertGreater(im.getchannel('A').getpixel((round((tx-x)*im.width/w),round((ty-y)*im.height/ht))),100)
         self.assertIn('TITLE_SIGN_DIRECTION' ,(ROOT/'host/jungle_title_data.zi').read_text())
@@ -178,7 +213,8 @@ class TitleVariants(unittest.TestCase):
             self.assertEqual(path[0]['rest'], 'assets/jungle/title/objects/wood-arrow-'+direction+'.webp')
         upright = [h['id'] for s in data['scenes'] for view in (s, s.get('portrait') or {})
                    for h in view.get('hotspots', []) if h.get('sign', {}).get('direction') == 'diagonal-left']
-        self.assertEqual(upright, ['jungle-path'])
+        self.assertEqual(upright.count('jungle-path'), 1)
+        self.assertEqual(upright.count('port-path'), 2)
         with Image.open(ROOT/'assets/jungle/title/objects/wood-arrow-right.webp') as right, \
              Image.open(ROOT/'assets/jungle/title/objects/wood-arrow-left.webp') as left:
             self.assertEqual(right.convert('RGBA').transpose(Image.Transpose.FLIP_LEFT_RIGHT).tobytes(),

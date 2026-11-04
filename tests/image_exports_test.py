@@ -273,10 +273,10 @@ class Exports(unittest.TestCase):
             self.assertEqual(im.size, (1672,941))
         with Image.open(root/'assets/jungle/title/tree-low.webp') as im:
             self.assertEqual(im.width, 240)
-        port_dir = root/'local/art-development/market'
+        port_dir = root/'local/art-development/beach-port-redo'
         port_dir.mkdir(parents=True)
         for orientation in ('landscape','portrait'):
-            Image.open(self.original).save(port_dir/f'port-{orientation}-market-path.png')
+            Image.open(self.original).save(port_dir/f'port-{orientation}.png')
         door = {'id':'bunker-door','glow_rect':[0,0,30,30],
                 'polygon':[[2,2],[25,2],[25,25]],'glow':'assets/jungle/title/door.png'}
         manifest = root/'tools/port.json'

@@ -49,7 +49,7 @@ def main():
                     farm=farm['portrait'] if h>w else farm
                     # The scene's own sign back to Campus.
                     sign=next(t for t in farm['hotspots'] if t['target']=='scene:campus')
-                    assert sign['sign']['direction']==('right' if name in ('farm','jungle-path') else 'left')
+                    assert sign['sign']['direction']==('diagonal-right' if name == 'jungle-path' else 'right' if name == 'farm' else 'left')
                     x,y,_,_=sign['glow_rect'];bx,by,bw,bh=sign['sign']['label_rect']
                     fs=max(w/(1024 if h>w else 1672),h/(1536 if h>w else 941))
                     fx=(w-(1024 if h>w else 1672)*fs)/2;fy=(h-(1536 if h>w else 941)*fs)/2

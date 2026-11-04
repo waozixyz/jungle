@@ -5954,524 +5954,1371 @@
       ]
     },
     {
-      "name": "port",
-      "image": "assets/jungle/title/beach-port.webp",
-      "low": "assets/jungle/title/beach-port-low.webp",
+      "name": "beach",
+      "image": "assets/jungle/title/beach.webp",
+      "low": "assets/jungle/title/beach-low.webp",
+      "portrait": {
+        "width": 1024,
+        "height": 1536,
+        "image": "assets/jungle/title/beach-portrait.webp",
+        "low": "assets/jungle/title/beach-portrait-low.webp",
+        "hotspots": [
+          {
+            "id": "port-path",
+            "target": "scene:port",
+            "glow_rect": [
+              300,
+              750,
+              280,
+              280
+            ],
+            "rest": "assets/jungle/title/objects/wood-arrow-left.webp",
+            "glow": "assets/jungle/title/objects/wood-arrow-left-glow.webp",
+            "polygon": [
+              [
+                568,
+                813
+              ],
+              [
+                400,
+                813
+              ],
+              [
+                400,
+                789
+              ],
+              [
+                311,
+                857
+              ],
+              [
+                400,
+                921
+              ],
+              [
+                400,
+                899
+              ],
+              [
+                568,
+                899
+              ]
+            ],
+            "sign": {
+              "label": "Port",
+              "direction": "left",
+              "label_rect": [
+                113,
+                74,
+                145,
+                63
+              ]
+            }
+          },
+          {
+            "id": "campus-path",
+            "target": "scene:jungle-path",
+            "glow_rect": [
+              520,
+              1000,
+              300,
+              300
+            ],
+            "rest": "assets/jungle/title/objects/wood-arrow-right.webp",
+            "glow": "assets/jungle/title/objects/wood-arrow-right-glow.webp",
+            "polygon": [
+              [
+                533,
+                1067
+              ],
+              [
+                713,
+                1067
+              ],
+              [
+                713,
+                1042
+              ],
+              [
+                808,
+                1115
+              ],
+              [
+                713,
+                1183
+              ],
+              [
+                713,
+                1160
+              ],
+              [
+                533,
+                1160
+              ]
+            ],
+            "sign": {
+              "label": "Campus",
+              "direction": "right",
+              "label_rect": [
+                24,
+                79,
+                156,
+                67
+              ]
+            }
+          },
+          {
+            "id": "aquarium-path",
+            "target": "scene:aquarium",
+            "glow_rect": [
+              480,
+              600,
+              300,
+              300
+            ],
+            "rest": "assets/jungle/title/objects/wood-arrow-right.webp",
+            "glow": "assets/jungle/title/objects/wood-arrow-right-glow.webp",
+            "polygon": [
+              [
+                493,
+                667
+              ],
+              [
+                673,
+                667
+              ],
+              [
+                673,
+                642
+              ],
+              [
+                768,
+                715
+              ],
+              [
+                673,
+                783
+              ],
+              [
+                673,
+                760
+              ],
+              [
+                493,
+                760
+              ]
+            ],
+            "sign": {
+              "label": "Aquarium",
+              "direction": "right",
+              "label_rect": [
+                24,
+                79,
+                156,
+                67
+              ]
+            }
+          },
+          {
+            "id": "crab-family",
+            "target": "game:Crab Family Counting",
+            "polygon": [
+              [
+                332,
+                1110
+              ],
+              [
+                328,
+                1120
+              ],
+              [
+                328,
+                1131
+              ],
+              [
+                313,
+                1142
+              ],
+              [
+                291,
+                1152
+              ],
+              [
+                276,
+                1162
+              ],
+              [
+                265,
+                1173
+              ],
+              [
+                255,
+                1183
+              ],
+              [
+                218,
+                1194
+              ],
+              [
+                203,
+                1205
+              ],
+              [
+                193,
+                1215
+              ],
+              [
+                190,
+                1226
+              ],
+              [
+                184,
+                1236
+              ],
+              [
+                180,
+                1246
+              ],
+              [
+                178,
+                1257
+              ],
+              [
+                177,
+                1268
+              ],
+              [
+                177,
+                1278
+              ],
+              [
+                197,
+                1289
+              ],
+              [
+                197,
+                1299
+              ],
+              [
+                199,
+                1310
+              ],
+              [
+                201,
+                1320
+              ],
+              [
+                206,
+                1331
+              ],
+              [
+                244,
+                1341
+              ],
+              [
+                282,
+                1352
+              ],
+              [
+                282,
+                1362
+              ],
+              [
+                291,
+                1373
+              ],
+              [
+                292,
+                1383
+              ],
+              [
+                313,
+                1394
+              ],
+              [
+                313,
+                1404
+              ],
+              [
+                689,
+                1404
+              ],
+              [
+                707,
+                1393
+              ],
+              [
+                716,
+                1382
+              ],
+              [
+                716,
+                1372
+              ],
+              [
+                715,
+                1361
+              ],
+              [
+                761,
+                1351
+              ],
+              [
+                798,
+                1340
+              ],
+              [
+                802,
+                1330
+              ],
+              [
+                804,
+                1319
+              ],
+              [
+                806,
+                1309
+              ],
+              [
+                806,
+                1298
+              ],
+              [
+                823,
+                1288
+              ],
+              [
+                823,
+                1277
+              ],
+              [
+                821,
+                1267
+              ],
+              [
+                817,
+                1256
+              ],
+              [
+                811,
+                1245
+              ],
+              [
+                804,
+                1235
+              ],
+              [
+                796,
+                1225
+              ],
+              [
+                783,
+                1214
+              ],
+              [
+                728,
+                1204
+              ],
+              [
+                715,
+                1193
+              ],
+              [
+                699,
+                1182
+              ],
+              [
+                683,
+                1172
+              ],
+              [
+                684,
+                1161
+              ],
+              [
+                682,
+                1151
+              ],
+              [
+                428,
+                1141
+              ],
+              [
+                429,
+                1130
+              ],
+              [
+                428,
+                1119
+              ],
+              [
+                428,
+                1110
+              ]
+            ],
+            "glow_rect": [
+              175,
+              1110,
+              650,
+              295
+            ],
+            "glow": "assets/jungle/title/objects/beach-crab-family-glow.webp",
+            "rest": "assets/jungle/title/objects/beach-crab-family.webp"
+          },
+          {
+            "id": "fishing-boat",
+            "target": "game:Little Fishing Boat",
+            "polygon": [
+              [
+                270,
+                350
+              ],
+              [
+                530,
+                350
+              ],
+              [
+                530,
+                530
+              ],
+              [
+                270,
+                530
+              ]
+            ],
+            "glow_rect": [
+              266,
+              346,
+              269,
+              189
+            ],
+            "glow": "assets/jungle/title/glow/beach-portrait-fishing-boat.webp"
+          },
+          {
+            "id": "port-walk",
+            "target": "scene:port",
+            "polygon": [
+              [
+                90,
+                760
+              ],
+              [
+                300,
+                760
+              ],
+              [
+                300,
+                1050
+              ],
+              [
+                90,
+                1050
+              ]
+            ],
+            "glow_rect": [
+              86,
+              756,
+              219,
+              299
+            ],
+            "glow": "assets/jungle/title/glow/beach-portrait-port-walk.webp",
+            "occlusion": [
+              [
+                410,
+                925
+              ],
+              [
+                293,
+                863
+              ],
+              [
+                302,
+                846
+              ],
+              [
+                215,
+                861
+              ],
+              [
+                253,
+                938
+              ],
+              [
+                261,
+                923
+              ],
+              [
+                378,
+                985
+              ]
+            ]
+          },
+          {
+            "id": "campus-walk",
+            "target": "scene:jungle-path",
+            "polygon": [
+              [
+                730,
+                810
+              ],
+              [
+                960,
+                810
+              ],
+              [
+                960,
+                1090
+              ],
+              [
+                730,
+                1090
+              ]
+            ],
+            "glow_rect": [
+              726,
+              806,
+              239,
+              289
+            ],
+            "glow": "assets/jungle/title/glow/beach-portrait-campus-walk.webp",
+            "occlusion": [
+              [
+                605,
+                945
+              ],
+              [
+                722,
+                883
+              ],
+              [
+                713,
+                866
+              ],
+              [
+                800,
+                881
+              ],
+              [
+                762,
+                958
+              ],
+              [
+                754,
+                943
+              ],
+              [
+                637,
+                1005
+              ]
+            ]
+          },
+          {
+            "id": "aquarium-walk",
+            "target": "scene:aquarium",
+            "polygon": [
+              [
+                740,
+                360
+              ],
+              [
+                990,
+                360
+              ],
+              [
+                990,
+                660
+              ],
+              [
+                740,
+                660
+              ]
+            ],
+            "glow_rect": [
+              736,
+              356,
+              259,
+              309
+            ],
+            "glow": "assets/jungle/title/glow/beach-portrait-aquarium-walk.webp",
+            "occlusion": [
+              [
+                612,
+                624
+              ],
+              [
+                715,
+                569
+              ],
+              [
+                708,
+                554
+              ],
+              [
+                785,
+                567
+              ],
+              [
+                751,
+                636
+              ],
+              [
+                744,
+                622
+              ],
+              [
+                640,
+                677
+              ]
+            ]
+          }
+        ]
+      },
       "hotspots": [
         {
-          "id": "jungle-path",
-          "target": "scene:jungle-path",
+          "id": "port-path",
+          "target": "scene:port",
           "glow_rect": [
-            555,
-            710,
-            220,
-            220
+            280,
+            360,
+            300,
+            300
           ],
           "rest": "assets/jungle/title/objects/wood-arrow-left.webp",
           "glow": "assets/jungle/title/objects/wood-arrow-left-glow.webp",
           "polygon": [
             [
-              765,
-              759
+              567,
+              427
             ],
             [
-              633,
-              759
+              387,
+              427
             ],
             [
-              633,
-              741
+              387,
+              402
             ],
             [
-              564,
-              794
+              292,
+              475
             ],
             [
-              633,
-              844
+              387,
+              543
             ],
             [
-              633,
-              827
+              387,
+              520
             ],
             [
-              765,
-              827
+              567,
+              520
             ]
           ],
           "sign": {
-            "label": "Jungle Path",
+            "label": "Port",
             "direction": "left",
             "label_rect": [
-              88,
-              58,
-              114,
-              49
+              121,
+              79,
+              156,
+              67
             ]
           }
         },
         {
-          "id": "bunker-door",
-          "target": "scene:aquarium",
+          "id": "campus-path",
+          "target": "scene:jungle-path",
+          "glow_rect": [
+            1260,
+            630,
+            300,
+            300
+          ],
+          "rest": "assets/jungle/title/objects/wood-arrow-right.webp",
+          "glow": "assets/jungle/title/objects/wood-arrow-right-glow.webp",
           "polygon": [
             [
-              1110,
-              676
+              1273,
+              697
             ],
             [
-              1104,
-              463
+              1453,
+              697
             ],
             [
-              1140,
-              374
+              1453,
+              672
             ],
             [
-              1220,
-              312
+              1548,
+              745
             ],
             [
-              1320,
-              279
+              1453,
+              813
             ],
             [
-              1440,
-              282
+              1453,
+              790
             ],
             [
-              1545,
-              320
-            ],
-            [
-              1618,
-              381
-            ],
-            [
-              1642,
-              480
-            ],
-            [
-              1610,
-              657
-            ],
-            [
-              1505,
-              710
-            ],
-            [
-              1340,
-              742
-            ],
-            [
-              1210,
-              724
+              1273,
+              790
             ]
           ],
-          "glow": "assets/jungle/title/glow/beach-bunker-door.webp",
-          "glow_rect": [
-            1092,
-            267,
-            563,
-            488
-          ]
+          "sign": {
+            "label": "Campus",
+            "direction": "right",
+            "label_rect": [
+              24,
+              79,
+              156,
+              67
+            ]
+          }
         },
         {
-          "id": "fishing-boat",
-          "target": "game:Little Fishing Boat",
+          "id": "aquarium-path",
+          "target": "scene:aquarium",
+          "glow_rect": [
+            900,
+            300,
+            300,
+            300
+          ],
+          "rest": "assets/jungle/title/objects/wood-arrow-right.webp",
+          "glow": "assets/jungle/title/objects/wood-arrow-right-glow.webp",
           "polygon": [
             [
-              100,
-              330
+              913,
+              367
             ],
             [
-              103,
-              324
+              1093,
+              367
             ],
             [
-              112,
-              309
+              1093,
+              342
             ],
             [
-              118,
-              303
+              1188,
+              415
             ],
             [
-              415,
-              300
+              1093,
+              483
             ],
             [
-              421,
-              300
+              1093,
+              460
             ],
             [
-              424,
-              303
-            ],
-            [
-              427,
-              351
-            ],
-            [
-              427,
-              375
-            ],
-            [
-              367,
-              426
-            ],
-            [
-              361,
-              429
-            ],
-            [
-              244,
-              429
-            ],
-            [
-              220,
-              426
-            ],
-            [
-              202,
-              423
-            ],
-            [
-              187,
-              420
-            ],
-            [
-              163,
-              414
-            ],
-            [
-              139,
-              402
-            ],
-            [
-              127,
-              393
-            ],
-            [
-              115,
-              375
-            ],
-            [
-              103,
-              345
-            ],
-            [
-              100,
-              336
+              913,
+              460
             ]
           ],
-          "rest": "assets/jungle/title/navigation/beach-fishing-boat.webp",
-          "glow": "assets/jungle/title/glow/beach-fishing-boat.webp",
-          "glow_rect": [
-            100,
-            300,
-            330,
-            133
-          ]
+          "sign": {
+            "label": "Aquarium",
+            "direction": "right",
+            "label_rect": [
+              24,
+              79,
+              156,
+              67
+            ]
+          }
         },
         {
           "id": "crab-family",
           "target": "game:Crab Family Counting",
           "polygon": [
             [
-              400,
-              597
+              635,
+              620
             ],
             [
-              405,
-              580
+              631,
+              629
             ],
             [
-              410,
-              575
+              631,
+              639
             ],
             [
-              415,
-              572
+              617,
+              649
             ],
             [
-              437,
-              570
-            ],
-            [
-              472,
-              572
-            ],
-            [
-              477,
-              575
-            ],
-            [
-              481,
-              582
-            ],
-            [
-              484,
-              595
-            ],
-            [
-              484,
-              609
-            ],
-            [
-              472,
-              614
-            ],
-            [
-              427,
-              617
-            ],
-            [
-              410,
-              617
-            ],
-            [
-              402,
-              612
-            ],
-            [
-              400,
-              600
-            ],
-            [
-              400,
-              597
-            ],
-            [
-              513,
-              599
-            ],
-            [
-              518,
-              584
-            ],
-            [
-              520,
-              579
-            ],
-            [
-              525,
-              577
-            ],
-            [
-              550,
-              572
+              597,
+              659
             ],
             [
               584,
-              574
+              668
             ],
             [
-              592,
-              579
+              573,
+              678
             ],
             [
-              594,
-              584
+              564,
+              688
             ],
             [
-              599,
-              606
+              529,
+              698
             ],
             [
-              599,
-              609
+              516,
+              707
             ],
             [
-              579,
-              618
-            ],
-            [
-              523,
-              618
-            ],
-            [
-              515,
-              614
-            ],
-            [
-              513,
-              601
-            ],
-            [
-              513,
-              599
-            ],
-            [
-              400,
-              597
-            ],
-            [
-              400,
-              597
-            ],
-            [
-              459,
-              622
-            ],
-            [
-              462,
-              609
-            ],
-            [
-              464,
-              607
-            ],
-            [
-              477,
-              605
-            ],
-            [
-              499,
-              607
-            ],
-            [
-              501,
-              609
+              507,
+              717
             ],
             [
               504,
-              614
+              727
             ],
             [
-              504,
-              622
+              498,
+              737
             ],
             [
-              501,
-              627
+              494,
+              746
             ],
             [
-              472,
-              627
+              492,
+              756
             ],
             [
-              464,
-              624
+              492,
+              766
             ],
             [
-              459,
-              622
+              492,
+              775
             ],
             [
-              400,
-              597
+              510,
+              785
             ],
             [
-              400,
-              597
+              510,
+              795
             ],
             [
-              517,
-              622
+              512,
+              804
             ],
             [
-              519,
-              612
+              514,
+              814
             ],
             [
-              522,
-              609
+              518,
+              824
             ],
             [
-              532,
-              607
+              553,
+              833
             ],
             [
-              542,
-              607
+              589,
+              843
             ],
             [
-              554,
-              609
+              589,
+              853
             ],
             [
-              556,
-              612
+              597,
+              862
             ],
             [
-              556,
-              619
+              598,
+              872
             ],
             [
-              554,
-              627
+              618,
+              882
             ],
             [
-              519,
-              627
+              618,
+              891
             ],
             [
-              517,
-              622
+              964,
+              891
             ],
             [
-              400,
-              597
+              981,
+              881
+            ],
+            [
+              989,
+              871
+            ],
+            [
+              989,
+              861
+            ],
+            [
+              988,
+              852
+            ],
+            [
+              1031,
+              842
+            ],
+            [
+              1065,
+              832
+            ],
+            [
+              1068,
+              823
+            ],
+            [
+              1071,
+              813
+            ],
+            [
+              1073,
+              803
+            ],
+            [
+              1073,
+              794
+            ],
+            [
+              1088,
+              784
+            ],
+            [
+              1088,
+              774
+            ],
+            [
+              1086,
+              765
+            ],
+            [
+              1083,
+              755
+            ],
+            [
+              1077,
+              745
+            ],
+            [
+              1070,
+              736
+            ],
+            [
+              1064,
+              726
+            ],
+            [
+              1051,
+              716
+            ],
+            [
+              1000,
+              706
+            ],
+            [
+              989,
+              697
+            ],
+            [
+              973,
+              687
+            ],
+            [
+              959,
+              677
+            ],
+            [
+              960,
+              667
+            ],
+            [
+              958,
+              658
+            ],
+            [
+              724,
+              648
+            ],
+            [
+              724,
+              638
+            ],
+            [
+              724,
+              628
+            ],
+            [
+              724,
+              620
             ]
           ],
-          "rest": "assets/jungle/title/navigation/beach-crab-family.webp",
-          "glow": "assets/jungle/title/glow/beach-crab-family.webp",
           "glow_rect": [
-            400,
-            570,
-            200,
-            60
+            490,
+            620,
+            600,
+            272
+          ],
+          "glow": "assets/jungle/title/objects/beach-crab-family-glow.webp",
+          "rest": "assets/jungle/title/objects/beach-crab-family.webp"
+        },
+        {
+          "id": "fishing-boat",
+          "target": "game:Little Fishing Boat",
+          "polygon": [
+            [
+              600,
+              200
+            ],
+            [
+              880,
+              200
+            ],
+            [
+              880,
+              360
+            ],
+            [
+              600,
+              360
+            ]
+          ],
+          "glow_rect": [
+            596,
+            196,
+            289,
+            169
+          ],
+          "glow": "assets/jungle/title/glow/beach-fishing-boat.webp"
+        },
+        {
+          "id": "port-walk",
+          "target": "scene:port",
+          "polygon": [
+            [
+              30,
+              235
+            ],
+            [
+              280,
+              235
+            ],
+            [
+              280,
+              545
+            ],
+            [
+              30,
+              545
+            ]
+          ],
+          "glow_rect": [
+            26,
+            231,
+            259,
+            319
+          ],
+          "glow": "assets/jungle/title/glow/beach-port-walk.webp",
+          "occlusion": [
+            [
+              335,
+              395
+            ],
+            [
+              218,
+              333
+            ],
+            [
+              227,
+              316
+            ],
+            [
+              140,
+              331
+            ],
+            [
+              178,
+              408
+            ],
+            [
+              186,
+              393
+            ],
+            [
+              303,
+              455
+            ]
+          ]
+        },
+        {
+          "id": "campus-walk",
+          "target": "scene:jungle-path",
+          "polygon": [
+            [
+              1400,
+              420
+            ],
+            [
+              1640,
+              420
+            ],
+            [
+              1640,
+              620
+            ],
+            [
+              1400,
+              620
+            ]
+          ],
+          "glow_rect": [
+            1396,
+            416,
+            249,
+            209
+          ],
+          "glow": "assets/jungle/title/glow/beach-campus-walk.webp",
+          "occlusion": [
+            [
+              1345,
+              585
+            ],
+            [
+              1462,
+              523
+            ],
+            [
+              1453,
+              506
+            ],
+            [
+              1540,
+              521
+            ],
+            [
+              1502,
+              598
+            ],
+            [
+              1494,
+              583
+            ],
+            [
+              1377,
+              645
+            ]
+          ]
+        },
+        {
+          "id": "aquarium-walk",
+          "target": "scene:aquarium",
+          "polygon": [
+            [
+              1220,
+              260
+            ],
+            [
+              1460,
+              260
+            ],
+            [
+              1460,
+              410
+            ],
+            [
+              1220,
+              410
+            ]
+          ],
+          "glow_rect": [
+            1216,
+            256,
+            249,
+            159
+          ],
+          "glow": "assets/jungle/title/glow/beach-aquarium-walk.webp",
+          "occlusion": [
+            [
+              1232,
+              434
+            ],
+            [
+              1335,
+              379
+            ],
+            [
+              1328,
+              364
+            ],
+            [
+              1405,
+              377
+            ],
+            [
+              1371,
+              446
+            ],
+            [
+              1364,
+              432
+            ],
+            [
+              1260,
+              487
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "name": "port",
+      "image": "assets/jungle/title/beach-port.webp",
+      "low": "assets/jungle/title/beach-port-low.webp",
+      "hotspots": [
+        {
+          "id": "fishing-boat",
+          "target": "game:Little Fishing Boat",
+          "polygon": [
+            [
+              1000,
+              235
+            ],
+            [
+              1260,
+              235
+            ],
+            [
+              1260,
+              415
+            ],
+            [
+              1000,
+              415
+            ]
+          ],
+          "glow": "assets/jungle/title/glow/port-fishing-boat.webp",
+          "glow_rect": [
+            986,
+            221,
+            289,
+            209
           ]
         },
         {
           "id": "market-path",
           "target": "scene:market",
           "glow_rect": [
-            1360,
-            740,
-            190,
-            190
+            100,
+            450,
+            300,
+            300
+          ],
+          "rest": "assets/jungle/title/objects/wood-arrow-left.webp",
+          "glow": "assets/jungle/title/objects/wood-arrow-left-glow.webp",
+          "polygon": [
+            [
+              387,
+              517
+            ],
+            [
+              207,
+              517
+            ],
+            [
+              207,
+              492
+            ],
+            [
+              112,
+              565
+            ],
+            [
+              207,
+              633
+            ],
+            [
+              207,
+              610
+            ],
+            [
+              387,
+              610
+            ]
+          ],
+          "sign": {
+            "label": "Market",
+            "direction": "left",
+            "label_rect": [
+              121,
+              79,
+              156,
+              67
+            ]
+          }
+        },
+        {
+          "id": "beach-path",
+          "target": "scene:beach",
+          "glow_rect": [
+            1270,
+            450,
+            300,
+            300
           ],
           "rest": "assets/jungle/title/objects/wood-arrow-right.webp",
           "glow": "assets/jungle/title/objects/wood-arrow-right-glow.webp",
           "polygon": [
             [
-              1368,
-              783
+              1283,
+              517
             ],
             [
-              1482,
-              783
+              1463,
+              517
             ],
             [
-              1482,
-              767
+              1463,
+              492
             ],
             [
-              1543,
-              813
+              1558,
+              565
             ],
             [
-              1482,
-              856
+              1463,
+              633
             ],
             [
-              1482,
-              841
+              1463,
+              610
             ],
             [
-              1368,
-              841
+              1283,
+              610
             ]
           ],
           "sign": {
-            "label": "Market",
+            "label": "Beach",
             "direction": "right",
             "label_rect": [
-              15,
-              50,
-              98,
-              42
+              24,
+              79,
+              156,
+              67
             ]
           }
         }
@@ -6483,519 +7330,135 @@
         "low": "assets/jungle/title/beach-portrait-port-low.webp",
         "hotspots": [
           {
-            "id": "jungle-path",
-            "target": "scene:jungle-path",
-            "glow_rect": [
-              210,
-              980,
-              220,
-              220
-            ],
-            "rest": "assets/jungle/title/objects/wood-arrow-left.webp",
-            "glow": "assets/jungle/title/objects/wood-arrow-left-glow.webp",
-            "polygon": [
-              [
-                420,
-                1029
-              ],
-              [
-                288,
-                1029
-              ],
-              [
-                288,
-                1011
-              ],
-              [
-                219,
-                1064
-              ],
-              [
-                288,
-                1114
-              ],
-              [
-                288,
-                1097
-              ],
-              [
-                420,
-                1097
-              ]
-            ],
-            "sign": {
-              "label": "Jungle Path",
-              "direction": "left",
-              "label_rect": [
-                88,
-                58,
-                114,
-                49
-              ]
-            }
-          },
-          {
-            "id": "bunker-door",
-            "target": "scene:aquarium",
-            "polygon": [
-              [
-                668,
-                811
-              ],
-              [
-                666,
-                573
-              ],
-              [
-                690,
-                491
-              ],
-              [
-                743,
-                433
-              ],
-              [
-                818,
-                402
-              ],
-              [
-                898,
-                412
-              ],
-              [
-                967,
-                459
-              ],
-              [
-                1010,
-                531
-              ],
-              [
-                1010,
-                790
-              ],
-              [
-                952,
-                851
-              ],
-              [
-                860,
-                867
-              ],
-              [
-                760,
-                856
-              ]
-            ],
-            "glow": "assets/jungle/title/glow/beach-portrait-bunker-door.webp",
-            "glow_rect": [
-              654,
-              390,
-              369,
-              490
-            ]
-          },
-          {
             "id": "fishing-boat",
             "target": "game:Little Fishing Boat",
             "polygon": [
               [
-                180,
-                464
+                490,
+                550
               ],
               [
-                189,
-                446
+                750,
+                550
               ],
               [
-                195,
-                443
+                750,
+                730
               ],
               [
-                432,
-                440
-              ],
-              [
-                438,
-                440
-              ],
-              [
-                441,
-                443
-              ],
-              [
-                444,
-                485
-              ],
-              [
-                444,
-                494
-              ],
-              [
-                441,
-                500
-              ],
-              [
-                438,
-                503
-              ],
-              [
-                393,
-                542
-              ],
-              [
-                384,
-                545
-              ],
-              [
-                315,
-                545
-              ],
-              [
-                282,
-                542
-              ],
-              [
-                264,
-                539
-              ],
-              [
-                249,
-                536
-              ],
-              [
-                237,
-                533
-              ],
-              [
-                228,
-                530
-              ],
-              [
-                210,
-                521
-              ],
-              [
-                198,
-                509
-              ],
-              [
-                192,
-                500
-              ],
-              [
-                180,
-                470
+                490,
+                730
               ]
             ],
-            "rest": "assets/jungle/title/navigation/beach-portrait-fishing-boat.webp",
-            "glow": "assets/jungle/title/glow/beach-portrait-fishing-boat.webp",
+            "glow": "assets/jungle/title/glow/port-portrait-fishing-boat.webp",
             "glow_rect": [
-              180,
-              440,
-              265,
-              107
-            ]
-          },
-          {
-            "id": "crab-family",
-            "target": "game:Crab Family Counting",
-            "polygon": [
-              [
-                155,
-                800
-              ],
-              [
-                160,
-                781
-              ],
-              [
-                166,
-                775
-              ],
-              [
-                171,
-                773
-              ],
-              [
-                196,
-                770
-              ],
-              [
-                234,
-                773
-              ],
-              [
-                239,
-                775
-              ],
-              [
-                245,
-                784
-              ],
-              [
-                247,
-                797
-              ],
-              [
-                247,
-                813
-              ],
-              [
-                234,
-                819
-              ],
-              [
-                185,
-                822
-              ],
-              [
-                166,
-                822
-              ],
-              [
-                158,
-                816
-              ],
-              [
-                155,
-                803
-              ],
-              [
-                155,
-                800
-              ],
-              [
-                279,
-                802
-              ],
-              [
-                284,
-                785
-              ],
-              [
-                287,
-                780
-              ],
-              [
-                293,
-                777
-              ],
-              [
-                320,
-                772
-              ],
-              [
-                358,
-                775
-              ],
-              [
-                366,
-                780
-              ],
-              [
-                369,
-                785
-              ],
-              [
-                374,
-                810
-              ],
-              [
-                374,
-                812
-              ],
-              [
-                352,
-                823
-              ],
-              [
-                290,
-                823
-              ],
-              [
-                282,
-                818
-              ],
-              [
-                279,
-                804
-              ],
-              [
-                279,
-                802
-              ],
-              [
-                155,
-                800
-              ],
-              [
-                155,
-                800
-              ],
-              [
-                220,
-                827
-              ],
-              [
-                223,
-                813
-              ],
-              [
-                226,
-                811
-              ],
-              [
-                239,
-                808
-              ],
-              [
-                264,
-                811
-              ],
-              [
-                266,
-                813
-              ],
-              [
-                269,
-                819
-              ],
-              [
-                269,
-                827
-              ],
-              [
-                266,
-                832
-              ],
-              [
-                234,
-                832
-              ],
-              [
-                226,
-                830
-              ],
-              [
-                220,
-                827
-              ],
-              [
-                155,
-                800
-              ],
-              [
-                155,
-                800
-              ],
-              [
-                284,
-                827
-              ],
-              [
-                286,
-                816
-              ],
-              [
-                289,
-                813
-              ],
-              [
-                300,
-                811
-              ],
-              [
-                311,
-                811
-              ],
-              [
-                324,
-                813
-              ],
-              [
-                327,
-                816
-              ],
-              [
-                327,
-                824
-              ],
-              [
-                324,
-                832
-              ],
-              [
-                286,
-                832
-              ],
-              [
-                284,
-                827
-              ],
-              [
-                155,
-                800
-              ]
-            ],
-            "rest": "assets/jungle/title/navigation/beach-portrait-crab-family.webp",
-            "glow": "assets/jungle/title/glow/beach-portrait-crab-family.webp",
-            "glow_rect": [
-              155,
-              770,
-              220,
-              66
+              476,
+              536,
+              289,
+              209
             ]
           },
           {
             "id": "market-path",
             "target": "scene:market",
             "glow_rect": [
-              660,
-              860,
-              185,
-              185
+              175,
+              800,
+              300,
+              300
+            ],
+            "rest": "assets/jungle/title/objects/wood-arrow-left.webp",
+            "glow": "assets/jungle/title/objects/wood-arrow-left-glow.webp",
+            "polygon": [
+              [
+                462,
+                867
+              ],
+              [
+                282,
+                867
+              ],
+              [
+                282,
+                842
+              ],
+              [
+                187,
+                915
+              ],
+              [
+                282,
+                983
+              ],
+              [
+                282,
+                960
+              ],
+              [
+                462,
+                960
+              ]
+            ],
+            "sign": {
+              "label": "Market",
+              "direction": "left",
+              "label_rect": [
+                121,
+                79,
+                156,
+                67
+              ]
+            }
+          },
+          {
+            "id": "beach-path",
+            "target": "scene:beach",
+            "glow_rect": [
+              550,
+              950,
+              300,
+              300
             ],
             "rest": "assets/jungle/title/objects/wood-arrow-right.webp",
             "glow": "assets/jungle/title/objects/wood-arrow-right-glow.webp",
             "polygon": [
               [
-                668,
-                902
+                563,
+                1017
               ],
               [
-                779,
-                902
+                743,
+                1017
               ],
               [
-                779,
-                886
+                743,
+                992
               ],
               [
                 838,
-                931
+                1065
               ],
               [
-                779,
-                973
+                743,
+                1133
               ],
               [
-                779,
-                959
+                743,
+                1110
               ],
               [
-                668,
-                959
+                563,
+                1110
               ]
             ],
             "sign": {
-              "label": "Market",
+              "label": "Beach",
               "direction": "right",
               "label_rect": [
-                15,
-                49,
-                96,
-                41
+                24,
+                79,
+                156,
+                67
               ]
             }
           }
@@ -7008,8 +7471,8 @@
       "low": "assets/jungle/title/aquarium-low.webp",
       "hotspots": [
         {
-          "id": "port-stairs",
-          "target": "scene:port",
+          "id": "beach-stairs",
+          "target": "scene:beach",
           "polygon": [
             [
               70,
@@ -7156,8 +7619,8 @@
         "low": "assets/jungle/title/aquarium-portrait-low.webp",
         "hotspots": [
           {
-            "id": "port-stairs",
-            "target": "scene:port",
+            "id": "beach-stairs",
+            "target": "scene:beach",
             "polygon": [
               [
                 68,
@@ -9308,53 +9771,53 @@
         },
         {
           "id": "port-path",
-          "target": "scene:port",
+          "target": "scene:beach",
           "glow_rect": [
             100,
             500,
             190,
             190
           ],
-          "rest": "assets/jungle/title/objects/wood-arrow-left.webp",
-          "glow": "assets/jungle/title/objects/wood-arrow-left-glow.webp",
+          "rest": "assets/jungle/title/objects/wood-arrow-diagonal-left.webp",
+          "glow": "assets/jungle/title/objects/wood-arrow-diagonal-left-glow.webp",
           "polygon": [
             [
-              282,
-              543
+              272,
+              569
             ],
             [
-              168,
-              543
+              186,
+              524
             ],
             [
-              168,
-              527
+              193,
+              512
             ],
             [
-              107,
-              573
+              129,
+              522
             ],
             [
-              168,
-              616
+              157,
+              579
             ],
             [
-              168,
-              601
+              163,
+              568
             ],
             [
-              282,
-              601
+              249,
+              613
             ]
           ],
           "sign": {
-            "label": "Port",
-            "direction": "left",
+            "label": "Beach",
+            "direction": "diagonal-left",
             "label_rect": [
-              76,
-              50,
-              98,
-              42
+              88,
+              55,
+              39,
+              10
             ]
           }
         },
@@ -9367,46 +9830,46 @@
             210,
             210
           ],
-          "rest": "assets/jungle/title/objects/wood-arrow-right.webp",
-          "glow": "assets/jungle/title/objects/wood-arrow-right-glow.webp",
+          "rest": "assets/jungle/title/objects/wood-arrow-diagonal-right.webp",
+          "glow": "assets/jungle/title/objects/wood-arrow-diagonal-right-glow.webp",
           "polygon": [
             [
-              1369,
-              377
+              1380,
+              407
             ],
             [
-              1495,
-              377
+              1475,
+              356
             ],
             [
-              1495,
-              359
+              1468,
+              343
             ],
             [
-              1562,
-              410
+              1538,
+              355
             ],
             [
-              1495,
-              458
+              1507,
+              417
             ],
             [
-              1495,
-              442
+              1500,
+              405
             ],
             [
-              1369,
-              442
+              1406,
+              455
             ]
           ],
           "sign": {
             "label": "Campus",
-            "direction": "right",
+            "direction": "diagonal-right",
             "label_rect": [
-              17,
-              55,
-              109,
-              47
+              70,
+              60,
+              43,
+              11
             ]
           }
         },
@@ -10185,53 +10648,53 @@
           },
           {
             "id": "port-path",
-            "target": "scene:port",
+            "target": "scene:beach",
             "glow_rect": [
               178,
               300,
               190,
               190
             ],
-            "rest": "assets/jungle/title/objects/wood-arrow-left.webp",
-            "glow": "assets/jungle/title/objects/wood-arrow-left-glow.webp",
+            "rest": "assets/jungle/title/objects/wood-arrow-diagonal-left.webp",
+            "glow": "assets/jungle/title/objects/wood-arrow-diagonal-left-glow.webp",
             "polygon": [
               [
-                360,
-                343
+                350,
+                369
               ],
               [
-                246,
-                343
+                264,
+                324
               ],
               [
-                246,
-                327
+                271,
+                312
               ],
               [
-                185,
-                373
+                207,
+                322
               ],
               [
-                246,
-                416
+                235,
+                379
               ],
               [
-                246,
-                401
+                241,
+                368
               ],
               [
-                360,
-                401
+                327,
+                413
               ]
             ],
             "sign": {
-              "label": "Port",
-              "direction": "left",
+              "label": "Beach",
+              "direction": "diagonal-left",
               "label_rect": [
-                76,
-                50,
-                98,
-                42
+                88,
+                55,
+                39,
+                10
               ]
             }
           },
@@ -10244,46 +10707,46 @@
               200,
               200
             ],
-            "rest": "assets/jungle/title/objects/wood-arrow-right.webp",
-            "glow": "assets/jungle/title/objects/wood-arrow-right-glow.webp",
+            "rest": "assets/jungle/title/objects/wood-arrow-diagonal-right.webp",
+            "glow": "assets/jungle/title/objects/wood-arrow-diagonal-right-glow.webp",
             "polygon": [
               [
-                649,
-                1145
+                659,
+                1173
               ],
               [
-                769,
-                1145
+                749,
+                1125
               ],
               [
-                769,
-                1128
+                742,
+                1112
               ],
               [
-                832,
-                1177
+                809,
+                1124
               ],
               [
-                769,
-                1222
+                780,
+                1183
               ],
               [
-                769,
-                1207
+                774,
+                1171
               ],
               [
-                649,
-                1207
+                684,
+                1219
               ]
             ],
             "sign": {
               "label": "Campus",
-              "direction": "right",
+              "direction": "diagonal-right",
               "label_rect": [
-                16,
-                53,
-                104,
-                45
+                67,
+                58,
+                41,
+                11
               ]
             }
           },
@@ -11254,7 +11717,7 @@
         },
         {
           "id": "beach",
-          "target": "scene:port",
+          "target": "scene:beach",
           "glow_rect": [
             561,
             165,
@@ -13329,7 +13792,7 @@
           },
           {
             "id": "beach",
-            "target": "scene:port",
+            "target": "scene:beach",
             "glow_rect": [
               560,
               238,

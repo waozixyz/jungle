@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- Repaint Beach and Port with flat signs, a Beach Aquarium cave, and clear coastal paths.
+
 - Give the Treehouse window cloudless skies, slowly drifting clouds and a separate wind-swaying branch.
 
 - Fill the whole window with the Farm and its gardens, with Back floating over the painting and no title-bar gap.

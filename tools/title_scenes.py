@@ -22,10 +22,9 @@ DIALOGUE = ROOT / 'tools/title_dialogue.json'
 LANGUAGES = ('en', 'de', 'es')
 # Below Ziran's 4095-character file-scope initializer limit.
 INITIALIZER_LIMIT = 3600
-SIGN_LABELS = {'Port', 'Farm', 'Desert', 'Campus', 'Market', 'Jungle Path', 'Beach'}
-# Retired scene names that still resolve, so older links and saved routes
-# keep working: the Beach became the Port.
-SCENE_ALIASES = {'beach': 'port'}
+SIGN_LABELS = {'Port', 'Farm', 'Desert', 'Campus', 'Market', 'Aquarium', 'Beach'}
+# Beach and Port are separate destinations.
+SCENE_ALIASES = {}
 
 
 def Inside(polygon, x, y):
@@ -55,8 +54,6 @@ def Sign(hotspot, rect):
     # Only Campus's route up into the Jungle Path stands as an upright plank.
     if sign.get('direction') not in ('left','right','diagonal-left','diagonal-right'):
         raise SystemExit('title scenes: every sign needs a travel direction')
-    if sign['direction'].startswith('diagonal-') and hotspot.get('target') != 'scene:jungle-path':
-        raise SystemExit('title scenes: only the Campus route up to the Jungle Path is an upright sign')
     board = sign.get('label_rect', [])
     if (not isinstance(board, list) or len(board) != 4 or
             any(type(v) is not int for v in board) or
@@ -309,6 +306,9 @@ def Load(source=SOURCE, catalog=CATALOG):
                         seen.add(index)
                         parents[index] = current
                         queue.append(index)
+    # Coastal destinations have fixed Back routes, independent of discovery order.
+    for child, parent in (('port', 'market'), ('aquarium', 'beach')):
+        parents[names.index(child)] = names.index(parent)
     # Without a remembered origin, Back from the world map climbs to the treehouse.
     for index, scene in enumerate(scenes):
         if scene['name'] == MAP and index not in seen:
@@ -543,12 +543,11 @@ def Render(data, scenes, parents, hotspots):
 
 
 def ExportPort():
-    """Export the Port plates at runtime sizes: the owner's approved plates with
-    only the sandy path to the Market added at the right (tools/title_places.py)."""
+    """Export the new Port paintings with Market left and Beach right."""
     from PIL import Image, ImageDraw, ImageFilter
     from image_exports import export_image
     for orientation, stem in [('landscape', 'beach-port'), ('portrait', 'beach-portrait-port')]:
-        source = ROOT / f'local/art-development/market/port-{orientation}-market-path.png'
+        source = ROOT / f'local/art-development/beach-port-redo/port-{orientation}.png'
         with Image.open(source) as image:
             image = image.convert('RGB')
             export_image(source, ROOT / f'assets/jungle/title/{stem}.webp', 'title-background')
@@ -556,7 +555,9 @@ def ExportPort():
                          'title-background', size=(240, round(image.height * 240 / image.width)))
     port = next(s for s in json.loads(SOURCE.read_text())['scenes'] if s['name'] == 'port')
     for scene in (port, port['portrait']):
-        door = next(h for h in scene['hotspots'] if h['id'] == 'bunker-door')
+        door = next((h for h in scene['hotspots'] if h['id'] == 'bunker-door'), None)
+        if door is None:
+            continue  # Aquarium entrance belongs to Beach.
         x, y, width, height = door['glow_rect']
         points = [(px-x, py-y) for px, py in door['polygon']]
         mask = Image.new('L', (width, height))
