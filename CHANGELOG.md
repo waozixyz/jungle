@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- Keep Google libraries restricted to the Google Play Android edition when updating dependencies.
+
 - Bring the Treehouse window to life with visiting birds, a fluttering butterfly, gently swaying leaves and a flowing river.
 
 - Make the Farm much smaller to download while keeping crops, seeds and tools planted in the same places.
