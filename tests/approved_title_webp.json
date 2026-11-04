@@ -2,7 +2,7 @@
   "format": "jungle-approved-title-webp-1",
   "quality": 50,
   "method": 6,
-  "total_bytes": 5208656,
+  "total_bytes": 5178672,
   "images": [
     {
       "name": "bookshelf-background",
@@ -275,26 +275,26 @@
     {
       "name": "window",
       "path": "assets/jungle/title/window.webp",
-      "bytes": 142816,
-      "sha256": "4351b02b68a00d565b61889b4e1cebbd54f4853d903be38576aeb24000b3cf00",
+      "bytes": 126658,
+      "sha256": "3cde87a7ba9c0321e0d81db74fdab35acc2bfe43cdd5ac8eee0f0011b73a92c7",
       "width": 1672,
       "height": 941,
-      "decoded_rgba_sha256": "782ac6787281088611d246c13db8e526aca507caad720b25935887c341f1a0aa",
-      "canonical_source": "local/art-development/treehouse-room/gen-landscape-window.png",
-      "canonical_bytes": 2946516,
-      "canonical_sha256": "a6726e0c8372ca299f9eea91258496febbde0f1817af3c3dd853a8cc0a62ce89"
+      "decoded_rgba_sha256": "b8d0aa70a6c6b0ed958bff02fcc931781fbf0d65c16564250be3830fd945868d",
+      "canonical_source": "local/art-development/treehouse-window-animation/landscape-clean-composited.png",
+      "canonical_bytes": 2316617,
+      "canonical_sha256": "039046fae91ea71dc15f49bf3584123d1a2f6e83db59d2b151b53fcfe95a02bd"
     },
     {
       "name": "window-low",
       "path": "assets/jungle/title/window-low.webp",
-      "bytes": 6976,
-      "sha256": "b58792911cd52aee821f659e19f5b072fea4c59aa37b4bd440b7231118598526",
+      "bytes": 6760,
+      "sha256": "074b1c616ec08fd9edeb0faa2b4043a1c7baf9ab9fe5a9602a80aa99ac416d37",
       "width": 240,
       "height": 135,
-      "decoded_rgba_sha256": "49a73e496a0e8c7609923d81757a4cfe6ed8999c54b9e818422214f7b5eb6910",
-      "canonical_source": "local/art-development/treehouse-room/gen-landscape-window.png",
-      "canonical_bytes": 2946516,
-      "canonical_sha256": "a6726e0c8372ca299f9eea91258496febbde0f1817af3c3dd853a8cc0a62ce89"
+      "decoded_rgba_sha256": "213255158d48dcf987bec0630d00de11e1a6b2040f2f083fe5c123c4f1e49105",
+      "canonical_source": "local/art-development/treehouse-window-animation/landscape-clean-composited.png",
+      "canonical_bytes": 2316617,
+      "canonical_sha256": "039046fae91ea71dc15f49bf3584123d1a2f6e83db59d2b151b53fcfe95a02bd"
     },
     {
       "name": "treehouse-portrait",
@@ -323,26 +323,26 @@
     {
       "name": "window-portrait",
       "path": "assets/jungle/title/window-portrait.webp",
-      "bytes": 162020,
-      "sha256": "1f81b04c7f3c41ae9aeea0ccb6a9179fea4c7109f643f987a35b1ca7c3b6236d",
+      "bytes": 149414,
+      "sha256": "c939c2f454763d21014ceaf421701d94fbbff1e5ed28b888c0f219e5102acebb",
       "width": 1024,
       "height": 1536,
-      "decoded_rgba_sha256": "5a08f19f8183fa23c5fd7cedce601a12fa02579362a8d806132bd8b976361f27",
-      "canonical_source": "local/art-development/treehouse-room/gen-portrait-window.png",
-      "canonical_bytes": 3015616,
-      "canonical_sha256": "b7ffa5bf39c946e021585a70ff8f8496023d2d3cc246c53e965f32413aa6e77d"
+      "decoded_rgba_sha256": "f1bb1fb2a90a2ba88989a8198c1db782e726a8cdf66095be6238625aa9a69154",
+      "canonical_source": "local/art-development/treehouse-window-animation/portrait-clean-composited.png",
+      "canonical_bytes": 2475881,
+      "canonical_sha256": "ee4966aded9371560f5ccaf0962afd517713484c36097e7a61ed1ce0041d4b56"
     },
     {
       "name": "window-portrait-low",
       "path": "assets/jungle/title/window-portrait-low.webp",
-      "bytes": 17972,
-      "sha256": "852fc774fb9bb59a9e3eba314b5c073dd015a15a6fbbde22b70d8e5eda85254d",
+      "bytes": 16968,
+      "sha256": "2bb1ee97fbbb5490edda3260f91247e7c3d6722dd7855e4b730e0df0f6b86934",
       "width": 240,
       "height": 360,
-      "decoded_rgba_sha256": "327496e6d9fc4b5c4d87e1e48bae2e38a5ac07d4b5059d1ef8b4f467b203e192",
-      "canonical_source": "local/art-development/treehouse-room/gen-portrait-window.png",
-      "canonical_bytes": 3015616,
-      "canonical_sha256": "b7ffa5bf39c946e021585a70ff8f8496023d2d3cc246c53e965f32413aa6e77d"
+      "decoded_rgba_sha256": "845cb6d61a67d279b52640e34fd964b2430f8f76519a269e8e9a64c24a5609e0",
+      "canonical_source": "local/art-development/treehouse-window-animation/portrait-clean-composited.png",
+      "canonical_bytes": 2475881,
+      "canonical_sha256": "ee4966aded9371560f5ccaf0962afd517713484c36097e7a61ed1ce0041d4b56"
     },
     {
       "name": "jungle-path",

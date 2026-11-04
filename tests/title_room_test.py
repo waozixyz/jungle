@@ -24,6 +24,28 @@ def lossless(path):
 
 
 class TreehouseRoom(unittest.TestCase):
+    def test_animation_atlases_and_generated_runtime(self):
+        spec = importlib.util.spec_from_file_location('title_animations', ROOT/'tools/title_animations.py')
+        animation = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(animation)
+        self.assertEqual(animation.TARGET.read_text(), animation.generate())
+        layers = json.loads(animation.SOURCE.read_text())['layers']
+        for scene in ('window', 'window-portrait'):
+            selected = [layer for layer in layers if layer['scene'] == scene]
+            self.assertEqual(len(selected), 10)
+            base = next(s for s in json.loads(title.SOURCE.read_text())['scenes'] if s['name'] == 'window')
+            preload = base if scene == 'window' else base['portrait']
+            self.assertEqual(set(preload['animations']), {layer['path'] for layer in selected})
+            self.assertEqual(sum(layer['mode'] == 2 for layer in selected), 1)
+            self.assertEqual(sum(layer['mode'] == 1 for layer in selected), 4)
+            for layer in selected:
+                self.assertTrue(lossless(ROOT/layer['path']))
+                with Image.open(ROOT/layer['path']) as image:
+                    columns, count, width, height = layer['sheet']
+                    first = image.crop((0, 0, width, height))
+                    last = image.crop(((count-1)*width, 0, count*width, height))
+                    self.assertNotEqual(first.tobytes(), last.tobytes())
+
     def setUp(self):
         self.data = json.loads(title.SOURCE.read_text())
         self.room = next(s for s in self.data['scenes'] if s['name'] == 'treehouse')

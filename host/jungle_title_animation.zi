@@ -1,0 +1,27 @@
+// Shared title-scene atlas timing, independent of frame rate and host.
+#import "std/math"
+#import "kryon/geometry"
+
+TitleAnimationPhase :: (now: float64, period: float64, offset: float64 = 0.0) -> float64 {
+    if period <= 0.0 || !Finite64(period) || !Finite64(now) || !Finite64(offset) { return 0.0 }
+    elapsed := now + offset
+    whole := cast(s64)(elapsed / period)
+    if cast(float64)whole > elapsed / period { whole -= 1 }
+    return (elapsed - cast(float64)whole * period) / period
+}
+
+TitleAnimationFrame :: (now: float64, fps: float64, count: s32) -> s32 {
+    if count <= 1 || fps <= 0.0 || !Finite64(fps) { return 0 }
+    frame := cast(s32)(TitleAnimationPhase(now, cast(float64)count / fps) * cast(float64)count)
+    return ifx frame >= count then 0 else frame
+}
+
+TitleAnimationSource :: (frame: s32, columns: s32, width: s32, height: s32) -> Rectangle {
+    if columns <= 0 || frame < 0 { return Rectangle.{} }
+    return Rectangle.{cast(float32)((frame % columns) * width),
+        cast(float32)((frame / columns) * height), cast(float32)width, cast(float32)height}
+}
+
+TitleAnimationEase :: (p: float64) -> float32 {
+    return cast(float32)(p * p * (3.0 - 2.0 * p))
+}

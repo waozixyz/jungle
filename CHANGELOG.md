@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- Bring the Treehouse window to life with visiting birds, a fluttering butterfly, gently swaying leaves and a flowing river.
+
 - Make the Farm much smaller to download while keeping crops, seeds and tools planted in the same places.
 
 - Prepare every activity’s pictures and selected-language narration before play, with a gentle progress screen, Back, retry and cached reopening.

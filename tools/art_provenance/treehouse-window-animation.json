@@ -1,0 +1,140 @@
+{
+  "style": "Existing Treehouse storybook watercolor",
+  "masters": "local/art-development/treehouse-window-animation",
+  "backgrounds": "Generated removal plates composited only in animal footprint rectangles; original pixels retained outside feathered removal masks before q50/method6 export.",
+  "animals": "Built-in imagegen, eight wing-flap/flutter frames; transparent alpha cleanup, shared frame canvas and original scale. Toucan includes perched/blink frames.",
+  "leaves": "Existing watercolor patches, soft stationary boundary and periodic local sway; includes foreground potted leaves.",
+  "water": "Existing river pixels displaced within a river-only mask with periodic downstream highlights; integer atlas cycles have no reset frame.",
+  "layers": [
+    {
+      "path": "assets/jungle/title/window-animation/bird.webp",
+      "size": [
+        768,
+        136
+      ],
+      "sha256": "55eda758eda605b5da1ce2139544bbd5d094310d85dd7f4f99ed2a2aef5a014e",
+      "rgba_sha256": "178ced6a4d34ade1f722593a1234c925079215a70c32da75ef608ac4f2fbefdb",
+      "encoding": "exact lossless WebP via tools/image_exports.py"
+    },
+    {
+      "path": "assets/jungle/title/window-animation/butterfly.webp",
+      "size": [
+        768,
+        96
+      ],
+      "sha256": "b6d76cd7eff4bc7870b1ed0a671ee487c0fdce19d0aba0cda75a7b09410d7556",
+      "rgba_sha256": "d047ec8ef7cfa144e50ac7dbef58f81df7e4546c17ac8be2ebc7a2819e63485f",
+      "encoding": "exact lossless WebP via tools/image_exports.py"
+    },
+    {
+      "path": "assets/jungle/title/window-animation/landscape-leaves-0.webp",
+      "size": [
+        6312,
+        229
+      ],
+      "sha256": "c8901ae729143919e4f2d56cb13cccedd0bdef567743b74b3a79e74ee66f24ff",
+      "rgba_sha256": "4dd04923362e3547024bc2e29967b92733abd62e4bb89395548f20bb9188909e",
+      "encoding": "exact lossless WebP via tools/image_exports.py"
+    },
+    {
+      "path": "assets/jungle/title/window-animation/landscape-leaves-1.webp",
+      "size": [
+        7680,
+        222
+      ],
+      "sha256": "c7ba5b779d7d01830b823ca488f8b40fa01a71020bb25954d11b40b50687d9ff",
+      "rgba_sha256": "9dc72a218e893e087a326133e6f8b760727018b1619fa1f32bc5503038c455a0",
+      "encoding": "exact lossless WebP via tools/image_exports.py"
+    },
+    {
+      "path": "assets/jungle/title/window-animation/landscape-leaves-2.webp",
+      "size": [
+        7248,
+        200
+      ],
+      "sha256": "1a82895d3de594c2ad9b91d2452956b2035688daab82e1eececf77ced4b0935e",
+      "rgba_sha256": "b1228755816b57d6ce3a87da1b1debeb4db23712c1a84465f121e8b94ea76d4c",
+      "encoding": "exact lossless WebP via tools/image_exports.py"
+    },
+    {
+      "path": "assets/jungle/title/window-animation/landscape-leaves-3.webp",
+      "size": [
+        7056,
+        160
+      ],
+      "sha256": "11982c4c58dbb6ff610a6ac725924ebab9b7ed97d4ae2ce2a7b330c5375e251c",
+      "rgba_sha256": "332f0054c1d72f82424e0b0b3fee3e91b2f82c8c4650ec115458c4ec1db31a9b",
+      "encoding": "exact lossless WebP via tools/image_exports.py"
+    },
+    {
+      "path": "assets/jungle/title/window-animation/landscape-water.webp",
+      "size": [
+        5256,
+        138
+      ],
+      "sha256": "883bbb60bfd66b87cb455b1afb166c2ae4d287fc63216059d30c0727d716b05b",
+      "rgba_sha256": "47ade3a596228bf78ccb716b63a10a027e915b05d6804849104b8998c4ff8010",
+      "encoding": "exact lossless WebP via tools/image_exports.py"
+    },
+    {
+      "path": "assets/jungle/title/window-animation/portrait-leaves-0.webp",
+      "size": [
+        6120,
+        232
+      ],
+      "sha256": "73f6338e1506fd635830d59a9e8f60c1c760184249b9ca35386f9328892cef7b",
+      "rgba_sha256": "f94b9e59adb2e19f49a444c89f57b92ad4906de163b9c0e8a215a2b6f402a891",
+      "encoding": "exact lossless WebP via tools/image_exports.py"
+    },
+    {
+      "path": "assets/jungle/title/window-animation/portrait-leaves-1.webp",
+      "size": [
+        6888,
+        178
+      ],
+      "sha256": "d7826b4501f90a65251c0f072acbd87a07de22b696f174295968230a1424903a",
+      "rgba_sha256": "ead4cd5398d491d209adb21e48a6b498da4fd1fe32ddef8340902ee3b7cf993d",
+      "encoding": "exact lossless WebP via tools/image_exports.py"
+    },
+    {
+      "path": "assets/jungle/title/window-animation/portrait-leaves-2.webp",
+      "size": [
+        6600,
+        185
+      ],
+      "sha256": "1d743e94ba7a2cd3378236458ad7e84e9c50e521d639e02c644e8e0c8daa2779",
+      "rgba_sha256": "ec79b733a30c75541ba5657bf87531d25a12dd1938f696f20acdef95d8477cbe",
+      "encoding": "exact lossless WebP via tools/image_exports.py"
+    },
+    {
+      "path": "assets/jungle/title/window-animation/portrait-leaves-3.webp",
+      "size": [
+        7272,
+        216
+      ],
+      "sha256": "403ba33cb48f3b0b0f2b1fc22a508c2983e460f4ad679adc7d5297210364e95a",
+      "rgba_sha256": "6d08c2552d1788b759b424bc1c904f28af1cb77897069541c8b02426af0f7781",
+      "encoding": "exact lossless WebP via tools/image_exports.py"
+    },
+    {
+      "path": "assets/jungle/title/window-animation/portrait-water.webp",
+      "size": [
+        3816,
+        118
+      ],
+      "sha256": "99275d1ccab7b0c0fb33c8bb447ebe8c892afb4652884f63cd965c8aae893c18",
+      "rgba_sha256": "95bfe879106033ab073e12b9335412bed7cba5a99b838289f62198ee19e43b1f",
+      "encoding": "exact lossless WebP via tools/image_exports.py"
+    },
+    {
+      "path": "assets/jungle/title/window-animation/toucan.webp",
+      "size": [
+        1536,
+        224
+      ],
+      "sha256": "2b198b8afdbff296f29b1e68ea989945409c269718a199f4a56b097a528a31f5",
+      "rgba_sha256": "a5dcbdc7d1c62aaed61aa43cb8f3be7462f6886f894dd090987feabb236c6ee9",
+      "encoding": "exact lossless WebP via tools/image_exports.py"
+    }
+  ]
+}

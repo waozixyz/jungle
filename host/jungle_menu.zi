@@ -42,6 +42,8 @@ MapIcon :: #import "mingcute/mingcute_regular_map";
 #import, file "jungle_title.zi";
 #import, file "jungle_title_data.zi";
 #import, file "jungle_title_dialogue.zi";
+#import, file "jungle_title_animation.zi";
+#import, file "jungle_title_animation_data.zi";
 #import, file "../retro/paper_rules.zi";
 #import, file "../retro/paper_draw.zi";
 #import, file "../retro/collectibles.zi";
@@ -189,6 +191,53 @@ TitlePicture :: (session: Session, path: string, bounds: Rectangle, tint: u32 = 
     preview := ifx path.count >= 5 && path[path.count - 5:] == ".webp" then RetroImagePreview(path) else ""
     Image(session, ImageProps.{.asset_path = shown, .preview_path = preview, .bounds = bounds,
         .fit = ImageFit.ImageFitStretch, .smooth = true, .tint = tint})
+}
+
+TitleAnimations :: (session: Session, scene: s32, picture: Rectangle, view: TitleView, now: float64) {
+    for index: cast(s32)0..TITLE_ANIMATION_COUNT - 1 {
+        if TITLE_ANIMATION_SCENE[index] != TITLE_SCENE_NAME[scene] { continue }
+        path := TITLE_ANIMATION_PATH[index]
+        if !TitleReady(path) { continue }
+        at := index * 4
+        timing := index * 3
+        count := TITLE_ANIMATION_SHEET[at + 1]
+        phase := TitleAnimationPhase(now, TITLE_ANIMATION_TIMING[timing + 1], TITLE_ANIMATION_TIMING[timing + 2])
+        frame := TitleAnimationFrame(now + TITLE_ANIMATION_TIMING[timing + 2], TITLE_ANIMATION_TIMING[timing], count)
+        x := TITLE_ANIMATION_RECT[at]
+        y := TITLE_ANIMATION_RECT[at + 1]
+        width := TITLE_ANIMATION_RECT[at + 2]
+        height := TITLE_ANIMATION_RECT[at + 3]
+        mode := TITLE_ANIMATION_MODE[index]
+        scene_width := cast(float32)TITLE_SCENE_WIDTH[scene]
+        if mode == 1 {
+            // Hidden between visits; distinct periods and offsets keep the flock loose.
+            if phase > 0.75 { continue }
+            x = -width + (scene_width + width * 2.0) * cast(float32)(phase / 0.75)
+            y += cast(float32)Sin(phase * 17.0 + cast(float64)index) * height * 0.3
+        } else if mode == 2 {
+            if phase > 0.88 { continue }
+            if phase < 0.22 {
+                enter := TitleAnimationEase(phase / 0.22)
+                x = -width + (x + width) * enter
+                y -= (1.0 - enter) * height * 0.7
+            } else if phase < 0.65 {
+                frame = count - 2
+                if TitleAnimationPhase(now, 5.3) > 0.96 { frame = count - 1 }
+            } else {
+                leave := TitleAnimationEase((phase - 0.65) / 0.23)
+                x += (scene_width + width - x) * leave
+                y -= leave * height
+            }
+            if phase < 0.22 || phase >= 0.65 {
+                frame = TitleAnimationFrame(now, TITLE_ANIMATION_TIMING[timing], count - 2)
+            }
+        }
+        Image(session, ImageProps.{.asset_path = path,
+            .bounds = Rectangle.{picture.x + x * view.scale, picture.y + y * view.scale,
+                width * view.scale, height * view.scale},
+            .source = TitleAnimationSource(frame, TITLE_ANIMATION_SHEET[at], TITLE_ANIMATION_SHEET[at + 2], TITLE_ANIMATION_SHEET[at + 3]),
+            .fit = ImageFit.ImageFitStretch, .smooth = true})
+    }
 }
 
 // A physical wooden path sign, with lettering rendered in the active
@@ -433,6 +482,7 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
         if !TitleReady(TITLE_SCENE_IMAGE[scene]) { TitlePicture(session, TITLE_SCENE_LOW[scene], picture) }
         TitlePicture(session, TITLE_SCENE_IMAGE[scene], picture)
     }
+    TitleAnimations(session, scene, picture, view, now)
     first := TITLE_SCENE_FIRST[scene]
     for hotspot: first..first + TITLE_SCENE_HOTSPOTS[scene] - 1 {
         // Separate navigation objects sit behind the foreground tiger.

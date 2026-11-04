@@ -1,5 +1,6 @@
 // The treehouse title screen's fit, hit testing and navigation, without a window.
 #import, file "../host/jungle_title.zi";
+#import, file "../host/jungle_title_animation.zi";
 #import, file "../host/jungle_title_data.zi";
 #import, file "../host/platform.zi";
 #import, file "../retro/language.zi";
@@ -39,6 +40,20 @@ HotspotNamed :: (scene: s32, id: string) -> s32 {
 
 #program_export
 main :: () -> s32 {
+    if TitleAnimationFrame(0.0, 8.0, 8) != 0 { return 230 }
+    if TitleAnimationFrame(0.124, 8.0, 8) != 0 { return 231 }
+    if TitleAnimationFrame(0.125, 8.0, 8) != 1 { return 232 }
+    if TitleAnimationFrame(0.999, 8.0, 8) != 7 { return 233 }
+    if TitleAnimationFrame(1.0, 8.0, 8) != 0 { return 234 }
+    if TitleAnimationFrame(1000000.125, 8.0, 8) != 1 { return 235 }
+    if TitleAnimationFrame(-0.125, 8.0, 8) != 7 { return 236 }
+    if TitleAnimationFrame(1.0, 0.0, 8) != 0 { return 237 }
+    if TitleAnimationFrame(1.0, 8.0, 0) != 0 { return 238 }
+    atlas := TitleAnimationSource(5, 4, 32, 24)
+    if !Near(atlas.x, 32.0) || !Near(atlas.y, 24.0) { return 239 }
+    if !Near(atlas.width, 32.0) || !Near(atlas.height, 24.0) { return 240 }
+    if !Near(TitleAnimationEase(0.0), 0.0) || !Near(TitleAnimationEase(1.0), 1.0) { return 241 }
+
     // Title -> game -> title changes policy once each. Resizing/rotating or
     // repeating either route never issues another request or resets state.
     if !ApplyTitleOrientationPolicy(true) || title_orientation_policy != 4 { return 101 }
