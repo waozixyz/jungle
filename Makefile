@@ -208,6 +208,7 @@ test: build/tests/farm build/tests/fishing build/tests/beach_families build/test
 	python3 tools/title_scenes.py --check
 	python3 tests/title_guide_test.py
 	python3 tests/title_scenes_test.py
+	python3 tests/title_sign_rotation_test.py
 	python3 tests/title_room_test.py
 	python3 tests/title_desert_test.py
 	python3 tests/canonical_webp_test.py

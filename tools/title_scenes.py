@@ -12,6 +12,7 @@ to the scene each scene is first reached from, starting at the first scene.
 from pathlib import Path
 import argparse
 import json
+import math
 import sys
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -44,6 +45,32 @@ def SignLabel(hotspot):
     return sign['label']
 
 
+def SignTextLayout(hotspot, rect, board):
+    """Local layout box plus clockwise hundredths of a degree.
+
+    The diagonal sprites have seven outline vertices. Their parallel long
+    edges (0–1 and 5–6) define the plank body, excluding the arrowhead.
+    """
+    direction = hotspot.get('sign', {}).get('direction', '')
+    if not direction.startswith('diagonal-'):
+        return board, 0
+    points = hotspot['polygon']
+    if len(points) != 7:
+        raise SystemExit('title scenes: diagonal sign needs its seven board vertices')
+    a, b, c, d = (points[i] for i in (0, 1, 5, 6))
+    dx, dy = b[0]-a[0], b[1]-a[1]
+    if dx < 0:
+        dx, dy = -dx, -dy
+    length = math.hypot(dx, dy)
+    if length == 0:
+        raise SystemExit('title scenes: diagonal sign has no board length')
+    thickness = abs((d[0]-a[0])*dy-(d[1]-a[1])*dx)/length
+    width, height = length*.84, thickness*.76
+    cx = sum(p[0] for p in (a,b,c,d))/4-rect[0]
+    cy = sum(p[1] for p in (a,b,c,d))/4-rect[1]
+    return [round(cx-width/2),round(cy-height/2),round(width),round(height)], round(math.degrees(math.atan2(dy,dx))*100)
+
+
 def Sign(hotspot, rect):
     """A label on a separate physical sprite, with board-local text bounds."""
     sign = hotspot.get('sign')
@@ -51,7 +78,7 @@ def Sign(hotspot, rect):
         return '', [0, 0, 0, 0]
     label = SignLabel(hotspot)
     # Owner: signs are planks pointing along the path, sideways by default.
-    # Only Campus's route up into the Jungle Path stands as an upright plank.
+    # Diagonal labels follow the board; flat coastal boards stay horizontal.
     if sign.get('direction') not in ('left','right','diagonal-left','diagonal-right'):
         raise SystemExit('title scenes: every sign needs a travel direction')
     board = sign.get('label_rect', [])
@@ -269,10 +296,11 @@ def Load(source=SOURCE, catalog=CATALOG):
             if len(rect) != 4 or rect[2] <= 0 or rect[3] <= 0:
                 raise SystemExit(f'title scenes: {hotspot["id"]} has an empty glow_rect')
             label, board = Sign(hotspot, rect)
+            board, rotation = SignTextLayout(hotspot, rect, board)
             hotspots.append({'scene': index, 'id': hotspot['id'], 'scene_target': scene_target,
                              'game': game, 'glow': hotspot['glow'], 'rect': rect, 'polygon': polygon,
                              'rest': hotspot.get('rest', ''), 'occlusion': occlusion,
-                             'sign_label': label, 'sign_rect': board,
+                             'sign_label': label, 'sign_rect': board, 'sign_rotation': rotation,
                              'sign_direction': {'left':1,'right':2,'diagonal-left':3,'diagonal-right':4,'down':4}.get(hotspot.get('sign',{}).get('direction'),0),
                              'notice': {'Farm': 1, 'Desert': 2}.get(target, 0) if kind == 'notice' else 0,
                              'look': 1 if kind == 'look' else 0,
@@ -475,6 +503,7 @@ def Render(data, scenes, parents, hotspots):
         '// Optional always-visible navigation art; shares the glow rectangle.',
         *ChunkedStrings('TITLE_HOTSPOT_REST', 'TitleHotspotRest', (hotspot['rest'] for hotspot in hotspots)),
         f'TITLE_SIGN_DIRECTION: [{hotspot_count}]s32 = .[{Numbers(h["sign_direction"] for h in hotspots)}];',
+        f'TITLE_SIGN_ROTATION: [{hotspot_count}]s32 = .[{Numbers(h["sign_rotation"] for h in hotspots)}];',
         '// Localized at runtime; the blank sign sprite never contains language-specific lettering.',
         f'TITLE_SIGN_LABEL: [{hotspot_count}]string = .[{Quoted(h["sign_label"] for h in hotspots)}];',
         '// Text board bounds relative to the hotspot sprite, in source pixels.',

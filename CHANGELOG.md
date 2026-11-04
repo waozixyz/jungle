@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- Keep diagonal wooden sign names large and rotate the lettering along each plank.
+
 - Repaint Beach and Port with flat signs, a Beach Aquarium cave, and clear coastal paths.
 
 - Give the Treehouse window cloudless skies, slowly drifting clouds and a separate wind-swaying branch.
