@@ -1,4 +1,4 @@
-"""Owned-Xvfb window route, moving water/leaves, Back, and presented frame rate."""
+"""Owned-Xvfb window route, swaying leaves and still painted water, Back, and presented frame rate."""
 import json
 from pathlib import Path
 import subprocess
@@ -52,7 +52,7 @@ def main():
                 fps=(len(times)-1)/(times[-1]-times[0])
                 p95=sorted(intervals)[int(len(intervals)*.95)]*1000
                 print(f"local presented frames {w}x{h}: {fps:.1f} fps, p95 {p95:.1f} ms", flush=True)
-                assert fps>=45,(w,h,fps,p95)
+                assert fps>=55,(w,h,fps,p95)
                 scene=next(s for s in data['scenes'] if s['name']=='window')
                 sw,sh=(1024,1536) if h>w else (1672,941)
                 scale=max(w/sw,h/sh);dx=(w-sw*scale)/2;dy=(h-sh*scale)/2

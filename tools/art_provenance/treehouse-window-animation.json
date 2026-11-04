@@ -4,26 +4,36 @@
   "backgrounds": "Generated removal plates composited only in animal footprint rectangles; original pixels retained outside feathered removal masks before q50/method6 export.",
   "animals": "Built-in imagegen, eight wing-flap/flutter frames; transparent alpha cleanup, shared frame canvas and original scale. Toucan includes perched/blink frames.",
   "leaves": "Existing watercolor patches, soft stationary boundary and periodic local sway; includes foreground potted leaves.",
-  "water": "Existing river pixels displaced within a river-only mask with periodic downstream highlights; integer atlas cycles have no reset frame.",
+  "water": "No water animation. The painted river remains still; no water layer or displacement.",
   "layers": [
     {
       "path": "assets/jungle/title/window-animation/bird.webp",
       "size": [
         768,
-        136
+        127
       ],
-      "sha256": "55eda758eda605b5da1ce2139544bbd5d094310d85dd7f4f99ed2a2aef5a014e",
-      "rgba_sha256": "178ced6a4d34ade1f722593a1234c925079215a70c32da75ef608ac4f2fbefdb",
+      "sha256": "f3e3dd32acffed4f5181d79cddb7d7dc64ae63c1d6b1b5b7ab925c6b0faa1e3a",
+      "rgba_sha256": "8ec662029f074fc42b5eadafcebafc3bd737f8297f0c108d39641b4ec607e663",
       "encoding": "exact lossless WebP via tools/image_exports.py"
     },
     {
       "path": "assets/jungle/title/window-animation/butterfly.webp",
       "size": [
-        768,
-        96
+        744,
+        81
       ],
-      "sha256": "b6d76cd7eff4bc7870b1ed0a671ee487c0fdce19d0aba0cda75a7b09410d7556",
-      "rgba_sha256": "d047ec8ef7cfa144e50ac7dbef58f81df7e4546c17ac8be2ebc7a2819e63485f",
+      "sha256": "dc2bee768940ce7710d14397707fc1d9b503826778d96b41a7c9691be2a43043",
+      "rgba_sha256": "e731c9c0a397d71a0313488ab008d318b66cc67821dc09820b0f39d2113b9482",
+      "encoding": "exact lossless WebP via tools/image_exports.py"
+    },
+    {
+      "path": "assets/jungle/title/window-animation/landscape-frame.webp",
+      "size": [
+        1672,
+        941
+      ],
+      "sha256": "88b02772c1dde4f920c4a78b8bf629cfc3c3c14c88e984015cde4ad95bdea577",
+      "rgba_sha256": "d721f3976a8f03b2b34f843e72794e97eb280631ba97f2ff2bf2361431c17ec0",
       "encoding": "exact lossless WebP via tools/image_exports.py"
     },
     {
@@ -67,13 +77,13 @@
       "encoding": "exact lossless WebP via tools/image_exports.py"
     },
     {
-      "path": "assets/jungle/title/window-animation/landscape-water.webp",
+      "path": "assets/jungle/title/window-animation/portrait-frame.webp",
       "size": [
-        5256,
-        138
+        1024,
+        1536
       ],
-      "sha256": "883bbb60bfd66b87cb455b1afb166c2ae4d287fc63216059d30c0727d716b05b",
-      "rgba_sha256": "47ade3a596228bf78ccb716b63a10a027e915b05d6804849104b8998c4ff8010",
+      "sha256": "f9f603295aafe3f39dcbf60adc232f8f4493b0144913e1b06ddbb4f02df94250",
+      "rgba_sha256": "ffb7c266895847c0917919f4bc923d9751b9107a189ae81b68258906b0909ee6",
       "encoding": "exact lossless WebP via tools/image_exports.py"
     },
     {
@@ -117,24 +127,15 @@
       "encoding": "exact lossless WebP via tools/image_exports.py"
     },
     {
-      "path": "assets/jungle/title/window-animation/portrait-water.webp",
-      "size": [
-        3816,
-        118
-      ],
-      "sha256": "99275d1ccab7b0c0fb33c8bb447ebe8c892afb4652884f63cd965c8aae893c18",
-      "rgba_sha256": "95bfe879106033ab073e12b9335412bed7cba5a99b838289f62198ee19e43b1f",
-      "encoding": "exact lossless WebP via tools/image_exports.py"
-    },
-    {
       "path": "assets/jungle/title/window-animation/toucan.webp",
       "size": [
-        1536,
-        224
+        1512,
+        214
       ],
-      "sha256": "2b198b8afdbff296f29b1e68ea989945409c269718a199f4a56b097a528a31f5",
-      "rgba_sha256": "a5dcbdc7d1c62aaed61aa43cb8f3be7462f6886f894dd090987feabb236c6ee9",
+      "sha256": "784fb6e519c891250625e9b4439f3a95ee56d0787b60e6509245c469c150e0a5",
+      "rgba_sha256": "23601917ea112ada66cd0046027ceb4ebd7d6d5ce0ae487090052206ce0cbaf3",
       "encoding": "exact lossless WebP via tools/image_exports.py"
     }
-  ]
+  ],
+  "frame": "Lossless watercolor frame with polygon-traced opening; shared opening polygon excludes frame hits. Frame drawn last."
 }

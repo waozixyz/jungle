@@ -1,6 +1,7 @@
 // Shared title-scene atlas timing, independent of frame rate and host.
 #import "std/math"
 #import "kryon/geometry"
+#import, file "jungle_title.zi";
 
 TitleAnimationPhase :: (now: float64, period: float64, offset: float64 = 0.0) -> float64 {
     if period <= 0.0 || !Finite64(period) || !Finite64(now) || !Finite64(offset) { return 0.0 }
@@ -24,4 +25,42 @@ TitleAnimationSource :: (frame: s32, columns: s32, width: s32, height: s32) -> R
 
 TitleAnimationEase :: (p: float64) -> float32 {
     return cast(float32)(p * p * (3.0 - 2.0 * p))
+}
+
+// Stateless random samples: stable throughout a visit, different at every visit.
+TitleVisitRandom :: (visit: s64, animal: s32, channel: s32) -> float64 {
+    value := Sin(cast(float64)(visit * 127 + cast(s64)animal * 311 + cast(s64)channel * 73)) * 43758.5453
+    whole := cast(s64)value
+    if cast(float64)whole > value { whole -= 1 }
+    return value - cast(float64)whole
+}
+
+TitleVisitPhase :: (now: float64, animal: s32) -> float64 {
+    slot := cast(s64)(now / 47.0)
+    start := 3.0 + TitleVisitRandom(slot, animal, 0) * 23.0
+    duration := 7.0 + TitleVisitRandom(slot, animal, 1) * 10.0
+    return (now - cast(float64)slot * 47.0 - start) / duration
+}
+
+TitleAnimalHit :: (x: float32, y: float32, bounds: Rectangle) -> bool {
+    // Rounded body target, shared by hover and press; excludes transparent corners.
+    dx := (x - bounds.x - bounds.width * 0.5) / (bounds.width * 0.5)
+    dy := (y - bounds.y - bounds.height * 0.5) / (bounds.height * 0.5)
+    return dx * dx + dy * dy <= 1.0
+}
+
+TitleWindowOpening :: (x: float32, y: float32, portrait: bool) -> bool {
+    landscape_x: [14]s32 = .[47, 204, 218, 227, 230, 227, 218, 200, 47, 25, 14, 9, 12, 23];
+    landscape_y: [14]s32 = .[0, 0, 16, 40, 66, 91, 111, 120, 120, 113, 95, 70, 46, 22];
+    portrait_x: [21]s32 = .[0, 10, 34, 67, 103, 139, 173, 204, 224, 239, 239, 227, 209, 183, 151, 115, 79, 45, 22, 6, 0];
+    portrait_y: [21]s32 = .[101, 74, 44, 24, 13, 16, 31, 57, 90, 124, 208, 241, 266, 285, 298, 301, 294, 278, 251, 219, 197];
+    if portrait { return PointInPolygon(portrait_x[:], portrait_y[:], x, y) }
+    return PointInPolygon(landscape_x[:], landscape_y[:], x, y)
+}
+
+// Brief startle, then accelerated takeoff, shared by all animal species.
+TitleFlee :: (elapsed: float64, x: float32, y: float32, scene_width: float32) -> Rectangle {
+    t := ifx elapsed > 0.12 then elapsed - 0.12 else 0.0
+    return Rectangle.{x + cast(float32)(t * t) * scene_width,
+        y - cast(float32)(t * t) * 400.0, 0, 0}
 }

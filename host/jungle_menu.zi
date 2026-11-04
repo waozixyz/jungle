@@ -194,9 +194,40 @@ TitlePicture :: (session: Session, path: string, bounds: Rectangle, tint: u32 = 
         .fit = ImageFit.ImageFitStretch, .smooth = true, .tint = tint})
 }
 
-TitleAnimations :: (session: Session, scene: s32, picture: Rectangle, view: TitleView, now: float64) {
+// Alpha-tight strips keep the frame's large transparent opening out of the
+// native and Canvas fill workload. All pieces share the exact scene transform.
+TitleWindowFrame :: (session: Session, scene: s32, picture: Rectangle, view: TitleView) {
+    portrait := TITLE_SCENE_NAME[scene] == "window-portrait"
+    if !portrait && TITLE_SCENE_NAME[scene] != "window" { return }
+    path := ifx portrait then "assets/jungle/title/window-animation/portrait-frame.webp" else "assets/jungle/title/window-animation/landscape-frame.webp"
+    if !TitleReady(path) { return }
+    rects := ifx portrait then TITLE_FRAME_PORTRAIT[:] else TITLE_FRAME_LANDSCAPE[:]
+    for i: cast(s32)0..cast(s32)(rects.count / 4) - 1 {
+        at := i * 4
+        x := cast(float32)rects[at]
+        y := cast(float32)rects[at + 1]
+        w := cast(float32)rects[at + 2]
+        h := cast(float32)rects[at + 3]
+        Image(session, ImageProps.{.asset_path = path,
+            .bounds = Rectangle.{picture.x + x * view.scale, picture.y + y * view.scale, w * view.scale, h * view.scale},
+            .source = Rectangle.{x, y, w, h}, .fit = ImageFit.ImageFitStretch, .smooth = true})
+    }
+}
+
+title_flee_time: [20]float64;
+title_flee_x: [20]float32;
+title_flee_y: [20]float32;
+
+TitleAnimations :: (session: Session, scene: s32, picture: Rectangle, view: TitleView, now: float64, foreground_leaves: bool = false) {
+    if TITLE_SCENE_NAME[scene] == "window" && !TitleReady("assets/jungle/title/window-animation/landscape-frame.webp") { return }
+    if TITLE_SCENE_NAME[scene] == "window-portrait" && !TitleReady("assets/jungle/title/window-animation/portrait-frame.webp") { return }
+    clicked_animal: s32 = -1
+    clicked_x: float32 = 0.0
+    clicked_y: float32 = 0.0
     for index: cast(s32)0..TITLE_ANIMATION_COUNT - 1 {
         if TITLE_ANIMATION_SCENE[index] != TITLE_SCENE_NAME[scene] { continue }
+        leaf := TITLE_ANIMATION_MODE[index] == 0
+        if leaf != foreground_leaves { continue }
         path := TITLE_ANIMATION_PATH[index]
         if !TitleReady(path) { continue }
         at := index * 4
@@ -210,11 +241,38 @@ TitleAnimations :: (session: Session, scene: s32, picture: Rectangle, view: Titl
         height := TITLE_ANIMATION_RECT[at + 3]
         mode := TITLE_ANIMATION_MODE[index]
         scene_width := cast(float32)TITLE_SCENE_WIDTH[scene]
+        if mode > 0 {
+            phase = TitleVisitPhase(now, index)
+            if title_flee_time[index] > 0.0 {
+                elapsed := now - title_flee_time[index]
+                if elapsed < 2.0 {
+                    flight := TitleFlee(elapsed, title_flee_x[index], title_flee_y[index], scene_width)
+                    x = flight.x
+                    y = flight.y
+                    if mode == 2 { frame = TitleAnimationFrame(now, TITLE_ANIMATION_TIMING[timing], count - 2) }
+                    mode = 3
+                } else {
+                    if phase >= 0.0 && phase <= 1.0 { continue }
+                    title_flee_time[index] = 0.0
+                }
+            }
+            if mode != 3 && (phase < 0.0 || phase > 1.0) { continue }
+            if mode == 1 {
+                slot := cast(s64)(now / 47.0)
+                y += cast(float32)(TitleVisitRandom(slot, index, 2) - 0.5) * 160.0
+            }
+        }
         if mode == 1 {
             // Hidden between visits; distinct periods and offsets keep the flock loose.
-            if phase > 0.75 { continue }
-            x = -width + (scene_width + width * 2.0) * cast(float32)(phase / 0.75)
+            x = -width + (scene_width + width * 2.0) * cast(float32)phase
             y += cast(float32)Sin(phase * 17.0 + cast(float64)index) * height * 0.3
+            if width > 60.0 {
+                progress := phase / 0.3 * 0.5
+                if phase > 0.3 { progress = 0.5 }
+                if phase > 0.7 { progress = 0.5 + (phase - 0.7) / 0.3 * 0.5 }
+                x = -width + (scene_width + width * 2.0) * cast(float32)progress
+                y += cast(float32)Sin(now * 5.0) * 8.0
+            }
         } else if mode == 2 {
             if phase > 0.88 { continue }
             if phase < 0.22 {
@@ -233,11 +291,33 @@ TitleAnimations :: (session: Session, scene: s32, picture: Rectangle, view: Titl
                 frame = TitleAnimationFrame(now, TITLE_ANIMATION_TIMING[timing], count - 2)
             }
         }
+        animal_bounds := Rectangle.{picture.x + x * view.scale, picture.y + y * view.scale,
+            width * view.scale, height * view.scale}
+        if mode > 0 {
+            pointer := PointerSample(session)
+            // Only the opening is interactive; the opaque frame is above wildlife.
+            nx := (pointer.x - picture.x) / picture.width
+            ny := (pointer.y - picture.y) / picture.height
+            inside := TitleWindowOpening(nx * 240.0, ny * picture.height / picture.width * 240.0, TITLE_SCENE_NAME[scene] == "window-portrait")
+            if inside && TitleAnimalHit(pointer.x, pointer.y, animal_bounds) {
+                unused CursorHover(session, cast(s32)CursorShape.CursorClickable)
+                if pointer.pressed && title_flee_time[index] == 0.0 {
+                    clicked_animal = index
+                    clicked_x = x
+                    clicked_y = y
+                }
+            }
+        }
         Image(session, ImageProps.{.asset_path = path,
             .bounds = Rectangle.{picture.x + x * view.scale, picture.y + y * view.scale,
                 width * view.scale, height * view.scale},
             .source = TitleAnimationSource(frame, TITLE_ANIMATION_SHEET[at], TITLE_ANIMATION_SHEET[at + 2], TITLE_ANIMATION_SHEET[at + 3]),
             .fit = ImageFit.ImageFitStretch, .smooth = true})
+    }
+    if clicked_animal >= 0 {
+        title_flee_time[clicked_animal] = now
+        title_flee_x[clicked_animal] = clicked_x
+        title_flee_y[clicked_animal] = clicked_y
     }
 }
 
@@ -489,6 +569,8 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
         TitlePicture(session, TITLE_SCENE_IMAGE[scene], picture)
     }
     TitleAnimations(session, scene, picture, view, now)
+    TitleWindowFrame(session, scene, picture, view)
+    TitleAnimations(session, scene, picture, view, now, true)
     first := TITLE_SCENE_FIRST[scene]
     for hotspot: first..first + TITLE_SCENE_HOTSPOTS[scene] - 1 {
         // Separate navigation objects sit behind the foreground tiger.

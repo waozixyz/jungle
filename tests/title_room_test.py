@@ -32,10 +32,12 @@ class TreehouseRoom(unittest.TestCase):
         layers = json.loads(animation.SOURCE.read_text())['layers']
         for scene in ('window', 'window-portrait'):
             selected = [layer for layer in layers if layer['scene'] == scene]
-            self.assertEqual(len(selected), 10)
+            self.assertEqual(len(selected), 9)
+            self.assertEqual(selected[-1]['mode'], 2)
+            self.assertTrue(all(l['mode'] != 2 for l in selected[:-1]))
             base = next(s for s in json.loads(title.SOURCE.read_text())['scenes'] if s['name'] == 'window')
             preload = base if scene == 'window' else base['portrait']
-            self.assertEqual(set(preload['animations']), {layer['path'] for layer in selected})
+            self.assertEqual(set(preload['animations']), {layer['path'] for layer in selected} | {f'assets/jungle/title/window-animation/{"portrait" if scene.endswith("portrait") else "landscape"}-frame.webp'})
             self.assertEqual(sum(layer['mode'] == 2 for layer in selected), 1)
             self.assertEqual(sum(layer['mode'] == 1 for layer in selected), 4)
             for layer in selected:
@@ -45,6 +47,30 @@ class TreehouseRoom(unittest.TestCase):
                     first = image.crop((0, 0, width, height))
                     last = image.crop(((count-1)*width, 0, count*width, height))
                     self.assertNotEqual(first.tobytes(), last.tobytes())
+
+    def test_painted_river_has_no_animation(self):
+        layers = json.loads((ROOT/'tools/title_animations.json').read_text())['layers']
+        for layer in layers:
+            if layer['mode'] == 0:
+                self.assertIn('-leaves-', layer['path'])
+        for orientation in ('landscape', 'portrait'):
+            self.assertFalse((ROOT/f'assets/jungle/title/window-animation/{orientation}-water.webp').exists())
+        window = next(s for s in json.loads(title.SOURCE.read_text())['scenes'] if s['name'] == 'window')
+        for scene in (window, window['portrait']):
+            self.assertFalse(any('-water.' in path for path in scene['animations']))
+
+    def test_window_frame_occludes_flyers(self):
+        renderer = (ROOT/'host/jungle_menu.zi').read_text()
+        draw = renderer.index('    TitleAnimations(session, scene, picture, view, now)')
+        frame = renderer.index('TitleWindowFrame(session, scene, picture, view)', draw)
+        self.assertGreater(frame, draw)
+        for orientation in ('landscape', 'portrait'):
+            path = ROOT/f'assets/jungle/title/window-animation/{orientation}-frame.webp'
+            self.assertTrue(lossless(path))
+            with Image.open(path) as image:
+                alpha = image.getchannel('A')
+                self.assertEqual(alpha.getpixel((0,0)), 255)
+                self.assertEqual(alpha.getpixel((image.width//2,image.height//2)), 0)
 
     def setUp(self):
         self.data = json.loads(title.SOURCE.read_text())

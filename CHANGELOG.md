@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- Give the Treehouse window varied wildlife visits and tap-to-fly-away behind its frame, with swaying leaves and no water animation.
+
 - Follow a diagonal Playa sign from Campus and find Peekaboo Trail on the Jungle Path; remove the extra path beside the drums.
 
 - Give Bremen’s two robbers matching masks, hooded cloaks and a sack of coins in both page orientations.

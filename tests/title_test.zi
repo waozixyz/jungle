@@ -1,4 +1,5 @@
 // The treehouse title screen's fit, hit testing and navigation, without a window.
+#import "kryon/geometry"
 #import, file "../host/jungle_title.zi";
 #import, file "../host/jungle_title_animation.zi";
 #import, file "../host/jungle_title_data.zi";
@@ -53,6 +54,22 @@ main :: () -> s32 {
     if !Near(atlas.x, 32.0) || !Near(atlas.y, 24.0) { return 239 }
     if !Near(atlas.width, 32.0) || !Near(atlas.height, 24.0) { return 240 }
     if !Near(TitleAnimationEase(0.0), 0.0) || !Near(TitleAnimationEase(1.0), 1.0) { return 241 }
+
+    for visit: cast(s64)0..30 {
+        a := TitleVisitRandom(visit, 1, 0)
+        b := TitleVisitRandom(visit + 1, 1, 0)
+        if a < 0.0 || a >= 1.0 || a == b { return 242 }
+    }
+    animal_target := Rectangle.{10, 10, 20, 20}
+    if !TitleAnimalHit(20, 20, animal_target) { return 243 }
+    if TitleAnimalHit(10, 10, animal_target) { return 244 }
+    if TitleWindowOpening(0, 0, false) { return 245 }
+    if !TitleWindowOpening(120, 60, false) { return 246 }
+
+    startled := TitleFlee(0.05, 100, 200, 1000)
+    away := TitleFlee(2.0, 100, 200, 1000)
+    if !Near(startled.x, 100) || !Near(startled.y, 200) { return 247 }
+    if away.x < 1000 || away.y > 0 { return 248 }
 
     // Title -> game -> title changes policy once each. Resizing/rotating or
     // repeating either route never issues another request or resets state.

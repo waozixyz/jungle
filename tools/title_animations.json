@@ -89,28 +89,6 @@
       "mode": 0
     },
     {
-      "scene": "window",
-      "path": "assets/jungle/title/window-animation/landscape-water.webp",
-      "sheet": [
-        24,
-        24,
-        219,
-        138
-      ],
-      "rect": [
-        894,
-        465,
-        219,
-        138
-      ],
-      "timing": [
-        12,
-        4,
-        0
-      ],
-      "mode": 0
-    },
-    {
       "scene": "window-portrait",
       "path": "assets/jungle/title/window-animation/portrait-leaves-0.webp",
       "sheet": [
@@ -199,63 +177,19 @@
       "mode": 0
     },
     {
-      "scene": "window-portrait",
-      "path": "assets/jungle/title/window-animation/portrait-water.webp",
-      "sheet": [
-        24,
-        24,
-        159,
-        118
-      ],
-      "rect": [
-        362,
-        802,
-        159,
-        118
-      ],
-      "timing": [
-        12,
-        4,
-        0
-      ],
-      "mode": 0
-    },
-    {
-      "scene": "window",
-      "path": "assets/jungle/title/window-animation/toucan.webp",
-      "sheet": [
-        8,
-        8,
-        192,
-        224
-      ],
-      "rect": [
-        205,
-        290,
-        270,
-        315
-      ],
-      "timing": [
-        9,
-        37,
-        3
-      ],
-      "mode": 2
-    },
-    {
       "scene": "window",
       "path": "assets/jungle/title/window-animation/bird.webp",
       "sheet": [
         8,
         8,
         96,
-        136
+        127
       ],
       "rect": [
-        0,
-        220,
-        44,
-        62
+        0.0,
+        221.8235294117647,
+        44.0,
+        57.89705882352941
       ],
       "timing": [
         10,
@@ -271,13 +205,13 @@
         8,
         8,
         96,
-        136
+        127
       ],
       "rect": [
-        0,
-        245,
-        44,
-        62
+        0.0,
+        246.8235294117647,
+        44.0,
+        57.89705882352941
       ],
       "timing": [
         10,
@@ -293,13 +227,13 @@
         8,
         8,
         96,
-        136
+        127
       ],
       "rect": [
-        0,
-        210,
-        44,
-        62
+        0.0,
+        211.8235294117647,
+        44.0,
+        57.89705882352941
       ],
       "timing": [
         10,
@@ -314,14 +248,14 @@
       "sheet": [
         8,
         8,
-        96,
-        96
+        93,
+        81
       ],
       "rect": [
-        0,
-        540,
-        65,
-        65
+        2.03125,
+        544.7395833333334,
+        62.96875,
+        54.84375
       ],
       "timing": [
         11,
@@ -332,40 +266,18 @@
     },
     {
       "scene": "window-portrait",
-      "path": "assets/jungle/title/window-animation/toucan.webp",
-      "sheet": [
-        8,
-        8,
-        192,
-        224
-      ],
-      "rect": [
-        590,
-        530,
-        270,
-        315
-      ],
-      "timing": [
-        9,
-        37,
-        3
-      ],
-      "mode": 2
-    },
-    {
-      "scene": "window-portrait",
       "path": "assets/jungle/title/window-animation/bird.webp",
       "sheet": [
         8,
         8,
         96,
-        136
+        127
       ],
       "rect": [
-        0,
-        375,
-        44,
-        62
+        0.0,
+        376.8235294117647,
+        44.0,
+        57.89705882352941
       ],
       "timing": [
         10,
@@ -381,13 +293,13 @@
         8,
         8,
         96,
-        136
+        127
       ],
       "rect": [
-        0,
-        400,
-        44,
-        62
+        0.0,
+        401.8235294117647,
+        44.0,
+        57.89705882352941
       ],
       "timing": [
         10,
@@ -403,13 +315,13 @@
         8,
         8,
         96,
-        136
+        127
       ],
       "rect": [
-        0,
-        365,
-        44,
-        62
+        0.0,
+        366.8235294117647,
+        44.0,
+        57.89705882352941
       ],
       "timing": [
         10,
@@ -424,14 +336,14 @@
       "sheet": [
         8,
         8,
-        96,
-        96
+        93,
+        81
       ],
       "rect": [
-        0,
-        900,
-        65,
-        65
+        2.03125,
+        904.7395833333334,
+        62.96875,
+        54.84375
       ],
       "timing": [
         11,
@@ -439,6 +351,50 @@
         9
       ],
       "mode": 1
+    },
+    {
+      "scene": "window",
+      "path": "assets/jungle/title/window-animation/toucan.webp",
+      "sheet": [
+        8,
+        8,
+        189,
+        214
+      ],
+      "rect": [
+        209.21875,
+        297.03125,
+        265.78125,
+        300.9375
+      ],
+      "timing": [
+        9,
+        37,
+        3
+      ],
+      "mode": 2
+    },
+    {
+      "scene": "window-portrait",
+      "path": "assets/jungle/title/window-animation/toucan.webp",
+      "sheet": [
+        8,
+        8,
+        189,
+        214
+      ],
+      "rect": [
+        594.21875,
+        537.03125,
+        265.78125,
+        300.9375
+      ],
+      "timing": [
+        9,
+        37,
+        3
+      ],
+      "mode": 2
     }
   ]
 }
