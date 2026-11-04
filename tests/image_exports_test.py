@@ -33,6 +33,31 @@ class Exports(unittest.TestCase):
         self.before = self.original.read_bytes()
         self.cache = self.root/'cache'
 
+    def test_trim_preserves_original_canvas_anchor_and_rejects_padding(self):
+        picture = Image.new('RGBA', (1000, 1000))
+        picture.paste((70, 100, 40, 255), (300, 500, 700, 960))
+        # Invisible generation noise must not hold the bounding box open.
+        picture.putpixel((0, 0), (255, 255, 255, 1))
+        cutout, box = image_exports.trim_cutout(picture, 100)
+        self.assertLessEqual(max(cutout.size), 200)
+        self.assertGreater(box[0], 280)
+        self.assertGreater(box[1], 480)
+        for width, height in ((76, 76), (68, 20), (30, 70)):
+            fit = min(width/1000, height/1000)
+            for px, py in ((300, 500), (500, 960)):
+                before = ((width-1000*fit)/2+px*fit, (height-1000*fit)/2+py*fit)
+                after = ((width-1000*fit)/2+box[0]*fit+(px-box[0])*fit,
+                         (height-1000*fit)/2+box[1]*fit+(py-box[1])*fit)
+                for a, b in zip(before, after): self.assertAlmostEqual(a, b)
+        path = self.root/'cutout.webp'
+        cutout.save(path, 'WEBP', lossless=True, exact=True)
+        image_exports.check_cutout(path, 100)
+        picture.save(path, 'WEBP', lossless=True, exact=True)
+        with self.assertRaisesRegex(AssertionError, 'oversized'):
+            image_exports.check_cutout(path, 100)
+        with self.assertRaisesRegex(AssertionError, 'transparent padding'):
+            image_exports.check_cutout(path, 500)
+
     def test_presets_native_original_and_once(self):
         for role, quality in [('title-background', image_exports.TITLE_BACKGROUND_QUALITY), ('book-page', 85)]:
             first = image_exports.optimize_new_image_exports(self.original, role, self.cache)

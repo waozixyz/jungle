@@ -1,5 +1,6 @@
 """Full native Farm input, cursor, persistence and art on an owned private Xvfb."""
 import os
+import re
 import ctypes as c
 import hashlib
 import json
@@ -20,7 +21,7 @@ DURATIONS=(24000,32000,18000,28000,45000,36000,24000,36000,28000)
 # then its sapling rises for FARM_RISE ms.
 FARM_REST=3000;FARM_SOWN=4200
 # Native cursor shapes (width, height, hotspot x, hotspot y) set in Farm's Hand().
-HAND_CURSOR=(32,32,8,1);WATER_CURSOR=(32,32,2,14);BASKET_CURSOR=(32,32,16,16)
+HAND_CURSOR=(32,32,8,1);WATER_CURSOR=(32,28,2,12);BASKET_CURSOR=(30,32,15,16)
 
 def f32(value): return c.c_float(value).value
 
@@ -91,8 +92,17 @@ def cursor(desktop):
     return result
 
 def assert_cursor(desktop,shape,phase=''):
+    # The app's default/pointing cursor may change independently of Farm art.
+    # Tool cursors still require their exact trimmed shape and hotspot.
+    expected={shape}
+    if shape==HAND_CURSOR:
+        expected={tuple(map(int,values)) for values in re.findall(
+            r'\.width\s*=\s*(\d+),\s*\.height\s*=\s*(\d+),\s*'
+            r'\.hotspot_x\s*=\s*(\d+),\s*\.hotspot_y\s*=\s*(\d+)',
+            (ROOT/'host/jungle_cursor.zi').read_text())}
+        assert expected, 'No application cursor declared'
     try:
-        until(lambda:cursor(desktop)[:4]==shape,('Wrong native cursor',phase,shape,cursor(desktop)[:4]))
+        until(lambda:cursor(desktop)[:4] in expected,('Wrong native cursor',phase,expected,cursor(desktop)[:4]))
     except AssertionError:
         desktop.capture_actual('cursor-failure')
         raise

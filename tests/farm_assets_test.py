@@ -27,10 +27,10 @@ def main():
         if row['name'] in OBJECTS:
             assert row['lossless'] is True and row['export_role']=='cutout'
         else:
-            assert row['quality']==85 and row['export_role']=='scene'
+            assert row['quality']==50 and row['export_role']=='title-background'
     for name in OBJECTS:
         with Image.open(ROOT/f'assets/garden/play/{name}.webp') as picture:
-            assert max(picture.size) >= 700, (name, picture.size)
+            assert max(picture.size) <= 368, (name, picture.size)
             assert picture.mode == 'RGBA', name
             assert picture.getchannel('A').getextrema() == (0, 255), name
     for orientation, size in (('landscape', (1536, 1024)), ('portrait', (1024, 1536))):
@@ -54,7 +54,7 @@ def main():
     campus = next(s for s in data['scenes'] if s['name'] == 'campus')
     for scene in (campus, campus['portrait']):
         assert next(h for h in scene['hotspots'] if h['id'] == 'farm-path')['target'] == 'game:Farm'
-    print('local farm assets: 31 new images, alpha, sizes, native routes, silence, no tutorial text and save namespace passed')
+    print('local farm assets: 31 paintings and play images, alpha, runtime sizes, native routes, silence, no tutorial text and save namespace passed')
 
 if __name__ == '__main__':
     main()

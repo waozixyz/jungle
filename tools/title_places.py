@@ -259,8 +259,7 @@ def main():
         for image, low in ((scenes['farm']['image'], scenes['farm']['low']), ('assets/garden/art/scene-landscape.webp', None)):
             if low: ledger.plate(farm, image, low)
             else: ledger.background(farm, image)
-        # The Farm game records its painting's origin and ships a small preview.
-        ledger.background(farm, 'assets/garden/previews/scene-landscape.webp', size=(128, 72))
+        # The Farm game records the full-resolution painting's origin.
         garden = json.loads(GARDEN_PROVENANCE.read_text())
         row = next(a for a in garden['assets'] if a['runtime'] == 'assets/garden/art/scene-landscape.webp')
         row.update(source=str(farm.relative_to(ROOT)), sha256=digest(ROOT/row['runtime']), source_sha256=digest(farm))

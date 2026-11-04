@@ -19,6 +19,7 @@
 #import, file "../../host/jungle_text.zi";
 #import, file "../../retro/language.zi";
 #import, file "garden_scene.zi";
+#import, file "garden_art.zi";
 
 farm: FarmState;
 loaded: bool;
@@ -101,7 +102,21 @@ Load :: () {
     if !save_blocked { unused Save(true) }
 }
 Picture :: (name: string, x: s32, y: s32, w: s32, h: s32) {
-    BookPicture(Cat("assets/garden/play/",name,".webp"),x,y,w,h)
+    art := FarmArt(name)
+    if art.width<=0 || w<=0 || h<=0 { return }
+    // Contain the ORIGINAL canvas first, then draw its cropped rectangle.
+    // Float bounds keep the same feet, soil dimple and seed/hand anchors in
+    // desktop, web DOM and Canvas, including the nonsquare Goji animation.
+    fit := cast(float32)w/cast(float32)art.width
+    if cast(float32)h/cast(float32)art.height<fit { fit=cast(float32)h/cast(float32)art.height }
+    left := cast(float32)x+(cast(float32)w-cast(float32)art.width*fit)/2.0+cast(float32)art.x*fit
+    top := cast(float32)y+(cast(float32)h-cast(float32)art.height*fit)/2.0+cast(float32)art.y*fit
+    path := RetroImageShown(Cat("assets/garden/play/",name,".webp"))
+    if path=="" { return }
+    Image(retro.session,ImageProps.{.asset_path=path,
+        .bounds=Rectangle.{.x=retro.x+left*retro.scale,.y=retro.y+top*retro.scale,
+            .width=cast(float32)art.w*fit*retro.scale,.height=cast(float32)art.h*fit*retro.scale},
+        .fit=ImageFit.ImageFitStretch,.smooth=true})
 }
 Label :: (text: string, x: s32, y: s32, w: s32, h: s32, size: s32 = 18) {
     BookText(x,y,w,h,text,size,TextAlign.TextAlignCenter,false)
@@ -655,9 +670,9 @@ Menu :: () {
 Hand :: () {
     in_garden:=loaded && !save_blocked && active_garden>=0 && panel==0
     if in_garden && tool==1 {
-        unused CursorSet(retro.session,CursorProps.{.asset_path="assets/garden/play/cursor-watering-can.webp",.width=32,.height=32,.hotspot_x=2,.hotspot_y=14})
+        unused CursorSet(retro.session,CursorProps.{.asset_path="assets/garden/play/cursor-watering-can.webp",.width=32,.height=28,.hotspot_x=2,.hotspot_y=12})
     } else if in_garden && tool==2 {
-        unused CursorSet(retro.session,CursorProps.{.asset_path="assets/garden/play/cursor-harvest-basket.webp",.width=32,.height=32,.hotspot_x=16,.hotspot_y=16})
+        unused CursorSet(retro.session,CursorProps.{.asset_path="assets/garden/play/cursor-harvest-basket.webp",.width=30,.height=32,.hotspot_x=15,.hotspot_y=16})
     } else {
         unused CursorSet(retro.session,.{})
     }

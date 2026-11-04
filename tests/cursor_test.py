@@ -1,8 +1,9 @@
 """Fast: Jungle's one hand cursor and every game cursor are clean, crisp images.
 
 Each host sets the hand once with CursorSetDefault. Every cursor image is an
-exact lossless 128 px WebP (4x its 32 logical units) whose soft edge is dark
-outline, never a light matte, and whose hotspot lies on the picture.
+exact lossless WebP drawn at a whole 2x or 4x of its logical size (Jungle's own
+at 4x: 128 px for 32 units), whose soft edge is dark outline, never a light
+matte, and whose hotspot lies on the picture.
 """
 from pathlib import Path
 import re
@@ -43,10 +44,16 @@ class CursorTest(unittest.TestCase):
                 path = ROOT / asset
                 self.assertTrue(path.is_file())
                 self.assertEqual(path.read_bytes()[12:16], b'VP8L', 'cursor WebP must be lossless')
-                self.assertEqual((width, height), (32, 32))
+                self.assertTrue(0 < width <= 32 and 0 < height <= 32)
                 with Image.open(path) as image:
-                    self.assertEqual(image.size, (128, 128))
+                    size = image.size
                     rgba = np.asarray(image.convert('RGBA')).astype(np.int32)
+                # A whole density of the logical size, the same on both axes.
+                scale = size[0] // width
+                self.assertIn(scale, (2, 4))
+                self.assertEqual(size, (width * scale, height * scale))
+                if asset.startswith('assets/jungle/'):
+                    self.assertEqual((size, width, height), ((128, 128), 32, 32))
                 alpha = rgba[..., 3]
                 light = 0.299 * rgba[..., 0] + 0.587 * rgba[..., 1] + 0.114 * rgba[..., 2]
                 # A faint light pixel is the white fringe this replaced.
@@ -54,7 +61,7 @@ class CursorTest(unittest.TestCase):
                 self.assertEqual(int(((alpha == 0) & (rgba[..., :3].sum(axis=2) > 0)).sum()), 0)
                 # Hidden edges stay inside the image with room for the outline.
                 self.assertTrue((alpha[[0, -1], :] == 0).all() and (alpha[:, [0, -1]] == 0).all())
-                cell = alpha[hy * 4:hy * 4 + 4, hx * 4:hx * 4 + 4]
+                cell = alpha[hy * scale:hy * scale + scale, hx * scale:hx * scale + scale]
                 self.assertGreater(int(cell.max()), 0, 'hotspot must lie on the picture')
 
     def test_hand_hotspot_is_the_fingertip(self):

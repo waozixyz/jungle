@@ -97,15 +97,8 @@ GAMES = {
     'jungle-drums': {'folders': ('assets/drums',),
                      'extra': {'assets/jungle-book/collect.wav': 'assets/jungle-book/collect.wav',
                                'assets/collectibles/drum.webp': 'assets/collectibles/drum.webp'}},
-    # The hidden paper's chime and the colored sunflower it flies.
-    # The Farm chooser draws the title scene's own Campus arrow sign.
-    'jungle-garden': {'folders': ('assets/garden',),
-                      'extra': {'assets/jungle-book/collect.wav': 'assets/jungle-book/collect.wav',
-                                'assets/collectibles/sunflower.webp': 'assets/collectibles/sunflower.webp',
-                                'assets/garden/play/campus-arrow.webp': 'assets/jungle/title/objects/wood-arrow-right.webp',
-                                'assets/garden/play/campus-arrow-glow.webp': 'assets/jungle/title/objects/wood-arrow-right-glow.webp',
-                                'assets/garden/play/market-arrow.webp': 'assets/jungle/title/objects/wood-arrow-left.webp',
-                                'assets/garden/play/market-arrow-glow.webp': 'assets/jungle/title/objects/wood-arrow-left-glow.webp'}},
+    # Only the Farm's runtime images; provenance and private masters never ship.
+    'jungle-garden': {'folders': ('assets/garden/art', 'assets/garden/play')},
     'jungle-fishing': {'folders': ('assets/fishing',), 'skip': ('assets/fishing/previews/',)},
     'jungle-beach-families': {'folders': ('assets/beach_families',), 'skip': ('assets/beach_families/previews/',)},
 }
@@ -123,6 +116,10 @@ def Shipped(name):
     """Whether a source file ships at all. Speech receipts stay in the source,
     and ABC Book carries its own spoken letters, so the book's copies do not."""
     path = Path(name)
+    # The silent Farm loads images only. Art provenance stays in the source,
+    # including when the browser collects all assets instead of GameFiles.
+    if name.startswith('assets/garden/') and path.suffix != '.webp':
+        return False
     book_letters = name.startswith('assets/jungle-book/') and 'letters' in path.parts[:-1]
     book_narration = name.startswith('assets/jungle-book/sounds/') and path.suffix.lower() == '.wav'
     return not path.name.endswith('.speech.json') and not book_letters and not book_narration

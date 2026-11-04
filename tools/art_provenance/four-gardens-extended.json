@@ -28,8 +28,8 @@
       "runtime": "assets/garden/play/beans.webp",
       "runtime_sha256": "f537ce014c66d36c820bf7a866af5f26a427c5600fd39912df963a1b34da3e03",
       "dimensions": [
-        1024,
-        1024
+        223,
+        223
       ],
       "alpha_extrema": [
         0,
@@ -60,10 +60,12 @@
       ],
       "fidelity_reference": "local/art-development/four-gardens/anchored/beans-extended.png",
       "framing_note": "Visible alpha bbox >16 used for fit; full RGBA inside crop retained; transparent padding, Lanczos downsample only.",
-      "sha256": "f537ce014c66d36c820bf7a866af5f26a427c5600fd39912df963a1b34da3e03",
+      "sha256": "505e5089e48d6080c278933633aa8bf7cea76429ec8d2be896693d6e5745ed71",
       "source_role": "canonical native full-resolution master",
       "candidate_role": "runtime framing candidate",
-      "generation_id": "exec-554c1c56-0b56-4dd7-85bc-6f9eee7d44fc"
+      "generation_id": "exec-554c1c56-0b56-4dd7-85bc-6f9eee7d44fc",
+      "bytes": 64754,
+      "runtime_trim": "tools/farm_images.json"
     },
     {
       "name": "corn",
@@ -72,8 +74,8 @@
       "runtime": "assets/garden/play/corn.webp",
       "runtime_sha256": "6db42dbd63650ae70f08fc27b9c00b150c5d7f9ec3e3f179ed946bc3639f482e",
       "dimensions": [
-        1024,
-        1024
+        182,
+        253
       ],
       "alpha_extrema": [
         0,
@@ -104,10 +106,12 @@
       ],
       "fidelity_reference": "local/art-development/four-gardens/anchored/corn-extended.png",
       "framing_note": "Visible alpha bbox >16 used for fit; full RGBA inside crop retained; transparent padding, Lanczos downsample only.",
-      "sha256": "6db42dbd63650ae70f08fc27b9c00b150c5d7f9ec3e3f179ed946bc3639f482e",
+      "sha256": "09ed7c593890e2b463a22cd35ca9c6dd65cba0cf0cefd88d61b0b8c73621760e",
       "source_role": "canonical native full-resolution master",
       "candidate_role": "runtime framing candidate",
-      "generation_id": "exec-154323af-d7f6-4994-8383-2dfbe5253d4d"
+      "generation_id": "exec-154323af-d7f6-4994-8383-2dfbe5253d4d",
+      "bytes": 50880,
+      "runtime_trim": "tools/farm_images.json"
     },
     {
       "name": "cucumber",
@@ -116,8 +120,8 @@
       "runtime": "assets/garden/play/cucumber.webp",
       "runtime_sha256": "0051238d0a7170822eaef981a3647f897c34af2442bd45a5dc96f57ae92cd864",
       "dimensions": [
-        1024,
-        1024
+        223,
+        248
       ],
       "alpha_extrema": [
         0,
@@ -148,10 +152,12 @@
       ],
       "fidelity_reference": "local/art-development/four-gardens/anchored/cucumber-extended.png",
       "framing_note": "Visible alpha bbox >16 used for fit; full RGBA inside crop retained; transparent padding, Lanczos downsample only.",
-      "sha256": "0051238d0a7170822eaef981a3647f897c34af2442bd45a5dc96f57ae92cd864",
+      "sha256": "230e3c19db213fcdc6472cc9ebd92ec6a8647d905e287d0d0e0cf6ff505e0932",
       "source_role": "canonical native full-resolution master",
       "candidate_role": "runtime framing candidate",
-      "generation_id": "exec-83e87d93-9174-4d8b-bf7a-335e847cb34c"
+      "generation_id": "exec-83e87d93-9174-4d8b-bf7a-335e847cb34c",
+      "bytes": 69194,
+      "runtime_trim": "tools/farm_images.json"
     },
     {
       "name": "seed-sunflower",
@@ -160,8 +166,8 @@
       "runtime": "assets/garden/play/seed-sunflower.webp",
       "runtime_sha256": "d359eaa59947dfd4334a2003a40ad2305fa1c46be95cb5d5676d0ef7c9fd35ea",
       "dimensions": [
-        1024,
-        1024
+        224,
+        221
       ],
       "alpha_extrema": [
         0,
@@ -192,10 +198,12 @@
       ],
       "fidelity_reference": "local/art-development/four-gardens/anchored/seed-sunflower-extended.png",
       "framing_note": "Visible alpha bbox >16 used for fit; full RGBA inside crop retained; transparent padding, Lanczos downsample only.",
-      "sha256": "d359eaa59947dfd4334a2003a40ad2305fa1c46be95cb5d5676d0ef7c9fd35ea",
+      "sha256": "62ba1864e4ae527bc7285e56a996129cbd8e37d0aae43a6c30487eec74719593",
       "source_role": "canonical native full-resolution master",
       "candidate_role": "runtime framing candidate",
-      "generation_id": "exec-b1304614-3d8e-44ca-b3fe-d50484a02ea5"
+      "generation_id": "exec-b1304614-3d8e-44ca-b3fe-d50484a02ea5",
+      "bytes": 48210,
+      "runtime_trim": "tools/farm_images.json"
     },
     {
       "name": "seed-tomato",
@@ -204,8 +212,8 @@
       "runtime": "assets/garden/play/seed-tomato.webp",
       "runtime_sha256": "aa2fe5023dddef87d7c1ff66e99ec19cb597883ac2fd784fa04004ca458a185b",
       "dimensions": [
-        1024,
-        1024
+        224,
+        178
       ],
       "alpha_extrema": [
         0,
@@ -236,10 +244,12 @@
       ],
       "fidelity_reference": "local/art-development/four-gardens/anchored/seed-tomato-extended.png",
       "framing_note": "Visible alpha bbox >16 used for fit; full RGBA inside crop retained; transparent padding, Lanczos downsample only.",
-      "sha256": "aa2fe5023dddef87d7c1ff66e99ec19cb597883ac2fd784fa04004ca458a185b",
+      "sha256": "d93fd78cb07c3b39ab202321a8ba0c156ea63db4b63250e5273e52e9336daaa5",
       "source_role": "canonical native full-resolution master",
       "candidate_role": "runtime framing candidate",
-      "generation_id": "exec-1d39b0e3-ca2f-4762-8664-eeb1c92737e8"
+      "generation_id": "exec-1d39b0e3-ca2f-4762-8664-eeb1c92737e8",
+      "bytes": 33864,
+      "runtime_trim": "tools/farm_images.json"
     },
     {
       "name": "seed-carrot",
@@ -248,8 +258,8 @@
       "runtime": "assets/garden/play/seed-carrot.webp",
       "runtime_sha256": "6c524bffa688a65d39ecb11b6fc4204d52ee9a4e5f380185f2c19c977f2f938f",
       "dimensions": [
-        1024,
-        1024
+        224,
+        187
       ],
       "alpha_extrema": [
         0,
@@ -280,10 +290,12 @@
       ],
       "fidelity_reference": "local/art-development/four-gardens/anchored/seed-carrot-extended.png",
       "framing_note": "Visible alpha bbox >16 used for fit; full RGBA inside crop retained; transparent padding, Lanczos downsample only.",
-      "sha256": "6c524bffa688a65d39ecb11b6fc4204d52ee9a4e5f380185f2c19c977f2f938f",
+      "sha256": "5d2e8797135debd1e6c75b6a55d8e7471d8f288cd71deffa07a332f74fb95105",
       "source_role": "canonical native full-resolution master",
       "candidate_role": "runtime framing candidate",
-      "generation_id": "exec-6619b451-593b-459b-9359-5c314982c982"
+      "generation_id": "exec-6619b451-593b-459b-9359-5c314982c982",
+      "bytes": 34240,
+      "runtime_trim": "tools/farm_images.json"
     },
     {
       "name": "seed-strawberry",
@@ -292,8 +304,8 @@
       "runtime": "assets/garden/play/seed-strawberry.webp",
       "runtime_sha256": "13b25757637008cf4cf7b41ab21d2564d9600fdc5d32b538478e7e3a06134b7c",
       "dimensions": [
-        1024,
-        1024
+        195,
+        224
       ],
       "alpha_extrema": [
         0,
@@ -324,10 +336,12 @@
       ],
       "fidelity_reference": "local/art-development/four-gardens/anchored/seed-strawberry-extended.png",
       "framing_note": "Visible alpha bbox >16 used for fit; full RGBA inside crop retained; transparent padding, Lanczos downsample only.",
-      "sha256": "13b25757637008cf4cf7b41ab21d2564d9600fdc5d32b538478e7e3a06134b7c",
+      "sha256": "8fad58526a8e019c9fecf2b25cc389370d94060d763647c7e4738d7daafda70f",
       "source_role": "canonical native full-resolution master",
       "candidate_role": "runtime framing candidate",
-      "generation_id": "exec-1387c829-6b8d-4bb4-873c-3e678e030f34"
+      "generation_id": "exec-1387c829-6b8d-4bb4-873c-3e678e030f34",
+      "bytes": 56062,
+      "runtime_trim": "tools/farm_images.json"
     },
     {
       "name": "seed-pumpkin",
@@ -336,8 +350,8 @@
       "runtime": "assets/garden/play/seed-pumpkin.webp",
       "runtime_sha256": "ad4f2d3ebbabc6270b6c57e9d474fc0d99d1da173340dfd343298f0a6e786951",
       "dimensions": [
-        1024,
-        1024
+        224,
+        205
       ],
       "alpha_extrema": [
         0,
@@ -368,10 +382,12 @@
       ],
       "fidelity_reference": "local/art-development/four-gardens/anchored/seed-pumpkin-extended.png",
       "framing_note": "Visible alpha bbox >16 used for fit; full RGBA inside crop retained; transparent padding, Lanczos downsample only.",
-      "sha256": "ad4f2d3ebbabc6270b6c57e9d474fc0d99d1da173340dfd343298f0a6e786951",
+      "sha256": "e5bc1a0c07b29d46451ae55e500d5eab5610853923fe3cb97c1be7a3224e7580",
       "source_role": "canonical native full-resolution master",
       "candidate_role": "runtime framing candidate",
-      "generation_id": "exec-f62d8b35-6bc3-4090-9edd-631e3db327b4"
+      "generation_id": "exec-f62d8b35-6bc3-4090-9edd-631e3db327b4",
+      "bytes": 44490,
+      "runtime_trim": "tools/farm_images.json"
     },
     {
       "name": "seed-cabbage",
@@ -380,8 +396,8 @@
       "runtime": "assets/garden/play/seed-cabbage.webp",
       "runtime_sha256": "4990c6ede839331274d8b28e9c5af366f4d51f204dc40e0e77d40dd2672bc2fb",
       "dimensions": [
-        1024,
-        1024
+        224,
+        210
       ],
       "alpha_extrema": [
         0,
@@ -412,10 +428,12 @@
       ],
       "fidelity_reference": "local/art-development/four-gardens/anchored/seed-cabbage-extended.png",
       "framing_note": "Visible alpha bbox >16 used for fit; full RGBA inside crop retained; transparent padding, Lanczos downsample only.",
-      "sha256": "4990c6ede839331274d8b28e9c5af366f4d51f204dc40e0e77d40dd2672bc2fb",
+      "sha256": "1ef48a500ef72682329a1f190a2e8887d9d98c20e81d303b3e7b6ec21639fe1f",
       "source_role": "canonical native full-resolution master",
       "candidate_role": "runtime framing candidate",
-      "generation_id": "exec-0609dc73-3c9a-4e6e-9e83-412d6aca432a"
+      "generation_id": "exec-0609dc73-3c9a-4e6e-9e83-412d6aca432a",
+      "bytes": 39800,
+      "runtime_trim": "tools/farm_images.json"
     },
     {
       "name": "seed-beans",
@@ -424,8 +442,8 @@
       "runtime": "assets/garden/play/seed-beans.webp",
       "runtime_sha256": "4f0b35f4496c9df9da135c33f1156e88cf8a3cce0b1fe1ce0a96dc36c8cd7133",
       "dimensions": [
-        1024,
-        1024
+        224,
+        196
       ],
       "alpha_extrema": [
         0,
@@ -456,10 +474,12 @@
       ],
       "fidelity_reference": "local/art-development/four-gardens/anchored/seed-beans-extended.png",
       "framing_note": "Visible alpha bbox >16 used for fit; full RGBA inside crop retained; transparent padding, Lanczos downsample only.",
-      "sha256": "4f0b35f4496c9df9da135c33f1156e88cf8a3cce0b1fe1ce0a96dc36c8cd7133",
+      "sha256": "75d9dd0fe51901f52a688b3ef4d02a486e8b153fbd4a0be47cf9f6c911178bf1",
       "source_role": "canonical native full-resolution master",
       "candidate_role": "runtime framing candidate",
-      "generation_id": "exec-9d54f785-ccb2-457f-a967-d95f3d74b9d6"
+      "generation_id": "exec-9d54f785-ccb2-457f-a967-d95f3d74b9d6",
+      "bytes": 42578,
+      "runtime_trim": "tools/farm_images.json"
     },
     {
       "name": "seed-corn",
@@ -468,8 +488,8 @@
       "runtime": "assets/garden/play/seed-corn.webp",
       "runtime_sha256": "52c227ef1722e5f72cc6fb47b53d84e3f21dbcd1a1f668a14c2aa13ecd26547e",
       "dimensions": [
-        1024,
-        1024
+        224,
+        202
       ],
       "alpha_extrema": [
         0,
@@ -500,10 +520,12 @@
       ],
       "fidelity_reference": "local/art-development/four-gardens/anchored/seed-corn-extended.png",
       "framing_note": "Visible alpha bbox >16 used for fit; full RGBA inside crop retained; transparent padding, Lanczos downsample only.",
-      "sha256": "52c227ef1722e5f72cc6fb47b53d84e3f21dbcd1a1f668a14c2aa13ecd26547e",
+      "sha256": "7a75a284283a6885f26bf05238033c343efe880753a89fd38e2ad61b6e1062ff",
       "source_role": "canonical native full-resolution master",
       "candidate_role": "runtime framing candidate",
-      "generation_id": "exec-0d746d54-7d0f-41ae-a836-02d5340a89d4"
+      "generation_id": "exec-0d746d54-7d0f-41ae-a836-02d5340a89d4",
+      "bytes": 45042,
+      "runtime_trim": "tools/farm_images.json"
     },
     {
       "name": "seed-cucumber",
@@ -512,8 +534,8 @@
       "runtime": "assets/garden/play/seed-cucumber.webp",
       "runtime_sha256": "f32b6e98b0cb207045590339742456c8f696ad709cda5531f1facb3172387b6d",
       "dimensions": [
-        1024,
-        1024
+        224,
+        188
       ],
       "alpha_extrema": [
         0,
@@ -544,10 +566,12 @@
       ],
       "fidelity_reference": "local/art-development/four-gardens/anchored/seed-cucumber-extended.png",
       "framing_note": "Visible alpha bbox >16 used for fit; full RGBA inside crop retained; transparent padding, Lanczos downsample only.",
-      "sha256": "f32b6e98b0cb207045590339742456c8f696ad709cda5531f1facb3172387b6d",
+      "sha256": "91855f0ebe5445c4dbb848763d6669745e971010d2c0cda89b673f71b82cf344",
       "source_role": "canonical native full-resolution master",
       "candidate_role": "runtime framing candidate",
-      "generation_id": "exec-dd47ef5b-baaf-45b8-ac12-d0046663ea31"
+      "generation_id": "exec-dd47ef5b-baaf-45b8-ac12-d0046663ea31",
+      "bytes": 39262,
+      "runtime_trim": "tools/farm_images.json"
     },
     {
       "name": "hand-cupped",
@@ -556,8 +580,8 @@
       "runtime": "assets/garden/play/hand-cupped.webp",
       "runtime_sha256": "b922741fadf59b6b394d77430647f8de97e2724a8c2b2e551e189c66c5063dfa",
       "dimensions": [
-        1024,
-        1024
+        211,
+        193
       ],
       "alpha_extrema": [
         0,
@@ -588,10 +612,12 @@
       ],
       "fidelity_reference": "local/art-development/four-gardens/anchored/hand-cupped-extended.png",
       "framing_note": "Visible alpha bbox >16 used for fit; full RGBA inside crop retained; transparent padding, Lanczos downsample only.",
-      "sha256": "b922741fadf59b6b394d77430647f8de97e2724a8c2b2e551e189c66c5063dfa",
+      "sha256": "44d2afc3ea6a2a79b7604f23991526ab7d7b1d3940029fd846eac6e498ae00df",
       "source_role": "canonical native full-resolution master",
       "candidate_role": "runtime framing candidate",
-      "generation_id": "exec-c05ad63b-980c-42f3-a8ae-4b467e8d63ed"
+      "generation_id": "exec-c05ad63b-980c-42f3-a8ae-4b467e8d63ed",
+      "bytes": 31498,
+      "runtime_trim": "tools/farm_images.json"
     },
     {
       "name": "goji",
@@ -600,8 +626,8 @@
       "runtime": "assets/garden/play/goji.webp",
       "runtime_sha256": "58308836ebdc3f45fbb5e8996735f197077906ccde200cbe9fb20366eb7d8535",
       "dimensions": [
-        1024,
-        1024
+        161,
+        204
       ],
       "alpha_extrema": [
         0,
@@ -632,10 +658,12 @@
       ],
       "fidelity_reference": "local/art-development/four-gardens/anchored/goji-extended.png",
       "framing_note": "Visible alpha bbox >16 used for fit; full RGBA inside crop retained; transparent padding, Lanczos downsample only.",
-      "sha256": "58308836ebdc3f45fbb5e8996735f197077906ccde200cbe9fb20366eb7d8535",
+      "sha256": "703836542da915bf9d68583d60e3b5a53cc7caa6ec40a98c0364109a853132d1",
       "source_role": "canonical native full-resolution master",
       "candidate_role": "runtime framing candidate",
-      "generation_id": "exec-6b7c3f9a-644f-4855-bb5f-545eb51672d4"
+      "generation_id": "exec-6b7c3f9a-644f-4855-bb5f-545eb51672d4",
+      "bytes": 44182,
+      "runtime_trim": "tools/farm_images.json"
     }
   ],
   "review": "local/art-development/four-gardens/review/extended-contact.jpg",

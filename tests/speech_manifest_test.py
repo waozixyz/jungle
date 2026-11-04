@@ -256,9 +256,10 @@ def staging_test():
         shipped_files = {path.relative_to(app).as_posix() for path in app.rglob('*') if path.is_file()}
         assert {path for path in shipped_files if path.endswith('.wav')} == {chime}, shipped_files
         assert (app / chime).read_bytes() == b'collection chime'
-        for game in ('jungle-hide-seek', 'jungle-matching', 'jungle-drums', 'jungle-garden'):
+        for game in ('jungle-hide-seek', 'jungle-matching', 'jungle-drums'):
             assert chime in bundles[game]
             assert (stage / game / chime).read_bytes() == b'collection chime'
+        assert chime not in bundles['jungle-garden'], 'The silent Farm must not bundle a retired chime'
         assert 'assets/speech/en/old.ogg' not in shipped_files
         assert (app / next(iter(encoded_files))).read_bytes().startswith(b'encoded ')
         assert all('assets/abc/sounds/en/letters/0061.wav' not in files for files in bundles.values())

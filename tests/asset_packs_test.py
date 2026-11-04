@@ -151,7 +151,7 @@ with tempfile.TemporaryDirectory(prefix='asset-pack-test-',dir=ROOT/'build') as 
 
     # Browser staging reuses runtime exports unchanged and only caps its own title art.
     runtime_sources={'assets/jungle-book/pages/tiger.webp':page,
-                     'assets/garden/art/bed.webp':ROOT/'assets/garden/art/bed.webp',
+                     'assets/garden/play/carrot.webp':ROOT/'assets/garden/play/carrot.webp',
                      'assets/hide_seek/props/basket.webp':ROOT/'assets/hide_seek/props/basket.webp'}
     reused,names,info=prepare_web_images(runtime_sources,root/'runtime-reuse-cache')
     assert reused==runtime_sources and names=={} and info=={}

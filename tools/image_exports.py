@@ -115,6 +115,54 @@ def export_painted_image(picture, destination, role='exact'):
     return export_image(master, destination, role)
 
 
+def trim_cutout(picture, max_display, *, margin=4, alpha_floor=8, align=1):
+    """Trim a lossless cut-out and cap it at twice its full-canvas display size.
+
+    Return the derivative and its original-pixel crop rectangle. Draw callers
+    apply that rectangle AFTER containing the original canvas in the target;
+    this preserves feet, pointer hotspots and aspect even in nonsquare boxes.
+    Pillow resamples RGBA in premultiplied alpha, avoiding a light matte.
+    ALIGN supports cursors whose crop/hotspot must land on logical pixels.
+    """
+    import math
+    picture = picture.convert('RGBA')
+    alpha = picture.getchannel('A')
+    alpha = alpha.point(lambda value: value if value > alpha_floor else 0)
+    picture.putalpha(alpha)
+    # Discard hidden RGB, including the invisible generation speckles.
+    picture.paste((0, 0, 0, 0), mask=alpha.point(lambda value: 255 if value == 0 else 0))
+    box = alpha.getbbox()
+    if box is None:
+        raise ValueError('Empty cut-out')
+    scale = min(1.0, 2 * max_display / max(picture.size))
+    padding = max(margin, math.ceil(2 / scale))
+    left, top, right, bottom = box
+    box = (max(0, (left-padding)//align*align), max(0, (top-padding)//align*align),
+           min(picture.width, math.ceil((right+padding)/align)*align),
+           min(picture.height, math.ceil((bottom+padding)/align)*align))
+    result = picture.crop(box)
+    size = tuple(max(1, round(edge*scale)) for edge in result.size)
+    if size != result.size:
+        result = result.resize(size, Image.Resampling.LANCZOS)
+    # Lanczos may create invisible RGB; keep exact alpha with clean hidden RGB.
+    result.paste((0, 0, 0, 0), mask=result.getchannel('A').point(lambda value: 255 if value == 0 else 0))
+    return result, box
+
+
+def check_cutout(path, max_display, *, padding=6):
+    """Fail a shipping check for oversized/padded/nonlossless cut-outs."""
+    path = Path(path)
+    with path.open('rb') as stream:
+        assert stream.read(16)[12:16] == b'VP8L', (path, 'cut-outs must be lossless WebP')
+    with Image.open(path) as picture:
+        assert picture.mode == 'RGBA', (path, 'missing alpha')
+        assert max(picture.size) <= 2 * max_display + 1, (path, 'oversized', picture.size)
+        box = picture.getchannel('A').point(lambda value: 255 if value > 8 else 0).getbbox()
+        assert box, (path, 'empty cut-out')
+        margins = (box[0], box[1], picture.width-box[2], picture.height-box[3])
+        assert max(margins) <= padding, (path, 'transparent padding', margins)
+
+
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser(description=__doc__)

@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- Make the Farm much smaller to download while keeping crops, seeds and tools planted in the same places.
+
 - Prepare every activity’s pictures and selected-language narration before play, with a gentle progress screen, Back, retry and cached reopening.
 - Open a Picture Books or Stories shelf without downloading its books. A book downloads when it is opened, and the next one downloads in the background while it is read.
 - Changing scenes no longer says the books are opening: a scene whose pictures are here opens without a loading screen, and a slow one names its place.

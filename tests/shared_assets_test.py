@@ -98,6 +98,10 @@ def fake_tree(root):
     write(root, 'assets/dino-paint/art/dino1.png', b'dino')
     write(root, 'assets/hide_seek/scenes/cottage-yard.webp', SCENE)
     write(root, 'assets/hide_seek/props/basket.webp', BASKET)
+    # Farm signs/crops now ship as their own trimmed derivatives; development
+    # provenance and the retired collection chime do not enter its bundle.
+    write(root, 'assets/garden/play/carrot.webp', picture((210, 105, 31, 255), '.webp'))
+    write(root, 'assets/garden/scene-provenance.json', b'{}')
 
 
 def manifest(path):
@@ -171,11 +175,7 @@ def staging_test():
                     for name in shared_assets.COUNTING}
         expected.update({'assets/animal-count/latin.png': 'assets/jungle/font.png',
                          'assets/dino-paint/font.png': 'assets/jungle/font.png',
-                         'assets/jungle-book/font.png': 'assets/jungle/font.png',
-                         'assets/garden/play/campus-arrow.webp': 'assets/jungle/title/objects/wood-arrow-right.webp',
-                         'assets/garden/play/campus-arrow-glow.webp': 'assets/jungle/title/objects/wood-arrow-right-glow.webp',
-                         'assets/garden/play/market-arrow.webp': 'assets/jungle/title/objects/wood-arrow-left.webp',
-                         'assets/garden/play/market-arrow-glow.webp': 'assets/jungle/title/objects/wood-arrow-left-glow.webp'})
+                         'assets/jungle-book/font.png': 'assets/jungle/font.png'})
         assert set(parsed) == set(expected) | RUNTIME_LOGICAL, set(parsed) ^ (set(expected) | RUNTIME_LOGICAL)
         assert parsed.items() >= expected.items()
         runtime_targets = {parsed[name] for name in RUNTIME_LOGICAL}
@@ -218,7 +218,7 @@ def staging_test():
                           'jungle-book/assets/jungle-book/collect.wav',
                           'jungle-matching/assets/jungle-book/collect.wav',
                           'jungle-hide-seek/assets/jungle-book/collect.wav',
-                          'jungle-garden/assets/jungle-book/collect.wav',
+                          'jungle-garden/assets/garden/play/carrot.webp',
                           'jungle-drums/assets/jungle-book/collect.wav',
                           'animal-count/assets/animal-count/font.png',
                           'animal-count/assets/animal-count/sounds/right.wav'}, staged

@@ -34,7 +34,6 @@ RUNTIME_RULES = {
     'assets/jungle-book/previews': RuntimeRule(512, RUNTIME_QUALITY),
     'assets/jungle-book/items': RuntimeRule(1024, RUNTIME_QUALITY),
     'assets/collectibles': RuntimeRule(1024, RUNTIME_QUALITY),
-    'assets/garden/art': RuntimeRule(1024, RUNTIME_QUALITY),
     'assets/shapes/wooden': RuntimeRule(1024, RUNTIME_QUALITY),
     'assets/drums/pictures': RuntimeRule(1024, RUNTIME_QUALITY),
     'assets/hide_seek/scenes': RuntimeRule(1024, RUNTIME_QUALITY),
@@ -42,13 +41,11 @@ RUNTIME_RULES = {
     'assets/jigsaw': RuntimeRule(1200, RUNTIME_QUALITY),
 }
 
-# Approved Farm scenes and sign layers are already app-ready exports. Keep
+# Approved Farm scenes and field layers are already app-ready exports. Keep
 # their native resolution and lossless alpha, without another lossy encode.
 APP_READY_FARM_WEBP = {
     'assets/garden/art/scene-landscape.webp',
     'assets/garden/art/scene-portrait.webp',
-    'assets/garden/art/campus-sign.webp',
-    'assets/garden/art/campus-sign-glow.webp',
 }
 
 # These folders receive previews. Runtime WebP replaces the former lossless

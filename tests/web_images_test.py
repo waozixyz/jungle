@@ -10,6 +10,7 @@ from PIL import Image, ImageChops, ImageStat
 import sys
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]/'tools'))
 from web_images import APP_READY_FARM_WEBP
+from farm_images import RUNTIME as FARM_RUNTIME
 
 ROOT = Path(__file__).resolve().parents[1]
 WEB = Path(os.environ.get('JUNGLE_WEB_ROOT', ROOT/'build/web'))
@@ -54,7 +55,7 @@ for name, entry in manifest['files'].items():
     categories.add(str(Path(name).parent))
 
 representatives = (
-    'assets/jungle-book/pages/tiger.webp', 'assets/garden/art/bed.webp',
+    'assets/jungle-book/pages/tiger.webp',
     'assets/hide_seek/props/basket.webp', 'assets/shapes/wooden/backdrop.webp',
     'assets/drums/pictures/room.webp')
 for name in representatives:
@@ -73,9 +74,11 @@ for name in representatives:
                                              comparison.getchannel('A')).getbbox() is None, name
 
 assert converted > 700, converted
-assert {'assets/jungle-book/pages', 'assets/jungle-book/items', 'assets/garden/art',
+assert {'assets/jungle-book/pages', 'assets/jungle-book/items',
         'assets/shapes/wooden', 'assets/drums/pictures', 'assets/hide_seek/props'} <= categories, categories
-for name in APP_READY_FARM_WEBP:
+farm_files={name for name in manifest['files'] if name.startswith('assets/garden/')}
+assert farm_files==FARM_RUNTIME, ('Unreferenced/missing Farm payload',farm_files ^ FARM_RUNTIME)
+for name in APP_READY_FARM_WEBP | farm_files:
     entry=manifest['files'][name]
     assert entry['sha256']==hashlib.sha256((ROOT/name).read_bytes()).hexdigest(),name
 
