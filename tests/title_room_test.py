@@ -32,7 +32,7 @@ class TreehouseRoom(unittest.TestCase):
         layers = json.loads(animation.SOURCE.read_text())['layers']
         for scene in ('window', 'window-portrait'):
             selected = [layer for layer in layers if layer['scene'] == scene]
-            self.assertEqual(len(selected), 9)
+            self.assertEqual(len(selected), 12)
             self.assertEqual(selected[-1]['mode'], 2)
             self.assertTrue(all(l['mode'] != 2 for l in selected[:-1]))
             base = next(s for s in json.loads(title.SOURCE.read_text())['scenes'] if s['name'] == 'window')
@@ -46,7 +46,22 @@ class TreehouseRoom(unittest.TestCase):
                     columns, count, width, height = layer['sheet']
                     first = image.crop((0, 0, width, height))
                     last = image.crop(((count-1)*width, 0, count*width, height))
-                    self.assertNotEqual(first.tobytes(), last.tobytes())
+                    if count > 1: self.assertNotEqual(first.tobytes(), last.tobytes())
+
+    def test_window_weather_depth_and_alpha(self):
+        layers=json.loads((ROOT/'tools/title_animations.json').read_text())['layers']
+        for scene in ('window','window-portrait'):
+            chosen=[l for l in layers if l['scene']==scene]
+            clouds=[l for l in chosen if l['mode']==-1]
+            self.assertEqual(len(clouds),2)
+            self.assertNotEqual(clouds[0]['timing'][1],clouds[1]['timing'][1])
+            self.assertNotEqual(clouds[0]['rect'][1],clouds[1]['rect'][1])
+            depth=next(i for i,l in enumerate(chosen) if l['mode']==-2)
+            self.assertTrue(all(chosen.index(l)<depth for l in clouds))
+            twig=next(l for l in chosen if l['mode']==-3)
+            self.assertGreater(chosen.index(twig),depth)
+            with Image.open(ROOT/twig['path']) as image:
+                self.assertEqual(image.getchannel('A').getextrema(),(0,255))
 
     def test_painted_river_has_no_animation(self):
         layers = json.loads((ROOT/'tools/title_animations.json').read_text())['layers']

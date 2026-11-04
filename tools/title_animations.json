@@ -2,25 +2,179 @@
   "layers": [
     {
       "scene": "window",
-      "path": "assets/jungle/title/window-animation/landscape-leaves-0.webp",
+      "path": "assets/jungle/title/window-animation/cloud.webp",
+      "rect": [
+        0,
+        115,
+        423,
+        128
+      ],
+      "mode": -1,
+      "timing": [
+        1,
+        130,
+        0
+      ],
+      "sheet": [
+        1,
+        1,
+        423,
+        128
+      ]
+    },
+    {
+      "scene": "window",
+      "path": "assets/jungle/title/window-animation/cloud-wisp.webp",
+      "rect": [
+        0,
+        220,
+        313,
+        81
+      ],
+      "mode": -1,
+      "timing": [
+        1,
+        195,
+        53
+      ],
+      "sheet": [
+        1,
+        1,
+        313,
+        81
+      ]
+    },
+    {
+      "scene": "window",
+      "path": "assets/jungle/title/window-animation/landscape-sky-occluder.webp",
+      "rect": [
+        0,
+        0,
+        1672,
+        430
+      ],
+      "mode": -2,
+      "timing": [
+        1,
+        1,
+        0
+      ],
+      "sheet": [
+        1,
+        1,
+        1672,
+        430
+      ]
+    },
+    {
+      "scene": "window",
+      "path": "assets/jungle/title/window-animation/landscape-twig.webp",
+      "rect": [
+        75,
+        329,
+        619,
+        324
+      ],
+      "mode": -3,
+      "timing": [
+        6,
+        4,
+        0
+      ],
       "sheet": [
         24,
         24,
-        263,
-        229
-      ],
+        310,
+        162
+      ]
+    },
+    {
+      "scene": "window-portrait",
+      "path": "assets/jungle/title/window-animation/cloud.webp",
       "rect": [
-        433,
-        330,
-        263,
-        229
+        0,
+        260,
+        423,
+        128
       ],
+      "mode": -1,
       "timing": [
-        6,
-        7,
+        1,
+        130,
         0
       ],
-      "mode": 0
+      "sheet": [
+        1,
+        1,
+        423,
+        128
+      ]
+    },
+    {
+      "scene": "window-portrait",
+      "path": "assets/jungle/title/window-animation/cloud-wisp.webp",
+      "rect": [
+        0,
+        385,
+        313,
+        81
+      ],
+      "mode": -1,
+      "timing": [
+        1,
+        195,
+        53
+      ],
+      "sheet": [
+        1,
+        1,
+        313,
+        81
+      ]
+    },
+    {
+      "scene": "window-portrait",
+      "path": "assets/jungle/title/window-animation/portrait-sky-occluder.webp",
+      "rect": [
+        0,
+        0,
+        1024,
+        680
+      ],
+      "mode": -2,
+      "timing": [
+        1,
+        1,
+        0
+      ],
+      "sheet": [
+        1,
+        1,
+        1024,
+        680
+      ]
+    },
+    {
+      "scene": "window-portrait",
+      "path": "assets/jungle/title/window-animation/portrait-twig.webp",
+      "rect": [
+        482,
+        664,
+        532,
+        247
+      ],
+      "mode": -3,
+      "timing": [
+        6,
+        4,
+        0
+      ],
+      "sheet": [
+        24,
+        24,
+        266,
+        124
+      ]
     },
     {
       "scene": "window",
@@ -80,28 +234,6 @@
         646,
         294,
         160
-      ],
-      "timing": [
-        6,
-        7,
-        0
-      ],
-      "mode": 0
-    },
-    {
-      "scene": "window-portrait",
-      "path": "assets/jungle/title/window-animation/portrait-leaves-0.webp",
-      "sheet": [
-        24,
-        24,
-        255,
-        232
-      ],
-      "rect": [
-        502,
-        665,
-        255,
-        232
       ],
       "timing": [
         6,

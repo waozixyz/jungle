@@ -19,7 +19,7 @@ def generate():
         assert 0 < count <= columns and width > 0 and height > 0
         with Image.open(path) as im:
             assert im.size == (columns*width, height), (path, im.size)
-            if layer['mode'] > 0:
+            if layer['mode'] > 0 or layer['mode'] in (-1, -3):
                 alpha = Image.new('L', (width, height))
                 for frame in range(count):
                     alpha = ImageChops.lighter(alpha, im.crop((frame*width, 0, (frame+1)*width, height)).getchannel('A'))
@@ -28,7 +28,7 @@ def generate():
                 margins = (box[0], box[1], width-box[2], height-box[3])
                 assert max(margins) <= 6, (path, 'transparent padding', margins)
         assert layer['timing'][0] > 0 and layer['timing'][1] > 0
-        assert layer['mode'] in (0, 1, 2)
+        assert layer['mode'] in (-3, -2, -1, 0, 1, 2)
         for key, value in [('SCENE',layer['scene']), ('PATH',layer['path']),
                            ('SHEET',layer['sheet']), ('RECT',layer['rect']),
                            ('TIMING',layer['timing']), ('MODE',layer['mode'])]:
@@ -38,21 +38,22 @@ def generate():
     for name,(kind,values) in fields.items():
         literals = [json.dumps(v) if kind=='string' else str(float(v)) if kind.startswith('float') else str(v) for v in values]
         out.append(f'TITLE_ANIMATION_{name}: [{len(values)}]{kind} = .[\n    '+',\n    '.join(literals)+'\n];')
-    # Render only occupied border strips, avoiding a fullscreen transparent blit.
-    for orientation in ('landscape', 'portrait'):
-        path = ROOT/f'assets/jungle/title/window-animation/{orientation}-frame.webp'
-        rects = []
-        with Image.open(path) as image:
-            alpha = image.getchannel('A')
-            w, h = image.size
-            for band in range(8):
-                top, bottom = band*h//8, (band+1)*h//8
-                for left, right in ((0,w//2),(w//2,w)):
-                    box = alpha.crop((left,top,right,bottom)).getbbox()
-                    if box:
-                        x,y,r,b = box
-                        rects.extend((left+x,top+y,r-x,b-y))
-        out.append(f'TITLE_FRAME_{orientation.upper()}: [{len(rects)}]s32 = .[' + ', '.join(map(str,rects)) + '];')
+    # Bounds skip transparent sky and frame pixels in both renderers.
+    for kind, suffix in (('FRAME','frame'), ('SKY_DEPTH','sky-occluder')):
+        for orientation in ('landscape', 'portrait'):
+            path = ROOT/f'assets/jungle/title/window-animation/{orientation}-{suffix}.webp'
+            rects = []
+            with Image.open(path) as image:
+                alpha = image.getchannel('A')
+                w, h = image.size
+                for band in range(8):
+                    top, bottom = band*h//8, (band+1)*h//8
+                    for left, right in ((0,w//2),(w//2,w)):
+                        box = alpha.crop((left,top,right,bottom)).getbbox()
+                        if box:
+                            x,y,r,b = box
+                            rects.extend((left+x,top+y,r-x,b-y))
+            out.append(f'TITLE_{kind}_{orientation.upper()}: [{len(rects)}]s32 = .[' + ', '.join(map(str,rects)) + '];')
     return '\n\n'.join(out)+'\n'
 
 def main():

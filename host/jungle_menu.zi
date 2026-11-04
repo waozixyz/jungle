@@ -1,3 +1,4 @@
+#import "kryon/text_measure"
 // The same title screen is drawn by the native and browser hosts: the
 // treehouse and the scenes below it (host/jungle_title.zi), where every
 // painted item glows under the pointer and opens a game or another scene.
@@ -214,9 +215,27 @@ TitleWindowFrame :: (session: Session, scene: s32, picture: Rectangle, view: Tit
     }
 }
 
-title_flee_time: [20]float64;
-title_flee_x: [20]float32;
-title_flee_y: [20]float32;
+TitleWindowSkyDepth :: (session: Session, scene: s32, picture: Rectangle, view: TitleView) {
+    portrait := TITLE_SCENE_NAME[scene] == "window-portrait"
+    if !portrait && TITLE_SCENE_NAME[scene] != "window" { return }
+    path := ifx portrait then "assets/jungle/title/window-animation/portrait-sky-occluder.webp" else "assets/jungle/title/window-animation/landscape-sky-occluder.webp"
+    if !TitleReady(path) { return }
+    rects := ifx portrait then TITLE_SKY_DEPTH_PORTRAIT[:] else TITLE_SKY_DEPTH_LANDSCAPE[:]
+    for i: cast(s32)0..cast(s32)(rects.count / 4) - 1 {
+        at := i * 4
+        x := cast(float32)rects[at]
+        y := cast(float32)rects[at + 1]
+        w := cast(float32)rects[at + 2]
+        h := cast(float32)rects[at + 3]
+        Image(session, ImageProps.{.asset_path = path,
+            .bounds = Rectangle.{picture.x + x * view.scale, picture.y + y * view.scale, w * view.scale, h * view.scale},
+            .source = Rectangle.{x, y, w, h}, .fit = ImageFit.ImageFitStretch, .smooth = true})
+    }
+}
+
+title_flee_time: [64]float64;
+title_flee_x: [64]float32;
+title_flee_y: [64]float32;
 
 TitleAnimations :: (session: Session, scene: s32, picture: Rectangle, view: TitleView, now: float64, foreground_leaves: bool = false) {
     if TITLE_SCENE_NAME[scene] == "window" && !TitleReady("assets/jungle/title/window-animation/landscape-frame.webp") { return }
@@ -240,7 +259,12 @@ TitleAnimations :: (session: Session, scene: s32, picture: Rectangle, view: Titl
         width := TITLE_ANIMATION_RECT[at + 2]
         height := TITLE_ANIMATION_RECT[at + 3]
         mode := TITLE_ANIMATION_MODE[index]
+        if mode == -2 { TitleWindowSkyDepth(session, scene, picture, view); continue }
         scene_width := cast(float32)TITLE_SCENE_WIDTH[scene]
+        if mode == -1 {
+            // Clouds wrap only after the whole soft sprite leaves the opening.
+            x = -width + cast(float32)phase * (scene_width + width * 2.0)
+        }
         if mode > 0 {
             phase = TitleVisitPhase(now, index)
             if title_flee_time[index] > 0.0 {
@@ -346,17 +370,31 @@ TitlePathSign :: (session: Session, hotspot: s32, picture: Rectangle, view: Titl
         cast(float32)TITLE_SIGN_RECT[at + 2] * view.scale,
         cast(float32)TITLE_SIGN_RECT[at + 3] * view.scale}
     label := Tr(TITLE_SIGN_LABEL[hotspot])
-    // The wooden silhouette supplies the direction; the whole board holds its name.
+    // Lay text out at full plank size, then rotate it about the board centre.
+    rotation := cast(float32)TITLE_SIGN_ROTATION[hotspot] / 100.0
     text_board := board
     font := board.height * 0.68
-    letters := Count(label)
-    if letters > 0 && cast(float32)letters * font * 0.65 > text_board.width {
-        font = text_board.width / (cast(float32)letters * 0.65)
+    if rotation == 0.0 {
+        letters := Count(label)
+        if letters > 0 && cast(float32)letters * font * 0.65 > text_board.width {
+            font = text_board.width / (cast(float32)letters * 0.65)
+        }
+    } else {
+        measure: TextProps = .{.bounds=text_board,.text=label,.font=cast(s32)font,.wrap=.TextWrapNone}
+        width := TextWidth(session,measure)
+        if width > 0 && cast(float32)width > text_board.width {
+            font = font * text_board.width / cast(float32)width
+        }
     }
     if font < 1.0 { font = 1.0 }
+    origin := Vector2.{text_board.width*0.5,text_board.height*0.5}
     Text(session, TextProps.{.bounds = text_board, .text = label, .font = cast(s32)font,
+        .rotation = rotation, .origin = origin,
         .align = TextAlign.TextAlignCenter, .vertical_align = TextAlign.TextAlignCenter,
         .wrap = TextWrap.TextWrapNone})
+    if rotation != 0.0 {
+        board = RotatedRectangleBounds(board,Vector2.{board.x+origin.x,board.y+origin.y},rotation)
+    }
     // The semantic button covers the painted board. Raw pointer/touch
     // navigation still uses the actual sign polygon and foreground exclusion.
     pointer := PointerSample(session)
