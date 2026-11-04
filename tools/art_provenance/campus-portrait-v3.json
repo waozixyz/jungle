@@ -4,14 +4,8 @@
   1024,
   1536
  ],
- "plate": "portrait-jungle-path-between.png",
+ "plate": "campus-portrait-drums-clean.png",
  "signs": {
-  "Jungle Path": [
-   305,
-   478,
-   160,
-   160
-  ],
   "Farm": [
    80,
    770,
@@ -23,6 +17,12 @@
    600,
    220,
    220
+  ],
+  "Beach": [
+   305,
+   478,
+   160,
+   160
   ]
  },
  "objects": [
@@ -118,8 +118,8 @@
   }
  ],
  "directions": {
-  "Jungle Path": "up",
   "Farm": "left",
-  "Desert": "right"
+  "Desert": "right",
+  "Beach": "diagonal-left"
  }
 }

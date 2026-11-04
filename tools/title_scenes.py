@@ -22,7 +22,7 @@ DIALOGUE = ROOT / 'tools/title_dialogue.json'
 LANGUAGES = ('en', 'de', 'es')
 # Below Ziran's 4095-character file-scope initializer limit.
 INITIALIZER_LIMIT = 3600
-SIGN_LABELS = {'Port', 'Farm', 'Desert', 'Campus', 'Market', 'Jungle Path'}
+SIGN_LABELS = {'Port', 'Farm', 'Desert', 'Campus', 'Market', 'Jungle Path', 'Beach'}
 # Retired scene names that still resolve, so older links and saved routes
 # keep working: the Beach became the Port.
 SCENE_ALIASES = {'beach': 'port'}
@@ -53,9 +53,9 @@ def Sign(hotspot, rect):
     label = SignLabel(hotspot)
     # Owner: signs are planks pointing along the path, sideways by default.
     # Only Campus's route up into the Jungle Path stands as an upright plank.
-    if sign.get('direction') not in ('left','right','up'):
+    if sign.get('direction') not in ('left','right','diagonal-left','diagonal-right'):
         raise SystemExit('title scenes: every sign needs a travel direction')
-    if sign['direction'] == 'up' and hotspot.get('target') != 'scene:jungle-path':
+    if sign['direction'].startswith('diagonal-') and hotspot.get('target') != 'scene:jungle-path':
         raise SystemExit('title scenes: only the Campus route up to the Jungle Path is an upright sign')
     board = sign.get('label_rect', [])
     if (not isinstance(board, list) or len(board) != 4 or
@@ -276,7 +276,7 @@ def Load(source=SOURCE, catalog=CATALOG):
                              'game': game, 'glow': hotspot['glow'], 'rect': rect, 'polygon': polygon,
                              'rest': hotspot.get('rest', ''), 'occlusion': occlusion,
                              'sign_label': label, 'sign_rect': board,
-                             'sign_direction': {'left':1,'right':2,'up':3,'down':4}.get(hotspot.get('sign',{}).get('direction'),0),
+                             'sign_direction': {'left':1,'right':2,'diagonal-left':3,'diagonal-right':4,'down':4}.get(hotspot.get('sign',{}).get('direction'),0),
                              'notice': {'Farm': 1, 'Desert': 2}.get(target, 0) if kind == 'notice' else 0,
                              'look': 1 if kind == 'look' else 0,
                              'dialogue': dialogue_ids.index(target) + 1 if kind == 'dialogue' else 0})

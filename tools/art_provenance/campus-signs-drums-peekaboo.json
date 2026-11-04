@@ -1,0 +1,36 @@
+{
+  "owner_request": "Diagonal destination signs with tall upright poles and level names; remove path immediately left of drums; painted Peekaboo Trail opens Hide & Seek. Keep widened candidates after one failed join-region pass.",
+  "method": "Built-in imagegen for path painting and four join crops; merge-map-gap.py registration and bounded replacement. Existing clean wooden board composed on extended post; landscape points upper right, portrait upper left.",
+  "masters": "local/art-development/campus-wide/",
+  "widening_review": {
+    "landscape": "After removing generator white padding and registering the same generated crops: remaining canopy leaf discontinuities at left join and cloud/mesa mismatch at right join. Candidate only.",
+    "portrait": "Both joins registered after removing white padding; remaining leaf transitions at left and cloud/foliage transitions at right. Candidate only.",
+    "outside_region_byte_identical": true
+  },
+  "runtime": [
+    {
+      "path": "assets/jungle/title/campus.webp",
+      "sha256": "45166a13e64ea8c574604149540fbfb9b1f30fca27100ec2a6e326aded3031ea"
+    },
+    {
+      "path": "assets/jungle/title/campus-portrait.webp",
+      "sha256": "0afe27427e04cd95811648ad3e96f9ae25efc2e2d8a5cde29fc003478d702846"
+    },
+    {
+      "path": "assets/jungle/title/layers/campus-background.webp",
+      "sha256": "45166a13e64ea8c574604149540fbfb9b1f30fca27100ec2a6e326aded3031ea"
+    },
+    {
+      "path": "assets/jungle/title/layers/campus-portrait-background.webp",
+      "sha256": "0afe27427e04cd95811648ad3e96f9ae25efc2e2d8a5cde29fc003478d702846"
+    },
+    {
+      "path": "assets/jungle/title/objects/wood-arrow-diagonal-left.webp",
+      "sha256": "d1858d854dfe4c83066c5da6a783ba63921c82297425264d8f965875aca58e8b"
+    },
+    {
+      "path": "assets/jungle/title/objects/wood-arrow-diagonal-right.webp",
+      "sha256": "72b946147ee441af0b84d0bdf11b9f4e090b9f0d522834f26f37a1dbf69eceb9"
+    }
+  ]
+}

@@ -103,7 +103,7 @@ class TitleVariants(unittest.TestCase):
             with Image.open(ROOT/path) as im:
                 self.assertEqual(im.size,(1024,1536))
                 self.assertEqual(hashlib.sha256(im.convert('RGBA').tobytes()).hexdigest(),
-                                 'a359d64e5b7023b627ee02bbcf44037184433095a0b383b7a99c3b5ef7acc6ae')
+                                 '63761f1dd59db99a88a3ec5dd3465a2ea42c72ed9eba071b24998b8fb8343bf6')
 
     def test_landscape_campus_art_and_placements_are_unchanged(self):
         # Painted art and every placement; routes, sign faces and directions
@@ -129,8 +129,8 @@ class TitleVariants(unittest.TestCase):
                 if not h.get('sign'):continue
                 # Only Campus's sign up into the Jungle Path stands upright.
                 upright = scene['name'].startswith('campus') and h['target'] == 'scene:jungle-path'
-                self.assertEqual(h['sign']['direction'] == 'up', upright, (scene['name'], h['id']))
-                self.assertIn(h['sign']['direction'], ('left','right','up'))
+                self.assertEqual(h['sign']['direction'].startswith('diagonal-'), upright, (scene['name'], h['id']))
+                self.assertIn(h['sign']['direction'], ('left','right','diagonal-left','diagonal-right'))
                 self.assertEqual(h['rest'], 'assets/jungle/title/objects/wood-arrow-'+h['sign']['direction']+'.webp')
                 if h['id']=='farm-path':self.assertEqual(h['sign']['direction'],'right' if scene['name'].startswith('market') else 'left')
                 x,y,w,ht=h['glow_rect'];bx,by,bw,bh=h['sign']['label_rect']
@@ -140,7 +140,7 @@ class TitleVariants(unittest.TestCase):
                     self.assertGreater(im.convert('RGBA').getpixel((round((bx+bw/2)*im.width/w),round((by+bh/2)*im.height/ht)))[3],200)
                 # The post is scenery; the arrowhead itself is a real target.
                 self.assertNotEqual(hit(scene,x+w*.5,y+ht*.9),h['id'])
-                tip = (min(h['polygon'],key=lambda p:p[0]) if h['sign']['direction']=='left' else
+                tip = (min(h['polygon'],key=lambda p:p[0]) if h['sign']['direction'] in ('left','diagonal-left') else
                        min(h['polygon'],key=lambda p:p[1]) if h['sign']['direction']=='up' else
                        max(h['polygon'],key=lambda p:p[0]))
                 cx,cy=x+bx+bw/2,y+by+bh/2
@@ -153,6 +153,17 @@ class TitleVariants(unittest.TestCase):
         self.assertNotIn('Line(session',renderer)
         self.assertNotIn('text_board.x +=',renderer)
 
+    def test_peekaboo_trail_opens_hide_seek_in_both_views(self):
+        _, scenes, _, _ = title.Load()
+        for name in ('jungle-path', 'jungle-path-portrait'):
+            scene = next(s for s in scenes if s['name'] == name)
+            spot = next(h for h in scene['hotspots'] if h['id'] == 'peekaboo-trail')
+            self.assertEqual(spot['target'], 'game:Hide & Seek')
+            x,y,w,h = spot['glow_rect']
+            self.assertEqual(hit(scene,x+w/2,y+h/2), 'peekaboo-trail')
+            for path in (spot['rest'], spot['glow']):
+                self.assertTrue((ROOT/path).is_file())
+
     def test_signs_are_sideways_intact_planks(self):
         # Owner (2026-11-03): Campus's sign to the Port's side stands upright,
         # one plank pointing up its path into the Jungle Path; every other
@@ -160,14 +171,14 @@ class TitleVariants(unittest.TestCase):
         # splintered plank end read as a broken sign.
         data = json.loads((ROOT/'tools/title_hotspots.json').read_text())
         campus = next(s for s in data['scenes'] if s['name'] == 'campus')
-        for view in (campus, campus['portrait']):
+        for view, direction in ((campus, 'diagonal-right'), (campus['portrait'], 'diagonal-left')):
             path = [h for h in view['hotspots'] if h.get('target') == 'scene:jungle-path']
             self.assertEqual(len(path), 1)
-            self.assertEqual(path[0]['sign']['direction'], 'up')
-            self.assertEqual(path[0]['rest'], 'assets/jungle/title/objects/wood-arrow-up.webp')
+            self.assertEqual(path[0]['sign']['direction'], direction)
+            self.assertEqual(path[0]['rest'], 'assets/jungle/title/objects/wood-arrow-'+direction+'.webp')
         upright = [h['id'] for s in data['scenes'] for view in (s, s.get('portrait') or {})
-                   for h in view.get('hotspots', []) if h.get('sign', {}).get('direction') == 'up']
-        self.assertEqual(upright, ['jungle-path', 'jungle-path'])
+                   for h in view.get('hotspots', []) if h.get('sign', {}).get('direction') == 'diagonal-left']
+        self.assertEqual(upright, ['jungle-path'])
         with Image.open(ROOT/'assets/jungle/title/objects/wood-arrow-right.webp') as right, \
              Image.open(ROOT/'assets/jungle/title/objects/wood-arrow-left.webp') as left:
             self.assertEqual(right.convert('RGBA').transpose(Image.Transpose.FLIP_LEFT_RIGHT).tobytes(),

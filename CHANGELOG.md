@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- Follow a diagonal Playa sign from Campus and find Peekaboo Trail on the Jungle Path; remove the extra path beside the drums.
+
 - Give Bremen’s two robbers matching masks, hooded cloaks and a sack of coins in both page orientations.
 
 - Keep Google libraries restricted to the Google Play Android edition when updating dependencies.

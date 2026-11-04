@@ -5274,46 +5274,46 @@
             180,
             180
           ],
-          "rest": "assets/jungle/title/objects/wood-arrow-up.webp",
-          "glow": "assets/jungle/title/objects/wood-arrow-up-glow.webp",
+          "rest": "assets/jungle/title/objects/wood-arrow-diagonal-right.webp",
+          "glow": "assets/jungle/title/objects/wood-arrow-diagonal-right-glow.webp",
           "polygon": [
             [
-              251,
-              349
+              257,
+              366
             ],
             [
-              287,
-              349
+              338,
+              323
             ],
             [
-              330,
-              305
+              332,
+              311
             ],
             [
-              373,
-              349
+              392,
+              321
             ],
             [
-              409,
-              349
+              366,
+              375
             ],
             [
-              409,
-              401
+              360,
+              364
             ],
             [
-              251,
-              401
+              279,
+              407
             ]
           ],
           "sign": {
-            "label": "Jungle Path",
-            "direction": "up",
+            "label": "Beach",
+            "direction": "diagonal-right",
             "label_rect": [
-              22,
-              55,
-              137,
-              40
+              60,
+              52,
+              37,
+              10
             ]
           }
         },
@@ -5765,46 +5765,46 @@
               160,
               160
             ],
-            "rest": "assets/jungle/title/objects/wood-arrow-up.webp",
-            "glow": "assets/jungle/title/objects/wood-arrow-up-glow.webp",
+            "rest": "assets/jungle/title/objects/wood-arrow-diagonal-left.webp",
+            "glow": "assets/jungle/title/objects/wood-arrow-diagonal-left-glow.webp",
             "polygon": [
               [
-                315,
-                521
+                450,
+                536
               ],
               [
-                347,
-                521
+                378,
+                498
               ],
               [
-                385,
-                482
+                383,
+                488
               ],
               [
-                423,
-                521
+                330,
+                497
               ],
               [
-                455,
-                521
+                353,
+                544
               ],
               [
-                455,
-                568
+                358,
+                535
               ],
               [
-                315,
-                568
+                430,
+                573
               ]
             ],
             "sign": {
-              "label": "Jungle Path",
-              "direction": "up",
+              "label": "Beach",
+              "direction": "diagonal-left",
               "label_rect": [
-                19,
-                48,
-                122,
-                36
+                74,
+                46,
+                33,
+                9
               ]
             }
           },
@@ -9403,6 +9403,37 @@
               47
             ]
           }
+        },
+        {
+          "id": "peekaboo-trail",
+          "target": "game:Hide & Seek",
+          "polygon": [
+            [
+              300,
+              650
+            ],
+            [
+              429,
+              650
+            ],
+            [
+              429,
+              828
+            ],
+            [
+              300,
+              828
+            ]
+          ],
+          "glow": "assets/jungle/title/objects/portrait-hiding-tail-glow.webp",
+          "glow_rect": [
+            300,
+            650,
+            130,
+            180
+          ],
+          "rest": "assets/jungle/title/objects/portrait-hiding-tail.webp",
+          "occlusion": []
         }
       ],
       "portrait": {
@@ -10249,6 +10280,37 @@
                 45
               ]
             }
+          },
+          {
+            "id": "peekaboo-trail",
+            "target": "game:Hide & Seek",
+            "polygon": [
+              [
+                370,
+                1080
+              ],
+              [
+                469,
+                1080
+              ],
+              [
+                469,
+                1219
+              ],
+              [
+                370,
+                1219
+              ]
+            ],
+            "glow": "assets/jungle/title/objects/portrait-hiding-tail-glow.webp",
+            "glow_rect": [
+              370,
+              1080,
+              100,
+              140
+            ],
+            "rest": "assets/jungle/title/objects/portrait-hiding-tail.webp",
+            "occlusion": []
           }
         ]
       }

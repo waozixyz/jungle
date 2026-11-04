@@ -85,7 +85,7 @@ PLATES = {
     'jungle-path': 'jungle-path/jungle-path-{o}.png',
     'port': 'market/port-{o}-market-path.png',
     'farm': 'farm-fields/farm-landscape-left-path.png',
-    'campus-portrait': 'campus-object-layers/portrait-jungle-path-between.png',
+    'campus-portrait': 'campus-wide/campus-portrait-drums-clean.png',
 }
 
 
@@ -179,6 +179,20 @@ class Ledger:
         APPROVED.write_text(json.dumps(self.approved, indent=2)+'\n')
 
 
+def peekaboo_trail(orientation):
+    """Reuse the painted hidden tail, with its silhouette and matching glow."""
+    campus = next(s for s in json.loads(MANIFEST.read_text())['scenes'] if s['name'] == 'campus')
+    hotspot = next(h for h in campus['portrait']['hotspots'] if h['id'] == 'hiding-bush')
+    hotspot = json.loads(json.dumps(hotspot))
+    ox, oy, ow, oh = hotspot['glow_rect']
+    rect = [300,650,130,180] if orientation == 'landscape' else [370,1080,100,140]
+    x, y, width, height = rect
+    hotspot['polygon'] = [[x+round((px-ox)*width/ow), y+round((py-oy)*height/oh)]
+                          for px, py in hotspot['polygon']]
+    hotspot.update(id='peekaboo-trail', target='game:Hide & Seek', glow_rect=rect)
+    return hotspot
+
+
 def place(ledger, name, folder):
     scene = dict(name=name, image=TITLE+f'{name}.webp', low=TITLE+f'{name}-low.webp')
     portrait = dict(width=1024, height=1536, image=TITLE+f'{name}-portrait.webp',
@@ -196,6 +210,8 @@ def place(ledger, name, folder):
             items = [(ident, animal(folder, orientation, ident)) for ident in ANIMALS[orientation]]
         view['hotspots'] = ([look(scene_name, ident, polygon, CANVAS[orientation]) for ident, polygon in items] +
                             [sign(*row) for row in SIGNS[name][orientation]])
+        if name == 'jungle-path':
+            view['hotspots'].append(peekaboo_trail(orientation))
     scene['portrait'] = portrait
     return scene
 
@@ -217,10 +233,10 @@ def campus_portrait(ledger, campus):
     if source.is_file(): plan['plate'] = source.name
     next(o for o in plan['objects'] if o['file'] == 'frogs.png')['scene_rect'] = list(FROGS_PORTRAIT)
     signs, directions = plan['signs'], plan['directions']
-    plan['signs'] = {('Jungle Path' if k in ('Beach', 'Port') else k): v for k, v in signs.items()}
-    plan['directions'] = {('Jungle Path' if k in ('Beach', 'Port') else k): v for k, v in directions.items()}
-    plan['signs']['Jungle Path'] = list(CAMPUS_SIGN['portrait'])
-    plan['directions']['Jungle Path'] = 'up'
+    plan['signs'] = {('Beach' if k in ('Jungle Path', 'Port') else k): v for k, v in signs.items()}
+    plan['directions'] = {('Beach' if k in ('Jungle Path', 'Port') else k): v for k, v in directions.items()}
+    plan['signs']['Beach'] = list(CAMPUS_SIGN['portrait'])
+    plan['directions']['Beach'] = 'diagonal-left'
     plan_path.write_text(json.dumps(plan, indent=1)+'\n')
     canonical = ROOT/plan['source']
     if canonical.exists():
@@ -243,7 +259,7 @@ def main():
     for orientation, view in (('landscape', campus), ('portrait', campus['portrait'])):
         # tools/title_art.py still writes Campus's sign as the Beach path.
         old = next(h for h in view['hotspots'] if h['id'] in ('beach-path', 'port-path', 'jungle-path'))
-        resign(old, 'jungle-path', 'scene:jungle-path', 'Jungle Path', 'up', CAMPUS_SIGN[orientation])
+        resign(old, 'jungle-path', 'scene:jungle-path', 'Beach', 'diagonal-right' if orientation == 'landscape' else 'diagonal-left', CAMPUS_SIGN[orientation])
     campus_portrait(ledger, campus)
     for orientation, view in (('landscape', port), ('portrait', port['portrait'])):
         source = LOCAL/PLATES['port'].format(o=orientation)
