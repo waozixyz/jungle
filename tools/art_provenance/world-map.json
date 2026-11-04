@@ -2,7 +2,7 @@
   "owner_request": "Design a world map inspired by the painted style, where each area we can go to is a distinct building or landmark that can be selected.",
   "generator": "Harmony generate_image (Codex built-in image generation); original Jungle watercolor",
   "style_reference": "the Jungle title paintings (treehouse, Campus, Port, Desert edge)",
-  "layout": "owner 2026-11-03: Market, Farm, Campus with the Treehouse, Desert from left to right; the Port above the Market, the Beach right of the Port and the Aquarium above the Beach; the Jungle Path between the Beach and Campus; beyond the Desert the world fades into darkness (no mountain yet).",
+  "layout": "owner 2026-11-03: Market, Farm, Campus with the Treehouse, Desert from left to right; the Port above the Market, the Beach right of the Port and the Aquarium above the Beach; the Jungle Path between the Beach and Campus, shifted left to leave the Treehouse directly behind the music huts; beyond the Desert the world fades into darkness (no mountain yet).",
   "method": "Codex paints a clean background plate per orientation from a position guide and each landmark as its own transparent layer, shared by both orientations; a cream halo glows from each silhouette; the darkness beyond the Desert is a locked layer that answers \"not yet\"; the outer band fades into the flat paper shown around the map.",
   "assets": [
     {
@@ -81,12 +81,12 @@
       "master": "local/art-development/world-map/layers/jungle-path.png",
       "master_sha256": "0ba19705482595caddbb82f5fda2b283a42b060ab001fd7a74be95ca5538d08c",
       "runtime": "assets/jungle/title/world-map/jungle-path.webp",
-      "sha256": "322938cdfd7dd63cc42cef5a90470b2167ce51f606c5cb370d890651c7677fab",
+      "sha256": "37c1e013e66c46d3885ec7dbcbf67d6d76c55b50ec2d947091e2be4ac9eb20b2",
       "glow": "assets/jungle/title/world-map/jungle-path-glow.webp",
-      "glow_sha256": "eed1006763cb7928b7a4b83ff4818d5039413d37ae06c7476fd9d1b0e3fdfc46",
+      "glow_sha256": "4b66eae588fb8a636fd27fa53a67d7c95304080cda13c31d3583d8bdc1406bef",
       "size": [
-        240,
-        177
+        190,
+        143
       ]
     },
     {
@@ -147,25 +147,26 @@
     },
     {
       "plate": "landscape",
-      "generated": "local/art-development/world-map/plate-landscape-v2.png",
-      "generated_sha256": "f163b3e36292979e3f02c5b7d2227fe81bc4736cf1cabba154ee923506ca7fa7",
+      "generated": "local/art-development/world-map/plate-landscape-v3.png",
+      "generated_sha256": "fa7d8e65a6327aacd021495323f5350c615b09a0441e74c35b661bb76f25e784",
       "master": "local/art-development/world-map/map-landscape-plate.png",
-      "master_sha256": "1dbd8187d91dcb61379826ddbaa535b8c67a541ec6eaec2ce4a1db76ebc9b5b5",
+      "master_sha256": "cdedfb463b4012622e14963db3cd25e44395d4ef8297152456a8d3e3a13e96d2",
       "runtime": "assets/jungle/title/world-map.webp",
-      "sha256": "b448dad75831e49d300b5ba457627bf566b97257c78a86a300eccf7447c86f40",
+      "sha256": "81fe1edd9003674467753a37928e201c45d0a206490c8222bd0836d73aab7c69",
       "low": "assets/jungle/title/world-map-low.webp",
-      "low_sha256": "1c2cd1733211235c42363862e31b7a45f6db798cacfbd270038c090e1a1efa69"
+      "low_sha256": "52bc0a5992394114cbdeb4637e9a04799e22cd791652726515ece12d4f937b87"
     },
     {
       "plate": "portrait",
-      "generated": "local/art-development/world-map/plate-portrait-v2.png",
-      "generated_sha256": "0f482243c559ae5f658a382561af452b7d863cb7206c06add4b7b9c0de58f60e",
+      "generated": "local/art-development/world-map/plate-portrait-v3.png",
+      "generated_sha256": "11b5a36f69feeee1e0936e540ef9c08b5c7028221eefb1911682686db40beb34",
       "master": "local/art-development/world-map/map-portrait-plate.png",
-      "master_sha256": "7c27b4c66359cadbef3201477a4eb30c891491eb9d944ddaf9090b835718170b",
+      "master_sha256": "d42c0ad461ba7241b97d05676fdf95d067638dfa95a93086cb418ea6cd87c415",
       "runtime": "assets/jungle/title/world-map-portrait.webp",
-      "sha256": "543d0816ac9cc687d90e08e1fc62433c29ff4f86dcce5717301b9db4306de8d0",
+      "sha256": "c716c4388a0adb537439db188352ddd683a38b50af3f267aecf5b4a51e55dc2d",
       "low": "assets/jungle/title/world-map-portrait-low.webp",
-      "low_sha256": "bfdb2bf37fb6ad9c6a3a32555d2866b8743156989203bb8d1530e5e11df643af"
+      "low_sha256": "de59258fa614976b88154d952db968be1304f02d9bca383547bcb5cbaaf33e88"
     }
-  ]
+  ],
+  "path_join_method": "Only the two path crops regenerated; merge-map-gap.py registered nine features per crop, uniform scale landscape 0.999732 / portrait 1.0; outside replaced region byte-identical; both cut lines reviewed at full resolution, no watermarks."
 }

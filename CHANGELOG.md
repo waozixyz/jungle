@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- Place the map Treehouse directly behind Campus and move the Jungle Path left in both orientations.
+
 - Give the Treehouse window varied wildlife visits and tap-to-fly-away behind its frame, with swaying leaves and no water animation.
 
 - Follow a diagonal Playa sign from Campus and find Peekaboo Trail on the Jungle Path; remove the extra path beside the drums.

@@ -1,7 +1,7 @@
 {
   "scene": "map",
   "paper": "fde9ca",
-  "plates": {"landscape": "plate-landscape-v2.png", "portrait": "plate-portrait-v2.png"},
+  "plates": {"landscape": "plate-landscape-v3.png", "portrait": "plate-portrait-v3.png"},
   "landmarks": [
     {"id": "port", "target": "scene:port", "layer": "port-v2.png",
      "landscape": [160, 30, 250], "portrait": [75, 184, 230]},
@@ -14,11 +14,11 @@
     {"id": "farm", "target": "game:Farm", "covers": ["farm"], "layer": "farm.png",
      "landscape": [370, 455, 280], "portrait": [360, 862, 270]},
     {"id": "jungle-path", "target": "scene:jungle-path", "layer": "jungle-path.png",
-     "landscape": [700, 400, 200], "portrait": [705, 487, 170]},
+     "landscape": [640, 380, 150], "portrait": [600, 500, 120]},
     {"id": "campus", "target": "scene:campus", "layer": "campus.png",
      "landscape": [630, 615, 380], "portrait": [635, 617, 320]},
     {"id": "treehouse", "target": "scene:treehouse", "covers": ["bookshelf", "window"], "layer": "treehouse.png",
-     "landscape": [990, 360, 300], "portrait": [45, 1110, 300]},
+     "landscape": [760, 425, 300], "portrait": [710, 440, 260]},
     {"id": "desert", "target": "scene:desert", "layer": "desert.png",
      "landscape": [1240, 470, 230], "portrait": [445, 1187, 230]},
     {"id": "darkness", "target": "locked:darkness", "layer": "darkness.png",

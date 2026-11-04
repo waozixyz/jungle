@@ -211,7 +211,8 @@ def main():
         style_reference='the Jungle title paintings (treehouse, Campus, Port, Desert edge)',
         layout='owner 2026-11-03: Market, Farm, Campus with the Treehouse, Desert from left to right; the Port '
                'above the Market, the Beach right of the Port and the Aquarium above the Beach; the Jungle Path '
-               'between the Beach and Campus; beyond the Desert the world fades into darkness (no mountain yet).',
+               'between the Beach and Campus, shifted left to leave the Treehouse directly behind the music huts; '
+               'beyond the Desert the world fades into darkness (no mountain yet).',
         method='Codex paints a clean background plate per orientation from a position guide and each landmark '
                'as its own transparent layer, shared by both orientations; a cream halo glows from each '
                'silhouette; the darkness beyond the Desert is a locked layer that answers "not yet"; the '
