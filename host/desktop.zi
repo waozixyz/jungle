@@ -143,7 +143,7 @@ main :: (argc: s32, argv: **u8) -> s32 {
     JungleWindowIcon()
     unused DesktopSetTitle("Jungle Academy")
     unused WindowInterceptCloseHost(true)
-    unused CursorSetDefault(JungleHandCursor())
+    unused JungleCursorsSet()
     session := SessionOpen()
     if !SessionValid(session) { CloseDesktop(); return 1 }
     ok := true

@@ -14,7 +14,7 @@
 - Stories now includes Town Musicians of Bremen, with eleven landscape and portrait illustrations and English, German and Spanish narration.
 
 - Follow the Farm sign into four independently saved gardens. Drag seeds from the bag anywhere on the soil and move them again. A seed sinks in after a short rest or when watered, then a sapling rises. Water and harvest with animated tools, sell crops and buy helpers. Goji visits; there is no tutorial, help screen or crop-field text; saves are safe and play is silent.
-- A friendly cartoon hand is the pointer everywhere: every scene, menu, book and game, crisp on any screen and with clean edges.
+- A calm painted arrow is the pointer, and a friendly cartoon hand shows only over something you can click, in every scene, menu, book and game, crisp on any screen and with clean edges.
 - Highlight the shelf's first row and Stories row each as one whole row, find the stencil hidden beside the tiger book again, and return using the shelf Back button.
 - Place the crab family on the Port's sand.
 - Read directional arrows on localized signs in both orientations. The original Farm painting remains the garden chooser.

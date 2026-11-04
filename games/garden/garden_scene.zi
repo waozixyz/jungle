@@ -1,6 +1,7 @@
 // Save coordinates remain in the original continuous bed. Four quadrants map
 // onto inset soil quads in each approved painting; no save data is rewritten.
 #import, file "garden_fields.zi";
+#import "kryon/cursor"
 GardenPoint :: struct { x: float64; y: float64 }
 GardenQuad :: (bed: s32, portrait: bool) -> [4]GardenPoint {
     q: [4]GardenPoint
@@ -75,4 +76,11 @@ GardenFieldRect :: (bed: s32, portrait: bool) -> (x: s32, y: s32, w: s32, h: s32
     if bed < 0 || bed > 3 { return 0, 0, 0, 0 }
     at := (bed + (ifx portrait then 4 else 0)) * 4
     return GARDEN_FIELD_GLOW[at], GARDEN_FIELD_GLOW[at + 1], GARDEN_FIELD_GLOW[at + 2], GARDEN_FIELD_GLOW[at + 3]
+}
+
+// The cursor over a bed's press while the pointer is on picture field FIELD
+// (GardenFieldAt): a tap there opens that bed, so the press points; in the
+// corners of its frame, off every painted bed, the calm arrow shows.
+GardenPressCursor :: (field: s32) -> s32 {
+    return ifx field >= 0 then 0 else cast(s32)CursorShape.CursorArrow
 }

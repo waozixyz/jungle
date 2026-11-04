@@ -22,6 +22,7 @@
 #import "kryon/text_widget"
 #import "kryon/press_props"
 #import "kryon/press_widget"
+#import "kryon/cursor"
 #import "kryon/modal_props"
 #import "kryon/modal_widget"
 #import "std/math"
@@ -442,6 +443,11 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
     action.paper_collected = paper_input.collected
     if step.game < 0 { step = TitlePointer(*title_state, view, px, py, pointer.down, pointer.pressed, pointer.released, blocked, now) }
     if step.game < 0 { step = TitleTick(*title_state, now) }
+    // The pointing hand shows only where a tap here does something; the same
+    // hit test decides the tap.
+    if TitleCursorClickable(*title_state, pointed, blocked, paper_input.over, corner) {
+        unused CursorHover(session, cast(s32)CursorShape.CursorClickable)
+    }
     if title_state.locked_cue {
         title_state.locked_cue = false
         title_state.locked_at = now

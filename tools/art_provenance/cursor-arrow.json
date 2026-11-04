@@ -1,0 +1,17 @@
+{
+  "arrow-cursor": {
+    "generation_request": "1334fdc90a8cb536b909d4d0e03fde693795",
+    "prompt": "A single friendly cartoon mouse-pointer ARROW for a toddlers' app's default cursor, on a fully transparent background (real alpha, no paper, no white matte, no shadow, no glow, no background). The classic computer cursor arrow silhouette: a tall arrowhead whose sharp tip points to the upper left at the very top-left of the shape, with a short straight tail stem going down-right from the arrowhead's base, like the standard desktop arrow cursor, but with gently rounded corners everywhere except the pointed tip. Style: soft storybook watercolor look matching a gentle jungle picture book and the companion cartoon pointing-hand cursor: a warm honey-cream fill (#f6dc9a) with a slightly deeper golden-peach wash toward the lower right, one tiny soft leaf-green accent band across the tail stem, drawn for icon legibility: a bold, smooth, even dark warm-brown outline (#4a2e1f) around the whole silhouette, clean closed shapes, no texture noise, no stray paint specks, no text, no face. The tip must be a clear sharp point at the upper-left. The arrow fills most of the square canvas height, large simple shapes that stay readable when shrunk to 32 pixels. Square 1024x1024, transparent PNG.",
+    "reference": "local/art-development/cursor/hand-generated-v1.png",
+    "source_png": "local/art-development/cursor/arrow-generated-v1.png",
+    "source_sha256": "6cd788bc22dce4648c89af3cf2627b335b7cc61c817357759c9681f3afc52a29",
+    "cleaned": "tools/cursor_art.py: largest alpha component, opaque interior, outline-coloured soft edge, outer stroke, premultiplied 128 px resize; outline colour shared with the hand",
+    "webp": "assets/jungle/arrow-cursor.webp",
+    "webp_sha256": "9f2fe5bb87534adddab2d0763cafd26292eaee82c9a16b3abfbfc44363e47230",
+    "units": 32,
+    "hotspot": [
+      6,
+      2
+    ]
+  }
+}

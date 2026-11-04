@@ -1,0 +1,148 @@
+// The pointing cursor shows only where a tap does something: the title
+// scene's open items, a Farm bed's painted soil and a jigsaw piece, from the
+// same hit tests that decide those taps. Everywhere else stays calm.
+#import "kryon/cursor"
+#import, file "../host/jungle_title.zi";
+#import, file "../host/jungle_title_data.zi";
+#import, file "../host/platform.zi";
+#import, file "../retro/language.zi";
+#import, file "../retro/paper_rules.zi";
+#import, file "../retro/collectibles.zi";
+#import, file "../retro/collect_flight.zi";
+#import, file "../games/garden/garden_scene.zi";
+#import, file "../games/jigsaw/puzzle.zi";
+#import, file "../games/jigsaw/table.zi";
+
+
+// The first hotspot whose tap opens a scene or game, a bubble, a notice,
+// only glows, or only wobbles.
+FirstHotspot :: (kind: s32) -> s32 {
+    for hotspot: cast(s32)0..TITLE_HOTSPOT_COUNT - 1 {
+        dialogue := TITLE_HOTSPOT_DIALOGUE[hotspot] != 0
+        look := TITLE_HOTSPOT_LOOK[hotspot] != 0
+        locked := TITLE_HOTSPOT_LOCKED[hotspot] != 0
+        notice := TITLE_HOTSPOT_NOTICE[hotspot] != 0
+        if kind == 0 && !dialogue && !look && !locked && !notice && TITLE_HOTSPOT_TARGET[hotspot] >= 0 { return hotspot }
+        if kind == 1 && dialogue { return hotspot }
+        if kind == 2 && notice && !dialogue && !look && !locked { return hotspot }
+        if kind == 3 && look && !dialogue { return hotspot }
+        if kind == 4 && locked && !dialogue && !look { return hotspot }
+    }
+    return -1
+}
+
+TitleCases :: () -> s32 {
+    door := FirstHotspot(0)
+    talk := FirstHotspot(1)
+    look := FirstHotspot(3)
+    if door < 0 || talk < 0 || look < 0 { return 1 }
+    // A tap opens a scene, game, bubble or notice; glowing and wobbling items
+    // and empty picture stay calm, and the cue matches TitleActivate.
+    if !TitleHotspotClickable(door) || !TitleHotspotClickable(talk) { return 2 }
+    if TitleHotspotClickable(look) || TitleHotspotClickable(-1) || TitleHotspotClickable(TITLE_HOTSPOT_COUNT) { return 3 }
+    notice := FirstHotspot(2)
+    if notice >= 0 && !TitleHotspotClickable(notice) { return 4 }
+    locked := FirstHotspot(4)
+    if locked >= 0 && TitleHotspotClickable(locked) { return 5 }
+    state: TitleState
+    if !TitleCursorClickable(*state, door, false, false, false) { return 6 }
+    if TitleCursorClickable(*state, look, false, false, false) || TitleCursorClickable(*state, -1, false, false, false) { return 7 }
+    // Something covering the scene, a corner control or a drag stays calm.
+    if TitleCursorClickable(*state, door, true, false, false) { return 8 }
+    state.dragging = true
+    if TitleCursorClickable(*state, door, false, false, false) { return 9 }
+    state.dragging = false
+    // The waiting paper takes its own tap, even over empty picture.
+    if !TitleCursorClickable(*state, -1, false, true, false) { return 10 }
+    // An open bubble turns on a tap anywhere but the corner controls.
+    state.dialogue = 1
+    if !TitleCursorClickable(*state, -1, true, false, false) { return 11 }
+    if TitleCursorClickable(*state, door, true, false, true) { return 12 }
+    // An open notice's own buttons decide; the scene behind it is calm.
+    state = TitleState.{.not_implemented = true}
+    if TitleCursorClickable(*state, door, false, true, false) { return 13 }
+    return 0
+}
+
+GardenCases :: () -> s32 {
+    for orientation: cast(s32)0..1 {
+        portrait := orientation == 1
+        for bed: cast(s32)0..3 {
+            fx, fy, fw, fh := GardenFieldRect(bed, portrait)
+            if fw <= 0 || fh <= 0 { return 20 }
+            soil := false
+            corner := false
+            for row: cast(s32)0..23 {
+                for column: cast(s32)0..23 {
+                    x := cast(float64)fx + cast(float64)fw * (cast(float64)column + 0.5) / 24.0
+                    y := cast(float64)fy + cast(float64)fh * (cast(float64)row + 0.5) / 24.0
+                    field := GardenFieldAt(x, y, portrait)
+                    cursor := GardenPressCursor(field)
+                    if field == bed && cursor == 0 { soil = true }
+                    if field < 0 && cursor == cast(s32)CursorShape.CursorArrow { corner = true }
+                    if (field >= 0) != (cursor == 0) { return 21 }
+                }
+            }
+            // Each bed's press frame holds painted soil, which points, and
+            // bare corners off every bed, which stay calm.
+            if !soil { return 22 }
+            if !corner { return 23 }
+        }
+    }
+    return 0
+}
+
+JigsawCases :: () -> s32 {
+    p := PuzzleNew(2, 1, 2, 4242)
+    area := TableBounds.{0, 0, 1000, 700}
+    board_x: s32 = 500
+    board_y: s32 = 40
+    n := grid_sizes[p.level]
+    cell := 420 / n
+    if !TableScatter(*p, area, TableBounds.{40, 40, 400, 600}, cell) { return 30 }
+    center: TablePoint
+    on_board: bool
+    // A loose piece under the pointer points, front-most first.
+    front := p.order[PuzzleCount(p) - 1]
+    at := TableCenter(p, front, area)
+    if TablePieceAt(p, area, board_x, board_y, cell, false, at.x, at.y, *center, *on_board) != front || on_board { return 31 }
+    if center.x != at.x || center.y != at.y { return 32 }
+    if TableCursor(front, false) != 0 { return 33 }
+    // The bare table, right of the pile and below the board, stays calm
+    // until a piece is chosen, when a tap there places it.
+    if TablePieceAt(p, area, board_x, board_y, cell, false, 980, 690, *center, *on_board) != -1 { return 34 }
+    if TableCursor(-1, false) != cast(s32)CursorShape.CursorArrow || TableCursor(-1, true) != 0 { return 35 }
+    // A piece already on the board can be lifted again unless pieces lock,
+    // which new puzzles do.
+    placed := p.order[0]
+    p.owners[placed] = 1
+    p.locking = false
+    bx := board_x + placed % n * cell + cell / 2
+    by := board_y + placed / n * cell + cell / 2
+    if TablePieceAt(p, area, board_x, board_y, cell, false, bx, by, *center, *on_board) != placed || !on_board { return 36 }
+    p.locking = true
+    if TablePieceAt(p, area, board_x, board_y, cell, false, bx, by, *center, *on_board) != -1 { return 37 }
+    // Edge-only play hides the middle pieces, so they never point.
+    p = PuzzleNew(2, 1, 2, 4242)
+    unused TableScatter(*p, area, TableBounds.{40, 40, 400, 600}, cell)
+    for i: cast(s32)0..PuzzleCount(p) - 1 {
+        piece := p.order[i]
+        if PuzzleEdge(p, piece) { continue }
+        // Bring it to the front so nothing above it decides the hit.
+        TableFront(*p, piece)
+        mid := TableCenter(p, piece, area)
+        if TablePieceAt(p, area, board_x, board_y, cell, true, mid.x, mid.y, *center, *on_board) == piece { return 38 }
+        if TablePieceAt(p, area, board_x, board_y, cell, false, mid.x, mid.y, *center, *on_board) != piece { return 39 }
+        break
+    }
+    return 0
+}
+
+#program_export
+main :: () -> s32 {
+    failed := TitleCases()
+    if failed != 0 { return failed }
+    failed = GardenCases()
+    if failed != 0 { return failed }
+    return JigsawCases()
+}

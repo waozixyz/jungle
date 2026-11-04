@@ -344,4 +344,10 @@ test-world-map-ui: all web
 	python3 tests/world_map_smoke_test.py
 	python3 tests/world_map_web_test.py --web-root build/web
 
+.PHONY: test-cursor-hover
+# The pointing cursor shows only where a tap does something.
+test: test-cursor-hover
+test-cursor-hover: build/tests/cursor_hover
+	build/tests/cursor_hover
+
 endif # native rules for default, local or mixed goals

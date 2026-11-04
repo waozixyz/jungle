@@ -191,9 +191,13 @@ RetroCentered :: (y: s32, text: string, color: s32, size: s32 = 1) {
 
 // An area that answers a click or touch; it draws nothing itself. With
 // capture it keeps following a drag that leaves it.
-RetroTap :: (id: s32, x: s32, y: s32, width: s32, height: s32, label: string, capture: bool = false) -> PressResult {
+// CURSOR names the cursor over the area (PressProps.cursor): 0 points, and a
+// game that refines the area with its own hit test passes CursorArrow while
+// the pointer is off what a tap would take.
+RetroTap :: (id: s32, x: s32, y: s32, width: s32, height: s32, label: string, capture: bool = false,
+    cursor: s32 = 0) -> PressResult {
     return Press(retro.session, PressProps.{.key = cast(u64)id, .id = id, .bounds = RetroRect(x, y, width, height),
-            .label = Tr(label), .now = retro.now, .capture = capture})
+            .label = Tr(label), .now = retro.now, .capture = capture, .cursor = cursor})
 }
 
 // The screen pixel under a window point.

@@ -1,11 +1,25 @@
-// Jungle's one application cursor: the friendly hand, on every scene, menu,
-// book and game. tools/cursor_art.py makes the image and its hotspot; hosts
-// draw it at 32 logical units at their own pixel density. A game may choose a
-// tool cursor with CursorSet and withdraw it with .{}; it then returns here.
+// Jungle's two application cursors, on every scene, menu, book and game: the
+// calm painted arrow wherever nothing can be clicked, and the pointing hand
+// only while the pointer is over something a click does. Kryon shows the hand
+// over clickable widgets and over painted targets the app marks with
+// CursorHover from the same hit test that decides their clicks.
+// tools/cursor_art.py makes both images and their hotspots; hosts draw them at
+// 32 logical units at their own pixel density. A game may choose a tool cursor
+// with CursorSet and withdraw it with .{}; it then returns here.
 #import "kryon/cursor"
 
+JUNGLE_ARROW_CURSOR_ASSET :: "assets/jungle/arrow-cursor.webp";
 JUNGLE_CURSOR_ASSET :: "assets/jungle/hand-cursor.webp";
+
+JungleArrowCursor :: () -> CursorProps {
+    return CursorProps.{.asset_path = JUNGLE_ARROW_CURSOR_ASSET, .width = 32, .height = 32, .hotspot_x = 6, .hotspot_y = 2}
+}
 
 JungleHandCursor :: () -> CursorProps {
     return CursorProps.{.asset_path = JUNGLE_CURSOR_ASSET, .width = 32, .height = 32, .hotspot_x = 8, .hotspot_y = 1}
+}
+
+// Each host calls this once at startup.
+JungleCursorsSet :: () -> bool {
+    return CursorSetDefault(JungleArrowCursor()) && CursorSetPointing(JungleHandCursor())
 }

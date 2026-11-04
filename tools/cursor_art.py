@@ -1,12 +1,18 @@
-"""Rebuild Jungle's cursors: the app-wide hand and the Farm's two tool cursors.
+"""Rebuild Jungle's cursors: the calm arrow, the pointing hand and the Farm's
+two tool cursors.
 
-The hand comes from its ignored generated master,
-local/art-development/cursor/hand-generated-v1.png; the tools from the Farm's
-own play art. Beside the master this writes each cleaned master, 32/48/64 px
-review exports and composites over dark, light and green backgrounds. Each
-runtime is one exact lossless 128 px WebP. Hosts draw it at CURSOR_UNITS
-logical units with the hotspot recorded in cursor.json, through Kryon's
-CursorSetDefault (hand) or CursorSet (tools), at their own pixel density.
+The arrow and the hand come from their ignored generated masters in
+local/art-development/cursor/ (arrow-generated-v1.png, hand-generated-v1.png);
+the tools from the Farm's own play art. Beside the masters this writes each
+cleaned master, 32/48/64 px review exports and composites over dark, light and
+green backgrounds. Each runtime is one exact lossless 128 px WebP. Hosts draw
+it at CURSOR_UNITS logical units with the hotspot recorded in cursor.json, at
+their own pixel density: the arrow through Kryon's CursorSetDefault (everywhere
+nothing can be clicked), the hand through CursorSetPointing (only over
+something a click does), the tools through CursorSet.
+
+Name cursors to rebuild only those, for example `python3 tools/cursor_art.py
+arrow`; every cursor still shares the hand's outline colour.
 
 Cleaning: keep only the object (largest alpha component), make the interior
 fully opaque, give every partly transparent edge pixel the colour of its
@@ -15,6 +21,7 @@ stroke in the hand's outline brown so every cursor reads on any scene.
 """
 import json
 from pathlib import Path
+import sys
 
 import numpy as np
 from PIL import Image
@@ -28,9 +35,11 @@ RUNTIME_SIZE = 128
 CURSOR_UNITS = 32
 REVIEW_SIZES = (32, 48, 64)
 STROKE = 1 / 64
-# name, source, runtime, hotspot rule, top-aligned
+# name, source, runtime, hotspot rule, top-aligned. The hand comes first: its
+# outline colour is every cursor's outline.
 CURSORS = (
     ('hand', ART / 'hand-generated-v1.png', ROOT / 'assets/jungle/hand-cursor.webp', 'fingertip', True),
+    ('arrow', ART / 'arrow-generated-v1.png', ROOT / 'assets/jungle/arrow-cursor.webp', 'tip', True),
     ('watering-can', ROOT / 'assets/garden/play/watering-can.webp',
      ROOT / 'assets/garden/play/cursor-watering-can.webp', 'spout', False),
     ('harvest-basket', ROOT / 'assets/garden/play/harvest-basket.webp',
@@ -94,6 +103,13 @@ def hotspot(picture, rule):
         band = solid[top:top + max(2, picture.height // 40)]
         x = float(np.where(band.any(axis=0))[0].mean())
         y = float(top + picture.height / 64)
+    elif rule == 'tip':
+        # The arrow's point: the solid pixel nearest the top-left corner,
+        # one review pixel inward so the hotspot lies on the picture.
+        ys, xs = np.nonzero(solid)
+        nearest = int(np.argmin(xs + ys))
+        x = float(xs[nearest] + picture.width / 64)
+        y = float(ys[nearest] + picture.height / 64)
     elif rule == 'spout':
         # The rose's face: the leftmost band of the can, where water leaves.
         left = int(columns[0])
@@ -140,13 +156,23 @@ def review(name, master, spot):
     sheet.save(ART / f'review-{name}.png')
 
 
-def main():
+def main(names):
+    unknown = set(names) - {row[0] for row in CURSORS}
+    if unknown:
+        raise SystemExit(f'unknown cursor: {", ".join(sorted(unknown))}')
     ART.mkdir(parents=True, exist_ok=True)
+    manifest_path = ART / 'cursor.json'
     manifest = {'units': CURSOR_UNITS, 'cursors': {}}
+    if names and manifest_path.exists():
+        manifest['cursors'] = json.loads(manifest_path.read_text()).get('cursors', {})
     outline = None
     for name, source, runtime, rule, top in CURSORS:
         if not source.exists():
             print(f'{name}: {source.relative_to(ROOT)} is missing; skipped')
+            continue
+        if names and name not in names:
+            if outline is None:
+                outline = clean(Image.open(source))[1]
             continue
         cleaned, found = clean(Image.open(source), outline)
         outline = found if outline is None else outline
@@ -161,8 +187,8 @@ def main():
                                      'lossless': export.lossless}
         print(f'{name} cursor: {runtime.relative_to(ROOT)} {RUNTIME_SIZE}px lossless={export.lossless}, '
               f'hotspot {spot} of {CURSOR_UNITS} units')
-    (ART / 'cursor.json').write_text(json.dumps(manifest, indent=1) + '\n')
+    manifest_path.write_text(json.dumps(manifest, indent=1) + '\n')
 
 
 if __name__ == '__main__':
-    main()
+    main(sys.argv[1:])

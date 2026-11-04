@@ -434,6 +434,27 @@ TitleOpenSceneFromGame :: (state: *TitleState, scene: s32) -> bool {
     return true
 }
 
+// Whether a tap on HOTSPOT does something TitleActivate shows: it opens a
+// bubble, a notice, a scene or a game. A decorative item only glows and a
+// landmark not open yet only wobbles, so the cursor stays calm over them.
+TitleHotspotClickable :: (hotspot: s32) -> bool {
+    if hotspot < 0 || hotspot >= TITLE_HOTSPOT_COUNT { return false }
+    if TITLE_HOTSPOT_DIALOGUE[hotspot] != 0 { return true }
+    return TITLE_HOTSPOT_LOOK[hotspot] == 0 && TITLE_HOTSPOT_LOCKED[hotspot] == 0
+}
+
+// Whether the title shows the pointing cursor this frame: an open bubble
+// takes a tap anywhere but the corner controls, the waiting paper takes its
+// own, and otherwise only a clickable item under the pointer does, never
+// while the picture is dragged or something covers it. A notice and the
+// corner controls are presses, which point by themselves.
+TitleCursorClickable :: (state: *TitleState, pointed: s32, blocked: bool, paper_over: bool, corner: bool) -> bool {
+    if state.not_implemented { return false }
+    if state.dialogue != 0 { return !corner }
+    if paper_over { return true }
+    return !blocked && !state.dragging && TitleHotspotClickable(pointed)
+}
+
 TitleActivate :: (state: *TitleState, hotspot: s32) -> TitleStep {
     step := TitleStep.{.game = -1}
     if state.not_implemented || state.dialogue != 0 { return step }
@@ -789,6 +810,8 @@ TitlePaperInput :: struct {
     owned: bool
     // This tap collected the paper for the first time.
     collected: bool
+    // The waiting paper is under the pointer, so a tap there collects it.
+    over: bool
 }
 
 // The registry entry of SCENE's paper, in either composition; -1 when none.
@@ -861,6 +884,7 @@ TitlePaperPointer :: (papers: *TitlePapers, place: TitlePaperPlace, collected: b
         papers.press_y = y
     }
     input.owned = over && !down
+    input.over = over
     if released && papers.pressed {
         papers.pressed = false
         dx := x - papers.press_x

@@ -480,7 +480,7 @@ JungleMain :: () -> s64 {
     if mode == APP_SAVE { return cast(s64)RunGame() }
     if mode != APP_FRAME { return 0 }
     if !web_initialized {
-        unused CursorSetDefault(JungleHandCursor())
+        unused JungleCursorsSet()
         LanguageSet(Runner.DocumentReadHost("settings/language.txt"))
         SpeechProfileSet(Runner.DocumentReadHost("settings/speech-profile.txt"))
         web_muted = Runner.DocumentReadHost("settings/sound.txt") == "off"

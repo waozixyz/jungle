@@ -3,6 +3,7 @@
 #import "kryon/app_context"
 #import "kryon/app_protocol"
 #import "kryon/geometry"
+#import "kryon/pointer_input"
 #import "kryon/image_props"
 #import "kryon/image_widget"
 #import, file "puzzle.zi";
@@ -205,28 +206,17 @@ FinishDrop :: (x: s32, y: s32) {
     unused SavePuzzle()
 }
 
+// The piece a press at X, Y would lift, by the same test PickPiece uses.
+PieceAt :: (x: s32, y: s32, center: *TablePoint, on_board: *bool) -> s32 {
+    return TablePieceAt(puzzle, table_area, board_x, board_y, board_size / grid_sizes[puzzle.level], edges_only,
+        x, y, center, on_board)
+}
+
 PickPiece :: (x: s32, y: s32) {
-    cell := board_size / grid_sizes[puzzle.level]
-    picked: s32 = -1
     center: TablePoint
-    i := PuzzleCount(puzzle) - 1
-    while i >= 0 {
-        piece := puzzle.order[i]
-        at := TableCenter(puzzle, piece, table_area)
-        if PieceVisible(piece) && TableHit(puzzle, piece, at, cell, x, y) {
-            picked = piece; center = at; break
-        }
-        i -= 1
-    }
-    if picked < 0 && !puzzle.locking {
-        for piece: cast(s32)0..PuzzleCount(puzzle) - 1 {
-            at := TablePoint.{board_x + piece % grid_sizes[puzzle.level] * cell + cell / 2,
-                board_y + piece / grid_sizes[puzzle.level] * cell + cell / 2}
-            if puzzle.owners[piece] > 0 && TableHit(puzzle, piece, at, cell, x, y) {
-                picked = piece; center = at; puzzle.owners[piece] = 0; break
-            }
-        }
-    }
+    on_board: bool
+    picked := PieceAt(x, y, *center, *on_board)
+    if on_board { puzzle.owners[picked] = 0 }
     if picked >= 0 {
         selected_piece = picked
         drag_offset_x = x - center.x; drag_offset_y = y - center.y
@@ -241,7 +231,13 @@ PickPiece :: (x: s32, y: s32) {
 }
 
 TableInput :: () {
-    press := RetroTap(200, table_area.x, table_area.y, table_area.width, table_area.height, "Puzzle table", true)
+    // Only a piece, or a chosen piece's destination, takes a tap on the table.
+    pointer := SamplePointer()
+    center: TablePoint
+    on_board: bool
+    hovered := PieceAt(RetroPointX(pointer.x), RetroPointY(pointer.y), *center, *on_board)
+    press := RetroTap(200, table_area.x, table_area.y, table_area.width, table_area.height, "Puzzle table", true,
+        TableCursor(hovered, dragging || selected_piece >= 0))
     px := RetroPointX(press.x); py := RetroPointY(press.y)
     if (press.down && !pointer_down) || (press.clicked && !pointer_down && !dragging) { PickPiece(px, py) }
     if dragging && (press.down || press.released || press.clicked) {

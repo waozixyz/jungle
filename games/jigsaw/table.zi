@@ -1,6 +1,7 @@
 // A free tabletop: persistent centers, stacking order and shape-aware picking.
 #import, file "puzzle.zi";
 #import "kryon/geometry"
+#import "kryon/cursor"
 
 TableBounds :: struct { x: s32; y: s32; width: s32; height: s32 }
 TablePoint :: struct { x: s32; y: s32 }
@@ -114,4 +115,42 @@ TableHit :: (p: Puzzle, piece: s32, center: TablePoint, cell: s32, x: s32, y: s3
     top: float32 = ifx row == 0 then 0.0 else -sign * TableBump(u)
     bottom: float32 = 1.0 + ifx row == n - 1 then 0.0 else sign * TableBump(1.0 - u)
     return u >= left && u <= right && v >= top && v <= bottom
+}
+
+// The piece a press at X, Y lifts: the front-most loose piece shown on the
+// table (EDGES_ONLY shows only edge pieces), else, unless the puzzle locks
+// placed pieces, a placed piece on the board whose top left is BOARD_X,
+// BOARD_Y in CELL squares; -1 for none. CENTER is that piece's center and
+// ON_BOARD says it was placed.
+TablePieceAt :: (p: Puzzle, area: TableBounds, board_x: s32, board_y: s32, cell: s32, edges_only: bool,
+    x: s32, y: s32, center: *TablePoint, on_board: *bool) -> s32 {
+    on_board.* = false
+    i := PuzzleCount(p) - 1
+    while i >= 0 {
+        piece := p.order[i]
+        at := TableCenter(p, piece, area)
+        if p.owners[piece] == 0 && (!edges_only || PuzzleEdge(p, piece)) && TableHit(p, piece, at, cell, x, y) {
+            center.* = at
+            return piece
+        }
+        i -= 1
+    }
+    if p.locking { return -1 }
+    n := grid_sizes[p.level]
+    for piece: cast(s32)0..PuzzleCount(p) - 1 {
+        at := TablePoint.{board_x + piece % n * cell + cell / 2, board_y + piece / n * cell + cell / 2}
+        if p.owners[piece] > 0 && TableHit(p, piece, at, cell, x, y) {
+            center.* = at
+            on_board.* = true
+            return piece
+        }
+    }
+    return -1
+}
+
+// The cursor over the table's press: it points over a piece a press lifts
+// (PICKED) and, while a piece is CHOSEN, everywhere a tap places it; over
+// the bare table the calm arrow shows.
+TableCursor :: (picked: s32, chosen: bool) -> s32 {
+    return ifx picked >= 0 || chosen then 0 else cast(s32)CursorShape.CursorArrow
 }
