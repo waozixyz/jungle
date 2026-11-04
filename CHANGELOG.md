@@ -4,6 +4,7 @@
 
 - Prepare every activity’s pictures and selected-language narration before play, with a gentle progress screen, Back, retry and cached reopening.
 - Open a Picture Books or Stories shelf without downloading its books. A book downloads when it is opened, and the next one downloads in the background while it is read.
+- Changing scenes no longer says the books are opening: a scene whose pictures are here opens without a loading screen, and a slow one names its place.
 - Finishing a story opens the next one, and the last story goes back to the first, instead of starting the same story again.
 
 - Stories now includes Town Musicians of Bremen, with eleven landscape and portrait illustrations and English, German and Spanish narration.

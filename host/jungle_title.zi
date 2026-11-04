@@ -3,6 +3,7 @@
 // touch and keys move between scenes. host/jungle_menu.zi draws it.
 #import, file "jungle_title_data.zi";
 #import, file "jungle_text.zi";
+#import, file "../retro/language.zi";
 #import, file "../retro/collectibles.zi";
 #import, file "../retro/collect_flight.zi";
 #import, file "../retro/paper_rules.zi";
@@ -405,6 +406,23 @@ TitleSceneNamed :: (name: string) -> s32 {
         if TITLE_SCENE_BASE[scene] == scene && TITLE_SCENE_NAME[scene] == wanted { return scene }
     }
     return -1
+}
+
+// Each base title scene's place, in English, by scene name.
+TITLE_PLACE_COUNT :: 12
+TITLE_PLACE_SCENE: [12]string = .["treehouse", "bookshelf", "campus", "beach", "port", "aquarium", "farm",
+    "window", "desert", "jungle-path", "market", "map"];
+TITLE_PLACE_NAME: [12]string = .["Treehouse", "Bookshelf", "Campus", "Beach", "Port", "Aquarium", "Farm",
+    "Window", "Desert", "Jungle Path", "Market", "World map"];
+
+// The place title SCENE shows (either orientation), in the current language:
+// what the web loading screen names while that scene's pictures download.
+// An unknown scene has no name, so the loading screen shows none.
+TitleScenePlace :: (scene: s32) -> string {
+    if scene < 0 || scene >= TITLE_SCENE_COUNT { return "" }
+    name := TITLE_SCENE_NAME[TITLE_SCENE_BASE[scene]]
+    for at: cast(s32)0..TITLE_PLACE_COUNT - 1 { if TITLE_PLACE_SCENE[at] == name { return Tr(TITLE_PLACE_NAME[at]) } }
+    return ""
 }
 
 // Into title SCENE from a game's own way out, as if its sign had been

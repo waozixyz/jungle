@@ -5,21 +5,27 @@
 // low priority, and only while no request is loading and idle() allows it,
 // so it never competes with what is being read. pausePrefetch stops it before
 // its next file. A file loaded once is never loaded again.
+// The loading screen shows a state only while state.shown.
 class JungleActivityLoader {
  constructor(load,changed,idle=()=>true){this.load=load;this.changed=changed;this.idle=idle;this.generation=0;this.prefetchGeneration=0;this.completed=new Set();this.loaded=new Set()}
- // TITLE, when known before the definition, names the loading screen at once.
- request(key,definition,title){
+ // TITLE, when known before the definition, names the loading screen at once:
+ // what is loading (the activity, the book or the title scene), never more.
+ // A QUIET request, such as a title scene, shows the loading screen only when
+ // its files take longer than quietDelay or fail, so a scene whose pictures
+ // are already here changes without any loading screen.
+ request(key,definition,title,quiet=false){
   if(this.completed.has(key))return 'ready';
   if(this.state?.key===key)return this.state.status;
   this.cancel();
   // A request takes over its own prefetch; files already here count at once.
   if(this.background?.key===key)this.pausePrefetch();
-  const state=this.state={key,status:'loading',loaded:0,total:0,definition,title};
+  const state=this.state={key,status:'loading',loaded:0,total:0,definition,title,shown:!quiet};
   this.run(state);return 'loading';
  }
  async run(state){
   const generation=++this.generation,current=()=>generation===this.generation;
   state.status='loading';state.loaded=0;this.changed(state);
+  if(!state.shown)setTimeout(()=>{if(current()&&state.status==='loading'){state.shown=true;this.changed(state)}},JungleActivityLoader.quietDelay);
   try{
    const {files,title,cover}=await state.definition();
    if(!current())return;
@@ -35,7 +41,7 @@ class JungleActivityLoader {
    }));
    if(!current())return;
    state.status='ready';this.completed.add(state.key);this.changed(state);
-  }catch(error){if(current()){state.status='error';state.error=error;this.changed(state)}}
+  }catch(error){if(current()){state.status='error';state.error=error;state.shown=true;this.changed(state)}}
  }
  retry(){if(this.state?.status==='error')this.run(this.state)}
  cancel(){this.generation++;if(this.state){this.state.status='cancelled';this.changed(this.state)}this.state=undefined}
@@ -63,3 +69,4 @@ class JungleActivityLoader {
  }
  pausePrefetch(){this.prefetchGeneration++;this.background=undefined}
 }
+JungleActivityLoader.quietDelay=400;

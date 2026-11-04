@@ -64,7 +64,7 @@ body textarea,body [contenteditable]:not([contenteditable="false"]){-webkit-user
 </head>
 <body>
 <div id="canvas-frame"><canvas id="canvas" tabindex="0" aria-label="Jungle Academy learning games"></canvas></div>
-<div id="loading" role="status"><img id="brand-logo" src="/assets/jungle/branding/logo.webp" alt="Jungle Academy"><p id="status">Opening your books…</p></div>
+<div id="loading" role="status"><img id="brand-logo" src="/assets/jungle/branding/logo.webp" alt="Jungle Academy"><p id="status">Opening Jungle Academy…</p></div>
 <section id="activity-loading" hidden aria-modal="true" role="dialog" aria-labelledby="activity-title"><div id="activity-paper">
 <img id="activity-cover" alt=""><h1 id="activity-title"></h1><p id="activity-message" role="status" aria-live="polite"></p>
 <progress id="activity-progress" max="1" value="0"></progress><span id="activity-count"></span>
@@ -83,9 +83,9 @@ function assetUrl(path){
  return url.href;
 }
 const siteCopy={
- en:{title:'Jungle Academy — Gentle learning for little ones',description:'Learn letters and numbers, explore watercolor picture books, count up to twenty, and draw and color. Play in English, German and Spanish.',opening:'Opening your books…',error:'The game could not open. Please reload to try again.',locale:'en_GB',alt:'A young tiger with an open storybook, the Jungle Academy icon',canvas:'Jungle Academy learning games',story:'Story text'},
- de:{title:'Jungle Academy — Sanftes Lernen für die Kleinen',description:'Buchstaben und Zahlen lernen, Aquarell-Bilderbücher entdecken, bis zwanzig zählen, zeichnen und ausmalen. Auf Englisch, Deutsch und Spanisch.',opening:'Deine Bücher werden geöffnet…',error:'Das Spiel konnte nicht geöffnet werden. Bitte lade die Seite neu.',locale:'de_DE',alt:'Ein junger Tiger mit einem offenen Bilderbuch, das Symbol von Jungle Academy',canvas:'Jungle Academy Lernspiele',story:'Text der Geschichte'},
- es:{title:'Jungle Academy — Aprendizaje tranquilo para los pequeños',description:'Aprende letras y números, explora libros ilustrados en acuarela, cuenta hasta veinte, dibuja y colorea. Juega en inglés, alemán y español.',opening:'Abriendo tus libros…',error:'No se pudo abrir el juego. Recarga la página para intentarlo de nuevo.',locale:'es_ES',alt:'Un pequeño tigre con un libro abierto, el icono de Jungle Academy',canvas:'Juegos educativos de Jungle Academy',story:'Texto de la historia'}
+ en:{title:'Jungle Academy — Gentle learning for little ones',description:'Learn letters and numbers, explore watercolor picture books, count up to twenty, and draw and color. Play in English, German and Spanish.',opening:'Opening Jungle Academy…',error:'The game could not open. Please reload to try again.',locale:'en_GB',alt:'A young tiger with an open storybook, the Jungle Academy icon',canvas:'Jungle Academy learning games',story:'Story text'},
+ de:{title:'Jungle Academy — Sanftes Lernen für die Kleinen',description:'Buchstaben und Zahlen lernen, Aquarell-Bilderbücher entdecken, bis zwanzig zählen, zeichnen und ausmalen. Auf Englisch, Deutsch und Spanisch.',opening:'Jungle Academy wird geöffnet…',error:'Das Spiel konnte nicht geöffnet werden. Bitte lade die Seite neu.',locale:'de_DE',alt:'Ein junger Tiger mit einem offenen Bilderbuch, das Symbol von Jungle Academy',canvas:'Jungle Academy Lernspiele',story:'Text der Geschichte'},
+ es:{title:'Jungle Academy — Aprendizaje tranquilo para los pequeños',description:'Aprende letras y números, explora libros ilustrados en acuarela, cuenta hasta veinte, dibuja y colorea. Juega en inglés, alemán y español.',opening:'Abriendo Jungle Academy…',error:'No se pudo abrir el juego. Recarga la página para intentarlo de nuevo.',locale:'es_ES',alt:'Un pequeño tigre con un libro abierto, el icono de Jungle Academy',canvas:'Juegos educativos de Jungle Academy',story:'Texto de la historia'}
 };
 let siteLanguage='en';
 function updateSiteLanguage(language){
@@ -404,12 +404,13 @@ const activityLoader=new JungleActivityLoader(async(path,background)=>{
  }
 },state=>{
  const wasHidden=overlay.hidden;
- overlay.hidden=state.status==='ready'||state.status==='cancelled';
+ overlay.hidden=!state.shown||state.status==='ready'||state.status==='cancelled';
  for(const id of ['canvas-frame','kryon-dom-root','kryon-dom-paint']){const surface=document.getElementById(id);if(surface)surface.inert=!overlay.hidden}
  if(!wasHidden&&overlay.hidden)document.getElementById('canvas').focus();
  if(wasHidden&&!overlay.hidden)queueMicrotask(()=>document.getElementById('activity-back').focus());
  const copy=loadingCopy[siteLanguage];
- document.getElementById('activity-title').textContent=state.title||siteCopy[siteLanguage].opening;
+ // The heading names only what is loading; without a name it stays empty.
+ const heading=document.getElementById('activity-title');heading.textContent=state.title||'';heading.hidden=!state.title;
  // A packed cover, such as a book's from its shelf, shows from the bytes
  // already here, never from another download.
  const cover=document.getElementById('activity-cover'),logo='assets/jungle/branding/logo.webp';
@@ -488,12 +489,14 @@ function sceneManifest(){
  sceneIndex??=fetchResource('scene-assets.json',r=>r.json()).catch(error=>{sceneIndex=undefined;throw error});
  return sceneIndex;
 }
-function sceneReady(path){
+// A title scene's own pictures load quietly; a slow download names the
+// scene's place (TITLE, host/jungle_title.zi TitleScenePlace).
+function sceneReady(path,title){
  return activityLoader.request('scene:'+path,async()=>{
   const manifest=await sceneManifest(),files=manifest[path];
   if(!files)throw Error('Unknown scene: '+path);
-  return {title:siteCopy[siteLanguage].opening,cover:path,files};
- });
+  return {title,cover:path,files};
+ },title,true);
 }
 var Module={canvas:document.getElementById('canvas'),locateFile:assetUrl,print:console.log,printErr:console.error,
  jungleLanguage:updateSiteLanguage,

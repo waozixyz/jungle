@@ -537,7 +537,8 @@ JungleMain :: () -> s64 {
         TitleResolve(*title_state, AppBounds().width, AppBounds().height)
         scope := WebScope()
         defer WebEnd(scope)
-        scene_status := cast(s32)WebAsNumber(WebCall1(WebModule, WebName("jungleSceneReady"), WebText(TITLE_SCENE_IMAGE[title_state.scene])))
+        scene_status := cast(s32)WebAsNumber(WebCall2(WebModule, WebName("jungleSceneReady"), WebText(TITLE_SCENE_IMAGE[title_state.scene]),
+            WebText(TitleScenePlace(title_state.scene))))
         if scene_status == -1 {
             TitleStart(*title_state)
             unused WebCall0(WebModule, WebName("junglePreloadReset"))

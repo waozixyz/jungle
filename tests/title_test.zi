@@ -2,6 +2,7 @@
 #import, file "../host/jungle_title.zi";
 #import, file "../host/jungle_title_data.zi";
 #import, file "../host/platform.zi";
+#import, file "../retro/language.zi";
 #import, file "../retro/paper_rules.zi";
 #import, file "../retro/collectibles.zi";
 #import, file "../retro/collect_flight.zi";
@@ -538,7 +539,34 @@ main :: () -> s32 {
     if paper_failure != 0 { return paper_failure }
     map_failure := TitleMapChecks()
     if map_failure != 0 { return map_failure }
+    place_failure := TitlePlaceChecks()
+    if place_failure != 0 { return place_failure }
     Report("local title scene test passed\n")
+    return 0
+}
+
+// The web loading screen of a slow title scene names that scene's place in
+// every language and orientation, never the books (web/index.html sceneReady).
+TitlePlaceChecks :: () -> s32 {
+    expected: [9]string = .["Campus", "Campus", "Campus", "Port", "Hafen", "Puerto", "Treehouse", "Baumhaus", "Casa del árbol"]
+    named: [3]string = .["campus", "port", "treehouse"]
+    for language: cast(s32)0..2 {
+        LanguageSet(ifx language == 1 then "de" else ifx language == 2 then "es" else "en")
+        for scene: cast(s32)0..TITLE_SCENE_COUNT - 1 {
+            place := TitleScenePlace(scene)
+            if place == "" { return 800 + language }
+            if place != TitleScenePlace(TITLE_SCENE_BASE[scene]) { return 803 + language }
+            if place == "Opening your books…" || place == "Deine Bücher werden geöffnet…" || place == "Abriendo tus libros…" { return 806 + language }
+        }
+        for at: cast(s32)0..2 {
+            scene := SceneNamed(named[at])
+            if scene < 0 || TitleScenePlace(scene) != expected[at * 3 + language] { return 810 + at * 3 + language }
+            if TitleScenePlace(TITLE_SCENE_PORTRAIT[scene]) != expected[at * 3 + language] { return 820 + at * 3 + language }
+        }
+    }
+    LanguageSet("en")
+    if TitleScenePlace(-1) != "" || TitleScenePlace(TITLE_SCENE_COUNT) != "" { return 830 }
+    if TitleScenePlace(SceneNamed("map")) != "World map" || TitleScenePlace(SceneNamed("jungle-path")) != "Jungle Path" { return 831 }
     return 0
 }
 

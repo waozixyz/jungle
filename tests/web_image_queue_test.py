@@ -131,25 +131,27 @@ const frame=(current,ahead)=>{for(const path of ahead)Module.jungleImageReady(pa
 """
 
 
-def harness_html():
+def harness_html(scenarios=SCENARIOS):
     # JUNGLE_INDEX checks another revision, such as the released page.
     page = Path(os.environ.get('JUNGLE_INDEX', ROOT/'web/index.html')).read_text()
     page = page.replace('<script src="asset-packs.js"></script>', '<script>'+(ROOT/'web/asset-packs.js').read_text()+'</script>')
     page = page.replace('<script src="activity-loader.js"></script>', '<script>'+ (ROOT/'web/activity-loader.js').read_text()+'</script>')
     page = page.replace('<script src="jungle.js" defer></script>', '')
-    return page.replace('</body>', SCENARIOS + '</body>')
+    return page.replace('</body>', scenarios + '</body>')
 
 
-def main():
+# Runs SCENARIOS against the page's own script; NAME labels the report and
+# fewer than MINIMUM results fail.
+def run(scenarios, name, minimum):
     browser = shutil.which('chromium') or shutil.which('chromium-browser')
     if not browser:
-        print('web image queue test: chromium is not installed', file=sys.stderr)
+        print(f'{name}: chromium is not installed', file=sys.stderr)
         return 2
     work = ROOT/'work/web-image-queue-test'
     work.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(dir=work) as scratch:
         page = Path(scratch)/'index.html'
-        page.write_text(harness_html())
+        page.write_text(harness_html(scenarios))
         env = {key: value for key, value in os.environ.items()
                if key not in ('DISPLAY', 'WAYLAND_DISPLAY', 'XAUTHORITY', 'DBUS_SESSION_BUS_ADDRESS', 'SESSION_MANAGER')}
         env['YUE_DESKTOP_RECOVERY'] = '0'
@@ -158,20 +160,25 @@ def main():
         sockets = ROOT/'work/wq'
         sockets.mkdir(parents=True, exist_ok=True)
         env['TMPDIR'] = '.'
-        result = subprocess.run([browser, '--headless=new', '--no-sandbox', '--disable-gpu', '--no-first-run',
+        # Nothing is drawn: without GL, Chromium never aborts on an unusable GPU process.
+        result = subprocess.run([browser, '--headless=new', '--no-sandbox', '--disable-gpu', '--use-gl=disabled', '--no-first-run',
                                  '--user-data-dir='+str(Path(scratch)/'profile'), '--virtual-time-budget=5000',
                                  '--dump-dom', page.as_uri()], capture_output=True, text=True, env=env, cwd=sockets, timeout=120)
     found = re.search(r'data-results="([^"]*)"', result.stdout)
     if not found:
         print(result.stdout[-2000:], result.stderr[-2000:], sep='\n', file=sys.stderr)
-        print('web image queue test: no results', file=sys.stderr)
+        print(f'{name}: no results', file=sys.stderr)
         return 1
     results = json.loads(found.group(1).replace('&quot;', '"').replace('&amp;', '&'))
     failed = [entry for entry in results if not entry['ok']]
     for entry in results:
         print(('ok   ' if entry['ok'] else 'FAIL ') + entry['name'] + ('' if entry['ok'] else ': ' + json.dumps(entry['detail'])))
-    print(f'web image queue test: {len(results) - len(failed)}/{len(results)} passed')
-    return 1 if failed or len(results) < 15 else 0
+    print(f'{name}: {len(results) - len(failed)}/{len(results)} passed')
+    return 1 if failed or len(results) < minimum else 0
+
+
+def main():
+    return run(SCENARIOS, 'web image queue test', 15)
 
 
 if __name__ == '__main__':
