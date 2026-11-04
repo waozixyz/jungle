@@ -1,5 +1,8 @@
 #import, file "../games/garden/farm.zi";
 #import, file "../host/jungle_text.zi";
+#import, file "../host/jungle_game_layout.zi";
+#import, file "../games/garden/garden.zi";
+#import "kryon/geometry"
 Apart :: (f: FarmState, garden: s32) -> bool {
     for a: cast(s32)0..FARM_CAPACITY-1 { for b: cast(s32)a+1..FARM_CAPACITY-1 {
         p := f.plots[FarmIndex(garden,a)]; q := f.plots[FarmIndex(garden,b)]
@@ -9,6 +12,29 @@ Apart :: (f: FarmState, garden: s32) -> bool {
 }
 #program_export
 main :: () -> s32 {
+    // The entire Farm (chooser, gardens and panels) receives the full window
+    // in either orientation, including a nonzero window origin.
+    windows: [4]Rectangle = .[Rectangle.{0,0,960,600},Rectangle.{0,0,420,900},
+        Rectangle.{12,24,1280,720},Rectangle.{12,24,720,1280}]
+    titles: [3]string = .["Picture Book","Little Fishing Boat","Crab Family Counting"]
+    for i: cast(s32)0..3 {
+        bounds := windows[i]
+        content := GameContentBounds(bounds,"Farm")
+        if content.x != bounds.x || content.y != bounds.y || content.width != bounds.width || content.height != bounds.height { return 101 }
+        for t: cast(s32)0..2 {
+            title := titles[t]
+            bar_content := GameContentBounds(bounds,title)
+            if GameFullScene(title) || bar_content.y != bounds.y + cast(float32)GAME_BAR_HEIGHT || bar_content.height != bounds.height - cast(float32)GAME_BAR_HEIGHT { return 102 }
+        }
+        portrait := bounds.height > bounds.width
+        for scene: cast(s32)0..1 {
+            entrance := scene == 1
+            view := GardenCover(cast(s32)bounds.width,cast(s32)bounds.height,
+                ifx portrait then 1024 else ifx entrance then 1671 else 1536,
+                ifx portrait then 1536 else ifx entrance then 941 else 1024)
+            if view.x > 0 || view.y > 0 || view.x + view.width < cast(s32)bounds.width || view.y + view.height < cast(s32)bounds.height { return 103 }
+        }
+    }
     // Free placement: a seed lies exactly where it is dropped, in any garden.
     f := FarmNew()
     for garden: cast(s32)0..3 {

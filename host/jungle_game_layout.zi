@@ -1,0 +1,13 @@
+// One content policy for native, DOM and Canvas hosts. Scene games draw
+// beneath floating Back; activities with a title bar reserve its height.
+#import "kryon/geometry"
+
+GAME_BAR_HEIGHT :: 56
+
+GameFullScene :: (title: string) -> bool { return title == "Farm" }
+
+GameContentBounds :: (bounds: Rectangle, title: string) -> Rectangle {
+    if GameFullScene(title) { return bounds }
+    return Rectangle.{bounds.x, bounds.y + cast(float32)GAME_BAR_HEIGHT,
+        bounds.width, bounds.height - cast(float32)GAME_BAR_HEIGHT}
+}

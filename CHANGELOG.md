@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- Fill the whole window with the Farm and its gardens, with Back floating over the painting and no title-bar gap.
+
 - Place the map Treehouse directly behind Campus and move the Jungle Path left in both orientations.
 
 - Give the Treehouse window varied wildlife visits and tap-to-fly-away behind its frame, with swaying leaves and no water animation.

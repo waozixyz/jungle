@@ -36,6 +36,7 @@ Fishing :: #import, file "../games/fishing/jungle_fishing.zi";
 BeachFamilies :: #import, file "../games/beach_families/jungle_beach_families.zi";
 PianoKeys :: #import, file "../games/piano/keyboard.zi";
 #import, file "../host/jungle_menu.zi";
+#import, file "../host/jungle_game_layout.zi";
 #import, file "../host/jungle_title.zi";
 #import, file "../host/jungle_title_data.zi";
 #import, file "../host/jungle_text.zi";
@@ -77,7 +78,7 @@ web_muted: bool;
 web_home: bool;
 // The title scene a game's way out leads to ("scene:market"), as on the desktop, or -1.
 web_scene_from_game: s32 = -1;
-// Farm's painted garden chooser fills the screen, as on the desktop (host/jungle_host.zi).
+// Farm view reports are independent of the full-window content policy.
 web_farm_entrance: bool = true;
 // The title bar's back arrow reaches the game as Escape on the next frame.
 web_back_pending: bool;
@@ -573,15 +574,12 @@ JungleMain :: () -> s64 {
         if web_back_pending && key == 0 { key = 256; Runner.canvas_app_key = 256; web_back_pending = false }
         if web_speed_pending && key == 0 { key = ABC_SPEED_KEY; Runner.canvas_app_key = key; web_speed_pending = false }
         full_bounds := Runner.canvas_app_bounds
-        farm_entrance := web_games[active_game].title == "Farm" && web_farm_entrance
-        if !farm_entrance {
-            Runner.canvas_app_bounds = Rectangle.{full_bounds.x, full_bounds.y + cast(float32)GAME_BAR_HEIGHT,
-                full_bounds.width, full_bounds.height - cast(float32)GAME_BAR_HEIGHT}
-        }
+        full_scene := GameFullScene(web_games[active_game].title)
+        Runner.canvas_app_bounds = GameContentBounds(full_bounds, web_games[active_game].title)
         unused RunGame()
         Runner.canvas_app_bounds = full_bounds
-        if farm_entrance {
-            if FarmEntranceSound(AppSession(), full_bounds, key, AppNow(), web_muted) { ToggleAudio() }
+        if full_scene {
+            if GameSceneBack(AppSession(), full_bounds, key, AppNow()) { web_back_pending = true }
             AwardShowFrame(AppSession(), full_bounds, 0, AwardCornerTarget(full_bounds), true, AppNow())
         } else {
             bar := GameTitleBar(AppSession(), full_bounds, key, AppNow(), web_games[active_game].title, web_muted)

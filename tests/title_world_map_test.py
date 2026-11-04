@@ -114,7 +114,9 @@ class WorldMapTest(unittest.TestCase):
         self.assertTrue((ROOT/'assets/jungle/sounds/not-yet.wav').is_file())
         menu = (ROOT/'host/jungle_menu.zi').read_text()
         self.assertRegex(menu, r'TitleMapEntry\(scene\) && TitleMapButton\(')
-        self.assertIn('TitleMapButton(', (ROOT/'host/jungle_host.zi').read_text())
+        # Farm is a full-window game with floating Back. Its route into the
+        # map is through the painted Campus, which retains the map button.
+        self.assertIn('GameSceneBack(', (ROOT/'host/jungle_host.zi').read_text())
         labels = json.loads((ROOT/'locales/ui.json').read_text())
         self.assertEqual(len(labels['World map']), 2)
 

@@ -49,7 +49,7 @@ def main():
     for gone in ('Notice(', 'Help()', '"?"', 'How to grow', 'note_until'):
         assert gone not in source, gone
     host=(ROOT/'host/jungle_host.zi').read_text()
-    assert 'jungle.farm-view' in host and 'FarmEntranceSound(' in host
+    assert 'jungle.farm-view' in host and 'GameSceneBack(' in host
     data = json.loads((ROOT/'tools/title_hotspots.json').read_text())
     campus = next(s for s in data['scenes'] if s['name'] == 'campus')
     for scene in (campus, campus['portrait']):

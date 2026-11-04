@@ -25,9 +25,11 @@ HAND_CURSOR=(32,32,8,1);WATER_CURSOR=(32,28,2,12);BASKET_CURSOR=(30,32,15,16)
 
 def f32(value): return c.c_float(value).value
 
-def contain(width,height,iw,ih):
-    scale=min(f32(f32(width)/f32(iw)),f32(f32(height)/f32(ih)))
+def cover(width,height,iw,ih):
+    scale=max(f32(f32(width)/f32(iw)),f32(f32(height)/f32(ih)))
     return scale,int(f32(f32(iw)*scale)),int(f32(f32(ih)*scale))
+
+def centered(size,paint): return int((size-paint)/2)  # Ziran truncates toward zero.
 
 def digest(path):
     with Path(path).open('rb') as stream:
@@ -115,7 +117,7 @@ class FarmUI:
     def __init__(self,desktop,width,height):
         self.d=desktop;self.w=width;self.h=height;self.layout(False);self.current=0
     def layout(self,entrance):
-        self.header=0 if entrance else 56
+        self.header=0
         self.scale=min(f32(f32(min(self.w,self.h-self.header))/f32(400)),f32(1.8))
         self.lw=int(f32(f32(self.w)/self.scale));self.lh=int(f32(f32(self.h-self.header)/self.scale))
     def tap(self,x,y,pause=.3):
@@ -130,10 +132,18 @@ class FarmUI:
         self.layout(True);self.current=0
         iw,ih=(1024,1536) if self.h>self.w else (1671,941)
         points=((260,530),(789,578),(238,798),(738,939)) if self.h>self.w else ((508,352),(1250,395),(361,511),(1183,618))
-        scale,w,h=contain(self.lw,self.lh,iw,ih)
-        x,y=points[index];self.logical((self.lw-w)//2+x*scale,(self.lh-h)//2+y*scale)
+        scale,w,h=cover(self.lw,self.lh,iw,ih)
+        x,y=points[index];self.logical(centered(self.lw,w)+x*scale,centered(self.lh,h)+y*scale)
         self.layout(False);time.sleep(.2)
     def back(self):self.tap(25,27)
+    def market_path(self):
+        self.layout(True)
+        portrait=self.lh>self.lw
+        iw,ih=(1024,1536) if portrait else (1671,941)
+        _,w,h=cover(self.lw,self.lh,iw,ih)
+        edge=max(64,w*170//iw)
+        self.logical(max(0,centered(self.lw,w))+edge/2,
+                     centered(self.lh,h)+h*(383 if portrait else 278)//ih+edge/5+edge/4)
     def sky(self):self.d.key('Escape');self.layout(True)
     def bag(self):
         cell=(self.lw-24)//4;return 12+(cell-4)/2,self.lh-45
@@ -152,9 +162,9 @@ class FarmUI:
         self.current=index
     def soil_rect(self):
         iw,ih=(1024,1536) if self.lh>self.lw else (1536,1024)
-        scale,w,h=contain(self.lw,self.lh,iw,ih)
-        sx=(self.lw-w)//2+w*15//100;sw=w*70//100
-        sy=(self.lh-h)//2+h*(36 if self.lh>self.lw else 43)//100
+        scale,w,h=cover(self.lw,self.lh,iw,ih)
+        sx=centered(self.lw,w)+w*15//100;sw=w*70//100
+        sy=centered(self.lh,h)+h*(36 if self.lh>self.lw else 43)//100
         sh=h*(39 if self.lh>self.lw else 32)//100
         return sx,sy,sw,sh
     def point(self,u,v,lift=0):
@@ -206,7 +216,7 @@ class FarmUI:
     def helpers(self):self.cell(3)
     def upgrade(self,index):
         w=(self.lw-36)//2;self.logical(12+index*(w+12)+w/2,self.lh//2-125+207)
-    def menu(self):self.logical(44,25)
+    def menu(self):self.logical(int(56/self.scale)+44,25)
     def menu_item(self,index):
         row=min(62,(self.lh-70)//5);self.logical(self.lw/2,54+index*row+(row-7)/2)
 
@@ -215,11 +225,11 @@ def assert_paint(desktop,ui,entrance=False):
     portrait=ui.lh>ui.lw
     name=('assets/garden/art/scene-' if entrance else 'assets/garden/play/garden-')+('portrait' if portrait else 'landscape')+'.webp'
     source=Image.open(ROOT/name).convert('RGB')
-    scale,w,h=contain(ui.lw,ui.lh,source.width,source.height)
-    ox=(ui.lw-w)//2;oy=(ui.lh-h)//2
+    scale,w,h=cover(ui.lw,ui.lh,source.width,source.height)
+    ox=centered(ui.lw,w);oy=centered(ui.lh,h)
     # Compare low-frequency paint in independent areas; two-stage native
     # downsampling otherwise aliases individual watercolor leaf details.
-    boxes=((15,220,90,350),(30,1300,120,1400)) if entrance and portrait else ((30,600,150,720),(1450,300,1530,380)) if entrance else ((1300,280,1380,350),(700,560,820,640)) if not portrait else ((580,180,680,250),(410,800,500,850))
+    boxes=((350,220,430,300),(410,1300,500,1400)) if entrance and portrait else ((450,600,550,720),(1450,300,1530,380)) if entrance else ((1300,280,1380,350),(700,560,820,640)) if not portrait else ((580,180,680,250),(410,800,500,850))
     actual=desktop.capture_actual(f'{ui.w}-'+('chooser' if entrance else 'garden-background'))
     assert actual.size==(ui.w,ui.h)
     for box in boxes:
@@ -228,6 +238,17 @@ def assert_paint(desktop,ui,entrance=False):
         got=actual.crop(region).resize((8,8),Image.Resampling.BILINEAR)
         difference=max(ImageStat.Stat(ImageChops.difference(expected,got)).mean)
         assert difference<10,('Native Farm paint/aspect/full viewport',name,box,difference)
+    # Paint reaches the top and both sides; a hidden 56px inset or contain-fit
+    # border fails independently of the interior art/hotspot comparisons.
+    for probe in ((ui.w*.6,1,ui.w*.8,4),(1,ui.h*.55,4,ui.h*.6),
+                  (ui.w-4,ui.h*.55,ui.w-1,ui.h*.6)):
+        box=tuple((v/ui.scale-(ox if i%2==0 else oy))/scale for i,v in enumerate(probe))
+        expected=source.crop(box).resize((8,8),Image.Resampling.BILINEAR)
+        got=actual.crop(tuple(round(v) for v in probe)).resize((8,8),Image.Resampling.BILINEAR)
+        # These strips are only three screen pixels wide: compare their
+        # average paint, so subpixel leaf edges do not dominate the result.
+        difference=max(abs(a-b) for a,b in zip(ImageStat.Stat(expected).mean,ImageStat.Stat(got).mean))
+        assert difference<10,('Farm painting does not reach window edge',name,probe,difference)
 
 def wait_farm(desktop,state,ui):
     desktop.verify_server()
@@ -258,6 +279,28 @@ def preserved(state,old,original):
     assert (state/'guide-sound.txt').read_text()=='on\n','Guide audio changed'
     assert not (state/'games/jungle.farm').exists(),'Duplicate Farm identity'
 
+def assert_market(desktop,ui):
+    scenes=json.loads((ROOT/'tools/title_hotspots.json').read_text())['scenes']
+    scene=next(s for s in scenes if s['name']=='market')
+    if ui.h>ui.w:scene=scene['portrait']
+    source=Image.open(ROOT/scene['image']).convert('RGB')
+    scale=max(ui.w/source.width,ui.h/source.height)
+    ox=(ui.w-source.width*scale)/2;oy=(ui.h-source.height*scale)/2
+    deadline=time.monotonic()+20
+    ui.move(ui.w/2,ui.h*.95)
+    while True:
+        actual=desktop.capture_actual(f'{ui.w}-farm-to-market')
+        differences=[]
+        for probe in ((ui.w*.45,ui.h*.45,ui.w*.55,ui.h*.55),
+                      (ui.w*.45,ui.h*.75,ui.w*.55,ui.h*.85)):
+            box=tuple((v-(ox if i%2==0 else oy))/scale for i,v in enumerate(probe))
+            expected=source.crop(box).resize((16,16),Image.Resampling.BILINEAR)
+            got=actual.crop(tuple(round(v) for v in probe)).resize((16,16),Image.Resampling.BILINEAR)
+            differences.append(max(ImageStat.Stat(ImageChops.difference(expected,got)).mean))
+        if max(differences)<10:return
+        assert time.monotonic()<deadline,('Farm path did not open Market',differences)
+        time.sleep(.2)
+
 
 def run_orientation(binary,size,locale):
     w,h=size
@@ -265,6 +308,8 @@ def run_orientation(binary,size,locale):
         state=Path(folder);old,original=start_state(state)
         with rt.Desktop(binary,state,extra_env={'TMPDIR':str(state)},screen_size='1400x2500') as d:
             d.resize(w,h);d.select_language(locale);d.game('Farm');ui=FarmUI(d,w,h);wait_farm(d,state,ui)
+            ui.market_path();assert_market(d,ui)
+            d.game('Farm');wait_farm(d,state,ui)
             positions=[(1234+i*1647,2468+i*1234) for i in range(4)]
             for garden,(u,v) in enumerate(positions):
                 ui.garden(garden)

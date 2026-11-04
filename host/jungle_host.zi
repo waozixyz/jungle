@@ -40,6 +40,7 @@
 #import, file "paint_view.zi";
 #import, file "jungle_text.zi";
 #import, file "jungle_menu.zi";
+#import, file "jungle_game_layout.zi";
 #import, file "jungle_title.zi";
 #import, file "jungle_progress.zi";
 #import, file "../games/paint/paint_palette.zi";
@@ -107,8 +108,6 @@ guide_seen_setting: string;
 // The title bar's back arrow reaches the game as Escape on the next frame,
 // so each game steps back itself and leaves from its first screen.
 title_back_pending: bool;
-// The Farm entrance's map button: the title opens the world map once the game closes.
-title_map_from_farm: bool;
 title_speed_pending: bool;
 game_secondary_down: bool;
 // Input for the Coloring Book's zoom. Fingers come from the platform's frame.
@@ -553,8 +552,8 @@ GameFrame :: (bounds: Rectangle, pointer: PointerFrame, secondary: SecondaryPoin
     if title_back_pending && key == 0 { key = KEY_ESCAPE; title_back_pending = false }
     if title_speed_pending && key == 0 { key = ABC_SPEED_KEY; title_speed_pending = false }
     if key != 0 { KeyboardSend(app.session, key) }
-    farm_entrance := TextFromCString(*app.id[0]) == "jungle.garden" && game_farm_entrance
-    app.bounds = ifx farm_entrance then bounds else Rectangle.{bounds.x, bounds.y + cast(float32)GAME_BAR_HEIGHT, bounds.width, bounds.height - cast(float32)GAME_BAR_HEIGHT}
+    full_scene := GameFullScene(games[chosen].title)
+    app.bounds = GameContentBounds(bounds, games[chosen].title)
     app.scale = 1.0
     app.font = 18
     app.key = key
@@ -575,10 +574,8 @@ GameFrame :: (bounds: Rectangle, pointer: PointerFrame, secondary: SecondaryPoin
     WidgetHostEnd()
     bundle_drawing_app = null
     if !ok { TreeCancel(app.session); game.failed = true; return false }
-    if farm_entrance {
-        if FarmEntranceSound(app.session,bounds,key,seconds,sound_muted) { ToggleSound() }
-        // The painted Farm entrance has the title scenes' map button too.
-        if TitleMapButton(cast(s32)bounds.width - 106, 6, 44, 44, 30) { title_map_from_farm = true; home_requested = true }
+    if full_scene {
+        if GameSceneBack(app.session,bounds,key,seconds) { title_back_pending = true }
         AwardShowFrame(app.session, bounds, 0, AwardCornerTarget(bounds), true, seconds)
         return EndFrame(app.session) == FrameStatus.FrameOk
     }
@@ -618,10 +615,6 @@ Menu :: (session: Session, bounds: Rectangle, key: s32) {
     if collection_book_open {
         if CollectionBookFrame(session, bounds, key, JungleSeconds(), sound_muted, jungle_collection) { ToggleSound() }
         return
-    }
-    if title_map_from_farm {
-        title_map_from_farm = false
-        if TitleMapOpenFromGame(*title_state, "Farm") { SoundPlay("assets/jungle/sounds/select.wav") }
     }
     if title_scene_from_game >= 0 {
         scene := title_scene_from_game

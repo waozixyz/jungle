@@ -201,13 +201,11 @@ FieldPreview :: (garden: s32, x: s32, y: s32, scale: float64) {
 Chooser :: () {
     iw: s32 = ifx portrait then 1024 else 1671
     ih: s32 = ifx portrait then 1536 else 941
-    scale := cast(float32)width / cast(float32)iw
-    if cast(float32)height / cast(float32)ih < scale { scale = cast(float32)height / cast(float32)ih }
-    w := cast(s32)(cast(float32)iw*scale); h := cast(s32)(cast(float32)ih*scale)
-    x := (width-w)/2; y := (height-h)/2
+    view := GardenCover(width,height,iw,ih)
+    x := view.x; y := view.y; w := view.width; h := view.height
     orientation := ifx portrait then "portrait" else "landscape"
     BookPicture(Cat("assets/garden/art/scene-",orientation,".webp"), x,y,w,h)
-    picture_scale := cast(float64)scale
+    picture_scale := cast(float64)view.scale
     lit: s32 = -1
     if input.available && mx>=x && mx<x+w && my>=y && my<y+h {
         lit = GardenFieldAt(cast(float64)(mx-x)/picture_scale,cast(float64)(my-y)/picture_scale,portrait)
@@ -256,6 +254,7 @@ Chooser :: () {
     mw := w*170/iw
     if mw < 64 { mw = 64 }
     msx := x
+    if msx < 0 { msx = 0 }
     msy := y + h*(ifx portrait then 383 else 278)/ih
     market := RetroTap(110,msx,msy+mw/5,mw,mw/2,Tr("Market"))
     Picture(ifx market.down then "market-arrow-glow" else "market-arrow",msx,msy,mw,mw)
@@ -265,10 +264,8 @@ Chooser :: () {
 SoilLayout :: () {
     iw: s32 = ifx portrait then 1024 else 1536
     ih: s32 = ifx portrait then 1536 else 1024
-    scale := cast(float32)width/cast(float32)iw
-    if cast(float32)height/cast(float32)ih < scale { scale = cast(float32)height/cast(float32)ih }
-    w := cast(s32)(cast(float32)iw*scale); h := cast(s32)(cast(float32)ih*scale)
-    x := (width-w)/2; y := (height-h)/2
+    view := GardenCover(width,height,iw,ih)
+    x := view.x; y := view.y; w := view.width; h := view.height
     BookPicture(ifx portrait then "assets/garden/play/garden-portrait.webp" else "assets/garden/play/garden-landscape.webp",x,y,w,h)
     soil_x = x+w*15/100; soil_w = w*70/100
     soil_y = y+h*(ifx portrait then 36 else 43)/100
@@ -584,7 +581,7 @@ HeldSeed :: () {
 Play :: () {
     SoilLayout(); Plants()
     if panel==0 { Seeding() }
-    if Button(410,8,8,72,34,GardenText("Menu","Menü","Menú")) { CancelDrag(); panel=4; Changed() }
+    if Button(410,cast(s32)(56.0/retro.scale)+8,8,72,34,GardenText("Menu","Menü","Menú")) { CancelDrag(); panel=4; Changed() }
     if Button(411,width-88,8,80,34,GardenText("Market","Markt","Mercado")) || retro.key==83 { CancelDrag(); panel=2 }
     // Coins as a picture and a number, no words over the crops.
     BookBox(width/2-48,8,96,34,0xfff6e6d9,0,14.0)
@@ -597,7 +594,6 @@ Play :: () {
 PanelTop :: (title: string) {
     BookBox(0,0,width,height,0xf3efdfff)
     Label(title,66,8,width-132,34,22)
-    if Button(600,8,8,50,34,GardenText("Back","Zurück","Atrás")) { panel=0 }
 }
 Seeds :: (shop: bool) {
     PanelTop(ifx shop then GardenText("Seed market","Samenmarkt","Mercado de semillas") else GardenText("Your seeds","Deine Samen","Tus semillas"))

@@ -94,7 +94,7 @@ title_state: TitleState;
 title_papers: TitlePapers;
 TITLE_PAPER_CHIME :: "assets/jungle-book/collect.wav"
 title_book_requested: string;
-GAME_BAR_HEIGHT :: 56
+#import, file "jungle_game_layout.zi";
 ABC_SPEED_KEY :: 10001
 abc_title_speed: s32 = 1;
 
@@ -123,15 +123,15 @@ TitleBarAction :: struct {
     collection_shown: bool
 }
 
-// The Farm painting has its own Campus sign; sound remains a floating host control.
-FarmEntranceSound :: (session: Session, bounds: Rectangle, key: s32, now: float64, muted: bool) -> bool {
-    retro = Retro.{.session=session,.x=bounds.x,.y=bounds.y,.scale=1.0,.now=now,.key=key}
-    x := cast(s32)bounds.width-56
-    sound := RetroTap(9002,x,6,44,44,Tr(ifx muted then "Sound off · F10" else "Sound on · F10"))
-    BookBox(x,6,44,44,0xf3ecdcff,0xdacdb5ff,12.0)
-    SvgIcon(session,SvgIconProps.{.bounds=RetroRect(x+7,13,30,30),
-        .shape=ifx muted then SoundOffIcon.Shape else SoundOnIcon.Shape,.color=ColorFromPacked(0x3e332aff)})
-    return sound.clicked
+// The same floating Back as the painted title scenes, with no reserved strip.
+GameSceneBack :: (session: Session, bounds: Rectangle, key: s32, now: float64) -> bool {
+    retro = Retro.{.session=session,.font="assets/jungle/font.png",.glyph_height=16,
+        .x=bounds.x,.y=bounds.y,.scale=1.0,.now=now,.key=key}
+    BookPalette()
+    back := RetroTap(9001,6,6,44,30,Tr("Back"))
+    BookBox(6,6,44,30,0xf7f1e3ee,0xdacdb5ff,4.0)
+    BookText(6,6,44,30,Tr("Back"),11,TextAlign.TextAlignCenter)
+    return back.clicked
 }
 
 // Back on the left, the game's name, and sound on or off on the right.

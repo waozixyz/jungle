@@ -2,6 +2,16 @@
 #import, file "../../host/jungle_text.zi";
 #import, file "../../retro/language.zi";
 
+GardenView :: struct { x: s32; y: s32; width: s32; height: s32; scale: float32 }
+// The painting, crop positions and pointer targets share this cover transform.
+GardenCover :: (width: s32, height: s32, iw: s32, ih: s32) -> GardenView {
+    scale := cast(float32)width/cast(float32)iw
+    down := cast(float32)height/cast(float32)ih
+    if down > scale { scale = down }
+    w := cast(s32)(cast(float32)iw*scale); h := cast(s32)(cast(float32)ih*scale)
+    return GardenView.{(width-w)/2,(height-h)/2,w,h,scale}
+}
+
 GARDEN_PLOTS :: 6
 GARDEN_KINDS :: 6
 GARDEN_HOUR :: 3600

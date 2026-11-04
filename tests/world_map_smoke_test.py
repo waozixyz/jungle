@@ -198,10 +198,9 @@ def main():
                     elif kind == 'scene':
                         until(f'{w}-at-{target}', lambda p: difference(p, references[target], area) < 8)
                     else:
-                        # The Farm opens with its own map button; it reopens the
-                        # map, whose Back returns into the Farm.
+                        # Farm has only floating Back; it returns to Campus,
+                        # whose map button opens the map again.
                         assert target == 'Farm', spot
-                        farm_button = (w - 106 + 22, 28)
                         entrance = until(f'{w}-farm', lambda p: not on_map(p) and difference(p, references['campus'], area) > 8)
                         # The first opening's award badge flies away before the entrance is compared.
                         deadline = time.monotonic() + 10
@@ -212,14 +211,15 @@ def main():
                                 entrance = settled
                                 break
                             entrance = settled
-                        tap(*farm_button)
+                        tap(28,21)
+                        rest()
+                        until(f'{w}-farm-back-campus', lambda p: difference(p, references['campus'], area) < 8)
+                        press_map()
                         rest()
                         until(f'{w}-farm-map', on_map)
                         tap(28 * unit, 21 * unit)
                         rest()
-                        until(f'{w}-farm-again', lambda p: difference(p, entrance, area) < 10)
-                        d.key('Escape')
-                        time.sleep(.6)
+                        until(f'{w}-farm-map-back-campus', lambda p: difference(p, references['campus'], area) < 8)
                 d.alive()
             print(f'local world map smoke: {w}x{h}, map button on {len(painted)} scenes, '
                   f'{len(view["hotspots"])} landmarks hover/travel, locked stays, Back and Farm return passed', flush=True)
