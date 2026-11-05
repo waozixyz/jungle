@@ -8,6 +8,9 @@ import unittest
 from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]
+import sys
+sys.path.insert(0, str(ROOT/'tests'))
+from design_size import design_size
 spec = importlib.util.spec_from_file_location('title_scenes', ROOT/'tools/title_scenes.py')
 title = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(title)
@@ -61,13 +64,13 @@ class DesertScene(unittest.TestCase):
         self.assertEqual(parents[names.index('desert-portrait')], names.index('campus'))
         self.assertFalse(any(h['notice'] for h in hotspots), 'the old Desert availability notice is gone')
 
-    def test_plates_are_opaque_webp_at_scene_size(self):
+    def test_plates_are_opaque_avif_at_scene_size(self):
         for orientation, view, size in self.views:
             for key, expected in (('image', size), ('low', (240, round(size[1]*240/size[0])))):
                 with self.subTest(orientation=orientation, key=key), Image.open(ROOT/view[key]) as im:
-                    self.assertEqual(im.format, 'WEBP')
+                    self.assertEqual(im.format, 'AVIF')
                     self.assertEqual(im.mode, 'RGB')
-                    self.assertEqual(im.size, expected)
+                    self.assertEqual(design_size(view[key], im), expected)
             self.assertNotIn('background', view)
             self.assertNotIn('foreground', view)
 
@@ -78,16 +81,16 @@ class DesertScene(unittest.TestCase):
             sign, camel, guide = view['hotspots']
             self.assertEqual(sign['target'], 'scene:campus')
             self.assertEqual(sign['sign'], dict(sign['sign'], label='Campus', direction='left'))
-            self.assertEqual(sign['rest'], 'assets/jungle/title/objects/wood-arrow-left.webp')
+            self.assertEqual(sign['rest'], 'assets/jungle/title/objects/sign-left-board.avif')
             for layer, name in ((camel, 'camel'), (guide, 'guide')):
                 with self.subTest(orientation=orientation, layer=name):
                     self.assertEqual(layer['target'], 'dialogue:desert-guide')
-                    self.assertEqual(layer['rest'], f'assets/jungle/title/objects/desert-{name}.webp')
-                    self.assertEqual(layer['glow'], f'assets/jungle/title/objects/desert-{name}-glow.webp')
+                    self.assertEqual(layer['rest'], f'assets/jungle/title/objects/desert-{name}.avif')
+                    self.assertEqual(layer['glow'], f'assets/jungle/title/objects/desert-{name}-glow.avif')
                     x, y, w, h = layer['glow_rect']
                     self.assertTrue(0 <= x and x + w <= size[0] and 0 <= y and y + h <= size[1])
                     with Image.open(ROOT/layer['rest']) as rest, Image.open(ROOT/layer['glow']) as glow:
-                        self.assertEqual((rest.format, rest.mode), ('WEBP', 'RGBA'))
+                        self.assertEqual((rest.format, rest.mode), ('AVIF', 'RGBA'))
                         self.assertEqual(rest.getchannel('A').tobytes(), glow.getchannel('A').tobytes())
                         lo, hi = rest.getchannel('A').getextrema()
                         self.assertEqual((lo, hi), (0, 255), 'a clean transparent cut-out')

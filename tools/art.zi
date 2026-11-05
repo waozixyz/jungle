@@ -118,8 +118,8 @@ main :: (argc: s32, argv: **u8) -> s32 {
     ok := Palette() && Font()
     fonts: [4]string = .["assets/animal-count/latin.png", "assets/jungle/font.png", "assets/dino-paint/font.png", "assets/jungle-book/font.png"]
     for target: fonts { ok = ok && CopyFile("build/art/font.png", target) }
-    ok = ok && Sprite("art/items/frog.svg", "assets/jungle/math.webp", 32, 32)
-    ok = ok && Sprite("art/icons/dino.svg", "assets/jungle/paint.webp", 32, 32)
+    ok = ok && Sprite("art/items/frog.svg", "assets/jungle/math.avif", 32, 32)
+    ok = ok && Sprite("art/icons/dino.svg", "assets/jungle/paint.avif", 32, 32)
     if !ok { return 1 }
     Report("art: menu and fonts written to assets/\n")
     return 0

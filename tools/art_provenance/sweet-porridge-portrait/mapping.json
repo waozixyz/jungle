@@ -1,5 +1,5 @@
 {
-  "status": "All 11 portraits approved by owner: \u201cyes its prefec\u201d; integrated for tall story layouts.",
+  "status": "All 11 portraits approved by owner: “yes its prefec”; integrated for tall story layouts.",
   "runtime_sequence": "games/book/sweet_porridge.zi:story_pictures",
   "layout": "Full 2:3 artwork above separate caption paper sampled from the accepted landscape. Wide layouts retain landscape.",
   "inventory_note": "11 distinct story paintings including cover and sharing ending. Ending suggestion reuses story_pictures[0]. Category preview is a derivative cover; standalone porridge food vocabulary image is not a story scene.",
@@ -9,188 +9,188 @@
       "id": "00-cover",
       "asset": "porridge_00_cover",
       "caption": "Sweet Porridge",
-      "source": "assets/jungle-book/pages/porridge_00_cover.webp",
-      "source_sha256": "4bfee0b9b4e403b4933b4af0135b3a6809cef7fbc1a59717b19bb6cc082734a6",
+      "source": "assets/jungle-book/pages/porridge_00_cover.avif",
+      "source_sha256": "cca1bce99f2269b62a5bc202cd9badb43f57904a27c62fcbd0827bcd44a0bb24",
       "portrait": "porridge_00_cover.png",
       "status": "owner approved; integrated",
       "portrait_sha256": "052fa5aa83ed8d12c89ab0eea39a24aeaac1c2e9de7d5710559f078dfca8a79e",
       "dimensions": [
-        1024,
-        1536
+        768,
+        1152
       ],
       "prompt_index": 0,
-      "runtime": "assets/jungle-book/portraits/porridge_00_cover.webp",
-      "runtime_sha256": "30aca9687063ffbea12a929f890bff9643fb758cf26eab9a52f1eb16039f1a84"
+      "runtime": "assets/jungle-book/portraits/porridge_00_cover.avif",
+      "runtime_sha256": "21364bbcc42f1cf8b187f09e7041ab68664f9fbdce6e4ed5d561fc02d693e8c7"
     },
     {
       "id": "01-empty-cupboard",
       "asset": "porridge_01_empty_cupboard",
       "caption": "Little Rabbit and Mother Rabbit have no food. Little Rabbit goes into the woods.",
-      "source": "assets/jungle-book/pages/porridge_01_empty_cupboard.webp",
-      "source_sha256": "99ef926848ce8df4562523487fa19520e4fc4174494f4c7297827ee38e0c7c47",
+      "source": "assets/jungle-book/pages/porridge_01_empty_cupboard.avif",
+      "source_sha256": "08cec6768d0e389b5bbc5a0fce295ad7cd5eb619fb04b4ca0961821ca4deb07c",
       "portrait": "porridge_01_empty_cupboard.png",
       "status": "owner approved; integrated",
       "portrait_sha256": "114aff4a824190d9051ed25f778d9dca0bae869f6649a947a4cf8e733b75e459",
       "dimensions": [
-        1024,
-        1536
+        768,
+        1152
       ],
       "prompt_index": 1,
-      "runtime": "assets/jungle-book/portraits/porridge_01_empty_cupboard.webp",
-      "runtime_sha256": "41f93d393c62c2db4a3163056dee464c70fe15ea0b29700416b912a5162f1b68"
+      "runtime": "assets/jungle-book/portraits/porridge_01_empty_cupboard.avif",
+      "runtime_sha256": "9d923e96d340de1a650c75d200fab48c26a1250695b8d619e4f5bc074f13a9a7"
     },
     {
       "id": "02-gift",
       "asset": "porridge_02_gift",
       "caption": "In the woods, a kind badger gives Little Rabbit a little magic pot.",
-      "source": "assets/jungle-book/pages/porridge_02_gift.webp",
-      "source_sha256": "344f505fb4435d835fbb496a7c8afee39d3e2f702b077e5a6bdb6baebf43eb33",
+      "source": "assets/jungle-book/pages/porridge_02_gift.avif",
+      "source_sha256": "2ba288387250bb203e0ecef712e159ddd3afd78b7ad344ecdc08c5238941f3d8",
       "portrait": "porridge_02_gift.png",
       "status": "owner approved; integrated",
       "portrait_sha256": "a82c5cca17e246cd0019c025d8db6e9137bf1e4c30fbe67ef229524b5a1db578",
       "dimensions": [
-        1024,
-        1536
+        768,
+        1152
       ],
       "prompt_index": 2,
-      "runtime": "assets/jungle-book/portraits/porridge_02_gift.webp",
-      "runtime_sha256": "7b3884ac91b8783b4a6c352bf6af0fd7da8f86dcb379374dbee70d21ec8fd36e"
+      "runtime": "assets/jungle-book/portraits/porridge_02_gift.avif",
+      "runtime_sha256": "d52daa4fd6f35a2147509439cef2073788bb36d0dd7f43c6ee7ca0648691a305"
     },
     {
       "id": "03-magic-words",
       "asset": "porridge_03_magic_words",
-      "caption": "\u201cCook, little pot, cook!\u201d makes porridge. \u201cStop, little pot!\u201d makes it stop.",
-      "source": "assets/jungle-book/pages/porridge_03_magic_words.webp",
-      "source_sha256": "9f4d0abc1188aaf6f91b011ba4a8fa72accabb996b247a170a50f13d7f0da47e",
+      "caption": "“Cook, little pot, cook!” makes porridge. “Stop, little pot!” makes it stop.",
+      "source": "assets/jungle-book/pages/porridge_03_magic_words.avif",
+      "source_sha256": "1bc4dd527e6aa1c0a149f1e5b471452cf5690523fb3810aa00b2477a23e480d4",
       "portrait": "porridge_03_magic_words.png",
       "status": "owner approved; integrated",
       "portrait_sha256": "e2f230ced3f55c43a0f5021081b8ef98fa2e2fe51d50f446e8b44d2c367bd35e",
       "dimensions": [
-        1024,
-        1536
+        768,
+        1152
       ],
       "prompt_index": 3,
-      "runtime": "assets/jungle-book/portraits/porridge_03_magic_words.webp",
-      "runtime_sha256": "a6bc6c421d3a02c9717d3100bc4a214788961688de91b4ccf417f45b8b8d8852"
+      "runtime": "assets/jungle-book/portraits/porridge_03_magic_words.avif",
+      "runtime_sha256": "41900f2b64415c48455f12e3f2bebe86e80930f38d0fdd99277a1cf30475fbbc"
     },
     {
       "id": "04-home-meal",
       "asset": "porridge_04_home_meal",
       "caption": "Little Rabbit takes the pot home and shows Mother the words. Now they have sweet porridge to eat.",
-      "source": "assets/jungle-book/pages/porridge_04_home_meal.webp",
-      "source_sha256": "54bbb214c864bde860efefc50f8f2c47773c69d94a2b11f396f304ef91e2703a",
+      "source": "assets/jungle-book/pages/porridge_04_home_meal.avif",
+      "source_sha256": "b985c47e37d0ac969ab4d754961be2bcc40aa824a2aedf396f1112f37fbec601",
       "portrait": "porridge_04_home_meal.png",
       "status": "owner approved; integrated",
       "portrait_sha256": "942d75e175d03b2103ed832863b55553f1f63deef7440bd65b6b4d9b4fd4346c",
       "dimensions": [
-        1024,
-        1536
+        768,
+        1152
       ],
       "prompt_index": 4,
-      "runtime": "assets/jungle-book/portraits/porridge_04_home_meal.webp",
-      "runtime_sha256": "7ee06acedfe15864a93e477051fd48ae021037009477a97536291dc5dd0c7e7b"
+      "runtime": "assets/jungle-book/portraits/porridge_04_home_meal.avif",
+      "runtime_sha256": "4258230290000e5971813f476bf514f8078051efca35ee11b15e64be661121a1"
     },
     {
       "id": "05-play",
       "asset": "porridge_05_play",
       "caption": "One day, Little Rabbit goes out to play. Mother Rabbit stays at home.",
-      "source": "assets/jungle-book/pages/porridge_05_play.webp",
-      "source_sha256": "c3c4b37b5d47c4e5e94c00015ace7fd6944d24b51c60f2f4f3bf48d7f2d60ae3",
+      "source": "assets/jungle-book/pages/porridge_05_play.avif",
+      "source_sha256": "1ba755f416d8976b8a469a266b6d892c76d455aa79d79dab30d0f256013ece90",
       "portrait": "porridge_05_play.png",
       "status": "owner approved; integrated",
       "portrait_sha256": "1be28f6a2884d75c2bd5be33d3b7a46e11cff091af9db5e5308e13ab51b898d2",
       "dimensions": [
-        1024,
-        1536
+        768,
+        1152
       ],
       "prompt_index": 5,
-      "runtime": "assets/jungle-book/portraits/porridge_05_play.webp",
-      "runtime_sha256": "6b2ff5d70689cb8501ee6d97611c73583fee7d782c4d1f972e3ec957246cf99e"
+      "runtime": "assets/jungle-book/portraits/porridge_05_play.avif",
+      "runtime_sha256": "d6ae9d9979a94aaeef409a623c684d641c98eadb0014087f8a9d7ce089885e23"
     },
     {
       "id": "06-forgotten",
       "asset": "porridge_06_forgotten",
-      "caption": "Mother says, \u201cCook, little pot, cook!\u201d But she forgets the words to stop it.",
-      "source": "assets/jungle-book/pages/porridge_06_forgotten.webp",
-      "source_sha256": "f5dc9059be80aeb9196745150f2eac8c389c2c92e91cab9f94f4775384112c2d",
+      "caption": "Mother says, “Cook, little pot, cook!” But she forgets the words to stop it.",
+      "source": "assets/jungle-book/pages/porridge_06_forgotten.avif",
+      "source_sha256": "ce153390dcbd29c90d22a6f4273be067a85d3045bec0bea950e130154efefb05",
       "portrait": "porridge_06_forgotten.png",
       "status": "owner approved; integrated",
       "portrait_sha256": "6de76fcd2178ce2738dbcb17e35f1ba7d79ec14a0848c400a03ad45184e9cc3f",
       "dimensions": [
-        1024,
-        1536
+        768,
+        1152
       ],
       "prompt_index": 6,
-      "runtime": "assets/jungle-book/portraits/porridge_06_forgotten.webp",
-      "runtime_sha256": "bfa96d69c5bf02b3343c22323ff50735a483d582dfa46b0495b015e69431a3d1"
+      "runtime": "assets/jungle-book/portraits/porridge_06_forgotten.avif",
+      "runtime_sha256": "d1fa38f7f139e1ebdb11606056c312e6b67d545a98875d2389b45c44227bfe3e"
     },
     {
       "id": "07-kitchen",
       "asset": "porridge_07_kitchen",
       "caption": "The pot keeps cooking. Porridge spills over the table and fills the kitchen.",
-      "source": "assets/jungle-book/pages/porridge_07_kitchen.webp",
-      "source_sha256": "47755ed1ae2a9b758a76b5ee4911dedaf90da3da34b2e605c0333c00b48b053e",
+      "source": "assets/jungle-book/pages/porridge_07_kitchen.avif",
+      "source_sha256": "a7fc07428a44f75b6fc05ebee98f835a8ae59c07cb8712b7f6c277b2acd09470",
       "portrait": "porridge_07_kitchen.png",
       "status": "owner approved; integrated",
       "portrait_sha256": "fc2116b10b9781f12d9690165e89de4d5adea0d615476ea7f69c6b25df3b8e68",
       "dimensions": [
-        1024,
-        1536
+        768,
+        1152
       ],
       "prompt_index": 7,
-      "runtime": "assets/jungle-book/portraits/porridge_07_kitchen.webp",
-      "runtime_sha256": "a60d6c9add7dfe4443a64f2de085df9da6ba21937b468d51d4798801df78d872"
+      "runtime": "assets/jungle-book/portraits/porridge_07_kitchen.avif",
+      "runtime_sha256": "7a720e460a263520125ae179186011c227703b551688d2e0d6b194e3d006f566"
     },
     {
       "id": "08-lane",
       "asset": "porridge_08_lane",
       "caption": "The porridge flows out of the door and down the lane. Little Rabbit sees it and hurries home.",
-      "source": "assets/jungle-book/pages/porridge_08_lane.webp",
-      "source_sha256": "8a84f8a71879c4aee1c42ef703bb602a511d7316c9940571a3c670628851df59",
+      "source": "assets/jungle-book/pages/porridge_08_lane.avif",
+      "source_sha256": "71d94911b37d37e53a55d98dbaad2b94dc5cac82b066f6b2770fad661af2d255",
       "portrait": "porridge_08_lane.png",
       "status": "owner approved; integrated",
       "portrait_sha256": "3d94c76ad44fa2ab5fdb39190c70958e1e990da274caf4387b3f02ad9f59f3e7",
       "dimensions": [
-        1024,
-        1536
+        768,
+        1152
       ],
       "prompt_index": 8,
-      "runtime": "assets/jungle-book/portraits/porridge_08_lane.webp",
-      "runtime_sha256": "806f519ecd901aa832e288d40c9b8ce9860f9c542aec3a94ffded8e6c8fe3fe3"
+      "runtime": "assets/jungle-book/portraits/porridge_08_lane.avif",
+      "runtime_sha256": "487fd7fae1232df4e4796f6e45a2be6ac7447d59bcbdc93af7e21fa55cc061f4"
     },
     {
       "id": "09-stop",
       "asset": "porridge_09_stop",
-      "caption": "\u201cStop, little pot!\u201d calls Little Rabbit. At once, the pot stops cooking.",
-      "source": "assets/jungle-book/pages/porridge_09_stop.webp",
-      "source_sha256": "deb561efff7b7e5e607f1e530d8cc02c368c2127f23e143545f0b01541452385",
+      "caption": "“Stop, little pot!” calls Little Rabbit. At once, the pot stops cooking.",
+      "source": "assets/jungle-book/pages/porridge_09_stop.avif",
+      "source_sha256": "8c70be28cce4bf04ad0a70ae536c1a1a2d26f96b8f95a03abd7575c24c253ef6",
       "portrait": "porridge_09_stop.png",
       "status": "owner approved; integrated",
       "portrait_sha256": "1daaa604c3399afc04486b3de9b41f916f6abc99024e93636a2f6dbf9d11894f",
       "dimensions": [
-        1024,
-        1536
+        768,
+        1152
       ],
       "prompt_index": 9,
-      "runtime": "assets/jungle-book/portraits/porridge_09_stop.webp",
-      "runtime_sha256": "75a505022f2c1cb11fb46a06b147063e09f5c2bfbdfb90367f8fe13e488d6f74"
+      "runtime": "assets/jungle-book/portraits/porridge_09_stop.avif",
+      "runtime_sha256": "a6886f2e3aeb008049a0362561543bf9dcf33a29b6b6f1f4ad91e5ad12781ec5"
     },
     {
       "id": "10-sharing",
       "asset": "porridge_10_sharing",
       "caption": "Everyone brings a bowl and helps eat the porridge. Soon the lane is clear, and no one is hungry.",
-      "source": "assets/jungle-book/pages/porridge_10_sharing.webp",
-      "source_sha256": "ffffcd0be27b50463243cda2e1f8009451ae0e48c10007582a8da6ab66586725",
+      "source": "assets/jungle-book/pages/porridge_10_sharing.avif",
+      "source_sha256": "8b2d15142cb69aa5861eef1c1f51e8e982c28d7e0c08742709f6c362af7b9a37",
       "portrait": "porridge_10_sharing.png",
       "status": "owner approved; integrated",
       "portrait_sha256": "50d86b99c7f3661b5291e08bddfdcb4159da3378902e20fe5be0fdb60618907a",
       "dimensions": [
-        1024,
-        1536
+        768,
+        1152
       ],
       "prompt_index": 10,
-      "runtime": "assets/jungle-book/portraits/porridge_10_sharing.webp",
-      "runtime_sha256": "b5213a594668311d5a796fbe529f9d82c619d4a0d7e1f4f162c048c616318eb1"
+      "runtime": "assets/jungle-book/portraits/porridge_10_sharing.avif",
+      "runtime_sha256": "f6aa4db520c981ccd93f10071185397ddab3c47fcfe213ab58cd6dd63f18fb46"
     }
   ],
   "excluded_drafts": "rejected-drafts/ contains obsolete blank-panel or extra-character outputs, excluded from this review."

@@ -14,9 +14,9 @@ def main():
     target = ROOT / 'assets/jungle-book/counting'
     target.mkdir(parents=True, exist_ok=True)
     for name in ANIMALS:
-        with Image.open(ROOT / 'assets/jungle-book/items' / (name + '.webp')) as image:
+        with Image.open(ROOT / 'assets/jungle-book/items' / (name + '.avif')) as image:
             export_painted_image(image.convert('RGBA').resize((SIZE, SIZE), Image.Resampling.LANCZOS),
-                                 target / (name + '.webp'))
+                                 target / (name + '.avif'))
     print(f'Prepared {len(ANIMALS)} transparent {SIZE} px counting pictures')
 
 

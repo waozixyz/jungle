@@ -8,6 +8,8 @@ import json
 from pathlib import Path
 import unittest
 from PIL import Image
+from world_map_geometry import selectable_point
+from design_size import design_size
 
 ROOT = Path(__file__).resolve().parents[1]
 SPEC = json.loads((ROOT/'tools/title_world_map.json').read_text())
@@ -17,20 +19,31 @@ MAP = SCENES[SPEC['scene']]
 VIEWS = {'landscape': MAP, 'portrait': MAP['portrait']}
 
 
-def chunk(path):
-    """The WebP image chunk: VP8L is lossless, VP8 lossy."""
-    data = Path(path).read_bytes()
-    assert data[:4] == b'RIFF' and data[8:12] == b'WEBP', path
-    at = 12
-    while at < len(data):
-        name, size = data[at:at + 4], int.from_bytes(data[at + 4:at + 8], 'little')
-        if name in (b'VP8L', b'VP8 '):
-            return name
-        at += 8 + size + size % 2
-    raise AssertionError(f'{path} has no image chunk')
+def exact(path):
+    row = json.loads((ROOT/'tools/canonical_avif.json').read_text())['files'][Path(path).relative_to(ROOT).as_posix()]
+    with Image.open(path) as image:
+        assert image.format == 'AVIF'
+        if row['lossless']:
+            import hashlib
+            assert hashlib.sha256(image.convert('RGBA').tobytes()).hexdigest() == row['source_rgba_sha256']
+    return row['lossless']
 
 
 class WorldMapTest(unittest.TestCase):
+    def test_generator_uses_one_rect_despite_legacy_portrait_geometry(self):
+        import sys
+        sys.path.insert(0,str(ROOT/'tools'))
+        try:
+            from title_world_map import SharedGeometry
+            mark={'rects':{'landscape':[100,200,320,180],'portrait':[900,20,12,90]},'rotation':24}
+            original=[10,20,160,90]
+            polygon=[[10,20],[170,20],[170,110],[10,110]]
+            landscape=SharedGeometry(mark,original,polygon)
+            portrait=SharedGeometry(mark,original,polygon)
+            self.assertEqual(landscape,portrait)
+            self.assertEqual(landscape,([100,200,320,180],[[100,200],[420,200],[420,380],[100,380]]))
+        finally: sys.path.pop(0)
+
     def test_every_scene_is_a_landmark(self):
         covered = set()
         for mark in SPEC['landmarks']:
@@ -55,8 +68,12 @@ class WorldMapTest(unittest.TestCase):
                     self.assertEqual(spot['target'], mark['target'], mark['id'])
                 else:
                     self.assertEqual(spot['target'], 'locked:' + mark['id'], mark['id'])
-                self.assertEqual(spot['rest'], f'assets/jungle/title/world-map/{mark["id"]}.webp')
-                self.assertEqual(spot['glow'], f'assets/jungle/title/world-map/{mark["id"]}-glow.webp')
+                if mark.get('terrain_region'):
+                    self.assertEqual((spot['rest'], spot['glow']), ('', ''))
+                    self.assertEqual(spot['target'], 'scene:desert')
+                else:
+                    self.assertEqual(spot['rest'], f'assets/jungle/title/world-map/{mark["id"]}.avif')
+                    self.assertEqual(spot['glow'], f'assets/jungle/title/world-map/{mark["id"]}-glow.avif')
                 self.assertNotIn('sign', spot)
         self.assertTrue(any(m['target'].startswith('locked:') for m in SPEC['landmarks']), 'nothing beyond the desert')
         self.assertIs(MAP.get('back'), True)
@@ -64,37 +81,50 @@ class WorldMapTest(unittest.TestCase):
     def test_landmarks_stay_apart_and_inside(self):
         for orientation, view in VIEWS.items():
             width, height = (view.get('width', DATA['width']), view.get('height', DATA['height']))
-            boxes = []
             for spot in view['hotspots']:
                 x, y, w, h = spot['glow_rect']
                 self.assertTrue(0 <= x and 0 <= y and x + w <= width and y + h <= height, (orientation, spot['id']))
                 # The corner controls (Back, sound, collection, map) stay clear.
                 self.assertGreater(y + h * 0.25, height * 0.04, (orientation, spot['id']))
-                boxes.append((spot['id'], x, y, x + w, y + h))
-            for i, a in enumerate(boxes):
-                for b in boxes[i + 1:]:
-                    across = max(0, min(a[3], b[3]) - max(a[1], b[1])) * max(0, min(a[4], b[4]) - max(a[2], b[2]))
-                    smaller = min((a[3] - a[1]) * (a[4] - a[2]), (b[3] - b[1]) * (b[4] - b[2]))
-                    # Glow boxes may touch; the hit areas are the silhouettes.
-                    self.assertLess(across, smaller * 0.35, (orientation, a[0], b[0]))
+                for size in ((360,800),(420,900),(960,600)):
+                    _,_,radius = selectable_point(view,spot,size)
+                    self.assertGreaterEqual(radius,1 if spot['target'].startswith('locked:') else 3,
+                                            (orientation,spot['id'],size,'covered or impractical hit'))
+
+    def test_full_painting_fit_keeps_terrain_edges_in_both_orientations(self):
+        import sys
+        sys.path.insert(0,str(ROOT/'tools'))
+        try:
+            from title_scenes import Load,MapSafe
+            _,scenes,_,hotspots = Load()
+            for index,scene in enumerate(scenes):
+                expected = [0,0,3072,2048] if scene['name'] in ('map','map-portrait') else [0,0,0,0]
+                self.assertEqual(MapSafe(scene,[h for h in hotspots if h['scene']==index]),expected)
+        finally:
+            sys.path.pop(0)
 
     def test_runtime_images(self):
         for orientation, view in VIEWS.items():
             size = (view.get('width', DATA['width']), view.get('height', DATA['height']))
             for key in ('image', 'low'):
                 path = ROOT/view[key]
-                self.assertEqual(path.suffix, '.webp')
-                self.assertEqual(chunk(path), b'VP8 ', path)
+                self.assertEqual(path.suffix, '.avif')
+                self.assertFalse(exact(path), path)
                 with Image.open(path) as picture:
                     self.assertEqual(picture.mode, 'RGB')
                     if key == 'image':
-                        self.assertEqual(picture.size, size)
+                        self.assertEqual(design_size(path, picture), size)
                     else:
                         self.assertEqual(picture.width, 240)
             for spot in view['hotspots']:
                 for key in ('rest', 'glow'):
+                    if not spot[key]:
+                        continue
                     path = ROOT/spot[key]
-                    self.assertEqual(chunk(path), b'VP8L', path)
+                    exact(path)
+                    # Cut-out standard: transparent art keeps full 4:4:4 color.
+                    row = json.loads((ROOT/'tools/canonical_avif.json').read_text())['files'][spot[key]]
+                    self.assertTrue(row['alpha'] and row['subsampling'] == '444', path)
                     with Image.open(path) as picture:
                         self.assertEqual(picture.mode, 'RGBA')
                         # Both share the glow rectangle.
@@ -102,15 +132,24 @@ class WorldMapTest(unittest.TestCase):
                         self.assertAlmostEqual(picture.width / picture.height, w / h, delta=0.05)
                         self.assertEqual(picture.getchannel('A').getextrema()[0], 0)
         self.assertEqual(sorted(p.name for p in (ROOT/'assets/jungle/title/world-map').iterdir()),
-                         sorted(n for m in SPEC['landmarks'] for n in (m['id'] + '.webp', m['id'] + '-glow.webp')))
+                         sorted(n for m in SPEC['landmarks'] for n in (m['id'] + '.avif', m['id'] + '-glow.avif')))
         self.assertFalse(list((ROOT/'assets/jungle/title').glob('world-map*.png')))
 
     def test_paper_and_cue_match_the_app(self):
         title = (ROOT/'host/jungle_title.zi').read_text()
         self.assertIn(f'TITLE_MAP_PAPER :: 0x{SPEC["paper"]}ff', title)
-        with Image.open(ROOT/MAP['image']) as plate:
-            edge = plate.convert('RGB').getpixel((0, plate.height // 2))
-        self.assertLess(max(abs(a - b) for a, b in zip(edge, bytes.fromhex(SPEC['paper']))), 6)
+        self.assertEqual(SPEC['canvas'], [3072, 2048])
+        self.assertEqual((MAP['width'], MAP['height']), tuple(SPEC['canvas']))
+        centers = {m['id']: m['center'] for m in SPEC['landmarks']}
+        for mark in SPEC['landmarks']:
+            x, y, width, height = next(h['glow_rect'] for h in MAP['hotspots'] if h['id'] == mark['id'])
+            self.assertAlmostEqual(x + width/2, centers[mark['id']][0], delta=.5)
+            self.assertAlmostEqual(y + height/2, centers[mark['id']][1], delta=.5)
+        self.assertEqual(MAP['hotspots'], MAP['portrait']['hotspots'], 'one map must have identical hit shapes and placement')
+        for field in ('width', 'height', 'image', 'low', 'exploration'):
+            self.assertEqual(MAP[field], MAP['portrait'][field], field)
+        self.assertEqual(MAP['exploration'], [dict(area=m['id'], center=m['center'])
+                                            for m in SPEC['landmarks'] if not m['target'].startswith('locked:')])
         self.assertTrue((ROOT/'assets/jungle/sounds/not-yet.wav').is_file())
         menu = (ROOT/'host/jungle_menu.zi').read_text()
         self.assertRegex(menu, r'TitleMapEntry\(scene\) && TitleMapButton\(')

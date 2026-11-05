@@ -307,7 +307,7 @@ ASCII and Latin-1 letters from GNU Unifont. Picture Book's pages and the
 transparent cut-outs used by Animal Counting and the ABC Book are drawn one
 picture at a time with Codex's built-in imagegen tool, in the style of the
 title-screen covers (`local/art-development/title-covers.png`). Their prompts are kept
-in `tools/book_prompts.json`; the pages are 1254 pixel WebP files in
+in `tools/book_prompts.json`; the pages are 1254 pixel AVIF files in
 `assets/jungle-book/pages`. `tools/counting_art.py` makes transparent 128 pixel copies for both counting games,
 keeping their full-size sources intact. `tools/book_art.py` makes the book covers from the
 first pages and writes the page and narration tables.
@@ -382,14 +382,17 @@ activity/directory and language, split at 4 MiB of source data. An individual
 large picture stays whole. `asset-packs.json` maps each original path to a
 pack, byte offset, compressed length, original size, ZIP method and SHA-256.
 The browser fetches a pack when an asset is needed and decodes only that entry
-with its built-in decompressor. WAV compression is lossless. Canonical JPEG
-artwork has migrated to quality-90 WebP at its original dimensions; original
-JPEG bytes remain in ignored backups. Canonical PNG and SVG artwork stays intact.
-Native, Android and browser hosts share capped WebP runtime derivatives: book
-pages and transparent artwork at 1024 pixels, book covers at 512 pixels, and
-Jigsaw pictures at 1200 pixels. WebP sources already within their cap are
-reused byte for byte. The seek index records source fingerprints and actual
-WebP filenames. Duplicate contents share an
+with its built-in decompressor. WAV compression is lossless. Runtime artwork
+uses AVIF at its full existing dimensions: opaque paintings use q35, 8-bit
+YUV420/full range at speed6; existing book-cover previews retain q50 fidelity.
+Jigsaw puzzle pictures, transparent layers, cutouts, masks and exact painted assets preserve every
+RGBA value through lossless identity-matrix YUV444 AVIF. Platform icons and
+bitmap fonts keep the exact PNG exceptions in `tools/asset_png_allowlist.json`.
+The source WebPs and earlier canonical originals remain in ignored backups.
+Native, Android and browser staging reuse shipped AVIF byte for byte, without
+resizing or a second lossy encode. Separate 128px previews support fast loading.
+The seek index records source fingerprints and actual AVIF filenames.
+Duplicate contents share an
 entry, and content-named packs remain cacheable across releases. The pack cache
 holds at most 16 MiB; simultaneous reads share downloads and failed downloads
 can retry. Pack and entry hashes reject damaged content. Menu pictures and

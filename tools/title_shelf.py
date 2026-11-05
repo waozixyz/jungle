@@ -13,7 +13,7 @@ for portrait,v in [(False,s),(True,s['portrait'])]:
  x,y,w,ht=[345,625,995,230] if not portrait else [125,965,740,335]
  story=next(h for h in v['hotspots'] if h['id']=='fairy-tale')
  story.update(glow_rect=[x,y,w,ht],polygon=[[x,y],[x+w-1,y],[x+w-1,y+ht-1],[x,y+ht-1]])
- story['glow']=f'assets/jungle/title/glow/{stem}-fairy-tale-hover.webp'
+ story['glow']=f'assets/jungle/title/glow/{stem}-fairy-tale-hover.avif'
  scratch=Path('local/art-development/title-runtime-exports')
  scratch.mkdir(parents=True,exist_ok=True)
  original=scratch/(Path(story['glow']).stem+'.png')

@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+- Download about eight times less picture data: every painting and cut-out now ships as a compact AVIF image.
+- Keep one shared world map in both orientations, with clouds clearing around places you visit.
+- Fix a crash when leaving a large Coloring Book picture.
+
 ## 0.1.38
 
 Released 2026-11-05.

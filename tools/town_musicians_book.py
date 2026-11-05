@@ -16,7 +16,7 @@ def main(export=False, landscape=False):
         for row, scene in zip(rows, mapping['scenes']):
             source = ROOT/'local/art-development/town-musicians-portrait'/scene['portrait']
             assert hashlib.sha256(source.read_bytes()).hexdigest() == scene['portrait_sha256']
-            target = ROOT/f"assets/jungle-book/portraits/{row['asset']}.webp"
+            target = ROOT/f"assets/jungle-book/portraits/{row['asset']}.avif"
             export_image(source, target, 'book-page')
             scene.update(status='Integrated at explicit owner request', runtime=str(target.relative_to(ROOT)), runtime_sha256=hashlib.sha256(target.read_bytes()).hexdigest())
         target = ROOT/'tools/art_provenance/town-musicians-portrait/mapping.json'
@@ -38,8 +38,8 @@ def main(export=False, landscape=False):
     def array(name, values, kind='string'):
         nonlocal out
         out += f"bremen_{name}: [{len(values)}]{kind} = .[" + ', '.join(literal(v,kind) for v in values) + '];\n'
-    array('pictures', [f"assets/jungle-book/pages/{r['asset']}.webp" for r in rows])
-    array('portraits', [f"assets/jungle-book/portraits/{r['portrait_asset']}.webp" for r in rows])
+    array('pictures', [f"assets/jungle-book/pages/{r['asset']}.avif" for r in rows])
+    array('portraits', [f"assets/jungle-book/portraits/{r['portrait_asset']}.avif" for r in rows])
     for name, values, kind in page_geometry(rows):
         array(name, values, kind)
     for lang in ('en','de','es'):

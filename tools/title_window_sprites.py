@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Trim generated frames to one shared canvas, remove disconnected alpha dust,
-and export exact WebP. Sources are private watercolor animation masters."""
+and export exact AVIF. Sources are private watercolor animation masters."""
 import json
 from pathlib import Path
 import numpy as np
@@ -32,7 +32,7 @@ def sheet(name,source,size):
         f=f.crop((0,top,cell,bottom));f.thumbnail(size,Image.Resampling.LANCZOS)
         atlas.paste(f,(i*size[0]+(size[0]-f.width)//2,(size[1]-f.height)//2))
     master=MASTER/f'{name}-atlas.png';atlas.save(master)
-    path=OUT/f'{name}.webp';export_image(master,path,'exact')
+    path=OUT/f'{name}.avif';export_image(master,path,'exact')
     return path.relative_to(ROOT).as_posix(),[8,8,*size]
 
 def main():

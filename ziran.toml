@@ -1,6 +1,6 @@
 [package]
 name = "Jungle"
-module_roots = ["src", "host", "retro", "games/paint", "games/piano"]
+module_roots = ["src", "host", "retro", "games/paint", "games/piano", "games/abc", "games/animal", "games/beach_families", "games/book", "games/drums", "games/fishing", "games/garden", "games/hide_seek", "games/jigsaw", "games/matching", "games/numbers", "games/shapes"]
 # Kryon's Android host (android_run) draws the Frame in src/app.zi.
 bridge_modules = ["app"]
 

@@ -41,13 +41,13 @@ function reset(){
  fs.clear();deferred.clear();imageLoads.clear();shownLog.length=0;
 }
 (async()=>{
- const scene=language=>'assets/jungle/title/scene-'+language+'.webp',cover='assets/jungle/covers/picture-book.webp';
- const page=language=>'assets/jungle-book/pages/fruits-'+language+'.webp';
+ const scene=language=>'assets/jungle/title/scene-'+language+'.avif',cover='assets/jungle/covers/picture-book.avif';
+ const page=language=>'assets/jungle-book/pages/fruits-'+language+'.avif';
  activityIndex=Promise.resolve({activities:{0:{files:[cover],cover,speech:{en:{normal:[]},de:{normal:[]},es:{normal:[]}},
   books:['en','de','es'].map(language=>({id:'fruits-'+language,cover,files:{landscape:[page(language)],portrait:[page(language)]},speech:{[language]:{normal:[]}}}))}}});
  sceneIndex=Promise.resolve({[scene('en')]:[scene('en')],[scene('de')]:[scene('de')],[scene('es')]:[scene('es')],
-  'assets/jungle/title/here.webp':['assets/jungle/title/here.webp'],'assets/jungle/title/broken.webp':['assets/jungle/title/broken.webp'],
-  'assets/jungle/title/nameless.webp':['assets/jungle/title/nameless.webp']});
+  'assets/jungle/title/here.avif':['assets/jungle/title/here.avif'],'assets/jungle/title/broken.avif':['assets/jungle/title/broken.avif'],
+  'assets/jungle/title/nameless.avif':['assets/jungle/title/nameless.avif']});
  for(const language of ['en','de','es']){
   reset();Module.jungleLanguage(language);
   const opening=siteCopy[language].opening;
@@ -72,18 +72,18 @@ function reset(){
   check(language+' book ready',Module.jungleActivityReady(0,language,'normal',GAME[language],'')===1&&!screen().shown,screen());
  }
  // A scene whose pictures are already here never shows the loading screen.
- reset();Module.jungleLanguage('en');fs.add('/assets/jungle/title/here.webp');
- Module.jungleSceneReady('assets/jungle/title/here.webp','Campus');await settle();await pause(JungleActivityLoader.quietDelay+50);
- check('scene already here changes without a loading screen',Module.jungleSceneReady('assets/jungle/title/here.webp','Campus')===1&&!shownLog.some(entry=>entry.shown),shownLog);
+ reset();Module.jungleLanguage('en');fs.add('/assets/jungle/title/here.avif');
+ Module.jungleSceneReady('assets/jungle/title/here.avif','Campus');await settle();await pause(JungleActivityLoader.quietDelay+50);
+ check('scene already here changes without a loading screen',Module.jungleSceneReady('assets/jungle/title/here.avif','Campus')===1&&!shownLog.some(entry=>entry.shown),shownLog);
  // A failed scene shows the screen at once, named, with Try again: never
  // waiting for quietDelay, which is too long to pass here.
  const quietDelay=JungleActivityLoader.quietDelay;JungleActivityLoader.quietDelay=1e9;
- reset();Module.jungleSceneReady('assets/jungle/title/broken.webp','Market');await settle();
- deferred.get('assets/jungle/title/broken.webp').reject(Error('offline'));await settle();
+ reset();Module.jungleSceneReady('assets/jungle/title/broken.avif','Market');await settle();
+ deferred.get('assets/jungle/title/broken.avif').reject(Error('offline'));await settle();
  check('failed scene shows Try again at once',activityLoader.state?.status==='error'&&screen().shown&&screen().retry&&screen().title==='Market',[screen(),activityLoader.state?.status]);
  JungleActivityLoader.quietDelay=quietDelay;
  // A scene without a name shows no heading at all.
- reset();Module.jungleSceneReady('assets/jungle/title/nameless.webp','');await settle();await pause(JungleActivityLoader.quietDelay+50);
+ reset();Module.jungleSceneReady('assets/jungle/title/nameless.avif','');await settle();await pause(JungleActivityLoader.quietDelay+50);
  check('nameless scene shows no heading',screen().shown&&!screen().headed&&screen().title==='',screen());
 })().catch(error=>log.push({name:'harness',ok:false,detail:String(error&&error.stack||error)}))
  .finally(()=>document.body.setAttribute('data-results',JSON.stringify(log)));

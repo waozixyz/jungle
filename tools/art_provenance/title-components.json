@@ -1,0 +1,414 @@
+{
+  "owner_request": "Independently move, resize and rotate the Treehouse tiger and the sign boards and posts.",
+  "operation": "Exact crops of existing transparent art; source-pixel board/post partition; alpha-derived board glows. No regenerated artwork.",
+  "sources": {
+    "tigers": [
+      {
+        "source": "assets/jungle/title/layers/treehouse-foreground.avif",
+        "output": "tiger-landscape.png",
+        "source_canvas": [
+          1672,
+          941
+        ],
+        "rect": [
+          280,
+          146,
+          490,
+          547
+        ],
+        "note": "Exact source RGBA inside crop; tiny distant source alpha specks excluded. No regeneration.",
+        "source_sha256": "364241560690f120f7239c929ae214a7db0f54b1d77c42c9d9571f70487ffeb2"
+      },
+      {
+        "source": "assets/jungle/title/layers/treehouse-portrait-foreground.avif",
+        "output": "tiger-portrait.png",
+        "source_canvas": [
+          1024,
+          1536
+        ],
+        "rect": [
+          199,
+          396,
+          432,
+          493
+        ],
+        "note": "Exact source RGBA inside crop; tiny distant source alpha specks excluded. No regeneration.",
+        "source_sha256": "ed5d30e71b04541c40d26ecfaeb607bb54b1944da1ca897a67f83d09d262b657"
+      }
+    ],
+    "signs": [
+      {
+        "source": "local/art-development/sign-reference/wood-arrow-left.png",
+        "board": "sign-left-board.png",
+        "post": "sign-left-post.png",
+        "canvas": [
+          1254,
+          1254
+        ],
+        "rect": [
+          0,
+          0,
+          1254,
+          1254
+        ],
+        "reconstruction": "exact RGBA on all nontransparent source pixels",
+        "note": "Source partition; hidden post above board not invented. Board drawn after post. Keep label with board.",
+        "source_sha256": "843a4e73de222b159d2593cc7c067b8c29a78f79829c391874159a6f13f457ca"
+      },
+      {
+        "source": "local/art-development/sign-reference/wood-arrow-right.png",
+        "board": "sign-right-board.png",
+        "post": "sign-right-post.png",
+        "canvas": [
+          1254,
+          1254
+        ],
+        "rect": [
+          0,
+          0,
+          1254,
+          1254
+        ],
+        "reconstruction": "exact RGBA on all nontransparent source pixels",
+        "note": "Source partition; hidden post above board not invented. Board drawn after post. Keep label with board.",
+        "source_sha256": "9cf385d16cc09ed8062f37f8330eb551cc80538abfbbd96f7fbadb7b9db0be3e"
+      },
+      {
+        "source": "local/art-development/sign-reference/wood-arrow-diagonal-left.png",
+        "board": "sign-diagonal-left-board.png",
+        "post": "sign-diagonal-left-post.png",
+        "canvas": [
+          1254,
+          1254
+        ],
+        "rect": [
+          0,
+          0,
+          1254,
+          1254
+        ],
+        "reconstruction": "exact RGBA on all nontransparent source pixels",
+        "note": "Source partition; hidden post above board not invented. Board drawn after post. Keep label with board.",
+        "source_sha256": "f83cffd5f9708185785b77624b7664cc52659ea3ea09494b6744b563372760e1"
+      },
+      {
+        "source": "local/art-development/sign-reference/wood-arrow-diagonal-right.png",
+        "board": "sign-diagonal-right-board.png",
+        "post": "sign-diagonal-right-post.png",
+        "canvas": [
+          1254,
+          1254
+        ],
+        "rect": [
+          0,
+          0,
+          1254,
+          1254
+        ],
+        "reconstruction": "exact RGBA on all nontransparent source pixels",
+        "note": "Source partition; hidden post above board not invented. Board drawn after post. Keep label with board.",
+        "source_sha256": "42232504631165cf4781a952fe0df329dfc94b5c3df7a561f08f3088d2e8c714"
+      },
+      {
+        "source": "local/art-development/sign-reference/wood-arrow-up.png",
+        "board": "sign-up-board.png",
+        "post": "sign-up-post.png",
+        "canvas": [
+          1254,
+          1254
+        ],
+        "rect": [
+          0,
+          0,
+          1254,
+          1254
+        ],
+        "reconstruction": "exact RGBA on all nontransparent source pixels",
+        "note": "Source partition; hidden post above board not invented. Board drawn after post. Keep label with board.",
+        "source_sha256": "46f3398ea8661fff2b0b41bcd5635c8c4f240ca9df4fa4c2cf494e4c5e276e18"
+      }
+    ]
+  },
+  "runtime": {
+    "assets/jungle/title/objects/sign-right-board.avif": {
+      "source": "local/art-development/map-room-layers/exports/sign-right-board.png",
+      "source_sha256": "d6ae6b5a1d6a0b8edafbdf5e1960afec0435be2f6a655e63470b125c74d6b613",
+      "source_bytes": 757501,
+      "source_rgba_sha256": "0705445f5423c0c28e8396036b96761ea3a8d56e6904fde4dd0d90b65bd6450d",
+      "dimensions": [
+        871,
+        459
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "3f670fb8ba8562e3cab9881176722ffdf9dce801ee5110e41b940639f18161a2",
+      "alpha_sha256": "3f670fb8ba8562e3cab9881176722ffdf9dce801ee5110e41b940639f18161a2",
+      "rgba_sha256": "cdbd0b25ad359a868b7fd6ce74cac8c98f56d43e3e3917dd4e2ccc180cece4f9",
+      "sha256": "5c6e0c8bbf9f63e14d8e6a3ffa572eaf9160c556d2ec620ce531fd9716bf4cc3",
+      "bytes": 12731,
+      "quality": null,
+      "lossless": true,
+      "subsampling": "444",
+      "speed": 6
+    },
+    "assets/jungle/title/objects/sign-right-board-glow.avif": {
+      "source": "local/art-development/map-room-layers/exports/sign-right-board-glow.png",
+      "source_sha256": "79868b1b83c2fd9fabeebc2eca916c651de891bb0e032a47d3f367e2b2fead87",
+      "source_bytes": 41015,
+      "source_rgba_sha256": "f4e2efbd0ae364ac1a4f58d443b56b2cc4f2b404a8556a0c577749860628b182",
+      "dimensions": [
+        871,
+        459
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "3f670fb8ba8562e3cab9881176722ffdf9dce801ee5110e41b940639f18161a2",
+      "alpha_sha256": "3f670fb8ba8562e3cab9881176722ffdf9dce801ee5110e41b940639f18161a2",
+      "rgba_sha256": "bf2898062fca76da296a866347b38ea719f1117addf29c0d98b06a803c1763ab",
+      "sha256": "79b4902b0c5e8f8341664765f0a6d7168844598b5c389f9373edd906bfdbe25d",
+      "bytes": 8127,
+      "quality": null,
+      "lossless": true,
+      "subsampling": "444",
+      "speed": 6
+    },
+    "assets/jungle/title/objects/sign-right-post.avif": {
+      "source": "local/art-development/map-room-layers/exports/sign-right-post.png",
+      "source_sha256": "ef8e1f3747d04fd6cc6a5abe3f72139de196ed0336d8a6e328b5320867ee3983",
+      "source_bytes": 144516,
+      "source_rgba_sha256": "7354ffe137c7fa895d8aaeb5a75dafc64b3d8f03488a23c3332bd15562cb4964",
+      "dimensions": [
+        134,
+        398
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "77ee2e0b3ee2c8bfbf1d50a5af3576698cca4606beca9c4929b99a6e186fe0ce",
+      "alpha_sha256": "77ee2e0b3ee2c8bfbf1d50a5af3576698cca4606beca9c4929b99a6e186fe0ce",
+      "rgba_sha256": "57f210e3cf9f8c1608e4940adf09b94e9d2d0b0c22d05c3f58c94226e60c1ffa",
+      "sha256": "145bd3dc0a2fb5e10a7c243108b86972df144d88468323e21c7a380fb578de92",
+      "bytes": 3961,
+      "quality": null,
+      "lossless": true,
+      "subsampling": "444",
+      "speed": 6
+    },
+    "assets/jungle/title/objects/sign-left-board.avif": {
+      "source": "local/art-development/map-room-layers/exports/sign-left-board.png",
+      "source_sha256": "cbd2c0f554d6b36e01aab65d6fb388b976c19e13b89ca75c559b6a80e88b5b30",
+      "source_bytes": 759567,
+      "source_rgba_sha256": "c62b2dbaa8b92203369c9104787560d2bf125aef1007fdab927ef64a385b3d53",
+      "dimensions": [
+        871,
+        459
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "220aef796fbacec0d81106e442a1f82e51d7cf6e6f24980f8b5ffa998d3cbc99",
+      "alpha_sha256": "220aef796fbacec0d81106e442a1f82e51d7cf6e6f24980f8b5ffa998d3cbc99",
+      "rgba_sha256": "ccf3a6f277d8609a51c8577b6ca6eb598fe23711a80f84e57091b6c0692aa029",
+      "sha256": "40fa88fad26f777ba2a43d7aeb2c14e69d643b4268de6aad2fa3d69b6684eec0",
+      "bytes": 12974,
+      "quality": null,
+      "lossless": true,
+      "subsampling": "444",
+      "speed": 6
+    },
+    "assets/jungle/title/objects/sign-left-board-glow.avif": {
+      "source": "local/art-development/map-room-layers/exports/sign-left-board-glow.png",
+      "source_sha256": "b64bc5bf791ba64724dac04d47f3b75311bdbdce8ee4d745c4106a6490b92570",
+      "source_bytes": 41232,
+      "source_rgba_sha256": "5eb1200faf3fc1964d63f3eba21467465b39ffcb3d327f9e59536dddf7103e4f",
+      "dimensions": [
+        871,
+        459
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "220aef796fbacec0d81106e442a1f82e51d7cf6e6f24980f8b5ffa998d3cbc99",
+      "alpha_sha256": "220aef796fbacec0d81106e442a1f82e51d7cf6e6f24980f8b5ffa998d3cbc99",
+      "rgba_sha256": "66c4e62344bdd1dce04cbb652bb94ee2ef3aa48aeafc866beeb1cd358824cd57",
+      "sha256": "c7d0843c7657ff6b51905a589ece4d10e61dd0e8909ff2a1f9b95683f692d147",
+      "bytes": 8170,
+      "quality": null,
+      "lossless": true,
+      "subsampling": "444",
+      "speed": 6
+    },
+    "assets/jungle/title/objects/sign-left-post.avif": {
+      "source": "local/art-development/map-room-layers/exports/sign-left-post.png",
+      "source_sha256": "765b15d01ad7681e7d15a8ddbf4124cf4634a4fd122bd8e96c8115759e44e350",
+      "source_bytes": 144244,
+      "source_rgba_sha256": "86864a4eb85e4b01a327ce4f09043a112fb425ed5f7b1a98e47583ca47e5cd46",
+      "dimensions": [
+        134,
+        398
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "315756e4fea2784b297f2a22df93de5b5baef7f6b9325b93c7f3b6bfe598b962",
+      "alpha_sha256": "315756e4fea2784b297f2a22df93de5b5baef7f6b9325b93c7f3b6bfe598b962",
+      "rgba_sha256": "bb03a4b434ec23e52b9c36d697baf20d5ebbf8f590d2cce76e7e4823f334deb0",
+      "sha256": "b9dd336d846071e1ad32d5d940d770ad41d4e3e825cc5b52f4f30f5795130ef4",
+      "bytes": 4102,
+      "quality": null,
+      "lossless": true,
+      "subsampling": "444",
+      "speed": 6
+    },
+    "assets/jungle/title/objects/sign-diagonal-left-board.avif": {
+      "source": "local/art-development/map-room-layers/exports/sign-diagonal-left-board.png",
+      "source_sha256": "82512d161b09418747f37ddbd2980ae10f98b393fa9541b1d78ad04cedf39ef0",
+      "source_bytes": 621400,
+      "source_rgba_sha256": "658530774efb7852a51ed784058caa4b3784adacc6569cf8be47eb706a7382ac",
+      "dimensions": [
+        713,
+        523
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "eeae3bb5a8b625478ef06ef1bc6864a98a51c10dc198bb2c03436bc84e090ea5",
+      "alpha_sha256": "eeae3bb5a8b625478ef06ef1bc6864a98a51c10dc198bb2c03436bc84e090ea5",
+      "rgba_sha256": "c8a491449bb6beac8d50028738a2d42da5d6ee676f848eb336f63660033f2c6b",
+      "sha256": "c3f85083f5c38c8a3a77ddf70145e63c2b43f9c406e2eaede364b33ef4e7e6bb",
+      "bytes": 14096,
+      "quality": null,
+      "lossless": true,
+      "subsampling": "444",
+      "speed": 6
+    },
+    "assets/jungle/title/objects/sign-diagonal-left-board-glow.avif": {
+      "source": "local/art-development/map-room-layers/exports/sign-diagonal-left-board-glow.png",
+      "source_sha256": "1e6e27987246c67d9768b4d51dc2e3fe5f2eac31338b17a693265d82d34f96d1",
+      "source_bytes": 52529,
+      "source_rgba_sha256": "227988dc21c3dcda73caf8ed0e18345c7202736999cf6e647b5ac2f1c1b64e45",
+      "dimensions": [
+        713,
+        523
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "eeae3bb5a8b625478ef06ef1bc6864a98a51c10dc198bb2c03436bc84e090ea5",
+      "alpha_sha256": "eeae3bb5a8b625478ef06ef1bc6864a98a51c10dc198bb2c03436bc84e090ea5",
+      "rgba_sha256": "85a87d4d0728a7c5911104e8162e3f176d2cb22c629dd675d8235e9efbfcce0d",
+      "sha256": "ffc91accd12984dfc9debd127810bd3817939058e4382a8b7b1a655310cda6bb",
+      "bytes": 10488,
+      "quality": null,
+      "lossless": true,
+      "subsampling": "444",
+      "speed": 6
+    },
+    "assets/jungle/title/objects/sign-diagonal-left-post.avif": {
+      "source": "local/art-development/map-room-layers/exports/sign-diagonal-left-post.png",
+      "source_sha256": "41b6a87d40bb8a8d31324b19293436c3062ea47c7f7834380104e54aeff68365",
+      "source_bytes": 143854,
+      "source_rgba_sha256": "ce741b6b4297b32d0a1994118bd453361782d7436f09104c2a410ba8c52e8923",
+      "dimensions": [
+        181,
+        529
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "66d45780a6752a027532f93639a9333127cbaf6495b2505664b6d9e30722542c",
+      "alpha_sha256": "66d45780a6752a027532f93639a9333127cbaf6495b2505664b6d9e30722542c",
+      "rgba_sha256": "c1f8b92f124f7ace282712efe0f978c44cca78f9230aa016f76600085eb0f9e9",
+      "sha256": "1798ea30e0c75210699c4c0d0ad7e967ceb603ef22e9a709eb1ba259520499dc",
+      "bytes": 4096,
+      "quality": null,
+      "lossless": true,
+      "subsampling": "444",
+      "speed": 6
+    },
+    "assets/jungle/title/objects/sign-diagonal-right-board.avif": {
+      "source": "local/art-development/map-room-layers/exports/sign-diagonal-right-board.png",
+      "source_sha256": "9cfc136bdf1a327e2db114e796a7f3ffdc49272812098767b46d3d6550961935",
+      "source_bytes": 611712,
+      "source_rgba_sha256": "6c9a5ff595ad68a6f5db97c690a44419e932a8accf945e53846bba1ad80c5cae",
+      "dimensions": [
+        712,
+        523
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "990a5b1956f748a159d0c2e3bec8bb70aab1bdfeb06b53fb8c0c88f953df4ba2",
+      "alpha_sha256": "990a5b1956f748a159d0c2e3bec8bb70aab1bdfeb06b53fb8c0c88f953df4ba2",
+      "rgba_sha256": "9d7f117d202505255b05ae387ff7cf2fb5f5da2aea8c89c209a8488a33185483",
+      "sha256": "22140bf27b9071802ef7abb05603ea8764b61c4b2f6dbeba3f61043edaea91ff",
+      "bytes": 15031,
+      "quality": null,
+      "lossless": true,
+      "subsampling": "444",
+      "speed": 6
+    },
+    "assets/jungle/title/objects/sign-diagonal-right-board-glow.avif": {
+      "source": "local/art-development/map-room-layers/exports/sign-diagonal-right-board-glow.png",
+      "source_sha256": "4a897bb3bb4bf0f33e8bc897c5dcbae2ba53ed0bbd19b54dba87018eba5bc4e5",
+      "source_bytes": 52454,
+      "source_rgba_sha256": "0bb7396d4feb9273f87e479e73c9c9d246a5eb26ca21e22ca682523f67586d54",
+      "dimensions": [
+        712,
+        523
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "990a5b1956f748a159d0c2e3bec8bb70aab1bdfeb06b53fb8c0c88f953df4ba2",
+      "alpha_sha256": "990a5b1956f748a159d0c2e3bec8bb70aab1bdfeb06b53fb8c0c88f953df4ba2",
+      "rgba_sha256": "a563136520759ebd5aa0df6cfca6e1d649d5b93223ee8c7625dacaf628075918",
+      "sha256": "8dcfa5c87a630156b4eeb7b8c4b94fb90f5e5257f6da217e15487c9ff930f211",
+      "bytes": 10979,
+      "quality": null,
+      "lossless": true,
+      "subsampling": "444",
+      "speed": 6
+    },
+    "assets/jungle/title/objects/sign-diagonal-right-post.avif": {
+      "source": "local/art-development/map-room-layers/exports/sign-diagonal-right-post.png",
+      "source_sha256": "33733603c40b7089d130dd88e372751c09e5f37d3e33313728d0767c3bb6678f",
+      "source_bytes": 144111,
+      "source_rgba_sha256": "cb62ff4c20e0a06869800929a1ffcf28f13430cc22d5d2dd87b05c8f60875686",
+      "dimensions": [
+        182,
+        529
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "708d913d1508f470f61ae293c77ffec73b51cbb7bd6fd47228e2d1350ef59f28",
+      "alpha_sha256": "708d913d1508f470f61ae293c77ffec73b51cbb7bd6fd47228e2d1350ef59f28",
+      "rgba_sha256": "88bb199e69a240022588048ffe83c060b2e2f4ba4a285e9cd9060e5f9e5a77ff",
+      "sha256": "2c56de20b3ead68c5a35806f8d85784f59630834c26e7a7aa3b24814b3205732",
+      "bytes": 4210,
+      "quality": null,
+      "lossless": true,
+      "subsampling": "444",
+      "speed": 6
+    },
+    "assets/jungle/title/room/landscape-tiger.avif": {
+      "source": "local/art-development/map-room-layers/tiger-landscape.png",
+      "source_sha256": "a60e9b10ce2a58578fcc97105a2db0312ea0fb6efdfccaaca06d3c8f73390cd1",
+      "source_bytes": 419070,
+      "source_rgba_sha256": "dbc3af6271461f4b0927f3e14f0ec082fa1fa328dd728d0dc6040f183f5e67ec",
+      "dimensions": [
+        368,
+        410
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "869a9f933f8161ebf084ad0bda59b8f5aa6919ba7d66d7ebe6767f5ace8b95a7",
+      "alpha_sha256": "869a9f933f8161ebf084ad0bda59b8f5aa6919ba7d66d7ebe6767f5ace8b95a7",
+      "rgba_sha256": "e749a52a0f6fb46d5d0d82085cf71776d99978b60acc38f0ac1d03d3b07baa2e",
+      "sha256": "27a4c0f5bc6e7880f36c90bd92bc4563ff6b56cb65e438ddd6ec0129bad626be",
+      "bytes": 24340,
+      "quality": null,
+      "lossless": true,
+      "subsampling": "444",
+      "speed": 6
+    },
+    "assets/jungle/title/room/portrait-tiger.avif": {
+      "source": "local/art-development/map-room-layers/tiger-portrait.png",
+      "source_sha256": "55ff4e319db77f5b8ffde1cb9ff5870be3fb7aa0108d8b8be59e3870bda5701b",
+      "source_bytes": 310513,
+      "source_rgba_sha256": "341775ea209ce06966a36abaab34d39853f1297b50a36bbebdd7ad5d8d9e6ed4",
+      "dimensions": [
+        432,
+        493
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "ccd9373317a2576b2de6a28c9f977c70a8c328548962ecc9b83ebf938fcc4857",
+      "alpha_sha256": "ccd9373317a2576b2de6a28c9f977c70a8c328548962ecc9b83ebf938fcc4857",
+      "rgba_sha256": "e7f56ce3f3ec009a76e99c936e34e20256f6a4684a19c88cecf284437c7eef89",
+      "sha256": "bd19230361eda360a8a0125719c0e64b44a55ea357b119f3c9ac2cb3ea072118",
+      "bytes": 66417,
+      "quality": null,
+      "lossless": true,
+      "subsampling": "444",
+      "speed": 6
+    }
+  }
+}

@@ -1,0 +1,83 @@
+// Explicit native test host for the app's real board/text transform renderer.
+#import "kryon/Desktop"
+#import "kryon/session"
+#import "kryon/tree"
+#import "kryon/tree_draw"
+#import "kryon/tree_input"
+#import "kryon/box_widget"
+#import "kryon/box_props"
+#import "kryon/geometry"
+#import "kryon/drawing_props"
+#import "kryon/frame_snapshot"
+#import "kryon/widget_host"
+#import, file "../host/platform.zi";
+#import, file "../host/jungle_title.zi";
+#import, file "../host/jungle_title_data.zi";
+#import, file "../host/jungle_menu.zi";
+#import, file "../host/jungle_host.zi";
+
+#program_export
+main :: () -> s32 {
+    if !EnterDirectory("build/app") { return 8 }
+    if !JungleOpen(false) { return 1 }
+    if !OpenDesktopSized(760, 600) { return 2 }
+    unused DesktopSetTitle("Jungle Academy")
+    session := SessionOpen()
+    if !SessionValid(session) { return 3 }
+    TitleStart(*title_state)
+    hotspot: s32 = -1
+    for scene: cast(s32)0..TITLE_SCENE_COUNT-1 {
+        if TITLE_SCENE_NAME[scene] != "campus" { continue }
+        for at: TITLE_SCENE_FIRST[scene]..TITLE_SCENE_FIRST[scene]+TITLE_SCENE_HOTSPOTS[scene]-1 {
+            if TITLE_HOTSPOT_ID[at] == "farm-path" { hotspot=at }
+        }
+    }
+    if hotspot < 0 { return 4 }
+    rect := hotspot*4
+    old_width := cast(float32)TITLE_GLOW_RECT[rect+2]
+    old_height := cast(float32)TITLE_GLOW_RECT[rect+3]
+    old_x := cast(float32)TITLE_GLOW_RECT[rect]
+    old_y := cast(float32)TITLE_GLOW_RECT[rect+1]
+    chunk := TITLE_POLYGON_CHUNK[hotspot]
+    first := TITLE_POLYGON_FIRST[hotspot]
+    count := TITLE_POLYGON_COUNT[hotspot]
+    baseline: [16]Vector2
+    if count > 16 { return 9 }
+    for at: cast(s32)0..count-1 {
+        baseline[at] = Vector2.{200.0+(cast(float32)TitlePointsX(chunk)[first+at]-old_x)*360.0/old_width,
+            140.0+(cast(float32)TitlePointsY(chunk)[first+at]-old_y)*180.0/old_height}
+    }
+    for at: cast(s32)0..3 {
+        scale := ifx at % 2 == 0 then 360.0/old_width else 180.0/old_height
+        TITLE_SIGN_RECT[rect+at] = cast(s32)(cast(float32)TITLE_SIGN_RECT[rect+at]*scale)
+    }
+    TITLE_GLOW_RECT[rect]=200; TITLE_GLOW_RECT[rect+1]=140
+    TITLE_GLOW_RECT[rect+2]=360; TITLE_GLOW_RECT[rect+3]=180
+    while PollDesktop() {
+        key := DesktopPressedKey()
+        if key == 49 { TITLE_HOTSPOT_ROTATION[hotspot]=3500 }
+        if key == 50 { TITLE_HOTSPOT_ROTATION[hotspot]=0 }
+        turn := cast(float32)TITLE_HOTSPOT_ROTATION[hotspot]/100.0
+        camera: Camera = .{.offset=.{380,230},.target=.{380,230},.rotation=turn,.zoom=1.0}
+        for at: cast(s32)0..count-1 {
+            point := WorldToScreen(baseline[at],camera)
+            TitlePointsX(chunk)[first+at] = cast(s32)(point.x+0.5)
+            TitlePointsY(chunk)[first+at] = cast(s32)(point.y+0.5)
+        }
+        label_center := WorldToScreen(Vector2.{200.0+cast(float32)TITLE_SIGN_RECT[rect]+cast(float32)TITLE_SIGN_RECT[rect+2]*0.5,
+            140.0+cast(float32)TITLE_SIGN_RECT[rect+1]+cast(float32)TITLE_SIGN_RECT[rect+3]*0.5},camera)
+        if !TitleInside(hotspot,label_center.x,label_center.y) { return 10 }
+        BeginDesktopFrame()
+        viewport := DesktopViewport()
+        TreePointerUpdate(session, PollPointer())
+        if BeginFrame(session,cast(u64)1,viewport) != FrameStatus.FrameOk { return 5 }
+        unused Box(session,BoxProps.{.bounds=viewport,.fill=Color.{255,255,255,255}})
+        TitlePicture(session,"assets/jungle/title/objects/sign-left-post.avif",Rectangle.{325,290,48,250})
+        TitlePathSign(session,hotspot,Rectangle.{0,0,760,600},TitleView.{.scale=1.0},false,false,0.0)
+        if EndFrame(session) != FrameStatus.FrameOk { return 6 }
+        if !EndDesktopFrame() { return 7 }
+        PauseDesktop()
+    }
+    SessionClose(session); CloseDesktop()
+    return 0
+}

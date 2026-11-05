@@ -76,7 +76,7 @@ CardVisible :: (card: s32) -> bool {
     return MatchingFaceUp(game, card) || (MatchingPreviewMode(game) && PreviewActive())
 }
 
-ItemPath :: (animal: s32) -> string { return Cat("assets/jungle-book/items/", match_animals[animal], ".webp") }
+ItemPath :: (animal: s32) -> string { return Cat("assets/jungle-book/items/", match_animals[animal], ".avif") }
 SayAnimal :: (card: s32) {
     unused AppService("jungle.voice", Cat("assets/jungle-book/sounds/", LanguageCode(), "/simple/", MatchingAnimalName(game, card), ".wav"))
 }

@@ -9,6 +9,12 @@
 #import "kryon/text_align"
 #import "kryon/image_props"
 #import "kryon/image_widget"
+#import "kryon/image_mesh"
+#import "kryon/text_props"
+#import "kryon/text_widget"
+#import "kryon/text_measure"
+#import "kryon/press_props"
+#import "kryon/press_widget"
 #import "kryon/shape_props"
 #import "kryon/shape_widget"
 #import, file "../../retro/retro.zi";
@@ -20,6 +26,7 @@
 #import, file "../../retro/language.zi";
 #import, file "garden_scene.zi";
 #import, file "garden_art.zi";
+#import, file "../../host/jungle_title_data.zi";
 
 farm: FarmState;
 loaded: bool;
@@ -111,7 +118,7 @@ Picture :: (name: string, x: s32, y: s32, w: s32, h: s32) {
     if cast(float32)h/cast(float32)art.height<fit { fit=cast(float32)h/cast(float32)art.height }
     left := cast(float32)x+(cast(float32)w-cast(float32)art.width*fit)/2.0+cast(float32)art.x*fit
     top := cast(float32)y+(cast(float32)h-cast(float32)art.height*fit)/2.0+cast(float32)art.y*fit
-    path := RetroImageShown(Cat("assets/garden/play/",name,".webp"))
+    path := RetroImageShown(Cat("assets/garden/play/",name,".avif"))
     if path=="" { return }
     Image(retro.session,ImageProps.{.asset_path=path,
         .bounds=Rectangle.{.x=retro.x+left*retro.scale,.y=retro.y+top*retro.scale,
@@ -196,15 +203,95 @@ FieldPreview :: (garden: s32, x: s32, y: s32, scale: float64) {
         Picture(ifx stage<7 then "sprout" else CropArt(p.kind),px-size/2,py-size*96/100,size,size)
     }
 }
+// Canonical title-scene coordinates stay in the chooser painting's space.
+ChooserBounds :: (rects: []s32, index: s32, view: GardenView) -> Rectangle {
+    at := index*4
+    return Rectangle.{retro.x+(cast(float32)view.x+cast(float32)rects[at]*view.scale)*retro.scale,
+        retro.y+(cast(float32)view.y+cast(float32)rects[at+1]*view.scale)*retro.scale,
+        cast(float32)rects[at+2]*view.scale*retro.scale,cast(float32)rects[at+3]*view.scale*retro.scale}
+}
+ChooserPicture :: (path: string, bounds: Rectangle, turn: float32) {
+    shown := RetroImageShown(path)
+    if shown == "" { return }
+    center := Vector2.{bounds.x+bounds.width*0.5,bounds.y+bounds.height*0.5}
+    camera: Camera = .{.offset=center,.target=center,.rotation=turn,.zoom=1.0}
+    points: [4]Vector2
+    Image(retro.session,ImageProps.{.asset_path=shown,.bounds=RotatedRectangleBounds(bounds,center,turn),
+        .mesh=ImageMeshQuad(bounds,camera,points[:]),.smooth=true})
+}
+ChooserInside :: (hotspot: s32, px: float32, py: float32) -> bool {
+    chunk := TITLE_POLYGON_CHUNK[hotspot]
+    first := TITLE_POLYGON_FIRST[hotspot]; count := TITLE_POLYGON_COUNT[hotspot]
+    xs := TitlePointsX(chunk); ys := TitlePointsY(chunk)
+    inside := false; previous := first+count-1
+    for point: first..first+count-1 {
+        ax := cast(float32)xs[point]; ay := cast(float32)ys[point]
+        bx := cast(float32)xs[previous]; by := cast(float32)ys[previous]
+        if (ay>py)!=(by>py) && px<ax+(bx-ax)*(py-ay)/(by-ay) { inside = !inside }
+        previous = point
+    }
+    return inside
+}
+ChooserNavigation :: (view: GardenView) -> s32 {
+    orientation: s32 = ifx portrait then 1 else 0
+    scale := view.scale*retro.scale
+    first := TITLE_FARM_DRAW_FIRST[orientation]
+    for entry: first..first+TITLE_FARM_DRAW_COUNT[orientation]-1 {
+        layer := TITLE_FARM_DRAW[entry]
+        if layer>0 {
+            object := layer-1
+            if TITLE_OBJECT_VISIBLE[object] {
+                ChooserPicture(TITLE_OBJECT_PATH[object],ChooserBounds(TITLE_OBJECT_RECT[:],object,view),
+                    cast(float32)TITLE_OBJECT_ROTATION[object]/100.0)
+            }
+            continue
+        }
+        hotspot := -layer-1
+        if !TITLE_HOTSPOT_VISIBLE[hotspot] { continue }
+        wood := ChooserBounds(TITLE_GLOW_RECT[:],hotspot,view)
+        turn := cast(float32)TITLE_HOTSPOT_ROTATION[hotspot]/100.0
+        pivot := Vector2.{wood.x+wood.width*0.5,wood.y+wood.height*0.5}
+        camera: Camera = .{.offset=pivot,.target=pivot,.rotation=turn,.zoom=1.0}
+        at := hotspot*4
+        board := Rectangle.{wood.x+cast(float32)TITLE_SIGN_RECT[at]*scale,
+            wood.y+cast(float32)TITLE_SIGN_RECT[at+1]*scale,
+            cast(float32)TITLE_SIGN_RECT[at+2]*scale,cast(float32)TITLE_SIGN_RECT[at+3]*scale}
+        center := WorldToScreen(Vector2.{board.x+board.width*0.5,board.y+board.height*0.5},camera)
+        board.x=center.x-board.width*0.5; board.y=center.y-board.height*0.5
+        label := Tr(TITLE_SIGN_LABEL[hotspot])
+        pointer := input.pointer
+        physical := ChooserInside(hotspot,((pointer.x-retro.x)/retro.scale-cast(float32)view.x)/view.scale,
+            ((pointer.y-retro.y)/retro.scale-cast(float32)view.y)/view.scale)
+        // The axis-aligned semantic area is refined by the rotated polygon;
+        // keyboard activation remains available when no pointer is over it.
+        area := RotatedRectangleBounds(wood,pivot,turn)
+        on_board := pointer.x>=area.x && pointer.y>=area.y && pointer.x<area.x+area.width && pointer.y<area.y+area.height
+        hit := Press(retro.session,PressProps.{.key=cast(u64)(1000+hotspot),.id=1000+hotspot,.label=label,.now=retro.now,
+            .bounds=area,.disabled=on_board && !physical})
+        ChooserPicture(ifx hit.down then TitleHotspotGlow(hotspot) else TitleHotspotRest(hotspot),wood,turn)
+        font := board.height*0.68
+        measure: TextProps = .{.bounds=board,.text=label,.font=cast(s32)font,.wrap=.TextWrapNone}
+        measured := TextWidth(retro.session,measure)
+        if measured>0 && cast(float32)measured>board.width { font=font*board.width/cast(float32)measured }
+        if font<1.0 { font=1.0 }
+        Text(retro.session,TextProps.{.bounds=board,.text=label,.font=cast(s32)font,
+            .rotation=turn+cast(float32)TITLE_SIGN_ROTATION[hotspot]/100.0,
+            .origin=Vector2.{board.width*0.5,board.height*0.5},
+            .align=.TextAlignCenter,.vertical_align=.TextAlignCenter,.wrap=.TextWrapNone})
+        if hit.clicked { return TITLE_HOTSPOT_TARGET[hotspot] }
+    }
+    return -1
+}
 // The Farm entrance: the painting's four beds carry no labels. Pointing at a
 // bed lights the whole field, soil and bamboo frame; a tap opens it.
 Chooser :: () {
-    iw: s32 = ifx portrait then 1024 else 1671
-    ih: s32 = ifx portrait then 1536 else 941
+    scene := TITLE_FARM_SCENE[ifx portrait then 1 else 0]
+    iw := TITLE_SCENE_WIDTH[scene]
+    ih := TITLE_SCENE_HEIGHT[scene]
     view := GardenCover(width,height,iw,ih)
     x := view.x; y := view.y; w := view.width; h := view.height
     orientation := ifx portrait then "portrait" else "landscape"
-    BookPicture(Cat("assets/garden/art/scene-",orientation,".webp"), x,y,w,h)
+    BookPicture(Cat("assets/garden/art/scene-",orientation,".avif"), x,y,w,h)
     picture_scale := cast(float64)view.scale
     lit: s32 = -1
     if input.available && mx>=x && mx<x+w && my>=y && my<y+h {
@@ -216,8 +303,14 @@ Chooser :: () {
         gy := y+cast(s32)(cast(float64)fy*picture_scale)
         gw := cast(s32)(cast(float64)fw*picture_scale)
         gh := cast(s32)(cast(float64)fh*picture_scale)
-        if lit == garden { BookPicture(Cat("assets/garden/art/field-",orientation,"-",NumberText(garden),".webp"),gx,gy,gw,gh) }
+        if lit == garden { BookPicture(Cat("assets/garden/art/field-",orientation,"-",NumberText(garden),".avif"),gx,gy,gw,gh) }
         FieldPreview(garden,x,y,picture_scale)
+    }
+    destination := ChooserNavigation(view)
+    if destination >= 0 {
+        unused Save(true)
+        unused AppService("jungle.home",Cat("scene:",TITLE_SCENE_NAME[destination]))
+        return
     }
     // Front beds first, so a tap where frames overlap opens the nearer bed.
     for back: cast(s32)0..3 {
@@ -240,16 +333,6 @@ Chooser :: () {
         }
         if retro.key == 49+garden { OpenGarden(garden); return }
     }
-    // Retain the painted right-pointing Campus return sign.
-    sx := x + w*(ifx portrait then 600 else 1260)/iw
-    sy := y + h*(ifx portrait then 300 else 90)/ih
-    edge := w*240/iw
-    if edge < 72 { edge = 72 }
-    // The bundle's own copy of the title scene's arrow sign (tools/shared_assets.py).
-    sign := RetroTap(109,sx,sy+edge/5,edge,edge/2,Tr("Campus"))
-    Picture(ifx sign.down then "campus-arrow-glow" else "campus-arrow",sx,sy,edge,edge)
-    Label(Tr("Campus"),sx+edge*8/100,sy+edge*26/100,edge*53/100,edge*23/100,16)
-    if sign.clicked { GameHome(); return }
     // The path at the painting's left edge leads to the Market street.
     mw := w*170/iw
     if mw < 64 { mw = 64 }
@@ -266,7 +349,7 @@ SoilLayout :: () {
     ih: s32 = ifx portrait then 1536 else 1024
     view := GardenCover(width,height,iw,ih)
     x := view.x; y := view.y; w := view.width; h := view.height
-    BookPicture(ifx portrait then "assets/garden/play/garden-portrait.webp" else "assets/garden/play/garden-landscape.webp",x,y,w,h)
+    BookPicture(ifx portrait then "assets/garden/play/garden-portrait.avif" else "assets/garden/play/garden-landscape.avif",x,y,w,h)
     soil_x = x+w*15/100; soil_w = w*70/100
     soil_y = y+h*(ifx portrait then 36 else 43)/100
     soil_h = h*(ifx portrait then 39 else 32)/100
@@ -671,9 +754,9 @@ Menu :: () {
 Hand :: () {
     in_garden:=loaded && !save_blocked && active_garden>=0 && panel==0
     if in_garden && tool==1 {
-        unused CursorSet(retro.session,CursorProps.{.asset_path="assets/garden/play/cursor-watering-can.webp",.width=32,.height=28,.hotspot_x=2,.hotspot_y=12})
+        unused CursorSet(retro.session,CursorProps.{.asset_path="assets/garden/play/cursor-watering-can.avif",.width=32,.height=28,.hotspot_x=2,.hotspot_y=12})
     } else if in_garden && tool==2 {
-        unused CursorSet(retro.session,CursorProps.{.asset_path="assets/garden/play/cursor-harvest-basket.webp",.width=30,.height=32,.hotspot_x=15,.hotspot_y=16})
+        unused CursorSet(retro.session,CursorProps.{.asset_path="assets/garden/play/cursor-harvest-basket.avif",.width=30,.height=32,.hotspot_x=15,.hotspot_y=16})
     } else {
         unused CursorSet(retro.session,.{})
     }

@@ -6,7 +6,7 @@
     "name": "waozi",
     "email": "martin@waozi.xyz",
     "description": "Independent developer in Paraguay. I make Jungle Academy and the open-source Ziran language and Kryon UI toolkit it is built with.",
-    "webpageUrl": {
+    "avifageUrl": {
       "url": "https://jungle.waozi.xyz"
     }
   },
@@ -15,15 +15,28 @@
       "guid": "jungle-academy",
       "name": "Jungle Academy",
       "description": "A free-to-use, proprietary learning app for babies and toddlers: illustrated picture books, letters and numbers with spoken narration in English, German and Spanish, animal counting, a coloring book and jigsaw puzzles. No ads, no accounts, no tracking; the Android app asks for no permissions at all. It runs in the browser, on Android and on Linux.",
-      "webpageUrl": {
+      "avifageUrl": {
         "url": "https://jungle.waozi.xyz"
       },
       "repositoryUrl": {
         "url": "https://github.com/waozixyz/jungle",
         "wellKnown": "https://github.com/waozixyz/jungle/blob/master/.well-known/funding-manifest-urls"
       },
-      "licenses": ["https://jungle.waozi.xyz/LICENSE"],
-      "tags": ["education", "children", "learning", "games", "privacy", "offline", "multilingual", "android", "linux", "web"]
+      "licenses": [
+        "https://jungle.waozi.xyz/LICENSE"
+      ],
+      "tags": [
+        "education",
+        "children",
+        "learning",
+        "games",
+        "privacy",
+        "offline",
+        "multilingual",
+        "android",
+        "linux",
+        "web"
+      ]
     }
   ],
   "funding": {
@@ -44,7 +57,9 @@
         "amount": 10000,
         "currency": "USD",
         "frequency": "yearly",
-        "channels": ["bank"]
+        "channels": [
+          "bank"
+        ]
       },
       {
         "guid": "goodwill",
@@ -54,7 +69,9 @@
         "amount": 0,
         "currency": "USD",
         "frequency": "one-time",
-        "channels": ["bank"]
+        "channels": [
+          "bank"
+        ]
       }
     ],
     "history": []

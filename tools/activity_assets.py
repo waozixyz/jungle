@@ -71,16 +71,16 @@ def picture_books(root, paths, speech):
     books = dict(BOOKS)
     result = []
     for category in (category for _, members in BOOK_GROUPS for category in members):
-        pages = [f'assets/jungle-book/pages/{name}.webp' for name in books[category]]
+        pages = [f'assets/jungle-book/pages/{name}.avif' for name in books[category]]
         own = pages+[colors[page] for page in pages if page in colors]
         voices = {language: [voice_path(name, language, simple) for name in books[category] for simple in (True, False)]
                   for language in LANGUAGES}
-        result.append(book(category, f'assets/jungle-book/previews/{category}.webp', own, own, voices))
+        result.append(book(category, f'assets/jungle-book/previews/{category}.avif', own, own, voices))
     for name, data in STORIES:
         pages = json.loads((root/'tools'/(data+'.json')).read_text())['pages']
-        landscape = [f'assets/jungle-book/pages/{page["asset"]}.webp' for page in pages]
+        landscape = [f'assets/jungle-book/pages/{page["asset"]}.avif' for page in pages]
         collectible = [colors[name+'/'+page['asset']] for page in pages if name+'/'+page['asset'] in colors]
-        portrait = [f'assets/jungle-book/portraits/{page["portrait_asset"]}.webp' for page in pages]
+        portrait = [f'assets/jungle-book/portraits/{page["portrait_asset"]}.avif' for page in pages]
         voices = {language: [f'assets/jungle-book/story-sounds/{language}/{page["asset"]}.wav' for page in pages]
                   for language in LANGUAGES}
         result.append(book(name, landscape[0], landscape+collectible, portrait+landscape+collectible, voices))

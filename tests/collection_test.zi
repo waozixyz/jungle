@@ -36,7 +36,7 @@ main :: () -> s32 {
         "JUNGLE COLLECTION 1\nmonkey\npanda\ntreehouse-scene\n" { return 11 }
 
     if CollectibleBySlug("toucan") != 7 || collectible_ids[CollectibleBySlug("toucan")] != 7 ||
-        CollectibleForPage("assets/jungle-book/pages/panda.webp") != 1 ||
+        CollectibleForPage("assets/jungle-book/pages/panda.avif") != 1 ||
         CollectibleForPage("porridge_02_gift") != -1 ||
         CollectibleForGame("jungle-garden.zx") != 9 ||
         CollectibleForTitle("music") != 14 { return 12 }

@@ -6,7 +6,7 @@ tools/art_provenance/title-layers/prompts.json. --finish-generated preserves the
 approved scene's RGB, using the generated extraction's actual alpha matte;
 inpainted pixels are restricted to that silhouette. It is an explicit artwork
 preparation step, never part of a normal build. Normal invocation only exports
-the ignored local PNG originals through the shared role-specific WebP exporter.
+the ignored local PNG originals through the shared role-specific AVIF exporter.
 """
 import argparse
 import json
@@ -19,7 +19,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def finish(entry):
     name = entry['name']
-    original = Image.open(ROOT/f'assets/jungle/title/{name}.webp').convert('RGB')
+    original = Image.open(ROOT/f'assets/jungle/title/{name}.avif').convert('RGB')
     inputs = ROOT/'work/title-layers/input'
     extraction = Image.open(inputs/f'{name}-extraction.png').convert('RGBA')
     inpaint = Image.open(inputs/f'{name}-inpaint.png').convert('RGB')
@@ -58,10 +58,10 @@ def main():
             finish(entry)
         for kind in ('background', 'foreground'):
             source = ROOT/(entry['source']+f'-{kind}.png')
-            destination = ROOT/(entry['runtime']+f'-{kind}.webp')
+            destination = ROOT/(entry['runtime']+f'-{kind}.avif')
             destination.parent.mkdir(parents=True, exist_ok=True)
             export_image(source, destination, 'title-background' if kind == 'background' else 'cutout')
-        print(f'title layers: {entry["name"]} original PNG and optimized WebP')
+        print(f'title layers: {entry["name"]} original PNG and optimized AVIF')
 
 
 if __name__ == '__main__':

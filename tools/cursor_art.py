@@ -5,7 +5,7 @@ The arrow and the hand come from their ignored generated masters in
 local/art-development/cursor/ (arrow-generated-v1.png, hand-generated-v1.png);
 the tools from the Farm's own play art. Beside the masters this writes each
 cleaned master, 32/48/64 px review exports and composites over dark, light and
-green backgrounds. Each runtime is one exact lossless 128 px WebP. Hosts draw
+green backgrounds. Each runtime is one exact lossless 128 px AVIF. Hosts draw
 it at CURSOR_UNITS logical units with the hotspot recorded in cursor.json, at
 their own pixel density: the arrow through Kryon's CursorSetDefault (everywhere
 nothing can be clicked), the hand through CursorSetPointing (only over
@@ -38,12 +38,12 @@ STROKE = 1 / 64
 # name, source, runtime, hotspot rule, top-aligned. The hand comes first: its
 # outline colour is every cursor's outline.
 CURSORS = (
-    ('hand', ART / 'hand-generated-v1.png', ROOT / 'assets/jungle/hand-cursor.webp', 'fingertip', True),
-    ('arrow', ART / 'arrow-generated-v1.png', ROOT / 'assets/jungle/arrow-cursor.webp', 'tip', True),
-    ('watering-can', ROOT / 'assets/garden/play/watering-can.webp',
-     ROOT / 'assets/garden/play/cursor-watering-can.webp', 'spout', False),
-    ('harvest-basket', ROOT / 'assets/garden/play/harvest-basket.webp',
-     ROOT / 'assets/garden/play/cursor-harvest-basket.webp', 'centre', False),
+    ('hand', ART / 'hand-generated-v1.png', ROOT / 'assets/jungle/hand-cursor.avif', 'fingertip', True),
+    ('arrow', ART / 'arrow-generated-v1.png', ROOT / 'assets/jungle/arrow-cursor.avif', 'tip', True),
+    ('watering-can', ROOT / 'assets/garden/play/watering-can.avif',
+     ROOT / 'assets/garden/play/cursor-watering-can.avif', 'spout', False),
+    ('harvest-basket', ROOT / 'assets/garden/play/harvest-basket.avif',
+     ROOT / 'assets/garden/play/cursor-harvest-basket.avif', 'centre', False),
 )
 
 

@@ -1,27 +1,361 @@
 {
   "scene": "map",
   "paper": "fde9ca",
-  "plates": {"landscape": "plate-landscape-v3.png", "portrait": "plate-portrait-v3.png"},
+  "plates": {
+    "landscape": "plate-landscape-v3.png",
+    "portrait": "plate-portrait-v3.png"
+  },
   "landmarks": [
-    {"id": "port", "target": "scene:port", "layer": "port-v2.png",
-     "landscape": [160, 30, 250], "portrait": [75, 184, 230]},
-    {"id": "beach", "target": "scene:beach", "layer": "beach.png",
-     "landscape": [580, 184, 360], "portrait": [580, 258, 380]},
-    {"id": "aquarium", "target": "scene:aquarium", "layer": "aquarium.png",
-     "landscape": [665, 22, 190], "portrait": [560, 110, 170]},
-    {"id": "market", "target": "scene:market", "layer": "market.png",
-     "landscape": [45, 555, 300], "portrait": [45, 628, 290]},
-    {"id": "farm", "target": "game:Farm", "covers": ["farm"], "layer": "farm.png",
-     "landscape": [370, 455, 280], "portrait": [360, 862, 270]},
-    {"id": "jungle-path", "target": "scene:jungle-path", "layer": "jungle-path.png",
-     "landscape": [640, 380, 150], "portrait": [600, 500, 120]},
-    {"id": "campus", "target": "scene:campus", "layer": "campus.png",
-     "landscape": [630, 615, 380], "portrait": [635, 617, 320]},
-    {"id": "treehouse", "target": "scene:treehouse", "covers": ["bookshelf", "window"], "layer": "treehouse.png",
-     "landscape": [760, 425, 300], "portrait": [710, 440, 260]},
-    {"id": "desert", "target": "scene:desert", "layer": "desert.png",
-     "landscape": [1240, 470, 230], "portrait": [445, 1187, 230]},
-    {"id": "darkness", "target": "locked:darkness", "layer": "darkness.png",
-     "landscape": [1452, 590, 200], "portrait": [720, 1250, 260]}
+    {
+      "id": "port",
+      "target": "scene:port",
+      "layer": "port-v2.png",
+      "landscape": [
+        70,
+        -122,
+        250
+      ],
+      "portrait": [
+        70,
+        -122,
+        250
+      ],
+      "center": [
+        380,
+        280
+      ],
+      "rects": {
+        "landscape": [
+          255,
+          136,
+          250,
+          288
+        ],
+        "portrait": [
+          255,
+          136,
+          250,
+          288
+        ]
+      },
+      "rotation": 0
+    },
+    {
+      "id": "beach",
+      "target": "scene:beach",
+      "layer": "../../world-map-brazil/repair-v3/beach-white-native.png",
+      "landscape": [
+        109,
+        -88,
+        380
+      ],
+      "portrait": [
+        109,
+        -88,
+        380
+      ],
+      "center": [
+        889,
+        254
+      ],
+      "rects": {
+        "landscape": [
+          719,
+          155,
+          340,
+          198
+        ],
+        "portrait": [
+          719,
+          155,
+          340,
+          198
+        ]
+      },
+      "rotation": 0
+    },
+    {
+      "id": "aquarium",
+      "target": "scene:aquarium",
+      "layer": "aquarium.png",
+      "landscape": [
+        -128,
+        -143,
+        190
+      ],
+      "portrait": [
+        -128,
+        -143,
+        190
+      ],
+      "center": [
+        1187,
+        236
+      ],
+      "rects": {
+        "landscape": [
+          1087,
+          163,
+          200,
+          146
+        ],
+        "portrait": [
+          1087,
+          163,
+          200,
+          146
+        ]
+      },
+      "rotation": 0
+    },
+    {
+      "id": "market",
+      "target": "scene:market",
+      "layer": "market.png",
+      "landscape": [
+        -70,
+        -69,
+        300
+      ],
+      "portrait": [
+        -70,
+        -69,
+        300
+      ],
+      "center": [
+        330,
+        585
+      ],
+      "rects": {
+        "landscape": [
+          180,
+          502,
+          300,
+          166
+        ],
+        "portrait": [
+          180,
+          502,
+          300,
+          166
+        ]
+      },
+      "rotation": 0
+    },
+    {
+      "id": "farm",
+      "target": "game:Farm",
+      "covers": [
+        "farm"
+      ],
+      "layer": "farm.png",
+      "landscape": [
+        -2,
+        -52,
+        280
+      ],
+      "portrait": [
+        -2,
+        -52,
+        280
+      ],
+      "center": [
+        738,
+        666
+      ],
+      "rects": {
+        "landscape": [
+          588,
+          550,
+          300,
+          232
+        ],
+        "portrait": [
+          588,
+          550,
+          300,
+          232
+        ]
+      },
+      "rotation": 0
+    },
+    {
+      "id": "jungle-path",
+      "target": "scene:jungle-path",
+      "layer": "jungle-path.png",
+      "landscape": [
+        1030,
+        -840,
+        150
+      ],
+      "portrait": [
+        1030,
+        -840,
+        150
+      ],
+      "center": [
+        1480,
+        550
+      ],
+      "rects": {
+        "landscape": [
+          1385,
+          478,
+          190,
+          143
+        ],
+        "portrait": [
+          1385,
+          478,
+          190,
+          143
+        ]
+      },
+      "rotation": 0
+    },
+    {
+      "id": "treehouse",
+      "target": "scene:treehouse",
+      "covers": [
+        "bookshelf",
+        "window"
+      ],
+      "layer": "treehouse.png",
+      "landscape": [
+        112,
+        -112,
+        300
+      ],
+      "portrait": [
+        112,
+        -112,
+        300
+      ],
+      "center": [
+        1434,
+        615
+      ],
+      "rects": {
+        "landscape": [
+          1294,
+          517,
+          280,
+          196
+        ],
+        "portrait": [
+          1294,
+          517,
+          280,
+          196
+        ]
+      },
+      "rotation": 0
+    },
+    {
+      "id": "campus",
+      "target": "scene:campus",
+      "layer": "campus.png",
+      "landscape": [
+        128,
+        -125,
+        380
+      ],
+      "portrait": [
+        128,
+        -125,
+        380
+      ],
+      "center": [
+        1438,
+        723
+      ],
+      "rects": {
+        "landscape": [
+          1248,
+          610,
+          380,
+          226
+        ],
+        "portrait": [
+          1248,
+          610,
+          380,
+          226
+        ]
+      },
+      "rotation": 0
+    },
+    {
+      "id": "desert",
+      "target": "scene:desert",
+      "layer": "desert.png",
+      "landscape": [
+        0,
+        0,
+        230
+      ],
+      "portrait": [
+        0,
+        0,
+        230
+      ],
+      "center": [
+        2840,
+        1820
+      ],
+      "terrain_region": true,
+      "rects": {
+        "landscape": [
+          2710,
+          1730,
+          260,
+          180
+        ],
+        "portrait": [
+          2710,
+          1730,
+          260,
+          180
+        ]
+      }
+    },
+    {
+      "id": "darkness",
+      "target": "locked:darkness",
+      "layer": "darkness.png",
+      "landscape": [
+        0,
+        0,
+        55
+      ],
+      "portrait": [
+        0,
+        0,
+        55
+      ],
+      "center": [
+        3010,
+        1980
+      ],
+      "rects": {
+        "landscape": [
+          2978,
+          1956,
+          63,
+          48
+        ],
+        "portrait": [
+          2978,
+          1956,
+          63,
+          48
+        ]
+      }
+    }
+  ],
+  "source": "local/art-development/world-map-brazil/repair-v3/master-3072x2048.png",
+  "canvas": [
+    3072,
+    2048
   ]
 }

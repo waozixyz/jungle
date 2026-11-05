@@ -6,9 +6,11 @@ import json
 import wave
 import sys
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tests"))
+from design_size import design_size
 from book_catalog import NAMES, BOOKS, LANGUAGES, WORDS, narration, voice_path
 
-from PIL import Image, ImageChops
+from PIL import Image, ImageChops, ImageStat
 from paint_pages import dinosaur as stencil_source, render, fit, CANVAS
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -23,49 +25,59 @@ def main():
         assert font.size == (128, 224), "Jungle Book needs the shared 8-by-16 font"
     # Each page is one whole watercolor scene whose edges fade into the paper.
     story = json.loads((ROOT / 'tools/sweet_porridge.json').read_text())
-    story_pages = {row['asset'] + '.webp' for row in story['pages']}
+    story_pages = {row['asset'] + '.avif' for row in story['pages']}
     bremen = json.loads((ROOT / 'tools/town_musicians.json').read_text())
-    story_pages.update(row['asset'] + '.webp' for row in bremen['pages'])
-    expected = {name + ".webp" for name in NAMES} | story_pages
+    story_pages.update(row['asset'] + '.avif' for row in bremen['pages'])
+    expected = {name + ".avif" for name in NAMES} | story_pages
     actual = {path.name for path in (ROOT / "assets/jungle-book/pages").glob("*")}
     assert actual == expected, "Picture Book has stale or missing scene pages"
     for name in NAMES:
-        with Image.open(ROOT / f"assets/jungle-book/pages/{name}.webp") as page:
-            assert page.size == (1254, 1254) and page.mode == "RGB", f"{name} page is not a sharp full scene"
-            corners = [page.getpixel(p) for p in [(4, 4), (1249, 4), (4, 1249), (1249, 1249)]]
+        with Image.open(ROOT / f"assets/jungle-book/pages/{name}.avif") as page:
+            assert design_size(page.filename, page) == (1254, 1254) and page.mode == "RGB", f"{name} page is not a sharp full scene"
+            far = page.width - 5
+            corners = [page.getpixel(p) for p in [(4, 4), (far, 4), (4, far), (far, far)]]
             # A leaf or arm can reach a corner while the scene still fades
             # into paper around the rest of its edges.
             assert sum(min(color) > 190 for color in corners) >= 3, f"{name} page does not fade into the paper"
             assert len(page.resize((300, 300)).getcolors(300 * 300) or range(90001)) > 5000, f"{name} page is not smooth artwork"
     prompts = json.loads((ROOT / "tools/book_prompts.json").read_text())
     assert set(prompts["pages"]) == set(NAMES), "every full scene keeps its prompt"
-    expected_previews = {name + ".webp" for name, _ in BOOKS} | {'sweet-porridge.webp'}
+    expected_previews = {name + ".avif" for name, _ in BOOKS} | {'sweet-porridge.avif'}
     actual_previews = {path.name for path in (ROOT / "assets/jungle-book/previews").glob("*")}
     assert actual_previews == expected_previews, "Picture Book needs one cover per book"
-    for path in sorted((ROOT / "assets/jungle-book/previews").glob("*.webp")):
+    for path in sorted((ROOT / "assets/jungle-book/previews").glob("*.avif")):
         with Image.open(path) as preview:
-            assert preview.size == ((768, 512) if path.name == 'sweet-porridge.webp' else (768, 768))
+            assert design_size(path, preview) == ((768, 512) if path.name == 'sweet-porridge.avif' else (768, 768))
     assert not (ROOT / "assets/jungle-book/backgrounds").exists(), "scenes replace the shared backdrops"
-    with Image.open(ROOT / "assets/jungle/book.webp") as icon:
+    with Image.open(ROOT / "assets/jungle/book.avif") as icon:
         assert icon.size == (64, 64), "Picture Book needs a generated raster icon"
     # Counting uses cut-outs; Picture Book and ABC examples use full scenes.
     # New words need no unused duplicate cut-out.
-    expected = {name + ".webp" for name in prompts["cutouts"]}
-    actual = {path.name for path in (ROOT / "assets/jungle-book/items").glob("*.webp")}
+    expected = {name + ".avif" for name in prompts["cutouts"]}
+    actual = {path.name for path in (ROOT / "assets/jungle-book/items").glob("*.avif")}
     assert actual == expected, "Picture Book has stale or missing cut-outs"
     assert set(prompts["cutouts"]) <= set(NAMES), "cut-outs must belong to a real word"
     counting = {'tiger','frog','butterfly','ladybug','snail','elephant','giraffe','monkey','panda','lion','zebra','crocodile','parrot','toucan','rabbit','cat','dog','sheep','duck','hen','pig','cow'}
     assert counting <= set(prompts["cutouts"]), "a counting animal has no cut-out"
-    assert {p.stem for p in (ROOT / 'assets/jungle-book/counting').glob('*.webp')} == counting
+    assert {p.stem for p in (ROOT / 'assets/jungle-book/counting').glob('*.avif')} == counting
     original_bytes = 0
     counting_bytes = 0
     for name in counting:
-        original = ROOT / f'assets/jungle-book/items/{name}.webp'
-        small = ROOT / f'assets/jungle-book/counting/{name}.webp'
+        original = ROOT / f'assets/jungle-book/items/{name}.avif'
+        small = ROOT / f'assets/jungle-book/counting/{name}.avif'
         with Image.open(original) as source, Image.open(small) as picture:
             assert picture.size == (128, 128) and picture.mode == 'RGBA', name
             assert picture.getchannel('A').getextrema() == (0, 255), name
-            assert picture.tobytes() == source.resize((128, 128), Image.Resampling.LANCZOS).tobytes(), name
+            expected = source.resize((128, 128), Image.Resampling.LANCZOS)
+            # The same derivative of the painting; the 75% cut-out's q90 alpha
+            # may drift slightly from the 128 px copy made from the master.
+            drift = ImageChops.difference(picture.getchannel('A'), expected.getchannel('A'))
+            assert ImageStat.Stat(drift).mean[0] < 1 and drift.getextrema()[1] <= 24, name
+            def seen(image):  # visible color over paper; hidden RGB never shows
+                paper = Image.new('RGBA', image.size, (255, 255, 255, 255))
+                paper.alpha_composite(image.convert('RGBA'))
+                return paper.convert('RGB')
+            assert max(ImageStat.Stat(ImageChops.difference(seen(picture), seen(expected))).mean) < 3, name
         original_bytes += original.stat().st_size
         counting_bytes += small.stat().st_size
     assert counting_bytes < original_bytes / 5, 'Counting pictures are no longer small downloads'
@@ -73,22 +85,24 @@ def main():
                  'crocodile','parrot','toucan','gorilla','hippo','rhino','snake','bear'}
     assert set(json.loads((ROOT / 'tools/book_art_refresh.json').read_text())['cutouts']) == refreshed
     farm_cutouts = set(json.loads((ROOT / 'tools/book_farm_refresh.json').read_text())['cutouts'])
-    for path in sorted((ROOT / "assets/jungle-book/items").glob("*.webp")):
+    for path in sorted((ROOT / "assets/jungle-book/items").glob("*.avif")):
         with Image.open(path) as sprite:
             edge = 1254 if path.stem in refreshed | farm_cutouts else 420
-            assert sprite.size == (edge, edge), f"{path.name} must preserve its {edge} pixel cut-out"
+            assert design_size(path, sprite) == (edge, edge), f"{path.name} must preserve its {edge} pixel cut-out"
+            edge = sprite.width
             assert sprite.mode == "RGBA", f"{path.name} must preserve its transparency"
             assert sprite.getbbox(), f"{path.name} is empty"
             alpha = sprite.getchannel("A")
             assert alpha.getextrema() == (0, 255), f"{path.name} needs an isolated illustration without a paper panel"
             last = edge - 1
-            # Native generated PNGs can carry 1–2/255 alpha export noise.
+            # Native generated PNGs can carry 1–2/255 alpha export noise, and the
+            # 75% standard's q90 alpha a few more invisible levels.
             # Check their entire border for visible clipping; legacy corners
             # keep their exact transparent-pixel requirement.
             if path.stem in refreshed | farm_cutouts:
                 borders = [alpha.crop(box).getextrema()[1] for box in
                            [(0,0,edge,1),(0,last,edge,edge),(0,0,1,edge),(last,0,edge,edge)]]
-                assert max(borders) <= 2, f"{path.name} has visible artwork clipped at its edge"
+                assert max(borders) <= 6, f"{path.name} has visible artwork clipped at its edge"
             else:
                 assert all(alpha.getpixel(p) == 0 for p in [(0,0),(last,0),(0,last),(last,last)]), f"{path.name} has a clipped edge"
             colors = sprite.convert("RGBA").getcolors(edge * edge)
@@ -111,13 +125,13 @@ def main():
                     assert clip.getcomptype() == 'NONE'
                     assert len(clip.readframes(clip.getnframes())) == clip.getnframes() * clip.getnchannels() * clip.getsampwidth()
     for name in ("book", "counting", "paint", "piano"):
-        with Image.open(ROOT / f"assets/jungle/covers/{name}.webp") as cover:
-            assert cover.size == (420, 420) and cover.format == "WEBP"
+        with Image.open(ROOT / f"assets/jungle/covers/{name}.avif") as cover:
+            assert cover.size == (420, 420) and cover.format == "AVIF"
     art = ROOT / "assets/dino-paint/art"
     assert not (ROOT / "assets/dino-paint/crayons").exists(), "crayons are drawn as color boxes"
     for number in range(1, 13):
         assert '<svg ' in (ROOT / f"art/paint/scene{number}.svg").read_text()
-        with Image.open(art / f"scene{number}-thumb.webp") as thumb:
+        with Image.open(art / f"scene{number}-thumb.avif") as thumb:
             assert thumb.size == (256, 192) and len(thumb.getcolors(1 << 16) or range(1 << 16)) > 16, "scene thumbnail is not smooth"
     for number in range(1, 31):
         svg = (ROOT / f"art/paint/dino{number}.svg").read_text()
@@ -135,7 +149,7 @@ def main():
             assert levels[0] > 10000, "dinosaur erased its surrounding scenery"
             assert sum(levels[1:255]) > 100, "dinosaur edges are not smooth"
         for kind in ("preview",):
-            with Image.open(art / f"dino{number}-{kind}.webp") as picture:
+            with Image.open(art / f"dino{number}-{kind}.avif") as picture:
                 assert picture.mode == "RGBA" and picture.getbbox()
         if number <= 12:
             with wave.open(str(ROOT / f"assets/dino-paint/sounds/voice-{number}.wav")) as voice:

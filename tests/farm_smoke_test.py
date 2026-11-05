@@ -223,7 +223,7 @@ class FarmUI:
 def assert_paint(desktop,ui,entrance=False):
     ui.layout(entrance)
     portrait=ui.lh>ui.lw
-    name=('assets/garden/art/scene-' if entrance else 'assets/garden/play/garden-')+('portrait' if portrait else 'landscape')+'.webp'
+    name=('assets/garden/art/scene-' if entrance else 'assets/garden/play/garden-')+('portrait' if portrait else 'landscape')+'.avif'
     source=Image.open(ROOT/name).convert('RGB')
     scale,w,h=cover(ui.lw,ui.lh,source.width,source.height)
     ox=centered(ui.lw,w);oy=centered(ui.lh,h)
@@ -529,14 +529,14 @@ def checked_main():
     paths={binary,binary.parent/'games/jungle-garden.zx',binary.parent/'assets/shared-assets.txt',
            ROOT/'tools/title_hotspots.json',ROOT/'tools/title_scenes.py',ROOT/'ziran.lock',
            Path(__file__).resolve()}
-    for pattern in ('host/*.zi','retro/*.zi','games/garden/*.zi','assets/garden/play/*.webp'):
+    for pattern in ('host/*.zi','retro/*.zi','games/garden/*.zi','assets/garden/play/*.avif'):
         paths.update(ROOT.glob(pattern))
     kryon=ROOT.parents[2]/'kryonlabs/kryon'
     for name in ('src/ui/cursor.zi','src/ui/tree.zi','src/ui/tree_input.zi',
                  'src/backend/desktop_runtime.zi','src/backend/widget_host.zi',
                  'src/backend/cairo_raster.zi'):
         paths.add(kryon/name)
-    for name in ('wood-arrow-right.webp','wood-arrow-right-glow.webp'):
+    for name in ('wood-arrow-right.avif','wood-arrow-right-glow.avif'):
         paths.add(binary.parent/'assets/jungle/title/objects'/name)
     before={str(p):digest(p) for p in sorted(paths)}
     EXPECTED_BINARY=before[str(binary)]

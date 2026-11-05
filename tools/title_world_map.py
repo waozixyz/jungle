@@ -1,11 +1,11 @@
-"""Integrate the world map title scene: one clean painted plate per orientation
+"""Integrate the world map title scene: one shared clean painted plate
 with a transparent landmark layer and hover glow for every area.
 
 The owner asked for a world map in the painted style where every area we can go
 to is a distinct, selectable building or landmark. tools/title_world_map.json
 lists the landmarks, so a new area adds itself with one entry; masters stay in
 ignored local/art-development/world-map/. This explicit authoring command
-exports the runtime WebPs and writes the "map" scene into
+exports the runtime AVIFs and writes the "map" scene into
 tools/title_hotspots.json. Normal builds never run it.
 
     python3 tools/title_world_map.py && python3 tools/title_scenes.py
@@ -138,87 +138,108 @@ def resolve(mark, names, games):
     raise SystemExit(f'world map: {mark["id"]} has an unknown target {mark["target"]}')
 
 
+def SharedGeometry(mark, rect, polygon):
+    """The landscape rectangle is the one map, even for legacy split metadata."""
+    shared = mark.get('rects', {}).get('landscape')
+    if shared is None:
+        return rect, polygon
+    if not isinstance(shared, list) or len(shared)!=4 or any(type(v) is not int for v in shared) or min(shared[2:])<1:
+        raise ValueError('world map: invalid shared landmark rectangle')
+    return list(shared), [[round(shared[0]+(x-rect[0])*shared[2]/rect[2]),
+                           round(shared[1]+(y-rect[1])*shared[3]/rect[3])] for x,y in polygon]
+
+
 def main():
     spec = json.loads(DATA.read_text())
     data = json.loads(MANIFEST.read_text())
-    color = paper(spec)
     names = {s['name'] for s in data['scenes']} - {spec['scene']}
     games = {line.split('|')[1] for line in (ROOT/'games/catalog.txt').read_text().splitlines() if '|' in line}
-    scratch = LOCAL/'runtime-exports'
-    scratch.mkdir(parents=True, exist_ok=True)
-    marks, receipts = [], []
-    for mark in spec['landmarks']:
-        target = resolve(mark, names, games)
-        picture, width = layer(mark)
-        planned = target.startswith('locked:') and not mark['target'].startswith('locked:')
-        if planned:
-            picture = faded(picture, color)
-        light = glow(picture, soft=mark['target'].startswith('locked:'))
-        rest, highlight = ASSETS + mark['id'] + '.webp', ASSETS + mark['id'] + '-glow.webp'
-        for image, path in ((picture, rest), (light, highlight)):
-            raw = scratch/(Path(path).stem + '.png')
-            image.save(raw)
-            export_image(raw, ROOT/path, 'cutout')
-        marks.append((mark, target, picture, width, rest, highlight))
-        source = LOCAL/'layers'/mark['layer']
-        receipts.append(dict(landmark=mark['id'], target=target, master=str(source.relative_to(ROOT)),
-                             master_sha256=digest(source), runtime=rest, sha256=digest(ROOT/rest),
-                             glow=highlight, glow_sha256=digest(ROOT/highlight), size=list(picture.size)))
-    scene = dict(name=spec['scene'], image='assets/jungle/title/world-map.webp',
-                 low='assets/jungle/title/world-map-low.webp', back=True)
-    portrait = dict(width=CANVAS['portrait'][0], height=CANVAS['portrait'][1],
-                    image='assets/jungle/title/world-map-portrait.webp', low='assets/jungle/title/world-map-portrait-low.webp')
+    source = ROOT/spec['source']
+    with Image.open(source) as original:
+        if list(original.size) != spec['canvas']:
+            raise SystemExit('world map: approved terrain dimensions differ from the specification')
+    # Both window orientations show this same whole, unwarped painting.
+    # Existing transparent landmark artwork is reused byte for byte.
+    scene = dict(name=spec['scene'], width=spec['canvas'][0], height=spec['canvas'][1],
+                 image='assets/jungle/title/world-map.avif', low='assets/jungle/title/world-map-low.avif', back=True)
+    portrait = dict(width=spec['canvas'][0], height=spec['canvas'][1],
+                    image=scene['image'], low=scene['low'])
+    for view in (scene, portrait):
+        view['preload'] = ['assets/jungle/title/window-animation/cloud.avif',
+                           'assets/jungle/title/window-animation/cloud-wisp.avif']
+    scene['exploration'] = [dict(area=m['id'], center=m['center']) for m in spec['landmarks']
+                            if not m['target'].startswith('locked:')]
+    portrait['exploration'] = scene['exploration']
+    receipts, exports = [], []
     for orientation, view in (('landscape', scene), ('portrait', portrait)):
-        source = LOCAL/spec['plates'][orientation]
-        with Image.open(source) as original:
-            plate = original.convert('RGB')
-        if plate.size != CANVAS[orientation]:
-            raise SystemExit(f'{source.name} must be {CANVAS[orientation]}')
         hotspots = []
-        for mark, target, picture, width, rest, highlight in marks:
-            x, y, placed = mark[orientation]
-            scale = placed / width
-            pad = round(PAD * scale)
-            rect = [x - pad, y - pad, round(picture.width * scale), round(picture.height * scale)]
-            if rect[0] < 0 or rect[1] < 0 or rect[0] + rect[2] > plate.width or rect[1] + rect[3] > plate.height:
+        for mark in spec['landmarks']:
+            target = resolve(mark, names, games)
+            cx, cy = mark['center']
+            if mark.get('terrain_region'):
+                # The arid terrain remains a destination without a camel,
+                # guide or painted footpath. Feedback uses the existing UI.
+                rect = [cx - 130, cy - 90, 260, 180]
+                rest = highlight = ''
+                x, y, w, h = rect
+                polygon = [[x,y],[x+w,y],[x+w,y+h],[x,y+h]]
+            else:
+                rest = ASSETS + mark['id'] + '.avif'
+                highlight = ASSETS + mark['id'] + '-glow.avif'
+                with Image.open(ROOT/rest) as original:
+                    picture = original.convert('RGBA')
+                placed = mark['landscape'][2]
+                scale = placed / (picture.width - PAD * 2)
+                width, height = round(picture.width * scale), round(picture.height * scale)
+                rect = [round(cx - width / 2), round(cy - height / 2), width, height]
+                polygon = outline(picture.getchannel('A'), rect[0], rect[1], scale)
+            rect, polygon = SharedGeometry(mark,rect,polygon)
+            if rect[0] < 0 or rect[1] < 0 or rect[0]+rect[2] > view['width'] or rect[1]+rect[3] > view['height']:
                 raise SystemExit(f'world map: {mark["id"]} leaves the {orientation} plate')
-            if mark.get('shadow'):
-                plate = shadow(plate, rect, pad, mark['shadow'])
-            hotspots.append(dict(id=mark['id'], target=target, glow_rect=rect, rest=rest, glow=highlight,
-                                 polygon=outline(picture.getchannel('A'), rect[0], rect[1], scale)))
-        plate = edge(plate, color)
-        master = LOCAL/f'map-{orientation}-plate.png'
-        plate.save(master)
-        export_image(master, ROOT/view['image'], 'title-background')
-        export_image(master, ROOT/view['low'], 'title-background', size=(240, round(plate.height * 240 / plate.width)))
+            hotspots.append(dict(id=mark['id'], target=target, glow_rect=rect, rest=rest, glow=highlight, polygon=polygon, **({'rotation':mark['rotation']} if 'rotation' in mark else {})))
+            if orientation == 'landscape':
+                receipts.append(dict(landmark=mark['id'], target=target, center=mark['center'],
+                                     rect=rect, runtime=rest, terrain_region=bool(mark.get('terrain_region')),
+                                     **(dict(sha256=digest(ROOT/rest), glow=highlight, glow_sha256=digest(ROOT/highlight)) if rest else {})))
         view['hotspots'] = hotspots
-        receipts.append(dict(plate=orientation, generated=str(source.relative_to(ROOT)), generated_sha256=digest(source),
-                             master=str(master.relative_to(ROOT)), master_sha256=digest(master),
-                             runtime=view['image'], sha256=digest(ROOT/view['image']),
-                             low=view['low'], low_sha256=digest(ROOT/view['low'])))
+        if orientation == 'landscape':
+            for key, size in (('image', None), ('low', (240, round(spec['canvas'][1] * 240 / spec['canvas'][0])))):
+                exported = export_image(source, ROOT/view[key], 'title-background', **({'size': size} if size else {}))
+                exports.append((source, ROOT/view[key], exported))
+        receipts.append(dict(plate=orientation, master=spec['source'], master_sha256=digest(source),
+                             runtime=view['image'], sha256=digest(ROOT/view['image']), low=view['low'], low_sha256=digest(ROOT/view['low'])))
     scene['portrait'] = portrait
-    # Only the current landmarks' pictures stay in the runtime folder.
-    keep = {Path(path).name for _, _, _, _, rest, highlight in marks for path in (rest, highlight)}
-    for stale in (ROOT/ASSETS).glob('*.webp'):
-        if stale.name not in keep:
-            stale.unlink()
     data['scenes'] = [s for s in data['scenes'] if s['name'] != spec['scene']] + [scene]
     MANIFEST.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n')
     PROVENANCE.write_text(json.dumps(dict(
-        owner_request='Design a world map inspired by the painted style, where each area we can go to is a '
-                      'distinct building or landmark that can be selected.',
-        generator='Harmony generate_image (Codex built-in image generation); original Jungle watercolor',
-        style_reference='the Jungle title paintings (treehouse, Campus, Port, Desert edge)',
-        layout='owner 2026-11-03: Market, Farm, Campus with the Treehouse, Desert from left to right; the Port '
-               'above the Market, the Beach right of the Port and the Aquarium above the Beach; the Jungle Path '
-               'between the Beach and Campus, shifted left to leave the Treehouse directly behind the music huts; '
-               'beyond the Desert the world fades into darkness (no mountain yet).',
-        method='Codex paints a clean background plate per orientation from a position guide and each landmark '
-               'as its own transparent layer, shared by both orientations; a cream halo glows from each '
-               'silhouette; the darkness beyond the Desert is a locked layer that answers "not yet"; the '
-               'outer band fades into the flat paper shown around the map.',
+        owner_request='Fully implement approved terrain v3 and clouds around areas not yet visited.',
+        approval='Owner accepted the flagged before-after-v3 comparison on 2026-11-04; terrain integrated as approved without regeneration.',
+        layout=f'{spec["canvas"][0]}x{spec["canvas"][1]} whole painting and shared landscape layout in both orientations; '
+               + '; '.join(f'{mark["id"]} center {mark["center"][0]},{mark["center"][1]}' for mark in spec['landmarks'])
+               + '. No camel or desert footpath.',
+        method='Original-based AVIF q35; existing exact landmark AVIFs reused. Existing window clouds cover unvisited terrain; genuine scene/activity visits clear their surroundings and persist separately from activity progress.',
         assets=receipts), indent=2) + '\n')
-    print('Integrated the world map; run python3 tools/title_scenes.py next')
+    # Update only these changed plates in the canonical AVIF receipt.
+    canonical = ROOT/'tools/canonical_avif.json'
+    catalog = json.loads(canonical.read_text())
+    for master, runtime, exported in exports:
+        with Image.open(runtime) as picture, Image.open(master) as original:
+            decoded = picture.convert('RGBA')
+            rgba = original.convert('RGBA')
+            if rgba.size != decoded.size:
+                rgba = rgba.resize(decoded.size, Image.Resampling.LANCZOS)
+            ah = hashlib.sha256(decoded.getchannel('A').tobytes()).hexdigest()
+            catalog['files'][runtime.relative_to(ROOT).as_posix()] = dict(
+                source=master.relative_to(ROOT).as_posix(), source_sha256=digest(master), source_bytes=master.stat().st_size,
+                source_rgba_sha256=hashlib.sha256(rgba.tobytes()).hexdigest(), dimensions=list(decoded.size),
+                alpha=False, source_alpha_sha256=ah, alpha_sha256=ah,
+                rgba_sha256=hashlib.sha256(decoded.tobytes()).hexdigest(), sha256=digest(runtime), bytes=runtime.stat().st_size,
+                quality=exported.quality, lossless=exported.lossless, subsampling='444' if exported.lossless else '420', speed=6)
+    catalog['count'] = len(catalog['files'])
+    catalog['before_bytes'] = sum(row['source_bytes'] for row in catalog['files'].values())
+    catalog['after_bytes'] = sum(row['bytes'] for row in catalog['files'].values())
+    canonical.write_text(json.dumps(catalog, indent=2) + '\n')
+    print('world map: approved full-size terrain, placements and AVIF receipts integrated')
 
 
 if __name__ == '__main__':

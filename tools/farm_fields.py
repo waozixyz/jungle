@@ -5,15 +5,18 @@ The owner (2026-11-03): the crop fields carry no labels; hovering a field
 lights the whole field; the crops sit inside the soil in every orientation.
 Each raised bed is found in the entrance painting itself: its dark soil, and
 the bamboo frame around it. The frame's outline becomes a lossless golden glow
-(assets/garden/art/field-<orientation>-<bed>.webp) and a hover polygon; the
+(assets/garden/art/field-<orientation>-<bed>.avif) and a hover polygon; the
 soil's four corners become the quad crops are placed in, in perspective.
 
     python3 tools/farm_fields.py           write the glows and the data file
     python3 tools/farm_fields.py --check   fail when either is out of date
 """
 import argparse
+import json
 import hashlib
 import io
+from avif_codec import save_shipped_cutout
+import tempfile
 import sys
 from pathlib import Path
 import numpy as np
@@ -115,25 +118,33 @@ def soil_quad(mask):
 
 
 def build():
-    """(generated Ziran text, {glow path: lossless WebP bytes})."""
+    """(generated Ziran text, {glow path: lossless AVIF bytes})."""
     first, count, xs, ys, rects, soil_x, soil_y, glows = [], [], [], [], [], [], [], {}
+    # Segmentation is an authoring operation. Store approved geometry so a
+    # codec's small color differences cannot move beds or planting anchors.
+    geometry = json.loads((ROOT/'tools/farm_field_geometry.json').read_text())
     for orientation in ORIENTATIONS:
-        with Image.open(ROOT/f'assets/garden/art/scene-{orientation}.webp') as picture:
-            size = picture.size
-            beds = masks(picture)
-        for bed, (soil, whole) in enumerate(beds):
-            polygon = hull(whole, size)
+        source = ROOT/f'assets/garden/art/scene-{orientation}.avif'
+        record = geometry[orientation]
+        assert hashlib.sha256(source.read_bytes()).hexdigest() == record['source_sha256'], 'Refresh Farm geometry after an approved painting change'
+        size = tuple(record['dimensions'])
+        for bed, shape in enumerate(record['beds']):
+            polygon = shape['polygon']
             left, top = max(0, min(p[0] for p in polygon)-14), max(0, min(p[1] for p in polygon)-14)
             right = min(size[0], max(p[0] for p in polygon)+15)
             bottom = min(size[1], max(p[1] for p in polygon)+15)
             rect = [left, top, right-left, bottom-top]
-            stream = io.BytesIO()
-            glow(dict(polygon=polygon, glow_rect=rect)).save(stream, 'WEBP', lossless=True, exact=True, method=6)
-            glows[f'assets/garden/art/field-{orientation}-{bed}.webp'] = stream.getvalue()
+            cache = ROOT / 'local/art-development/farm-fields'
+            cache.mkdir(parents=True, exist_ok=True)
+            with tempfile.TemporaryDirectory(dir=cache) as folder:
+                encoded = Path(folder) / 'glow.avif'
+                name = f'assets/garden/art/field-{orientation}-{bed}.avif'
+                save_shipped_cutout(glow(dict(polygon=polygon, glow_rect=rect)), encoded, name)
+                glows[name] = encoded.read_bytes()
             first.append(len(xs)); count.append(len(polygon))
             xs += [p[0] for p in polygon]; ys += [p[1] for p in polygon]
             rects += rect
-            for x, y in soil_quad(soil):
+            for x, y in shape['soil']:
                 soil_x.append(x); soil_y.append(y)
     numbers = lambda values: ', '.join(str(v) for v in values)
     lines = [
@@ -153,13 +164,46 @@ def build():
     return '\n'.join(lines)+'\n', glows
 
 
+def refresh_geometry():
+    """Explicit authoring step after an approved Farm painting change."""
+    records = {}
+    for orientation in ORIENTATIONS:
+        source = ROOT/f'assets/garden/art/scene-{orientation}.avif'
+        with Image.open(source) as image:
+            size = image.size
+            beds = [{'polygon': hull(whole, size), 'soil': soil_quad(soil)}
+                    for soil, whole in masks(image)]
+        records[orientation] = {'source_sha256': hashlib.sha256(source.read_bytes()).hexdigest(),
+                                'dimensions': list(size), 'beds': beds}
+    (ROOT/'tools/farm_field_geometry.json').write_text(json.dumps(records, indent=2)+'\n')
+
+
+def same_glow(path, data):
+    """Whether shipped PATH shows the glow DATA encodes. Another avifenc/libaom
+    build (CI's distribution package) may round lossy pixels differently, so
+    allow a shade of drift; a changed bed outline moves whole edges."""
+    from PIL import ImageChops, ImageStat
+    with Image.open(path) as shipped, Image.open(io.BytesIO(data)) as fresh:
+        shipped, fresh = shipped.convert('RGBA'), fresh.convert('RGBA')
+    if shipped.size != fresh.size:
+        return False
+    if shipped.tobytes() == fresh.tobytes():
+        return True
+    alpha = ImageChops.difference(shipped.getchannel('A'), fresh.getchannel('A'))
+    color = ImageStat.Stat(ImageChops.difference(shipped.convert('RGB'), fresh.convert('RGB'))).mean
+    return ImageStat.Stat(alpha).mean[0] < 1 and alpha.getextrema()[1] <= 24 and max(color) < 3
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument('--check', action='store_true', help='fail when the glows or data file are out of date')
+    parser.add_argument('--refresh-geometry', action='store_true', help='record bed geometry after an approved painting change')
     arguments = parser.parse_args()
+    if arguments.refresh_geometry:
+        refresh_geometry()
     text, glows = build()
     stale = [str(OUTPUT.relative_to(ROOT))] if not OUTPUT.exists() or OUTPUT.read_text() != text else []
-    stale += [path for path, data in glows.items() if not (ROOT/path).exists() or (ROOT/path).read_bytes() != data]
+    stale += [path for path, data in glows.items() if not (ROOT/path).exists() or not same_glow(ROOT/path, data)]
     if arguments.check:
         if stale:
             sys.exit('farm fields: out of date: '+', '.join(stale)+'; run python3 tools/farm_fields.py')

@@ -1,7 +1,9 @@
 # Jungle image-format research
 
-This folder is research-only. It does not change Jungle's WebP standard, loader,
-tests, packaging, or runtime assets. Generated bitstreams, model files, metrics,
+This folder records the original pre-migration comparison. Jungle now ships
+AVIF at full dimensions, with exact lossless cutouts; see README.md and
+`tools/canonical_avif.json` for the shipping policy. The shown 75% tier is
+research evidence, not the final full-dimension migration setting. Generated bitstreams, model files, metrics,
 and before/after cards are intentionally kept under the ignored
 `local/image-format-research/` directory.
 
@@ -33,6 +35,8 @@ decoding plus Lanczos restoration, and a quarter-resolution QuickSRNet path.
 `project_inventory.py` measures AVIF q35 at 100%, 75%, 50%, and 25% dimensions
 for every WebP currently under `assets/`.
 
-The generated files are not tracked because Jungle's art rules keep review
-outputs and generated candidates out of Git. Re-run either script to recreate
-them after artwork changes.
+These scripts preserve the historical WebP benchmark and its original source
+paths. After migration, its WebP inputs live under ignored
+`backup/avif-migration/assets/`; they are not shipping artwork. Replaying this
+research requires those archived inputs. Use `tools/image_exports.py` for
+current AVIF exports and `tests/canonical_avif_test.py` for the current inventory.

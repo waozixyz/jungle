@@ -1,6 +1,7 @@
 // The treehouse title screen's fit, hit testing and navigation, without a window.
 #import "kryon/geometry"
 #import, file "../host/jungle_title.zi";
+#import, file "../host/jungle_progress.zi";
 #import, file "../host/jungle_title_animation.zi";
 #import, file "../host/jungle_title_data.zi";
 #import, file "../host/platform.zi";
@@ -39,8 +40,100 @@ HotspotNamed :: (scene: s32, id: string) -> s32 {
     return -1
 }
 
+// Moving painted crabs must carry their actual polygon target in both
+// orientations, including a stationary pointer and a press/release pair.
+BeachCrabMotionTest :: () -> s32 {
+    for orientation: cast(s32)0..1 {
+        scene := SceneNamed(ifx orientation == 0 then "beach" else "beach-portrait")
+        crab := HotspotNamed(scene, "crab-family")
+        sign := HotspotNamed(scene, "port-path")
+        if crab < 0 || sign < 0 { return 760 }
+        rect := crab * 4
+        if TITLE_GLOW_RECT[rect + 2] != (ifx orientation == 0 then 432 else 468) { return 761 }
+        right := TitleHotspotMotionX(crab, 3.0)
+        left := TitleHotspotMotionX(crab, 9.0)
+        if right < 30.0 || !Near(right, -left) || !Near(TitleHotspotMotionX(crab, 12.0), 0.0) { return 762 }
+        if !Near(TitleHotspotMotionX(sign, 3.0), 0.0) { return 763 }
+        x: float32
+        y: float32
+        if !OwnPoint(scene, crab, *x, *y) { return 764 }
+        for tick: cast(s32)0..48 {
+            now := cast(float64)tick / 4.0
+            moved_x := x + TitleHotspotMotionX(crab, now)
+            if !TitleInside(crab, moved_x, y, now) || TitleHit(scene, moved_x, y, now) != crab { return 765 }
+        }
+        // A newly occupied edge hits the moving crab rather than its old
+        // position; a vacated edge is no longer a crab target.
+        for direction: cast(s32)0..1 {
+            now := ifx direction == 0 then 3.0 else 9.0
+            entered := false
+            left_behind := false
+            for row: cast(s32)1..39 {
+                for column: cast(s32)-10..50 {
+                    px := cast(float32)TITLE_GLOW_RECT[rect] + cast(float32)(TITLE_GLOW_RECT[rect + 2] * column) / 40.0
+                    py := cast(float32)TITLE_GLOW_RECT[rect + 1] + cast(float32)(TITLE_GLOW_RECT[rect + 3] * row) / 40.0
+                    original := TitleInside(crab, px, py)
+                    moving := TitleInside(crab, px, py, now)
+                    if moving && !original && TitleHit(scene, px, py, now) == crab { entered = true }
+                    if original && !moving && TitleHit(scene, px, py, now) != crab { left_behind = true }
+                }
+            }
+            if !entered || !left_behind { return 766 }
+        }
+        state: TitleState
+        TitleStart(*state)
+        state.scene = scene
+        state.hover_mode = true
+        width: float32 = ifx orientation == 0 then 960.0 else 420.0
+        height: float32 = ifx orientation == 0 then 600.0 else 900.0
+        view := TitleFit(width, height, 0.0, 0.0, scene)
+        wx := view.x + (x + right) * view.scale
+        wy := view.y + y * view.scale
+        unused TitlePointer(*state, view, wx, wy, false, false, false, false, 3.0)
+        if state.hovered != crab || TitleGlowing(state) != crab { return 767 }
+        unused TitlePointer(*state, view, wx, wy, true, true, false, false, 3.0)
+        opened := TitlePointer(*state, view, wx, wy, false, false, true, false, 3.01)
+        if opened.game != crab { return 768 }
+    }
+    return 0
+}
+
 #program_export
 main :: () -> s32 {
+    crab_result := BeachCrabMotionTest()
+    if crab_result != 0 { return crab_result }
+    exploration := ExplorationParse("")
+    if !TitleCloudCovered(exploration, 1330.0, 860.0) { return 740 }
+    unused ExplorationVisit(*exploration, "campus")
+    if TitleCloudCovered(exploration, 1330.0, 860.0) ||
+        !TitleCloudCovered(exploration, 2840.0, 1820.0) { return 741 }
+    restored := ExplorationParse(ExplorationText(exploration))
+    if TitleCloudCovered(restored, 1330.0, 860.0) || !TitleCloudCovered(restored, 3010.0, 1980.0) { return 742 }
+    if TitleFogVisits(exploration) != TitleFogVisits(restored) { return 743 }
+    campus_area: s32 = -1
+    for area: cast(s32)0..TITLE_MAP_AREA_COUNT-1 { if TITLE_MAP_AREA[area]=="campus" { campus_area=area } }
+    if campus_area<0 { return 744 }
+    cx:=cast(float32)TITLE_MAP_CENTER[campus_area*2]
+    cy:=cast(float32)TITLE_MAP_CENTER[campus_area*2+1]
+    visits:=TitleFogVisits(exploration)
+    if TitleFogAlpha(cast(u32)0,cx,cy)!=cast(u8)255 || TitleFogAlpha(visits,cx,cy)!=cast(u8)0 { return 745 }
+    previous_alpha: u8
+    for offset: cast(s32)0..650 {
+        alpha:=TitleFogAlpha(visits,cx+cast(float32)offset,cy)
+        if alpha<previous_alpha { return 746 }
+        if offset>0 && cast(s32)alpha-cast(s32)previous_alpha>5 { return 747 }
+        previous_alpha=alpha
+    }
+    if previous_alpha!=cast(u8)255 { return 748 }
+    mask: [TITLE_FOG_BYTES]u8
+    if TitleFogMask(visits,mask[:8]) || !TitleFogMask(cast(u32)0,mask[:]) { return 749 }
+    for sample: cast(s32)0..TITLE_FOG_WIDTH*TITLE_FOG_HEIGHT-1 {
+        if mask[sample*4+3]!=cast(u8)255 { return 750 }
+    }
+    if !TitleFogMask(visits,mask[:]) { return 751 }
+    inner:=((cast(s32)cy*TITLE_FOG_HEIGHT/TITLE_SCENE_HEIGHT[TITLE_MAP_SCENE])*TITLE_FOG_WIDTH+
+        cast(s32)cx*TITLE_FOG_WIDTH/TITLE_SCENE_WIDTH[TITLE_MAP_SCENE])*4+3
+    if mask[inner]!=cast(u8)0 || mask[TITLE_FOG_BYTES-1]!=cast(u8)255 { return 752 }
     if TitleAnimationFrame(0.0, 8.0, 8) != 0 { return 230 }
     if TitleAnimationFrame(0.124, 8.0, 8) != 0 { return 231 }
     if TitleAnimationFrame(0.125, 8.0, 8) != 1 { return 232 }
@@ -428,8 +521,8 @@ main :: () -> s32 {
         if guide < 0 || camel < 0 || back < 0 || TITLE_SCENE_HOTSPOTS[talk.scene] != 3 { return 289 }
         if TITLE_HOTSPOT_DIALOGUE[guide] != 1 || TITLE_HOTSPOT_DIALOGUE[camel] != 1 || TITLE_HOTSPOT_GAME[guide] != "" { return 290 }
         if TITLE_SIGN_LABEL[back] != "Campus" || TITLE_SIGN_DIRECTION[back] != 1 || TITLE_HOTSPOT_TARGET[back] != campus { return 291 }
-        if TitleHotspotRest(guide) != "assets/jungle/title/objects/desert-guide.webp" ||
-            TitleHotspotRest(camel) != "assets/jungle/title/objects/desert-camel.webp" { return 292 }
+        if TitleHotspotRest(guide) != "assets/jungle/title/objects/desert-guide.avif" ||
+            TitleHotspotRest(camel) != "assets/jungle/title/objects/desert-camel.avif" { return 292 }
         // Where the guide and his camel overlap, the guide in front wins.
         view = TitleFit(width, height, 0.0, 0.0, talk.scene)
         if !OwnPoint(talk.scene, guide, *tx, *ty) { return 293 }
@@ -635,7 +728,8 @@ TitlePaperChecks :: () -> s32 {
             view := TitleFit(widths[size], heights[size], 0.0, 0.0, scene)
             place := TitlePaperSpot(scene, view, widths[size], heights[size])
             if place.index != index || place.size <= 0.0 || place.reveal_x <= 0.0 { return 212 + named }
-            if TITLE_SCENE_FOREGROUND[scene] == "" || TITLE_SCENE_BACKGROUND[scene] == "" { return 215 + named }
+            if TITLE_SCENE_BACKGROUND[scene] == "" ||
+                (TITLE_SCENE_FOREGROUND[scene] == "" && TITLE_SCENE_OBJECTS[scene] == 0) { return 215 + named }
             if !Near(TitleSourceX(view, place.x), cast(float32)TITLE_SCENE_PAPER[scene * 4]) ||
                 !Near(TitleSourceY(view, place.y), cast(float32)TITLE_SCENE_PAPER[scene * 4 + 1]) { return 218 }
             half_shown := TitlePaperRevealed(place, 0.5)
@@ -762,7 +856,8 @@ TitleMapChecks :: () -> s32 {
         first := TITLE_SCENE_FIRST[shown]
         if TITLE_SCENE_HOTSPOTS[shown] != TITLE_SCENE_HOTSPOTS[map] || TITLE_SCENE_HOTSPOTS[map] < 8 { return 704 }
         for hotspot: first..first + TITLE_SCENE_HOTSPOTS[shown] - 1 {
-            if TitleHotspotRest(hotspot) == "" || TitleHotspotGlow(hotspot) == "" { return 705 }
+            if TITLE_HOTSPOT_ID[hotspot] != "desert" &&
+                (TitleHotspotRest(hotspot) == "" || TitleHotspotGlow(hotspot) == "") { return 705 }
             x: float32
             y: float32
             if !OwnPoint(shown, hotspot, *x, *y) { return 706 }
@@ -831,6 +926,11 @@ TitleMapChecks :: () -> s32 {
         if (shown == tall) != (height > width) { return 721 }
         view := TitleFit(width, height, 0.0, 0.0, shown)
         if view.pan_x_limit != 0.0 || view.pan_y_limit != 0.0 { return 722 }
+        // The owner selected the whole painting, including terrain beyond
+        // the landmarks. Both orientations must contain every painted pixel.
+        if view.x < -0.5 || view.y < -0.5 ||
+            view.x + cast(float32)TITLE_SCENE_WIDTH[shown] * view.scale > width + 0.5 ||
+            view.y + cast(float32)TITLE_SCENE_HEIGHT[shown] * view.scale > height + 0.5 { return 724 }
         first := TITLE_SCENE_FIRST[shown]
         for hotspot: first..first + TITLE_SCENE_HOTSPOTS[shown] - 1 {
             at := hotspot * 4

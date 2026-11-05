@@ -1,6 +1,75 @@
 // Carry the counting ladder from Jungle Math into Animal Counting.
 #import, file "jungle_text.zi";
 
+// Separate from activity saves: a visit is recorded only after entering a
+// real place. Unknown future areas round-trip; malformed saves stay untouched.
+EXPLORATION_HEADER :: "JUNGLE EXPLORED 1\n"
+Exploration :: struct {
+    areas: string
+    valid: bool
+    dirty: bool
+}
+
+ExplorationAreaValid :: (area: string) -> bool {
+    if area.count == 0 || area.count > 64 { return false }
+    for at: cast(s64)0..area.count - 1 {
+        letter := area[at]
+        if (letter >= #char "a" && letter <= #char "z") ||
+            (at > 0 && at + 1 < area.count && letter == #char "-") { continue }
+        return false
+    }
+    return true
+}
+
+ExplorationHas :: (exploration: Exploration, area: string) -> bool {
+    at: s64 = 0
+    while at < exploration.areas.count {
+        end := at
+        while end < exploration.areas.count && exploration.areas[end] != cast(u8)10 { end += 1 }
+        if exploration.areas[at:end] == area { return true }
+        at = end + 1
+    }
+    return false
+}
+
+ExplorationVisit :: (exploration: *Exploration, area: string) -> bool {
+    if !ExplorationAreaValid(area) || ExplorationHas(exploration.*, area) { return false }
+    exploration.areas = Cat(exploration.areas, area, "\n")
+    exploration.dirty = true
+    return true
+}
+
+ExplorationParse :: (text: string) -> Exploration {
+    parsed: Exploration
+    if text == "" { parsed.valid = true; return parsed }
+    if text.count > 8192 || text.count < EXPLORATION_HEADER.count ||
+        text[:EXPLORATION_HEADER.count] != EXPLORATION_HEADER { return parsed }
+    at := EXPLORATION_HEADER.count
+    while at < text.count {
+        end := at
+        while end < text.count && text[end] != cast(u8)10 { end += 1 }
+        area := text[at:end]
+        if !ExplorationAreaValid(area) { return Exploration.{} }
+        unused ExplorationVisit(*parsed, area)
+        at = end + 1
+    }
+    parsed.valid = true
+    parsed.dirty = false
+    return parsed
+}
+
+ExplorationText :: (exploration: Exploration) -> string {
+    return Cat(EXPLORATION_HEADER, exploration.areas)
+}
+
+ExplorationSceneArea :: (name: string) -> string {
+    base := name
+    if base.count > 9 && base[base.count - 9:] == "-portrait" { base = base[:base.count - 9] }
+    if base == "bookshelf" || base == "window" { return "treehouse" }
+    if base == "map" { return "" }
+    return base
+}
+
 AnimalLevels :: (text: string) -> string {
     at: s64 = 0
     while at < text.count {

@@ -1,6 +1,6 @@
 """Few-KB stand-ins for every whole picture (tools/web_images.py prepare_previews).
 
-Real shipped pictures from each preview folder become small WebP previews of
+Real shipped pictures from each preview folder become small AVIF previews of
 the same aspect ratio. Cut-outs keep their transparency, so a stand-in never
 shows a white box, and photos stay opaque. Jigsaw pictures get one as well,
 since Kryon maps each piece's source onto it. Each folder's previews share
@@ -21,7 +21,7 @@ from build_web import preview_group  # noqa: E402
 samples = {}
 for folder in sorted(PREVIEW_FOLDERS):
     for path in sorted((ROOT/folder).iterdir())[:2]:
-        if path.suffix in ('.webp', '.png'):
+        if path.suffix in ('.avif', '.png'):
             samples[f'{folder}/{path.name}'] = path
 for folder in ('assets/jungle-book/items', 'assets/hide_seek/props', 'assets/hide_seek/scenes', 'assets/drums/pictures', 'assets/jigsaw', 'assets/jungle/title'):
     assert folder in PREVIEW_FOLDERS, folder
@@ -34,7 +34,7 @@ with tempfile.TemporaryDirectory(prefix='preview-test-', dir=ROOT/'work') as cac
     for name, source in samples.items():
         preview = previews[name]
         with Image.open(source) as original, Image.open(preview) as small:
-            assert small.format == 'WEBP', name
+            assert small.format == 'AVIF', name
             assert max(small.size) == min(PREVIEW_PIXELS, max(original.size)), (name, small.size)
             assert abs(small.size[0] / small.size[1] - original.size[0] / original.size[1]) < 0.05, name
             source_alpha = original.mode in ('RGBA', 'LA') or 'transparency' in original.info
@@ -54,7 +54,7 @@ with tempfile.TemporaryDirectory(prefix='preview-test-', dir=ROOT/'work') as cac
 
 # Desktop and Android previews: the picture's own format at the one preview
 # path every host uses, transparency kept, from a cache holding one set.
-assert preview_path('assets/jigsaw/garden.webp') == 'assets/previews/jigsaw/garden.webp'
+assert preview_path('assets/jigsaw/garden.avif') == 'assets/previews/jigsaw/garden.avif'
 with tempfile.TemporaryDirectory(prefix='native-preview-test-', dir=ROOT/'work') as scratch:
     cache = Path(scratch)/'cache'
     native = prepare_native_previews(samples, cache)
@@ -64,7 +64,7 @@ with tempfile.TemporaryDirectory(prefix='native-preview-test-', dir=ROOT/'work')
     for name, source in samples.items():
         preview = native[preview_path(name)]
         with Image.open(source) as original, Image.open(preview) as small:
-            assert small.format == 'WEBP', (name, small.format)
+            assert small.format == 'AVIF', (name, small.format)
             assert max(small.size) == min(PREVIEW_PIXELS, max(original.size)), (name, small.size)
             source_alpha = original.mode in ('RGBA', 'LA') or 'transparency' in original.info
             if source_alpha:
@@ -88,10 +88,10 @@ with tempfile.TemporaryDirectory(prefix='native-preview-test-', dir=ROOT/'work')
     again = prepare_native_previews({one: changed}, cache)
     assert list(again) == [preview_path(one)] and again[preview_path(one)] != native[preview_path(one)]
     assert sorted(cache.iterdir()) == [again[preview_path(one)]], sorted(cache.iterdir())
-assert preview_group('assets/hide_seek/scenes/cottage-yard.webp') == 'hide-seek-scenes'
-assert preview_group('assets/jungle-book/items/alpaca.webp') == 'jungle-book-items'
-assert preview_group('assets/jigsaw/garden.webp') == 'jigsaw'
-assert preview_group('assets/jungle/title/treehouse.webp') == 'jungle-title'
+assert preview_group('assets/hide_seek/scenes/cottage-yard.avif') == 'hide-seek-scenes'
+assert preview_group('assets/jungle-book/items/alpaca.avif') == 'jungle-book-items'
+assert preview_group('assets/jigsaw/garden.avif') == 'jigsaw'
+assert preview_group('assets/jungle/title/treehouse.avif') == 'jungle-title'
 print(f'local web preview test: {len(previews)} stand-ins from {len(PREVIEW_FOLDERS)} folders, '
       f'{transparent} transparent cut-outs kept, jigsaw included; {len(native)} desktop/Android previews, '
       f'{native_transparent} transparent')

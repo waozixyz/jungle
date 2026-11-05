@@ -2,16 +2,16 @@
   "tool": "built-in image_gen",
   "source": "local/art-development/art-refresh-033/palm_tree-scene-candidate.png",
   "original": "backup/picture-book-scenes/art-refresh-033/palm_tree-scene-original.png",
-  "page": "assets/jungle-book/pages/palm_tree.webp",
+  "page": "assets/jungle-book/pages/palm_tree.avif",
   "source_sha256": "fedd2843dc95e3e74eb6d51e8150ee9cfa637ee42dfbee1183b7b8beea8983e5",
-  "page_sha256": "8b3c821b43a9b176bad7cef805419fd025f97a1ea266cbe1fe0a791b55552c3b",
+  "page_sha256": "0e4a80d8e8b5c4eafbc31e393513750217ebd0f71fc460bcd2672130e309eaa6",
   "dimensions": [
     1254,
     1254
   ],
   "prompt": "Use case illustration-story. Create ONE high-resolution square full-scene nature picture-book page for toddlers. Reference image is ONLY for soft hand-painted watercolor, delicate botanical detail, warm cream paper and sage/earth colors; replace all people and reference composition. One clear botanical subject growing naturally rooted in its own setting, recognizable species shape, smooth washes, painterly foliage and gentle airy light. Complete subject and setting, softly feathered painted edges into cream paper. No people, animals, faces on plants, lettering, text, border, watermark, collage or diagram. TREES book: ONE coconut PALM TREE growing naturally on a quiet tropical sandy shore. Complete slightly curved ringed brown trunk from rooted base to full crown, entire feather-shaped long green fronds inside the image with comfortable margins. Recognizable palm leaflets along long drooping arching fronds, a modest cluster of natural coconuts attached below crown. Sea-blue lagoon in background, gentle sand dune grass and small driftwood on ground, distant low island, airy warm morning light. No people, animals, hammock, house or decorative floating items. A natural rooted tree in one complete coastal scene.",
   "reference_images": [
-    "assets/jungle-book/pages/mother.webp"
+    "assets/jungle-book/pages/mother.avif"
   ],
   "reference_usage": "Style reference for generation; new subject and habitat"
 }

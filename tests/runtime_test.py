@@ -21,9 +21,11 @@ OUTPUT = (Path(os.environ["JUNGLE_TEST_OUTPUT"]).resolve()
 def environment():
     env = os.environ.copy()
     for key in ("DISPLAY", "WAYLAND_DISPLAY", "XAUTHORITY",
-                "DBUS_SESSION_BUS_ADDRESS", "SESSION_MANAGER"):
+                "DBUS_SESSION_BUS_ADDRESS", "SESSION_MANAGER", "DESKTOP_SESSION",
+                "XDG_SESSION_ID", "XDG_SESSION_TYPE", "XDG_SESSION_DESKTOP",
+                "XDG_CURRENT_DESKTOP", "XDG_RUNTIME_DIR"):
         env.pop(key, None)
-    env.update(YUE_DESKTOP_RECOVERY="0", SDL_AUDIODRIVER="dummy",
+    env.update(YUE_DESKTOP_RECOVERY="0", SDL_VIDEODRIVER="x11", SDL_AUDIODRIVER="dummy",
                LIBGL_ALWAYS_SOFTWARE="1")
     return env
 

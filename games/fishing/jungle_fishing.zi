@@ -48,7 +48,7 @@ FishAsset :: (fish: s32) -> string {
 }
 
 Picture :: (name: string, x: s32, y: s32, w: s32, h: s32, alt: string, stretch: bool = false, mirror: bool = false) {
-    path := Cat("assets/fishing/", name, ".webp")
+    path := Cat("assets/fishing/", name, ".avif")
     shown := RetroImageShown(path)
     if shown == "" { return }
     // The fish artwork faces right. Mirror a swimming fish toward its bobber

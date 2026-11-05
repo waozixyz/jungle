@@ -14,7 +14,7 @@ def generate():
               'RECT': ('float32', []), 'TIMING': ('float64', []), 'MODE': ('s32', [])}
     for layer in layers:
         path = ROOT/layer['path']
-        assert path.suffix == '.webp', path
+        assert path.suffix == '.avif', path
         columns, count, width, height = layer['sheet']
         assert 0 < count <= columns and width > 0 and height > 0
         with Image.open(path) as im:
@@ -41,7 +41,7 @@ def generate():
     # Bounds skip transparent sky and frame pixels in both renderers.
     for kind, suffix in (('FRAME','frame'), ('SKY_DEPTH','sky-occluder')):
         for orientation in ('landscape', 'portrait'):
-            path = ROOT/f'assets/jungle/title/window-animation/{orientation}-{suffix}.webp'
+            path = ROOT/f'assets/jungle/title/window-animation/{orientation}-{suffix}.avif'
             rects = []
             with Image.open(path) as image:
                 alpha = image.getchannel('A')

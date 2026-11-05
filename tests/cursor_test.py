@@ -4,10 +4,12 @@ crisp images.
 Each host sets both once with JungleCursorsSet: the calm painted arrow is
 Kryon's CursorSetDefault, shown wherever nothing can be clicked, and the
 pointing hand is CursorSetPointing, shown only over something a click does.
-Every cursor image is an exact lossless WebP drawn at a whole 2x or 4x of its
+Every cursor image is an exact lossless AVIF drawn at a whole 2x or 4x of its
 logical size (Jungle's own at 4x: 128 px for 32 units), whose soft edge is
 dark outline, never a light matte, and whose hotspot lies on the picture.
 """
+import json
+import hashlib
 from pathlib import Path
 import re
 import unittest
@@ -67,9 +69,13 @@ class CursorTest(unittest.TestCase):
             with self.subTest(source=str(source), asset=asset):
                 path = ROOT / asset
                 self.assertTrue(path.is_file())
-                self.assertEqual(path.read_bytes()[12:16], b'VP8L', 'cursor WebP must be lossless')
+                row = json.loads((ROOT/'tools/canonical_avif.json').read_text())['files'][path.relative_to(ROOT).as_posix()]
+                # Exact alpha keeps the cursor edge crisp; color is 4:4:4.
+                self.assertTrue(row['exact_alpha'] and row['subsampling'] == '444')
                 self.assertTrue(0 < width <= 32 and 0 < height <= 32)
                 with Image.open(path) as image:
+                    self.assertEqual(hashlib.sha256(image.convert('RGBA').getchannel('A').tobytes()).hexdigest(), row['source_alpha_sha256'])
+                    self.assertEqual(hashlib.sha256(image.convert('RGBA').tobytes()).hexdigest(), row['rgba_sha256'])
                     size = image.size
                     rgba = np.asarray(image.convert('RGBA')).astype(np.int32)
                 # A whole density of the logical size, the same on both axes.
@@ -82,7 +88,8 @@ class CursorTest(unittest.TestCase):
                 light = 0.299 * rgba[..., 0] + 0.587 * rgba[..., 1] + 0.114 * rgba[..., 2]
                 # A faint light pixel is the white fringe this replaced.
                 self.assertEqual(int(((alpha > 0) & (alpha < 200) & (light > 140)).sum()), 0)
-                self.assertEqual(int(((alpha == 0) & (rgba[..., :3].sum(axis=2) > 0)).sum()), 0)
+                # Hidden color stays near black (lossy 4:4:4 drift), never a light fringe.
+                self.assertEqual(int(((alpha == 0) & (rgba[..., :3].max(axis=2) > 32)).sum()), 0)
                 # Hidden edges stay inside the image with room for the outline.
                 self.assertTrue((alpha[[0, -1], :] == 0).all() and (alpha[:, [0, -1]] == 0).all())
                 cell = alpha[hy * scale:hy * scale + scale, hx * scale:hx * scale + scale]

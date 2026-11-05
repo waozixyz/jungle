@@ -12,7 +12,7 @@ def main():
             assert cover.width == cover.height
             # Preserve canonical cover pixels; runtime exports control shipped size.
             export_image(ROOT / 'local/art-development/menu-covers' / (name + '.png'),
-                         target / (('counting' if name == 'count' else name) + '.webp'),
+                         target / (('counting' if name == 'count' else name) + '.avif'),
                          'scene', size=(420, 420))
     print('Prepared four watercolor title covers')
 if __name__ == '__main__': main()

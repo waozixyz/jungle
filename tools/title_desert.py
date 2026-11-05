@@ -3,7 +3,7 @@
 The owner asked for the Desert sign to lead to the edge of the jungle, where a
 guide and his camel explain why we cannot cross the desert yet. Masters stay in
 ignored local/art-development/desert-edge/; this explicit authoring command
-exports the runtime WebPs and the scene's hotspots. Normal builds never run it.
+exports the runtime AVIFs and the scene's hotspots. Normal builds never run it.
 
     python3 tools/title_desert.py
 """
@@ -91,7 +91,7 @@ def sign_hotspot(rect):
     board, polygon = BOARDS['left']
     x, y, w, h = rect
     return dict(id='campus-path', target='scene:campus', glow_rect=rect,
-                rest=OBJECTS+'wood-arrow-left.webp', glow=OBJECTS+'wood-arrow-left-glow.webp',
+                rest=OBJECTS+'wood-arrow-left.avif', glow=OBJECTS+'wood-arrow-left-glow.avif',
                 polygon=[[x+round(px*w/1254), y+round(py*h/1254)] for px, py in polygon],
                 sign=dict(label='Campus', direction='left',
                           label_rect=[round(board[0]*w/1254), round(board[1]*h/1254),
@@ -110,16 +110,16 @@ def main():
         glow.putalpha(picture.getchannel('A'))
         light = scratch/f'desert-{name}-glow.png'
         glow.save(light)
-        rest, highlight = OBJECTS+f'desert-{name}.webp', OBJECTS+f'desert-{name}-glow.webp'
+        rest, highlight = OBJECTS+f'desert-{name}.avif', OBJECTS+f'desert-{name}-glow.avif'
         export_image(raw, ROOT/rest, 'cutout')
         export_image(light, ROOT/highlight, 'cutout')
         layers[name] = (picture, rest, highlight)
         receipts.append(dict(layer=name, master=str(source.relative_to(ROOT)), master_sha256=digest(source),
                              runtime=rest, sha256=digest(ROOT/rest), glow=highlight, glow_sha256=digest(ROOT/highlight),
                              size=list(picture.size)))
-    scene = dict(name='desert', image='assets/jungle/title/desert.webp', low='assets/jungle/title/desert-low.webp')
-    portrait = dict(width=1024, height=1536, image='assets/jungle/title/desert-portrait.webp',
-                    low='assets/jungle/title/desert-portrait-low.webp')
+    scene = dict(name='desert', image='assets/jungle/title/desert.avif', low='assets/jungle/title/desert-low.avif')
+    portrait = dict(width=1024, height=1536, image='assets/jungle/title/desert-portrait.avif',
+                    low='assets/jungle/title/desert-portrait-low.avif')
     for orientation, view in (('landscape', scene), ('portrait', portrait)):
         source = LOCAL/PLATES[orientation]
         with Image.open(source) as original:

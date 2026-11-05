@@ -14,6 +14,7 @@ from book_catalog import (BOOKS, BOOK_GROUPS, LANGUAGES, LEARNING, NAMES,
                           MINIMUM, PAGE_NAMES, TITLES, UNIQUE, WORDS, BuildUniqueBookCatalog,
                           narration, voice_path)
 from book_speech import read_clip
+from design_size import design_size
 
 OLD_IDS = ('jungle', 'garden', 'fruits', 'farm', 'kitchen', 'bathroom',
            'bedroom', 'living-room', 'nature', 'vegetables', 'family',
@@ -41,9 +42,13 @@ def digest(path):
         return hashlib.file_digest(source, 'sha256').hexdigest()
 
 
-_receipt = json.loads((ROOT / 'tools/canonical_webp.json').read_text())
-MIGRATED = _receipt['files'] | _receipt['png_migration']['files']
+_receipt = json.loads((ROOT / 'tools/art_provenance/legacy-webp.json').read_text())
+AVIF_MIGRATED = json.loads((ROOT / 'tools/canonical_avif.json').read_text())['files']
+_legacy = _receipt['files'] | _receipt['png_migration']['files']
+MIGRATED = {str(Path(name).with_suffix('.avif')): dict(row, sha256=AVIF_MIGRATED[str(Path(name).with_suffix('.avif'))]['sha256'])
+            for name, row in _legacy.items() if str(Path(name).with_suffix('.avif')) in AVIF_MIGRATED}
 CANONICAL_NAMES = {entry['source']: name for name, entry in MIGRATED.items()}
+CANONICAL_NAMES.update({entry['source']: name for name, entry in AVIF_MIGRATED.items()})
 
 
 def canonical_name(name):
@@ -67,15 +72,15 @@ def preserved_digest(name):
     farm_counting = {'rabbit', 'cat', 'pig', 'cow', 'dog', 'sheep', 'duck', 'hen'}
     scenes = wild | {'firefighter', 'doctor', 'teacher', 'farmer', 'builder', 'baker',
                      'drawing', 'brushing_teeth'}
-    allowed = ({f'assets/jungle-book/pages/{name}.webp' for name in scenes | farm_scenes}
+    allowed = ({f'assets/jungle-book/pages/{name}.avif' for name in scenes | farm_scenes}
                | {f'assets/jungle-book/items/{name}.png' for name in wild}
                | {f'assets/jungle-book/items/{name}.png' for name in farm_scenes}
                | {f'assets/jungle-book/counting/{name}.png' for name in wild}
                | {f'assets/jungle-book/counting/{name}.png' for name in farm_counting}
-               | {'assets/jungle-book/previews/jungle.webp',
-                  'assets/jungle-book/previews/people-at-work.webp',
-                  'assets/jungle-book/previews/farm.webp', 'assets/jungle/book.png'})
-    minimum_pages = {f'assets/jungle-book/pages/{name}.webp' for name in MINIMUM['words']}
+               | {'assets/jungle-book/previews/jungle.avif',
+                  'assets/jungle-book/previews/people-at-work.avif',
+                  'assets/jungle-book/previews/farm.avif', 'assets/jungle/book.png'})
+    minimum_pages = {f'assets/jungle-book/pages/{name}.avif' for name in MINIMUM['words']}
     allowed = {canonical_name(name) for name in allowed}
     assert set(refresh) <= allowed | minimum_pages, 'Unrequested original asset in art refresh'
     assert {path for path, entry in refresh.items() if entry['previous_sha256'] is None} == minimum_pages, \
@@ -95,8 +100,8 @@ def preserved_digest(name):
 def protected(name):
     name = canonical_name(name)
     return (name.startswith(('assets/jungle-book/', 'assets/abc/'))
-            and name not in ({f'assets/jungle-book/previews/{book}.webp' for book in NEW_COVERS}
-                             | {f'assets/jungle-book/previews/{book}.webp' for book in LATEST_IDS}))
+            and name not in ({f'assets/jungle-book/previews/{book}.avif' for book in NEW_COVERS}
+                             | {f'assets/jungle-book/previews/{book}.avif' for book in LATEST_IDS}))
 
 
 def fingerprint_rows(path):
@@ -144,7 +149,7 @@ class LearningBookTest(unittest.TestCase):
         # The learning books once reused these words; each now has one home page.
         for name in REUSED:
             self.assertEqual(PAGE_NAMES.count(name), 1)
-            self.assertEqual(pages.count(f'"assets/jungle-book/pages/{name}.webp"'), PAGE_NAMES.count(name))
+            self.assertEqual(pages.count(f'"assets/jungle-book/pages/{name}.avif"'), PAGE_NAMES.count(name))
             for language in LANGUAGES:
                 for simple in (True, False):
                     self.assertEqual(voices.count('"' + voice_path(name, language, simple) + '"'), PAGE_NAMES.count(name))
@@ -162,19 +167,20 @@ class LearningBookTest(unittest.TestCase):
         for name, labels in LEARNING['words'].items():
             self.assertEqual(WORDS[name], tuple(labels))
             self.assertEqual(len(labels), 3)
-            scene = ROOT / f'assets/jungle-book/pages/{name}.webp'
+            scene = ROOT / f'assets/jungle-book/pages/{name}.avif'
             self.assertEqual(digest(scene), manifest[name]['canonical_sha256'])
             self.assertEqual(prompts['pages'][name], manifest[name]['prompt'])
             self.assertFalse((ROOT / f'assets/jungle-book/items/{name}.png').exists())
             with Image.open(scene) as im:
-                self.assertEqual((im.size, im.mode, im.format), ((1254, 1254), 'RGB', 'WEBP'))
+                self.assertEqual((design_size(scene, im), im.mode, im.format), ((1254, 1254), 'RGB', 'AVIF'))
         for category, names in LEARNING['books'].items():
             title = TITLES[category]
             self.assertEqual(rows[title[0]], title[1:])
-            with Image.open(ROOT / f'assets/jungle-book/pages/{names[0]}.webp') as scene, Image.open(
-                    ROOT / f'assets/jungle-book/previews/{category}.webp') as cover:
-                expected = scene.convert('RGB').resize((768, 768), Image.Resampling.LANCZOS)
-                self.assertLess(max(ImageStat.Stat(ImageChops.difference(expected, cover.convert('RGB'))).mean), 8)
+            with Image.open(ROOT / f'assets/jungle-book/pages/{names[0]}.avif') as scene, Image.open(
+                    ROOT / f'assets/jungle-book/previews/{category}.avif') as cover:
+                expected = scene.convert('RGB').resize(cover.size, Image.Resampling.LANCZOS)
+                # Both are q35 copies of the same painting at 75%.
+                self.assertLess(max(ImageStat.Stat(ImageChops.difference(expected, cover.convert('RGB'))).mean), 12)
         self.assertEqual(dict(BOOKS)['water-animals'][0], 'goldfish')
 
     def test_new_spelling_exact_pcm(self):
@@ -184,18 +190,19 @@ class LearningBookTest(unittest.TestCase):
         # Runs once the new art and speech exist; every original check also applies.
         prompts = json.loads((ROOT / 'tools/book_prompts.json').read_text())
         for name in UNIQUE['words']:
-            scene = ROOT / f'assets/jungle-book/pages/{name}.webp'
+            scene = ROOT / f'assets/jungle-book/pages/{name}.avif'
             self.assertIn(name, prompts['pages'])
             self.assertFalse((ROOT / f'assets/jungle-book/items/{name}.png').exists())
             with Image.open(scene) as im:
-                self.assertEqual((im.size, im.mode, im.format), ((1254, 1254), 'RGB', 'WEBP'))
+                self.assertEqual((design_size(scene, im), im.mode, im.format), ((1254, 1254), 'RGB', 'AVIF'))
         for category, first in {**NEW_COVERS, 'actions': 'cooking', 'desert-animals': 'camel',
                                 'insects': 'beetle', 'people-at-work': 'firefighter'}.items():
             self.assertEqual(dict(BOOKS)[category][0], first)
-            with Image.open(ROOT / f'assets/jungle-book/pages/{first}.webp') as scene, Image.open(
-                    ROOT / f'assets/jungle-book/previews/{category}.webp') as cover:
-                expected = scene.convert('RGB').resize((768, 768), Image.Resampling.LANCZOS)
-                self.assertLess(max(ImageStat.Stat(ImageChops.difference(expected, cover.convert('RGB'))).mean), 8)
+            with Image.open(ROOT / f'assets/jungle-book/pages/{first}.avif') as scene, Image.open(
+                    ROOT / f'assets/jungle-book/previews/{category}.avif') as cover:
+                expected = scene.convert('RGB').resize(cover.size, Image.Resampling.LANCZOS)
+                # Both are q35 copies of the same painting at 75%.
+                self.assertLess(max(ImageStat.Stat(ImageChops.difference(expected, cover.convert('RGB'))).mean), 12)
         letter = json.loads((ROOT / (NEW_LETTER + '.speech.json')).read_text())
         self.assertEqual(letter['text'], 'u con diéresis.')
         self.assertEqual(self.check_spelling(UNIQUE['words']), 234)
@@ -243,17 +250,17 @@ class LearningBookTest(unittest.TestCase):
         # The separately validated story adds these exact files; it cannot
         # exempt or change any preexisting word-book source in the aggregate.
         story = json.loads((ROOT / 'tools/sweet_porridge.json').read_text())
-        story_assets = {f"assets/jungle-book/pages/{row['asset']}.webp" for row in story['pages']}
+        story_assets = {f"assets/jungle-book/pages/{row['asset']}.avif" for row in story['pages']}
         story_assets |= {f"assets/jungle-book/story-sounds/{language}/{row['asset']}.{suffix}"
                          for row in story['pages'] for language in LANGUAGES
                          for suffix in ('wav', 'speech.json')}
-        story_assets |= {f"assets/jungle-book/portraits/{row['portrait_asset']}.webp" for row in story['pages']}
-        story_assets.add('assets/jungle-book/previews/sweet-porridge.webp')
+        story_assets |= {f"assets/jungle-book/portraits/{row['portrait_asset']}.avif" for row in story['pages']}
+        story_assets.add('assets/jungle-book/previews/sweet-porridge.avif')
         # Bremen is independently validated by town_musicians_test.py. Keep
         # the historical aggregate intact and exempt only its exact additions.
         bremen = json.loads((ROOT / 'tools/town_musicians.json').read_text())
-        story_assets.update(f"assets/jungle-book/pages/{row['asset']}.webp" for row in bremen['pages'])
-        story_assets |= {f"assets/jungle-book/portraits/{row['asset']}.webp" for row in bremen['pages']}
+        story_assets.update(f"assets/jungle-book/pages/{row['asset']}.avif" for row in bremen['pages'])
+        story_assets |= {f"assets/jungle-book/portraits/{row['asset']}.avif" for row in bremen['pages']}
         story_assets |= {f"assets/jungle-book/story-sounds/{language}/{row['asset']}.{suffix}"
                          for row in bremen['pages'] for language in LANGUAGES
                          for suffix in ('wav', 'speech.json')}

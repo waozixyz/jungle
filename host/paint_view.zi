@@ -18,8 +18,8 @@
 //                                  its pixels hide what is below, and its INK
 //                                  stays page pixels
 #if #defined(PLATFORM_WEB) {
-    #import "vector_path"
-    #import "geometry"
+    #import "kryon/vector_path"
+    #import "kryon/geometry"
 } else {
     #import "kryon/vector_path"
     #import "kryon/geometry"
@@ -60,9 +60,11 @@ paint_view_hide: [CANVAS_PIXELS]u8;
 paint_view_runs: [CANVAS_PIXELS]u8;
 paint_view_distance: [CANVAS_PIXELS]u16;
 paint_view_colors: [CANVAS_PIXELS]u8;
-// A fixed array holds at most 1 MiB, so the largest tiles span two.
-PaintViewTileStore :: struct { first: [1048576]u8; second: [871424]u8; }
-paint_view_tile: PaintViewTileStore;
+// A fixed array holds at most 1 MiB, so the largest tile's coverage is one
+// heap block (a two-array struct may lose its unnamed second half).
+paint_view_libc :: #system_library "c";
+PaintViewAllocate :: (count: usize, size: usize) -> *void #foreign paint_view_libc "calloc";
+paint_view_tile: *u8;
 paint_view_palette: [256]u32;
 paint_view_points: [PAINT_VIEW_POINT_LIMIT]Vector2;
 
@@ -288,7 +290,9 @@ PaintViewInkPng :: (request: string, read: PaintViewRead) -> string {
     tile := PaintViewTile.{.width = cast(s32)w, .height = cast(s32)h,
         .page_x = cast(float32)px / PAINT_VIEW_MATRIX_UNITS, .page_y = cast(float32)py / PAINT_VIEW_MATRIX_UNITS,
         .scale_x = cast(float32)sx / PAINT_VIEW_MATRIX_UNITS, .scale_y = cast(float32)sy / PAINT_VIEW_MATRIX_UNITS}
-    target := VectorTarget.{.width = tile.width, .height = tile.height, .coverage = BytesFromPointer(*paint_view_tile.first[0], cast(u64)(w * h))}
+    if paint_view_tile == null { paint_view_tile = cast(*u8)PaintViewAllocate(cast(usize)PAINT_VIEW_TILE_PIXELS, 1) }
+    if paint_view_tile == null { return "" }
+    target := VectorTarget.{.width = tile.width, .height = tile.height, .coverage = BytesFromPointer(paint_view_tile, cast(u64)(w * h))}
     unused PaintViewDraw(tile, target, read)
     for index: cast(s32)0..255 { paint_view_palette[index] = cast(u32)index }
     return PngIndexed(tile.width, tile.height, paint_view_palette[:], target.coverage)

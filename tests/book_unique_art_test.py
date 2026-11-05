@@ -1,3 +1,4 @@
+import sys
 #!/usr/bin/env python3
 """Validate new page art and preserve baseline canonical source assets."""
 import hashlib
@@ -6,6 +7,8 @@ from pathlib import Path
 import re
 import unittest
 from PIL import Image
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from design_size import design_size
 ROOT = Path(__file__).resolve().parents[1]
 def digest(path):
     with open(path, 'rb') as stream:
@@ -36,8 +39,8 @@ class UniqueBookArtTest(unittest.TestCase):
         self.assertEqual({p.stem for p in (ROOT/'tools/art_provenance/book-unique-expansion').glob('*.json')}, self.ids)
         for i, m in self.meta.items():
             with self.subTest(subject=i), Image.open(ROOT/m['page']) as im:
-                self.assertEqual(m['page'], f'assets/jungle-book/pages/{i}.webp')
-                self.assertEqual((im.format, im.mode, im.size), ('WEBP', 'RGB', (1254,1254)))
+                self.assertEqual(m['page'], f'assets/jungle-book/pages/{i}.avif')
+                self.assertEqual((im.format, im.mode, design_size(ROOT/m['page'], im)), ('AVIF', 'RGB', (1254,1254)))
                 im.load()
     def test_sources_and_fingerprints(self):
         for i,m in self.meta.items():

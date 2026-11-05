@@ -7,6 +7,8 @@ import wave
 from PIL import Image
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT/'tools'))
+sys.path.insert(0, str(ROOT/'tests'))
+from design_size import design_size
 from title_scenes import Load
 from web_images import prepare_native_previews, preview_path
 from shared_assets import NarratedVoices, GameFiles, SHARED
@@ -30,7 +32,7 @@ for row, scene in zip(story['pages'], mapping['scenes']):
         assert hashlib.sha256((masters/scene['portrait']).read_bytes()).hexdigest() == scene['portrait_sha256']
     name = scene['runtime']
     files[name] = ROOT/name
-    with Image.open(ROOT/name) as picture: assert picture.size == (1024,1536)
+    with Image.open(ROOT/name) as picture: assert design_size(name, picture) == (1024,1536)
     assert hashlib.sha256((ROOT/name).read_bytes()).hexdigest() == scene['runtime_sha256']
     assert GameFiles('jungle-book')[name] == ROOT/name
 assert 'assets/jungle-book/portraits/' in SHARED
@@ -40,13 +42,15 @@ for name, export in exports.items():
     assert export.info['reused_source'] and export.source.read_bytes() == files[name].read_bytes()
 
 for row in story['pages']:
-    name = f"assets/jungle-book/pages/{row['asset']}.webp"
+    name = f"assets/jungle-book/pages/{row['asset']}.avif"
     files[name] = ROOT/name
     with Image.open(ROOT/name) as picture:
-        assert picture.size == (1536,1024)
+        assert design_size(name, picture) == (1536,1024)
         assert 800 <= row['paper_top'] < 940
-        # Every page's annotated text reserve is part of its accepted painting.
-        paper=picture.convert('RGB').crop((0,row['paper_top'],1536,1024))
+        # Every page's annotated text reserve is part of its accepted painting
+        # (paper_top is in painting pixels; the AVIF ships at 75%).
+        top=round(row['paper_top']*picture.height/1024)
+        paper=picture.convert('RGB').crop((0,top,picture.width,picture.height))
         from PIL import ImageStat
         assert min(ImageStat.Stat(paper).mean)>200
         color=tuple(int(row['paper_color'][at:at+2],16) for at in (1,3,5))

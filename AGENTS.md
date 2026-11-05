@@ -14,15 +14,25 @@ friendly, gentle and obvious.
 
 ## Picture art (owner feedback, 2026-10-26)
 
-- **WebP is standard for every generated image:** finish every image generation
-  with a WebP export via `tools/image_exports.py`. Opaque title backgrounds use
-  q50/method 6, full-scene book pages use q85/method 6, and transparent
-  cut-outs and layers use exact lossless WebP. Keep masters in ignored
-  `local/art-development/`; track only the runtime WebP.
-  Painted previews and palette artwork also use the `exact` lossless role.
-  PNG is reserved for the exact technical exceptions documented in
-  `tools/asset_png_allowlist.json`; `tests/webp_standard_test.py` enforces
-  this in the fast CI suite.
+- **AVIF is standard for every runtime/generated image:** export through
+  `tools/image_exports.py` (8-bit, full range, speed 6, one encoder thread).
+  Owner standard (2026-11-05, the approved tiger page: 270 KB WebP -> 31 KB):
+  Lanczos-downscale the master to 75% of its size, then AVIF q35. Opaque art is
+  YUV420; transparent cut-outs, layers and glows use YUV444 color with q90
+  alpha so edges stay clean; one-color glows keep their single color. Authoring
+  tools draw at painting size and write through `save_shipped_cutout`, which
+  applies a scaled row's 75% standard. Hosts draw every picture into its layout
+  rectangle, so the smaller texture keeps its on-screen size; record the
+  design size (`design_dimensions` in `tools/canonical_avif.json`) wherever
+  layout data needs painting pixels, such as the story paper line.
+  Pictures under 512 px, source-rectangle sheets (window animation, frame,
+  sky occluder), paint art, cursors and the Farm (its fields are traced in painting
+  pixels) keep their pixels: q70 YUV444 with exact
+  alpha. Jigsaw paintings and small menu icons (role `icon`) use q60 YUV444. Only tiny opaque
+  exact art stays lossless. A re-export ships only if it is smaller than the file it replaces.
+  Keep canonical masters in ignored `local/art-development/`; ship only AVIF.
+  PNG is reserved for the exact technical exceptions in
+  `tools/asset_png_allowlist.json`; `tests/avif_standard_test.py` enforces this.
 - **One style everywhere:** the title-screen cover style,
   `local/art-development/title-covers.png`: soft cartoonish storybook watercolor on
   warm cream paper, delicate botanical leaves, gentle earthy colors, friendly
@@ -56,17 +66,12 @@ friendly, gentle and obvious.
   `tools/image_exports.py` in generation/export workflows. Preserve canonical
   full-resolution originals and review candidates in ignored `local/art-development/`.
   Never track generated originals, candidates or review outputs. Integrate only
-  owner-approved runtime WebPs under `assets/`; builds and CI must work without
+  owner-approved runtime AVIFs under `assets/`; builds and CI must work without
   the development folder. Keep required provenance metadata in
-  `tools/art_provenance/`. New opaque title backgrounds
-  use WebP q50/method 6; full-scene book pages use q85/method 6 at
-  native/fullscreen resolution. Transparent
-  cut-outs/layers use exact lossless WebP, preserving alpha and clean edges.
-  Reuse new WebP exports without another lossy encode; keep established staging
-  derivatives/caps for existing artwork. Make new derivatives from originals,
-  resize only for established runtime sizes or explicit previews, and choose the
-  smaller valid export. Optimization does not approve artwork: retain the before/after choice
-  before replacing any shipping picture. Never batch-recompress old lossy art.
+  `tools/art_provenance/`. New art follows the 75%
+  q35 standard above. Reuse existing AVIF without another lossy encode.
+  Only explicit previews, established derivatives and the 75% standard may resize. Optimization does
+  not approve changed artwork: retain the before/after owner choice.
 - **High resolution:** a page fills most of the screen, so ship pictures
   that stay sharp at that size, never 420 px pictures stretched up.
 - **Believable scale:** keep relative sizes where pictures are compared, for
@@ -80,7 +85,7 @@ friendly, gentle and obvious.
 - **Time of day:** Breakfast pages look like morning, Lunch like midday and
   Dinner like evening.
 
-Pages live in `assets/jungle-book/pages` (1254 px WebP) and cut-outs for
+Pages live in `assets/jungle-book/pages` (1254 px masters, 940 px AVIF) and cut-outs for
 Animal Counting and the ABC Book in `assets/jungle-book/items`. Every prompt
 is in `tools/book_prompts.json`; the full-size originals are kept in
 `backup/picture-book-scenes/`.
@@ -164,10 +169,10 @@ is in `tools/book_prompts.json`; the full-size originals are kept in
   garden chooser with a right-pointing Campus return sign and no game title bar.
   Garden play has free seed drag-and-drop and no text tutorial, help screen or
   crop-field messages; preserve jungle.garden identity and leave existing garden.txt saves untouched.
-  The Port uses the approved clean plates plus its Market path. Keep originals private and ship WebPs.
+  The Port uses the approved clean plates plus its Market path. Keep originals private and ship AVIFs.
 - Farm entrance fields (tools/farm_fields.py, run after the painting changes;
   make test runs --check) find each raised bed in the painting: the whole bed
-  is the hover outline and a lossless glow, the soil's four corners are where
+  is the hover outline and an exact-alpha glow, the soil's four corners are where
   crops stand in perspective. The fields carry no labels or numbers.
 - Keep fast unit tests and one local native smoke test in both orientations.
   Retired browser/UI CI gate suites and testing-room fixtures must not return.

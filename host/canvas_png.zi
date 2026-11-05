@@ -9,9 +9,12 @@ PNG_LIMIT :: 2097152
 // The most bytes one stored deflate block holds.
 STORED_BLOCK :: 65535
 
-// A fixed array holds at most 1 MiB, so the largest tiles span two.
-PngStore :: struct { first: [1048576]u8; second: [1048576]u8; }
-png_store: PngStore;
+// A fixed array holds at most 1 MiB, so the store is one heap block: the
+// compiler may drop a struct field nothing names, and a two-array struct's
+// second half then never existed (writes ran into the image decoders' state).
+png_libc :: #system_library "c";
+PngAllocate :: (count: usize, size: usize) -> *void #foreign png_libc "calloc";
+png_store: *u8;
 png_length: s32;
 crc_table: [256]u32;
 crc_ready: bool;
@@ -28,7 +31,7 @@ CrcTable :: () {
 }
 
 PngBytes :: () -> []u8 {
-    return BytesFromPointer(*png_store.first[0], cast(u64)PNG_LIMIT)
+    return BytesFromPointer(png_store, cast(u64)PNG_LIMIT)
 }
 
 PngByte :: (value: u32) {
@@ -66,6 +69,8 @@ PngIndexed :: (width: s32, height: s32, palette: []u32, pixels: []u8) -> string 
     palette.count == 0 || palette.count > 256 { return "" }
     raw_size := (cast(s64)width + 1) * cast(s64)height
     if raw_size > PNG_LIMIT - 2048 { return "" }
+    if png_store == null { png_store = cast(*u8)PngAllocate(cast(usize)PNG_LIMIT, 1) }
+    if png_store == null { return "" }
     if !crc_ready { CrcTable() }
     raw := cast(s32)raw_size
     blocks := (raw + STORED_BLOCK - 1) / STORED_BLOCK

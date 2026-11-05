@@ -8,8 +8,8 @@
 // with CursorSet and withdraw it with .{}; it then returns here.
 #import "kryon/cursor"
 
-JUNGLE_ARROW_CURSOR_ASSET :: "assets/jungle/arrow-cursor.webp";
-JUNGLE_CURSOR_ASSET :: "assets/jungle/hand-cursor.webp";
+JUNGLE_ARROW_CURSOR_ASSET :: "assets/jungle/arrow-cursor.avif";
+JUNGLE_CURSOR_ASSET :: "assets/jungle/hand-cursor.avif";
 
 JungleArrowCursor :: () -> CursorProps {
     return CursorProps.{.asset_path = JUNGLE_ARROW_CURSOR_ASSET, .width = 32, .height = 32, .hotspot_x = 6, .hotspot_y = 2}

@@ -134,19 +134,19 @@ ViewPoint :: (x: float32, y: float32) -> Vector2 {
 
 WoodPiecePath :: (mode: s32, value: s32) -> string {
     if mode == SHAPES_MODE_COLOR {
-        if value == SHAPE_RED { return "assets/shapes/wooden/circle-red.webp" }
-        if value == SHAPE_YELLOW { return "assets/shapes/wooden/circle-yellow.webp" }
-        return "assets/shapes/wooden/circle-blue.webp"
+        if value == SHAPE_RED { return "assets/shapes/wooden/circle-red.avif" }
+        if value == SHAPE_YELLOW { return "assets/shapes/wooden/circle-yellow.avif" }
+        return "assets/shapes/wooden/circle-blue.avif"
     }
-    if mode == SHAPES_MODE_SIZE { return "assets/shapes/wooden/circle-wood.webp" }
-    if value == SHAPE_SQUARE { return "assets/shapes/wooden/square-green.webp" }
-    if value == SHAPE_TRIANGLE { return "assets/shapes/wooden/triangle-green.webp" }
-    return "assets/shapes/wooden/circle-green.webp"
+    if mode == SHAPES_MODE_SIZE { return "assets/shapes/wooden/circle-wood.avif" }
+    if value == SHAPE_SQUARE { return "assets/shapes/wooden/square-green.avif" }
+    if value == SHAPE_TRIANGLE { return "assets/shapes/wooden/triangle-green.avif" }
+    return "assets/shapes/wooden/circle-green.avif"
 }
 
 WoodBox :: (area: ShapesRect) {
     BookBox(area.x + 2, area.y + 7, area.width, area.height - 2, 0x64412735, 0, 12.0)
-    RetroSprite("assets/shapes/wooden/sorter.webp", area.x, area.y, area.width, area.height, -1, true)
+    RetroSprite("assets/shapes/wooden/sorter.avif", area.x, area.y, area.width, area.height, -1, true)
 }
 
 // An upright triangle fitting the same square as a circle of radius r.
@@ -437,7 +437,7 @@ GameMain :: () -> s32 {
     retro = Retro.{.session = AppSession(), .x = bounds.x, .y = bounds.y, .scale = scale, .now = AppNow(), .key = AppKey()}
     view_width = cast(s32)(bounds.width / scale); view_height = cast(s32)(bounds.height / scale)
     BookPalette(); BookBox(0, 0, view_width, view_height, CARD)
-    if WoodenToy() { RetroSprite("assets/shapes/wooden/backdrop.webp", 0, 0, view_width, view_height, -1, true) }
+    if WoodenToy() { RetroSprite("assets/shapes/wooden/backdrop.avif", 0, 0, view_width, view_height, -1, true) }
     if !loaded {
         if !ShapesRead(DocumentRead("shapes.txt"), *game) { game = ShapesNew() }
         loaded = true
@@ -458,7 +458,7 @@ GameMain :: () -> s32 {
     guide = ShapesGuide(game, cast(float32)(retro.now - guide_since))
     helper := layout.prompt
     hop: s32 = ifx retro.now < placed_until then 3 else 0
-    BookPicture("assets/jungle-book/items/tiger.webp", helper.x, helper.y - hop, 34, 34)
+    BookPicture("assets/jungle-book/items/tiger.avif", helper.x, helper.y - hop, 34, 34)
     BookText(layout.prompt.x + 38, layout.prompt.y, layout.prompt.width - 38, layout.prompt.height, ifx ShapesDone(game) then PromptText() else GuideLabel(), 18,
         TextAlign.TextAlignCenter, false)
     Tray()

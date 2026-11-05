@@ -1,0 +1,60 @@
+// Explicit native test host for the actual portable Farm chooser.
+#import "kryon/Desktop"
+#import "kryon/session"
+#import "kryon/tree"
+#import "kryon/tree_draw"
+#import "kryon/box_widget"
+#import "kryon/box_props"
+#import "kryon/geometry"
+#import "kryon/drawing_props"
+#import "kryon/frame_snapshot"
+#import "kryon/bundle_app"
+#import "kryon/bundle_assets"
+#import "kryon/app_context_host"
+#import "kryon/app_local"
+#import "kryon/app_files"
+#import "kryon/hosted_app"
+#import, file "../host/platform.zi";
+#import, file "../host/jungle_menu.zi";
+#import, file "../host/jungle_host.zi";
+#import, file "../host/jungle_title.zi";
+Language :: #import, file "../retro/language.zi";
+
+#program_export
+main :: () -> s32 {
+    if !EnterDirectory("build/app") || !JungleOpen(false) { return 1 }
+    if !OpenDesktopSized(960,600) { return 2 }
+    unused DesktopSetTitle("Jungle Academy")
+    session:=SessionOpen()
+    if !SessionValid(session) { return 3 }
+    for i: cast(s32)0..game_count-1 { if games[i].title=="Farm" { chosen=i } }
+    bytes,found:=ShippedRead("../tests/farm_transform.zx")
+    if !found { return 4 }
+    if !BundleAppOpen(*game,bytes,data_root) { return 5 }
+    ShippedFree(bytes)
+    game.app.services=GameServices; game.app.allows=GameAllows
+    game.extracted_assets=true; book_assets_installed=false
+    if !BundleWriteAssets(game.app.app.bundle,*game.local.files) { return 6 }
+    playing=true; game_farm_entrance=true
+    clicked:=false
+    while PollDesktop() {
+        if !DesktopFrameInputBegin(session) { return 7 }
+        BeginDesktopFrame()
+        viewport:=DesktopViewport(); key:=DesktopPressedKey()
+        if key==76 { Language.language=(Language.language+1)%3 }
+        if key==82 || key==72 { clicked=false; title_scene_from_game=-1 }
+        if !GameFrame(viewport,PollPointer(),PollSecondaryPointer(),key,DesktopModifiers(),
+            DesktopWheelMove(),"",JungleSeconds(),CaptureFrameInput(session)) { return 8 }
+        FrameInputEnd(session)
+        if home_requested { clicked=true; home_requested=false }
+        if BeginFrame(session,cast(u64)1,viewport)!=FrameStatus.FrameOk { return 9 }
+        unused Box(session,BoxProps.{.bounds=Rectangle.{10,viewport.height-40,30,30},
+            .fill=ifx clicked && title_scene_from_game==TitleSceneNamed("campus") then Color.{0,220,0,255}
+                else ifx clicked && title_scene_from_game==TitleSceneNamed("market") then Color.{0,0,220,255}
+                else Color.{220,0,0,255}})
+        if EndFrame(session)!=FrameStatus.FrameOk || !EndDesktopFrame() { return 10 }
+        PauseDesktop()
+    }
+    CloseGame(); SessionClose(session); CloseDesktop()
+    return 0
+}

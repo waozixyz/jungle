@@ -95,8 +95,8 @@ class PaintVectorsTest(unittest.TestCase):
                 total += len(data)
         self.assertLess(total, len(names) * 24 * 1024)
         art = ROOT / 'assets/dino-paint/art'
-        self.assertEqual({p.name for p in art.glob('dino*.webp')},
-                         {name + '-preview.webp' for name in names if name.startswith('dino')})
+        self.assertEqual({p.name for p in art.glob('dino*.avif')},
+                         {name + '-preview.avif' for name in names if name.startswith('dino')})
 
     def test_vector_coverage_preserves_each_source(self):
         for name in vectors.source_names():

@@ -9,7 +9,7 @@ treehouse and the drums; the portrait frogs sit on their rocks.
 
 Masters stay in ignored local/art-development/{market,jungle-path,farm-fields,
 campus-object-layers}/; this explicit authoring command exports the runtime
-WebPs, glows and hotspots. Normal builds never run it.
+AVIFs, glows and hotspots. Normal builds never run it.
 
     python3 tools/title_places.py
 """
@@ -17,6 +17,7 @@ import hashlib
 import json
 from pathlib import Path
 import numpy as np
+from avif_codec import save_shipped_cutout
 from PIL import Image
 from image_exports import export_image
 from title_signs import BOARDS
@@ -28,7 +29,7 @@ LOCAL = ROOT/'local/art-development'
 GARDEN_PROVENANCE = ROOT/'assets/garden/scene-provenance.json'
 MANIFEST = ROOT/'tools/title_hotspots.json'
 PROVENANCE = ROOT/'tools/art_provenance/title-places.json'
-APPROVED = ROOT/'tests/approved_title_webp.json'
+APPROVED = ROOT/'tests/approved_title_avif.json'
 TITLE = 'assets/jungle/title/'
 OBJECTS = TITLE+'objects/'
 CANVAS = {'landscape': (1672, 941), 'portrait': (1024, 1536)}
@@ -98,7 +99,7 @@ def sign(ident, target, label, direction, rect):
     board, polygon = BOARDS[direction]
     x, y, w, h = rect
     return dict(id=ident, target=target, glow_rect=list(rect),
-                rest=OBJECTS+f'wood-arrow-{direction}.webp', glow=OBJECTS+f'wood-arrow-{direction}-glow.webp',
+                rest=OBJECTS+f'wood-arrow-{direction}.avif', glow=OBJECTS+f'wood-arrow-{direction}-glow.avif',
                 polygon=[[x+round(px*w/1254), y+round(py*h/1254)] for px, py in polygon],
                 sign=dict(label=label, direction=direction,
                           label_rect=[round(board[0]*w/1254), round(board[1]*h/1254),
@@ -138,10 +139,10 @@ def animal(folder, orientation, name):
 
 def look(scene_name, ident, polygon, size):
     hotspot = dict(id=ident, target='look:'+ident, polygon=[list(p) for p in polygon],
-                   glow_rect=bounds(polygon, size), glow=TITLE+f'glow/{scene_name}-{ident}.webp')
+                   glow_rect=bounds(polygon, size), glow=TITLE+f'glow/{scene_name}-{ident}.avif')
     path = ROOT/hotspot['glow']
     path.parent.mkdir(parents=True, exist_ok=True)
-    glow(hotspot).save(path, 'WEBP', lossless=True, exact=True, method=6)
+    save_shipped_cutout(glow(hotspot), path, hotspot['glow'])
     return hotspot
 
 
@@ -194,9 +195,9 @@ def peekaboo_trail(orientation):
 
 
 def place(ledger, name, folder):
-    scene = dict(name=name, image=TITLE+f'{name}.webp', low=TITLE+f'{name}-low.webp')
-    portrait = dict(width=1024, height=1536, image=TITLE+f'{name}-portrait.webp',
-                    low=TITLE+f'{name}-portrait-low.webp')
+    scene = dict(name=name, image=TITLE+f'{name}.avif', low=TITLE+f'{name}-low.avif')
+    portrait = dict(width=1024, height=1536, image=TITLE+f'{name}-portrait.avif',
+                    low=TITLE+f'{name}-portrait-low.avif')
     for orientation, view in (('landscape', scene), ('portrait', portrait)):
         source = LOCAL/PLATES[name].format(o=orientation)
         with Image.open(source) as im:
@@ -272,12 +273,12 @@ def main():
     farm = LOCAL/PLATES['farm']
     if farm.is_file():
         # The Farm game's entrance draws the same painting as the title scene.
-        for image, low in ((scenes['farm']['image'], scenes['farm']['low']), ('assets/garden/art/scene-landscape.webp', None)):
+        for image, low in ((scenes['farm']['image'], scenes['farm']['low']), ('assets/garden/art/scene-landscape.avif', None)):
             if low: ledger.plate(farm, image, low)
             else: ledger.background(farm, image)
         # The Farm game records the full-resolution painting's origin.
         garden = json.loads(GARDEN_PROVENANCE.read_text())
-        row = next(a for a in garden['assets'] if a['runtime'] == 'assets/garden/art/scene-landscape.webp')
+        row = next(a for a in garden['assets'] if a['runtime'] == 'assets/garden/art/scene-landscape.avif')
         row.update(source=str(farm.relative_to(ROOT)), sha256=digest(ROOT/row['runtime']), source_sha256=digest(farm))
         GARDEN_PROVENANCE.write_text(json.dumps(garden, ensure_ascii=False, indent=2)+'\n')
     MANIFEST.write_text(json.dumps(data, ensure_ascii=False, indent=2)+'\n')
@@ -288,7 +289,7 @@ def main():
                       'the Campus sign to it upright; in portrait its path between the treehouse and the drums, '
                       'and the frogs on the rocks.',
         generator='Harmony generate_image (Codex built-in image generation); original Jungle watercolor',
-        style_reference='assets/jungle/title/farm-portrait.webp and campus-portrait.webp (style only)',
+        style_reference='assets/jungle/title/farm-portrait.avif and campus-portrait.avif (style only)',
         method='Whole new Market and Jungle Path plates; path edits regenerated only a crop around the join and '
                'were feathered into the unchanged plates. Shop outlines are traced by hand; animal outlines come '
                'from offline BiRefNet cutouts of each crop. Glows are lossless rims from those outlines.',

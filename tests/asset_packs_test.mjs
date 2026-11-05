@@ -56,29 +56,29 @@ for(const path of paths){
   source=join(app,path);
  }
  const entry=manifest.files[path],original=await readFile(source);
- if(entry.encoding==='webp'){
+ if(entry.encoding==='avif'){
   assert.equal(await JungleAssetPacks.hash(original),entry.source_sha256,path);
   assert.equal(entry.source_bytes,original.length,path);
   assert.equal(entry.runtime_bytes,actual.length,path);
   assert.equal(Buffer.from(actual).subarray(0,4).toString(),'RIFF',path);
-  assert.equal(Buffer.from(actual).subarray(8,12).toString(),'WEBP',path);
+  assert.equal(Buffer.from(actual).subarray(8,12).toString(),'AVIF',path);
   if(entry.lossless===true){
    assert.match(path,/^assets\/(?:jungle-book\/items|hide_seek\/(?:props|scenes)|drums\/pictures)\/[^/]+\.png$/);
    assert.equal(entry.quality,undefined);
-   // Verify the actual RIFF image codec, including extended WebP containers.
+   // Verify the actual RIFF image codec, including extended AVIF containers.
    const bytes=Buffer.from(actual);let lossless=false;
    for(let at=12;at+8<=bytes.length;){
     const kind=bytes.toString('ascii',at,at+4),size=bytes.readUInt32LE(at+4);
-    assert.ok(at+8+size<=bytes.length,'Truncated WebP chunk: '+path);
+    assert.ok(at+8+size<=bytes.length,'Truncated AVIF chunk: '+path);
     if(kind==='VP8L')lossless=true;
     assert.notEqual(kind,'VP8 ','A lossless texture used the lossy codec: '+path);
     at+=8+size+(size&1);
    }
-   assert.ok(lossless,'Lossless WebP image payload missing: '+path);
+   assert.ok(lossless,'Lossless AVIF image payload missing: '+path);
   }else{
-   // Runtime derivatives include PNG cut-outs; migrated WebP sources below
+   // Runtime derivatives include PNG cut-outs; migrated AVIF sources below
    // their size cap are reused byte-for-byte instead of encoded a second time.
-   assert.match(path,/\.(?:png|webp)$/);
+   assert.match(path,/\.(?:png|avif)$/);
    assert.equal(entry.alpha_quality,100,path);
    if(entry.reused_source){
     assert.equal(entry.quality,null,path);
@@ -127,4 +127,4 @@ assert.equal(stopped.plays,0,'A stopped clip played when its download finished')
  globalThis.soundBytes=async()=>new Uint8Array([1,2,3]);
 const resumed=packedAudio('resumed.wav');await resumed.play();resumed.pause();await resumed.play();
 assert.equal(resumed.plays,2);assert.equal(resumed.jungleLoading,false);resumed.removeAttribute('src');
-console.log(`local asset reader test: all ${paths.length} original, generated speech or reviewed WebP assets verified; integrity, retry, concurrent fetches and memory cap passed`);
+console.log(`local asset reader test: all ${paths.length} original, generated speech or reviewed AVIF assets verified; integrity, retry, concurrent fetches and memory cap passed`);

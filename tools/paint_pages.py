@@ -18,6 +18,7 @@ import xml.etree.ElementTree as ET
 
 import cairosvg
 import numpy
+from avif_codec import save_avif
 from PIL import Image
 from image_exports import export_painted_image
 
@@ -88,8 +89,8 @@ def main():
         svg = (ART / f'scene{index}.svg').read_text()
         page = render(svg, *CANVAS)
         add(numpy.asarray(page.convert('L')) < 128)
-        page.convert('RGB').resize((256, 192), Image.Resampling.LANCZOS).save(
-            ASSETS / f'scene{index}-thumb.webp', quality=90, method=6)
+        save_avif(page.convert('RGB').resize((256, 192), Image.Resampling.LANCZOS),
+                  ASSETS / f'scene{index}-thumb.avif')
     widths, heights = [], []
     stencil_count = len(list(ART.glob('dino[0-9]*.svg')))
     for index in range(1, stencil_count + 1):
@@ -101,7 +102,7 @@ def main():
             # Lines keep pixels they half cover; the body keeps whole ones.
             add(numpy.asarray(render(ink, w, h).getchannel('A')) >= 96)
             add(numpy.asarray(render(body, w, h).getchannel('A')) >= 128)
-        export_painted_image(render(svg, *fit(width, height, 240, 376)), ASSETS / f'dino{index}-preview.webp')
+        export_painted_image(render(svg, *fit(width, height, 240, 376)), ASSETS / f'dino{index}-preview.avif')
     starts.append(len(pieces))
 
     def table(name, kind, values):

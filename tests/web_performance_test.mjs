@@ -14,7 +14,7 @@ const build=JSON.parse(await readFile(join(root,'version.json'),'utf8'));
 await mkdir(output,{recursive:true});
 await mkdir('work/w',{recursive:true});await mkdir('work/b',{recursive:true});
 const profile=await mkdtemp(resolve('work/w/p-'));
-const mime={'.html':'text/html','.js':'text/javascript','.wasm':'application/wasm','.json':'application/json','.png':'image/png','.webp':'image/jpeg','.wav':'audio/wav'};
+const mime={'.html':'text/html','.js':'text/javascript','.wasm':'application/wasm','.json':'application/json','.png':'image/png','.avif':'image/jpeg','.wav':'audio/wav'};
 let responseBytes=0,requests=0;
 const server=createServer(async(req,res)=>{try{const f=resolve(root,'.'+decodeURIComponent(new URL(req.url,'http://localhost').pathname));if(!f.startsWith(root+'/'))throw Error('path');const data=await readFile(f);responseBytes+=data.length;requests++;res.writeHead(200,{'Content-Type':mime[extname(f)]||'application/octet-stream','Cache-Control':'no-store'});res.end(data)}catch{res.writeHead(404);res.end()}});
 await new Promise(r=>server.listen(0,'127.0.0.1',r));
@@ -91,7 +91,7 @@ try{
   if(entry!==null){for(const value of entry.slice(0,-1)){await key(value);await delay(250)}
    if(captures)await writeFile(join(output,`${backend}-${viewport.name}-before-${activity}.png`),Buffer.from((await command('Page.captureScreenshot',{format:'png'})).data,'base64'));
    await key(entry.at(-1));await delay(500)}
-  if(activity==='picture-book'){await key('1');await waitFor('Module.FS.analyzePath("/assets/jungle-book/pages/tiger.webp").exists','Book image missing');await key(' ')}
+  if(activity==='picture-book'){await key('1');await waitFor('Module.FS.analyzePath("/assets/jungle-book/pages/tiger.avif").exists','Book image missing');await key(' ')}
   if(activity==='abc'){if(!titleScenes)await key('1');await delay(250);await key(' ')}
   if(activity==='numbers'){if(!titleScenes)await key('2');await delay(250);await key(' ')}
   if(activity==='jigsaw'){await key('Enter');await waitFor('Module.FS.analyzePath("/kryon-apps/jungle/jungle.jigsaw/puzzle.txt").exists','Puzzle did not start')}

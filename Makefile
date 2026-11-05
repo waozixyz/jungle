@@ -18,13 +18,15 @@ TOOLCHAIN = $(shell $(ZIRAN) pkg path ziran $(LOCK_FLAGS))
 KRYON = $(shell $(ZIRAN) pkg path kryon $(LOCK_FLAGS))
 MINGCUTE = $(shell $(ZIRAN) pkg path mingcute $(LOCK_FLAGS))
 ZIRANC = $(TOOLCHAIN)/build/bin/ziran
-MODULES = --module-path '$(KRYON)/src/ui' --module-path '$(KRYON)/src/backend' \
-	--module-path 'kryon=$(KRYON)/src/ui' --module-path 'kryon=$(KRYON)/src/backend' \
-	--module-path 'mingcute=$(MINGCUTE)/src' \
-	--module-path 'std=$(TOOLCHAIN)/std' --module-path '$(TOOLCHAIN)/std'
+MODULES = --project
 # Speech clips are Ogg Vorbis (host/sound.zi DecodeSpeech). The versioned name
 # links the runtime library without its development package.
-DESKTOP_LIBS = $$(pkg-config --libs sdl2 cairo freetype2 fontconfig pangocairo) -l:libvorbisfile.so.3 -ldl -lm -lpthread
+DESKTOP_LIBS = $$(pkg-config --libs sdl2 cairo freetype2 fontconfig pangocairo) -l:libvorbisfile.so.3 -ldl -lm -lpthread -Wl,--no-as-needed '$(KRYON)/build/avif-ziran/libkryonavif.so' -Wl,--as-needed -Wl,-rpath,'$(KRYON)/build/avif-ziran' -Wl,-rpath,'$$ORIGIN/../lib' -Wl,-rpath,'$$ORIGIN'
+
+# Kryon's portable AVIF decoder is shared by manual Cairo hosts and AppImage.
+$(KRYON)/build/avif-ziran/libkryonavif.so: $(KRYON)/cmake/AVIF.cmake $(wildcard $(KRYON)/cmake/avif/*) $(wildcard $(KRYON)/src/backend/avif*.zi) $(KRYON)/mk/raylib-library.mk
+	$(MAKE) -f '$(KRYON)/mk/renderer-artifact.mk' KRYON_DIR='$(KRYON)' '$@'
+
 CFLAGS_ZI = -std=c11 -O2 -ffunction-sections -fdata-sections -I'$(TOOLCHAIN)/include'
 # The app as it is installed: the program, its menu assets and the games.
 APP := build/app
@@ -48,7 +50,7 @@ web:
 	python3 tools/build_web.py
 
 test-web-images: web
-	python3 tests/canonical_webp_test.py
+	python3 tests/canonical_avif_test.py
 	python3 tests/image_exports_test.py
 	python3 tests/runtime_images_test.py
 	python3 tests/web_images_test.py
@@ -56,7 +58,7 @@ test-web-images: web
 locales:
 	python3 tools/locales.py
 
-all: $(APP)/jungle $(GAMES) $(APP)/games/catalog.txt $(SHARED)
+all: $(APP)/jungle $(APP)/libkryonavif.so $(GAMES) $(APP)/games/catalog.txt $(SHARED)
 
 run: all
 	$(APP)/jungle
@@ -64,7 +66,7 @@ run: all
 build/ziran/libziran.a: ziran.lock
 	$(MAKE) -C '$(TOOLCHAIN)' BUILD_DIR='$(abspath build/ziran)' '$(abspath $@)'
 
-$(APP)/jungle: $(wildcard host/*.zi retro/*.zi games/paint/paint_palette.zi games/paint/paint_picture.zi) build/ziran/libziran.a
+$(APP)/jungle: $(KRYON)/build/avif-ziran/libkryonavif.so $(wildcard host/*.zi retro/*.zi games/paint/paint_palette.zi games/paint/paint_picture.zi) build/ziran/libziran.a
 	mkdir -p $(APP)
 	@set -eu; output=$$(mktemp -d build/host-c.XXXXXX); \
 		trap 'rm -rf "$$output"' EXIT; \
@@ -72,6 +74,10 @@ $(APP)/jungle: $(wildcard host/*.zi retro/*.zi games/paint/paint_palette.zi game
 		$${CC:-cc} $(CFLAGS_ZI) $$(find "$$output" -type d -printf ' -iquote %p') $$(find "$$output" -name '*.c') \
 		build/ziran/libziran.a -Wl,--gc-sections $(DESKTOP_LIBS) -o "$$output/jungle"; \
 		mv "$$output/jungle" $@
+
+$(APP)/libkryonavif.so: $(KRYON)/build/avif-ziran/libkryonavif.so
+	mkdir -p $(APP)
+	cp $< $@
 
 $(APP)/games/catalog.txt: games/catalog.txt
 	mkdir -p $(APP)/games
@@ -85,7 +91,7 @@ $(APP)/games/catalog.txt: games/catalog.txt
 # folder, so assets removed from assets/ leave the app and bundles too.
 # The manifest and each GAME.files listing change only when their contents
 # do, so an unrelated asset change rebuilds no bundle.
-$(STAGE)/.shared-assets: tools/shared_assets.py tools/web_images.py tools/speech_manifest.py tools/speech_codec.py tools/book_speech.py tools/book_catalog.py tools/book_expansion.json tools/outdoor_books.json tools/book_learning_expansion.json tools/book_unique_expansion.json tools/book_minimum_expansion.json $(SHARED_SOURCES)
+$(STAGE)/.shared-assets: tools/shared_assets.py tools/web_images.py tools/avif_codec.py tools/speech_manifest.py tools/speech_codec.py tools/book_speech.py tools/book_catalog.py tools/book_expansion.json tools/outdoor_books.json tools/book_learning_expansion.json tools/book_unique_expansion.json tools/book_minimum_expansion.json $(SHARED_SOURCES)
 	python3 tools/shared_assets.py --app '$(APP)' --stage '$(STAGE)'
 
 $(SHARED) $(addprefix $(STAGE)/,$(addsuffix .files,$(STAGED_GAMES))): $(STAGE)/.shared-assets
@@ -153,7 +159,7 @@ $(APP)/games/jungle-drums.zx: $(wildcard games/drums/*.zi retro/*.zi) $(STAGE)/j
 	'$(ZIRANC)' bundle --root games/drums $(MODULES) --define KRYON_HOSTED_UI \
 		--asset-dir assets=$(STAGE)/jungle-drums/assets --entry jungle_drums:main -o $@ games/drums/jungle_drums.zi
 
-$(APP)/games/jungle-garden.zx: $(wildcard games/garden/*.zi retro/*.zi) $(STAGE)/jungle-garden.files
+$(APP)/games/jungle-garden.zx: $(wildcard games/garden/*.zi retro/*.zi) host/jungle_title_data.zi $(STAGE)/jungle-garden.files
 	mkdir -p $(APP)/games
 	'$(ZIRANC)' bundle --root games/garden $(MODULES) --define KRYON_HOSTED_UI \
 		--asset-dir assets=$(STAGE)/jungle-garden/assets --entry jungle_garden:main -o $@ games/garden/jungle_garden.zi
@@ -194,7 +200,15 @@ build/tools/%: tools/%.zi $(wildcard tools/*.zi) build/ziran/libziran.a
 	$${CC:-cc} $(CFLAGS_ZI) $$(find build/tools/$*-c -type d -printf ' -iquote %p') $$(find build/tools/$*-c -name '*.c') \
 		build/ziran/libziran.a -Wl,--gc-sections -lm -lpthread $(TEST_LIBS) -o $@
 
+build/tests/voice build/tests/speech_codec: $(KRYON)/build/avif-ziran/libkryonavif.so
 build/tests/voice build/tests/speech_codec: TEST_LIBS = $(DESKTOP_LIBS)
+build/tests/title_transform build/tests/farm_transform: TEST_LIBS = $(DESKTOP_LIBS)
+
+build/tests/farm_transform.zx: tests/farm_transform_bundle.zi $(wildcard games/garden/*.zi retro/*.zi) host/jungle_title_data.zi $(STAGE)/jungle-garden.files
+	'$(ZIRANC)' bundle --root tests $(MODULES) --define KRYON_HOSTED_UI \
+		--asset-dir assets=$(STAGE)/jungle-garden/assets --entry farm_transform_bundle:main -o $@ $<
+
+build/tests/farm_transform: build/tests/farm_transform.zx
 
 build/tests/%: tests/%_test.zi $(wildcard games/*/*.zi host/*.zi retro/*.zi) build/ziran/libziran.a
 	rm -rf build/tests/$*-c
@@ -206,15 +220,17 @@ build/tests/%: tests/%_test.zi $(wildcard games/*/*.zi host/*.zi retro/*.zi) bui
 # Questions, painting and PNG pictures, then every game opened in the app.
 test: build/tests/farm build/tests/fishing build/tests/beach_families build/tests/speed_choice build/tests/title build/tests/paint_preview build/tests/paint_gallery build/tests/paint_gallery_store build/tests/counting_exercises build/tests/paint_layers build/tests/paint_view build/tests/garden build/tests/drums build/tests/hide_seek build/tests/matching build/tests/shapes build/tests/paint build/tests/paint_history build/tests/png build/tests/progress build/tests/document build/tests/counting build/tests/abc build/tests/numbers build/tests/printing build/tests/audio build/tests/voice build/tests/book_preferences build/tests/book_narration build/tests/book_collect build/tests/collection build/tests/paper build/tests/jigsaw build/tests/piano all
 	python3 tools/title_scenes.py --check
-	python3 tests/title_guide_test.py
 	python3 tests/title_scenes_test.py
 	python3 tests/title_sign_rotation_test.py
 	python3 tests/title_room_test.py
 	python3 tests/title_desert_test.py
-	python3 tests/canonical_webp_test.py
+	python3 tests/canonical_avif_test.py
+	python3 tests/avif_standard_test.py
+	python3 tests/avif_migration_test.py
 	python3 tests/cursor_test.py
 	python3 tests/image_exports_test.py
 	python3 tests/runtime_images_test.py
+	python3 tests/title_guide_test.py
 	python3 tests/sweet_porridge_test.py
 	python3 tests/garden_assets_test.py
 	python3 tools/farm_fields.py --check
@@ -310,6 +326,8 @@ install: all
 		mv '$(LIB_DIR)/'$$folder.new '$(LIB_DIR)/'$$folder; \
 		rm -rf '$(LIB_DIR)/'$$folder.old; \
 	done
+	install -m 0644 $(APP)/libkryonavif.so '$(LIB_DIR)/libkryonavif.so.new'
+	mv -f '$(LIB_DIR)/libkryonavif.so.new' '$(LIB_DIR)/libkryonavif.so'
 	install -m 0755 $(APP)/jungle '$(LIB_DIR)/jungle.new'
 	mv -f '$(LIB_DIR)/jungle.new' '$(LIB_DIR)/jungle'
 	ln -sfn '$(LIB_DIR)/jungle' '$(BIN_DIR)/jungle'
@@ -343,6 +361,7 @@ test-world-map:
 	python3 tests/title_world_map_test.py
 test-world-map-ui: all web
 	python3 tests/world_map_smoke_test.py
+	python3 tests/world_map_exploration_test.py
 	python3 tests/world_map_web_test.py --web-root build/web
 
 .PHONY: test-cursor-hover

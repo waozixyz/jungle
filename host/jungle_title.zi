@@ -3,6 +3,8 @@
 // touch and keys move between scenes. host/jungle_menu.zi draws it.
 #import, file "jungle_title_data.zi";
 #import, file "jungle_text.zi";
+#import, file "jungle_progress.zi";
+#import "std/math"
 #import, file "../retro/language.zi";
 #import, file "../retro/collectibles.zi";
 #import, file "../retro/collect_flight.zi";
@@ -244,6 +246,67 @@ TitleOnMap :: (scene: s32) -> bool {
     return TITLE_MAP_SCENE >= 0 && scene >= 0 && scene < TITLE_SCENE_COUNT && TITLE_SCENE_BASE[scene] == TITLE_MAP_SCENE
 }
 
+// Clouds clear around genuinely visited places, including those learned
+// from older activity progress. Looking at or hovering the map is no visit.
+TitleCloudCovered :: (exploration: Exploration, x: float32, y: float32) -> bool {
+    for area: cast(s32)0..TITLE_MAP_AREA_COUNT - 1 {
+        if !ExplorationHas(exploration, TITLE_MAP_AREA[area]) { continue }
+        dx := (x - cast(float32)TITLE_MAP_CENTER[area * 2]) / 590.0
+        dy := (y - cast(float32)TITLE_MAP_CENTER[area * 2 + 1]) / 440.0
+        if dx * dx + dy * dy <= 1.0 { return false }
+    }
+    return true
+}
+
+// One bit per existing exploration ID; unknown future IDs stay in storage.
+// Rendering caches this value, never changing the saved exploration format.
+TitleFogVisits :: (exploration: Exploration) -> u32 {
+    visits: u32
+    for area: cast(s32)0..TITLE_MAP_AREA_COUNT - 1 {
+        if ExplorationHas(exploration,TITLE_MAP_AREA[area]) { visits |= cast(u32)1 << cast(u32)area }
+    }
+    return visits
+}
+
+// Continuous pale cover with a smooth rim around the union of visited places.
+// Outside those rims alpha is exactly 255: no terrain leaks between clouds.
+// Squared distances avoid a square root for each cached mask sample.
+TitleFogAlpha :: (visits: u32, x: float32, y: float32) -> u8 {
+    nearest: float32 = 1.0
+    for area: cast(s32)0..TITLE_MAP_AREA_COUNT - 1 {
+        if (visits & (cast(u32)1 << cast(u32)area)) == cast(u32)0 { continue }
+        dx := (x - cast(float32)TITLE_MAP_CENTER[area*2]) / 590.0
+        dy := (y - cast(float32)TITLE_MAP_CENTER[area*2+1]) / 440.0
+        distance := dx*dx+dy*dy
+        if distance < nearest { nearest=distance }
+    }
+    if nearest <= 0.64 { return cast(u8)0 }
+    if nearest >= 1.0 { return cast(u8)255 }
+    edge := (nearest-0.64)/0.36
+    return cast(u8)(255.0*edge*edge*(3.0-2.0*edge)+0.5)
+}
+
+TITLE_FOG_WIDTH :: 384
+TITLE_FOG_HEIGHT :: 256
+TITLE_FOG_BYTES :: TITLE_FOG_WIDTH*TITLE_FOG_HEIGHT*4
+
+// Small caller-owned RGBA mask, rebuilt only after a visit changes. Smooth
+// image sampling supplies the final screen resolution; there is no frame-time
+// full-screen pixel pass or separately allocated cloud/sprite collection.
+TitleFogMask :: (visits: u32, pixels: []u8) -> bool {
+    if pixels.count<TITLE_FOG_BYTES || TITLE_MAP_SCENE<0 { return false }
+    step_x:=cast(float32)TITLE_SCENE_WIDTH[TITLE_MAP_SCENE]/cast(float32)TITLE_FOG_WIDTH
+    step_y:=cast(float32)TITLE_SCENE_HEIGHT[TITLE_MAP_SCENE]/cast(float32)TITLE_FOG_HEIGHT
+    for row: cast(s32)0..TITLE_FOG_HEIGHT-1 {
+        for column: cast(s32)0..TITLE_FOG_WIDTH-1 {
+            at:=(row*TITLE_FOG_WIDTH+column)*4
+            pixels[at]=cast(u8)242; pixels[at+1]=cast(u8)246; pixels[at+2]=cast(u8)242
+            pixels[at+3]=TitleFogAlpha(visits,(cast(float32)column+0.5)*step_x,(cast(float32)row+0.5)*step_y)
+        }
+    }
+    return true
+}
+
 // Opens the world map from SCENE; its Back returns there.
 TitleMapOpen :: (state: *TitleState, scene: s32) -> bool {
     if state.not_implemented || state.dialogue != 0 || !TitleMapEntry(scene) { return false }
@@ -345,7 +408,17 @@ PointInPolygon :: (xs: []s32, ys: []s32, x: float32, y: float32) -> bool {
     return inside
 }
 
-TitleInside :: (hotspot: s32, x: float32, y: float32) -> bool {
+// The separate Beach crab family walks gently across the dry sand. Drawing,
+// hover, taps and glow use this same source-pixel offset at the same time.
+TitleHotspotMotionX :: (hotspot: s32, now: float64) -> float32 {
+    if hotspot < 0 || hotspot >= TITLE_HOTSPOT_COUNT || !Finite64(now) { return 0.0 }
+    if TITLE_HOTSPOT_ID[hotspot] != "crab-family" { return 0.0 }
+    return cast(float32)(Sin(now * 6.283185307179586 / 12.0)) *
+        cast(float32)TITLE_GLOW_RECT[hotspot * 4 + 2] * 0.08
+}
+
+TitleInside :: (hotspot: s32, x: float32, y: float32, now: float64 = 0.0) -> bool {
+    x -= TitleHotspotMotionX(hotspot, now)
     chunk := TITLE_POLYGON_CHUNK[hotspot]
     first := TITLE_POLYGON_FIRST[hotspot]
     end := first + TITLE_POLYGON_COUNT[hotspot]
@@ -358,13 +431,13 @@ TitleInside :: (hotspot: s32, x: float32, y: float32) -> bool {
 
 // The hotspot of SCENE under source pixel (x, y), or -1. Where items
 // overlap, the smaller one wins, as it sits in front.
-TitleHit :: (scene: s32, x: float32, y: float32) -> s32 {
+TitleHit :: (scene: s32, x: float32, y: float32, now: float64 = 0.0) -> s32 {
     if scene < 0 || scene >= TITLE_SCENE_COUNT { return -1 }
     found: s32 = -1
     found_area: s32 = 0
     first := TITLE_SCENE_FIRST[scene]
     for hotspot: first..first + TITLE_SCENE_HOTSPOTS[scene] - 1 {
-        if !TitleInside(hotspot, x, y) { continue }
+        if !TitleInside(hotspot, x, y, now) { continue }
         area := TITLE_GLOW_RECT[hotspot * 4 + 2] * TITLE_GLOW_RECT[hotspot * 4 + 3]
         if found < 0 || area < found_area { found = hotspot; found_area = area }
     }
@@ -549,7 +622,7 @@ TitlePointer :: (state: *TitleState, view: TitleView, x: float32, y: float32,
     state.last_x = x
     state.last_y = y
     hit: s32 = -1
-    if !blocked { hit = TitleHit(state.scene, TitleSourceX(view, x), TitleSourceY(view, y)) }
+    if !blocked { hit = TitleHit(state.scene, TitleSourceX(view, x), TitleSourceY(view, y), now) }
     if pressed {
         state.guide_stopped = true
         state.tracking = !blocked

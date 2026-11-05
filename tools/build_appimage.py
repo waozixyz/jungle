@@ -18,8 +18,10 @@ RUNTIME_SHA256 = '2fca8b443c92510f1483a883f60061ad09b46b978b2631c807cd873a47ec26
 # Speech clips are Ogg Vorbis, decoded by libvorbisfile (host/sound.zi);
 # the AppImage carries it and the two small libraries it needs.
 VORBIS_LIBRARIES = ('libvorbisfile.so.3', 'libvorbis.so.0', 'libogg.so.0')
-# Kryon's Linux image decoder opens the WebP demuxer on demand, outside ldd.
+# Legacy WebP compatibility remains part of Kryon's runtime; AVIF is linked
+# through its self-contained libkryonavif.so and collected from DT_NEEDED.
 WEBP_LIBRARIES = ('libwebpdemux.so.2', 'libwebp.so.7')
+AVIF_LIBRARIES = ('libkryonavif.so',)
 
 
 def system_library(listing, name):
@@ -73,7 +75,7 @@ def main():
                     '--library', webp, '--desktop-file', str(ROOT / 'packaging/xyz.waozi.jungle.desktop'),
                     '--icon-file', str(ROOT / 'assets/jungle/icons/icon-512.png'), '--icon-filename', 'xyz.waozi.jungle',
                     '--custom-apprun', str(apprun)], env=env, check=True)
-    missing = [name for name in VORBIS_LIBRARIES + WEBP_LIBRARIES if not (appdir / 'usr/lib' / name).exists()]
+    missing = [name for name in VORBIS_LIBRARIES + WEBP_LIBRARIES + AVIF_LIBRARIES if not (appdir / 'usr/lib' / name).exists()]
     if missing:
         raise SystemExit('AppImage is missing runtime decoders: ' + ', '.join(missing))
     # Keep the distribution copyright notices for each bundled library.

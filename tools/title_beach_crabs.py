@@ -1,6 +1,6 @@
 """Export the Beach's clean plates and independently placed crab family.
 
-Explicit art authoring only; ordinary builds use the committed WebPs and JSON.
+Explicit art authoring only; ordinary builds use the committed AVIFs and JSON.
 Masters stay in local/art-development/beach-port-split/.
 """
 import json
@@ -12,8 +12,8 @@ from title_places import Ledger
 
 ROOT = Path(__file__).resolve().parents[1]
 LOCAL = ROOT/'local/art-development/beach-port-split'
-OBJECT = 'assets/jungle/title/objects/beach-crab-family.webp'
-GLOW = 'assets/jungle/title/objects/beach-crab-family-glow.webp'
+OBJECT = 'assets/jungle/title/objects/beach-crab-family.avif'
+GLOW = 'assets/jungle/title/objects/beach-crab-family-glow.avif'
 
 
 def main():

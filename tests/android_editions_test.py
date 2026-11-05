@@ -20,6 +20,7 @@ def stale_package_test():
         (app / 'assets').mkdir(parents=True)
         (app / 'games').mkdir()
         (app / 'jungle').write_bytes(b'executable')
+        (app / 'libkryonavif.so').write_bytes(b'AVIF codec')
         (app / 'assets/speech.txt').write_text('speech\n')
         (app / 'games/catalog.txt').write_text('one.zx|One|Description|cover|1\ntwo.zx|Two|Description|cover|2\n')
         for name, data in {'one.zx': b'one', 'two.zx': b'two', 'stale.zx': b'stale'}.items():
@@ -27,8 +28,9 @@ def stale_package_test():
         package = root / 'package'
         assert shared_assets.StageReleaseApp(app, package) == ['one.zx', 'two.zx']
         assert sorted(path.relative_to(package).as_posix() for path in package.rglob('*')) == [
-            'assets', 'assets/speech.txt', 'games', 'games/catalog.txt', 'games/one.zx', 'games/two.zx', 'jungle']
+            'assets', 'assets/speech.txt', 'games', 'games/catalog.txt', 'games/one.zx', 'games/two.zx', 'jungle', 'libkryonavif.so']
         assert (package / 'jungle').read_bytes() == b'executable'
+        assert (package / 'libkryonavif.so').read_bytes() == b'AVIF codec'
         (package / 'games/stale.zx').write_bytes(b'leaked')
         shared_assets.StageReleaseApp(app, package)
         assert not (package / 'games/stale.zx').exists(), 'fresh staging retained an unregistered game'
@@ -64,7 +66,9 @@ def build_api_test():
             commands.append(command)
             if not any('gradlew' in part for part in command):
                 return subprocess.CompletedProcess(command, 0)
-            source = root / 'droid/app/build/outputs/apk/release/app-release-unsigned.apk'
+            variant = 'debug' if 'assembleDebug' in command else 'release'
+            filename = 'app-debug.apk' if variant == 'debug' else 'app-release-unsigned.apk'
+            source = root / 'droid/app/build/outputs/apk' / variant / filename
             source.parent.mkdir(parents=True, exist_ok=True)
             edition = next(part.removeprefix('-Papp.edition=') for part in command
                            if part.startswith('-Papp.edition='))
@@ -77,6 +81,15 @@ def build_api_test():
             build_android.subprocess.run = run
             outputs = {edition: build_android.BuildAndroidEdition(edition, 'universal', True)
                        for edition in ('direct', 'fdroid', 'gplay')}
+            device_test = build_android.BuildAndroidEdition('direct', 'armeabi-v7a', False, True)
+            assert device_test.name == 'JungleAcademy-armeabi-v7a-aviftest-debug.apk'
+            assert sum('-Papp.deviceTest=true' in command for command in commands) == 1
+            try:
+                build_android.BuildAndroidEdition('direct', 'armeabi-v7a', True, True)
+            except AssertionError:
+                pass
+            else:
+                raise AssertionError('A disposable device package must never be a release')
         finally:
             build_android.ROOT = original_root
             build_android.package = original_package
@@ -88,7 +101,8 @@ def build_api_test():
         assert outputs['gplay'].name == 'JungleAcademy-universal-gplay-release-unsigned.apk'
         gradles = {next(part.removeprefix('-Papp.edition=') for part in command
                         if part.startswith('-Papp.edition=')): command
-                   for command in commands if any('gradlew' in part for part in command)}
+                   for command in commands if any('gradlew' in part for part in command)
+                   and '-Papp.deviceTest=true' not in command}
         assert set(gradles) == {'direct', 'fdroid', 'gplay'}
         assert '-Papp.minSdk=21' in gradles['direct']
         assert '-Papp.minSdk=21' in gradles['fdroid']
@@ -97,7 +111,7 @@ def build_api_test():
         assert all('-Pandroid.useAndroidX=true' not in gradles[name]
                    for name in ('direct', 'fdroid'))
         assert all('-Papp.abis=arm64-v8a,armeabi-v7a' in command for command in gradles.values())
-        assert all(any(part.startswith('-Pwebp.dir=') for part in command)
+        assert all(any(part.startswith('-Pavif.dir=') for part in command)
                    for command in gradles.values())
 
 
@@ -112,7 +126,7 @@ def release_gate_test():
         if line.strip().startswith('sudo apt-get install ')
         for package in line.split()[3:]
     }
-    assert {'libvorbisfile3', 'ffmpeg', 'python3-pil', 'python3-numpy', 'libwebpdemux2', 'libwebp7'} <= installed
+    assert {'libvorbisfile3', 'ffmpeg', 'python3-pil', 'python3-numpy', 'libwebpdemux2', 'libwebp7', 'libavif-bin'} <= installed
     lock = json.loads((ROOT / 'ziran.lock').read_text())
     kryon = next(package['commit'] for package in lock['packages'] if package['name'] == 'kryon')
     assert workflow.count('kryonlabs/kryon/.github/actions/google-free@' + kryon) == 2

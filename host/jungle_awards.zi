@@ -24,11 +24,11 @@ award_apps: [14]string = .["jungle.book", "jungle.abc", "jungle.numbers", "jungl
 award_slugs: [14]string = .["award-picture-book", "award-abc", "award-123", "award-counting",
     "award-coloring", "award-jigsaw", "award-piano", "award-shapes", "award-matching",
     "award-hide-seek", "award-music", "award-farm", "award-fishing", "award-beach"];
-award_pictures: [14]string = .["assets/jungle/awards/picture-book.webp", "assets/jungle/awards/abc.webp",
-    "assets/jungle/awards/123.webp", "assets/jungle/awards/counting.webp", "assets/jungle/awards/coloring.webp",
-    "assets/jungle/awards/jigsaw.webp", "assets/jungle/awards/piano.webp", "assets/jungle/awards/shapes.webp",
-    "assets/jungle/awards/matching.webp", "assets/jungle/awards/hide-seek.webp", "assets/jungle/awards/music.webp",
-    "assets/jungle/awards/farm.webp", "assets/jungle/awards/fishing.webp", "assets/jungle/awards/beach.webp"];
+award_pictures: [14]string = .["assets/jungle/awards/picture-book.avif", "assets/jungle/awards/abc.avif",
+    "assets/jungle/awards/123.avif", "assets/jungle/awards/counting.avif", "assets/jungle/awards/coloring.avif",
+    "assets/jungle/awards/jigsaw.avif", "assets/jungle/awards/piano.avif", "assets/jungle/awards/shapes.avif",
+    "assets/jungle/awards/matching.avif", "assets/jungle/awards/hide-seek.avif", "assets/jungle/awards/music.avif",
+    "assets/jungle/awards/farm.avif", "assets/jungle/awards/fishing.avif", "assets/jungle/awards/beach.avif"];
 
 // A missing or empty file parses as no awards, valid. A bad header or line
 // parses as no awards with valid = false: such a file is never written over.

@@ -2,16 +2,16 @@
   "tool": "built-in image_gen",
   "source": "local/art-development/art-refresh-033/bamboo-scene-candidate.png",
   "original": "backup/picture-book-scenes/art-refresh-033/bamboo-scene-original.png",
-  "page": "assets/jungle-book/pages/bamboo.webp",
+  "page": "assets/jungle-book/pages/bamboo.avif",
   "source_sha256": "4c668fe4627f692a155978ea45a0fd884b85f74e9163e8c8c6b416687fb56be1",
-  "page_sha256": "2a2c15dd06133d27676c6ee0148432cbbd70e2f008651dc0fadd805b7bf06086",
+  "page_sha256": "d41f4f44ccef5bc365e49837d4a6af038d1851751b2964e578aeceb3f2a7062f",
   "dimensions": [
     1254,
     1254
   ],
   "prompt": "Use case illustration-story. Create ONE high-resolution square full-scene nature picture-book page for toddlers. Reference image is ONLY for soft hand-painted watercolor, delicate botanical detail, warm cream paper and sage/earth colors; replace all people and reference composition. One clear botanical subject growing naturally rooted in its own setting, recognizable species shape, smooth washes, painterly foliage and gentle airy light. Complete subject and setting, softly feathered painted edges into cream paper. No people, animals, faces on plants, lettering, text, border, watermark, collage or diagram. PLANTS book: a small natural clump of BAMBOO growing rooted beside a quiet garden stream. Several tall slender hollow green canes with unmistakable regular horizontal nodes, delicate side branches bearing narrow pointed lance-shaped leaves, no flowers or fruits. Entire main clump in frame, canes rise from visible soil and roots, one new bamboo shoot emerging near base. Soft bridge stones and moss at water edge, a leafy East Asian garden fades into misty background; fresh sage and blue-green morning light. The segmented stalks and leaves are very clear at thumbnail size.",
   "reference_images": [
-    "assets/jungle-book/pages/mother.webp"
+    "assets/jungle-book/pages/mother.avif"
   ],
   "reference_usage": "Style reference for generation; new subject and habitat"
 }

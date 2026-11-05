@@ -48,7 +48,7 @@ def main():
         target.mkdir(parents=True, exist_ok=True)
         with Image.open(logo) as image:
             image.thumbnail((1200,600), Image.Resampling.LANCZOS)
-            export_painted_image(image, target / 'logo.webp')
+            export_painted_image(image, target / 'logo.avif')
     print('Exported website, desktop and Android brand icons')
 
 

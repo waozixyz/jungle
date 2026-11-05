@@ -7,6 +7,9 @@ from pathlib import Path
 import unittest
 
 from PIL import Image
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from design_size import design_size
 
 ROOT = Path(__file__).resolve().parents[1]
 spec = importlib.util.spec_from_file_location('title_scenes', ROOT / 'tools/title_scenes.py')
@@ -18,12 +21,36 @@ CARRIED = {'shape-sorter', 'bookshelf', 'puzzle-table', 'easel', 'ladder'}
 
 
 def lossless(path):
-    """True when the WebP holds a lossless (VP8L) bitstream."""
-    data = Path(path).read_bytes()
-    return b'VP8L' in data[12:64]
+    """Whether PATH keeps every alpha value of its source (the cut-out
+    standard: exact alpha, q70 4:4:4 color), checked against its decode."""
+    rows = json.loads((ROOT/'tools/canonical_avif.json').read_text())['files']
+    row = rows[Path(path).relative_to(ROOT).as_posix()]
+    with Image.open(path) as image:
+        assert image.format == 'AVIF'
+        import hashlib
+        assert hashlib.sha256(image.convert('RGBA').getchannel('A').tobytes()).hexdigest() == row['alpha_sha256']
+    return row['lossless'] or (row.get('exact_alpha', False) and row['alpha_sha256'] == row['source_alpha_sha256'])
+
+
+
+def cutout(path):
+    """Exact-alpha cut-out, or the owner's 75% standard (q90 alpha, 4:4:4)."""
+    row = json.loads((ROOT/'tools/canonical_avif.json').read_text())['files'][Path(path).relative_to(ROOT).as_posix()]
+    return lossless(path) or (row.get('scale') == 0.75 and row['alpha'] and row['subsampling'] == '444')
 
 
 class TreehouseRoom(unittest.TestCase):
+    def test_tiger_is_one_independent_layer_over_the_clean_plate(self):
+        for scene,_,_ in self.variants():
+            self.assertNotIn('foreground',scene)
+            tiger=[o for o in scene['objects'] if o['id']=='tiger']
+            self.assertEqual(len(tiger),1)
+            self.assertIn('-tiger.avif',tiger[0]['image'])
+            self.assertNotEqual(scene['background'],scene['image'])
+            with Image.open(ROOT/tiger[0]['image']) as image:
+                self.assertEqual(image.mode,'RGBA')
+                self.assertEqual(image.getchannel('A').getextrema(),(0,255))
+
     def test_animation_atlases_and_generated_runtime(self):
         spec = importlib.util.spec_from_file_location('title_animations', ROOT/'tools/title_animations.py')
         animation = importlib.util.module_from_spec(spec)
@@ -37,7 +64,7 @@ class TreehouseRoom(unittest.TestCase):
             self.assertTrue(all(l['mode'] != 2 for l in selected[:-1]))
             base = next(s for s in json.loads(title.SOURCE.read_text())['scenes'] if s['name'] == 'window')
             preload = base if scene == 'window' else base['portrait']
-            self.assertEqual(set(preload['animations']), {layer['path'] for layer in selected} | {f'assets/jungle/title/window-animation/{"portrait" if scene.endswith("portrait") else "landscape"}-frame.webp'})
+            self.assertEqual(set(preload['animations']), {layer['path'] for layer in selected} | {f'assets/jungle/title/window-animation/{"portrait" if scene.endswith("portrait") else "landscape"}-frame.avif'})
             self.assertEqual(sum(layer['mode'] == 2 for layer in selected), 1)
             self.assertEqual(sum(layer['mode'] == 1 for layer in selected), 4)
             for layer in selected:
@@ -69,7 +96,7 @@ class TreehouseRoom(unittest.TestCase):
             if layer['mode'] == 0:
                 self.assertIn('-leaves-', layer['path'])
         for orientation in ('landscape', 'portrait'):
-            self.assertFalse((ROOT/f'assets/jungle/title/window-animation/{orientation}-water.webp').exists())
+            self.assertFalse((ROOT/f'assets/jungle/title/window-animation/{orientation}-water.avif').exists())
         window = next(s for s in json.loads(title.SOURCE.read_text())['scenes'] if s['name'] == 'window')
         for scene in (window, window['portrait']):
             self.assertFalse(any('-water.' in path for path in scene['animations']))
@@ -80,7 +107,7 @@ class TreehouseRoom(unittest.TestCase):
         frame = renderer.index('TitleWindowFrame(session, scene, picture, view)', draw)
         self.assertGreater(frame, draw)
         for orientation in ('landscape', 'portrait'):
-            path = ROOT/f'assets/jungle/title/window-animation/{orientation}-frame.webp'
+            path = ROOT/f'assets/jungle/title/window-animation/{orientation}-frame.avif'
             self.assertTrue(lossless(path))
             with Image.open(path) as image:
                 alpha = image.getchannel('A')
@@ -98,31 +125,37 @@ class TreehouseRoom(unittest.TestCase):
     def test_plate_and_every_object_layer(self):
         for scene, width, height in self.variants():
             with Image.open(ROOT / scene['background']) as plate:
-                self.assertEqual((plate.format, plate.size), ('WEBP', (width, height)))
+                self.assertEqual((plate.format, design_size(scene['background'], plate)), ('AVIF', (width, height)))
                 self.assertEqual(plate.convert('RGBA').getchannel('A').getextrema(), (255, 255))
             ids = [layer['id'] for layer in scene['objects']]
             self.assertGreaterEqual(len(ids), 10)
             self.assertEqual(len(ids), len(set(ids)))
             for layer in scene['objects']:
                 with self.subTest(layer=layer['id'], width=width):
-                    self.assertEqual(set(layer), {'id', 'image', 'rect'})
+                    self.assertTrue({'id', 'image', 'rect'} <= set(layer) <= {'id','image','rect','rotation'})
                     x, y, w, h = layer['rect']
                     self.assertTrue(0 <= x and 0 <= y and x + w <= width and y + h <= height)
                     self.assertTrue(layer['image'].startswith('assets/jungle/title/room/'))
-                    self.assertTrue(lossless(ROOT / layer['image']))
+                    self.assertTrue(cutout(ROOT / layer['image']))
                     with Image.open(ROOT / layer['image']) as picture:
-                        self.assertEqual((picture.format, picture.mode, picture.size), ('WEBP', 'RGBA', (w, h)))
+                        self.assertEqual((picture.format, picture.mode), ('AVIF', 'RGBA'))
+                        pw,ph=picture.size
                         alpha = picture.getchannel('A')
                         # A real cut-out: an opaque body inside a clear margin,
                         # except where the scene's own border cuts the object.
                         self.assertEqual(alpha.getextrema(), (0, 255))
-                        sides = {'left': (x > 0, [(0, v) for v in range(h)]),
-                                 'right': (x + w < width, [(w - 1, v) for v in range(h)]),
-                                 'top': (y > 0, [(u, 0) for u in range(w)]),
-                                 'bottom': (y + h < height, [(u, h - 1) for u in range(w)])}
+                        sides = {'left': (x > 0, [(0, v) for v in range(ph)]),
+                                 'right': (x + w < width, [(pw - 1, v) for v in range(ph)]),
+                                 'top': (y > 0, [(u, 0) for u in range(pw)]),
+                                 'bottom': (y + h < height, [(u, ph - 1) for u in range(pw)])}
                         for side, (inside, pixels) in sides.items():
                             if inside:
-                                self.assertEqual(max(alpha.getpixel(p) for p in pixels), 0, side)
+                                if layer['id']=='tiger':
+                                    # Exact approved foreground crop retains original
+                                    # barely visible alpha specks; no pixels are repainted.
+                                    self.assertLess(max(alpha.getpixel(p) for p in pixels), 8, side)
+                                else:
+                                    self.assertEqual(max(alpha.getpixel(p) for p in pixels), 0, side)
 
     def test_hotspots_follow_their_objects(self):
         for scene, width, height in self.variants():
@@ -136,7 +169,8 @@ class TreehouseRoom(unittest.TestCase):
                     x, y, w, h = layer['rect']
                     self.assertTrue(all(x <= px < x + w and y <= py < y + h for px, py in hotspot['polygon']))
                     with Image.open(ROOT / hotspot['glow']) as glow:
-                        self.assertEqual(glow.size, (w, h))
+                        with Image.open(ROOT / layer['image']) as artwork:
+                            self.assertEqual(glow.size, artwork.size)
             # The old full-room glows are gone with the old painting.
             for hotspot in scene['hotspots']:
                 self.assertFalse(Path(hotspot['glow']).name.startswith('treehouse-') and hotspot['id'] != 'window')
@@ -166,7 +200,7 @@ class TreehouseRoom(unittest.TestCase):
             if change == 'outside':
                 broken['objects'][0]['rect'][0] = self.data['width'] - 1
             elif change == 'missing-picture':
-                broken['objects'][0]['image'] = 'assets/jungle/title/room/missing.webp'
+                broken['objects'][0]['image'] = 'assets/jungle/title/room/missing.avif'
             elif change == 'duplicate':
                 broken['objects'][1]['id'] = broken['objects'][0]['id']
             elif change == 'stale-hotspot':
@@ -183,7 +217,7 @@ class TreehouseRoom(unittest.TestCase):
         for scene, width, height in ((view, self.data['width'], self.data['height']), (view['portrait'], 1024, 1536)):
             for key, size in (('image', (width, height)), ('low', (240, round(height * 240 / width)))):
                 with Image.open(ROOT / scene[key]) as picture:
-                    self.assertEqual((picture.format, picture.size), ('WEBP', size))
+                    self.assertEqual((picture.format, design_size(scene[key], picture)), ('AVIF', size))
         for scene, width, height in self.variants():
             window = scene['hotspots'][-1]
             self.assertEqual((window['id'], window['target']), ('window', 'scene:window'))

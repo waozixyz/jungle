@@ -5,14 +5,17 @@ import json
 import sys
 from pathlib import Path
 import unittest
-from PIL import Image
+from PIL import Image, ImageChops, ImageStat
 
 ROOT = Path(__file__).resolve().parents[1]
-APPROVED_TITLE_WEBP = ROOT/'tests/approved_title_webp.json'
+APPROVED_TITLE_AVIF = ROOT/'tests/approved_title_avif.json'
 spec = importlib.util.spec_from_file_location('title_scenes', ROOT/'tools/title_scenes.py')
 title = importlib.util.module_from_spec(spec)
+CATALOG = json.loads((ROOT/'tools/canonical_avif.json').read_text())['files']
 spec.loader.exec_module(title)
 sys.path.insert(0, str(ROOT/'tools'))
+sys.path.insert(0, str(ROOT/'tests'))
+from design_size import design_size
 
 
 def inside(polygon, x, y):
@@ -92,7 +95,7 @@ class TitleVariants(unittest.TestCase):
             if not scene['name'].startswith('beach'):
                 continue
             hotspot=next(h for h in scene['hotspots'] if h['id']=='crab-family')
-            self.assertEqual(hotspot['rest'],'assets/jungle/title/objects/beach-crab-family.webp')
+            self.assertEqual(hotspot['rest'],'assets/jungle/title/objects/beach-crab-family.avif')
             with Image.open(ROOT/hotspot['rest']) as sprite:
                 self.assertEqual(sprite.mode,'RGBA')
                 self.assertEqual(sprite.getchannel('A').getextrema(),(0,255))
@@ -121,7 +124,7 @@ class TitleVariants(unittest.TestCase):
                 self.assertEqual(scene['decorations'][0]['rect'],obj['scene_rect'])
         for label,rect in plan['signs'].items():
             h = next(h for h in scene['hotspots'] if h.get('sign',{}).get('label') == label)
-            self.assertEqual(h['glow_rect'],rect)
+            self.assertEqual(h.get('editor_legacy_rect',h['glow_rect']),rect)
             self.assertEqual(h['sign']['direction'],plan['directions'][label])
         for h in scene['hotspots']:
             x,y,w,ht = h['glow_rect']
@@ -129,16 +132,17 @@ class TitleVariants(unittest.TestCase):
             self.assertTrue(0 <= y < y+ht <= scene['height'])
             for px,py in h['polygon']:
                 self.assertTrue(0 <= px <= scene['width'] and 0 <= py <= scene['height'])
-        row = next(r for r in json.loads(APPROVED_TITLE_WEBP.read_text())['images']
+        row = next(r for r in json.loads(APPROVED_TITLE_AVIF.read_text())['images']
                    if r['path'] == scene['image'])
         self.assertTrue(row['canonical_source'].endswith('/'+plan['plate']))
         self.assertEqual((row['width'],row['height']),(1024,1536))
         # Check the image actually drawn after layers load, not just the fallback.
         for path in (scene['image'],scene['background']):
             with Image.open(ROOT/path) as im:
-                self.assertEqual(im.size,(1024,1536))
-                self.assertEqual(hashlib.sha256(im.convert('RGBA').tobytes()).hexdigest(),
-                                 '63761f1dd59db99a88a3ec5dd3465a2ea42c72ed9eba071b24998b8fb8343bf6')
+                self.assertEqual(design_size(path,im),(1024,1536))
+                receipt = json.loads((ROOT/'tools/canonical_avif.json').read_text())['files'][path]
+                self.assertEqual(receipt['source_rgba_sha256'], '63761f1dd59db99a88a3ec5dd3465a2ea42c72ed9eba071b24998b8fb8343bf6')
+                self.assertEqual(hashlib.sha256(im.convert('RGBA').tobytes()).hexdigest(), receipt['rgba_sha256'])
 
     def test_landscape_campus_art_and_placements_are_unchanged(self):
         # Painted art and every placement; routes, sign faces and directions
@@ -146,11 +150,14 @@ class TitleVariants(unittest.TestCase):
         data = json.loads((ROOT/'tools/title_hotspots.json').read_text())
         scene = next(s for s in data['scenes'] if s['name'] == 'campus')
         scene.pop('portrait')
+        scene['objects'] = [o for o in scene.get('objects',[]) if not o['id'].endswith('-post')]
+        if not scene['objects']: scene.pop('objects')
         for h in scene['hotspots']:
             h.pop('target',None)
             if h.pop('sign',None):
+                h['glow_rect'] = h.pop('editor_legacy_rect')
                 for key in ('rest','glow','polygon'): h.pop(key,None)
-        self.assertEqual(hashlib.sha256(json.dumps(scene,sort_keys=True).encode()).hexdigest(),
+        self.assertEqual(hashlib.sha256(json.dumps(scene,sort_keys=True).replace('.avif', '.webp').encode()).hexdigest(),
                          'f7db4f42a9575424033c3074a0936c53207b4fb31a9afb35e5c1b3ceac5e64e2')
 
     def test_signs_are_localized_boards_with_travel_arrows(self):
@@ -166,15 +173,17 @@ class TitleVariants(unittest.TestCase):
                 upright = scene['name'].startswith('jungle-path') or (scene['name'].startswith('campus') and h['target'] == 'scene:jungle-path')
                 self.assertEqual(h['sign']['direction'].startswith('diagonal-'), upright, (scene['name'], h['id']))
                 self.assertIn(h['sign']['direction'], ('left','right','diagonal-left','diagonal-right'))
-                self.assertEqual(h['rest'], 'assets/jungle/title/objects/wood-arrow-'+h['sign']['direction']+'.webp')
+                self.assertEqual(h['rest'], 'assets/jungle/title/objects/sign-'+h['sign']['direction']+'-board.avif')
                 if h['id']=='farm-path':self.assertEqual(h['sign']['direction'],'right' if scene['name'].startswith('market') else 'left')
                 x,y,w,ht=h['glow_rect'];bx,by,bw,bh=h['sign']['label_rect']
                 self.assertEqual(hit(scene,x+bx+bw/2,y+by+bh/2),h['id'])
                 with Image.open(ROOT/h['rest']) as im:
-                    self.assertEqual(im.format,'WEBP')
+                    self.assertEqual(im.format,'AVIF')
                     self.assertGreater(im.convert('RGBA').getpixel((round((bx+bw/2)*im.width/w),round((by+bh/2)*im.height/ht)))[3],200)
                 # The post is scenery; the arrowhead itself is a real target.
-                self.assertNotEqual(hit(scene,x+w*.5,y+ht*.9),h['id'])
+                post=next(o for o in scene['objects'] if o['id']==h['id']+'-post')
+                px,py,pw,ph=post['rect']
+                self.assertNotEqual(hit(scene,px+pw*.5,py+ph*.9),h['id'])
                 tip = (min(h['polygon'],key=lambda p:p[0]) if h['sign']['direction'] in ('left','diagonal-left') else
                        min(h['polygon'],key=lambda p:p[1]) if h['sign']['direction']=='up' else
                        max(h['polygon'],key=lambda p:p[0]))
@@ -210,16 +219,23 @@ class TitleVariants(unittest.TestCase):
             path = [h for h in view['hotspots'] if h.get('target') == 'scene:jungle-path']
             self.assertEqual(len(path), 1)
             self.assertEqual(path[0]['sign']['direction'], direction)
-            self.assertEqual(path[0]['rest'], 'assets/jungle/title/objects/wood-arrow-'+direction+'.webp')
+            self.assertEqual(path[0]['rest'], 'assets/jungle/title/objects/sign-'+direction+'-board.avif')
         upright = [h['id'] for s in data['scenes'] for view in (s, s.get('portrait') or {})
                    for h in view.get('hotspots', []) if h.get('sign', {}).get('direction') == 'diagonal-left']
         self.assertEqual(upright.count('jungle-path'), 1)
         self.assertEqual(upright.count('port-path'), 2)
-        with Image.open(ROOT/'assets/jungle/title/objects/wood-arrow-right.webp') as right, \
-             Image.open(ROOT/'assets/jungle/title/objects/wood-arrow-left.webp') as left:
-            self.assertEqual(right.convert('RGBA').transpose(Image.Transpose.FLIP_LEFT_RIGHT).tobytes(),
-                             left.convert('RGBA').tobytes())
-            alpha = right.convert('RGBA').getchannel('A').load()
+        with Image.open(ROOT/'assets/jungle/title/objects/wood-arrow-right.avif') as right, \
+             Image.open(ROOT/'assets/jungle/title/objects/wood-arrow-left.avif') as left:
+            # Mirrored silhouettes; the 75% standard's q90 alpha and 4:4:4 lossy
+            # color each stay within a shade.
+            mirrored = right.convert('RGBA').transpose(Image.Transpose.FLIP_LEFT_RIGHT)
+            drift = ImageChops.difference(mirrored.getchannel('A'), left.convert('RGBA').getchannel('A'))
+            self.assertLess(ImageStat.Stat(drift).mean[0], 1)
+            self.assertLessEqual(drift.getextrema()[1], 24)
+            self.assertLess(max(ImageStat.Stat(ImageChops.difference(mirrored, left.convert('RGBA'))).mean), 2)
+            # Plank geometry is measured in the painting's 1254 px.
+            alpha = right.convert('RGBA').getchannel('A').resize(design_size(right.filename, right),
+                                                                  Image.Resampling.LANCZOS).load()
         tail = [next(x for x in range(1254) if alpha[x, y] > 128) for y in range(330, 620, 2)]
         shaft = [x for x in range(120, 780, 4) if not 480 <= x <= 670]
         top = [next(y for y in range(1254) if alpha[x, y] > 128) for x in shaft]
@@ -242,16 +258,16 @@ class TitleVariants(unittest.TestCase):
                         self.assertGreaterEqual(min(xs), low, (scene['name'], hotspot['id']))
                         self.assertLessEqual(max(xs), high, (scene['name'], hotspot['id']))
 
-    def test_approved_webp_fingerprints(self):
-        approved=json.loads(APPROVED_TITLE_WEBP.read_text())
-        self.assertEqual((approved['quality'],approved['method']),(50,6))
+    def test_approved_avif_fingerprints(self):
+        approved=json.loads(APPROVED_TITLE_AVIF.read_text())
+        self.assertEqual((approved['quality'],approved['speed']),(35,6))
         self.assertEqual(sum(r['bytes'] for r in approved['images']),approved['total_bytes'])
         self.assertEqual(len({r['path'] for r in approved['images']}),len(approved['images']))
         for row in approved['images']:
             path=ROOT/row['path']
             with self.subTest(path=row['path']),Image.open(path) as im:
-                self.assertEqual(im.format,'WEBP')
-                self.assertEqual(im.size,(row['width'],row['height']))
+                self.assertEqual(im.format,'AVIF')
+                self.assertEqual(design_size(row['path'],im),(row['width'],row['height']))
                 self.assertEqual(path.stat().st_size,row['bytes'])
                 self.assertEqual(hashlib.sha256(path.read_bytes()).hexdigest(),row['sha256'])
                 self.assertEqual(hashlib.sha256(im.convert('RGBA').tobytes()).hexdigest(),row['decoded_rgba_sha256'])
@@ -259,15 +275,22 @@ class TitleVariants(unittest.TestCase):
                 if canonical.exists():
                     self.assertEqual(hashlib.sha256(canonical.read_bytes()).hexdigest(),row['canonical_sha256'])
 
-    def test_new_runtime_title_layers_are_webp(self):
+    def test_new_runtime_title_layers_are_avif(self):
         _,scenes,_,_=title.Load()
         for scene in scenes:
             if not scene['name'].startswith(('campus','port','market','jungle-path')):continue
             for h in scene['hotspots']:
                 if h.get('sign') or scene['name'].startswith('campus') and h.get('rest'):
-                    self.assertTrue(h['rest'].endswith('.webp'))
+                    self.assertTrue(h['rest'].endswith('.avif'))
                     with Image.open(ROOT/h['rest']) as rest,Image.open(ROOT/h['glow']) as glow:
-                        self.assertEqual(rest.getchannel('A').tobytes(),glow.getchannel('A').tobytes())
+                        # Glows share the layer's silhouette; a glow whose exact
+                        # alpha would outweigh its source keeps near-lossless alpha.
+                        if CATALOG[h['glow']].get('alpha_quality',100)==100:
+                            self.assertEqual(rest.getchannel('A').tobytes(),glow.getchannel('A').tobytes())
+                        else:
+                            drift=ImageChops.difference(rest.getchannel('A'),glow.getchannel('A'))
+                            self.assertLess(ImageStat.Stat(drift).mean[0],1)
+                            self.assertLessEqual(drift.getextrema()[1],12)
 
     def test_shelf_first_row_is_one_row_and_inventory_is_complete(self):
         _,scenes,_,_=title.Load()
@@ -280,15 +303,15 @@ class TitleVariants(unittest.TestCase):
             glow='assets/jungle/title/glow/'+scene['name']
             # Before 4d2340cf, plus the approved whole Stories-row glow.
             self.assertEqual([(h['id'],h['target'],h['glow']) for h in scene['hotspots']],[
-                ('picture-books','game:Picture Book',glow+'-picture-books.webp'),
-                ('book-abc','game:ABC Book',glow+'-book-abc.webp'),
-                ('book-123','game:123 Book',glow+'-book-123.webp'),
-                ('ladder','scene:treehouse',glow+'-ladder.webp'),
-                ('fairy-tale','book:sweet-porridge',glow+'-fairy-tale-hover.webp')])
+                ('picture-books','game:Picture Book',glow+'-picture-books.avif'),
+                ('book-abc','game:ABC Book',glow+'-book-abc.avif'),
+                ('book-123','game:123 Book',glow+'-book-123.avif'),
+                ('ladder','scene:treehouse',glow+'-ladder.avif'),
+                ('fairy-tale','book:sweet-porridge',glow+'-fairy-tale-hover.avif')])
             self.assertEqual((scene['image'],scene['low'],scene['background'],scene['foreground']),
-                (stem+'.webp',stem+'-low.webp',stem.replace('title/','title/layers/')+'-background.webp',stem.replace('title/','title/layers/')+'-foreground.webp'))
+                (stem+'.avif',stem+'-low.avif',stem.replace('title/','title/layers/')+'-background.avif',stem.replace('title/','title/layers/')+'-foreground.avif'))
             for path in [scene['image'],scene['low'],scene['background'],scene['foreground']]+[h['glow'] for h in scene['hotspots']]:
-                with Image.open(ROOT/path) as im:self.assertEqual(im.format,'WEBP')
+                with Image.open(ROOT/path) as im:self.assertEqual(im.format,'AVIF')
             # One whole-row hotspot owns every first-row book, the tiger included.
             for cover in shelf[scene['name']]:
                 cx=sum(p[0] for p in cover)/4;cy=sum(p[1] for p in cover)/4

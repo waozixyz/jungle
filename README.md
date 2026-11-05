@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/jungle/branding/logo.webp" alt="Jungle Academy" width="700">
+  <img src="assets/jungle/branding/logo.avif" alt="Jungle Academy" width="700">
 </p>
 
 # Jungle Academy
@@ -13,7 +13,7 @@ babies and toddlers.
 [What's new](CHANGELOG.md)
 
 Generated originals, candidates and review files live only in ignored
-`local/art-development/`. Approved app artwork is integrated as tracked WebP
+`local/art-development/`. Approved app artwork is integrated as tracked AVIF
 under `assets/`; builds and tests do not require the local development folder.
 Small provenance records needed to validate shipped artwork live in
 `tools/art_provenance/`.
@@ -65,9 +65,9 @@ Small provenance records needed to validate shipped artwork live in
 ## A look inside
 
 <p align="center">
-  <img src="assets/jungle-book/pages/tiger.webp" alt="A watercolor tiger in the jungle" width="30%">
-  <img src="assets/jungle-book/pages/apple.webp" alt="A watercolor apple from Picture Book" width="30%">
-  <img src="assets/jungle-book/pages/spring.webp" alt="A watercolor spring scene" width="30%">
+  <img src="assets/jungle-book/pages/tiger.avif" alt="A watercolor tiger in the jungle" width="30%">
+  <img src="assets/jungle-book/pages/apple.avif" alt="A watercolor apple from Picture Book" width="30%">
+  <img src="assets/jungle-book/pages/spring.avif" alt="A watercolor spring scene" width="30%">
 </p>
 <p align="center"><em>Picture Book illustrations: animals · food · seasons</em></p>
 
@@ -100,6 +100,7 @@ make test
 See the [detailed guide](docs/guide.md) for dependencies, controls, builds,
 tests, artwork and deployment. See Jungle's proprietary
 [LICENSE](LICENSE) and the guide for artwork and font attribution.
+See also the future [learning stages direction](docs/learning-stages.md).
 
 ### Build on Luna from the desktop
 
@@ -143,3 +144,21 @@ folder, prerequisites and graphical login. Use `REMOTE_FLAGS=--setup` for
 first-time setup, or `python3 scripts/remote_build.py --host HOST --sync-only`
 to synchronize without building. No desktop build outputs are transferred.
 Run `python3 scripts/remote_build_test.py` for the local synchronization tests.
+
+Runtime artwork uses AVIF at full dimensions. Export/generation tools require
+Pillow 12.3.0 (AVIF decoding) and libavif `avifenc` 1.0 or newer with
+`--qcolor`/`--qalpha`; set `AVIFENC` to an explicit executable when needed.
+Opaque paintings use q35, 8-bit YUV420, full range, speed 6 and one encoder
+thread. Jigsaw puzzle pictures, cutouts/layers and exact artwork use lossless identity YUV444,
+retaining RGB and alpha exactly. Shipping AVIF files are reused unchanged by
+native, Android and web staging; only named 128px previews resize. Existing
+book-cover previews use q50. Technical PNG fonts/platform icons, BMP window
+icons and ICO favicons are listed in `tools/asset_png_allowlist.json`.
+User drawing saves, ink canvases, PNG downloads and print documents retain their
+existing PNG data/service format; these are separate from shipped artwork.
+Run `python3 tests/canonical_avif_test.py`, `python3 tests/image_exports_test.py`
+and `python3 tests/runtime_images_test.py` for local asset validation.
+Run `build-queue -- python3 tools/build_android.py --abi armeabi-v7a --device-test`
+then `build-queue -- python3 tests/android_avif_device_test.py` for the USB Moto.
+This explicit test package has disposable storage and is removed afterward;
+the installed Jungle app and its data are preserved.

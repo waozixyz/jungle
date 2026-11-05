@@ -1,7 +1,7 @@
 {
   "owner_request": "and wyh are thee seeds so linera we should eb bale to put a seend anywher on the plow, and be able to take and darg it, it only plants into the ground if left alon for awhile or we put water on it then a saplingc rises",
   "generator": "Harmony generate_image (Codex built-in image generation, medium effort); one picture per call",
-  "style_reference": "assets/garden/play/garden-landscape.webp soil and local/art-development/title-covers.png tiger cover",
+  "style_reference": "assets/garden/play/garden-landscape.avif soil and local/art-development/title-covers.png tiger cover",
   "usage": "games/garden/jungle_garden.zi MoundPicture: the dimple under every sown seed and sapling; the wet mound shows watered soil",
   "review": "Checked full size over dark, light and the painted soil; clean alpha, no halo",
   "assets": [
@@ -11,16 +11,16 @@
       "source_sha256": "532ce706131c5641c6707b7fecfa19e4a09c2fea4f7ab73b99268c1f70d36c3c",
       "candidate": "local/art-development/four-gardens/anchored/soil-mound.png",
       "candidate_sha256": "13fa67edfc3a9c1f9de4f6b936a54d332df3b95b5621402896c79eb74a9a71b4",
-      "runtime": "assets/garden/play/soil-mound.webp",
-      "sha256": "d5321f6b59eabbfb3df59fdc8b4ecb6871b8dccb5ee38def8bab3a20a48b20e6",
+      "runtime": "assets/garden/play/soil-mound.avif",
+      "sha256": "cdec2808d10929f9be4c62c60d2cceea66e2be14f7ae7ee936da4a56ef48f06f",
       "export_role": "cutout",
-      "lossless": true,
-      "quality": null,
+      "lossless": false,
+      "quality": 70,
       "dimensions": [
         245,
         84
       ],
-      "bytes": 23334,
+      "bytes": 9892,
       "generation_id": "5252a0f2d3f5d3846fdbe11e0f9991bace0f",
       "prompt": "ONE square 1024x1024 transparent cutout of one small freshly planted garden soil mound: a low, wide, rounded little heap of soft tilled warm brown earth (about three times wider than tall), seen from a gentle slightly-above three-quarter view, with a small soft dimple pressed into its top where a seed was just planted. A few tiny loose crumbs of soil around its base, all part of the same object. Jungle toddler farming game asset in soft cartoonish storybook watercolor on the same warm brown as a painted garden bed, gentle earthy browns with a hint of golden light, smooth washes, simplified friendly rounded forms, like a children's picture book. Single mound centered horizontally, its flat base resting at bottom center (ground anchor .50,.80), mound spanning about x .15-.85, generous transparent margins. Genuinely transparent background with clean alpha edges. NO plant, sprout, seed visible, water, tools, grass, shadow puddle, cast shadow outside the mound, white paper, halo, frame, text, watermark, extra objects or collage.",
       "processing": "local/art-development/four-gardens/trim_mound.py: alpha <= 8 cleared, trimmed to the painted extent with 8 px transparent padding",
@@ -32,16 +32,16 @@
       "source_sha256": "13fa67edfc3a9c1f9de4f6b936a54d332df3b95b5621402896c79eb74a9a71b4",
       "candidate": "local/art-development/four-gardens/anchored/soil-mound-wet.png",
       "candidate_sha256": "1d7955db91248a2b89422b7eb6c397b7bc2304e54a975267ab4146b861b2f252",
-      "runtime": "assets/garden/play/soil-mound-wet.webp",
-      "sha256": "14d57dd144dc3a96c00eeda6313ea31c03982592f089bfd81186f6b54b61d02b",
+      "runtime": "assets/garden/play/soil-mound-wet.avif",
+      "sha256": "ba2b59a296791da21b1208f516b20aedacffb2d8cb5cd5753592313737593d4e",
       "export_role": "cutout",
-      "lossless": true,
-      "quality": null,
+      "lossless": false,
+      "quality": 70,
       "dimensions": [
         245,
         84
       ],
-      "bytes": 19656,
+      "bytes": 7772,
       "derived_from": "soil-mound",
       "processing": "local/art-development/four-gardens/wet_mound.py: identical pixels and alpha, darker moist earth (saturation x1.18, RGB x0.60/0.50/0.44); exact frame match with the dry mound",
       "runtime_trim": "tools/farm_images.json"

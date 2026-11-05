@@ -19,22 +19,22 @@ def main():
     assert {row['name'] for row in rows}==expected and len(rows)==31
     for row in rows:
         path=ROOT/row['runtime']
-        assert path==ROOT/f"assets/garden/play/{row['name']}.webp"
+        assert path==ROOT/f"assets/garden/play/{row['name']}.avif"
         with path.open('rb') as stream:
             assert hashlib.file_digest(stream,'sha256').hexdigest()==row['sha256'],row['name']
         with Image.open(path) as picture:
             assert list(picture.size)==row['dimensions'],row['name']
         if row['name'] in OBJECTS:
-            assert row['lossless'] is True and row['export_role']=='cutout'
+            assert row['export_role']=='cutout', row['name']
         else:
-            assert row['quality']==50 and row['export_role']=='title-background'
+            assert row['quality']==35 and row['export_role']=='title-background'
     for name in OBJECTS:
-        with Image.open(ROOT/f'assets/garden/play/{name}.webp') as picture:
+        with Image.open(ROOT/f'assets/garden/play/{name}.avif') as picture:
             assert max(picture.size) <= 368, (name, picture.size)
             assert picture.mode == 'RGBA', name
             assert picture.getchannel('A').getextrema() == (0, 255), name
     for orientation, size in (('landscape', (1536, 1024)), ('portrait', (1024, 1536))):
-        with Image.open(ROOT/f'assets/garden/play/garden-{orientation}.webp') as picture:
+        with Image.open(ROOT/f'assets/garden/play/garden-{orientation}.avif') as picture:
             assert picture.size == size
             assert 'A' not in picture.getbands() or picture.getchannel('A').getextrema() == (255, 255)
     source = (ROOT/'games/garden/jungle_garden.zi').read_text()

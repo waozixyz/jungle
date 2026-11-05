@@ -1,21 +1,62 @@
-"""Optimize original-based image exports within the existing art approval workflow.
-
-Callers own the existing review/install step. No implicit resizing, source writes,
-or attempt to improve previously lossy WebP exports by transcoding them.
-"""
+"""Original-based AVIF exports; preserve dimensions and approved artwork."""
 from dataclasses import dataclass
 import hashlib
 from pathlib import Path
 import shutil
-import tempfile
-
-from PIL import Image, ImageOps, __version__, features
+from PIL import Image, ImageOps, __version__
+from avif_codec import save_avif, CUTOUT_QUALITY, QUALITY, SPEED, encoder_version
 
 ROOT = Path(__file__).resolve().parents[1]
+TITLE_BACKGROUND_QUALITY = QUALITY
+PRESETS = {'title-background': QUALITY, 'book-page': QUALITY,
+           'scene': QUALITY, 'book-preview': 50, 'puzzle': 60, 'icon': 60, 'cutout': None, 'exact': None}
+# Jigsaw pieces are cut from the painting at runtime and small menu icons show
+# every pixel; full chroma keeps their detail.
+SUBSAMPLING = {'puzzle': '444', 'icon': '444'}
 
-TITLE_BACKGROUND_QUALITY = 50
-PRESETS = {'title-background': TITLE_BACKGROUND_QUALITY, 'book-page': 85,
-           'scene': 85, 'cutout': None, 'exact': None}
+# Owner standard (2026-11-05): Lanczos-downscale each master to 75% of its
+# size, then AVIF q35 -- about 30 KB per full scene at the approved tiger-page
+# quality. Hosts draw every picture into its layout rectangle, so the smaller
+# texture keeps its on-screen size. Transparent art uses 4:4:4 color and
+# near-lossless alpha (q90) so edges stay clean.
+SCALE = 0.75
+SCALE_QUALITY = 35
+SCALE_ALPHA_QUALITY = 90
+SCALE_MIN = 512
+# Drawn through pixel source rectangles (sprite sheets, window frame, sky
+# occluder, jigsaw cells, paint pages), pixel-exact cursors and the Farm: keep pixels.
+UNSCALED = ('assets/jungle/title/window-animation/', 'assets/jigsaw/', 'assets/dino-paint/',
+            'assets/garden/')  # Farm geometry is traced in its painting pixels
+
+
+def scaled_role(name, size, exact=False):
+    """Whether shipped NAME of SIZE takes the 75% standard."""
+    return (not exact and max(size) >= SCALE_MIN and not name.startswith(UNSCALED)
+            and 'cursor' not in Path(name).name)
+
+
+def runtime_size(size):
+    return max(1, round(size[0] * SCALE)), max(1, round(size[1] * SCALE))
+
+
+def save_scaled(master, destination):
+    """Encode MASTER (a PIL image) under the 75% standard; returns its alpha flag."""
+    picture = ImageOps.exif_transpose(master).convert('RGBA')
+    alpha = picture.getchannel('A').getextrema()[0] < 255
+    solid = picture.convert('RGB').getcolors(1)
+    picture = picture.resize(runtime_size(picture.size), Image.Resampling.LANCZOS)
+    if alpha and solid:
+        # One-color glows: un-premultiplied Lanczos would add color noise in the
+        # faint halo; keep the single color so only the alpha costs bytes.
+        halo = picture.getchannel('A')
+        picture = Image.new('RGBA', picture.size, solid[0][1] + (0,))
+        picture.putalpha(halo)
+    if alpha:
+        save_avif(picture, destination, lossless=True, cutout_quality=SCALE_QUALITY,
+                  alpha_quality=SCALE_ALPHA_QUALITY)
+    else:
+        save_avif(picture.convert('RGB'), destination, quality=SCALE_QUALITY)
+    return alpha
 
 
 @dataclass(frozen=True)
@@ -27,21 +68,18 @@ class ImageExport:
 
 
 def optimize_new_image_exports(source, role, cache, *, size=None):
-    """Return a cached WebP candidate, retaining the full-resolution original.
+    """Cache one original-based export. Existing AVIF is reused byte for byte.
 
-    SIZE is only for an explicit established runtime size or preview derivative.
-    Transparent images always use exact lossless RGBA, including hidden RGB.
-    For opaque images choose the smaller of the preset and exact lossless WebP.
-    Existing WebP is passed through unchanged (including oversized exports).
+    Only explicitly requested preview/established derivative sizes may resize.
+    Alpha artwork and exact roles retain all RGBA values, including hidden RGB.
     """
-    quality = PRESETS[role]  # Explicit roles; typos must not select a fallback.
+    quality = PRESETS[role]
     source, cache = Path(source), Path(cache)
     with Image.open(source) as original:
-        if original.format == 'WEBP':
+        if original.format == 'AVIF':
             if size is not None:
-                raise ValueError('Use the original, not an exported WebP, for derivatives')
+                raise ValueError('Use the original, not an exported AVIF, for derivatives')
             return ImageExport(source, None, False, True)
-        profile = original.info.get('icc_profile')
         picture = ImageOps.exif_transpose(original).convert('RGBA')
     alpha = picture.getchannel('A').getextrema()[0] < 255
     if role == 'title-background' and alpha:
@@ -54,51 +92,40 @@ def optimize_new_image_exports(source, role, cache, *, size=None):
     cache.mkdir(parents=True, exist_ok=True)
     with source.open('rb') as handle:
         digest = hashlib.file_digest(handle, 'sha256').hexdigest()
-    key = hashlib.sha256(f'{digest}-{role}-{quality}-{size}-{__version__}-{features.version("webp")}-v1'.encode()).hexdigest()
-    target = cache / (key + '.webp')
+    key = hashlib.sha256(f'{digest}-{role}-{quality}-{size}-{__version__}-{encoder_version()}-avif-{SPEED}-v2'.encode()).hexdigest()
+    target = cache / (key + '.avif')
     if not target.exists():
-        candidates = []
-        try:
-            for exact in ([True] if lossless else [False, True]):
-                with tempfile.NamedTemporaryFile(dir=cache, suffix='.webp', delete=False) as handle:
-                    candidate = Path(handle.name)
-                candidates.append(candidate)
-                picture.save(candidate, 'WEBP', lossless=exact, quality=100 if exact else quality,
-                             method=6, exact=True, alpha_quality=100,
-                             **({'icc_profile': profile} if profile else {}))
-            chosen = min(candidates, key=lambda path: path.stat().st_size)
-            with Image.open(chosen) as decoded:
-                decoded.load()
-                assert decoded.size == picture.size
-                if alpha:
-                    assert decoded.convert('RGBA').tobytes() == picture.tobytes()
-            chosen.replace(target)
-        finally:
-            for candidate in candidates:
-                candidate.unlink(missing_ok=True)
-    # Inspect the chosen bitstream, including cache hits: a lossless candidate
-    # may have beaten the lossy preset for a simple opaque illustration.
-    with target.open('rb') as handle:
-        handle.seek(12)
-        while header := handle.read(8):
-            if header[:4] in (b'VP8L', b'VP8 '):
-                lossless = header[:4] == b'VP8L'
-                break
-            length = int.from_bytes(header[4:], 'little')
-            handle.seek(length + length % 2, 1)
-    return ImageExport(target, None if lossless else quality, lossless, False)
+        save_avif(picture, target, lossless=lossless, quality=quality or 100,
+                  subsampling=SUBSAMPLING.get(role, '420'))
+        if not lossless:
+            exact = target.with_suffix('.exact.avif')
+            try:
+                save_avif(picture, exact, lossless=True)
+                if exact.stat().st_size < target.stat().st_size:
+                    exact.replace(target)
+            finally:
+                exact.unlink(missing_ok=True)
+    with Image.open(target) as decoded:
+        decoded.load()
+        assert decoded.format == 'AVIF' and decoded.size == picture.size
+        exact_pixels = decoded.convert(picture.mode).tobytes() == picture.tobytes()
+        if alpha:
+            # Cut-outs: every alpha value exact, q70 4:4:4 color.
+            assert decoded.convert('RGBA').getchannel('A').tobytes() == picture.getchannel('A').tobytes()
+        elif lossless:
+            assert exact_pixels
+        lossless = (lossless and not alpha) or exact_pixels
+    return ImageExport(target, None if lossless else (CUTOUT_QUALITY if alpha else quality), lossless, False)
 
 
 def export_image(source, destination, role, *, size=None):
-    """Explicit existing art-export step; candidates themselves grant no approval."""
+    """Explicit art-export step; encoding grants no artwork approval."""
     source, destination = Path(source), Path(destination)
     if source.resolve() == destination.resolve():
         raise ValueError('An export must not overwrite its original')
-    # Cache lives beside project sources, never in shipping assets.
-    root = ROOT
-    if destination.suffix.lower() != '.webp':
-        raise ValueError('Runtime image exports must use a .webp destination')
-    export = optimize_new_image_exports(source, role, root / 'local/art-development/image-exports', size=size)
+    if destination.suffix.lower() != '.avif':
+        raise ValueError('Runtime image exports must use a .avif destination')
+    export = optimize_new_image_exports(source, role, ROOT / 'local/art-development/image-exports', size=size)
     destination.parent.mkdir(parents=True, exist_ok=True)
     if not destination.exists() or destination.read_bytes() != export.source.read_bytes():
         shutil.copyfile(export.source, destination)
@@ -106,10 +133,9 @@ def export_image(source, destination, role, *, size=None):
 
 
 def export_painted_image(picture, destination, role='exact'):
-    """Keep a generated/painted master privately, then export the runtime WebP."""
+    """Keep a private painted PNG master and export only runtime AVIF."""
     destination = Path(destination)
-    relative = destination.relative_to(ROOT)
-    master = ROOT / 'local/art-development/masters' / relative.with_suffix('.png')
+    master = ROOT / 'local/art-development/masters' / destination.relative_to(ROOT).with_suffix('.png')
     master.parent.mkdir(parents=True, exist_ok=True)
     picture.save(master, 'PNG')
     return export_image(master, destination, role)
@@ -152,9 +178,8 @@ def trim_cutout(picture, max_display, *, margin=4, alpha_floor=8, align=1):
 def check_cutout(path, max_display, *, padding=6):
     """Fail a shipping check for oversized/padded/nonlossless cut-outs."""
     path = Path(path)
-    with path.open('rb') as stream:
-        assert stream.read(16)[12:16] == b'VP8L', (path, 'cut-outs must be lossless WebP')
     with Image.open(path) as picture:
+        assert picture.format == 'AVIF', (path, 'cut-outs must use AVIF')
         assert picture.mode == 'RGBA', (path, 'missing alpha')
         assert max(picture.size) <= 2 * max_display + 1, (path, 'oversized', picture.size)
         box = picture.getchannel('A').point(lambda value: 255 if value > 8 else 0).getbbox()

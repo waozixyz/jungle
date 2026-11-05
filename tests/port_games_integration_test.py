@@ -10,13 +10,14 @@ import unittest
 from unittest.mock import patch
 import zipfile
 
-from PIL import Image
+from PIL import Image, ImageChops, ImageStat
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'tools'))
 import build_web
 import shared_assets
 from web_images import preview_path
+from design_size import design_size
 
 FISH = ('clownfish', 'blue-tang', 'butterflyfish', 'angelfish', 'parrotfish', 'pufferfish')
 GAMES = (
@@ -36,11 +37,11 @@ def digest(path):
 
 
 def expected_art():
-    pictures = {f'assets/fishing/{name}.webp': name != 'background'
+    pictures = {f'assets/fishing/{name}.avif': name != 'background'
                 for name in ('background', 'boat', *FISH)}
-    pictures.update({f'assets/beach_families/{name}.webp': name != 'background'
+    pictures.update({f'assets/beach_families/{name}.avif': name != 'background'
                      for name in ('background', 'crab-adult', 'crab-baby')})
-    pictures.update({f'assets/jungle/covers/{cover}.webp': None
+    pictures.update({f'assets/jungle/covers/{cover}.avif': None
                      for cover in ('fishing', 'beach-families')})
     return pictures
 
@@ -53,15 +54,15 @@ class Registration(unittest.TestCase):
             root = Path(directory)
             files = {}
             for folder in shared_assets.PORT_FOLDERS:
-                path = root / folder / 'friend.webp'
+                path = root / folder / 'friend.avif'
                 path.parent.mkdir(parents=True)
                 image = Image.new('RGBA', (256, 192), (140, 80, 60, 255))
                 image.paste((0, 0, 0, 0), (0, 0, 80, 192))
-                image.save(path, 'WEBP', lossless=True)
+                image.save(path, 'AVIF', lossless=True)
                 preview = path.parent / 'previews' / path.name
                 preview.parent.mkdir()
                 image.thumbnail((128, 128))
-                image.save(preview, 'WEBP', lossless=True)
+                image.save(preview, 'AVIF', lossless=True)
                 files[path.relative_to(root).as_posix()] = path
             out = root / 'web'
             out.mkdir()
@@ -69,7 +70,7 @@ class Registration(unittest.TestCase):
                 native = shared_assets.Previews()
                 self.assertEqual(set(native), {preview_path(name) for name in files})
                 for bundle, folder, *_ in GAMES:
-                    self.assertEqual(set(shared_assets.GameFiles(bundle)), {f'assets/{folder}/friend.webp'})
+                    self.assertEqual(set(shared_assets.GameFiles(bundle)), {f'assets/{folder}/friend.avif'})
                 build_web.write_previews(files, out, groups={})
                 manifest = json.loads((out / 'preview-images.json').read_text())
                 self.assertEqual(set(manifest['files']), set(files))
@@ -95,7 +96,7 @@ class Registration(unittest.TestCase):
         for bundle, folder, module, alias, title, about, cover, index in GAMES:
             with self.subTest(game=bundle):
                 self.assertEqual(rows[index], [bundle + '.zx', title, about,
-                                               f'assets/jungle/covers/{cover}.webp', '2'])
+                                               f'assets/jungle/covers/{cover}.avif', '2'])
                 self.assertIn(f'{alias} :: #import, file "../games/{folder}/{module}.zi";', web)
                 self.assertIn(f'if active_game == {index} {{ return {alias}.GameMain() }}', web)
                 self.assertIn(f'if active_game == {index} {{ return "jungle.{folder}/" }}', web)
@@ -142,12 +143,12 @@ class Registration(unittest.TestCase):
         self.assertIn('return "pufferfish"', fish_assets)
         crab = (ROOT / 'games/beach_families/jungle_beach_families.zi').read_text()
         for name in ('background', 'crab-adult', 'crab-baby'):
-            self.assertIn(f'assets/beach_families/{name}.webp', crab)
+            self.assertIn(f'assets/beach_families/{name}.avif', crab)
         self.assertIn('RetroImagePreview(path)', crab)
 
 
 class ReviewedAssets(unittest.TestCase):
-    def test_complete_art_provenance_webp_and_alpha(self):
+    def test_complete_art_provenance_avif_and_alpha(self):
         manifest = json.loads((ROOT / 'tools/art_provenance/port-games/manifest.json').read_text())
         rows = {row['path']: row for row in manifest['assets']}
         self.assertEqual(len(rows), len(manifest['assets']), 'duplicate provenance paths')
@@ -164,12 +165,12 @@ class ReviewedAssets(unittest.TestCase):
                 hashes.append(row['sha256'])
                 with Image.open(ROOT / name) as full:
                     full.load()
-                    self.assertEqual(full.format, 'WEBP')
-                    self.assertEqual(list(full.size), row['size'])
+                    self.assertEqual(full.format, 'AVIF')
+                    self.assertEqual(list(design_size(ROOT / name, full)), row['size'])
                     self.assertGreaterEqual(max(full.size), 700)
                     if alpha is not None:
                         if source.is_file():
-                            with Image.open(source) as master: self.assertEqual(full.size, master.size)
+                            with Image.open(source) as master: self.assertEqual(design_size(ROOT / name, full), master.size)
                         self.assertEqual('A' in full.getbands(), alpha)
                     if alpha:
                         low, high = full.getchannel('A').getextrema()
@@ -177,14 +178,17 @@ class ReviewedAssets(unittest.TestCase):
                         self.assertGreaterEqual(high, 240)
                         if source.is_file():
                             with Image.open(source) as master:
-                                self.assertEqual(full.getchannel('A').tobytes(), master.getchannel('A').tobytes())
+                                # The 75% Lanczos copy keeps the master's alpha (q90).
+                                expected = master.convert('RGBA').resize(full.size, Image.Resampling.LANCZOS).getchannel('A')
+                                drift = ImageChops.difference(full.getchannel('A'), expected)
+                                self.assertLess(ImageStat.Stat(drift).mean[0], 1)
                     if name.startswith('assets/jungle/covers/'):
                         continue
                     preview = ROOT / row['preview']
                     self.assertEqual(digest(preview), row['preview_sha256'])
                     with Image.open(preview) as small:
                         small.load()
-                        self.assertEqual(small.format, 'WEBP')
+                        self.assertEqual(small.format, 'AVIF')
                         self.assertEqual(max(small.size), 128)
                         self.assertLess(abs(full.width / full.height - small.width / small.height), .03)
                         self.assertEqual('A' in small.getbands(), alpha)
@@ -224,7 +228,7 @@ class ReviewedAssets(unittest.TestCase):
                     payload = archive.read(item)
                 self.assertEqual(hashlib.sha256(payload).hexdigest(), digest(previews[name]))
                 with Image.open(io.BytesIO(payload)) as picture:
-                    self.assertEqual(picture.format, 'WEBP')
+                    self.assertEqual(picture.format, 'AVIF')
                     self.assertEqual(max(picture.size), 128)
 
 

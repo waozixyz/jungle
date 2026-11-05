@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Reproduce the approved title WebP masters, silhouette glows and visual QA sheets.
+"""Reproduce the approved title AVIF masters, silhouette glows and visual QA sheets.
 
 The only geometry input is title_hotspots.json. Coordinates and glow rectangles
 are source pixels, including for cropped glows. Pillow + numpy; no generators.
@@ -9,6 +9,7 @@ from pathlib import Path
 import argparse
 import json
 import numpy as np
+from avif_codec import save_shipped_cutout
 from PIL import Image, ImageDraw, ImageFilter
 from image_exports import export_image
 
@@ -65,7 +66,7 @@ def validate_variant(scene, names, games):
         assert all(type(n) is int for n in h['glow_rect'])
         assert 0 <= x < x+w <= scene['width'] and 0 <= y < y+height <= scene['height']
         assert all(x <= px < x+w and y <= py < y+height for px, py in h['polygon'])
-        assert h['glow'].endswith(('.png','.webp'))
+        assert h['glow'].endswith(('.png','.avif'))
 
 
 def occlude(image, h):
@@ -149,7 +150,7 @@ def main():
             overlay = glow(h)
             path = ROOT / h['glow']
             path.parent.mkdir(parents=True, exist_ok=True)
-            if path.suffix == '.webp': overlay.save(path,'WEBP',lossless=True,exact=True,method=6)
+            if path.suffix == '.avif': save_shipped_cutout(overlay, path, h['glow'])
             else: overlay.save(path, optimize=True)
             composite.alpha_composite(overlay, tuple(h['glow_rect'][:2]))
             color = ['#e33b51', '#165eff', '#019b7c', '#c343e3', '#ff8618'][i % 5]
@@ -161,7 +162,7 @@ def main():
             # Full-size individual overlay: inspect silhouettes without other glows.
             single = source.convert('RGBA')
             single.alpha_composite(overlay, tuple(h['glow_rect'][:2]))
-            single.convert('RGB').save(debug / f"{scene['name']}-{h['id']}.webp", quality=90)
+            single.convert('RGB').save(debug / f"{scene['name']}-{h['id']}.avif", quality=90)
             single.save(debug / f"{scene['name']}-{h['id']}.png")
             count += 1
         composite.save(debug / f"{scene['name']}-all-glows.png")
@@ -174,7 +175,7 @@ def main():
     for i, panel in enumerate(panels):
         sheet.paste(panel, ((i % 2)*836, (i // 2)*498))
     sheet.save(debug / 'all-glows.png')
-    print(f'Generated {len(variants)} WebP/placeholder pairs and {count} RGBA glows; geometry and catalog targets valid.')
+    print(f'Generated {len(variants)} AVIF/placeholder pairs and {count} RGBA glows; geometry and catalog targets valid.')
     print('Contact sheet:', (debug/'all-glows.png').relative_to(ROOT))
 
 

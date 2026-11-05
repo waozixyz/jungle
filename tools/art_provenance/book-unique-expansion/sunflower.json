@@ -2,16 +2,16 @@
   "tool": "built-in image_gen",
   "source": "local/art-development/art-refresh-033/sunflower-scene-candidate.png",
   "original": "backup/picture-book-scenes/art-refresh-033/sunflower-scene-original.png",
-  "page": "assets/jungle-book/pages/sunflower.webp",
+  "page": "assets/jungle-book/pages/sunflower.avif",
   "source_sha256": "9205970cfbf7317c89327d8e5d877ae44534acb2a3de776f29c9995c704be5a7",
-  "page_sha256": "386e6e8a5ef6a587e0b4f87aa6f40f61cf09f807356f55363194e3c1ea28cfa1",
+  "page_sha256": "aded61c1e481a20c15b497211aa76b347b25970a0825f1cbbe0bdf2eb188d722",
   "dimensions": [
     1254,
     1254
   ],
   "prompt": "Use case illustration-story. Create ONE high-resolution square full-scene nature picture-book page for toddlers. Reference image is ONLY for soft hand-painted watercolor, delicate botanical detail, warm cream paper and sage/earth colors; replace all people and reference composition. One clear botanical subject growing naturally rooted in its own setting, recognizable species shape, smooth washes, painterly foliage and gentle airy light. Complete subject and setting, softly feathered painted edges into cream paper. No people, animals, faces on plants, lettering, text, border, watermark, collage or diagram. PLANTS book: one prominent SUNFLOWER growing rooted in dark soil along a sunny kitchen-garden fence. Whole plant inside frame, tall sturdy green stem, several broad heart-shaped rough-edged leaves, ONE large golden-yellow flower head with a natural brown seed disk, plus one small attached closed bud. The flower faces gently three-quarter toward viewer and slightly toward sun, no face in seed disk. Low other green garden plants and a distant cottage softly behind, warm morning light, subject clear at thumbnail size. Natural botanical structure, leaves attached to stem, flower attached at top.",
   "reference_images": [
-    "assets/jungle-book/pages/mother.webp"
+    "assets/jungle-book/pages/mother.avif"
   ],
   "reference_usage": "Style reference for generation; new subject and habitat"
 }

@@ -12,6 +12,7 @@ from PIL import Image, ImageCms
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT/'tools'))
 import image_exports
+from avif_codec import save_avif
 import title_layers
 import title_glow
 import title_scenes
@@ -49,22 +50,22 @@ class Exports(unittest.TestCase):
                 after = ((width-1000*fit)/2+box[0]*fit+(px-box[0])*fit,
                          (height-1000*fit)/2+box[1]*fit+(py-box[1])*fit)
                 for a, b in zip(before, after): self.assertAlmostEqual(a, b)
-        path = self.root/'cutout.webp'
-        cutout.save(path, 'WEBP', lossless=True, exact=True)
+        path = self.root/'cutout.avif'
+        save_avif(cutout, path, lossless=True)
         image_exports.check_cutout(path, 100)
-        picture.save(path, 'WEBP', lossless=True, exact=True)
+        save_avif(picture, path, lossless=True)
         with self.assertRaisesRegex(AssertionError, 'oversized'):
             image_exports.check_cutout(path, 100)
         with self.assertRaisesRegex(AssertionError, 'transparent padding'):
             image_exports.check_cutout(path, 500)
 
     def test_presets_native_original_and_once(self):
-        for role, quality in [('title-background', image_exports.TITLE_BACKGROUND_QUALITY), ('book-page', 85)]:
+        for role, quality in [('title-background', image_exports.TITLE_BACKGROUND_QUALITY), ('book-page', image_exports.QUALITY)]:
             first = image_exports.optimize_new_image_exports(self.original, role, self.cache)
             self.assertEqual(first.quality, quality)
             with Image.open(first.source) as decoded:
                 self.assertEqual(decoded.size, (320, 192))
-                self.assertEqual(decoded.format, 'WEBP')
+                self.assertEqual(decoded.format, 'AVIF')
             with patch.object(Image.Image, 'save', side_effect=AssertionError('second encode')):
                 again = image_exports.optimize_new_image_exports(self.original, role, self.cache)
                 reused = image_exports.optimize_new_image_exports(first.source, role, self.cache)
@@ -73,15 +74,17 @@ class Exports(unittest.TestCase):
             self.assertEqual(reused.source.read_bytes(), first.source.read_bytes())
         self.assertEqual(self.original.read_bytes(), self.before)
 
-    def test_exact_alpha_including_hidden_rgb_and_opaque_rgba(self):
+    def test_exact_alpha_and_opaque_rgba(self):
         original = self.root/'alpha.png'
         im = Image.open(self.original).convert('RGBA')
         im.putalpha(Image.linear_gradient('L').resize(im.size))
         im.save(original)
         export = image_exports.optimize_new_image_exports(original, 'cutout', self.cache)
-        self.assertTrue(export.lossless)
+        # Every alpha value stays exact; color is high-quality 4:4:4 lossy.
+        self.assertFalse(export.lossless)
+        self.assertEqual(export.quality, image_exports.CUTOUT_QUALITY)
         with Image.open(export.source) as decoded:
-            self.assertEqual(decoded.convert('RGBA').tobytes(), im.tobytes())
+            self.assertEqual(decoded.convert('RGBA').getchannel('A').tobytes(), im.getchannel('A').tobytes())
         with self.assertRaises(ValueError):
             image_exports.optimize_new_image_exports(original, 'title-background', self.cache)
         im.putalpha(255)
@@ -93,19 +96,18 @@ class Exports(unittest.TestCase):
         im = Image.new('RGB', (320, 192), '#acf')
         im.save(self.original)
         export = image_exports.optimize_new_image_exports(self.original, 'book-page', self.cache)
-        reference = self.root/'lossless.webp'
-        im.save(reference, 'WEBP', lossless=True, method=6, exact=True)
+        reference = self.root/'lossless.avif'
+        save_avif(im, reference, lossless=True)
         self.assertLessEqual(export.source.stat().st_size, reference.stat().st_size)
-        self.assertTrue(export.lossless)
-        self.assertIsNone(export.quality)
+        self.assertIn(export.quality, (None, image_exports.QUALITY))
         self.assertFalse((self.root/'assets').exists())
         with self.assertRaises(ValueError):
             image_exports.export_image(self.original, self.original, 'book-page')
 
     def test_app_ready_new_exports_pass_established_staging_unchanged(self):
         import shutil
-        for role, name in [('book-page', 'assets/jungle-book/pages/new.webp'),
-                           ('title-background', 'assets/jungle/title/new.webp')]:
+        for role, name in [('book-page', 'assets/jungle-book/pages/new.avif'),
+                           ('title-background', 'assets/jungle/title/new.avif')]:
             ready = self.root / Path(name).name
             with patch.object(image_exports, 'ROOT', self.root):
                 image_exports.export_image(self.original, ready, role)
@@ -134,23 +136,18 @@ class Exports(unittest.TestCase):
             self.assertNotIn(274, decoded.getexif())
 
     def test_established_representative_page_staging_regression(self):
-        source = ROOT/'assets/jungle-book/pages/tiger.webp'
-        with Image.open(source) as original:
-            expected = original.convert('RGB')
-            expected.thumbnail((1024,1024), Image.Resampling.LANCZOS)
-        baseline = self.root/'baseline.webp'
-        expected.save(baseline, 'WEBP', quality=85, lossless=False,
-                      exact=True, alpha_quality=100, method=6)
-        name = 'assets/jungle-book/pages/tiger.webp'
+        source = ROOT/'assets/jungle-book/pages/tiger.avif'
+        name = source.relative_to(ROOT).as_posix()
         result = prepare_runtime_images({name: source}, self.cache)[name]
-        self.assertEqual(result.source.read_bytes(), baseline.read_bytes())
-        self.assertEqual(result.info['quality'], 85)
-        self.assertLess(result.info['runtime_bytes'], result.info['source_bytes'])
-        (self.root/'regression.json').write_text(json.dumps(result.info))
+        self.assertEqual(result.source.read_bytes(), source.read_bytes())
+        self.assertTrue(result.info['reused_source'])
+        with Image.open(source) as original:
+            self.assertEqual(result.info['runtime_width'], original.width)
+
 
     def test_export_stable_after_clean_cache_without_private_receipts(self):
         import shutil
-        dest = self.root/'candidate.webp'
+        dest = self.root/'candidate.avif'
         with patch.object(image_exports, 'ROOT', self.root):
             image_exports.export_image(self.original, dest, 'title-background')
             before = dest.read_bytes()
@@ -161,14 +158,14 @@ class Exports(unittest.TestCase):
             self.assertEqual(dest.stat().st_mtime_ns, modified)
             self.assertFalse(list((self.root/'work').rglob('*.json')))
 
-    def test_runtime_destination_requires_webp(self):
-        with self.assertRaisesRegex(ValueError, 'webp destination'):
+    def test_runtime_destination_requires_avif(self):
+        with self.assertRaisesRegex(ValueError, 'avif destination'):
             image_exports.export_image(self.original, self.root/'runtime.png', 'book-page')
 
     def test_painted_palette_is_exact_and_master_stays_private(self):
         picture = Image.new('RGB', (32, 16))
         picture.putdata([(i % 256, (i*7) % 256, (i*13) % 256) for i in range(512)])
-        destination = self.root/'assets/palette.webp'
+        destination = self.root/'assets/palette.avif'
         with patch.object(image_exports, 'ROOT', self.root):
             result = image_exports.export_painted_image(picture, destination)
         self.assertTrue(result.lossless)
@@ -183,17 +180,17 @@ class Exports(unittest.TestCase):
         # Established original-based book pipeline encodes q85 at its established cap.
         name = 'assets/jungle-book/pages/new.png'
         first = prepare_runtime_images({name:original}, self.cache)[name]
-        dest = self.root/'new.webp'
+        dest = self.root/'new.avif'
         dest.write_bytes(first.source.read_bytes())
-        shipped_name = 'assets/jungle-book/pages/new.webp'
+        shipped_name = 'assets/jungle-book/pages/new.avif'
         warm = prepare_runtime_images({shipped_name:dest}, self.root/'warm')[shipped_name]
         import shutil
         shutil.rmtree(self.cache)
-        # No private provenance/cache is needed to retain app-ready WebP bytes.
+        # No private provenance/cache is needed to retain app-ready AVIF bytes.
         cold = prepare_runtime_images({shipped_name:dest}, self.root/'cold')[shipped_name]
         self.assertEqual(warm.source.read_bytes(), cold.source.read_bytes())
         self.assertEqual(cold.source.read_bytes(), dest.read_bytes())
-        self.assertEqual(cold.info['runtime_width'], 1024)
+        self.assertEqual(cold.info['runtime_width'], 1254)
         self.assertTrue(cold.info['reused_source'])
 
     def test_story_entrypoint_uses_original_native_page(self):
@@ -206,7 +203,7 @@ class Exports(unittest.TestCase):
         # The reader's page geometry comes from the shipped landscape picture.
         pages = root/'assets/jungle-book/pages'
         pages.mkdir(parents=True)
-        Image.open(self.original).save(pages/'scene.webp', quality=85)
+        Image.open(self.original).save(pages/'scene.avif', quality=85)
         page = {'asset': 'scene', 'portrait_asset': 'fixture', 'paper_top': 160,
                 'paper_color': '#f4e3c4', 'en': 'Hello', 'de': 'Hallo', 'es': 'Hola'}
         (root/'tools/sweet_porridge.json').write_text(json.dumps({'pages':[page]}))
@@ -216,7 +213,7 @@ class Exports(unittest.TestCase):
             path.write_text(json.dumps({'text':page[lang], 'duration':1.2}))
         with patch.object(story_book, 'ROOT', root), patch.object(image_exports, 'ROOT', root):
             story_book.main(export_art=True)
-            dest = root/'assets/jungle-book/portraits/fixture.webp'
+            dest = root/'assets/jungle-book/portraits/fixture.avif'
             with Image.open(dest) as decoded:
                 self.assertEqual(decoded.size, (320,192))
             book = (root/'games/book/sweet_porridge.zi').read_text()
@@ -262,16 +259,16 @@ class Exports(unittest.TestCase):
         (root/'games/catalog.txt').write_text('')
         (root/'tools/title_hotspots.json').write_text(json.dumps({
             'width':1672, 'height':941, 'scenes':[{'name':'treehouse',
-            'image':'assets/jungle/title/tree.webp','low':'assets/jungle/title/tree-low.webp',
+            'image':'assets/jungle/title/tree.avif','low':'assets/jungle/title/tree-low.avif',
             'hotspots':[]}]}))
         with patch.object(title_glow, 'ROOT', root), patch.object(title_glow, 'SOURCE', source_dir), \
              patch.object(title_glow, 'DEBUG', root/'review'), patch.object(image_exports, 'ROOT', root), \
              patch.object(sys, 'argv', ['title_glow.py']):
             title_glow.main()
-        self.assertEqual(image_exports.TITLE_BACKGROUND_QUALITY, 50)
-        with Image.open(root/'assets/jungle/title/tree.webp') as im:
+        self.assertEqual(image_exports.TITLE_BACKGROUND_QUALITY, 35)
+        with Image.open(root/'assets/jungle/title/tree.avif') as im:
             self.assertEqual(im.size, (1672,941))
-        with Image.open(root/'assets/jungle/title/tree-low.webp') as im:
+        with Image.open(root/'assets/jungle/title/tree-low.avif') as im:
             self.assertEqual(im.width, 240)
         port_dir = root/'local/art-development/beach-port-redo'
         port_dir.mkdir(parents=True)
@@ -286,7 +283,7 @@ class Exports(unittest.TestCase):
              patch.object(image_exports, 'ROOT', root):
             title_scenes.ExportPort()
         for stem in ('beach-port','beach-portrait-port'):
-            with Image.open(root/f'assets/jungle/title/{stem}.webp') as im:
+            with Image.open(root/f'assets/jungle/title/{stem}.avif') as im:
                 self.assertEqual(im.size,(320,192))
 
     def test_menu_and_jigsaw_entrypoints_from_originals(self):
@@ -300,11 +297,16 @@ class Exports(unittest.TestCase):
             def export(source, destination, role, **kwargs):
                 self.assertTrue(str(source).startswith(str(directory)))
                 calls.append((role, kwargs['size']))
-                return image_exports.optimize_new_image_exports(source, role, self.cache, **kwargs)
+                result = image_exports.optimize_new_image_exports(source, role, self.cache, **kwargs)
+                if destination.parent.name == 'jigsaw':
+                    # q60 4:4:4: runtime pieces keep the painting's fine color.
+                    self.assertEqual(result.quality, image_exports.PRESETS['puzzle'])
+                return result
             with patch.object(module, 'ROOT', self.root), patch.object(module, 'export_image', export):
                 module.main()
             self.assertEqual(len(calls), 4)
-            self.assertTrue(all(role == 'scene' for role, _ in calls))
+            self.assertEqual([role for role, _ in calls],
+                             ['puzzle']*3+['scene'] if module is jigsaw_art else ['scene']*4)
 
 
 if __name__ == '__main__':

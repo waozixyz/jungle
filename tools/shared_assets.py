@@ -66,7 +66,7 @@ RUNTIME_CACHE = 'work/runtime-image-cache'
 # Only pictures and fonts are aliased. Speech is described separately by
 # SPEECH_MANIFEST: canonical clips ship once, encoded under SHIPPED, and the
 # voice WAVs they represent are omitted.
-PICTURES = ('.png', '.webp')
+PICTURES = ('.png', '.avif')
 # The host menu reads these directly, so they are never replaced by an alias.
 HOST_ONLY = 'assets/jungle/'
 COUNTING = ('tiger', 'frog', 'butterfly', 'ladybug', 'snail', 'elephant', 'giraffe', 'monkey', 'panda',
@@ -78,11 +78,11 @@ PORT_FOLDERS = ('assets/fishing', 'assets/beach_families')
 GAMES = {
     # The Sweet Porridge pot tap flies the colored magic pot.
     'jungle-book': {'folders': ('assets/jungle-book',), 'skip': ('assets/jungle-book/sounds/', 'assets/jungle-book/story-sounds/'),
-                    'extra': {'assets/collectibles/magic-pot.webp': 'assets/collectibles/magic-pot.webp'}},
+                    'extra': {'assets/collectibles/magic-pot.avif': 'assets/collectibles/magic-pot.avif'}},
     'jungle-abc': {'folders': ('assets/abc',)},
     'jungle-numbers': {'folders': ('assets/numbers',)},
     'animal-count': {'folders': ('assets/animal-count',),
-                     'extra': {f'assets/animal-count/pictures/{name}.webp': f'assets/jungle-book/counting/{name}.webp'
+                     'extra': {f'assets/animal-count/pictures/{name}.avif': f'assets/jungle-book/counting/{name}.avif'
                                for name in COUNTING}},
     'dino-paint': {'folders': ('assets/dino-paint',), 'voices': True},
     'jungle-shapes': {'folders': ('assets/shapes',)},
@@ -96,9 +96,11 @@ GAMES = {
     # The hidden paper's chime and the colored drum it flies.
     'jungle-drums': {'folders': ('assets/drums',),
                      'extra': {'assets/jungle-book/collect.wav': 'assets/jungle-book/collect.wav',
-                               'assets/collectibles/drum.webp': 'assets/collectibles/drum.webp'}},
+                               'assets/collectibles/drum.avif': 'assets/collectibles/drum.avif'}},
     # Only the Farm's runtime images; provenance and private masters never ship.
-    'jungle-garden': {'folders': ('assets/garden/art', 'assets/garden/play')},
+    'jungle-garden': {'folders': ('assets/garden/art', 'assets/garden/play'),
+                      'extra': {f'assets/jungle/title/objects/{name}.avif': f'assets/jungle/title/objects/{name}.avif'
+                                for name in ('sign-right-board', 'sign-right-board-glow', 'sign-right-post')}},
     'jungle-fishing': {'folders': ('assets/fishing',), 'skip': ('assets/fishing/previews/',)},
     'jungle-beach-families': {'folders': ('assets/beach_families',), 'skip': ('assets/beach_families/previews/',)},
 }
@@ -118,7 +120,7 @@ def Shipped(name):
     path = Path(name)
     # The silent Farm loads images only. Art provenance stays in the source,
     # including when the browser collects all assets instead of GameFiles.
-    if name.startswith('assets/garden/') and path.suffix != '.webp':
+    if name.startswith('assets/garden/') and path.suffix != '.avif':
         return False
     book_letters = name.startswith('assets/jungle-book/') and 'letters' in path.parts[:-1]
     book_narration = name.startswith('assets/jungle-book/sounds/') and path.suffix.lower() == '.wav'
@@ -156,7 +158,7 @@ def PortGamePreviews():
     """Reviewed 128px exports, keyed by their full picture's logical path."""
     return {f'{folder}/{path.name}': path
             for folder in PORT_FOLDERS
-            for path in sorted((ROOT / folder / 'previews').glob('*.webp'))
+            for path in sorted((ROOT / folder / 'previews').glob('*.avif'))
             if (ROOT / folder / path.name).is_file()}
 
 
@@ -341,6 +343,7 @@ def StageReleaseApp(app=APP, destination=ROOT / 'build/package', program=True):
     destination.mkdir(parents=True)
     if program:
         shutil.copy2(app / 'jungle', destination / 'jungle')
+        shutil.copy2(app / 'libkryonavif.so', destination / 'libkryonavif.so')
     shutil.copytree(app / 'assets', destination / 'assets')
     (destination / 'games').mkdir()
     shutil.copy2(app / 'games/catalog.txt', destination / 'games/catalog.txt')
@@ -452,7 +455,7 @@ def StageSharedAssets(app=APP, stage=STAGE, speech=None, previews=None):
 def WebFiles():
     """({alias: runtime file}, metadata) for the browser's asset packs.
 
-    Runtime exports are already WebP, so the browser reuses their exact bytes.
+    Runtime exports are already AVIF, so the browser reuses their exact bytes.
     """
     installed, aliases, _, runtime = PlanWithRuntime()
     runtime_by_target = {export.target: export for export in runtime.values()}

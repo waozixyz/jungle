@@ -66,7 +66,7 @@ body textarea,body [contenteditable]:not([contenteditable="false"]){-webkit-user
 </head>
 <body>
 <div id="canvas-frame"><canvas id="canvas" tabindex="0" aria-label="Jungle Academy learning games"></canvas></div>
-<div id="loading" role="status"><img id="brand-logo" src="/assets/jungle/branding/logo.webp" alt="Jungle Academy"><p id="status">Opening Jungle Academy…</p></div>
+<div id="loading" role="status"><img id="brand-logo" src="/assets/jungle/branding/logo.avif" alt="Jungle Academy"><p id="status">Opening Jungle Academy…</p></div>
 <section id="activity-loading" hidden aria-modal="true" role="dialog" aria-labelledby="activity-title"><div id="activity-paper">
 <img id="activity-cover" alt=""><h1 id="activity-title"></h1><p id="activity-message" role="status" aria-live="polite"></p>
 <progress id="activity-progress" max="1" value="0"></progress><span id="activity-count"></span>
@@ -399,7 +399,7 @@ const overlay=document.getElementById('activity-loading');
 // Background prefetches wait while any picture on screen is downloading.
 const activityLoader=new JungleActivityLoader(async(path,background)=>{
  const priority=background?'low':'auto';
- if(/\.(webp|png|jpg)$/.test(path))return loadImage(path,priority);
+ if(/\.(avif|png|jpg)$/.test(path))return loadImage(path,priority);
  const bytes=await assetBytes(path,priority);writeAsset('/'+path,bytes);
  if(path.endsWith('.ogg')){
   const index=await speech(),clip=index.clips.find(clip=>clip.path===path);
@@ -417,7 +417,7 @@ const activityLoader=new JungleActivityLoader(async(path,background)=>{
  const heading=document.getElementById('activity-title');heading.textContent=state.title||'';heading.hidden=!state.title;
  // A packed cover, such as a book's from its shelf, shows from the bytes
  // already here, never from another download.
- const cover=document.getElementById('activity-cover'),logo='assets/jungle/branding/logo.webp';
+ const cover=document.getElementById('activity-cover'),logo='assets/jungle/branding/logo.avif';
  const path=state.cover||logo;if(cover.dataset.path!==path){
   cover.dataset.path=path;if(cover.dataset.url){URL.revokeObjectURL(cover.dataset.url);delete cover.dataset.url}
   if(!directAsset(path)&&Module.FS?.analyzePath('/'+path).exists)cover.src=cover.dataset.url=URL.createObjectURL(new Blob([Module.FS.readFile('/'+path)]));
@@ -535,7 +535,7 @@ var Module={canvas:document.getElementById('canvas'),locateFile:assetUrl,print:c
    // Story letters use the shared bitmap atlases. Load these tiny fonts
    // before typing can draw them; they do not request lazy images themselves.
    // The title scenes open on their few-KB pictures; the clean ones follow.
-   const menu=paths.filter(path=>/^assets\/jungle\/([^/]+|title\/[^/]+-low\.(?:jpg|webp)|branding\/[^/]+)$/.test(path)||path.endsWith('/font.png'));
+   const menu=paths.filter(path=>/^assets\/jungle\/([^/]+|title\/[^/]+-low\.(?:jpg|avif)|branding\/[^/]+)$/.test(path)||path.endsWith('/font.png'));
    let next=0;
    await Promise.all(Array.from({length:8},async()=>{while(next<menu.length){const path=menu[next++];try{await loadImage(path)}catch(error){unavailableImage(path,error)}}}));
    Module.removeRunDependency('menu-pictures');

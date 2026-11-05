@@ -8,7 +8,7 @@
 // with the paper's middle in screen units. When it returns true the tap was the
 // paper's: the game ignores this frame's tap. Pointer games check SecretPaperHit
 // first, since Kryon gives a click to the topmost press only.
-#import "app_context"
+#import "kryon/app_context"
 #import "kryon/geometry"
 #import "kryon/drawing_props"
 #import "kryon/box_props"

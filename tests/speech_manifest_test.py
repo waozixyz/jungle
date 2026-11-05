@@ -182,35 +182,38 @@ def staging_test():
         root = Path(directory)
         source, app, stage = root / 'source', root / 'app', root / 'stage'
         for index, name in enumerate(shared_assets.COUNTING):
-            path = source / f'assets/jungle-book/counting/{name}.webp'
+            path = source / f'assets/jungle-book/counting/{name}.avif'
             path.parent.mkdir(parents=True, exist_ok=True)
-            path.write_bytes(picture('WEBP', (index, 120, 40)))
-        for name, data in (('assets/jungle-book/items/tiger.webp', picture('WEBP', (200, 120, 40))),
-                           ('assets/jungle-book/previews/jungle.webp', picture('WEBP', (40, 90, 160)))):
+            path.write_bytes(picture('AVIF', (index, 120, 40)))
+        for name, data in (('assets/jungle-book/items/tiger.avif', picture('AVIF', (200, 120, 40))),
+                           ('assets/jungle-book/previews/jungle.avif', picture('AVIF', (40, 90, 160)))):
             path = source / name
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_bytes(data)
         files = {
-            'assets/jungle/title/objects/wood-arrow-right.webp': picture('WEBP', (140, 100, 60)),
-            'assets/jungle/title/objects/wood-arrow-right-glow.webp': picture('WEBP', (180, 140, 80)),
-            'assets/jungle/title/objects/wood-arrow-left.webp': picture('WEBP', (150, 110, 70)),
-            'assets/jungle/title/objects/wood-arrow-left-glow.webp': picture('WEBP', (190, 150, 90)),
+            'assets/jungle/title/objects/wood-arrow-right.avif': picture('AVIF', (140, 100, 60)),
+            'assets/jungle/title/objects/wood-arrow-right-glow.avif': picture('AVIF', (180, 140, 80)),
+            'assets/jungle/title/objects/wood-arrow-left.avif': picture('AVIF', (150, 110, 70)),
+            'assets/jungle/title/objects/wood-arrow-left-glow.avif': picture('AVIF', (190, 150, 90)),
+            'assets/jungle/title/objects/sign-right-board.avif': picture('AVIF', (145, 105, 65)),
+            'assets/jungle/title/objects/sign-right-board-glow.avif': picture('AVIF', (185, 145, 85)),
+            'assets/jungle/title/objects/sign-right-post.avif': picture('AVIF', (120, 90, 55)),
             'assets/jungle/font.png': picture('PNG', (10, 20, 30)),
             'assets/jungle-book/font.png': picture('PNG', (10, 20, 30)),
             'assets/jungle-book/collect.wav': b'collection chime',
-            'assets/collectibles/magic-pot.webp': picture('WEBP', (80, 90, 100)),
-            'assets/collectibles/drum.webp': picture('WEBP', (81, 90, 100)),
-            'assets/collectibles/sunflower.webp': picture('WEBP', (82, 90, 100)),
-            'assets/jungle-book/pages/tiger.webp': picture('WEBP', (180, 160, 60)),
-            'assets/jungle-book/portraits/tiger.webp': picture('WEBP', (180, 160, 60)),
+            'assets/collectibles/magic-pot.avif': picture('AVIF', (80, 90, 100)),
+            'assets/collectibles/drum.avif': picture('AVIF', (81, 90, 100)),
+            'assets/collectibles/sunflower.avif': picture('AVIF', (82, 90, 100)),
+            'assets/jungle-book/pages/tiger.avif': picture('AVIF', (180, 160, 60)),
+            'assets/jungle-book/portraits/tiger.avif': picture('AVIF', (180, 160, 60)),
             'assets/jungle-book/sounds/tiger.wav': b'assembled',
             'assets/jungle-book/sounds/en/letters/0061.wav': b'canonical letter',
             'assets/abc/sounds/en/letters/0061.wav': b'duplicate letter',
             'assets/numbers/sounds/one.wav': b'number',
             'assets/animal-count/font.png': picture('PNG', (30, 20, 10)),
-            'assets/hide_seek/scenes/cottage-yard.webp': picture('WEBP', (90, 150, 70)),
-            'assets/hide_seek/props/basket.webp': picture('WEBP', (150, 100, 50)),
-            'assets/dino-paint/art/scene1-thumb.webp': picture('WEBP', (40, 80, 120)),
+            'assets/hide_seek/scenes/cottage-yard.avif': picture('AVIF', (90, 150, 70)),
+            'assets/hide_seek/props/basket.avif': picture('AVIF', (150, 100, 50)),
+            'assets/dino-paint/art/scene1-thumb.avif': picture('AVIF', (40, 80, 120)),
         }
         for name, data in files.items():
             path = source / name

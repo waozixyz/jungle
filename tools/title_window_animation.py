@@ -23,7 +23,7 @@ LEAVES={'landscape':[(433,330,263,229),(1220,610,320,222),(321,12,302,200),(15,6
 
 def save(image,name,role):
     source=MASTERS/(name+'.png'); image.save(source)
-    target=OUT/(name+'.webp'); export_image(source,target,role)
+    target=OUT/(name+'.avif'); export_image(source,target,role)
     return target.relative_to(ROOT).as_posix()
 
 def motion(image,rect,name):
@@ -49,7 +49,7 @@ def main():
     layers=[]
     for orientation in REGIONS:
         stem='window' if orientation=='landscape' else 'window-portrait'
-        original=Image.open(MASTERS/f'{orientation}-source.webp').convert('RGB')
+        original=Image.open(MASTERS/f'{orientation}-source.avif').convert('RGB')
         candidate=Image.open(MASTERS/f'{orientation}-clean-generated.png').convert('RGB')
         assert candidate.size==original.size
         mask=Image.new('L',original.size)
@@ -58,8 +58,8 @@ def main():
         clean=Image.composite(candidate,original,mask)
         # Exact master proves pixels outside edit mask remain untouched.
         clean.save(MASTERS/f'{orientation}-clean-composited.png')
-        export_image(MASTERS/f'{orientation}-clean-composited.png',ROOT/f'assets/jungle/title/{stem}.webp','title-background')
-        export_image(MASTERS/f'{orientation}-clean-composited.png',ROOT/f'assets/jungle/title/{stem}-low.webp','title-background',size=(240,round(clean.height*240/clean.width)))
+        export_image(MASTERS/f'{orientation}-clean-composited.png',ROOT/f'assets/jungle/title/{stem}.avif','title-background')
+        export_image(MASTERS/f'{orientation}-clean-composited.png',ROOT/f'assets/jungle/title/{stem}-low.avif','title-background',size=(240,round(clean.height*240/clean.width)))
         for i,rect in enumerate(LEAVES[orientation]): layers.append(motion(clean,rect,f'{orientation}-leaves-{i}'))
     (MASTERS/'environment-layers.json').write_text(json.dumps(layers,indent=2)+'\n')
 if __name__=='__main__':main()

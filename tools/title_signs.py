@@ -20,11 +20,17 @@ BOARDS = {
 
 
 def apply_signs(data, export=False, directions=tuple(BOARDS)):
+    # Split, independently edited components already carry their registered
+    # label/hit geometry. Regenerating the legacy full sign must not join them.
+    split = lambda h: h.get('editor_legacy_rect') and h.get('rest','').endswith('-board.avif')
+    legacy_directions = {h['sign']['direction'] for base in data['scenes'] for view in (base,base.get('portrait',{}))
+                         for h in view.get('hotspots',[]) if h.get('sign') and not split(h)}
     receipts = []
-    if export:
+    if export and legacy_directions:
         for direction in directions:
+            if direction not in legacy_directions: continue
             source = ROOT/f'local/art-development/sign-reference/wood-arrow-{direction}.png'
-            rest = ROOT/f'assets/jungle/title/objects/wood-arrow-{direction}.webp'
+            rest = ROOT/f'assets/jungle/title/objects/wood-arrow-{direction}.avif'
             glow = rest.with_stem(rest.stem+'-glow')
             export_image(source,rest,'cutout')
             with Image.open(source) as original:
@@ -41,7 +47,8 @@ def apply_signs(data, export=False, directions=tuple(BOARDS)):
                                  runtime=str(rest.relative_to(ROOT)),sha256=hashlib.sha256(rest.read_bytes()).hexdigest(),
                                  label_rect=BOARDS[direction][0],polygon=BOARDS[direction][1]))
         ledger = ROOT/'tools/art_provenance/title-arrow-signs.json'
-        kept = [r for r in json.loads(ledger.read_text())['assets'] if r['direction'] not in directions] if ledger.exists() else []
+        updated = {r['direction'] for r in receipts}
+        kept = [r for r in json.loads(ledger.read_text())['assets'] if r['direction'] not in updated] if ledger.exists() else []
         ledger.write_text(json.dumps(dict(
             owner_request='The sign itself is an arrow-shaped wooden plank; no arrow painted inside. '
                           'Sideways planks with clean intact ends (no snapped or splintered wood); '
@@ -54,11 +61,12 @@ def apply_signs(data, export=False, directions=tuple(BOARDS)):
             for hotspot in scene.get('hotspots',[]):
                 sign = hotspot.get('sign')
                 if not sign: continue
+                if split(hotspot): continue
                 direction = sign['direction']
                 board,polygon = BOARDS[direction]
                 x,y,w,h = hotspot['glow_rect']
-                hotspot['rest'] = f'assets/jungle/title/objects/wood-arrow-{direction}.webp'
-                hotspot['glow'] = f'assets/jungle/title/objects/wood-arrow-{direction}-glow.webp'
+                hotspot['rest'] = f'assets/jungle/title/objects/wood-arrow-{direction}.avif'
+                hotspot['glow'] = f'assets/jungle/title/objects/wood-arrow-{direction}-glow.avif'
                 sign['label_rect'] = [round(board[0]*w/1254),round(board[1]*h/1254),
                                       round(board[2]*w/1254),round(board[3]*h/1254)]
                 hotspot['polygon'] = [[x+round(px*w/1254),y+round(py*h/1254)] for px,py in polygon]

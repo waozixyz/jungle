@@ -27,6 +27,7 @@ import signal
 import socket
 import struct
 import subprocess
+import sys
 import tempfile
 import threading
 import time
@@ -181,6 +182,18 @@ def browser():
                 client.call('Runtime.enable')
                 client.call('Emulation.setDeviceMetricsOverride', width=1280, height=675, deviceScaleFactor=1, mobile=False)
                 yield client
+            except Exception:
+                # Keep evidence outside the disposable profile, including when
+                # CDP dies after startup. Read only a bounded diagnostic tail.
+                log.flush()
+                diagnostic_path = WORK / f'chromium-{proc.pid}.log'
+                shutil.copyfile(Path(profile) / 'chromium.log', diagnostic_path)
+                with diagnostic_path.open('rb') as diagnostic:
+                    diagnostic.seek(max(0, diagnostic.seek(0, 2) - 4000))
+                    tail = diagnostic.read(4000).decode(errors='replace')
+                print(f'Private Chromium pid={proc.pid} exit={proc.poll()} '
+                      f'profile={profile} log={diagnostic_path}\n{tail}', file=sys.stderr, flush=True)
+                raise
             finally:
                 if client:
                     try:
@@ -235,7 +248,7 @@ HTMLMediaElement.prototype.play=function(){
   this.addEventListener('playing',()=>P.log('playing',{path,muted:this.muted,volume:this.volume}));
   this.addEventListener('pause',()=>P.log('pause',{path}));
  }
- const image='assets/jungle-book/pages/'+path.split('/').at(-1).replace(/\.wav$/,'.webp');
+ const image='assets/jungle-book/pages/'+path.split('/').at(-1).replace(/\.wav$/,'.avif');
  const capture={path,image,t:performance.now(),asked:P.requests.get(image)||P.opened||P.asked};
  // Capture actual framebuffer at the voice boundary, not loader readiness.
  const canvas=document.getElementById('canvas');
@@ -336,8 +349,10 @@ def open_picture_book(client):
         keys = runtime_test.title_keys('Picture Book')
     else:
         keys = ['Home', 'Enter']
+    # Each key changes scene; let its pictures decode before the next key.
     for key in keys:
         client.key(key)
+        time.sleep(.6)
 
 
 def test_first_book_media_start(base_url: str, renderer: str):

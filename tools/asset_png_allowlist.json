@@ -1,5 +1,5 @@
 {
-  "policy": "Exact paths only. Generated/painted artwork must use WebP via tools/image_exports.py; only technical platform/font exceptions belong here.",
+  "policy": "Exact paths only. Generated/painted artwork must use AVIF via tools/image_exports.py; only technical platform/font exceptions belong here.",
   "files": {
     "assets/animal-count/font.png": "Bitmap font atlas used by the retro font loader and font alias staging; retain the established PNG atlas format.",
     "assets/animal-count/latin.png": "Bitmap font atlas used by the retro font loader and font alias staging; retain the established PNG atlas format.",
@@ -22,5 +22,13 @@
   "other_platform_formats": {
     "assets/jungle/icons/window.bmp": "SDL_LoadBMP window icon input; preserve the platform bitmap format.",
     "assets/jungle/icons/favicon.ico": "Multi-size browser/platform favicon container; preserve the platform icon format."
+  },
+  "android_platform_files": {
+    "droid/app/src/main/res/drawable-nodpi/ic_launcher_foreground.png": "Android launcher/adaptive foreground icon required by platform resources; generated together by tools/branding.py.",
+    "droid/app/src/main/res/mipmap-hdpi/ic_launcher.png": "Android launcher/adaptive foreground icon required by platform resources; generated together by tools/branding.py.",
+    "droid/app/src/main/res/mipmap-mdpi/ic_launcher.png": "Android launcher/adaptive foreground icon required by platform resources; generated together by tools/branding.py.",
+    "droid/app/src/main/res/mipmap-xhdpi/ic_launcher.png": "Android launcher/adaptive foreground icon required by platform resources; generated together by tools/branding.py.",
+    "droid/app/src/main/res/mipmap-xxhdpi/ic_launcher.png": "Android launcher/adaptive foreground icon required by platform resources; generated together by tools/branding.py.",
+    "droid/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png": "Android launcher/adaptive foreground icon required by platform resources; generated together by tools/branding.py."
   }
 }

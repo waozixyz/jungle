@@ -1,0 +1,83 @@
+// Test-only controls around the actual portable Farm entry and chooser.
+#import "kryon/app_context"
+#import "kryon/app_protocol"
+#import "kryon/geometry"
+Farm :: #import, file "../games/garden/jungle_garden.zi";
+Data :: #import, file "../host/jungle_title_data.zi";
+moved: bool; post_moved: bool; board_hidden: bool; post_hidden: bool;
+overlap: bool; post_front: bool; label_hidden: bool;
+
+#program_export
+main :: () -> s32 {
+    if AppMode()==APP_FRAME {
+        Fixture()
+        Farm.active_garden=-1
+    }
+    return Farm.GameMain()
+}
+Fixture :: () {
+    viewport:=AppBounds()
+    portrait:=viewport.width<viewport.height
+    scene := Data.TITLE_FARM_SCENE[ifx portrait then 1 else 0]
+    hotspot := Data.TITLE_SCENE_FIRST[scene]
+    object := Data.TITLE_SCENE_OBJECT_FIRST[scene]
+    at := hotspot*4; post := object*4
+    key := AppKey()
+    if key==66 { moved=true }
+    if key==80 { post_moved=true }
+    if key==72 { board_hidden=true }
+    if key==74 { post_hidden=true }
+    if key==75 { overlap=true; post_front=false }
+    if key==79 { post_front=true }
+    if key==78 { label_hidden=!label_hidden }
+    if key==82 {
+        moved=false; post_moved=false; board_hidden=false; post_hidden=false
+        overlap=false; post_front=false
+        label_hidden=false
+    }
+    rect: [4]s32; post_rect: [4]s32
+    pb: [4]s32=.[530,200,360,190]; pm: [4]s32=.[160,240,500,250]
+    pp: [4]s32=.[600,500,50,210]; pt: [4]s32=.[790,620,70,280]
+    lb: [4]s32=.[700,70,400,210]; lm: [4]s32=.[300,80,520,260]
+    lp: [4]s32=.[800,300,55,220]; lt: [4]s32=.[1180,180,90,300]
+    for i: cast(s32)0..3 {
+        if portrait {
+            rect[i]=ifx moved then pm[i] else pb[i]
+            post_rect[i]=ifx post_moved then pt[i] else pp[i]
+        } else {
+            rect[i]=ifx moved then lm[i] else lb[i]
+            post_rect[i]=ifx post_moved then lt[i] else lp[i]
+        }
+    }
+    if overlap {
+        post_rect[0]=rect[0]+rect[2]/3; post_rect[1]=rect[1]
+        post_rect[2]=80; post_rect[3]=rect[3]
+    }
+    for i: cast(s32)0..3 { Data.TITLE_OBJECT_RECT[post+i]=post_rect[i] }
+    Data.TITLE_OBJECT_ROTATION[object]=ifx post_moved then -2800 else 0
+    Data.TITLE_HOTSPOT_ROTATION[hotspot]=ifx moved then 3500 else 0
+    Data.TITLE_HOTSPOT_VISIBLE[hotspot]=!board_hidden
+    Data.TITLE_SIGN_LABEL[hotspot]=ifx label_hidden then "" else "Campus"
+    Data.TITLE_OBJECT_VISIBLE[object]=!post_hidden
+    draw:=Data.TITLE_FARM_DRAW_FIRST[ifx portrait then 1 else 0]
+    Data.TITLE_FARM_DRAW[draw]=ifx post_front then -hotspot-1 else object+1
+    Data.TITLE_FARM_DRAW[draw+1]=ifx post_front then object+1 else -hotspot-1
+    // Scale the real source polygon and label box, then rotate the hit
+    // vertices exactly as the canonical generator does.
+    for i: cast(s32)0..3 { Data.TITLE_GLOW_RECT[at+i]=rect[i] }
+    Data.TITLE_SIGN_RECT[at]=rect[2]*10/223; Data.TITLE_SIGN_RECT[at+1]=rect[3]*32/118
+    Data.TITLE_SIGN_RECT[at+2]=rect[2]*124/223; Data.TITLE_SIGN_RECT[at+3]=rect[3]*54/118
+    xs: [7]s32=.[2,146,146,222,146,146,2]
+    ys: [7]s32=.[23,23,2,61,116,97,97]
+    camera: Camera=.{.offset=.{cast(float32)rect[0]+cast(float32)rect[2]*0.5,cast(float32)rect[1]+cast(float32)rect[3]*0.5},
+        .target=.{cast(float32)rect[0]+cast(float32)rect[2]*0.5,cast(float32)rect[1]+cast(float32)rect[3]*0.5},
+        .rotation=cast(float32)Data.TITLE_HOTSPOT_ROTATION[hotspot]/100.0,.zoom=1.0}
+    chunk:=Data.TITLE_POLYGON_CHUNK[hotspot]; first:=Data.TITLE_POLYGON_FIRST[hotspot]
+    points_x:=Data.TitlePointsX(chunk); points_y:=Data.TitlePointsY(chunk)
+    for i: cast(s32)0..6 {
+        point:=WorldToScreen(Vector2.{cast(float32)rect[0]+cast(float32)(xs[i]*rect[2])/223.0,
+            cast(float32)rect[1]+cast(float32)(ys[i]*rect[3])/118.0},camera)
+        points_x[first+i]=cast(s32)point.x
+        points_y[first+i]=cast(s32)point.y
+    }
+}

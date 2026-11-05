@@ -50,9 +50,12 @@ class AwardAssetsTest(unittest.TestCase):
         recorded = {entry['runtime']: entry for entry in provenance['awards']}
         self.assertEqual([entry['game'] for entry in provenance['awards']], table('award_bundles'))
         for path in table('award_pictures'):
-            self.assertTrue(path.startswith('assets/jungle/awards/') and path.endswith('.webp'), path)
+            self.assertTrue(path.startswith('assets/jungle/awards/') and path.endswith('.avif'), path)
             data = (ROOT / path).read_bytes()
-            self.assertEqual(data[12:16], b'VP8L', path)
+            row = json.loads((ROOT/'tools/canonical_avif.json').read_text())['files'][path]
+            # Cut-out standard: every alpha value exact, 4:4:4 lossy color.
+            self.assertTrue(row['exact_alpha'] and row['subsampling'] == '444', path)
+            self.assertEqual(row['alpha_sha256'], row['source_alpha_sha256'], path)
             self.assertEqual(hashlib.sha256(data).hexdigest(), recorded[path]['sha256'], path)
             with Image.open(ROOT / path) as picture:
                 self.assertEqual(picture.size, (384, 384), path)

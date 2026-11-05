@@ -67,7 +67,8 @@ jobs:
         name: Install build tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y libsdl2-dev libcairo2-dev libfreetype-dev libfontconfig-dev libpango1.0-dev libvorbisfile3 ffmpeg python3-pil python3-numpy python3-scipy python3-cairosvg libpotrace0 imagemagick ghostscript
+          sudo apt-get install -y libsdl2-dev libcairo2-dev libfreetype-dev libfontconfig-dev libpango1.0-dev libvorbisfile3 ffmpeg python3-pil libavif-bin python3-numpy python3-scipy python3-cairosvg libpotrace0 imagemagick ghostscript
+          python3 -m pip install --user --break-system-packages 'Pillow==12.3.0'
       - name: Check the shared build contract
         run: |
           python3 tests/ci_artifacts_test.py
@@ -98,9 +99,9 @@ jobs:
           python3 tests/title_room_test.py
           python3 tests/title_desert_test.py
           python3 tests/title_world_map_test.py
-          python3 tests/webp_standard_test.py
+          python3 tests/avif_standard_test.py
           python3 tests/cursor_test.py
-          python3 tests/canonical_webp_test.py
+          python3 tests/canonical_avif_test.py
           python3 tests/image_exports_test.py
           python3 tests/runtime_images_test.py
           python3 tests/sweet_porridge_test.py

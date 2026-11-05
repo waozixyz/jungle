@@ -19,6 +19,7 @@
 #import "kryon/box_widget"
 #import "kryon/image_props"
 #import "kryon/image_widget"
+#import "kryon/bitmap_image"
 #import "kryon/text_props"
 #import "kryon/text_widget"
 #import "kryon/press_props"
@@ -42,6 +43,7 @@ MapIcon :: #import "mingcute/mingcute_regular_map";
 #import, file "jungle_album.zi";
 #import, file "jungle_collection.zi";
 #import, file "jungle_title.zi";
+#import, file "jungle_progress.zi";
 #import, file "jungle_title_data.zi";
 #import, file "jungle_title_dialogue.zi";
 #import, file "jungle_title_animation.zi";
@@ -92,6 +94,31 @@ TitleMapButton :: (x: s32, y: s32, width: s32, height: s32, icon: s32) -> bool {
 // The scene shown and what glows in it; kept while a game plays, so a
 // child comes back to the same room.
 title_state: TitleState;
+title_exploration: Exploration;
+title_fog_session: Session;
+title_fog_image: Texture2D;
+title_fog_pixels: [TITLE_FOG_BYTES]u8;
+title_fog_mask_ready: bool;
+title_fog_mask_visits: u32;
+title_fog_uploaded: bool;
+title_fog_image_visits: u32;
+
+// A successfully opened activity proves its painted home was visited.
+// Farm has its own map area; the other games belong to their scene's area.
+TitleExplorationGame :: (title: string) {
+    if title == "Farm" { unused ExplorationVisit(*title_exploration, "farm"); return }
+    for hotspot: cast(s32)0..TITLE_HOTSPOT_COUNT - 1 {
+        if TITLE_HOTSPOT_GAME[hotspot] != title { continue }
+        for scene: cast(s32)0..TITLE_SCENE_COUNT - 1 {
+            if TitleOnMap(scene) { continue }
+            first := TITLE_SCENE_FIRST[scene]
+            if hotspot >= first && hotspot < first + TITLE_SCENE_HOTSPOTS[scene] {
+                unused ExplorationVisit(*title_exploration, ExplorationSceneArea(TITLE_SCENE_NAME[scene]))
+                return
+            }
+        }
+    }
+}
 title_papers: TitlePapers;
 TITLE_PAPER_CHIME :: "assets/jungle-book/collect.wav"
 title_book_requested: string;
@@ -187,12 +214,63 @@ TitleReady :: (path: string) -> bool {
     return false
 }
 
-TitlePicture :: (session: Session, path: string, bounds: Rectangle, tint: u32 = 0) {
+TitlePicture :: (session: Session, path: string, bounds: Rectangle, tint: u32 = 0, rotation: float32 = 0.0) {
     shown := RetroImageShown(path)
     if shown == "" { return }
-    preview := ifx path.count >= 5 && path[path.count - 5:] == ".webp" then RetroImagePreview(path) else ""
-    Image(session, ImageProps.{.asset_path = shown, .preview_path = preview, .bounds = bounds,
-        .fit = ImageFit.ImageFitStretch, .smooth = true, .tint = tint})
+    preview := ifx path.count >= 5 && path[path.count - 5:] == ".avif" then RetroImagePreview(path) else ""
+    if rotation == 0.0 {
+        Image(session, ImageProps.{.asset_path = shown, .preview_path = preview, .bounds = bounds,
+            .fit = ImageFit.ImageFitStretch, .smooth = true, .tint = tint})
+        return
+    }
+    // Rigid four-corner mesh keeps the whole rotated cutout inside its coverage.
+    // The standard Image surface owns sampling and host rendering.
+    center := Vector2.{bounds.x+bounds.width*0.5,bounds.y+bounds.height*0.5}
+    camera: Camera = .{.offset=center,.target=center,.rotation=rotation,.zoom=1.0}
+    corners: [4]Vector2 = .[.{bounds.x,bounds.y},.{bounds.x+bounds.width,bounds.y},
+        .{bounds.x,bounds.y+bounds.height},.{bounds.x+bounds.width,bounds.y+bounds.height}]
+    for at: cast(s32)0..3 { corners[at] = WorldToScreen(corners[at],camera) }
+    Image(session, ImageProps.{.asset_path=shown,.preview_path=preview,
+        .bounds=RotatedRectangleBounds(bounds,center,rotation),
+        .mesh=ImageMesh.{.columns=2,.rows=2,.points=corners[:]},.smooth=true,.tint=tint})
+}
+
+// One calm continuous cover behind the destination silhouettes. The small
+// caller-owned mask changes only on a real visit; orientation just scales the
+// same painting and bitmap. Kryon owns the uploaded image and its lifetime.
+TitleMapFog :: (session: Session, scene: s32, picture: Rectangle) {
+    if !TitleOnMap(scene) { return }
+    if title_fog_session.slot!=session.slot || title_fog_session.epoch!=session.epoch {
+        BitmapImageRelease(title_fog_session,title_fog_image)
+        title_fog_session=session
+        title_fog_image=Texture2D.{}
+        title_fog_uploaded=false
+    }
+    visits:=TitleFogVisits(title_exploration)
+    if !title_fog_mask_ready || title_fog_mask_visits!=visits {
+        title_fog_mask_ready=TitleFogMask(visits,title_fog_pixels[:])
+        title_fog_mask_visits=visits
+    }
+    if title_fog_mask_ready && (!title_fog_uploaded || title_fog_image_visits!=visits) {
+        ready:=false
+        if title_fog_image.id==cast(u32)0 {
+            title_fog_image=BitmapImageCreate(session,TITLE_FOG_WIDTH,TITLE_FOG_HEIGHT,title_fog_pixels[:])
+            ready=title_fog_image.id!=cast(u32)0
+        } else {
+            ready=BitmapImageUpdate(session,title_fog_image,title_fog_pixels[:])
+        }
+        if ready {
+            title_fog_uploaded=true
+            title_fog_image_visits=visits
+        }
+    }
+    if title_fog_uploaded && title_fog_image_visits==visits {
+        Image(session,ImageProps.{.key=cast(u64)7604,.texture=title_fog_image,.bounds=picture,.smooth=true})
+    } else {
+        // Allocation failure keeps unknown terrain covered; the next frame
+        // retries the upload with the already computed mask.
+        unused Box(session,BoxProps.{.bounds=picture,.fill=Color.{242,246,242,255}})
+    }
 }
 
 // Alpha-tight strips keep the frame's large transparent opening out of the
@@ -200,7 +278,7 @@ TitlePicture :: (session: Session, path: string, bounds: Rectangle, tint: u32 = 
 TitleWindowFrame :: (session: Session, scene: s32, picture: Rectangle, view: TitleView) {
     portrait := TITLE_SCENE_NAME[scene] == "window-portrait"
     if !portrait && TITLE_SCENE_NAME[scene] != "window" { return }
-    path := ifx portrait then "assets/jungle/title/window-animation/portrait-frame.webp" else "assets/jungle/title/window-animation/landscape-frame.webp"
+    path := ifx portrait then "assets/jungle/title/window-animation/portrait-frame.avif" else "assets/jungle/title/window-animation/landscape-frame.avif"
     if !TitleReady(path) { return }
     rects := ifx portrait then TITLE_FRAME_PORTRAIT[:] else TITLE_FRAME_LANDSCAPE[:]
     for i: cast(s32)0..cast(s32)(rects.count / 4) - 1 {
@@ -218,7 +296,7 @@ TitleWindowFrame :: (session: Session, scene: s32, picture: Rectangle, view: Tit
 TitleWindowSkyDepth :: (session: Session, scene: s32, picture: Rectangle, view: TitleView) {
     portrait := TITLE_SCENE_NAME[scene] == "window-portrait"
     if !portrait && TITLE_SCENE_NAME[scene] != "window" { return }
-    path := ifx portrait then "assets/jungle/title/window-animation/portrait-sky-occluder.webp" else "assets/jungle/title/window-animation/landscape-sky-occluder.webp"
+    path := ifx portrait then "assets/jungle/title/window-animation/portrait-sky-occluder.avif" else "assets/jungle/title/window-animation/landscape-sky-occluder.avif"
     if !TitleReady(path) { return }
     rects := ifx portrait then TITLE_SKY_DEPTH_PORTRAIT[:] else TITLE_SKY_DEPTH_LANDSCAPE[:]
     for i: cast(s32)0..cast(s32)(rects.count / 4) - 1 {
@@ -238,8 +316,8 @@ title_flee_x: [64]float32;
 title_flee_y: [64]float32;
 
 TitleAnimations :: (session: Session, scene: s32, picture: Rectangle, view: TitleView, now: float64, foreground_leaves: bool = false) {
-    if TITLE_SCENE_NAME[scene] == "window" && !TitleReady("assets/jungle/title/window-animation/landscape-frame.webp") { return }
-    if TITLE_SCENE_NAME[scene] == "window-portrait" && !TitleReady("assets/jungle/title/window-animation/portrait-frame.webp") { return }
+    if TITLE_SCENE_NAME[scene] == "window" && !TitleReady("assets/jungle/title/window-animation/landscape-frame.avif") { return }
+    if TITLE_SCENE_NAME[scene] == "window-portrait" && !TitleReady("assets/jungle/title/window-animation/portrait-frame.avif") { return }
     clicked_animal: s32 = -1
     clicked_x: float32 = 0.0
     clicked_y: float32 = 0.0
@@ -359,19 +437,26 @@ TitlePathSign :: (session: Session, hotspot: s32, picture: Rectangle, view: Titl
         picture.y + (cast(float32)TITLE_GLOW_RECT[at + 1] + lift) * view.scale,
         cast(float32)TITLE_GLOW_RECT[at + 2] * view.scale,
         cast(float32)TITLE_GLOW_RECT[at + 3] * view.scale}
-    TitlePicture(session, sprite, wood)
+    turn := cast(float32)TITLE_HOTSPOT_ROTATION[hotspot] / 100.0
+    TitlePicture(session, sprite, wood, 0, turn)
     if glowing {
         alpha := cast(u32)(255.0 * (0.36 + 0.12 * Sin(now * 6.283185307 / 1.8)))
-        TitlePicture(session, TitleHotspotGlow(hotspot), wood, cast(u32)0xffffff00 | alpha)
+        TitlePicture(session, TitleHotspotGlow(hotspot), wood, cast(u32)0xffffff00 | alpha, turn)
     }
     board := Rectangle.{
         wood.x + cast(float32)TITLE_SIGN_RECT[at] * view.scale,
         wood.y + cast(float32)TITLE_SIGN_RECT[at + 1] * view.scale,
         cast(float32)TITLE_SIGN_RECT[at + 2] * view.scale,
         cast(float32)TITLE_SIGN_RECT[at + 3] * view.scale}
+    // The board's local label centre follows the same rigid transform as its pixels.
+    pivot := Vector2.{wood.x+wood.width*0.5,wood.y+wood.height*0.5}
+    camera: Camera = .{.offset=pivot,.target=pivot,.rotation=turn,.zoom=1.0}
+    label_center := WorldToScreen(Vector2.{board.x+board.width*0.5,board.y+board.height*0.5},camera)
+    board.x = label_center.x-board.width*0.5
+    board.y = label_center.y-board.height*0.5
     label := Tr(TITLE_SIGN_LABEL[hotspot])
     // Lay text out at full plank size, then rotate it about the board centre.
-    rotation := cast(float32)TITLE_SIGN_ROTATION[hotspot] / 100.0
+    rotation := cast(float32)TITLE_SIGN_ROTATION[hotspot] / 100.0 + turn
     text_board := board
     font := board.height * 0.68
     if rotation == 0.0 {
@@ -400,7 +485,8 @@ TitlePathSign :: (session: Session, hotspot: s32, picture: Rectangle, view: Titl
     pointer := PointerSample(session)
     on_board := pointer.x >= board.x && pointer.y >= board.y &&
         pointer.x < board.x + board.width && pointer.y < board.y + board.height
-    covered := blocked && on_board
+    physical := TitleInside(hotspot,(pointer.x-picture.x)/view.scale,(pointer.y-picture.y)/view.scale)
+    covered := (blocked || !physical) && on_board
     button := Press(session, PressProps.{.key = cast(u64)(7400 + hotspot),
         .bounds = board, .label = label, .now = now, .disabled = covered})
     if button.clicked && !covered { TitleQueue(*title_state, hotspot, now) }
@@ -468,7 +554,7 @@ TitleObjects :: (session: Session, scene: s32, picture: Rectangle, view: TitleVi
             picture.x + cast(float32)TITLE_OBJECT_RECT[at] * view.scale,
             picture.y + cast(float32)TITLE_OBJECT_RECT[at + 1] * view.scale,
             cast(float32)TITLE_OBJECT_RECT[at + 2] * view.scale,
-            cast(float32)TITLE_OBJECT_RECT[at + 3] * view.scale})
+            cast(float32)TITLE_OBJECT_RECT[at + 3] * view.scale}, 0, cast(float32)TITLE_OBJECT_ROTATION[layer] / 100.0)
     }
 }
 
@@ -545,9 +631,10 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
     // a drag that starts on it still pans the picture.
     paper := TitlePaperSpot(title_state.scene, view, bounds.width, bounds.height)
     paper_had := paper.index >= 0 && CollectionHas(collection, collectible_slugs[paper.index])
-    paper_available := TITLE_SCENE_FOREGROUND[title_state.scene] != "" &&
-        TitleReady(TITLE_SCENE_BACKGROUND[title_state.scene]) && TitleReady(TITLE_SCENE_FOREGROUND[title_state.scene])
-    pointed := TitleHit(title_state.scene, TitleSourceX(view, px), TitleSourceY(view, py))
+    paper_available := TITLE_SCENE_BACKGROUND[title_state.scene] != "" &&
+        TitleReady(TITLE_SCENE_BACKGROUND[title_state.scene]) && TitleObjectsReady(title_state.scene) &&
+        (TITLE_SCENE_FOREGROUND[title_state.scene] == "" || TitleReady(TITLE_SCENE_FOREGROUND[title_state.scene]))
+    pointed := TitleHit(title_state.scene, TitleSourceX(view, px), TitleSourceY(view, py), now)
     if pointed >= 0 && TITLE_SIGN_LABEL[pointed] != "" {
         if !TitleReady(TitleHotspotRest(pointed)) ||
             (TITLE_SCENE_FOREGROUND[title_state.scene] != "" && !paper_available) { blocked = true }
@@ -589,23 +676,29 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
     paper_fill: u32 = ifx TitleOnMap(title_state.scene) then cast(u32)TITLE_MAP_PAPER else cast(u32)0xe3ece4ff
     unused Box(session, BoxProps.{.bounds = bounds, .fill = ColorFromPacked(paper_fill)})
     scene := title_state.scene
+    unused ExplorationVisit(*title_exploration, ExplorationSceneArea(TITLE_SCENE_NAME[scene]))
     picture := Rectangle.{bounds.x + view.x, bounds.y + view.y,
         cast(float32)TITLE_SCENE_WIDTH[scene] * view.scale, cast(float32)TITLE_SCENE_HEIGHT[scene] * view.scale}
     // A real background plate and transparent foreground share the exact
     // scene transform. Wait for both before exposing anything between them.
     layered := false
-    if TITLE_SCENE_FOREGROUND[scene] != "" {
+    if TITLE_SCENE_BACKGROUND[scene] != "" {
         background_ready := TitleReady(TITLE_SCENE_BACKGROUND[scene])
-        foreground_ready := TitleReady(TITLE_SCENE_FOREGROUND[scene])
+        foreground_ready := TITLE_SCENE_FOREGROUND[scene] == "" || TitleReady(TITLE_SCENE_FOREGROUND[scene])
         layered = background_ready && foreground_ready && TitleObjectsReady(scene)
     }
     if layered {
         TitlePicture(session, TITLE_SCENE_BACKGROUND[scene], picture)
+        if TITLE_SCENE_FOREGROUND[scene] == "" {
+            TitlePaperUnder(session, scene, picture, view, bounds, collection, layered, now)
+        }
         TitleObjects(session, scene, picture, view)
     } else {
         if !TitleReady(TITLE_SCENE_IMAGE[scene]) { TitlePicture(session, TITLE_SCENE_LOW[scene], picture) }
         TitlePicture(session, TITLE_SCENE_IMAGE[scene], picture)
+        if TITLE_SCENE_BACKGROUND[scene] == "" { TitleObjects(session, scene, picture, view) }
     }
+    TitleMapFog(session, scene, picture)
     TitleAnimations(session, scene, picture, view, now)
     TitleWindowFrame(session, scene, picture, view)
     TitleAnimations(session, scene, picture, view, now, true)
@@ -614,12 +707,12 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
         // Separate navigation objects sit behind the foreground tiger.
         if TitleHotspotRest(hotspot) != "" && TITLE_SIGN_LABEL[hotspot] == "" && (TITLE_SCENE_FOREGROUND[scene] == "" || layered) {
             rect := hotspot * 4
-            wobble := TitleLockedWobble(title_state, hotspot, now) * view.scale
+            wobble := (TitleLockedWobble(title_state, hotspot, now) + TitleHotspotMotionX(hotspot, now)) * view.scale
             TitlePicture(session, TitleHotspotRest(hotspot), Rectangle.{
                 picture.x + cast(float32)TITLE_GLOW_RECT[rect] * view.scale + wobble,
                 picture.y + cast(float32)TITLE_GLOW_RECT[rect + 1] * view.scale,
                 cast(float32)TITLE_GLOW_RECT[rect + 2] * view.scale,
-                cast(float32)TITLE_GLOW_RECT[rect + 3] * view.scale})
+                cast(float32)TITLE_GLOW_RECT[rect + 3] * view.scale}, 0, cast(float32)TITLE_HOTSPOT_ROTATION[hotspot] / 100.0)
         }
         // Each glow and every scene one step away loads ahead of use.
         unused TitleReady(TitleHotspotGlow(hotspot))
@@ -652,11 +745,19 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
         // The world map's landmarks keep their full halo; it lies around them.
         if TitleHotspotRest(glowing) != "" && !TitleOnMap(scene) { alpha = cast(u32)(cast(float32)alpha * 0.55) }
         rect := glowing * 4
+        if TitleOnMap(scene) && TitleHotspotGlow(glowing) == "" {
+            unused Box(session, BoxProps.{.bounds = Rectangle.{
+                picture.x + cast(float32)TITLE_GLOW_RECT[rect] * view.scale,
+                picture.y + cast(float32)TITLE_GLOW_RECT[rect + 1] * view.scale,
+                cast(float32)TITLE_GLOW_RECT[rect + 2] * view.scale,
+                cast(float32)TITLE_GLOW_RECT[rect + 3] * view.scale},
+                .fill = ColorFromPacked(0xfff7cd45), .radius = 16.0 * view.scale})
+        }
         TitlePicture(session, TitleHotspotGlow(glowing), Rectangle.{
-            picture.x + cast(float32)TITLE_GLOW_RECT[rect] * view.scale + TitleLockedWobble(title_state, glowing, now) * view.scale,
+            picture.x + (cast(float32)TITLE_GLOW_RECT[rect] + TitleLockedWobble(title_state, glowing, now) + TitleHotspotMotionX(glowing, now)) * view.scale,
             picture.y + cast(float32)TITLE_GLOW_RECT[rect + 1] * view.scale,
             cast(float32)TITLE_GLOW_RECT[rect + 2] * view.scale,
-            cast(float32)TITLE_GLOW_RECT[rect + 3] * view.scale}, cast(u32)0xffffff00 | alpha)
+            cast(float32)TITLE_GLOW_RECT[rect + 3] * view.scale}, cast(u32)0xffffff00 | alpha, cast(float32)TITLE_HOTSPOT_ROTATION[glowing] / 100.0)
     }
     if TITLE_SCENE_FOREGROUND[scene] == "" || layered {
         for hotspot: first..first + TITLE_SCENE_HOTSPOTS[scene] - 1 {
@@ -673,11 +774,11 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
                     picture.x + cast(float32)TITLE_DECORATION_RECT[at] * view.scale,
                     picture.y + cast(float32)TITLE_DECORATION_RECT[at + 1] * view.scale,
                     cast(float32)TITLE_DECORATION_RECT[at + 2] * view.scale,
-                    cast(float32)TITLE_DECORATION_RECT[at + 3] * view.scale})
+                    cast(float32)TITLE_DECORATION_RECT[at + 3] * view.scale}, 0, cast(float32)TITLE_DECORATION_ROTATION[index] / 100.0)
             }
         }
     }
-    if !shelf { TitlePaperUnder(session, scene, picture, view, bounds, collection, layered, now) }
+    if !shelf && TITLE_SCENE_FOREGROUND[scene] != "" { TitlePaperUnder(session, scene, picture, view, bounds, collection, layered, now) }
 
     if guiding && !title_state.not_implemented {
         guide_anchor = TitleGuideAnchor(*title_state, view, bounds, unit, width, height)
@@ -708,7 +809,7 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
             tail_y := ifx tail_top then guide_place.bubble.y + 1 + offset else guide_place.bubble.y + guide_place.bubble.height - 2 - offset
             BookBox(tail_x - tail_width / 2, tail_y, tail_width, 1, 0xf7f1e3ff)
         }
-        BookPicture("assets/jungle/title/guide/tiger.webp", guide_place.mascot.x, guide_place.mascot.y,
+        BookPicture("assets/jungle/title/guide/tiger.avif", guide_place.mascot.x, guide_place.mascot.y,
             guide_place.mascot.width, guide_place.mascot.height)
         BookText(guide_place.text.x, guide_place.text.y, guide_place.text.width, guide_place.text.height,
             TitleGuideText(guide.step, language), 10, TextAlign.TextAlignStart, false)

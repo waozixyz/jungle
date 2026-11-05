@@ -38,7 +38,7 @@ for icon in manifest['icons']:
 for size in (16,32,48,64,128,180,192,256,512,1024):
     with Image.open(ROOT/f'assets/jungle/icons/icon-{size}.png') as image:
         assert image.size==(size,size)
-with Image.open(ROOT/'assets/jungle/branding/logo.webp') as image:
+with Image.open(ROOT/'assets/jungle/branding/logo.avif') as image:
     assert image.mode=='RGBA' and image.width>image.height*2
     assert image.getchannel('A').getextrema()==(0,255)
 with Image.open(ROOT/'assets/jungle/icons/favicon.ico') as image:

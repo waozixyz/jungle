@@ -92,7 +92,7 @@ Picture :: (path: string, x: s32, y: s32, w: s32, h: s32, label: string, fit: Im
 }
 
 Scene :: (active: bool, pointer_target: s32, custom_key: bool) -> s32 {
-    Picture("assets/beach_families/background.webp", 0, 0, width, height,
+    Picture("assets/beach_families/background.avif", 0, 0, width, height,
         BeachFamilyText("A quiet sandy beach", "Ein ruhiger Sandstrand", "Una playa tranquila"), ImageFit.ImageFitCover)
     BookBox(12, 10, width - 24, 110, 0xfffcf3ef, 0xdacdb5ff, 20)
     BookText(24, 13, width - 48, 30, BeachFamilyTitle(), 24, TextAlign.TextAlignCenter, false)
@@ -111,7 +111,7 @@ Scene :: (active: bool, pointer_target: s32, custom_key: bool) -> s32 {
         // Baby crabs share the same generous tap box but are visibly smaller.
         baby := crab >= 2
         picture_edge := ifx baby then edge * 55 / 100 else edge
-        path := ifx baby then "assets/beach_families/crab-baby.webp" else "assets/beach_families/crab-adult.webp"
+        path := ifx baby then "assets/beach_families/crab-baby.avif" else "assets/beach_families/crab-adult.avif"
         Picture(path, CrabX(crab) - picture_edge / 2, y + edge - picture_edge, picture_edge, picture_edge, CrabLabel(crab))
         if family.crabs[crab].counted {
             badge: s32 = 30

@@ -92,7 +92,7 @@ animal_pictures: [18]string = .["tiger", "frog", "butterfly", "ladybug", "snail"
     "giraffe", "monkey", "panda", "lion", "zebra", "crocodile", "parrot", "toucan", "rabbit", "cat", "dog", "sheep"];
 
 ItemPath :: (which: s32) -> string {
-    return Join("assets/animal-count/pictures/", animal_pictures[which % 18], ".webp")
+    return Join("assets/animal-count/pictures/", animal_pictures[which % 18], ".avif")
 }
 
 touch_key: s32;

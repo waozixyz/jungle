@@ -91,7 +91,7 @@ def main():
                         if ident=='farm-path':
                             time.sleep(.7)
                             actual=d.capture_actual(f'{w}-{locale}-farm-painting').convert('RGB')
-                            full=Image.open(root/('assets/garden/art/scene-portrait.webp' if h>w else 'assets/garden/art/scene-landscape.webp')).convert('RGB')
+                            full=Image.open(root/('assets/garden/art/scene-portrait.avif' if h>w else 'assets/garden/art/scene-landscape.avif')).convert('RGB')
                             fs=max(w/full.width,h/full.height)
                             fx=(w-full.width*fs)/2;fy=(h-full.height*fs)/2
                             # Sample unchanged foliage away from chooser markers.
@@ -99,7 +99,7 @@ def main():
                             region=tuple(round((fx if i%2==0 else fy)+v*fs) for i,v in enumerate(box))
                             ref=full.crop(box).resize((region[2]-region[0],region[3]-region[1]),Image.Resampling.BILINEAR)
                             assert max(ImageStat.Stat(ImageChops.difference(actual.crop(region).resize((8,8)),ref.resize((8,8)))).mean)<10,'Farm chooser painting missing or title bar still present'
-                            d.key('Escape')
+                            scene_return('farm')
                         elif ident=='jungle-path':scene_return('jungle-path')
                         else:d.key('Escape')
                         wait_for(before,'returned',opened=False)

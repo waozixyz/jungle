@@ -1,3 +1,4 @@
+import sys
 #!/usr/bin/env python3
 """Public provenance and speech coverage for the 109 minimum-book additions."""
 import hashlib
@@ -10,6 +11,8 @@ from PIL import Image
 
 import book_expansion_test as expansion
 from book_catalog import LANGUAGES, MINIMUM, NAMES, WORDS, narration, voice_path
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from design_size import design_size
 
 ROOT = Path(__file__).resolve().parents[1]
 digest = expansion.digest
@@ -28,7 +31,7 @@ class MinimumBookArtTest(unittest.TestCase):
         self.assertEqual(len(names), 109)
         self.assertEqual(names, set(NAMES[326:]))
         self.assertEqual(self.manifest['count'], 109)
-        self.assertEqual(set(self.files), {f'assets/jungle-book/pages/{name}.webp' for name in names})
+        self.assertEqual(set(self.files), {f'assets/jungle-book/pages/{name}.avif' for name in names})
         prompts = json.loads((ROOT / 'tools/book_prompts.json').read_text())['pages']
         refresh = json.loads((ROOT / 'tools/book_art_refresh.json').read_text())['files']
         for field in ('sha256', 'source_png_sha256'):
@@ -37,11 +40,11 @@ class MinimumBookArtTest(unittest.TestCase):
             with self.subTest(path=path):
                 name = Path(path).stem
                 self.assertEqual(entry['generator'], 'built-in imagegen')
-                self.assertEqual(entry['format'], 'WEBP')
-                self.assertEqual(entry['dimensions'], [1254, 1254])
+                self.assertEqual(entry['format'], 'AVIF')
+                self.assertEqual(list(design_size(ROOT / path)), [1254, 1254])
                 self.assertEqual(digest(ROOT / path), entry['sha256'])
                 with Image.open(ROOT / path) as image:
-                    self.assertEqual((image.format, image.mode, image.size), ('WEBP', 'RGB', (1254, 1254)))
+                    self.assertEqual((image.format, image.mode, design_size(ROOT / path, image)), ('AVIF', 'RGB', (1254, 1254)))
                     image.load()
                 self.assertEqual(entry['prompt_sha256'], hashlib.sha256(prompts[name].encode()).hexdigest())
                 self.assertTrue(entry['reference_images'])
@@ -62,7 +65,7 @@ class MinimumBookArtTest(unittest.TestCase):
                         self.assertEqual(image.format, 'PNG')
                         self.assertEqual(list(image.size), entry['source_png_dimensions'])
                         image.verify()
-                self.assertFalse((ROOT / f'assets/jungle-book/items/{name}.webp').exists())
+                self.assertFalse((ROOT / f'assets/jungle-book/items/{name}.avif').exists())
 
     def test_all_327_normal_word_recordings(self):
         self.assertEqual(LANGUAGES, ('en', 'de', 'es'))

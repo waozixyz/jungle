@@ -29,9 +29,9 @@
 #import, file "paint_earned.zi";
 #import, file "paint_picker_layout.zi";
 #import, file "paint_gallery_store.zi";
-#import "pointer_input"
-#import "input_protocol"
-#import "view_transform"
+#import "kryon/pointer_input"
+#import "kryon/input_protocol"
+#import "kryon/view_transform"
 PictureIcon :: #import "mingcute/mingcute_regular_pic";
 BucketIcon :: #import "mingcute/mingcute_regular_paint";
 BookIcon :: #import "mingcute/mingcute_regular_book";
@@ -869,7 +869,7 @@ PlacementView :: (chosen_tool: s32) {
     quad: [4]Vector2 = .[corners[0], corners[1], corners[3], corners[2]]
     if placement_flip { quad[0] = corners[1]; quad[1] = corners[0]; quad[2] = corners[2]; quad[3] = corners[3] }
     number := FormatInteger(dino + 1, digits_a[:])
-    Image(retro.session, ImageProps.{.asset_path = Join(ART, Join("dino", number, "-preview.webp")),
+    Image(retro.session, ImageProps.{.asset_path = Join(ART, Join("dino", number, "-preview.avif")),
         .bounds = CanvasScreen(), .mesh = ImageMesh.{.columns = 2, .rows = 2, .points = quad[:]}})
     for at: cast(s32)0..3 { SelectionLine(corners[at], corners[(at + 1) % 4]) }
     SelectionLine(SelectionPoint(0.0, -hh, center, plan.degrees), handle)
@@ -1335,7 +1335,7 @@ StencilPickerContent :: (l: StencilPickerLayout) {
         }
         dw := cast(s32)(cast(float32)DinoWidth(index, DINO_SIZES) * fit)
         dh := cast(s32)(cast(float32)DinoHeight(index, DINO_SIZES) * fit)
-        RetroSprite(Join(ART, Join("dino", number, "-preview.webp")),
+        RetroSprite(Join(ART, Join("dino", number, "-preview.avif")),
             x + (l.card_width - dw) / 2, y + 5 + (image_height - dh) / 2, dw, dh, -1, true)
         font := stencil_label_fonts[index]
         Text(retro.session, TextProps.{.bounds = RetroRect(x + 6, y + l.card_height - 4 - label_height,
@@ -1433,7 +1433,7 @@ ScenePickerContent :: (l: ScenePickerLayout) {
         dw := l.card_width - 16
         dh := dw * 3 / 4
         if dh > image_height { dh = image_height; dw = dh * 4 / 3 }
-        RetroSprite(Join(ART, Join("scene", number, "-thumb.webp")),
+        RetroSprite(Join(ART, Join("scene", number, "-thumb.avif")),
             x + (l.card_width - dw) / 2, y + 5 + (image_height - dh) / 2, dw, dh, -1, true)
         BookText(x + 6, y + l.card_height - 28, l.card_width - 12, 24, PaintSceneLabel(index), 18)
         if PaintItemEarned(PAINT_ITEM_SCENE, index) { EarnedStar(x, y, l.card_width) }
@@ -1515,7 +1515,7 @@ SizePicker :: () {
         if 94.0 / cast(float32)DinoHeight(dino, DINO_SIZES) < fit { fit = 94.0 / cast(float32)DinoHeight(dino, DINO_SIZES) }
         dw := cast(s32)(cast(float32)DinoWidth(dino, DINO_SIZES) * fit * cast(float32)(index + 1) / 4.0)
         dh := cast(s32)(cast(float32)DinoHeight(dino, DINO_SIZES) * fit * cast(float32)(index + 1) / 4.0)
-        RetroSprite(Join(ART, Join("dino", number, "-preview.webp")),
+        RetroSprite(Join(ART, Join("dino", number, "-preview.avif")),
             x + (64 - dw) / 2, y + 4 + (96 - dh) / 2, dw, dh, -1, true)
         BookText(x + 2, y + 103, 60, 17, size_names[index], 11)
         if press.clicked {

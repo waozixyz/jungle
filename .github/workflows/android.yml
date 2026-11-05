@@ -90,7 +90,8 @@ jobs:
       - name: Install build tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y libsdl2-dev libcairo2-dev libfreetype-dev libfontconfig-dev libpango1.0-dev libgdk-pixbuf-2.0-0 libvorbisfile3 libwebpdemux2 libwebp7 ffmpeg python3-pil python3-numpy imagemagick xvfb xdotool
+          sudo apt-get install -y libsdl2-dev libcairo2-dev libfreetype-dev libfontconfig-dev libpango1.0-dev libgdk-pixbuf-2.0-0 libvorbisfile3 libwebpdemux2 libwebp7 ffmpeg python3-pil libavif-bin python3-numpy imagemagick xvfb xdotool
+          python3 -m pip install --user --break-system-packages 'Pillow==12.3.0'
       - name: Build compiler and select locked source directories
         run: |
           make -j2 -C "$GITHUB_WORKSPACE/ziranlang/ziran" all
@@ -129,14 +130,14 @@ jobs:
       # Composite actions start at the workspace root. The direct and F-Droid
       # builds read Jungle's Gradle files; gplay applies Kryon's external file.
       - name: Keep Google libraries out of the normal and F-Droid builds
-        uses: kryonlabs/kryon/.github/actions/google-free@20b38574f23e329f889c581d37fe84e34f55b2f0
+        uses: kryonlabs/kryon/.github/actions/google-free@addec5e14fa446e8b66a9480c4d4b277a0d76a9f
         with:
           source: waozixyz/learning/jungle
           packages: |
             waozixyz/learning/jungle/build/android/JungleAcademy-universal-release-unsigned.apk
             waozixyz/learning/jungle/build/android/JungleAcademy-universal-fdroid-release-unsigned.apk
       - name: Require the Google Play edition to carry Play Billing
-        uses: kryonlabs/kryon/.github/actions/google-free@20b38574f23e329f889c581d37fe84e34f55b2f0
+        uses: kryonlabs/kryon/.github/actions/google-free@addec5e14fa446e8b66a9480c4d4b277a0d76a9f
         with:
           source: ''
           expect-google: 'true'

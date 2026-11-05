@@ -17,7 +17,7 @@ STORIES = {'sweet-porridge': 'sweet_porridge', 'town-musicians': 'town_musicians
 def test_activity_manifest():
     # Use the actual build data with tiny clip metadata: no encoding or asset
     # reads are needed to prove every reachable file is in the manifest.
-    paths={p.relative_to(ROOT).as_posix() for p in (ROOT/'assets').rglob('*') if p.is_file() and p.suffix in ('.webp','.png','.wav')}
+    paths={p.relative_to(ROOT).as_posix() for p in (ROOT/'assets').rglob('*') if p.is_file() and p.suffix in ('.avif','.png','.wav')}
     voices={}
     encoded={}
     for language in ('en','de','es'):
@@ -73,9 +73,9 @@ def test_activity_manifest():
     assert not [p for p in book['files'] if p.startswith(BOOK_MEDIA)], book['files']
     narrated={clip for entry in book['books'] for profiles in entry['speech'].values() for clips in profiles.values() for clip in clips}
     assert not narrated&{clip for profiles in book['speech'].values() for clips in profiles.values() for clip in clips}
-    assert book['shelves']['']==sorted(f'assets/jungle-book/previews/{c}.webp' for c,_ in BOOKS)
+    assert book['shelves']['']==sorted(f'assets/jungle-book/previews/{c}.avif' for c,_ in BOOKS)
     stories={name:json.loads((ROOT/'tools'/f'{data}.json').read_text())['pages'] for name,data in STORIES.items()}
-    assert book['shelves']['sweet-porridge']==sorted(f'assets/jungle-book/pages/{pages[0]["asset"]}.webp' for pages in stories.values())
+    assert book['shelves']['sweet-porridge']==sorted(f'assets/jungle-book/pages/{pages[0]["asset"]}.avif' for pages in stories.values())
     order=[c for _,members in BOOK_GROUPS for c in members]
     assert [entry['id'] for entry in book['books']]==order+list(STORIES)
     catalog=dict(BOOKS)
@@ -85,15 +85,15 @@ def test_activity_manifest():
         files=entry['files']
         if entry['id'] in STORIES:
             pages=stories[entry['id']]
-            landscape={f'assets/jungle-book/pages/{page["asset"]}.webp' for page in pages}
-            portrait={f'assets/jungle-book/portraits/{page["portrait_asset"]}.webp' for page in pages}|landscape
+            landscape={f'assets/jungle-book/pages/{page["asset"]}.avif' for page in pages}
+            portrait={f'assets/jungle-book/portraits/{page["portrait_asset"]}.avif' for page in pages}|landscape
             offered={c['color'] for c in collectibles if c['source']['kind']=='story' and c['source']['story']==entry['id']}
-            assert entry['cover']==f'assets/jungle-book/pages/{pages[0]["asset"]}.webp'
+            assert entry['cover']==f'assets/jungle-book/pages/{pages[0]["asset"]}.avif'
             voices=[f'assets/jungle-book/story-sounds/en/{page["asset"]}.wav' for page in pages]
         else:
-            landscape=portrait={f'assets/jungle-book/pages/{name}.webp' for name in catalog[entry['id']]}
+            landscape=portrait={f'assets/jungle-book/pages/{name}.avif' for name in catalog[entry['id']]}
             offered={c['color'] for c in collectibles if c['source']['kind']=='book' and c['source']['page'] in landscape}
-            assert entry['cover']==f'assets/jungle-book/previews/{entry["id"]}.webp'
+            assert entry['cover']==f'assets/jungle-book/previews/{entry["id"]}.avif'
             voices=[voice_path(name,'en',simple) for name in catalog[entry['id']] for simple in (True,False)]
         assert set(files['landscape'])==landscape|offered and set(files['portrait'])==portrait|offered, entry['id']
         for path in files['portrait']:

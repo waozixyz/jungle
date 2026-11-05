@@ -24,12 +24,12 @@ LOGICAL = {**dict.fromkeys(CROPS,76), **dict.fromkeys(('seed-'+c for c in CROPS)
            'goji':68,'soil-mound':68,'soil-mound-wet':68,
            'campus-arrow':240,'campus-arrow-glow':240,'market-arrow':170,'market-arrow-glow':170}
 CURSORS = {'cursor-watering-can':(2,14), 'cursor-harvest-basket':(16,16)}
-SCENES = {f'assets/garden/{folder}/{prefix}-{orientation}.webp'
+SCENES = {f'assets/garden/{folder}/{prefix}-{orientation}.avif'
           for folder,prefix in (('art','scene'),('play','garden'))
           for orientation in ('landscape','portrait')}
-FIELDS = {f'assets/garden/art/field-{orientation}-{i}.webp'
+FIELDS = {f'assets/garden/art/field-{orientation}-{i}.avif'
           for orientation in ('landscape','portrait') for i in range(4)}
-PLAY = {f'assets/garden/play/{name}.webp' for name in LOGICAL.keys() | CURSORS.keys()}
+PLAY = {f'assets/garden/play/{name}.avif' for name in LOGICAL.keys() | CURSORS.keys()}
 RUNTIME = SCENES | FIELDS | PLAY
 
 
@@ -53,14 +53,14 @@ def generated(rows):
 def write():
     rows={}
     for name in sorted(LOGICAL.keys() | CURSORS.keys()):
-        path=ROOT/f'assets/garden/play/{name}.webp'
+        path=ROOT/f'assets/garden/play/{name}.avif'
         original=LOCAL/'original'/path.relative_to(ROOT)
         if not original.exists():
             original.parent.mkdir(parents=True,exist_ok=True)
             if name.startswith(('campus-arrow','market-arrow')):
                 direction='right' if name.startswith('campus') else 'left'
                 suffix='-glow' if name.endswith('-glow') else ''
-                shutil.copyfile(ROOT/f'assets/jungle/title/objects/wood-arrow-{direction}{suffix}.webp',original)
+                shutil.copyfile(ROOT/f'assets/jungle/title/objects/wood-arrow-{direction}{suffix}.avif',original)
             else: shutil.copyfile(path,original)
         display=32 if name in CURSORS else LOGICAL[name]*1.8
         with Image.open(original) as picture:
@@ -110,10 +110,10 @@ def check():
     source=(ROOT/'games/garden/jungle_garden.zi').read_text()
     assert rows.keys()==LOGICAL.keys() | CURSORS.keys(), 'Unreferenced/missing cut-out'
     assert GENERATED.read_text()==generated(rows), 'Run python3 tools/farm_images.py --write'
-    actual={str(p.relative_to(ROOT)) for p in (ROOT/'assets/garden').rglob('*.webp')}
+    actual={str(p.relative_to(ROOT)) for p in (ROOT/'assets/garden').rglob('*.avif')}
     assert actual==RUNTIME, ('Unreferenced/missing Farm image',actual ^ RUNTIME)
     for name,row in rows.items():
-        path=ROOT/f'assets/garden/play/{name}.webp'
+        path=ROOT/f'assets/garden/play/{name}.avif'
         ow,oh=row['original_size']; left,top,right,bottom=row['crop']
         assert 0<=left<right<=ow and 0<=top<bottom<=oh,name
         display=row['max_display']*max(right-left,bottom-top)/max(ow,oh)
@@ -124,17 +124,19 @@ def check():
         if name in LOGICAL: assert row['max_display']==LOGICAL[name]*1.8,name
         else:
             assert row['max_display']==32 and row['dimensions']==[2*n for n in row['cursor'][:2]],name
-            cursor=re.search(r'asset_path="assets/garden/play/'+re.escape(name)+r'\.webp",'
+            cursor=re.search(r'asset_path="assets/garden/play/'+re.escape(name)+r'\.avif",'
                              r'\.width=(\d+),\.height=(\d+),\.hotspot_x=(\d+),\.hotspot_y=(\d+)',source)
             assert cursor and list(map(int,cursor.groups()))==row['cursor'], ('Cursor anchor changed',name)
     # Packaging and every web backend use the same explicit runtime list.
-    from shared_assets import GameFiles, Folder
-    assert set(GameFiles('jungle-garden'))==RUNTIME, 'Farm packs must contain exactly runtime images'
+    from shared_assets import GAMES, GameFiles, Folder
+    # Besides its own pictures, the Farm ships the title's Campus return sign.
+    signs=set(GAMES['jungle-garden'].get('extra',{}))
+    assert set(GameFiles('jungle-garden'))==RUNTIME|signs, 'Farm packs must contain exactly runtime images'
     assert set(Folder('assets/garden'))==RUNTIME, 'Browser Farm sources must contain exactly runtime images'
     assert 'FarmArt(name)' in source and 'ImageFit.ImageFitStretch' in source
     for name in LOGICAL:
         assert f'"{name}"' in source or name.startswith(('seed-','campus-arrow','market-arrow','soil-mound')), ('Unreferenced art',name)
-    print(f'local Farm image check: {len(RUNTIME)} referenced WebPs, {len(rows)} tight lossless cut-outs, <=2x display and generated anchors passed')
+    print(f'local Farm image check: {len(RUNTIME)} referenced AVIFs, {len(rows)} tight lossless cut-outs, <=2x display and generated anchors passed')
 
 
 if __name__=='__main__':

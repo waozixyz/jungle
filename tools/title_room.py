@@ -9,8 +9,8 @@ Masters live in local/art-development/treehouse-room/ (never tracked):
   gen-<orientation>-window.png         the generated view out of the window
 Each object keeps the approved painting's own pixels inside its generated
 silhouette; generated pixels fill only what other objects used to hide, so
-every layer is complete and can move. Runtime files are WebP: opaque plates
-q50/method 6 and exact lossless cut-outs and glows.
+every layer is complete and can move. Runtime files are AVIF: opaque plates
+q35/speed 6 and exact lossless cut-outs and glows.
 
     python3 tools/title_room.py           export every runtime picture
     python3 tools/title_room.py --place   also place the objects and their
@@ -38,7 +38,7 @@ ROOT = Path(__file__).resolve().parents[1]
 MASTERS = ROOT / 'local/art-development/treehouse-room'
 ROOM = 'assets/jungle/title/room'
 SOURCE = ROOT / 'tools/title_hotspots.json'
-APPROVED = ROOT / 'tests/approved_title_webp.json'
+APPROVED = ROOT / 'tests/approved_title_avif.json'
 # Transparent margin around every cut-out, so its hover glow fits its rect.
 PAD = 24
 LOW_WIDTH = 240
@@ -305,7 +305,7 @@ def digest(path):
 
 
 def save(picture, master, destination, role, size=None):
-    """Keep the full-size master privately and ship its WebP export."""
+    """Keep the full-size master privately and ship its AVIF export."""
     master.parent.mkdir(parents=True, exist_ok=True)
     picture.save(master)
     (ROOT / destination).parent.mkdir(parents=True, exist_ok=True)
@@ -314,7 +314,7 @@ def save(picture, master, destination, role, size=None):
 
 
 def approve(rows, master, destination):
-    """Fingerprint a replaced opaque title picture for canonical_webp_test."""
+    """Fingerprint a replaced opaque title picture for canonical_avif_test."""
     path = ROOT / destination
     with Image.open(path) as image:
         row = dict(name=path.stem, path=destination, bytes=path.stat().st_size, sha256=digest(path),
@@ -329,7 +329,7 @@ def build(orientation, approved):
     """Export one orientation; returns its placed objects and hotspots."""
     stem = STEMS[orientation]
     work = MASTERS / 'export'
-    with Image.open(ROOT / f'assets/jungle/title/layers/{stem}-foreground.webp') as tiger:
+    with Image.open(ROOT / f'assets/jungle/title/layers/{stem}-foreground.avif') as tiger:
         tiger = tiger.convert('RGBA')
     original, layers = cutouts(orientation)
     empty = plate(orientation, original, layers)
@@ -343,13 +343,13 @@ def build(orientation, approved):
     placed, hotspots = [], {}
     for name, layer, hotspot in layers:
         picture, rect = crop(layer)
-        image = f'{ROOM}/{orientation}-{name}.webp'
+        image = f'{ROOM}/{orientation}-{name}.avif'
         save(picture, work / f'{orientation}-{name}.png', image, 'cutout')
         room.alpha_composite(picture, tuple(rect[:2]))
         placed.append({'id': name, 'image': image, 'rect': rect})
         if hotspot:
             alpha = np.asarray(picture.getchannel('A'))
-            glow = f'{ROOM}/{orientation}-{name}-glow.webp'
+            glow = f'{ROOM}/{orientation}-{name}-glow.avif'
             save(glow_picture(alpha), work / f'{orientation}-{name}-glow.png', glow, 'cutout')
             hotspots[hotspot] = {'object': name, 'polygon': outline(alpha, rect), 'glow': glow,
                                  'glow_rect': list(rect)}
@@ -358,9 +358,9 @@ def build(orientation, approved):
     composite_master = work / f'{orientation}-composite.png'
     full.convert('RGB').save(composite_master)
     for destination, master, size in (
-            (f'assets/jungle/title/layers/{stem}-background.webp', plate_master, None),
-            (f'assets/jungle/title/{stem}.webp', composite_master, None),
-            (f'assets/jungle/title/{stem}-low.webp', composite_master,
+            (f'assets/jungle/title/layers/{stem}-background.avif', plate_master, None),
+            (f'assets/jungle/title/{stem}.avif', composite_master, None),
+            (f'assets/jungle/title/{stem}-low.avif', composite_master,
              (LOW_WIDTH, round(height * LOW_WIDTH / width)))):
         export_image(master, ROOT / destination, 'title-background', size=size)
         approve(approved, master, destination)
@@ -370,8 +370,8 @@ def build(orientation, approved):
         if view.size != (width, height):
             raise SystemExit(f'title room: {view_master.name} must be {width}x{height}')
     view = VIEWS[orientation]
-    for destination, size in ((f'assets/jungle/title/{view}.webp', None),
-                              (f'assets/jungle/title/{view}-low.webp',
+    for destination, size in ((f'assets/jungle/title/{view}.avif', None),
+                              (f'assets/jungle/title/{view}-low.avif',
                                (LOW_WIDTH, round(height * LOW_WIDTH / width)))):
         export_image(view_master, ROOT / destination, 'title-background', size=size)
         approve(approved, view_master, destination)
@@ -385,7 +385,7 @@ def build(orientation, approved):
     tiger_alpha = np.asarray(tiger.getchannel('A'))
     occlusion = outline(tiger_alpha, [0, 0, width, height], tolerance=3.0)
     window = {'id': 'window', 'target': 'scene:window', 'polygon': polygon,
-              'glow': f'assets/jungle/title/glow/{stem}-window.webp',
+              'glow': f'assets/jungle/title/glow/{stem}-window.avif',
               'glow_rect': [int(x0), int(y0), int(x1 - x0), int(y1 - y0)], 'occlusion': occlusion}
     picture = glow(window)
     master = work / f'{stem}-window-glow.png'
@@ -420,17 +420,17 @@ def place(data, orientation, placed, hotspots):
     scene['hotspots'] = kept
     if not any(s['name'] == 'window' for s in data['scenes']):
         data['scenes'].append({
-            'name': 'window', 'image': 'assets/jungle/title/window.webp',
-            'low': 'assets/jungle/title/window-low.webp', 'back': True, 'hotspots': [],
+            'name': 'window', 'image': 'assets/jungle/title/window.avif',
+            'low': 'assets/jungle/title/window-low.avif', 'back': True, 'hotspots': [],
             'portrait': {'width': 1024, 'height': 1536,
-                         'image': 'assets/jungle/title/window-portrait.webp',
-                         'low': 'assets/jungle/title/window-portrait-low.webp', 'hotspots': []}})
+                         'image': 'assets/jungle/title/window-portrait.avif',
+                         'low': 'assets/jungle/title/window-portrait-low.avif', 'hotspots': []}})
     return replaced
 
 
 def retire(paths):
     """Delete glows the object layers replaced and retire their ledger rows."""
-    ledger_path = ROOT / 'tools/title_webp_layers.json'
+    ledger_path = ROOT / 'tools/title_avif_layers.json'
     ledger = json.loads(ledger_path.read_text())
     for name, row in ledger.items():
         if row.get('path') in paths:

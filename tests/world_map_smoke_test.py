@@ -7,6 +7,7 @@ where the map was opened, including into the Farm. Captures stay in ignored
 backup/.
 """
 import json
+from functools import lru_cache
 import os
 from pathlib import Path
 import tempfile
@@ -14,10 +15,43 @@ import time
 import numpy as np
 from PIL import Image, ImageChops, ImageStat
 import runtime_test as rt
+from world_map_geometry import selectable_point
 
 SIZES = ((960, 600), (420, 900), (1080, 2340), (1366, 768), (768, 1024))
 ICON = (0x2e, 0x69, 0x56)
 PAPER = (0xfd, 0xe9, 0xca)
+
+
+@lru_cache(maxsize=8)
+def painted_map(image, areas, metadata=None):
+    """Reference terrain, persistent clouds and selectable landmark layers."""
+    data = json.loads(metadata if metadata is not None else (rt.ROOT/'tools/title_hotspots.json').read_text())
+    world = next(s for s in data['scenes'] if s['name'] == 'map')
+    view = world if world['image'] == image else world['portrait']
+    plate = Image.open(rt.ROOT/image).convert('RGBA')
+    # The map ships at 75%; its layout, clouds and landmarks use painting pixels.
+    from design_size import design_size
+    plate = plate.resize(design_size(image, plate), Image.Resampling.LANCZOS)
+    # A single smooth cover, rebuilt on exploration changes. Independent image
+    # composition verifies the native render rather than accepting puff gaps.
+    yy, xx = np.mgrid[:256, :384].astype(np.float32)
+    xx = (xx + .5) * plate.width / 384
+    yy = (yy + .5) * plate.height / 256
+    nearest = np.ones((256, 384), dtype=np.float32)
+    for area in world['exploration']:
+        if area['area'] in areas:
+            nearest = np.minimum(nearest, ((xx-area['center'][0])/590)**2 + ((yy-area['center'][1])/440)**2)
+    edge = np.clip((nearest-.64)/.36, 0, 1)
+    fog = np.empty((256, 384, 4), dtype=np.uint8)
+    fog[:, :, :3] = (242, 246, 242)
+    fog[:, :, 3] = (255 * edge**2 * (3-2*edge) + .5).astype(np.uint8)
+    plate.alpha_composite(Image.fromarray(fog).resize(plate.size, Image.Resampling.BILINEAR))
+    for spot in view['hotspots']:
+        if spot['rest']:
+            x, y, w, h = spot['glow_rect']
+            with Image.open(rt.ROOT/spot['rest']) as mark:
+                plate.alpha_composite(mark.convert('RGBA').resize((w, h), Image.Resampling.BILINEAR), (x, y))
+    return plate.convert('RGB')
 
 
 def difference(a, b, box):
@@ -25,20 +59,10 @@ def difference(a, b, box):
 
 
 def map_fit(view, size, w, h):
-    """host/jungle_title.zi TitleFit for the map: cover, shrunk to hold the landmarks."""
+    """host/jungle_title.zi TitleFit for the complete shared map painting."""
     width, height = view.get('width', size[0]), view.get('height', size[1])
-    spots = view['hotspots']
-    margin = 16
-    left = max(0, min(s['glow_rect'][0] for s in spots) - margin)
-    top = max(0, min(s['glow_rect'][1] for s in spots) - margin)
-    right = min(width, max(s['glow_rect'][0] + s['glow_rect'][2] for s in spots) + margin)
-    bottom = min(height, max(s['glow_rect'][1] + s['glow_rect'][3] for s in spots) + margin)
-    scale = min(max(w / width, h / height), w / (right - left), h / (bottom - top))
+    scale = min(w / width,h / height)
     ox, oy = (w - width * scale) / 2, (h - height * scale) / 2
-    sl, sr = ox + left * scale, ox + right * scale
-    st, sb = oy + top * scale, oy + bottom * scale
-    ox -= sl if sl < 0 else sr - w if sr > w else 0
-    oy -= st if st < 0 else sb - h if sb > h else 0
     return scale, ox, oy
 
 
@@ -60,6 +84,9 @@ def scene_keys(data, name):
 
 def own_point(spot):
     """A scene point on the landmark's painting (its box centre may be bare ground)."""
+    if not spot['rest']:
+        x, y, w, h = spot['glow_rect']
+        return x + w / 2, y + h / 2
     with Image.open(rt.ROOT/spot['rest']) as layer:
         alpha = np.asarray(layer.convert('RGBA').getchannel('A'), dtype=np.float32)
     ys, xs = np.nonzero(alpha >= 200)
@@ -132,10 +159,11 @@ def main():
                 scale, ox, oy = map_fit(view, (data['width'], data['height']), w, h)
                 to_screen = lambda x, y: (ox + x * scale, oy + y * scale)
                 # The map's own paper surrounds the plate, behind every landmark.
-                plate = Image.open(root/view['image']).convert('RGB')
-                plate = plate.resize((round(plate.width * scale), round(plate.height * scale)), Image.Resampling.BILINEAR)
-
                 def painted_like_plate(picture, box, small=(48, 48), limit=22):
+                    path = state/'explored.txt'
+                    areas = tuple(path.read_text().splitlines()[1:]) if path.exists() else ()
+                    plate = painted_map(view['image'], areas)
+                    plate = plate.resize((round(plate.width * scale), round(plate.height * scale)), Image.Resampling.BILINEAR)
                     inside = (max(box[0], round(ox)), max(box[1], round(oy)),
                               min(box[2], round(ox) + plate.width), min(box[3], round(oy) + plate.height))
                     if inside[2] - inside[0] < small[0] or inside[3] - inside[1] < small[1]:
@@ -153,9 +181,11 @@ def main():
                 # Each painted scene, reached by keys: its reference picture and its map button.
                 references = {}
                 for name in painted:
+                    # Each key changes scene; let that scene's pictures
+                    # decode before the next key, as a person would.
                     for key in scene_keys(data, name):
                         d.key(key)
-                    time.sleep(.6)
+                        time.sleep(.6)
                     rest()
                     picture = d.capture_actual(f'{w}-{name}')
                     assert has_button(picture, button), (w, h, name, 'no map button')
@@ -176,12 +206,14 @@ def main():
                     origin = 'desert' if kind == 'locked' else 'campus'
                     for key in scene_keys(data, origin):
                         d.key(key)
+                        time.sleep(.6)
                     time.sleep(.5)
                     press_map()
                     rest()
                     still = until(f'{w}-map-{spot["id"]}', on_map)
                     x, y, gw, gh = spot['glow_rect']
-                    centre = to_screen(*own_point(spot))
+                    px,py,_ = selectable_point(view,spot,(w,h))
+                    centre = to_screen(px,py)
                     inside = tuple(round(v) for v in (*to_screen(x + gw * .2, y + gh * .2), *to_screen(x + gw * .8, y + gh * .8)))
                     hover(*centre)
                     hover(centre[0] + 1, centre[1])

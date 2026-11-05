@@ -40,8 +40,8 @@ def declared(path, name):
 
 ARROW = declared('host/jungle_cursor.zi', 'JungleArrowCursor ::')
 HAND = declared('host/jungle_cursor.zi', 'JungleHandCursor ::')
-WATER = declared('games/garden/jungle_garden.zi', 'cursor-watering-can.webp"')
-BASKET = declared('games/garden/jungle_garden.zi', 'cursor-harvest-basket.webp"')
+WATER = declared('games/garden/jungle_garden.zi', 'cursor-watering-can.avif"')
+BASKET = declared('games/garden/jungle_garden.zi', 'cursor-harvest-basket.avif"')
 NAMES = {ARROW: 'arrow', HAND: 'hand', WATER: 'watering can', BASKET: 'basket'}
 
 

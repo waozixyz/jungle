@@ -2,16 +2,16 @@
   "tool": "built-in image_gen",
   "source": "local/art-development/art-refresh-033/maple-scene-candidate.png",
   "original": "backup/picture-book-scenes/art-refresh-033/maple-scene-original.png",
-  "page": "assets/jungle-book/pages/maple.webp",
+  "page": "assets/jungle-book/pages/maple.avif",
   "source_sha256": "d643ddd034fcd81ec06e2bbe50c1238d0d682a863dac9354641fc7948da8ee20",
-  "page_sha256": "30dfbf4f58af09e227861642c2d4314659ceb38a1804eab5fd071d92eb0c956a",
+  "page_sha256": "240847097717a3993e5179757aa51e5f391135acc3e487fa2c9ed576b6182574",
   "dimensions": [
     1254,
     1254
   ],
   "prompt": "Use case illustration-story. Create ONE high-resolution square full-scene nature picture-book page for toddlers. Reference image is ONLY for soft hand-painted watercolor, delicate botanical detail, warm cream paper and sage/earth colors; replace all people and reference composition. One clear botanical subject growing naturally rooted in its own setting, recognizable species shape, smooth washes, painterly foliage and gentle airy light. Complete subject and setting, softly feathered painted edges into cream paper. No people, animals, faces on plants, lettering, text, border, watermark, collage or diagram. TREES book: a single graceful MAPLE tree beside a quiet country lane in early autumn. Complete full tree from roots to crown, branching trunk and broad rounded canopy, unmistakable five-pointed palmate maple leaves in muted gold, soft orange and green. One low attached branch shows several clearly recognizable maple leaf silhouettes and a pair of winged maple seeds. A few fallen palmate leaves rest naturally on the lane, low stone wall behind, hazy meadow and soft blue hills. Warm gentle afternoon light, clear species silhouette.",
   "reference_images": [
-    "assets/jungle-book/pages/mother.webp"
+    "assets/jungle-book/pages/mother.avif"
   ],
   "reference_usage": "Style reference for generation; new subject and habitat"
 }

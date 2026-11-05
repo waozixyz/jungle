@@ -24,7 +24,7 @@ LANGUAGES = ('en', 'de', 'es')
 # Below Ziran's 4095-character file-scope initializer limit.
 INITIALIZER_LIMIT = 3600
 SIGN_LABELS = {'Port', 'Farm', 'Desert', 'Campus', 'Market', 'Aquarium', 'Beach'}
-# Beach and Port are separate destinations.
+# Beach and Port are independent destinations.
 SCENE_ALIASES = {}
 
 
@@ -34,6 +34,20 @@ def Inside(polygon, x, y):
         if (yi > y) != (yj > y) and x < xi + (y - yi) * (xj - xi) / (yj - yi):
             inside = not inside
     return inside
+
+
+def Rotation(layer):
+    angle = layer.get('rotation', 0)
+    if type(angle) not in (int, float) or not math.isfinite(angle) or not -180 <= angle < 180:
+        raise SystemExit('title scenes: rotation must be finite clockwise degrees in [-180, 180)')
+    return round(angle * 100)
+
+
+def RotatePolygon(points, rect, angle):
+    radians = math.radians(angle / 100)
+    c, s = math.cos(radians), math.sin(radians)
+    cx, cy = rect[0]+rect[2]/2, rect[1]+rect[3]/2
+    return [(round(cx+(x-cx)*c-(y-cy)*s), round(cy+(x-cx)*s+(y-cy)*c)) for x,y in points]
 
 
 def SignLabel(hotspot):
@@ -139,21 +153,21 @@ def Objects(scene):
     objects = scene.get('objects', [])
     if not isinstance(objects, list):
         raise SystemExit('title scenes: objects must be a list')
-    if objects and not scene.get('background'):
-        raise SystemExit('title scenes: object layers need a clean background plate')
+    # Rooms may have a clean plate; separate sign posts also overlay full scenes.
     ids = [layer.get('id') for layer in objects]
     if len(set(ids)) != len(ids) or not all(isinstance(i, str) and i for i in ids):
         raise SystemExit('title scenes: object IDs must be unique and present')
     for layer in objects:
         rect = layer.get('rect')
-        if set(layer) != {'id', 'image', 'rect'}:
+        Rotation(layer)
+        if not {'id', 'image', 'rect'} <= set(layer) or set(layer) - {'id', 'image', 'rect', 'rotation', 'visible', 'locked'}:
             raise SystemExit(f'title scenes: object {layer["id"]} needs exactly id, image and rect')
         if (not isinstance(rect, list) or len(rect) != 4 or any(type(v) is not int for v in rect) or
                 rect[0] < 0 or rect[1] < 0 or rect[2] <= 0 or rect[3] <= 0 or
                 rect[0] + rect[2] > scene['width'] or rect[1] + rect[3] > scene['height']):
             raise SystemExit(f'title scenes: object {layer["id"]} rect must lie inside the scene')
-        if not layer['image'].endswith('.webp') or not (ROOT / layer['image']).is_file():
-            raise SystemExit(f'title scenes: object {layer["id"]} needs an existing WebP image')
+        if not layer['image'].endswith('.avif') or not (ROOT / layer['image']).is_file():
+            raise SystemExit(f'title scenes: object {layer["id"]} needs an existing AVIF image')
     by_id = {layer['id']: layer for layer in objects}
     for hotspot in scene['hotspots']:
         if 'object' not in hotspot:
@@ -197,32 +211,26 @@ def Follow(data):
 # each scene's map button, so no hotspot leads to it, and Back returns to
 # where it was opened. Its "locked:" landmarks stay faded and answer "not yet".
 MAP = 'map'
-# Transparent margin kept around the landmarks, which always stay in view.
-MAP_MARGIN = 16
 
 
 def MapSafe(scene, hotspots):
-    """The world map's landmark area in source pixels; zeros elsewhere."""
-    if scene['name'] not in (MAP, MAP + '-portrait') or not hotspots:
+    """Keep the complete shared world painting visible; other scenes use cover."""
+    if scene['name'] not in (MAP, MAP + '-portrait'):
         return [0, 0, 0, 0]
-    left = max(0, min(h['rect'][0] for h in hotspots) - MAP_MARGIN)
-    top = max(0, min(h['rect'][1] for h in hotspots) - MAP_MARGIN)
-    right = min(scene['width'], max(h['rect'][0] + h['rect'][2] for h in hotspots) + MAP_MARGIN)
-    bottom = min(scene['height'], max(h['rect'][1] + h['rect'][3] for h in hotspots) + MAP_MARGIN)
-    return [left, top, right - left, bottom - top]
+    return [0, 0, scene['width'], scene['height']]
 
 
 def Load(source=SOURCE, catalog=CATALOG):
     """The validated scenes, their parents and the flattened hotspots."""
     data = json.loads(Path(source).read_text())
-    scenes = [dict(scene, width=data['width'], height=data['height'], base=index)
+    scenes = [dict(scene, width=scene.get('width', data['width']), height=scene.get('height', data['height']), base=index)
               for index, scene in enumerate(data['scenes'])]
     # Variants share destinations and identity, but own every pixel coordinate.
     for index, scene in enumerate(data['scenes']):
         if 'portrait' not in scene:
             continue
         portrait = scene['portrait']
-        if portrait['width'] <= 0 or portrait['height'] <= portrait['width']:
+        if portrait['width'] <= 0 or portrait['height'] <= 0 or (scene['name'] != MAP and portrait['height'] <= portrait['width']):
             raise SystemExit('title scenes: portrait must have positive, taller dimensions')
         original = {h['id']: h['target'] for h in scene['hotspots']}
         alternate = {h['id']: h['target'] for h in portrait['hotspots']}
@@ -297,10 +305,19 @@ def Load(source=SOURCE, catalog=CATALOG):
                 raise SystemExit(f'title scenes: {hotspot["id"]} has an empty glow_rect')
             label, board = Sign(hotspot, rect)
             board, rotation = SignTextLayout(hotspot, rect, board)
+            angle = Rotation(hotspot)
+            polygon = RotatePolygon(polygon, rect, angle)
+            if hotspot.get('occlusion_object'):
+                occluder = next((o for o in scene.get('objects',[]) if o['id']==hotspot['occlusion_object']),None)
+                if occluder is None:
+                    raise SystemExit('title scenes: missing occlusion object')
+                occlusion = RotatePolygon(occlusion, occluder['rect'], Rotation(occluder))
+            else:
+                occlusion = RotatePolygon(occlusion, rect, angle)
             hotspots.append({'scene': index, 'id': hotspot['id'], 'scene_target': scene_target,
                              'game': game, 'glow': hotspot['glow'], 'rect': rect, 'polygon': polygon,
                              'rest': hotspot.get('rest', ''), 'occlusion': occlusion,
-                             'sign_label': label, 'sign_rect': board, 'sign_rotation': rotation,
+                             'sign_label': label, 'sign_rect': board, 'sign_rotation': rotation, 'rotation': angle,
                              'sign_direction': {'left':1,'right':2,'diagonal-left':3,'diagonal-right':4,'down':4}.get(hotspot.get('sign',{}).get('direction'),0),
                              'notice': {'Farm': 1, 'Desert': 2}.get(target, 0) if kind == 'notice' else 0,
                              'look': 1 if kind == 'look' else 0,
@@ -361,9 +378,9 @@ def Load(source=SOURCE, catalog=CATALOG):
         for key in ('background', 'foreground'):
             if scene.get(key) and not (ROOT / scene[key]).is_file():
                 raise SystemExit(f'title scenes: missing {scene[key]}')
-        if bool(scene.get('background')) != bool(scene.get('foreground')):
-            raise SystemExit('title scenes: background and foreground must be paired')
-        if scene.get('paper') and not scene.get('foreground'):
+        if scene.get('foreground') and not scene.get('background'):
+            raise SystemExit('title scenes: a foreground needs its clean background')
+        if scene.get('paper') and not (scene.get('foreground') or scene.get('objects')):
             raise SystemExit('title scenes: hidden paper needs a foreground layer')
         paper = scene.get('paper')
         if paper is not None and (len(paper) != 4 or any(type(v) is not int for v in paper) or
@@ -371,12 +388,15 @@ def Load(source=SOURCE, catalog=CATALOG):
                 paper[2] <= 0 or paper[3] <= 0):
             raise SystemExit('title scenes: invalid paper center, size or reveal travel')
     for hotspot in hotspots:
+        if not hotspot['glow'] and hotspot['id'] == 'desert' and scenes[hotspot['scene']]['name'] in (MAP, MAP + '-portrait'):
+            continue
         if not (ROOT / hotspot['glow']).is_file():
             raise SystemExit(f'title scenes: missing {hotspot["glow"]}')
         if hotspot['rest'] and not (ROOT / hotspot['rest']).is_file():
             raise SystemExit(f'title scenes: missing {hotspot["rest"]}')
     for scene in scenes:
         for layer in scene.get('decorations', []):
+            Rotation(layer)
             if not (ROOT/layer['path']).is_file() or len(layer['rect']) != 4:
                 raise SystemExit('title scenes: invalid decoration')
     return data, scenes, parents, hotspots
@@ -415,6 +435,10 @@ def Numbers(values):
     return '\n    ' + ',\n    '.join(rows) + ',\n'
 
 
+def QuotedBool(values):
+    return Numbers('true' if value else 'false' for value in values)
+
+
 def Render(data, scenes, parents, hotspots):
     first, counts = [], []
     for index in range(len(scenes)):
@@ -442,12 +466,33 @@ def Render(data, scenes, parents, hotspots):
         chunks[-1][1].extend(ys)
     rects = [value for hotspot in hotspots for value in hotspot['rect']]
     scene_count, hotspot_count = len(scenes), len(hotspots)
+    exploration = next((s.get('exploration', []) for s in scenes if s['name'] == MAP), [])
     decorations = [(i,layer) for i,scene in enumerate(scenes) for layer in scene.get("decorations", [])]
     portrait = [next((i for i, s in enumerate(scenes) if s['base'] == scene['base'] and i != s['base']), scene['base']) for scene in scenes]
     room_objects, object_first = [], []
     for scene in scenes:
         object_first.append(len(room_objects))
         room_objects += scene.get('objects', [])
+    # Farm's native chooser consumes the same editable board/post layers.
+    farm_scenes = [next(i for i, s in enumerate(scenes) if s['name'] == name)
+                   for name in ('farm', 'farm-portrait')]
+    farm_draw, farm_first, farm_counts = [], [], []
+    for index in farm_scenes:
+        scene = scenes[index]
+        layers = {f'object:{o["id"]}': object_first[index] + n + 1
+                  for n, o in enumerate(scene.get('objects', []))}
+        layers.update({f'sprite:{h["id"]}': -n-1 for n, h in enumerate(hotspots)
+                       if h['scene'] == index})
+        order = scene.get('layer_order', list(layers))
+        if not isinstance(order, list) or len(order) != len(layers) or set(order) != set(layers):
+            raise SystemExit('title scenes: Farm layer_order must name each board/post exactly once')
+        for layer in [*scene.get('objects', []), *scene['hotspots']]:
+            for flag in ('visible', 'locked'):
+                if type(layer.get(flag, True if flag == 'visible' else False)) is not bool:
+                    raise SystemExit('title scenes: Farm layer flags must be boolean')
+        farm_first.append(len(farm_draw))
+        farm_counts.append(len(order))
+        farm_draw.extend(layers[key] for key in order)
     lines = [
         '// Generated by tools/title_scenes.py from tools/title_hotspots.json; do not edit.',
         '// Scene pictures and hotspot polygons are in source pixels.',
@@ -455,14 +500,27 @@ def Render(data, scenes, parents, hotspots):
         f'TITLE_SOURCE_HEIGHT :: {data["height"]}',
         f'TITLE_SCENE_COUNT :: {scene_count}',
         f'TITLE_HOTSPOT_COUNT :: {hotspot_count}',
+        '// Farm layer entries: positive object index+1, negative hotspot index+1.',
+        f'TITLE_FARM_SCENE: [2]s32 = .[{Numbers(farm_scenes)}];',
+        f'TITLE_FARM_DRAW_FIRST: [2]s32 = .[{Numbers(farm_first)}];',
+        f'TITLE_FARM_DRAW_COUNT: [2]s32 = .[{Numbers(farm_counts)}];',
+        f'TITLE_FARM_DRAW: [{len(farm_draw)}]s32 = .[{Numbers(farm_draw)}];',
+        f'TITLE_OBJECT_VISIBLE: [{len(room_objects)}]bool = .[{QuotedBool(o.get("visible", True) for o in room_objects)}];',
+        f'TITLE_HOTSPOT_VISIBLE: [{hotspot_count}]bool = .[{QuotedBool(h.get("visible", True) for s in scenes for h in s["hotspots"])}];',
+        '// Place centers on the approved full-size map, shared by both orientations.',
+        f'TITLE_MAP_AREA_COUNT :: {len(exploration)}',
+        f'TITLE_MAP_AREA: [{len(exploration)}]string = .[{Quoted(a["area"] for a in exploration)}];',
+        f'TITLE_MAP_CENTER: [{len(exploration) * 2}]s32 = .[{Numbers(v for a in exploration for v in a["center"])}];',
         '',
         f'TITLE_DECORATION_COUNT :: {len(decorations)}',
+        f'TITLE_DECORATION_ROTATION: [{len(decorations)}]s32 = .[{Numbers(Rotation(o) for _,o in decorations)}];',
         f'TITLE_DECORATION_SCENE: [{len(decorations)}]s32 = .[{Numbers(i for i,_ in decorations)}];',
         f'TITLE_DECORATION_PATH: [{len(decorations)}]string = .[{Quoted(layer["path"] for _,layer in decorations)}];',
         f'TITLE_DECORATION_RECT: [{len(decorations)*4}]s32 = .[{Numbers(v for _,layer in decorations for v in layer["rect"])}];',
         '// Separate room objects, drawn in this order over the clean background',
         '// plate. Each scene\'s layers are TITLE_SCENE_OBJECT_FIRST .. + TITLE_SCENE_OBJECTS - 1.',
         f'TITLE_OBJECT_COUNT :: {len(room_objects)}',
+        f'TITLE_OBJECT_ROTATION: [{len(room_objects)}]s32 = .[{Numbers(Rotation(o) for o in room_objects)}];',
         f'TITLE_OBJECT_ID: [{len(room_objects)}]string = .[{Quoted(layer["id"] for layer in room_objects)}];',
         f'TITLE_OBJECT_PATH: [{len(room_objects)}]string = .[{Quoted(layer["image"] for layer in room_objects)}];',
         f'TITLE_OBJECT_RECT: [{len(room_objects) * 4}]s32 = .[{Numbers(v for layer in room_objects for v in layer["rect"])}];',
@@ -504,6 +562,7 @@ def Render(data, scenes, parents, hotspots):
         *ChunkedStrings('TITLE_HOTSPOT_REST', 'TitleHotspotRest', (hotspot['rest'] for hotspot in hotspots)),
         f'TITLE_SIGN_DIRECTION: [{hotspot_count}]s32 = .[{Numbers(h["sign_direction"] for h in hotspots)}];',
         f'TITLE_SIGN_ROTATION: [{hotspot_count}]s32 = .[{Numbers(h["sign_rotation"] for h in hotspots)}];',
+        f'TITLE_HOTSPOT_ROTATION: [{hotspot_count}]s32 = .[{Numbers(h["rotation"] for h in hotspots)}];',
         '// Localized at runtime; the blank sign sprite never contains language-specific lettering.',
         f'TITLE_SIGN_LABEL: [{hotspot_count}]string = .[{Quoted(h["sign_label"] for h in hotspots)}];',
         '// Text board bounds relative to the hotspot sprite, in source pixels.',
@@ -572,29 +631,30 @@ def Render(data, scenes, parents, hotspots):
 
 
 def ExportPort():
-    """Export the new Port paintings with Market left and Beach right."""
+    """Export the new Port paintings: Market left and Beach right."""
     from PIL import Image, ImageDraw, ImageFilter
     from image_exports import export_image
     for orientation, stem in [('landscape', 'beach-port'), ('portrait', 'beach-portrait-port')]:
         source = ROOT / f'local/art-development/beach-port-redo/port-{orientation}.png'
         with Image.open(source) as image:
             image = image.convert('RGB')
-            export_image(source, ROOT / f'assets/jungle/title/{stem}.webp', 'title-background')
-            export_image(source, ROOT / f'assets/jungle/title/{stem}-low.webp',
+            export_image(source, ROOT / f'assets/jungle/title/{stem}.avif', 'title-background')
+            export_image(source, ROOT / f'assets/jungle/title/{stem}-low.avif',
                          'title-background', size=(240, round(image.height * 240 / image.width)))
     port = next(s for s in json.loads(SOURCE.read_text())['scenes'] if s['name'] == 'port')
     for scene in (port, port['portrait']):
         door = next((h for h in scene['hotspots'] if h['id'] == 'bunker-door'), None)
         if door is None:
-            continue  # Aquarium entrance belongs to Beach.
+            continue  # Aquarium entrance now belongs to the Beach.
         x, y, width, height = door['glow_rect']
         points = [(px-x, py-y) for px, py in door['polygon']]
         mask = Image.new('L', (width, height))
         ImageDraw.Draw(mask).line(points + points[:1], fill=210, width=9, joint='curve')
         glow = Image.new('RGBA', mask.size, (255, 220, 125, 0))
         glow.putalpha(mask.filter(ImageFilter.GaussianBlur(5)))
-        if door['glow'].endswith('.webp'):
-            glow.save(ROOT / door['glow'], 'WEBP', lossless=True, exact=True, method=6)
+        if door['glow'].endswith('.avif'):
+            from avif_codec import save_shipped_cutout
+            save_shipped_cutout(glow, ROOT / door['glow'], door['glow'])
         else:
             glow.save(ROOT / door['glow'])
 

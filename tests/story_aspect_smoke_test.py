@@ -120,11 +120,13 @@ def main():
                         row = story[page]
                         portrait = height > width
                         if portrait:
-                            painting = Image.open(ROOT / f"assets/jungle-book/portraits/{row['portrait_asset']}.webp").convert('RGB')
+                            painting = Image.open(ROOT / f"assets/jungle-book/portraits/{row['portrait_asset']}.avif").convert('RGB')
                             art = painting
                         else:
-                            painting = Image.open(ROOT / f"assets/jungle-book/pages/{row['asset']}.webp").convert('RGB')
-                            art = painting.crop((0, 0, painting.width, row['paper_top']))
+                            painting = Image.open(ROOT / f"assets/jungle-book/pages/{row['asset']}.avif").convert('RGB')
+                            # paper_top is in painting pixels; the AVIF ships at 75%.
+                            line = round(row['paper_top'] * painting.height / 1024)
+                            art = painting.crop((0, 0, painting.width, line))
                         # The book is the window below the game bar.
                         lx, ly, lw, lh, caption = layout(width, height - BAR, art.width, art.height)
                         ly += BAR

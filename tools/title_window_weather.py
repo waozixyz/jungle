@@ -27,14 +27,14 @@ POLYS={
 
 def emit(im,name,role='exact'):
     src=P/('runtime-'+name+'-master.png'); im.save(src)
-    dest=OUT/(name+'.webp');export_image(src,dest,role)
+    dest=OUT/(name+'.avif');export_image(src,dest,role)
     return dest.relative_to(ROOT).as_posix()
 
 def main():
     data=json.loads((ROOT/'tools/title_animations.json').read_text())
     layers=[l for l in data['layers'] if not any(k in l['path'] for k in ('cloud','occluder','twig'))]
     # Branch sway replaces the old overlapping local leaf patch.
-    layers=[l for l in layers if not l['path'].endswith(('landscape-leaves-0.webp','portrait-leaves-0.webp'))]
+    layers=[l for l in layers if not l['path'].endswith(('landscape-leaves-0.avif','portrait-leaves-0.avif'))]
     weather=[]
     for orientation,poly in POLYS.items():
         scene='window' if orientation=='landscape' else 'window-portrait'
@@ -81,10 +81,10 @@ def main():
             for i,rect in enumerate(LEAVES[orientation]):
                 if i: motion(clean,rect,f'{orientation}-leaves-{i}')
         stem='window' if orientation=='landscape' else 'window-portrait'
-        export_image(P/f'{orientation}-final-background.png',ROOT/f'assets/jungle/title/{stem}.webp','title-background')
-        export_image(P/f'{orientation}-final-background.png',ROOT/f'assets/jungle/title/{stem}-low.webp','title-background',size=(240,round(clean.height*240/clean.width)))
+        export_image(P/f'{orientation}-final-background.png',ROOT/f'assets/jungle/title/{stem}.avif','title-background')
+        export_image(P/f'{orientation}-final-background.png',ROOT/f'assets/jungle/title/{stem}-low.avif','title-background',size=(240,round(clean.height*240/clean.width)))
         frame=clean.convert('RGBA')
-        frame.putalpha(Image.open(OUT/f'{orientation}-frame.webp').getchannel('A'))
+        frame.putalpha(Image.open(OUT/f'{orientation}-frame.avif').getchannel('A'))
         emit(frame,orientation+'-frame')
         # Only the sky band needs a depth mask; mountains and foliage occlude clouds.
         height=430 if orientation=='landscape' else 680

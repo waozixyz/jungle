@@ -116,10 +116,10 @@ main :: () -> s32 {
     if !CheckBook("Town Musicians of Bremen", BREMEN_PAGE_COUNT, bremen_picture_width[:], bremen_picture_height[:],
         bremen_portrait_width[:], bremen_portrait_height[:], bremen_paper_top[:], bremen_paper_color[:],
         bremen_picture_runtime_width[:], bremen_picture_runtime_height[:]) { return 2 }
-    // Sweet Porridge's landscape pages ship as 1024 × 683 runtime copies,
-    // Bremen's at their native 1536 × 1024.
-    if story_picture_runtime_width[0] != 1024 || story_picture_runtime_height[0] != 683 ||
-        bremen_picture_runtime_width[0] != 1536 || bremen_picture_runtime_height[0] != 1024 { return 4 }
+    // Both books' 1536 × 1024 landscape paintings ship as 75% (1152 × 768)
+    // runtime copies under the owner's AVIF standard.
+    if story_picture_width[0] != 1536 || story_picture_runtime_width[0] != 1152 || story_picture_runtime_height[0] != 768 ||
+        bremen_picture_width[0] != 1536 || bremen_picture_runtime_width[0] != 1152 || bremen_picture_runtime_height[0] != 768 { return 4 }
     // The former fixed 1024 × 683 crop would show only part of a native
     // 1536 × 1024 Bremen painting; the paper line is a share of the texture.
     art, paper := StorySourceRectangles(1536, 1024, bremen_paper_top[1], bremen_picture_height[1])

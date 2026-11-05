@@ -22,7 +22,7 @@ def main():
     data = json.loads(manifest.read_text())
     campus = next(s for s in data['scenes'] if s['name'] == 'campus')
     mapping = json.loads((LOCAL/'campus-object-layers/mapping-portrait-v3.json').read_text())
-    approved_path = ROOT/'tests/approved_title_webp.json'
+    approved_path = ROOT/'tests/approved_title_avif.json'
     approved = json.loads(approved_path.read_text())
 
     def background(source, destination, size=None):
@@ -51,8 +51,8 @@ def main():
             glow.putalpha(picture.getchannel('A'))
             light = scratch/(stem+'-glow.png')
             glow.save(light)
-        rest = 'assets/jungle/title/objects/'+stem+'.webp'
-        highlighted = 'assets/jungle/title/objects/'+stem+'-glow.webp'
+        rest = 'assets/jungle/title/objects/'+stem+'.avif'
+        highlighted = 'assets/jungle/title/objects/'+stem+'-glow.avif'
         export_image(raw, ROOT/rest, 'cutout')
         export_image(light, ROOT/highlighted, 'cutout')
         return rest, highlighted
@@ -78,8 +78,8 @@ def main():
                 if orientation=='portrait' else mapping['orientations'][orientation])
         source = LOCAL/'campus-object-layers'/('landscape-connected-no-stones-proposal.png' if orientation=='landscape' else plan['plate'])
         path = background(source, scene['background'])
-        background(source, f'assets/jungle/title/campus{"-portrait" if orientation=="portrait" else ""}.webp')
-        scene['image'] = f'assets/jungle/title/campus{"-portrait" if orientation=="portrait" else ""}.webp'
+        background(source, f'assets/jungle/title/campus{"-portrait" if orientation=="portrait" else ""}.avif')
+        scene['image'] = f'assets/jungle/title/campus{"-portrait" if orientation=="portrait" else ""}.avif'
         with Image.open(source) as im:
             background(source, scene['low'], size=(240,round(im.height*240/im.width)))
         scene['hotspots'] = [h for h in scene['hotspots'] if h['id'] not in ('garden','beach-path','farm-path','desert-path')]
@@ -124,26 +124,26 @@ def main():
         with Image.open(source) as image:
             background(source,scene['low'],size=(240,round(image.height*240/image.width)))
 
-    # Every image referenced by the title scene graph is app-ready WebP,
-    # including utility glows. Existing lossy WebPs are reused unchanged.
+    # Every image referenced by the title scene graph is app-ready AVIF,
+    # including utility glows. Existing lossy AVIFs are reused unchanged.
     for base in data['scenes']:
         for view in (base, base.get('portrait', {})):
             for node, keys in [(view, ('image','low','background','foreground'))] + [(h,('glow','rest')) for h in view.get('hotspots',[])]:
                 for key in keys:
                     name = node.get(key, '')
                     if name.endswith('.png'):
-                        dest = str(Path(name).with_suffix('.webp'))
+                        dest = str(Path(name).with_suffix('.avif'))
                         export_image(ROOT/name,ROOT/dest,'cutout')
                         node[key] = dest
 
     # Remove retired PNG runtime copies after preserving each original privately.
     import shutil
-    ledger_path = ROOT/'tools/title_webp_layers.json'
+    ledger_path = ROOT/'tools/title_avif_layers.json'
     ledger = json.loads(ledger_path.read_text()) if ledger_path.exists() else {}
     referenced = {node.get(key) for base in data['scenes'] for view in (base,base.get('portrait',{}))
                   for node,keys in [(view,('image','low','background','foreground'))]+[(h,('glow','rest')) for h in view.get('hotspots',[])] for key in keys}
     for old in (ROOT/'assets/jungle/title').rglob('*.png'):
-        target = old.with_suffix('.webp')
+        target = old.with_suffix('.avif')
         name = str(old.relative_to(ROOT))
         row = dict(original_sha256=digest(old))
         if str(target.relative_to(ROOT)) in referenced or name.endswith('/guide/tiger.png'):
@@ -167,7 +167,7 @@ def main():
     for row in provenance['assets']:
         source = LOCAL/'owner-farm-beach-source'/('27.png' if 'landscape' in row['runtime'] else '19.png') if Path(row['runtime']).stem.startswith('scene-') else ROOT/row['source']
         row['source'] = str(source.relative_to(ROOT))
-        target = Path(row['runtime']).with_suffix('.webp')
+        target = Path(row['runtime']).with_suffix('.avif')
         if target.stem.startswith('scene-'): background(source,str(target))
         else: export_image(source,ROOT/target,'cutout')
         row['runtime'] = str(target)
@@ -181,7 +181,7 @@ def main():
     from title_signs import apply_signs
     apply_signs(data)
     manifest.write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n')
-    print('Integrated approved Campus, Beach and v3 Farm WebPs; no private sources required by builds')
+    print('Integrated approved Campus, Beach and v3 Farm AVIFs; no private sources required by builds')
 
 
 if __name__ == '__main__': main()

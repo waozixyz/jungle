@@ -100,11 +100,12 @@ data_root: string;
 sound_setting: string;
 speech_profile_setting: string;
 language_setting: string;
+guide_sound_setting: string;
+guide_seen_setting: string;
+exploration_setting: string;
 home_requested: bool;
 // The title scene a game's way out leads to ("scene:market" asks for the Market), or -1.
 title_scene_from_game: s32 = -1;
-guide_sound_setting: string;
-guide_seen_setting: string;
 // The title bar's back arrow reaches the game as Escape on the next frame,
 // so each game steps back itself and leaves from its first screen.
 title_back_pending: bool;
@@ -287,6 +288,13 @@ HostAwardsSave :: () {
     next := Cat(awards_setting, ".new")
     saved := WriteEntireFile(next, AwardsText(awards_earned)) && RenamePath(next, awards_setting)
     if !saved { unused RemoveFile(next) }
+}
+
+HostExplorationSave :: () {
+    if !title_exploration.dirty || !title_exploration.valid || exploration_setting == "" { return }
+    next := Cat(exploration_setting, ".new")
+    saved := WriteEntireFile(next, ExplorationText(title_exploration)) && RenamePath(next, exploration_setting)
+    if saved { title_exploration.dirty = false } else { unused RemoveFile(next) }
 }
 
 // The first opening of game INDEX unlocks it: its award, a chime and the
@@ -516,6 +524,8 @@ OpenGame :: (index: s32) -> bool {
     home_requested = false
     message = ""
     playing = true
+    TitleExplorationGame(games[index].title)
+    HostExplorationSave()
     unused ApplyTitleOrientationPolicy(false)
     return true
 }
@@ -623,6 +633,7 @@ Menu :: (session: Session, bounds: Rectangle, key: s32) {
     }
     action := JungleMenu(session, bounds, key, JungleSeconds(), FONT, games[:game_count], *chosen,
         sound_muted, title_guide_muted, title_guide_seen, message, jungle_collection, TitlePaperCollect)
+    HostExplorationSave()
     if title_guide_playing && (action.guide_stop || action.language_changed ||
         (action.guide_mute_toggle && !title_guide_muted)) {
         SoundStop()
@@ -776,5 +787,16 @@ JungleOpen :: (checking: bool) -> bool {
     opened: [AWARD_COUNT]bool
     for index: cast(s32)0..AWARD_COUNT - 1 { opened[index] = PathExists(Cat(data_root, "/", award_apps[index])) }
     if AwardsMigrate(*awards_earned, opened[:]) > 0 { HostAwardsSave() }
+    exploration_setting = Cat(base, "/explored.txt")
+    saved_exploration, exploration_found := ReadEntireFile(exploration_setting)
+    if exploration_found { title_exploration = ExplorationParse(saved_exploration) }
+    else if !PathExists(exploration_setting) { title_exploration = ExplorationParse("") }
+    // Migrate only known visits. Existing awards, collections and game saves
+    // retain their own meaning and are never rewritten by exploration.
+    for index: cast(s32)0..game_count - 1 {
+        award := AwardForBundle(games[index].bundle_name)
+        if award >= 0 && (opened[award] || awards_earned.earned[award]) { TitleExplorationGame(games[index].title) }
+    }
+    HostExplorationSave()
     return true
 }

@@ -8,10 +8,10 @@
       "layer": "camel",
       "master": "local/art-development/desert-edge/guide-camel-v3.png",
       "master_sha256": "d6d1e0eb49b5531582436eb8c26a6242dd9d52d650de65db9c47551cad5268ce",
-      "runtime": "assets/jungle/title/objects/desert-camel.webp",
-      "sha256": "68e7cd451caa84eb1beb0ed3974e8a1e4be6e570e0a8e1b873037453a4e65b92",
-      "glow": "assets/jungle/title/objects/desert-camel-glow.webp",
-      "glow_sha256": "51d9d1cc13acae567456acb2579c31307b034a0f4c9c21a1a7ed2e84907a9d0c",
+      "runtime": "assets/jungle/title/objects/desert-camel.avif",
+      "sha256": "e5e75b2edfd71b238ab40fef45c3569c63e330387f1bba374953ffe3e3a09cca",
+      "glow": "assets/jungle/title/objects/desert-camel-glow.avif",
+      "glow_sha256": "fa9b6de76c3538e26f3601f911266a77719405f27aa22b82b01bf4f2f0aaa001",
       "size": [
         929,
         1022
@@ -21,10 +21,10 @@
       "layer": "guide",
       "master": "local/art-development/desert-edge/guide-man-v1.png",
       "master_sha256": "592c1b1afd85a6d3c3c9385b25e6fb3ba92592868c2f57673afe175052b12e61",
-      "runtime": "assets/jungle/title/objects/desert-guide.webp",
-      "sha256": "3ede39d25a36c7db6a827d9396678ff3c58a576fc176d1e9267f9df6fc47d9e3",
-      "glow": "assets/jungle/title/objects/desert-guide-glow.webp",
-      "glow_sha256": "69281bf5bc164e9ce217d7c445258ad09964eff2105f8c8711ebd5660082b292",
+      "runtime": "assets/jungle/title/objects/desert-guide.avif",
+      "sha256": "3c713ea25b19389e5ef007633098279029e019ee59d646758ce747c2902f2711",
+      "glow": "assets/jungle/title/objects/desert-guide-glow.avif",
+      "glow_sha256": "748a698b9875381c40ab2d5e41a2c1294426f1cfba6c38a7b9657663e1fb0f40",
       "size": [
         785,
         1529
@@ -36,10 +36,10 @@
       "generated_sha256": "bc179c26523e748c4a6b4df1616cedac48199db3600e32f3a52156a71a069f20",
       "master": "local/art-development/desert-edge/desert-landscape-plate.png",
       "master_sha256": "1eb737058e2c96024e6f3eea2afcd4fac25258fc334019a286b538460ebde62e",
-      "runtime": "assets/jungle/title/desert.webp",
-      "sha256": "68a9605503309e8ef8f96cebcfe4ab31193411eb09387bc1c97dbb931a3f9512",
-      "low": "assets/jungle/title/desert-low.webp",
-      "low_sha256": "e66a31769ced1790887235f750bfaa1b272e71eaf5ee402bc517842b8443cd2c"
+      "runtime": "assets/jungle/title/desert.avif",
+      "sha256": "032cf2f2bc1ae40746de2480b6aa30b91c3c94338043e97274553c80ee62de49",
+      "low": "assets/jungle/title/desert-low.avif",
+      "low_sha256": "af3773083578366ccc68a5aafb5797a7407fc969b77da671c899d14b99aeee6c"
     },
     {
       "plate": "portrait",
@@ -47,10 +47,10 @@
       "generated_sha256": "f380b5a560367480beff3352a2b5bc1d4e3e0fcf7242d46ca586d2410dc66b9e",
       "master": "local/art-development/desert-edge/desert-portrait-plate.png",
       "master_sha256": "10d1d1d53ab497ed0c07d3db932ed07064ee7607b34f6ac4a29b08b5d2bba41e",
-      "runtime": "assets/jungle/title/desert-portrait.webp",
-      "sha256": "f6755445d1297cd85f8984b5430ab2a0b3b6b9079e5b851f8efad7c520f068f8",
-      "low": "assets/jungle/title/desert-portrait-low.webp",
-      "low_sha256": "7a608c2ef1f8cb8769bfc14a1141d17d4c9b5a9c1eae463ed843e0d37eb956e6"
+      "runtime": "assets/jungle/title/desert-portrait.avif",
+      "sha256": "6620e53d11de4bdfbb1da962741ae99b4d31fbdef526aecee61bd77d4bad0add",
+      "low": "assets/jungle/title/desert-portrait-low.avif",
+      "low_sha256": "36eff6d497ad2232d9d07e7673866c32653d2d2c22df5d8336ba699256d5f070"
     }
   ]
 }

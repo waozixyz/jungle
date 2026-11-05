@@ -129,8 +129,8 @@ def preview_groups():
     from book_catalog import BOOKS
     groups={}
     for category,names in BOOKS:
-        groups.setdefault(f'assets/jungle-book/previews/{category}.webp','covers')
-        for name in names:groups.setdefault(f'assets/jungle-book/pages/{name}.webp',category)
+        groups.setdefault(f'assets/jungle-book/previews/{category}.avif','covers')
+        for name in names:groups.setdefault(f'assets/jungle-book/pages/{name}.avif',category)
     return groups
 
 
@@ -155,7 +155,7 @@ def write_previews(files, out, groups=None):
     for name,path in previews.items():
         group=groups.get(name) or preview_group(name)
         if not re.fullmatch(r'[a-z0-9]+(?:-[a-z0-9]+)*',group):raise ValueError('Unsafe preview group: '+group)
-        key=f'previews/{group}/{Path(name).parent.name}/{Path(name).stem}.webp'
+        key=f'previews/{group}/{Path(name).parent.name}/{Path(name).stem}.avif'
         stored[key]=path;names[key]=name
     with tempfile.TemporaryDirectory(prefix='preview-packs-',dir=out) as staging:
         manifest=pack_assets(stored,staging)
@@ -185,7 +185,7 @@ def stage_assets(out):
                 continue
             if path.is_file() and Shipped(path.relative_to(ROOT).as_posix()) and not path.name.startswith('voice-'):
                 files[path.relative_to(ROOT).as_posix()] = path
-    # Runtime aliases supply the same optimized WebP bytes to native and web.
+    # Runtime aliases supply the same optimized AVIF bytes to native and web.
     runtime_files, runtime_encodings = WebFiles()
     files.update(runtime_files)
     # A game's own copy of a shared picture (GAMES extras, such as the Farm
@@ -206,7 +206,7 @@ def stage_assets(out):
     files,archive_names,encodings=prepare_web_images(
         files,ROOT/'work/web-image-cache',force_title=True)
     images=sorted(archive_names.get(name,name) for name in files
-                  if Path(name).suffix in ('.png','.webp'))
+                  if Path(name).suffix in ('.png','.avif'))
     activity_paths = set(files)
     activities=build_activity_manifest(ROOT,activity_paths,speech,GAMES) if (ROOT/'games/catalog.txt').exists() else {'format':1,'activities':[],'scenes':{}}
     # Browser branding must work before the runtime starts. Keep the small
@@ -228,7 +228,7 @@ def stage_assets(out):
     speech_groups={str(Path(name).parent):128*1024 for name in files if name.startswith('assets/speech/')}
     write_previews(files,out)
     for name,encoding in runtime_encodings.items():
-        archive_names[name]=str(Path(name).with_suffix('.webp'))
+        archive_names[name]=str(Path(name).with_suffix('.avif'))
         encodings[name]=encoding
     # Each Picture Book book downloads alone (activity_assets.book_pack_groups).
     book_groups=book_pack_groups(activities)

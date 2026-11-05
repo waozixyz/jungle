@@ -115,14 +115,14 @@ with tempfile.TemporaryDirectory(prefix='asset-pack-test-',dir=ROOT/'build') as 
     # Every supported picture gets a few-KB preview at its own aspect ratio,
     # including jigsaw scenes and transparent cut-outs.
     import io, json
-    from PIL import Image
+    from PIL import Image, ImageChops, ImageStat
     from web_images import PREVIEW_PIXELS, prepare_native_previews, prepare_previews, prepare_web_images
     from build_web import preview_groups, write_previews
-    page=ROOT/'assets/jungle-book/pages/tiger.webp'
-    wide=root/'source/wide.webp';Image.new('RGB',(900,300),(200,120,40)).save(wide,quality=90)
-    sources={'assets/jungle-book/pages/tiger.webp':page,'assets/jungle-book/pages/tiger-again.webp':page,
-             'assets/jungle-book/previews/wide.webp':wide,'assets/jigsaw/tiger.webp':page,
-             'assets/jungle-book/items/tiger.webp':ROOT/'assets/jungle-book/items/tiger.webp'}
+    page=ROOT/'assets/jungle-book/pages/tiger.avif'
+    wide=root/'source/wide.avif';Image.new('RGB',(900,300),(200,120,40)).save(wide,quality=90)
+    sources={'assets/jungle-book/pages/tiger.avif':page,'assets/jungle-book/pages/tiger-again.avif':page,
+             'assets/jungle-book/previews/wide.avif':wide,'assets/jigsaw/tiger.avif':page,
+             'assets/jungle-book/items/tiger.avif':ROOT/'assets/jungle-book/items/tiger.avif'}
     made=prepare_previews(sources,root/'preview-cache')
     assert set(made)==set(sources),made
     assert made==prepare_previews(sources,root/'preview-cache'),'Cached previews changed'
@@ -131,7 +131,7 @@ with tempfile.TemporaryDirectory(prefix='asset-pack-test-',dir=ROOT/'build') as 
         data=path.read_bytes()
         assert data==again[name].read_bytes(),'Preview encoding is not reproducible: '+name
         with Image.open(io.BytesIO(data)) as preview, Image.open(sources[name]) as original:
-            assert preview.format=='WEBP' and max(preview.size)==PREVIEW_PIXELS,(name,preview.size)
+            assert preview.format=='AVIF' and max(preview.size)==PREVIEW_PIXELS,(name,preview.size)
             # Aspect ratio within one rounded pixel.
             (w,h),(ow,oh)=preview.size,original.size
             assert abs(w*oh/ow-h)<=1 and abs(h*ow/oh-w)<=1,(name,preview.size)
@@ -139,36 +139,43 @@ with tempfile.TemporaryDirectory(prefix='asset-pack-test-',dir=ROOT/'build') as 
             if alpha:
                 expected = original.convert('RGBA')
                 expected.thumbnail((PREVIEW_PIXELS, PREVIEW_PIXELS), Image.Resampling.LANCZOS)
-                assert preview.convert('RGBA').tobytes() == expected.tobytes(), name
+                got = preview.convert('RGBA')
+                # Cut-out standard: exact alpha, visible color within lossy 4:4:4 drift.
+                assert got.getchannel('A').tobytes() == expected.getchannel('A').tobytes(), name
+                def seen(image):
+                    paper = Image.new('RGBA', image.size, (255, 255, 255, 255))
+                    paper.alpha_composite(image)
+                    return paper.convert('RGB')
+                assert max(ImageStat.Stat(ImageChops.difference(seen(got), seen(expected))).mean) < 3, name
         # Lossless transparent previews retain RGB as well as alpha; opaque
         # photographic previews keep their established lossy size budget.
         assert len(data)<(40_000 if alpha else 6500),(name,len(data))
-    assert len(made['assets/jungle-book/pages/tiger.webp'].read_bytes())*50<page.stat().st_size
+    assert len(made['assets/jungle-book/pages/tiger.avif'].read_bytes()) < min(8192, page.stat().st_size)
     native=prepare_native_previews(sources,root/'native-preview-cache')
     digest=lambda path:hashlib.sha256(path.read_bytes()).hexdigest()
     assert [digest(path) for path in native.values()]==[digest(path) for path in made.values()],\
         'browser and native preview bytes differ'
 
     # Browser staging reuses runtime exports unchanged and only caps its own title art.
-    runtime_sources={'assets/jungle-book/pages/tiger.webp':page,
-                     'assets/garden/play/carrot.webp':ROOT/'assets/garden/play/carrot.webp',
-                     'assets/hide_seek/props/basket.webp':ROOT/'assets/hide_seek/props/basket.webp'}
+    runtime_sources={'assets/jungle-book/pages/tiger.avif':page,
+                     'assets/garden/play/carrot.avif':ROOT/'assets/garden/play/carrot.avif',
+                     'assets/hide_seek/props/basket.avif':ROOT/'assets/hide_seek/props/basket.avif'}
     reused,names,info=prepare_web_images(runtime_sources,root/'runtime-reuse-cache')
     assert reused==runtime_sources and names=={} and info=={}
-    title=root/'source/assets/jungle/title/guide.webp';title.parent.mkdir(parents=True,exist_ok=True)
+    title=root/'source/assets/jungle/title/guide.avif';title.parent.mkdir(parents=True,exist_ok=True)
     Image.new('RGB',(2500,1400),(80,120,180)).save(title,quality=95)
     title_before=title.read_bytes()
     converted,archive_names,encoded=prepare_web_images(
-        {'assets/jungle/title/guide.webp':title},root/'browser-image-cache')
-    assert set(encoded)=={'assets/jungle/title/guide.webp'}
-    with Image.open(converted['assets/jungle/title/guide.webp']) as image:
-        assert image.format=='WEBP' and image.size==(2048,1147),image.size
-    assert archive_names['assets/jungle/title/guide.webp']=='assets/jungle/title/guide.webp'
-    assert title.read_bytes()==title_before,'Canonical title art changed'
+        {'assets/jungle/title/guide.avif':title},root/'browser-image-cache')
+    assert encoded == {} and archive_names == {}
+    assert converted['assets/jungle/title/guide.avif'].read_bytes() == title_before
+    with Image.open(converted['assets/jungle/title/guide.avif']) as image:
+        assert image.format == 'AVIF' and image.size == (2500,1400), image.size
+    assert title.read_bytes() == title_before, 'Canonical title art changed'
     # One pack per book's pages and one for the covers, in asset-packs.json's
     # format keyed by the logical paths; identical previews are stored once.
-    groups={'assets/jungle-book/pages/tiger.webp':'jungle','assets/jungle-book/pages/tiger-again.webp':'jungle',
-            'assets/jungle-book/previews/wide.webp':'covers'}
+    groups={'assets/jungle-book/pages/tiger.avif':'jungle','assets/jungle-book/pages/tiger-again.avif':'jungle',
+            'assets/jungle-book/previews/wide.avif':'covers'}
     (root/'site').mkdir()
     index=write_previews(sources,root/'site',groups)
     assert json.loads((root/'site/preview-images.json').read_text())==index
@@ -176,9 +183,9 @@ with tempfile.TemporaryDirectory(prefix='asset-pack-test-',dir=ROOT/'build') as 
     # identical preview shares the same stored entry across groups.
     assert index['format']==1 and sorted(index['files'])==sorted(made) and len(index['packs'])==3
     files=index['files']
-    assert files['assets/jungle-book/pages/tiger.webp']==files['assets/jungle-book/pages/tiger-again.webp']
-    assert files['assets/jungle-book/pages/tiger.webp']==files['assets/jigsaw/tiger.webp']
-    assert files['assets/jungle-book/pages/tiger.webp']['pack']!=files['assets/jungle-book/previews/wide.webp']['pack']
+    assert files['assets/jungle-book/pages/tiger.avif']==files['assets/jungle-book/pages/tiger-again.avif']
+    assert files['assets/jungle-book/pages/tiger.avif']==files['assets/jigsaw/tiger.avif']
+    assert files['assets/jungle-book/pages/tiger.avif']['pack']!=files['assets/jungle-book/previews/wide.avif']['pack']
     for name,entry in files.items():
         pack=(root/'site'/entry['pack']).read_bytes()
         assert hashlib.sha256(pack).hexdigest()==index['packs'][entry['pack']]['sha256']
@@ -187,7 +194,7 @@ with tempfile.TemporaryDirectory(prefix='asset-pack-test-',dir=ROOT/'build') as 
     assert sorted(path.name for path in (root/'site').iterdir())==['packs','preview-images.json'],'Preview staging was left behind'
     validate_distribution(root/'site')
     try:
-        write_previews(sources,root/'unsafe',{'assets/jungle-book/pages/tiger.webp':'../up'})
+        write_previews(sources,root/'unsafe',{'assets/jungle-book/pages/tiger.avif':'../up'})
         raise AssertionError('Unsafe preview group was accepted')
     except ValueError:
         pass
@@ -198,7 +205,7 @@ with tempfile.TemporaryDirectory(prefix='asset-pack-test-',dir=ROOT/'build') as 
     # The separately validated story keeps its own exact pages beside the books.
     story={row['asset'] for row in json.loads((ROOT/'tools/sweet_porridge.json').read_text())['pages']}
     story.update(row['asset'] for row in json.loads((ROOT/'tools/town_musicians.json').read_text())['pages'])
-    assert len(pages)==len({path.stem for path in (ROOT/'assets/jungle-book/pages').glob('*.webp')}-story)
+    assert len(pages)==len({path.stem for path in (ROOT/'assets/jungle-book/pages').glob('*.avif')}-story)
     assert {catalog[name] for name in catalog if '/previews/' in name}=={'covers'}
 
 print('local asset pack test: lossless ZIP/seek round trips, aliases, Unicode, empty files, stable output, upload gates and reproducible content-addressed book previews passed')

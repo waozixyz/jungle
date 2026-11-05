@@ -5,10 +5,10 @@
 #import, file "../retro/collectibles.zi";
 #import "std/stdio_linux"
 
-BOOK_PAGES: [6]string = .["assets/jungle-book/pages/monkey.webp", "assets/jungle-book/pages/panda.webp",
-    "assets/jungle-book/pages/zebra.webp", "assets/jungle-book/pages/pig.webp",
-    "assets/jungle-book/pages/ladybug.webp", "assets/jungle-book/pages/snail.webp"];
-STORY_GIFT :: "assets/jungle-book/pages/porridge_02_gift.webp"
+BOOK_PAGES: [6]string = .["assets/jungle-book/pages/monkey.avif", "assets/jungle-book/pages/panda.avif",
+    "assets/jungle-book/pages/zebra.avif", "assets/jungle-book/pages/pig.avif",
+    "assets/jungle-book/pages/ladybug.avif", "assets/jungle-book/pages/snail.avif"];
+STORY_GIFT :: "assets/jungle-book/pages/porridge_02_gift.avif"
 
 #program_export
 main :: () -> s32 {
@@ -18,8 +18,8 @@ main :: () -> s32 {
     }
     if BookCollectIndex(STORY_GIFT, true) != 6 { return 2 }
     if BookCollectIndex(STORY_GIFT, false) != -1 || BookCollectIndex(BOOK_PAGES[0], true) != -1 ||
-        BookCollectIndex("assets/jungle-book/pages/porridge_03_magic_words.webp", true) != -1 ||
-        BookCollectIndex("assets/jungle-book/pages/tiger.webp", false) != -1 ||
+        BookCollectIndex("assets/jungle-book/pages/porridge_03_magic_words.avif", true) != -1 ||
+        BookCollectIndex("assets/jungle-book/pages/tiger.avif", false) != -1 ||
         BookCollectIndex("short", true) != -1 { return 3 }
 
     // Each ellipse covers its subject's middle, not the picture's far corners, and is

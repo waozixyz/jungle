@@ -28,14 +28,17 @@ def version():
     return text, major * 10000 + minor * 100 + patch
 
 
-def BuildAndroidEdition(edition, abi, release):
+def BuildAndroidEdition(edition, abi, release, device_test=False):
     """Build one edition and return its stable APK output path."""
     assert edition in ('direct', 'fdroid', 'gplay')
+    assert not (device_test and release), 'Device tests use a disposable debug package'
     name, code = version()
     kryon = package('kryon')
     ziran = package('ziran')
     raylib = package('raylib')
     webp = package('libwebp')
+    avif = package('libavif')
+    aom = package('libaom')
     environment = os.environ.copy()
     for key in ('DISPLAY', 'WAYLAND_DISPLAY', 'XAUTHORITY', 'DBUS_SESSION_BUS_ADDRESS'):
         environment.pop(key, None)
@@ -56,16 +59,20 @@ def BuildAndroidEdition(edition, abi, release):
     min_sdk = '23' if edition == 'gplay' else '21'
     gradle = ['sh', 'droid/gradlew', '-p', 'droid', '--no-daemon', '--max-workers=1', task,
               '-Pkryon.dir=' + str(kryon), '-Pziran.dir=' + str(ziran), '-Praylib.dir=' + str(raylib / 'src'),
-              '-Pwebp.dir=' + str(webp),
+              '-Pwebp.dir=' + str(webp), '-Pavif.dir=' + str(avif), '-Paom.dir=' + str(aom),
               '-Papp.abis=' + abis, '-Papp.minSdk=' + min_sdk, '-Papp.codegen=c99',
               '-Papp.edition=' + edition, '-Papp.versionCode=' + str(code), '-Papp.versionName=' + name,
               '-Pandroid.aapt2FromMavenOverride=' + str(aapt)]
     if edition == 'gplay':
         gradle.append('-Pandroid.useAndroidX=true')
+    if device_test:
+        gradle.append('-Papp.deviceTest=true')
     subprocess.run(gradle, cwd=ROOT, env=environment, check=True)
     variant = 'release' if release else 'debug'
     source = 'app-release-unsigned.apk' if release else 'app-debug.apk'
     suffix = '' if edition == 'direct' else '-' + edition
+    if device_test:
+        suffix += '-aviftest'
     target = ROOT / 'build/android' / ('JungleAcademy-' + abi + suffix +
                                        ('-release-unsigned.apk' if release else '-debug.apk'))
     shutil.copy2(ROOT / 'droid/app/build/outputs/apk' / variant / source, target)
@@ -78,8 +85,9 @@ def main():
     parser.add_argument('--edition', choices=('direct', 'fdroid', 'gplay'), default='direct')
     parser.add_argument('--abi', choices=('arm64-v8a', 'armeabi-v7a', 'universal'), default='arm64-v8a')
     parser.add_argument('--release', action='store_true', help='build the unsigned production APK for signing')
+    parser.add_argument('--device-test', action='store_true', help='use a disposable debug package for USB device tests')
     args = parser.parse_args()
-    BuildAndroidEdition(args.edition, args.abi, args.release)
+    BuildAndroidEdition(args.edition, args.abi, args.release, args.device_test)
 
 
 if __name__ == '__main__':

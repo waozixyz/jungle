@@ -7,8 +7,8 @@
 #import "std/format"
 #import "text_align"
 #import "text_buffer"
-#import "swipe"
-#import "swipe_props"
+#import "kryon/swipe"
+#import "kryon/swipe_props"
 #import, file "numbers_ladder.zi";
 #import, file "numbers_progress.zi";
 #import, file "../../retro/retro.zi";
@@ -27,18 +27,18 @@ word_es: [20]string = .["Uno", "Dos", "Tres", "Cuatro", "Cinco", "Seis", "Siete"
     "Once", "Doce", "Trece", "Catorce", "Quince", "Dieciséis", "Diecisiete", "Dieciocho", "Diecinueve", "Veinte"];
 // Every counted thing is one of the book's watercolor animals.
 items: [12]string = .[
-    "assets/jungle-book/counting/tiger.webp",
-    "assets/jungle-book/counting/frog.webp",
-    "assets/jungle-book/counting/butterfly.webp",
-    "assets/jungle-book/counting/ladybug.webp",
-    "assets/jungle-book/counting/duck.webp",
-    "assets/jungle-book/counting/hen.webp",
-    "assets/jungle-book/counting/cat.webp",
-    "assets/jungle-book/counting/dog.webp",
-    "assets/jungle-book/counting/pig.webp",
-    "assets/jungle-book/counting/cow.webp",
-    "assets/jungle-book/counting/rabbit.webp",
-    "assets/jungle-book/counting/monkey.webp",
+    "assets/jungle-book/counting/tiger.avif",
+    "assets/jungle-book/counting/frog.avif",
+    "assets/jungle-book/counting/butterfly.avif",
+    "assets/jungle-book/counting/ladybug.avif",
+    "assets/jungle-book/counting/duck.avif",
+    "assets/jungle-book/counting/hen.avif",
+    "assets/jungle-book/counting/cat.avif",
+    "assets/jungle-book/counting/dog.avif",
+    "assets/jungle-book/counting/pig.avif",
+    "assets/jungle-book/counting/cow.avif",
+    "assets/jungle-book/counting/rabbit.avif",
+    "assets/jungle-book/counting/monkey.avif",
 ];
 
 numbers_width: s32;

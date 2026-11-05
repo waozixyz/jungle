@@ -393,7 +393,7 @@ class GeneratedRouteTest(unittest.TestCase):
                          [len(names) for _, names in BOOKS])
         order = re.search(r'^shelf_order:.*?\.\[(.*)\];', self.pages, re.M)[1]
         self.assertEqual(sorted(int(at) for at in order.split(',')), list(range(len(BOOKS))))
-        self.assertEqual(table(self.pages, 'page_paths'), [f'assets/jungle-book/pages/{name}.webp' for name in PAGE_NAMES])
+        self.assertEqual(table(self.pages, 'page_paths'), [f'assets/jungle-book/pages/{name}.avif' for name in PAGE_NAMES])
         for at, language in enumerate(LANGUAGES):
             self.assertEqual(table(self.pages, f'page_names_{language}'), [WORDS[name][at] for name in PAGE_NAMES])
 

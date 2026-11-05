@@ -36,6 +36,7 @@ Fishing :: #import, file "../games/fishing/jungle_fishing.zi";
 BeachFamilies :: #import, file "../games/beach_families/jungle_beach_families.zi";
 PianoKeys :: #import, file "../games/piano/keyboard.zi";
 #import, file "../host/jungle_menu.zi";
+#import, file "../host/jungle_progress.zi";
 #import, file "../host/jungle_game_layout.zi";
 #import, file "../host/jungle_title.zi";
 #import, file "../host/jungle_title_data.zi";
@@ -86,9 +87,9 @@ web_speed_pending: bool;
 web_voice_paused: bool;
 web_audio: s32;
 web_title_guide: bool;
-web_narration: bool;
 web_title_guide_muted: bool;
 web_title_guide_seen: bool;
+web_narration: bool;
 audio_rejected: s32;
 canvas_sequence: s32;
 export_pixels: [CANVAS_PIXELS]u8;
@@ -318,6 +319,13 @@ web_collection: Collection;
 WebTitlePaperCollect :: (slug: string) -> bool { return WebCollectionService("jungle.collect", slug) == "new" }
 
 // The awards, in the settings/awards.txt document; see host/jungle_awards.zi.
+WebExplorationSave :: () {
+    if !title_exploration.dirty || !title_exploration.valid { return }
+    if Runner.DocumentWriteHost("settings/explored.txt", ExplorationText(title_exploration)) {
+        if Runner.DocumentFlushHost() { title_exploration.dirty = false }
+    }
+}
+
 WebAwardsSave :: () {
     if awards_earned.valid { unused Runner.DocumentWriteHost("settings/awards.txt", AwardsText(awards_earned)) }
 }
@@ -452,6 +460,8 @@ BeginGame :: (index: s32) {
     WebKeyboard(false)
     selected = index
     active_game = index
+    TitleExplorationGame(web_games[index].title)
+    WebExplorationSave()
     web_farm_entrance = true
     web_loading_game = -1
     scope := WebScope()
@@ -496,6 +506,11 @@ JungleMain :: () -> s64 {
             opened[index] = PathExists(Cat(Runner.canvas_app_files.root, "/", award_apps[index]))
         }
         if AwardsMigrate(*awards_earned, opened[:]) > 0 { WebAwardsSave() }
+        title_exploration = ExplorationParse(Runner.DocumentReadHost("settings/explored.txt"))
+        for index: cast(s32)0..AWARD_COUNT - 1 {
+            if opened[index] || awards_earned.earned[index] { TitleExplorationGame(web_games[index].title) }
+        }
+        WebExplorationSave()
         UpdateSiteLanguage()
         web_initialized = true
     }
@@ -547,19 +562,20 @@ JungleMain :: () -> s64 {
         if scene_status != 1 { return 0 }
         action := JungleMenu(AppSession(), AppBounds(), key, AppNow(), "assets/jungle/font.png", web_games[:],
             *selected, web_muted, web_title_guide_muted, web_title_guide_seen, "", web_collection, WebTitlePaperCollect)
+        WebExplorationSave()
         if action.paper_collected { PlayAudio(TITLE_PAPER_CHIME, false) }
         if web_title_guide && (action.guide_stop || action.language_changed ||
             (action.guide_mute_toggle && !web_title_guide_muted)) {
             StopAudio()
             web_title_guide = false
         }
+        if action.guide_voice != "" { PlayAudio(action.guide_voice, true); web_title_guide = true }
+        if action.language_changed { unused Runner.DocumentWriteHost("settings/language.txt", LanguageCode()); UpdateSiteLanguage() }
         if action.guide_mute_toggle {
             web_title_guide_muted = !web_title_guide_muted
             unused Runner.DocumentWriteHost("settings/guide-sound.txt", ifx web_title_guide_muted then "off" else "on")
         }
         if action.guide_finished { unused Runner.DocumentWriteHost("settings/guide-seen.txt", "yes") }
-        if action.guide_voice != "" { PlayAudio(action.guide_voice, true); web_title_guide = true }
-        if action.language_changed { unused Runner.DocumentWriteHost("settings/language.txt", LanguageCode()); UpdateSiteLanguage() }
         if action.sound_toggle { ToggleAudio() }
         if action.navigated { PlayAudio("assets/jungle/sounds/select.wav", false) }
         if action.locked_cue { PlayAudio(TITLE_NOT_YET_CUE, false) }

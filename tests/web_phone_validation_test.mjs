@@ -26,7 +26,7 @@ const paintRoute=connectionOnly?[]:titleKeys(catalog.titleScenes,'Coloring Book'
 const build=JSON.parse(await readFile(join(root,'version.json'),'utf8'));
 async function fingerprints(){const result={};for(const name of ['version.json','benchmark-catalog.json','canvas.html','dom.html','jungle.js','jungle-dom.js','jungle.wasm','jungle-dom.wasm']){const hash=createHash('sha256');for await(const chunk of createReadStream(join(root,name)))hash.update(chunk);result[name]=hash.digest('hex')}return result}
 const artifacts=connectionOnly?{}:await fingerprints();
-const mime={'.html':'text/html','.js':'text/javascript','.wasm':'application/wasm','.json':'application/json','.png':'image/png','.webp':'image/jpeg','.webp':'image/webp','.wav':'audio/wav','.zip':'application/zip'};
+const mime={'.html':'text/html','.js':'text/javascript','.wasm':'application/wasm','.json':'application/json','.png':'image/png','.avif':'image/jpeg','.avif':'image/avif','.wav':'audio/wav','.zip':'application/zip'};
 const server=createServer(async(req,res)=>{try{
  const url=new URL(req.url,'http://localhost');
  if(url.pathname==='/phone-benchmark-ready'){res.writeHead(200,{'Content-Type':'text/html'});res.end('<!doctype html><meta name="viewport" content="width=device-width,initial-scale=1"><title>Jungle USB web validation</title>Jungle test connection');return}

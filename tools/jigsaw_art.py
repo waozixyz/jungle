@@ -13,10 +13,11 @@ def main():
     dest.mkdir(parents=True, exist_ok=True)
     for name in SCENES:
         source = ROOT/'local/art-development/jigsaw'/f'{name}.png'
-        export_image(source, dest/f'{name}.webp', 'scene', size=(SIZE, SIZE))
+        # Fine puzzle detail keeps full-resolution color (q60 4:4:4).
+        export_image(source, dest/f'{name}.avif', 'puzzle', size=(SIZE, SIZE))
         print('Prepared full runtime jigsaw picture:', name, flush=True)
     export_image(ROOT/'local/art-development/jigsaw/tiger-stream.png',
-                 ROOT/'assets/jungle/covers/jigsaw.webp', 'scene', size=(420, 420))
+                 ROOT/'assets/jungle/covers/jigsaw.avif', 'scene', size=(420, 420))
 
 
 

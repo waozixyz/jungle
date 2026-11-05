@@ -1,10 +1,10 @@
-"""Compose the game awards from their ignored masters and export runtime WebP.
+"""Compose the game awards from their ignored masters and export runtime AVIF.
 
 Each award is the shared painted badge (local/art-development/awards/badge.png)
 with its game's emblem (emblems/<name>.png) centered in the badge's cream
 circle. The full-resolution compositions stay in composed/; the runtime badges
-are exact lossless 384 px WebP in assets/jungle/awards/, recorded with their
-hashes in tools/art_provenance/game-awards.json. Builds need only the WebP.
+are exact lossless 384 px AVIF in assets/jungle/awards/, recorded with their
+hashes in tools/art_provenance/game-awards.json. Builds need only the AVIF.
 """
 from __future__ import annotations
 
@@ -90,7 +90,7 @@ def build() -> int:
         composed = MASTERS / 'composed' / f'{name}.png'
         compose(badge, Image.open(emblem_path).convert('RGBA')).save(composed)
         export = optimize_new_image_exports(composed, 'cutout', CACHE, size=RUNTIME_SIZE)
-        runtime = RUNTIME / f'{name}.webp'
+        runtime = RUNTIME / f'{name}.avif'
         shutil.copyfile(export.source, runtime)
         records.append({'game': bundle, 'award': f'award-{name}', 'emblem': emblem_text,
                         'emblem_master': emblem_path.relative_to(ROOT).as_posix(), 'emblem_sha256': digest(emblem_path),
@@ -102,7 +102,7 @@ def build() -> int:
         'generator': 'Harmony generate_image (Codex built-in image generation); original Jungle watercolor',
         'style_reference': 'local/art-development/title-covers.png',
         'method': 'one shared empty badge and one transparent emblem per game, each generated alone; '
-                  'tools/award_art.py centers the emblem in the badge circle and exports exact lossless WebP',
+                  'tools/award_art.py centers the emblem in the badge circle and exports exact lossless AVIF',
         'badge_master': badge_path.relative_to(ROOT).as_posix(), 'badge_sha256': digest(badge_path),
         'prompts': 'local/art-development/awards/prompts.json',
         'awards': records,
