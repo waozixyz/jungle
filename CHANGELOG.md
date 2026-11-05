@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## 0.1.38
+
+Released 2026-11-05.
+
+- Taps on phones with a notch or home bar press the button under the finger, such as the Animal Counting keypad.
+- Activities finish loading on older phone browsers that decode narration with a little extra silence at the end.
 - Keep diagonal wooden sign names large and rotate the lettering along each plank.
 
 - Repaint Beach and Port with flat signs, a Beach Aquarium cave, and clear coastal paths.
