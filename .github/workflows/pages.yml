@@ -67,7 +67,7 @@ jobs:
         name: Install build tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y libsdl2-dev libcairo2-dev libfreetype-dev libfontconfig-dev libpango1.0-dev libvorbisfile3 ffmpeg python3-pil libavif-bin python3-numpy python3-scipy python3-cairosvg libpotrace0 imagemagick ghostscript
+          sudo apt-get install -y libsdl2-dev libcairo2-dev libfreetype-dev libfontconfig-dev libpango1.0-dev libvorbisfile3 ffmpeg python3-pil libavif-bin cmake nasm meson ninja-build python3-numpy python3-scipy python3-cairosvg libpotrace0 imagemagick ghostscript
           python3 -m pip install --user --break-system-packages 'Pillow==12.3.0'
       - name: Check the shared build contract
         run: |
