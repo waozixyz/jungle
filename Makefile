@@ -39,10 +39,17 @@ STAGED_GAMES := jungle-book jungle-abc jungle-numbers animal-count dino-paint ju
 SHARED_SOURCES := $(wildcard assets/speech-profiles.json) $(shell find assets/speech-profiles assets/jungle assets/jungle-book $(addprefix assets/,abc numbers animal-count dino-paint shapes hide_seek drums garden jigsaw collectibles fishing beach_families) 2>/dev/null)
 GAMES := $(APP)/games/jungle-fishing.zx $(APP)/games/jungle-beach-families.zx $(APP)/games/jungle-garden.zx $(APP)/games/jungle-drums.zx $(APP)/games/jungle-hide-seek.zx $(APP)/games/jungle-matching.zx $(APP)/games/jungle-shapes.zx $(APP)/games/jungle-book.zx $(APP)/games/jungle-abc.zx $(APP)/games/jungle-numbers.zx $(APP)/games/animal-count.zx $(APP)/games/dino-paint.zx $(APP)/games/jungle-jigsaw.zx $(APP)/games/jungle-piano.zx
 KRYON_SOURCES = $(wildcard $(KRYON)/src/ui/*.zi $(KRYON)/src/backend/*.zi)
+# The compiler programs `ziran build` and `ziran bundle` run, the standard
+# library and the runtime headers. A compiler or std change through
+# ziran.local.toml rebuilds everything compiled with them.
+ZIRAN_INPUTS = $(wildcard $(addprefix $(TOOLCHAIN)/build/bin/,ziran zi2c zi2zir zi2zx zi2zx-vm)) \
+	$(shell find '$(TOOLCHAIN)/std' '$(TOOLCHAIN)/include' -type f 2>/dev/null)
+# What build/ziran/libziran.a is compiled from; Ziran's own Makefile tracks the rest.
+ZIRAN_RUNTIME_SOURCES = $(TOOLCHAIN)/Makefile $(shell find '$(TOOLCHAIN)/cmd' '$(TOOLCHAIN)/include' -name '*.[ch]' 2>/dev/null)
 
 # A package update can change hosted widget records as well as rendering.
 # Rebuild the host and bundles together instead of mixing their layouts.
-$(APP)/jungle $(GAMES): ziran.lock $(KRYON_SOURCES)
+$(APP)/jungle $(GAMES): ziran.lock $(KRYON_SOURCES) $(ZIRAN_INPUTS)
 
 .PHONY: all run art sounds test test-ui test-web-images install locales web
 
@@ -63,8 +70,11 @@ all: $(APP)/jungle $(APP)/libkryonavif.so $(GAMES) $(APP)/games/catalog.txt $(SH
 run: all
 	$(APP)/jungle
 
-build/ziran/libziran.a: ziran.lock
+# Touched afterwards: a source change that leaves the library unchanged
+# must not rerun Ziran's make on every build.
+build/ziran/libziran.a: ziran.lock $(ZIRAN_RUNTIME_SOURCES)
 	$(MAKE) -C '$(TOOLCHAIN)' BUILD_DIR='$(abspath build/ziran)' '$(abspath $@)'
+	touch $@
 
 $(APP)/jungle: $(KRYON)/build/avif-ziran/libkryonavif.so $(wildcard host/*.zi retro/*.zi games/paint/paint_palette.zi games/paint/paint_picture.zi) build/ziran/libziran.a
 	mkdir -p $(APP)
@@ -193,7 +203,7 @@ sounds: build/tools/sounds
 	build/tools/sounds
 	python3 tools/piano_sounds.py
 
-build/tools/%: tools/%.zi $(wildcard tools/*.zi) build/ziran/libziran.a
+build/tools/%: tools/%.zi $(wildcard tools/*.zi) build/ziran/libziran.a $(ZIRAN_INPUTS)
 	rm -rf build/tools/$*-c
 	'$(ZIRANC)' build --target=c --root tools --module-path 'std=$(TOOLCHAIN)/std' --module-path '$(TOOLCHAIN)/std' \
 		--entry $*:main -o build/tools/$*-c $<
@@ -204,13 +214,13 @@ build/tests/voice build/tests/speech_codec: $(KRYON)/build/avif-ziran/libkryonav
 build/tests/voice build/tests/speech_codec: TEST_LIBS = $(DESKTOP_LIBS)
 build/tests/title_transform build/tests/farm_transform: TEST_LIBS = $(DESKTOP_LIBS)
 
-build/tests/farm_transform.zx: tests/farm_transform_bundle.zi $(wildcard games/garden/*.zi retro/*.zi) host/jungle_title_data.zi $(STAGE)/jungle-garden.files
+build/tests/farm_transform.zx: tests/farm_transform_bundle.zi $(wildcard games/garden/*.zi retro/*.zi) host/jungle_title_data.zi $(STAGE)/jungle-garden.files $(ZIRAN_INPUTS)
 	'$(ZIRANC)' bundle --root tests $(MODULES) --define KRYON_HOSTED_UI \
 		--asset-dir assets=$(STAGE)/jungle-garden/assets --entry farm_transform_bundle:main -o $@ $<
 
 build/tests/farm_transform: build/tests/farm_transform.zx
 
-build/tests/%: tests/%_test.zi $(wildcard games/*/*.zi host/*.zi retro/*.zi) build/ziran/libziran.a
+build/tests/%: tests/%_test.zi $(wildcard games/*/*.zi host/*.zi retro/*.zi) build/ziran/libziran.a $(ZIRAN_INPUTS)
 	rm -rf build/tests/$*-c
 	'$(ZIRANC)' build --target=c --root tests $(MODULES) \
 		--entry $*_test:main -o build/tests/$*-c $<
