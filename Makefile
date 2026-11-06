@@ -39,13 +39,22 @@ STAGED_GAMES := jungle-book jungle-abc jungle-numbers animal-count dino-paint ju
 SHARED_SOURCES := $(wildcard assets/speech-profiles.json) $(shell find assets/speech-profiles assets/jungle assets/jungle-book $(addprefix assets/,abc numbers animal-count dino-paint shapes hide_seek drums garden jigsaw collectibles fishing beach_families) 2>/dev/null)
 GAMES := $(APP)/games/jungle-fishing.zx $(APP)/games/jungle-beach-families.zx $(APP)/games/jungle-garden.zx $(APP)/games/jungle-drums.zx $(APP)/games/jungle-hide-seek.zx $(APP)/games/jungle-matching.zx $(APP)/games/jungle-shapes.zx $(APP)/games/jungle-book.zx $(APP)/games/jungle-abc.zx $(APP)/games/jungle-numbers.zx $(APP)/games/animal-count.zx $(APP)/games/dino-paint.zx $(APP)/games/jungle-jigsaw.zx $(APP)/games/jungle-piano.zx
 KRYON_SOURCES = $(wildcard $(KRYON)/src/ui/*.zi $(KRYON)/src/backend/*.zi)
+# Which Ziran, Kryon and MingCute folders the build uses. Switching between the
+# lock and ziran.local.toml can pick older files than the outputs, so the file
+# is rewritten, and everything rebuilt, whenever the folders change.
+PACKAGES_ID := build/packages.id
+PACKAGES := $(TOOLCHAIN) $(KRYON) $(MINGCUTE)
+# Dry runs (-n, -q), such as tests that list commands for other folders, leave it alone.
+ifeq ($(findstring n,$(firstword -$(MAKEFLAGS)))$(findstring q,$(firstword -$(MAKEFLAGS))),)
+$(shell mkdir -p build && test "$$(cat '$(PACKAGES_ID)' 2>/dev/null)" = '$(PACKAGES)' || printf '%s\n' '$(PACKAGES)' > '$(PACKAGES_ID)')
+endif
 # The compiler programs `ziran build` and `ziran bundle` run, the standard
 # library and the runtime headers. A compiler or std change through
 # ziran.local.toml rebuilds everything compiled with them.
 ZIRAN_INPUTS = $(wildcard $(addprefix $(TOOLCHAIN)/build/bin/,ziran zi2c zi2zir zi2zx)) \
-	$(shell find '$(TOOLCHAIN)/std' '$(TOOLCHAIN)/include' -type f 2>/dev/null)
+	$(shell find '$(TOOLCHAIN)/std' '$(TOOLCHAIN)/include' -type f 2>/dev/null) $(PACKAGES_ID)
 # What build/ziran/libziran.a is compiled from; Ziran's own Makefile tracks the rest.
-ZIRAN_RUNTIME_SOURCES = $(TOOLCHAIN)/Makefile $(shell find '$(TOOLCHAIN)/cmd' '$(TOOLCHAIN)/include' -name '*.[ch]' 2>/dev/null)
+ZIRAN_RUNTIME_SOURCES = $(TOOLCHAIN)/Makefile $(shell find '$(TOOLCHAIN)/cmd' '$(TOOLCHAIN)/include' -name '*.[ch]' 2>/dev/null) $(PACKAGES_ID)
 
 # A package update can change hosted widget records as well as rendering.
 # Rebuild the host and bundles together instead of mixing their layouts.
@@ -71,9 +80,10 @@ run: all
 	$(APP)/jungle
 
 # Touched afterwards: a source change that leaves the library unchanged
-# must not rerun Ziran's make on every build.
+# must not rerun Ziran's make on every build. Another Ziran folder can hold
+# sources older than its objects here, so a folder change rebuilds them all.
 build/ziran/libziran.a: ziran.lock $(ZIRAN_RUNTIME_SOURCES)
-	$(MAKE) -C '$(TOOLCHAIN)' BUILD_DIR='$(abspath build/ziran)' '$(abspath $@)'
+	$(MAKE) $(if $(filter $(PACKAGES_ID),$?),-B) -C '$(TOOLCHAIN)' BUILD_DIR='$(abspath build/ziran)' '$(abspath $@)'
 	touch $@
 
 $(APP)/jungle: $(KRYON)/build/avif-ziran/libkryonavif.so $(wildcard host/*.zi retro/*.zi games/paint/paint_palette.zi games/paint/paint_picture.zi) build/ziran/libziran.a
