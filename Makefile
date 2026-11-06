@@ -42,7 +42,7 @@ KRYON_SOURCES = $(wildcard $(KRYON)/src/ui/*.zi $(KRYON)/src/backend/*.zi)
 # The compiler programs `ziran build` and `ziran bundle` run, the standard
 # library and the runtime headers. A compiler or std change through
 # ziran.local.toml rebuilds everything compiled with them.
-ZIRAN_INPUTS = $(wildcard $(addprefix $(TOOLCHAIN)/build/bin/,ziran zi2c zi2zir zi2zx zi2zx-vm)) \
+ZIRAN_INPUTS = $(wildcard $(addprefix $(TOOLCHAIN)/build/bin/,ziran zi2c zi2zir zi2zx)) \
 	$(shell find '$(TOOLCHAIN)/std' '$(TOOLCHAIN)/include' -type f 2>/dev/null)
 # What build/ziran/libziran.a is compiled from; Ziran's own Makefile tracks the rest.
 ZIRAN_RUNTIME_SOURCES = $(TOOLCHAIN)/Makefile $(shell find '$(TOOLCHAIN)/cmd' '$(TOOLCHAIN)/include' -name '*.[ch]' 2>/dev/null)
