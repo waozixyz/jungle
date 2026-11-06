@@ -33,6 +33,16 @@ with tempfile.TemporaryDirectory(prefix='jungle-responsive-', dir=WORK) as direc
         desktop.resize(1280,800)
         desktop.game('Picture Book')
         desktop.wait_book('responsive-native-books')
+        # The first opening celebrates the Picture Book award over the game
+        # (host/jungle_award_show.zi); let it fly away before comparing pages.
+        deadline=time.monotonic()+12
+        previous=desktop.capture_actual('responsive-native-books-award')
+        while True:
+            time.sleep(.5)
+            current=desktop.capture_actual('responsive-native-books-award')
+            if not ImageChops.difference(previous,current).getbbox(): break
+            assert time.monotonic()<deadline, 'The Picture Book award never finished'
+            previous=current
         for width,height in [(1280,800),(1000,700),(375,812),(844,390)]:
             desktop.resize(width,height)
             shelf=desktop.capture_actual(f'responsive-native-shelf-{width}')
