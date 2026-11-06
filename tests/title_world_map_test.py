@@ -99,6 +99,9 @@ class WorldMapTest(unittest.TestCase):
             _,scenes,_,hotspots = Load()
             for index,scene in enumerate(scenes):
                 expected = [0,0,3072,2048] if scene['name'] in ('map','map-portrait') else [0,0,0,0]
+                # A scene's own safe rect (Campus portrait's original painting
+                # between its widened strips) stays whole on screen.
+                if scene.get('safe'): expected = list(scene['safe'])
                 self.assertEqual(MapSafe(scene,[h for h in hotspots if h['scene']==index]),expected)
         finally:
             sys.path.pop(0)
