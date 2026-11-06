@@ -5465,7 +5465,7 @@
         }
       ],
       "portrait": {
-        "width": 1024,
+        "width": 1536,
         "height": 1536,
         "image": "assets/jungle/title/campus-portrait.avif",
         "low": "assets/jungle/title/campus-portrait-low.avif",
@@ -5475,25 +5475,25 @@
             "target": "game:Music Room",
             "polygon": [
               [
-                115,
+                371,
                 490
               ],
               [
-                244,
+                500,
                 490
               ],
               [
-                244,
+                500,
                 588
               ],
               [
-                115,
+                371,
                 588
               ]
             ],
             "glow": "assets/jungle/title/objects/portrait-portrait-music-original-glow.avif",
             "glow_rect": [
-              115,
+              371,
               490,
               130,
               99
@@ -5506,25 +5506,25 @@
             "target": "game:Matching Pairs",
             "polygon": [
               [
-                533,
+                789,
                 766
               ],
               [
-                1016,
+                1272,
                 766
               ],
               [
-                1016,
+                1272,
                 1002
               ],
               [
-                533,
+                789,
                 1002
               ]
             ],
             "glow": "assets/jungle/title/objects/portrait-portrait-picnic-glow.avif",
             "glow_rect": [
-              533,
+              789,
               766,
               484,
               237
@@ -5537,169 +5537,169 @@
             "target": "scene:treehouse",
             "polygon": [
               [
-                245,
+                501,
                 28
               ],
               [
-                275,
+                531,
                 10
               ],
               [
-                344,
+                600,
                 0
               ],
               [
-                487,
+                743,
                 0
               ],
               [
-                524,
+                780,
                 20
               ],
               [
-                549,
+                805,
                 59
               ],
               [
-                565,
+                821,
                 111
               ],
               [
-                566,
+                822,
                 162
               ],
               [
-                605,
+                861,
                 171
               ],
               [
-                637,
+                893,
                 196
               ],
               [
-                642,
+                898,
                 215
               ],
               [
-                627,
+                883,
                 240
               ],
               [
-                583,
+                839,
                 258
               ],
               [
-                547,
+                803,
                 271
               ],
               [
-                504,
+                760,
                 281
               ],
               [
-                496,
+                752,
                 320
               ],
               [
-                503,
+                759,
                 358
               ],
               [
-                504,
+                760,
                 399
               ],
               [
-                508,
+                764,
                 443
               ],
               [
-                518,
+                774,
                 486
               ],
               [
-                524,
+                780,
                 524
               ],
               [
-                532,
+                788,
                 550
               ],
               [
-                504,
+                760,
                 563
               ],
               [
-                459,
+                715,
                 560
               ],
               [
-                448,
+                704,
                 536
               ],
               [
-                446,
+                702,
                 499
               ],
               [
-                435,
+                691,
                 451
               ],
               [
-                430,
+                686,
                 411
               ],
               [
-                421,
+                677,
                 369
               ],
               [
-                416,
+                672,
                 323
               ],
               [
-                411,
+                667,
                 282
               ],
               [
-                400,
+                656,
                 239
               ],
               [
-                376,
+                632,
                 235
               ],
               [
-                324,
+                580,
                 235
               ],
               [
-                276,
+                532,
                 220
               ],
               [
-                241,
+                497,
                 201
               ],
               [
-                239,
+                495,
                 179
               ],
               [
-                251,
+                507,
                 157
               ],
               [
-                254,
+                510,
                 114
               ],
               [
-                256,
+                512,
                 72
               ]
             ],
             "glow": "assets/jungle/title/glow/campus-portrait-ladder.avif",
             "glow_rect": [
-              213,
+              469,
               0,
               455,
               596
@@ -5710,25 +5710,25 @@
             "target": "game:Animal Counting",
             "polygon": [
               [
-                45,
+                301,
                 1032
               ],
               [
-                294,
+                550,
                 1032
               ],
               [
-                294,
+                550,
                 1203
               ],
               [
-                45,
+                301,
                 1203
               ]
             ],
             "glow": "assets/jungle/title/objects/portrait-frogs-glow.avif",
             "glow_rect": [
-              45,
+              301,
               1032,
               250,
               172
@@ -5741,59 +5741,59 @@
             "target": "game:Hide & Seek",
             "polygon": [
               [
-                862,
+                1118,
                 1150
               ],
               [
-                905,
+                1161,
                 1128
               ],
               [
-                960,
+                1216,
                 1125
               ],
               [
-                1000,
+                1256,
                 1150
               ],
               [
-                1012,
+                1268,
                 1200
               ],
               [
-                1005,
+                1261,
                 1260
               ],
               [
-                985,
+                1241,
                 1310
               ],
               [
-                950,
+                1206,
                 1345
               ],
               [
-                905,
+                1161,
                 1345
               ],
               [
-                872,
+                1128,
                 1310
               ],
               [
-                858,
+                1114,
                 1250
               ],
               [
-                855,
+                1111,
                 1195
               ]
             ],
             "glow": "assets/jungle/title/glow/campus-portrait-hiding-bush.avif",
             "glow_rect": [
-              841,
+              1097,
               1111,
-              183,
+              186,
               249
             ]
           },
@@ -5802,25 +5802,25 @@
             "target": "game:Little Piano",
             "polygon": [
               [
-                645,
+                901,
                 462
               ],
               [
-                830,
+                1086,
                 462
               ],
               [
-                830,
+                1086,
                 637
               ],
               [
-                645,
+                901,
                 637
               ]
             ],
             "glow": "assets/jungle/title/objects/portrait-portrait-piano-glow.avif",
             "glow_rect": [
-              645,
+              901,
               462,
               186,
               176
@@ -5832,7 +5832,7 @@
             "id": "jungle-path",
             "target": "scene:jungle-path",
             "glow_rect": [
-              328,
+              584,
               484,
               123,
               90
@@ -5841,31 +5841,31 @@
             "glow": "assets/jungle/title/objects/sign-diagonal-left-board-glow.avif",
             "polygon": [
               [
-                450,
+                706,
                 536
               ],
               [
-                378,
+                634,
                 498
               ],
               [
-                383,
+                639,
                 488
               ],
               [
-                330,
+                586,
                 497
               ],
               [
-                353,
+                609,
                 544
               ],
               [
-                358,
+                614,
                 535
               ],
               [
-                430,
+                686,
                 573
               ]
             ],
@@ -5880,7 +5880,7 @@
               ]
             },
             "editor_legacy_rect": [
-              305,
+              561,
               478,
               160,
               160
@@ -5890,7 +5890,7 @@
             "id": "farm-path",
             "target": "game:Farm",
             "glow_rect": [
-              88,
+              344,
               800,
               214,
               113
@@ -5899,31 +5899,31 @@
             "glow": "assets/jungle/title/objects/sign-left-board-glow.avif",
             "polygon": [
               [
-                300,
+                556,
                 822
               ],
               [
-                162,
+                418,
                 822
               ],
               [
-                162,
+                418,
                 802
               ],
               [
-                89,
+                345,
                 858
               ],
               [
-                162,
+                418,
                 910
               ],
               [
-                162,
+                418,
                 893
               ],
               [
-                300,
+                556,
                 893
               ]
             ],
@@ -5938,7 +5938,7 @@
               "direction": "left"
             },
             "editor_legacy_rect": [
-              80,
+              336,
               770,
               230,
               230
@@ -5948,7 +5948,7 @@
             "id": "desert-path",
             "target": "scene:desert",
             "glow_rect": [
-              638,
+              894,
               628,
               205,
               109
@@ -5957,31 +5957,31 @@
             "glow": "assets/jungle/title/objects/sign-right-board-glow.avif",
             "polygon": [
               [
-                640,
+                896,
                 649
               ],
               [
-                772,
+                1028,
                 649
               ],
               [
-                772,
+                1028,
                 631
               ],
               [
-                841,
+                1097,
                 684
               ],
               [
-                772,
+                1028,
                 734
               ],
               [
-                772,
+                1028,
                 717
               ],
               [
-                640,
+                896,
                 717
               ]
             ],
@@ -5996,7 +5996,7 @@
               "direction": "right"
             },
             "editor_legacy_rect": [
-              630,
+              886,
               600,
               220,
               220
@@ -6006,7 +6006,7 @@
         "background": "assets/jungle/title/layers/campus-portrait-background.avif",
         "foreground": "assets/jungle/title/layers/campus-portrait-foreground.avif",
         "paper": [
-          562,
+          818,
           734,
           70,
           24
@@ -6015,7 +6015,7 @@
           {
             "path": "assets/jungle/title/objects/portrait-triceratops.avif",
             "rect": [
-              580,
+              836,
               1078,
               260,
               260
@@ -6027,7 +6027,7 @@
             "id": "jungle-path-post",
             "image": "assets/jungle/title/objects/sign-diagonal-left-post.avif",
             "rect": [
-              370,
+              626,
               541,
               32,
               91
@@ -6037,7 +6037,7 @@
             "id": "farm-path-post",
             "image": "assets/jungle/title/objects/sign-left-post.avif",
             "rect": [
-              187,
+              443,
               892,
               34,
               98
@@ -6047,12 +6047,18 @@
             "id": "desert-path-post",
             "image": "assets/jungle/title/objects/sign-right-post.avif",
             "rect": [
-              715,
+              971,
               717,
               33,
               94
             ]
           }
+        ],
+        "safe": [
+          256,
+          0,
+          1024,
+          1536
         ]
       },
       "background": "assets/jungle/title/layers/campus-background.avif",

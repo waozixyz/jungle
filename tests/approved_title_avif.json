@@ -1,7 +1,7 @@
 {
   "format": "AVIF",
   "quality": 35,
-  "total_bytes": 2243934,
+  "total_bytes": 2372316,
   "images": [
     {
       "name": "bookshelf-background",
@@ -214,38 +214,38 @@
     {
       "name": "campus-portrait",
       "path": "assets/jungle/title/campus-portrait.avif",
-      "bytes": 132449,
-      "sha256": "767276c6896c455e6c3e1c5a1690e827460ba49aba470b5bcc2159259520d4e4",
-      "width": 1024,
+      "bytes": 199296,
+      "sha256": "624edbb8ddbaba7f5f2b2edd3d0b1e7a1864a89cf780b848a03838fdfd8a752b",
+      "width": 1536,
       "height": 1536,
-      "decoded_rgba_sha256": "398ccd29375a268714699f2372b7a72740b18199f4ee29d11eb2bfd63b28bf4a",
-      "canonical_source": "local/art-development/campus-wide/campus-portrait-left-joined.png",
-      "canonical_bytes": 3314218,
-      "canonical_sha256": "fe5eb39e73da971983a6e78980651dd58e422ef74c63dd0391b67d3005f61438"
+      "decoded_rgba_sha256": "dd769d8cf9baca58bf498331977e27e96ebf3bd7edd52868c635bb61f6c8566f",
+      "canonical_source": "local/art-development/campus-wide/campus-portrait-wide.png",
+      "canonical_bytes": 5003560,
+      "canonical_sha256": "e0188fa81aa789827ea2643a6181847cb4190a8785a7955828189f0f2617c0d1"
     },
     {
       "name": "campus-portrait-background",
       "path": "assets/jungle/title/layers/campus-portrait-background.avif",
-      "bytes": 132449,
-      "sha256": "767276c6896c455e6c3e1c5a1690e827460ba49aba470b5bcc2159259520d4e4",
-      "width": 1024,
+      "bytes": 199296,
+      "sha256": "624edbb8ddbaba7f5f2b2edd3d0b1e7a1864a89cf780b848a03838fdfd8a752b",
+      "width": 1536,
       "height": 1536,
-      "decoded_rgba_sha256": "398ccd29375a268714699f2372b7a72740b18199f4ee29d11eb2bfd63b28bf4a",
-      "canonical_source": "local/art-development/campus-wide/campus-portrait-left-joined.png",
-      "canonical_bytes": 3314218,
-      "canonical_sha256": "fe5eb39e73da971983a6e78980651dd58e422ef74c63dd0391b67d3005f61438"
+      "decoded_rgba_sha256": "dd769d8cf9baca58bf498331977e27e96ebf3bd7edd52868c635bb61f6c8566f",
+      "canonical_source": "local/art-development/campus-wide/campus-portrait-wide.png",
+      "canonical_bytes": 5003560,
+      "canonical_sha256": "e0188fa81aa789827ea2643a6181847cb4190a8785a7955828189f0f2617c0d1"
     },
     {
       "name": "campus-portrait-low",
       "path": "assets/jungle/title/campus-portrait-low.avif",
-      "bytes": 17166,
-      "sha256": "a02d65ff72e43a82db1123ab98368155a3e0a2504caf27a270310e45932b35ab",
+      "bytes": 11854,
+      "sha256": "31ff5e8e980e509653ee6c079b70455b4dd3f4042dfdd99d3ffe923bd0a5df15",
       "width": 240,
-      "height": 360,
-      "decoded_rgba_sha256": "20b067228b25d26c0334e2a8068a558746545257e8e42cd9a80cd4cd9583ad89",
-      "canonical_source": "local/art-development/campus-fix/campus-portrait-left-low.png",
-      "canonical_bytes": 222735,
-      "canonical_sha256": "6bc9c31ca3ff0d44c3515c311487481bd77c2c44b5277f227fb2072e59be0e39"
+      "height": 240,
+      "decoded_rgba_sha256": "3dce1581c8554d0ab052b5d2b801ef922b53cd3b6104429e98c77fa33df409f2",
+      "canonical_source": "local/art-development/campus-fix/campus-portrait-wide-low.png",
+      "canonical_bytes": 150701,
+      "canonical_sha256": "567c0b3fed1eb0df74a74d0a2ba51cb9909330da425a486517bf2a8a8336edb8"
     },
     {
       "name": "treehouse",

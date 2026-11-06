@@ -79,14 +79,16 @@ PORT_MARKET = {'landscape': [100,450,300,300], 'portrait': [175,800,300,300]}
 # Campus: the upright Jungle Path sign. Landscape keeps its place beside the
 # path up into the jungle; portrait stands where the new path starts between
 # the treehouse and the drums.
-CAMPUS_SIGN = {'landscape': [240,300,180,180], 'portrait': [305,478,160,160]}
-FROGS_PORTRAIT = [45,1032,250,172]
+# Portrait Campus coordinates include its 256 px widened left strip
+# (tools/title_campus_fixes.py).
+CAMPUS_SIGN = {'landscape': [240,300,180,180], 'portrait': [561,478,160,160]}
+FROGS_PORTRAIT = [301,1032,250,172]
 PLATES = {
     'market': 'market/market-{o}.png',
     'jungle-path': 'jungle-path/jungle-path-{o}.png',
     'port': 'beach-port-redo/port-{o}.png',
     'farm': 'farm-fields/farm-landscape-left-path.png',
-    'campus-portrait': 'campus-wide/campus-portrait-left-joined.png',
+    'campus-portrait': 'campus-wide/campus-portrait-wide.png',
 }
 
 
@@ -221,7 +223,7 @@ def campus_portrait(ledger, campus):
     if source.is_file():
         ledger.background(source, view['image'])
         ledger.background(source, view['background'])
-        ledger.background(source, view['low'], size=(240, 360))
+        ledger.background(source, view['low'], size=(240, 240))
     frogs = next(h for h in view['hotspots'] if h['id'] == 'frogs')
     x, y, w, h = FROGS_PORTRAIT
     frogs.update(glow_rect=list(FROGS_PORTRAIT), polygon=[[x,y],[x+w-1,y],[x+w-1,y+h-1],[x,y+h-1]])

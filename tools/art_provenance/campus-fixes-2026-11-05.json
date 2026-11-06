@@ -55,23 +55,28 @@
     },
     "assets/jungle/title/glow/campus-portrait-hiding-bush.avif": {
       "master": "local/art-development/campus-fix/campus-portrait-hiding-bush-glow.png",
-      "master_sha256": "69897180d05417ca686e58942d1e1d2cd35bcd83ddb7596ea828710afb420d40",
-      "sha256": "6e3ef0741c51103df3fbe5e6f9640259a084d6bc0e65802f0b917cf1a9f60f94"
+      "master_sha256": "af8d29140da4d5870dd1d54a2047a66806c14bc6837be20d087e8a4a4e4e05dc",
+      "sha256": "0566537d8ce58fe31d7017d59881b176b8a7bc7e8df36cee248c8d7ef88f3c07"
     },
     "assets/jungle/title/campus-portrait.avif": {
-      "master": "local/art-development/campus-wide/campus-portrait-left-joined.png",
-      "master_sha256": "fe5eb39e73da971983a6e78980651dd58e422ef74c63dd0391b67d3005f61438",
-      "sha256": "767276c6896c455e6c3e1c5a1690e827460ba49aba470b5bcc2159259520d4e4"
+      "master": "local/art-development/campus-wide/campus-portrait-wide.png",
+      "master_sha256": "e0188fa81aa789827ea2643a6181847cb4190a8785a7955828189f0f2617c0d1",
+      "sha256": "624edbb8ddbaba7f5f2b2edd3d0b1e7a1864a89cf780b848a03838fdfd8a752b"
     },
     "assets/jungle/title/layers/campus-portrait-background.avif": {
-      "master": "local/art-development/campus-wide/campus-portrait-left-joined.png",
-      "master_sha256": "fe5eb39e73da971983a6e78980651dd58e422ef74c63dd0391b67d3005f61438",
-      "sha256": "767276c6896c455e6c3e1c5a1690e827460ba49aba470b5bcc2159259520d4e4"
+      "master": "local/art-development/campus-wide/campus-portrait-wide.png",
+      "master_sha256": "e0188fa81aa789827ea2643a6181847cb4190a8785a7955828189f0f2617c0d1",
+      "sha256": "624edbb8ddbaba7f5f2b2edd3d0b1e7a1864a89cf780b848a03838fdfd8a752b"
     },
     "assets/jungle/title/campus-portrait-low.avif": {
-      "master": "local/art-development/campus-fix/campus-portrait-left-low.png",
-      "master_sha256": "6bc9c31ca3ff0d44c3515c311487481bd77c2c44b5277f227fb2072e59be0e39",
-      "sha256": "a02d65ff72e43a82db1123ab98368155a3e0a2504caf27a270310e45932b35ab"
+      "master": "local/art-development/campus-fix/campus-portrait-wide-low.png",
+      "master_sha256": "567c0b3fed1eb0df74a74d0a2ba51cb9909330da425a486517bf2a8a8336edb8",
+      "sha256": "31ff5e8e980e509653ee6c079b70455b4dd3f4042dfdd99d3ffe923bd0a5df15"
+    },
+    "assets/jungle/title/layers/campus-portrait-foreground.avif": {
+      "master": "local/art-development/campus-fix/campus-portrait-foreground-wide.png",
+      "master_sha256": "1d8130a4a06bc4e150e98d76b6d088d630bf446b734d757ec758321fa24ef36e",
+      "sha256": "040627a117827ad312e8bb4923aa694f7867094636ce30dc1f3e08398dad370d"
     }
   }
 }

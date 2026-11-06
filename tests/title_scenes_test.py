@@ -111,6 +111,9 @@ class TitleVariants(unittest.TestCase):
             self.assertEqual(json.loads(canonical.read_text())['orientations']['portrait'],
                              {k:v for k,v in plan.items() if k not in ('source','directions')})
         self.assertEqual([scene['width'], scene['height']], plan['canvas'])
+        # Owner (2026-11-05): the original painting stays whole between its
+        # painted side strips, which fill tall portrait windows.
+        self.assertEqual(scene['safe'], [256, 0, 1024, 1536])
         names = {'portrait-music-original.png':'music-hut', 'portrait-piano.png':'piano',
                  'portrait-picnic.png':'picnic', 'frogs.png':'frogs', 'hiding-tail.png':'hiding-bush'}
         for obj in plan['objects']:
@@ -135,13 +138,13 @@ class TitleVariants(unittest.TestCase):
         row = next(r for r in json.loads(APPROVED_TITLE_AVIF.read_text())['images']
                    if r['path'] == scene['image'])
         self.assertTrue(row['canonical_source'].endswith('/'+plan['plate']))
-        self.assertEqual((row['width'],row['height']),(1024,1536))
+        self.assertEqual((row['width'],row['height']),(1536,1536))
         # Check the image actually drawn after layers load, not just the fallback.
         for path in (scene['image'],scene['background']):
             with Image.open(ROOT/path) as im:
-                self.assertEqual(design_size(path,im),(1024,1536))
+                self.assertEqual(design_size(path,im),(1536,1536))
                 receipt = json.loads((ROOT/'tools/canonical_avif.json').read_text())['files'][path]
-                self.assertEqual(receipt['source_rgba_sha256'], '9952844e406a45b4fcb89b9871fc3d0483dcdf0dbfe9fecb789583c4fa02751e')
+                self.assertEqual(receipt['source_rgba_sha256'], '158611e7c362416d25924b2fa87adcb32f3cd9a8c73b32d37e8abd2833bd5ee8')
                 self.assertEqual(hashlib.sha256(im.convert('RGBA').tobytes()).hexdigest(), receipt['rgba_sha256'])
 
     def test_landscape_campus_art_and_placements_are_unchanged(self):

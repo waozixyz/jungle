@@ -61,18 +61,28 @@ def main():
                     d.key(str(next(i+1 for i,h in enumerate(home['hotspots']) if h['target']=='scene:campus')))
                     time.sleep(.6)
                     view = campus['portrait'] if h>w else campus
-                    scale=(min if h>w else max)(w/(1024 if h>w else 1672),h/(1536 if h>w else 941))
-                    ox=(w-(1024 if h>w else 1672)*scale)/2
-                    oy=(h-(1536 if h>w else 941)*scale)/2
+                    # TitleFit: cover, but never past the safe rect (portrait
+                    # Campus's original painting between its side strips).
+                    pw,ph=(view.get('width',1672),view.get('height',941))
+                    scale=max(w/pw,h/ph)
+                    sx,sy,sw,sh=view.get('safe') or (0,0,pw,ph)
+                    if view.get('safe'): scale=min(scale,w/sw,h/sh)
+                    ox=(w-pw*scale)/2
+                    oy=(h-ph*scale)/2
+                    if view.get('safe'):
+                        left,top=ox+sx*scale,oy+sy*scale
+                        ox-=left if left<0 else max(0,left+sw*scale-w)
+                        oy-=top if top<0 else max(0,top+sh*scale-h)
                     if h>w:
-                        assert ox>=0 and oy>=0 and ox+1024*scale<=w+.01 and oy+1536*scale<=h+.01
+                        assert ox+sx*scale>=-.01 and oy+sy*scale>=-.01 and ox+(sx+sw)*scale<=w+.01 and oy+(sy+sh)*scale<=h+.01
                         actual=d.capture_actual(f'{w}-{locale}-portrait-composition').convert('RGB')
                         full=Image.open(root/view['image']).convert('RGB')
                         # Sample untouched paint at the treehouse, left route, pond and
                         # right-hand desert. These detect cropping or a stale plate.
                         for box in ((300,50,500,200),(350,950,500,1050),(100,1350,250,1450),(900,300,1010,400)):
+                            box=tuple(v+(sx if i%2==0 else sy) for i,v in enumerate(box))
                             region=tuple(round((ox if i%2==0 else oy)+v*scale) for i,v in enumerate(box))
-                            scaled=full.resize((round(1024*scale),round(1536*scale)),Image.Resampling.BILINEAR)
+                            scaled=full.resize((round(pw*scale),round(ph*scale)),Image.Resampling.BILINEAR)
                             local=tuple(v-round(ox if i%2==0 else oy) for i,v in enumerate(region))
                             ref=scaled.crop(local).resize((32,32),Image.Resampling.BILINEAR)
                             got=actual.crop(region).resize((32,32),Image.Resampling.BILINEAR)

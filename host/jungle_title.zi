@@ -196,13 +196,9 @@ TitleFit :: (width: float32, height: float32, pan_x: float32, pan_y: float32, sc
     across := width / cast(float32)TITLE_SCENE_WIDTH[scene]
     down := height / cast(float32)TITLE_SCENE_HEIGHT[scene]
     scale := ifx across > down then across else down
-    // Preserve both huts and the left pond in the independent portrait Campus.
-    // Other scenes retain their existing cover fit and panning.
-    if TITLE_SCENE_NAME[scene] == "campus-portrait" {
-        scale = ifx across < down then across else down
-    }
-    // The world map shows every landmark at once: it never crops into them,
-    // and its paper edge meets TITLE_MAP_PAPER instead.
+    // A safe rect never crops: the world map shows every landmark at once,
+    // its paper edge meeting TITLE_MAP_PAPER, and portrait Campus keeps its
+    // huts and pond whole while its painted side strips fill the window.
     safe := scene * 4
     if TITLE_SCENE_SAFE[safe + 2] > 0 && TITLE_SCENE_SAFE[safe + 3] > 0 {
         fit_x := width / cast(float32)TITLE_SCENE_SAFE[safe + 2]

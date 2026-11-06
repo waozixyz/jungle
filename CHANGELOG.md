@@ -6,7 +6,7 @@
 - Download about eight times less picture data: every painting and cut-out now ships as a compact AVIF image.
 - Keep one shared world map in both orientations, with clouds clearing around places you visit.
 - Fix a crash when leaving a large Coloring Book picture.
-- Campus loses the grass trail before the drums and shows a white desert with an oasis in landscape, and Hide & Seek's tail now peeks from a Jungle Path bush.
+- Campus fills tall screens edge to edge, loses the grass trail before the drums and shows a white desert with an oasis, and Hide & Seek's tail now peeks from a Jungle Path bush.
 - The Treehouse window branch sways in one piece from the trunk, and its top-left leaves stay in front of visiting birds.
 - Visit the plaza, park, zoo, aquarium, city streets, traffic, market, playground, train station, library and fire station in the new Places picture book.
 

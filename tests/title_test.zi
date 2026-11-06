@@ -204,15 +204,19 @@ main :: () -> s32 {
     half := TitleFit(836.0, 470.5, 0.0, 0.0)
     if !Near(TitleSourceX(half, 418.0), 836.0) || !Near(TitleSourceY(half, 100.0), 200.0) { return 15 }
 
-    // Portrait Campus keeps every mapped object visible at phone and tall sizes.
+    // Portrait Campus keeps its original painting (every mapped object, x
+    // 256..1280) whole at phone and tall sizes, and its side strips fill
+    // wider portrait windows edge to edge.
     campus_portrait := SceneNamed("campus-portrait")
-    campus_widths: [3]float32 = .[420.0, 1080.0, 700.0]
-    campus_heights: [3]float32 = .[900.0, 2340.0, 1100.0]
-    for size: cast(s32)0..2 {
+    campus_widths: [5]float32 = .[420.0, 1080.0, 700.0, 960.0, 1000.0]
+    campus_heights: [5]float32 = .[900.0, 2340.0, 1100.0, 1022.0, 1001.0]
+    for size: cast(s32)0..4 {
         view := TitleFit(campus_widths[size], campus_heights[size], 9999.0, 9999.0, campus_portrait)
-        if view.x < 0.0 || view.y < 0.0 || view.pan_x_limit != 0.0 || view.pan_y_limit != 0.0 { return 280 }
-        if view.x + 1024.0 * view.scale > campus_widths[size] + 0.01 ||
+        if view.x + 256.0 * view.scale < -0.01 || view.y < -0.01 || view.pan_x_limit != 0.0 || view.pan_y_limit != 0.0 { return 280 }
+        if view.x + 1280.0 * view.scale > campus_widths[size] + 0.01 ||
             view.y + 1536.0 * view.scale > campus_heights[size] + 0.01 { return 281 }
+        if size >= 3 && (view.x > 0.01 || view.x + 1536.0 * view.scale < campus_widths[size] - 0.01 ||
+            view.y > 0.01 || view.y + 1536.0 * view.scale < campus_heights[size] - 0.01) { return 282 }
     }
 
     // Every painted item can be hit through the window mapping, and only
@@ -313,10 +317,10 @@ main :: () -> s32 {
     // The approved portrait composition has independent coordinates and
     // resolves back to its canonical room when rotated to landscape.
     portrait_campus := ResolveTitleSceneVariant(campus, 420.0, 900.0)
-    if portrait_campus == campus || TITLE_SCENE_WIDTH[portrait_campus] != 1024 { return 84 }
+    if portrait_campus == campus || TITLE_SCENE_WIDTH[portrait_campus] != 1536 { return 84 }
     if ResolveTitleSceneVariant(portrait_campus, 900.0, 420.0) != campus { return 85 }
     portrait_fit := TitleFit(1024.0, 1536.0, 0.0, 0.0, portrait_campus)
-    if !Near(portrait_fit.scale, 1.0) || !Near(portrait_fit.x, 0.0) || !Near(portrait_fit.y, 0.0) { return 88 }
+    if !Near(portrait_fit.scale, 1.0) || !Near(portrait_fit.x, -256.0) || !Near(portrait_fit.y, 0.0) { return 88 }
     rotated: TitleState
     TitleStart(*rotated)
     rotated.pending = 0

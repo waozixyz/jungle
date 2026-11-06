@@ -18,11 +18,20 @@ SIZES = ((960, 600), (420, 900), (1080, 2340), (1280, 800))
 SPEAKER = 'desert-macaw'
 
 
-def fit(view, w, h, contain=False):
-    """host/jungle_title.zi TitleFit at the centered pan."""
-    width, height = (1024, 1536) if 'width' in view else (1672, 941)
-    scale = (min if contain else max)(w / width, h / height)
-    return scale, (w - width * scale) / 2, (h - height * scale) / 2
+def fit(view, w, h):
+    """host/jungle_title.zi TitleFit at the centered pan: cover, but never
+    past a safe rect (portrait Campus's painting between its side strips)."""
+    width, height = view.get('width', 1672), view.get('height', 941)
+    scale = max(w / width, h / height)
+    ox, oy = (w - width * scale) / 2, (h - height * scale) / 2
+    if view.get('safe'):
+        sx, sy, sw, sh = view['safe']
+        scale = min(scale, w / sw, h / sh)
+        ox, oy = (w - width * scale) / 2, (h - height * scale) / 2
+        left, top = ox + sx * scale, oy + sy * scale
+        ox -= left if left < 0 else max(0, left + sw * scale - w)
+        oy -= top if top < 0 else max(0, top + sh * scale - h)
+    return scale, ox, oy
 
 
 def layout(w_units, h_units, anchor):
@@ -104,7 +113,7 @@ def main():
                     d.key(campus_key)
                     time.sleep(.7)
                     campus_view = campus['portrait'] if h > w else campus
-                    cs, cx, cy = fit(campus_view, w, h, contain=h > w)
+                    cs, cx, cy = fit(campus_view, w, h)
                     sign = next(t for t in campus_view['hotspots'] if t['id'] == 'desert-path')
                     x, y, _, _ = sign['glow_rect']; bx, by, bw, bh = sign['sign']['label_rect']
                     hover(10 * unit, h - 10 * unit)
