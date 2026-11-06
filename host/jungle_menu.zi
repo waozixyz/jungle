@@ -452,6 +452,12 @@ TitlePathSign :: (session: Session, hotspot: s32, picture: Rectangle, view: Titl
     lift := TitleSignLift(title_state, hotspot, now)
     wood := Rectangle.{
         picture.x + cast(float32)TITLE_GLOW_RECT[at] * view.scale,
+// Path sign buttons own the semantic keys TITLE_SIGN_KEY_BASE + hotspot. The
+// range sits far above every literal RetroTap/Press key, so a growing hotspot
+// table can never reach another control's key (tests/semantic_keys_test.py).
+TITLE_SIGN_KEY_BASE :: 0x51600000
+TITLE_SIGN_KEY_SPAN :: 4096
+
         picture.y + (cast(float32)TITLE_GLOW_RECT[at + 1] + lift) * view.scale,
         cast(float32)TITLE_GLOW_RECT[at + 2] * view.scale,
         cast(float32)TITLE_GLOW_RECT[at + 3] * view.scale}
@@ -505,7 +511,7 @@ TitlePathSign :: (session: Session, hotspot: s32, picture: Rectangle, view: Titl
         pointer.x < board.x + board.width && pointer.y < board.y + board.height
     physical := TitleInside(hotspot,(pointer.x-picture.x)/view.scale,(pointer.y-picture.y)/view.scale)
     covered := (blocked || !physical) && on_board
-    button := Press(session, PressProps.{.key = cast(u64)(7400 + hotspot),
+    button := Press(session, PressProps.{.key = cast(u64)(TITLE_SIGN_KEY_BASE + hotspot),
         .bounds = board, .label = label, .now = now, .disabled = covered})
     if button.clicked && !covered { TitleQueue(*title_state, hotspot, now) }
 }

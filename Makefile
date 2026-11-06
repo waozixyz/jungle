@@ -224,6 +224,7 @@ test: build/tests/farm build/tests/fishing build/tests/beach_families build/test
 	python3 tests/title_sign_rotation_test.py
 	python3 tests/title_room_test.py
 	python3 tests/title_desert_test.py
+	python3 tests/semantic_keys_test.py
 	python3 tests/canonical_avif_test.py
 	python3 tests/avif_standard_test.py
 	python3 tests/avif_migration_test.py
