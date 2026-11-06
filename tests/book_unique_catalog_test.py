@@ -17,7 +17,7 @@ sys.path.insert(0, str(ROOT / 'tools'))
 import book_catalog
 from book_catalog import (BOOKS, BOOK_GROUPS, LANGUAGES, LEGACY_IDS, LEGACY_NAMES, NAMES,
                           PAGE_NAMES, PENDING_MEDIA, PENDING_TITLE_MEDIA, TITLES, UNIQUE, WORDS,
-                          MINIMUM,
+                          MINIMUM, PLACES,
                           ApplyMinimumBookExpansion, ApplyUniqueExpansion, BuildUniqueBookCatalog, NormalizedLabel,
                           ValidateBookCatalog, narration, voice_path)
 
@@ -173,7 +173,7 @@ class CatalogTest(unittest.TestCase):
     def test_exact_shape_and_uniqueness(self):
         catalog = BuildUniqueBookCatalog()
         self.assertEqual(catalog['books'], BOOKS)
-        self.assertEqual((len(BOOKS), len(PAGE_NAMES), len(set(PAGE_NAMES)), len(NAMES)), (41, 435, 435, 435))
+        self.assertEqual((len(BOOKS), len(PAGE_NAMES), len(set(PAGE_NAMES)), len(NAMES)), (42, 450, 450, 450))
         self.assertEqual(set(PAGE_NAMES), set(NAMES))
         self.assertEqual(set(NAMES), set(WORDS))
         self.assertTrue(all(len(names) >= 10 for _, names in BOOKS))
@@ -187,7 +187,8 @@ class CatalogTest(unittest.TestCase):
                          '980519bf63805b0f5b63724f77eba1b52a90fa440cdfc8dbaccded7c540d578c')
         self.assertEqual(hashlib.sha256('\n'.join(category for category, _ in BOOKS[:39]).encode()).hexdigest(),
                          '904448949d3eb51eaf1bdd7c0df999f29d738e073183f3b8664ff5cecd0a3451')
-        self.assertEqual(NAMES[326:], tuple(MINIMUM['words']))
+        self.assertEqual(NAMES[326:435], tuple(MINIMUM['words']))
+        self.assertEqual(NAMES[435:], tuple(PLACES['words']))
         self.assertEqual(NAMES[:248], LEGACY_NAMES)
         self.assertEqual(NAMES[248:326], tuple(expected_labels()))
         self.assertEqual(tuple(category for category, _ in BOOKS)[:31], LEGACY_IDS)
@@ -195,7 +196,7 @@ class CatalogTest(unittest.TestCase):
                          (31, 'drinks', 'actions'))
         self.assertEqual(tuple(category for category, _ in BOOKS)[31:],
                          ('actions', 'desert-animals', 'insects', 'people-at-work', *NATURE_BOOKS,
-                          'pets', 'on-the-farm'))
+                          'pets', 'on-the-farm', 'places'))
 
     def test_previous_release_saved_ids_are_unchanged(self):
         self.assertEqual(hashlib.sha256('\n'.join(NAMES[:302]).encode()).hexdigest(),
@@ -223,7 +224,9 @@ class CatalogTest(unittest.TestCase):
                                          'budgerigar', 'canary', 'ferret', 'chinchilla'))
         self.assertEqual(books['on-the-farm'], tuple(MINIMUM['books']['on-the-farm']))
         self.assertEqual(dict(BOOK_GROUPS)['Animals'][-3:], ('desert-animals', 'reptiles', 'forest'))
-        self.assertEqual(dict(BOOK_GROUPS)['Home'][-1], 'on-the-farm')
+        self.assertEqual(dict(BOOK_GROUPS)['Home'][-2:], ('on-the-farm', 'places'))
+        self.assertEqual(books['places'], tuple(PLACES['books']['places']))
+        self.assertEqual(TITLES['places'], ['Places', 'Orte', 'Lugares'])
         self.assertEqual(dict(BOOK_GROUPS)['Nature'][-3:], ('insects', 'trees', 'plants'))
         self.assertEqual(dict(BOOK_GROUPS)['Family'][-1], 'people-at-work')
         self.assertEqual(TITLES['actions'], ['Actions', 'Tätigkeiten', 'Acciones'])
@@ -245,7 +248,8 @@ class CatalogTest(unittest.TestCase):
     def test_minimum_expansion_moves_and_appends(self):
         unique_books = ApplyUniqueExpansion(book_catalog._legacy_books, UNIQUE)
         result = ApplyMinimumBookExpansion(unique_books, MINIMUM)
-        self.assertEqual(result, BOOKS)
+        self.assertEqual(result, BOOKS[:41])
+        self.assertEqual(BOOKS[41:], (('places', tuple(PLACES['books']['places'])),))
         expected_old = tuple(
             (category, tuple(name for name in names
                              if category != 'farm' or name not in MINIMUM['moves']['farm'])
@@ -256,7 +260,7 @@ class CatalogTest(unittest.TestCase):
 
     def test_minimum_expansion_media_inventory(self):
         self.assertEqual(len(MINIMUM['words']), 109)
-        self.assertEqual(set(MINIMUM['words']), set(NAMES[326:]))
+        self.assertEqual(set(MINIMUM['words']), set(NAMES[326:435]))
         self.assertTrue(set(MINIMUM['words']) <= set(PENDING_MEDIA))
         self.assertEqual(MINIMUM['titles']['farm'], ['Farm Animals', 'Bauernhoftiere', 'Animales de la granja'])
         self.assertEqual(MINIMUM['titles']['pets'], ['Pets', 'Haustiere', 'Mascotas'])
@@ -406,7 +410,7 @@ class GeneratedRouteTest(unittest.TestCase):
 
     def test_shelf_titles_are_translated(self):
         rows = json.loads((ROOT / 'locales/ui.json').read_text())
-        categories = ('actions', 'desert-animals', 'insects', 'people-at-work', *NATURE_BOOKS, 'farm', 'pets', 'on-the-farm')
+        categories = ('actions', 'desert-animals', 'insects', 'people-at-work', *NATURE_BOOKS, 'farm', 'pets', 'on-the-farm', 'places')
         for category in categories:
             self.assertEqual(rows[TITLES[category][0]], list(TITLES[category][1:]))
         language = (ROOT / 'retro/language.zi').read_text()

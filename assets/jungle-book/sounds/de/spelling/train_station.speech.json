@@ -1,0 +1,134 @@
+{
+  "provider": "local_speech",
+  "model": "kokoro-german-victoria",
+  "pack": {
+    "repository": "soniqo/Kokoro-82M-German-Victoria-ONNX",
+    "revision": "6f9913452e55d35e0db313808d679dd344329d8e",
+    "files": [
+      {
+        "file": "kokoro-e2e.onnx",
+        "bytes": 3643581,
+        "sha256": "de2dbe0a64c003e74a089606410b3880d091cc976b5a35a8031167aa6e36e2c1"
+      },
+      {
+        "file": "kokoro-e2e.onnx.data",
+        "bytes": 162013184,
+        "sha256": "3f43d770f2fa2c3847e892a3a1db40429f5b242f91e4240d884be738526539ad"
+      },
+      {
+        "file": "voices/df_victoria.bin",
+        "bytes": 1024,
+        "sha256": "8f85dcce3fd854bd341f7c1ed4fab86a59e310dfb9d7da6a11239f087255b07f"
+      },
+      {
+        "file": "vocab_index.json",
+        "bytes": 1842,
+        "sha256": "085b753f40080164896d7cb04355222c3e3118391014355bb28e8d06ece62e0a"
+      }
+    ],
+    "provider_sha256": "7b69a5be5321f0cc35718d2091d98ff0c15ebf8315f5f571793eda8303043481"
+  },
+  "voice": "df_victoria",
+  "speed": 1.0,
+  "kind": "spelling",
+  "text": "Bahnhof. be. a. ha. en. ha. o. ef. Bahnhof.",
+  "language": "de",
+  "request_sha256": "3c7d418910b9253fae707abfde9c75fcc2d334e80b6a2c35e2fa71fd9e13ba74",
+  "method": "Verified word, literal letter names, word; PCM assembly",
+  "recipe": {
+    "method": "Verified word, literal letter names, word; PCM assembly",
+    "trim": "book_speech.read_clip",
+    "parts": [
+      {
+        "source": "assets/jungle-book/sounds/de/simple/train_station.wav"
+      },
+      {
+        "silence_frames": 11025
+      },
+      {
+        "source": "assets/jungle-book/sounds/de/letters/0062.wav"
+      },
+      {
+        "silence_frames": 5512
+      },
+      {
+        "source": "assets/jungle-book/sounds/de/letters/0061.wav"
+      },
+      {
+        "silence_frames": 5512
+      },
+      {
+        "source": "assets/jungle-book/sounds/de/letters/0068.wav"
+      },
+      {
+        "silence_frames": 5512
+      },
+      {
+        "source": "assets/jungle-book/sounds/de/letters/006e.wav"
+      },
+      {
+        "silence_frames": 5512
+      },
+      {
+        "source": "assets/jungle-book/sounds/de/letters/0068.wav"
+      },
+      {
+        "silence_frames": 5512
+      },
+      {
+        "source": "assets/jungle-book/sounds/de/letters/006f.wav"
+      },
+      {
+        "silence_frames": 5512
+      },
+      {
+        "source": "assets/jungle-book/sounds/de/letters/0066.wav"
+      },
+      {
+        "silence_frames": 5512
+      },
+      {
+        "silence_frames": 5512
+      },
+      {
+        "source": "assets/jungle-book/sounds/de/simple/train_station.wav"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "path": "assets/jungle-book/sounds/de/simple/train_station.wav",
+      "sha256": "d18ad1edaeb9f527b0bb9d1588da2889169728b2dca956f50ad69d8e7ff25642"
+    },
+    {
+      "path": "assets/jungle-book/sounds/de/letters/0062.wav",
+      "sha256": "a48dacf97ac59465baedaf980e19dcd59a0119a75579afbcd2805c843149a22d"
+    },
+    {
+      "path": "assets/jungle-book/sounds/de/letters/0061.wav",
+      "sha256": "4f9ae082bc049997fe5d685f3a531951f731861accbe83c48e378e3f91f12f7a"
+    },
+    {
+      "path": "assets/jungle-book/sounds/de/letters/0068.wav",
+      "sha256": "ed973d92b90ad79d8d610e593f8712d3fbd4723475e7ecd549550b1d8df9a600"
+    },
+    {
+      "path": "assets/jungle-book/sounds/de/letters/006e.wav",
+      "sha256": "19febbef1ac582e7c22a6fe9796b3cbd76e945af32fa30a2640612d8ceb55ce1"
+    },
+    {
+      "path": "assets/jungle-book/sounds/de/letters/0068.wav",
+      "sha256": "ed973d92b90ad79d8d610e593f8712d3fbd4723475e7ecd549550b1d8df9a600"
+    },
+    {
+      "path": "assets/jungle-book/sounds/de/letters/006f.wav",
+      "sha256": "b993d0be46a867ed02b9b343568f495c03c40dc2ca7c98cfe599fdce98f28a8a"
+    },
+    {
+      "path": "assets/jungle-book/sounds/de/letters/0066.wav",
+      "sha256": "7656e818d40d734b539c9c2c6b13d3adb0d0e0ce190fa300e101f7966f97e899"
+    }
+  ],
+  "sha256": "231fb61125207d6c3bc264483a10f7cc7f5f85da19fc315bfbedc0e50dc787c7",
+  "duration": 8.696281179138323
+}

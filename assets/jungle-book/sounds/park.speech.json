@@ -1,0 +1,39 @@
+{
+  "text": "Park. P. A. R. K. Park.",
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella+af_heart",
+  "language": "en",
+  "speed": 0.8,
+  "profile": "normal",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "blend": {
+    "af_bella": 0.5,
+    "af_heart": 0.5
+  },
+  "method": "Verified word, literal letter names, word; PCM assembly",
+  "sources": [
+    {
+      "path": "assets/jungle-book/sounds/en/simple/park.wav",
+      "sha256": "7dfc8053f143d6980987af0c6c20f8ca57a49b7dd840ae44e6b69241635ad732"
+    },
+    {
+      "path": "assets/jungle-book/sounds/en/letters-bella-heart/0070.wav",
+      "sha256": "bf3414586898246faef6eebbac0ef26b59978fc820d6d4cb6e618db09db08eff"
+    },
+    {
+      "path": "assets/jungle-book/sounds/en/letters-bella-heart/0061.wav",
+      "sha256": "3f4edcefca4b8ae86d97a0e7c106caae008a073298fe9d408f97dbba22ad43a4"
+    },
+    {
+      "path": "assets/jungle-book/sounds/en/letters-bella-heart/0072.wav",
+      "sha256": "488fa6318c7f99eb3a4564d4635ba0c81b68ced783f125c7ae932bffb9242035"
+    },
+    {
+      "path": "assets/jungle-book/sounds/en/letters-bella-heart/006b.wav",
+      "sha256": "e95429aac28531d732ee457335cb18d898279d23b5d8605cd194efae8ce6c8e3"
+    }
+  ],
+  "duration": 6.224489795918367,
+  "sha256": "2b8be60377e8c0b47adc5868592f014207a340ad03195435f8c3b45178db94e8"
+}

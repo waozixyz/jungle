@@ -1,0 +1,164 @@
+{
+  "provider": "local_speech",
+  "model": "kokoro-german-victoria",
+  "pack": {
+    "repository": "soniqo/Kokoro-82M-German-Victoria-ONNX",
+    "revision": "6f9913452e55d35e0db313808d679dd344329d8e",
+    "files": [
+      {
+        "file": "kokoro-e2e.onnx",
+        "bytes": 3643581,
+        "sha256": "de2dbe0a64c003e74a089606410b3880d091cc976b5a35a8031167aa6e36e2c1"
+      },
+      {
+        "file": "kokoro-e2e.onnx.data",
+        "bytes": 162013184,
+        "sha256": "3f43d770f2fa2c3847e892a3a1db40429f5b242f91e4240d884be738526539ad"
+      },
+      {
+        "file": "voices/df_victoria.bin",
+        "bytes": 1024,
+        "sha256": "8f85dcce3fd854bd341f7c1ed4fab86a59e310dfb9d7da6a11239f087255b07f"
+      },
+      {
+        "file": "vocab_index.json",
+        "bytes": 1842,
+        "sha256": "085b753f40080164896d7cb04355222c3e3118391014355bb28e8d06ece62e0a"
+      }
+    ],
+    "provider_sha256": "7b69a5be5321f0cc35718d2091d98ff0c15ebf8315f5f571793eda8303043481"
+  },
+  "voice": "df_victoria",
+  "speed": 1.0,
+  "kind": "spelling",
+  "text": "Feuerwache. ef. e. u. e. er. we. a. ze. ha. e. Feuerwache.",
+  "language": "de",
+  "request_sha256": "549c63443092f978c5d7300bf93f1fea543113203bff70e5562b5b4a03343c5d",
+  "method": "Verified word, literal letter names, word; PCM assembly",
+  "recipe": {
+    "method": "Verified word, literal letter names, word; PCM assembly",
+    "trim": "book_speech.read_clip",
+    "parts": [
+      {
+        "source": "assets/jungle-book/sounds/de/simple/fire_station.wav"
+      },
+      {
+        "silence_frames": 11025
+      },
+      {
+        "source": "assets/jungle-book/sounds/de/letters/0066.wav"
+      },
+      {
+        "silence_frames": 5512
+      },
+      {
+        "source": "assets/jungle-book/sounds/de/letters/0065.wav"
+      },
+      {
+        "silence_frames": 5512
+      },
+      {
+        "source": "assets/jungle-book/sounds/de/letters/0075.wav"
+      },
+      {
+        "silence_frames": 5512
+      },
+      {
+        "source": "assets/jungle-book/sounds/de/letters/0065.wav"
+      },
+      {
+        "silence_frames": 5512
+      },
+      {
+        "source": "assets/jungle-book/sounds/de/letters/0072.wav"
+      },
+      {
+        "silence_frames": 5512
+      },
+      {
+        "source": "assets/jungle-book/sounds/de/letters/0077.wav"
+      },
+      {
+        "silence_frames": 5512
+      },
+      {
+        "source": "assets/jungle-book/sounds/de/letters/0061.wav"
+      },
+      {
+        "silence_frames": 5512
+      },
+      {
+        "source": "assets/jungle-book/sounds/de/letters/0063.wav"
+      },
+      {
+        "silence_frames": 5512
+      },
+      {
+        "source": "assets/jungle-book/sounds/de/letters/0068.wav"
+      },
+      {
+        "silence_frames": 5512
+      },
+      {
+        "source": "assets/jungle-book/sounds/de/letters/0065.wav"
+      },
+      {
+        "silence_frames": 5512
+      },
+      {
+        "silence_frames": 5512
+      },
+      {
+        "source": "assets/jungle-book/sounds/de/simple/fire_station.wav"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "path": "assets/jungle-book/sounds/de/simple/fire_station.wav",
+      "sha256": "f79eef70046a7df8ff579aca0bdb401e77d4af0c0505f3a62922a3892cd45f0e"
+    },
+    {
+      "path": "assets/jungle-book/sounds/de/letters/0066.wav",
+      "sha256": "7656e818d40d734b539c9c2c6b13d3adb0d0e0ce190fa300e101f7966f97e899"
+    },
+    {
+      "path": "assets/jungle-book/sounds/de/letters/0065.wav",
+      "sha256": "41d7aed36ebdf5e0aa684386b3ae9711e6612520f5dc752815dfa5b8f33d481d"
+    },
+    {
+      "path": "assets/jungle-book/sounds/de/letters/0075.wav",
+      "sha256": "6e08e78592bba7933752fddce27b126f3b475fea186d7407a138d0f5ef9100df"
+    },
+    {
+      "path": "assets/jungle-book/sounds/de/letters/0065.wav",
+      "sha256": "41d7aed36ebdf5e0aa684386b3ae9711e6612520f5dc752815dfa5b8f33d481d"
+    },
+    {
+      "path": "assets/jungle-book/sounds/de/letters/0072.wav",
+      "sha256": "c76ff62e13347ec0a691a575dec6f8a54bdc9d2bb0066b8fb3720c440371a74f"
+    },
+    {
+      "path": "assets/jungle-book/sounds/de/letters/0077.wav",
+      "sha256": "b152c122ed28da6d5d8678e9cb049406ef55d2a8f4a23bfaaf0a3e372ef9ae5e"
+    },
+    {
+      "path": "assets/jungle-book/sounds/de/letters/0061.wav",
+      "sha256": "4f9ae082bc049997fe5d685f3a531951f731861accbe83c48e378e3f91f12f7a"
+    },
+    {
+      "path": "assets/jungle-book/sounds/de/letters/0063.wav",
+      "sha256": "4a57a6f995d74d65f0ce89effc1a4727b48867a7295349890ed5a9938a7b5594"
+    },
+    {
+      "path": "assets/jungle-book/sounds/de/letters/0068.wav",
+      "sha256": "ed973d92b90ad79d8d610e593f8712d3fbd4723475e7ecd549550b1d8df9a600"
+    },
+    {
+      "path": "assets/jungle-book/sounds/de/letters/0065.wav",
+      "sha256": "41d7aed36ebdf5e0aa684386b3ae9711e6612520f5dc752815dfa5b8f33d481d"
+    }
+  ],
+  "sha256": "f4e0f30b3a20a5d486ffa710542ec11807e2a550130c77bb14bc90b5c00b542a",
+  "duration": 11.838049886621315
+}

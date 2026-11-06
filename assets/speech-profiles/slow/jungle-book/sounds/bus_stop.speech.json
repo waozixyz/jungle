@@ -1,0 +1,51 @@
+{
+  "text": "Bus stop. B. U. S. S. T. O. P. Bus stop.",
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella+af_heart",
+  "language": "en",
+  "speed": 0.65,
+  "profile": "slow",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "blend": {
+    "af_bella": 0.5,
+    "af_heart": 0.5
+  },
+  "method": "Verified word, literal letter names, word; PCM assembly",
+  "sources": [
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/simple/bus_stop.wav",
+      "sha256": "9857e0a03ba482a315b7101db7238efecbaa6b30c7e4627cd1b56d15a55ade21"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters-bella-heart/0062.wav",
+      "sha256": "ec42ed2bdd1c89f9fe5724f21f1a4203dfa58cf4d621ed2ec34d7b853906d84d"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters-bella-heart/0075.wav",
+      "sha256": "0a8f6036a5f8a814ad55db673c0014d41182eca3e98dea31d5dcaa741fec8ab9"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters-bella-heart/0073.wav",
+      "sha256": "e3b4dd0cb8d944abee92d1ecf10925812d0ce853fc808df488098192661ae7c8"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters-bella-heart/0073.wav",
+      "sha256": "e3b4dd0cb8d944abee92d1ecf10925812d0ce853fc808df488098192661ae7c8"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters-bella-heart/0074.wav",
+      "sha256": "a7d43fb62d56145e542b46965b2fd3bc7b9a9985600b60cfb3b8408148848a09"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters-bella-heart/006f.wav",
+      "sha256": "04fc065854f7cf3140bca0a09f6ac43518b84f448a469bfb88a1577cd4a526f3"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters-bella-heart/0070.wav",
+      "sha256": "30ca7edbe8facbcba390c15250e187356c09cba900f5b9d5e3ca5d3f7b5d5a83"
+    }
+  ],
+  "duration": 11.840907029478458,
+  "sha256": "c88c99306a51981e25c80dd65a149ac7bd06e9a0cc8d3f9d99219e09d6203e33"
+}

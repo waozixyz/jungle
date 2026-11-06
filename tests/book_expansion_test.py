@@ -11,7 +11,7 @@ from PIL import Image, ImageChops, ImageStat
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'tools'))
 from book_catalog import (BOOKS, BOOK_GROUPS, LANGUAGES, LEARNING, NAMES,
-                          MINIMUM, PAGE_NAMES, TITLES, UNIQUE, WORDS, BuildUniqueBookCatalog,
+                          MINIMUM, PAGE_NAMES, PLACES, TITLES, UNIQUE, WORDS, BuildUniqueBookCatalog,
                           narration, voice_path)
 from book_speech import read_clip
 from design_size import design_size
@@ -120,11 +120,11 @@ class LearningBookTest(unittest.TestCase):
     def test_catalog_and_stable_slots(self):
         catalog = BuildUniqueBookCatalog()
         self.assertEqual(catalog['books'], BOOKS)
-        self.assertEqual(tuple(c for c, _ in BOOKS), OLD_IDS + NEW_IDS + ADDED_IDS + LATEST_IDS + NATURE_IDS + ('pets', 'on-the-farm'))
-        self.assertEqual((len(NAMES), len(set(NAMES)), len(PAGE_NAMES)), (435, 435, 435))
+        self.assertEqual(tuple(c for c, _ in BOOKS), OLD_IDS + NEW_IDS + ADDED_IDS + LATEST_IDS + NATURE_IDS + ('pets', 'on-the-farm', 'places'))
+        self.assertEqual((len(NAMES), len(set(NAMES)), len(PAGE_NAMES)), (450, 450, 450))
         self.assertTrue(all(len(names) >= 10 for _, names in BOOKS))
         self.assertEqual(len(MINIMUM['words']), 109)
-        self.assertEqual(NAMES[326:], tuple(MINIMUM['words']))
+        self.assertEqual(NAMES[326:435], tuple(MINIMUM['words']))
         self.assertEqual(hashlib.sha256('\n'.join(NAMES[:326]).encode()).hexdigest(),
                          '980519bf63805b0f5b63724f77eba1b52a90fa440cdfc8dbaccded7c540d578c')
         self.assertEqual(len(LEARNING['words']), 37)
@@ -145,7 +145,7 @@ class LearningBookTest(unittest.TestCase):
         self.assertEqual(shared, REUSED)
         pages = (ROOT / 'games/book/book_pages.zi').read_text()
         voices = (ROOT / 'games/book/book_voice.zi').read_text()
-        self.assertIn('CATEGORY_COUNT :: 41', pages)
+        self.assertIn('CATEGORY_COUNT :: 42', pages)
         # The learning books once reused these words; each now has one home page.
         for name in REUSED:
             self.assertEqual(PAGE_NAMES.count(name), 1)
@@ -245,7 +245,7 @@ class LearningBookTest(unittest.TestCase):
         # Exclude only explicitly new filenames. Any changed/missing old file or
         # unexpected extra asset changes this durable aggregate, even after commit.
         new_stems = (set(LEARNING['words']) | set(UNIQUE['words']) | set(NEW_IDS) | set(ADDED_IDS) | set(LATEST_IDS) | set(NATURE_IDS)
-                     | set(MINIMUM['words']) | {'pets', 'on-the-farm'}
+                     | set(MINIMUM['words']) | {'pets', 'on-the-farm'} | set(PLACES['words']) | {'places'}
                      | {stem for stems in UNIQUE['voice_stems'].values() for stem in stems.values()})
         # The separately validated story adds these exact files; it cannot
         # exempt or change any preexisting word-book source in the aggregate.
@@ -267,6 +267,8 @@ class LearningBookTest(unittest.TestCase):
         # The new collection feedback sound is not historical book artwork.
         # Exempt its exact path, preserving the original count and digest.
         added_sounds = {'assets/jungle-book/collect.wav'}
+        # The Places book's own Bella+Heart letter names (tests/book_places_test.py).
+        added_sounds |= {path.relative_to(ROOT).as_posix() for path in (ROOT / 'assets/jungle-book/sounds/en/letters-bella-heart').glob('*')}
         current = []
         for folder in ('assets/jungle-book', 'assets/abc'):
             for path in (ROOT / folder).rglob('*'):

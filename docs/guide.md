@@ -19,20 +19,22 @@ returns home from its first screen. The sound button at the top right mutes
 or unmutes every game.
 Accented German and Spanish letters work in Dino stories, saves and exports.
 
-**Picture Book** has 41 organized books and 435 unique picture words. Every book
+**Picture Book** has 42 organized books and 450 unique picture words. Every book
 has at least ten pages. Animals includes Wild Animals, Farm Animals, Pets, Birds,
 Water Animals, Desert Animals, Reptiles and Forest. Nature explores Garden,
 Nature, Seasons, Weather, Beach, Gardening, Insects, Trees and Plants. Food brings
 together Fruits, Vegetables, Breakfast, Lunch, Dinner, Tropical Fruits and Drinks.
 Home includes Kitchen, Bathroom, Bedroom, Living Room, Toys, Vehicles, Bedtime,
-Vacation, School and Farm, with tractors, barns and farm tools. Family includes
+Vacation, School, Farm, with tractors, barns and farm tools, and Places: the
+plaza, park, zoo, aquarium, city streets, traffic lights, crosswalks, market,
+playground, train station, library and fire station. Family includes
 Family, Body Parts, Clothing, Sports, Feelings, Actions and People at Work. Browse the framed book list through Animals, Nature, Food, Home and Family tabs. Every page is one gentle watercolor
 scene in the style of the title-screen covers: each animal, food or thing sits
 in its own setting, so no two pages share a background. Breakfast pages are
 drawn in morning light, Lunch at midday and Dinner in the evening. The scene
 fills the page and its word sits on a label at the bottom. Choose **Simple** to hear each word once with
 its picture, or **Spelling** to hear the word, its letters and the word again.
-The selected mode is remembered. Every one of the 435 distinct picture words has names and
+The selected mode is remembered. Every one of the 450 distinct picture words has names and
 both kinds of narration in English, German and Spanish, including correctly
 spaced accented letters. Each cover lists its page count. Manually selected pages
 speak even when automatic page turns are paused; Hear word repeats the current word.
@@ -53,7 +55,7 @@ on the shelf offers independent **Hide book** and **In autoplay / Skip autoplay*
 choices. Hidden books disappear from the shelf and automatic reading; a book
 excluded from autoplay remains available to read manually. All choices are
 remembered, and selecting no books for autoplay stops at the finish screen.
-Each subject belongs to only one of the 435 pages, so playing every book never
+Each subject belongs to only one of the 450 pages, so playing every book never
 repeats a subject. Sports includes badminton, while Actions explores cooking,
 cleaning, reading, drawing, singing, washing hands, brushing teeth and watering plants.
 

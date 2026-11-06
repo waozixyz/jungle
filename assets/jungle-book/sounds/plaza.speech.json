@@ -1,0 +1,43 @@
+{
+  "text": "Plaza. P. L. A. Z. A. Plaza.",
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella+af_heart",
+  "language": "en",
+  "speed": 0.8,
+  "profile": "normal",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "blend": {
+    "af_bella": 0.5,
+    "af_heart": 0.5
+  },
+  "method": "Verified word, literal letter names, word; PCM assembly",
+  "sources": [
+    {
+      "path": "assets/jungle-book/sounds/en/simple/plaza.wav",
+      "sha256": "acb90d86ce2f0813be48866e7b12336a694090d82e1335701b28e37571dd3927"
+    },
+    {
+      "path": "assets/jungle-book/sounds/en/letters-bella-heart/0070.wav",
+      "sha256": "bf3414586898246faef6eebbac0ef26b59978fc820d6d4cb6e618db09db08eff"
+    },
+    {
+      "path": "assets/jungle-book/sounds/en/letters-bella-heart/006c.wav",
+      "sha256": "12490750a7e358603d4273264640ca4b670564b792ec1a759651db47a06dd9a5"
+    },
+    {
+      "path": "assets/jungle-book/sounds/en/letters-bella-heart/0061.wav",
+      "sha256": "3f4edcefca4b8ae86d97a0e7c106caae008a073298fe9d408f97dbba22ad43a4"
+    },
+    {
+      "path": "assets/jungle-book/sounds/en/letters-bella-heart/007a.wav",
+      "sha256": "088b54a6e22f16d2d85f7869923f8061b28c85b8f0afea275f1172b18e05bf6d"
+    },
+    {
+      "path": "assets/jungle-book/sounds/en/letters-bella-heart/0061.wav",
+      "sha256": "3f4edcefca4b8ae86d97a0e7c106caae008a073298fe9d408f97dbba22ad43a4"
+    }
+  ],
+  "duration": 7.058548752834467,
+  "sha256": "18653d81ad861627aed49a7bc3ed1b27e0a6a215b6d4c12408a19b9a8c8d1067"
+}

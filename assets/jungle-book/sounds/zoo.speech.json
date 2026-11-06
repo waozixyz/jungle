@@ -1,0 +1,35 @@
+{
+  "text": "Zoo. Z. O. O. Zoo.",
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella+af_heart",
+  "language": "en",
+  "speed": 0.8,
+  "profile": "normal",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "blend": {
+    "af_bella": 0.5,
+    "af_heart": 0.5
+  },
+  "method": "Verified word, literal letter names, word; PCM assembly",
+  "sources": [
+    {
+      "path": "assets/jungle-book/sounds/en/simple/zoo.wav",
+      "sha256": "8e36c646d69914f7b11124664f8bc507c12f6143b046f5f976e10953798bd688"
+    },
+    {
+      "path": "assets/jungle-book/sounds/en/letters-bella-heart/007a.wav",
+      "sha256": "088b54a6e22f16d2d85f7869923f8061b28c85b8f0afea275f1172b18e05bf6d"
+    },
+    {
+      "path": "assets/jungle-book/sounds/en/letters-bella-heart/006f.wav",
+      "sha256": "d3ea449bdc3001c30763f0a3ac5944ab8ad921e94a2d5cec262b331fa938163c"
+    },
+    {
+      "path": "assets/jungle-book/sounds/en/letters-bella-heart/006f.wav",
+      "sha256": "d3ea449bdc3001c30763f0a3ac5944ab8ad921e94a2d5cec262b331fa938163c"
+    }
+  ],
+  "duration": 4.931746031746032,
+  "sha256": "aaf6ac789526bf30f8717f6bd9714a6bbbc53605744d438af2eb789845bb8967"
+}

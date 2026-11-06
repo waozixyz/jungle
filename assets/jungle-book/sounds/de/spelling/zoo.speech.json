@@ -1,0 +1,94 @@
+{
+  "provider": "local_speech",
+  "model": "kokoro-german-victoria",
+  "pack": {
+    "repository": "soniqo/Kokoro-82M-German-Victoria-ONNX",
+    "revision": "6f9913452e55d35e0db313808d679dd344329d8e",
+    "files": [
+      {
+        "file": "kokoro-e2e.onnx",
+        "bytes": 3643581,
+        "sha256": "de2dbe0a64c003e74a089606410b3880d091cc976b5a35a8031167aa6e36e2c1"
+      },
+      {
+        "file": "kokoro-e2e.onnx.data",
+        "bytes": 162013184,
+        "sha256": "3f43d770f2fa2c3847e892a3a1db40429f5b242f91e4240d884be738526539ad"
+      },
+      {
+        "file": "voices/df_victoria.bin",
+        "bytes": 1024,
+        "sha256": "8f85dcce3fd854bd341f7c1ed4fab86a59e310dfb9d7da6a11239f087255b07f"
+      },
+      {
+        "file": "vocab_index.json",
+        "bytes": 1842,
+        "sha256": "085b753f40080164896d7cb04355222c3e3118391014355bb28e8d06ece62e0a"
+      }
+    ],
+    "provider_sha256": "7b69a5be5321f0cc35718d2091d98ff0c15ebf8315f5f571793eda8303043481"
+  },
+  "voice": "df_victoria",
+  "speed": 1.0,
+  "kind": "spelling",
+  "text": "Zoo. zett. o. o. Zoo.",
+  "language": "de",
+  "request_sha256": "71e45a6d912e400b1e7cd92e1e6deb5a6e6afeb944034d8813e4d0954ff2f850",
+  "method": "Verified word, literal letter names, word; PCM assembly",
+  "recipe": {
+    "method": "Verified word, literal letter names, word; PCM assembly",
+    "trim": "book_speech.read_clip",
+    "parts": [
+      {
+        "source": "assets/jungle-book/sounds/de/simple/zoo.wav"
+      },
+      {
+        "silence_frames": 11025
+      },
+      {
+        "source": "assets/jungle-book/sounds/de/letters/007a.wav"
+      },
+      {
+        "silence_frames": 5512
+      },
+      {
+        "source": "assets/jungle-book/sounds/de/letters/006f.wav"
+      },
+      {
+        "silence_frames": 5512
+      },
+      {
+        "source": "assets/jungle-book/sounds/de/letters/006f.wav"
+      },
+      {
+        "silence_frames": 5512
+      },
+      {
+        "silence_frames": 5512
+      },
+      {
+        "source": "assets/jungle-book/sounds/de/simple/zoo.wav"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "path": "assets/jungle-book/sounds/de/simple/zoo.wav",
+      "sha256": "280ed28bada4dd25902547a7a2c437ae4ba8c834b60a61cedeb5c648a74652c9"
+    },
+    {
+      "path": "assets/jungle-book/sounds/de/letters/007a.wav",
+      "sha256": "a627766e72b374bd6a760d689168063bb20b930815854a4df46cfa66ffcfdb64"
+    },
+    {
+      "path": "assets/jungle-book/sounds/de/letters/006f.wav",
+      "sha256": "b993d0be46a867ed02b9b343568f495c03c40dc2ca7c98cfe599fdce98f28a8a"
+    },
+    {
+      "path": "assets/jungle-book/sounds/de/letters/006f.wav",
+      "sha256": "b993d0be46a867ed02b9b343568f495c03c40dc2ca7c98cfe599fdce98f28a8a"
+    }
+  ],
+  "sha256": "a7b38f1db29d62ccbf04f1e3bb2ff7ff2146e869db28fdf5fb1f2fe689cf1c6e",
+  "duration": 4.771927437641724
+}

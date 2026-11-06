@@ -20,13 +20,13 @@ Small provenance records needed to validate shipped artwork live in
 
 ## Little discoveries, every day
 
-- **Picture Book:** Explore 41 illustrated books filled with animals, food,
+- **Picture Book:** Explore 42 illustrated books filled with animals, food,
   family, seasons, vacation, sports, the beach, weather and feelings. Learn hot
   and cold, wet and dry, tired and rested through gentle scenes. Listen to each word or hear it spelled
   out, and turn the pages together. Discover Birds, Toys, Vehicles and Bedtime,
   hide unwanted books, and choose which books play automatically. New books
   explore tropical fruits, gardening, school, water animals, drinks and everyday
-  actions, desert animals, insects and people at work. Across 435 pages, every
+  actions, desert animals, insects, people at work and places in town. Across 450 pages, every
   subject appears only once; Sports now includes
   badminton, and Actions includes cooking, cleaning, washing hands and more. Every book has
   at least ten pages; Farm Animals and Pets are separate, and Farm explores

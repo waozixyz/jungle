@@ -1,0 +1,39 @@
+{
+  "provider": "local_speech",
+  "model": "kokoro-german-victoria",
+  "pack": {
+    "repository": "soniqo/Kokoro-82M-German-Victoria-ONNX",
+    "revision": "6f9913452e55d35e0db313808d679dd344329d8e",
+    "files": [
+      {
+        "file": "kokoro-e2e.onnx",
+        "bytes": 3643581,
+        "sha256": "de2dbe0a64c003e74a089606410b3880d091cc976b5a35a8031167aa6e36e2c1"
+      },
+      {
+        "file": "kokoro-e2e.onnx.data",
+        "bytes": 162013184,
+        "sha256": "3f43d770f2fa2c3847e892a3a1db40429f5b242f91e4240d884be738526539ad"
+      },
+      {
+        "file": "voices/df_victoria.bin",
+        "bytes": 1024,
+        "sha256": "8f85dcce3fd854bd341f7c1ed4fab86a59e310dfb9d7da6a11239f087255b07f"
+      },
+      {
+        "file": "vocab_index.json",
+        "bytes": 1842,
+        "sha256": "085b753f40080164896d7cb04355222c3e3118391014355bb28e8d06ece62e0a"
+      }
+    ],
+    "provider_sha256": "7b69a5be5321f0cc35718d2091d98ff0c15ebf8315f5f571793eda8303043481"
+  },
+  "voice": "df_victoria",
+  "speed": 1.0,
+  "kind": "word",
+  "text": "Bushaltestelle.",
+  "language": "de",
+  "request_sha256": "5c3ea9e37b70399fca5c0a02e53e391cd2b45d18724d51c20a841d8572139bd2",
+  "sha256": "9df7f51fd1c3fa3490f5c7651beeebe2fb5373a151114e55a32c285d88f5e97e",
+  "duration": 1.6250340136054422
+}

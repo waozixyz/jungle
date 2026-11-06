@@ -1,0 +1,47 @@
+{
+  "text": "Street. S. T. R. E. E. T. Street.",
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella+af_heart",
+  "language": "en",
+  "speed": 0.65,
+  "profile": "slow",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "blend": {
+    "af_bella": 0.5,
+    "af_heart": 0.5
+  },
+  "method": "Verified word, literal letter names, word; PCM assembly",
+  "sources": [
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/simple/street.wav",
+      "sha256": "2db096f538e2d1add04cc5625ee11123931265ae7e9ce2e02f31af52c6dd0a4a"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters-bella-heart/0073.wav",
+      "sha256": "e3b4dd0cb8d944abee92d1ecf10925812d0ce853fc808df488098192661ae7c8"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters-bella-heart/0074.wav",
+      "sha256": "a7d43fb62d56145e542b46965b2fd3bc7b9a9985600b60cfb3b8408148848a09"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters-bella-heart/0072.wav",
+      "sha256": "cc5c1ac2b2c1d32a9850548928e6f35fd1508fcd32d43c2784f72100c49b93c8"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters-bella-heart/0065.wav",
+      "sha256": "0d99ac5e9f3db2196e86b1ca6e19e974c2bc1eebe35aa33424e5f789ffbd3a67"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters-bella-heart/0065.wav",
+      "sha256": "0d99ac5e9f3db2196e86b1ca6e19e974c2bc1eebe35aa33424e5f789ffbd3a67"
+    },
+    {
+      "path": "assets/speech-profiles/slow/jungle-book/sounds/en/letters-bella-heart/0074.wav",
+      "sha256": "a7d43fb62d56145e542b46965b2fd3bc7b9a9985600b60cfb3b8408148848a09"
+    }
+  ],
+  "duration": 9.803083900226758,
+  "sha256": "a00309e84261b008327a48063e353daa662826c46de83eb711d373198f6f75e5"
+}

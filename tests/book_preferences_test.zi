@@ -49,11 +49,11 @@ main :: () -> s32 {
 
     // Saved slots stay put; appended books join their groups on the shelf.
     last := shelf_order[CATEGORY_COUNT - 1]
-    if CATEGORY_COUNT != 41 || category_ids[30] != "drinks" || category_ids[31] != "actions" || category_ids[last] != "people-at-work" { return 9 }
+    if CATEGORY_COUNT != 42 || category_ids[30] != "drinks" || category_ids[31] != "actions" || category_ids[last] != "people-at-work" { return 9 }
     if last != 34 || category_ids[35] != "reptiles" || category_ids[36] != "trees" || category_ids[37] != "plants" || category_ids[38] != "forest" { return 10 }
     if category_groups[35] != 0 || category_groups[36] != 1 || category_groups[37] != 1 || category_groups[38] != 0 { return 10 }
     if category_groups[last] != BOOK_GROUP_COUNT - 1 { return 10 }
-    if category_ids[39] != "pets" || category_ids[40] != "on-the-farm" { return 10 }
+    if category_ids[39] != "pets" || category_ids[40] != "on-the-farm" || category_ids[41] != "places" || category_groups[41] != 3 { return 10 }
     if category_groups[39] != 0 || category_groups[40] != 3 { return 10 }
 
     if BOOK_GROUP_COUNT != 5 || book_groups[0] != "Animals" || book_groups[1] != "Nature" { return 11 }
@@ -66,7 +66,7 @@ main :: () -> s32 {
         if category_counts[at] < 10 { return 11 }
         total += category_counts[at]
     }
-    if total != 435 { return 11 }
+    if total != 450 { return 11 }
     for at: cast(s32)0..CATEGORY_COUNT - 1 {
         if PlayAllPages(at) != total { return 12 }
     }

@@ -1,0 +1,104 @@
+{
+  "provider": "local_speech",
+  "model": "kokoro-german-victoria",
+  "pack": {
+    "repository": "soniqo/Kokoro-82M-German-Victoria-ONNX",
+    "revision": "6f9913452e55d35e0db313808d679dd344329d8e",
+    "files": [
+      {
+        "file": "kokoro-e2e.onnx",
+        "bytes": 3643581,
+        "sha256": "de2dbe0a64c003e74a089606410b3880d091cc976b5a35a8031167aa6e36e2c1"
+      },
+      {
+        "file": "kokoro-e2e.onnx.data",
+        "bytes": 162013184,
+        "sha256": "3f43d770f2fa2c3847e892a3a1db40429f5b242f91e4240d884be738526539ad"
+      },
+      {
+        "file": "voices/df_victoria.bin",
+        "bytes": 1024,
+        "sha256": "8f85dcce3fd854bd341f7c1ed4fab86a59e310dfb9d7da6a11239f087255b07f"
+      },
+      {
+        "file": "vocab_index.json",
+        "bytes": 1842,
+        "sha256": "085b753f40080164896d7cb04355222c3e3118391014355bb28e8d06ece62e0a"
+      }
+    ],
+    "provider_sha256": "7b69a5be5321f0cc35718d2091d98ff0c15ebf8315f5f571793eda8303043481"
+  },
+  "voice": "df_victoria",
+  "speed": 1.0,
+  "kind": "spelling",
+  "text": "Park. pe. a. er. ka. Park.",
+  "language": "de",
+  "request_sha256": "54605f083f9f9eacf63b47118269d162228636c8aef410674601e468d10257c7",
+  "method": "Verified word, literal letter names, word; PCM assembly",
+  "recipe": {
+    "method": "Verified word, literal letter names, word; PCM assembly",
+    "trim": "book_speech.read_clip",
+    "parts": [
+      {
+        "source": "assets/jungle-book/sounds/de/simple/park.wav"
+      },
+      {
+        "silence_frames": 11025
+      },
+      {
+        "source": "assets/jungle-book/sounds/de/letters/0070.wav"
+      },
+      {
+        "silence_frames": 5512
+      },
+      {
+        "source": "assets/jungle-book/sounds/de/letters/0061.wav"
+      },
+      {
+        "silence_frames": 5512
+      },
+      {
+        "source": "assets/jungle-book/sounds/de/letters/0072.wav"
+      },
+      {
+        "silence_frames": 5512
+      },
+      {
+        "source": "assets/jungle-book/sounds/de/letters/006b.wav"
+      },
+      {
+        "silence_frames": 5512
+      },
+      {
+        "silence_frames": 5512
+      },
+      {
+        "source": "assets/jungle-book/sounds/de/simple/park.wav"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "path": "assets/jungle-book/sounds/de/simple/park.wav",
+      "sha256": "a2f1a89e8ca17d22de0768343e69310c08b2acb6557c06a68593992d37062404"
+    },
+    {
+      "path": "assets/jungle-book/sounds/de/letters/0070.wav",
+      "sha256": "f8ccc4b36764659902717be089a99212f8aa48ce94d3df89e8e04f532506ec46"
+    },
+    {
+      "path": "assets/jungle-book/sounds/de/letters/0061.wav",
+      "sha256": "4f9ae082bc049997fe5d685f3a531951f731861accbe83c48e378e3f91f12f7a"
+    },
+    {
+      "path": "assets/jungle-book/sounds/de/letters/0072.wav",
+      "sha256": "c76ff62e13347ec0a691a575dec6f8a54bdc9d2bb0066b8fb3720c440371a74f"
+    },
+    {
+      "path": "assets/jungle-book/sounds/de/letters/006b.wav",
+      "sha256": "ed830caf4506bd724a2352609a532f2dcc3967234004faadb14d4190a22fa986"
+    }
+  ],
+  "sha256": "12d324bf8efc28705b26e6e8a042ca5a4facb537f6e36827afd43033e156a9a1",
+  "duration": 6.209569160997733
+}

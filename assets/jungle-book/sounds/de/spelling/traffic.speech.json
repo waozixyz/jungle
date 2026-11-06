@@ -1,0 +1,134 @@
+{
+  "provider": "local_speech",
+  "model": "kokoro-german-victoria",
+  "pack": {
+    "repository": "soniqo/Kokoro-82M-German-Victoria-ONNX",
+    "revision": "6f9913452e55d35e0db313808d679dd344329d8e",
+    "files": [
+      {
+        "file": "kokoro-e2e.onnx",
+        "bytes": 3643581,
+        "sha256": "de2dbe0a64c003e74a089606410b3880d091cc976b5a35a8031167aa6e36e2c1"
+      },
+      {
+        "file": "kokoro-e2e.onnx.data",
+        "bytes": 162013184,
+        "sha256": "3f43d770f2fa2c3847e892a3a1db40429f5b242f91e4240d884be738526539ad"
+      },
+      {
+        "file": "voices/df_victoria.bin",
+        "bytes": 1024,
+        "sha256": "8f85dcce3fd854bd341f7c1ed4fab86a59e310dfb9d7da6a11239f087255b07f"
+      },
+      {
+        "file": "vocab_index.json",
+        "bytes": 1842,
+        "sha256": "085b753f40080164896d7cb04355222c3e3118391014355bb28e8d06ece62e0a"
+      }
+    ],
+    "provider_sha256": "7b69a5be5321f0cc35718d2091d98ff0c15ebf8315f5f571793eda8303043481"
+  },
+  "voice": "df_victoria",
+  "speed": 1.0,
+  "kind": "spelling",
+  "text": "Verkehr. fau. e. er. ka. e. ha. er. Verkehr.",
+  "language": "de",
+  "request_sha256": "06fc26ba3de3f5b325c6845a0d5884d59fb46bd4e0b25fb705abc3ca966ea335",
+  "method": "Verified word, literal letter names, word; PCM assembly",
+  "recipe": {
+    "method": "Verified word, literal letter names, word; PCM assembly",
+    "trim": "book_speech.read_clip",
+    "parts": [
+      {
+        "source": "assets/jungle-book/sounds/de/simple/traffic.wav"
+      },
+      {
+        "silence_frames": 11025
+      },
+      {
+        "source": "assets/jungle-book/sounds/de/letters/0076.wav"
+      },
+      {
+        "silence_frames": 5512
+      },
+      {
+        "source": "assets/jungle-book/sounds/de/letters/0065.wav"
+      },
+      {
+        "silence_frames": 5512
+      },
+      {
+        "source": "assets/jungle-book/sounds/de/letters/0072.wav"
+      },
+      {
+        "silence_frames": 5512
+      },
+      {
+        "source": "assets/jungle-book/sounds/de/letters/006b.wav"
+      },
+      {
+        "silence_frames": 5512
+      },
+      {
+        "source": "assets/jungle-book/sounds/de/letters/0065.wav"
+      },
+      {
+        "silence_frames": 5512
+      },
+      {
+        "source": "assets/jungle-book/sounds/de/letters/0068.wav"
+      },
+      {
+        "silence_frames": 5512
+      },
+      {
+        "source": "assets/jungle-book/sounds/de/letters/0072.wav"
+      },
+      {
+        "silence_frames": 5512
+      },
+      {
+        "silence_frames": 5512
+      },
+      {
+        "source": "assets/jungle-book/sounds/de/simple/traffic.wav"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "path": "assets/jungle-book/sounds/de/simple/traffic.wav",
+      "sha256": "e441516a2321a04f67f302946bc265c6feba81a09e0c8cc06a6b8909578cb972"
+    },
+    {
+      "path": "assets/jungle-book/sounds/de/letters/0076.wav",
+      "sha256": "c2cfe859c990a835549d96616402449c1bfe8ff7373167c965c81d4079088a6f"
+    },
+    {
+      "path": "assets/jungle-book/sounds/de/letters/0065.wav",
+      "sha256": "41d7aed36ebdf5e0aa684386b3ae9711e6612520f5dc752815dfa5b8f33d481d"
+    },
+    {
+      "path": "assets/jungle-book/sounds/de/letters/0072.wav",
+      "sha256": "c76ff62e13347ec0a691a575dec6f8a54bdc9d2bb0066b8fb3720c440371a74f"
+    },
+    {
+      "path": "assets/jungle-book/sounds/de/letters/006b.wav",
+      "sha256": "ed830caf4506bd724a2352609a532f2dcc3967234004faadb14d4190a22fa986"
+    },
+    {
+      "path": "assets/jungle-book/sounds/de/letters/0065.wav",
+      "sha256": "41d7aed36ebdf5e0aa684386b3ae9711e6612520f5dc752815dfa5b8f33d481d"
+    },
+    {
+      "path": "assets/jungle-book/sounds/de/letters/0068.wav",
+      "sha256": "ed973d92b90ad79d8d610e593f8712d3fbd4723475e7ecd549550b1d8df9a600"
+    },
+    {
+      "path": "assets/jungle-book/sounds/de/letters/0072.wav",
+      "sha256": "c76ff62e13347ec0a691a575dec6f8a54bdc9d2bb0066b8fb3720c440371a74f"
+    }
+  ],
+  "sha256": "62c087563c4740abe26059b69a9048659070b5bfb2caa7d19990fb5587175b2c",
+  "duration": 8.810521541950113
+}

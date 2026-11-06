@@ -1,0 +1,59 @@
+{
+  "text": "Crosswalk. C. R. O. S. S. W. A. L. K. Crosswalk.",
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella+af_heart",
+  "language": "en",
+  "speed": 1.0,
+  "profile": "fast",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "blend": {
+    "af_bella": 0.5,
+    "af_heart": 0.5
+  },
+  "method": "Verified word, literal letter names, word; PCM assembly",
+  "sources": [
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/simple/crosswalk.wav",
+      "sha256": "e53a06b5484f1356ba192d826c2eb3e4c088cdd59374e69fe429822411dc06e9"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters-bella-heart/0063.wav",
+      "sha256": "a780d445841c6b46330a940580bce4079db1b95dac6382f8840158236478ed39"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters-bella-heart/0072.wav",
+      "sha256": "e441fee45ab7c6eb159164fd0bb9adc0963dec16cda4bd330f539753b78331ee"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters-bella-heart/006f.wav",
+      "sha256": "c6dc6febb24b6836dcef080e93d2f989a351b544b0e33145b7f89413b6912169"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters-bella-heart/0073.wav",
+      "sha256": "aace7fc003f00060db19956e18b1958ffb8da926048216ab01c820d588d64c6f"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters-bella-heart/0073.wav",
+      "sha256": "aace7fc003f00060db19956e18b1958ffb8da926048216ab01c820d588d64c6f"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters-bella-heart/0077.wav",
+      "sha256": "f7838281e165e80bd04a4f123c155aa5ee045794323eafa3ae8dcbcb5a5f9d4e"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters-bella-heart/0061.wav",
+      "sha256": "6a9cdbd6b0e093a9ef59c89239f37762717e853bcf5e302eab6af4920f51b5a0"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters-bella-heart/006c.wav",
+      "sha256": "78717aca1b878973359c7aa97df63c75aa2a35113285eddcbb60ae4f8cea3461"
+    },
+    {
+      "path": "assets/speech-profiles/fast/jungle-book/sounds/en/letters-bella-heart/006b.wav",
+      "sha256": "88c12aeed1cffc5d2bf528e8e2ce5822ff376ee5c4c92f57c6c4594ba324f9ac"
+    }
+  ],
+  "duration": 9.582040816326531,
+  "sha256": "e75f6a00afb8a06adf6fb78b11bb075bfced99408b4dab0d30cd910c83dab97b"
+}

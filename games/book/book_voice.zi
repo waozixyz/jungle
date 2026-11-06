@@ -449,10 +449,25 @@ voice_paths_en_spelling_384: [48]string = .[
     "assets/jungle-book/sounds/farm_fence.wav",
     "assets/jungle-book/sounds/stable.wav",
 ];
-voice_paths_en_spelling_432: [3]string = .[
+voice_paths_en_spelling_432: [18]string = .[
     "assets/jungle-book/sounds/chicken_coop.wav",
     "assets/jungle-book/sounds/well.wav",
     "assets/jungle-book/sounds/wheelbarrow.wav",
+    "assets/jungle-book/sounds/plaza.wav",
+    "assets/jungle-book/sounds/park.wav",
+    "assets/jungle-book/sounds/zoo.wav",
+    "assets/jungle-book/sounds/aquarium.wav",
+    "assets/jungle-book/sounds/city.wav",
+    "assets/jungle-book/sounds/street.wav",
+    "assets/jungle-book/sounds/traffic.wav",
+    "assets/jungle-book/sounds/traffic_light.wav",
+    "assets/jungle-book/sounds/crosswalk.wav",
+    "assets/jungle-book/sounds/bus_stop.wav",
+    "assets/jungle-book/sounds/market.wav",
+    "assets/jungle-book/sounds/playground.wav",
+    "assets/jungle-book/sounds/train_station.wav",
+    "assets/jungle-book/sounds/library.wav",
+    "assets/jungle-book/sounds/fire_station.wav",
 ];
 VoicePath_en_spelling :: (at: s32) -> string {
     if at < 48 { return voice_paths_en_spelling_0[at - 0] }
@@ -464,7 +479,7 @@ VoicePath_en_spelling :: (at: s32) -> string {
     if at < 336 { return voice_paths_en_spelling_288[at - 288] }
     if at < 384 { return voice_paths_en_spelling_336[at - 336] }
     if at < 432 { return voice_paths_en_spelling_384[at - 384] }
-    if at < 435 { return voice_paths_en_spelling_432[at - 432] }
+    if at < 450 { return voice_paths_en_spelling_432[at - 432] }
     return ""
 }
 voice_seconds_en_spelling_0: [48]float64 = .[
@@ -917,10 +932,25 @@ voice_seconds_en_spelling_384: [48]float64 = .[
     6.671927,
     7.913061,
 ];
-voice_seconds_en_spelling_432: [3]float64 = .[
+voice_seconds_en_spelling_432: [18]float64 = .[
     13.206395,
     5.925850,
     13.475193,
+    7.058549,
+    6.224490,
+    4.931746,
+    10.170930,
+    5.972336,
+    8.115782,
+    9.090431,
+    14.752245,
+    11.556417,
+    9.891474,
+    8.221451,
+    12.157370,
+    14.837143,
+    9.325442,
+    13.840363,
 ];
 VoiceSeconds_en_spelling :: (at: s32) -> float64 {
     if at < 48 { return voice_seconds_en_spelling_0[at - 0] }
@@ -932,7 +962,7 @@ VoiceSeconds_en_spelling :: (at: s32) -> float64 {
     if at < 336 { return voice_seconds_en_spelling_288[at - 288] }
     if at < 384 { return voice_seconds_en_spelling_336[at - 336] }
     if at < 432 { return voice_seconds_en_spelling_384[at - 384] }
-    if at < 435 { return voice_seconds_en_spelling_432[at - 432] }
+    if at < 450 { return voice_seconds_en_spelling_432[at - 432] }
     return 0.0
 }
 voice_paths_en_simple_0: [48]string = .[
@@ -1385,10 +1415,25 @@ voice_paths_en_simple_384: [48]string = .[
     "assets/jungle-book/sounds/en/simple/farm_fence.wav",
     "assets/jungle-book/sounds/en/simple/stable.wav",
 ];
-voice_paths_en_simple_432: [3]string = .[
+voice_paths_en_simple_432: [18]string = .[
     "assets/jungle-book/sounds/en/simple/chicken_coop.wav",
     "assets/jungle-book/sounds/en/simple/well.wav",
     "assets/jungle-book/sounds/en/simple/wheelbarrow.wav",
+    "assets/jungle-book/sounds/en/simple/plaza.wav",
+    "assets/jungle-book/sounds/en/simple/park.wav",
+    "assets/jungle-book/sounds/en/simple/zoo.wav",
+    "assets/jungle-book/sounds/en/simple/aquarium.wav",
+    "assets/jungle-book/sounds/en/simple/city.wav",
+    "assets/jungle-book/sounds/en/simple/street.wav",
+    "assets/jungle-book/sounds/en/simple/traffic.wav",
+    "assets/jungle-book/sounds/en/simple/traffic_light.wav",
+    "assets/jungle-book/sounds/en/simple/crosswalk.wav",
+    "assets/jungle-book/sounds/en/simple/bus_stop.wav",
+    "assets/jungle-book/sounds/en/simple/market.wav",
+    "assets/jungle-book/sounds/en/simple/playground.wav",
+    "assets/jungle-book/sounds/en/simple/train_station.wav",
+    "assets/jungle-book/sounds/en/simple/library.wav",
+    "assets/jungle-book/sounds/en/simple/fire_station.wav",
 ];
 VoicePath_en_simple :: (at: s32) -> string {
     if at < 48 { return voice_paths_en_simple_0[at - 0] }
@@ -1400,7 +1445,7 @@ VoicePath_en_simple :: (at: s32) -> string {
     if at < 336 { return voice_paths_en_simple_288[at - 288] }
     if at < 384 { return voice_paths_en_simple_336[at - 336] }
     if at < 432 { return voice_paths_en_simple_384[at - 384] }
-    if at < 435 { return voice_paths_en_simple_432[at - 432] }
+    if at < 450 { return voice_paths_en_simple_432[at - 432] }
     return ""
 }
 voice_seconds_en_simple_0: [48]float64 = .[
@@ -1853,10 +1898,25 @@ voice_seconds_en_simple_384: [48]float64 = .[
     0.768027,
     0.960000,
 ];
-voice_seconds_en_simple_432: [3]float64 = .[
+voice_seconds_en_simple_432: [18]float64 = .[
     1.173333,
     0.640000,
     1.002676,
+    0.853333,
+    0.896009,
+    0.704036,
+    1.066667,
+    0.725306,
+    0.981361,
+    0.981361,
+    1.173333,
+    1.002676,
+    1.130703,
+    0.938639,
+    1.088027,
+    1.344036,
+    1.002676,
+    1.301361,
 ];
 VoiceSeconds_en_simple :: (at: s32) -> float64 {
     if at < 48 { return voice_seconds_en_simple_0[at - 0] }
@@ -1868,7 +1928,7 @@ VoiceSeconds_en_simple :: (at: s32) -> float64 {
     if at < 336 { return voice_seconds_en_simple_288[at - 288] }
     if at < 384 { return voice_seconds_en_simple_336[at - 336] }
     if at < 432 { return voice_seconds_en_simple_384[at - 384] }
-    if at < 435 { return voice_seconds_en_simple_432[at - 432] }
+    if at < 450 { return voice_seconds_en_simple_432[at - 432] }
     return 0.0
 }
 voice_paths_de_spelling_0: [48]string = .[
@@ -2321,10 +2381,25 @@ voice_paths_de_spelling_384: [48]string = .[
     "assets/jungle-book/sounds/de/spelling/farm_fence.wav",
     "assets/jungle-book/sounds/de/spelling/stable.wav",
 ];
-voice_paths_de_spelling_432: [3]string = .[
+voice_paths_de_spelling_432: [18]string = .[
     "assets/jungle-book/sounds/de/spelling/chicken_coop.wav",
     "assets/jungle-book/sounds/de/spelling/well.wav",
     "assets/jungle-book/sounds/de/spelling/wheelbarrow.wav",
+    "assets/jungle-book/sounds/de/spelling/plaza.wav",
+    "assets/jungle-book/sounds/de/spelling/park.wav",
+    "assets/jungle-book/sounds/de/spelling/zoo.wav",
+    "assets/jungle-book/sounds/de/spelling/aquarium.wav",
+    "assets/jungle-book/sounds/de/spelling/city.wav",
+    "assets/jungle-book/sounds/de/spelling/street.wav",
+    "assets/jungle-book/sounds/de/spelling/traffic.wav",
+    "assets/jungle-book/sounds/de/spelling/traffic_light.wav",
+    "assets/jungle-book/sounds/de/spelling/crosswalk.wav",
+    "assets/jungle-book/sounds/de/spelling/bus_stop.wav",
+    "assets/jungle-book/sounds/de/spelling/market.wav",
+    "assets/jungle-book/sounds/de/spelling/playground.wav",
+    "assets/jungle-book/sounds/de/spelling/train_station.wav",
+    "assets/jungle-book/sounds/de/spelling/library.wav",
+    "assets/jungle-book/sounds/de/spelling/fire_station.wav",
 ];
 VoicePath_de_spelling :: (at: s32) -> string {
     if at < 48 { return voice_paths_de_spelling_0[at - 0] }
@@ -2336,7 +2411,7 @@ VoicePath_de_spelling :: (at: s32) -> string {
     if at < 336 { return voice_paths_de_spelling_288[at - 288] }
     if at < 384 { return voice_paths_de_spelling_336[at - 336] }
     if at < 432 { return voice_paths_de_spelling_384[at - 384] }
-    if at < 435 { return voice_paths_de_spelling_432[at - 432] }
+    if at < 450 { return voice_paths_de_spelling_432[at - 432] }
     return ""
 }
 voice_seconds_de_spelling_0: [48]float64 = .[
@@ -2789,10 +2864,25 @@ voice_seconds_de_spelling_384: [48]float64 = .[
     6.023492,
     7.071156,
 ];
-voice_seconds_de_spelling_432: [3]float64 = .[
+voice_seconds_de_spelling_432: [18]float64 = .[
     12.785397,
     8.574785,
     12.127891,
+    6.947619,
+    6.209569,
+    4.771927,
+    10.419819,
+    7.038231,
+    8.320272,
+    8.810522,
+    6.950703,
+    15.117642,
+    15.596508,
+    7.131882,
+    11.943900,
+    8.696281,
+    9.306939,
+    11.838050,
 ];
 VoiceSeconds_de_spelling :: (at: s32) -> float64 {
     if at < 48 { return voice_seconds_de_spelling_0[at - 0] }
@@ -2804,7 +2894,7 @@ VoiceSeconds_de_spelling :: (at: s32) -> float64 {
     if at < 336 { return voice_seconds_de_spelling_288[at - 288] }
     if at < 384 { return voice_seconds_de_spelling_336[at - 336] }
     if at < 432 { return voice_seconds_de_spelling_384[at - 384] }
-    if at < 435 { return voice_seconds_de_spelling_432[at - 432] }
+    if at < 450 { return voice_seconds_de_spelling_432[at - 432] }
     return 0.0
 }
 voice_paths_de_simple_0: [48]string = .[
@@ -3257,10 +3347,25 @@ voice_paths_de_simple_384: [48]string = .[
     "assets/jungle-book/sounds/de/simple/farm_fence.wav",
     "assets/jungle-book/sounds/de/simple/stable.wav",
 ];
-voice_paths_de_simple_432: [3]string = .[
+voice_paths_de_simple_432: [18]string = .[
     "assets/jungle-book/sounds/de/simple/chicken_coop.wav",
     "assets/jungle-book/sounds/de/simple/well.wav",
     "assets/jungle-book/sounds/de/simple/wheelbarrow.wav",
+    "assets/jungle-book/sounds/de/simple/plaza.wav",
+    "assets/jungle-book/sounds/de/simple/park.wav",
+    "assets/jungle-book/sounds/de/simple/zoo.wav",
+    "assets/jungle-book/sounds/de/simple/aquarium.wav",
+    "assets/jungle-book/sounds/de/simple/city.wav",
+    "assets/jungle-book/sounds/de/simple/street.wav",
+    "assets/jungle-book/sounds/de/simple/traffic.wav",
+    "assets/jungle-book/sounds/de/simple/traffic_light.wav",
+    "assets/jungle-book/sounds/de/simple/crosswalk.wav",
+    "assets/jungle-book/sounds/de/simple/bus_stop.wav",
+    "assets/jungle-book/sounds/de/simple/market.wav",
+    "assets/jungle-book/sounds/de/simple/playground.wav",
+    "assets/jungle-book/sounds/de/simple/train_station.wav",
+    "assets/jungle-book/sounds/de/simple/library.wav",
+    "assets/jungle-book/sounds/de/simple/fire_station.wav",
 ];
 VoicePath_de_simple :: (at: s32) -> string {
     if at < 48 { return voice_paths_de_simple_0[at - 0] }
@@ -3272,7 +3377,7 @@ VoicePath_de_simple :: (at: s32) -> string {
     if at < 336 { return voice_paths_de_simple_288[at - 288] }
     if at < 384 { return voice_paths_de_simple_336[at - 336] }
     if at < 432 { return voice_paths_de_simple_384[at - 384] }
-    if at < 435 { return voice_paths_de_simple_432[at - 432] }
+    if at < 450 { return voice_paths_de_simple_432[at - 432] }
     return ""
 }
 voice_seconds_de_simple_0: [48]float64 = .[
@@ -3725,10 +3830,25 @@ voice_seconds_de_simple_384: [48]float64 = .[
     1.100000,
     1.075011,
 ];
-voice_seconds_de_simple_432: [3]float64 = .[
+voice_seconds_de_simple_432: [18]float64 = .[
     1.350023,
     1.075011,
     1.250023,
+    1.150023,
+    1.075011,
+    0.975011,
+    1.425034,
+    1.075011,
+    1.175011,
+    1.125034,
+    1.150023,
+    1.650023,
+    1.625034,
+    1.125034,
+    1.475011,
+    1.225034,
+    1.300000,
+    1.400000,
 ];
 VoiceSeconds_de_simple :: (at: s32) -> float64 {
     if at < 48 { return voice_seconds_de_simple_0[at - 0] }
@@ -3740,7 +3860,7 @@ VoiceSeconds_de_simple :: (at: s32) -> float64 {
     if at < 336 { return voice_seconds_de_simple_288[at - 288] }
     if at < 384 { return voice_seconds_de_simple_336[at - 336] }
     if at < 432 { return voice_seconds_de_simple_384[at - 384] }
-    if at < 435 { return voice_seconds_de_simple_432[at - 432] }
+    if at < 450 { return voice_seconds_de_simple_432[at - 432] }
     return 0.0
 }
 voice_paths_es_spelling_0: [48]string = .[
@@ -4193,10 +4313,25 @@ voice_paths_es_spelling_384: [48]string = .[
     "assets/jungle-book/sounds/es/spelling/farm_fence.wav",
     "assets/jungle-book/sounds/es/spelling/stable.wav",
 ];
-voice_paths_es_spelling_432: [3]string = .[
+voice_paths_es_spelling_432: [18]string = .[
     "assets/jungle-book/sounds/es/spelling/chicken_coop.wav",
     "assets/jungle-book/sounds/es/spelling/well.wav",
     "assets/jungle-book/sounds/es/spelling/wheelbarrow.wav",
+    "assets/jungle-book/sounds/es/spelling/plaza.wav",
+    "assets/jungle-book/sounds/es/spelling/park.wav",
+    "assets/jungle-book/sounds/es/spelling/zoo.wav",
+    "assets/jungle-book/sounds/es/spelling/aquarium.wav",
+    "assets/jungle-book/sounds/es/spelling/city.wav",
+    "assets/jungle-book/sounds/es/spelling/street.wav",
+    "assets/jungle-book/sounds/es/spelling/traffic.wav",
+    "assets/jungle-book/sounds/es/spelling/traffic_light.wav",
+    "assets/jungle-book/sounds/es/spelling/crosswalk.wav",
+    "assets/jungle-book/sounds/es/spelling/bus_stop.wav",
+    "assets/jungle-book/sounds/es/spelling/market.wav",
+    "assets/jungle-book/sounds/es/spelling/playground.wav",
+    "assets/jungle-book/sounds/es/spelling/train_station.wav",
+    "assets/jungle-book/sounds/es/spelling/library.wav",
+    "assets/jungle-book/sounds/es/spelling/fire_station.wav",
 ];
 VoicePath_es_spelling :: (at: s32) -> string {
     if at < 48 { return voice_paths_es_spelling_0[at - 0] }
@@ -4208,7 +4343,7 @@ VoicePath_es_spelling :: (at: s32) -> string {
     if at < 336 { return voice_paths_es_spelling_288[at - 288] }
     if at < 384 { return voice_paths_es_spelling_336[at - 336] }
     if at < 432 { return voice_paths_es_spelling_384[at - 384] }
-    if at < 435 { return voice_paths_es_spelling_432[at - 432] }
+    if at < 450 { return voice_paths_es_spelling_432[at - 432] }
     return ""
 }
 voice_seconds_es_spelling_0: [48]float64 = .[
@@ -4661,10 +4796,25 @@ voice_seconds_es_spelling_384: [48]float64 = .[
     5.864717,
     8.674286,
 ];
-voice_seconds_es_spelling_432: [3]float64 = .[
+voice_seconds_es_spelling_432: [18]float64 = .[
     9.644626,
     5.999819,
     11.507256,
+    6.331973,
+    7.319819,
+    11.621406,
+    8.650930,
+    7.135147,
+    6.026440,
+    9.109977,
+    10.338503,
+    15.743220,
+    17.478912,
+    8.758141,
+    15.627075,
+    16.446304,
+    11.723900,
+    19.855057,
 ];
 VoiceSeconds_es_spelling :: (at: s32) -> float64 {
     if at < 48 { return voice_seconds_es_spelling_0[at - 0] }
@@ -4676,7 +4826,7 @@ VoiceSeconds_es_spelling :: (at: s32) -> float64 {
     if at < 336 { return voice_seconds_es_spelling_288[at - 288] }
     if at < 384 { return voice_seconds_es_spelling_336[at - 336] }
     if at < 432 { return voice_seconds_es_spelling_384[at - 384] }
-    if at < 435 { return voice_seconds_es_spelling_432[at - 432] }
+    if at < 450 { return voice_seconds_es_spelling_432[at - 432] }
     return 0.0
 }
 voice_paths_es_simple_0: [48]string = .[
@@ -5129,10 +5279,25 @@ voice_paths_es_simple_384: [48]string = .[
     "assets/jungle-book/sounds/es/simple/farm_fence.wav",
     "assets/jungle-book/sounds/es/simple/stable.wav",
 ];
-voice_paths_es_simple_432: [3]string = .[
+voice_paths_es_simple_432: [18]string = .[
     "assets/jungle-book/sounds/es/simple/chicken_coop.wav",
     "assets/jungle-book/sounds/es/simple/well.wav",
     "assets/jungle-book/sounds/es/simple/wheelbarrow.wav",
+    "assets/jungle-book/sounds/es/simple/plaza.wav",
+    "assets/jungle-book/sounds/es/simple/park.wav",
+    "assets/jungle-book/sounds/es/simple/zoo.wav",
+    "assets/jungle-book/sounds/es/simple/aquarium.wav",
+    "assets/jungle-book/sounds/es/simple/city.wav",
+    "assets/jungle-book/sounds/es/simple/street.wav",
+    "assets/jungle-book/sounds/es/simple/traffic.wav",
+    "assets/jungle-book/sounds/es/simple/traffic_light.wav",
+    "assets/jungle-book/sounds/es/simple/crosswalk.wav",
+    "assets/jungle-book/sounds/es/simple/bus_stop.wav",
+    "assets/jungle-book/sounds/es/simple/market.wav",
+    "assets/jungle-book/sounds/es/simple/playground.wav",
+    "assets/jungle-book/sounds/es/simple/train_station.wav",
+    "assets/jungle-book/sounds/es/simple/library.wav",
+    "assets/jungle-book/sounds/es/simple/fire_station.wav",
 ];
 VoicePath_es_simple :: (at: s32) -> string {
     if at < 48 { return voice_paths_es_simple_0[at - 0] }
@@ -5144,7 +5309,7 @@ VoicePath_es_simple :: (at: s32) -> string {
     if at < 336 { return voice_paths_es_simple_288[at - 288] }
     if at < 384 { return voice_paths_es_simple_336[at - 336] }
     if at < 432 { return voice_paths_es_simple_384[at - 384] }
-    if at < 435 { return voice_paths_es_simple_432[at - 432] }
+    if at < 450 { return voice_paths_es_simple_432[at - 432] }
     return ""
 }
 voice_seconds_es_simple_0: [48]float64 = .[
@@ -5597,10 +5762,25 @@ voice_seconds_es_simple_384: [48]float64 = .[
     1.120000,
     1.440000,
 ];
-voice_seconds_es_simple_432: [3]float64 = .[
+voice_seconds_es_simple_432: [18]float64 = .[
     1.200000,
     1.280000,
     1.680000,
+    1.440000,
+    1.360000,
+    1.760000,
+    1.600000,
+    1.200000,
+    1.200000,
+    1.440000,
+    1.440000,
+    2.080000,
+    2.000000,
+    1.520000,
+    2.080000,
+    2.000000,
+    1.600000,
+    1.920000,
 ];
 VoiceSeconds_es_simple :: (at: s32) -> float64 {
     if at < 48 { return voice_seconds_es_simple_0[at - 0] }
@@ -5612,6 +5792,6 @@ VoiceSeconds_es_simple :: (at: s32) -> float64 {
     if at < 336 { return voice_seconds_es_simple_288[at - 288] }
     if at < 384 { return voice_seconds_es_simple_336[at - 336] }
     if at < 432 { return voice_seconds_es_simple_384[at - 384] }
-    if at < 435 { return voice_seconds_es_simple_432[at - 432] }
+    if at < 450 { return voice_seconds_es_simple_432[at - 432] }
     return 0.0
 }

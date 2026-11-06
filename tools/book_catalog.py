@@ -109,10 +109,15 @@ def ApplyMinimumBookExpansion(books, expansion):
     return tuple(changed) + tuple((category, tuple(names)) for category, names in expansion["books"].items())
 
 
-BOOKS = ApplyMinimumBookExpansion(UNIQUE_BOOKS, MINIMUM)
+MINIMUM_BOOKS = ApplyMinimumBookExpansion(UNIQUE_BOOKS, MINIMUM)
+MINIMUM_BOOK_IDS = tuple(category for category, _ in MINIMUM_BOOKS)
+# Places (2026-11-05): a whole new book appended after every saved slot.
+PLACES = json.loads(Path(__file__).with_name("book_places.json").read_text())
+BOOKS = MINIMUM_BOOKS + tuple((category, tuple(names)) for category, names in PLACES["books"].items())
 WORDS.update((name, tuple(words)) for name, words in EXPANSION["words"].items())
 WORDS.update((name, tuple(words)) for name, words in UNIQUE["words"].items())
 WORDS.update((name, tuple(words)) for name, words in MINIMUM["words"].items())
+WORDS.update((name, tuple(words)) for name, words in PLACES["words"].items())
 for _name, _changes in UNIQUE["label_changes"].items():
     _labels = list(WORDS[_name])
     for _language, _label in _changes.items():
@@ -121,12 +126,14 @@ for _name, _changes in UNIQUE["label_changes"].items():
 # Narration tools read these: every book's final pages and every final word.
 EXPANSION["extra"] = {category: list(names) for category, names in BOOKS}
 EXPANSION["words"].update((name, WORDS[name]) for name in
-                          (*UNIQUE["words"], *UNIQUE["label_changes"], *MINIMUM["words"]))
+                          (*UNIQUE["words"], *UNIQUE["label_changes"], *MINIMUM["words"], *PLACES["words"]))
 EXPANSION["titles"].update(UNIQUE["titles"])
 EXPANSION["titles"].update(MINIMUM["titles"])
+EXPANSION["titles"].update(PLACES["titles"])
 TITLES = EXPANSION["titles"]
 PAGE_NAMES = tuple(name for _, names in BOOKS for name in names)
-NAMES = PREVIOUS_NAMES + tuple(MINIMUM["words"])
+MINIMUM_NAMES = PREVIOUS_NAMES + tuple(MINIMUM["words"])
+NAMES = MINIMUM_NAMES + tuple(PLACES["words"])
 # A changed label records its speech under a new name; old recordings stay intact.
 PENDING_MEDIA = tuple(UNIQUE["words"]) + tuple(UNIQUE["voice_stems"]) + tuple(MINIMUM["words"])
 PENDING_TITLE_MEDIA = tuple(MINIMUM["titles"])
@@ -134,7 +141,7 @@ BOOK_GROUPS = (
     ("Animals", ("jungle", "farm", "pets", "birds", "water-animals", "desert-animals", "reptiles", "forest")),
     ("Nature", ("garden", "nature", "seasons", "weather", "beach", "gardening", "insects", "trees", "plants")),
     ("Food", ("fruits", "vegetables", "breakfast", "lunch", "dinner", "tropical-fruits", "drinks")),
-    ("Home", ("kitchen", "bathroom", "bedroom", "living-room", "toys", "vehicles", "bedtime", "vacation", "school", "on-the-farm")),
+    ("Home", ("kitchen", "bathroom", "bedroom", "living-room", "toys", "vehicles", "bedtime", "vacation", "school", "on-the-farm", "places")),
     ("Family", ("family", "body", "clothing", "sports", "feelings", "actions", "people-at-work")),
 )
 
@@ -201,7 +208,7 @@ def BuildUniqueBookCatalog():
     """Return the validated catalog: every subject is on exactly one page."""
     homes = {**UNIQUE["canonical_homes"], **MINIMUM["canonical_homes"]}
     ValidateBookCatalog(BOOKS, BOOK_GROUPS, WORDS, TITLES, NAMES, homes,
-                        PREVIOUS_BOOK_IDS, PREVIOUS_NAMES)
+                        MINIMUM_BOOK_IDS, MINIMUM_NAMES)
     deficient = [category for category, names in BOOKS if len(names) < 10]
     if deficient:
         raise ValueError("books have fewer than 10 pages: " + ", ".join(deficient))

@@ -68,7 +68,17 @@ def save(path, data, metadata):
     write_json(path.with_suffix('.speech.json'), dict(metadata, duration=len(data) / (RATE * 2), sha256=digest(path)))
 
 
-def generate():
+def voice_style(engine, voice):
+    """A Kokoro voice name, or 'a+b': the equal blend (mean style vector) the
+    owner chose on 2026-11-03 (Bella+Heart, harness/speech comparison R)."""
+    import numpy as np
+    if '+' not in voice:
+        return voice
+    return np.mean([engine.get_voice_style(name) for name in voice.split('+')], axis=0).astype(np.float32)
+
+
+def generate(only=None):
+    """Synthesize missing or stale profile clips; ONLY limits the corpus paths."""
     import numpy as np
     import onnxruntime as ort
     from kokoro_onnx import Kokoro
@@ -78,7 +88,7 @@ def generate():
     assert preferences['voice'] == 'af_bella' and preferences['profiles'] == PROFILES
     assert preferences['default_profile'] == 'normal'
     corpus = capture_corpus()
-    pack = ROOT.parents[1] / 'harness/speech/models/kokoro'
+    pack = ROOT.parents[2] / 'harness/speech/models/kokoro'
     model, voices = pack / 'model_uint8.onnx', pack / 'voices-v1.0.bin'
     identity = {'model_sha256': digest(model), 'voices_sha256': digest(voices)}
     options = ort.SessionOptions()
@@ -90,11 +100,15 @@ def generate():
     cache.mkdir(parents=True, exist_ok=True)
     for profile, speed in PROFILES.items():
         # Dependencies first, then spelling recipes using those exact recordings.
-        entries = sorted(corpus.items(), key=lambda pair: ('sources' in pair[1], pair[0]))
+        entries = sorted(((name, entry) for name, entry in corpus.items() if only is None or name in only),
+                         key=lambda pair: ('sources' in pair[1], pair[0]))
         for index, (name, entry) in enumerate(entries, 1):
             target = ROOT / profile_path(name, profile)
-            metadata = dict(text=entry['text'], model='kokoro-82m-uint8', voice='af_bella',
+            voice = entry.get('voice', 'af_bella')
+            metadata = dict(text=entry['text'], model='kokoro-82m-uint8', voice=voice,
                             language='en', speed=speed, profile=profile, **identity)
+            if '+' in voice:
+                metadata['blend'] = {name: 1 / len(voice.split('+')) for name in voice.split('+')}
             receipt_path = target.with_suffix('.speech.json')
             if target.exists() and receipt_path.exists():
                 receipt = json.loads(receipt_path.read_text())
@@ -121,7 +135,7 @@ def generate():
                 key = hashlib.sha256(json.dumps(dict(metadata, profile=None), sort_keys=True).encode()).hexdigest()
                 cached = cache / (key + '.wav')
                 if not cached.exists():
-                    audio, rate = engine.create(entry['text'], voice='af_bella', speed=speed, lang='en-us')
+                    audio, rate = engine.create(entry['text'], voice=voice_style(engine, voice), speed=speed, lang='en-us')
                     assert np.isfinite(audio).all() and len(audio) and np.max(np.abs(audio)) > .005, name
                     # Change sample format/rate only; speed is set in synthesis.
                     data = subprocess.run(['ffmpeg', '-nostdin', '-v', 'error', '-threads', '1',
@@ -140,10 +154,11 @@ def generate():
                              for profile, speed in PROFILES.items()}}
     write_json(ROOT / 'assets/speech-profiles.json', manifest)
     validate()
-    # The reader's offline fallback must describe these newly measured clips.
-    # Regenerate it in the same operation as the narration inventory.
-    from story_book import main as compile_story
-    compile_story()
+    if only is None:
+        # The reader's offline fallback must describe these newly measured clips.
+        # Regenerate it in the same operation as the narration inventory.
+        from story_book import main as compile_story
+        compile_story()
 
 
 def validate():
@@ -160,7 +175,7 @@ def validate():
             path = ROOT / mapping['voices'][name]
             assert mapping['voices'][name] == profile_path(name, profile)
             receipt = json.loads(path.with_suffix('.speech.json').read_text())
-            assert (receipt['text'], receipt['voice'], receipt['speed'], receipt['model']) == (entry['text'], 'af_bella', speed, 'kokoro-82m-uint8'), path
+            assert (receipt['text'], receipt['voice'], receipt['speed'], receipt['model']) == (entry['text'], entry.get('voice', 'af_bella'), speed, 'kokoro-82m-uint8'), path
             assert receipt['sha256'] == digest(path), path
             data = pcm(path)
             values = array('h', data)

@@ -47,8 +47,8 @@ def main():
             if value in ("FILE|TITLE|ABOUT|ICON|AGE", "Jungle Academy", "jungle --check", "COUNTING", " / ", "  ·  ", " : ") or "\\" in value:
                 continue
             assert value in rows, (source, "untranslated message", value)
-    assert len(BOOKS) == 41 and len(NAMES) == len(set(NAMES)) == 435
-    assert dict((name, len(words)) for name, words in BOOKS) == dict(jungle=15, garden=10, fruits=16, farm=16, vegetables=16, clothing=12, **{name: 10 for name in ("kitchen", "bathroom", "bedroom", "living-room", "nature", "family", "breakfast", "lunch", "dinner", "body", "seasons", "birds", "toys", "vehicles", "bedtime", "vacation", "sports", "beach", "weather", "feelings", "tropical-fruits", "gardening", "school", "water-animals", "drinks", "actions", "desert-animals", "insects", "people-at-work", "reptiles", "trees", "plants", "forest", "pets", "on-the-farm")})
+    assert len(BOOKS) == 42 and len(NAMES) == len(set(NAMES)) == 450
+    assert dict((name, len(words)) for name, words in BOOKS) == dict(jungle=15, garden=10, fruits=16, farm=16, vegetables=16, clothing=12, places=15, **{name: 10 for name in ("kitchen", "bathroom", "bedroom", "living-room", "nature", "family", "breakfast", "lunch", "dinner", "body", "seasons", "birds", "toys", "vehicles", "bedtime", "vacation", "sports", "beach", "weather", "feelings", "tropical-fruits", "gardening", "school", "water-animals", "drinks", "actions", "desert-animals", "insects", "people-at-work", "reptiles", "trees", "plants", "forest", "pets", "on-the-farm")})
     assert set(NAMES) == set(WORDS)
     generated = (ROOT / "games/book/book_pages.zi").read_text()
     voices = (ROOT / "games/book/book_voice.zi").read_text()

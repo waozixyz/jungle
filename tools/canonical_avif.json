@@ -1,11 +1,11 @@
 {
   "version": 1,
-  "count": 1196,
+  "count": 1212,
   "encoding": "Owner standard 2026-11-05: masters Lanczos-downscaled to 75%, AVIF q35 8-bit full range speed6 jobs1; opaque YUV420, transparent art YUV444 with q90 alpha. Pictures under 512 px, source-rectangle sheets, jigsaw (q60 YUV444), paint art and cursors keep their pixels.",
   "dimensions": "Full original dimensions; no downsampling, no regeneration",
   "reference": "local/image-format-research/previews/full-1x-book-page.png (label: 75% AVIF q35 + Lanczos); full dimensions retained for shipping",
-  "before_bytes": 393081513,
-  "after_bytes": 45968703,
+  "before_bytes": 436496869,
+  "after_bytes": 46792724,
   "files": {
     "assets/beach_families/background.avif": {
       "source": "assets/beach_families/background.webp",
@@ -31066,6 +31066,470 @@
       "subsampling": "444",
       "speed": 6,
       "exact_alpha": true,
+      "alpha_quality": 100
+    },
+    "assets/jungle-book/pages/plaza.avif": {
+      "source": "local/art-development/places-book/masters/plaza.png",
+      "source_sha256": "d67cc80ee1723ae0325a8424ef58110068984cae87f285d1d1fefab0d054ff13",
+      "source_bytes": 2911989,
+      "source_rgba_sha256": "1dc0744c51a158d2c3b6ff39f9392ae131def3d666c9fd49860c559564aae2e2",
+      "dimensions": [
+        940,
+        940
+      ],
+      "alpha": false,
+      "source_alpha_sha256": "eb98aed5d71970d2a7f0c5934e54bcf7340b8b2b98963cc359b9a7bb39fcdeba",
+      "alpha_sha256": "c58c3042a5f92eacece6e474fd0b10450eb03cc56475a8d8550f03fcf92df751",
+      "rgba_sha256": "11761aa692c7819b92c8d24a492b030595cdfad3ddc68f45c885fccef535f7aa",
+      "sha256": "e5be8a38747ddbe6eb2b38b981a5a2b96c86842627858c13d57dded1b585b8ac",
+      "bytes": 62749,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "420",
+      "speed": 6,
+      "design_dimensions": [
+        1254,
+        1254
+      ],
+      "scale": 0.75,
+      "master": "local/art-development/places-book/masters/plaza.png",
+      "master_sha256": "d67cc80ee1723ae0325a8424ef58110068984cae87f285d1d1fefab0d054ff13",
+      "exact_alpha": false,
+      "alpha_quality": 100
+    },
+    "assets/jungle-book/pages/park.avif": {
+      "source": "local/art-development/places-book/masters/park.png",
+      "source_sha256": "a928582d3b973287c633a814619682bcaa69a71c905dfa965fc2ad3e73fee6e2",
+      "source_bytes": 3003908,
+      "source_rgba_sha256": "56ecc6978095b4926f45bdbb6bb06cee74cfa1a3ee9e22d087cd9238e1cb6743",
+      "dimensions": [
+        940,
+        940
+      ],
+      "alpha": false,
+      "source_alpha_sha256": "eb98aed5d71970d2a7f0c5934e54bcf7340b8b2b98963cc359b9a7bb39fcdeba",
+      "alpha_sha256": "c58c3042a5f92eacece6e474fd0b10450eb03cc56475a8d8550f03fcf92df751",
+      "rgba_sha256": "54e4eeb906263b09b3eb44df0725683957f87e04f7f132565f3a03b4f95584ab",
+      "sha256": "92f003d40f190b3a235587786a0de9aff0931f6ae9292dcfaea00003541baa99",
+      "bytes": 64090,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "420",
+      "speed": 6,
+      "design_dimensions": [
+        1254,
+        1254
+      ],
+      "scale": 0.75,
+      "master": "local/art-development/places-book/masters/park.png",
+      "master_sha256": "a928582d3b973287c633a814619682bcaa69a71c905dfa965fc2ad3e73fee6e2",
+      "exact_alpha": false,
+      "alpha_quality": 100
+    },
+    "assets/jungle-book/pages/zoo.avif": {
+      "source": "local/art-development/places-book/masters/zoo.png",
+      "source_sha256": "a8e97a9b2233b6267a83876e8bac8e6c9b5a2bb9370d025f1c23a976e228491c",
+      "source_bytes": 2633910,
+      "source_rgba_sha256": "1024b3bc8fa2fc4eb4a258f352f87a7bd71dcc7d6cfb6f7dae5ea38fcc74fbe3",
+      "dimensions": [
+        940,
+        940
+      ],
+      "alpha": false,
+      "source_alpha_sha256": "eb98aed5d71970d2a7f0c5934e54bcf7340b8b2b98963cc359b9a7bb39fcdeba",
+      "alpha_sha256": "c58c3042a5f92eacece6e474fd0b10450eb03cc56475a8d8550f03fcf92df751",
+      "rgba_sha256": "b811b6184552024f68a6dbfc086d245db9224b0511463134365eea4e30207461",
+      "sha256": "ba285efae18b577c83707b5fc102c481e44005215f8014f9908f7f3a35db4a07",
+      "bytes": 45231,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "420",
+      "speed": 6,
+      "design_dimensions": [
+        1254,
+        1254
+      ],
+      "scale": 0.75,
+      "master": "local/art-development/places-book/masters/zoo.png",
+      "master_sha256": "a8e97a9b2233b6267a83876e8bac8e6c9b5a2bb9370d025f1c23a976e228491c",
+      "exact_alpha": false,
+      "alpha_quality": 100
+    },
+    "assets/jungle-book/pages/aquarium.avif": {
+      "source": "local/art-development/places-book/masters/aquarium.png",
+      "source_sha256": "bfead9fb7927004d228a5398473b10e860104fecba2da59faee6aaec9fff3af2",
+      "source_bytes": 2718241,
+      "source_rgba_sha256": "fd697b3d442e2e46a174d011753c633cdfc9b9cc31d221260ac518d5e8654784",
+      "dimensions": [
+        940,
+        940
+      ],
+      "alpha": false,
+      "source_alpha_sha256": "eb98aed5d71970d2a7f0c5934e54bcf7340b8b2b98963cc359b9a7bb39fcdeba",
+      "alpha_sha256": "c58c3042a5f92eacece6e474fd0b10450eb03cc56475a8d8550f03fcf92df751",
+      "rgba_sha256": "355075f937868e2e7fab1f94a3ba843fdd10a64d75d9280018b670bbe064282b",
+      "sha256": "a1c959833b470e8e44ff44b074c944861c7f6f319ea823d6696f5b35253e8346",
+      "bytes": 39861,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "420",
+      "speed": 6,
+      "design_dimensions": [
+        1254,
+        1254
+      ],
+      "scale": 0.75,
+      "master": "local/art-development/places-book/masters/aquarium.png",
+      "master_sha256": "bfead9fb7927004d228a5398473b10e860104fecba2da59faee6aaec9fff3af2",
+      "exact_alpha": false,
+      "alpha_quality": 100
+    },
+    "assets/jungle-book/pages/city.avif": {
+      "source": "local/art-development/places-book/masters/city.png",
+      "source_sha256": "020b2bd71b09e5aef651f724ac66e02cf532e99494360ec96cc0bb96ea3de5f1",
+      "source_bytes": 2904643,
+      "source_rgba_sha256": "33541785cfb099212bd2d8b2cbfc392cd43cd87e2deaf520199be84f57fbad60",
+      "dimensions": [
+        940,
+        940
+      ],
+      "alpha": false,
+      "source_alpha_sha256": "eb98aed5d71970d2a7f0c5934e54bcf7340b8b2b98963cc359b9a7bb39fcdeba",
+      "alpha_sha256": "c58c3042a5f92eacece6e474fd0b10450eb03cc56475a8d8550f03fcf92df751",
+      "rgba_sha256": "c5704e0b62b9867b148fcf6ed8a0ff72460134e937a9ecc4258a7680eba5db07",
+      "sha256": "2d685a932bdf8d3e86b88020e097770e9901b231e48a6f3713c82864c1329f08",
+      "bytes": 59056,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "420",
+      "speed": 6,
+      "design_dimensions": [
+        1254,
+        1254
+      ],
+      "scale": 0.75,
+      "master": "local/art-development/places-book/masters/city.png",
+      "master_sha256": "020b2bd71b09e5aef651f724ac66e02cf532e99494360ec96cc0bb96ea3de5f1",
+      "exact_alpha": false,
+      "alpha_quality": 100
+    },
+    "assets/jungle-book/pages/street.avif": {
+      "source": "local/art-development/places-book/masters/street.png",
+      "source_sha256": "181d73bc934ce34b989ec85d5a3642be22d312a0077927707cfa7951a83b004c",
+      "source_bytes": 2756038,
+      "source_rgba_sha256": "0c196a0801a1fb1715c31ac36abdeaef12a7334aededb3cd73e9e66e6a79dd3b",
+      "dimensions": [
+        940,
+        940
+      ],
+      "alpha": false,
+      "source_alpha_sha256": "eb98aed5d71970d2a7f0c5934e54bcf7340b8b2b98963cc359b9a7bb39fcdeba",
+      "alpha_sha256": "c58c3042a5f92eacece6e474fd0b10450eb03cc56475a8d8550f03fcf92df751",
+      "rgba_sha256": "d6714c0fedcbe6a63d0920b6b8e8002cf6443f5d83ad7a58bdd57cbcd236747d",
+      "sha256": "31cfd1c1befc653eb5cf15f3fa4e312d0f7091dbfb7524257edcfd455280e16e",
+      "bytes": 45901,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "420",
+      "speed": 6,
+      "design_dimensions": [
+        1254,
+        1254
+      ],
+      "scale": 0.75,
+      "master": "local/art-development/places-book/masters/street.png",
+      "master_sha256": "181d73bc934ce34b989ec85d5a3642be22d312a0077927707cfa7951a83b004c",
+      "exact_alpha": false,
+      "alpha_quality": 100
+    },
+    "assets/jungle-book/pages/traffic.avif": {
+      "source": "local/art-development/places-book/masters/traffic.png",
+      "source_sha256": "25dfcad0fefb065457a6c4a4a4bcc65490be083c35e51f5438853e2251c7503c",
+      "source_bytes": 2779371,
+      "source_rgba_sha256": "332b08b785e50d7d021d67df566206bf6be6aa3f022abd046189432fa6c60435",
+      "dimensions": [
+        940,
+        940
+      ],
+      "alpha": false,
+      "source_alpha_sha256": "eb98aed5d71970d2a7f0c5934e54bcf7340b8b2b98963cc359b9a7bb39fcdeba",
+      "alpha_sha256": "c58c3042a5f92eacece6e474fd0b10450eb03cc56475a8d8550f03fcf92df751",
+      "rgba_sha256": "639c3630100e00fe9c99f7425f30fbf8b4d0a79f39f842d0d09138644ca49ba9",
+      "sha256": "53764c082ff54119c89a77baafbedab218b447d7cf6deea040ae88f0e60fd859",
+      "bytes": 49192,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "420",
+      "speed": 6,
+      "design_dimensions": [
+        1254,
+        1254
+      ],
+      "scale": 0.75,
+      "master": "local/art-development/places-book/masters/traffic.png",
+      "master_sha256": "25dfcad0fefb065457a6c4a4a4bcc65490be083c35e51f5438853e2251c7503c",
+      "exact_alpha": false,
+      "alpha_quality": 100
+    },
+    "assets/jungle-book/pages/traffic_light.avif": {
+      "source": "local/art-development/places-book/masters/traffic_light.png",
+      "source_sha256": "b01126719d98683229b6a87550d9f8a353e52897352f23234274fe9c6819e65e",
+      "source_bytes": 2647718,
+      "source_rgba_sha256": "e221d0a018e4d65ca282038a6c28c2393f23f19f0e600d9956a6782d2cdcc227",
+      "dimensions": [
+        940,
+        940
+      ],
+      "alpha": false,
+      "source_alpha_sha256": "eb98aed5d71970d2a7f0c5934e54bcf7340b8b2b98963cc359b9a7bb39fcdeba",
+      "alpha_sha256": "c58c3042a5f92eacece6e474fd0b10450eb03cc56475a8d8550f03fcf92df751",
+      "rgba_sha256": "10b1b77d34f6e2254f32602edeb97c4e09fed2b0c955c9efa984cfa7b6fbcb0f",
+      "sha256": "dec00ac49c296e158921a5713b3a1e0a37b031fd318f3151fb6ab7a00569a326",
+      "bytes": 41334,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "420",
+      "speed": 6,
+      "design_dimensions": [
+        1254,
+        1254
+      ],
+      "scale": 0.75,
+      "master": "local/art-development/places-book/masters/traffic_light.png",
+      "master_sha256": "b01126719d98683229b6a87550d9f8a353e52897352f23234274fe9c6819e65e",
+      "exact_alpha": false,
+      "alpha_quality": 100
+    },
+    "assets/jungle-book/pages/crosswalk.avif": {
+      "source": "local/art-development/places-book/masters/crosswalk.png",
+      "source_sha256": "e84893c75d43efc8d2fee2a1f43b934fa03b51ad1930f3d285db0f08d1fe6a93",
+      "source_bytes": 2897939,
+      "source_rgba_sha256": "3aa736bf52caf63084d497ee045196ce69cd8cd3a0d57c05573abd8c461481ca",
+      "dimensions": [
+        940,
+        940
+      ],
+      "alpha": false,
+      "source_alpha_sha256": "eb98aed5d71970d2a7f0c5934e54bcf7340b8b2b98963cc359b9a7bb39fcdeba",
+      "alpha_sha256": "c58c3042a5f92eacece6e474fd0b10450eb03cc56475a8d8550f03fcf92df751",
+      "rgba_sha256": "17e036e72a7824a260681ced3e08866a511c27bfd7ee1170d69a70ec9e5f3d07",
+      "sha256": "b5bce6904ef6a3c3bb9cdd07981b960ec50700cdd6c442350038e57b0eabe496",
+      "bytes": 55821,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "420",
+      "speed": 6,
+      "design_dimensions": [
+        1254,
+        1254
+      ],
+      "scale": 0.75,
+      "master": "local/art-development/places-book/masters/crosswalk.png",
+      "master_sha256": "e84893c75d43efc8d2fee2a1f43b934fa03b51ad1930f3d285db0f08d1fe6a93",
+      "exact_alpha": false,
+      "alpha_quality": 100
+    },
+    "assets/jungle-book/pages/bus_stop.avif": {
+      "source": "local/art-development/places-book/masters/bus_stop.png",
+      "source_sha256": "dbb923a0e0bec3df17aebe2024ad0990e9c102bfb00748a90ce61eb06b5f1edc",
+      "source_bytes": 2826142,
+      "source_rgba_sha256": "9f405d03bc98632616757ba859f2119902e01b1915a2020d9cde8d8e23ff69f9",
+      "dimensions": [
+        940,
+        940
+      ],
+      "alpha": false,
+      "source_alpha_sha256": "eb98aed5d71970d2a7f0c5934e54bcf7340b8b2b98963cc359b9a7bb39fcdeba",
+      "alpha_sha256": "c58c3042a5f92eacece6e474fd0b10450eb03cc56475a8d8550f03fcf92df751",
+      "rgba_sha256": "ba3093c3676bc3489009b0a28ade05912af7e9d1ed885e4952f2323bc1f2f3a0",
+      "sha256": "efa85ff3d9c61e4a28e6d97be2e3c1e557b8cc13cf6d7b21edf4c049bb716f89",
+      "bytes": 49309,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "420",
+      "speed": 6,
+      "design_dimensions": [
+        1254,
+        1254
+      ],
+      "scale": 0.75,
+      "master": "local/art-development/places-book/masters/bus_stop.png",
+      "master_sha256": "dbb923a0e0bec3df17aebe2024ad0990e9c102bfb00748a90ce61eb06b5f1edc",
+      "exact_alpha": false,
+      "alpha_quality": 100
+    },
+    "assets/jungle-book/pages/market.avif": {
+      "source": "local/art-development/places-book/masters/market.png",
+      "source_sha256": "82947fda598a39495ad4d1c5a7f2bec067a1237323fc6564120aa47f345a0719",
+      "source_bytes": 2944124,
+      "source_rgba_sha256": "04e2344ece8921f00d09443b4c67de19a9e911672c744b9ac6706286d34b5639",
+      "dimensions": [
+        940,
+        940
+      ],
+      "alpha": false,
+      "source_alpha_sha256": "eb98aed5d71970d2a7f0c5934e54bcf7340b8b2b98963cc359b9a7bb39fcdeba",
+      "alpha_sha256": "c58c3042a5f92eacece6e474fd0b10450eb03cc56475a8d8550f03fcf92df751",
+      "rgba_sha256": "79c71bd8958808bbb2a1cd0177677059ea8fc7c8bbdec3ca201aba9a4793b9da",
+      "sha256": "4cc1c29165b5736f9a42ca8a16a3f714d4f7160754c87363bb2256249579ee83",
+      "bytes": 70180,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "420",
+      "speed": 6,
+      "design_dimensions": [
+        1254,
+        1254
+      ],
+      "scale": 0.75,
+      "master": "local/art-development/places-book/masters/market.png",
+      "master_sha256": "82947fda598a39495ad4d1c5a7f2bec067a1237323fc6564120aa47f345a0719",
+      "exact_alpha": false,
+      "alpha_quality": 100
+    },
+    "assets/jungle-book/pages/playground.avif": {
+      "source": "local/art-development/places-book/masters/playground.png",
+      "source_sha256": "305fe39f765d730b6210b19fa88e48b1cdcca2295be81bda17843b16281fea5c",
+      "source_bytes": 2916220,
+      "source_rgba_sha256": "14e236aa0e957a52d5526e99f7037cadb2a54f4ea4ff1d059574bb8431ac3b81",
+      "dimensions": [
+        940,
+        940
+      ],
+      "alpha": false,
+      "source_alpha_sha256": "eb98aed5d71970d2a7f0c5934e54bcf7340b8b2b98963cc359b9a7bb39fcdeba",
+      "alpha_sha256": "c58c3042a5f92eacece6e474fd0b10450eb03cc56475a8d8550f03fcf92df751",
+      "rgba_sha256": "da0690a66783f69d349bb02e85e5e42f03da6ba1d226d025b8d112084bea3556",
+      "sha256": "a08e73ba0a704b5562625abc02d39204ec7be83d301b3103c82c8567b50ebcdf",
+      "bytes": 61599,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "420",
+      "speed": 6,
+      "design_dimensions": [
+        1254,
+        1254
+      ],
+      "scale": 0.75,
+      "master": "local/art-development/places-book/masters/playground.png",
+      "master_sha256": "305fe39f765d730b6210b19fa88e48b1cdcca2295be81bda17843b16281fea5c",
+      "exact_alpha": false,
+      "alpha_quality": 100
+    },
+    "assets/jungle-book/pages/train_station.avif": {
+      "source": "local/art-development/places-book/masters/train_station.png",
+      "source_sha256": "aaa370a3d016f1f5892f2b609a3edbc5b79d7da4570ac86f890028ad35c59a9e",
+      "source_bytes": 2736228,
+      "source_rgba_sha256": "d98f0775946f7eebc6024b121a8346b7fb41f6847c4bd72b4cba4fbcd117cbf2",
+      "dimensions": [
+        940,
+        940
+      ],
+      "alpha": false,
+      "source_alpha_sha256": "eb98aed5d71970d2a7f0c5934e54bcf7340b8b2b98963cc359b9a7bb39fcdeba",
+      "alpha_sha256": "c58c3042a5f92eacece6e474fd0b10450eb03cc56475a8d8550f03fcf92df751",
+      "rgba_sha256": "a2df0a7a0d1a6dd7c22244a1a809df07ace6f216128cb1de5cc98c8c59ff0bfa",
+      "sha256": "46c236ee74c70ca14c6958955c92b9b7fdedde032c2aadf3ae0e2793d3d2a7eb",
+      "bytes": 48714,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "420",
+      "speed": 6,
+      "design_dimensions": [
+        1254,
+        1254
+      ],
+      "scale": 0.75,
+      "master": "local/art-development/places-book/masters/train_station.png",
+      "master_sha256": "aaa370a3d016f1f5892f2b609a3edbc5b79d7da4570ac86f890028ad35c59a9e",
+      "exact_alpha": false,
+      "alpha_quality": 100
+    },
+    "assets/jungle-book/pages/library.avif": {
+      "source": "local/art-development/places-book/masters/library.png",
+      "source_sha256": "e998fbe608d874c1a3b661a6933c413e26899304b4c12fb92cf56eec42b60522",
+      "source_bytes": 2825518,
+      "source_rgba_sha256": "e746caeb374d0726dcd0f905f53723e7274ac6f43edf64ecf24ecc2b23dc07da",
+      "dimensions": [
+        940,
+        940
+      ],
+      "alpha": false,
+      "source_alpha_sha256": "eb98aed5d71970d2a7f0c5934e54bcf7340b8b2b98963cc359b9a7bb39fcdeba",
+      "alpha_sha256": "c58c3042a5f92eacece6e474fd0b10450eb03cc56475a8d8550f03fcf92df751",
+      "rgba_sha256": "8b6983b59e8b2dbdbb25d83d510e9e2bde2c0c6c242194adf9991e18a036985b",
+      "sha256": "d61d10a02975f861ba3309284c7a96a4234985a4c156fa934189b0f6cfc67c35",
+      "bytes": 56319,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "420",
+      "speed": 6,
+      "design_dimensions": [
+        1254,
+        1254
+      ],
+      "scale": 0.75,
+      "master": "local/art-development/places-book/masters/library.png",
+      "master_sha256": "e998fbe608d874c1a3b661a6933c413e26899304b4c12fb92cf56eec42b60522",
+      "exact_alpha": false,
+      "alpha_quality": 100
+    },
+    "assets/jungle-book/pages/fire_station.avif": {
+      "source": "local/art-development/places-book/masters/fire_station.png",
+      "source_sha256": "033741320bdb5e040e0a4907b0409cf7964cb26c5a9ffbaf5a00acad55ec52de",
+      "source_bytes": 2752974,
+      "source_rgba_sha256": "8eaf1619725e0f201e1d4a213219ce24294fceeff62108bc08850f8696785b9f",
+      "dimensions": [
+        940,
+        940
+      ],
+      "alpha": false,
+      "source_alpha_sha256": "eb98aed5d71970d2a7f0c5934e54bcf7340b8b2b98963cc359b9a7bb39fcdeba",
+      "alpha_sha256": "c58c3042a5f92eacece6e474fd0b10450eb03cc56475a8d8550f03fcf92df751",
+      "rgba_sha256": "48ab9ab5a80a85159769bde86d6b18f326717fcceb607ea241abf0814208fe60",
+      "sha256": "633ee3b6cd81a40780dc27c817a1e92f7c6c4eb95970d8713b36ad6e91f42424",
+      "bytes": 47267,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "420",
+      "speed": 6,
+      "design_dimensions": [
+        1254,
+        1254
+      ],
+      "scale": 0.75,
+      "master": "local/art-development/places-book/masters/fire_station.png",
+      "master_sha256": "033741320bdb5e040e0a4907b0409cf7964cb26c5a9ffbaf5a00acad55ec52de",
+      "exact_alpha": false,
+      "alpha_quality": 100
+    },
+    "assets/jungle-book/previews/places.avif": {
+      "source": "local/art-development/places-book/masters/preview-places.png",
+      "source_sha256": "207e2ea4249aad358482eb237ce85aa59353537711c80b2f48226cd3db78601b",
+      "source_bytes": 1160393,
+      "source_rgba_sha256": "7474e8c104e583571fcb197f18686fc0585dff0208b52be81f6307debcf5fe98",
+      "dimensions": [
+        576,
+        576
+      ],
+      "alpha": false,
+      "source_alpha_sha256": "096717b326a9e897ff073d7ef96a231d1d73b2e2dc34178fb1143bad39e3d542",
+      "alpha_sha256": "021c7b2cb69bcae6af3d6f8e997d3fc77dc2241d46b94563e859257ef499e72c",
+      "rgba_sha256": "cf2c5488055cc092e0fcede04532ec93cf9b7f384da397d7da121026637f6471",
+      "sha256": "36fed011c434f94fbde49bdc377bcdaf81f0520729c1f16c57214cb78ee0def4",
+      "bytes": 27398,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "420",
+      "speed": 6,
+      "design_dimensions": [
+        768,
+        768
+      ],
+      "scale": 0.75,
+      "master": "local/art-development/places-book/masters/preview-places.png",
+      "master_sha256": "207e2ea4249aad358482eb237ce85aa59353537711c80b2f48226cd3db78601b",
+      "exact_alpha": false,
       "alpha_quality": 100
     }
   },

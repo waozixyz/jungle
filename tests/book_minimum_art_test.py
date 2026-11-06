@@ -29,7 +29,7 @@ class MinimumBookArtTest(unittest.TestCase):
     def test_exact_inventory_and_provenance(self):
         names = set(MINIMUM['words'])
         self.assertEqual(len(names), 109)
-        self.assertEqual(names, set(NAMES[326:]))
+        self.assertEqual(names, set(NAMES[326:435]))
         self.assertEqual(self.manifest['count'], 109)
         self.assertEqual(set(self.files), {f'assets/jungle-book/pages/{name}.avif' for name in names})
         prompts = json.loads((ROOT / 'tools/book_prompts.json').read_text())['pages']

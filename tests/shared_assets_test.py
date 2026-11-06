@@ -286,7 +286,7 @@ def real_tree_test():
     assert all(f'assets/animal-count/pictures/{name}.avif' in aliases for name in shared_assets.COUNTING)
     catalog_pages = {f'assets/jungle-book/pages/{name}.avif'
                      for _, names in __import__('book_catalog').BOOKS for name in names}
-    assert len(catalog_pages) == 435 and catalog_pages <= set(aliases), 'a catalog page lost its runtime alias'
+    assert len(catalog_pages) == 450 and catalog_pages <= set(aliases), 'a catalog page lost its runtime alias'
     assert len(runtime) >= 700, len(runtime)
     assert set(bundles['jungle-book']) == {'assets/jungle-book/collect.wav'}, 'Picture Book bundle holds only its chime; album pictures are shared'
     sounds = 0
@@ -344,7 +344,7 @@ def make_test():
         (root / 'tools').mkdir()
         for name in ('shared_assets.py', 'web_images.py', 'avif_codec.py', 'speech_codec.py', 'book_speech.py', 'book_catalog.py',
                      'book_expansion.json', 'book_learning_expansion.json', 'outdoor_books.json',
-                     'book_unique_expansion.json', 'book_minimum_expansion.json'):
+                     'book_unique_expansion.json', 'book_minimum_expansion.json', 'book_places.json'):
             shutil.copy2(ROOT / 'tools' / name, root / 'tools' / name)
         (root / 'tools/speech_manifest.py').write_text(SPEECH_STUB)
 

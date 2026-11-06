@@ -1,0 +1,360 @@
+{
+  "book": "places",
+  "count": 15,
+  "files": {
+    "assets/jungle-book/pages/plaza.avif": {
+      "subject": "plaza",
+      "prompt": "Use case illustration-story. Generate ONE square high-resolution 1254px-or-larger toddler picture-book scene in the exact same gentle storybook watercolor style as the supplied reference (its top-left tiger cover). Reference is STYLE ONLY; create the requested place and its own distinct setting, never copy the tiger, text, collage, grid or unrelated subjects. Soft cartoonish storybook watercolor on warm cream paper, simplified rounded forms, smooth translucent washes, delicate botanical leaves, warm sage/ochre/pale blue/earth colors, fine pencil accents, feathered scene edges fading to warm cream paper near #fff9e6 at all four corners. One clear main place fills most of the page with a complete coherent setting; quiet open sky or space near the top for an app label. Everything rests naturally on the ground with believable perspective; nothing floats. Any people are few, small, calm and friendly with warm rounded storybook faces, natural proportions and exactly two arms; any animals are young and gentle with natural anatomy and calm eyes looking just past the viewer, never toothy or staring. Vehicles and buildings have no faces. Signs, shop awnings, books and posters are blank or simple pictures only. No text, letters, numerals, labels, logos, brands, border, frame, watermark, signature, grid, variants or multiple panels. Never photorealistic, 3D, flat vector or harsh detail. Scene: A sunny town plaza: a wide paved square of warm round cobblestones with a round stone fountain splashing gently in the middle, a few benches, potted flowers and two leafy trees, friendly pastel townhouses with arched windows and small cafe tables with striped awnings around the edges, pigeons pecking near the fountain, one small child and a parent walking hand in hand.",
+      "prompt_sha256": "6e31d3dd9db1bd9ed09ceb71149000e249bfd427dde661d10e00429a5881e8b4",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "local/art-development/title-covers.png"
+      ],
+      "reference_usage": "style only: title-screen tiger cover watercolor",
+      "request_id": "14f2f11abbd7e0b5b022bbcd779e9e4a4560",
+      "source_png_sha256": "1418b854f36c9ac4926bceb812548da4af1c25fd3e54433682de8b5d7946c676",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "master": "local/art-development/places-book/masters/plaza.png",
+      "master_sha256": "d67cc80ee1723ae0325a8424ef58110068984cae87f285d1d1fefab0d054ff13",
+      "design_dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "e5be8a38747ddbe6eb2b38b981a5a2b96c86842627858c13d57dded1b585b8ac"
+    },
+    "assets/jungle-book/pages/park.avif": {
+      "subject": "park",
+      "prompt": "Use case illustration-story. Generate ONE square high-resolution 1254px-or-larger toddler picture-book scene in the exact same gentle storybook watercolor style as the supplied reference (its top-left tiger cover). Reference is STYLE ONLY; create the requested place and its own distinct setting, never copy the tiger, text, collage, grid or unrelated subjects. Soft cartoonish storybook watercolor on warm cream paper, simplified rounded forms, smooth translucent washes, delicate botanical leaves, warm sage/ochre/pale blue/earth colors, fine pencil accents, feathered scene edges fading to warm cream paper near #fff9e6 at all four corners. One clear main place fills most of the page with a complete coherent setting; quiet open sky or space near the top for an app label. Everything rests naturally on the ground with believable perspective; nothing floats. Any people are few, small, calm and friendly with warm rounded storybook faces, natural proportions and exactly two arms; any animals are young and gentle with natural anatomy and calm eyes looking just past the viewer, never toothy or staring. Vehicles and buildings have no faces. Signs, shop awnings, books and posters are blank or simple pictures only. No text, letters, numerals, labels, logos, brands, border, frame, watermark, signature, grid, variants or multiple panels. Never photorealistic, 3D, flat vector or harsh detail. Scene: A green town park on a bright afternoon: a winding gravel path through soft rolling lawn, a small duck pond with two ducks, a wooden bench under a big round leafy tree, flower beds, a family having a gentle walk, distant soft town rooftops beyond the trees.",
+      "prompt_sha256": "25afd5eef315519de4f42fabdb1875ad67fbcf58e0c452069d933133d05f3318",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "local/art-development/title-covers.png"
+      ],
+      "reference_usage": "style only: title-screen tiger cover watercolor",
+      "request_id": "ac7d2b8c8faee3ab73b7690a64937c16a3df",
+      "source_png_sha256": "17833499ddba95591e8184a838bbea412ffc6e676db5779f60138f393c502505",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "master": "local/art-development/places-book/masters/park.png",
+      "master_sha256": "a928582d3b973287c633a814619682bcaa69a71c905dfa965fc2ad3e73fee6e2",
+      "design_dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "92f003d40f190b3a235587786a0de9aff0931f6ae9292dcfaea00003541baa99"
+    },
+    "assets/jungle-book/pages/zoo.avif": {
+      "subject": "zoo",
+      "prompt": "Use case illustration-story. Generate ONE square high-resolution 1254px-or-larger toddler picture-book scene in the exact same gentle storybook watercolor style as the supplied reference (its top-left tiger cover). Reference is STYLE ONLY; create the requested place and its own distinct setting, never copy the tiger, text, collage, grid or unrelated subjects. Soft cartoonish storybook watercolor on warm cream paper, simplified rounded forms, smooth translucent washes, delicate botanical leaves, warm sage/ochre/pale blue/earth colors, fine pencil accents, feathered scene edges fading to warm cream paper near #fff9e6 at all four corners. One clear main place fills most of the page with a complete coherent setting; quiet open sky or space near the top for an app label. Everything rests naturally on the ground with believable perspective; nothing floats. Any people are few, small, calm and friendly with warm rounded storybook faces, natural proportions and exactly two arms; any animals are young and gentle with natural anatomy and calm eyes looking just past the viewer, never toothy or staring. Vehicles and buildings have no faces. Signs, shop awnings, books and posters are blank or simple pictures only. No text, letters, numerals, labels, logos, brands, border, frame, watermark, signature, grid, variants or multiple panels. Never photorealistic, 3D, flat vector or harsh detail. Scene: A friendly zoo: a curving visitor path with a low wooden fence, behind it a grassy enclosure where a young giraffe and a young elephant stand calmly by a shady tree and a small water pool, a few tropical plants, a child with a parent watching from the path, a small wooden zoo kiosk with a blank sign in the background.",
+      "prompt_sha256": "930a60ace3bb23b1a0e43e2d0f0a79ce3731982790df83b48b4d74b624bb9e45",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "local/art-development/title-covers.png"
+      ],
+      "reference_usage": "style only: title-screen tiger cover watercolor",
+      "request_id": "c2f8527c1a02d57cbb0a496b2709a4a71b1d",
+      "source_png_sha256": "0e27c47d507af78b81d5afc239cad7e9aee86de92f67646d339e4a95b2236428",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "master": "local/art-development/places-book/masters/zoo.png",
+      "master_sha256": "a8e97a9b2233b6267a83876e8bac8e6c9b5a2bb9370d025f1c23a976e228491c",
+      "design_dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "ba285efae18b577c83707b5fc102c481e44005215f8014f9908f7f3a35db4a07"
+    },
+    "assets/jungle-book/pages/aquarium.avif": {
+      "subject": "aquarium",
+      "prompt": "Use case illustration-story. Generate ONE square high-resolution 1254px-or-larger toddler picture-book scene in the exact same gentle storybook watercolor style as the supplied reference (its top-left tiger cover). Reference is STYLE ONLY; create the requested place and its own distinct setting, never copy the tiger, text, collage, grid or unrelated subjects. Soft cartoonish storybook watercolor on warm cream paper, simplified rounded forms, smooth translucent washes, delicate botanical leaves, warm sage/ochre/pale blue/earth colors, fine pencil accents, feathered scene edges fading to warm cream paper near #fff9e6 at all four corners. One clear main place fills most of the page with a complete coherent setting; quiet open sky or space near the top for an app label. Everything rests naturally on the ground with believable perspective; nothing floats. Any people are few, small, calm and friendly with warm rounded storybook faces, natural proportions and exactly two arms; any animals are young and gentle with natural anatomy and calm eyes looking just past the viewer, never toothy or staring. Vehicles and buildings have no faces. Signs, shop awnings, books and posters are blank or simple pictures only. No text, letters, numerals, labels, logos, brands, border, frame, watermark, signature, grid, variants or multiple panels. Never photorealistic, 3D, flat vector or harsh detail. Scene: Inside a gentle aquarium: one huge curved glass tank filled with soft blue water, colorful friendly fish, a sea turtle, swaying seaweed, coral and rocks; a small child and a parent stand in the cool dim blue hall in front of the glass, looking at the fish, soft light rippling on the floor.",
+      "prompt_sha256": "8c4059adc3ba185a4fde4b9a9f766d3926367531f3c140d78952fa154c79d1c0",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "local/art-development/title-covers.png"
+      ],
+      "reference_usage": "style only: title-screen tiger cover watercolor",
+      "request_id": "26467895eb40a1f845ecc8607e3ee67b1954",
+      "source_png_sha256": "128e54d9fd3c90b486787bf92ebd0da929cdfb9bb60d2bcea8ab0fa9d024d3ba",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "master": "local/art-development/places-book/masters/aquarium.png",
+      "master_sha256": "bfead9fb7927004d228a5398473b10e860104fecba2da59faee6aaec9fff3af2",
+      "design_dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "a1c959833b470e8e44ff44b074c944861c7f6f319ea823d6696f5b35253e8346"
+    },
+    "assets/jungle-book/pages/city.avif": {
+      "subject": "city",
+      "prompt": "Use case illustration-story. Generate ONE square high-resolution 1254px-or-larger toddler picture-book scene in the exact same gentle storybook watercolor style as the supplied reference (its top-left tiger cover). Reference is STYLE ONLY; create the requested place and its own distinct setting, never copy the tiger, text, collage, grid or unrelated subjects. Soft cartoonish storybook watercolor on warm cream paper, simplified rounded forms, smooth translucent washes, delicate botanical leaves, warm sage/ochre/pale blue/earth colors, fine pencil accents, feathered scene edges fading to warm cream paper near #fff9e6 at all four corners. One clear main place fills most of the page with a complete coherent setting; quiet open sky or space near the top for an app label. Everything rests naturally on the ground with believable perspective; nothing floats. Any people are few, small, calm and friendly with warm rounded storybook faces, natural proportions and exactly two arms; any animals are young and gentle with natural anatomy and calm eyes looking just past the viewer, never toothy or staring. Vehicles and buildings have no faces. Signs, shop awnings, books and posters are blank or simple pictures only. No text, letters, numerals, labels, logos, brands, border, frame, watermark, signature, grid, variants or multiple panels. Never photorealistic, 3D, flat vector or harsh detail. Scene: A cheerful city skyline seen from a gentle green riverside park: several tall rounded buildings in soft pastel colors with many simple windows, a few smaller houses in front, a stone bridge over a calm river, trees along the bank, soft morning sky with light clouds.",
+      "prompt_sha256": "38031578f4345e66ebf4c7ed29df2b11e3e1896f3739771939828ef5fdf4b984",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "local/art-development/title-covers.png"
+      ],
+      "reference_usage": "style only: title-screen tiger cover watercolor",
+      "request_id": "e1c166d1a8b28757fc5d92b5ddf6515e7244",
+      "source_png_sha256": "dc41495da58b458d0b67e51db38fe06f058d3e3c2b021281d3b2b805b3b03c50",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "master": "local/art-development/places-book/masters/city.png",
+      "master_sha256": "020b2bd71b09e5aef651f724ac66e02cf532e99494360ec96cc0bb96ea3de5f1",
+      "design_dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "2d685a932bdf8d3e86b88020e097770e9901b231e48a6f3713c82864c1329f08"
+    },
+    "assets/jungle-book/pages/street.avif": {
+      "subject": "street",
+      "prompt": "Use case illustration-story. Generate ONE square high-resolution 1254px-or-larger toddler picture-book scene in the exact same gentle storybook watercolor style as the supplied reference (its top-left tiger cover). Reference is STYLE ONLY; create the requested place and its own distinct setting, never copy the tiger, text, collage, grid or unrelated subjects. Soft cartoonish storybook watercolor on warm cream paper, simplified rounded forms, smooth translucent washes, delicate botanical leaves, warm sage/ochre/pale blue/earth colors, fine pencil accents, feathered scene edges fading to warm cream paper near #fff9e6 at all four corners. One clear main place fills most of the page with a complete coherent setting; quiet open sky or space near the top for an app label. Everything rests naturally on the ground with believable perspective; nothing floats. Any people are few, small, calm and friendly with warm rounded storybook faces, natural proportions and exactly two arms; any animals are young and gentle with natural anatomy and calm eyes looking just past the viewer, never toothy or staring. Vehicles and buildings have no faces. Signs, shop awnings, books and posters are blank or simple pictures only. No text, letters, numerals, labels, logos, brands, border, frame, watermark, signature, grid, variants or multiple panels. Never photorealistic, 3D, flat vector or harsh detail. Scene: A quiet city street with sidewalks on both sides: rows of friendly townhouses and small shops with blank awnings, street lamps, little trees in round planters, a mail box, one parked small car, a person walking a dog on the sidewalk, the street receding gently into the distance.",
+      "prompt_sha256": "ad618f4e016be0c80bc58c2e383de844a145d4ae27e074f77d738f4b74fbc7a8",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "local/art-development/title-covers.png"
+      ],
+      "reference_usage": "style only: title-screen tiger cover watercolor",
+      "request_id": "45637b0fa1db95e9a2b473433ebc48f59369",
+      "source_png_sha256": "8b121eead1595690bd257a9e20117874e6fefb89b6872bd15ad753c597ce515f",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "master": "local/art-development/places-book/masters/street.png",
+      "master_sha256": "181d73bc934ce34b989ec85d5a3642be22d312a0077927707cfa7951a83b004c",
+      "design_dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "31cfd1c1befc653eb5cf15f3fa4e312d0f7091dbfb7524257edcfd455280e16e"
+    },
+    "assets/jungle-book/pages/traffic.avif": {
+      "subject": "traffic",
+      "prompt": "Use case illustration-story. Generate ONE square high-resolution 1254px-or-larger toddler picture-book scene in the exact same gentle storybook watercolor style as the supplied reference (its top-left tiger cover). Reference is STYLE ONLY; create the requested place and its own distinct setting, never copy the tiger, text, collage, grid or unrelated subjects. Soft cartoonish storybook watercolor on warm cream paper, simplified rounded forms, smooth translucent washes, delicate botanical leaves, warm sage/ochre/pale blue/earth colors, fine pencil accents, feathered scene edges fading to warm cream paper near #fff9e6 at all four corners. One clear main place fills most of the page with a complete coherent setting; quiet open sky or space near the top for an app label. Everything rests naturally on the ground with believable perspective; nothing floats. Any people are few, small, calm and friendly with warm rounded storybook faces, natural proportions and exactly two arms; any animals are young and gentle with natural anatomy and calm eyes looking just past the viewer, never toothy or staring. Vehicles and buildings have no faces. Signs, shop awnings, books and posters are blank or simple pictures only. No text, letters, numerals, labels, logos, brands, border, frame, watermark, signature, grid, variants or multiple panels. Never photorealistic, 3D, flat vector or harsh detail. Scene: Busy but friendly city traffic at a crossroads: several rounded cars in different soft colors, one big yellow city bus and a little delivery van moving calmly along a wide road with lane markings, a traffic light on a pole at the corner, buildings and trees lining the road, no faces on vehicles, no drivers visible in detail.",
+      "prompt_sha256": "dba609a7490626acbbe953d77a8c1928fdd643875dea411803cb7d03d13bf73c",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "local/art-development/title-covers.png"
+      ],
+      "reference_usage": "style only: title-screen tiger cover watercolor",
+      "request_id": "f1e8fa509988d414767769292ad34ba042a9",
+      "source_png_sha256": "7ae7882b40c1596d32d6b750fe8a48e2403a4fa7b23ad2574738491f404a20b3",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "master": "local/art-development/places-book/masters/traffic.png",
+      "master_sha256": "25dfcad0fefb065457a6c4a4a4bcc65490be083c35e51f5438853e2251c7503c",
+      "design_dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "53764c082ff54119c89a77baafbedab218b447d7cf6deea040ae88f0e60fd859"
+    },
+    "assets/jungle-book/pages/traffic_light.avif": {
+      "subject": "traffic_light",
+      "prompt": "Use case illustration-story. Generate ONE square high-resolution 1254px-or-larger toddler picture-book scene in the exact same gentle storybook watercolor style as the supplied reference (its top-left tiger cover). Reference is STYLE ONLY; create the requested place and its own distinct setting, never copy the tiger, text, collage, grid or unrelated subjects. Soft cartoonish storybook watercolor on warm cream paper, simplified rounded forms, smooth translucent washes, delicate botanical leaves, warm sage/ochre/pale blue/earth colors, fine pencil accents, feathered scene edges fading to warm cream paper near #fff9e6 at all four corners. One clear main place fills most of the page with a complete coherent setting; quiet open sky or space near the top for an app label. Everything rests naturally on the ground with believable perspective; nothing floats. Any people are few, small, calm and friendly with warm rounded storybook faces, natural proportions and exactly two arms; any animals are young and gentle with natural anatomy and calm eyes looking just past the viewer, never toothy or staring. Vehicles and buildings have no faces. Signs, shop awnings, books and posters are blank or simple pictures only. No text, letters, numerals, labels, logos, brands, border, frame, watermark, signature, grid, variants or multiple panels. Never photorealistic, 3D, flat vector or harsh detail. Scene: One tall traffic light on a dark green pole standing on a street corner as the clear main subject, its three round lamps red at top, yellow in the middle and green at the bottom with only the green lamp glowing softly; a curb, sidewalk and a calm street with a blurred car and trees behind. The traffic light is large and fills most of the page height.",
+      "prompt_sha256": "2ad4571ee05050b56dc5b36b4414df3bdd4001c747aa3cf5bd9b8f5ac02fe320",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "local/art-development/title-covers.png"
+      ],
+      "reference_usage": "style only: title-screen tiger cover watercolor",
+      "request_id": "a9ab1c8f520a8d48d0276992a7aeb31d070d",
+      "source_png_sha256": "5d62166435dc67db26be62a5a793426b117ac7ec16dc979b0b1b80aef4613e0c",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "master": "local/art-development/places-book/masters/traffic_light.png",
+      "master_sha256": "b01126719d98683229b6a87550d9f8a353e52897352f23234274fe9c6819e65e",
+      "design_dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "dec00ac49c296e158921a5713b3a1e0a37b031fd318f3151fb6ab7a00569a326"
+    },
+    "assets/jungle-book/pages/crosswalk.avif": {
+      "subject": "crosswalk",
+      "prompt": "Use case illustration-story. Generate ONE square high-resolution 1254px-or-larger toddler picture-book scene in the exact same gentle storybook watercolor style as the supplied reference (its top-left tiger cover). Reference is STYLE ONLY; create the requested place and its own distinct setting, never copy the tiger, text, collage, grid or unrelated subjects. Soft cartoonish storybook watercolor on warm cream paper, simplified rounded forms, smooth translucent washes, delicate botanical leaves, warm sage/ochre/pale blue/earth colors, fine pencil accents, feathered scene edges fading to warm cream paper near #fff9e6 at all four corners. One clear main place fills most of the page with a complete coherent setting; quiet open sky or space near the top for an app label. Everything rests naturally on the ground with believable perspective; nothing floats. Any people are few, small, calm and friendly with warm rounded storybook faces, natural proportions and exactly two arms; any animals are young and gentle with natural anatomy and calm eyes looking just past the viewer, never toothy or staring. Vehicles and buildings have no faces. Signs, shop awnings, books and posters are blank or simple pictures only. No text, letters, numerals, labels, logos, brands, border, frame, watermark, signature, grid, variants or multiple panels. Never photorealistic, 3D, flat vector or harsh detail. Scene: A zebra crosswalk with bold white stripes across a calm street as the main subject, a parent and a small child holding hands walking across it, a car waiting patiently at the side, a pedestrian traffic light glowing green on a pole, sidewalks, trees and townhouses behind.",
+      "prompt_sha256": "943148d13245b06691a3b8b9436bdc4bd0c111909ea948fda64491c51d027dfa",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "local/art-development/title-covers.png"
+      ],
+      "reference_usage": "style only: title-screen tiger cover watercolor",
+      "request_id": "97a4ef661dea65df3feaa25baae7cf6d46e8",
+      "source_png_sha256": "b7cf0d5e526ca6bd805e593822748e2c23fdec0e7d2c98930911d984177511c4",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "master": "local/art-development/places-book/masters/crosswalk.png",
+      "master_sha256": "e84893c75d43efc8d2fee2a1f43b934fa03b51ad1930f3d285db0f08d1fe6a93",
+      "design_dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "b5bce6904ef6a3c3bb9cdd07981b960ec50700cdd6c442350038e57b0eabe496"
+    },
+    "assets/jungle-book/pages/bus_stop.avif": {
+      "subject": "bus_stop",
+      "prompt": "Use case illustration-story. Generate ONE square high-resolution 1254px-or-larger toddler picture-book scene in the exact same gentle storybook watercolor style as the supplied reference (its top-left tiger cover). Reference is STYLE ONLY; create the requested place and its own distinct setting, never copy the tiger, text, collage, grid or unrelated subjects. Soft cartoonish storybook watercolor on warm cream paper, simplified rounded forms, smooth translucent washes, delicate botanical leaves, warm sage/ochre/pale blue/earth colors, fine pencil accents, feathered scene edges fading to warm cream paper near #fff9e6 at all four corners. One clear main place fills most of the page with a complete coherent setting; quiet open sky or space near the top for an app label. Everything rests naturally on the ground with believable perspective; nothing floats. Any people are few, small, calm and friendly with warm rounded storybook faces, natural proportions and exactly two arms; any animals are young and gentle with natural anatomy and calm eyes looking just past the viewer, never toothy or staring. Vehicles and buildings have no faces. Signs, shop awnings, books and posters are blank or simple pictures only. No text, letters, numerals, labels, logos, brands, border, frame, watermark, signature, grid, variants or multiple panels. Never photorealistic, 3D, flat vector or harsh detail. Scene: A small city bus stop as the main subject: a little glass-and-green-metal shelter with a bench and a pole with a blank round sign, a big friendly yellow city bus just pulled up at the curb with its doors open, a grandparent and child waiting on the bench, trees and buildings behind.",
+      "prompt_sha256": "a5c118b58fc1d86cd2f8a1222037f02516a758c38380bbd3cf0e0c0a2f0ce76e",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "local/art-development/title-covers.png"
+      ],
+      "reference_usage": "style only: title-screen tiger cover watercolor",
+      "request_id": "621d63703e418232610964d7c23222bc2806",
+      "source_png_sha256": "2fcb4e63e542988e2487fd7f807a1c730f4fa38581b632fbb2454f2a8e580221",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "master": "local/art-development/places-book/masters/bus_stop.png",
+      "master_sha256": "dbb923a0e0bec3df17aebe2024ad0990e9c102bfb00748a90ce61eb06b5f1edc",
+      "design_dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "efa85ff3d9c61e4a28e6d97be2e3c1e557b8cc13cf6d7b21edf4c049bb716f89"
+    },
+    "assets/jungle-book/pages/market.avif": {
+      "subject": "market",
+      "prompt": "Use case illustration-story. Generate ONE square high-resolution 1254px-or-larger toddler picture-book scene in the exact same gentle storybook watercolor style as the supplied reference (its top-left tiger cover). Reference is STYLE ONLY; create the requested place and its own distinct setting, never copy the tiger, text, collage, grid or unrelated subjects. Soft cartoonish storybook watercolor on warm cream paper, simplified rounded forms, smooth translucent washes, delicate botanical leaves, warm sage/ochre/pale blue/earth colors, fine pencil accents, feathered scene edges fading to warm cream paper near #fff9e6 at all four corners. One clear main place fills most of the page with a complete coherent setting; quiet open sky or space near the top for an app label. Everything rests naturally on the ground with believable perspective; nothing floats. Any people are few, small, calm and friendly with warm rounded storybook faces, natural proportions and exactly two arms; any animals are young and gentle with natural anatomy and calm eyes looking just past the viewer, never toothy or staring. Vehicles and buildings have no faces. Signs, shop awnings, books and posters are blank or simple pictures only. No text, letters, numerals, labels, logos, brands, border, frame, watermark, signature, grid, variants or multiple panels. Never photorealistic, 3D, flat vector or harsh detail. Scene: A lively open-air farmers market in a small town: rows of wooden stalls with striped cloth awnings piled with colorful fruit, vegetables, flowers and bread in baskets, a friendly market seller and a parent with a child choosing apples, bunting overhead, soft morning light.",
+      "prompt_sha256": "f217219f7a86f89adfa3f108053bf0f4779607d627fde915300a401c7fc7b6a0",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "local/art-development/title-covers.png"
+      ],
+      "reference_usage": "style only: title-screen tiger cover watercolor",
+      "request_id": "c42803f0f7da870758edea893dfac209d377",
+      "source_png_sha256": "25c21b4c1e597b0c050dc6cbbf03cfae87c47a5216923bd81994018f50f18a9a",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "master": "local/art-development/places-book/masters/market.png",
+      "master_sha256": "82947fda598a39495ad4d1c5a7f2bec067a1237323fc6564120aa47f345a0719",
+      "design_dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "4cc1c29165b5736f9a42ca8a16a3f714d4f7160754c87363bb2256249579ee83"
+    },
+    "assets/jungle-book/pages/playground.avif": {
+      "subject": "playground",
+      "prompt": "Use case illustration-story. Generate ONE square high-resolution 1254px-or-larger toddler picture-book scene in the exact same gentle storybook watercolor style as the supplied reference (its top-left tiger cover). Reference is STYLE ONLY; create the requested place and its own distinct setting, never copy the tiger, text, collage, grid or unrelated subjects. Soft cartoonish storybook watercolor on warm cream paper, simplified rounded forms, smooth translucent washes, delicate botanical leaves, warm sage/ochre/pale blue/earth colors, fine pencil accents, feathered scene edges fading to warm cream paper near #fff9e6 at all four corners. One clear main place fills most of the page with a complete coherent setting; quiet open sky or space near the top for an app label. Everything rests naturally on the ground with believable perspective; nothing floats. Any people are few, small, calm and friendly with warm rounded storybook faces, natural proportions and exactly two arms; any animals are young and gentle with natural anatomy and calm eyes looking just past the viewer, never toothy or staring. Vehicles and buildings have no faces. Signs, shop awnings, books and posters are blank or simple pictures only. No text, letters, numerals, labels, logos, brands, border, frame, watermark, signature, grid, variants or multiple panels. Never photorealistic, 3D, flat vector or harsh detail. Scene: A sunny town playground: a little slide, a pair of swings, a sandpit with a bucket and spade, a seesaw and a small climbing frame on soft wood-chip ground, surrounded by green trees and a low fence, two small children playing happily.",
+      "prompt_sha256": "6678261aa8f6e97af1f2602663c8bea2c965460fccbd81445a4eb7ad6ce6ab18",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "local/art-development/title-covers.png"
+      ],
+      "reference_usage": "style only: title-screen tiger cover watercolor",
+      "request_id": "f8073492a4e2d4d3e536de0c62528f552873",
+      "source_png_sha256": "c9f83cb252878cdf968feb23d9665fd8235faed2ec3181ac1e46f649f8b8782c",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "master": "local/art-development/places-book/masters/playground.png",
+      "master_sha256": "305fe39f765d730b6210b19fa88e48b1cdcca2295be81bda17843b16281fea5c",
+      "design_dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "a08e73ba0a704b5562625abc02d39204ec7be83d301b3103c82c8567b50ebcdf"
+    },
+    "assets/jungle-book/pages/train_station.avif": {
+      "subject": "train_station",
+      "prompt": "Use case illustration-story. Generate ONE square high-resolution 1254px-or-larger toddler picture-book scene in the exact same gentle storybook watercolor style as the supplied reference (its top-left tiger cover). Reference is STYLE ONLY; create the requested place and its own distinct setting, never copy the tiger, text, collage, grid or unrelated subjects. Soft cartoonish storybook watercolor on warm cream paper, simplified rounded forms, smooth translucent washes, delicate botanical leaves, warm sage/ochre/pale blue/earth colors, fine pencil accents, feathered scene edges fading to warm cream paper near #fff9e6 at all four corners. One clear main place fills most of the page with a complete coherent setting; quiet open sky or space near the top for an app label. Everything rests naturally on the ground with believable perspective; nothing floats. Any people are few, small, calm and friendly with warm rounded storybook faces, natural proportions and exactly two arms; any animals are young and gentle with natural anatomy and calm eyes looking just past the viewer, never toothy or staring. Vehicles and buildings have no faces. Signs, shop awnings, books and posters are blank or simple pictures only. No text, letters, numerals, labels, logos, brands, border, frame, watermark, signature, grid, variants or multiple panels. Never photorealistic, 3D, flat vector or harsh detail. Scene: A friendly train station platform: a long covered platform with a curved roof of iron arches and glass, a rounded blue-and-red passenger train waiting at the platform, a big round station clock with simple dots and hands but no numerals, benches, potted plants, a parent with a child and a small suitcase.",
+      "prompt_sha256": "7a0032a5cf54073fcc84144f62fc26f0aaf62747c17d0ea6e6f0e28620aeccb4",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "local/art-development/title-covers.png"
+      ],
+      "reference_usage": "style only: title-screen tiger cover watercolor",
+      "request_id": "9b432baa38ae9072f2b8473ac25e18277446",
+      "source_png_sha256": "fe3b4238af088173c07359f85c4af8e8b4b895d091953d5227e05f8ff5d94884",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "master": "local/art-development/places-book/masters/train_station.png",
+      "master_sha256": "aaa370a3d016f1f5892f2b609a3edbc5b79d7da4570ac86f890028ad35c59a9e",
+      "design_dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "46c236ee74c70ca14c6958955c92b9b7fdedde032c2aadf3ae0e2793d3d2a7eb"
+    },
+    "assets/jungle-book/pages/library.avif": {
+      "subject": "library",
+      "prompt": "Use case illustration-story. Generate ONE square high-resolution 1254px-or-larger toddler picture-book scene in the exact same gentle storybook watercolor style as the supplied reference (its top-left tiger cover). Reference is STYLE ONLY; create the requested place and its own distinct setting, never copy the tiger, text, collage, grid or unrelated subjects. Soft cartoonish storybook watercolor on warm cream paper, simplified rounded forms, smooth translucent washes, delicate botanical leaves, warm sage/ochre/pale blue/earth colors, fine pencil accents, feathered scene edges fading to warm cream paper near #fff9e6 at all four corners. One clear main place fills most of the page with a complete coherent setting; quiet open sky or space near the top for an app label. Everything rests naturally on the ground with believable perspective; nothing floats. Any people are few, small, calm and friendly with warm rounded storybook faces, natural proportions and exactly two arms; any animals are young and gentle with natural anatomy and calm eyes looking just past the viewer, never toothy or staring. Vehicles and buildings have no faces. Signs, shop awnings, books and posters are blank or simple pictures only. No text, letters, numerals, labels, logos, brands, border, frame, watermark, signature, grid, variants or multiple panels. Never photorealistic, 3D, flat vector or harsh detail. Scene: Inside a cozy town library: tall wooden bookshelves full of colorful books with blank spines, a soft rug, a reading corner with cushions and a low table, big arched windows with warm daylight, a librarian reading a picture book to a small child, potted plants.",
+      "prompt_sha256": "d12af7307e09a6950877b9da52ba24f9eb7db9a846101b87a940057a3fa5e7e8",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "local/art-development/title-covers.png"
+      ],
+      "reference_usage": "style only: title-screen tiger cover watercolor",
+      "request_id": "7cd6e57612c0e6f89267b037fe4baa6715bf",
+      "source_png_sha256": "cc52b74d7286a2033295736feaff3ad13d133c094da53708a24d9907ccc5d48e",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "master": "local/art-development/places-book/masters/library.png",
+      "master_sha256": "e998fbe608d874c1a3b661a6933c413e26899304b4c12fb92cf56eec42b60522",
+      "design_dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "d61d10a02975f861ba3309284c7a96a4234985a4c156fa934189b0f6cfc67c35"
+    },
+    "assets/jungle-book/pages/fire_station.avif": {
+      "subject": "fire_station",
+      "prompt": "Use case illustration-story. Generate ONE square high-resolution 1254px-or-larger toddler picture-book scene in the exact same gentle storybook watercolor style as the supplied reference (its top-left tiger cover). Reference is STYLE ONLY; create the requested place and its own distinct setting, never copy the tiger, text, collage, grid or unrelated subjects. Soft cartoonish storybook watercolor on warm cream paper, simplified rounded forms, smooth translucent washes, delicate botanical leaves, warm sage/ochre/pale blue/earth colors, fine pencil accents, feathered scene edges fading to warm cream paper near #fff9e6 at all four corners. One clear main place fills most of the page with a complete coherent setting; quiet open sky or space near the top for an app label. Everything rests naturally on the ground with believable perspective; nothing floats. Any people are few, small, calm and friendly with warm rounded storybook faces, natural proportions and exactly two arms; any animals are young and gentle with natural anatomy and calm eyes looking just past the viewer, never toothy or staring. Vehicles and buildings have no faces. Signs, shop awnings, books and posters are blank or simple pictures only. No text, letters, numerals, labels, logos, brands, border, frame, watermark, signature, grid, variants or multiple panels. Never photorealistic, 3D, flat vector or harsh detail. Scene: A small friendly fire station building with red brick walls and two big open garage doors, a shiny red fire engine parked inside one door, a coiled hose on the wall, a smiling firefighter in a yellow coat standing by the door, a flower box and a tree beside the building, calm sunny day, no flames or emergency.",
+      "prompt_sha256": "ef03c9b29edc05bf9b9b10ea51bece6d7c813d003aff31c1136e98295a04f883",
+      "generator": "built-in imagegen",
+      "reference_images": [
+        "local/art-development/title-covers.png"
+      ],
+      "reference_usage": "style only: title-screen tiger cover watercolor",
+      "request_id": "8304aa0113ebd6b0407663b1746ab5ccd722",
+      "source_png_sha256": "9acb1394797d143e2b8aaf127c1aaf846618d2a5707a5082749ff305f003eb37",
+      "source_png_dimensions": [
+        1254,
+        1254
+      ],
+      "master": "local/art-development/places-book/masters/fire_station.png",
+      "master_sha256": "033741320bdb5e040e0a4907b0409cf7964cb26c5a9ffbaf5a00acad55ec52de",
+      "design_dimensions": [
+        1254,
+        1254
+      ],
+      "sha256": "633ee3b6cd81a40780dc27c817a1e92f7c6c4eb95970d8713b36ad6e91f42424"
+    }
+  },
+  "cover": {
+    "path": "assets/jungle-book/previews/places.avif",
+    "page": "assets/jungle-book/pages/plaza.avif",
+    "design_dimensions": [
+      768,
+      768
+    ],
+    "sha256": "36fed011c434f94fbde49bdc377bcdaf81f0520729c1f16c57214cb78ee0def4"
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "text": "Market. M. A. R. K. E. T. Market.",
+  "model": "kokoro-82m-uint8",
+  "voice": "af_bella+af_heart",
+  "language": "en",
+  "speed": 0.8,
+  "profile": "normal",
+  "model_sha256": "6607a397d77b8514065420b7c1e7320117f7aabfdb45ce15f0050c5b0fe75aea",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+  "blend": {
+    "af_bella": 0.5,
+    "af_heart": 0.5
+  },
+  "method": "Verified word, literal letter names, word; PCM assembly",
+  "sources": [
+    {
+      "path": "assets/jungle-book/sounds/en/simple/market.wav",
+      "sha256": "f85da769f0f033f5ec90c1c1242687f8ce9e40cf444f4bea8470298b0b9e2157"
+    },
+    {
+      "path": "assets/jungle-book/sounds/en/letters-bella-heart/006d.wav",
+      "sha256": "d9cd2f800ec56139aacc6b211c20f91f7183e4b1e3e7e5e8c53370d004513c5e"
+    },
+    {
+      "path": "assets/jungle-book/sounds/en/letters-bella-heart/0061.wav",
+      "sha256": "3f4edcefca4b8ae86d97a0e7c106caae008a073298fe9d408f97dbba22ad43a4"
+    },
+    {
+      "path": "assets/jungle-book/sounds/en/letters-bella-heart/0072.wav",
+      "sha256": "488fa6318c7f99eb3a4564d4635ba0c81b68ced783f125c7ae932bffb9242035"
+    },
+    {
+      "path": "assets/jungle-book/sounds/en/letters-bella-heart/006b.wav",
+      "sha256": "e95429aac28531d732ee457335cb18d898279d23b5d8605cd194efae8ce6c8e3"
+    },
+    {
+      "path": "assets/jungle-book/sounds/en/letters-bella-heart/0065.wav",
+      "sha256": "f7aa8a8ad79e8974dda2018ae798a4b6673dc49038fbcd8d464e3ea9ea520562"
+    },
+    {
+      "path": "assets/jungle-book/sounds/en/letters-bella-heart/0074.wav",
+      "sha256": "b126fa929e39dc1363e0d486ce43cf18a66d87db3c9afb592a5ef36af6e7a59b"
+    }
+  ],
+  "duration": 8.221451247165533,
+  "sha256": "8e41c83a9e14bdd1779a9ee0a95001cb6d4e69ff317722ac4ddb6323b40bc7b4"
+}
