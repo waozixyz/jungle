@@ -129,8 +129,13 @@ class Desktop:
         finally:
             os.close(writefd)
         try:
-            ready, _, _ = select.select([readfd], [], [], 10)
-            assert ready, "private Xvfb did not become ready"
+            # Shared CI runners can take well over ten seconds to start Xvfb.
+            ready, _, _ = select.select([readfd], [], [], 30)
+            if not ready:
+                log.flush()
+                state = "running" if self.server.poll() is None else f"exited {self.server.returncode}"
+                raise AssertionError(f"private Xvfb did not become ready ({state}): "
+                                     + (OUTPUT / "xvfb.log").read_text()[-2000:])
             number = os.read(readfd, 32).decode().strip()
             assert number.isdigit(), f"private Xvfb failed; see {OUTPUT / 'xvfb.log'}"
             self.env["DISPLAY"] = ":" + number
