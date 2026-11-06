@@ -1,5 +1,6 @@
 #import, file "../retro/collectibles.zi";
 #import "std/number_text"
+#import "std/vec"
 
 COLLECTION_HEADER :: "JUNGLE COLLECTION 1\n"
 COLLECTION_HEADER_LINE :: "JUNGLE COLLECTION 1"
@@ -42,6 +43,7 @@ CollectionHas :: (collection: Collection, slug: string) -> bool {
     return CollectionHasSlug(collection.slugs, slug)
 }
 
+// Appends to a record's slug string, which keeps the new copy.
 CollectionAppend :: (slugs: *string, slug: string) -> bool {
     if !CollectionSlugValid(slug) || CollectionHasSlug(slugs.*, slug) { return false }
     bytes: Vec(u8)
@@ -49,6 +51,14 @@ CollectionAppend :: (slugs: *string, slug: string) -> bool {
     BuilderPrint(*bytes, "%", slug)
     BuilderPrint(*bytes, "\n")
     slugs.* = BuilderFinish(bytes)
+    return true
+}
+
+// Grows owned slug storage in place, as parsing does.
+CollectionAppend :: (slugs: *Text, slug: string) -> bool {
+    if !CollectionSlugValid(slug) || CollectionHasSlug(TextView(slugs.*), slug) { return false }
+    BuilderAppend(slugs.bytes, slug)
+    BuilderAppend(slugs.bytes, "\n")
     return true
 }
 
@@ -61,7 +71,7 @@ CollectionParse :: (text: string) -> Collection {
     if text.count > COLLECTION_TEXT_LIMIT || text.count < COLLECTION_HEADER_LINE.count ||
         text[:COLLECTION_HEADER_LINE.count] != COLLECTION_HEADER_LINE { return parsed }
 
-    raw: string
+    raw: Text
     at := COLLECTION_HEADER_LINE.count
     if at < text.count {
         if text[at] == cast(u8)13 {
@@ -81,27 +91,28 @@ CollectionParse :: (text: string) -> Collection {
         at = end + 1
     }
 
-    canonical: string
+    canonical: Text
     for id: cast(s32)0..251 {
         index := CollectibleById(id)
         if index < 0 { continue }
         slug := collectible_slugs[index]
         if CollectionHasSlug(raw, slug) { CollectionAppend(*canonical, slug) }
     }
+    raw_slugs := TextView(raw)
     at = 0
-    while at < raw.count {
+    while at < raw_slugs.count {
         end := at
-        while end < raw.count && raw[end] != cast(u8)10 { end += 1 }
-        slug := raw[at:end]
+        while end < raw_slugs.count && raw_slugs[end] != cast(u8)10 { end += 1 }
+        slug := raw_slugs[at:end]
         if CollectibleBySlug(slug) < 0 { CollectionAppend(*canonical, slug) }
         at = end + 1
     }
-    parsed.slugs = canonical
+    parsed.slugs = TextDetach(canonical)
     parsed.valid = true
     return parsed
 }
 
-CollectionText :: (collection: Collection) -> string {
+CollectionText :: (collection: Collection) -> Text {
     bytes: Vec(u8)
     BuilderPrint(*bytes, "%", COLLECTION_HEADER)
     BuilderPrint(*bytes, "%", collection.slugs)
@@ -143,7 +154,7 @@ CollectionHexDigit :: (value: s32) -> string {
 
 // Hex digit i (from the left) holds ids 4i..4i+3, id 4i + b as bit value 1 << b. The text
 // ends at the digit of the highest collected id; an empty set is "0".
-CollectionMask :: (collection: Collection) -> string {
+CollectionMask :: (collection: Collection) -> Text {
     values: [63]s32
     highest: s32 = -1
     at: s64 = 0
@@ -159,7 +170,7 @@ CollectionMask :: (collection: Collection) -> string {
         at = end + 1
     }
     digits: s32 = (highest + 4) / 4
-    if digits == 0 { return "0" }
+    if digits == 0 { return TextCopy("0") }
     bytes: Vec(u8)
     for digit: cast(s32)0..digits - 1 {
         BuilderPrint(*bytes, "%", CollectionHexDigit(values[digit]))

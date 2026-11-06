@@ -2,14 +2,15 @@
 // app. It holds the jungle.collection reply: the hex mask of host/jungle_collection.zi.
 #import, file "../host/jungle_collection.zi";
 #import, file "../host/jungle_treasure.zi";
+#import "std/vec"
 
-collection_cache_mask: string;
+// Owned and refilled in place, so a refresh reuses the same bytes.
+collection_cache_mask: Text;
 collection_cache_loaded: bool;
 
 CollectionCacheSet :: (mask: string) {
-    kept: Vec(u8)
-    BuilderPrint(*kept, "%", mask)
-    collection_cache_mask = BuilderFinish(kept)
+    VecClear(collection_cache_mask.bytes)
+    BuilderAppend(collection_cache_mask.bytes, mask)
     collection_cache_loaded = true
 }
 
@@ -19,12 +20,11 @@ CollectionCacheHas :: (id: s32) -> bool {
 
 // The toucan's claimed rewards: the jungle.treasure reply, TreasureMask of
 // host/jungle_treasure.zi, bit I for reward index I.
-treasure_cache_mask: string;
+treasure_cache_mask: Text;
 
 TreasureCacheSet :: (mask: string) {
-    kept: Vec(u8)
-    BuilderPrint(*kept, "%", mask)
-    treasure_cache_mask = BuilderFinish(kept)
+    VecClear(treasure_cache_mask.bytes)
+    BuilderAppend(treasure_cache_mask.bytes, mask)
 }
 
 TreasureCacheHas :: (reward: s32) -> bool {

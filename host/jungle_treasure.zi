@@ -13,6 +13,7 @@
 #import, file "jungle_text.zi";
 #import, file "jungle_collection.zi";
 #import, file "../retro/language.zi";
+#import "std/vec"
 
 TREASURE_HEADER :: "JUNGLE TREASURE 1\n"
 TREASURE_HEADER_LINE :: "JUNGLE TREASURE 1"
@@ -103,7 +104,7 @@ TreasureParse :: (text: string) -> Treasure {
     parsed: Treasure
     if text.count == 0 { parsed.valid = true; return parsed }
     if text.count > TREASURE_TEXT_LIMIT { return parsed }
-    raw: string
+    raw: Text
     line_number: s32 = 0
     at: s64 = 0
     while at < text.count {
@@ -132,29 +133,31 @@ TreasureParse :: (text: string) -> Treasure {
         line_number += 1
     }
     if line_number < 4 { return parsed }
-    canonical: string
+    canonical: Text
     for index: cast(s32)0..TOUCAN_REWARD_COUNT - 1 {
         if CollectionHasSlug(raw, toucan_reward_slugs[index]) { CollectionAppend(*canonical, toucan_reward_slugs[index]) }
     }
+    raw_slugs := TextView(raw)
     at = 0
-    while at < raw.count {
+    while at < raw_slugs.count {
         end := at
-        while end < raw.count && raw[end] != cast(u8)10 { end += 1 }
-        slug := raw[at:end]
+        while end < raw_slugs.count && raw_slugs[end] != cast(u8)10 { end += 1 }
+        slug := raw_slugs[at:end]
         if ToucanRewardBySlug(slug) < 0 { CollectionAppend(*canonical, slug) }
         at = end + 1
     }
-    parsed.items = canonical
+    parsed.items = TextDetach(canonical)
     parsed.valid = true
     return parsed
 }
 
-TreasureText :: (treasure: Treasure) -> string {
+TreasureText :: (treasure: Treasure) -> Text {
     bytes: Vec(u8)
     BuilderPrint(*bytes, "%", TREASURE_HEADER)
     BuilderPrint(*bytes, "%", ifx treasure.intro_seen then "intro yes\n" else "intro no\n")
-    BuilderPrint(*bytes, "day %\n", NumberText(treasure.day))
-    BuilderPrint(*bytes, "next %\n", NumberText(treasure.next))
+    day := NumberText(treasure.day)
+    next := NumberText(treasure.next)
+    BuilderPrint(*bytes, "day %\nnext %\n", day, next)
     BuilderPrint(*bytes, "%", treasure.items)
     return BuilderFinish(bytes)
 }
@@ -189,7 +192,7 @@ ToucanClaim :: (treasure: *Treasure, today: s32) -> s32 {
 
 // Hex digit i holds reward indices 4i..4i+3, as CollectionMask does; "0" when
 // none is claimed. Paint reads it through the jungle.treasure service.
-TreasureMask :: (treasure: Treasure) -> string {
+TreasureMask :: (treasure: Treasure) -> Text {
     values: [16]s32
     highest: s32 = -1
     for index: cast(s32)0..TOUCAN_REWARD_COUNT - 1 {
@@ -198,7 +201,7 @@ TreasureMask :: (treasure: Treasure) -> string {
         highest = index
     }
     digits: s32 = (highest + 4) / 4
-    if digits == 0 { return "0" }
+    if digits == 0 { return TextCopy("0") }
     bytes: Vec(u8)
     for digit: cast(s32)0..digits - 1 { BuilderPrint(*bytes, "%", CollectionHexDigit(values[digit])) }
     return BuilderFinish(bytes)

@@ -1,16 +1,20 @@
 // Small text helpers shared by Jungle's screens and tools.
 #import "std/number_text"
+#import "std/vec"
 
-// Joins up to nine pieces of text.
+// Joins up to nine pieces of text. The Text is freed once its caller is done reading it.
 Cat :: (a: string, b: string = "", c: string = "", d: string = "", e: string = "", f: string = "", g: string = "",
-    h: string = "", i: string = "") -> string {
+    h: string = "", i: string = "") -> Text {
+    // Appended one by one, never copied into a local array, so the pieces
+    // stay read-only and a caller's own Text pieces are freed as well.
     text: Vec(u8)
-    parts: [9]string = .[a, b, c, d, e, f, g, h, i]
-    for part: parts { BuilderPrint(*text, "%", part) }
+    BuilderAppend(text, a); BuilderAppend(text, b); BuilderAppend(text, c)
+    BuilderAppend(text, d); BuilderAppend(text, e); BuilderAppend(text, f)
+    BuilderAppend(text, g); BuilderAppend(text, h); BuilderAppend(text, i)
     return BuilderFinish(text)
 }
 
-NumberText :: (value: s32) -> string {
+NumberText :: (value: s32) -> Text {
     digits: [24]u8
     return Cat(FormatInteger(cast(s64)value, digits[:]))
 }
