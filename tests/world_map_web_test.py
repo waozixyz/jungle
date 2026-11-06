@@ -96,6 +96,19 @@ def run(base_url, renderer, w, h, browser='chromium', metadata=None):
             assert time.monotonic() < end, (renderer, w, h, what)
             time.sleep(.2)
 
+    def settled(client, what, seconds=10):
+        """The map once its smooth images are ready: Kryon draws each with the
+        browser's filter until its Lanczos copy is made, a slice a frame."""
+        end = time.monotonic() + seconds
+        picture = until(client, on_map, what)
+        while True:
+            time.sleep(.3)
+            later = shot(client)
+            if difference(picture, later, (0, 0, later.width, later.height)) < .05:
+                return later
+            assert time.monotonic() < end, (renderer, w, h, what, 'never settled')
+            picture = later
+
     if browser == 'firefox':
         from private_firefox import browser as firefox_browser
         session = firefox_browser(web.WORK)
@@ -169,7 +182,7 @@ def run(base_url, renderer, w, h, browser='chromium', metadata=None):
         client.until(f'{EXPLORED}.includes("port\\n")', 'genuine Port visit saved', 15)
         time.sleep(1)
         client.click((w_units - 83) * unit, 17 * unit)
-        clear = until(client, on_map, 'map after Port visit')
+        clear = settled(client, 'map after Port visit')
         clear.save(output / 'after-visit.png')
         box = tuple(round(v) for v in (ox + 40 * scale, oy + 190 * scale, ox + 620 * scale, oy + 380 * scale))
         cloud_difference = difference(cloudy, clear, box)
@@ -181,7 +194,7 @@ def run(base_url, renderer, w, h, browser='chromium', metadata=None):
         client.until(f'{EXPLORED} === {json.dumps(saved)}', 'visited areas after reload', 15)
         time.sleep(1)
         client.click((w_units - 83) * unit, 17 * unit)
-        reopened = until(client, on_map, 'map after reload')
+        reopened = settled(client, 'map after reload')
         reopened.save(output / 'after-reload.png')
         reload_difference = difference(clear, reopened, box)
         assert reload_difference < 2, (renderer, w, h, 'clouds returned after reload', reload_difference)
