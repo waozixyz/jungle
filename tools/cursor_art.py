@@ -182,7 +182,7 @@ def main(names):
         review(name, master, spot)
         exported = resize(master, RUNTIME_SIZE)
         exported.save(ART / f'{name}-{RUNTIME_SIZE}.png')
-        export = export_image(ART / f'{name}-{RUNTIME_SIZE}.png', runtime, 'exact')
+        export = export_image(ART / f'{name}-{RUNTIME_SIZE}.png', runtime, 'cutout')
         manifest['cursors'][name] = {'runtime': str(runtime.relative_to(ROOT)), 'hotspot': spot,
                                      'lossless': export.lossless}
         print(f'{name} cursor: {runtime.relative_to(ROOT)} {RUNTIME_SIZE}px lossless={export.lossless}, '

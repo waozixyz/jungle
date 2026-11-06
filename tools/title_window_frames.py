@@ -14,7 +14,7 @@ for orientation in ('landscape', 'portrait'):
     scale=clean.width/240
     ImageDraw.Draw(mask).polygon([(round(x*scale),round(y*scale)) for x,y in openings[orientation]],fill=0)
     clean.putalpha(mask)
-    save(clean,f'{orientation}-frame','exact')
+    save(clean,f'{orientation}-frame','cutout')
 # Trim the shared frame canvas, keeping anchors and display scale unchanged.
 from PIL import ImageChops
 for path in {l['path'] for l in layers if l['mode'] > 0}:
@@ -31,7 +31,7 @@ for path in {l['path'] for l in layers if l['mode'] > 0}:
     for i in range(count):trimmed.paste(atlas.crop((i*w+left,top,i*w+right,bottom)),(i*nw,0))
     master=MASTERS/(Path(path).stem+'-trimmed.png')
     trimmed.save(master)
-    export_image(master,ROOT/path,'exact')
+    export_image(master,ROOT/path,'cutout')
     for l in selected:
         x,y,dw,dh=l['rect']
         l['rect']=[x+left*dw/w,y+top*dh/h,nw*dw/w,nh*dh/h]

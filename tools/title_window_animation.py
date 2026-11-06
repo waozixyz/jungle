@@ -41,7 +41,7 @@ def motion(image,rect,name):
         rgba=np.dstack([np.clip(rgb,0,255),mask*255]).astype('uint8')
         rgba[rgba[:,:,3]==0,:3]=0
         sheet.paste(Image.fromarray(rgba),(frame*w,0))
-    path=save(sheet,name,'exact')
+    path=save(sheet,name,'cutout')
     return {'scene':'window' if 'landscape' in name else 'window-portrait','path':path,'sheet':[24,24,w,h], 'rect':[x,y,w,h],'timing':[6,7,0], 'mode':0}
 
 def main():

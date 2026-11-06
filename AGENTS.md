@@ -28,8 +28,10 @@ friendly, gentle and obvious.
   Pictures under 512 px, source-rectangle sheets (window animation, frame,
   sky occluder), paint art, cursors and the Farm (its fields are traced in painting
   pixels) keep their pixels: q70 YUV444 with exact
-  alpha. Jigsaw paintings and small menu icons (role `icon`) use q60 YUV444. Only tiny opaque
-  exact art stays lossless. A re-export ships only if it is smaller than the file it replaces.
+  alpha (export role `cutout`). Jigsaw paintings and small menu icons (role `icon`) use q60 YUV444.
+  Role `exact` is lossless and keeps every RGBA value, hidden RGB included; use it
+  only where pixels must survive unchanged, such as tiny opaque art and stencils.
+  A re-export ships only if it is smaller than the file it replaces.
   Keep canonical masters in ignored `local/art-development/`; ship only AVIF.
   PNG is reserved for the exact technical exceptions in
   `tools/asset_png_allowlist.json`; `tests/avif_standard_test.py` enforces this.

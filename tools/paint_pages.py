@@ -102,7 +102,7 @@ def main():
             # Lines keep pixels they half cover; the body keeps whole ones.
             add(numpy.asarray(render(ink, w, h).getchannel('A')) >= 96)
             add(numpy.asarray(render(body, w, h).getchannel('A')) >= 128)
-        export_painted_image(render(svg, *fit(width, height, 240, 376)), ASSETS / f'dino{index}-preview.avif')
+        export_painted_image(render(svg, *fit(width, height, 240, 376)), ASSETS / f'dino{index}-preview.avif', 'cutout')
     starts.append(len(pieces))
 
     def table(name, kind, values):

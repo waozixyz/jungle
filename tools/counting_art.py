@@ -16,7 +16,7 @@ def main():
     for name in ANIMALS:
         with Image.open(ROOT / 'assets/jungle-book/items' / (name + '.avif')) as image:
             export_painted_image(image.convert('RGBA').resize((SIZE, SIZE), Image.Resampling.LANCZOS),
-                                 target / (name + '.avif'))
+                                 target / (name + '.avif'), 'cutout')
     print(f'Prepared {len(ANIMALS)} transparent {SIZE} px counting pictures')
 
 
