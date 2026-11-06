@@ -70,22 +70,26 @@
       "scene": "window",
       "path": "assets/jungle/title/window-animation/landscape-twig.avif",
       "rect": [
-        75,
-        329,
-        619,
-        324
+        78,
+        332,
+        613,
+        318
       ],
       "mode": -3,
       "timing": [
-        6,
+        1,
         4,
         0
       ],
       "sheet": [
-        24,
-        24,
-        310,
-        162
+        1,
+        1,
+        613,
+        318
+      ],
+      "pivot": [
+        0.0,
+        0.5
       ]
     },
     {
@@ -158,22 +162,26 @@
       "scene": "window-portrait",
       "path": "assets/jungle/title/window-animation/portrait-twig.avif",
       "rect": [
-        482,
-        664,
-        532,
-        247
+        485,
+        667,
+        421,
+        241
       ],
       "mode": -3,
       "timing": [
-        6,
+        1,
         4,
         0
       ],
       "sheet": [
-        24,
-        24,
-        266,
-        124
+        1,
+        1,
+        421,
+        241
+      ],
+      "pivot": [
+        1.0,
+        0.5
       ]
     },
     {
@@ -243,6 +251,28 @@
       "mode": 0
     },
     {
+      "scene": "window",
+      "path": "assets/jungle/title/window-animation/landscape-leaves-top-left.avif",
+      "sheet": [
+        1,
+        1,
+        651,
+        422
+      ],
+      "rect": [
+        71,
+        0,
+        651,
+        422
+      ],
+      "timing": [
+        1,
+        1,
+        0
+      ],
+      "mode": 0
+    },
+    {
       "scene": "window-portrait",
       "path": "assets/jungle/title/window-animation/portrait-leaves-1.avif",
       "sheet": [
@@ -304,6 +334,28 @@
       "timing": [
         6,
         7,
+        0
+      ],
+      "mode": 0
+    },
+    {
+      "scene": "window-portrait",
+      "path": "assets/jungle/title/window-animation/portrait-leaves-top-left.avif",
+      "sheet": [
+        1,
+        1,
+        642,
+        535
+      ],
+      "rect": [
+        0,
+        55,
+        642,
+        535
+      ],
+      "timing": [
+        1,
+        1,
         0
       ],
       "mode": 0

@@ -1,11 +1,11 @@
 {
   "version": 1,
-  "count": 1191,
+  "count": 1196,
   "encoding": "Owner standard 2026-11-05: masters Lanczos-downscaled to 75%, AVIF q35 8-bit full range speed6 jobs1; opaque YUV420, transparent art YUV444 with q90 alpha. Pictures under 512 px, source-rectangle sheets, jigsaw (q60 YUV444), paint art and cursors keep their pixels.",
   "dimensions": "Full original dimensions; no downsampling, no regeneration",
   "reference": "local/image-format-research/previews/full-1x-book-page.png (label: 75% AVIF q35 + Lanczos); full dimensions retained for shipping",
-  "before_bytes": 378880415,
-  "after_bytes": 46616283,
+  "before_bytes": 393081513,
+  "after_bytes": 45968703,
   "files": {
     "assets/beach_families/background.avif": {
       "source": "assets/beach_families/background.webp",
@@ -5519,10 +5519,10 @@
       "alpha_quality": 100
     },
     "assets/jungle/title/campus-low.avif": {
-      "source": "assets/jungle/title/campus-low.webp",
-      "source_sha256": "f0da02743305cb9b650816ed6a7c57a3eff9bf72ab780d1702bc38dfd2dcf8ad",
-      "source_bytes": 9802,
-      "source_rgba_sha256": "d165a663ffb932cf5d3472aa28eecf5ce5a1ae444e48ba382855831f3027e333",
+      "source": "local/art-development/campus-fix/campus-landscape-white-desert-low.png",
+      "source_sha256": "16b7f9e23558bb917e01aeedbd73d036663dcf09d0b6799ddd8c8ad2edd53156",
+      "source_bytes": 82283,
+      "source_rgba_sha256": "920d6d24fdebdc459066ff0f5da9b9db1f750792d4f5734c946522ba94ee8705",
       "dimensions": [
         240,
         135
@@ -5530,19 +5530,21 @@
       "alpha": false,
       "source_alpha_sha256": "682a387ec62c4338e6ba238c81587700231b5c74329714310ddd41a72c10de09",
       "alpha_sha256": "682a387ec62c4338e6ba238c81587700231b5c74329714310ddd41a72c10de09",
-      "rgba_sha256": "de6f93b2a738d0ec3db89d93ea2e1328289b79b332c0f2ebce5a4a518d8fca11",
-      "sha256": "bd7774ea8d21af5578d1677f81615f4b7eb7b86087ab06b1117af8e2cd1f2045",
-      "bytes": 6088,
+      "rgba_sha256": "f0918c4b50d315eb86e57ee5d36038f51cae39502fe4fa6a57bb545110ebcc62",
+      "sha256": "a0c4fec9cdbf9af2300669fa28577a641ad59419413527c427643d18c2c31cb7",
+      "bytes": 6072,
       "quality": 35,
       "lossless": false,
       "subsampling": "420",
-      "speed": 6
+      "speed": 6,
+      "exact_alpha": false,
+      "alpha_quality": 100
     },
     "assets/jungle/title/campus-portrait-low.avif": {
-      "source": "assets/jungle/title/campus-portrait-low.webp",
-      "source_sha256": "58ede94f4323c31996362abdbed8fb5ca35c42ec7c58956f4224ee44cf371705",
-      "source_bytes": 27826,
-      "source_rgba_sha256": "6084b2dfbd59801dfa5ca35777fd337309956235d5530a2fa58f91b91f5e2b4c",
+      "source": "local/art-development/campus-fix/campus-portrait-left-low.png",
+      "source_sha256": "6bc9c31ca3ff0d44c3515c311487481bd77c2c44b5277f227fb2072e59be0e39",
+      "source_bytes": 222735,
+      "source_rgba_sha256": "1429312c0b9b879f1e0f826356b4eddbdb2b2764b531689a75474004bd096911",
       "dimensions": [
         240,
         360
@@ -5550,19 +5552,21 @@
       "alpha": false,
       "source_alpha_sha256": "9a5b7e7b9006c41100fbfd88f4ad6ec3f4645e6df5725f09c7f9be9f58b80862",
       "alpha_sha256": "9a5b7e7b9006c41100fbfd88f4ad6ec3f4645e6df5725f09c7f9be9f58b80862",
-      "rgba_sha256": "de359fe276fdcf11a688c50646c35ed8b35a6ab5678338043b04bdb245783961",
-      "sha256": "6d5f0f27a101ffcfdc67520e8870dfa48f5836852697421f09f3f71849e2c778",
-      "bytes": 16733,
+      "rgba_sha256": "20b067228b25d26c0334e2a8068a558746545257e8e42cd9a80cd4cd9583ad89",
+      "sha256": "a02d65ff72e43a82db1123ab98368155a3e0a2504caf27a270310e45932b35ab",
+      "bytes": 17166,
       "quality": 35,
       "lossless": false,
       "subsampling": "420",
-      "speed": 6
+      "speed": 6,
+      "exact_alpha": false,
+      "alpha_quality": 100
     },
     "assets/jungle/title/campus-portrait.avif": {
-      "source": "assets/jungle/title/campus-portrait.webp",
-      "source_sha256": "0afe27427e04cd95811648ad3e96f9ae25efc2e2d8a5cde29fc003478d702846",
-      "source_bytes": 308880,
-      "source_rgba_sha256": "63761f1dd59db99a88a3ec5dd3465a2ea42c72ed9eba071b24998b8fb8343bf6",
+      "source": "local/art-development/campus-wide/campus-portrait-left-joined.png",
+      "source_sha256": "fe5eb39e73da971983a6e78980651dd58e422ef74c63dd0391b67d3005f61438",
+      "source_bytes": 3314218,
+      "source_rgba_sha256": "9952844e406a45b4fcb89b9871fc3d0483dcdf0dbfe9fecb789583c4fa02751e",
       "dimensions": [
         768,
         1152
@@ -5570,9 +5574,9 @@
       "alpha": false,
       "source_alpha_sha256": "852aad42795f401e21ded6e51fc392da9d94e2f386cacc08327046c319e903fc",
       "alpha_sha256": "2951f16020ee834f650e47e2e4aa8a5e39afe30b2f16bcb43b2e0b9ec235e721",
-      "rgba_sha256": "8a94cdaa6236a9690a3c4ab48a054ea07cd83f80c1632e7a0a1be139517d2420",
-      "sha256": "fab0b70b3b0de0dfa9344a2afba67ab00908a1a7b10e537eb53433110ececf48",
-      "bytes": 129266,
+      "rgba_sha256": "398ccd29375a268714699f2372b7a72740b18199f4ee29d11eb2bfd63b28bf4a",
+      "sha256": "767276c6896c455e6c3e1c5a1690e827460ba49aba470b5bcc2159259520d4e4",
+      "bytes": 132449,
       "quality": 35,
       "lossless": false,
       "subsampling": "420",
@@ -5582,16 +5586,16 @@
         1536
       ],
       "scale": 0.75,
-      "master": "backup/avif-migration/assets/jungle/title/campus-portrait.webp",
-      "master_sha256": "0afe27427e04cd95811648ad3e96f9ae25efc2e2d8a5cde29fc003478d702846",
+      "master": "local/art-development/campus-wide/campus-portrait-left-joined.png",
+      "master_sha256": "fe5eb39e73da971983a6e78980651dd58e422ef74c63dd0391b67d3005f61438",
       "exact_alpha": false,
       "alpha_quality": 100
     },
     "assets/jungle/title/campus.avif": {
-      "source": "assets/jungle/title/campus.webp",
-      "source_sha256": "45166a13e64ea8c574604149540fbfb9b1f30fca27100ec2a6e326aded3031ea",
-      "source_bytes": 265780,
-      "source_rgba_sha256": "70e96c0b798a128d6eba6df7b7aaa4f9418b0c918a800fa163f1a27c734b2c78",
+      "source": "local/art-development/campus-wide/campus-landscape-white-desert.png",
+      "source_sha256": "3c3905c9f0efe11a26f8fd9723237cd518e0ac5efaca9a47ed86b0ef2a3268df",
+      "source_bytes": 3178510,
+      "source_rgba_sha256": "13ed1d632a0608ee9db400cfcb157cd196dc10707b420c7f8860a7534d7d8cba",
       "dimensions": [
         1254,
         706
@@ -5599,9 +5603,9 @@
       "alpha": false,
       "source_alpha_sha256": "01d47491cbeb600913ad9b969c467a20eee08ef528805ef7ff455d14d0b926e6",
       "alpha_sha256": "88bf49aabe87d9fc2722821cdb81631d1d56c9df2f222d84e236df6f539e51b3",
-      "rgba_sha256": "3b6fff22b63a207e2692469ce8c199deb2192a3e8b1d17e9b1ab8bf958cac4ba",
-      "sha256": "325fa841e3a1183885684d96526c6d0f1bafc136cb4d7640acbf6ffb84dcc44e",
-      "bytes": 112267,
+      "rgba_sha256": "2d638842379b3635a694ec2b45c26ca8696e5b627e123473f3a5b857f6a6d82b",
+      "sha256": "85d08c2be20fa0531c00b2bf8d9a85be5e3b010de54b6453eb33f31b11618b29",
+      "bytes": 114116,
       "quality": 35,
       "lossless": false,
       "subsampling": "420",
@@ -5611,8 +5615,8 @@
         941
       ],
       "scale": 0.75,
-      "master": "backup/avif-migration/assets/jungle/title/campus.webp",
-      "master_sha256": "45166a13e64ea8c574604149540fbfb9b1f30fca27100ec2a6e326aded3031ea",
+      "master": "local/art-development/campus-wide/campus-landscape-white-desert.png",
+      "master_sha256": "3c3905c9f0efe11a26f8fd9723237cd518e0ac5efaca9a47ed86b0ef2a3268df",
       "exact_alpha": false,
       "alpha_quality": 100
     },
@@ -7153,10 +7157,10 @@
       "master_sha256": "a05a578bdae53b12e765e13f29b13e8135e65c88fd4e348aee506315c3936046"
     },
     "assets/jungle/title/layers/campus-background.avif": {
-      "source": "assets/jungle/title/layers/campus-background.webp",
-      "source_sha256": "45166a13e64ea8c574604149540fbfb9b1f30fca27100ec2a6e326aded3031ea",
-      "source_bytes": 265780,
-      "source_rgba_sha256": "70e96c0b798a128d6eba6df7b7aaa4f9418b0c918a800fa163f1a27c734b2c78",
+      "source": "local/art-development/campus-wide/campus-landscape-white-desert.png",
+      "source_sha256": "3c3905c9f0efe11a26f8fd9723237cd518e0ac5efaca9a47ed86b0ef2a3268df",
+      "source_bytes": 3178510,
+      "source_rgba_sha256": "13ed1d632a0608ee9db400cfcb157cd196dc10707b420c7f8860a7534d7d8cba",
       "dimensions": [
         1254,
         706
@@ -7164,9 +7168,9 @@
       "alpha": false,
       "source_alpha_sha256": "01d47491cbeb600913ad9b969c467a20eee08ef528805ef7ff455d14d0b926e6",
       "alpha_sha256": "88bf49aabe87d9fc2722821cdb81631d1d56c9df2f222d84e236df6f539e51b3",
-      "rgba_sha256": "3b6fff22b63a207e2692469ce8c199deb2192a3e8b1d17e9b1ab8bf958cac4ba",
-      "sha256": "325fa841e3a1183885684d96526c6d0f1bafc136cb4d7640acbf6ffb84dcc44e",
-      "bytes": 112267,
+      "rgba_sha256": "2d638842379b3635a694ec2b45c26ca8696e5b627e123473f3a5b857f6a6d82b",
+      "sha256": "85d08c2be20fa0531c00b2bf8d9a85be5e3b010de54b6453eb33f31b11618b29",
+      "bytes": 114116,
       "quality": 35,
       "lossless": false,
       "subsampling": "420",
@@ -7176,8 +7180,8 @@
         941
       ],
       "scale": 0.75,
-      "master": "backup/avif-migration/assets/jungle/title/layers/campus-background.webp",
-      "master_sha256": "45166a13e64ea8c574604149540fbfb9b1f30fca27100ec2a6e326aded3031ea",
+      "master": "local/art-development/campus-wide/campus-landscape-white-desert.png",
+      "master_sha256": "3c3905c9f0efe11a26f8fd9723237cd518e0ac5efaca9a47ed86b0ef2a3268df",
       "exact_alpha": false,
       "alpha_quality": 100
     },
@@ -7211,10 +7215,10 @@
       "master_sha256": "3cccf4607b15d1a7789d1e7e8f5b5d53c6562972ab8c7768c8c46c656f824a9d"
     },
     "assets/jungle/title/layers/campus-portrait-background.avif": {
-      "source": "assets/jungle/title/layers/campus-portrait-background.webp",
-      "source_sha256": "0afe27427e04cd95811648ad3e96f9ae25efc2e2d8a5cde29fc003478d702846",
-      "source_bytes": 308880,
-      "source_rgba_sha256": "63761f1dd59db99a88a3ec5dd3465a2ea42c72ed9eba071b24998b8fb8343bf6",
+      "source": "local/art-development/campus-wide/campus-portrait-left-joined.png",
+      "source_sha256": "fe5eb39e73da971983a6e78980651dd58e422ef74c63dd0391b67d3005f61438",
+      "source_bytes": 3314218,
+      "source_rgba_sha256": "9952844e406a45b4fcb89b9871fc3d0483dcdf0dbfe9fecb789583c4fa02751e",
       "dimensions": [
         768,
         1152
@@ -7222,9 +7226,9 @@
       "alpha": false,
       "source_alpha_sha256": "852aad42795f401e21ded6e51fc392da9d94e2f386cacc08327046c319e903fc",
       "alpha_sha256": "2951f16020ee834f650e47e2e4aa8a5e39afe30b2f16bcb43b2e0b9ec235e721",
-      "rgba_sha256": "8a94cdaa6236a9690a3c4ab48a054ea07cd83f80c1632e7a0a1be139517d2420",
-      "sha256": "fab0b70b3b0de0dfa9344a2afba67ab00908a1a7b10e537eb53433110ececf48",
-      "bytes": 129266,
+      "rgba_sha256": "398ccd29375a268714699f2372b7a72740b18199f4ee29d11eb2bfd63b28bf4a",
+      "sha256": "767276c6896c455e6c3e1c5a1690e827460ba49aba470b5bcc2159259520d4e4",
+      "bytes": 132449,
       "quality": 35,
       "lossless": false,
       "subsampling": "420",
@@ -7234,8 +7238,8 @@
         1536
       ],
       "scale": 0.75,
-      "master": "backup/avif-migration/assets/jungle/title/layers/campus-portrait-background.webp",
-      "master_sha256": "0afe27427e04cd95811648ad3e96f9ae25efc2e2d8a5cde29fc003478d702846",
+      "master": "local/art-development/campus-wide/campus-portrait-left-joined.png",
+      "master_sha256": "fe5eb39e73da971983a6e78980651dd58e422ef74c63dd0391b67d3005f61438",
       "exact_alpha": false,
       "alpha_quality": 100
     },
@@ -9891,20 +9895,20 @@
       "alpha_quality": 100
     },
     "assets/jungle/title/window-animation/landscape-twig.avif": {
-      "source": "assets/jungle/title/window-animation/landscape-twig.webp",
-      "source_sha256": "17937b4727e7dcef3c1bd9ccaf0296b168eff837595bd44fc54e0844a8e1722d",
-      "source_bytes": 679478,
-      "source_rgba_sha256": "fac4aee38828b155ee651a011dfade2042586f069cf8dbf63697396a15be565c",
+      "source": "local/art-development/campus-fix/window-landscape-twig.png",
+      "source_sha256": "3fb45b100b8c783ebf24c53379430d9a56a982482318746251c106a5d73a66b3",
+      "source_bytes": 178579,
+      "source_rgba_sha256": "6561330432b79bac35b355251684fd6b556b9ecd0cfcf7f51da4111658593b2c",
       "dimensions": [
-        7440,
-        162
+        613,
+        318
       ],
       "alpha": true,
-      "source_alpha_sha256": "8ba9899d71a5478fbc61a0c1f193783d18381c7b6ea14a4caa8a5098ceaa4f65",
-      "alpha_sha256": "8ba9899d71a5478fbc61a0c1f193783d18381c7b6ea14a4caa8a5098ceaa4f65",
-      "rgba_sha256": "cf734a8289a4a7587715236b3bacde5a78cbd0fc5d664b354c27ab6eac5e1fda",
-      "sha256": "510606954d68a1b5959211b27bb7d17901d7328c3d4190f9e49380a99ee79a86",
-      "bytes": 500812,
+      "source_alpha_sha256": "9310e4c8952506f65a1558f87c5425c8f134cb8235c7106787bc25a1f8b07b25",
+      "alpha_sha256": "9310e4c8952506f65a1558f87c5425c8f134cb8235c7106787bc25a1f8b07b25",
+      "rgba_sha256": "1e9c6388254f8abc2ebdbfe7ed17e44c7e8a4b08324d705fca4f1c21c16164fa",
+      "sha256": "40c1ac07f4ef2f52272b264a0ebf8c87bc2fb250c2ec081176933d364b7fe1eb",
+      "bytes": 39223,
       "quality": 70,
       "lossless": false,
       "subsampling": "444",
@@ -10045,20 +10049,20 @@
       "alpha_quality": 100
     },
     "assets/jungle/title/window-animation/portrait-twig.avif": {
-      "source": "assets/jungle/title/window-animation/portrait-twig.webp",
-      "source_sha256": "7efa4b76666e01643835b0ad51af62f1006adaece68f8067ceaf4a695de385e9",
-      "source_bytes": 445254,
-      "source_rgba_sha256": "f711cf19ed7d9d86b45f77b259691b419b217c697c79846cb7a26f3546b2606a",
+      "source": "local/art-development/campus-fix/window-portrait-twig.png",
+      "source_sha256": "4bbde287534bf7d3b04973446c8149c6bccb1a81b0225820f702d7cf4b78607c",
+      "source_bytes": 101386,
+      "source_rgba_sha256": "40ed1566509de793fcd7cb5376f4bc6cd6ebea7a2a25af189c090000fac47698",
       "dimensions": [
-        6384,
-        124
+        421,
+        241
       ],
       "alpha": true,
-      "source_alpha_sha256": "5bd134a70db511e6c6a44ffcd99d45e2b358e29c000333ddd1d22b0ce1a8ad0b",
-      "alpha_sha256": "5bd134a70db511e6c6a44ffcd99d45e2b358e29c000333ddd1d22b0ce1a8ad0b",
-      "rgba_sha256": "6b785dceccf62c8a6d51ded7371bdb85b18077c8cc81f2dac0df2f532bc6699f",
-      "sha256": "5c18d428011627d167006d0986b7fa25658e55f7e61721c30a17e7f68c5ef8a9",
-      "bytes": 367499,
+      "source_alpha_sha256": "412d2a4d8631aa83bf22f301f2695539847fdc24fce744aa0f425edbc33634c2",
+      "alpha_sha256": "412d2a4d8631aa83bf22f301f2695539847fdc24fce744aa0f425edbc33634c2",
+      "rgba_sha256": "75a2a07b586f4f52413f70cc1ad5b1904766467b1f72fa207209f60d0ef111e6",
+      "sha256": "1b0e73b1f23fa2e50a7dded216bc15ced75f7c410feac1179491ae0438e0065f",
+      "bytes": 24485,
       "quality": 70,
       "lossless": false,
       "subsampling": "444",
@@ -10129,10 +10133,10 @@
       "speed": 6
     },
     "assets/jungle/title/window-portrait.avif": {
-      "source": "assets/jungle/title/window-portrait.webp",
-      "source_sha256": "fdf1e47c0c930a021b550fcb778f395c6b8dc8e9d679bb6bf2027f9619b6fd07",
-      "source_bytes": 148666,
-      "source_rgba_sha256": "d90bb577da857e6b300782a413729f3e807ec4b7157236b3f203c9c49aed8bf5",
+      "source": "local/art-development/campus-fix/window-portrait-twig-plate.png",
+      "source_sha256": "79babd67e50e577512d7e3f518e33e80bed3c5cdd13d71c0dac7dc8e322a969a",
+      "source_bytes": 2564583,
+      "source_rgba_sha256": "b3c8d2e9eaf1bc734b854ba80bfa32dadf030657212bb47f1a7e977540cc814d",
       "dimensions": [
         768,
         1152
@@ -10140,9 +10144,9 @@
       "alpha": false,
       "source_alpha_sha256": "852aad42795f401e21ded6e51fc392da9d94e2f386cacc08327046c319e903fc",
       "alpha_sha256": "2951f16020ee834f650e47e2e4aa8a5e39afe30b2f16bcb43b2e0b9ec235e721",
-      "rgba_sha256": "0bedefc8d77dfee6abcb2c3ba0e5fea8faa9f2a4d176f21b1ba8fc76b154e8d4",
-      "sha256": "7aef3d43f6dbc3f3eb1793d86c6f198087c00775fa88d7b1aa8e05d6d50fe923",
-      "bytes": 52492,
+      "rgba_sha256": "56a0792a7babb79b013507fbd6c490648626bd9fe5f24f3ed4a66e10ca2ef9d7",
+      "sha256": "171ef028b41f19f6c58ee7b3b4ae7d9c7baaf1676ad7f7a5249141f448d4e10f",
+      "bytes": 54763,
       "quality": 35,
       "lossless": false,
       "subsampling": "420",
@@ -10152,8 +10156,8 @@
         1536
       ],
       "scale": 0.75,
-      "master": "backup/avif-migration/assets/jungle/title/window-portrait.webp",
-      "master_sha256": "fdf1e47c0c930a021b550fcb778f395c6b8dc8e9d679bb6bf2027f9619b6fd07",
+      "master": "local/art-development/campus-fix/window-portrait-twig-plate.png",
+      "master_sha256": "79babd67e50e577512d7e3f518e33e80bed3c5cdd13d71c0dac7dc8e322a969a",
       "exact_alpha": false,
       "alpha_quality": 100
     },
@@ -30947,6 +30951,116 @@
       "rgba_sha256": "e7f56ce3f3ec009a76e99c936e34e20256f6a4684a19c88cecf284437c7eef89",
       "sha256": "bd19230361eda360a8a0125719c0e64b44a55ea357b119f3c9ac2cb3ea072118",
       "bytes": 66417,
+      "quality": 70,
+      "lossless": false,
+      "subsampling": "444",
+      "speed": 6,
+      "exact_alpha": true,
+      "alpha_quality": 100
+    },
+    "assets/jungle/title/objects/jungle-path-portrait-tail-bush.avif": {
+      "source": "local/art-development/campus-fix/jungle-path-portrait-tail-bush.png",
+      "source_sha256": "4dd4089934038898a331c39b78aa5375f7732459d0c4745b26cb8f626d424f57",
+      "source_bytes": 7223,
+      "source_rgba_sha256": "62c7d6bce3e1f116c5402b569f044cf98acc6d429dc4ebacc20c1d85b113f876",
+      "dimensions": [
+        83,
+        50
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "3d5d9af589ec98f3e3cdea8fd28822c2c34b4b6be2bac733a9953f5c4b5d6e25",
+      "alpha_sha256": "3d5d9af589ec98f3e3cdea8fd28822c2c34b4b6be2bac733a9953f5c4b5d6e25",
+      "rgba_sha256": "1d894eae6671dc64019b895f64a19af69e847c2ca83e491b39d87bd394373b61",
+      "sha256": "8f5063351feedd31ebea0bc821af31ec4374791875a2a7d784ed57c8dea712a1",
+      "bytes": 3541,
+      "quality": 70,
+      "lossless": false,
+      "subsampling": "444",
+      "speed": 6,
+      "exact_alpha": true,
+      "alpha_quality": 100
+    },
+    "assets/jungle/title/window-animation/portrait-leaves-top-left.avif": {
+      "source": "local/art-development/campus-fix/window-portrait-leaves-top-left.png",
+      "source_sha256": "c62829fda6596275256219797984cd08889ae6099335652da82075de91704ad3",
+      "source_bytes": 257763,
+      "source_rgba_sha256": "d6954f3a3db26b1c18c0e5ba7469ac31ea30d6403794baf4b62bd4b66064ec84",
+      "dimensions": [
+        642,
+        535
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "094caa687653ddbc65025b090b764bf3215c88c7073d1257708028763dc74a65",
+      "alpha_sha256": "094caa687653ddbc65025b090b764bf3215c88c7073d1257708028763dc74a65",
+      "rgba_sha256": "095fe8ad9d4cc2106532e8c7c08425b69e77e505f16123419d7855e88d65cd58",
+      "sha256": "4723e64175544c88e3a710860ae7d9b88f74aa3b4e540e96fa99c10f805ba9bb",
+      "bytes": 70639,
+      "quality": 70,
+      "lossless": false,
+      "subsampling": "444",
+      "speed": 6,
+      "exact_alpha": true,
+      "alpha_quality": 100
+    },
+    "assets/jungle/title/objects/jungle-path-tail-bush.avif": {
+      "source": "local/art-development/campus-fix/jungle-path-landscape-tail-bush.png",
+      "source_sha256": "e48b416d4c627beee047ae0de633e0be4a34a20f0a804ec60b36fd852f82e1b2",
+      "source_bytes": 5877,
+      "source_rgba_sha256": "88468297197576c31b055ad6ce81e4e603e814f5f8cc2aab1f202d0e514961d9",
+      "dimensions": [
+        88,
+        42
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "1260854397cd66a27e77388a3f6c3a8764b89b212b904c80c194a7db713ed801",
+      "alpha_sha256": "1260854397cd66a27e77388a3f6c3a8764b89b212b904c80c194a7db713ed801",
+      "rgba_sha256": "6002d7e719092c37d5111ad09ce22e87dee4df030a2cc841c2e5139e5282fd22",
+      "sha256": "b9419e989488af4dd28607d57c83e0bfe59a237b792a09d544e6540f25b3a043",
+      "bytes": 3629,
+      "quality": 70,
+      "lossless": false,
+      "subsampling": "444",
+      "speed": 6,
+      "exact_alpha": true,
+      "alpha_quality": 100
+    },
+    "assets/jungle/title/glow/campus-portrait-hiding-bush.avif": {
+      "source": "local/art-development/campus-fix/campus-portrait-hiding-bush-glow.png",
+      "source_sha256": "69897180d05417ca686e58942d1e1d2cd35bcd83ddb7596ea828710afb420d40",
+      "source_bytes": 11028,
+      "source_rgba_sha256": "489f35dabdccb1f5dd8b19ac8663d5829cd6316bd8db794286685ab0e2a4a468",
+      "dimensions": [
+        183,
+        249
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "9f4af5817f78e7a7fc560760dedf05761ebc8ad41fde7cbecc6f23920d18454b",
+      "alpha_sha256": "9f4af5817f78e7a7fc560760dedf05761ebc8ad41fde7cbecc6f23920d18454b",
+      "rgba_sha256": "4c52feca9b002ba4301bfd1901a9833ae6681e398fe3873a0c136588521374b7",
+      "sha256": "6e3ef0741c51103df3fbe5e6f9640259a084d6bc0e65802f0b917cf1a9f60f94",
+      "bytes": 6888,
+      "quality": 70,
+      "lossless": false,
+      "subsampling": "444",
+      "speed": 6,
+      "exact_alpha": true,
+      "alpha_quality": 100
+    },
+    "assets/jungle/title/window-animation/landscape-leaves-top-left.avif": {
+      "source": "local/art-development/campus-fix/window-landscape-leaves-top-left.png",
+      "source_sha256": "7970561b00dc165ef1ec76936f00a4e6f8d2b76295cd218b7da520712d07e40c",
+      "source_bytes": 244531,
+      "source_rgba_sha256": "a597f660313311838e4dd35f2a36aeb27a4292254d8dce8c6befc7e4458a4fda",
+      "dimensions": [
+        651,
+        422
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "9fc8b5cbb1a6e4391133dedb1979f113d686cf1cb9c4a34d491c75ec5c18f753",
+      "alpha_sha256": "9fc8b5cbb1a6e4391133dedb1979f113d686cf1cb9c4a34d491c75ec5c18f753",
+      "rgba_sha256": "a5750f1f3800dfb294c13dbda429f41994c0aabb5b08f4230990d0b4d5e450ec",
+      "sha256": "662a23e2df3971c319a0c24d8202131ab3947934361d97e639cc18761410cd88",
+      "bytes": 59574,
       "quality": 70,
       "lossless": false,
       "subsampling": "444",

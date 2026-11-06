@@ -315,6 +315,9 @@ title_flee_time: [64]float64;
 title_flee_x: [64]float32;
 title_flee_y: [64]float32;
 
+// Degrees the window twig sways either way about its attached end.
+TITLE_TWIG_SWAY :: 0.32
+
 TitleAnimations :: (session: Session, scene: s32, picture: Rectangle, view: TitleView, now: float64, foreground_leaves: bool = false) {
     if TITLE_SCENE_NAME[scene] == "window" && !TitleReady("assets/jungle/title/window-animation/landscape-frame.avif") { return }
     if TITLE_SCENE_NAME[scene] == "window-portrait" && !TitleReady("assets/jungle/title/window-animation/portrait-frame.avif") { return }
@@ -338,6 +341,21 @@ TitleAnimations :: (session: Session, scene: s32, picture: Rectangle, view: Titl
         height := TITLE_ANIMATION_RECT[at + 3]
         mode := TITLE_ANIMATION_MODE[index]
         if mode == -2 { TitleWindowSkyDepth(session, scene, picture, view); continue }
+        if mode == -3 {
+            // One full-size twig sways gently about its attached end, so the
+            // join with the still trunk never moves or softens.
+            angle := cast(float32)(TITLE_TWIG_SWAY * Sin(phase * 6.283185307))
+            twig := Rectangle.{picture.x + x * view.scale, picture.y + y * view.scale,
+                width * view.scale, height * view.scale}
+            pivot := Vector2.{twig.x + twig.width * TITLE_ANIMATION_PIVOT[index * 2],
+                twig.y + twig.height * TITLE_ANIMATION_PIVOT[index * 2 + 1]}
+            center := Vector2.{twig.x + twig.width * 0.5, twig.y + twig.height * 0.5}
+            turned := WorldToScreen(pivot, Camera.{.offset = center, .target = center, .rotation = angle, .zoom = 1.0})
+            twig.x += pivot.x - turned.x
+            twig.y += pivot.y - turned.y
+            TitlePicture(session, path, twig, 0, angle)
+            continue
+        }
         scene_width := cast(float32)TITLE_SCENE_WIDTH[scene]
         if mode == -1 {
             // Clouds wrap only after the whole soft sprite leaves the opening.

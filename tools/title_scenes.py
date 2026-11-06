@@ -214,7 +214,16 @@ MAP = 'map'
 
 
 def MapSafe(scene, hotspots):
-    """Keep the complete shared world painting visible; other scenes use cover."""
+    """Keep the complete shared world painting visible; other scenes use cover.
+
+    A scene's "safe" rect (Campus portrait's original painting, between its
+    widened side strips) always stays whole on screen; the strips fill the
+    rest of a portrait window."""
+    if scene.get('safe'):
+        x, y, w, h = scene['safe']
+        if not (0 <= x < x + w <= scene['width'] and 0 <= y < y + h <= scene['height']):
+            raise SystemExit(f'title scenes: {scene["name"]} safe rect leaves the picture')
+        return [x, y, w, h]
     if scene['name'] not in (MAP, MAP + '-portrait'):
         return [0, 0, 0, 0]
     return [0, 0, scene['width'], scene['height']]
@@ -230,8 +239,8 @@ def Load(source=SOURCE, catalog=CATALOG):
         if 'portrait' not in scene:
             continue
         portrait = scene['portrait']
-        if portrait['width'] <= 0 or portrait['height'] <= 0 or (scene['name'] != MAP and portrait['height'] <= portrait['width']):
-            raise SystemExit('title scenes: portrait must have positive, taller dimensions')
+        if portrait['width'] <= 0 or portrait['height'] <= 0 or (scene['name'] != MAP and portrait['height'] < portrait['width']):
+            raise SystemExit('title scenes: portrait must have positive dimensions, at least as tall as wide')
         original = {h['id']: h['target'] for h in scene['hotspots']}
         alternate = {h['id']: h['target'] for h in portrait['hotspots']}
         if original != alternate or len(alternate) != len(portrait['hotspots']):

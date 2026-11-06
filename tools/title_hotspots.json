@@ -5741,31 +5741,61 @@
             "target": "game:Hide & Seek",
             "polygon": [
               [
-                890,
-                1220
+                862,
+                1150
               ],
               [
-                976,
-                1220
+                905,
+                1128
               ],
               [
-                976,
-                1339
+                960,
+                1125
               ],
               [
-                890,
-                1339
+                1000,
+                1150
+              ],
+              [
+                1012,
+                1200
+              ],
+              [
+                1005,
+                1260
+              ],
+              [
+                985,
+                1310
+              ],
+              [
+                950,
+                1345
+              ],
+              [
+                905,
+                1345
+              ],
+              [
+                872,
+                1310
+              ],
+              [
+                858,
+                1250
+              ],
+              [
+                855,
+                1195
               ]
             ],
-            "glow": "assets/jungle/title/objects/portrait-hiding-tail-glow.avif",
+            "glow": "assets/jungle/title/glow/campus-portrait-hiding-bush.avif",
             "glow_rect": [
-              890,
-              1220,
-              87,
-              120
-            ],
-            "rest": "assets/jungle/title/objects/portrait-hiding-tail.avif",
-            "occlusion": []
+              841,
+              1111,
+              183,
+              249
+            ]
           },
           {
             "id": "piano",
@@ -8237,7 +8267,8 @@
           "assets/jungle/title/window-animation/bird.avif",
           "assets/jungle/title/window-animation/butterfly.avif",
           "assets/jungle/title/window-animation/toucan.avif",
-          "assets/jungle/title/window-animation/portrait-frame.avif"
+          "assets/jungle/title/window-animation/portrait-frame.avif",
+          "assets/jungle/title/window-animation/portrait-leaves-top-left.avif"
         ]
       },
       "animations": [
@@ -8251,7 +8282,8 @@
         "assets/jungle/title/window-animation/bird.avif",
         "assets/jungle/title/window-animation/butterfly.avif",
         "assets/jungle/title/window-animation/toucan.avif",
-        "assets/jungle/title/window-animation/landscape-frame.avif"
+        "assets/jungle/title/window-animation/landscape-frame.avif",
+        "assets/jungle/title/window-animation/landscape-leaves-top-left.avif"
       ]
     },
     {
@@ -10252,34 +10284,249 @@
         {
           "id": "peekaboo-trail",
           "target": "game:Hide & Seek",
-          "polygon": [
-            [
-              427,
-              680
-            ],
-            [
-              556,
-              680
-            ],
-            [
-              556,
-              858
-            ],
-            [
-              427,
-              858
-            ]
-          ],
           "glow": "assets/jungle/title/objects/portrait-hiding-tail-glow.avif",
           "glow_rect": [
-            427,
-            680,
-            130,
-            180
+            528,
+            572,
+            72,
+            106
           ],
           "rest": "assets/jungle/title/objects/portrait-hiding-tail.avif",
-          "occlusion": [],
-          "rotation": 0
+          "polygon": [
+            [
+              527,
+              560
+            ],
+            [
+              520,
+              564
+            ],
+            [
+              518,
+              569
+            ],
+            [
+              517,
+              573
+            ],
+            [
+              517,
+              578
+            ],
+            [
+              517,
+              583
+            ],
+            [
+              517,
+              587
+            ],
+            [
+              517,
+              592
+            ],
+            [
+              517,
+              597
+            ],
+            [
+              518,
+              601
+            ],
+            [
+              520,
+              606
+            ],
+            [
+              528,
+              611
+            ],
+            [
+              546,
+              615
+            ],
+            [
+              552,
+              620
+            ],
+            [
+              556,
+              625
+            ],
+            [
+              555,
+              629
+            ],
+            [
+              554,
+              634
+            ],
+            [
+              551,
+              638
+            ],
+            [
+              548,
+              643
+            ],
+            [
+              546,
+              648
+            ],
+            [
+              544,
+              652
+            ],
+            [
+              543,
+              657
+            ],
+            [
+              542,
+              662
+            ],
+            [
+              542,
+              666
+            ],
+            [
+              542,
+              671
+            ],
+            [
+              542,
+              676
+            ],
+            [
+              542,
+              680
+            ],
+            [
+              542,
+              685
+            ],
+            [
+              542,
+              689
+            ],
+            [
+              589,
+              689
+            ],
+            [
+              596,
+              684
+            ],
+            [
+              600,
+              679
+            ],
+            [
+              603,
+              675
+            ],
+            [
+              606,
+              670
+            ],
+            [
+              607,
+              665
+            ],
+            [
+              609,
+              661
+            ],
+            [
+              610,
+              656
+            ],
+            [
+              611,
+              651
+            ],
+            [
+              611,
+              647
+            ],
+            [
+              611,
+              642
+            ],
+            [
+              611,
+              637
+            ],
+            [
+              611,
+              633
+            ],
+            [
+              611,
+              628
+            ],
+            [
+              611,
+              624
+            ],
+            [
+              611,
+              619
+            ],
+            [
+              611,
+              614
+            ],
+            [
+              611,
+              610
+            ],
+            [
+              610,
+              605
+            ],
+            [
+              609,
+              600
+            ],
+            [
+              607,
+              596
+            ],
+            [
+              605,
+              591
+            ],
+            [
+              603,
+              586
+            ],
+            [
+              601,
+              582
+            ],
+            [
+              597,
+              577
+            ],
+            [
+              593,
+              572
+            ],
+            [
+              587,
+              568
+            ],
+            [
+              576,
+              563
+            ],
+            [
+              576,
+              560
+            ]
+          ],
+          "occlusion": []
         }
       ],
       "portrait": {
@@ -11142,32 +11389,248 @@
           {
             "id": "peekaboo-trail",
             "target": "game:Hide & Seek",
-            "polygon": [
-              [
-                370,
-                1080
-              ],
-              [
-                469,
-                1080
-              ],
-              [
-                469,
-                1219
-              ],
-              [
-                370,
-                1219
-              ]
-            ],
             "glow": "assets/jungle/title/objects/portrait-hiding-tail-glow.avif",
             "glow_rect": [
-              370,
-              1080,
-              100,
-              140
+              552,
+              688,
+              80,
+              118
             ],
             "rest": "assets/jungle/title/objects/portrait-hiding-tail.avif",
+            "polygon": [
+              [
+                551,
+                676
+              ],
+              [
+                544,
+                681
+              ],
+              [
+                542,
+                686
+              ],
+              [
+                541,
+                691
+              ],
+              [
+                541,
+                696
+              ],
+              [
+                541,
+                701
+              ],
+              [
+                541,
+                706
+              ],
+              [
+                541,
+                711
+              ],
+              [
+                541,
+                716
+              ],
+              [
+                543,
+                721
+              ],
+              [
+                546,
+                726
+              ],
+              [
+                557,
+                731
+              ],
+              [
+                575,
+                736
+              ],
+              [
+                581,
+                741
+              ],
+              [
+                585,
+                747
+              ],
+              [
+                584,
+                752
+              ],
+              [
+                582,
+                757
+              ],
+              [
+                580,
+                762
+              ],
+              [
+                577,
+                767
+              ],
+              [
+                574,
+                772
+              ],
+              [
+                572,
+                777
+              ],
+              [
+                570,
+                782
+              ],
+              [
+                569,
+                787
+              ],
+              [
+                569,
+                792
+              ],
+              [
+                569,
+                797
+              ],
+              [
+                569,
+                802
+              ],
+              [
+                569,
+                807
+              ],
+              [
+                569,
+                812
+              ],
+              [
+                569,
+                817
+              ],
+              [
+                619,
+                817
+              ],
+              [
+                626,
+                811
+              ],
+              [
+                631,
+                806
+              ],
+              [
+                634,
+                801
+              ],
+              [
+                637,
+                796
+              ],
+              [
+                638,
+                791
+              ],
+              [
+                640,
+                786
+              ],
+              [
+                642,
+                781
+              ],
+              [
+                643,
+                776
+              ],
+              [
+                643,
+                771
+              ],
+              [
+                643,
+                766
+              ],
+              [
+                643,
+                761
+              ],
+              [
+                643,
+                756
+              ],
+              [
+                643,
+                751
+              ],
+              [
+                643,
+                746
+              ],
+              [
+                643,
+                740
+              ],
+              [
+                643,
+                735
+              ],
+              [
+                642,
+                730
+              ],
+              [
+                642,
+                725
+              ],
+              [
+                640,
+                720
+              ],
+              [
+                638,
+                715
+              ],
+              [
+                636,
+                710
+              ],
+              [
+                634,
+                705
+              ],
+              [
+                632,
+                700
+              ],
+              [
+                628,
+                695
+              ],
+              [
+                623,
+                690
+              ],
+              [
+                616,
+                685
+              ],
+              [
+                608,
+                680
+              ],
+              [
+                608,
+                676
+              ]
+            ],
             "occlusion": []
           }
         ],
@@ -11192,6 +11655,17 @@
               114
             ]
           }
+        ],
+        "decorations": [
+          {
+            "path": "assets/jungle/title/objects/jungle-path-portrait-tail-bush.avif",
+            "rect": [
+              557,
+              764,
+              83,
+              50
+            ]
+          }
         ]
       },
       "objects": [
@@ -11213,6 +11687,17 @@
             413,
             41,
             119
+          ]
+        }
+      ],
+      "decorations": [
+        {
+          "path": "assets/jungle/title/objects/jungle-path-tail-bush.avif",
+          "rect": [
+            520,
+            643,
+            88,
+            42
           ]
         }
       ]

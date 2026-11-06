@@ -86,7 +86,7 @@ PLATES = {
     'jungle-path': 'jungle-path/jungle-path-{o}.png',
     'port': 'beach-port-redo/port-{o}.png',
     'farm': 'farm-fields/farm-landscape-left-path.png',
-    'campus-portrait': 'campus-wide/campus-portrait-drums-clean.png',
+    'campus-portrait': 'campus-wide/campus-portrait-left-joined.png',
 }
 
 
@@ -181,17 +181,9 @@ class Ledger:
 
 
 def peekaboo_trail(orientation):
-    """Reuse the painted hidden tail, with its silhouette and matching glow."""
-    campus = next(s for s in json.loads(MANIFEST.read_text())['scenes'] if s['name'] == 'campus')
-    hotspot = next(h for h in campus['portrait']['hotspots'] if h['id'] == 'hiding-bush')
-    hotspot = json.loads(json.dumps(hotspot))
-    ox, oy, ow, oh = hotspot['glow_rect']
-    rect = [300,650,130,180] if orientation == 'landscape' else [370,1080,100,140]
-    x, y, width, height = rect
-    hotspot['polygon'] = [[x+round((px-ox)*width/ow), y+round((py-oy)*height/oh)]
-                          for px, py in hotspot['polygon']]
-    hotspot.update(id='peekaboo-trail', target='game:Hide & Seek', glow_rect=rect)
-    return hotspot
+    """The Hide & Seek tail peeking out of its bush (tools/title_campus_fixes.py)."""
+    from title_campus_fixes import tail_hotspot
+    return tail_hotspot(orientation)
 
 
 def place(ledger, name, folder):
@@ -213,6 +205,11 @@ def place(ledger, name, folder):
                             [sign(*row) for row in SIGNS[name][orientation]])
         if name == 'jungle-path':
             view['hotspots'].append(peekaboo_trail(orientation))
+            # The bush leaves in front of the tail come from title_campus_fixes.py.
+            old = next((s for s in json.loads(MANIFEST.read_text())['scenes'] if s['name'] == name), {})
+            old = old if orientation == 'landscape' else old.get('portrait', {})
+            if old.get('decorations'):
+                view['decorations'] = old['decorations']
     scene['portrait'] = portrait
     return scene
 

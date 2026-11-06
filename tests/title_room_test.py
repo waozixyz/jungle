@@ -59,7 +59,17 @@ class TreehouseRoom(unittest.TestCase):
         layers = json.loads(animation.SOURCE.read_text())['layers']
         for scene in ('window', 'window-portrait'):
             selected = [layer for layer in layers if layer['scene'] == scene]
-            self.assertEqual(len(selected), 12)
+            self.assertEqual(len(selected), 13)
+            # Owner (2026-11-05): the top-left branch and leaves are a still
+            # layer in the foreground leaf pass, so birds fly behind them.
+            corner = next(l for l in selected if l['path'].endswith('-leaves-top-left.avif'))
+            self.assertEqual((corner['mode'], corner['sheet'][:2]), (0, [1, 1]))
+            self.assertLess(corner['rect'][0], 80)
+            # The twig is one full-size picture swaying about its trunk end.
+            twig = next(l for l in selected if l['mode'] == -3)
+            self.assertEqual(twig['sheet'], [1, 1, *twig['rect'][2:]])
+            self.assertEqual(twig['pivot'][0], 1.0 if scene.endswith('portrait') else 0.0)
+            self.assertTrue(0.3 < twig['pivot'][1] < 0.7)
             self.assertEqual(selected[-1]['mode'], 2)
             self.assertTrue(all(l['mode'] != 2 for l in selected[:-1]))
             base = next(s for s in json.loads(title.SOURCE.read_text())['scenes'] if s['name'] == 'window')

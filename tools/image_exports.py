@@ -71,7 +71,9 @@ def optimize_new_image_exports(source, role, cache, *, size=None):
     """Cache one original-based export. Existing AVIF is reused byte for byte.
 
     Only explicitly requested preview/established derivative sizes may resize.
-    Alpha artwork and exact roles retain all RGBA values, including hidden RGB.
+    Role 'exact' keeps every RGBA value, including hidden RGB under alpha 0.
+    Other roles on transparent art (use 'cutout' for layers) keep every alpha
+    value exact with q70 4:4:4 color; opaque 'cutout' art stays lossless.
     """
     quality = PRESETS[role]
     source, cache = Path(source), Path(cache)
@@ -88,28 +90,33 @@ def optimize_new_image_exports(source, role, cache, *, size=None):
         picture = picture.resize(size, Image.Resampling.LANCZOS)
     if not alpha:
         picture = picture.convert('RGB')
+    exact = role == 'exact'
     lossless = alpha or quality is None
     cache.mkdir(parents=True, exist_ok=True)
     with source.open('rb') as handle:
         digest = hashlib.file_digest(handle, 'sha256').hexdigest()
-    key = hashlib.sha256(f'{digest}-{role}-{quality}-{size}-{__version__}-{encoder_version()}-avif-{SPEED}-v2'.encode()).hexdigest()
+    variant = '-rgba' if exact else ''  # Older exact-role entries were cut-outs.
+    key = hashlib.sha256(f'{digest}-{role}-{quality}-{size}-{__version__}-{encoder_version()}-avif-{SPEED}-v2{variant}'.encode()).hexdigest()
     target = cache / (key + '.avif')
     if not target.exists():
-        save_avif(picture, target, lossless=lossless, quality=quality or 100,
+        save_avif(picture, target, lossless=lossless, exact=exact, quality=quality or 100,
                   subsampling=SUBSAMPLING.get(role, '420'))
         if not lossless:
-            exact = target.with_suffix('.exact.avif')
+            smaller = target.with_suffix('.exact.avif')
             try:
-                save_avif(picture, exact, lossless=True)
-                if exact.stat().st_size < target.stat().st_size:
-                    exact.replace(target)
+                save_avif(picture, smaller, lossless=True)
+                if smaller.stat().st_size < target.stat().st_size:
+                    smaller.replace(target)
             finally:
-                exact.unlink(missing_ok=True)
+                smaller.unlink(missing_ok=True)
     with Image.open(target) as decoded:
         decoded.load()
         assert decoded.format == 'AVIF' and decoded.size == picture.size
         exact_pixels = decoded.convert(picture.mode).tobytes() == picture.tobytes()
-        if alpha:
+        if exact:
+            # Every RGBA value, including color hidden under alpha 0.
+            assert exact_pixels, 'exact export changed RGBA values'
+        elif alpha:
             # Cut-outs: every alpha value exact, q70 4:4:4 color.
             assert decoded.convert('RGBA').getchannel('A').tobytes() == picture.getchannel('A').tobytes()
         elif lossless:
@@ -173,6 +180,49 @@ def trim_cutout(picture, max_display, *, margin=4, alpha_floor=8, align=1):
     # Lanczos may create invisible RGB; keep exact alpha with clean hidden RGB.
     result.paste((0, 0, 0, 0), mask=result.getchannel('A').point(lambda value: 255 if value == 0 else 0))
     return result, box
+
+
+def _sha(data):
+    return hashlib.sha256(data).hexdigest()
+
+
+def export_scaled_master(master, destination):
+    """Ship a new private PNG master under the 75% standard and return the
+    tools/canonical_avif.json row that tests/canonical_avif_test.py checks."""
+    master, destination = Path(master), Path(destination)
+    with Image.open(master) as original:
+        original.load()
+        alpha = save_scaled(original, destination)
+        design = list(original.size)
+        source_rgba = original.convert('RGBA')
+    with Image.open(destination) as shipped:
+        rgba = shipped.convert('RGBA')
+        dimensions = list(shipped.size)
+    with master.open('rb') as handle:
+        master_sha = hashlib.file_digest(handle, 'sha256').hexdigest()
+    with destination.open('rb') as handle:
+        sha = hashlib.file_digest(handle, 'sha256').hexdigest()
+    name = master.relative_to(ROOT).as_posix()
+    return dict(source=name, source_sha256=master_sha, source_bytes=master.stat().st_size,
+                source_rgba_sha256=_sha(source_rgba.tobytes()), dimensions=dimensions, alpha=alpha,
+                source_alpha_sha256=_sha(source_rgba.getchannel('A').tobytes()),
+                alpha_sha256=_sha(rgba.getchannel('A').tobytes()), rgba_sha256=_sha(rgba.tobytes()),
+                sha256=sha, bytes=destination.stat().st_size, quality=SCALE_QUALITY, lossless=False,
+                subsampling='444' if alpha else '420', speed=SPEED, design_dimensions=design, scale=SCALE,
+                master=name, master_sha256=master_sha, exact_alpha=False,
+                alpha_quality=SCALE_ALPHA_QUALITY if alpha else 100)
+
+
+def record_canonical_rows(rows, receipt=ROOT / 'tools/canonical_avif.json'):
+    """Add or replace shipped rows and keep the receipt's count and byte totals."""
+    import json
+    data = json.loads(Path(receipt).read_text())
+    data['files'].update(rows)
+    data['count'] = len(data['files'])
+    data['after_bytes'] = sum(row['bytes'] for row in data['files'].values())
+    data['before_bytes'] = sum(row['source_bytes'] for row in data['files'].values())
+    Path(receipt).write_text(json.dumps(data, indent=2, ensure_ascii=False) + '\n')
+    return data
 
 
 def check_cutout(path, max_display, *, padding=6):

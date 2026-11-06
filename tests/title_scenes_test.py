@@ -141,7 +141,7 @@ class TitleVariants(unittest.TestCase):
             with Image.open(ROOT/path) as im:
                 self.assertEqual(design_size(path,im),(1024,1536))
                 receipt = json.loads((ROOT/'tools/canonical_avif.json').read_text())['files'][path]
-                self.assertEqual(receipt['source_rgba_sha256'], '63761f1dd59db99a88a3ec5dd3465a2ea42c72ed9eba071b24998b8fb8343bf6')
+                self.assertEqual(receipt['source_rgba_sha256'], '9952844e406a45b4fcb89b9871fc3d0483dcdf0dbfe9fecb789583c4fa02751e')
                 self.assertEqual(hashlib.sha256(im.convert('RGBA').tobytes()).hexdigest(), receipt['rgba_sha256'])
 
     def test_landscape_campus_art_and_placements_are_unchanged(self):

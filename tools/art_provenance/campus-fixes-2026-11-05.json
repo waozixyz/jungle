@@ -1,0 +1,77 @@
+{
+  "owner_request": "2026-11-05: portrait Campus extended on both sides; the weird tail moved out of Campus into a well-placed Jungle Path bush; the window twig join improved; the top-left leaves a layer above the birds; the drums' grass trail removed; the desert seen from Campus white with an oasis like the world map.",
+  "generator": "Harmony generate_image (Codex built-in image generation); original Jungle watercolor",
+  "method": "Joins regenerate only a crop spanning each seam and merge with harness merge-map-gap (registered without warping, best cut columns, brief feathering; source and outside pixels preserved). Bush and leaf layers are the plates' own pixels with color masks.",
+  "assets": {
+    "assets/jungle/title/objects/jungle-path-tail-bush.avif": {
+      "master": "local/art-development/campus-fix/jungle-path-landscape-tail-bush.png",
+      "master_sha256": "e48b416d4c627beee047ae0de633e0be4a34a20f0a804ec60b36fd852f82e1b2",
+      "sha256": "b9419e989488af4dd28607d57c83e0bfe59a237b792a09d544e6540f25b3a043"
+    },
+    "assets/jungle/title/objects/jungle-path-portrait-tail-bush.avif": {
+      "master": "local/art-development/campus-fix/jungle-path-portrait-tail-bush.png",
+      "master_sha256": "4dd4089934038898a331c39b78aa5375f7732459d0c4745b26cb8f626d424f57",
+      "sha256": "8f5063351feedd31ebea0bc821af31ec4374791875a2a7d784ed57c8dea712a1"
+    },
+    "assets/jungle/title/window-animation/landscape-leaves-top-left.avif": {
+      "master": "local/art-development/campus-fix/window-landscape-leaves-top-left.png",
+      "master_sha256": "7970561b00dc165ef1ec76936f00a4e6f8d2b76295cd218b7da520712d07e40c",
+      "sha256": "662a23e2df3971c319a0c24d8202131ab3947934361d97e639cc18761410cd88"
+    },
+    "assets/jungle/title/window-animation/portrait-leaves-top-left.avif": {
+      "master": "local/art-development/campus-fix/window-portrait-leaves-top-left.png",
+      "master_sha256": "c62829fda6596275256219797984cd08889ae6099335652da82075de91704ad3",
+      "sha256": "4723e64175544c88e3a710860ae7d9b88f74aa3b4e540e96fa99c10f805ba9bb"
+    },
+    "assets/jungle/title/window-animation/landscape-twig.avif": {
+      "master": "local/art-development/campus-fix/window-landscape-twig.png",
+      "master_sha256": "3fb45b100b8c783ebf24c53379430d9a56a982482318746251c106a5d73a66b3",
+      "sha256": "40c1ac07f4ef2f52272b264a0ebf8c87bc2fb250c2ec081176933d364b7fe1eb"
+    },
+    "assets/jungle/title/window-animation/portrait-twig.avif": {
+      "master": "local/art-development/campus-fix/window-portrait-twig.png",
+      "master_sha256": "4bbde287534bf7d3b04973446c8149c6bccb1a81b0225820f702d7cf4b78607c",
+      "sha256": "1b0e73b1f23fa2e50a7dded216bc15ced75f7c410feac1179491ae0438e0065f"
+    },
+    "assets/jungle/title/window-portrait.avif": {
+      "master": "local/art-development/campus-fix/window-portrait-twig-plate.png",
+      "master_sha256": "79babd67e50e577512d7e3f518e33e80bed3c5cdd13d71c0dac7dc8e322a969a",
+      "sha256": "171ef028b41f19f6c58ee7b3b4ae7d9c7baaf1676ad7f7a5249141f448d4e10f"
+    },
+    "assets/jungle/title/campus.avif": {
+      "master": "local/art-development/campus-wide/campus-landscape-white-desert.png",
+      "master_sha256": "3c3905c9f0efe11a26f8fd9723237cd518e0ac5efaca9a47ed86b0ef2a3268df",
+      "sha256": "85d08c2be20fa0531c00b2bf8d9a85be5e3b010de54b6453eb33f31b11618b29"
+    },
+    "assets/jungle/title/layers/campus-background.avif": {
+      "master": "local/art-development/campus-wide/campus-landscape-white-desert.png",
+      "master_sha256": "3c3905c9f0efe11a26f8fd9723237cd518e0ac5efaca9a47ed86b0ef2a3268df",
+      "sha256": "85d08c2be20fa0531c00b2bf8d9a85be5e3b010de54b6453eb33f31b11618b29"
+    },
+    "assets/jungle/title/campus-low.avif": {
+      "master": "local/art-development/campus-fix/campus-landscape-white-desert-low.png",
+      "master_sha256": "16b7f9e23558bb917e01aeedbd73d036663dcf09d0b6799ddd8c8ad2edd53156",
+      "sha256": "a0c4fec9cdbf9af2300669fa28577a641ad59419413527c427643d18c2c31cb7"
+    },
+    "assets/jungle/title/glow/campus-portrait-hiding-bush.avif": {
+      "master": "local/art-development/campus-fix/campus-portrait-hiding-bush-glow.png",
+      "master_sha256": "69897180d05417ca686e58942d1e1d2cd35bcd83ddb7596ea828710afb420d40",
+      "sha256": "6e3ef0741c51103df3fbe5e6f9640259a084d6bc0e65802f0b917cf1a9f60f94"
+    },
+    "assets/jungle/title/campus-portrait.avif": {
+      "master": "local/art-development/campus-wide/campus-portrait-left-joined.png",
+      "master_sha256": "fe5eb39e73da971983a6e78980651dd58e422ef74c63dd0391b67d3005f61438",
+      "sha256": "767276c6896c455e6c3e1c5a1690e827460ba49aba470b5bcc2159259520d4e4"
+    },
+    "assets/jungle/title/layers/campus-portrait-background.avif": {
+      "master": "local/art-development/campus-wide/campus-portrait-left-joined.png",
+      "master_sha256": "fe5eb39e73da971983a6e78980651dd58e422ef74c63dd0391b67d3005f61438",
+      "sha256": "767276c6896c455e6c3e1c5a1690e827460ba49aba470b5bcc2159259520d4e4"
+    },
+    "assets/jungle/title/campus-portrait-low.avif": {
+      "master": "local/art-development/campus-fix/campus-portrait-left-low.png",
+      "master_sha256": "6bc9c31ca3ff0d44c3515c311487481bd77c2c44b5277f227fb2072e59be0e39",
+      "sha256": "a02d65ff72e43a82db1123ab98368155a3e0a2504caf27a270310e45932b35ab"
+    }
+  }
+}
