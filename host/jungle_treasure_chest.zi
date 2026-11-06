@@ -14,6 +14,7 @@
 #import, file "../retro/book_theme.zi";
 #import, file "jungle_text.zi";
 #import, file "jungle_treasure.zi";
+#import, file "jungle_treasure_pictures.zi";
 
 TREASURE_CHEST_CLOSED :: "assets/jungle/treasure/chest-closed.avif"
 TREASURE_CHEST_OPEN :: "assets/jungle/treasure/chest-open.avif"

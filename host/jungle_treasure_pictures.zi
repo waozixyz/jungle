@@ -1,0 +1,23 @@
+// The toucan's pictures (host/jungle_treasure.zi). Apart from the reward
+// table so the games, which read that table through retro/collection_cache.zi,
+// never list these title-only cut-outs in their web preload
+// (tools/activity_assets.py follows file imports for asset paths).
+#import, file "jungle_text.zi";
+#import, file "jungle_treasure.zi";
+
+// The reward's own cut-out: the treasure, or the stencil's line-art preview.
+ToucanRewardPicture :: (index: s32) -> string {
+    if index < 0 || index >= TOUCAN_REWARD_COUNT { return "" }
+    if toucan_reward_kinds[index] == TOUCAN_REWARD_STENCIL {
+        return Cat("assets/dino-paint/art/dino", NumberText(toucan_reward_paint_arts[index]), "-preview.avif")
+    }
+    return Cat("assets/jungle/treasure/", toucan_reward_slugs[index], ".avif")
+}
+
+// What the toucan carries in its beak for the reward.
+ToucanCarriedPicture :: (offer: s32) -> string {
+    if offer == TOUCAN_OFFER_INTRO { return "assets/jungle/treasure/letter.avif" }
+    if offer < 0 || offer >= TOUCAN_REWARD_COUNT { return "" }
+    if toucan_reward_kinds[offer] == TOUCAN_REWARD_STENCIL { return "assets/jungle/treasure/stencil-sheet.avif" }
+    return ToucanRewardPicture(offer)
+}

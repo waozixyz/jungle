@@ -59,23 +59,6 @@ ToucanRewardBySlug :: (slug: string) -> s32 {
     return -1
 }
 
-// The reward's own cut-out: the treasure, or the stencil's line-art preview.
-ToucanRewardPicture :: (index: s32) -> string {
-    if index < 0 || index >= TOUCAN_REWARD_COUNT { return "" }
-    if toucan_reward_kinds[index] == TOUCAN_REWARD_STENCIL {
-        return Cat("assets/dino-paint/art/dino", NumberText(toucan_reward_paint_arts[index]), "-preview.avif")
-    }
-    return Cat("assets/jungle/treasure/", toucan_reward_slugs[index], ".avif")
-}
-
-// What the toucan carries in its beak for the reward.
-ToucanCarriedPicture :: (offer: s32) -> string {
-    if offer == TOUCAN_OFFER_INTRO { return "assets/jungle/treasure/letter.avif" }
-    if offer < 0 || offer >= TOUCAN_REWARD_COUNT { return "" }
-    if toucan_reward_kinds[offer] == TOUCAN_REWARD_STENCIL { return "assets/jungle/treasure/stencil-sheet.avif" }
-    return ToucanRewardPicture(offer)
-}
-
 Treasure :: struct {
     intro_seen: bool
     // Local calendar day (YYYYMMDD) of the last gift; 0 before any.

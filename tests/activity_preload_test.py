@@ -66,6 +66,8 @@ def test_activity_manifest():
                            or (lang!='en' and '/normal-book-' in clip)) for clip in clips), (activity['id'],lang,profile)
         assert clip not in activity['speech']['de']['normal'] and clip not in activity['speech']['es']['normal']
         assert set(activity['files'])<=paths
+        # The toucan's pictures belong to the title; no game waits for them.
+        assert not [p for p in activity['files'] if p.startswith('assets/jungle/treasure/')], activity['id']
     # Picture Book: the shelf holds only covers and shelf art; every page,
     # portrait, collectible and narration belongs to exactly its own book.
     book=manifest['activities'][0]
