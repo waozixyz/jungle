@@ -1,9 +1,9 @@
 {
   "dialogues": [
     {
-      "id": "desert-guide",
-      "speaker": "Desert guide",
-      "speaker_hotspot": "desert-guide",
+      "id": "desert-birds",
+      "speaker": "Desert parrots",
+      "speaker_hotspot": "desert-macaw",
       "voice": "assets/jungle/title/desert/{language}/line{line}.wav",
       "lines": [
         {
@@ -22,9 +22,9 @@
           "es": "Primero necesitamos agua, un sombrero para el sol y aprender un poco más."
         },
         {
-          "en": "Come back when you are ready. My camel will wait for you!",
-          "de": "Komm wieder, wenn du bereit bist. Mein Kamel wartet auf dich!",
-          "es": "Vuelve cuando tengas todo listo. ¡Mi camello te esperará!"
+          "en": "Come back when you are ready. We birds will wait for you here!",
+          "de": "Komm wieder, wenn du bereit bist. Wir Vögel warten hier auf dich!",
+          "es": "Vuelve cuando tengas todo listo. ¡Los pájaros te esperamos aquí!"
         }
       ]
     }

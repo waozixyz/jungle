@@ -1,9 +1,10 @@
-"""The Desert edge in the real app on an owned private Xvfb, both orientations.
+"""The Wüste in the real app on an owned private Xvfb, both orientations.
 
-Campus Desert sign -> the painted jungle edge with the guide and camel -> tap
-the guide -> his speech bubble beside him in EN/DE/ES -> tap through every line
--> it closes -> the camel opens it too -> X and Escape close it -> Return
-advances -> the Campus sign leads back. Captures stay in ignored backup/.
+Campus Desert sign -> white dunes, the oasis and the big branch with every bird
+as its own layer -> tap the macaw -> its speech bubble beside it in EN/DE/ES ->
+tap through every line -> it closes -> another bird opens it too, still spoken
+by the macaw -> X and Escape close it -> Return advances -> the Campus sign
+leads back. Captures stay in ignored backup/.
 """
 import json
 import os
@@ -14,6 +15,7 @@ from PIL import Image, ImageChops, ImageStat
 import runtime_test as rt
 
 SIZES = ((960, 600), (420, 900), (1080, 2340), (1280, 800))
+SPEAKER = 'desert-macaw'
 
 
 def fit(view, w, h, contain=False):
@@ -90,6 +92,7 @@ def main():
                 scale, ox, oy = fit(view, w, h)
                 to_screen = lambda x, y: (ox + x * scale, oy + y * scale)
                 by_id = {spot['id']: spot for spot in view['hotspots']}
+                birds = [spot['id'] for spot in view['hotspots'] if spot['id'] != 'campus-path']
                 plate = Image.open(root/view['image']).convert('RGB').resize(
                     (round((1024 if h > w else 1672) * scale), round((1536 if h > w else 941) * scale)),
                     Image.Resampling.BILINEAR)
@@ -115,7 +118,7 @@ def main():
                     expected = plate.crop((box[0] - round(ox), box[1] - round(oy), box[2] - round(ox), box[3] - round(oy)))
                     rest = until(f'{w}-{locale}-desert', lambda p: max(ImageStat.Stat(ImageChops.difference(
                         p.crop(box).resize((32, 32)), expected.resize((32, 32)))).mean) < 10)
-                    for ident in ('desert-guide', 'camel'):
+                    for ident in birds:
                         gx, gy, gw, gh = by_id[ident]['glow_rect']
                         figure = tuple(round(v) for v in (*to_screen(gx + gw * .3, gy + gh * .3), *to_screen(gx + gw * .7, gy + gh * .7)))
                         ref = plate.crop((figure[0] - round(ox), figure[1] - round(oy), figure[2] - round(ox), figure[3] - round(oy)))
@@ -136,12 +139,12 @@ def main():
                     def closed(rect):
                         return lambda p: difference(p, rest, pixels(rect)) < 6
 
-                    bubble, text, close = layout(w_units, h_units, anchor('desert-guide'))
-                    gx, gy, gw, gh = by_id['desert-guide']['glow_rect']
+                    bubble, text, close = layout(w_units, h_units, anchor(SPEAKER))
+                    gx, gy, gw, gh = by_id[SPEAKER]['glow_rect']
                     # Beside the speaker, never a caption along the bottom edge.
                     assert bubble[1] + bubble[3] < (oy + (gy + gh) * scale) / unit, (w, h, bubble)
                     assert 6 <= bubble[0] and bubble[0] + bubble[2] <= w_units - 6 and bubble[1] >= 40
-                    tap(*to_screen(gx + gw * .5, gy + gh * .3))
+                    tap(*to_screen(gx + gw * .5, gy + gh * .45))
                     picture = until(f'{w}-{locale}-line0', opened(bubble))
                     words = picture.crop(pixels(text)).convert('L')
                     assert sum(words.histogram()[:110]) > 40, (w, locale, 'no bubble text')
@@ -155,18 +158,18 @@ def main():
                     # The last tap closes it; the scene is unchanged underneath.
                     tap(*sky)
                     until(f'{w}-{locale}-closed', closed(bubble))
-                    # The camel opens the same conversation, still spoken by the
-                    # guide beside him; the X closes it.
-                    camel_bubble, _, camel_close = bubble, text, close
-                    cx_, cy_, cw_, ch_ = by_id['camel']['glow_rect']
-                    tap(*to_screen(cx_ + cw_ * .7, cy_ + ch_ * .35))
-                    until(f'{w}-{locale}-camel', opened(camel_bubble))
-                    x, y, cw, ch = camel_close
+                    # Another bird opens the same conversation, still spoken by
+                    # the macaw; the X closes it.
+                    other = next(b for b in reversed(birds) if b != SPEAKER)
+                    cx_, cy_, cw_, ch_ = by_id[other]['glow_rect']
+                    tap(*to_screen(cx_ + cw_ * .5, cy_ + ch_ * .45))
+                    until(f'{w}-{locale}-other-bird', opened(bubble))
+                    x, y, cw, ch = close
                     tap((x + cw / 2) * unit, (y + ch / 2) * unit)
                     hover(*sky)
-                    until(f'{w}-{locale}-camel-closed', closed(camel_bubble))
+                    until(f'{w}-{locale}-other-closed', closed(bubble))
                     # Keyboard: Return advances, Escape closes only the bubble.
-                    tap(*to_screen(gx + gw * .5, gy + gh * .3))
+                    tap(*to_screen(gx + gw * .5, gy + gh * .45))
                     first = until(f'{w}-{locale}-key-open', opened(bubble)).crop(pixels(text)).convert('L')
                     d.key('Return')
                     until(f'{w}-{locale}-key-next', lambda p: max(ImageStat.Stat(ImageChops.difference(
@@ -184,7 +187,7 @@ def main():
                     until(f'{w}-{locale}-back', lambda p: difference(p, at_campus, area) < 8)
                 assert bubbles[0].tobytes() != bubbles[1].tobytes() != bubbles[2].tobytes(), 'one language for all'
                 d.alive()
-            print(f'local desert smoke: {w}x{h}, EN/DE/ES, guide and camel bubble, tap/X/Escape/Return, Campus return passed',
+            print(f'local desert smoke: {w}x{h}, EN/DE/ES, {len(birds)} bird layers, macaw bubble, tap/X/Escape/Return, Campus return passed',
                   flush=True)
 
 

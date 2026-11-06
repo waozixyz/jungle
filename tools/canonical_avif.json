@@ -1,11 +1,11 @@
 {
   "version": 1,
-  "count": 1212,
+  "count": 1232,
   "encoding": "Owner standard 2026-11-05: masters Lanczos-downscaled to 75%, AVIF q35 8-bit full range speed6 jobs1; opaque YUV420, transparent art YUV444 with q90 alpha. Pictures under 512 px, source-rectangle sheets, jigsaw (q60 YUV444), paint art and cursors keep their pixels.",
   "dimensions": "Full original dimensions; no downsampling, no regeneration",
   "reference": "local/image-format-research/previews/full-1x-book-page.png (label: 75% AVIF q35 + Lanczos); full dimensions retained for shipping",
-  "before_bytes": 436496869,
-  "after_bytes": 46792724,
+  "before_bytes": 448510425,
+  "after_bytes": 46936340,
   "files": {
     "assets/beach_families/background.avif": {
       "source": "assets/beach_families/background.webp",
@@ -5621,10 +5621,10 @@
       "alpha_quality": 100
     },
     "assets/jungle/title/desert-low.avif": {
-      "source": "assets/jungle/title/desert-low.webp",
-      "source_sha256": "e66a31769ced1790887235f750bfaa1b272e71eaf5ee402bc517842b8443cd2c",
-      "source_bytes": 5496,
-      "source_rgba_sha256": "6579b1713ed248913cb994fe493d956905ff96f09b158f6ad80630e511416d98",
+      "source": "local/art-development/desert-edge/desert-landscape-plate.png",
+      "source_sha256": "27b777580494e5b301542b6fd99d91b52fb08dc45dc11d0798221864da5ed66c",
+      "source_bytes": 2787329,
+      "source_rgba_sha256": "ca9c547b04d18e7ad5bba788fcd925e03f4548d05ef174c8a6a73df565f787ed",
       "dimensions": [
         240,
         135
@@ -5632,19 +5632,19 @@
       "alpha": false,
       "source_alpha_sha256": "682a387ec62c4338e6ba238c81587700231b5c74329714310ddd41a72c10de09",
       "alpha_sha256": "682a387ec62c4338e6ba238c81587700231b5c74329714310ddd41a72c10de09",
-      "rgba_sha256": "813c642f40f2b4abd2d9130efce1f4c32d17907ac1a0341e29661c7a8ae41ce8",
-      "sha256": "af3773083578366ccc68a5aafb5797a7407fc969b77da671c899d14b99aeee6c",
-      "bytes": 3192,
+      "rgba_sha256": "a40bea42354fb8341874948d47fa9dea7e8026ddb6c27dc6cf7532bc52b38269",
+      "sha256": "f9be51827ac0dda07ecf3971819458ec3bb403576955e8e2e63ab0d556d3a13a",
+      "bytes": 4675,
       "quality": 35,
       "lossless": false,
       "subsampling": "420",
       "speed": 6
     },
     "assets/jungle/title/desert-portrait-low.avif": {
-      "source": "assets/jungle/title/desert-portrait-low.webp",
-      "source_sha256": "7a608c2ef1f8cb8769bfc14a1141d17d4c9b5a9c1eae463ed843e0d37eb956e6",
-      "source_bytes": 15700,
-      "source_rgba_sha256": "557cf4ca23e6f37ae162ea58721f553545e807f94038f9513665cb0afcff9784",
+      "source": "local/art-development/desert-edge/desert-portrait-plate.png",
+      "source_sha256": "2249fda15f5d64fd3fa1d0e6a43f1cb7361becf24b4b48179c7d86d5c44421aa",
+      "source_bytes": 2864902,
+      "source_rgba_sha256": "5f118f38bada9e85c8ea9a67a2b27997451acb8f35cd9eb6f94c12291f308f95",
       "dimensions": [
         240,
         360
@@ -5652,19 +5652,19 @@
       "alpha": false,
       "source_alpha_sha256": "9a5b7e7b9006c41100fbfd88f4ad6ec3f4645e6df5725f09c7f9be9f58b80862",
       "alpha_sha256": "9a5b7e7b9006c41100fbfd88f4ad6ec3f4645e6df5725f09c7f9be9f58b80862",
-      "rgba_sha256": "93cdd5da2c7f3d6595b01b7332e761d296edfb94982a2903fe15e042c8ef2d52",
-      "sha256": "36eff6d497ad2232d9d07e7673866c32653d2d2c22df5d8336ba699256d5f070",
-      "bytes": 9504,
+      "rgba_sha256": "35ffb0db2e8694c509619e188da290cd00affc85fe99d221d62608bab839b36b",
+      "sha256": "2674f3406396e72a60fbe26dfb8c93caff33acdab986a7c67c8a43e1ff7ef615",
+      "bytes": 11779,
       "quality": 35,
       "lossless": false,
       "subsampling": "420",
       "speed": 6
     },
     "assets/jungle/title/desert-portrait.avif": {
-      "source": "assets/jungle/title/desert-portrait.webp",
-      "source_sha256": "f6755445d1297cd85f8984b5430ab2a0b3b6b9079e5b851f8efad7c520f068f8",
-      "source_bytes": 171570,
-      "source_rgba_sha256": "b9ee10a54418e6174a055184e05988139a5e19a225b9d1bc531715343bc7da13",
+      "source": "local/art-development/desert-edge/desert-portrait-plate.png",
+      "source_sha256": "2249fda15f5d64fd3fa1d0e6a43f1cb7361becf24b4b48179c7d86d5c44421aa",
+      "source_bytes": 2864902,
+      "source_rgba_sha256": "eb8ca11cc3c3ee075f2bc43abceda85a9efc8e30643617945bdf3f273f73924e",
       "dimensions": [
         768,
         1152
@@ -5672,9 +5672,9 @@
       "alpha": false,
       "source_alpha_sha256": "852aad42795f401e21ded6e51fc392da9d94e2f386cacc08327046c319e903fc",
       "alpha_sha256": "2951f16020ee834f650e47e2e4aa8a5e39afe30b2f16bcb43b2e0b9ec235e721",
-      "rgba_sha256": "102cf61dc36ead5aeb7aedf33fcb0af3183032002aa2e0389eaea082f2695449",
-      "sha256": "6620e53d11de4bdfbb1da962741ae99b4d31fbdef526aecee61bd77d4bad0add",
-      "bytes": 67204,
+      "rgba_sha256": "644f4f0af604deaabb49a933855e14abed9b6dd9ff89c64a37a1f0cfd8a09e41",
+      "sha256": "50577a3867acc52d9fc6d04465f98550f91d49380e5168c4b78cef6111ee9421",
+      "bytes": 77968,
       "quality": 35,
       "lossless": false,
       "subsampling": "420",
@@ -5685,15 +5685,15 @@
       ],
       "scale": 0.75,
       "master": "local/art-development/desert-edge/desert-portrait-plate.png",
-      "master_sha256": "10d1d1d53ab497ed0c07d3db932ed07064ee7607b34f6ac4a29b08b5d2bba41e",
+      "master_sha256": "2249fda15f5d64fd3fa1d0e6a43f1cb7361becf24b4b48179c7d86d5c44421aa",
       "exact_alpha": false,
       "alpha_quality": 100
     },
     "assets/jungle/title/desert.avif": {
-      "source": "assets/jungle/title/desert.webp",
-      "source_sha256": "68a9605503309e8ef8f96cebcfe4ab31193411eb09387bc1c97dbb931a3f9512",
-      "source_bytes": 138204,
-      "source_rgba_sha256": "b200debdf2807053221dbff0c3b99d9b9f0cb632728cd5ffa895daea4edd6bac",
+      "source": "local/art-development/desert-edge/desert-landscape-plate.png",
+      "source_sha256": "27b777580494e5b301542b6fd99d91b52fb08dc45dc11d0798221864da5ed66c",
+      "source_bytes": 2787329,
+      "source_rgba_sha256": "7a33472ef5e96b1dbd0d08b3697f21e7a3b7b8a41b483ad77153f774098c91c6",
       "dimensions": [
         1254,
         706
@@ -5701,9 +5701,9 @@
       "alpha": false,
       "source_alpha_sha256": "01d47491cbeb600913ad9b969c467a20eee08ef528805ef7ff455d14d0b926e6",
       "alpha_sha256": "88bf49aabe87d9fc2722821cdb81631d1d56c9df2f222d84e236df6f539e51b3",
-      "rgba_sha256": "4f9709b5009b98ac1f15140f4cbba47ea578dfb23d7e280b1e6dcf6bcff01842",
-      "sha256": "032cf2f2bc1ae40746de2480b6aa30b91c3c94338043e97274553c80ee62de49",
-      "bytes": 50789,
+      "rgba_sha256": "2f23d10d31718d479a19bbceddd52dd9c553457123968d01b8ae90574adac850",
+      "sha256": "e6088d0a027dfa43471adf5928efc8af3344164c4c1d336b106cdcdd94830e8f",
+      "bytes": 67926,
       "quality": 35,
       "lossless": false,
       "subsampling": "420",
@@ -5714,7 +5714,7 @@
       ],
       "scale": 0.75,
       "master": "local/art-development/desert-edge/desert-landscape-plate.png",
-      "master_sha256": "1eb737058e2c96024e6f3eea2afcd4fac25258fc334019a286b538460ebde62e",
+      "master_sha256": "27b777580494e5b301542b6fd99d91b52fb08dc45dc11d0798221864da5ed66c",
       "exact_alpha": false,
       "alpha_quality": 100
     },
@@ -7680,122 +7680,6 @@
       "scale": 0.75,
       "master": "backup/avif-migration/assets/jungle/title/objects/beach-crab-family.webp",
       "master_sha256": "de02bfc0602dd7184deeb4f4f98fe2bff635964243bcec9f4fe37b720b220046"
-    },
-    "assets/jungle/title/objects/desert-camel-glow.avif": {
-      "source": "assets/jungle/title/objects/desert-camel-glow.webp",
-      "source_sha256": "51d9d1cc13acae567456acb2579c31307b034a0f4c9c21a1a7ed2e84907a9d0c",
-      "source_bytes": 28966,
-      "source_rgba_sha256": "d879838a2b34ceca77e9a03181b7e064a1a829d6729822b149f22d916dcdc1d9",
-      "dimensions": [
-        697,
-        766
-      ],
-      "alpha": true,
-      "source_alpha_sha256": "ae82f63d441b7b24e8f3798cb1e374904bbf52345512782137c272afa7067b4c",
-      "alpha_sha256": "b7946a840bfc0cba42f7ca3a110f0ec3026c1f03264bed15c9d7b8c43cf65670",
-      "rgba_sha256": "960cbd0c1755af451a56b4a66799debebba5b5bb8c32daf010ad42ad6f40a97f",
-      "sha256": "fa9b6de76c3538e26f3601f911266a77719405f27aa22b82b01bf4f2f0aaa001",
-      "bytes": 14992,
-      "quality": 35,
-      "lossless": false,
-      "subsampling": "444",
-      "speed": 6,
-      "exact_alpha": false,
-      "alpha_quality": 90,
-      "design_dimensions": [
-        929,
-        1022
-      ],
-      "scale": 0.75,
-      "master": "backup/avif-migration/assets/jungle/title/objects/desert-camel-glow.webp",
-      "master_sha256": "51d9d1cc13acae567456acb2579c31307b034a0f4c9c21a1a7ed2e84907a9d0c"
-    },
-    "assets/jungle/title/objects/desert-camel.avif": {
-      "source": "assets/jungle/title/objects/desert-camel.webp",
-      "source_sha256": "68e7cd451caa84eb1beb0ed3974e8a1e4be6e570e0a8e1b873037453a4e65b92",
-      "source_bytes": 937618,
-      "source_rgba_sha256": "b8eceab382c1a09176086cc644d4687181bfc71bc7973188dce32fb110b3662a",
-      "dimensions": [
-        697,
-        766
-      ],
-      "alpha": true,
-      "source_alpha_sha256": "ae82f63d441b7b24e8f3798cb1e374904bbf52345512782137c272afa7067b4c",
-      "alpha_sha256": "b7946a840bfc0cba42f7ca3a110f0ec3026c1f03264bed15c9d7b8c43cf65670",
-      "rgba_sha256": "648a878bef52057cb98c026a2e938caebffc8ae634bab19fd2e73bd2b885c1ec",
-      "sha256": "e5e75b2edfd71b238ab40fef45c3569c63e330387f1bba374953ffe3e3a09cca",
-      "bytes": 45544,
-      "quality": 35,
-      "lossless": false,
-      "subsampling": "444",
-      "speed": 6,
-      "exact_alpha": false,
-      "alpha_quality": 90,
-      "design_dimensions": [
-        929,
-        1022
-      ],
-      "scale": 0.75,
-      "master": "backup/avif-migration/assets/jungle/title/objects/desert-camel.webp",
-      "master_sha256": "68e7cd451caa84eb1beb0ed3974e8a1e4be6e570e0a8e1b873037453a4e65b92"
-    },
-    "assets/jungle/title/objects/desert-guide-glow.avif": {
-      "source": "assets/jungle/title/objects/desert-guide-glow.webp",
-      "source_sha256": "69281bf5bc164e9ce217d7c445258ad09964eff2105f8c8711ebd5660082b292",
-      "source_bytes": 24152,
-      "source_rgba_sha256": "c45f12503f53317c8e6138466a8af2cadd0178fd1e46ec18c88a1b097494e71d",
-      "dimensions": [
-        589,
-        1147
-      ],
-      "alpha": true,
-      "source_alpha_sha256": "7bdc2317c29d4e0f71d2f7702b91c8d241e0256ca4d549bda4384e1d3a14feb6",
-      "alpha_sha256": "28403b25ad62442e27b193bda37f2cc3e9cf5149211ada7144bb5cc6c8b818f4",
-      "rgba_sha256": "d7967b43694cac1d39ff4ddc7dcedf11caacaf51b67ac8f3325bbecb685e0d67",
-      "sha256": "748a698b9875381c40ab2d5e41a2c1294426f1cfba6c38a7b9657663e1fb0f40",
-      "bytes": 13014,
-      "quality": 35,
-      "lossless": false,
-      "subsampling": "444",
-      "speed": 6,
-      "exact_alpha": false,
-      "alpha_quality": 90,
-      "design_dimensions": [
-        785,
-        1529
-      ],
-      "scale": 0.75,
-      "master": "backup/avif-migration/assets/jungle/title/objects/desert-guide-glow.webp",
-      "master_sha256": "69281bf5bc164e9ce217d7c445258ad09964eff2105f8c8711ebd5660082b292"
-    },
-    "assets/jungle/title/objects/desert-guide.avif": {
-      "source": "assets/jungle/title/objects/desert-guide.webp",
-      "source_sha256": "3ede39d25a36c7db6a827d9396678ff3c58a576fc176d1e9267f9df6fc47d9e3",
-      "source_bytes": 1214610,
-      "source_rgba_sha256": "0dc5da4ef33ad6f03eb45a45ac8267a7339b091eddba418c88f7bdebd670d360",
-      "dimensions": [
-        589,
-        1147
-      ],
-      "alpha": true,
-      "source_alpha_sha256": "7bdc2317c29d4e0f71d2f7702b91c8d241e0256ca4d549bda4384e1d3a14feb6",
-      "alpha_sha256": "28403b25ad62442e27b193bda37f2cc3e9cf5149211ada7144bb5cc6c8b818f4",
-      "rgba_sha256": "98af126ec2d758fae7be536b292fab2aa3c4ff8cfd2247b84e06b626ba4f185f",
-      "sha256": "3c713ea25b19389e5ef007633098279029e019ee59d646758ce747c2902f2711",
-      "bytes": 41107,
-      "quality": 35,
-      "lossless": false,
-      "subsampling": "444",
-      "speed": 6,
-      "exact_alpha": false,
-      "alpha_quality": 90,
-      "design_dimensions": [
-        785,
-        1529
-      ],
-      "scale": 0.75,
-      "master": "backup/avif-migration/assets/jungle/title/objects/desert-guide.webp",
-      "master_sha256": "3ede39d25a36c7db6a827d9396678ff3c58a576fc176d1e9267f9df6fc47d9e3"
     },
     "assets/jungle/title/objects/landscape-frogs-glow.avif": {
       "source": "assets/jungle/title/objects/landscape-frogs-glow.webp",
@@ -30958,50 +30842,6 @@
       "exact_alpha": true,
       "alpha_quality": 100
     },
-    "assets/jungle/title/objects/jungle-path-portrait-tail-bush.avif": {
-      "source": "local/art-development/campus-fix/jungle-path-portrait-tail-bush.png",
-      "source_sha256": "4dd4089934038898a331c39b78aa5375f7732459d0c4745b26cb8f626d424f57",
-      "source_bytes": 7223,
-      "source_rgba_sha256": "62c7d6bce3e1f116c5402b569f044cf98acc6d429dc4ebacc20c1d85b113f876",
-      "dimensions": [
-        83,
-        50
-      ],
-      "alpha": true,
-      "source_alpha_sha256": "3d5d9af589ec98f3e3cdea8fd28822c2c34b4b6be2bac733a9953f5c4b5d6e25",
-      "alpha_sha256": "3d5d9af589ec98f3e3cdea8fd28822c2c34b4b6be2bac733a9953f5c4b5d6e25",
-      "rgba_sha256": "1d894eae6671dc64019b895f64a19af69e847c2ca83e491b39d87bd394373b61",
-      "sha256": "8f5063351feedd31ebea0bc821af31ec4374791875a2a7d784ed57c8dea712a1",
-      "bytes": 3541,
-      "quality": 70,
-      "lossless": false,
-      "subsampling": "444",
-      "speed": 6,
-      "exact_alpha": true,
-      "alpha_quality": 100
-    },
-    "assets/jungle/title/window-animation/portrait-leaves-top-left.avif": {
-      "source": "local/art-development/campus-fix/window-portrait-leaves-top-left.png",
-      "source_sha256": "c62829fda6596275256219797984cd08889ae6099335652da82075de91704ad3",
-      "source_bytes": 257763,
-      "source_rgba_sha256": "d6954f3a3db26b1c18c0e5ba7469ac31ea30d6403794baf4b62bd4b66064ec84",
-      "dimensions": [
-        642,
-        535
-      ],
-      "alpha": true,
-      "source_alpha_sha256": "094caa687653ddbc65025b090b764bf3215c88c7073d1257708028763dc74a65",
-      "alpha_sha256": "094caa687653ddbc65025b090b764bf3215c88c7073d1257708028763dc74a65",
-      "rgba_sha256": "095fe8ad9d4cc2106532e8c7c08425b69e77e505f16123419d7855e88d65cd58",
-      "sha256": "4723e64175544c88e3a710860ae7d9b88f74aa3b4e540e96fa99c10f805ba9bb",
-      "bytes": 70639,
-      "quality": 70,
-      "lossless": false,
-      "subsampling": "444",
-      "speed": 6,
-      "exact_alpha": true,
-      "alpha_quality": 100
-    },
     "assets/jungle/title/objects/jungle-path-tail-bush.avif": {
       "source": "local/art-development/campus-fix/jungle-path-landscape-tail-bush.png",
       "source_sha256": "e48b416d4c627beee047ae0de633e0be4a34a20f0a804ec60b36fd852f82e1b2",
@@ -31024,21 +30864,21 @@
       "exact_alpha": true,
       "alpha_quality": 100
     },
-    "assets/jungle/title/glow/campus-portrait-hiding-bush.avif": {
-      "source": "local/art-development/campus-fix/campus-portrait-hiding-bush-glow.png",
-      "source_sha256": "69897180d05417ca686e58942d1e1d2cd35bcd83ddb7596ea828710afb420d40",
-      "source_bytes": 11028,
-      "source_rgba_sha256": "489f35dabdccb1f5dd8b19ac8663d5829cd6316bd8db794286685ab0e2a4a468",
+    "assets/jungle/title/objects/jungle-path-portrait-tail-bush.avif": {
+      "source": "local/art-development/campus-fix/jungle-path-portrait-tail-bush.png",
+      "source_sha256": "4dd4089934038898a331c39b78aa5375f7732459d0c4745b26cb8f626d424f57",
+      "source_bytes": 7223,
+      "source_rgba_sha256": "62c7d6bce3e1f116c5402b569f044cf98acc6d429dc4ebacc20c1d85b113f876",
       "dimensions": [
-        183,
-        249
+        83,
+        50
       ],
       "alpha": true,
-      "source_alpha_sha256": "9f4af5817f78e7a7fc560760dedf05761ebc8ad41fde7cbecc6f23920d18454b",
-      "alpha_sha256": "9f4af5817f78e7a7fc560760dedf05761ebc8ad41fde7cbecc6f23920d18454b",
-      "rgba_sha256": "4c52feca9b002ba4301bfd1901a9833ae6681e398fe3873a0c136588521374b7",
-      "sha256": "6e3ef0741c51103df3fbe5e6f9640259a084d6bc0e65802f0b917cf1a9f60f94",
-      "bytes": 6888,
+      "source_alpha_sha256": "3d5d9af589ec98f3e3cdea8fd28822c2c34b4b6be2bac733a9953f5c4b5d6e25",
+      "alpha_sha256": "3d5d9af589ec98f3e3cdea8fd28822c2c34b4b6be2bac733a9953f5c4b5d6e25",
+      "rgba_sha256": "1d894eae6671dc64019b895f64a19af69e847c2ca83e491b39d87bd394373b61",
+      "sha256": "8f5063351feedd31ebea0bc821af31ec4374791875a2a7d784ed57c8dea712a1",
+      "bytes": 3541,
       "quality": 70,
       "lossless": false,
       "subsampling": "444",
@@ -31061,6 +30901,28 @@
       "rgba_sha256": "a5750f1f3800dfb294c13dbda429f41994c0aabb5b08f4230990d0b4d5e450ec",
       "sha256": "662a23e2df3971c319a0c24d8202131ab3947934361d97e639cc18761410cd88",
       "bytes": 59574,
+      "quality": 70,
+      "lossless": false,
+      "subsampling": "444",
+      "speed": 6,
+      "exact_alpha": true,
+      "alpha_quality": 100
+    },
+    "assets/jungle/title/window-animation/portrait-leaves-top-left.avif": {
+      "source": "local/art-development/campus-fix/window-portrait-leaves-top-left.png",
+      "source_sha256": "c62829fda6596275256219797984cd08889ae6099335652da82075de91704ad3",
+      "source_bytes": 257763,
+      "source_rgba_sha256": "d6954f3a3db26b1c18c0e5ba7469ac31ea30d6403794baf4b62bd4b66064ec84",
+      "dimensions": [
+        642,
+        535
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "094caa687653ddbc65025b090b764bf3215c88c7073d1257708028763dc74a65",
+      "alpha_sha256": "094caa687653ddbc65025b090b764bf3215c88c7073d1257708028763dc74a65",
+      "rgba_sha256": "095fe8ad9d4cc2106532e8c7c08425b69e77e505f16123419d7855e88d65cd58",
+      "sha256": "4723e64175544c88e3a710860ae7d9b88f74aa3b4e540e96fa99c10f805ba9bb",
+      "bytes": 70639,
       "quality": 70,
       "lossless": false,
       "subsampling": "444",
@@ -31530,6 +31392,724 @@
       "master": "local/art-development/places-book/masters/preview-places.png",
       "master_sha256": "207e2ea4249aad358482eb237ce85aa59353537711c80b2f48226cd3db78601b",
       "exact_alpha": false,
+      "alpha_quality": 100
+    },
+    "assets/jungle/title/objects/desert-macaw.avif": {
+      "source": "local/art-development/desert-edge/runtime-exports/desert-macaw.png",
+      "source_sha256": "3f75ff8de96d5313f92aa07fc656615b248247286a351ea5baf2fff468614c47",
+      "source_bytes": 315045,
+      "source_rgba_sha256": "8bfa9121a1ee8102c8738c70380e45cede4ba987661c8b42404917d077ec01c2",
+      "dimensions": [
+        376,
+        359
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "9b4db1834782e74bfc54520416b2a69f4d5e488d2121e55eab0a2f3f8b09dd40",
+      "alpha_sha256": "3ee9325da9ae63eb5941f84ef4fcb8b812823f59d407bf6a6b7d900be7ccbe03",
+      "rgba_sha256": "8c0bb42aaed442d8268c37aec7b35dd1c34ae047b3f6869be23688f5c4fffa6a",
+      "sha256": "7520e986487db81d77a192ff31546c43d0d053742c14d65f5b0903935526c697",
+      "bytes": 17707,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "444",
+      "speed": 6,
+      "design_dimensions": [
+        501,
+        479
+      ],
+      "scale": 0.75,
+      "master": "local/art-development/desert-edge/runtime-exports/desert-macaw.png",
+      "master_sha256": "3f75ff8de96d5313f92aa07fc656615b248247286a351ea5baf2fff468614c47",
+      "exact_alpha": false,
+      "alpha_quality": 90
+    },
+    "assets/jungle/title/objects/desert-macaw-glow.avif": {
+      "source": "local/art-development/desert-edge/runtime-exports/desert-macaw-glow.png",
+      "source_sha256": "f1995b69ecd41fb11e24b6b686ce7f92f44af7b7b784a831d68f1a3af9b150df",
+      "source_bytes": 22947,
+      "source_rgba_sha256": "77b5df7b12a89e70daca86cd8276dafc966e079a86f524e6d7897862fbdd052a",
+      "dimensions": [
+        376,
+        359
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "9b4db1834782e74bfc54520416b2a69f4d5e488d2121e55eab0a2f3f8b09dd40",
+      "alpha_sha256": "3ee9325da9ae63eb5941f84ef4fcb8b812823f59d407bf6a6b7d900be7ccbe03",
+      "rgba_sha256": "31f71f7d5a103e50aa293c2b86ab4d21d9e4937b95e5a8c8a68b6785e930b136",
+      "sha256": "84378665f9670c7c433b2b4ea45b2d1e3ceaf646f2e32d07b61fb97aa4302c1d",
+      "bytes": 6620,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "444",
+      "speed": 6,
+      "design_dimensions": [
+        501,
+        479
+      ],
+      "scale": 0.75,
+      "master": "local/art-development/desert-edge/runtime-exports/desert-macaw-glow.png",
+      "master_sha256": "f1995b69ecd41fb11e24b6b686ce7f92f44af7b7b784a831d68f1a3af9b150df",
+      "exact_alpha": false,
+      "alpha_quality": 90
+    },
+    "assets/jungle/title/objects/desert-blue-parrot.avif": {
+      "source": "local/art-development/desert-edge/runtime-exports/desert-blue-parrot.png",
+      "source_sha256": "fb446a494b851206d18dca56e3b981ba33fef390a2f07fa1fdfa6ba4884076cf",
+      "source_bytes": 242793,
+      "source_rgba_sha256": "f66ff51650a26f7e970dc0a683620eef0577dd7eb2c525e355acb76dcac6c088",
+      "dimensions": [
+        268,
+        345
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "fcfb1cb8675c0464772f8a89ef3ce38b75a5bd2dc1b6f7b5885ce02a208b8d08",
+      "alpha_sha256": "72c0f770c4d89f19e1755c9cec1458b697e1eb3a70c1da150388d23c3a108a8e",
+      "rgba_sha256": "8fbb633d4eff29e16d09c7e02750ecdecdcc0f324f0ac1e8050f4c931b5d59cd",
+      "sha256": "e182fff179a50d9f7727852f5d4b3ccbdcd928709d169176aee22f8ac7469be5",
+      "bytes": 14146,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "444",
+      "speed": 6,
+      "design_dimensions": [
+        358,
+        460
+      ],
+      "scale": 0.75,
+      "master": "local/art-development/desert-edge/runtime-exports/desert-blue-parrot.png",
+      "master_sha256": "fb446a494b851206d18dca56e3b981ba33fef390a2f07fa1fdfa6ba4884076cf",
+      "exact_alpha": false,
+      "alpha_quality": 90
+    },
+    "assets/jungle/title/objects/desert-blue-parrot-glow.avif": {
+      "source": "local/art-development/desert-edge/runtime-exports/desert-blue-parrot-glow.png",
+      "source_sha256": "af2911895ff2063789c21cfcc23f3adb279822b47280437e75f0814df95a3f3c",
+      "source_bytes": 18339,
+      "source_rgba_sha256": "8680c3af2d6e7e4006166ebc1f20db55bc4b6c9afe3a4f34582e3a8bad8bbdb5",
+      "dimensions": [
+        268,
+        345
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "fcfb1cb8675c0464772f8a89ef3ce38b75a5bd2dc1b6f7b5885ce02a208b8d08",
+      "alpha_sha256": "72c0f770c4d89f19e1755c9cec1458b697e1eb3a70c1da150388d23c3a108a8e",
+      "rgba_sha256": "dd2492a817acb0c978cc210914e8a0679a904f8599b4b014331ae0e11bfcf02e",
+      "sha256": "9891913e75fdc5f29c057d4111ac40d8572042d424a63c9655c616cb72699679",
+      "bytes": 5131,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "444",
+      "speed": 6,
+      "design_dimensions": [
+        358,
+        460
+      ],
+      "scale": 0.75,
+      "master": "local/art-development/desert-edge/runtime-exports/desert-blue-parrot-glow.png",
+      "master_sha256": "af2911895ff2063789c21cfcc23f3adb279822b47280437e75f0814df95a3f3c",
+      "exact_alpha": false,
+      "alpha_quality": 90
+    },
+    "assets/jungle/title/objects/desert-green-parakeet.avif": {
+      "source": "local/art-development/desert-edge/runtime-exports/desert-green-parakeet.png",
+      "source_sha256": "0d80a5547957c9413f246ab157adb5d2d1015029174d3d226b5090e97162718a",
+      "source_bytes": 274288,
+      "source_rgba_sha256": "da9cf69054ed3f9eceb61ca9f7bd75df100bb6ce473ab6aaf34e266917bc2ccc",
+      "dimensions": [
+        356,
+        326
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "7ea92f2e240f80a94194e92c3f2b4d07d2651c2b8a917e6be9b519d39751d643",
+      "alpha_sha256": "0324e271a8f0514bc439448738403e4df6327256120fe44c5bb107b1b814d477",
+      "rgba_sha256": "daca7195a1bb0b0e65d46fb28a2c8435db6943ed19c3a7818779e7fcb5190b61",
+      "sha256": "af9f0c08c356239cf824417f66bcbb09df146f9f4c1fe70bd11829a9e7a8b9c9",
+      "bytes": 13808,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "444",
+      "speed": 6,
+      "design_dimensions": [
+        474,
+        435
+      ],
+      "scale": 0.75,
+      "master": "local/art-development/desert-edge/runtime-exports/desert-green-parakeet.png",
+      "master_sha256": "0d80a5547957c9413f246ab157adb5d2d1015029174d3d226b5090e97162718a",
+      "exact_alpha": false,
+      "alpha_quality": 90
+    },
+    "assets/jungle/title/objects/desert-green-parakeet-glow.avif": {
+      "source": "local/art-development/desert-edge/runtime-exports/desert-green-parakeet-glow.png",
+      "source_sha256": "f356d4d90d9595de9fdd8524edf19d40b43720988cf7e70903aa65a160caa7a5",
+      "source_bytes": 18563,
+      "source_rgba_sha256": "7a3aac17dfb44a87c9996c853b2060ddcdc64a6baf30bcf11878774702d27bbb",
+      "dimensions": [
+        356,
+        326
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "7ea92f2e240f80a94194e92c3f2b4d07d2651c2b8a917e6be9b519d39751d643",
+      "alpha_sha256": "0324e271a8f0514bc439448738403e4df6327256120fe44c5bb107b1b814d477",
+      "rgba_sha256": "9fac8da04ce0a9e77dc5c83b0c78ac1d42313048797e83b7335cd2803775e4cc",
+      "sha256": "706ec0a4845986dd28fa7b980ef6324fa919f46bb0ad9d54a07c94b7fdbcb75c",
+      "bytes": 5088,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "444",
+      "speed": 6,
+      "design_dimensions": [
+        474,
+        435
+      ],
+      "scale": 0.75,
+      "master": "local/art-development/desert-edge/runtime-exports/desert-green-parakeet-glow.png",
+      "master_sha256": "f356d4d90d9595de9fdd8524edf19d40b43720988cf7e70903aa65a160caa7a5",
+      "exact_alpha": false,
+      "alpha_quality": 90
+    },
+    "assets/jungle/title/objects/desert-cockatiel.avif": {
+      "source": "local/art-development/desert-edge/runtime-exports/desert-cockatiel.png",
+      "source_sha256": "84dbd113d34efe7d7746ac01a994f76e214abab06d15f1f17880e14bc83555cd",
+      "source_bytes": 260787,
+      "source_rgba_sha256": "de7711a4c28451c9981d5b0aa075c5ed83bd668f3ff973e97899e70b936e166e",
+      "dimensions": [
+        329,
+        395
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "6ce295aef0f6b49c515f1372443fc9c688914a862642f3237ada2d100078d529",
+      "alpha_sha256": "18b4387c1d8fac7d428352affc43a2e6c6dfda74cad80bd3e81a25f324c4d398",
+      "rgba_sha256": "64617ea22b8dffe5dcb60c16b4b5b81717b08680b445e2b8dbc683ed0332b19b",
+      "sha256": "d4f333f4167ddcfea856a6ae0c75d8159609b74158a116f40fb8c43710bbc75e",
+      "bytes": 14511,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "444",
+      "speed": 6,
+      "design_dimensions": [
+        439,
+        527
+      ],
+      "scale": 0.75,
+      "master": "local/art-development/desert-edge/runtime-exports/desert-cockatiel.png",
+      "master_sha256": "84dbd113d34efe7d7746ac01a994f76e214abab06d15f1f17880e14bc83555cd",
+      "exact_alpha": false,
+      "alpha_quality": 90
+    },
+    "assets/jungle/title/objects/desert-cockatiel-glow.avif": {
+      "source": "local/art-development/desert-edge/runtime-exports/desert-cockatiel-glow.png",
+      "source_sha256": "115af381e5f39b67ff2263c50e54567c1c70807adc604064dc0dcfa64277b9d4",
+      "source_bytes": 20492,
+      "source_rgba_sha256": "b9ce90fca054bbc66165644d620b452691c9f5f0093e5a3e42f533d5d47fd264",
+      "dimensions": [
+        329,
+        395
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "6ce295aef0f6b49c515f1372443fc9c688914a862642f3237ada2d100078d529",
+      "alpha_sha256": "18b4387c1d8fac7d428352affc43a2e6c6dfda74cad80bd3e81a25f324c4d398",
+      "rgba_sha256": "569d6ef2e76e1d7bf03c5f15eb20bce85ea76080fd00ea4713de851551ee6dec",
+      "sha256": "7da063bcd5d381a4469c429b70640bd51180c919bb40f1dbd8cbdfbc268792d4",
+      "bytes": 5412,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "444",
+      "speed": 6,
+      "design_dimensions": [
+        439,
+        527
+      ],
+      "scale": 0.75,
+      "master": "local/art-development/desert-edge/runtime-exports/desert-cockatiel-glow.png",
+      "master_sha256": "115af381e5f39b67ff2263c50e54567c1c70807adc604064dc0dcfa64277b9d4",
+      "exact_alpha": false,
+      "alpha_quality": 90
+    },
+    "assets/jungle/title/objects/desert-lovebird.avif": {
+      "source": "local/art-development/desert-edge/runtime-exports/desert-lovebird.png",
+      "source_sha256": "cc9e2984a75cc77f328fe70fab266cc7d9a50069b69d14847d4add4f90c4040c",
+      "source_bytes": 248526,
+      "source_rgba_sha256": "9d184d26394cfff1d1eaa0571421c477d2d5639f2d2abc486feaa965df14767e",
+      "dimensions": [
+        292,
+        338
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "ba59d13d66c3641d5eef974f3a35b7ee544cffe6842e9dc321189a32694f7eb5",
+      "alpha_sha256": "7884a5a8cff4ae25f98ff43917a02971a0337e5c9e39da9e868195f2142ff8c5",
+      "rgba_sha256": "d61871a547da90ed6e257d89804b6e3326ad399990712c82c0d231496ab4d1c6",
+      "sha256": "9b80c299f6a31fe1517fd1a994bff5e7c83754e4c920c3a4f9a95276a59c70c6",
+      "bytes": 11063,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "444",
+      "speed": 6,
+      "design_dimensions": [
+        389,
+        450
+      ],
+      "scale": 0.75,
+      "master": "local/art-development/desert-edge/runtime-exports/desert-lovebird.png",
+      "master_sha256": "cc9e2984a75cc77f328fe70fab266cc7d9a50069b69d14847d4add4f90c4040c",
+      "exact_alpha": false,
+      "alpha_quality": 90
+    },
+    "assets/jungle/title/objects/desert-lovebird-glow.avif": {
+      "source": "local/art-development/desert-edge/runtime-exports/desert-lovebird-glow.png",
+      "source_sha256": "5d613deb7c48d0b4498221c25850342b17541aefac42f89fb22163b03a4a6495",
+      "source_bytes": 15030,
+      "source_rgba_sha256": "8c26aaf1a83a7bdc44777df4d79674e96a5b9d3058dc121f18462891fe89e444",
+      "dimensions": [
+        292,
+        338
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "ba59d13d66c3641d5eef974f3a35b7ee544cffe6842e9dc321189a32694f7eb5",
+      "alpha_sha256": "7884a5a8cff4ae25f98ff43917a02971a0337e5c9e39da9e868195f2142ff8c5",
+      "rgba_sha256": "16f9131ccd4085e615e7997d159a9bbd6f32c6280ec60034056657248e2bd350",
+      "sha256": "42f9b93473f49520ef874a0c73d2ec5a971891c92ab540f30987d2225b52ba58",
+      "bytes": 4157,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "444",
+      "speed": 6,
+      "design_dimensions": [
+        389,
+        450
+      ],
+      "scale": 0.75,
+      "master": "local/art-development/desert-edge/runtime-exports/desert-lovebird-glow.png",
+      "master_sha256": "5d613deb7c48d0b4498221c25850342b17541aefac42f89fb22163b03a4a6495",
+      "exact_alpha": false,
+      "alpha_quality": 90
+    },
+    "assets/jungle/title/objects/desert-pink-parrot.avif": {
+      "source": "local/art-development/desert-edge/runtime-exports/desert-pink-parrot.png",
+      "source_sha256": "2767096b839e83044a4983e05b4a69515a25c3c65af43955188f6c4ffa6d81af",
+      "source_bytes": 280706,
+      "source_rgba_sha256": "b8ec95192671a95f72cc99550b24f1c117a6d54739b347d92db0e47d690d1f00",
+      "dimensions": [
+        332,
+        382
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "2543824e9525acb73c3e5213e9ece7847228770ffd01e3c671aeb98e0810dc0f",
+      "alpha_sha256": "8c85cedc5e0c39f1a367c3603d323966c67ed49c7f3ddb8105cfce193ad37a9d",
+      "rgba_sha256": "fe8374582e6309227d68be445b964f01a2b7f25198012af3d30dd5e524732b45",
+      "sha256": "8049be8cf2b7148262e5302601436aead0c47abb216dbeec5281cedc16c54d43",
+      "bytes": 14321,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "444",
+      "speed": 6,
+      "design_dimensions": [
+        443,
+        509
+      ],
+      "scale": 0.75,
+      "master": "local/art-development/desert-edge/runtime-exports/desert-pink-parrot.png",
+      "master_sha256": "2767096b839e83044a4983e05b4a69515a25c3c65af43955188f6c4ffa6d81af",
+      "exact_alpha": false,
+      "alpha_quality": 90
+    },
+    "assets/jungle/title/objects/desert-pink-parrot-glow.avif": {
+      "source": "local/art-development/desert-edge/runtime-exports/desert-pink-parrot-glow.png",
+      "source_sha256": "2afe5313ff41a6637181ae9f8d5101ebe9740ebc366ed62822b4e14576f1d8c2",
+      "source_bytes": 18605,
+      "source_rgba_sha256": "0eae01256dcb0677bee165dbb95848dde2c90c947551cae7ab9d2c913a6d99e6",
+      "dimensions": [
+        332,
+        382
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "2543824e9525acb73c3e5213e9ece7847228770ffd01e3c671aeb98e0810dc0f",
+      "alpha_sha256": "8c85cedc5e0c39f1a367c3603d323966c67ed49c7f3ddb8105cfce193ad37a9d",
+      "rgba_sha256": "9ef8d582e9b5b72d786a4adba86c8fb71b104ab43b1d5a7b1d35c05efa779452",
+      "sha256": "856e14f4c28716bcb85c368da5cd0813e4c6711706c601bd2022da5d9b48bbd0",
+      "bytes": 5052,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "444",
+      "speed": 6,
+      "design_dimensions": [
+        443,
+        509
+      ],
+      "scale": 0.75,
+      "master": "local/art-development/desert-edge/runtime-exports/desert-pink-parrot-glow.png",
+      "master_sha256": "2afe5313ff41a6637181ae9f8d5101ebe9740ebc366ed62822b4e14576f1d8c2",
+      "exact_alpha": false,
+      "alpha_quality": 90
+    },
+    "assets/jungle/title/objects/desert-budgie.avif": {
+      "source": "local/art-development/desert-edge/runtime-exports/desert-budgie.png",
+      "source_sha256": "71ec355536fe65d50bda80251b78295d7a675ca9eb166242dc301c7fff594424",
+      "source_bytes": 225247,
+      "source_rgba_sha256": "9c8e480ce17a819f740ece051f40e54116adfc0a46a51308bc5006e1f8070ad4",
+      "dimensions": [
+        311,
+        315
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "b78231ba0587365d48c31b2d4363bbaf703f432a8f0f51275b778428ec0cbff7",
+      "alpha_sha256": "22b446ec49dd9344b5d2fa1ca6f684daae080ccdfa401e58ab2edb5523e6cb48",
+      "rgba_sha256": "4c74ff6a010c42c92578fc9d094f59d9446a1419996d94302c20ea494cfcdf35",
+      "sha256": "32ca16d4ea9eb04b67ba20424ce44b32d610c5b4f1a18a0864850b945c3cf07d",
+      "bytes": 12771,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "444",
+      "speed": 6,
+      "design_dimensions": [
+        415,
+        420
+      ],
+      "scale": 0.75,
+      "master": "local/art-development/desert-edge/runtime-exports/desert-budgie.png",
+      "master_sha256": "71ec355536fe65d50bda80251b78295d7a675ca9eb166242dc301c7fff594424",
+      "exact_alpha": false,
+      "alpha_quality": 90
+    },
+    "assets/jungle/title/objects/desert-budgie-glow.avif": {
+      "source": "local/art-development/desert-edge/runtime-exports/desert-budgie-glow.png",
+      "source_sha256": "4b7af17ae114542f0981cd4c99f6c7bbcd2d031f7ef921d7dc6012bd25a5b1a2",
+      "source_bytes": 14593,
+      "source_rgba_sha256": "02f7704c493afe16b753bee281a6f2045632931babfd5344a5dfe09e01c2d147",
+      "dimensions": [
+        311,
+        315
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "b78231ba0587365d48c31b2d4363bbaf703f432a8f0f51275b778428ec0cbff7",
+      "alpha_sha256": "22b446ec49dd9344b5d2fa1ca6f684daae080ccdfa401e58ab2edb5523e6cb48",
+      "rgba_sha256": "d149d12fe335827fe201ccd2d1ae1b65f34196218d92dbb19add13ea822fed9a",
+      "sha256": "45d6f1d2952c690d284e72905cc07cb3c5abef720e99240d407be6e5e86b5c35",
+      "bytes": 4301,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "444",
+      "speed": 6,
+      "design_dimensions": [
+        415,
+        420
+      ],
+      "scale": 0.75,
+      "master": "local/art-development/desert-edge/runtime-exports/desert-budgie-glow.png",
+      "master_sha256": "4b7af17ae114542f0981cd4c99f6c7bbcd2d031f7ef921d7dc6012bd25a5b1a2",
+      "exact_alpha": false,
+      "alpha_quality": 90
+    },
+    "assets/jungle/title/objects/desert-finch.avif": {
+      "source": "local/art-development/desert-edge/runtime-exports/desert-finch.png",
+      "source_sha256": "ea2c4884f63f194d97038651afeea25678eb8929f659ba7ff2dd7e8171953349",
+      "source_bytes": 191365,
+      "source_rgba_sha256": "7b5d95b717a98f98abe14a24ef28ff13941c7813e19be30caabaa869d3a39544",
+      "dimensions": [
+        313,
+        266
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "23f54942a0df422b1b9411d1c12b498b468a16f9149221fba399213f2623a52e",
+      "alpha_sha256": "caefe32d2d9b53c8079957a3f456c2876d4b77d1f578c55ced9882b1512379c8",
+      "rgba_sha256": "50df2edb27bda366ff42dc88f861e3489ab62e93eeccb5468e61be35746f6e36",
+      "sha256": "c188d56b9ad7a032d36bf32092f9be3ba66ced3762d4889a45bead971f97a5ad",
+      "bytes": 11587,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "444",
+      "speed": 6,
+      "design_dimensions": [
+        417,
+        354
+      ],
+      "scale": 0.75,
+      "master": "local/art-development/desert-edge/runtime-exports/desert-finch.png",
+      "master_sha256": "ea2c4884f63f194d97038651afeea25678eb8929f659ba7ff2dd7e8171953349",
+      "exact_alpha": false,
+      "alpha_quality": 90
+    },
+    "assets/jungle/title/objects/desert-finch-glow.avif": {
+      "source": "local/art-development/desert-edge/runtime-exports/desert-finch-glow.png",
+      "source_sha256": "72058da9f83d3a828c1026e612da566d4af952d8562c801e8a311ba2311fce07",
+      "source_bytes": 14871,
+      "source_rgba_sha256": "2de86bd3177495a4fa21cdb20be83c6821a23b2995618df5825d77dd5fa4d08c",
+      "dimensions": [
+        313,
+        266
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "23f54942a0df422b1b9411d1c12b498b468a16f9149221fba399213f2623a52e",
+      "alpha_sha256": "caefe32d2d9b53c8079957a3f456c2876d4b77d1f578c55ced9882b1512379c8",
+      "rgba_sha256": "8bcb9cc9090cf18b929fd3e3672d4630ed23c01af07279df7ba9a86adff34e24",
+      "sha256": "8012d13fd440cda7e47effdba4848c0951d68c069c8323f41308bfc0725c07fa",
+      "bytes": 4530,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "444",
+      "speed": 6,
+      "design_dimensions": [
+        417,
+        354
+      ],
+      "scale": 0.75,
+      "master": "local/art-development/desert-edge/runtime-exports/desert-finch-glow.png",
+      "master_sha256": "72058da9f83d3a828c1026e612da566d4af952d8562c801e8a311ba2311fce07",
+      "exact_alpha": false,
+      "alpha_quality": 90
+    },
+    "assets/jungle/title/objects/desert-parrotlet.avif": {
+      "source": "local/art-development/desert-edge/runtime-exports/desert-parrotlet.png",
+      "source_sha256": "6fdea2193014759257fe25c11977d27eb59ad1d3594649efebaa6fe6ab48d058",
+      "source_bytes": 222638,
+      "source_rgba_sha256": "b3c0507c23f8ae0ee6dfa623faa2d90e104adcf36f4fc34623268c7faab9f3c2",
+      "dimensions": [
+        279,
+        312
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "8e09e29c40b22202dbb2e3ef02e3f841ef576204943a28d6861c77acc0d4de74",
+      "alpha_sha256": "14a54bee909a12ca7c2c768ac64b9b54ed1f5710f18c9a51d610a5806d132754",
+      "rgba_sha256": "6e9e741410f472795e1d743f6593eeeb2c0093649c2432a14b000cc097a781f9",
+      "sha256": "f0c0fc3263f0cb68f834785a98904c77f6512067a5cb90b5a2020555190f9bf6",
+      "bytes": 12363,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "444",
+      "speed": 6,
+      "design_dimensions": [
+        372,
+        416
+      ],
+      "scale": 0.75,
+      "master": "local/art-development/desert-edge/runtime-exports/desert-parrotlet.png",
+      "master_sha256": "6fdea2193014759257fe25c11977d27eb59ad1d3594649efebaa6fe6ab48d058",
+      "exact_alpha": false,
+      "alpha_quality": 90
+    },
+    "assets/jungle/title/objects/desert-parrotlet-glow.avif": {
+      "source": "local/art-development/desert-edge/runtime-exports/desert-parrotlet-glow.png",
+      "source_sha256": "26535051249655b9ed998e373e69be9dcdf35d7fc72d4e7ef07a7b9d05064482",
+      "source_bytes": 16182,
+      "source_rgba_sha256": "e7bbba5de3fecc58b6bd77d9fe1e1920d382da541297223aa36eca7823a642cc",
+      "dimensions": [
+        279,
+        312
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "8e09e29c40b22202dbb2e3ef02e3f841ef576204943a28d6861c77acc0d4de74",
+      "alpha_sha256": "14a54bee909a12ca7c2c768ac64b9b54ed1f5710f18c9a51d610a5806d132754",
+      "rgba_sha256": "0d7c240d2b4d7c94da124e2c7dfae96eb055c713063292d62dc8c96be81214f1",
+      "sha256": "f85ad818105679bf27e7d86190e3919ccd665ce50211fac4b02953b22f188972",
+      "bytes": 4818,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "444",
+      "speed": 6,
+      "design_dimensions": [
+        372,
+        416
+      ],
+      "scale": 0.75,
+      "master": "local/art-development/desert-edge/runtime-exports/desert-parrotlet-glow.png",
+      "master_sha256": "26535051249655b9ed998e373e69be9dcdf35d7fc72d4e7ef07a7b9d05064482",
+      "exact_alpha": false,
+      "alpha_quality": 90
+    },
+    "assets/jungle/title/objects/desert-rosella.avif": {
+      "source": "local/art-development/desert-edge/runtime-exports/desert-rosella.png",
+      "source_sha256": "a73cd1b64fa05a1ac0d5c0f4dbdf775581686e66e7b805369ebdb7793592e2b0",
+      "source_bytes": 298225,
+      "source_rgba_sha256": "2901b8237108fe990fbf9ec8baec20361288c0aef13efdd53a85a6602e3c32e5",
+      "dimensions": [
+        398,
+        334
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "c43c1807fd33f8caf4e062c32fdc08fcb1ad4bf5e73da1fa06f514be66c27481",
+      "alpha_sha256": "23ceeaeb9108131b42815feff7707fbae566f5011ce5269d22a73e75ff542658",
+      "rgba_sha256": "913f0af0dc2340aa98a3fee6d6b4e9d2045e06b64e04b0ac88be177fbb9df165",
+      "sha256": "d0500ad290518488d953300cc1d56ef919ede7e0829ff726bea87caa5f2d476d",
+      "bytes": 17179,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "444",
+      "speed": 6,
+      "design_dimensions": [
+        531,
+        445
+      ],
+      "scale": 0.75,
+      "master": "local/art-development/desert-edge/runtime-exports/desert-rosella.png",
+      "master_sha256": "a73cd1b64fa05a1ac0d5c0f4dbdf775581686e66e7b805369ebdb7793592e2b0",
+      "exact_alpha": false,
+      "alpha_quality": 90
+    },
+    "assets/jungle/title/objects/desert-rosella-glow.avif": {
+      "source": "local/art-development/desert-edge/runtime-exports/desert-rosella-glow.png",
+      "source_sha256": "2fdd0fec13c695f938dc945cb3cf31ea65d41ac7fa9a99d51f089e7adbd086e5",
+      "source_bytes": 18926,
+      "source_rgba_sha256": "d4e1c1991645873865b2180d2d28d8bf5c292eb963d9fa17164e49027e56e11d",
+      "dimensions": [
+        398,
+        334
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "c43c1807fd33f8caf4e062c32fdc08fcb1ad4bf5e73da1fa06f514be66c27481",
+      "alpha_sha256": "23ceeaeb9108131b42815feff7707fbae566f5011ce5269d22a73e75ff542658",
+      "rgba_sha256": "ccf8e5f8cede56aa327d93d959e2e4f04be5ac3fdd88ebf5e84b706cd183b6f1",
+      "sha256": "4e378e97e2a59602684673b2cf027cfb1a3d83bd9576d8dfbc297bb21772175b",
+      "bytes": 5920,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "444",
+      "speed": 6,
+      "design_dimensions": [
+        531,
+        445
+      ],
+      "scale": 0.75,
+      "master": "local/art-development/desert-edge/runtime-exports/desert-rosella-glow.png",
+      "master_sha256": "2fdd0fec13c695f938dc945cb3cf31ea65d41ac7fa9a99d51f089e7adbd086e5",
+      "exact_alpha": false,
+      "alpha_quality": 90
+    },
+    "assets/jungle/title/objects/desert-sky-chick.avif": {
+      "source": "local/art-development/desert-edge/runtime-exports/desert-sky-chick.png",
+      "source_sha256": "49aed3e58383e7e55c36df36e73e22cf235f09b0258c579b94816a79c44e5644",
+      "source_bytes": 211840,
+      "source_rgba_sha256": "a7d12abb7d3d694446c514f4799b698852a5de212d4ebd32bdb084eeaf6a720e",
+      "dimensions": [
+        278,
+        297
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "ae937e8171871f92c3e11379e7ba9ac62b586d4e6a5d64aef8e4a69053e82a4a",
+      "alpha_sha256": "fda166b40b519a0212c52a4fd5c6ecb12f9a6bcb8179a3c8c553d7ddbcedbb64",
+      "rgba_sha256": "719949f876a2b391f92566afa0d18a0d04c5cf3bf2271c847335025d86e20b8f",
+      "sha256": "ce13fba2db7389ab7c3f278ccd464a7ec80b0804164774fce2917a1be0d8d323",
+      "bytes": 11413,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "444",
+      "speed": 6,
+      "design_dimensions": [
+        370,
+        396
+      ],
+      "scale": 0.75,
+      "master": "local/art-development/desert-edge/runtime-exports/desert-sky-chick.png",
+      "master_sha256": "49aed3e58383e7e55c36df36e73e22cf235f09b0258c579b94816a79c44e5644",
+      "exact_alpha": false,
+      "alpha_quality": 90
+    },
+    "assets/jungle/title/objects/desert-sky-chick-glow.avif": {
+      "source": "local/art-development/desert-edge/runtime-exports/desert-sky-chick-glow.png",
+      "source_sha256": "9ebbccf04e9de478262b161d885f1b1e8e1dd6edd3622b6361dcf7172431a28a",
+      "source_bytes": 13982,
+      "source_rgba_sha256": "69f64cec91c05aec9164b005d7baba103ee32e78d6685dfc1742a08a289e52c1",
+      "dimensions": [
+        278,
+        297
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "ae937e8171871f92c3e11379e7ba9ac62b586d4e6a5d64aef8e4a69053e82a4a",
+      "alpha_sha256": "fda166b40b519a0212c52a4fd5c6ecb12f9a6bcb8179a3c8c553d7ddbcedbb64",
+      "rgba_sha256": "c3e8623a3d3a06b27ef6b6c4dc1862bbde685f682b87edc7a122e507862ff94e",
+      "sha256": "518bb96378d6fe7e756549884360076901a91277f3aa1be7a334d2f95cf8788d",
+      "bytes": 4167,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "444",
+      "speed": 6,
+      "design_dimensions": [
+        370,
+        396
+      ],
+      "scale": 0.75,
+      "master": "local/art-development/desert-edge/runtime-exports/desert-sky-chick-glow.png",
+      "master_sha256": "9ebbccf04e9de478262b161d885f1b1e8e1dd6edd3622b6361dcf7172431a28a",
+      "exact_alpha": false,
+      "alpha_quality": 90
+    },
+    "assets/jungle/title/objects/desert-macaw-chick.avif": {
+      "source": "local/art-development/desert-edge/runtime-exports/desert-macaw-chick.png",
+      "source_sha256": "ce3d695e93619cc0baa9bdcfbb5a0f763b3520e49099695fcf5918ea3e251b66",
+      "source_bytes": 263397,
+      "source_rgba_sha256": "39d96bb7df5d9197b3b688adf348c4d8a0ea5b1b3787934ea9232aea5b182259",
+      "dimensions": [
+        316,
+        338
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "ff28d18a322b416f3536ebb0b2ebaa42cba53d0f9b0363658ec18bc43f6d4d07",
+      "alpha_sha256": "45ffe58c0b6be05a37f90fb863d941c719d482539480d6255d9694e782e56c72",
+      "rgba_sha256": "04d3480a69db3e900e69f1fd6552e32ea060b5f7ae5e50b7057dcbe44f5fbca3",
+      "sha256": "5f7211e8c156ef470be260cb99a17eb750a318bf3bd464e57978c21b8e1f3bc8",
+      "bytes": 15133,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "444",
+      "speed": 6,
+      "design_dimensions": [
+        421,
+        451
+      ],
+      "scale": 0.75,
+      "master": "local/art-development/desert-edge/runtime-exports/desert-macaw-chick.png",
+      "master_sha256": "ce3d695e93619cc0baa9bdcfbb5a0f763b3520e49099695fcf5918ea3e251b66",
+      "exact_alpha": false,
+      "alpha_quality": 90
+    },
+    "assets/jungle/title/objects/desert-macaw-chick-glow.avif": {
+      "source": "local/art-development/desert-edge/runtime-exports/desert-macaw-chick-glow.png",
+      "source_sha256": "f9de0c60f91b0df4c811734f388cef99d8ff0b3d2ab6b8c3cb56e3b70c8ff822",
+      "source_bytes": 18023,
+      "source_rgba_sha256": "120994a102e37a02918dcd385897c8351731ce1fde6c0da31bbc9ef07d196e64",
+      "dimensions": [
+        316,
+        338
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "ff28d18a322b416f3536ebb0b2ebaa42cba53d0f9b0363658ec18bc43f6d4d07",
+      "alpha_sha256": "45ffe58c0b6be05a37f90fb863d941c719d482539480d6255d9694e782e56c72",
+      "rgba_sha256": "f08b5a97ff110384b43d721b7bbbcf2313107184c140448dfebf18828e431075",
+      "sha256": "0a462f7308257c43333fb8e604475f94db8c711e51ad869efe4c6513dca583e9",
+      "bytes": 5416,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "444",
+      "speed": 6,
+      "design_dimensions": [
+        421,
+        451
+      ],
+      "scale": 0.75,
+      "master": "local/art-development/desert-edge/runtime-exports/desert-macaw-chick-glow.png",
+      "master_sha256": "f9de0c60f91b0df4c811734f388cef99d8ff0b3d2ab6b8c3cb56e3b70c8ff822",
+      "exact_alpha": false,
+      "alpha_quality": 90
+    },
+    "assets/jungle/title/glow/campus-portrait-hiding-bush.avif": {
+      "source": "local/art-development/campus-fix/campus-portrait-hiding-bush-glow.png",
+      "source_sha256": "69897180d05417ca686e58942d1e1d2cd35bcd83ddb7596ea828710afb420d40",
+      "source_bytes": 11028,
+      "source_rgba_sha256": "489f35dabdccb1f5dd8b19ac8663d5829cd6316bd8db794286685ab0e2a4a468",
+      "dimensions": [
+        183,
+        249
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "9f4af5817f78e7a7fc560760dedf05761ebc8ad41fde7cbecc6f23920d18454b",
+      "alpha_sha256": "9f4af5817f78e7a7fc560760dedf05761ebc8ad41fde7cbecc6f23920d18454b",
+      "rgba_sha256": "4c52feca9b002ba4301bfd1901a9833ae6681e398fe3873a0c136588521374b7",
+      "sha256": "6e3ef0741c51103df3fbe5e6f9640259a084d6bc0e65802f0b917cf1a9f60f94",
+      "bytes": 6888,
+      "quality": 70,
+      "lossless": false,
+      "subsampling": "444",
+      "speed": 6,
+      "exact_alpha": true,
       "alpha_quality": 100
     }
   },

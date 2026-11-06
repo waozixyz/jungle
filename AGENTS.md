@@ -158,10 +158,12 @@ is in `tools/book_prompts.json`; the full-size originals are kept in
   sign opens the Farm game, whose own left-edge path sign goes back to the
   Market (AppService "jungle.home" "scene:market"). Path edits regenerate only
   a crop around the join (local/art-development/market, campus-object-layers).
-  Desert opens the jungle's edge (tools/title_desert.py): a guide and his camel
-  are separate cut-out layers; tapping either opens the guide's tap-through
-  speech bubble beside him (tools/title_dialogue.json, EN/DE/ES, narrated),
-  never a caption along the bottom. A left plank returns to Campus.
+  Desert (Wüste, tools/title_desert.py) looks like the world map: white dunes,
+  a turquoise lagoon oasis and one big branch, painted without birds. Every
+  bird on the branch is its own cut-out layer (no camel or person); tapping
+  any opens the parrots' tap-through speech bubble beside the macaw
+  (tools/title_dialogue.json, EN/DE/ES, narrated), never a caption along the
+  bottom. A left plank returns to Campus.
 - Campus uses portrait-jungle-path-between (portrait-connected-desert-right
   with its Jungle Path starting between the treehouse and the music hut, the
   old left path removed and the frogs on the rocks; Farm left, Desert right) and

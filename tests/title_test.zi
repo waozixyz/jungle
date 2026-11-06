@@ -486,8 +486,8 @@ main :: () -> s32 {
     if !step.moved || touch.scene != jungle_path { return 275 }
     unused TitleKey(*touch, 256)
     if touch.scene != campus { return 276 }
-    // Desert leads to its own painted scene in both orientations. The guide
-    // and his camel open the same tap-through bubble, which freezes the scene
+    // Desert leads to its own painted scene in both orientations. Every bird
+    // on the branch opens the same tap-through bubble, which freezes the scene
     // until its last line, and the Campus sign leads back.
     sign = HotspotNamed(campus, "desert-path")
     desert := SceneNamed("desert")
@@ -515,26 +515,27 @@ main :: () -> s32 {
         TitleResolve(*talk, width, height)
         if !step.moved || TITLE_SCENE_BASE[talk.scene] != desert { return 287 }
         if (talk.scene != desert) != (portrait == 1) { return 288 }
-        guide := HotspotNamed(talk.scene, "desert-guide")
-        camel := HotspotNamed(talk.scene, "camel")
+        // The big branch of birds: the macaw speaks for every one of them.
+        macaw := HotspotNamed(talk.scene, "desert-macaw")
+        finch := HotspotNamed(talk.scene, "desert-finch")
         back := HotspotNamed(talk.scene, "campus-path")
-        if guide < 0 || camel < 0 || back < 0 || TITLE_SCENE_HOTSPOTS[talk.scene] != 3 { return 289 }
-        if TITLE_HOTSPOT_DIALOGUE[guide] != 1 || TITLE_HOTSPOT_DIALOGUE[camel] != 1 || TITLE_HOTSPOT_GAME[guide] != "" { return 290 }
+        if macaw < 0 || finch < 0 || back < 0 || TITLE_SCENE_HOTSPOTS[talk.scene] != 13 { return 289 }
+        if TITLE_HOTSPOT_DIALOGUE[macaw] != 1 || TITLE_HOTSPOT_DIALOGUE[finch] != 1 || TITLE_HOTSPOT_GAME[macaw] != "" { return 290 }
         if TITLE_SIGN_LABEL[back] != "Campus" || TITLE_SIGN_DIRECTION[back] != 1 || TITLE_HOTSPOT_TARGET[back] != campus { return 291 }
-        if TitleHotspotRest(guide) != "assets/jungle/title/objects/desert-guide.avif" ||
-            TitleHotspotRest(camel) != "assets/jungle/title/objects/desert-camel.avif" { return 292 }
-        // Where the guide and his camel overlap, the guide in front wins.
+        if TitleHotspotRest(macaw) != "assets/jungle/title/objects/desert-macaw.avif" ||
+            TitleHotspotRest(finch) != "assets/jungle/title/objects/desert-finch.avif" { return 292 }
+        // A point that is the macaw's own, even where neighbors overlap.
         view = TitleFit(width, height, 0.0, 0.0, talk.scene)
-        if !OwnPoint(talk.scene, guide, *tx, *ty) { return 293 }
+        if !OwnPoint(talk.scene, macaw, *tx, *ty) { return 293 }
         wx = view.x + tx * view.scale
         wy = view.y + ty * view.scale
         // A mouse click after hovering opens the bubble at once.
         unused TitlePointer(*talk, view, wx + 2.0, wy, false, false, false, false, 11.0)
         unused TitlePointer(*talk, view, wx, wy, false, false, false, false, 11.05)
-        if talk.hovered != guide { return 294 }
+        if talk.hovered != macaw { return 294 }
         unused TitlePointer(*talk, view, wx, wy, true, true, false, false, 11.1)
         step = TitlePointer(*talk, view, wx, wy, false, false, true, false, 11.2)
-        if talk.dialogue != 1 || talk.dialogue_line != 0 || talk.dialogue_hotspot != guide || step.moved || step.game >= 0 { return 295 }
+        if talk.dialogue != 1 || talk.dialogue_line != 0 || talk.dialogue_hotspot != macaw || step.moved || step.game >= 0 { return 295 }
         if TitleDialogueText(talk, 0) != "Hello! This is the big desert." ||
             TitleDialogueText(talk, 1) != "Hallo! Das ist die große Wüste." ||
             TitleDialogueText(talk, 2) != "¡Hola! Este es el gran desierto." { return 296 }
@@ -564,9 +565,9 @@ main :: () -> s32 {
             for language_index: cast(s32)0..2 { if TitleDialogueText(talk, language_index) == "" { return 303 } }
         }
         if TitleDialogueAdvance(*talk) || talk.dialogue != 0 || talk.scene != shown || TitleDialogueText(talk, 0) != "" { return 304 }
-        // The camel opens the same bubble, still spoken by the guide; closing ends it.
-        unused TitleActivate(*talk, camel)
-        if talk.dialogue != 1 || talk.dialogue_hotspot != guide || talk.dialogue_line != 0 { return 305 }
+        // The finch opens the same bubble, still spoken by the macaw; closing ends it.
+        unused TitleActivate(*talk, finch)
+        if talk.dialogue != 1 || talk.dialogue_hotspot != macaw || talk.dialogue_line != 0 { return 305 }
         TitleDialogueClose(*talk)
         if talk.dialogue != 0 || talk.dialogue_hotspot != -1 { return 306 }
         // The bubble stays inside the window, under the corner controls, above the head.
@@ -574,7 +575,7 @@ main :: () -> s32 {
         if unit < 1.0 { unit = 1.0 }
         units_x := cast(s32)(width / unit)
         units_y := cast(s32)(height / unit)
-        at := guide * 4
+        at := macaw * 4
         anchor := TitleGuideRect.{cast(s32)((view.x + cast(float32)TITLE_GLOW_RECT[at] * view.scale) / unit),
             cast(s32)((view.y + cast(float32)TITLE_GLOW_RECT[at + 1] * view.scale) / unit),
             cast(s32)(cast(float32)TITLE_GLOW_RECT[at + 2] * view.scale / unit),
