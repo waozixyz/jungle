@@ -43,6 +43,11 @@
 #import, file "jungle_game_layout.zi";
 #import, file "jungle_title.zi";
 #import, file "jungle_progress.zi";
+#import, file "jungle_treasure.zi";
+#import, file "jungle_today.zi";
+#import, file "jungle_toucan.zi";
+#import, file "jungle_treasure_frame.zi";
+#import, file "jungle_treasure_chest.zi";
 #import, file "../games/paint/paint_palette.zi";
 #import, file "../games/paint/paint_picture.zi";
 #import, file "printing.zi";
@@ -297,6 +302,25 @@ HostExplorationSave :: () {
     if saved { title_exploration.dirty = false } else { unused RemoveFile(next) }
 }
 
+// <data>/treasure.txt: the toucan's gifts, saved the same way. An
+// unreadable or invalid file is never written over.
+treasure_setting: string;
+treasure_day_checked: float64 = -1.0;
+
+HostTreasureSave :: () {
+    if treasure_setting == "" || !toucan_treasure.valid { return }
+    next := Cat(treasure_setting, ".new")
+    saved := WriteEntireFile(next, TreasureText(toucan_treasure)) && RenamePath(next, treasure_setting)
+    if !saved { unused RemoveFile(next) }
+}
+
+// The local calendar day, read again at most once a second.
+HostTreasureToday :: (now: float64) {
+    if treasure_day_checked >= 0.0 && now - treasure_day_checked < 1.0 { return }
+    treasure_day_checked = now
+    toucan_today = TreasureToday()
+}
+
 // The first opening of game INDEX unlocks it: its award, a chime and the
 // celebration over the game's first moments.
 HostAwardUnlock :: (index: s32) {
@@ -396,6 +420,10 @@ GameServices :: (context: *void, module: *u8, function: *u8,
         }
         if service == "jungle.collect" || service == "jungle.collection" {
             result.* = Reply(HostCollectionService(service, request))
+            return 1
+        }
+        if service == "jungle.treasure" {
+            result.* = Reply(TreasureMask(toucan_treasure))
             return 1
         }
         if service == "jungle.book-start" { result.* = Reply(title_book_requested); return 1 }
@@ -626,6 +654,11 @@ Menu :: (session: Session, bounds: Rectangle, key: s32) {
         if CollectionBookFrame(session, bounds, key, JungleSeconds(), sound_muted, jungle_collection) { ToggleSound() }
         return
     }
+    if treasure_chest_open {
+        if TreasureChestFrame(session, bounds, key, JungleSeconds(), sound_muted, toucan_treasure) { ToggleSound() }
+        return
+    }
+    HostTreasureToday(JungleSeconds())
     if title_scene_from_game >= 0 {
         scene := title_scene_from_game
         title_scene_from_game = -1
@@ -659,6 +692,12 @@ Menu :: (session: Session, bounds: Rectangle, key: s32) {
     if action.sound_toggle { ToggleSound() }
     if action.navigated { SoundPlay("assets/jungle/sounds/select.wav") }
     if action.collection_open { CollectionBookOpen(); SoundStop(); title_guide_playing = false }
+    if action.chest_open { TreasureChestOpen(); SoundStop(); title_guide_playing = false }
+    if toucan_claimed {
+        toucan_claimed = false
+        HostTreasureSave()
+        SoundPlay(ifx SoundSamples(TITLE_PAPER_CHIME) != "" then TITLE_PAPER_CHIME else "assets/jungle/sounds/select.wav")
+    }
     if action.paper_collected {
         // The book's soft chime, or the title's own gentle sound if it is not installed.
         SoundPlay(ifx SoundSamples(TITLE_PAPER_CHIME) != "" then TITLE_PAPER_CHIME else "assets/jungle/sounds/select.wav")
@@ -779,6 +818,12 @@ JungleOpen :: (checking: bool) -> bool {
     saved_awards, awards_found := ReadEntireFile(awards_setting)
     if awards_found { awards_earned = AwardsParse(saved_awards) }
     else if !PathExists(awards_setting) { awards_earned = AwardsParse("") }
+    // The toucan's gifts: missing is a fresh start (its letter waits), and an
+    // unreadable or invalid file stays untouched.
+    treasure_setting = Cat(base, "/treasure.txt")
+    saved_treasure, treasure_found := ReadEntireFile(treasure_setting)
+    if treasure_found { toucan_treasure = TreasureParse(saved_treasure) }
+    else if !PathExists(treasure_setting) { toucan_treasure = TreasureParse("") }
     unused CreateDirectory(data_root)
     KeepMathLevels(base)
     KeepAnimalLevels()

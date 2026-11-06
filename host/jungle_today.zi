@@ -1,0 +1,12 @@
+// The device's local calendar day for the toucan's daily surprise. The
+// title clock (JungleSeconds) is monotonic only, so it cannot tell days.
+#import "std/date_time_linux"
+#import, file "jungle_treasure.zi";
+
+// YYYYMMDD, or 0 when the clock is unknown.
+TreasureToday :: () -> s32 {
+    now := LocalNow()
+    if !now.valid { return 0 }
+    day := now.year * 10000 + now.month * 100 + now.day
+    return ifx TreasureDayValid(day) then day else 0
+}

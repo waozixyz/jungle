@@ -1,11 +1,11 @@
 {
   "version": 1,
-  "count": 1232,
+  "count": 1248,
   "encoding": "Owner standard 2026-11-05: masters Lanczos-downscaled to 75%, AVIF q35 8-bit full range speed6 jobs1; opaque YUV420, transparent art YUV444 with q90 alpha. Pictures under 512 px, source-rectangle sheets, jigsaw (q60 YUV444), paint art and cursors keep their pixels.",
   "dimensions": "Full original dimensions; no downsampling, no regeneration",
   "reference": "local/image-format-research/previews/full-1x-book-page.png (label: 75% AVIF q35 + Lanczos); full dimensions retained for shipping",
-  "before_bytes": 451853931,
-  "after_bytes": 47064882,
+  "before_bytes": 459739244,
+  "after_bytes": 47332342,
   "files": {
     "assets/beach_families/background.avif": {
       "source": "assets/beach_families/background.webp",
@@ -32105,6 +32105,442 @@
       "rgba_sha256": "dbe08efc5f95e9fef9f3f78bf1170e0bbe2119c1ebeb9af4f0283a561705de01",
       "sha256": "0566537d8ce58fe31d7017d59881b176b8a7bc7e8df36cee248c8d7ef88f3c07",
       "bytes": 6994,
+      "quality": 70,
+      "lossless": false,
+      "subsampling": "444",
+      "speed": 6,
+      "exact_alpha": true,
+      "alpha_quality": 100
+    },
+    "assets/jungle/treasure/stencil-sheet.avif": {
+      "source": "local/art-development/toucan-reward/trimmed/stencil-sheet.png",
+      "source_sha256": "3d6ba34b5e76c474986210ac768227e9608a9ba8cea3c66f527bf4c11d1707af",
+      "source_bytes": 834180,
+      "source_rgba_sha256": "6c8771b88dad4193a459487538a0dd4b0a129996c633640aa5bc01523e8d977f",
+      "dimensions": [
+        586,
+        608
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "d0dab02fc594f3b704c2874fbca22f88c3d50965cca3f409c9721f8330232236",
+      "alpha_sha256": "99abbfb176c0c4e6b5afcb94266df05fe5b3aa9663fbf8dc112edc024a18b5d6",
+      "rgba_sha256": "4c2c0b8711cc183029d6574bacd106eb4da959ab3c617066cb554ad9a23c2c75",
+      "sha256": "5d760c17174ddb71d148914377a1f17d2f7e7ddfc734639f34ffb9864597eee3",
+      "bytes": 10887,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "444",
+      "speed": 6,
+      "design_dimensions": [
+        781,
+        810
+      ],
+      "scale": 0.75,
+      "master": "local/art-development/toucan-reward/trimmed/stencil-sheet.png",
+      "master_sha256": "3d6ba34b5e76c474986210ac768227e9608a9ba8cea3c66f527bf4c11d1707af",
+      "exact_alpha": false,
+      "alpha_quality": 90
+    },
+    "assets/jungle/treasure/blue-crystal.avif": {
+      "source": "local/art-development/toucan-reward/trimmed/blue-crystal.png",
+      "source_sha256": "9ff80f700bf256653b4b7170f39d94315b298bab076b7fca77398c52cc8b7124",
+      "source_bytes": 615797,
+      "source_rgba_sha256": "c1d337a995fdfb9790ff7b3bcda66dcde3abaea6aeaccdd98b872d8d93a5a71a",
+      "dimensions": [
+        526,
+        556
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "fd21ceb4ac3413f367e9661521fd3376e361fd1f2cbe1c6f302c211711cad8a6",
+      "alpha_sha256": "865ea5062379ce159d8562d4538ca5e16437b20bcf18bf0c87f01f6b68a93396",
+      "rgba_sha256": "375c61167853e82a80c19e18c2b87ecb0dc696445683865a1f30550c91d5440b",
+      "sha256": "45969f68ada44e1c4d2132e84279199cee2a07d09295260bf651d65c4844d9a5",
+      "bytes": 15811,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "444",
+      "speed": 6,
+      "design_dimensions": [
+        702,
+        741
+      ],
+      "scale": 0.75,
+      "master": "local/art-development/toucan-reward/trimmed/blue-crystal.png",
+      "master_sha256": "9ff80f700bf256653b4b7170f39d94315b298bab076b7fca77398c52cc8b7124",
+      "exact_alpha": false,
+      "alpha_quality": 90
+    },
+    "assets/jungle/treasure/pink-seashell.avif": {
+      "source": "local/art-development/toucan-reward/trimmed/pink-seashell.png",
+      "source_sha256": "0c85d15e8688c19246316db52396b2a1fb5f897f4dc36669cccba14ea2e278b2",
+      "source_bytes": 495647,
+      "source_rgba_sha256": "874684c0db95a24492aa42c634b10af90c161160f5feedc9e8e3bb0ef46724d2",
+      "dimensions": [
+        548,
+        396
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "e75e09c15670c3a9f87653b401f25141a124618975980e439498b347032807b1",
+      "alpha_sha256": "fa35e9436bc118c005b994004938678be92eb4a230c5aa1c7c3536096bdb2c5f",
+      "rgba_sha256": "79b204f6e333b9cad0e4bf8038231c071327c86f1db5323134a9c58c438539f0",
+      "sha256": "d92537e1555c87fea797dcbec6a2cbc444d21227ef3fe33cef0d278904c9b8aa",
+      "bytes": 11757,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "444",
+      "speed": 6,
+      "design_dimensions": [
+        730,
+        528
+      ],
+      "scale": 0.75,
+      "master": "local/art-development/toucan-reward/trimmed/pink-seashell.png",
+      "master_sha256": "0c85d15e8688c19246316db52396b2a1fb5f897f4dc36669cccba14ea2e278b2",
+      "exact_alpha": false,
+      "alpha_quality": 90
+    },
+    "assets/jungle/treasure/bead-bracelet.avif": {
+      "source": "local/art-development/toucan-reward/trimmed/bead-bracelet.png",
+      "source_sha256": "3e0507d2724b9ba6e9206fe0fef4442a64f583c6b432c1faad024e91550366c6",
+      "source_bytes": 482719,
+      "source_rgba_sha256": "8a4fe9d39e9b5b31251b168e30589057500e63592245402c8b5e05a4c5334eaa",
+      "dimensions": [
+        544,
+        365
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "7c007ab800fbb030ad062513e25e58d2f7c86abf903b54a14d273d4ec444c1fc",
+      "alpha_sha256": "93e1a15b7d466cb07f011fc4ef1051a1a2b7e26612a3b3976703be442294ee42",
+      "rgba_sha256": "6797a5df3c9bbd3545c76477b5c118181b120f8fe6967e0948e224b0c916c2ad",
+      "sha256": "8c50110fa51403630a261b8a604bf0cfa1bc7a65386db29661e3d8d0f4e4aff4",
+      "bytes": 18908,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "444",
+      "speed": 6,
+      "design_dimensions": [
+        725,
+        487
+      ],
+      "scale": 0.75,
+      "master": "local/art-development/toucan-reward/trimmed/bead-bracelet.png",
+      "master_sha256": "3e0507d2724b9ba6e9206fe0fef4442a64f583c6b432c1faad024e91550366c6",
+      "exact_alpha": false,
+      "alpha_quality": 90
+    },
+    "assets/jungle/treasure/chest-open.avif": {
+      "source": "local/art-development/toucan-reward/trimmed/chest-open.png",
+      "source_sha256": "421f23098e27910a5ab6f526032caf42b1e2850b1a1f88d9a0fa504d61875012",
+      "source_bytes": 1213040,
+      "source_rgba_sha256": "1986d7f2f1b0f6a2cb4fc5a4ace1f23877e46c990952e18b00e4478bb7b51ae5",
+      "dimensions": [
+        622,
+        674
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "a019d0a177de3c5506eb6137db147579f3554c0d24185993177d06092efa37fe",
+      "alpha_sha256": "6c45dcfc8cc8d552e72e30e3e02bf3c64a66c8de4d1e19c4d49fae21bb8e2833",
+      "rgba_sha256": "302da733177185f57ecca43dd54d45d67c7a3d642ce3a8f0f003278dabaa6f32",
+      "sha256": "b253ee27c8b0c162dcb44f6e8e6b42d8f075cb6a3d012ce80f00a4ef7a2d877b",
+      "bytes": 24586,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "444",
+      "speed": 6,
+      "design_dimensions": [
+        829,
+        899
+      ],
+      "scale": 0.75,
+      "master": "local/art-development/toucan-reward/trimmed/chest-open.png",
+      "master_sha256": "421f23098e27910a5ab6f526032caf42b1e2850b1a1f88d9a0fa504d61875012",
+      "exact_alpha": false,
+      "alpha_quality": 90
+    },
+    "assets/jungle/treasure/letter.avif": {
+      "source": "local/art-development/toucan-reward/trimmed/letter.png",
+      "source_sha256": "84de9f3d47c2c5ac43b70b0e55a1388aa43a5ebfff5bcf7218a58f40c61fe8af",
+      "source_bytes": 483610,
+      "source_rgba_sha256": "b463709121ce9aa47e8739de73f7ac207c51b81be24828d115bccf525f395c8f",
+      "dimensions": [
+        656,
+        291
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "d0cc1057efddf0518588b2ee756fe4d3dfe84f0b462c556a878379256d73da19",
+      "alpha_sha256": "de50a274706b86b395718667bc918be38abf47ae2825833d9b83272216d337be",
+      "rgba_sha256": "ca63ee7e35ba15a1a8d3fdb0bb698348dccae8726dcd17c0406b05d47c1e86e9",
+      "sha256": "e8e7ea46c4389644c4b643f98c1632c7ea11cb9321c33051ccd1dc4175f1f20e",
+      "bytes": 12605,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "444",
+      "speed": 6,
+      "design_dimensions": [
+        874,
+        388
+      ],
+      "scale": 0.75,
+      "master": "local/art-development/toucan-reward/trimmed/letter.png",
+      "master_sha256": "84de9f3d47c2c5ac43b70b0e55a1388aa43a5ebfff5bcf7218a58f40c61fe8af",
+      "exact_alpha": false,
+      "alpha_quality": 90
+    },
+    "assets/jungle/treasure/shell-necklace.avif": {
+      "source": "local/art-development/toucan-reward/trimmed/shell-necklace.png",
+      "source_sha256": "7f1b77e9938ab107406ca33af868704c6cb0692ef8d360058b3716bae84b92ae",
+      "source_bytes": 354758,
+      "source_rgba_sha256": "800b528ff2f024b8698a0d5e1d54adbdc6c990e5e23dd3522861beb385688d85",
+      "dimensions": [
+        592,
+        480
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "82a516d962080ae6b48bfa1753a61f1bb0ab736cbd8474a755a1cc9710b7ee0c",
+      "alpha_sha256": "24a9824b5440732247ffd66bdf370e56d9608e0e6b561ecfdfa73f667a8c8c25",
+      "rgba_sha256": "2bb43b1ad934e4cc348f0ed8d58f6c9aa25f71f24654fb4ae3498a0e67d008aa",
+      "sha256": "e4a8fda3010fdb5842cdd6f35b5bffbb5acc6bc574c5e61c248efa9b14e29713",
+      "bytes": 29981,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "444",
+      "speed": 6,
+      "design_dimensions": [
+        790,
+        640
+      ],
+      "scale": 0.75,
+      "master": "local/art-development/toucan-reward/trimmed/shell-necklace.png",
+      "master_sha256": "7f1b77e9938ab107406ca33af868704c6cb0692ef8d360058b3716bae84b92ae",
+      "exact_alpha": false,
+      "alpha_quality": 90
+    },
+    "assets/jungle/treasure/golden-feather.avif": {
+      "source": "local/art-development/toucan-reward/trimmed/golden-feather.png",
+      "source_sha256": "f3f4b64c4924ba41fe95b512ad2d0c8b7fdeeb9b3c7742ff83162559219671c7",
+      "source_bytes": 317314,
+      "source_rgba_sha256": "4cec6874b41f8c6c1feba010715a5a37ad3966f239f1c745a41fc624073a6131",
+      "dimensions": [
+        635,
+        250
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "be6f101e95bcfe7018dc568c983613e88a8273ef832eb5b4986b2ea588002eed",
+      "alpha_sha256": "c6cc511df3af20f77141b1aafa8825ba18357f92fdab8c10224d379ffdbdaf70",
+      "rgba_sha256": "b523ecf2ce74633bf09d648d63a646c9ec59b0753293b6359f35911125a04d76",
+      "sha256": "e4c14626ef007ea3359371b7d611c112f8a7bb35cc62cb993244a5bcdc0c3a87",
+      "bytes": 15735,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "444",
+      "speed": 6,
+      "design_dimensions": [
+        847,
+        333
+      ],
+      "scale": 0.75,
+      "master": "local/art-development/toucan-reward/trimmed/golden-feather.png",
+      "master_sha256": "f3f4b64c4924ba41fe95b512ad2d0c8b7fdeeb9b3c7742ff83162559219671c7",
+      "exact_alpha": false,
+      "alpha_quality": 90
+    },
+    "assets/jungle/treasure/compass.avif": {
+      "source": "local/art-development/toucan-reward/trimmed/compass.png",
+      "source_sha256": "0cd0a56ca133e1e8d977c28c29388b4eadf1e7ae5b667ae9a06abb7c7fe338c5",
+      "source_bytes": 926382,
+      "source_rgba_sha256": "8db235c14c2091820dfe9a92fd67da1a46f1a98e9938ddc93882407a39a8f71a",
+      "dimensions": [
+        530,
+        667
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "7250f8992d0d9f6e9405a77df3f05047e2c6813fd916189ec01439a18444caaa",
+      "alpha_sha256": "d7f87b72a28555278a8cfb80ea9ed8f761cd7e34c9e222c16b96d61d07d78799",
+      "rgba_sha256": "6ead1e297f0266179eda9f93c7634b2543550e1925db052111df3d3972ea1f29",
+      "sha256": "a375de90ac8c97e23f4b2c7d6dc730420daae834b23eb5786208f5f965871548",
+      "bytes": 22935,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "444",
+      "speed": 6,
+      "design_dimensions": [
+        706,
+        889
+      ],
+      "scale": 0.75,
+      "master": "local/art-development/toucan-reward/trimmed/compass.png",
+      "master_sha256": "0cd0a56ca133e1e8d977c28c29388b4eadf1e7ae5b667ae9a06abb7c7fe338c5",
+      "exact_alpha": false,
+      "alpha_quality": 90
+    },
+    "assets/jungle/treasure/chest-closed.avif": {
+      "source": "local/art-development/toucan-reward/trimmed/chest-closed.png",
+      "source_sha256": "dfece28fdb30dfe2b073c57e72f3239ec60070104e5d218d706d3c3776e759a1",
+      "source_bytes": 842052,
+      "source_rgba_sha256": "3984fd8943c0b9bf93deb3feda7c06687528e3ff3263a2efac2806843d5679a1",
+      "dimensions": [
+        574,
+        472
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "6e98c76f789ffe589c4f9253aa65c6cb2e9703c43ba39c142f35b20494f90387",
+      "alpha_sha256": "bf60608cc9c818cad3d2ee022dd996a37b966590973d226c5848b29d873a0596",
+      "rgba_sha256": "b24b47b8962a697d8e02c579804ab3a0de78f34f01c2b5d49498a8e962c56743",
+      "sha256": "4aa3374cf780d9c53052c7a123105363b7a5899ab3586549be3711b03158d895",
+      "bytes": 17776,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "444",
+      "speed": 6,
+      "design_dimensions": [
+        766,
+        629
+      ],
+      "scale": 0.75,
+      "master": "local/art-development/toucan-reward/trimmed/chest-closed.png",
+      "master_sha256": "dfece28fdb30dfe2b073c57e72f3239ec60070104e5d218d706d3c3776e759a1",
+      "exact_alpha": false,
+      "alpha_quality": 90
+    },
+    "assets/jungle/treasure/toucan-perch-hold.avif": {
+      "source": "local/art-development/toucan-reward/trimmed/toucan-perch-hold.png",
+      "source_sha256": "1b396d9548e307b12ab7b6725b2984f67c011e1b7c0b814c092a23d2d3a47605",
+      "source_bytes": 564526,
+      "source_rgba_sha256": "72eba38e9c12663fc1830645edaf2f45a836012aa3dff94c1df04ee5e690ae26",
+      "dimensions": [
+        537,
+        591
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "c1a84637ab9fabf2bce3521067d021cf2121787041642e2ef0ca081fe22b0969",
+      "alpha_sha256": "d97cdece11bc0194c75c2c2d664b28a3112bbe7fb008f0b5f177c41cf8a7cce4",
+      "rgba_sha256": "887551e9f62ed547497a0b47a0d929fe44273da897c62caa010a816790c2c162",
+      "sha256": "f8c843b87aa1f4e5f64cb00f96a7dbfb7e4130c61500b0c9413287f6e9df34d7",
+      "bytes": 17108,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "444",
+      "speed": 6,
+      "design_dimensions": [
+        716,
+        788
+      ],
+      "scale": 0.75,
+      "master": "local/art-development/toucan-reward/trimmed/toucan-perch-hold.png",
+      "master_sha256": "1b396d9548e307b12ab7b6725b2984f67c011e1b7c0b814c092a23d2d3a47605",
+      "exact_alpha": false,
+      "alpha_quality": 90
+    },
+    "assets/jungle/treasure/toucan-fly-hold.avif": {
+      "source": "local/art-development/toucan-reward/trimmed/toucan-fly-hold.png",
+      "source_sha256": "9dc329d08d4b2487ab77addde06a52d9679b40561fd44f1bd558e846d169ad10",
+      "source_bytes": 653140,
+      "source_rgba_sha256": "deafa42d056a0d7f7f75f92ef8bd65f3d6799812eaef27baa9bf0856bb85d639",
+      "dimensions": [
+        725,
+        472
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "834993b5c3c302d6d3df5d10e950d3d22e70c7063820c6661f572759749832d6",
+      "alpha_sha256": "b5ed19967de1dca065f0717eb3829956c11aeca530c244f7e42d0586fbe59775",
+      "rgba_sha256": "9293f6db2e47cfe1b666f887a66a12186f201ea37f76bc8de41fa926cd2592f4",
+      "sha256": "19c1304633225d2fe663f48f1f57cd6461d1c68997c820ec6d51686af9b0cf1f",
+      "bytes": 21231,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "444",
+      "speed": 6,
+      "design_dimensions": [
+        967,
+        629
+      ],
+      "scale": 0.75,
+      "master": "local/art-development/toucan-reward/trimmed/toucan-fly-hold.png",
+      "master_sha256": "9dc329d08d4b2487ab77addde06a52d9679b40561fd44f1bd558e846d169ad10",
+      "exact_alpha": false,
+      "alpha_quality": 90
+    },
+    "assets/dino-paint/art/dino67-preview.avif": {
+      "source": "local/art-development/masters/assets/dino-paint/art/dino67-preview.png",
+      "source_sha256": "c662a57d7f13664af6da2ed419330773c132123c1ab7b69b080c84e2c75c4360",
+      "source_bytes": 30540,
+      "source_rgba_sha256": "c1bdebc44c3ae29bad2dc0e0ab6c9bb57dc2ea359ee21c2c5e697ab374c2ec80",
+      "dimensions": [
+        226,
+        376
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "3f448d56b31ebd3b5906520ae85b899e0b5fa3b419525599c2d4ad03b344cb29",
+      "alpha_sha256": "3f448d56b31ebd3b5906520ae85b899e0b5fa3b419525599c2d4ad03b344cb29",
+      "rgba_sha256": "eb36fd7031947b6d73404d593008377d7241a4b144cc4e14e9095450d4a2bda4",
+      "sha256": "8f2feac994f6068c9965e113eb2c79a439d2d2b4b79a19ee5ee400c30d0ca3f7",
+      "bytes": 15274,
+      "quality": 70,
+      "lossless": false,
+      "subsampling": "444",
+      "speed": 6,
+      "exact_alpha": true,
+      "alpha_quality": 100
+    },
+    "assets/dino-paint/art/dino68-preview.avif": {
+      "source": "local/art-development/masters/assets/dino-paint/art/dino68-preview.png",
+      "source_sha256": "6007f796beceb3d2ac9510b53712b8bfc04799970a1c56dca3c2532ce3f4c23f",
+      "source_bytes": 24249,
+      "source_rgba_sha256": "339ace85f1adbd6e8eb7d3cedddbaf987b70e9c10913d9c071d9a8ed5f544b11",
+      "dimensions": [
+        240,
+        187
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "6ba802b7dd73382140e88863d0c1d5479e99e528d4058bcffd94542f4ca7edc0",
+      "alpha_sha256": "6ba802b7dd73382140e88863d0c1d5479e99e528d4058bcffd94542f4ca7edc0",
+      "rgba_sha256": "d45f3d96c24981717e4f91d99aecc5f5beeb56e77b6a39fc3b311648ffebb117",
+      "sha256": "113623129c9ed5439d776d789fefb4a4e2217a37494cfce6f702486d45d88624",
+      "bytes": 11809,
+      "quality": 70,
+      "lossless": false,
+      "subsampling": "444",
+      "speed": 6,
+      "exact_alpha": true,
+      "alpha_quality": 100
+    },
+    "assets/dino-paint/art/dino69-preview.avif": {
+      "source": "local/art-development/masters/assets/dino-paint/art/dino69-preview.png",
+      "source_sha256": "121d4f64fc66c20bf08e0274605db7111a88c1b9821f43404b0b431d1d3d8bc5",
+      "source_bytes": 18113,
+      "source_rgba_sha256": "538dddcccbe9d4ca4f92bedbb2093c7ccb6936df71eac22691956d43e119f385",
+      "dimensions": [
+        240,
+        223
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "40686fdf8428af3960f38812c479855d433c832b4ec0b180a88d2416250f79f6",
+      "alpha_sha256": "40686fdf8428af3960f38812c479855d433c832b4ec0b180a88d2416250f79f6",
+      "rgba_sha256": "fc20f74bebf25664e3b8afa8b24eb7f05bc0e57d8f62f9e7acf7f2cc63288e06",
+      "sha256": "2f07a90aa036303ec9d6f2e54e11c0109458a3c00a7bf12d47be49254262fd4f",
+      "bytes": 8927,
+      "quality": 70,
+      "lossless": false,
+      "subsampling": "444",
+      "speed": 6,
+      "exact_alpha": true,
+      "alpha_quality": 100
+    },
+    "assets/dino-paint/art/dino70-preview.avif": {
+      "source": "local/art-development/masters/assets/dino-paint/art/dino70-preview.png",
+      "source_sha256": "a11705f94b2040ad09d9d87ec80c82102d9e76f8fc5441dde4aad4a09c840390",
+      "source_bytes": 29246,
+      "source_rgba_sha256": "300dbba9704d40a8407fab588b6049331ec067a2bb8cf4b7815aa53106912718",
+      "dimensions": [
+        240,
+        341
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "5f960d89a8b8fc9735462662d8a7b39c972019a7902ee293351bcd9b76bd4af8",
+      "alpha_sha256": "5f960d89a8b8fc9735462662d8a7b39c972019a7902ee293351bcd9b76bd4af8",
+      "rgba_sha256": "56f473de9a3361cb0ef23a6c3f8dc33e19dc7d5e9230e4da7c38f652dc3b9692",
+      "sha256": "dcfd6162d799971583038605f086ef8a8d217a3a54bc92672057027e1eedf35b",
+      "bytes": 12130,
       "quality": 70,
       "lossless": false,
       "subsampling": "444",

@@ -1,0 +1,90 @@
+{
+  "items": [
+    {
+      "master": "local/art-development/toucan-reward/item-paper.png",
+      "path": "assets/jungle/treasure/letter.avif"
+    },
+    {
+      "master": "local/art-development/toucan-reward/item-stencil.png",
+      "path": "assets/jungle/treasure/stencil-sheet.avif"
+    },
+    {
+      "master": "local/art-development/toucan-reward/treasure-shell-necklace.png",
+      "path": "assets/jungle/treasure/shell-necklace.avif"
+    },
+    {
+      "master": "local/art-development/toucan-reward/treasure-golden-feather.png",
+      "path": "assets/jungle/treasure/golden-feather.avif"
+    },
+    {
+      "master": "local/art-development/toucan-reward/treasure-pink-seashell.png",
+      "path": "assets/jungle/treasure/pink-seashell.avif"
+    },
+    {
+      "master": "local/art-development/toucan-reward/treasure-blue-crystal.png",
+      "path": "assets/jungle/treasure/blue-crystal.avif"
+    },
+    {
+      "master": "local/art-development/toucan-reward/treasure-compass.png",
+      "path": "assets/jungle/treasure/compass.avif"
+    },
+    {
+      "master": "local/art-development/toucan-reward/treasure-bead-bracelet.png",
+      "path": "assets/jungle/treasure/bead-bracelet.avif"
+    },
+    {
+      "master": "local/art-development/toucan-reward/chest-closed.png",
+      "path": "assets/jungle/treasure/chest-closed.avif"
+    },
+    {
+      "master": "local/art-development/toucan-reward/chest-open.png",
+      "path": "assets/jungle/treasure/chest-open.avif"
+    }
+  ],
+  "poses": [
+    {
+      "name": "toucan-perch-hold",
+      "master": "local/art-development/toucan-reward/toucan-perch-hold.png",
+      "path": "assets/jungle/treasure/toucan-perch-hold.avif",
+      "animal": "assets/jungle/title/window-animation/toucan.avif",
+      "frame": [
+        0,
+        0,
+        6.2381
+      ],
+      "hold": [
+        150,
+        88,
+        56
+      ],
+      "box": [
+        24.21,
+        45.53,
+        149.56,
+        164.47
+      ]
+    },
+    {
+      "name": "toucan-fly-hold",
+      "master": "local/art-development/toucan-reward/toucan-fly-hold.png",
+      "path": "assets/jungle/treasure/toucan-fly-hold.avif",
+      "animal": "assets/jungle/title/window-animation/toucan.avif",
+      "frame": [
+        255,
+        -27.5,
+        5.5
+      ],
+      "hold": [
+        150,
+        85,
+        56
+      ],
+      "box": [
+        -38.73,
+        10.64,
+        263.64,
+        171.64
+      ]
+    }
+  ]
+}

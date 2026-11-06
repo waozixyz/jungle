@@ -218,7 +218,7 @@ build/tests/%: tests/%_test.zi $(wildcard games/*/*.zi host/*.zi retro/*.zi) bui
 		build/ziran/libziran.a -Wl,--gc-sections -lm -lpthread $(TEST_LIBS) -o $@
 
 # Questions, painting and PNG pictures, then every game opened in the app.
-test: build/tests/farm build/tests/fishing build/tests/beach_families build/tests/speed_choice build/tests/title build/tests/paint_preview build/tests/paint_gallery build/tests/paint_gallery_store build/tests/counting_exercises build/tests/paint_layers build/tests/paint_view build/tests/garden build/tests/drums build/tests/hide_seek build/tests/matching build/tests/shapes build/tests/paint build/tests/paint_history build/tests/png build/tests/progress build/tests/document build/tests/counting build/tests/abc build/tests/numbers build/tests/printing build/tests/audio build/tests/voice build/tests/book_preferences build/tests/book_narration build/tests/book_collect build/tests/collection build/tests/paper build/tests/jigsaw build/tests/piano all
+test: build/tests/farm build/tests/fishing build/tests/beach_families build/tests/speed_choice build/tests/title build/tests/paint_preview build/tests/paint_gallery build/tests/paint_gallery_store build/tests/counting_exercises build/tests/paint_layers build/tests/paint_view build/tests/garden build/tests/drums build/tests/hide_seek build/tests/matching build/tests/shapes build/tests/paint build/tests/paint_history build/tests/png build/tests/progress build/tests/document build/tests/counting build/tests/abc build/tests/numbers build/tests/printing build/tests/audio build/tests/voice build/tests/book_preferences build/tests/book_narration build/tests/book_collect build/tests/collection build/tests/treasure build/tests/paper build/tests/jigsaw build/tests/piano all
 	python3 tools/title_scenes.py --check
 	python3 tests/title_scenes_test.py
 	python3 tests/title_sign_rotation_test.py
@@ -271,6 +271,8 @@ test: build/tests/farm build/tests/fishing build/tests/beach_families build/test
 	build/tests/book_narration
 	build/tests/book_collect
 	build/tests/collection
+	build/tests/treasure
+	python3 tools/toucan_reward_art.py --check
 	build/tests/paper
 	cd $(APP) && SDL_AUDIODRIVER=dummy ../tests/voice
 	build/tests/png build/tests/check.png
@@ -371,5 +373,14 @@ test-world-map-ui: all web
 test: test-cursor-hover
 test-cursor-hover: build/tests/cursor_hover
 	build/tests/cursor_hover
+
+.PHONY: test-run-isolation test-run-isolation-ui
+# Concurrent UI runs keep their own capture folders (tests/runtime_test.py).
+test: test-run-isolation
+test-ui: test-run-isolation-ui
+test-run-isolation:
+	python3 tests/run_isolation_test.py
+test-run-isolation-ui: all
+	python3 tests/run_isolation_test.py --ui
 
 endif # native rules for default, local or mixed goals

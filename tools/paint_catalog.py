@@ -16,6 +16,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 METADATA = ROOT / 'tools/coloring_catalog.json'
 REGISTRY = ROOT / 'tools/collectibles.json'
+TREASURE = ROOT / 'host/jungle_treasure.zi'
 GENERATED = ROOT / 'games/paint/paint_catalog.zi'
 LANGUAGES = ('en', 'de', 'es')
 ORIGINAL_COUNTS = {'stencil': 30, 'scene': 12}
@@ -52,6 +53,40 @@ def collectible_ids(metadata, registry):
         if row['paint']['art'] is not None and slug not in used:
             raise ValueError(f'Collectible {slug} has art but no catalog entry')
     return ids
+
+
+def toucan_rewards(metadata, treasure=None):
+    """Each stencil's toucan reward slug ('' for none), checked against host/jungle_treasure.zi.
+
+    A reward stencil unlocks when the toucan brings it; it is never also a collectible.
+    """
+    import re
+    text = TREASURE.read_text(encoding='utf-8') if treasure is None else treasure
+    def values(name):
+        found = re.search(name + r': \[\d+\]\w+ = \.\[(.*?)\];', text, re.S)
+        if not found:
+            raise ValueError(f'host/jungle_treasure.zi lacks {name}')
+        return [v.strip().strip('"') for v in found.group(1).split(',')]
+    slugs, kinds, arts = values('toucan_reward_slugs'), values('toucan_reward_kinds'), values('toucan_reward_paint_arts')
+    expected = {slug: int(art) for slug, kind, art in zip(slugs, kinds, arts) if kind == 'TOUCAN_REWARD_STENCIL'}
+    rewards, used = [], set()
+    for entry in metadata['stencils']:
+        slug = entry.get('toucan')
+        if slug is None:
+            rewards.append('')
+            continue
+        if entry.get('collectible') is not None:
+            raise ValueError(f'Stencil {entry["asset_id"]} cannot be both a collectible and a toucan reward')
+        if expected.get(slug) != entry['asset_id']:
+            raise ValueError(f'Toucan reward {slug} must be stencil art {expected.get(slug)}')
+        if slug in used:
+            raise ValueError(f'Toucan reward used twice: {slug}')
+        used.add(slug)
+        rewards.append(slug)
+    missing = sorted(set(expected) - used)
+    if missing:
+        raise ValueError('Toucan stencil rewards without a catalog entry: ' + ', '.join(missing))
+    return rewards
 
 
 def BuildPaintCatalog(metadata=None, registry=None):
@@ -114,6 +149,7 @@ def BuildPaintCatalog(metadata=None, registry=None):
     ids = collectible_ids(metadata, registry)
     for kind in ('stencil', 'scene'):
         catalog[kind + '_collectibles'] = ids[kind]
+    catalog['stencil_toucan'] = toucan_rewards(metadata)
     return catalog
 
 
@@ -139,6 +175,8 @@ def render_catalog(catalog=None):
                       f'PAINT_{upper}_CATEGORY_COUNT :: {len(categories)}'])
         for field in ('order', 'category_starts', 'category_counts', 'category_for_index', 'collectibles'):
             array(f'paint_{kind}_{field}', catalog[f'{kind}_{field}'], 's32')
+        if kind == 'stencil':
+            array('paint_stencil_toucan', catalog['stencil_toucan'], 'string')
         fields = [('labels', '', entries), ('labels', '_category', categories)]
         if kind == 'stencil':
             fields.append(('short_labels', '_short', entries))
@@ -164,6 +202,15 @@ def render_catalog(catalog=None):
             f'Paint{title}Collectible :: (index: s32) -> s32 {{',
             f'    if index < 0 || index >= PAINT_{upper}_COUNT {{ return -1 }}',
             f'    return paint_{kind}_collectibles[index]', '}', '',
+        ])
+        if kind == 'stencil':
+            lines.extend([
+                '// The toucan reward slug that unlocks this entry; "" for none.',
+                'PaintStencilToucan :: (index: s32) -> string {',
+                '    if index < 0 || index >= PAINT_STENCIL_COUNT { return "" }',
+                '    return paint_stencil_toucan[index]', '}', '',
+            ])
+        lines.extend([
             f'Paint{title}At :: (category: s32, offset: s32) -> s32 {{',
             f'    if category < 0 || category >= PAINT_{upper}_CATEGORY_COUNT {{ return -1 }}',
             f'    if offset < 0 || offset >= paint_{kind}_category_counts[category] {{ return -1 }}',

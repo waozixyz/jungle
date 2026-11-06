@@ -42,6 +42,7 @@ GameLanguage :: () {
 // Asks the app once for the collected set; GameCollected reads the answer.
 GameCollectionRefresh :: () {
     CollectionCacheSet(AppService("jungle.collection", ""))
+    TreasureCacheSet(AppService("jungle.treasure", ""))
 }
 
 GameCollected :: (id: s32) -> bool {

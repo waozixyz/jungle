@@ -1,8 +1,10 @@
 // Which stencils and scenes the child can choose. Defaults always show; a
-// collectible shows once earned. Only the pickers ask: a saved picture opens
-// whatever the collection holds.
+// collectible shows once earned, and a toucan stencil once the toucan
+// brought it. Only the pickers ask: a saved picture opens whatever the
+// collection holds.
 #import, file "paint_catalog.zi";
 #import, file "../../retro/collection_cache.zi";
+#import, file "../../host/jungle_treasure.zi";
 
 PAINT_ITEM_STENCIL :: 0
 PAINT_ITEM_SCENE :: 1
@@ -13,14 +15,25 @@ PaintItemCollectible :: (kind: s32, index: s32) -> s32 {
     return -1
 }
 
-// True only for a collectible in the collected set, so it also means "starred".
+// The toucan's reward index that unlocks this item, or -1.
+PaintItemReward :: (kind: s32, index: s32) -> s32 {
+    if kind != PAINT_ITEM_STENCIL { return -1 }
+    slug := PaintStencilToucan(index)
+    return ifx slug == "" then -1 else ToucanRewardBySlug(slug)
+}
+
+// True only for a collectible in the collected set or a stencil the toucan
+// brought, so it also means "starred".
 PaintItemEarned :: (kind: s32, index: s32) -> bool {
     id := PaintItemCollectible(kind, index)
-    return id >= 0 && CollectionCacheHas(id)
+    if id >= 0 { return CollectionCacheHas(id) }
+    reward := PaintItemReward(kind, index)
+    return reward >= 0 && TreasureCacheHas(reward)
 }
 
 PaintItemShown :: (kind: s32, index: s32) -> bool {
-    return PaintItemCollectible(kind, index) < 0 || PaintItemEarned(kind, index)
+    if PaintItemCollectible(kind, index) < 0 && PaintItemReward(kind, index) < 0 { return true }
+    return PaintItemEarned(kind, index)
 }
 
 PaintItemAt :: (kind: s32, category: s32, offset: s32) -> s32 {

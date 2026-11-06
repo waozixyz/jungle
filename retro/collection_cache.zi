@@ -1,6 +1,7 @@
 // A game's copy of the app's collected set, kept so a frame need not ask the
 // app. It holds the jungle.collection reply: the hex mask of host/jungle_collection.zi.
 #import, file "../host/jungle_collection.zi";
+#import, file "../host/jungle_treasure.zi";
 
 collection_cache_mask: string;
 collection_cache_loaded: bool;
@@ -14,4 +15,18 @@ CollectionCacheSet :: (mask: string) {
 
 CollectionCacheHas :: (id: s32) -> bool {
     return CollectionMaskHas(collection_cache_mask, id)
+}
+
+// The toucan's claimed rewards: the jungle.treasure reply, TreasureMask of
+// host/jungle_treasure.zi, bit I for reward index I.
+treasure_cache_mask: string;
+
+TreasureCacheSet :: (mask: string) {
+    kept: Vec(u8)
+    BuilderPrint(*kept, "%", mask)
+    treasure_cache_mask = BuilderFinish(kept)
+}
+
+TreasureCacheHas :: (reward: s32) -> bool {
+    return CollectionMaskHas(treasure_cache_mask, reward)
 }

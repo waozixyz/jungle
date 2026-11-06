@@ -1,0 +1,242 @@
+// The toucan's daily surprise and the treasure chest. The first time the
+// child opens the round window, the toucan is waiting with a little letter
+// in its beak. Tapping it reads the letter and the toucan flies off; on each
+// later local calendar day it comes back with the next reward: a Coloring
+// Book stencil or a treasure for the chest. A same-day tap gives nothing new,
+// and a clock moved backwards never grants another reward.
+//
+// Saved in <data>/treasure.txt (web: settings/treasure.txt), written whole
+// beside the old file and renamed over it. A missing or empty file is a fresh,
+// valid start; a bad file parses with valid = false and is never written over.
+// Pure, so tests and the Coloring Book can share it; host/jungle_today.zi
+// reads the local calendar day.
+#import, file "jungle_text.zi";
+#import, file "jungle_collection.zi";
+#import, file "../retro/language.zi";
+
+TREASURE_HEADER :: "JUNGLE TREASURE 1\n"
+TREASURE_HEADER_LINE :: "JUNGLE TREASURE 1"
+TREASURE_TEXT_LIMIT :: 8192
+// Later versions may add rewards; an index this large is surely corrupt.
+TREASURE_NEXT_LIMIT :: 4096
+
+TOUCAN_REWARD_COUNT :: 10
+TOUCAN_REWARD_STENCIL :: 0
+TOUCAN_REWARD_TREASURE :: 1
+// What the toucan holds: a reward index, or one of these.
+TOUCAN_OFFER_NONE :: -1
+TOUCAN_OFFER_INTRO :: -2
+
+// The order the toucan brings them, one per day. Stencils unlock in the
+// Coloring Book (paint asset ids below, see tools/coloring_catalog.json);
+// treasures go into the chest.
+toucan_reward_slugs: [10]string = .["pineapple", "shell-necklace", "sloth", "golden-feather", "pink-seashell",
+    "starfish", "blue-crystal", "compass", "hot-air-balloon", "bead-bracelet"];
+toucan_reward_kinds: [10]s32 = .[TOUCAN_REWARD_STENCIL, TOUCAN_REWARD_TREASURE, TOUCAN_REWARD_STENCIL,
+    TOUCAN_REWARD_TREASURE, TOUCAN_REWARD_TREASURE, TOUCAN_REWARD_STENCIL, TOUCAN_REWARD_TREASURE,
+    TOUCAN_REWARD_TREASURE, TOUCAN_REWARD_STENCIL, TOUCAN_REWARD_TREASURE];
+// One-based paint asset id of a stencil reward (art/paint/dino<id>.svg); 0 for a treasure.
+toucan_reward_paint_arts: [10]s32 = .[67, 0, 68, 0, 0, 69, 0, 0, 70, 0];
+toucan_reward_labels_en: [10]string = .["Pineapple", "Shell necklace", "Sloth", "Golden feather", "Pink seashell",
+    "Starfish", "Blue crystal", "Compass", "Hot-air balloon", "Bead bracelet"];
+toucan_reward_labels_de: [10]string = .["Ananas", "Muschelkette", "Faultier", "Goldene Feder", "Rosa Muschel",
+    "Seestern", "Blauer Kristall", "Kompass", "Heißluftballon", "Perlenarmband"];
+toucan_reward_labels_es: [10]string = .["Piña", "Collar de conchas", "Perezoso", "Pluma dorada", "Caracola rosa",
+    "Estrella de mar", "Cristal azul", "Brújula", "Globo aerostático", "Pulsera de cuentas"];
+
+ToucanRewardLabel :: (index: s32) -> string {
+    if index < 0 || index >= TOUCAN_REWARD_COUNT { return "" }
+    code := LanguageCode()
+    if code == "de" { return toucan_reward_labels_de[index] }
+    if code == "es" { return toucan_reward_labels_es[index] }
+    return toucan_reward_labels_en[index]
+}
+
+ToucanRewardBySlug :: (slug: string) -> s32 {
+    for index: cast(s32)0..TOUCAN_REWARD_COUNT - 1 {
+        if toucan_reward_slugs[index] == slug { return index }
+    }
+    return -1
+}
+
+// The reward's own cut-out: the treasure, or the stencil's line-art preview.
+ToucanRewardPicture :: (index: s32) -> string {
+    if index < 0 || index >= TOUCAN_REWARD_COUNT { return "" }
+    if toucan_reward_kinds[index] == TOUCAN_REWARD_STENCIL {
+        return Cat("assets/dino-paint/art/dino", NumberText(toucan_reward_paint_arts[index]), "-preview.avif")
+    }
+    return Cat("assets/jungle/treasure/", toucan_reward_slugs[index], ".avif")
+}
+
+// What the toucan carries in its beak for the reward.
+ToucanCarriedPicture :: (offer: s32) -> string {
+    if offer == TOUCAN_OFFER_INTRO { return "assets/jungle/treasure/letter.avif" }
+    if offer < 0 || offer >= TOUCAN_REWARD_COUNT { return "" }
+    if toucan_reward_kinds[offer] == TOUCAN_REWARD_STENCIL { return "assets/jungle/treasure/stencil-sheet.avif" }
+    return ToucanRewardPicture(offer)
+}
+
+Treasure :: struct {
+    intro_seen: bool
+    // Local calendar day (YYYYMMDD) of the last gift; 0 before any.
+    day: s32
+    // Index of the next reward the toucan brings.
+    next: s32
+    // Claimed reward slugs, newline-terminated; known ones in reward order
+    // first, then any a newer version added.
+    items: string
+    valid: bool
+}
+
+TreasureHas :: (treasure: Treasure, slug: string) -> bool {
+    return CollectionHasSlug(treasure.items, slug)
+}
+
+TreasureRewardClaimed :: (treasure: Treasure, index: s32) -> bool {
+    return index >= 0 && index < TOUCAN_REWARD_COUNT && TreasureHas(treasure, toucan_reward_slugs[index])
+}
+
+// Digits only, at most nine, so the value fits; -1 otherwise.
+TreasureNumber :: (text: string) -> s32 {
+    if text.count < 1 || text.count > 9 { return -1 }
+    value: s32 = 0
+    for at: cast(s64)0..text.count - 1 {
+        digit := text[at]
+        if digit < #char "0" || digit > #char "9" { return -1 }
+        value = value * 10 + cast(s32)(digit - #char "0")
+    }
+    return value
+}
+
+// A calendar day written as YYYYMMDD, or 0 for none.
+TreasureDayValid :: (day: s32) -> bool {
+    if day == 0 { return true }
+    month := day / 100 % 100
+    date := day % 100
+    return day >= 19700101 && day <= 99991231 && month >= 1 && month <= 12 && date >= 1 && date <= 31
+}
+
+TreasureParse :: (text: string) -> Treasure {
+    parsed: Treasure
+    if text.count == 0 { parsed.valid = true; return parsed }
+    if text.count > TREASURE_TEXT_LIMIT { return parsed }
+    raw: string
+    line_number: s32 = 0
+    at: s64 = 0
+    while at < text.count {
+        end := at
+        while end < text.count && text[end] != cast(u8)10 { end += 1 }
+        line := text[at:end]
+        if line.count > 0 && line[line.count - 1] == cast(u8)13 { line = line[:line.count - 1] }
+        at = end + 1
+        if line_number == 0 {
+            if line != TREASURE_HEADER_LINE { return parsed }
+        } else if line_number == 1 {
+            if line == "intro yes" { parsed.intro_seen = true }
+            else if line != "intro no" { return parsed }
+        } else if line_number == 2 {
+            if line.count < 5 || line[:4] != "day " { return parsed }
+            parsed.day = TreasureNumber(line[4:])
+            if parsed.day < 0 || !TreasureDayValid(parsed.day) { return parsed }
+        } else if line_number == 3 {
+            if line.count < 6 || line[:5] != "next " { return parsed }
+            parsed.next = TreasureNumber(line[5:])
+            if parsed.next < 0 || parsed.next > TREASURE_NEXT_LIMIT { return parsed }
+        } else if line.count > 0 {
+            if !CollectionSlugValid(line) { return parsed }
+            CollectionAppend(*raw, line) // A repeated slug is skipped.
+        }
+        line_number += 1
+    }
+    if line_number < 4 { return parsed }
+    canonical: string
+    for index: cast(s32)0..TOUCAN_REWARD_COUNT - 1 {
+        if CollectionHasSlug(raw, toucan_reward_slugs[index]) { CollectionAppend(*canonical, toucan_reward_slugs[index]) }
+    }
+    at = 0
+    while at < raw.count {
+        end := at
+        while end < raw.count && raw[end] != cast(u8)10 { end += 1 }
+        slug := raw[at:end]
+        if ToucanRewardBySlug(slug) < 0 { CollectionAppend(*canonical, slug) }
+        at = end + 1
+    }
+    parsed.items = canonical
+    parsed.valid = true
+    return parsed
+}
+
+TreasureText :: (treasure: Treasure) -> string {
+    bytes: Vec(u8)
+    BuilderPrint(*bytes, "%", TREASURE_HEADER)
+    BuilderPrint(*bytes, "%", ifx treasure.intro_seen then "intro yes\n" else "intro no\n")
+    BuilderPrint(*bytes, "day %\n", NumberText(treasure.day))
+    BuilderPrint(*bytes, "next %\n", NumberText(treasure.next))
+    BuilderPrint(*bytes, "%", treasure.items)
+    return BuilderFinish(bytes)
+}
+
+// What the toucan holds on local day TODAY (YYYYMMDD; 0 when the clock is
+// unknown). An invalid save keeps the toucan an ordinary visitor.
+ToucanOffer :: (treasure: Treasure, today: s32) -> s32 {
+    if !treasure.valid { return TOUCAN_OFFER_NONE }
+    if !treasure.intro_seen { return TOUCAN_OFFER_INTRO }
+    // The same day, or a clock set back before the last gift: nothing new.
+    if today <= 0 || today <= treasure.day { return TOUCAN_OFFER_NONE }
+    index := treasure.next
+    while index < TOUCAN_REWARD_COUNT && TreasureRewardClaimed(treasure, index) { index += 1 }
+    return ifx index < TOUCAN_REWARD_COUNT then index else TOUCAN_OFFER_NONE
+}
+
+// Takes what the toucan holds and returns it (TOUCAN_OFFER_NONE when it held
+// nothing). The intro counts as that day's visit, so the first reward comes
+// on the next local day.
+ToucanClaim :: (treasure: *Treasure, today: s32) -> s32 {
+    offer := ToucanOffer(treasure.*, today)
+    if offer == TOUCAN_OFFER_INTRO {
+        treasure.intro_seen = true
+        if today > treasure.day { treasure.day = today }
+    } else if offer >= 0 {
+        unused CollectionAppend(*treasure.items, toucan_reward_slugs[offer])
+        treasure.next = offer + 1
+        treasure.day = today
+    }
+    return offer
+}
+
+// Hex digit i holds reward indices 4i..4i+3, as CollectionMask does; "0" when
+// none is claimed. Paint reads it through the jungle.treasure service.
+TreasureMask :: (treasure: Treasure) -> string {
+    values: [16]s32
+    highest: s32 = -1
+    for index: cast(s32)0..TOUCAN_REWARD_COUNT - 1 {
+        if !TreasureRewardClaimed(treasure, index) { continue }
+        values[index / 4] |= 1 << (index % 4)
+        highest = index
+    }
+    digits: s32 = (highest + 4) / 4
+    if digits == 0 { return "0" }
+    bytes: Vec(u8)
+    for digit: cast(s32)0..digits - 1 { BuilderPrint(*bytes, "%", CollectionHexDigit(values[digit])) }
+    return BuilderFinish(bytes)
+}
+
+// The chest holds the treasures only; stencils live in the Coloring Book.
+TreasureChestCount :: () -> s32 {
+    count: s32 = 0
+    for index: cast(s32)0..TOUCAN_REWARD_COUNT - 1 {
+        if toucan_reward_kinds[index] == TOUCAN_REWARD_TREASURE { count += 1 }
+    }
+    return count
+}
+
+// The reward index of chest slot SLOT, or -1.
+TreasureChestAt :: (slot: s32) -> s32 {
+    left := slot
+    for index: cast(s32)0..TOUCAN_REWARD_COUNT - 1 {
+        if toucan_reward_kinds[index] != TOUCAN_REWARD_TREASURE { continue }
+        if left == 0 { return index }
+        left -= 1
+    }
+    return -1
+}

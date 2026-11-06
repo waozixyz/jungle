@@ -1174,6 +1174,78 @@
       "source": "art/paint/dino66.svg",
       "collectible": "drum",
       "reinforce": false
+    },
+    {
+      "asset_id": 67,
+      "slug": "toucan_pineapple",
+      "category": "objects",
+      "labels": {
+        "en": "Pineapple",
+        "de": "Ananas",
+        "es": "Piña"
+      },
+      "short_labels": {
+        "en": "Pineapple",
+        "de": "Ananas",
+        "es": "Piña"
+      },
+      "subject": "One friendly simple pineapple with a crown of leaves",
+      "source": "art/paint/dino67.svg",
+      "toucan": "pineapple"
+    },
+    {
+      "asset_id": 68,
+      "slug": "toucan_sloth",
+      "category": "animals",
+      "labels": {
+        "en": "Sloth",
+        "de": "Faultier",
+        "es": "Perezoso"
+      },
+      "short_labels": {
+        "en": "Sloth",
+        "de": "Faultier",
+        "es": "Perezoso"
+      },
+      "subject": "One friendly simple sloth hanging from a branch",
+      "source": "art/paint/dino68.svg",
+      "toucan": "sloth"
+    },
+    {
+      "asset_id": 69,
+      "slug": "toucan_starfish",
+      "category": "animals",
+      "labels": {
+        "en": "Starfish",
+        "de": "Seestern",
+        "es": "Estrella de mar"
+      },
+      "short_labels": {
+        "en": "Starfish",
+        "de": "Seestern",
+        "es": "Estrella de mar"
+      },
+      "subject": "One friendly simple starfish with dots",
+      "source": "art/paint/dino69.svg",
+      "toucan": "starfish"
+    },
+    {
+      "asset_id": 70,
+      "slug": "toucan_hot_air_balloon",
+      "category": "objects",
+      "labels": {
+        "en": "Hot-air balloon",
+        "de": "Heißluftballon",
+        "es": "Globo aerostático"
+      },
+      "short_labels": {
+        "en": "Balloon",
+        "de": "Ballon",
+        "es": "Globo"
+      },
+      "subject": "One simple striped hot-air balloon with a basket",
+      "source": "art/paint/dino70.svg",
+      "toucan": "hot-air-balloon"
     }
   ],
   "scenes": [

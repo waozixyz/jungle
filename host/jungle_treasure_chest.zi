@@ -1,0 +1,77 @@
+// The treasure chest beside the Collection Book on the title screen: the
+// open chest above a shelf of the toucan's treasures. A treasure not yet
+// brought keeps an empty, softly outlined place, so each one stays a surprise.
+// Tapping a treasure shows it large with its name. Host-owned, like the album.
+#import "kryon/svg_icon_props"
+#import "kryon/svg_icon_widget"
+#import "kryon/drawing_props"
+#import "kryon/tree_input"
+#import "kryon/image_props"
+#import "kryon/image_widget"
+#import "kryon/text_align"
+#import, file "../retro/retro.zi";
+#import, file "../retro/language.zi";
+#import, file "../retro/book_theme.zi";
+#import, file "jungle_text.zi";
+#import, file "jungle_treasure.zi";
+
+TREASURE_CHEST_CLOSED :: "assets/jungle/treasure/chest-closed.avif"
+TREASURE_CHEST_OPEN :: "assets/jungle/treasure/chest-open.avif"
+
+treasure_chest_open: bool;
+treasure_chest_selected: s32 = -1;
+
+TreasureChestOpen :: () {
+    treasure_chest_open = true
+    treasure_chest_selected = -1
+}
+
+TreasureChestBack :: () {
+    if treasure_chest_selected >= 0 { treasure_chest_selected = -1 }
+    else { treasure_chest_open = false }
+}
+
+// The title bar's compact chest button, the same size as the Collection Book's.
+TreasureChestButton :: (x: s32, y: s32) -> bool {
+    button := RetroTap(9011, x, y, 26, 22, Tr("Treasure Chest"))
+    BookBox(x, y, 26, 22, ifx button.down then cast(u32)0xdcebdcf0 else cast(u32)0xf7f1e3d8, 0xdacdb5ff, 4.0)
+    BookPicture(TREASURE_CHEST_CLOSED, x + 3, y + 2, 20, 18)
+    return button.clicked
+}
+
+TreasureChestContent :: (treasure: Treasure, width: s32, height: s32) {
+    BookBox(0, 56, width, height - 56, 0xfffcf3ff)
+    if treasure_chest_selected >= 0 {
+        reward := treasure_chest_selected
+        BookPicture(ToucanRewardPicture(reward), 16, 72, width - 32, height - 150)
+        BookText(16, height - 70, width - 32, 50, ToucanRewardLabel(reward), 24, TextAlign.TextAlignCenter, false)
+        return
+    }
+    count := TreasureChestCount()
+    // The open chest fills the top; the treasures sit on the shelf below it.
+    chest_height := (height - 56) * 2 / 5
+    if chest_height > 260 { chest_height = 260 }
+    BookPicture(TREASURE_CHEST_OPEN, 16, 64, width - 32, chest_height)
+    columns := ifx width >= 660 then count else (count + 1) / 2
+    rows := (count + columns - 1) / columns
+    top := 64 + chest_height + 12
+    cell_width := (width - 24) / columns
+    cell_height := (height - top - 16) / rows
+    if cell_height > 180 { cell_height = 180 }
+    if cell_height > cell_width + 30 { cell_height = cell_width + 30 }
+    for slot: cast(s32)0..count - 1 {
+        reward := TreasureChestAt(slot)
+        x := 12 + slot % columns * cell_width
+        y := top + slot / columns * cell_height
+        has := TreasureRewardClaimed(treasure, reward)
+        if !has {
+            BookBox(x, y, cell_width - 8, cell_height - 8, 0xf4f2ebff, 0xe6dccbff, 10.0)
+            continue
+        }
+        BookBox(x, y, cell_width - 8, cell_height - 8, 0xf3ecdcff, 0xdacdb5ff, 10.0)
+        press := RetroTap(9300 + reward, x, y, cell_width - 8, cell_height - 8, ToucanRewardLabel(reward))
+        BookPicture(ToucanRewardPicture(reward), x + 8, y + 8, cell_width - 24, cell_height - 46)
+        BookText(x + 4, y + cell_height - 40, cell_width - 16, 28, ToucanRewardLabel(reward), 14, TextAlign.TextAlignCenter, false)
+        if press.clicked { treasure_chest_selected = reward }
+    }
+}

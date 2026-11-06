@@ -113,10 +113,14 @@ EarnedFail :: (message: string) -> bool {
 // section once earned, and defaults never change position or gain a star.
 EarnedPass :: () -> bool {
     CollectionCacheSet("")
+    TreasureCacheSet("")
     for index: cast(s32)0..PAINT_STENCIL_COUNT - 1 {
-        collectible := index >= 55
+        // 55-65 are collectibles; from 66 on the toucan brings them.
+        collectible := index >= 55 && index < 66
+        hidden := index >= 55
         if (PaintStencilCollectible(index) >= 0) != collectible { return EarnedFail("stencil table") }
-        if PaintItemShown(PAINT_ITEM_STENCIL, index) == collectible { return EarnedFail("stencil shown without earning") }
+        if (PaintStencilToucan(index) != "") != (index >= 66) { return EarnedFail("toucan stencil table") }
+        if PaintItemShown(PAINT_ITEM_STENCIL, index) == hidden { return EarnedFail("stencil shown without earning") }
         if PaintItemEarned(PAINT_ITEM_STENCIL, index) { return EarnedFail("stencil earned from nothing") }
     }
     for index: cast(s32)0..PAINT_SCENE_COUNT - 1 {
@@ -137,6 +141,14 @@ EarnedPass :: () -> bool {
     if PaintItemEarned(PAINT_ITEM_STENCIL, 0) { return EarnedFail("a default has a star") }
     if PaintShownAt(PAINT_ITEM_STENCIL, 1, 11) != 62 || PaintShownCount(PAINT_ITEM_STENCIL, 1) != 12 { return EarnedFail("toucan is not last among Animals") }
     if PaintShownAt(PAINT_ITEM_SCENE, 1, 6) != 26 || PaintShownCount(PAINT_ITEM_SCENE, 1) != 7 { return EarnedFail("treehouse is not in Places") }
+    // The toucan's pineapple (reward 0) and sloth (reward 2) unlock their
+    // stencils (66, 67) apart from the collection.
+    TreasureCacheSet("5")
+    if !PaintItemEarned(PAINT_ITEM_STENCIL, 66) || !PaintItemShown(PAINT_ITEM_STENCIL, 67) { return EarnedFail("toucan stencils not unlocked") }
+    if PaintItemShown(PAINT_ITEM_STENCIL, 68) || PaintItemShown(PAINT_ITEM_STENCIL, 69) { return EarnedFail("toucan stencils unlocked early") }
+    if PaintItemEarned(PAINT_ITEM_STENCIL, 55) { return EarnedFail("a toucan reward earned a collectible") }
+    if PaintShownCount(PAINT_ITEM_STENCIL, 1) != 13 || PaintShownAt(PAINT_ITEM_STENCIL, 1, 12) != 67 { return EarnedFail("sloth is not last among Animals") }
+    TreasureCacheSet("")
     // A damaged mask earns nothing rather than everything.
     CollectionCacheSet("xyz")
     if PaintItemEarned(PAINT_ITEM_STENCIL, 62) { return EarnedFail("damaged mask earned") }
@@ -144,11 +156,13 @@ EarnedPass :: () -> bool {
     CollectionCacheSet("")
     if !SceneOpen(26) { return EarnedFail("unearned scene does not open") }
     CollectionCacheSet("fffffffffffffff")
+    TreasureCacheSet("fff")
     for index: cast(s32)55..PAINT_STENCIL_COUNT - 1 {
         if !PaintItemEarned(PAINT_ITEM_STENCIL, index) { return EarnedFail("full mask missed a stencil") }
     }
     if PaintShownCount(PAINT_ITEM_STENCIL, 1) != paint_stencil_category_counts[1] { return EarnedFail("full mask section") }
     CollectionCacheSet("")
+    TreasureCacheSet("")
     return true
 }
 

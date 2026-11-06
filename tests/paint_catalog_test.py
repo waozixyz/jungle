@@ -52,7 +52,7 @@ ctypes.CDLL = load
 import dino_art
 from paint_catalog import BuildPaintCatalog
 library = BuildPaintCatalog()
-assert len(library['stencils']) == 66 and len(library['scenes']) == 30
+assert len(library['stencils']) == 70 and len(library['scenes']) == 30
 '''
         subprocess.run([sys.executable, '-c', script], cwd=ROOT, check=True,
                        capture_output=True, text=True)
@@ -70,13 +70,14 @@ assert len(library['stencils']) == 66 and len(library['scenes']) == 30
 
     def test_original_ids_labels_and_category_order(self):
         data = self.library
-        self.assertEqual([e['asset_id'] for e in data['stencils']], list(range(1, 67)))
+        self.assertEqual([e['asset_id'] for e in data['stencils']], list(range(1, 71)))
         self.assertEqual([e['asset_id'] for e in data['scenes']], list(range(1, 31)))
         self.assertEqual(tuple(e['labels']['en'] for e in data['stencils'][:30]), OLD_STENCILS)
         self.assertEqual(tuple(e['short_labels']['en'] for e in data['stencils'][:30]), OLD_SHORT)
         self.assertEqual(tuple(e['labels']['en'] for e in data['scenes'][:12]), OLD_SCENES)
         self.assertEqual([i for i in data['stencil_order'] if i < 30], OLD_ORDER)
-        self.assertEqual(data['stencil_category_counts'], [16, 19, 11, 20])
+        # The toucan's pineapple and balloon join Objects, its sloth and starfish Animals.
+        self.assertEqual(data['stencil_category_counts'], [16, 21, 11, 22])
         self.assertEqual(data['scene_category_counts'], [14, 10, 6])
         self.assertEqual([e['labels']['en'] for e in data['scene_categories']],
                          ['Nature', 'Places', 'Adventures'])
@@ -133,23 +134,39 @@ assert len(library['stencils']) == 66 and len(library['scenes']) == 30
         slugs = {row['id']: row['slug'] for row in registry['collectibles']}
         for kind, first in (('stencil', 56), ('scene', 27)):
             for row, identifier in zip(self.library[kind + 's'], self.library[kind + '_collectibles']):
-                if row['asset_id'] < first:
+                if row['asset_id'] < first or row.get('toucan'):
                     self.assertEqual(identifier, -1)
                 else:
                     self.assertEqual(slugs[identifier], row['collectible'])
         self.assertEqual(sorted(i for k in ('stencil', 'scene')
                                 for i in self.library[k + '_collectibles'] if i >= 0), sorted(slugs))
-        self.assertIn('paint_stencil_collectibles: [66]s32', catalog.GENERATED.read_text())
+        self.assertIn('paint_stencil_collectibles: [70]s32', catalog.GENERATED.read_text())
         self.assertIn('paint_scene_collectibles: [30]s32', catalog.GENERATED.read_text())
 
     def test_collectibles_follow_defaults_in_each_section(self):
         # A saved picker position among defaults stays right whatever is earned.
         for kind in ('stencil', 'scene'):
-            hidden = [self.library[kind + '_collectibles'][i] >= 0 for i in self.library[kind + '_order']]
+            toucan = self.library.get(kind + '_toucan', [''] * len(self.library[kind + 's']))
+            hidden = [self.library[kind + '_collectibles'][i] >= 0 or toucan[i] != '' for i in self.library[kind + '_order']]
             for start, size in zip(self.library[kind + '_category_starts'], self.library[kind + '_category_counts']):
                 group = hidden[start:start + size]
                 self.assertEqual(group, sorted(group))
                 self.assertFalse(all(group), 'every section keeps a default')
+
+    def test_toucan_rewards_unlock_their_own_new_stencils(self):
+        # The toucan's stencil rewards (host/jungle_treasure.zi) are hidden
+        # until it brings them, and never also collectibles.
+        toucan = self.library['stencil_toucan']
+        rewards = {slug: index for index, slug in enumerate(toucan) if slug}
+        self.assertEqual(sorted(rewards), ['hot-air-balloon', 'pineapple', 'sloth', 'starfish'])
+        for slug, index in rewards.items():
+            self.assertEqual(self.library['stencil_collectibles'][index], -1)
+            self.assertEqual(self.library['stencils'][index]['source'], f'art/paint/dino{index + 1}.svg')
+        self.assertIn('PaintStencilToucan :: (index: s32) -> string', catalog.GENERATED.read_text())
+        broken = json.loads(catalog.METADATA.read_text())
+        broken['stencils'][66]['toucan'] = 'sloth'
+        with self.assertRaises(ValueError):
+            catalog.BuildPaintCatalog(broken)
 
     def test_bad_collectible_links_are_rejected(self):
         registry = json.loads(catalog.REGISTRY.read_text())
@@ -183,7 +200,7 @@ assert len(library['stencils']) == 66 and len(library['scenes']) == 30
         prefix = original[:original.rfind('\n    }\n  ]') + len('\n    }')]
         self.assertTrue((ROOT / 'tools/coloring_stencils.json').read_text().startswith(prefix))
         mapping = {row['index']: row for row in manifest['stencils']}
-        self.assertEqual(set(mapping), set(range(13, 67)))
+        self.assertEqual(set(mapping), set(range(13, 71)))
         for row in self.library['stencils'][30:]:
             self.assertEqual(mapping[row['asset_id']]['name'], row['slug'])
             self.assertIn(row['subject'], mapping[row['asset_id']]['prompt'])
@@ -202,7 +219,7 @@ assert len(library['stencils']) == 66 and len(library['scenes']) == 30
             expected = [row['source'] for kind in ('stencils', 'scenes')
                         for row in self.library[kind]]
             self.assertEqual(str(error.exception).splitlines()[1:], expected)
-            self.assertEqual(len(expected), 96)
+            self.assertEqual(len(expected), 100)
             write.assert_not_called()
 
     def test_production_art_needs_only_committed_vectors(self):

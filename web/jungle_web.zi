@@ -47,6 +47,11 @@ PianoKeys :: #import, file "../games/piano/keyboard.zi";
 #import, file "../retro/language.zi";
 #import, file "../retro/speech_profile.zi";
 #import, file "../host/jungle_collection.zi";
+#import, file "../host/jungle_treasure.zi";
+#import, file "../host/jungle_today.zi";
+#import, file "../host/jungle_toucan.zi";
+#import, file "../host/jungle_treasure_frame.zi";
+#import, file "../host/jungle_treasure_chest.zi";
 #import, file "../host/jungle_cursor.zi";
 #import "kryon/cursor"
 #import, file "../host/jungle_awards.zi";
@@ -326,6 +331,13 @@ WebExplorationSave :: () {
     }
 }
 
+// The toucan's gifts, in the settings/treasure.txt document; see host/jungle_treasure.zi.
+WebTreasureSave :: () {
+    if toucan_treasure.valid {
+        if Runner.DocumentWriteHost("settings/treasure.txt", TreasureText(toucan_treasure)) { unused Runner.DocumentFlushHost() }
+    }
+}
+
 WebAwardsSave :: () {
     if awards_earned.valid { unused Runner.DocumentWriteHost("settings/awards.txt", AwardsText(awards_earned)) }
 }
@@ -397,6 +409,7 @@ WebService :: (name: string, request: string) -> string {
         return "ok"
     }
     if name == "jungle.collect" || name == "jungle.collection" { return WebCollectionService(name, request) }
+    if name == "jungle.treasure" { return TreasureMask(toucan_treasure) }
     if name == "jungle.book-start" { return title_book_requested }
     // Picture Book's open book downloads alone, then the next one in the
     // background (index.html jungleBookOpen); "back" once its download was left.
@@ -499,6 +512,7 @@ JungleMain :: () -> s64 {
         web_title_guide_seen = Runner.DocumentReadHost("settings/guide-seen.txt") == "yes"
         web_collection = CollectionParse(Runner.DocumentReadHost("settings/collection.txt"))
         awards_earned = AwardsParse(Runner.DocumentReadHost("settings/awards.txt"))
+        toucan_treasure = TreasureParse(Runner.DocumentReadHost("settings/treasure.txt"))
         // A game that saved before awards existed has its folder: its award
         // comes quietly.
         opened: [AWARD_COUNT]bool
@@ -548,6 +562,11 @@ JungleMain :: () -> s64 {
         if CollectionBookFrame(AppSession(), AppBounds(), key, AppNow(), web_muted, web_collection) { ToggleAudio() }
         return 0
     }
+    if treasure_chest_open {
+        if TreasureChestFrame(AppSession(), AppBounds(), key, AppNow(), web_muted, toucan_treasure) { ToggleAudio() }
+        return 0
+    }
+    toucan_today = TreasureToday()
     if active_game < 0 {
         if !title_state.started { TitleStart(*title_state) }
         TitleResolve(*title_state, AppBounds().width, AppBounds().height)
@@ -580,6 +599,8 @@ JungleMain :: () -> s64 {
         if action.navigated { PlayAudio("assets/jungle/sounds/select.wav", false) }
         if action.locked_cue { PlayAudio(TITLE_NOT_YET_CUE, false) }
         if action.collection_open { CollectionBookOpen(); StopAudio(); web_title_guide = false }
+        if action.chest_open { TreasureChestOpen(); StopAudio(); web_title_guide = false }
+        if toucan_claimed { toucan_claimed = false; WebTreasureSave(); PlayAudio(TITLE_PAPER_CHIME, false) }
         if action.game >= 0 { OpenGame(action.game) }
     } else {
         if key == 299 {

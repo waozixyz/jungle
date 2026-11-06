@@ -42,6 +42,9 @@ MapIcon :: #import "mingcute/mingcute_regular_map";
 #import, file "jungle_text.zi";
 #import, file "jungle_album.zi";
 #import, file "jungle_collection.zi";
+#import, file "jungle_treasure.zi";
+#import, file "jungle_toucan.zi";
+#import, file "jungle_treasure_chest.zi";
 #import, file "jungle_title.zi";
 #import, file "jungle_progress.zi";
 #import, file "jungle_title_data.zi";
@@ -71,6 +74,7 @@ MenuAction :: struct {
     guide_finished: bool
     guide_mute_toggle: bool
     collection_open: bool
+    chest_open: bool
     // A scene's hidden paper was just collected: the host plays its chime.
     paper_collected: bool
     // A world-map landmark that is not open yet was tapped: the host plays
@@ -174,8 +178,8 @@ GameTitleBar :: (session: Session, bounds: Rectangle, key: s32, now: float64, ti
     bar := TitleBar(session, TitleBarProps.{.key = 9001,
         .bounds = Rectangle.{bounds.x, bounds.y, bounds.width, cast(float32)GAME_BAR_HEIGHT},
         .height = GAME_BAR_HEIGHT, .title = Tr(ifx title == "Picture Book" && title_book_requested == "sweet-porridge" then "Stories" else title), .has_leading_action = true,
-        .leading_label = Tr("Back"), .trailing_width = ifx collection_book_open then 60 else ifx abc then 205 else 110}, options[:])
-    if !collection_book_open && title != "Farm" {
+        .leading_label = Tr("Back"), .trailing_width = ifx collection_book_open || treasure_chest_open then 60 else ifx abc then 205 else 110}, options[:])
+    if !collection_book_open && !treasure_chest_open && title != "Farm" {
         collection_x := ifx abc then width - 200 else width - 106
         action.collection_open = CollectionBookButton(collection_x, 6)
         action.collection = CollectRect.{.x = collection_x, .y = 6, .width = 44, .height = 44}
@@ -362,6 +366,13 @@ TitleAnimations :: (session: Session, scene: s32, picture: Rectangle, view: Titl
             x = -width + cast(float32)phase * (scene_width + width * 2.0)
         }
         if mode > 0 {
+            // The toucan carrying its daily gift waits in its own poses.
+            gift, gift_flee, gift_x, gift_y := ToucanRewardFrame(session, index, scene, picture, view, now,
+                title_flee_time[index] > 0.0 && now - title_flee_time[index] < 2.0)
+            if gift_flee { clicked_animal = index; clicked_x = gift_x; clicked_y = gift_y }
+            if gift { continue }
+        }
+        if mode > 0 {
             phase = TitleVisitPhase(now, index)
             if title_flee_time[index] > 0.0 {
                 elapsed := now - title_flee_time[index]
@@ -441,6 +452,12 @@ TitleAnimations :: (session: Session, scene: s32, picture: Rectangle, view: Titl
     }
 }
 
+// Path sign buttons own the semantic keys TITLE_SIGN_KEY_BASE + hotspot. The
+// range sits far above every literal RetroTap/Press key, so a growing hotspot
+// table can never reach another control's key (tests/semantic_keys_test.py).
+TITLE_SIGN_KEY_BASE :: 0x51600000
+TITLE_SIGN_KEY_SPAN :: 4096
+
 // A physical wooden path sign, with lettering rendered in the active
 // language. Source-pixel board bounds follow the same scene transform as
 // the separate sprite, including its tiny tap animation.
@@ -452,12 +469,6 @@ TitlePathSign :: (session: Session, hotspot: s32, picture: Rectangle, view: Titl
     lift := TitleSignLift(title_state, hotspot, now)
     wood := Rectangle.{
         picture.x + cast(float32)TITLE_GLOW_RECT[at] * view.scale,
-// Path sign buttons own the semantic keys TITLE_SIGN_KEY_BASE + hotspot. The
-// range sits far above every literal RetroTap/Press key, so a growing hotspot
-// table can never reach another control's key (tests/semantic_keys_test.py).
-TITLE_SIGN_KEY_BASE :: 0x51600000
-TITLE_SIGN_KEY_SPAN :: 4096
-
         picture.y + (cast(float32)TITLE_GLOW_RECT[at + 1] + lift) * view.scale,
         cast(float32)TITLE_GLOW_RECT[at + 2] * view.scale,
         cast(float32)TITLE_GLOW_RECT[at + 3] * view.scale}
@@ -650,6 +661,11 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
     map_hit := TitleMapEntry(title_state.scene) && px >= cast(float32)(width - 96) * unit &&
         px < cast(float32)(width - 70) * unit && py < 34.0 * unit
     if map_hit { blocked = true; corner = true }
+    // The treasure chest button, left of the map button.
+    if px >= cast(float32)(width - 128) * unit && px < cast(float32)(width - 102) * unit && py < 34.0 * unit {
+        blocked = true
+        corner = true
+    }
     if title_state.dialogue != 0 { blocked = true }
     // The hidden paper takes its own hover and tap before the scene sees them;
     // a drag that starts on it still pans the picture.
@@ -891,9 +907,12 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
     }
     collection_target := RetroRect(width - 64, 6, 26, 22)
     action.collection_open = CollectionBookButton(width - 64, 6, true)
+    action.chest_open = TreasureChestButton(width - 128, 6)
     retro.scale = 1.0
     TitlePaperFlights(cast(s32)collection_target.x, cast(s32)collection_target.y,
         cast(s32)collection_target.width, cast(s32)collection_target.height, now)
+    // The toucan's gift card covers everything until it is tapped away.
+    if ToucanRevealFrame(session, bounds, now) { action.chest_open = false; action.collection_open = false }
     return action
 }
 

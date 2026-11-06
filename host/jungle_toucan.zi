@@ -1,0 +1,206 @@
+// The round window's toucan and its daily surprise (host/jungle_treasure.zi).
+// While it holds something it waits on its branch with the letter, the
+// stencil sheet or the treasure in its beak: its own pose cut-out with the
+// carried item's own cut-out layered at the beak. A reward day starts with
+// it flying in. A tap takes the gift, shows it on a card, and the toucan flies
+// off with the shared startle flight; afterwards it is an ordinary visitor.
+#import "std/math"
+#import "kryon/session"
+#import "kryon/geometry"
+#import "kryon/text_align"
+#import "kryon/tree_input"
+#import "kryon/image_props"
+#import "kryon/image_widget"
+#import "kryon/cursor"
+#if !#defined(PLATFORM_WEB) {
+    #import "kryon/image_raster"
+}
+#import, file "../retro/retro.zi";
+#import, file "../retro/book_theme.zi";
+#import, file "../retro/language.zi";
+#import, file "../retro/collect_flight.zi";
+#import, file "jungle_text.zi";
+#import, file "jungle_title.zi";
+#import, file "jungle_title_data.zi";
+#import, file "jungle_title_animation.zi";
+#import, file "jungle_title_animation_data.zi";
+#import, file "jungle_treasure.zi";
+#import, file "jungle_toucan_poses.zi";
+
+TOUCAN_ATLAS :: "assets/jungle/title/window-animation/toucan.avif"
+TOUCAN_ARRIVAL_SECONDS :: 2.4
+
+// Loaded and saved by the host (treasure.txt); today is refreshed by it.
+toucan_treasure: Treasure;
+toucan_today: s32;
+// Set when a tap took the gift this frame: the host saves and chimes.
+toucan_claimed: bool;
+// The card showing what the toucan just gave, or TOUCAN_OFFER_NONE.
+toucan_reveal: s32 = TOUCAN_OFFER_NONE;
+toucan_reveal_time: float64;
+// When the toucan began flying in with today's reward; 0 before.
+toucan_arrival: float64;
+toucan_arrival_offer: s32 = TOUCAN_OFFER_NONE;
+
+ToucanEntry :: (index: s32) -> bool {
+    return index >= 0 && index < TITLE_ANIMATION_COUNT && TITLE_ANIMATION_PATH[index] == TOUCAN_ATLAS &&
+        TITLE_ANIMATION_MODE[index] == 2
+}
+
+ToucanReady :: (path: string) -> bool {
+    #if #defined(PLATFORM_WEB) {
+        return RetroImageShown(path) == path
+    }
+    #if !#defined(PLATFORM_WEB) {
+        return AssetWidth(path) > 0
+    }
+    return false
+}
+
+ToucanPose :: (name: string) -> s32 {
+    for pose: cast(s32)0..TOUCAN_POSE_COUNT - 1 {
+        if TOUCAN_POSE_NAME[pose] == name { return pose }
+    }
+    return -1
+}
+
+// The pose's rectangle, in scene pixels, for the toucan whose atlas frame
+// starts at (x, y) and is WIDTH scene pixels wide. Pose data counts in that
+// atlas frame's pixels (tools/toucan_reward_art.json "poses").
+ToucanPoseRect :: (pose: s32, x: float32, y: float32, width: float32) -> Rectangle {
+    unit := width / TOUCAN_POSE_UNIT[pose]
+    at := pose * 4
+    return Rectangle.{x + TOUCAN_POSE_BOX[at] * unit, y + TOUCAN_POSE_BOX[at + 1] * unit,
+        TOUCAN_POSE_BOX[at + 2] * unit, TOUCAN_POSE_BOX[at + 3] * unit}
+}
+
+// Where the carried item hangs: its top fifth tucked into the beak at the
+// pose's anchor, at most its hold size either way, keeping its own shape.
+ToucanHoldRect :: (pose: s32, x: float32, y: float32, width: float32, item: string) -> Rectangle {
+    unit := width / TOUCAN_POSE_UNIT[pose]
+    at := pose * 3
+    size := TOUCAN_POSE_HOLD[at + 2] * unit
+    item_width := size
+    item_height := size
+    #if !#defined(PLATFORM_WEB) {
+        w := cast(float32)AssetWidth(item)
+        h := cast(float32)AssetHeight(item)
+        if w > 0.0 && h > 0.0 {
+            if w >= h { item_height = size * h / w } else { item_width = size * w / h }
+        }
+    }
+    return Rectangle.{x + TOUCAN_POSE_HOLD[at] * unit - item_width * 0.5,
+        y + TOUCAN_POSE_HOLD[at + 1] * unit - item_height * 0.2, item_width, item_height}
+}
+
+ToucanDraw :: (session: Session, path: string, scene_rect: Rectangle, picture: Rectangle, view: TitleView) {
+    Image(session, ImageProps.{.asset_path = RetroImageShown(path),
+        .bounds = Rectangle.{picture.x + scene_rect.x * view.scale, picture.y + scene_rect.y * view.scale,
+            scene_rect.width * view.scale, scene_rect.height * view.scale},
+        .fit = ImageFit.ImageFitStretch, .smooth = true})
+}
+
+// Draws toucan entry INDEX while it carries a gift and answers its tap; false
+// leaves it to the ordinary title animation (no gift, or flying off).
+ToucanRewardFrame :: (session: Session, index: s32, scene: s32, picture: Rectangle, view: TitleView, now: float64,
+    fleeing: bool) -> (handled: bool, flee: bool, flee_x: float32, flee_y: float32) {
+    if !ToucanEntry(index) || fleeing { return false, false, 0.0, 0.0 }
+    offer := ToucanOffer(toucan_treasure, toucan_today)
+    if offer == TOUCAN_OFFER_NONE { return false, false, 0.0, 0.0 }
+    item := ToucanCarriedPicture(offer)
+    perch := ToucanPose("toucan-perch-hold")
+    flying := ToucanPose("toucan-fly-hold")
+    if perch < 0 || flying < 0 || !ToucanReady(TOUCAN_POSE_PATH[perch]) || !ToucanReady(TOUCAN_POSE_PATH[flying]) ||
+        !ToucanReady(item) { return false, false, 0.0, 0.0 }
+    at := index * 4
+    x := TITLE_ANIMATION_RECT[at]
+    y := TITLE_ANIMATION_RECT[at + 1]
+    width := TITLE_ANIMATION_RECT[at + 2]
+    height := TITLE_ANIMATION_RECT[at + 3]
+    pose := perch
+    // The first letter is already waiting; a reward day starts with it flying in.
+    if offer >= 0 {
+        if toucan_arrival_offer != offer { toucan_arrival_offer = offer; toucan_arrival = now }
+        progress := (now - toucan_arrival) / TOUCAN_ARRIVAL_SECONDS
+        if progress < 1.0 {
+            ease := TitleAnimationEase(progress)
+            x = -width + (x + width) * ease
+            y -= (1.0 - ease) * height * 0.8
+            y += cast(float32)Sin(now * 7.0) * height * 0.03 * (1.0 - ease)
+            pose = flying
+        }
+    }
+    if pose == perch {
+        // A calm breath on the branch.
+        y += cast(float32)Sin(now * 2.2) * height * 0.008
+    }
+    body := ToucanPoseRect(pose, x, y, width)
+    ToucanDraw(session, TOUCAN_POSE_PATH[pose], body, picture, view)
+    ToucanDraw(session, item, ToucanHoldRect(pose, x, y, width, item), picture, view)
+    if pose != perch { return true, false, 0.0, 0.0 }
+    pointer := PointerSample(session)
+    nx := (pointer.x - picture.x) / picture.width
+    ny := (pointer.y - picture.y) / picture.height
+    inside := TitleWindowOpening(nx * 240.0, ny * picture.height / picture.width * 240.0, TITLE_SCENE_NAME[scene] == "window-portrait")
+    shown := Rectangle.{picture.x + body.x * view.scale, picture.y + body.y * view.scale,
+        body.width * view.scale, body.height * view.scale}
+    if !inside || !TitleAnimalHit(pointer.x, pointer.y, shown) || toucan_reveal != TOUCAN_OFFER_NONE { return true, false, 0.0, 0.0 }
+    unused CursorHover(session, cast(s32)CursorShape.CursorClickable)
+    if !pointer.pressed { return true, false, 0.0, 0.0 }
+    claimed := ToucanClaim(*toucan_treasure, toucan_today)
+    if claimed == TOUCAN_OFFER_NONE { return true, false, 0.0, 0.0 }
+    toucan_claimed = true
+    toucan_reveal = claimed
+    toucan_reveal_time = now
+    return true, true, TITLE_ANIMATION_RECT[at], y
+}
+
+// The gift's card over the whole window: the letter, the new stencil or the
+// treasure, gently growing in among sparkles. A tap anywhere closes it.
+// Window pixels. True while it owns input.
+ToucanRevealFrame :: (session: Session, bounds: Rectangle, now: float64) -> bool {
+    if toucan_reveal == TOUCAN_OFFER_NONE { return false }
+    retro = Retro.{.session = session, .font = "assets/jungle/font.png", .now = now,
+        .x = bounds.x, .y = bounds.y, .scale = 1.0, .glyph_height = 16}
+    BookPalette()
+    width := cast(s32)bounds.width
+    height := cast(s32)bounds.height
+    close := RetroTap(9400, 0, 0, width, height, "Close")
+    BookBox(0, 0, width, height, 0x2a3a3260)
+    opened := (now - toucan_reveal_time) / 0.35
+    grow := TitleAnimationEase(ifx opened > 1.0 then 1.0 else ifx opened < 0.0 then 0.0 else opened)
+    card_width := ifx width - 32 < 420 then width - 32 else 420
+    card_height := ifx height - 32 < 380 then height - 32 else 380
+    shown_width := cast(s32)(cast(float32)card_width * (0.7 + 0.3 * grow))
+    shown_height := cast(s32)(cast(float32)card_height * (0.7 + 0.3 * grow))
+    x := (width - shown_width) / 2
+    y := (height - shown_height) / 2
+    BookBox(x, y, shown_width, shown_height, 0xfffcf3ff, 0xdacdb5ff, 14.0)
+    reward := toucan_reveal
+    picture := ifx reward == TOUCAN_OFFER_INTRO then ToucanCarriedPicture(reward) else ToucanRewardPicture(reward)
+    title := "A treasure for your treasure chest!"
+    if reward == TOUCAN_OFFER_INTRO { title = "Hello from the toucan!" }
+    else if toucan_reward_kinds[reward] == TOUCAN_REWARD_STENCIL { title = "A new stencil for the Coloring Book!" }
+    BookText(x + 12, y + 10, shown_width - 24, 34, title, 20)
+    picture_y := y + 50
+    picture_height := shown_height - 120
+    BookPicture(picture, x + 24, picture_y, shown_width - 48, picture_height)
+    SecretPaperTwinkleRing(x + shown_width / 2, picture_y + picture_height / 2, shown_width / 2 - 20, now)
+    caption := ifx reward == TOUCAN_OFFER_INTRO then "Come back tomorrow for a surprise!" else ToucanRewardLabel(reward)
+    BookText(x + 12, y + shown_height - 62, shown_width - 24, 46, caption, 20,
+        TextAlign.TextAlignCenter, reward == TOUCAN_OFFER_INTRO)
+    if close.clicked && now - toucan_reveal_time > 0.4 { toucan_reveal = TOUCAN_OFFER_NONE }
+    return true
+}
+
+// Soft golden sparkles turning slowly around the gift.
+SecretPaperTwinkleRing :: (cx: s32, cy: s32, radius: s32, now: float64) {
+    for spark: cast(s32)0..7 {
+        angle := now * 0.6 + cast(float64)spark * 0.785398
+        pulse := 0.5 + 0.5 * Sin(now * 3.0 + cast(float64)spark)
+        size := cast(s32)(4.0 + 5.0 * pulse)
+        sx := cx + cast(s32)(Cos(angle) * cast(float64)radius)
+        sy := cy + cast(s32)(Sin(angle) * cast(float64)radius * 0.8)
+        BookBox(sx - size / 2, sy - size / 2, size, size, 0xffe58aff, 0, cast(float32)size * 0.5)
+    }
+}
