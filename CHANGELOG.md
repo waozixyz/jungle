@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+- AVIF pictures decode with Kryon's updated codec packages.
 - The web world map runs as smoothly as the other scenes, and taps on it no longer get lost.
 - The Treehouse window's toucan brings a daily surprise: a letter on the first visit, then a new Coloring Book stencil or a treasure each day, kept in a new Treasure Chest beside the Collection Book.
 - The Desert now looks like the world map, with white dunes, a blue oasis and a big branch of colorful parrots that chat with you.
