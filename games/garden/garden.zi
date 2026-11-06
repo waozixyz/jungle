@@ -1,5 +1,6 @@
 // Independent plants, grown by moist elapsed time. All clocks are injected.
 #import, file "../../host/jungle_text.zi";
+#import "std/vec"
 #import, file "../../retro/language.zi";
 
 GardenView :: struct { x: s32; y: s32; width: s32; height: s32; scale: float32 }
@@ -190,7 +191,7 @@ GardenClear :: (g: *Garden, plot: s32, now: s64) -> bool {
     g.plots[plot] = GardenPlot.{}
     return true
 }
-GardenSave :: (g: Garden) -> string {
+GardenSave :: (g: Garden) -> Text {
     out: Vec(u8)
     BuilderPrint(*out, "garden 3 %\n", g.selected)
     for p: g.plots {

@@ -1,5 +1,6 @@
 // Carry the counting ladder from Jungle Math into Animal Counting.
 #import, file "jungle_text.zi";
+#import "std/vec"
 
 // Separate from activity saves: a visit is recorded only after entering a
 // real place. Unknown future areas round-trip; malformed saves stay untouched.
@@ -58,7 +59,7 @@ ExplorationParse :: (text: string) -> Exploration {
     return parsed
 }
 
-ExplorationText :: (exploration: Exploration) -> string {
+ExplorationText :: (exploration: Exploration) -> Text {
     return Cat(EXPLORATION_HEADER, exploration.areas)
 }
 

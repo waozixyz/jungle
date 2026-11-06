@@ -1,5 +1,6 @@
 // Silent, value-owned farming. Positions are relative to the soil, never pixels.
 #import, file "../../host/jungle_text.zi";
+#import "std/vec"
 
 FARM_GARDENS :: 4
 FARM_CAPACITY :: 64
@@ -221,14 +222,16 @@ FarmChecksum :: (text: string) -> s32 {
     for byte: text { sum = (sum*131 + cast(s64)byte) % 1000000007 }
     return cast(s32)sum
 }
-FarmSave :: (f: FarmState) -> string {
+FarmSave :: (f: FarmState) -> Text {
     out: Vec(u8)
     BuilderPrint(*out,"farm-four 3\n% % % % %\n",f.coins,f.harvested,
         ifx f.compost then 1 else 0,ifx f.sprinkler then 1 else 0,f.selected)
     for i: cast(s32)0..FARM_CROPS-1 { BuilderPrint(*out,"% %\n",f.seeds[i],f.produce[i]) }
     for p: f.plots { BuilderPrint(*out,"% % % % % %\n",p.kind,p.growth,p.moisture,p.u,p.v,p.rest) }
-    body := BuilderFinish(out)
-    return Cat(body,NumberText(FarmChecksum(body)),"\n")
+    // The checksum covers everything before it; a local named in the return would be kept.
+    checksum := FarmChecksum(TextView(VecSlice(out,0,out.count)))
+    BuilderPrint(*out,"%\n",checksum)
+    return BuilderFinish(out)
 }
 FarmField :: (text: string, at: *s64, limit: s32, separator: u8) -> s32 {
     if at.* >= text.count || text[at.*] < #char "0" || text[at.*] > #char "9" { return -1 }

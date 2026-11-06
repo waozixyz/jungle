@@ -1,4 +1,5 @@
 #import, file "jungle_album.zi";
+#import "std/vec"
 #import, file "../retro/collectibles.zi";
 #import, file "audio_levels.zi";
 // Jungle Academy's menu, games and services, shared by the desktop and
@@ -384,7 +385,7 @@ WriteInk :: (request: string, kind: s32) -> string {
 }
 
 // "<count> <x0> <y0> <x1> <y1> <wheel> <density>" in thousandths.
-PaintTouchesReply :: () -> string {
+PaintTouchesReply :: () -> Text {
     text: Vec(u8)
     BuilderPrint(*text, "% % % % % % %", paint_touch_count,
         cast(s64)(paint_touches[0].x * 1000.0), cast(s64)(paint_touches[0].y * 1000.0),
@@ -418,7 +419,11 @@ GameServices :: (context: *void, module: *u8, function: *u8,
             result.* = Reply("ok")
             return 1
         }
-        if service == "jungle.collect" || service == "jungle.collection" {
+        if service == "jungle.collection" {
+            result.* = Reply(CollectionMask(jungle_collection))
+            return 1
+        }
+        if service == "jungle.collect" {
             result.* = Reply(HostCollectionService(service, request))
             return 1
         }

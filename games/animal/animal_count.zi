@@ -1,4 +1,5 @@
 #import, file "../../retro/language.zi";
+#import "std/vec"
 // Animal Counting: Animal Math's counting game, extended gently through twenty.
 // six right answers move up, six misses move back, and the eighth right answer
 // brings one of the original praises.
@@ -38,14 +39,16 @@ loaded: bool;
 reward_started: float64;
 reward_head: s32;
 
-Join :: (a: string, b: string = "", c: string = "") -> string {
+// Appends each part directly: copying them into an array would keep a caller's owned Text.
+Join :: (a: string, b: string = "", c: string = "") -> Text {
     text: Vec(u8)
-    parts: [3]string = .[a, b, c]
-    for part: parts { BuilderPrint(*text, "%", part) }
+    BuilderAppend(text, a)
+    BuilderAppend(text, b)
+    BuilderAppend(text, c)
     return BuilderFinish(text)
 }
 
-Number :: (value: s32) -> string {
+Number :: (value: s32) -> Text {
     digits: [24]u8
     return Join(FormatInteger(cast(s64)value, digits[:]))
 }

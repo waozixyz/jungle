@@ -1,6 +1,7 @@
 // Shapes & Sorting rules: one attribute per round, gentle progression by
 // success, validated saves and a screen layout that always fits.
 #import "std/format"
+#import "std/vec"
 #import, file "../../host/jungle_text.zi";
 
 SHAPES_MODE_SHAPE :: 0
@@ -228,7 +229,7 @@ ShapesChooseMode :: (s: *Shapes, mode: s32) -> bool {
     return true
 }
 
-ShapesSaveText :: (s: Shapes) -> string {
+ShapesSaveText :: (s: Shapes) -> Text {
     text: Vec(u8)
     BuilderPrint(*text, "shapes 1 % % % % % % %\n", s.mode, s.levels[0], s.levels[1], s.levels[2],
         s.clean_run, s.miss_run, s.round)

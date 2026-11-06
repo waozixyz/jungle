@@ -4,6 +4,7 @@
 // <data>/awards.txt (web: settings/awards.txt) and shown in the Collection Book.
 // Pure, so tests can check granting, saving, migration and the celebration path.
 #import "std/math"
+#import "std/vec"
 #import, file "../retro/collect_flight.zi";
 
 AWARD_COUNT :: 14
@@ -114,7 +115,7 @@ AwardsParse :: (text: string) -> Awards {
 }
 
 // The canonical file: the header, earned awards in catalog order, then later slugs.
-AwardsText :: (awards: Awards) -> string {
+AwardsText :: (awards: Awards) -> Text {
     bytes: Vec(u8)
     BuilderPrint(*bytes, "%", AWARDS_HEADER)
     for index: cast(s32)0..AWARD_COUNT - 1 {

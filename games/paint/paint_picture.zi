@@ -4,6 +4,7 @@
 // Numbers are digits of five bits, lowest first, in the same 64 letters; a
 // digit of 32 or more says another digit follows.
 #import "std/text_buffer"
+#import "std/vec"
 #import, file "paint_palette.zi";
 
 CANVAS_WIDTH :: 960
@@ -81,7 +82,7 @@ PictureRunsScan :: (text: string, pixels: []u8, total: s64, transparent: bool = 
 }
 
 // A picture as the game hands it to its app: PICTURE_RUNS, then the runs.
-PictureRunsText :: (pixels: []u8) -> string {
+PictureRunsText :: (pixels: []u8) -> Text {
     text: Vec(u8)
     BuilderPrint(*text, "%", PICTURE_RUNS)
     PictureRunsAppend(*text, pixels)

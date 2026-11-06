@@ -2,6 +2,7 @@
 // are the lines. Validate the entire record before changing the current
 // picture.
 #import "std/byte_text_linux"
+#import "std/vec"
 #import "std/text_buffer"
 #import, file "../../retro/language.zi";
 #import, file "paint_canvas.zi";
@@ -31,16 +32,17 @@ ClearStory :: () {
     }
 }
 
-StoryText :: () -> string {
+StoryText :: () -> Text {
     text: Vec(u8)
     for row: cast(s32)0..STORY_LINES - 1 {
-        BuilderPrint(*text, "%\n", LatinText(TextUntilNul(story[row][:])))
+        line := LatinText(TextUntilNul(story[row][:]))
+        BuilderPrint(*text, "%\n", line)
     }
     return BuilderFinish(text)
 }
 
-PictureText :: () -> string {
-    if scene < -1 || scene > BLANK_SCENE { return "" }
+PictureText :: () -> Text {
+    if scene < -1 || scene > BLANK_SCENE { return .{} }
     text: Vec(u8)
     metadata: [3]u8 = .[ifx scene < 0 then #char "-" else PAINT_CODES[PaintSceneCode(scene)], PAINT_CODES[crayon], cast(u8)10]
     layered := layer_count > 0 || pencil_stroke_count > 0
@@ -270,7 +272,7 @@ LayerRecord :: (saved: string, load: bool) -> bool {
 }
 
 // The picture's outlines, bottom to top, for host/paint_view.zi.
-CanvasVectorOps :: () -> string {
+CanvasVectorOps :: () -> Text {
     text: Vec(u8)
     if scene >= 0 && scene < SCENE_COUNT { BuilderPrint(*text, "S %\n", scene) }
     for at: cast(s32)0..layer_count - 1 {
@@ -463,7 +465,7 @@ HistoryAppend :: (text: *Vec(u8), working: string) {
     }
 }
 
-HistoryText :: (working: string) -> string {
+HistoryText :: (working: string) -> Text {
     text: Vec(u8)
     HistoryAppend(*text, working)
     return BuilderFinish(text)

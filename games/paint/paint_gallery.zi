@@ -2,6 +2,7 @@
 // Positive refs name picture-N.txt; -(slot + 1) retains slot-0.txt..slot-5.txt.
 // Initialize with GalleryClear. Entry order is stable and refs never change.
 #import "std/format"
+#import "std/vec"
 
 GALLERY_HEADER :: "JUNGLE GALLERY1\n"
 GALLERY_LIMIT :: 512
@@ -29,8 +30,8 @@ GalleryRefValid :: (ref: s32) -> bool {
 }
 
 // Returns owned text, or empty text for an invalid ref. Never accepts a path.
-GalleryFile :: (ref: s32) -> string {
-    if !GalleryRefValid(ref) { return "" }
+GalleryFile :: (ref: s32) -> Text {
+    if !GalleryRefValid(ref) { return .{} }
     text: Vec(u8)
     if ref < 0 { BuilderPrint(*text, "slot-%.txt", -ref - 1) }
     else { BuilderPrint(*text, "picture-%.txt", ref) }
@@ -136,8 +137,8 @@ GallerySelect :: (gallery: *PaintGallery, index: s32) -> bool {
 // Pointer avoids copying the fixed index for each save/preview. Invalid
 // in-memory state returns empty text. BuilderFinish returns owned text.
 // Format: count next-ID selected-plus-one, then byte-length + safe filename.
-GalleryText :: (gallery: *PaintGallery) -> string {
-    if !GalleryValid(gallery) { return "" }
+GalleryText :: (gallery: *PaintGallery) -> Text {
+    if !GalleryValid(gallery) { return .{} }
     text: Vec(u8)
     BuilderPrint(*text, "%", GALLERY_HEADER)
     BuilderPrint(*text, "% % %\n", gallery.count, gallery.next_id, gallery.selected + 1)

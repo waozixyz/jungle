@@ -18,6 +18,7 @@
 #import "std/c_string"
 #import "std/byte_text_linux"
 #import "std/web"
+#import "std/vec"
 Runner :: #import "canvas_app_run";
 Raster :: #import "canvas_raster";
 Book :: #import, file "../games/book/jungle_book.zi";
@@ -251,8 +252,17 @@ CanvasColors :: (request: string) -> string {
     return name
 }
 
+// The last built WebService reply, refilled in place: the page copies a reply
+// before it calls again, so replies built each call never pile up.
+web_reply: Text;
+WebReply :: (text: string) -> string {
+    VecClear(web_reply.bytes)
+    BuilderAppend(web_reply.bytes, text)
+    return TextView(web_reply)
+}
+
 // "<count> <x0> <y0> <x1> <y1> <wheel> <density>" in thousandths.
-WebPaintTouches :: () -> string {
+WebPaintTouches :: () -> Text {
     count := GetTouchPointCount()
     a := ifx count > 0 then GetTouchPosition(0) else Vector2.{}
     b := ifx count > 1 then GetTouchPosition(1) else Vector2.{}
@@ -384,7 +394,7 @@ WebService :: (name: string, request: string) -> string {
     if name == "jungle.voice-frames" {
         scope := WebScope()
         defer WebEnd(scope)
-        return NumberText(cast(s32)WebAsNumber(WebCall2(WebModule, WebName("jungleVoiceFrames"), WebText(request), WebText(english_speech_profile))))
+        return WebReply(NumberText(cast(s32)WebAsNumber(WebCall2(WebModule, WebName("jungleVoiceFrames"), WebText(request), WebText(english_speech_profile)))))
     }
     if name == "jungle.speech-profile" {
         if request != "" {
@@ -408,8 +418,9 @@ WebService :: (name: string, request: string) -> string {
         }
         return "ok"
     }
-    if name == "jungle.collect" || name == "jungle.collection" { return WebCollectionService(name, request) }
-    if name == "jungle.treasure" { return TreasureMask(toucan_treasure) }
+    if name == "jungle.collection" { return WebReply(CollectionMask(web_collection)) }
+    if name == "jungle.collect" { return WebCollectionService(name, request) }
+    if name == "jungle.treasure" { return WebReply(TreasureMask(toucan_treasure)) }
     if name == "jungle.book-start" { return title_book_requested }
     // Picture Book's open book downloads alone, then the next one in the
     // background (index.html jungleBookOpen); "back" once its download was left.
@@ -443,7 +454,7 @@ WebService :: (name: string, request: string) -> string {
     if name == "jungle.paint-colors" { return CanvasColors(request) }
     if name == "jungle.paint-ink" { return CanvasInk(request, 0) }
     if name == "jungle.paint-tile" { return CanvasInk(request, 1) }
-    if name == "jungle.touches" { return WebPaintTouches() }
+    if name == "jungle.touches" { return WebReply(WebPaintTouches()) }
     if name == "jungle.paint-preview" { return CanvasImage(request, true) }
     if name == "jungle.export" || name == "jungle.print" { return WebExport(request, name == "jungle.print") }
     return "{\"status\":\"unavailable\"}"

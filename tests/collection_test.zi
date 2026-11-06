@@ -58,9 +58,8 @@ main :: () -> s32 {
 
     // The services games call: each item is new exactly once and the mask follows it.
     store := CollectionParse("")
-    reply, changed := CollectionService(*store, "jungle.collection", "")
-    if reply != "0" || changed { return 18 }
-    reply, changed = CollectionService(*store, "jungle.collect", "zebra")
+    if CollectionMask(store) != "0" { return 18 }
+    reply, changed := CollectionService(*store, "jungle.collect", "zebra")
     if reply != "new" || !changed || CollectionText(store) != "JUNGLE COLLECTION 1\nzebra\n" { return 19 }
     reply, changed = CollectionService(*store, "jungle.collect", "zebra")
     if reply != "had" || changed { return 20 }
@@ -68,8 +67,8 @@ main :: () -> s32 {
     if reply != "unknown" || changed { return 21 }
     reply, changed = CollectionService(*store, "jungle.collect", "")
     if reply != "unknown" || changed || CollectionText(store) != "JUNGLE COLLECTION 1\nzebra\n" { return 22 }
-    reply, changed = CollectionService(*store, "jungle.collection", "")
-    if reply != "4" || changed || !CollectionMaskHas(reply, 2) { return 23 }
+    zebra_mask := CollectionMask(store)
+    if zebra_mask != "4" || !CollectionMaskHas(zebra_mask, 2) { return 23 }
     reply, changed = CollectionService(*store, "jungle.sound", "zebra")
     if reply != "" || changed { return 24 }
 
@@ -89,7 +88,7 @@ main :: () -> s32 {
     reply, changed = CollectionService(*corrupt, "jungle.collect", "panda")
     if reply != "had" || changed { return 29 }
     reply, changed = CollectionService(*corrupt, "jungle.collection", "")
-    if reply != "2" || changed { return 30 }
+    if reply != "" || changed || CollectionMask(corrupt) != "2" { return 30 }
     unloaded: Collection
     reply, changed = CollectionService(*unloaded, "jungle.collect", "snail")
     if reply != "new" || changed { return 31 }

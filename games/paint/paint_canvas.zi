@@ -3,6 +3,7 @@
 // bucket fills up to those lines. A pixel is a line exactly when it is INK:
 // crayons start at 16, so no fill ever paints INK.
 #import, file "paint_pages.zi";
+#import "std/vec"
 #import, file "paint_palette.zi";
 #import, file "paint_picture.zi";
 #import "geometry"
@@ -611,7 +612,7 @@ PaintVectorUnits :: (value: float32) -> s64 {
     return cast(s64)FloorInteger(value * 65536.0 + 0.5)
 }
 
-CanvasText :: () -> string {
+CanvasText :: () -> Text {
     return PictureRunsText(canvas[:])
 }
 

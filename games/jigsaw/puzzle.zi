@@ -1,5 +1,6 @@
 // Portable jigsaw rules and validated saves, shared by all hosts.
 #import "std/format"
+#import "std/vec"
 #import, file "../../host/jungle_text.zi";
 
 PUZZLE_SCENES :: 3
@@ -71,7 +72,7 @@ PuzzleTick :: (p: *Puzzle, seconds: s32) {
         if p.turn >= 60 { if (p.turn / 60) % 2 == 1 { p.player = 1 - p.player }; p.turn %= 60 }
     }
 }
-PuzzleText :: (p: Puzzle) -> string {
+PuzzleText :: (p: Puzzle) -> Text {
     text: Vec(u8)
     BuilderPrint(*text, "jigsaw 2 % % % % % % % %", p.scene, p.level, p.mode, p.player, p.elapsed, p.turn,
         ifx p.peeking then 1 else 0, ifx p.locking then 1 else 0)

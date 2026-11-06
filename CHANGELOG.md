@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- Use less memory while painting and saving games, so long sessions stay smooth.
+
 ## 0.1.39
 
 Released 2026-11-06.

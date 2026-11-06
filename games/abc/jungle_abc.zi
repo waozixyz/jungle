@@ -1,4 +1,5 @@
 #import, file "../../retro/language.zi";
+#import "std/vec"
 // Spoken alphabet first, with optional illustrated word examples.
 #import "app_context"
 #import "app_protocol"
@@ -64,7 +65,7 @@ CurrentWord :: () -> s32 {
 }
 
 // The word's letters, spaced apart, sit beside it in spelling mode.
-SpacedLetters :: (word: string) -> string {
+SpacedLetters :: (word: string) -> Text {
     text: Vec(u8)
     for at: cast(s64)0..word.count - 1 {
         code := word[at]
