@@ -24,7 +24,7 @@ void SDL_RenderPresent(void *renderer) {
 '''
 
 def main():
-    scratch=rt.ROOT/'backup/title-window-smoke';scratch.mkdir(parents=True,exist_ok=True)
+    scratch=rt.run_folder('backup/title-window-smoke')
     source=scratch/'frame-probe.c'
     probe=scratch/'frame-probe.so'
     if not probe.exists() or not source.exists() or source.read_text()!=PROBE:

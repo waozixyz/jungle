@@ -191,8 +191,8 @@ jobs:
           name: release-ui-failure
           retention-days: 1
           path: |
-            waozixyz/learning/jungle/build/tests/ui/*.png
-            waozixyz/learning/jungle/build/tests/ui/*.log
+            waozixyz/learning/jungle/build/tests/ui/**/*.png
+            waozixyz/learning/jungle/build/tests/ui/**/*.log
           if-no-files-found: ignore
       - name: Publish this version once its download is verified
         if: github.ref == 'refs/heads/master' && inputs.device_test != true

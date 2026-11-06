@@ -105,8 +105,7 @@ def has_button(picture, box):
 
 def main():
     root = rt.ROOT
-    scratch = root/'backup/world-map-smoke'
-    scratch.mkdir(parents=True, exist_ok=True)
+    scratch = rt.run_folder('backup/world-map-smoke')
     rt.OUTPUT = scratch/'captures'
     data = json.loads((root/'tools/title_hotspots.json').read_text())
     world = next(s for s in data['scenes'] if s['name'] == 'map')

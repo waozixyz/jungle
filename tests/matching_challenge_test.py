@@ -11,7 +11,7 @@ from PIL import ImageChops
 import runtime_test as rt
 
 
-rt.OUTPUT = rt.ROOT / "backup/matching-challenge-ui"
+rt.OUTPUT = rt.run_folder("backup/matching-challenge-ui")
 BINARY = rt.ROOT / "build/app/jungle"
 PAIRS = (2, 2, 3, 4, 6, 8, 10)
 WORDS = {

@@ -84,7 +84,8 @@ def main():
     output = ROOT / 'local/story-aspect-tests'
     output.mkdir(parents=True, exist_ok=True)
     results = []
-    captures = ROOT / 'work/bremen-aspect/captures'
+    work = runtime_test.run_folder('work/bremen-aspect')
+    captures = work / 'captures'
     shutil.rmtree(captures, ignore_errors=True)
     captures.mkdir(parents=True)
     with tempfile.TemporaryDirectory(dir=output) as folder:
@@ -100,7 +101,7 @@ def main():
                 if 'Brem' in words and 'Stories' in words:
                     break
                 if time.monotonic() > deadline:
-                    shutil.copyfile(runtime_test.OUTPUT / 'stories.png', ROOT / 'work/bremen-aspect/failed-stories.png')
+                    shutil.copyfile(runtime_test.OUTPUT / 'stories.png', work / 'failed-stories.png')
                     raise AssertionError(('Stories collection did not open', words))
                 time.sleep(.5)
             for key, name, pages in BOOKS:
@@ -157,7 +158,7 @@ def main():
                         results.append(result)
                         print(json.dumps(result), flush=True)
                         if error >= 12 or abs(drawn / source - 1) > RATIO_TOLERANCE:
-                            frame.save(ROOT / 'work/bremen-aspect' / f'failed-{name}-{width}x{height}-{page}.png')
+                            frame.save(work / f'failed-{name}-{width}x{height}-{page}.png')
                         assert abs(drawn / source - 1) <= RATIO_TOLERANCE, result
                         assert error < 12, ('Frame does not show the painting at its place', result)
                         assert abs(rect[0] - lx) <= 4 and abs(rect[1] - ly) <= 4, result
@@ -170,7 +171,7 @@ def main():
                 time.sleep(1)
         if not os.environ.get('STORY_KEEP_CAPTURES'):
             shutil.rmtree(captures, ignore_errors=True)
-    receipt = ROOT / 'work/bremen-aspect/story-aspect-results.json'
+    receipt = work / 'story-aspect-results.json'
     receipt.parent.mkdir(parents=True, exist_ok=True)
     receipt.write_text(json.dumps(results, indent=1) + '\n')
     worst = max(abs(r['drawn_ratio'] / r['source_ratio'] - 1) for r in results)

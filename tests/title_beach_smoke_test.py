@@ -10,8 +10,7 @@ import runtime_test as rt
 def main():
     data=json.loads((rt.ROOT/'tools/title_hotspots.json').read_text())
     scenes={s['name']:s for s in data['scenes']}
-    scratch=rt.ROOT/'backup/beach-port-smoke'
-    scratch.mkdir(parents=True,exist_ok=True)
+    scratch=rt.run_folder('backup/beach-port-smoke')
     rt.OUTPUT=scratch/'captures'
     legs=[('campus','jungle-path'),('jungle-path','beach'),('beach','port'),
           ('port','market'),('market','port'),('port','beach'),

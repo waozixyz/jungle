@@ -27,7 +27,7 @@ import runtime_test
 from world_map_smoke_test import difference, has_button, map_fit, own_point, scene_keys, painted_map
 
 ROOT = Path(__file__).resolve().parents[1]
-web.WORK = ROOT / 'backup/world-map-web/browser'
+web.WORK = runtime_test.run_folder('backup/world-map-web', create=False) / 'browser'
 SIZES = ((1280, 675), (412, 915))
 STARTED = 'typeof Module!=="undefined"&&!!Module.FS&&document.getElementById("loading").style.display==="none"'
 EXPLORED = """(() => {
@@ -46,7 +46,7 @@ def shot(client):
 
 
 def run(base_url, renderer, w, h, browser='chromium', metadata=None):
-    output = ROOT / f'backup/world-map-web/{browser}-{renderer}-{w}x{h}'
+    output = web.WORK.parent / f'{browser}-{renderer}-{w}x{h}'
     output.mkdir(parents=True, exist_ok=True)
     (output / 'receipt.json').unlink(missing_ok=True)
     print(f'local world map web {browser} {renderer} {w}x{h}: starting private browser', flush=True)
@@ -199,7 +199,8 @@ def main():
                         help='Geometry matching the tested web artifact')
     args = parser.parse_args()
     metadata = args.hotspots.read_text()
-    web.WORK.parent.mkdir(parents=True, exist_ok=True)
+    runtime_test.run_folder(web.WORK.parent.parent)
+    print(f'local world map web captures: {web.WORK.parent}', flush=True)
     (web.WORK.parent / 'geometry-used.json').write_text(metadata)
     artifacts = {}
     for name in ('canvas.html', 'dom.html', 'jungle.js', 'jungle-dom.js', 'jungle.wasm', 'jungle-dom.wasm'):
@@ -225,7 +226,7 @@ def main():
                     output = web.WORK.parent / f'{args.browser}-{renderer}-{w}x{h}'
                     (output / 'failure.txt').write_text(traceback.format_exc())
                     results.append(dict(renderer=renderer, width=w, height=h, status='failed', error=str(error)))
-                    print(f'LOCAL TEST FAILED: {failures[-1]}', flush=True)
+                    print(f'LOCAL TEST FAILED: {failures[-1]} (captures in {output})', flush=True)
     (web.WORK.parent / 'summary.json').write_text(json.dumps(dict(browser=args.browser,
         completed_at=time.time(), results=results), indent=2) + '\n')
     assert not failures, '\n'.join(failures)

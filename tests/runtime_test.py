@@ -2,9 +2,12 @@
 """Exercise Jungle's real host with disposable saves and an owned Xvfb."""
 
 import argparse
+from datetime import datetime
 import json
 import os
 from pathlib import Path
+import re
+import secrets
 import select
 import shutil
 import subprocess
@@ -13,9 +16,57 @@ import time
 
 
 ROOT = Path(__file__).resolve().parents[1]
+# One name per test process. Tasks and CI groups run UI tests at the same
+# time, so captures, logs and receipts live in a folder only this run owns.
+# JUNGLE_TEST_RUN lets a caller choose the name, for example to find a run.
+RUN = os.environ.get("JUNGLE_TEST_RUN") or (
+    f"{datetime.now():%Y%m%d-%H%M%S}-{os.getpid()}-{secrets.token_hex(2)}")
+assert re.fullmatch(r"[\w.-]+", RUN) and RUN not in (".", ".."), f"bad JUNGLE_TEST_RUN {RUN!r}"
+RUN_NAME = re.compile(r"(\d{8}-\d{6})-\d+-[0-9a-f]{4}")
+KEEP_RUNS = 4
+STALE_SECONDS = 6 * 3600
+
+
+def prune_runs(base):
+    """Remove generated run folders under BASE beyond the newest KEEP_RUNS,
+    once they are STALE_SECONDS old: no UI run lasts that long, so a run
+    still writing in another task is never touched. Other names stay."""
+    try:
+        runs = sorted(path for path in Path(base).iterdir()
+                      if path.is_dir() and RUN_NAME.fullmatch(path.name) and path.name != RUN)
+    except FileNotFoundError:
+        return
+    now = datetime.now()
+    for path in runs[:-KEEP_RUNS] if len(runs) > KEEP_RUNS else []:
+        started = datetime.strptime(RUN_NAME.fullmatch(path.name)[1], "%Y%m%d-%H%M%S")
+        if (now - started).total_seconds() > STALE_SECONDS:
+            shutil.rmtree(path, ignore_errors=True)
+
+
+def run_folder(base, create=True):
+    """This run's own folder BASE/RUN (BASE absolute or in the checkout)."""
+    base = Path(base) if Path(base).is_absolute() else ROOT / base
+    folder = base / RUN
+    if create:
+        folder.mkdir(parents=True, exist_ok=True)
+        prune_runs(base)
+    return folder
+
+
+def claim(path):
+    """Create PATH inside this run's folder and prune the older runs beside it."""
+    path = Path(path)
+    path.mkdir(parents=True, exist_ok=True)
+    for folder in (path, *path.parents):
+        if folder.name == RUN:
+            prune_runs(folder.parent)
+            break
+    return path
+
+
 # CI validation runs groups concurrently, each with its own capture folder.
 OUTPUT = (Path(os.environ["JUNGLE_TEST_OUTPUT"]).resolve()
-          if os.environ.get("JUNGLE_TEST_OUTPUT") else ROOT / "build/tests/ui")
+          if os.environ.get("JUNGLE_TEST_OUTPUT") else run_folder("build/tests/ui", create=False))
 
 
 def environment():
@@ -117,7 +168,9 @@ class Desktop:
         self.screen_size = screen_size
 
     def __enter__(self):
-        OUTPUT.mkdir(parents=True, exist_ok=True)
+        claim(OUTPUT)
+        if OUTPUT == run_folder("build/tests/ui", create=False):
+            print(f"local UI captures: {OUTPUT}", flush=True)
         readfd, writefd = os.pipe()
         log = (OUTPUT / "xvfb.log").open("w")
         self.logs.append(log)

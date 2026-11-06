@@ -20,8 +20,7 @@ class TransformDesktop(rt.Desktop):
 
 
 def main():
-    scratch=rt.ROOT/'editor/test-output/native-transforms'
-    scratch.mkdir(parents=True,exist_ok=True)
+    scratch=rt.run_folder('editor/test-output/native-transforms')
     rt.OUTPUT=scratch/'captures'
     with tempfile.TemporaryDirectory(dir=scratch) as folder:
         state=Path(folder)

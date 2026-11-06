@@ -11,7 +11,7 @@ from PIL import Image, ImageChops, ImageStat
 import runtime_test as rt
 
 ROOT=rt.ROOT
-SCRATCH=ROOT/'local/art-development/four-gardens/qa'
+SCRATCH=rt.run_folder('local/art-development/four-gardens/qa',create=False)
 EXPECTED_BINARY=None
 PROCESSES=[]
 CURSORS=[]
@@ -487,7 +487,7 @@ def run_parity(binary):
 
 
 def main():
-    SCRATCH.mkdir(parents=True,exist_ok=True);rt.OUTPUT=SCRATCH/'captures'
+    rt.claim(SCRATCH);rt.OUTPUT=SCRATCH/'captures'
     binary=Path(os.environ.get('JUNGLE_TEST_BINARY',ROOT/'build/app/jungle'))
     for size,locale in (((960,600),0),((420,900),1)):run_orientation(binary,size,locale)
     run_parity(binary)
@@ -542,7 +542,7 @@ def checked_main():
     EXPECTED_BINARY=before[str(binary)]
     success=False
     started=time.time()
-    SCRATCH.mkdir(parents=True,exist_ok=True)
+    rt.claim(SCRATCH)
     try:
         main()
         success=True

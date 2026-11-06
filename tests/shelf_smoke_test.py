@@ -12,7 +12,7 @@ REST={False:(250,500),True:(300,1420)}
 
 
 def main():
-    scratch=rt.ROOT/'backup/title-smoke'
+    scratch=rt.run_folder('backup/shelf-smoke')
     rt.OUTPUT=scratch/'shelf-captures'
     data=json.loads((rt.ROOT/'tools/title_hotspots.json').read_text())
     home=data['scenes'][0]

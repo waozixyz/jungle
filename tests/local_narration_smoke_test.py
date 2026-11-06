@@ -8,8 +8,7 @@ import runtime_test as rt
 
 
 def main():
-    scratch = rt.ROOT / 'work/qwen-narration/smoke'
-    scratch.mkdir(parents=True, exist_ok=True)
+    scratch = rt.run_folder('work/qwen-narration/smoke')
     rt.OUTPUT = scratch / 'captures'
     for language in ('de', 'es'):
         for width, height in ((960, 640), (540, 900)):

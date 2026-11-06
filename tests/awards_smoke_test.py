@@ -28,8 +28,7 @@ def badge_box(width, height):
 
 def main():
     root = rt.ROOT
-    scratch = root / 'backup/awards-smoke'
-    scratch.mkdir(parents=True, exist_ok=True)
+    scratch = rt.run_folder('backup/awards-smoke')
     rt.OUTPUT = scratch / 'captures'
     binary = Path(os.environ.get('JUNGLE_TEST_BINARY', root / 'build/app/jungle'))
     for width, height in ((960, 600), (420, 900)):

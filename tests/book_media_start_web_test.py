@@ -34,8 +34,10 @@ import time
 import urllib.parse
 import urllib.request
 
+import runtime_test
+
 ROOT = Path(__file__).resolve().parents[1]
-WORK = ROOT / 'work/book-expansion-034/cold-start'
+WORK = runtime_test.run_folder('work/book-expansion-034/cold-start', create=False)
 
 
 def require(value, message):
@@ -148,7 +150,7 @@ class CDP:
 
 @contextmanager
 def browser():
-    WORK.mkdir(parents=True, exist_ok=True)
+    runtime_test.claim(WORK)
     binary = os.environ.get('CHROMIUM') or shutil.which('chromium') or shutil.which('chromium-browser')
     require(binary, 'Chromium is required')
     # Chromium singleton sockets need a short TMPDIR (Unix path limit).
@@ -522,7 +524,7 @@ def main():
             except Exception as error:
                 result = {'renderer':renderer,'ok':False,'error':str(error)}
             results.append(result)
-            WORK.mkdir(parents=True, exist_ok=True)
+            runtime_test.claim(WORK)
             (WORK/(renderer+'-receipt.json')).write_text(json.dumps(result, indent=2)+'\n')
             print(renderer+': '+('PASS' if result['ok'] else 'FAIL')+' '+json.dumps({k:v for k,v in result.items() if k not in ('scenarios',)}))
             for scenario in result.get('scenarios',[]):

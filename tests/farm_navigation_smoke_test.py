@@ -11,8 +11,7 @@ from world_map_smoke_test import scene_keys
 
 
 def main():
-    scratch = rt.ROOT / 'backup/farm-navigation'
-    scratch.mkdir(parents=True, exist_ok=True)
+    scratch = rt.run_folder('backup/farm-navigation')
     rt.OUTPUT = scratch / 'captures'
     data = json.loads((rt.ROOT / 'tools/title_hotspots.json').read_text())
     scenes = {s['name']: s for s in data['scenes']}

@@ -22,10 +22,11 @@ import threading
 import time
 
 import book_media_start_web_test as headless
+import runtime_test
 from runtime_test import title_keys
 
 ROOT = Path(__file__).resolve().parents[1]
-headless.WORK = ROOT/'local/activity-loading/browser'
+headless.WORK = runtime_test.run_folder('local/activity-loading', create=False)/'browser'
 
 PROBE = r"""
 window.loadingProbe={fetches:[],starts:[],overlay:[]};

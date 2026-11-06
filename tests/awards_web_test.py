@@ -22,7 +22,7 @@ import runtime_test
 from awards_smoke_test import gold
 
 ROOT = Path(__file__).resolve().parents[1]
-web.WORK = ROOT / 'local/awards-web/browser'
+web.WORK = runtime_test.run_folder('local/awards-web', create=False) / 'browser'
 WIDTH, HEIGHT, HEADER = 1280, 675, 56
 STARTED = 'typeof Module!=="undefined"&&!!Module.FS&&document.getElementById("loading").style.display==="none"'
 LOADED = '(() => { const o = document.getElementById("activity-loading"); return !o || o.hidden })()'

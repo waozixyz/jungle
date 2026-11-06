@@ -10,8 +10,7 @@ import runtime_test as rt
 
 def main():
     root = rt.ROOT
-    scratch = root/'backup/title-smoke'
-    scratch.mkdir(parents=True, exist_ok=True)
+    scratch = rt.run_folder('backup/title-smoke')
     rt.OUTPUT = scratch/'captures'
     data = json.loads((root/'tools/title_hotspots.json').read_text())
     home = data['scenes'][0]

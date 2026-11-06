@@ -20,7 +20,7 @@ import book_media_start_web_test as web
 import runtime_test
 
 ROOT = Path(__file__).resolve().parents[1]
-web.WORK = ROOT / 'local/farm-web/browser'
+web.WORK = runtime_test.run_folder('local/farm-web', create=False) / 'browser'
 WIDTH, HEIGHT, HEADER = 1280, 675, 56
 
 

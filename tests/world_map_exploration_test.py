@@ -19,8 +19,7 @@ def opaque_mist(picture, box):
 
 
 def main():
-    scratch = rt.ROOT / 'backup/world-map-exploration'
-    scratch.mkdir(parents=True, exist_ok=True)
+    scratch = rt.run_folder('backup/world-map-exploration')
     rt.OUTPUT = scratch / 'captures'
     data = json.loads((rt.ROOT / 'tools/title_hotspots.json').read_text())
     world = next(s for s in data['scenes'] if s['name'] == 'map')

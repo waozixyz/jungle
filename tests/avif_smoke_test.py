@@ -16,7 +16,8 @@ ROOT = rt.ROOT
 sys.path.insert(0, str(ROOT/'tools'))
 from avif_codec import save_avif
 from book_catalog import WORDS
-OUTPUT = Path(os.environ.get('JUNGLE_AVIF_SMOKE_OUTPUT', ROOT / 'local/art-development/avif-standard/smoke'))
+OUTPUT = (Path(os.environ['JUNGLE_AVIF_SMOKE_OUTPUT']) if os.environ.get('JUNGLE_AVIF_SMOKE_OUTPUT')
+          else rt.run_folder('local/art-development/avif-standard/smoke', create=False))
 GAMES = ('Animal Counting', 'Picture Book', '123 Book', 'ABC Book', 'Coloring Book',
          'Jigsaw Puzzles', 'Little Piano', 'Shapes & Sorting', 'Hide & Seek',
          'Matching Pairs', 'Music Room', 'Farm', 'Little Fishing Boat', 'Crab Family Counting')
@@ -104,7 +105,7 @@ def main():
     parser.add_argument('--binary', type=Path, default=ROOT/'build/app/jungle')
     args = parser.parse_args()
     binary = args.binary.resolve()
-    OUTPUT.mkdir(parents=True, exist_ok=True)
+    rt.claim(OUTPUT)
     rt.OUTPUT = OUTPUT
     captures = []
     with tempfile.TemporaryDirectory(dir=OUTPUT) as folder:
