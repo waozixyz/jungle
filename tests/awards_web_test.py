@@ -26,13 +26,7 @@ web.WORK = runtime_test.run_folder('local/awards-web', create=False) / 'browser'
 WIDTH, HEIGHT, HEADER = 1280, 675, 56
 STARTED = 'typeof Module!=="undefined"&&!!Module.FS&&document.getElementById("loading").style.display==="none"'
 LOADED = '(() => { const o = document.getElementById("activity-loading"); return !o || o.hidden })()'
-# settings/awards.txt in the page's app documents (/kryon-apps/<app id>/).
-AWARDS = r"""(() => { try {
-  for (const name of Module.FS.readdir('/kryon-apps')) {
-    if (name[0] === '.') continue
-    try { return Module.FS.readFile('/kryon-apps/' + name + '/settings/awards.txt', {encoding: 'utf8'}) } catch (e) {}
-  }
-} catch (e) {} return '' })()"""
+AWARDS = web.AWARDS
 SHAPES = 'JUNGLE AWARDS 1\naward-shapes\n'
 
 

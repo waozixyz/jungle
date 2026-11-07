@@ -17,6 +17,22 @@ sys.path.insert(0, str(ROOT/'tools'))
 from web_images import (PREVIEW_FOLDERS, PREVIEW_PIXELS, prepare_native_previews, prepare_previews,  # noqa: E402
                         preview_path)
 from build_web import preview_group  # noqa: E402
+from avif_codec import save_avif  # noqa: E402
+
+
+def check_cutout_preview(name, original, small, scratch):
+    """A transparent preview is the Lanczos thumbnail in the cut-out standard:
+    exact alpha and q70 4:4:4 color, byte for byte what the canonical encoder
+    writes for that thumbnail."""
+    expected = original.convert('RGBA')
+    expected.thumbnail((PREVIEW_PIXELS, PREVIEW_PIXELS), Image.Resampling.LANCZOS)
+    decoded = small.convert('RGBA')
+    assert decoded.getchannel('A').tobytes() == expected.getchannel('A').tobytes(), (name, 'alpha changed')
+    reference = Path(scratch)/'reference.avif'
+    save_avif(expected, reference, lossless=True)
+    with Image.open(reference) as encoded:
+        assert decoded.tobytes() == encoded.convert('RGBA').tobytes(), (name, 'not the canonical cut-out encode')
+
 
 samples = {}
 for folder in sorted(PREVIEW_FOLDERS):
@@ -41,9 +57,7 @@ with tempfile.TemporaryDirectory(prefix='preview-test-', dir=ROOT/'work') as cac
             if source_alpha:
                 lowest = original.convert('RGBA').getchannel('A').getextrema()[0]
                 assert small.mode == 'RGBA', (name, small.mode)
-                expected = original.convert('RGBA')
-                expected.thumbnail((PREVIEW_PIXELS, PREVIEW_PIXELS), Image.Resampling.LANCZOS)
-                assert small.convert('RGBA').tobytes() == expected.tobytes(), name
+                check_cutout_preview(name, original, small, cache)
                 if lowest == 0:
                     assert small.getchannel('A').getextrema()[0] < 16, (name, 'transparency lost')
                     transparent += 1
@@ -69,9 +83,7 @@ with tempfile.TemporaryDirectory(prefix='native-preview-test-', dir=ROOT/'work')
             source_alpha = original.mode in ('RGBA', 'LA') or 'transparency' in original.info
             if source_alpha:
                 assert small.mode == 'RGBA', (name, small.mode)
-                expected = original.convert('RGBA')
-                expected.thumbnail((PREVIEW_PIXELS, PREVIEW_PIXELS), Image.Resampling.LANCZOS)
-                assert small.convert('RGBA').tobytes() == expected.tobytes(), name
+                check_cutout_preview(name, original, small, scratch)
                 if original.convert('RGBA').getchannel('A').getextrema()[0] == 0:
                     assert small.getchannel('A').getextrema()[0] < 16, (name, 'transparency lost')
                     native_transparent += 1

@@ -343,6 +343,17 @@ def fingerprint(base_url, renderer):
     return result
 
 
+# settings/awards.txt in the page's app documents (/kryon-apps/<app id>/).
+AWARDS = r"""(() => { try {
+  for (const name of Module.FS.readdir('/kryon-apps')) {
+    if (name[0] === '.') continue
+    try { return Module.FS.readFile('/kryon-apps/' + name + '/settings/awards.txt', {encoding: 'utf8'}) } catch (e) {}
+  }
+} catch (e) {} return '' })()"""
+# The whole award show (host/jungle_awards.zi AWARD_SHOW_SECONDS 2.95) plus a margin.
+AWARD_SHOW_WAIT = 4
+
+
 def open_picture_book(client):
     """Use the real title's keyboard route, including painted scene hotspots."""
     painted = client.evaluate('typeof imagePaths!=="undefined"&&[...imagePaths].some(p=>p.startsWith("assets/jungle/title/"))')
@@ -372,6 +383,10 @@ def test_first_book_media_start(base_url: str, renderer: str):
                     c.until('typeof Module!=="undefined"&&!!Module.FS&&document.getElementById("loading").style.display==="none"', 'wasm startup', 90)
                     c.evaluate('probe.install()')
                     open_picture_book(c)
+                    # A fresh profile's first Picture Book opening earns its award;
+                    # let that badge finish before the first page's voice is judged.
+                    c.until(AWARDS+'.includes("award-picture-book")', 'Picture Book award', 30)
+                    time.sleep(AWARD_SHOW_WAIT)
                     # 0 opens saved category 9 independently of shelf geometry.
                     c.evaluate('probe.mode='+json.dumps(mode)+';probe.armed=true')
                     c.evaluate('probe.opened=performance.now()'); c.key('0')

@@ -70,6 +70,7 @@ test-web-images: web
 	python3 tests/image_exports_test.py
 	python3 tests/runtime_images_test.py
 	python3 tests/web_images_test.py
+	python3 tests/web_previews_test.py
 
 locales:
 	python3 tools/locales.py
