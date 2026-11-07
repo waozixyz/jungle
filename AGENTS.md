@@ -123,7 +123,9 @@ is in `tools/book_prompts.json`; the full-size originals are kept in
   hotspots with `"object"` follow their layer. `tools/title_room.py` rebuilds
   the layers from the ignored masters in `local/art-development/treehouse-room/`.
   No picture board hangs above the ladder. The round window opens a look-only
-  view outside with only the top-left Back button.
+  view outside with only the top-left Back button: the world map's coast, white
+  dunes and lagoons beyond the jungle (tools/title_window_view.py; the frame,
+  twig, leaves and clouds stay their own layers).
 - Picture Book includes Clothing and Seasons, with the same full-scene art
   and complete English, German and Spanish names and narration as every book.
 
@@ -159,13 +161,18 @@ is in `tools/book_prompts.json`; the full-size originals are kept in
   Market (AppService "jungle.home" "scene:market"). Path edits regenerate only
   a crop around the join (local/art-development/market, campus-object-layers).
   Desert (Wüste, tools/title_desert.py) looks like the world map: white dunes,
-  a turquoise lagoon oasis and a giant tree at the left whose one branch
-  reaches only about half the width (portrait adds a shorter lower-crown
-  limb), painted without birds. Every bird is its own cut-out layer (no camel
-  or person), laid out along the measured limb lines in PERCHES; tapping
-  any opens the parrots' tap-through speech bubble beside the macaw
-  (tools/title_dialogue.json, EN/DE/ES, narrated), never a caption along the
-  bottom. A left plank returns to Campus.
+  a turquoise lagoon oasis and a giant tree at the left with two clear mossy
+  branches, painted without birds. At the start no bird sits there: a magic
+  bird house (its own cut-out layer) hangs under the lower branch, and
+  PERCHES holds the 18 empty perch slots its birds will fill later, each bird
+  its own layer (no camel or person). Tapping the bird house opens the
+  tap-through speech bubble beside it (tools/title_dialogue.json, EN/DE/ES,
+  narrated), never a caption along the bottom. This has nothing to do with the
+  Treehouse window toucan's daily gift. A left plank returns to Campus.
+  Beach, Port, Market and Aquarium sand is the world map's white sand
+  (tools/title_map_palette.py). Each Beach crab is its own cut-out with its own
+  walk on the dry sand (tools/title_beach_crabs.py, a hotspot "walk"); smaller
+  crabs walk further back, and any crab opens Crab Family Counting.
 - Campus uses portrait-jungle-path-between (portrait-connected-desert-right
   with its Jungle Path starting between the treehouse and the music hut, the
   old left path removed and the frogs on the rocks; Farm left, Desert right) and

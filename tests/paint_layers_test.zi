@@ -11,7 +11,7 @@ Fail :: (step: s32) -> s32 { Report(Cat("paint layers failed at ", NumberText(st
 BodySeed :: (id: s32) -> s32 {
     object := *layers[id]
     for at: cast(s32)0..object.w * object.h - 1 {
-        if object.pixels[at] == cast(u8)PAPER && owner[(object.y + at / object.w) * CANVAS_WIDTH + object.x + at % object.w] == cast(u8)(id + 1) { return at }
+        if object.pixels[at] == cast(u8)PAPER && owner[(object.y + at / object.w) * WIDE_PAGE.width + object.x + at % object.w] == cast(u8)(id + 1) { return at }
     }
     return -1
 }
@@ -30,7 +30,7 @@ TestLayer :: (x: s32, y: s32, w: s32, h: s32, color: u8) {
     for at: cast(s32)0..w * h - 1 { object.pixels[at] = color }
     layer_order[layer_count] = id
     layer_count += 1; layer_pixels += w * h
-    CanvasOverlay(id, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
+    CanvasOverlay(id, 0, 0, WIDE_PAGE.width, WIDE_PAGE.height)
 }
 
 RotationTests :: () -> s32 {
@@ -38,15 +38,15 @@ RotationTests :: () -> s32 {
     HistoryClear()
     bare := PictureText()
     if CanvasRotateObject(100, 100, 90.0) || CanvasRotateObject(-1, 0, 90.0) || CanvasRotateObject(960, 720, 90.0) || PictureText() != bare || history_count != 0 { return 30 }
-    canvas[101 * CANVAS_WIDTH + 100] = cast(u8)23
-    canvas[100 * CANVAS_WIDTH + 102] = cast(u8)24
+    canvas[101 * WIDE_PAGE.width + 100] = cast(u8)23
+    canvas[100 * WIDE_PAGE.width + 102] = cast(u8)24
     TestLayer(100, 100, 3, 2, cast(u8)20)
     background := PictureRunsText(base[:])
     pattern: [6]u8 = .[16, 17, 18, 19, 255, 21]
     for at: cast(s32)0..5 { layers[0].pixels[at] = pattern[at] }
-    canvas[101 * CANVAS_WIDTH + 101] = cast(u8)PAPER
-    owner[101 * CANVAS_WIDTH + 101] = 0
-    CanvasOverlay(0, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
+    canvas[101 * WIDE_PAGE.width + 101] = cast(u8)PAPER
+    owner[101 * WIDE_PAGE.width + 101] = 0
+    CanvasOverlay(0, 0, 0, WIDE_PAGE.width, WIDE_PAGE.height)
     before := PictureText()
     HistoryPush()
     if CanvasRotateObject(900, 700, 90.0) || history_count != 1 || PictureText() != before { return 50 }
@@ -70,8 +70,8 @@ RotationTests :: () -> s32 {
     // only the top owner. Neither rotation can flatten or reorder layers.
     TestLayer(400, 300, 3, 2, cast(u8)30)
     layers[1].pixels[0] = cast(u8)TRANSPARENT
-    canvas[300 * CANVAS_WIDTH + 400] = cast(u8)25
-    owner[300 * CANVAS_WIDTH + 400] = 1
+    canvas[300 * WIDE_PAGE.width + 400] = cast(u8)25
+    owner[300 * WIDE_PAGE.width + 400] = 1
     if !CanvasRotateObject(400, 300, 90.0) || layers[0].w != 3 || layers[1].w != 3 || layers[1].pixels[1] != cast(u8)30 { return 41 }
     lower := PictureRunsText(layers[0].pixels)
     if !CanvasRotateObject(401, 300, 90.0) || layers[1].w != 2 || PictureRunsText(layers[0].pixels) != lower || layer_order[0] != 0 || layer_order[1] != 1 { return 42 }
@@ -152,7 +152,7 @@ RotationTests :: () -> s32 {
     CanvasBlank()
     TestLayer(100, 100, 10, 10, cast(u8)TRANSPARENT)
     for y: cast(s32)2..7 { for x: cast(s32)3..6 { layers[0].pixels[y * 10 + x] = cast(u8)38 } }
-    CanvasOverlay(0, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
+    CanvasOverlay(0, 0, 0, WIDE_PAGE.width, WIDE_PAGE.height)
     extent := CanvasObjectBounds(0)
     if extent.x != 103 || extent.y != 102 || extent.w != 4 || extent.h != 6 || CanvasObjectAt(100, 100) != -1 || CanvasObjectAt(103, 102) != 0 { return 63 }
     if !CanvasRotateObject(103, 102, 45.0) || layers[0].x < 0 || layers[0].y < 0 || !PictureValid(PictureText()) { return 64 }
@@ -162,7 +162,7 @@ RotationTests :: () -> s32 {
         TestLayer(corner * 920, corner * 700, 40, 20, cast(u8)41)
         if !CanvasRotateObject(corner * 920, corner * 700, -23.5) { return 65 }
         object := *layers[0]
-        if object.x < 0 || object.y < 0 || object.x + object.w > CANVAS_WIDTH || object.y + object.h > CANVAS_HEIGHT || !PictureValid(PictureText()) { return 66 }
+        if object.x < 0 || object.y < 0 || object.x + object.w > WIDE_PAGE.width || object.y + object.h > WIDE_PAGE.height || !PictureValid(PictureText()) { return 66 }
     }
     return 0
 }
@@ -254,7 +254,7 @@ PlacementTests :: () -> s32 {
     original := PictureText()
     for degrees: cast(s32)0..359 {
         plan := CanvasPlacement(0, -400, 1200, 960, cast(float32)degrees, true)
-        if !plan.valid || plan.x < 0 || plan.y < 0 || plan.x + plan.w > CANVAS_WIDTH || plan.y + plan.h > CANVAS_HEIGHT { return 70 }
+        if !plan.valid || plan.x < 0 || plan.y < 0 || plan.x + plan.w > WIDE_PAGE.width || plan.y + plan.h > WIDE_PAGE.height { return 70 }
     }
     if CanvasPlacement(-1, 0, 0, 100, 0.0, false).valid || CanvasPlacement(0, 0, 0, 0, 0.0, false).valid { return 71 }
     // Preparing a non-right angle at a continuous size changes no document or Undo.

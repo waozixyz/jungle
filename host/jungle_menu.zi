@@ -748,10 +748,11 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
         // Separate navigation objects sit behind the foreground tiger.
         if TitleHotspotRest(hotspot) != "" && TITLE_SIGN_LABEL[hotspot] == "" && (TITLE_SCENE_FOREGROUND[scene] == "" || layered) {
             rect := hotspot * 4
-            wobble := (TitleLockedWobble(title_state, hotspot, now) + TitleHotspotMotionX(hotspot, now)) * view.scale
+            motion := TitleHotspotMotion(hotspot, now)
+            wobble := (TitleLockedWobble(title_state, hotspot, now) + motion.x) * view.scale
             TitlePicture(session, TitleHotspotRest(hotspot), Rectangle.{
                 picture.x + cast(float32)TITLE_GLOW_RECT[rect] * view.scale + wobble,
-                picture.y + cast(float32)TITLE_GLOW_RECT[rect + 1] * view.scale,
+                picture.y + (cast(float32)TITLE_GLOW_RECT[rect + 1] + motion.y) * view.scale,
                 cast(float32)TITLE_GLOW_RECT[rect + 2] * view.scale,
                 cast(float32)TITLE_GLOW_RECT[rect + 3] * view.scale}, 0, cast(float32)TITLE_HOTSPOT_ROTATION[hotspot] / 100.0)
         }
@@ -795,9 +796,10 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
                 cast(float32)TITLE_GLOW_RECT[rect + 3] * view.scale},
                 .fill = ColorFromPacked(0xfff7cd45), .radius = 16.0 * view.scale})
         }
+        motion := TitleHotspotMotion(glowing, now)
         TitlePicture(session, TitleHotspotGlow(glowing), Rectangle.{
-            picture.x + (cast(float32)TITLE_GLOW_RECT[rect] + TitleLockedWobble(title_state, glowing, now) + TitleHotspotMotionX(glowing, now)) * view.scale,
-            picture.y + cast(float32)TITLE_GLOW_RECT[rect + 1] * view.scale,
+            picture.x + (cast(float32)TITLE_GLOW_RECT[rect] + TitleLockedWobble(title_state, glowing, now) + motion.x) * view.scale,
+            picture.y + (cast(float32)TITLE_GLOW_RECT[rect + 1] + motion.y) * view.scale,
             cast(float32)TITLE_GLOW_RECT[rect + 2] * view.scale,
             cast(float32)TITLE_GLOW_RECT[rect + 3] * view.scale}, cast(u32)0xffffff00 | alpha, cast(float32)TITLE_HOTSPOT_ROTATION[glowing] / 100.0)
     }

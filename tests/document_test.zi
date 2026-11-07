@@ -67,13 +67,13 @@ main :: () -> s32 {
     // Old palette-only records import exactly, each pixel a 4 by 4 block.
     for at: cast(s32)0..OLD_PIXELS - 1 { old[at] = #char "p" }
     old[0] = #char "a"
-    if !PictureLoad(TextView(old[:])) || canvas[0] != INK || canvas[3 * CANVAS_WIDTH + 3] != INK ||
-    canvas[4] != 15 || canvas[4 * CANVAS_WIDTH] != 15 { return 9 }
+    if !PictureLoad(TextView(old[:])) || canvas[0] != INK || canvas[3 * WIDE_PAGE.width + 3] != INK ||
+    canvas[4] != 15 || canvas[4 * WIDE_PAGE.width] != 15 { return 9 }
     // Version 1 pictures keep their scene, crayon, story, colors and lines;
     // black outside their line mask stays paint.
     if !PictureLoad(VersionOne(false)) || scene != 3 || crayon != 20 || TextUntilNul(story[0][:]) != "Old story" { return 12 }
-    if canvas[CANVAS_WIDTH * 3 + 959] != INK || canvas[CANVAS_WIDTH * 4] != 18 { return 13 }
-    if !PictureLoad(VersionOne(true)) || canvas[0] != cast(u8)BLACK_PAINT || CanvasFill(0, 0, 20) != CANVAS_WIDTH * 4 { return 14 }
+    if canvas[WIDE_PAGE.width * 3 + 959] != INK || canvas[WIDE_PAGE.width * 4] != 18 { return 13 }
+    if !PictureLoad(VersionOne(true)) || canvas[0] != cast(u8)BLACK_PAINT || CanvasFill(0, 0, 20) != WIDE_PAGE.width * 4 { return 14 }
     upgraded := PictureText()
     if !PictureLoad(upgraded) || PictureText() != upgraded { return 15 }
     // The existing fixed-width story format preserves accented cells, while
@@ -109,5 +109,32 @@ main :: () -> s32 {
         if saved[PICTURE_HEADER.count] != PAINT_CODES[chosen + 1] || !PictureLoad(saved) ||
             scene != chosen || PictureText() != saved { return 21 }
     }
+    // A tall page keeps its stencil and page through saving, and the marker
+    // never appears on wide pictures, so their records stay as they were.
+    scene = 3
+    if !SceneOpen(3, TALL_PAGE) || canvas_page.height != 960 { return 30 }
+    canvas[719 + 900 * 720] = cast(u8)25
+    tall := PictureText()
+    if tall[PICTURE_HEADER.count + 2] != PICTURE_TALL || PicturePage(tall).width != 720 { return 31 }
+    if CanvasVectorOps()[:14] != "D 720 960\nS 3\n" { return 32 }
+    unused SceneOpen(3)
+    wide := PictureText()
+    if wide[PICTURE_HEADER.count + 2] != cast(u8)10 || CanvasVectorOps()[:4] != "S 3\n" { return 33 }
+    if !PictureLoad(tall) || canvas_page.height != 960 || scene != 3 || PictureText() != tall ||
+        canvas[719 + 900 * 720] != cast(u8)25 { return 34 }
+    if !PictureLoad(wide) || canvas_page.width != 960 || PictureText() != wide { return 35 }
+    // A stencil low on a tall page fits only that page: without the marker
+    // the same record would reach below a wide page and is refused.
+    unused SceneOpen(3, TALL_PAGE)
+    plan := CanvasPlacement(0, 360, 900, 300, 0.0, false)
+    if !plan.valid || plan.y + plan.h <= 720 || plan.y + plan.h > 960 || plan.x + plan.w > 720 { return 36 }
+    if !CanvasPlacementPrepare(plan) || !CanvasPlacementCommit(plan) { return 37 }
+    layered := PictureText()
+    if layered[:LAYER_HEADER.count] != LAYER_HEADER || !PictureLoad(layered) || layer_count != 1 ||
+        canvas_page.height != 960 || PictureText() != layered { return 38 }
+    unmarked: Vec(u8)
+    BuilderPrint(*unmarked, "%", layered[:PICTURE_HEADER.count + 2])
+    BuilderPrint(*unmarked, "%", layered[PICTURE_HEADER.count + 3:])
+    if PictureValid(BuilderFinish(unmarked)) { return 39 }
     return 0
 }

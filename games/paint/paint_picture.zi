@@ -7,14 +7,20 @@
 #import "std/vec"
 #import, file "paint_palette.zi";
 
-CANVAS_WIDTH :: 960
-CANVAS_HEIGHT :: 720
-CANVAS_PIXELS :: CANVAS_WIDTH * CANVAS_HEIGHT
+// A picture's page is wide (960 by 720) or tall (720 by 960). Both hold the
+// same pixels, so every buffer fits either page.
+PaintPage :: struct { width: s32; height: s32; }
+WIDE_PAGE :: PaintPage.{960, 720}
+TALL_PAGE :: PaintPage.{720, 960}
+CANVAS_PIXELS :: 960 * 720
 // Pictures painted before the vector artwork were a quarter as wide and tall.
 OLD_WIDTH :: 240
 OLD_HEIGHT :: 180
 OLD_PIXELS :: OLD_WIDTH * OLD_HEIGHT
 PICTURE_RUNS :: "paint runs\n"
+PICTURE_TALL_RUNS :: "paint runs tall\n"
+
+PageIsTall :: (page: PaintPage) -> bool { return page.height > page.width }
 
 RunDigit :: (byte: u8) -> s32 {
     if byte >= #char "0" && byte <= #char "9" { return cast(s32)(byte - #char "0") }
@@ -81,18 +87,27 @@ PictureRunsScan :: (text: string, pixels: []u8, total: s64, transparent: bool = 
     return at
 }
 
-// A picture as the game hands it to its app: PICTURE_RUNS, then the runs.
-PictureRunsText :: (pixels: []u8) -> Text {
+// A picture as the game hands it to its app: PICTURE_RUNS for a wide page or
+// PICTURE_TALL_RUNS for a tall one, then the runs.
+PictureRunsHeader :: (page: PaintPage) -> string {
+    return ifx PageIsTall(page) then PICTURE_TALL_RUNS else PICTURE_RUNS
+}
+
+PictureRunsText :: (pixels: []u8, page: PaintPage = WIDE_PAGE) -> Text {
     text: Vec(u8)
-    BuilderPrint(*text, "%", PICTURE_RUNS)
+    BuilderPrint(*text, "%", PictureRunsHeader(page))
     PictureRunsAppend(*text, pixels)
     return BuilderFinish(text)
 }
 
-// Reads a picture from the game; returns the bytes it used, or -1.
-PictureFromGame :: (request: string, pixels: []u8) -> s64 {
+// Reads a picture from the game and its page; returns the bytes it used, or -1.
+PictureFromGame :: (request: string, pixels: []u8, page: *PaintPage) -> s64 {
     header := PICTURE_RUNS.count
-    if request.count < header || request[:header] != PICTURE_RUNS { return -1 }
+    page.* = WIDE_PAGE
+    if request.count >= PICTURE_TALL_RUNS.count && request[:PICTURE_TALL_RUNS.count] == PICTURE_TALL_RUNS {
+        header = PICTURE_TALL_RUNS.count
+        page.* = TALL_PAGE
+    } else if request.count < header || request[:header] != PICTURE_RUNS { return -1 }
     used := PictureRunsRead(request[header:], pixels)
     if used < 0 { return -1 }
     return header + used

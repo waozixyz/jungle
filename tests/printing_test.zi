@@ -1,6 +1,7 @@
 #import "std/c_string"
 #import "std/byte_text_linux"
 #import "std/text_buffer"
+#import "std/text_tools"
 #import "std/file"
 #import "app_files"
 #import, file "../host/printing.zi";
@@ -15,7 +16,7 @@ main :: (argc: s32, argv: **u8) -> s32 {
     files: AppFiles
     if !AppFilesOpen(*files, TextFromCString(argv[1])) { return 2 }
     defer { AppFilesClose(*files) }
-    for at: cast(s32)0..CANVAS_PIXELS - 1 { pixels[at] = cast(u8)(16 + (at / CANVAS_WIDTH) % 30) }
+    for at: cast(s32)0..CANVAS_PIXELS - 1 { pixels[at] = cast(u8)(16 + (at / WIDE_PAGE.width) % 30) }
     text: Vec(u8)
     BuilderPrint(*text, "%", PictureRunsText(pixels[:]))
     BuilderPrint(*text, "My dinosaur (and friend)\\hello\nGrüße, niño, piña, ratón\n\n\n\n\n\n\n")
@@ -23,5 +24,8 @@ main :: (argc: s32, argv: **u8) -> s32 {
     if ExportPicture(*files, request, false) != "exported" { return 3 }
     if ExportPicture(*files, request, true) != "printed" { return 4 }
     if ExportPicture(*files, "paint runs\ninvalid", false) != "failed" { return 5 }
+    // A tall picture stands 3 by 4 inside the wide picture's 480 by 360 box.
+    if TextFind(PrintPage(pixels[:], "", TALL_PAGE), "171 360 translate\n270 360 scale\n720 960 8") < 0 { return 6 }
+    if TextFind(PrintPage(pixels[:], ""), "66 360 translate\n480 360 scale\n960 720 8") < 0 { return 7 }
     return 0
 }

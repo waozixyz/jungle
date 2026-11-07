@@ -43,8 +43,8 @@ PalmFillStaysInside :: (scene: s32, x: s32, y: s32, left: s32, top: s32, right: 
     }
     for at: cast(s32)0..CANVAS_PIXELS - 1 {
         if canvas[at] != 30 { continue }
-        px := at % CANVAS_WIDTH
-        py := at / CANVAS_WIDTH
+        px := at % WIDE_PAGE.width
+        py := at / WIDE_PAGE.width
         if px < left || px >= right || py < top || py >= bottom {
             Report(Cat("palm fill escaped: ", NumberText(scene), " ", NumberText(x), ",", NumberText(y), "\n"))
             return false
@@ -96,7 +96,7 @@ PencilShapeFillPass :: () -> bool {
     }
     for at: cast(s32)0..CANVAS_PIXELS - 1 {
         if canvas[at] != 30 { continue }
-        x := at % CANVAS_WIDTH; y := at / CANVAS_WIDTH
+        x := at % WIDE_PAGE.width; y := at / WIDE_PAGE.width
         if x < 102 || x > 197 || y < 102 || y > 197 {
             Report("paint test: fill escaped the closed pencil shape\n"); return false
         }
@@ -190,12 +190,13 @@ main :: (argc: s32, argv: **u8) -> s32 {
         if ink < 20000 || ink > CANVAS_PIXELS / 3 { return PaintFail("scene", Cat("odd amount of line: ", NumberText(ink))) }
         start: s32 = 0
         while canvas[start] != cast(u8)PAPER { start += 1 }
-        filled := CanvasFill(start % CANVAS_WIDTH, start / CANVAS_WIDTH, 25)
+        filled := CanvasFill(start % WIDE_PAGE.width, start / WIDE_PAGE.width, 25)
         if filled == 0 { return PaintFail("scene", "the fill painted nothing") }
         if filled > CANVAS_PIXELS - ink - 1000 { return PaintFail("scene", "the fill ran through the lines") }
         for at: cast(s32)0..CANVAS_PIXELS - 1 { copy[at] = canvas[at] }
         text := CanvasText()
-        if PictureFromGame(text, read_back[:]) != text.count { return PaintFail("scene", "its picture text did not read back") }
+        page: PaintPage
+        if PictureFromGame(text, read_back[:], *page) != text.count || page.width != WIDE_PAGE.width { return PaintFail("scene", "its picture text did not read back") }
         for at: cast(s32)0..CANVAS_PIXELS - 1 {
             if read_back[at] != copy[at] { return PaintFail("scene", "its picture text changed a pixel") }
         }
@@ -227,11 +228,11 @@ main :: (argc: s32, argv: **u8) -> s32 {
     for dino: cast(s32)0..DINO_COUNT - 1 {
         huge_w := DinoWidth(dino, DINO_SIZES)
         huge_h := DinoHeight(dino, DINO_SIZES)
-        if huge_w != CANVAS_WIDTH && huge_h != CANVAS_HEIGHT { return PaintFail("dino", "Huge does not fill the picture") }
+        if huge_w != WIDE_PAGE.width && huge_h != WIDE_PAGE.height { return PaintFail("dino", "Huge does not fill the picture") }
         for size: cast(s32)1..DINO_SIZES {
             w := DinoWidth(dino, size)
             h := DinoHeight(dino, size)
-            if w > CANVAS_WIDTH || h > CANVAS_HEIGHT || w < huge_w * size / 4 - 2 || h < huge_h * size / 4 - 2 {
+            if w > WIDE_PAGE.width || h > WIDE_PAGE.height || w < huge_w * size / 4 - 2 || h < huge_h * size / 4 - 2 {
                 return PaintFail("dino", "a selectable size has the wrong shape")
             }
             Blank()
@@ -261,13 +262,13 @@ main :: (argc: s32, argv: **u8) -> s32 {
             for mirror: cast(s32)0..1 {
                 CanvasLayersClear()
                 for at: cast(s32)0..CANVAS_PIXELS - 1 { canvas[at] = cast(u8)(ifx at % 2 == 0 then INK else 17) }
-                x := CANVAS_WIDTH - w
+                x := WIDE_PAGE.width - w
                 CanvasStampDino(dino, size, x, 0, mirror == 1)
                 white: s32 = 0
                 preserved: s32 = 0
                 for at: cast(s32)0..CANVAS_PIXELS - 1 {
-                    px := at % CANVAS_WIDTH - x
-                    py := at / CANVAS_WIDTH
+                    px := at % WIDE_PAGE.width - x
+                    py := at / WIDE_PAGE.width
                     old := cast(u8)(ifx at % 2 == 0 then INK else 17)
                     if px < 0 || py >= h {
                         if canvas[at] != old { return PaintFail("placement", "changed artwork outside the dinosaur bounds") }

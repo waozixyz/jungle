@@ -51,6 +51,8 @@ ZoomInIcon :: #import "mingcute/mingcute_regular_zoom_in";
 ZoomOutIcon :: #import "mingcute/mingcute_regular_zoom_out";
 FitIcon :: #import "mingcute/mingcute_regular_fullscreen";
 StarIcon :: #import "mingcute/mingcute_filled_star";
+PaletteIcon :: #import "mingcute/mingcute_regular_palette";
+CloseIcon :: #import "mingcute/mingcute_regular_close";
 
 FONT :: "assets/dino-paint/font.png"
 SOUNDS :: "assets/dino-paint/sounds/"
@@ -301,7 +303,7 @@ OpenScene :: (index: s32) {
     scene = index
     last_scene = ifx index == BLANK_SCENE then -1 else index
     ChoicesSave()
-    unused SceneOpen(index)
+    unused SceneOpen(index, NewPicturePage())
     PictureViewReset()
     placing = false
     erasing = false
@@ -440,13 +442,33 @@ PaintPointer :: () -> PointerFrame {
     return pointer
 }
 
+// Whether the picture's page turned since the view was fitted to it.
+PicturePageChanged :: () -> bool {
+    return picture_view.page_width != cast(float32)canvas_page.width || picture_view.page_height != cast(float32)canvas_page.height
+}
+
+// Images made for the other page would show stretched, so a new page drops
+// them and makes its own.
+PicturePageImagesDrop :: () {
+    canvas_name[0] = 0; canvas_shown_name[0] = 0
+    ink_page_name[0] = 0; ink_tile_name[0] = 0
+    ink_page_stale = true; ink_tile_stale = true
+    dirty = true
+}
+
 // Reads this frame's fingers, wheel and pan, before the picture's gestures.
 PictureViewFrame :: () {
     viewport := CanvasScreen()
-    if !picture_view_ready {
-        picture_view = ViewFit(viewport, cast(float32)CANVAS_WIDTH, cast(float32)CANVAS_HEIGHT, PICTURE_ZOOM_MAXIMUM)
+    if !picture_view_ready || PicturePageChanged() {
+        PicturePageImagesDrop()
+        picture_view = ViewFit(viewport, cast(float32)canvas_page.width, cast(float32)canvas_page.height, PICTURE_ZOOM_MAXIMUM)
         picture_view_ready = true
     } else { ViewSetViewport(*picture_view, viewport) }
+    if tools_open {
+        if picture_view.pinching { ViewPinchEnd(*picture_view) }
+        view_pan_active = false
+        return
+    }
     zoom := picture_view.zoom; page_x := picture_view.page_x; page_y := picture_view.page_y
     reply := AppService("jungle.touches", "")
     at: s64 = 0
@@ -508,8 +530,7 @@ PictureInkRefresh :: () {
     settled := retro.now - picture_view_changed_at >= INK_SETTLE_SECONDS && !picture_view.pinching && !view_pan_active
     if ink_page_stale || width != ink_page_width || height != ink_page_height {
         name := GameCanvasService("jungle.paint-ink", InkRequest(width, height,
-            Rectangle.{0.0, 0.0, cast(float32)CANVAS_WIDTH, cast(float32)CANVAS_HEIGHT},
-            cast(float32)width / cast(float32)CANVAS_WIDTH, cast(float32)height / cast(float32)CANVAS_HEIGHT))
+            WholePage(), cast(float32)width / cast(float32)canvas_page.width, cast(float32)height / cast(float32)canvas_page.height))
         if name != "" {
             Keep(name, ink_page_name[:])
             ink_page_stale = false; ink_page_width = width; ink_page_height = height
@@ -517,14 +538,14 @@ PictureInkRefresh :: () {
     }
     if ViewIsFit(picture_view) || !settled { return }
     if !ink_tile_stale && ink_tile_zoom == picture_view.zoom && ink_tile_view_x == picture_view.page_x && ink_tile_view_y == picture_view.page_y { return }
-    scale_x := cast(float32)width * picture_view.zoom / cast(float32)CANVAS_WIDTH
-    scale_y := cast(float32)height * picture_view.zoom / cast(float32)CANVAS_HEIGHT
+    scale_x := cast(float32)width * picture_view.zoom / cast(float32)canvas_page.width
+    scale_y := cast(float32)height * picture_view.zoom / cast(float32)canvas_page.height
     visible := ViewVisiblePage(picture_view)
     // Whole margins keep the tile's pixels on the screen's.
     left := cast(float32)FloorInteger(visible.x * scale_x); if left > INK_MARGIN { left = INK_MARGIN }
     top := cast(float32)FloorInteger(visible.y * scale_y); if top > INK_MARGIN { top = INK_MARGIN }
-    right := (cast(float32)CANVAS_WIDTH - visible.x - visible.width) * scale_x; if right > INK_MARGIN { right = INK_MARGIN }
-    bottom := (cast(float32)CANVAS_HEIGHT - visible.y - visible.height) * scale_y; if bottom > INK_MARGIN { bottom = INK_MARGIN }
+    right := (cast(float32)canvas_page.width - visible.x - visible.width) * scale_x; if right > INK_MARGIN { right = INK_MARGIN }
+    bottom := (cast(float32)canvas_page.height - visible.y - visible.height) * scale_y; if bottom > INK_MARGIN { bottom = INK_MARGIN }
     w := CeilInteger(visible.width * scale_x + left + cast(float32)FloorInteger(right))
     h := CeilInteger(visible.height * scale_y + top + cast(float32)FloorInteger(bottom))
     if cast(float32)w * cast(float32)h > INK_TILE_PIXELS {
@@ -551,7 +572,9 @@ PicturePart :: (path: string, width: s32, height: s32, page: Rectangle) {
         .source = Rectangle.{(visible.x - page.x) * across, (visible.y - page.y) * down, visible.width * across, visible.height * down}})
 }
 
-WHOLE_PAGE :: Rectangle.{0.0, 0.0, 960.0, 720.0}
+WholePage :: () -> Rectangle {
+    return Rectangle.{0.0, 0.0, cast(float32)canvas_page.width, cast(float32)canvas_page.height}
+}
 
 PictureInkDraw :: () {
     visible := ViewVisiblePage(picture_view)
@@ -563,7 +586,7 @@ PictureInkDraw :: () {
         PicturePart(tile, ink_tile_width, ink_tile_height, ink_tile_page)
     } else {
         page := TextUntilNul(ink_page_name[:])
-        if page != "" { PicturePart(page, ink_page_width, ink_page_height, WHOLE_PAGE) }
+        if page != "" { PicturePart(page, ink_page_width, ink_page_height, WholePage()) }
     }
 }
 
@@ -596,10 +619,10 @@ canvas_x: s32;
 canvas_y: s32;
 canvas_w: s32 = 1;
 canvas_h: s32 = 1;
-tool_x: [TOOL_COUNT]s32;
-tool_y: [TOOL_COUNT]s32;
-tool_w: s32;
-tool_h: s32;
+// Where the picture and its tools sit this frame; compact screens keep the
+// tools in a drawer that tools_open shows.
+main_layout: PaintMainLayout;
+tools_open: bool;
 
 Clamp :: (value: s32, low: s32, high: s32) -> s32 {
     if value < low { return low }
@@ -612,50 +635,16 @@ LayoutMain :: () {
     retro.x = bounds.x
     retro.y = bounds.y
     retro.scale = 1.0
-    width := cast(s32)bounds.width
-    height := cast(s32)bounds.height
-    shortest := ifx width < height then width else height
-    pad := Clamp(shortest / 40, 6, 20)
-    gap := Clamp(shortest / 80, 4, 10)
-    if height > width {
-        tool_w = (width - pad * 2 - gap * 2) / 3
-        tool_h = Clamp(tool_w * 3 / 4, 44, 110)
-        canvas_w = width - pad * 2
-        canvas_h = canvas_w * 3 / 4
-        rows := cast(s32)((TOOL_COUNT + 2) / 3)
-        room := height - pad * 3 - gap * (rows - 1) - tool_h * rows
-        if canvas_h > room { canvas_h = room; canvas_w = canvas_h * 4 / 3 }
-        canvas_x = (width - canvas_w) / 2
-        canvas_y = pad
-        below := canvas_y + canvas_h + pad
-        top := below + (height - pad - below - tool_h * rows - gap * (rows - 1)) / 2
-        for index: cast(s32)0..TOOL_COUNT - 1 {
-            tool_x[index] = pad + (index % 3) * (tool_w + gap)
-            tool_y[index] = top + (index / 3) * (tool_h + gap)
-        }
-    } else {
-        // A short landscape phone needs two columns to keep taps generous.
-        columns: s32 = ifx height < 560 then 2 else 1
-        rows: s32 = (TOOL_COUNT + columns - 1) / columns
-        width_parts: s32 = ifx columns == 2 then 8 else 5
-        tool_h = (height - pad * 2 - gap * (rows - 1)) / rows
-        tool_w = Clamp(tool_h * 5 / 2, 64, width / width_parts)
-        rail_w := tool_w * columns + gap * (columns - 1)
-        room_w := width - pad * 3 - rail_w
-        room_h := height - pad * 2
-        canvas_w = room_w
-        canvas_h = canvas_w * 3 / 4
-        if canvas_h > room_h { canvas_h = room_h; canvas_w = canvas_h * 4 / 3 }
-        left := (width - rail_w - pad - canvas_w) / 2
-        canvas_x = left + rail_w + pad
-        canvas_y = pad + (room_h - canvas_h) / 2
-        for index: cast(s32)0..TOOL_COUNT - 1 {
-            tool_x[index] = left + (index % columns) * (tool_w + gap)
-            tool_y[index] = canvas_y + (canvas_h - tool_h * rows - gap * (rows - 1)) / 2 + (index / columns) * (tool_h + gap)
-        }
-    }
-    if canvas_w < 1 { canvas_w = 1 }
-    if canvas_h < 1 { canvas_h = 1 }
+    main_layout = PaintMainBounds(cast(s32)bounds.width, cast(s32)bounds.height, canvas_page.width, canvas_page.height, TOOL_COUNT)
+    if !main_layout.compact { tools_open = false }
+    canvas_x = main_layout.canvas_x; canvas_y = main_layout.canvas_y
+    canvas_w = main_layout.canvas_w; canvas_h = main_layout.canvas_h
+}
+
+// The page a new picture takes on this screen.
+NewPicturePage :: () -> PaintPage {
+    bounds := AppBounds()
+    return ifx PaintPageTall(cast(s32)bounds.width, cast(s32)bounds.height, TOOL_COUNT) then TALL_PAGE else WIDE_PAGE
 }
 
 ToolShape :: (index: s32) -> string {
@@ -764,7 +753,7 @@ placement_canvas_h: s32;
 PlacementBegin :: () {
     placing = true; dragging = false; placement_gesture = 0
     placement_degrees = 0.0; placement_width = DinoWidth(dino, size)
-    placement_x = CANVAS_WIDTH / 2; placement_y = CANVAS_HEIGHT / 2
+    placement_x = canvas_page.width / 2; placement_y = canvas_page.height / 2
     canvas_can_fill = false; rotating = false; SelectionClear()
     placement_canvas_w = 0; placement_canvas_h = 0
 }
@@ -849,7 +838,7 @@ PlacementView :: (chosen_tool: s32) {
     if pointer.released {
         placement_gesture = 0; dragging = false
         // Preserve the v1 size choice using the nearest of its four presets.
-        closest: s32 = CANVAS_WIDTH
+        closest: s32 = canvas_page.width + canvas_page.height
         for at: cast(s32)1..DINO_SIZES {
             delta := DinoWidth(dino, at) - placement_width
             if delta < 0 { delta = -delta }
@@ -931,11 +920,11 @@ SelectionSplit :: (id: s32, above: bool) -> string {
         for y: cast(s32)0..object.h - 1 {
             for x: cast(s32)0..object.w - 1 {
                 pixel := object.pixels[y * object.w + x]
-                if pixel != cast(u8)TRANSPARENT { rotate_pixels[(object.y + y) * CANVAS_WIDTH + object.x + x] = pixel }
+                if pixel != cast(u8)TRANSPARENT { rotate_pixels[(object.y + y) * canvas_page.width + object.x + x] = pixel }
             }
         }
     }
-    return SelectionImage(CANVAS_WIDTH, CANVAS_HEIGHT, rotate_pixels[:])
+    return SelectionImage(canvas_page.width, canvas_page.height, rotate_pixels[:])
 }
 
 SelectionChoose :: (id: s32) {
@@ -1015,7 +1004,7 @@ SelectionView :: (chosen_tool: s32) {
         if !grabbed {
             x := PictureX(pointer.x); y := PictureY(pointer.y)
             if PointerInCanvas(pointer.x, pointer.y) &&
-                x >= 0 && y >= 0 && x < CANVAS_WIDTH && y < CANVAS_HEIGHT { SelectionChoose(CanvasObjectAt(x, y)) }
+                x >= 0 && y >= 0 && x < canvas_page.width && y < canvas_page.height { SelectionChoose(CanvasObjectAt(x, y)) }
         }
     }
     if selected_object < 0 { return }
@@ -1049,7 +1038,7 @@ SelectionView :: (chosen_tool: s32) {
     if rotation_drag && plan.valid {
         preview := PictureRect(plan.x, plan.y, plan.w, plan.h)
         center = Vector2.{preview.x + preview.width / 2.0, preview.y + preview.height / 2.0}
-        PicturePart(selection_below, CANVAS_WIDTH, CANVAS_HEIGHT, WHOLE_PAGE)
+        PicturePart(selection_below, canvas_page.width, canvas_page.height, WholePage())
         object := *selection_source
         across := ViewScale(picture_view).x * scale
         down := ViewScale(picture_view).y * scale
@@ -1061,7 +1050,7 @@ SelectionView :: (chosen_tool: s32) {
             SelectionPoint(left, bottom, center, degrees), SelectionPoint(right, bottom, center, degrees)]
         Image(retro.session, ImageProps.{.asset_path = selection_image, .bounds = CanvasScreen(),
             .mesh = ImageMesh.{.columns = 2, .rows = 2, .points = quad[:]}})
-        PicturePart(selection_above, CANVAS_WIDTH, CANVAS_HEIGHT, WHOLE_PAGE)
+        PicturePart(selection_above, canvas_page.width, canvas_page.height, WholePage())
     }
     if rotation_drag { area = PictureRect(selection_source_bounds.x, selection_source_bounds.y, selection_source_bounds.w, selection_source_bounds.h) }
     half_w := area.width * scale / 2.0; half_h := area.height * scale / 2.0
@@ -1084,23 +1073,79 @@ PictureNote :: (text: string) {
         text, note_h * 11 / 20)
 }
 
+ToolChosen :: (index: s32) -> bool {
+    return (placing && index == 6 && placement_flip) || (index == 3 && erasing) || (index == 8 && rotating) ||
+        (index == 9 && penciling) || (index == TOOL_ZOOM && view_panning)
+}
+
+// Every tool once, in view or in the open drawer; returns the one tapped.
+ToolGrid :: () -> s32 {
+    chosen_tool: s32 = -1
+    for index: cast(s32)0..TOOL_COUNT - 1 {
+        tool := PaintToolRect(main_layout, index)
+        label := ifx placing && index == 6 then "Mirror" else ifx index == 9 then PencilLabel() else button_names[index]
+        if ToolButton(20 + index, tool.x, tool.y, tool.w, tool.h, ToolShape(index), label, ToolChosen(index)) &&
+            !working_bookkeeping { chosen_tool = index }
+    }
+    // The chosen crayon, as a dot on the Color tool.
+    color := PaintToolRect(main_layout, 1)
+    dot := Clamp(color.h / 4, 8, 24)
+    BookBox(color.x + color.w - dot - color.h / 10, color.y + color.h / 10, dot, dot,
+        paint_colors[16 + crayon], 0x3e332aff, cast(float32)(dot / 2))
+    return chosen_tool
+}
+
+// The tool the picture answers to: placing, erasing, selecting, the pencil,
+// the hand, or else the Color tool's fill.
+ActiveTool :: () -> s32 {
+    if placing { return 0 }
+    if erasing { return 3 }
+    if rotating { return 8 }
+    if penciling { return 9 }
+    if view_panning { return TOOL_ZOOM }
+    return 1
+}
+
+// The compact bar: the one Tools button, and beside it what the picture
+// answers to now and the chosen crayon. Returns whether Tools was tapped.
+ToolBar :: () -> bool {
+    l := main_layout
+    toggled := ToolButton(31, l.toggle_x, l.toggle_y, l.toggle_w, l.toggle_h,
+        ifx tools_open then CloseIcon.Shape else PaletteIcon.Shape, ifx tools_open then "Close" else "Tools", tools_open)
+    BookBox(l.status_x, l.status_y, l.status_w, l.status_h, 0xfffcf3ff, 0xdacdb5ff, cast(float32)(l.status_h / 6))
+    across := l.status_w >= l.status_h * 2
+    part_w := ifx across then l.status_w / 2 else l.status_w
+    part_h := ifx across then l.status_h else l.status_h / 2
+    icon := Clamp((ifx part_w < part_h then part_w else part_h) * 3 / 5, 8, 64)
+    SvgIcon(retro.session, SvgIconProps.{.bounds = RetroRect(l.status_x + (part_w - icon) / 2, l.status_y + (part_h - icon) / 2, icon, icon),
+        .shape = ToolShape(ActiveTool()), .color = ColorFromPacked(0x2e6956ff)})
+    swatch_x := ifx across then l.status_x + part_w else l.status_x
+    swatch_y := ifx across then l.status_y else l.status_y + part_h
+    BookBox(swatch_x + (part_w - icon) / 2, swatch_y + (part_h - icon) / 2, icon, icon,
+        paint_colors[16 + crayon], 0x3e332aff, cast(float32)(icon / 2))
+    return toggled
+}
+
+// The open drawer over a dimmed picture; a tap beside it closes it once the
+// finger lifts. Returns the tool tapped inside it.
+ToolDrawer :: () -> s32 {
+    l := main_layout
+    outside := RetroTap(46, 0, 0, l.width, l.height, "Close")
+    Fill(RetroRect(0, 0, l.width, l.height), 0x3e332a66)
+    unused RetroTap(47, l.drawer_x, l.drawer_y, l.drawer_w, l.drawer_h, "Tools")
+    BookBox(l.drawer_x, l.drawer_y, l.drawer_w, l.drawer_h, 0xf7f1e3ff, 0x704d36ff, cast(float32)(l.pad * 2))
+    chosen_tool := ToolGrid()
+    if outside.clicked { tools_open = false; Sound("click") }
+    return chosen_tool
+}
+
 MainView :: () {
     LayoutMain()
     PictureViewFrame()
     bounds := AppBounds()
     BookBox(0, 0, cast(s32)bounds.width, cast(s32)bounds.height, 0xe3ece4ff)
     chosen_tool: s32 = -1
-    for index: cast(s32)0..TOOL_COUNT - 1 {
-        mirror := placing && index == 6
-        label := ifx mirror then "Mirror" else ifx index == 9 then PencilLabel() else button_names[index]
-        pressed := ToolButton(20 + index, tool_x[index], tool_y[index], tool_w, tool_h, ToolShape(index), label,
-            (mirror && placement_flip) || (index == 3 && erasing) || (index == 8 && rotating) || (index == 9 && penciling) || (index == TOOL_ZOOM && view_panning))
-        if pressed && !working_bookkeeping { chosen_tool = index }
-    }
-    // The chosen crayon, as a dot on the Color tool.
-    dot := Clamp(tool_h / 4, 8, 24)
-    BookBox(tool_x[1] + tool_w - dot - tool_h / 10, tool_y[1] + tool_h / 10, dot, dot,
-        paint_colors[16 + crayon], 0x3e332aff, cast(float32)(dot / 2))
+    if !main_layout.compact { chosen_tool = ToolGrid() }
     if PictureHasPage() && (!working_bookkeeping || working_canvas_state == WORKING_CANVAS_MAKE) {
         MakeCanvas()
         if !dirty { PictureInkRefresh() }
@@ -1111,68 +1156,82 @@ MainView :: () {
     name := TextUntilNul(canvas_name[:])
     shown := TextUntilNul(canvas_shown_name[:])
     if PictureHasPage() && shown != "" {
-        PicturePart(shown, CANVAS_WIDTH, CANVAS_HEIGHT, WHOLE_PAGE)
+        PicturePart(shown, canvas_page.width, canvas_page.height, WholePage())
     }
     if PictureHasPage() && name != "" && name != shown {
-        PicturePart(name, CANVAS_WIDTH, CANVAS_HEIGHT, WHOLE_PAGE)
+        PicturePart(name, canvas_page.width, canvas_page.height, WholePage())
     }
     if PictureHasPage() { PictureInkDraw() }
     if !PictureHasPage() || (name == "" && shown == "") { BookBox(canvas_x, canvas_y, canvas_w, canvas_h, 0xffffffff) }
-    press := RetroTap(40, canvas_x, canvas_y, canvas_w, canvas_h, "Picture", true)
-    x := PictureX(press.x)
-    y := PictureY(press.y)
-    fine := ViewScreenToPage(picture_view, Vector2.{press.x, press.y})
-    if placing {
-        PlacementView(chosen_tool)
-        if retro.key == KEY_ESCAPE { return }
-    } else if rotating {
-        canvas_can_fill = false
-        SelectionView(chosen_tool)
+    if tools_open {
+        // The drawer holds every input until it closes; Undo keeps it open.
+        chosen_tool = ToolDrawer()
+        if ToolBar() { tools_open = false; Sound("click") }
+        if retro.key == KEY_ESCAPE { tools_open = false; Sound("click"); return }
+        if chosen_tool < 0 { return }
+        if chosen_tool != 6 { tools_open = false }
+    } else if main_layout.compact && ToolBar() {
+        PictureGesturesCancel()
+        tools_open = true
+        Sound("click")
+        return
     } else {
-        pointer := PaintPointer()
-        if !working_bookkeeping && chosen_tool < 0 && pointer.pressed && !penciling { canvas_can_fill = true }
-        if penciling {
+        press := RetroTap(40, canvas_x, canvas_y, canvas_w, canvas_h, "Picture", true)
+        x := PictureX(press.x)
+        y := PictureY(press.y)
+        fine := ViewScreenToPage(picture_view, Vector2.{press.x, press.y})
+        if placing {
+            PlacementView(chosen_tool)
+            if retro.key == KEY_ESCAPE { return }
+        } else if rotating {
             canvas_can_fill = false
-            inside := PointerInCanvas(pointer.x, pointer.y)
-            if !working_bookkeeping && !pencil_dragging && pointer.pressed && inside {
-                if CanvasPencilCanStroke() {
-                    HistoryPush()
-                    pencil_dragging = CanvasPencilBeginAt(CanvasPencilPointAt(fine.x, fine.y))
-                    if pencil_dragging { dirty = true; pencil_started_at = retro.now }
-                }
-            } else if pencil_dragging {
-                if pointer.down && inside && CanvasPencilMoveAt(CanvasPencilPointAt(fine.x, fine.y)) { dirty = true }
-                if pointer.released || !pointer.down {
-                    if CanvasPencilStrokeEnd() { WorkingPictureKeep(); Sound("click") }
-                    pencil_dragging = false
-                    dirty = true
-                }
-            }
-        } else if !working_bookkeeping && chosen_tool < 0 && press.clicked && canvas_can_fill {
-            canvas_can_fill = false
-            if erasing {
-                if CanvasObjectAt(x, y) >= 0 {
-                    HistoryPush()
-                    if CanvasEraseObject(x, y) {
+            SelectionView(chosen_tool)
+        } else {
+            pointer := PaintPointer()
+            if !working_bookkeeping && chosen_tool < 0 && pointer.pressed && !penciling { canvas_can_fill = true }
+            if penciling {
+                canvas_can_fill = false
+                inside := PointerInCanvas(pointer.x, pointer.y)
+                if !working_bookkeeping && !pencil_dragging && pointer.pressed && inside {
+                    if CanvasPencilCanStroke() {
+                        HistoryPush()
+                        pencil_dragging = CanvasPencilBeginAt(CanvasPencilPointAt(fine.x, fine.y))
+                        if pencil_dragging { dirty = true; pencil_started_at = retro.now }
+                    }
+                } else if pencil_dragging {
+                    if pointer.down && inside && CanvasPencilMoveAt(CanvasPencilPointAt(fine.x, fine.y)) { dirty = true }
+                    if pointer.released || !pointer.down {
+                        if CanvasPencilStrokeEnd() { WorkingPictureKeep(); Sound("click") }
+                        pencil_dragging = false
                         dirty = true
-                        WorkingPictureKeep()
-                        Sound("clear")
                     }
                 }
-                return
-            }
-            fill := 16 + crayon
-            if PictureHasPage() && CanvasColorAt(x, y) > INK && CanvasColorAt(x, y) != fill {
-                HistoryPush()
-                if CanvasFill(x, y, fill) > 0 {
-                    dirty = true
-                    WorkingPictureKeep()
-                    Sound("fill")
+            } else if !working_bookkeeping && chosen_tool < 0 && press.clicked && canvas_can_fill {
+                canvas_can_fill = false
+                if erasing {
+                    if CanvasObjectAt(x, y) >= 0 {
+                        HistoryPush()
+                        if CanvasEraseObject(x, y) {
+                            dirty = true
+                            WorkingPictureKeep()
+                            Sound("clear")
+                        }
+                    }
+                    return
+                }
+                fill := 16 + crayon
+                if PictureHasPage() && CanvasColorAt(x, y) > INK && CanvasColorAt(x, y) != fill {
+                    HistoryPush()
+                    if CanvasFill(x, y, fill) > 0 {
+                        dirty = true
+                        WorkingPictureKeep()
+                        Sound("fill")
+                    }
                 }
             }
         }
+        ZoomControls()
     }
-    ZoomControls()
     if chosen_tool == TOOL_ZOOM {
         view_panning = !view_panning
         view_pan_active = false
@@ -1405,6 +1464,7 @@ ScenePickerContent :: (l: ScenePickerLayout) {
         scene_picker_scroll = scrolled.scroll_offset
         retro.y -= cast(float32)scene_picker_scroll
     } else { scene_picker_scroll = 0 }
+    tall := PageIsTall(NewPicturePage())
     for offset: cast(s32)0..5 {
         if scene_category == PAINT_SCENE_CATEGORY_COUNT {
             if offset > 0 { continue }
@@ -1432,11 +1492,12 @@ ScenePickerContent :: (l: ScenePickerLayout) {
             ifx press.down || index == last_scene then cast(u32)0xdcebdcff else cast(u32)0xf7f1e3ff,
             ifx index == last_scene then cast(u32)0x2e6956ff else cast(u32)0xdacdb5ff, 6.0)
         number := FormatInteger(index + 1, digits_a[:])
+        // The scene shows on the page a new picture takes here.
         image_height := l.card_height - 34
         dw := l.card_width - 16
-        dh := dw * 3 / 4
-        if dh > image_height { dh = image_height; dw = dh * 4 / 3 }
-        RetroSprite(Join(ART, Join("scene", number, "-thumb.avif")),
+        dh := ifx tall then dw * 4 / 3 else dw * 3 / 4
+        if dh > image_height { dh = image_height; dw = ifx tall then dh * 3 / 4 else dh * 4 / 3 }
+        RetroSprite(Join(ART, Join(ifx tall then "portrait" else "scene", number, "-thumb.avif")),
             x + (l.card_width - dw) / 2, y + 5 + (image_height - dh) / 2, dw, dh, -1, true)
         BookText(x + 6, y + l.card_height - 28, l.card_width - 12, 24, PaintSceneLabel(index), 18)
         if PaintItemEarned(PAINT_ITEM_SCENE, index) { EarnedStar(x, y, l.card_width) }
@@ -1668,6 +1729,7 @@ ConfirmView :: () {
 // after that slot is saved.
 slot_previews: [SLOT_COUNT][32]u8;
 slot_previews_ready: [SLOT_COUNT]bool;
+slot_previews_tall: [SLOT_COUNT]bool;
 slot_preview_created: bool;
 
 SlotPreview :: (index: s32, saved: string) -> string {
@@ -1675,12 +1737,15 @@ SlotPreview :: (index: s32, saved: string) -> string {
         slot_preview_created = true
         slot_previews_ready[index] = true
         slot_previews[index][0] = 0
+        slot_previews_tall[index] = false
         // Both current formats start with the flattened display runs.
-        pixels := PICTURE_HEADER.count + 3 + cast(s64)PICTURE_STORY
         if PictureValid(saved) {
+            pixels := PicturePixelsAt(saved)
             nothing: []u8
             used := PictureRunsScan(saved[pixels:], nothing, CANVAS_PIXELS)
-            made := GameCanvas(Join(PICTURE_RUNS, saved[pixels:pixels + used]))
+            page := PicturePage(saved)
+            slot_previews_tall[index] = PageIsTall(page)
+            made := GameCanvas(Join(PictureRunsHeader(page), saved[pixels:pixels + used]))
             if made != "" { Keep(made, slot_previews[index][:]) }
         }
     }
@@ -1717,7 +1782,10 @@ GalleryView :: () {
                 ifx index == gallery_store.gallery.selected then cast(u32)0x2e6956ff else cast(u32)0xdacdb5ff, 4.0)
             saved := ifx !slot_previews_ready[offset] && !slot_preview_created then GalleryStoreRead(*gallery_store, index) else ""
             preview := SlotPreview(offset, saved)
-            if preview != "" { RetroSprite(preview, x + 21, y + 2, 48, 36, -1, true) }
+            if preview != "" {
+                if slot_previews_tall[offset] { RetroSprite(preview, x + 32, y + 2, 27, 36, -1, true) }
+                else { RetroSprite(preview, x + 21, y + 2, 48, 36, -1, true) }
+            }
             BookText(x + 2, y + 39, 86, 14, label, 10)
             if press.clicked {
                 picture := GalleryStoreRead(*gallery_store, index)
@@ -1756,7 +1824,10 @@ SaveLoadView :: () {
         press := RetroTap(160 + index, x, y, 88, 52, label)
         BookBox(x, y, 88, 52, 0xf7f1e3ff, ifx index == slot then cast(u32)0x2e6956ff else cast(u32)0xdacdb5ff, 4.0)
         preview := ifx saved.count > 0 then SlotPreview(index, saved) else ""
-        if preview != "" {
+        if preview != "" && slot_previews_tall[index] {
+            BookBox(x + 27, y + 4, 34, 44, 0xffffffff, 0xdacdb5ff, 2.0)
+            RetroSprite(preview, x + 28, y + 5, 32, 42, -1, true)
+        } else if preview != "" {
             BookBox(x + 15, y + 4, 58, 44, 0xffffffff, 0xdacdb5ff, 2.0)
             RetroSprite(preview, x + 16, y + 5, 56, 42, -1, true)
         } else {

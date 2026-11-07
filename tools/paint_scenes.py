@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 """Build six additional, closed-outline coloring backgrounds as native SVGs.
 
-Large open foregrounds leave room for placed stencils. Closed, white-filled
-shapes hide scenery behind them and give the bucket clear boundaries.
+Each scene has a wide page (art/paint/sceneN.svg, 960 by 720) and a tall page
+composed for portrait screens (art/paint/portraitN.svg, 720 by 960) with the
+same subject and shapes. Large open foregrounds leave room for placed
+stencils. Closed, white-filled shapes hide scenery behind them and give the
+bucket clear boundaries.
 """
 from pathlib import Path
 
@@ -65,14 +68,109 @@ def cactus(x, y, scale=1):
         path('M-5 24 V220 M7 30 V85 M7 143 V214 M-65 88 V121 M65 62 V98') + '</g>')
 
 
-def scene(number, name, elements):
-    text = ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 720" '
-            'width="960" height="720">\n'
-            f'<title>{name}</title>\n<rect width="960" height="720" fill="#fff"/>\n'
+def polygon(points):
+    return path('M' + ' L'.join(f'{x:g} {y:g}' for x, y in points) + ' Z')
+
+
+def scene(number, name, elements, tall=False):
+    width, height = (720, 960) if tall else (960, 720)
+    text = (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}" '
+            f'width="{width}" height="{height}">\n'
+            f'<title>{name}</title>\n<rect width="{width}" height="{height}" fill="#fff"/>\n'
             '<g fill="#fff" stroke="#000" stroke-width="5.5" '
             'stroke-linecap="round" stroke-linejoin="round">\n' +
             '\n'.join(elements) + '\n</g>\n</svg>\n')
-    (ROOT / f'art/paint/scene{number}.svg').write_text(text)
+    (ROOT / f'art/paint/{"portrait" if tall else "scene"}{number}.svg').write_text(text)
+
+
+def snowy_mountains(scale_x, dy):
+    """The two snowy peaks and their caps, narrowed for a tall page."""
+    def at(points):
+        return [(round(x * scale_x, 1), y + dy) for x, y in points]
+    return [
+        path('M-8 ' + f'{365 + dy}' + ' L' + ' L'.join(f'{x:g} {y:g}' for x, y in at(
+            [(205, 98), (420, 359), (625, 115), (968, 386)])) + f' V{960 + 8} H-8 Z'),
+        polygon(at([(122, 203), (205, 98), (300, 214), (254, 200), (222, 231), (188, 194), (153, 226)])),
+        polygon(at([(532, 226), (625, 115), (731, 230), (682, 216), (651, 241), (617, 213), (577, 244)])),
+    ]
+
+
+def portraits():
+    scene(7, 'Meadow', [
+        sun(560, 110), cloud(90, 80, .8), cloud(380, 190, .6),
+        path('M-8 470 Q140 300 330 430 Q500 320 728 450 V968 H-8 Z'),
+        path('M-8 560 Q200 430 380 530 Q560 450 728 540 V968 H-8 Z'),
+        bush(-50, 470, 1.0), bush(590, 465, 1.0),
+        flower(60, 660, .85), flower(140, 710, .7), flower(660, 690, .9),
+        path('M-8 900 Q70 850 210 914 L250 968 H-8 Z'),
+        path('M520 968 Q610 860 728 890 V968 Z'),
+        flower(60, 870, .65), flower(670, 880, .6),
+    ], tall=True)
+    scene(8, 'Forest', [
+        cloud(300, 60, .75),
+        path('M-8 470 Q180 380 360 465 Q540 370 728 455 V968 H-8 Z'),
+        pine(250, 250, .85), pine(480, 225, .95),
+        pine(90, 120, 1.6), pine(640, 90, 1.8),
+        bush(-70, 520, 1), bush(590, 525, 1),
+        path('M330 475 Q440 500 390 560 Q345 600 435 650 '
+             'Q500 700 545 968 H190 Q260 800 300 655 Q250 590 330 475 Z'),
+        rock(30, 820, 1), rock(590, 830, 1.15),
+        flower(150, 760, .55), flower(590, 740, .65),
+    ], tall=True)
+    scene(9, 'Desert', [
+        sun(540, 120), cloud(80, 80, .85),
+        path('M-8 440 L100 440 L140 340 L215 340 L240 425 L330 440 '
+             'L370 380 L440 380 L480 444 L728 425 V968 H-8 Z'),
+        path('M-8 560 Q190 420 370 535 Q560 450 728 520 V968 H-8 Z'),
+        cactus(110, 360, 1.0), cactus(620, 400, .85),
+        rock(20, 780, 1.1), rock(130, 830, .6), rock(600, 800, 1.1),
+        path('M240 690 Q282 677 319 690 M440 800 Q493 783 552 800 '
+             'M170 900 Q213 886 249 900'),
+    ], tall=True)
+    scene(10, 'Snowy hills', [
+        cloud(250, 50, .85),
+        *snowy_mountains(.75, 90),
+        path('M-8 580 Q200 420 380 530 Q560 430 728 545 V968 H-8 Z'),
+        pine(80, 390, 1.2), pine(640, 375, 1.3),
+        path('M28 760 Q101 725 170 759 Q187 779 145 783 H46 Q12 780 28 760 Z'),
+        path('M530 770 Q611 737 697 772 Q714 790 671 792 H553 Q517 790 530 770 Z'),
+        rock(30, 860, .8), rock(600, 860, .85),
+    ], tall=True)
+    scene(11, 'Pond', [
+        cloud(120, 57, .75), sun(560, 109),
+        path('M-8 430 Q160 320 330 420 Q500 330 728 430 V968 H-8 Z'),
+        bush(-30, 340, 1.2), bush(530, 340, 1.2),
+        path('M140 560 C175 470 520 470 610 535 C730 600 660 740 535 750 '
+             'C400 800 135 760 100 680 C70 640 95 580 140 560 Z'),
+        path('M230 600 Q199 573 161 600 Q145 632 180 648 Q228 661 262 635 L217 627 Z'),
+        path('M520 650 Q486 625 450 650 Q431 677 471 696 Q515 705 549 677 L507 674 Z'),
+        path('M330 570 Q386 556 444 570 M280 700 Q335 687 396 700'),
+        path('M44 640 V489 M71 647 V514 M650 664 V510 M678 656 V485'),
+        '<rect x="33" y="454" width="22" height="62" rx="11"/>',
+        '<rect x="60" y="482" width="22" height="58" rx="11"/>',
+        '<rect x="639" y="476" width="22" height="62" rx="11"/>',
+        '<rect x="667" y="449" width="22" height="66" rx="11"/>',
+        rock(9, 820, .85), rock(590, 830, .85),
+        flower(149, 880, .65), flower(600, 890, .65),
+    ], tall=True)
+    scene(12, 'Farmyard', [
+        sun(110, 109), cloud(330, 64, .8),
+        path('M-8 470 Q180 390 360 455 Q540 370 728 450 V968 H-8 Z'),
+        '<rect x="393" y="337" width="261" height="180"/>',
+        path('M370 342 L524 230 L676 342 Z'),
+        '<rect x="471" y="407" width="107" height="110"/>',
+        path('M471 407 L578 517 M578 407 L471 517 M525 408 V516'),
+        '<circle cx="524" cy="355" r="23"/>',
+        path('M524 333 V377 M502 355 H546'),
+        bush(-45, 367, 1.2),
+        '<rect x="3" y="520" width="258" height="22" rx="4"/>',
+        '<rect x="3" y="569" width="258" height="22" rx="4"/>',
+        path('M35 625 V497 L50 480 L65 497 V625 Z'),
+        path('M178 625 V497 L193 480 L208 497 V625 Z'),
+        bush(560, 560, 1), rock(22, 800, .9),
+        flower(620, 800, .8), flower(540, 860, .55),
+        path('M190 968 Q230 700 471 517 M500 968 Q440 720 578 517'),
+    ], tall=True)
 
 
 def main():
@@ -155,7 +253,8 @@ def main():
         flower(867, 607, .8), flower(784, 645, .55),
         path('M339 728 Q372 521 649 427 M646 728 Q588 516 758 427'),
     ])
-    print('Built Meadow, Forest, Desert, Snowy hills, Pond and Farmyard SVG scenes.')
+    portraits()
+    print('Built Meadow, Forest, Desert, Snowy hills, Pond and Farmyard SVG scenes, wide and tall.')
 
 
 if __name__ == '__main__':

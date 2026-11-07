@@ -229,6 +229,29 @@ def MapSafe(scene, hotspots):
     return [0, 0, scene['width'], scene['height']]
 
 
+def Walk(hotspot, polygon, scene):
+    """A hotspot's walking loop (each Beach crab): "walk": {"stops": [[dx, dy,
+    pause seconds], ...], "speed": source pixels per second, "phase": seconds}.
+    Stops are offsets from where it rests; the first is [0, 0]. Returns the
+    stops with each leg's start and end time in the loop, and the loop length."""
+    walk = hotspot.get('walk')
+    if not walk:
+        return None
+    stops, speed = walk['stops'], walk['speed']
+    if len(stops) < 2 or stops[0][:2] != [0, 0] or speed <= 0 or any(len(stop) != 3 or stop[2] < 0 for stop in stops):
+        raise SystemExit(f'title scenes: {hotspot["id"]} needs a walk from [0, 0] through stops [dx, dy, pause]')
+    for dx, dy, _ in stops:
+        if any(not (0 <= x + dx < scene['width'] and 0 <= y + dy < scene['height']) for x, y in polygon):
+            raise SystemExit(f'title scenes: {hotspot["id"]} walks out of its scene')
+    legs, clock = [], 0.0
+    for index, (dx, dy, pause) in enumerate(stops):
+        nx, ny, _ = stops[(index + 1) % len(stops)]
+        start = clock + pause
+        clock = start + math.hypot(nx - dx, ny - dy) / speed
+        legs.append((dx, dy, start, clock))
+    return {'legs': legs, 'cycle': clock, 'phase': walk.get('phase', 0.0)}
+
+
 def Load(source=SOURCE, catalog=CATALOG):
     """The validated scenes, their parents and the flattened hotspots."""
     data = json.loads(Path(source).read_text())
@@ -323,7 +346,8 @@ def Load(source=SOURCE, catalog=CATALOG):
                 occlusion = RotatePolygon(occlusion, occluder['rect'], Rotation(occluder))
             else:
                 occlusion = RotatePolygon(occlusion, rect, angle)
-            hotspots.append({'scene': index, 'id': hotspot['id'], 'scene_target': scene_target,
+            walk = Walk(hotspot, polygon, scene)
+            hotspots.append({'scene': index, 'id': hotspot['id'], 'scene_target': scene_target, 'walk': walk,
                              'game': game, 'glow': hotspot['glow'], 'rect': rect, 'polygon': polygon,
                              'rest': hotspot.get('rest', ''), 'occlusion': occlusion,
                              'sign_label': label, 'sign_rect': board, 'sign_rotation': rotation, 'rotation': angle,
@@ -448,7 +472,18 @@ def QuotedBool(values):
     return Numbers('true' if value else 'false' for value in values)
 
 
+def Floats(values):
+    return Numbers(f'{float(value):.3f}' for value in values)
+
+
 def Render(data, scenes, parents, hotspots):
+    # Every walking hotspot's legs in one table; a still scene keeps one zero leg
+    # so the tables are never empty.
+    walk_first, walk_legs = [], []
+    for hotspot in hotspots:
+        walk_first.append(len(walk_legs))
+        walk_legs += hotspot['walk']['legs'] if hotspot['walk'] else []
+    walk_legs = walk_legs or [(0, 0, 0.0, 0.0)]
     first, counts = [], []
     for index in range(len(scenes)):
         own = [position for position, hotspot in enumerate(hotspots) if hotspot['scene'] == index]
@@ -588,6 +623,17 @@ def Render(data, scenes, parents, hotspots):
         f'TITLE_HOTSPOT_TARGET: [{hotspot_count}]s32 = .[{Numbers(hotspot["scene_target"] for hotspot in hotspots)}];',
         f'TITLE_HOTSPOT_GAME: [{hotspot_count}]string = .[{Quoted(hotspot["game"] for hotspot in hotspots)}];',
         *ChunkedStrings('TITLE_HOTSPOT_GLOW', 'TitleHotspotGlow', (hotspot['glow'] for hotspot in hotspots)),
+        '// Walking hotspots (tools/title_hotspots.json "walk"): legs FIRST.. of',
+        '// TITLE_WALK_*, the loop length and its phase in seconds; COUNT 0 stays still.',
+        f'TITLE_HOTSPOT_WALK_FIRST: [{hotspot_count}]s32 = .[{Numbers(walk_first)}];',
+        f'TITLE_HOTSPOT_WALK_COUNT: [{hotspot_count}]s32 = .[{Numbers(len(h["walk"]["legs"]) if h["walk"] else 0 for h in hotspots)}];',
+        f'TITLE_HOTSPOT_WALK_CYCLE: [{hotspot_count}]float32 = .[{Floats(h["walk"]["cycle"] if h["walk"] else 0.0 for h in hotspots)}];',
+        f'TITLE_HOTSPOT_WALK_PHASE: [{hotspot_count}]float32 = .[{Floats(h["walk"]["phase"] if h["walk"] else 0.0 for h in hotspots)}];',
+        '// Each leg: its stop offset, then when it sets off and arrives at the next stop.',
+        f'TITLE_WALK_X: [{len(walk_legs)}]s32 = .[{Numbers(leg[0] for leg in walk_legs)}];',
+        f'TITLE_WALK_Y: [{len(walk_legs)}]s32 = .[{Numbers(leg[1] for leg in walk_legs)}];',
+        f'TITLE_WALK_START: [{len(walk_legs)}]float32 = .[{Floats(leg[2] for leg in walk_legs)}];',
+        f'TITLE_WALK_END: [{len(walk_legs)}]float32 = .[{Floats(leg[3] for leg in walk_legs)}];',
         '// Optional always-visible navigation art; shares the glow rectangle.',
         *ChunkedStrings('TITLE_HOTSPOT_REST', 'TitleHotspotRest', (hotspot['rest'] for hotspot in hotspots)),
         f'TITLE_SIGN_DIRECTION: [{hotspot_count}]s32 = .[{Numbers(h["sign_direction"] for h in hotspots)}];',

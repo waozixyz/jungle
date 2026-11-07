@@ -213,6 +213,50 @@ def export_scaled_master(master, destination):
                 alpha_quality=SCALE_ALPHA_QUALITY if alpha else 100)
 
 
+def export_low_master(master, destination, width=240):
+    """Ship MASTER's small first-paint plate, WIDTH wide, and return its
+    tools/canonical_avif.json row."""
+    master, destination = Path(master), Path(destination)
+    with Image.open(master) as original:
+        size = (width, round(original.height * width / original.width))
+    exported = export_image(master, destination, 'title-background', size=size)
+    with Image.open(destination) as shipped, Image.open(master) as original:
+        decoded = shipped.convert('RGBA')
+        source = original.convert('RGBA').resize(decoded.size, Image.Resampling.LANCZOS)
+    with master.open('rb') as handle:
+        master_sha = hashlib.file_digest(handle, 'sha256').hexdigest()
+    with destination.open('rb') as handle:
+        sha = hashlib.file_digest(handle, 'sha256').hexdigest()
+    plain = _sha(decoded.getchannel('A').tobytes())
+    return dict(source=master.relative_to(ROOT).as_posix(), source_sha256=master_sha,
+                source_bytes=master.stat().st_size, source_rgba_sha256=_sha(source.tobytes()),
+                dimensions=list(decoded.size), alpha=False, source_alpha_sha256=plain, alpha_sha256=plain,
+                rgba_sha256=_sha(decoded.tobytes()), sha256=sha, bytes=destination.stat().st_size,
+                quality=exported.quality, lossless=exported.lossless,
+                subsampling='444' if exported.lossless else '420', speed=SPEED)
+
+
+def export_cutout_master(master, destination):
+    """Ship transparent MASTER at full size with exact alpha (role 'cutout')
+    and return its tools/canonical_avif.json row."""
+    master, destination = Path(master), Path(destination)
+    exported = export_image(master, destination, 'cutout')
+    with Image.open(master) as original:
+        source = original.convert('RGBA')
+    with Image.open(destination) as shipped:
+        rgba = shipped.convert('RGBA')
+    with master.open('rb') as handle:
+        master_sha = hashlib.file_digest(handle, 'sha256').hexdigest()
+    with destination.open('rb') as handle:
+        sha = hashlib.file_digest(handle, 'sha256').hexdigest()
+    return dict(source=master.relative_to(ROOT).as_posix(), source_sha256=master_sha,
+                source_bytes=master.stat().st_size, source_rgba_sha256=_sha(source.tobytes()),
+                dimensions=list(rgba.size), alpha=True, source_alpha_sha256=_sha(source.getchannel('A').tobytes()),
+                alpha_sha256=_sha(rgba.getchannel('A').tobytes()), rgba_sha256=_sha(rgba.tobytes()),
+                sha256=sha, bytes=destination.stat().st_size, quality=exported.quality or 70,
+                lossless=exported.lossless, subsampling='444', speed=SPEED, exact_alpha=True, alpha_quality=100)
+
+
 def record_canonical_rows(rows, receipt=ROOT / 'tools/canonical_avif.json'):
     """Add or replace shipped rows and keep the receipt's count and byte totals."""
     import json

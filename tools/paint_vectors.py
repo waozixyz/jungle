@@ -7,8 +7,9 @@ Usage: python3 tools/paint_vectors.py [--check] [--out DIR] [--only NAME ...]
 The SVGs mix filled paths, strokes, clips and <use> reinforcement. Each picture
 is rendered large and traced once more, so a runtime file holds only filled
 paths and every stroke and reinforcement stays in it. Its view box is the page
-space the masks of tools/paint_pages.py use: 960 by 720 for a scene, the Huge
-mask's width and height for a stencil.
+space the masks of tools/paint_pages.py use: 960 by 720 for a scene, 720 by
+960 for its tall page (portraitN), the Huge mask's width and height for a
+stencil.
 
 A file follows Kryon's KVP1 format (src/ui/vector_path.zi): a scene has one ink
 path; a stencil has its body path, then its ink path.
@@ -23,7 +24,7 @@ import cairosvg
 from PIL import Image
 
 from dino_art import trace
-from paint_pages import CANVAS, SIZES, dinosaur, fit
+from paint_pages import CANVAS, SIZES, TALL, dinosaur, fit, scene_indices
 
 ROOT = Path(__file__).resolve().parents[1]
 ART = ROOT / 'art/paint'
@@ -110,9 +111,10 @@ def traced(svg, width, height, ink=False):
     return trace(mask, 1.0 / TRACE_SCALE, 1.0 / TRACE_SCALE)
 
 
-def compile_scene(index):
-    svg = (ART / f'scene{index}.svg').read_text()
-    return encode_file(*CANVAS, [encode_path(traced(svg, *CANVAS, ink=True))])
+def compile_scene(index, kind='scene'):
+    svg = (ART / f'{kind}{index}.svg').read_text()
+    size = TALL if kind == 'portrait' else CANVAS
+    return encode_file(*size, [encode_path(traced(svg, *size, ink=True))])
 
 
 def compile_stencil(index):
@@ -124,11 +126,8 @@ def compile_stencil(index):
 def source_names():
     """Stable asset IDs; gaps must fail rather than silently omit an asset."""
     names = []
-    for kind in ('scene', 'dino'):
-        indices = sorted(int(path.stem[len(kind):]) for path in ART.glob(f'{kind}[0-9]*.svg'))
-        if indices != list(range(1, len(indices) + 1)):
-            raise ValueError(f'Non-contiguous {kind} asset IDs')
-        names += [f'{kind}{index}' for index in indices]
+    for kind in ('scene', 'portrait', 'dino'):
+        names += [f'{kind}{index}' for index in scene_indices(kind)]
     return names
 
 
@@ -165,7 +164,8 @@ def main():
             continue
         index = int(re.search(r'\d+', name).group())
         validate_source(ART / f'{name}.svg')
-        data = compile_scene(index) if name.startswith('scene') else compile_stencil(index)
+        kind = re.match(r'[a-z]+', name).group()
+        data = compile_stencil(index) if kind == 'dino' else compile_scene(index, kind)
         if len(data) > MAX_VECTOR_BYTES:
             raise ValueError(f'Oversized runtime vector: {name} ({len(data)} bytes)')
         target = args.out / f'{name}.kvp'

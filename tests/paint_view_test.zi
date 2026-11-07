@@ -113,7 +113,7 @@ LegacyTests :: () -> s32 {
     object := layers[0]
     for y: cast(s32)0..object.h - 1 {
         for x: cast(s32)0..object.w - 1 {
-            if object.pixels[y * object.w + x] != cast(u8)255 && page_ink[(object.y + y) * CANVAS_WIDTH + object.x + x] != cast(u8)0 { return 44 }
+            if object.pixels[y * object.w + x] != cast(u8)255 && page_ink[(object.y + y) * WIDE_PAGE.width + object.x + x] != cast(u8)0 { return 44 }
         }
     }
     // A pencil line is a vector line, at any fraction of a pixel.
@@ -123,7 +123,7 @@ LegacyTests :: () -> s32 {
     ops = CanvasVectorOps()
     if ops.count < 3 || ops[0] != #char "P" { return 46 }
     if !PaintViewOpsSet(ops, DiskRead) || !Draw(Page(960, 720, 0.0, 0.0, 1.0), page_ink[:]) { return 47 }
-    if page_ink[100 * CANVAS_WIDTH + 140] != cast(u8)255 || page_ink[120 * CANVAS_WIDTH + 140] != cast(u8)0 { return 48 }
+    if page_ink[100 * WIDE_PAGE.width + 140] != cast(u8)255 || page_ink[120 * WIDE_PAGE.width + 140] != cast(u8)0 { return 48 }
     if CanvasColorAt(140, 100) != INK || CanvasColorAt(140, 120) == INK { return 49 }
     CanvasBlank()
     return 0
@@ -136,8 +136,8 @@ FillTests :: () -> s32 {
     // Find a fillable page point in the first scene.
     unused SceneOpen(0)
     found := false
-    for y: cast(s32)0..CANVAS_HEIGHT - 1 {
-        for x: cast(s32)0..CANVAS_WIDTH - 1 {
+    for y: cast(s32)0..WIDE_PAGE.height - 1 {
+        for x: cast(s32)0..WIDE_PAGE.width - 1 {
             if CanvasColorAt(x, y) == PAPER && x > 200 && x < 760 && y > 200 && y < 520 {
                 page = Vector2.{cast(float32)x + 0.5, cast(float32)y + 0.5}; found = true; break
             }

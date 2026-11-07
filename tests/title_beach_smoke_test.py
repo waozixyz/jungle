@@ -5,6 +5,7 @@ import tempfile
 import time
 from PIL import Image, ImageChops, ImageStat
 import runtime_test as rt
+from design_size import design_size
 
 
 def main():
@@ -38,14 +39,16 @@ def main():
                     assert difference>4,(width,origin,destination,difference)
                     if destination=='beach':
                         beach=scenes['beach']['portrait'] if height>width else scenes['beach']
-                        with Image.open(rt.ROOT/beach['image']) as clean:
+                        with Image.open(rt.ROOT/beach['image']) as shipped:
+                            # Hotspots are in the painting's pixels, not the 75% AVIF's.
+                            clean=shipped.convert('RGB').resize(design_size(beach['image'],shipped),Image.Resampling.LANCZOS)
                             scale=max(width/clean.width,height/clean.height)
                             ox=(width-clean.width*scale)/2
                             oy=(height-clean.height*scale)/2
-                            crab=next(h for h in beach['hotspots'] if h['id']=='crab-family')
+                            crab=next(h for h in beach['hotspots'] if h['id']=='crab-big')
                             x,y,w,h=crab['glow_rect']
                             region=(round(ox+x*scale),round(oy+y*scale),round(ox+(x+w)*scale),round(oy+(y+h)*scale))
-                            expected=clean.convert('RGB').resize((round(clean.width*scale),round(clean.height*scale)),Image.Resampling.BILINEAR)
+                            expected=clean.resize((round(clean.width*scale),round(clean.height*scale)),Image.Resampling.BILINEAR)
                             local=tuple(round(v-(ox if i%2==0 else oy)) for i,v in enumerate(region))
                             reference=expected.crop(local).resize((80,40))
                             visible=after.convert('RGB').crop(region).resize((80,40))

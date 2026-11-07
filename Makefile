@@ -367,6 +367,10 @@ install: all
 test: test-paint-picker-layout
 test-paint-picker-layout: build/tests/paint_picker_layout
 	build/tests/paint_picker_layout
+.PHONY: test-paint-main-layout
+test: test-paint-main-layout
+test-paint-main-layout: build/tests/paint_main_layout
+	build/tests/paint_main_layout
 # One award per game, granted once, saved, migrated and shipped, then
 # celebrated once in the real app on a private display.
 test: test-awards

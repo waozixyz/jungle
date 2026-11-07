@@ -242,8 +242,9 @@ CanvasInk :: (request: string, kind: s32) -> string {
 }
 
 CanvasColors :: (request: string) -> string {
-    if PictureFromGame(request, export_pixels[:]) != request.count { return "" }
-    data := PaintViewColorsPng(export_pixels[:])
+    page: PaintPage
+    if PictureFromGame(request, export_pixels[:], *page) != request.count { return "" }
+    data := PaintViewColorsPng(export_pixels[:], page)
     if data == "" { return "" }
     canvas_sequence += 1
     name := Cat("canvas-", NumberText(canvas_sequence), ".png")
@@ -276,8 +277,9 @@ CanvasImage :: (request: string, preview: bool = false) -> string {
     data: string
     if preview { data = PaintPreviewPng(request) }
     else {
-        if PictureFromGame(request, export_pixels[:]) != request.count { return "" }
-        data = PngIndexed(CANVAS_WIDTH, CANVAS_HEIGHT, paint_colors[:], export_pixels[:])
+        page: PaintPage
+        if PictureFromGame(request, export_pixels[:], *page) != request.count { return "" }
+        data = PngIndexed(page.width, page.height, paint_colors[:], export_pixels[:])
     }
     if data == "" { return "" }
     canvas_sequence += 1
@@ -288,9 +290,10 @@ CanvasImage :: (request: string, preview: bool = false) -> string {
 }
 
 WebExport :: (request: string, printing: bool) -> string {
-    length := PictureFromGame(request, export_pixels[:])
+    page: PaintPage
+    length := PictureFromGame(request, export_pixels[:], *page)
     if length < 0 { return "failed" }
-    png := PngIndexed(CANVAS_WIDTH, CANVAS_HEIGHT, paint_colors[:], export_pixels[:])
+    png := PngIndexed(page.width, page.height, paint_colors[:], export_pixels[:])
     story := request[length:]
     if printing { return WebPrint(png, story) }
     if !ExportBytes(png, "jungle-picture.png", "image/png", "Jungle Academy") { return "failed" }

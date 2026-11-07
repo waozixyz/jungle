@@ -13,7 +13,7 @@ PaintPreviewPng :: (request: string) -> string {
     width: s32
     while at < request.count && request[at] >= #char "0" && request[at] <= #char "9" {
         width = width * 10 + cast(s32)(request[at] - #char "0")
-        if width > CANVAS_WIDTH { return "" }
+        if width > WIDE_PAGE.width { return "" }
         at += 1
     }
     if width <= 0 || at >= request.count || request[at] != #char " " { return "" }
@@ -21,7 +21,7 @@ PaintPreviewPng :: (request: string) -> string {
     height: s32
     while at < request.count && request[at] >= #char "0" && request[at] <= #char "9" {
         height = height * 10 + cast(s32)(request[at] - #char "0")
-        if height > CANVAS_WIDTH { return "" }
+        if height > WIDE_PAGE.width { return "" }
         at += 1
     }
     if height <= 0 || at >= request.count || request[at] != cast(u8)10 { return "" }

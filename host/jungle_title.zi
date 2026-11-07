@@ -458,17 +458,45 @@ PointInPolygon :: (xs: []s32, ys: []s32, x: float32, y: float32) -> bool {
     return inside
 }
 
-// The separate Beach crab family walks gently across the dry sand. Drawing,
-// hover, taps and glow use this same source-pixel offset at the same time.
-TitleHotspotMotionX :: (hotspot: s32, now: float64) -> float32 {
-    if hotspot < 0 || hotspot >= TITLE_HOTSPOT_COUNT || !Finite64(now) { return 0.0 }
-    if TITLE_HOTSPOT_ID[hotspot] != "crab-family" { return 0.0 }
-    return cast(float32)(Sin(now * 6.283185307179586 / 12.0)) *
-        cast(float32)TITLE_GLOW_RECT[hotspot * 4 + 2] * 0.08
+// A hotspot with a "walk" in tools/title_hotspots.json (each Beach crab) walks
+// its own loop of offsets from where it rests, pausing at each stop on its
+// own timing. Drawing, hover, taps and glow use this same source-pixel offset
+// at the same time.
+TitleOffset :: struct {
+    x: float32
+    y: float32
+}
+
+TitleHotspotMotion :: (hotspot: s32, now: float64) -> TitleOffset {
+    if hotspot < 0 || hotspot >= TITLE_HOTSPOT_COUNT || !Finite64(now) { return TitleOffset.{0.0, 0.0} }
+    count := TITLE_HOTSPOT_WALK_COUNT[hotspot]
+    cycle := cast(float64)TITLE_HOTSPOT_WALK_CYCLE[hotspot]
+    if count < 2 || cycle <= 0.0 { return TitleOffset.{0.0, 0.0} }
+    elapsed := now + cast(float64)TITLE_HOTSPOT_WALK_PHASE[hotspot]
+    whole := cast(s64)(elapsed / cycle)
+    if cast(float64)whole > elapsed / cycle { whole -= 1 }
+    t := cast(float32)(elapsed - cast(float64)whole * cycle)
+    first := TITLE_HOTSPOT_WALK_FIRST[hotspot]
+    for leg: cast(s32)0..count - 1 {
+        at := first + leg
+        if t >= TITLE_WALK_END[at] && leg < count - 1 { continue }
+        x := cast(float32)TITLE_WALK_X[at]
+        y := cast(float32)TITLE_WALK_Y[at]
+        if t <= TITLE_WALK_START[at] { return TitleOffset.{x, y} }
+        next := first + (leg + 1) % count
+        f := (t - TITLE_WALK_START[at]) / (TITLE_WALK_END[at] - TITLE_WALK_START[at])
+        if f > 1.0 { f = 1.0 }
+        // Gentle start and stop on every leg.
+        f = f * f * (3.0 - 2.0 * f)
+        return TitleOffset.{x + (cast(float32)TITLE_WALK_X[next] - x) * f, y + (cast(float32)TITLE_WALK_Y[next] - y) * f}
+    }
+    return TitleOffset.{0.0, 0.0}
 }
 
 TitleInside :: (hotspot: s32, x: float32, y: float32, now: float64 = 0.0) -> bool {
-    x -= TitleHotspotMotionX(hotspot, now)
+    motion := TitleHotspotMotion(hotspot, now)
+    x -= motion.x
+    y -= motion.y
     chunk := TITLE_POLYGON_CHUNK[hotspot]
     first := TITLE_POLYGON_FIRST[hotspot]
     end := first + TITLE_POLYGON_COUNT[hotspot]

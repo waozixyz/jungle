@@ -5,7 +5,12 @@
 - Use less memory while painting and saving games, so long sessions stay smooth.
 - The Collection Book, Treasure Chest, Picture Book and stories use less memory during long play.
 - On the world map, fog hides every place you haven't found yet, and you can't tap those places. Visiting a place clears its whole region, and travelling between two places clears the land between them.
-- In the Desert, the birds now sit on a giant tree by the oasis, on a branch that reaches halfway across.
+- The Desert has a giant tree by the oasis with two empty branches and a magic bird house to tap.
+- The Beach, Port, Market and Aquarium have white sand like the world map.
+- Each Beach crab now walks around on its own, with smaller crabs further back.
+- The Treehouse window now looks out over the jungle to the white dunes and lagoons of the world map.
+- On phones the Coloring Book picture fills the screen, and its tools open from a Tools button.
+- Every Coloring Book scene has a tall version for new pictures on portrait screens.
 
 ## 0.1.39
 

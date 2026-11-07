@@ -165,3 +165,135 @@ PaintChoicesAnchor :: (version: s32, value: s32, count: s32) -> s32 {
     if version == 2 || version == 3 { return ifx value < count then value else -1 }
     return -1
 }
+
+// The coloring screen: the picture and its tools. Where the tools fit beside
+// or below the picture they stay in view; where they would take more than a
+// third of the screen, the picture keeps that room and the tools open from a
+// drawer behind one Tools button, beside which the chosen tool and crayon show.
+PaintMainLayout :: struct {
+    width: s32; height: s32; pad: s32; gap: s32
+    canvas_x: s32; canvas_y: s32; canvas_w: s32; canvas_h: s32
+    // The tools: in view, or inside the drawer when compact.
+    tools: s32; columns: s32; tools_x: s32; tools_y: s32; tool_w: s32; tool_h: s32
+    compact: bool
+    // Compact only: the bar along the bottom (portrait) or the left edge,
+    // its Tools button and status, and the drawer it opens.
+    side: bool
+    bar_x: s32; bar_y: s32; bar_w: s32; bar_h: s32
+    toggle_x: s32; toggle_y: s32; toggle_w: s32; toggle_h: s32
+    status_x: s32; status_y: s32; status_w: s32; status_h: s32
+    drawer_x: s32; drawer_y: s32; drawer_w: s32; drawer_h: s32
+}
+
+PaintRect :: struct { x: s32; y: s32; w: s32; h: s32; }
+
+// A child's finger needs at least this many pixels on a tool or bar button.
+PAINT_TOUCH_MINIMUM :: 48
+
+PaintClamp :: (value: s32, low: s32, high: s32) -> s32 {
+    if value > high { value = high }
+    if value < low { value = low }
+    return value
+}
+
+// The largest page-shaped rectangle inside a room, centered in it.
+PaintFitCanvas :: (l: *PaintMainLayout, x: s32, y: s32, w: s32, h: s32, page_w: s32, page_h: s32) {
+    l.canvas_w = w
+    l.canvas_h = w * page_h / page_w
+    if l.canvas_h > h { l.canvas_h = h; l.canvas_w = h * page_w / page_h }
+    if l.canvas_w < 1 { l.canvas_w = 1 }
+    if l.canvas_h < 1 { l.canvas_h = 1 }
+    l.canvas_x = x + (w - l.canvas_w) / 2
+    l.canvas_y = y + (h - l.canvas_h) / 2
+}
+
+PaintMainBounds :: (width: s32, height: s32, page_w: s32, page_h: s32, tools: s32) -> PaintMainLayout {
+    l: PaintMainLayout
+    l.width = width; l.height = height; l.tools = tools
+    shortest := ifx width < height then width else height
+    l.pad = PaintClamp(shortest / 40, 6, 20)
+    l.gap = PaintClamp(shortest / 80, 4, 10)
+    pad := l.pad; gap := l.gap
+    l.side = width >= height
+    if !l.side {
+        // Three columns of tools below the picture.
+        l.columns = 3
+        l.tool_w = (width - pad * 2 - gap * 2) / 3
+        l.tool_h = PaintClamp(l.tool_w * 3 / 4, PAINT_TOUCH_MINIMUM, 110)
+        rows := (tools + 2) / 3
+        panel := rows * l.tool_h + (rows - 1) * gap
+        if (panel + pad) * 3 <= height {
+            PaintFitCanvas(*l, pad, pad, width - pad * 2, height - pad * 3 - panel, page_w, page_h)
+            l.tools_x = pad
+            l.tools_y = l.canvas_y + l.canvas_h + pad + (height - pad - (l.canvas_y + l.canvas_h + pad) - panel) / 2
+            return l
+        }
+    } else {
+        // A short landscape phone needs two columns to keep taps generous.
+        l.columns = ifx height < 560 then 2 else 1
+        rows := (tools + l.columns - 1) / l.columns
+        l.tool_h = (height - pad * 2 - gap * (rows - 1)) / rows
+        l.tool_w = PaintClamp(l.tool_h * 5 / 2, 64, width / (ifx l.columns == 2 then 8 else 5))
+        rail := l.tool_w * l.columns + gap * (l.columns - 1)
+        if l.tool_h >= PAINT_TOUCH_MINIMUM && (rail + pad) * 3 <= width {
+            PaintFitCanvas(*l, 0, pad, width - pad * 3 - rail, height - pad * 2, page_w, page_h)
+            left := (width - rail - pad - l.canvas_w) / 2
+            l.canvas_x = left + rail + pad
+            l.tools_x = left
+            l.tools_y = l.canvas_y + (l.canvas_h - l.tool_h * rows - gap * (rows - 1)) / 2
+            if l.tools_y < pad { l.tools_y = pad }
+            return l
+        }
+    }
+    l.compact = true
+    bar := PaintClamp(shortest / 5, 64, 96)
+    if l.side {
+        l.bar_x = pad; l.bar_y = pad; l.bar_w = bar; l.bar_h = height - pad * 2
+        l.toggle_x = l.bar_x; l.toggle_y = l.bar_y; l.toggle_w = bar; l.toggle_h = bar
+        l.status_x = l.bar_x; l.status_y = l.bar_y + bar + gap; l.status_w = bar; l.status_h = bar
+        PaintFitCanvas(*l, pad * 2 + bar, pad, width - pad * 3 - bar, height - pad * 2, page_w, page_h)
+        // The drawer opens beside the bar, three tools across.
+        l.columns = 3
+        l.drawer_x = pad * 2 + bar; l.drawer_y = pad; l.drawer_h = height - pad * 2
+        rows := (tools + 2) / 3
+        l.tool_h = PaintClamp((l.drawer_h - pad * 2 - gap * (rows - 1)) / rows, 1, 110)
+        l.tool_w = PaintClamp(l.tool_h * 2, 1, (width - l.drawer_x - pad * 3 - gap * 2) / 3)
+        l.drawer_w = l.tool_w * 3 + gap * 2 + pad * 2
+    } else {
+        l.bar_x = pad; l.bar_y = height - pad - bar; l.bar_w = width - pad * 2; l.bar_h = bar
+        l.toggle_w = PaintClamp(bar * 2, bar, l.bar_w / 2)
+        l.toggle_x = l.bar_x; l.toggle_y = l.bar_y; l.toggle_h = bar
+        l.status_w = bar * 2; l.status_x = l.bar_x + l.bar_w - l.status_w; l.status_y = l.bar_y; l.status_h = bar
+        PaintFitCanvas(*l, pad, pad, width - pad * 2, l.bar_y - pad * 2, page_w, page_h)
+        // The drawer rises from the bar, three tools across.
+        l.columns = 3
+        rows := (tools + 2) / 3
+        l.drawer_x = 0; l.drawer_w = width
+        l.tool_w = (width - pad * 2 - gap * 2) / 3
+        l.tool_h = PaintClamp(l.tool_w * 3 / 4, PAINT_TOUCH_MINIMUM + 8, 110)
+        l.drawer_h = rows * l.tool_h + (rows - 1) * gap + pad * 2
+        l.drawer_y = l.bar_y - pad - l.drawer_h
+        if l.drawer_y < 0 { l.drawer_y = 0 }
+    }
+    l.tools_x = l.drawer_x + pad
+    l.tools_y = l.drawer_y + pad
+    return l
+}
+
+// Where tool index sits, in view or inside the drawer.
+PaintToolRect :: (l: PaintMainLayout, index: s32) -> PaintRect {
+    return PaintRect.{l.tools_x + (index % l.columns) * (l.tool_w + l.gap),
+        l.tools_y + (index / l.columns) * (l.tool_h + l.gap), l.tool_w, l.tool_h}
+}
+
+PaintRectHolds :: (r: PaintRect, x: s32, y: s32) -> bool {
+    return x >= r.x && y >= r.y && x < r.x + r.w && y < r.y + r.h
+}
+
+// A new picture takes the page that shows largest on this screen, so a
+// phone held upright colors a tall page.
+PaintPageTall :: (width: s32, height: s32, tools: s32) -> bool {
+    wide := PaintMainBounds(width, height, 960, 720, tools)
+    tall := PaintMainBounds(width, height, 720, 960, tools)
+    return cast(s64)tall.canvas_w * tall.canvas_h > cast(s64)wide.canvas_w * wide.canvas_h
+}

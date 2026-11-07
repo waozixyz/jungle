@@ -1,0 +1,191 @@
+{
+ "map": "local/art-development/world-map-brazil/repair-v3/master-3072x2048.png",
+ "map_sand": {
+  "value_min": 0.68,
+  "saturation_max": 0.3,
+  "green_blue": [
+   0.2,
+   0.58
+  ]
+ },
+ "sand": {
+  "hue": [
+   0.06,
+   0.17
+  ],
+  "saturation": [
+   0.16,
+   0.9
+  ],
+  "value_min": 0.7,
+  "solid_saturation": 0.62,
+  "solid_size": 13
+ },
+ "plates": [
+  {
+   "scene": "beach",
+   "orientation": "landscape",
+   "master": "local/art-development/beach-port-redo/beach-landscape.png",
+   "image": "assets/jungle/title/beach.avif",
+   "low": "assets/jungle/title/beach-low.avif",
+   "ground_top": 230,
+   "keep_hotspots": [
+    "aquarium-walk"
+   ]
+  },
+  {
+   "scene": "beach",
+   "orientation": "portrait",
+   "master": "local/art-development/beach-port-redo/beach-portrait.png",
+   "image": "assets/jungle/title/beach-portrait.avif",
+   "low": "assets/jungle/title/beach-portrait-low.avif",
+   "ground_top": 300
+  },
+  {
+   "scene": "port",
+   "orientation": "landscape",
+   "master": "local/art-development/beach-port-redo/port-landscape.png",
+   "image": "assets/jungle/title/beach-port.avif",
+   "low": "assets/jungle/title/beach-port-low.avif",
+   "ground_top": 300,
+   "keep_hotspots": [
+    "fishing-boat"
+   ],
+   "keep": [
+    [
+     0,
+     0,
+     330,
+     380
+    ],
+    [
+     250,
+     140,
+     700,
+     460
+    ],
+    [
+     460,
+     300,
+     1040,
+     500
+    ]
+   ]
+  },
+  {
+   "scene": "port",
+   "orientation": "portrait",
+   "master": "local/art-development/beach-port-redo/port-portrait.png",
+   "image": "assets/jungle/title/beach-portrait-port.avif",
+   "low": "assets/jungle/title/beach-portrait-port-low.avif",
+   "ground_top": 480,
+   "keep_hotspots": [
+    "fishing-boat"
+   ],
+   "keep": [
+    [
+     0,
+     0,
+     140,
+     600
+    ],
+    [
+     230,
+     430,
+     840,
+     720
+    ]
+   ]
+  },
+  {
+   "scene": "market",
+   "orientation": "landscape",
+   "master": "local/art-development/market/market-landscape.png",
+   "image": "assets/jungle/title/market.avif",
+   "low": "assets/jungle/title/market-low.avif",
+   "ground_top": 380,
+   "keep_hotspots": [
+    "toy-shop",
+    "fish-stall",
+    "bakery",
+    "fruit-stall"
+   ],
+   "keep": [
+    [
+     78,
+     420,
+     320,
+     640
+    ]
+   ]
+  },
+  {
+   "scene": "market",
+   "orientation": "portrait",
+   "master": "local/art-development/market/market-portrait.png",
+   "image": "assets/jungle/title/market-portrait.avif",
+   "low": "assets/jungle/title/market-portrait-low.avif",
+   "ground_top": 120,
+   "keep_hotspots": [
+    "toy-shop",
+    "fish-stall",
+    "bakery",
+    "fruit-stall"
+   ]
+  },
+  {
+   "scene": "aquarium",
+   "orientation": "landscape",
+   "master": "local/art-development/title-waterfront/aquarium.png",
+   "image": "assets/jungle/title/aquarium.avif",
+   "low": "assets/jungle/title/aquarium-low.avif",
+   "include": [
+    [
+     104,
+     52,
+     392,
+     261
+    ],
+    [
+     600,
+     248,
+     901,
+     627
+    ],
+    [
+     940,
+     157,
+     1633,
+     640
+    ]
+   ]
+  },
+  {
+   "scene": "aquarium",
+   "orientation": "portrait",
+   "master": "local/art-development/title-waterfront/aquarium-portrait.png",
+   "image": "assets/jungle/title/aquarium-portrait.avif",
+   "low": "assets/jungle/title/aquarium-portrait-low.avif",
+   "include": [
+    [
+     102,
+     409,
+     256,
+     683
+    ],
+    [
+     375,
+     0,
+     1024,
+     460
+    ],
+    [
+     545,
+     563,
+     1024,
+     1024
+    ]
+   ]
+  }
+ ]
+}

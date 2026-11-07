@@ -40,46 +40,64 @@ HotspotNamed :: (scene: s32, id: string) -> s32 {
     return -1
 }
 
-// Moving painted crabs must carry their actual polygon target in both
-// orientations, including a stationary pointer and a press/release pair.
+// Every Beach crab walks its own loop: it moves and pauses on its own, and its
+// moving picture carries its actual polygon target in both orientations,
+// including a stationary pointer and a press/release pair.
 BeachCrabMotionTest :: () -> s32 {
     for orientation: cast(s32)0..1 {
         scene := SceneNamed(ifx orientation == 0 then "beach" else "beach-portrait")
-        crab := HotspotNamed(scene, "crab-family")
+        crab := HotspotNamed(scene, "crab-big")
+        baby := HotspotNamed(scene, "crab-baby-step")
+        far := HotspotNamed(scene, "crab-sand-1")
         sign := HotspotNamed(scene, "port-path")
-        if crab < 0 || sign < 0 { return 760 }
-        rect := crab * 4
-        if TITLE_GLOW_RECT[rect + 2] != (ifx orientation == 0 then 432 else 468) { return 761 }
-        right := TitleHotspotMotionX(crab, 3.0)
-        left := TitleHotspotMotionX(crab, 9.0)
-        if right < 30.0 || !Near(right, -left) || !Near(TitleHotspotMotionX(crab, 12.0), 0.0) { return 762 }
-        if !Near(TitleHotspotMotionX(sign, 3.0), 0.0) { return 763 }
+        if crab < 0 || baby < 0 || far < 0 || sign < 0 { return 760 }
+        if TITLE_HOTSPOT_WALK_COUNT[crab] < 3 || TITLE_HOTSPOT_WALK_COUNT[baby] < 3 ||
+            TITLE_HOTSPOT_WALK_COUNT[sign] != 0 { return 761 }
+        // It rests where it is drawn at the start of its loop, walks away,
+        // and one crab can pause while another walks.
+        cycle := cast(float64)TITLE_HOTSPOT_WALK_CYCLE[crab]
+        phase := cast(float64)TITLE_HOTSPOT_WALK_PHASE[crab]
+        start := TitleHotspotMotion(crab, cycle - phase)
+        if !Near(start.x, 0.0) || !Near(start.y, 0.0) { return 762 }
+        farthest: float32 = 0.0
+        moved_at: float64 = -1.0
+        independent := false
+        for tick: cast(s32)0..cast(s32)(cycle * 4.0) {
+            now := cast(float64)tick / 4.0
+            here := TitleHotspotMotion(crab, now)
+            later := TitleHotspotMotion(crab, now + 0.25)
+            other := TitleHotspotMotion(baby, now)
+            other_later := TitleHotspotMotion(baby, now + 0.25)
+            reach := here.x * here.x + here.y * here.y
+            if reach > farthest { farthest = reach }
+            if reach > 400.0 && moved_at < 0.0 { moved_at = now }
+            walking := !Near(here.x, later.x) || !Near(here.y, later.y)
+            resting := Near(other.x, other_later.x) && Near(other.y, other_later.y)
+            if walking && resting { independent = true }
+        }
+        if farthest < 1600.0 || moved_at < 0.0 || !independent { return 763 }
+        motion := TitleHotspotMotion(sign, 3.0)
+        if !Near(motion.x, 0.0) || !Near(motion.y, 0.0) { return 764 }
         x: float32
         y: float32
-        if !OwnPoint(scene, crab, *x, *y) { return 764 }
-        for tick: cast(s32)0..48 {
+        if !OwnPoint(scene, crab, *x, *y) { return 765 }
+        for tick: cast(s32)0..cast(s32)(cycle * 4.0) {
             now := cast(float64)tick / 4.0
-            moved_x := x + TitleHotspotMotionX(crab, now)
-            if !TitleInside(crab, moved_x, y, now) || TitleHit(scene, moved_x, y, now) != crab { return 765 }
+            motion = TitleHotspotMotion(crab, now)
+            if !TitleInside(crab, x + motion.x, y + motion.y, now) { return 766 }
         }
-        // A newly occupied edge hits the moving crab rather than its old
-        // position; a vacated edge is no longer a crab target.
-        for direction: cast(s32)0..1 {
-            now := ifx direction == 0 then 3.0 else 9.0
-            entered := false
-            left_behind := false
-            for row: cast(s32)1..39 {
-                for column: cast(s32)-10..50 {
-                    px := cast(float32)TITLE_GLOW_RECT[rect] + cast(float32)(TITLE_GLOW_RECT[rect + 2] * column) / 40.0
-                    py := cast(float32)TITLE_GLOW_RECT[rect + 1] + cast(float32)(TITLE_GLOW_RECT[rect + 3] * row) / 40.0
-                    original := TitleInside(crab, px, py)
-                    moving := TitleInside(crab, px, py, now)
-                    if moving && !original && TitleHit(scene, px, py, now) == crab { entered = true }
-                    if original && !moving && TitleHit(scene, px, py, now) != crab { left_behind = true }
-                }
+        // A vacated spot is no longer this crab's target while it is away.
+        motion = TitleHotspotMotion(crab, moved_at)
+        rect := crab * 4
+        left_behind := false
+        for row: cast(s32)1..39 {
+            for column: cast(s32)1..39 {
+                px := cast(float32)TITLE_GLOW_RECT[rect] + cast(float32)(TITLE_GLOW_RECT[rect + 2] * column) / 40.0
+                py := cast(float32)TITLE_GLOW_RECT[rect + 1] + cast(float32)(TITLE_GLOW_RECT[rect + 3] * row) / 40.0
+                if TitleInside(crab, px, py) && !TitleInside(crab, px, py, moved_at) { left_behind = true }
             }
-            if !entered || !left_behind { return 766 }
         }
+        if !left_behind { return 767 }
         state: TitleState
         TitleStart(*state)
         state.scene = scene
@@ -87,13 +105,14 @@ BeachCrabMotionTest :: () -> s32 {
         width: float32 = ifx orientation == 0 then 960.0 else 420.0
         height: float32 = ifx orientation == 0 then 600.0 else 900.0
         view := TitleFit(width, height, 0.0, 0.0, scene)
-        wx := view.x + (x + right) * view.scale
-        wy := view.y + y * view.scale
-        unused TitlePointer(*state, view, wx, wy, false, false, false, false, 3.0)
-        if state.hovered != crab || TitleGlowing(state) != crab { return 767 }
-        unused TitlePointer(*state, view, wx, wy, true, true, false, false, 3.0)
-        opened := TitlePointer(*state, view, wx, wy, false, false, true, false, 3.01)
-        if opened.game != crab { return 768 }
+        if TitleHit(scene, x + motion.x, y + motion.y, moved_at) != crab { return 768 }
+        wx := view.x + (x + motion.x) * view.scale
+        wy := view.y + (y + motion.y) * view.scale
+        unused TitlePointer(*state, view, wx, wy, false, false, false, false, moved_at)
+        if state.hovered != crab || TitleGlowing(state) != crab { return 769 }
+        unused TitlePointer(*state, view, wx, wy, true, true, false, false, moved_at)
+        opened := TitlePointer(*state, view, wx, wy, false, false, true, false, moved_at + 0.01)
+        if opened.game != crab { return 770 }
     }
     return 0
 }
@@ -491,9 +510,9 @@ main :: () -> s32 {
     if !step.moved || touch.scene != jungle_path { return 275 }
     unused TitleKey(*touch, 256)
     if touch.scene != campus { return 276 }
-    // Desert leads to its own painted scene in both orientations. Every bird
-    // on the branch opens the same tap-through bubble, which freezes the scene
-    // until its last line, and the Campus sign leads back.
+    // Desert leads to its own painted scene in both orientations. The magic
+    // bird house on the tree opens a tap-through bubble, which freezes the
+    // scene until its last line, and the Campus sign leads back.
     sign = HotspotNamed(campus, "desert-path")
     desert := SceneNamed("desert")
     if sign < 0 || desert < 0 || TITLE_HOTSPOT_NOTICE[sign] != 0 || TITLE_HOTSPOT_TARGET[sign] != desert { return 283 }
@@ -520,27 +539,25 @@ main :: () -> s32 {
         TitleResolve(*talk, width, height)
         if !step.moved || TITLE_SCENE_BASE[talk.scene] != desert { return 287 }
         if (talk.scene != desert) != (portrait == 1) { return 288 }
-        // The big branch of birds: the macaw speaks for every one of them.
-        macaw := HotspotNamed(talk.scene, "desert-macaw")
-        finch := HotspotNamed(talk.scene, "desert-finch")
+        // No bird yet, only the bird house on the tree: it speaks.
+        house := HotspotNamed(talk.scene, "desert-bird-house")
         back := HotspotNamed(talk.scene, "campus-path")
-        if macaw < 0 || finch < 0 || back < 0 || TITLE_SCENE_HOTSPOTS[talk.scene] != 13 { return 289 }
-        if TITLE_HOTSPOT_DIALOGUE[macaw] != 1 || TITLE_HOTSPOT_DIALOGUE[finch] != 1 || TITLE_HOTSPOT_GAME[macaw] != "" { return 290 }
+        if house < 0 || back < 0 || TITLE_SCENE_HOTSPOTS[talk.scene] != 2 { return 289 }
+        if TITLE_HOTSPOT_DIALOGUE[house] != 1 || TITLE_HOTSPOT_GAME[house] != "" { return 290 }
         if TITLE_SIGN_LABEL[back] != "Campus" || TITLE_SIGN_DIRECTION[back] != 1 || TITLE_HOTSPOT_TARGET[back] != campus { return 291 }
-        if TitleHotspotRest(macaw) != "assets/jungle/title/objects/desert-macaw.avif" ||
-            TitleHotspotRest(finch) != "assets/jungle/title/objects/desert-finch.avif" { return 292 }
-        // A point that is the macaw's own, even where neighbors overlap.
+        if TitleHotspotRest(house) != "assets/jungle/title/objects/desert-bird-house.avif" { return 292 }
+        // A point that is the bird house's own.
         view = TitleFit(width, height, 0.0, 0.0, talk.scene)
-        if !OwnPoint(talk.scene, macaw, *tx, *ty) { return 293 }
+        if !OwnPoint(talk.scene, house, *tx, *ty) { return 293 }
         wx = view.x + tx * view.scale
         wy = view.y + ty * view.scale
         // A mouse click after hovering opens the bubble at once.
         unused TitlePointer(*talk, view, wx + 2.0, wy, false, false, false, false, 11.0)
         unused TitlePointer(*talk, view, wx, wy, false, false, false, false, 11.05)
-        if talk.hovered != macaw { return 294 }
+        if talk.hovered != house { return 294 }
         unused TitlePointer(*talk, view, wx, wy, true, true, false, false, 11.1)
         step = TitlePointer(*talk, view, wx, wy, false, false, true, false, 11.2)
-        if talk.dialogue != 1 || talk.dialogue_line != 0 || talk.dialogue_hotspot != macaw || step.moved || step.game >= 0 { return 295 }
+        if talk.dialogue != 1 || talk.dialogue_line != 0 || talk.dialogue_hotspot != house || step.moved || step.game >= 0 { return 295 }
         if TitleDialogueText(talk, 0) != "Hello! This is the big desert." ||
             TitleDialogueText(talk, 1) != "Hallo! Das ist die große Wüste." ||
             TitleDialogueText(talk, 2) != "¡Hola! Este es el gran desierto." { return 296 }
@@ -570,9 +587,9 @@ main :: () -> s32 {
             for language_index: cast(s32)0..2 { if TitleDialogueText(talk, language_index) == "" { return 303 } }
         }
         if TitleDialogueAdvance(*talk) || talk.dialogue != 0 || talk.scene != shown || TitleDialogueText(talk, 0) != "" { return 304 }
-        // The finch opens the same bubble, still spoken by the macaw; closing ends it.
-        unused TitleActivate(*talk, finch)
-        if talk.dialogue != 1 || talk.dialogue_hotspot != macaw || talk.dialogue_line != 0 { return 305 }
+        // Another tap opens the bubble again from its first line; closing ends it.
+        unused TitleActivate(*talk, house)
+        if talk.dialogue != 1 || talk.dialogue_hotspot != house || talk.dialogue_line != 0 { return 305 }
         TitleDialogueClose(*talk)
         if talk.dialogue != 0 || talk.dialogue_hotspot != -1 { return 306 }
         // The bubble stays inside the window, under the corner controls, above the head.
@@ -580,7 +597,7 @@ main :: () -> s32 {
         if unit < 1.0 { unit = 1.0 }
         units_x := cast(s32)(width / unit)
         units_y := cast(s32)(height / unit)
-        at := macaw * 4
+        at := house * 4
         anchor := TitleGuideRect.{cast(s32)((view.x + cast(float32)TITLE_GLOW_RECT[at] * view.scale) / unit),
             cast(s32)((view.y + cast(float32)TITLE_GLOW_RECT[at + 1] * view.scale) / unit),
             cast(s32)(cast(float32)TITLE_GLOW_RECT[at + 2] * view.scale / unit),

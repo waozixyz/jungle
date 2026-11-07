@@ -1,186 +1,45 @@
 {
-  "owner_request": "The desert must be like in the map, so white and with the oasis; no camel or person but a big branch of colorful, unique parrots; each bird must be its own asset, not in the scene directly (owner, 2026-11-05). It should be a giant tree on the side with a branch, not straight the full width, just half (owner, 2026-11-06).",
+  "owner_request": "The desert must be like in the map, so white and with the oasis; no camel or person but a big branch of colorful, unique parrots; each bird must be its own asset, not in the scene directly (owner, 2026-11-05). It should be a giant tree on the side with a branch, not straight the full width, just half; add a bird house on the tree, at start there should be no birds but a clear section of 2 branches where we put a total of 18 birds that we will fill in from the magic bird house (owner, 2026-11-06).",
   "generator": "Harmony generate_image (Codex built-in image generation); original Jungle watercolor",
   "style_reference": "the world map Desert (white dunes, turquoise lagoons, palm clumps) and the Campus title painting; the owner's bird screenshot only as a mood guide",
-  "method": "v4 plates repaint the v3 white-sand lagoon oasis with a giant tree at the left whose one mossy branch reaches about half the width, without birds; every bird is cut from its own transparent master and laid out along the measured limb lines in PERCHES as a separate layer with a soft contact shadow. The Campus plank keeps its board.",
+  "method": "The landscape v5 plate repaints the white-sand lagoon oasis with a giant tree at the left and two clear mossy branches; the portrait v4 plate has the crown limb and a lower branch; no bird is painted. The bird house is cut from its own generated picture (BiRefNet, entrance hole restored) and hangs under the lower branch as a separate layer; PERCHES lays out the 18 empty perch slots along the measured limb lines. The Campus plank keeps its board.",
   "assets": [
     {
-      "layer": "macaw",
-      "master": "local/art-development/desert-edge/birds/macaw.png",
-      "master_sha256": "34a875a09e3508ab7bc5f85603ac56bb444030a144ba73281f363e33e1645c9c",
-      "runtime": "assets/jungle/title/objects/desert-macaw.avif",
-      "sha256": "7520e986487db81d77a192ff31546c43d0d053742c14d65f5b0903935526c697",
-      "glow": "assets/jungle/title/objects/desert-macaw-glow.avif",
-      "glow_sha256": "84378665f9670c7c433b2b4ea45b2d1e3ceaf646f2e32d07b61fb97aa4302c1d",
+      "layer": "bird-house",
+      "generated": "local/art-development/desert-edge/bird-house-generated.png",
+      "generated_sha256": "12cd7a8bb5dd361edb224f9b9d15bcd978174d76c4e2cceaea82e46111b04fc7",
+      "master": "local/art-development/desert-edge/runtime-exports/desert-bird-house.png",
+      "master_sha256": "135f6299915334c7115830fd35f6ae9d7bae97389ad2d69a91c843c2c653db35",
+      "runtime": "assets/jungle/title/objects/desert-bird-house.avif",
+      "sha256": "ce8f71cd9b1a0c46d6a1b0a113830dfc528d46e90c35bdfbad86701548056259",
+      "glow": "assets/jungle/title/objects/desert-bird-house-glow.avif",
+      "glow_sha256": "c1d08e36162a910f04d9bd6c813d30b00b7d168c398fac41b061ab55f68dd48f",
       "size": [
-        501,
-        479
-      ]
-    },
-    {
-      "layer": "blue-parrot",
-      "master": "local/art-development/desert-edge/birds/blue-parrot.png",
-      "master_sha256": "97e1db4af1a4840cb1f4877ec4501dc9cb29bda4ef025a0cbaa725562ec6e3e7",
-      "runtime": "assets/jungle/title/objects/desert-blue-parrot.avif",
-      "sha256": "e182fff179a50d9f7727852f5d4b3ccbdcd928709d169176aee22f8ac7469be5",
-      "glow": "assets/jungle/title/objects/desert-blue-parrot-glow.avif",
-      "glow_sha256": "9891913e75fdc5f29c057d4111ac40d8572042d424a63c9655c616cb72699679",
-      "size": [
-        358,
-        460
-      ]
-    },
-    {
-      "layer": "green-parakeet",
-      "master": "local/art-development/desert-edge/birds/green-parakeet.png",
-      "master_sha256": "d4961d70b08303fb815e3eed4a956c14a7735fbc353b32487c133647e69586e0",
-      "runtime": "assets/jungle/title/objects/desert-green-parakeet.avif",
-      "sha256": "af9f0c08c356239cf824417f66bcbb09df146f9f4c1fe70bd11829a9e7a8b9c9",
-      "glow": "assets/jungle/title/objects/desert-green-parakeet-glow.avif",
-      "glow_sha256": "706ec0a4845986dd28fa7b980ef6324fa919f46bb0ad9d54a07c94b7fdbcb75c",
-      "size": [
-        474,
-        435
-      ]
-    },
-    {
-      "layer": "cockatiel",
-      "master": "local/art-development/desert-edge/birds/cockatiel.png",
-      "master_sha256": "503d4f7c0f56af76057af138184b60b1ec3d8440d4fa47550e9fe869e048ac19",
-      "runtime": "assets/jungle/title/objects/desert-cockatiel.avif",
-      "sha256": "d4f333f4167ddcfea856a6ae0c75d8159609b74158a116f40fb8c43710bbc75e",
-      "glow": "assets/jungle/title/objects/desert-cockatiel-glow.avif",
-      "glow_sha256": "7da063bcd5d381a4469c429b70640bd51180c919bb40f1dbd8cbdfbc268792d4",
-      "size": [
-        439,
-        527
-      ]
-    },
-    {
-      "layer": "lovebird",
-      "master": "local/art-development/desert-edge/birds/lovebird.png",
-      "master_sha256": "eeaf258dae7cdd73fed99092815bcf363625c09125ee98569bf004717ee7675b",
-      "runtime": "assets/jungle/title/objects/desert-lovebird.avif",
-      "sha256": "9b80c299f6a31fe1517fd1a994bff5e7c83754e4c920c3a4f9a95276a59c70c6",
-      "glow": "assets/jungle/title/objects/desert-lovebird-glow.avif",
-      "glow_sha256": "42f9b93473f49520ef874a0c73d2ec5a971891c92ab540f30987d2225b52ba58",
-      "size": [
-        389,
-        450
-      ]
-    },
-    {
-      "layer": "pink-parrot",
-      "master": "local/art-development/desert-edge/birds/pink-parrot.png",
-      "master_sha256": "59b3ec785942870bcd9ddf5f5578f28fd0188f8a0da9f1d2ba71ad37ad6ea6bf",
-      "runtime": "assets/jungle/title/objects/desert-pink-parrot.avif",
-      "sha256": "8049be8cf2b7148262e5302601436aead0c47abb216dbeec5281cedc16c54d43",
-      "glow": "assets/jungle/title/objects/desert-pink-parrot-glow.avif",
-      "glow_sha256": "856e14f4c28716bcb85c368da5cd0813e4c6711706c601bd2022da5d9b48bbd0",
-      "size": [
-        443,
-        509
-      ]
-    },
-    {
-      "layer": "budgie",
-      "master": "local/art-development/desert-edge/birds/budgie.png",
-      "master_sha256": "000296379f894639262a609fbe1e837b0cf91aa650d93245d506a03b129c3019",
-      "runtime": "assets/jungle/title/objects/desert-budgie.avif",
-      "sha256": "32ca16d4ea9eb04b67ba20424ce44b32d610c5b4f1a18a0864850b945c3cf07d",
-      "glow": "assets/jungle/title/objects/desert-budgie-glow.avif",
-      "glow_sha256": "45d6f1d2952c690d284e72905cc07cb3c5abef720e99240d407be6e5e86b5c35",
-      "size": [
-        415,
-        420
-      ]
-    },
-    {
-      "layer": "finch",
-      "master": "local/art-development/desert-edge/birds/finch.png",
-      "master_sha256": "f12999234a68361a9fac0ac65ebefbeaa9e2bab950efc169b44640b08694cc5c",
-      "runtime": "assets/jungle/title/objects/desert-finch.avif",
-      "sha256": "c188d56b9ad7a032d36bf32092f9be3ba66ced3762d4889a45bead971f97a5ad",
-      "glow": "assets/jungle/title/objects/desert-finch-glow.avif",
-      "glow_sha256": "8012d13fd440cda7e47effdba4848c0951d68c069c8323f41308bfc0725c07fa",
-      "size": [
-        417,
-        354
-      ]
-    },
-    {
-      "layer": "parrotlet",
-      "master": "local/art-development/desert-edge/birds/parrotlet.png",
-      "master_sha256": "ee322ec321bb368be2b33dc0cb696c45b95828166c087a4c901eebfdfd1aa7df",
-      "runtime": "assets/jungle/title/objects/desert-parrotlet.avif",
-      "sha256": "f0c0fc3263f0cb68f834785a98904c77f6512067a5cb90b5a2020555190f9bf6",
-      "glow": "assets/jungle/title/objects/desert-parrotlet-glow.avif",
-      "glow_sha256": "f85ad818105679bf27e7d86190e3919ccd665ce50211fac4b02953b22f188972",
-      "size": [
-        372,
-        416
-      ]
-    },
-    {
-      "layer": "rosella",
-      "master": "local/art-development/desert-edge/birds/rosella.png",
-      "master_sha256": "a4759b4d337be85d53917de810af9cbce41e65ead307ed68048593703922a012",
-      "runtime": "assets/jungle/title/objects/desert-rosella.avif",
-      "sha256": "d0500ad290518488d953300cc1d56ef919ede7e0829ff726bea87caa5f2d476d",
-      "glow": "assets/jungle/title/objects/desert-rosella-glow.avif",
-      "glow_sha256": "4e378e97e2a59602684673b2cf027cfb1a3d83bd9576d8dfbc297bb21772175b",
-      "size": [
-        531,
-        445
-      ]
-    },
-    {
-      "layer": "sky-chick",
-      "master": "local/art-development/desert-edge/birds/sky-chick.png",
-      "master_sha256": "5425b88c41171dc06648eeba95f817d551cb42273c9fb8605c631ef54081e922",
-      "runtime": "assets/jungle/title/objects/desert-sky-chick.avif",
-      "sha256": "ce13fba2db7389ab7c3f278ccd464a7ec80b0804164774fce2917a1be0d8d323",
-      "glow": "assets/jungle/title/objects/desert-sky-chick-glow.avif",
-      "glow_sha256": "518bb96378d6fe7e756549884360076901a91277f3aa1be7a334d2f95cf8788d",
-      "size": [
-        370,
-        396
-      ]
-    },
-    {
-      "layer": "macaw-chick",
-      "master": "local/art-development/desert-edge/birds/macaw-chick.png",
-      "master_sha256": "83120c1631262d4e6506d168e6c221f46be044ac95553689d4d456311518e678",
-      "runtime": "assets/jungle/title/objects/desert-macaw-chick.avif",
-      "sha256": "5f7211e8c156ef470be260cb99a17eb750a318bf3bd464e57978c21b8e1f3bc8",
-      "glow": "assets/jungle/title/objects/desert-macaw-chick-glow.avif",
-      "glow_sha256": "0a462f7308257c43333fb8e604475f94db8c711e51ad869efe4c6513dca583e9",
-      "size": [
-        421,
-        451
+        870,
+        1202
       ]
     },
     {
       "plate": "landscape",
-      "generated": "local/art-development/desert-edge/desert-landscape-v4.png",
-      "generated_sha256": "edf8e0a9d82d3f96cb1a78f9079ff3582533d8fb2ebb91a0564224341736e627",
+      "generated": "local/art-development/desert-edge/desert-landscape-v5.png",
+      "generated_sha256": "846622e84fbd6fd7f7bee955e70d20f9218f8e0d777f7260e4daff0363ce67bd",
       "master": "local/art-development/desert-edge/desert-landscape-plate.png",
-      "master_sha256": "3985a2c23f1977124f627c8dd35e22a3daf37fede4cc1ce4b79cb71a03917fc1",
+      "master_sha256": "7ca5bf1c08ed82305b8097ba5519e6723b843c9cd09640f500b02d27772b9e04",
       "runtime": "assets/jungle/title/desert.avif",
-      "sha256": "004491cec9b8c34c0498c7ab266fe89508f7cd3ba1bd22eb619d1d38e96aa82b",
+      "sha256": "6cb4accdd2b5eaa1393d841305b90cac50d95214cb93ac7fff1ff1bd0920ad27",
       "low": "assets/jungle/title/desert-low.avif",
-      "low_sha256": "8df108a208a7cde0654ce870dbea355d7634d8e172a87b6c49b82dd92b93f692"
+      "low_sha256": "0e2cef0e47a4104ec8b701cebbc918c38144a2fe07f924a169a0da4d3d990d21"
     },
     {
       "plate": "portrait",
       "generated": "local/art-development/desert-edge/desert-portrait-v4.png",
       "generated_sha256": "9ea8f0ff3aed8b166d51847377990dfad3593b4a992e3e7426b8e0d17c0c4515",
       "master": "local/art-development/desert-edge/desert-portrait-plate.png",
-      "master_sha256": "d6ab0a8bd87cb57ab1346cab33d9f28766dfade8ae19a9118e6e53ffa2f8ef6d",
+      "master_sha256": "00a7745e771bd8a1c380d7e2b492d5c49601d55331a32c00ce7dd050d98273d7",
       "runtime": "assets/jungle/title/desert-portrait.avif",
-      "sha256": "7c0e1136a4d6c2951f1780bd9cae3c9876a79f59fa494c0d5596498e19a3564b",
+      "sha256": "2dcc6b8a715ca8945f843acf23ca3636e2f570993f867f515d75b294dacc2552",
       "low": "assets/jungle/title/desert-portrait-low.avif",
-      "low_sha256": "61ab788ba6fbc4f17f13a254959cd80ee99784b28ac548a8099c61e598eab22f"
+      "low_sha256": "08f59f1abaa8437b547bc9fc0823b8bf5661e48902d9deea5ed3c81a4d100943"
     }
   ]
 }

@@ -14,7 +14,10 @@ from scipy import ndimage
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'tools'))
 import paint_vectors as vectors
-from paint_pages import CANVAS, dinosaur, fit, render
+from paint_pages import CANVAS, TALL, dinosaur, fit, render
+
+# Scenes and their tall pages hold one ink path; stencils a body and ink.
+PAGES = ('scene', 'portrait')
 
 
 def decode(data):
@@ -85,10 +88,10 @@ class PaintVectorsTest(unittest.TestCase):
                 data = (vectors.OUT / (name + '.kvp')).read_bytes()
                 self.assertLessEqual(len(data), vectors.MAX_VECTOR_BYTES)
                 width, height, paths = decode(data)
-                self.assertEqual(len(paths), 1 if name.startswith('scene') else 2)
+                self.assertEqual(len(paths), 1 if name.startswith(PAGES) else 2)
                 self.assertTrue(all('C' in path for path in paths), 'Expected smooth Bezier outlines')
-                if name.startswith('scene'):
-                    self.assertEqual((width, height), CANVAS)
+                if name.startswith(PAGES):
+                    self.assertEqual((width, height), TALL if name.startswith('portrait') else CANVAS)
                 else:
                     _, w, h, _, _ = dinosaur(int(name[4:]))
                     self.assertEqual((width, height), fit(w, h, *CANVAS))
@@ -103,7 +106,7 @@ class PaintVectorsTest(unittest.TestCase):
             with self.subTest(name=name):
                 width, height, paths = decode((vectors.OUT / (name + '.kvp')).read_bytes())
                 size = (int(width), int(height))
-                if name.startswith('scene'):
+                if name.startswith(PAGES):
                     source = (vectors.ART / (name + '.svg')).read_text()
                     sources = [source]
                 else:
@@ -111,7 +114,7 @@ class PaintVectorsTest(unittest.TestCase):
                     sources = [body, ink]
                 for path, source in zip(paths, sources):
                     image = render(source, *size)
-                    expected = (np.asarray(image.convert('L')) < 128 if name.startswith('scene')
+                    expected = (np.asarray(image.convert('L')) < 128 if name.startswith(PAGES)
                                 else np.asarray(image.getchannel('A')) >= 128)
                     actual = coverage(width, height, path, size)
                     self.assertGreater(expected.sum(), 100)
@@ -121,7 +124,7 @@ class PaintVectorsTest(unittest.TestCase):
                     # 49% coverage must not count as missing beside a 51% one.
                     self.assertLess(np.count_nonzero(expected ^ actual) / expected.sum(), .05)
                     neighbors = np.ones((3, 3), dtype=bool)
-                    expected_support = (np.asarray(image.convert('L')) < 239 if name.startswith('scene')
+                    expected_support = (np.asarray(image.convert('L')) < 239 if name.startswith(PAGES)
                                         else np.asarray(image.getchannel('A')) >= 16)
                     actual_support = coverage(width, height, path, size, threshold=16)
                     self.assertFalse(np.any(actual & ~ndimage.binary_dilation(expected_support, structure=neighbors)))
@@ -152,7 +155,7 @@ class PaintVectorsTest(unittest.TestCase):
         last = max(int(p.stem[4:]) for p in vectors.ART.glob('dino[0-9]*.svg'))
         for name in ('scene1', 'dino13', f'dino{last}'):
             width, height, paths = decode((vectors.OUT / (name + '.kvp')).read_bytes())
-            if name.startswith('scene'):
+            if name.startswith(PAGES):
                 source = (vectors.ART / (name + '.svg')).read_text()
             else:
                 source = dinosaur(int(name[4:]))[3]
@@ -173,7 +176,7 @@ class PaintVectorsTest(unittest.TestCase):
                 with self.subTest(name=name, scale=scale):
                     size = (80 * scale, 80 * scale)
                     image = render(ET.tostring(tree, encoding='unicode'), *size)
-                    expected = (np.asarray(image.convert('L')) < 128 if name.startswith('scene')
+                    expected = (np.asarray(image.convert('L')) < 128 if name.startswith(PAGES)
                                 else np.asarray(image.getchannel('A')) >= 128)
                     actual = coverage(width, height, paths[-1], size, box)
                     self.assertLess(np.count_nonzero(expected ^ actual) / max(1, expected.sum()), .08)

@@ -14,13 +14,17 @@
 export_number: s32;
 export_pixels: [CANVAS_PIXELS]u8;
 
-PrintPage :: (pixels: []u8, story: string) -> string {
+// A wide picture fills the letter page's width above its story; a tall one
+// stands centered in the same space.
+PrintPage :: (pixels: []u8, story: string, page: PaintPage = WIDE_PAGE) -> string {
     text: Vec(u8)
     BuilderPrint(*text, "%", "%!PS-Adobe-3.0\n%%Pages: 1\n%%BoundingBox: 0 0 612 792\n")
     BuilderPrint(*text, "<< /PageSize [612 792] >> setpagedevice\n")
-    BuilderPrint(*text, "/row % string def\ngsave\n66 360 translate\n480 360 scale\n", CANVAS_WIDTH * 3)
+    BuilderPrint(*text, "/row % string def\ngsave\n", page.width * 3)
+    if PageIsTall(page) { BuilderPrint(*text, "171 360 translate\n270 360 scale\n") }
+    else { BuilderPrint(*text, "66 360 translate\n480 360 scale\n") }
     BuilderPrint(*text, "% % 8 [% 0 0 -% 0 %]\n{currentfile row readhexstring pop} false 3 colorimage\n",
-        CANVAS_WIDTH, CANVAS_HEIGHT, CANVAS_WIDTH, CANVAS_HEIGHT, CANVAS_HEIGHT)
+        page.width, page.height, page.width, page.height, page.height)
     hex := "0123456789abcdef"
     for at: cast(s32)0..CANVAS_PIXELS - 1 {
         color := paint_colors[pixels[at]]
@@ -29,7 +33,7 @@ PrintPage :: (pixels: []u8, story: string) -> string {
             unused VecPush(text, hex[cast(s32)(byte >> 4)])
             unused VecPush(text, hex[cast(s32)(byte & 15)])
         }
-        if (at + 1) % CANVAS_WIDTH == 0 { unused VecPush(text, cast(u8)10) }
+        if (at + 1) % page.width == 0 { unused VecPush(text, cast(u8)10) }
     }
     BuilderPrint(*text, "grestore\n/Courier findfont dup length dict begin {1 index /FID ne {def} {pop pop} ifelse} forall /Encoding ISOLatin1Encoding def currentdict end /JungleCourier exch definefont 12 scalefont setfont\n0 setgray\n")
     row: s32 = 0
@@ -54,7 +58,8 @@ PrintPage :: (pixels: []u8, story: string) -> string {
 }
 
 ExportPicture :: (files: *AppFiles, request: string, printer: bool) -> string {
-    length := PictureFromGame(request, export_pixels[:])
+    page: PaintPage
+    length := PictureFromGame(request, export_pixels[:], *page)
     if length < 0 || request.count > length + 8 * 77 { return "failed" }
     story := request[length:]
     rows: s32 = 0
@@ -77,10 +82,10 @@ ExportPicture :: (files: *AppFiles, request: string, printer: bool) -> string {
     BuilderPrint(*name, "exports/picture-%-%", BundleUnixMilliseconds(), export_number)
     base := BuilderFinish(name)
     defer { AppFileFree(base) }
-    png := PngIndexed(CANVAS_WIDTH, CANVAS_HEIGHT, paint_colors[:], export_pixels[:])
+    png := PngIndexed(page.width, page.height, paint_colors[:], export_pixels[:])
     if png == "" || !AppFileWrite(files, Cat(base, ".png"), png) ||
     !AppFileWrite(files, Cat(base, ".txt"), story) ||
-    !AppFileWrite(files, Cat(base, ".ps"), PrintPage(export_pixels[:], story)) { return "failed" }
+    !AppFileWrite(files, Cat(base, ".ps"), PrintPage(export_pixels[:], story, page)) { return "failed" }
     if !printer { return "exported" }
     path := AppFilePath(files, Cat(base, ".ps"), false)
     defer { AppFileFree(path) }

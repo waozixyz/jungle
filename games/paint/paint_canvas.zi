@@ -1,4 +1,4 @@
-// The picture: 960 by 720 pixels of crayon colors over black lines.
+// The picture: a wide or tall page of crayon colors over black lines.
 // Lines are stamped from a scene and any dinosaurs placed on it; the paint
 // bucket fills up to those lines. A pixel is a line exactly when it is INK:
 // crayons start at 16, so no fill ever paints INK.
@@ -26,6 +26,8 @@ PaintSceneFromCode :: (code: s32) -> s32 {
     return ifx code > SAVED_BLANK_SCENE then code - 1 else code
 }
 
+// The working picture's page; a scene has a composed version for each.
+canvas_page: PaintPage = .{width = 960, height = 720};
 canvas: [CANVAS_PIXELS]u8;
 stamp: [CANVAS_PIXELS]bool;
 stamp_body: [CANVAS_PIXELS]bool;
@@ -87,7 +89,7 @@ CanvasOverlay :: (id: s32, left: s32, top: s32, right: s32, bottom: s32) {
         for x: x0..x1 - 1 {
             pixel := object.pixels[(y - object.y) * object.w + x - object.x]
             if pixel == cast(u8)TRANSPARENT { continue }
-            at := y * CANVAS_WIDTH + x
+            at := y * canvas_page.width + x
             canvas[at] = pixel
             owner[at] = cast(u8)(id + 1)
         }
@@ -95,8 +97,8 @@ CanvasOverlay :: (id: s32, left: s32, top: s32, right: s32, bottom: s32) {
 }
 
 CanvasObjectAt :: (x: s32, y: s32) -> s32 {
-    if layer_count == 0 || x < 0 || y < 0 || x >= CANVAS_WIDTH || y >= CANVAS_HEIGHT { return -1 }
-    return cast(s32)owner[y * CANVAS_WIDTH + x] - 1
+    if layer_count == 0 || x < 0 || y < 0 || x >= canvas_page.width || y >= canvas_page.height { return -1 }
+    return cast(s32)owner[y * canvas_page.width + x] - 1
 }
 
 // Preparing a rotation never changes the document. The editor can push one
@@ -131,18 +133,18 @@ CanvasRotation :: (id: s32, degrees: float32, extent: PaintExtent) -> PaintRotat
     wide := across * cast(float32)extent.w + down * cast(float32)extent.h
     high := down * cast(float32)extent.w + across * cast(float32)extent.h
     scale: float32 = 1.0
-    if wide > cast(float32)CANVAS_WIDTH { scale = cast(float32)CANVAS_WIDTH / wide }
-    if high * scale > cast(float32)CANVAS_HEIGHT { scale = cast(float32)CANVAS_HEIGHT / high }
+    if wide > cast(float32)canvas_page.width { scale = cast(float32)canvas_page.width / wide }
+    if high * scale > cast(float32)canvas_page.height { scale = cast(float32)canvas_page.height / high }
     w := ifx scale < 1.0 then FloorInteger(wide * scale + 0.0001) else CeilInteger(wide - 0.0001)
     h := ifx scale < 1.0 then FloorInteger(high * scale + 0.0001) else CeilInteger(high - 0.0001)
     if w < 1 { w = 1 }; if h < 1 { h = 1 }
-    if w > CANVAS_WIDTH { w = CANVAS_WIDTH }; if h > CANVAS_HEIGHT { h = CANVAS_HEIGHT }
+    if w > canvas_page.width { w = canvas_page.width }; if h > canvas_page.height { h = canvas_page.height }
     left := extent.x + extent.w / 2 - w / 2
     top := extent.y + extent.h / 2 - h / 2
     if left < 0 { left = 0 }
     if top < 0 { top = 0 }
-    if left + w > CANVAS_WIDTH { left = CANVAS_WIDTH - w }
-    if top + h > CANVAS_HEIGHT { top = CANVAS_HEIGHT - h }
+    if left + w > canvas_page.width { left = canvas_page.width - w }
+    if top + h > canvas_page.height { top = canvas_page.height - h }
     result = PaintRotation.{.id = id, .x = left, .y = top, .w = w, .h = h, .scale = scale, .degrees = degrees,
         .start = CanvasLayerSpace(w * h, id)}
     result.valid = result.start >= 0
@@ -205,7 +207,7 @@ CanvasRotationCommit :: (rotation: PaintRotation) -> bool {
     object.pixels = layer_storage[object.start / CANVAS_PIXELS][offset:offset + w * h]
     for at: cast(s32)0..w * h - 1 { object.pixels[at] = rotate_pixels[at] }
     for at: cast(s32)0..CANVAS_PIXELS - 1 { canvas[at] = base[at]; owner[at] = 0 }
-    for at: cast(s32)0..layer_count - 1 { CanvasOverlay(layer_order[at], 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT) }
+    for at: cast(s32)0..layer_count - 1 { CanvasOverlay(layer_order[at], 0, 0, canvas_page.width, canvas_page.height) }
     CanvasPencilRenderAll()
     return true
 }
@@ -228,7 +230,7 @@ CanvasEraseObject :: (x: s32, y: s32) -> bool {
     layers[id] = PaintLayer.{}
     for py: top..bottom - 1 {
         for px: left..right - 1 {
-            at := py * CANVAS_WIDTH + px
+            at := py * canvas_page.width + px
             canvas[at] = base[at]
             owner[at] = 0
         }
@@ -262,7 +264,7 @@ CanvasLayerSpace :: (pixels: s32, ignore: s32 = -1) -> s32 {
 CanvasCanStamp :: (dino: s32, size: s32, x: s32, y: s32) -> bool {
     if dino < 0 || dino >= DINO_COUNT || size < 1 || size > DINO_SIZES || layer_count >= LAYER_LIMIT { return false }
     w := DinoWidth(dino, size); h := DinoHeight(dino, size)
-    if x < 0 || y < 0 || x + w > CANVAS_WIDTH || y + h > CANVAS_HEIGHT { return false }
+    if x < 0 || y < 0 || x + w > canvas_page.width || y + h > canvas_page.height { return false }
     return CanvasLayerSpace(w * h) >= 0
 }
 
@@ -272,13 +274,15 @@ CanvasPaintPixel :: (at: s32, color: u8) {
     id := cast(s32)owner[at] - 1
     if id < 0 { base[at] = color; return }
     object := *layers[id]
-    object.pixels[(at / CANVAS_WIDTH - object.y) * object.w + at % CANVAS_WIDTH - object.x] = color
+    object.pixels[(at / canvas_page.width - object.y) * object.w + at % canvas_page.width - object.x] = color
 }
 
-// Masks in paint_pages.zi's order: the scenes, then ink and body for each
-// dinosaur size.
-SceneMask :: (scene: s32) -> s32 { return scene }
+// Masks in paint_pages.zi's order: the wide scenes, the tall scenes, then
+// ink and body for each dinosaur size.
 InkMask :: (dino: s32, size: s32) -> s32 { return SCENE_COUNT + (dino * DINO_SIZES + size - 1) * 2 }
+SceneMask :: (scene: s32, page: PaintPage) -> s32 {
+    return ifx PageIsTall(page) then InkMask(DINO_COUNT, 1) + scene else scene
+}
 
 DinoWidth :: (dino: s32, size: s32) -> s32 { return DINO_WIDTH[dino * DINO_SIZES + size - 1] }
 DinoHeight :: (dino: s32, size: s32) -> s32 { return DINO_HEIGHT[dino * DINO_SIZES + size - 1] }
@@ -308,14 +312,16 @@ ReadMask :: (index: s32, mask: []bool, count: s32) -> bool {
     return at == count
 }
 
-// Starts a new picture: the scene's lines on white paper.
-SceneOpen :: (scene: s32) -> bool {
+// Starts a new picture: the scene's lines for that page on white paper.
+SceneOpen :: (scene: s32, page: PaintPage = WIDE_PAGE) -> bool {
     if scene == BLANK_SCENE {
+        canvas_page = page
         CanvasBlank()
         return true
     }
     if scene < 0 || scene >= SCENE_COUNT { return false }
-    if !ReadMask(SceneMask(scene), stamp[:], CANVAS_PIXELS) { return false }
+    if !ReadMask(SceneMask(scene, page), stamp[:], CANVAS_PIXELS) { return false }
+    canvas_page = page
     CanvasBlank()
     for at: cast(s32)0..CANVAS_PIXELS - 1 { canvas[at] = cast(u8)(ifx stamp[at] then INK else PAPER) }
     return true
@@ -349,7 +355,7 @@ CanvasStampDino :: (dino: s32, size: s32, x: s32, y: s32, flip: bool) {
             pixel := cast(u8)(ifx stamp[source] then INK else ifx stamp_body[source] then PAPER else TRANSPARENT)
             object.pixels[ty * w + tx] = pixel
             if pixel != cast(u8)TRANSPARENT {
-                at := (y + ty) * CANVAS_WIDTH + x + tx
+                at := (y + ty) * canvas_page.width + x + tx
                 canvas[at] = pixel
                 owner[at] = cast(u8)(id + 1)
             }
@@ -403,10 +409,10 @@ PlacementMaximumWidth :: (source_width: s32, source_height: s32, degrees: float3
     down := ifx sine < 0.0 then -sine else sine
     wide := across * cast(float32)source_width + down * cast(float32)source_height
     high := down * cast(float32)source_width + across * cast(float32)source_height
-    by_width := cast(float32)CANVAS_WIDTH * cast(float32)source_width / wide
-    by_height := cast(float32)CANVAS_HEIGHT * cast(float32)source_height / high
+    by_width := cast(float32)canvas_page.width * cast(float32)source_width / wide
+    by_height := cast(float32)canvas_page.height * cast(float32)source_height / high
     fit := ifx by_width < by_height then by_width else by_height
-    return PlacementClamp(FloorInteger(fit + 0.5), 1, CANVAS_WIDTH)
+    return PlacementClamp(FloorInteger(fit + 0.5), 1, canvas_page.width)
 }
 
 PaintResizeAtCorner :: (start_center: Vector2, anchor: Vector2, moving_start: Vector2, pointer: Vector2,
@@ -422,7 +428,7 @@ PaintResizeAtCorner :: (start_center: Vector2, anchor: Vector2, moving_start: Ve
     requested := FloorInteger(cast(float32)start_width * projection + 0.5)
     result.width = PlacementClamp(requested, minimum_width, maximum_width)
     result.scale = cast(float32)result.width / cast(float32)start_width
-    result.height = PlacementClamp(FloorInteger(cast(float32)start_height * result.scale + 0.5), 1, CANVAS_HEIGHT)
+    result.height = PlacementClamp(FloorInteger(cast(float32)start_height * result.scale + 0.5), 1, canvas_page.height)
     result.center = Vector2.{anchor.x + (start_center.x - anchor.x) * result.scale,
         anchor.y + (start_center.y - anchor.y) * result.scale}
     return result
@@ -445,12 +451,12 @@ CanvasPlacement :: (dino: s32, cx: s32, cy: s32, width: s32, degrees: float32, f
     scale := cast(float32)width / cast(float32)sw
     wide := a * cast(float32)sw + b * cast(float32)sh
     high := b * cast(float32)sw + a * cast(float32)sh
-    if wide * scale > cast(float32)CANVAS_WIDTH { scale = cast(float32)CANVAS_WIDTH / wide }
-    if high * scale > cast(float32)CANVAS_HEIGHT { scale = cast(float32)CANVAS_HEIGHT / high }
-    w := PlacementClamp(CeilInteger(wide * scale - 0.0001), 1, CANVAS_WIDTH)
-    h := PlacementClamp(CeilInteger(high * scale - 0.0001), 1, CANVAS_HEIGHT)
-    result = PaintPlacement.{.dino = dino, .x = PlacementClamp(cx - w / 2, 0, CANVAS_WIDTH - w),
-        .y = PlacementClamp(cy - h / 2, 0, CANVAS_HEIGHT - h), .w = w, .h = h,
+    if wide * scale > cast(float32)canvas_page.width { scale = cast(float32)canvas_page.width / wide }
+    if high * scale > cast(float32)canvas_page.height { scale = cast(float32)canvas_page.height / high }
+    w := PlacementClamp(CeilInteger(wide * scale - 0.0001), 1, canvas_page.width)
+    h := PlacementClamp(CeilInteger(high * scale - 0.0001), 1, canvas_page.height)
+    result = PaintPlacement.{.dino = dino, .x = PlacementClamp(cx - w / 2, 0, canvas_page.width - w),
+        .y = PlacementClamp(cy - h / 2, 0, canvas_page.height - h), .w = w, .h = h,
         .scale = scale, .degrees = degrees, .flip = flip, .start = CanvasLayerSpace(w * h)}
     result.valid = layer_count < LAYER_LIMIT && result.start >= 0
     return result
@@ -513,17 +519,17 @@ CanvasPencilCanStroke :: () -> bool {
 }
 
 CanvasPencilInside :: (x: s32, y: s32) -> bool {
-    return x >= 0 && y >= 0 && x < CANVAS_WIDTH && y < CANVAS_HEIGHT
+    return x >= 0 && y >= 0 && x < canvas_page.width && y < canvas_page.height
 }
 
 CanvasPencilStamp :: (x: s32, y: s32) {
     left := x - PENCIL_WIDTH / 2
     top := y - PENCIL_WIDTH / 2
     for py: top..top + PENCIL_WIDTH - 1 {
-        if py < 0 || py >= CANVAS_HEIGHT { continue }
+        if py < 0 || py >= canvas_page.height { continue }
         for px: left..left + PENCIL_WIDTH - 1 {
-            if px < 0 || px >= CANVAS_WIDTH { continue }
-            canvas[py * CANVAS_WIDTH + px] = cast(u8)INK
+            if px < 0 || px >= canvas_page.width { continue }
+            canvas[py * canvas_page.width + px] = cast(u8)INK
         }
     }
 }
@@ -613,20 +619,21 @@ PaintVectorUnits :: (value: float32) -> s64 {
 }
 
 CanvasText :: () -> Text {
-    return PictureRunsText(canvas[:])
+    return PictureRunsText(canvas[:], canvas_page)
 }
 
 CanvasColorAt :: (x: s32, y: s32) -> s32 {
-    if x < 0 || y < 0 || x >= CANVAS_WIDTH || y >= CANVAS_HEIGHT { return -1 }
-    return cast(s32)canvas[y * CANVAS_WIDTH + x]
+    if x < 0 || y < 0 || x >= canvas_page.width || y >= canvas_page.height { return -1 }
+    return cast(s32)canvas[y * canvas_page.width + x]
 }
 
 // Fills the area around x,y up to its lines. The target is never INK, so
 // comparing colors alone keeps the fill inside them.
 CanvasFill :: (x: s32, y: s32, color: s32) -> s32 {
     if color <= INK || color >= PAINT_COLORS { return 0 }
-    if x < 0 || y < 0 || x >= CANVAS_WIDTH || y >= CANVAS_HEIGHT { return 0 }
-    start := y * CANVAS_WIDTH + x
+    if x < 0 || y < 0 || x >= canvas_page.width || y >= canvas_page.height { return 0 }
+    width := canvas_page.width
+    start := y * width + x
     target := canvas[start]
     paint := cast(u8)color
     if target == cast(u8)INK || target == paint { return 0 }
@@ -639,18 +646,18 @@ CanvasFill :: (x: s32, y: s32, color: s32) -> s32 {
         count -= 1
         at := fill_stack[count]
         changed += 1
-        column := at % CANVAS_WIDTH
+        column := at % width
         if column > 0 && canvas[at - 1] == target && (layer_count == 0 || owner[at - 1] == region) {
             CanvasPaintPixel(at - 1, paint); fill_stack[count] = at - 1; count += 1
         }
-        if column < CANVAS_WIDTH - 1 && canvas[at + 1] == target && (layer_count == 0 || owner[at + 1] == region) {
+        if column < width - 1 && canvas[at + 1] == target && (layer_count == 0 || owner[at + 1] == region) {
             CanvasPaintPixel(at + 1, paint); fill_stack[count] = at + 1; count += 1
         }
-        if at >= CANVAS_WIDTH && canvas[at - CANVAS_WIDTH] == target && (layer_count == 0 || owner[at - CANVAS_WIDTH] == region) {
-            CanvasPaintPixel(at - CANVAS_WIDTH, paint); fill_stack[count] = at - CANVAS_WIDTH; count += 1
+        if at >= width && canvas[at - width] == target && (layer_count == 0 || owner[at - width] == region) {
+            CanvasPaintPixel(at - width, paint); fill_stack[count] = at - width; count += 1
         }
-        if at < CANVAS_PIXELS - CANVAS_WIDTH && canvas[at + CANVAS_WIDTH] == target && (layer_count == 0 || owner[at + CANVAS_WIDTH] == region) {
-            CanvasPaintPixel(at + CANVAS_WIDTH, paint); fill_stack[count] = at + CANVAS_WIDTH; count += 1
+        if at < CANVAS_PIXELS - width && canvas[at + width] == target && (layer_count == 0 || owner[at + width] == region) {
+            CanvasPaintPixel(at + width, paint); fill_stack[count] = at + width; count += 1
         }
     }
     return changed

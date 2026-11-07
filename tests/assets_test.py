@@ -133,6 +133,11 @@ def main():
         assert '<svg ' in (ROOT / f"art/paint/scene{number}.svg").read_text()
         with Image.open(art / f"scene{number}-thumb.avif") as thumb:
             assert thumb.size == (256, 192) and len(thumb.getcolors(1 << 16) or range(1 << 16)) > 16, "scene thumbnail is not smooth"
+    # Every scene has its tall page, with a thumbnail of that shape.
+    for number in range(1, 31):
+        assert '<svg ' in (ROOT / f"art/paint/portrait{number}.svg").read_text()
+        with Image.open(art / f"portrait{number}-thumb.avif") as thumb:
+            assert thumb.size == (192, 256), "tall scene thumbnail has the wrong shape"
     for number in range(1, 31):
         svg = (ROOT / f"art/paint/dino{number}.svg").read_text()
         assert '<path id="body" fill="#fff"' in svg and ('<path id="ink" fill="#000"' in svg or '<g id="ink"' in svg)

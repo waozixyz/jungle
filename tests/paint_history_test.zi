@@ -17,7 +17,7 @@ states: [12]string;
 Paint :: (step: s32) {
     scene = ifx step == 5 then -1 else step % SCENE_COUNT
     for at: cast(s32)0..CANVAS_PIXELS - 1 { canvas[at] = cast(u8)PAPER }
-    for at: cast(s32)0..CANVAS_WIDTH * 20 - 1 { canvas[step * CANVAS_WIDTH * 20 + at] = cast(u8)(16 + step) }
+    for at: cast(s32)0..WIDE_PAGE.width * 20 - 1 { canvas[step * WIDE_PAGE.width * 20 + at] = cast(u8)(16 + step) }
     ClearStory()
     story[0][0] = cast(u8)(#char "A" + step)
     story[7][37] = cast(u8)(#char "a" + step)

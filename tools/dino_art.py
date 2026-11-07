@@ -278,15 +278,15 @@ def stencil_svg(source, reinforce=True):
         f'{reinforcement}</g>\n</svg>\n')
 
 
-def scene_svg(source, preserve_frame=False):
+def scene_svg(source, preserve_frame=False, size=SCENE_SIZE):
     """Compile scene ink, optionally fitting the entire approved composition."""
-    width, height = SCENE_SIZE
+    width, height = size
     with Image.open(source) as image:
         rgba = image.convert('RGBA')
         paper = Image.new('RGBA', rgba.size, 'white')
         paper.alpha_composite(rgba)
         resize = ImageOps.pad if preserve_frame else ImageOps.fit
-        fitted = resize(paper.convert('L'), SCENE_SIZE,
+        fitted = resize(paper.convert('L'), size,
                         method=Image.Resampling.LANCZOS, **({'color': 'white'} if preserve_frame else {}))
         ink = fitted.point(lambda value: 255 if value < 160 else 0, mode='1')
     if not ink.getbbox():
@@ -320,10 +320,29 @@ def standalone_stencils(indices=None):
     print(f'Traced {len(items)} individual stencils.')
 
 
+PORTRAIT_SIZE = (720, 960)
+
+
+def portraits():
+    """Trace each generated tall page into art/paint/portraitN.svg."""
+    sources = ROOT / 'local/art-development/coloring-scenes-portrait'
+    manifest = json.loads((ROOT / 'tools/coloring_portraits.json').read_text())
+    missing = [str(sources / f'portrait{index}.png') for index in manifest['traced']
+               if not (sources / f'portrait{index}.png').is_file()]
+    if missing:
+        raise FileNotFoundError('Missing portrait PNG inputs:\n' + '\n'.join(missing))
+    for index in manifest['traced']:
+        (OUT / f'portrait{index}.svg').write_text(scene_svg(sources / f'portrait{index}.png', size=PORTRAIT_SIZE))
+    print(f'Traced {len(manifest["traced"])} tall scenes.')
+
+
 def main():
     OUT.mkdir(exist_ok=True)
     if '--stencils-only' in sys.argv:
         standalone_stencils()
+        return
+    if '--portraits' in sys.argv:
+        portraits()
         return
     sheet = Image.open(ROOT / 'local/art-development/dino-coloring-shapes.png').convert('L')
     found = components(sheet)

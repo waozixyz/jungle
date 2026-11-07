@@ -1,11 +1,11 @@
 {
   "version": 1,
-  "count": 1246,
+  "count": 1268,
   "encoding": "Owner standard 2026-11-05: masters Lanczos-downscaled to 75%, AVIF q35 8-bit full range speed6 jobs1; opaque YUV420, transparent art YUV444 with q90 alpha. Pictures under 512 px, source-rectangle sheets, jigsaw (q60 YUV444), paint art and cursors keep their pixels.",
   "dimensions": "Full original dimensions; no downsampling, no regeneration",
   "reference": "local/image-format-research/previews/full-1x-book-page.png (label: 75% AVIF q35 + Lanczos); full dimensions retained for shipping",
-  "before_bytes": 434052744,
-  "after_bytes": 47025804,
+  "before_bytes": 480892057,
+  "after_bytes": 46985983,
   "files": {
     "assets/beach_families/background.avif": {
       "source": "assets/beach_families/background.webp",
@@ -5127,10 +5127,10 @@
       "alpha_quality": 50
     },
     "assets/jungle/title/aquarium-low.avif": {
-      "source": "assets/jungle/title/aquarium-low.webp",
-      "source_sha256": "a7306bb9b2cb759529506df40449f9d3f8b52233a56e54f2b4a616a6db7ef698",
-      "source_bytes": 16428,
-      "source_rgba_sha256": "d7d695af2e735f8ae9ac3c21adc6b92dafbb7f95baae2be6261fb6ae666bf3b1",
+      "source": "local/art-development/map-palette/aquarium.png",
+      "source_sha256": "196fb0994cfe78b2e23c797ca4eed9537c5a3866899fae409b9594139fbaae4f",
+      "source_bytes": 3056225,
+      "source_rgba_sha256": "58c9335009a86474de4acddde7ef91817ea8f2e743fddff0bc1864c63a3b09c9",
       "dimensions": [
         240,
         135
@@ -5138,19 +5138,19 @@
       "alpha": false,
       "source_alpha_sha256": "682a387ec62c4338e6ba238c81587700231b5c74329714310ddd41a72c10de09",
       "alpha_sha256": "682a387ec62c4338e6ba238c81587700231b5c74329714310ddd41a72c10de09",
-      "rgba_sha256": "c4e9fae265d82d1c336612d19174258daf827395e36db583a4cc0394e646b635",
-      "sha256": "f58eb6d4d5ed5c82c9a702f4a3976dc393d8bd1ae1e070a6d130059f33ecdf78",
-      "bytes": 5270,
+      "rgba_sha256": "cc1b98191d065481911663f55386334cee6828cd5ee46ce3c11bc63a2635b1a0",
+      "sha256": "8c8ad3f50629c680a3d14f5fb9b1410009c9791fdff5e659cd3835801abb98cf",
+      "bytes": 5540,
       "quality": 35,
       "lossless": false,
       "subsampling": "420",
       "speed": 6
     },
     "assets/jungle/title/aquarium-portrait-low.avif": {
-      "source": "assets/jungle/title/aquarium-portrait-low.webp",
-      "source_sha256": "69b30c3d415dacf60a1ee7a9551e6fda0bc873585955ed90cddf5ab81aa0d066",
-      "source_bytes": 43362,
-      "source_rgba_sha256": "cb0172017e81a24516ffa03972232a546d41578d5d9331648af1dc4d48fdc6a3",
+      "source": "local/art-development/map-palette/aquarium-portrait.png",
+      "source_sha256": "491d7eb4e83d6af49f044a7cc197efb2dae38446222de4cf76fd86cd134a2321",
+      "source_bytes": 3229822,
+      "source_rgba_sha256": "ce4ea0ff9796ebdb726d20e3cf8a6b53295e4caad0d0d995892f1f2f2ac742d0",
       "dimensions": [
         240,
         360
@@ -5158,19 +5158,19 @@
       "alpha": false,
       "source_alpha_sha256": "9a5b7e7b9006c41100fbfd88f4ad6ec3f4645e6df5725f09c7f9be9f58b80862",
       "alpha_sha256": "9a5b7e7b9006c41100fbfd88f4ad6ec3f4645e6df5725f09c7f9be9f58b80862",
-      "rgba_sha256": "5e6953592cae2dc01b1e566052b0c712241bdbeaab84723d54479e9e83142249",
-      "sha256": "11045b659fd6533cfdb751246d2eff84be245b4c2ac4ad7565ed94546dad762c",
-      "bytes": 13513,
+      "rgba_sha256": "fd973978f01bd55fbc5aa5ae6faf186767358484890e92361b435a50d37cb29e",
+      "sha256": "33a72dab72187fbc25b3f222bb38cc5ad995e3d37cf712382ac3def23f63e8d4",
+      "bytes": 14005,
       "quality": 35,
       "lossless": false,
       "subsampling": "420",
       "speed": 6
     },
     "assets/jungle/title/aquarium-portrait.avif": {
-      "source": "assets/jungle/title/aquarium-portrait.webp",
-      "source_sha256": "a73fd6c19801fe6f2daac3b4a1c8956d1a3cc0dfb98afc7f98ff2cc1e92b3cf6",
-      "source_bytes": 646384,
-      "source_rgba_sha256": "b4332ce7d78427b4ba8433db8c0465590b74ff29a427da78998dacd06adb60ea",
+      "source": "local/art-development/map-palette/aquarium-portrait.png",
+      "source_sha256": "491d7eb4e83d6af49f044a7cc197efb2dae38446222de4cf76fd86cd134a2321",
+      "source_bytes": 3229822,
+      "source_rgba_sha256": "605c4a15c9448dcf554af8b3ff5b7770807416c4faa9f1da16a3c14752422193",
       "dimensions": [
         768,
         1152
@@ -5178,9 +5178,9 @@
       "alpha": false,
       "source_alpha_sha256": "852aad42795f401e21ded6e51fc392da9d94e2f386cacc08327046c319e903fc",
       "alpha_sha256": "2951f16020ee834f650e47e2e4aa8a5e39afe30b2f16bcb43b2e0b9ec235e721",
-      "rgba_sha256": "4466a10822622525568457ad1e02941776c9f2e2c60f25dbcea56323ae389628",
-      "sha256": "c702e384a87b09d0b677ab0801e5418665116fcb5b90ef0a71c6056821288d8e",
-      "bytes": 100276,
+      "rgba_sha256": "35cf80f5a048c0731f71dbdc14453de91c59aa460d0ffc7c40b899ddbc9423b0",
+      "sha256": "6bfab0891cbbe5e3df228e5cb962af9ccbb981e02cbf2ac454a83c74fdc1fb8b",
+      "bytes": 103788,
       "quality": 35,
       "lossless": false,
       "subsampling": "420",
@@ -5190,16 +5190,16 @@
         1536
       ],
       "scale": 0.75,
-      "master": "backup/avif-migration/assets/jungle/title/aquarium-portrait.webp",
-      "master_sha256": "a73fd6c19801fe6f2daac3b4a1c8956d1a3cc0dfb98afc7f98ff2cc1e92b3cf6",
+      "master": "local/art-development/map-palette/aquarium-portrait.png",
+      "master_sha256": "491d7eb4e83d6af49f044a7cc197efb2dae38446222de4cf76fd86cd134a2321",
       "exact_alpha": false,
       "alpha_quality": 100
     },
     "assets/jungle/title/aquarium.avif": {
-      "source": "assets/jungle/title/aquarium.webp",
-      "source_sha256": "a55487723f409b589caaa56c47c295ce6e03194799b363f2845b2d1fb675e138",
-      "source_bytes": 585106,
-      "source_rgba_sha256": "5ab19a18048313618876672b25afab327421a1ef1265d04249fa0a7805bd74d3",
+      "source": "local/art-development/map-palette/aquarium.png",
+      "source_sha256": "196fb0994cfe78b2e23c797ca4eed9537c5a3866899fae409b9594139fbaae4f",
+      "source_bytes": 3056225,
+      "source_rgba_sha256": "a38ac88ac4038727eda5f5f037819dbd79c902913f9aaf11a50361663a1178db",
       "dimensions": [
         1254,
         706
@@ -5207,9 +5207,9 @@
       "alpha": false,
       "source_alpha_sha256": "01d47491cbeb600913ad9b969c467a20eee08ef528805ef7ff455d14d0b926e6",
       "alpha_sha256": "88bf49aabe87d9fc2722821cdb81631d1d56c9df2f222d84e236df6f539e51b3",
-      "rgba_sha256": "7d9c7477b77b408e9cef2a7e170a1169a95f03d93a5dfa2f4e654a291f1e79c9",
-      "sha256": "7a3efa169ae6f97ecc38926d417efb93de387c3abf5f04187b15f9be09cb56b1",
-      "bytes": 90112,
+      "rgba_sha256": "9e8ed069517d1eccd2126f83f6d6062152e0cde5b2e1ed737f16d58b747084f8",
+      "sha256": "2a893864ddeee22575449cb693a1895ea74754c175cee1f68250d3fa12f1434c",
+      "bytes": 93616,
       "quality": 35,
       "lossless": false,
       "subsampling": "420",
@@ -5219,16 +5219,16 @@
         941
       ],
       "scale": 0.75,
-      "master": "backup/avif-migration/assets/jungle/title/aquarium.webp",
-      "master_sha256": "a55487723f409b589caaa56c47c295ce6e03194799b363f2845b2d1fb675e138",
+      "master": "local/art-development/map-palette/aquarium.png",
+      "master_sha256": "196fb0994cfe78b2e23c797ca4eed9537c5a3866899fae409b9594139fbaae4f",
       "exact_alpha": false,
       "alpha_quality": 100
     },
     "assets/jungle/title/beach-low.avif": {
-      "source": "assets/jungle/title/beach-low.webp",
-      "source_sha256": "439a03b7b45c148faa7cbe7a7d02e608a34c0698472cb48387cdbec48593986e",
-      "source_bytes": 6108,
-      "source_rgba_sha256": "ed0a130224681bffbc180a901b1e5704c146f99e26f6cb29ee871c40703d604c",
+      "source": "local/art-development/map-palette/beach.png",
+      "source_sha256": "0f8f1d756e2b760c300d3b11be961c72db9e2ba7323dd4789bb9c717c7b433f4",
+      "source_bytes": 2274999,
+      "source_rgba_sha256": "087a48f48773bd903d7977398037ee20cb0cac824768725b2d1e500de11c92ee",
       "dimensions": [
         240,
         135
@@ -5236,19 +5236,19 @@
       "alpha": false,
       "source_alpha_sha256": "682a387ec62c4338e6ba238c81587700231b5c74329714310ddd41a72c10de09",
       "alpha_sha256": "682a387ec62c4338e6ba238c81587700231b5c74329714310ddd41a72c10de09",
-      "rgba_sha256": "dede44ffe0e25c4b8e0f38be7282e71037429e194a5868d44792a452038d63ec",
-      "sha256": "ace767e5aaa39e6fc01efbb0e71490a289760058cc25f64e4bc860b37d01d1a1",
-      "bytes": 3498,
+      "rgba_sha256": "aefdfa4a156bae9e9cb55bc2d2004a67aa4f813365f3ffa971fc3aedf541a19e",
+      "sha256": "189cc8b5a5bc42fac9388d74a46a3f4397d332dbc55421db98a5a53f9be49fe1",
+      "bytes": 3954,
       "quality": 35,
       "lossless": false,
       "subsampling": "420",
       "speed": 6
     },
     "assets/jungle/title/beach-port-low.avif": {
-      "source": "assets/jungle/title/beach-port-low.webp",
-      "source_sha256": "2410abc88c8883e7ca31dd3ce2df037bbb4ef01da457d207fb880860768195de",
-      "source_bytes": 6622,
-      "source_rgba_sha256": "61e38e53f2f5f5bd2e90b3d9195cb94686fe3fb7e6ecc393e986ea404c985587",
+      "source": "local/art-development/map-palette/beach-port.png",
+      "source_sha256": "3f90ffaae273e29728614fde109de95cfded9aa5b4a21941a67ddcc6c3781f75",
+      "source_bytes": 2322745,
+      "source_rgba_sha256": "d15a2bc792a7ab7073376a83f01c5591f59eda0cd62720808e30fa0a692a7439",
       "dimensions": [
         240,
         135
@@ -5256,19 +5256,19 @@
       "alpha": false,
       "source_alpha_sha256": "682a387ec62c4338e6ba238c81587700231b5c74329714310ddd41a72c10de09",
       "alpha_sha256": "682a387ec62c4338e6ba238c81587700231b5c74329714310ddd41a72c10de09",
-      "rgba_sha256": "a332627972d4bf8e4b386463c0241f0de1ca4c37e8667db628cfc799dd620b08",
-      "sha256": "789aaa3c9ea1b16bc88dc86ee359cc9698d6567b872d06a6fd4199e0c22f8af9",
-      "bytes": 3871,
+      "rgba_sha256": "246198457bbdde50caab162b1a0c21ba7e2ca003a268e6c92ebbed5e0de00e2f",
+      "sha256": "5717ac5994d76ece261a5a65107616d644e5fb4ab9d6f4fe7ffa0b3021a1064b",
+      "bytes": 3955,
       "quality": 35,
       "lossless": false,
       "subsampling": "420",
       "speed": 6
     },
     "assets/jungle/title/beach-port.avif": {
-      "source": "assets/jungle/title/beach-port.webp",
-      "source_sha256": "5d04c3af929a78d0112641c9b77a1892cb73a63f2ef13b8aca4581c43bc6b8e2",
-      "source_bytes": 173572,
-      "source_rgba_sha256": "4e22a68962b19860f3e7c696a2303c549aa2408e14dc0d88299ba6a7f1f8134d",
+      "source": "local/art-development/map-palette/beach-port.png",
+      "source_sha256": "3f90ffaae273e29728614fde109de95cfded9aa5b4a21941a67ddcc6c3781f75",
+      "source_bytes": 2322745,
+      "source_rgba_sha256": "66c9436c4b97ed051a9608cc9fef5b90086a210da1dd8bdbf912a469eabf4758",
       "dimensions": [
         1254,
         706
@@ -5276,9 +5276,9 @@
       "alpha": false,
       "source_alpha_sha256": "01d47491cbeb600913ad9b969c467a20eee08ef528805ef7ff455d14d0b926e6",
       "alpha_sha256": "88bf49aabe87d9fc2722821cdb81631d1d56c9df2f222d84e236df6f539e51b3",
-      "rgba_sha256": "153b3df4290448bc8a7b770a8a96e283816fac53ab51c7f470dbcc6410ec7af7",
-      "sha256": "e6ec80ed0112ba6081de6198bd8e7b0e1aab208e1d3746b0dafdda5e1d5e14ea",
-      "bytes": 60094,
+      "rgba_sha256": "8c708a7ded93b299e6588a94e558c07636d4b8052fd998d4469692047d91d3f0",
+      "sha256": "ed59fe0af0399d2c4eebaa57c49914397432e4716cf1dbd799db2d775a703003",
+      "bytes": 57212,
       "quality": 35,
       "lossless": false,
       "subsampling": "420",
@@ -5288,16 +5288,16 @@
         941
       ],
       "scale": 0.75,
-      "master": "local/art-development/beach-port-redo/port-landscape.png",
-      "master_sha256": "bc5ca80ce0e321d06c6e37d9193359cb34318134f4926f859b1ae33d431224ff",
+      "master": "local/art-development/map-palette/beach-port.png",
+      "master_sha256": "3f90ffaae273e29728614fde109de95cfded9aa5b4a21941a67ddcc6c3781f75",
       "exact_alpha": false,
       "alpha_quality": 100
     },
     "assets/jungle/title/beach-portrait-low.avif": {
-      "source": "assets/jungle/title/beach-portrait-low.webp",
-      "source_sha256": "e6ae21c531c6a6c4e64bd5a535e72d6983a43134f3e94f2386550ceb260cf877",
-      "source_bytes": 13834,
-      "source_rgba_sha256": "10df58de576b09db50a725d40e0d9eaaf693bd202d7ccabf56af71263977d935",
+      "source": "local/art-development/map-palette/beach-portrait.png",
+      "source_sha256": "652ab3218501b773f12522a9e8549a824ff750c05136483f8054a849d724e90d",
+      "source_bytes": 2229865,
+      "source_rgba_sha256": "ee0c5b31d031113c0ba8264a7f513377389854ffe09121413a32a9bd054f0646",
       "dimensions": [
         240,
         360
@@ -5305,19 +5305,19 @@
       "alpha": false,
       "source_alpha_sha256": "9a5b7e7b9006c41100fbfd88f4ad6ec3f4645e6df5725f09c7f9be9f58b80862",
       "alpha_sha256": "9a5b7e7b9006c41100fbfd88f4ad6ec3f4645e6df5725f09c7f9be9f58b80862",
-      "rgba_sha256": "157da12ee5f9a05788bcf9f3894b2517b871117f08b0381ccc41ad147eb76774",
-      "sha256": "8b3aeca2d2117ba69e3b9a297c62f90d3a3f051bdd57c66c1b8d50d44d56000c",
-      "bytes": 8050,
+      "rgba_sha256": "4f9096b15d20c2be7bb1981e5d762e48f58a384dbc343d8194ef1c9480dd5321",
+      "sha256": "75ead63051d95ccee405e1a70bb34e92fdc2c626564c907f5295046b1ab84d0d",
+      "bytes": 8627,
       "quality": 35,
       "lossless": false,
       "subsampling": "420",
       "speed": 6
     },
     "assets/jungle/title/beach-portrait-port-low.avif": {
-      "source": "assets/jungle/title/beach-portrait-port-low.webp",
-      "source_sha256": "a87a496f9da4514197ae8bf66391c572c03667a9663ef3753bb310bb9942f6dd",
-      "source_bytes": 14708,
-      "source_rgba_sha256": "9d39c8e7eba4797a81b8327fb63c9c55243f1ee9d3efd6663ddfe64d5d9236b7",
+      "source": "local/art-development/map-palette/beach-portrait-port.png",
+      "source_sha256": "bcdf548620474a2c473bc76d54e6fee7f5f972594c081f1c9ef9167f932f8fde",
+      "source_bytes": 2333164,
+      "source_rgba_sha256": "2e48e2bf31d9e5da8212c7bb39cd593b68a6ccee67df1f2612a174092edb16d0",
       "dimensions": [
         240,
         360
@@ -5325,19 +5325,19 @@
       "alpha": false,
       "source_alpha_sha256": "9a5b7e7b9006c41100fbfd88f4ad6ec3f4645e6df5725f09c7f9be9f58b80862",
       "alpha_sha256": "9a5b7e7b9006c41100fbfd88f4ad6ec3f4645e6df5725f09c7f9be9f58b80862",
-      "rgba_sha256": "d6598bd9d8ee2ece909e18f83e875953b20ed0284219db5a55a0108e4ed7c987",
-      "sha256": "16f90d71af2a7382246da7eda4e0c0c7f3c465796d2477ed1b50cb56aac463cc",
-      "bytes": 8727,
+      "rgba_sha256": "13f8c5327373ee125f7eb3f29bc2d991bbe34705a1fd49355c6f196ffaa3ed61",
+      "sha256": "0ddadfc9168de8db1f3d28cfb8613ad287a0350d5a46346df682481c9aba85ac",
+      "bytes": 9012,
       "quality": 35,
       "lossless": false,
       "subsampling": "420",
       "speed": 6
     },
     "assets/jungle/title/beach-portrait-port.avif": {
-      "source": "assets/jungle/title/beach-portrait-port.webp",
-      "source_sha256": "81847eae316ecce4ee258473096b7645c0eb2f7e9231cc567797689c3a7bcb0e",
-      "source_bytes": 166278,
-      "source_rgba_sha256": "c2de90ce1b2f2eee861987d6302a17a859a9e39623f91244ae136ffd5b6e6e40",
+      "source": "local/art-development/map-palette/beach-portrait-port.png",
+      "source_sha256": "bcdf548620474a2c473bc76d54e6fee7f5f972594c081f1c9ef9167f932f8fde",
+      "source_bytes": 2333164,
+      "source_rgba_sha256": "6f593f95ce01b7d47dca02c537749cd26c07273863f19ba221b179efb97878fd",
       "dimensions": [
         768,
         1152
@@ -5345,9 +5345,9 @@
       "alpha": false,
       "source_alpha_sha256": "852aad42795f401e21ded6e51fc392da9d94e2f386cacc08327046c319e903fc",
       "alpha_sha256": "2951f16020ee834f650e47e2e4aa8a5e39afe30b2f16bcb43b2e0b9ec235e721",
-      "rgba_sha256": "21deb1fc22f043f7a051cc960b1de0d4703dd5f3adb66485ccfb85dc5026fdb0",
-      "sha256": "2a494f1807774ffe1596017855468b056ad68ac798f4e9302c65cd34e947f98e",
-      "bytes": 58535,
+      "rgba_sha256": "112572233d4cd5562e60d078fce6643ffea4ab652f4d4d6acbb1e390a5d2a48c",
+      "sha256": "ef6a4b967fa9a100d73c1c3e51d3e2d060a49374e7eab6ab8f237a928853e4b9",
+      "bytes": 56730,
       "quality": 35,
       "lossless": false,
       "subsampling": "420",
@@ -5357,16 +5357,16 @@
         1536
       ],
       "scale": 0.75,
-      "master": "local/art-development/beach-port-redo/port-portrait.png",
-      "master_sha256": "a5f14593ebe610b0ab6dfa6df266e91674f948d66d2fb9c02d96f027cbf3729a",
+      "master": "local/art-development/map-palette/beach-portrait-port.png",
+      "master_sha256": "bcdf548620474a2c473bc76d54e6fee7f5f972594c081f1c9ef9167f932f8fde",
       "exact_alpha": false,
       "alpha_quality": 100
     },
     "assets/jungle/title/beach-portrait.avif": {
-      "source": "assets/jungle/title/beach-portrait.webp",
-      "source_sha256": "4f0cd19d5e6032fa726fef9fa9debe061119453c3bc4e10837c6d0024f60b7c7",
-      "source_bytes": 187098,
-      "source_rgba_sha256": "dfe1f0f5c07b2a22461128ba4662668d275268f3e1e3d056819b19473105b2e0",
+      "source": "local/art-development/map-palette/beach-portrait.png",
+      "source_sha256": "652ab3218501b773f12522a9e8549a824ff750c05136483f8054a849d724e90d",
+      "source_bytes": 2229865,
+      "source_rgba_sha256": "4d75bb073e9d3f1cc4b304c06951ae7de7a9c5a2c9cdd8f7790d48c75402db4c",
       "dimensions": [
         768,
         1152
@@ -5374,9 +5374,9 @@
       "alpha": false,
       "source_alpha_sha256": "852aad42795f401e21ded6e51fc392da9d94e2f386cacc08327046c319e903fc",
       "alpha_sha256": "2951f16020ee834f650e47e2e4aa8a5e39afe30b2f16bcb43b2e0b9ec235e721",
-      "rgba_sha256": "8b92391422ab73c026f2c8f815318dc4f68f34ce1eb64cf1c683a49957f31992",
-      "sha256": "b9a82e30e9e74b405dd12fe8d1898177ac7b6547048e2e5bc46ae03da2d1a5ff",
-      "bytes": 54309,
+      "rgba_sha256": "574b847d651e22001553e5dc5ae08ddb30b33631f26367f89d6a3aafaeb213de",
+      "sha256": "de5324fd8d21cc68db0a365142fc52f2dffc507ef65c98ea48eae03cbea816c1",
+      "bytes": 56497,
       "quality": 35,
       "lossless": false,
       "subsampling": "420",
@@ -5386,16 +5386,16 @@
         1536
       ],
       "scale": 0.75,
-      "master": "backup/avif-migration/assets/jungle/title/beach-portrait.webp",
-      "master_sha256": "4f0cd19d5e6032fa726fef9fa9debe061119453c3bc4e10837c6d0024f60b7c7",
+      "master": "local/art-development/map-palette/beach-portrait.png",
+      "master_sha256": "652ab3218501b773f12522a9e8549a824ff750c05136483f8054a849d724e90d",
       "exact_alpha": false,
       "alpha_quality": 100
     },
     "assets/jungle/title/beach.avif": {
-      "source": "assets/jungle/title/beach.webp",
-      "source_sha256": "309ce28ecfd1f06db33dca98637f572920a8a11debf6bc4ffa8b12e5d1edf28f",
-      "source_bytes": 172054,
-      "source_rgba_sha256": "6d3142a992fcede7b1f233ce7cedc27040b873558e7aa6c480958ef50062ccd2",
+      "source": "local/art-development/map-palette/beach.png",
+      "source_sha256": "0f8f1d756e2b760c300d3b11be961c72db9e2ba7323dd4789bb9c717c7b433f4",
+      "source_bytes": 2274999,
+      "source_rgba_sha256": "9e74d9a06f6495edf572d39df55dbcd1e6a3444fa270958329d0deebacef6196",
       "dimensions": [
         1254,
         706
@@ -5403,9 +5403,9 @@
       "alpha": false,
       "source_alpha_sha256": "01d47491cbeb600913ad9b969c467a20eee08ef528805ef7ff455d14d0b926e6",
       "alpha_sha256": "88bf49aabe87d9fc2722821cdb81631d1d56c9df2f222d84e236df6f539e51b3",
-      "rgba_sha256": "9bfe84762cbc0cc722e052afd731a54b51a00bda6f02af8ddae3f1d7e5038504",
-      "sha256": "38857e5d2074b65ab8d48b053922951fa568b878616ea3e907a54144983f55f9",
-      "bytes": 51079,
+      "rgba_sha256": "66196168dc281c68a70feb54c6cdd2e6207033d22a93dfe960c13b0f70d46025",
+      "sha256": "7321373683c2cd00d65e0c5e3ff6e924666a1a45617bafbe996dee112143f180",
+      "bytes": 52723,
       "quality": 35,
       "lossless": false,
       "subsampling": "420",
@@ -5415,8 +5415,8 @@
         941
       ],
       "scale": 0.75,
-      "master": "backup/avif-migration/assets/jungle/title/beach.webp",
-      "master_sha256": "309ce28ecfd1f06db33dca98637f572920a8a11debf6bc4ffa8b12e5d1edf28f",
+      "master": "local/art-development/map-palette/beach.png",
+      "master_sha256": "0f8f1d756e2b760c300d3b11be961c72db9e2ba7323dd4789bb9c717c7b433f4",
       "exact_alpha": false,
       "alpha_quality": 100
     },
@@ -5622,9 +5622,9 @@
     },
     "assets/jungle/title/desert-low.avif": {
       "source": "local/art-development/desert-edge/desert-landscape-plate.png",
-      "source_sha256": "3985a2c23f1977124f627c8dd35e22a3daf37fede4cc1ce4b79cb71a03917fc1",
-      "source_bytes": 2484704,
-      "source_rgba_sha256": "64603b86c8532cc3fec067ee561ff65ddbc8e53b3c79b5baaad4fb0f0ee9d4ee",
+      "source_sha256": "7ca5bf1c08ed82305b8097ba5519e6723b843c9cd09640f500b02d27772b9e04",
+      "source_bytes": 2440703,
+      "source_rgba_sha256": "bffa0841a84e69153698415ad3b3a7c81525c6e7ae92bce01df2172bc498323c",
       "dimensions": [
         240,
         135
@@ -5632,9 +5632,9 @@
       "alpha": false,
       "source_alpha_sha256": "682a387ec62c4338e6ba238c81587700231b5c74329714310ddd41a72c10de09",
       "alpha_sha256": "682a387ec62c4338e6ba238c81587700231b5c74329714310ddd41a72c10de09",
-      "rgba_sha256": "2c05e06b541804d6041d3ccfa3b6fa14480de29d526d8c47c05d2121881551ac",
-      "sha256": "8df108a208a7cde0654ce870dbea355d7634d8e172a87b6c49b82dd92b93f692",
-      "bytes": 3921,
+      "rgba_sha256": "31022366b12da8e436783f92aa35e53439cb949dd2cae5dcfdaf8129ffc5a8b9",
+      "sha256": "0e2cef0e47a4104ec8b701cebbc918c38144a2fe07f924a169a0da4d3d990d21",
+      "bytes": 3970,
       "quality": 35,
       "lossless": false,
       "subsampling": "420",
@@ -5642,9 +5642,9 @@
     },
     "assets/jungle/title/desert-portrait-low.avif": {
       "source": "local/art-development/desert-edge/desert-portrait-plate.png",
-      "source_sha256": "d6ab0a8bd87cb57ab1346cab33d9f28766dfade8ae19a9118e6e53ffa2f8ef6d",
-      "source_bytes": 2637435,
-      "source_rgba_sha256": "bc8cf978fd3f5fbcbf76f1229db26db923d223f9715b80910dd335253bdd3d41",
+      "source_sha256": "00a7745e771bd8a1c380d7e2b492d5c49601d55331a32c00ce7dd050d98273d7",
+      "source_bytes": 2637764,
+      "source_rgba_sha256": "ad344663f8835664cafb205003e5e74e18447543f64217e181f4f47e601dfc18",
       "dimensions": [
         240,
         360
@@ -5652,9 +5652,9 @@
       "alpha": false,
       "source_alpha_sha256": "9a5b7e7b9006c41100fbfd88f4ad6ec3f4645e6df5725f09c7f9be9f58b80862",
       "alpha_sha256": "9a5b7e7b9006c41100fbfd88f4ad6ec3f4645e6df5725f09c7f9be9f58b80862",
-      "rgba_sha256": "4c320bbab5f2030ca351acf63368f2d936de3ed80c32c15adff6d7164586d641",
-      "sha256": "61ab788ba6fbc4f17f13a254959cd80ee99784b28ac548a8099c61e598eab22f",
-      "bytes": 10685,
+      "rgba_sha256": "2970d1f4120d43f4aec07d2480d5b8698be12b55fa3514787c969ee5ebbac343",
+      "sha256": "08f59f1abaa8437b547bc9fc0823b8bf5661e48902d9deea5ed3c81a4d100943",
+      "bytes": 10713,
       "quality": 35,
       "lossless": false,
       "subsampling": "420",
@@ -5662,9 +5662,9 @@
     },
     "assets/jungle/title/desert-portrait.avif": {
       "source": "local/art-development/desert-edge/desert-portrait-plate.png",
-      "source_sha256": "d6ab0a8bd87cb57ab1346cab33d9f28766dfade8ae19a9118e6e53ffa2f8ef6d",
-      "source_bytes": 2637435,
-      "source_rgba_sha256": "395d383b7674f536dddbea71204596e39db55e01118310ba40b89bfaf92ae441",
+      "source_sha256": "00a7745e771bd8a1c380d7e2b492d5c49601d55331a32c00ce7dd050d98273d7",
+      "source_bytes": 2637764,
+      "source_rgba_sha256": "31e78108792be3a10b4584217ccf6b72d386963558e17c6700585e3c701984f7",
       "dimensions": [
         768,
         1152
@@ -5672,9 +5672,9 @@
       "alpha": false,
       "source_alpha_sha256": "852aad42795f401e21ded6e51fc392da9d94e2f386cacc08327046c319e903fc",
       "alpha_sha256": "2951f16020ee834f650e47e2e4aa8a5e39afe30b2f16bcb43b2e0b9ec235e721",
-      "rgba_sha256": "fc129e3e56e0ea4cecee36c47c8458ef4afbf27b25699c049c375fd5b1de0d28",
-      "sha256": "7c0e1136a4d6c2951f1780bd9cae3c9876a79f59fa494c0d5596498e19a3564b",
-      "bytes": 68585,
+      "rgba_sha256": "5bc24b87009f2410215ca961951ee9d990d422c5fc9e956dde5770d0eaca50a6",
+      "sha256": "2dcc6b8a715ca8945f843acf23ca3636e2f570993f867f515d75b294dacc2552",
+      "bytes": 68648,
       "quality": 35,
       "lossless": false,
       "subsampling": "420",
@@ -5685,15 +5685,15 @@
       ],
       "scale": 0.75,
       "master": "local/art-development/desert-edge/desert-portrait-plate.png",
-      "master_sha256": "d6ab0a8bd87cb57ab1346cab33d9f28766dfade8ae19a9118e6e53ffa2f8ef6d",
+      "master_sha256": "00a7745e771bd8a1c380d7e2b492d5c49601d55331a32c00ce7dd050d98273d7",
       "exact_alpha": false,
       "alpha_quality": 100
     },
     "assets/jungle/title/desert.avif": {
       "source": "local/art-development/desert-edge/desert-landscape-plate.png",
-      "source_sha256": "3985a2c23f1977124f627c8dd35e22a3daf37fede4cc1ce4b79cb71a03917fc1",
-      "source_bytes": 2484704,
-      "source_rgba_sha256": "9068c4075b333e7f10728cf128ea2f06ce646931ff51222ab30946b4c04b5133",
+      "source_sha256": "7ca5bf1c08ed82305b8097ba5519e6723b843c9cd09640f500b02d27772b9e04",
+      "source_bytes": 2440703,
+      "source_rgba_sha256": "64a3cab7d8a7726d68b0ca2fd2152a705b5171bf88295bf2f5cee6d9d0248c2e",
       "dimensions": [
         1254,
         706
@@ -5701,9 +5701,9 @@
       "alpha": false,
       "source_alpha_sha256": "01d47491cbeb600913ad9b969c467a20eee08ef528805ef7ff455d14d0b926e6",
       "alpha_sha256": "88bf49aabe87d9fc2722821cdb81631d1d56c9df2f222d84e236df6f539e51b3",
-      "rgba_sha256": "cafeb27561a01a0b9c9672c12b031dede31b73831ef17224641843274eb9b54b",
-      "sha256": "004491cec9b8c34c0498c7ab266fe89508f7cd3ba1bd22eb619d1d38e96aa82b",
-      "bytes": 52760,
+      "rgba_sha256": "8e7ab3dcdbfdacfe6a00bd0b07006915e84f22874217a8b3669a859d6bfbadc1",
+      "sha256": "6cb4accdd2b5eaa1393d841305b90cac50d95214cb93ac7fff1ff1bd0920ad27",
+      "bytes": 53769,
       "quality": 35,
       "lossless": false,
       "subsampling": "420",
@@ -5714,7 +5714,7 @@
       ],
       "scale": 0.75,
       "master": "local/art-development/desert-edge/desert-landscape-plate.png",
-      "master_sha256": "3985a2c23f1977124f627c8dd35e22a3daf37fede4cc1ce4b79cb71a03917fc1",
+      "master_sha256": "7ca5bf1c08ed82305b8097ba5519e6723b843c9cd09640f500b02d27772b9e04",
       "exact_alpha": false,
       "alpha_quality": 100
     },
@@ -7389,10 +7389,10 @@
       "master_sha256": "bc2426094dd26d3f49dae86a8a484ebf1d65fd4ffaa68264ed0c39d9b943b37a"
     },
     "assets/jungle/title/market-low.avif": {
-      "source": "assets/jungle/title/market-low.webp",
-      "source_sha256": "0fc7c3075fab27a96f4e2d21ff9bd0b8d9660a1efc91acd0d48bb1b51fa8d24f",
-      "source_bytes": 7932,
-      "source_rgba_sha256": "14c9a37b319ea74b4ea5f70ea2d233a4165d20eeb4e45a37fc5b1e2308816643",
+      "source": "local/art-development/map-palette/market.png",
+      "source_sha256": "2bcfa552cc1fe710f8f218d80f9f9bcfbfe835e065bab8ee5abe8876435919eb",
+      "source_bytes": 2598970,
+      "source_rgba_sha256": "d41ff18d4e3c8392f95b81550a0fef25d307fbdde02df8c53e04409968915174",
       "dimensions": [
         240,
         135
@@ -7400,19 +7400,19 @@
       "alpha": false,
       "source_alpha_sha256": "682a387ec62c4338e6ba238c81587700231b5c74329714310ddd41a72c10de09",
       "alpha_sha256": "682a387ec62c4338e6ba238c81587700231b5c74329714310ddd41a72c10de09",
-      "rgba_sha256": "7f5143075f90d1c6f327c4cb21f4186ef73d3a70db59029f363ace635dd34630",
-      "sha256": "98ba6c4e999f2805bb8c3491e7f43541f46c378f78978f88dd9f4703ed1edf53",
-      "bytes": 4902,
+      "rgba_sha256": "9cf5d72f7343f1b782af003afb816e84cde28bded6da74000a06824f4dd45011",
+      "sha256": "2058a6014a16d82f5e83ee1c8b94770a2c1f1c2a66b4451377676b377b65b416",
+      "bytes": 5170,
       "quality": 35,
       "lossless": false,
       "subsampling": "420",
       "speed": 6
     },
     "assets/jungle/title/market-portrait-low.avif": {
-      "source": "assets/jungle/title/market-portrait-low.webp",
-      "source_sha256": "4146eccbe48a7a658f9004e4c18f0e35f5fb16ed676f3bbdd0725fac6e3aeb04",
-      "source_bytes": 22350,
-      "source_rgba_sha256": "c85df4d6539c24341d7df4d051c0125e410c990dc6fca162adec9402fe3d7653",
+      "source": "local/art-development/map-palette/market-portrait.png",
+      "source_sha256": "f10d95ce2b13b45793540eba93301241bb7e8556fad6e30540883a7bcdd1a28a",
+      "source_bytes": 2777761,
+      "source_rgba_sha256": "b38edf491ea58eea2854b2eafdd4cf1bdfddf8c1e82c46869e2b9884498a3ff7",
       "dimensions": [
         240,
         360
@@ -7420,19 +7420,19 @@
       "alpha": false,
       "source_alpha_sha256": "9a5b7e7b9006c41100fbfd88f4ad6ec3f4645e6df5725f09c7f9be9f58b80862",
       "alpha_sha256": "9a5b7e7b9006c41100fbfd88f4ad6ec3f4645e6df5725f09c7f9be9f58b80862",
-      "rgba_sha256": "0cf9a574fbff0ac9f2077ddbc4619879f2ad3f41d62b862d8f803ee8e5d1a72d",
-      "sha256": "69eff0074f5eb86ba2c905460a0c52c2e5cc87c6ced84e1db2eb3c72d3e8cbc6",
-      "bytes": 14246,
+      "rgba_sha256": "01a5aa2a4682d1eb5b277ff2ec710e22c16852fe31f7ddda1db53beaa533000c",
+      "sha256": "3014b6614c389dbcd4197864fe43ebc718818996b1e1725ac7d64bac6414f50d",
+      "bytes": 14625,
       "quality": 35,
       "lossless": false,
       "subsampling": "420",
       "speed": 6
     },
     "assets/jungle/title/market-portrait.avif": {
-      "source": "assets/jungle/title/market-portrait.webp",
-      "source_sha256": "3863956f24a6f313be2182a8381852f850914a6582bdc82d5022a165f43cd2db",
-      "source_bytes": 235978,
-      "source_rgba_sha256": "ce136614238e3037eb9100c91cb9cb2dbec96e591d637b7b794ac75f5b8e8d55",
+      "source": "local/art-development/map-palette/market-portrait.png",
+      "source_sha256": "f10d95ce2b13b45793540eba93301241bb7e8556fad6e30540883a7bcdd1a28a",
+      "source_bytes": 2777761,
+      "source_rgba_sha256": "a9eea5b916e4cbfecb45f6d8806c485aca4f905338a719b53a84c25d00af4257",
       "dimensions": [
         768,
         1152
@@ -7440,9 +7440,9 @@
       "alpha": false,
       "source_alpha_sha256": "852aad42795f401e21ded6e51fc392da9d94e2f386cacc08327046c319e903fc",
       "alpha_sha256": "2951f16020ee834f650e47e2e4aa8a5e39afe30b2f16bcb43b2e0b9ec235e721",
-      "rgba_sha256": "36ad5de3571b7c2447d1f78868479b57461e6e3208a94fb3092a26de9a093a19",
-      "sha256": "b8de9713fc8e0bdd60f82b33356143e01ee16f3a7c51c7239e7fbe1f0aa72710",
-      "bytes": 96084,
+      "rgba_sha256": "30d8f5b17a6b34ff2d9f38f25ec4e4f8beffcefac4dce46039c189f47ed4c8fa",
+      "sha256": "366924baa3ec58126d847cfccf8bfd05435a51942d768b4c6254ed27caa755eb",
+      "bytes": 96551,
       "quality": 35,
       "lossless": false,
       "subsampling": "420",
@@ -7452,16 +7452,16 @@
         1536
       ],
       "scale": 0.75,
-      "master": "local/art-development/market/market-portrait.png",
-      "master_sha256": "44e44ba016dc89155a312177454f78b1cc1142385f631264ce0f9e1f3f70c274",
+      "master": "local/art-development/map-palette/market-portrait.png",
+      "master_sha256": "f10d95ce2b13b45793540eba93301241bb7e8556fad6e30540883a7bcdd1a28a",
       "exact_alpha": false,
       "alpha_quality": 100
     },
     "assets/jungle/title/market.avif": {
-      "source": "assets/jungle/title/market.webp",
-      "source_sha256": "4b1e401ec7720d218d036f4d6c6cdb46dcfd6480a960fad0bed28ac603f5f5b8",
-      "source_bytes": 212892,
-      "source_rgba_sha256": "a761165347fb0f5d5c4026ba964758eec686388e21ec10b1ede990115b8be8e8",
+      "source": "local/art-development/map-palette/market.png",
+      "source_sha256": "2bcfa552cc1fe710f8f218d80f9f9bcfbfe835e065bab8ee5abe8876435919eb",
+      "source_bytes": 2598970,
+      "source_rgba_sha256": "c933e9385e4fdc3492d6c6986566022bbdc99c21ed3118e8cc0d3af3f341d045",
       "dimensions": [
         1254,
         706
@@ -7469,9 +7469,9 @@
       "alpha": false,
       "source_alpha_sha256": "01d47491cbeb600913ad9b969c467a20eee08ef528805ef7ff455d14d0b926e6",
       "alpha_sha256": "88bf49aabe87d9fc2722821cdb81631d1d56c9df2f222d84e236df6f539e51b3",
-      "rgba_sha256": "459a4e458603b8a0b1c86a41fcfd0b3c0c56484cd8156f0b77b6543a54f9cda1",
-      "sha256": "8ec1534ef58722872e026c6b190bdda9b833361e990ba824d0f004168c31423b",
-      "bytes": 82072,
+      "rgba_sha256": "9d16801c6d0abce372571d0a6744c677cdfe525379cb524300c42b6eb58083ce",
+      "sha256": "00d3b71f2ecde91078b18f96761d76e53612f1e6a3fc9494c33ba0421a4e387d",
+      "bytes": 82555,
       "quality": 35,
       "lossless": false,
       "subsampling": "420",
@@ -7481,8 +7481,8 @@
         941
       ],
       "scale": 0.75,
-      "master": "local/art-development/market/market-landscape.png",
-      "master_sha256": "cd8392f37a80b22a7149cee3c6fd02b9a8c1c5381c36bc0eb0bb40c108bafc50",
+      "master": "local/art-development/map-palette/market.png",
+      "master_sha256": "2bcfa552cc1fe710f8f218d80f9f9bcfbfe835e065bab8ee5abe8876435919eb",
       "exact_alpha": false,
       "alpha_quality": 100
     },
@@ -7622,64 +7622,6 @@
       "speed": 6,
       "exact_alpha": true,
       "alpha_quality": 100
-    },
-    "assets/jungle/title/objects/beach-crab-family-glow.avif": {
-      "source": "assets/jungle/title/objects/beach-crab-family-glow.webp",
-      "source_sha256": "0aa3e2ae6f001102eaf7058f41ddfb34cad9ba9799e25dec831403523aebbb6f",
-      "source_bytes": 94552,
-      "source_rgba_sha256": "c2700b77212eb925364deb58d6727b06349693c41ff7370f8992463747bb97e3",
-      "dimensions": [
-        958,
-        434
-      ],
-      "alpha": true,
-      "source_alpha_sha256": "7cd2208eb46cb874248e67581b64cc76e2b26824791e3fd2d1bf6770b714b54b",
-      "alpha_sha256": "c6b89df683c067b317b254f23e5c2501a58af36dcc9462e4f68a9f7530210846",
-      "rgba_sha256": "1cc829a25a6746e8259579824bd57566ca3777a4f599b69006d98a01792df397",
-      "sha256": "e5865d46e00cc031169c83fcdf69ce0a71ebbd10af1c39e864e04bfa6336af95",
-      "bytes": 46230,
-      "quality": 35,
-      "lossless": false,
-      "subsampling": "444",
-      "speed": 6,
-      "exact_alpha": false,
-      "alpha_quality": 90,
-      "design_dimensions": [
-        1277,
-        579
-      ],
-      "scale": 0.75,
-      "master": "backup/avif-migration/assets/jungle/title/objects/beach-crab-family-glow.webp",
-      "master_sha256": "0aa3e2ae6f001102eaf7058f41ddfb34cad9ba9799e25dec831403523aebbb6f"
-    },
-    "assets/jungle/title/objects/beach-crab-family.avif": {
-      "source": "assets/jungle/title/objects/beach-crab-family.webp",
-      "source_sha256": "de02bfc0602dd7184deeb4f4f98fe2bff635964243bcec9f4fe37b720b220046",
-      "source_bytes": 769450,
-      "source_rgba_sha256": "cdfc3e210678ef37f4df87838c7687c2105f0cfc026fa9527ab402c436fac415",
-      "dimensions": [
-        958,
-        434
-      ],
-      "alpha": true,
-      "source_alpha_sha256": "7cd2208eb46cb874248e67581b64cc76e2b26824791e3fd2d1bf6770b714b54b",
-      "alpha_sha256": "c6b89df683c067b317b254f23e5c2501a58af36dcc9462e4f68a9f7530210846",
-      "rgba_sha256": "2d28612055e668b6c72fff3cbc91c7b92087d1af3076a99d664a07558b944c57",
-      "sha256": "d27a8fde25f189766ebd8cb4426c228b15bf05eb522d01917e10ab30adfc3478",
-      "bytes": 65843,
-      "quality": 35,
-      "lossless": false,
-      "subsampling": "444",
-      "speed": 6,
-      "exact_alpha": false,
-      "alpha_quality": 90,
-      "design_dimensions": [
-        1277,
-        579
-      ],
-      "scale": 0.75,
-      "master": "backup/avif-migration/assets/jungle/title/objects/beach-crab-family.webp",
-      "master_sha256": "de02bfc0602dd7184deeb4f4f98fe2bff635964243bcec9f4fe37b720b220046"
     },
     "assets/jungle/title/objects/landscape-frogs-glow.avif": {
       "source": "assets/jungle/title/objects/landscape-frogs-glow.webp",
@@ -9757,20 +9699,20 @@
       "alpha_quality": 100
     },
     "assets/jungle/title/window-animation/landscape-sky-occluder.avif": {
-      "source": "assets/jungle/title/window-animation/landscape-sky-occluder.webp",
-      "source_sha256": "37c8745bb74d36e2935adc14410afc04d0f4513c58dc454368aa498bf66a1df6",
-      "source_bytes": 819394,
-      "source_rgba_sha256": "b832a47b99c79ad80d7cf91089f91ff5b8cb60c0e78fe06d88582ff05e6de00b",
+      "source": "local/art-development/treehouse-window-view/landscape-sky-occluder.png",
+      "source_sha256": "52b97eb9fcecdf73c759ed8c2103e8d3e75fb1d898ec4e01eced01383f2765c4",
+      "source_bytes": 1075258,
+      "source_rgba_sha256": "70d4a219031e13f9567baf8fe751744047b16e5ed6a9cfb097685a22a3a394f0",
       "dimensions": [
         1672,
         430
       ],
       "alpha": true,
-      "source_alpha_sha256": "e0ca458715470081a5157a71481a2ec281cdcc3b90792e87a44c780a9865aa73",
-      "alpha_sha256": "e0ca458715470081a5157a71481a2ec281cdcc3b90792e87a44c780a9865aa73",
-      "rgba_sha256": "cdf58ed67589cae4f78306f6f523398f40abafcc99d4ed39358479b47c2e5a39",
-      "sha256": "6a5f2c0d26028003f7b14394e62dcff6c8ac928d0cb064c8a3cd726ef3ad8764",
-      "bytes": 115916,
+      "source_alpha_sha256": "df4d20b68376437798d2b0a7c0857dee2502b93801b8ee2a1dd15be971b77912",
+      "alpha_sha256": "df4d20b68376437798d2b0a7c0857dee2502b93801b8ee2a1dd15be971b77912",
+      "rgba_sha256": "ea3704b257c0b329748a085a1eedd1151805b7d5066c847e0a9b9357d20dbeb3",
+      "sha256": "9f3ce077fcbbb04cd08e964b8fe875365cc45025d70e9db8bb8a89d6d62306f8",
+      "bytes": 129099,
       "quality": 70,
       "lossless": false,
       "subsampling": "444",
@@ -9911,20 +9853,20 @@
       "alpha_quality": 100
     },
     "assets/jungle/title/window-animation/portrait-sky-occluder.avif": {
-      "source": "assets/jungle/title/window-animation/portrait-sky-occluder.webp",
-      "source_sha256": "ddcd579a50f78442500dce40968de3567cbadfae80eb0f4eec4b40efca11e57e",
-      "source_bytes": 842966,
-      "source_rgba_sha256": "0b30052669ed829a5c583a9647799ab4c1865e6f9fb4ff15cf4d9600a12b147b",
+      "source": "local/art-development/treehouse-window-view/portrait-sky-occluder.png",
+      "source_sha256": "703a2185ffeab2b3f891c0b0ebd0b0685d41b1cdef907d3882fc8253f688b6ef",
+      "source_bytes": 1155718,
+      "source_rgba_sha256": "a168982e47233ce717fcfa9daaf8ad5ca4e5d2fbe3cfb4c4ea8c2b848b33239f",
       "dimensions": [
         1024,
         680
       ],
       "alpha": true,
-      "source_alpha_sha256": "fb289a53054d8785e7cd095a7e0b49f1917e1a2b73029cefa011cd7e7bb889ff",
-      "alpha_sha256": "fb289a53054d8785e7cd095a7e0b49f1917e1a2b73029cefa011cd7e7bb889ff",
-      "rgba_sha256": "ab1365fcdd64406b3b835ae47094d4a3aac4eff1e8046285392a87edc2e76dfd",
-      "sha256": "b1bdc096f54fdcc4603f4650f0b7619490f249c47fe24e251d619f1d400ac8e9",
-      "bytes": 127648,
+      "source_alpha_sha256": "6192cd31fc9e9612db61b3cc59c4b16407f69c4f091eb96043df00927aff057a",
+      "alpha_sha256": "6192cd31fc9e9612db61b3cc59c4b16407f69c4f091eb96043df00927aff057a",
+      "rgba_sha256": "f8afd1bcc40c45275bfba29ec815752e251dad97033130aef39b6b954ba2cf69",
+      "sha256": "4c2d9b58006efed02d6accb5ec25fdcce6c4e192ed1823f407bd13d4b919a330",
+      "bytes": 131911,
       "quality": 70,
       "lossless": false,
       "subsampling": "444",
@@ -9977,10 +9919,10 @@
       "alpha_quality": 100
     },
     "assets/jungle/title/window-low.avif": {
-      "source": "assets/jungle/title/window-low.webp",
-      "source_sha256": "9db4fbbd4650b88f6db98af690a6c6e11b8dc0a061b79183b5a9a8e0fe12ca7f",
-      "source_bytes": 6346,
-      "source_rgba_sha256": "2284cca1426ab2e3f390bab63f13872b8f0bcdc9c1172073100c8eb006712629",
+      "source": "local/art-development/treehouse-window-view/landscape-background.png",
+      "source_sha256": "59aba020713a23ae889876696cc82c6bf9b83d5c8f44836f679071ff9f67463c",
+      "source_bytes": 2750343,
+      "source_rgba_sha256": "ded47f879d5cddcf0549b4d5761b68116883454435fae0fbf2554084a0046e22",
       "dimensions": [
         240,
         135
@@ -9988,19 +9930,19 @@
       "alpha": false,
       "source_alpha_sha256": "682a387ec62c4338e6ba238c81587700231b5c74329714310ddd41a72c10de09",
       "alpha_sha256": "682a387ec62c4338e6ba238c81587700231b5c74329714310ddd41a72c10de09",
-      "rgba_sha256": "4a801cd1f06888112c7282e547351500af293f81f67d23f7e7328602b4e522cd",
-      "sha256": "a87eac8dc55f8c13a741382b1db3c044f53ab4d04d3db412124eee043236cbc6",
-      "bytes": 3791,
+      "rgba_sha256": "05aa87c3ca87d702702093b74e5eabfe4d02398716e8d061cb053882aab5b620",
+      "sha256": "42c0e59955193c3cf28bbc938a75f2a15e4bb5e646fc6045ea5a08012f15841f",
+      "bytes": 4463,
       "quality": 35,
       "lossless": false,
       "subsampling": "420",
       "speed": 6
     },
     "assets/jungle/title/window-portrait-low.avif": {
-      "source": "assets/jungle/title/window-portrait-low.webp",
-      "source_sha256": "cd954c42994e3c31dfc33b776b3f2a8a31abbb2752f6921164c7b4261553a741",
-      "source_bytes": 16744,
-      "source_rgba_sha256": "bf2552c185bd5bf3e7f3a6eee747d60ed6b7599a4824c70bf13b2ce1a9128844",
+      "source": "local/art-development/treehouse-window-view/portrait-background.png",
+      "source_sha256": "6e112f5776cfe2d6ef42a6fa5f09537d57f782cd09d1b17b19c168ca2396b2f6",
+      "source_bytes": 2710942,
+      "source_rgba_sha256": "ff74fd27ac202b94daf88521d17b8c830a3d99179996059412322b87dc4b3407",
       "dimensions": [
         240,
         360
@@ -10008,19 +9950,19 @@
       "alpha": false,
       "source_alpha_sha256": "9a5b7e7b9006c41100fbfd88f4ad6ec3f4645e6df5725f09c7f9be9f58b80862",
       "alpha_sha256": "9a5b7e7b9006c41100fbfd88f4ad6ec3f4645e6df5725f09c7f9be9f58b80862",
-      "rgba_sha256": "9fd34adfffe4183a0dc46b59dc158e7f5c025bd73a56ae4e1b14ace764e90994",
-      "sha256": "0c12aca8e65f2673ae904910f931a8a99c3619d87e7a68717b69ee5f4a70e9cc",
-      "bytes": 9584,
+      "rgba_sha256": "1c4592beb3642a9bddc766c534332cce48a9c8b5be0f98e3c312bbe9478ec98e",
+      "sha256": "379e66144917ff06c6e833ded52941c6f55cc38eaa6da40917d10e1a96225c28",
+      "bytes": 10152,
       "quality": 35,
       "lossless": false,
       "subsampling": "420",
       "speed": 6
     },
     "assets/jungle/title/window-portrait.avif": {
-      "source": "local/art-development/campus-fix/window-portrait-twig-plate.png",
-      "source_sha256": "79babd67e50e577512d7e3f518e33e80bed3c5cdd13d71c0dac7dc8e322a969a",
-      "source_bytes": 2564583,
-      "source_rgba_sha256": "b3c8d2e9eaf1bc734b854ba80bfa32dadf030657212bb47f1a7e977540cc814d",
+      "source": "local/art-development/treehouse-window-view/portrait-background.png",
+      "source_sha256": "6e112f5776cfe2d6ef42a6fa5f09537d57f782cd09d1b17b19c168ca2396b2f6",
+      "source_bytes": 2710942,
+      "source_rgba_sha256": "7db3eeefc2150176ef1e2a8d244d85632c6d9b80aaf76c8c3f257f0e0685fc63",
       "dimensions": [
         768,
         1152
@@ -10028,9 +9970,9 @@
       "alpha": false,
       "source_alpha_sha256": "852aad42795f401e21ded6e51fc392da9d94e2f386cacc08327046c319e903fc",
       "alpha_sha256": "2951f16020ee834f650e47e2e4aa8a5e39afe30b2f16bcb43b2e0b9ec235e721",
-      "rgba_sha256": "56a0792a7babb79b013507fbd6c490648626bd9fe5f24f3ed4a66e10ca2ef9d7",
-      "sha256": "171ef028b41f19f6c58ee7b3b4ae7d9c7baaf1676ad7f7a5249141f448d4e10f",
-      "bytes": 54763,
+      "rgba_sha256": "2490e04f80df6d1785616ce53ccf926b1c2b2e8c59be17909cdd6495f5c76ed7",
+      "sha256": "191cef5ec593952b8c5ef5fff085ddf827be33638ce53afa0944e24db98a4c92",
+      "bytes": 63708,
       "quality": 35,
       "lossless": false,
       "subsampling": "420",
@@ -10040,16 +9982,16 @@
         1536
       ],
       "scale": 0.75,
-      "master": "local/art-development/campus-fix/window-portrait-twig-plate.png",
-      "master_sha256": "79babd67e50e577512d7e3f518e33e80bed3c5cdd13d71c0dac7dc8e322a969a",
+      "master": "local/art-development/treehouse-window-view/portrait-background.png",
+      "master_sha256": "6e112f5776cfe2d6ef42a6fa5f09537d57f782cd09d1b17b19c168ca2396b2f6",
       "exact_alpha": false,
       "alpha_quality": 100
     },
     "assets/jungle/title/window.avif": {
-      "source": "assets/jungle/title/window.webp",
-      "source_sha256": "041a31963c349614020f2313590bd753ff7c72654035d03611e283c29e6ee468",
-      "source_bytes": 124356,
-      "source_rgba_sha256": "b51974924c204bab01bbe5b128947c719e24396fc546dc8fa35c09025f8aeebe",
+      "source": "local/art-development/treehouse-window-view/landscape-background.png",
+      "source_sha256": "59aba020713a23ae889876696cc82c6bf9b83d5c8f44836f679071ff9f67463c",
+      "source_bytes": 2750343,
+      "source_rgba_sha256": "2a8c5795638d8dfa80168351e29e20d271ea83b9e00f7d1de720ac9e1188d7a7",
       "dimensions": [
         1254,
         706
@@ -10057,9 +9999,9 @@
       "alpha": false,
       "source_alpha_sha256": "01d47491cbeb600913ad9b969c467a20eee08ef528805ef7ff455d14d0b926e6",
       "alpha_sha256": "88bf49aabe87d9fc2722821cdb81631d1d56c9df2f222d84e236df6f539e51b3",
-      "rgba_sha256": "4d54039da96a63f0008d647409047dd97152d73d7a59c7edc9a7bb6b3fffa098",
-      "sha256": "965d3f0b9a5c5bc7c79b9a8eab12b312d15ff9d15a8a4c588df1447bcc14c053",
-      "bytes": 41685,
+      "rgba_sha256": "3e73c230e62721472f412ad7b6fa1e6289624725de9edcfd83d0926545d97d6e",
+      "sha256": "4bc87ecc01054a59644263442ba4eba37feb392657ce44ba9a64ecc64c51ea52",
+      "bytes": 64376,
       "quality": 35,
       "lossless": false,
       "subsampling": "420",
@@ -10069,8 +10011,8 @@
         941
       ],
       "scale": 0.75,
-      "master": "backup/avif-migration/assets/jungle/title/window.webp",
-      "master_sha256": "041a31963c349614020f2313590bd753ff7c72654035d03611e283c29e6ee468",
+      "master": "local/art-development/treehouse-window-view/landscape-background.png",
+      "master_sha256": "59aba020713a23ae889876696cc82c6bf9b83d5c8f44836f679071ff9f67463c",
       "exact_alpha": false,
       "alpha_quality": 100
     },
@@ -31345,702 +31287,6 @@
       "exact_alpha": false,
       "alpha_quality": 100
     },
-    "assets/jungle/title/objects/desert-macaw.avif": {
-      "source": "local/art-development/desert-edge/runtime-exports/desert-macaw.png",
-      "source_sha256": "3f75ff8de96d5313f92aa07fc656615b248247286a351ea5baf2fff468614c47",
-      "source_bytes": 315045,
-      "source_rgba_sha256": "8bfa9121a1ee8102c8738c70380e45cede4ba987661c8b42404917d077ec01c2",
-      "dimensions": [
-        376,
-        359
-      ],
-      "alpha": true,
-      "source_alpha_sha256": "9b4db1834782e74bfc54520416b2a69f4d5e488d2121e55eab0a2f3f8b09dd40",
-      "alpha_sha256": "3ee9325da9ae63eb5941f84ef4fcb8b812823f59d407bf6a6b7d900be7ccbe03",
-      "rgba_sha256": "8c0bb42aaed442d8268c37aec7b35dd1c34ae047b3f6869be23688f5c4fffa6a",
-      "sha256": "7520e986487db81d77a192ff31546c43d0d053742c14d65f5b0903935526c697",
-      "bytes": 17707,
-      "quality": 35,
-      "lossless": false,
-      "subsampling": "444",
-      "speed": 6,
-      "design_dimensions": [
-        501,
-        479
-      ],
-      "scale": 0.75,
-      "master": "local/art-development/desert-edge/runtime-exports/desert-macaw.png",
-      "master_sha256": "3f75ff8de96d5313f92aa07fc656615b248247286a351ea5baf2fff468614c47",
-      "exact_alpha": false,
-      "alpha_quality": 90
-    },
-    "assets/jungle/title/objects/desert-macaw-glow.avif": {
-      "source": "local/art-development/desert-edge/runtime-exports/desert-macaw-glow.png",
-      "source_sha256": "f1995b69ecd41fb11e24b6b686ce7f92f44af7b7b784a831d68f1a3af9b150df",
-      "source_bytes": 22947,
-      "source_rgba_sha256": "77b5df7b12a89e70daca86cd8276dafc966e079a86f524e6d7897862fbdd052a",
-      "dimensions": [
-        376,
-        359
-      ],
-      "alpha": true,
-      "source_alpha_sha256": "9b4db1834782e74bfc54520416b2a69f4d5e488d2121e55eab0a2f3f8b09dd40",
-      "alpha_sha256": "3ee9325da9ae63eb5941f84ef4fcb8b812823f59d407bf6a6b7d900be7ccbe03",
-      "rgba_sha256": "31f71f7d5a103e50aa293c2b86ab4d21d9e4937b95e5a8c8a68b6785e930b136",
-      "sha256": "84378665f9670c7c433b2b4ea45b2d1e3ceaf646f2e32d07b61fb97aa4302c1d",
-      "bytes": 6620,
-      "quality": 35,
-      "lossless": false,
-      "subsampling": "444",
-      "speed": 6,
-      "design_dimensions": [
-        501,
-        479
-      ],
-      "scale": 0.75,
-      "master": "local/art-development/desert-edge/runtime-exports/desert-macaw-glow.png",
-      "master_sha256": "f1995b69ecd41fb11e24b6b686ce7f92f44af7b7b784a831d68f1a3af9b150df",
-      "exact_alpha": false,
-      "alpha_quality": 90
-    },
-    "assets/jungle/title/objects/desert-blue-parrot.avif": {
-      "source": "local/art-development/desert-edge/runtime-exports/desert-blue-parrot.png",
-      "source_sha256": "fb446a494b851206d18dca56e3b981ba33fef390a2f07fa1fdfa6ba4884076cf",
-      "source_bytes": 242793,
-      "source_rgba_sha256": "f66ff51650a26f7e970dc0a683620eef0577dd7eb2c525e355acb76dcac6c088",
-      "dimensions": [
-        268,
-        345
-      ],
-      "alpha": true,
-      "source_alpha_sha256": "fcfb1cb8675c0464772f8a89ef3ce38b75a5bd2dc1b6f7b5885ce02a208b8d08",
-      "alpha_sha256": "72c0f770c4d89f19e1755c9cec1458b697e1eb3a70c1da150388d23c3a108a8e",
-      "rgba_sha256": "8fbb633d4eff29e16d09c7e02750ecdecdcc0f324f0ac1e8050f4c931b5d59cd",
-      "sha256": "e182fff179a50d9f7727852f5d4b3ccbdcd928709d169176aee22f8ac7469be5",
-      "bytes": 14146,
-      "quality": 35,
-      "lossless": false,
-      "subsampling": "444",
-      "speed": 6,
-      "design_dimensions": [
-        358,
-        460
-      ],
-      "scale": 0.75,
-      "master": "local/art-development/desert-edge/runtime-exports/desert-blue-parrot.png",
-      "master_sha256": "fb446a494b851206d18dca56e3b981ba33fef390a2f07fa1fdfa6ba4884076cf",
-      "exact_alpha": false,
-      "alpha_quality": 90
-    },
-    "assets/jungle/title/objects/desert-blue-parrot-glow.avif": {
-      "source": "local/art-development/desert-edge/runtime-exports/desert-blue-parrot-glow.png",
-      "source_sha256": "af2911895ff2063789c21cfcc23f3adb279822b47280437e75f0814df95a3f3c",
-      "source_bytes": 18339,
-      "source_rgba_sha256": "8680c3af2d6e7e4006166ebc1f20db55bc4b6c9afe3a4f34582e3a8bad8bbdb5",
-      "dimensions": [
-        268,
-        345
-      ],
-      "alpha": true,
-      "source_alpha_sha256": "fcfb1cb8675c0464772f8a89ef3ce38b75a5bd2dc1b6f7b5885ce02a208b8d08",
-      "alpha_sha256": "72c0f770c4d89f19e1755c9cec1458b697e1eb3a70c1da150388d23c3a108a8e",
-      "rgba_sha256": "dd2492a817acb0c978cc210914e8a0679a904f8599b4b014331ae0e11bfcf02e",
-      "sha256": "9891913e75fdc5f29c057d4111ac40d8572042d424a63c9655c616cb72699679",
-      "bytes": 5131,
-      "quality": 35,
-      "lossless": false,
-      "subsampling": "444",
-      "speed": 6,
-      "design_dimensions": [
-        358,
-        460
-      ],
-      "scale": 0.75,
-      "master": "local/art-development/desert-edge/runtime-exports/desert-blue-parrot-glow.png",
-      "master_sha256": "af2911895ff2063789c21cfcc23f3adb279822b47280437e75f0814df95a3f3c",
-      "exact_alpha": false,
-      "alpha_quality": 90
-    },
-    "assets/jungle/title/objects/desert-green-parakeet.avif": {
-      "source": "local/art-development/desert-edge/runtime-exports/desert-green-parakeet.png",
-      "source_sha256": "0d80a5547957c9413f246ab157adb5d2d1015029174d3d226b5090e97162718a",
-      "source_bytes": 274288,
-      "source_rgba_sha256": "da9cf69054ed3f9eceb61ca9f7bd75df100bb6ce473ab6aaf34e266917bc2ccc",
-      "dimensions": [
-        356,
-        326
-      ],
-      "alpha": true,
-      "source_alpha_sha256": "7ea92f2e240f80a94194e92c3f2b4d07d2651c2b8a917e6be9b519d39751d643",
-      "alpha_sha256": "0324e271a8f0514bc439448738403e4df6327256120fe44c5bb107b1b814d477",
-      "rgba_sha256": "daca7195a1bb0b0e65d46fb28a2c8435db6943ed19c3a7818779e7fcb5190b61",
-      "sha256": "af9f0c08c356239cf824417f66bcbb09df146f9f4c1fe70bd11829a9e7a8b9c9",
-      "bytes": 13808,
-      "quality": 35,
-      "lossless": false,
-      "subsampling": "444",
-      "speed": 6,
-      "design_dimensions": [
-        474,
-        435
-      ],
-      "scale": 0.75,
-      "master": "local/art-development/desert-edge/runtime-exports/desert-green-parakeet.png",
-      "master_sha256": "0d80a5547957c9413f246ab157adb5d2d1015029174d3d226b5090e97162718a",
-      "exact_alpha": false,
-      "alpha_quality": 90
-    },
-    "assets/jungle/title/objects/desert-green-parakeet-glow.avif": {
-      "source": "local/art-development/desert-edge/runtime-exports/desert-green-parakeet-glow.png",
-      "source_sha256": "f356d4d90d9595de9fdd8524edf19d40b43720988cf7e70903aa65a160caa7a5",
-      "source_bytes": 18563,
-      "source_rgba_sha256": "7a3aac17dfb44a87c9996c853b2060ddcdc64a6baf30bcf11878774702d27bbb",
-      "dimensions": [
-        356,
-        326
-      ],
-      "alpha": true,
-      "source_alpha_sha256": "7ea92f2e240f80a94194e92c3f2b4d07d2651c2b8a917e6be9b519d39751d643",
-      "alpha_sha256": "0324e271a8f0514bc439448738403e4df6327256120fe44c5bb107b1b814d477",
-      "rgba_sha256": "9fac8da04ce0a9e77dc5c83b0c78ac1d42313048797e83b7335cd2803775e4cc",
-      "sha256": "706ec0a4845986dd28fa7b980ef6324fa919f46bb0ad9d54a07c94b7fdbcb75c",
-      "bytes": 5088,
-      "quality": 35,
-      "lossless": false,
-      "subsampling": "444",
-      "speed": 6,
-      "design_dimensions": [
-        474,
-        435
-      ],
-      "scale": 0.75,
-      "master": "local/art-development/desert-edge/runtime-exports/desert-green-parakeet-glow.png",
-      "master_sha256": "f356d4d90d9595de9fdd8524edf19d40b43720988cf7e70903aa65a160caa7a5",
-      "exact_alpha": false,
-      "alpha_quality": 90
-    },
-    "assets/jungle/title/objects/desert-cockatiel.avif": {
-      "source": "local/art-development/desert-edge/runtime-exports/desert-cockatiel.png",
-      "source_sha256": "84dbd113d34efe7d7746ac01a994f76e214abab06d15f1f17880e14bc83555cd",
-      "source_bytes": 260787,
-      "source_rgba_sha256": "de7711a4c28451c9981d5b0aa075c5ed83bd668f3ff973e97899e70b936e166e",
-      "dimensions": [
-        329,
-        395
-      ],
-      "alpha": true,
-      "source_alpha_sha256": "6ce295aef0f6b49c515f1372443fc9c688914a862642f3237ada2d100078d529",
-      "alpha_sha256": "18b4387c1d8fac7d428352affc43a2e6c6dfda74cad80bd3e81a25f324c4d398",
-      "rgba_sha256": "64617ea22b8dffe5dcb60c16b4b5b81717b08680b445e2b8dbc683ed0332b19b",
-      "sha256": "d4f333f4167ddcfea856a6ae0c75d8159609b74158a116f40fb8c43710bbc75e",
-      "bytes": 14511,
-      "quality": 35,
-      "lossless": false,
-      "subsampling": "444",
-      "speed": 6,
-      "design_dimensions": [
-        439,
-        527
-      ],
-      "scale": 0.75,
-      "master": "local/art-development/desert-edge/runtime-exports/desert-cockatiel.png",
-      "master_sha256": "84dbd113d34efe7d7746ac01a994f76e214abab06d15f1f17880e14bc83555cd",
-      "exact_alpha": false,
-      "alpha_quality": 90
-    },
-    "assets/jungle/title/objects/desert-cockatiel-glow.avif": {
-      "source": "local/art-development/desert-edge/runtime-exports/desert-cockatiel-glow.png",
-      "source_sha256": "115af381e5f39b67ff2263c50e54567c1c70807adc604064dc0dcfa64277b9d4",
-      "source_bytes": 20492,
-      "source_rgba_sha256": "b9ce90fca054bbc66165644d620b452691c9f5f0093e5a3e42f533d5d47fd264",
-      "dimensions": [
-        329,
-        395
-      ],
-      "alpha": true,
-      "source_alpha_sha256": "6ce295aef0f6b49c515f1372443fc9c688914a862642f3237ada2d100078d529",
-      "alpha_sha256": "18b4387c1d8fac7d428352affc43a2e6c6dfda74cad80bd3e81a25f324c4d398",
-      "rgba_sha256": "569d6ef2e76e1d7bf03c5f15eb20bce85ea76080fd00ea4713de851551ee6dec",
-      "sha256": "7da063bcd5d381a4469c429b70640bd51180c919bb40f1dbd8cbdfbc268792d4",
-      "bytes": 5412,
-      "quality": 35,
-      "lossless": false,
-      "subsampling": "444",
-      "speed": 6,
-      "design_dimensions": [
-        439,
-        527
-      ],
-      "scale": 0.75,
-      "master": "local/art-development/desert-edge/runtime-exports/desert-cockatiel-glow.png",
-      "master_sha256": "115af381e5f39b67ff2263c50e54567c1c70807adc604064dc0dcfa64277b9d4",
-      "exact_alpha": false,
-      "alpha_quality": 90
-    },
-    "assets/jungle/title/objects/desert-lovebird.avif": {
-      "source": "local/art-development/desert-edge/runtime-exports/desert-lovebird.png",
-      "source_sha256": "cc9e2984a75cc77f328fe70fab266cc7d9a50069b69d14847d4add4f90c4040c",
-      "source_bytes": 248526,
-      "source_rgba_sha256": "9d184d26394cfff1d1eaa0571421c477d2d5639f2d2abc486feaa965df14767e",
-      "dimensions": [
-        292,
-        338
-      ],
-      "alpha": true,
-      "source_alpha_sha256": "ba59d13d66c3641d5eef974f3a35b7ee544cffe6842e9dc321189a32694f7eb5",
-      "alpha_sha256": "7884a5a8cff4ae25f98ff43917a02971a0337e5c9e39da9e868195f2142ff8c5",
-      "rgba_sha256": "d61871a547da90ed6e257d89804b6e3326ad399990712c82c0d231496ab4d1c6",
-      "sha256": "9b80c299f6a31fe1517fd1a994bff5e7c83754e4c920c3a4f9a95276a59c70c6",
-      "bytes": 11063,
-      "quality": 35,
-      "lossless": false,
-      "subsampling": "444",
-      "speed": 6,
-      "design_dimensions": [
-        389,
-        450
-      ],
-      "scale": 0.75,
-      "master": "local/art-development/desert-edge/runtime-exports/desert-lovebird.png",
-      "master_sha256": "cc9e2984a75cc77f328fe70fab266cc7d9a50069b69d14847d4add4f90c4040c",
-      "exact_alpha": false,
-      "alpha_quality": 90
-    },
-    "assets/jungle/title/objects/desert-lovebird-glow.avif": {
-      "source": "local/art-development/desert-edge/runtime-exports/desert-lovebird-glow.png",
-      "source_sha256": "5d613deb7c48d0b4498221c25850342b17541aefac42f89fb22163b03a4a6495",
-      "source_bytes": 15030,
-      "source_rgba_sha256": "8c26aaf1a83a7bdc44777df4d79674e96a5b9d3058dc121f18462891fe89e444",
-      "dimensions": [
-        292,
-        338
-      ],
-      "alpha": true,
-      "source_alpha_sha256": "ba59d13d66c3641d5eef974f3a35b7ee544cffe6842e9dc321189a32694f7eb5",
-      "alpha_sha256": "7884a5a8cff4ae25f98ff43917a02971a0337e5c9e39da9e868195f2142ff8c5",
-      "rgba_sha256": "16f9131ccd4085e615e7997d159a9bbd6f32c6280ec60034056657248e2bd350",
-      "sha256": "42f9b93473f49520ef874a0c73d2ec5a971891c92ab540f30987d2225b52ba58",
-      "bytes": 4157,
-      "quality": 35,
-      "lossless": false,
-      "subsampling": "444",
-      "speed": 6,
-      "design_dimensions": [
-        389,
-        450
-      ],
-      "scale": 0.75,
-      "master": "local/art-development/desert-edge/runtime-exports/desert-lovebird-glow.png",
-      "master_sha256": "5d613deb7c48d0b4498221c25850342b17541aefac42f89fb22163b03a4a6495",
-      "exact_alpha": false,
-      "alpha_quality": 90
-    },
-    "assets/jungle/title/objects/desert-pink-parrot.avif": {
-      "source": "local/art-development/desert-edge/runtime-exports/desert-pink-parrot.png",
-      "source_sha256": "2767096b839e83044a4983e05b4a69515a25c3c65af43955188f6c4ffa6d81af",
-      "source_bytes": 280706,
-      "source_rgba_sha256": "b8ec95192671a95f72cc99550b24f1c117a6d54739b347d92db0e47d690d1f00",
-      "dimensions": [
-        332,
-        382
-      ],
-      "alpha": true,
-      "source_alpha_sha256": "2543824e9525acb73c3e5213e9ece7847228770ffd01e3c671aeb98e0810dc0f",
-      "alpha_sha256": "8c85cedc5e0c39f1a367c3603d323966c67ed49c7f3ddb8105cfce193ad37a9d",
-      "rgba_sha256": "fe8374582e6309227d68be445b964f01a2b7f25198012af3d30dd5e524732b45",
-      "sha256": "8049be8cf2b7148262e5302601436aead0c47abb216dbeec5281cedc16c54d43",
-      "bytes": 14321,
-      "quality": 35,
-      "lossless": false,
-      "subsampling": "444",
-      "speed": 6,
-      "design_dimensions": [
-        443,
-        509
-      ],
-      "scale": 0.75,
-      "master": "local/art-development/desert-edge/runtime-exports/desert-pink-parrot.png",
-      "master_sha256": "2767096b839e83044a4983e05b4a69515a25c3c65af43955188f6c4ffa6d81af",
-      "exact_alpha": false,
-      "alpha_quality": 90
-    },
-    "assets/jungle/title/objects/desert-pink-parrot-glow.avif": {
-      "source": "local/art-development/desert-edge/runtime-exports/desert-pink-parrot-glow.png",
-      "source_sha256": "2afe5313ff41a6637181ae9f8d5101ebe9740ebc366ed62822b4e14576f1d8c2",
-      "source_bytes": 18605,
-      "source_rgba_sha256": "0eae01256dcb0677bee165dbb95848dde2c90c947551cae7ab9d2c913a6d99e6",
-      "dimensions": [
-        332,
-        382
-      ],
-      "alpha": true,
-      "source_alpha_sha256": "2543824e9525acb73c3e5213e9ece7847228770ffd01e3c671aeb98e0810dc0f",
-      "alpha_sha256": "8c85cedc5e0c39f1a367c3603d323966c67ed49c7f3ddb8105cfce193ad37a9d",
-      "rgba_sha256": "9ef8d582e9b5b72d786a4adba86c8fb71b104ab43b1d5a7b1d35c05efa779452",
-      "sha256": "856e14f4c28716bcb85c368da5cd0813e4c6711706c601bd2022da5d9b48bbd0",
-      "bytes": 5052,
-      "quality": 35,
-      "lossless": false,
-      "subsampling": "444",
-      "speed": 6,
-      "design_dimensions": [
-        443,
-        509
-      ],
-      "scale": 0.75,
-      "master": "local/art-development/desert-edge/runtime-exports/desert-pink-parrot-glow.png",
-      "master_sha256": "2afe5313ff41a6637181ae9f8d5101ebe9740ebc366ed62822b4e14576f1d8c2",
-      "exact_alpha": false,
-      "alpha_quality": 90
-    },
-    "assets/jungle/title/objects/desert-budgie.avif": {
-      "source": "local/art-development/desert-edge/runtime-exports/desert-budgie.png",
-      "source_sha256": "71ec355536fe65d50bda80251b78295d7a675ca9eb166242dc301c7fff594424",
-      "source_bytes": 225247,
-      "source_rgba_sha256": "9c8e480ce17a819f740ece051f40e54116adfc0a46a51308bc5006e1f8070ad4",
-      "dimensions": [
-        311,
-        315
-      ],
-      "alpha": true,
-      "source_alpha_sha256": "b78231ba0587365d48c31b2d4363bbaf703f432a8f0f51275b778428ec0cbff7",
-      "alpha_sha256": "22b446ec49dd9344b5d2fa1ca6f684daae080ccdfa401e58ab2edb5523e6cb48",
-      "rgba_sha256": "4c74ff6a010c42c92578fc9d094f59d9446a1419996d94302c20ea494cfcdf35",
-      "sha256": "32ca16d4ea9eb04b67ba20424ce44b32d610c5b4f1a18a0864850b945c3cf07d",
-      "bytes": 12771,
-      "quality": 35,
-      "lossless": false,
-      "subsampling": "444",
-      "speed": 6,
-      "design_dimensions": [
-        415,
-        420
-      ],
-      "scale": 0.75,
-      "master": "local/art-development/desert-edge/runtime-exports/desert-budgie.png",
-      "master_sha256": "71ec355536fe65d50bda80251b78295d7a675ca9eb166242dc301c7fff594424",
-      "exact_alpha": false,
-      "alpha_quality": 90
-    },
-    "assets/jungle/title/objects/desert-budgie-glow.avif": {
-      "source": "local/art-development/desert-edge/runtime-exports/desert-budgie-glow.png",
-      "source_sha256": "4b7af17ae114542f0981cd4c99f6c7bbcd2d031f7ef921d7dc6012bd25a5b1a2",
-      "source_bytes": 14593,
-      "source_rgba_sha256": "02f7704c493afe16b753bee281a6f2045632931babfd5344a5dfe09e01c2d147",
-      "dimensions": [
-        311,
-        315
-      ],
-      "alpha": true,
-      "source_alpha_sha256": "b78231ba0587365d48c31b2d4363bbaf703f432a8f0f51275b778428ec0cbff7",
-      "alpha_sha256": "22b446ec49dd9344b5d2fa1ca6f684daae080ccdfa401e58ab2edb5523e6cb48",
-      "rgba_sha256": "d149d12fe335827fe201ccd2d1ae1b65f34196218d92dbb19add13ea822fed9a",
-      "sha256": "45d6f1d2952c690d284e72905cc07cb3c5abef720e99240d407be6e5e86b5c35",
-      "bytes": 4301,
-      "quality": 35,
-      "lossless": false,
-      "subsampling": "444",
-      "speed": 6,
-      "design_dimensions": [
-        415,
-        420
-      ],
-      "scale": 0.75,
-      "master": "local/art-development/desert-edge/runtime-exports/desert-budgie-glow.png",
-      "master_sha256": "4b7af17ae114542f0981cd4c99f6c7bbcd2d031f7ef921d7dc6012bd25a5b1a2",
-      "exact_alpha": false,
-      "alpha_quality": 90
-    },
-    "assets/jungle/title/objects/desert-finch.avif": {
-      "source": "local/art-development/desert-edge/runtime-exports/desert-finch.png",
-      "source_sha256": "ea2c4884f63f194d97038651afeea25678eb8929f659ba7ff2dd7e8171953349",
-      "source_bytes": 191365,
-      "source_rgba_sha256": "7b5d95b717a98f98abe14a24ef28ff13941c7813e19be30caabaa869d3a39544",
-      "dimensions": [
-        313,
-        266
-      ],
-      "alpha": true,
-      "source_alpha_sha256": "23f54942a0df422b1b9411d1c12b498b468a16f9149221fba399213f2623a52e",
-      "alpha_sha256": "caefe32d2d9b53c8079957a3f456c2876d4b77d1f578c55ced9882b1512379c8",
-      "rgba_sha256": "50df2edb27bda366ff42dc88f861e3489ab62e93eeccb5468e61be35746f6e36",
-      "sha256": "c188d56b9ad7a032d36bf32092f9be3ba66ced3762d4889a45bead971f97a5ad",
-      "bytes": 11587,
-      "quality": 35,
-      "lossless": false,
-      "subsampling": "444",
-      "speed": 6,
-      "design_dimensions": [
-        417,
-        354
-      ],
-      "scale": 0.75,
-      "master": "local/art-development/desert-edge/runtime-exports/desert-finch.png",
-      "master_sha256": "ea2c4884f63f194d97038651afeea25678eb8929f659ba7ff2dd7e8171953349",
-      "exact_alpha": false,
-      "alpha_quality": 90
-    },
-    "assets/jungle/title/objects/desert-finch-glow.avif": {
-      "source": "local/art-development/desert-edge/runtime-exports/desert-finch-glow.png",
-      "source_sha256": "72058da9f83d3a828c1026e612da566d4af952d8562c801e8a311ba2311fce07",
-      "source_bytes": 14871,
-      "source_rgba_sha256": "2de86bd3177495a4fa21cdb20be83c6821a23b2995618df5825d77dd5fa4d08c",
-      "dimensions": [
-        313,
-        266
-      ],
-      "alpha": true,
-      "source_alpha_sha256": "23f54942a0df422b1b9411d1c12b498b468a16f9149221fba399213f2623a52e",
-      "alpha_sha256": "caefe32d2d9b53c8079957a3f456c2876d4b77d1f578c55ced9882b1512379c8",
-      "rgba_sha256": "8bcb9cc9090cf18b929fd3e3672d4630ed23c01af07279df7ba9a86adff34e24",
-      "sha256": "8012d13fd440cda7e47effdba4848c0951d68c069c8323f41308bfc0725c07fa",
-      "bytes": 4530,
-      "quality": 35,
-      "lossless": false,
-      "subsampling": "444",
-      "speed": 6,
-      "design_dimensions": [
-        417,
-        354
-      ],
-      "scale": 0.75,
-      "master": "local/art-development/desert-edge/runtime-exports/desert-finch-glow.png",
-      "master_sha256": "72058da9f83d3a828c1026e612da566d4af952d8562c801e8a311ba2311fce07",
-      "exact_alpha": false,
-      "alpha_quality": 90
-    },
-    "assets/jungle/title/objects/desert-parrotlet.avif": {
-      "source": "local/art-development/desert-edge/runtime-exports/desert-parrotlet.png",
-      "source_sha256": "6fdea2193014759257fe25c11977d27eb59ad1d3594649efebaa6fe6ab48d058",
-      "source_bytes": 222638,
-      "source_rgba_sha256": "b3c0507c23f8ae0ee6dfa623faa2d90e104adcf36f4fc34623268c7faab9f3c2",
-      "dimensions": [
-        279,
-        312
-      ],
-      "alpha": true,
-      "source_alpha_sha256": "8e09e29c40b22202dbb2e3ef02e3f841ef576204943a28d6861c77acc0d4de74",
-      "alpha_sha256": "14a54bee909a12ca7c2c768ac64b9b54ed1f5710f18c9a51d610a5806d132754",
-      "rgba_sha256": "6e9e741410f472795e1d743f6593eeeb2c0093649c2432a14b000cc097a781f9",
-      "sha256": "f0c0fc3263f0cb68f834785a98904c77f6512067a5cb90b5a2020555190f9bf6",
-      "bytes": 12363,
-      "quality": 35,
-      "lossless": false,
-      "subsampling": "444",
-      "speed": 6,
-      "design_dimensions": [
-        372,
-        416
-      ],
-      "scale": 0.75,
-      "master": "local/art-development/desert-edge/runtime-exports/desert-parrotlet.png",
-      "master_sha256": "6fdea2193014759257fe25c11977d27eb59ad1d3594649efebaa6fe6ab48d058",
-      "exact_alpha": false,
-      "alpha_quality": 90
-    },
-    "assets/jungle/title/objects/desert-parrotlet-glow.avif": {
-      "source": "local/art-development/desert-edge/runtime-exports/desert-parrotlet-glow.png",
-      "source_sha256": "26535051249655b9ed998e373e69be9dcdf35d7fc72d4e7ef07a7b9d05064482",
-      "source_bytes": 16182,
-      "source_rgba_sha256": "e7bbba5de3fecc58b6bd77d9fe1e1920d382da541297223aa36eca7823a642cc",
-      "dimensions": [
-        279,
-        312
-      ],
-      "alpha": true,
-      "source_alpha_sha256": "8e09e29c40b22202dbb2e3ef02e3f841ef576204943a28d6861c77acc0d4de74",
-      "alpha_sha256": "14a54bee909a12ca7c2c768ac64b9b54ed1f5710f18c9a51d610a5806d132754",
-      "rgba_sha256": "0d7c240d2b4d7c94da124e2c7dfae96eb055c713063292d62dc8c96be81214f1",
-      "sha256": "f85ad818105679bf27e7d86190e3919ccd665ce50211fac4b02953b22f188972",
-      "bytes": 4818,
-      "quality": 35,
-      "lossless": false,
-      "subsampling": "444",
-      "speed": 6,
-      "design_dimensions": [
-        372,
-        416
-      ],
-      "scale": 0.75,
-      "master": "local/art-development/desert-edge/runtime-exports/desert-parrotlet-glow.png",
-      "master_sha256": "26535051249655b9ed998e373e69be9dcdf35d7fc72d4e7ef07a7b9d05064482",
-      "exact_alpha": false,
-      "alpha_quality": 90
-    },
-    "assets/jungle/title/objects/desert-rosella.avif": {
-      "source": "local/art-development/desert-edge/runtime-exports/desert-rosella.png",
-      "source_sha256": "a73cd1b64fa05a1ac0d5c0f4dbdf775581686e66e7b805369ebdb7793592e2b0",
-      "source_bytes": 298225,
-      "source_rgba_sha256": "2901b8237108fe990fbf9ec8baec20361288c0aef13efdd53a85a6602e3c32e5",
-      "dimensions": [
-        398,
-        334
-      ],
-      "alpha": true,
-      "source_alpha_sha256": "c43c1807fd33f8caf4e062c32fdc08fcb1ad4bf5e73da1fa06f514be66c27481",
-      "alpha_sha256": "23ceeaeb9108131b42815feff7707fbae566f5011ce5269d22a73e75ff542658",
-      "rgba_sha256": "913f0af0dc2340aa98a3fee6d6b4e9d2045e06b64e04b0ac88be177fbb9df165",
-      "sha256": "d0500ad290518488d953300cc1d56ef919ede7e0829ff726bea87caa5f2d476d",
-      "bytes": 17179,
-      "quality": 35,
-      "lossless": false,
-      "subsampling": "444",
-      "speed": 6,
-      "design_dimensions": [
-        531,
-        445
-      ],
-      "scale": 0.75,
-      "master": "local/art-development/desert-edge/runtime-exports/desert-rosella.png",
-      "master_sha256": "a73cd1b64fa05a1ac0d5c0f4dbdf775581686e66e7b805369ebdb7793592e2b0",
-      "exact_alpha": false,
-      "alpha_quality": 90
-    },
-    "assets/jungle/title/objects/desert-rosella-glow.avif": {
-      "source": "local/art-development/desert-edge/runtime-exports/desert-rosella-glow.png",
-      "source_sha256": "2fdd0fec13c695f938dc945cb3cf31ea65d41ac7fa9a99d51f089e7adbd086e5",
-      "source_bytes": 18926,
-      "source_rgba_sha256": "d4e1c1991645873865b2180d2d28d8bf5c292eb963d9fa17164e49027e56e11d",
-      "dimensions": [
-        398,
-        334
-      ],
-      "alpha": true,
-      "source_alpha_sha256": "c43c1807fd33f8caf4e062c32fdc08fcb1ad4bf5e73da1fa06f514be66c27481",
-      "alpha_sha256": "23ceeaeb9108131b42815feff7707fbae566f5011ce5269d22a73e75ff542658",
-      "rgba_sha256": "ccf8e5f8cede56aa327d93d959e2e4f04be5ac3fdd88ebf5e84b706cd183b6f1",
-      "sha256": "4e378e97e2a59602684673b2cf027cfb1a3d83bd9576d8dfbc297bb21772175b",
-      "bytes": 5920,
-      "quality": 35,
-      "lossless": false,
-      "subsampling": "444",
-      "speed": 6,
-      "design_dimensions": [
-        531,
-        445
-      ],
-      "scale": 0.75,
-      "master": "local/art-development/desert-edge/runtime-exports/desert-rosella-glow.png",
-      "master_sha256": "2fdd0fec13c695f938dc945cb3cf31ea65d41ac7fa9a99d51f089e7adbd086e5",
-      "exact_alpha": false,
-      "alpha_quality": 90
-    },
-    "assets/jungle/title/objects/desert-sky-chick.avif": {
-      "source": "local/art-development/desert-edge/runtime-exports/desert-sky-chick.png",
-      "source_sha256": "49aed3e58383e7e55c36df36e73e22cf235f09b0258c579b94816a79c44e5644",
-      "source_bytes": 211840,
-      "source_rgba_sha256": "a7d12abb7d3d694446c514f4799b698852a5de212d4ebd32bdb084eeaf6a720e",
-      "dimensions": [
-        278,
-        297
-      ],
-      "alpha": true,
-      "source_alpha_sha256": "ae937e8171871f92c3e11379e7ba9ac62b586d4e6a5d64aef8e4a69053e82a4a",
-      "alpha_sha256": "fda166b40b519a0212c52a4fd5c6ecb12f9a6bcb8179a3c8c553d7ddbcedbb64",
-      "rgba_sha256": "719949f876a2b391f92566afa0d18a0d04c5cf3bf2271c847335025d86e20b8f",
-      "sha256": "ce13fba2db7389ab7c3f278ccd464a7ec80b0804164774fce2917a1be0d8d323",
-      "bytes": 11413,
-      "quality": 35,
-      "lossless": false,
-      "subsampling": "444",
-      "speed": 6,
-      "design_dimensions": [
-        370,
-        396
-      ],
-      "scale": 0.75,
-      "master": "local/art-development/desert-edge/runtime-exports/desert-sky-chick.png",
-      "master_sha256": "49aed3e58383e7e55c36df36e73e22cf235f09b0258c579b94816a79c44e5644",
-      "exact_alpha": false,
-      "alpha_quality": 90
-    },
-    "assets/jungle/title/objects/desert-sky-chick-glow.avif": {
-      "source": "local/art-development/desert-edge/runtime-exports/desert-sky-chick-glow.png",
-      "source_sha256": "9ebbccf04e9de478262b161d885f1b1e8e1dd6edd3622b6361dcf7172431a28a",
-      "source_bytes": 13982,
-      "source_rgba_sha256": "69f64cec91c05aec9164b005d7baba103ee32e78d6685dfc1742a08a289e52c1",
-      "dimensions": [
-        278,
-        297
-      ],
-      "alpha": true,
-      "source_alpha_sha256": "ae937e8171871f92c3e11379e7ba9ac62b586d4e6a5d64aef8e4a69053e82a4a",
-      "alpha_sha256": "fda166b40b519a0212c52a4fd5c6ecb12f9a6bcb8179a3c8c553d7ddbcedbb64",
-      "rgba_sha256": "c3e8623a3d3a06b27ef6b6c4dc1862bbde685f682b87edc7a122e507862ff94e",
-      "sha256": "518bb96378d6fe7e756549884360076901a91277f3aa1be7a334d2f95cf8788d",
-      "bytes": 4167,
-      "quality": 35,
-      "lossless": false,
-      "subsampling": "444",
-      "speed": 6,
-      "design_dimensions": [
-        370,
-        396
-      ],
-      "scale": 0.75,
-      "master": "local/art-development/desert-edge/runtime-exports/desert-sky-chick-glow.png",
-      "master_sha256": "9ebbccf04e9de478262b161d885f1b1e8e1dd6edd3622b6361dcf7172431a28a",
-      "exact_alpha": false,
-      "alpha_quality": 90
-    },
-    "assets/jungle/title/objects/desert-macaw-chick.avif": {
-      "source": "local/art-development/desert-edge/runtime-exports/desert-macaw-chick.png",
-      "source_sha256": "ce3d695e93619cc0baa9bdcfbb5a0f763b3520e49099695fcf5918ea3e251b66",
-      "source_bytes": 263397,
-      "source_rgba_sha256": "39d96bb7df5d9197b3b688adf348c4d8a0ea5b1b3787934ea9232aea5b182259",
-      "dimensions": [
-        316,
-        338
-      ],
-      "alpha": true,
-      "source_alpha_sha256": "ff28d18a322b416f3536ebb0b2ebaa42cba53d0f9b0363658ec18bc43f6d4d07",
-      "alpha_sha256": "45ffe58c0b6be05a37f90fb863d941c719d482539480d6255d9694e782e56c72",
-      "rgba_sha256": "04d3480a69db3e900e69f1fd6552e32ea060b5f7ae5e50b7057dcbe44f5fbca3",
-      "sha256": "5f7211e8c156ef470be260cb99a17eb750a318bf3bd464e57978c21b8e1f3bc8",
-      "bytes": 15133,
-      "quality": 35,
-      "lossless": false,
-      "subsampling": "444",
-      "speed": 6,
-      "design_dimensions": [
-        421,
-        451
-      ],
-      "scale": 0.75,
-      "master": "local/art-development/desert-edge/runtime-exports/desert-macaw-chick.png",
-      "master_sha256": "ce3d695e93619cc0baa9bdcfbb5a0f763b3520e49099695fcf5918ea3e251b66",
-      "exact_alpha": false,
-      "alpha_quality": 90
-    },
-    "assets/jungle/title/objects/desert-macaw-chick-glow.avif": {
-      "source": "local/art-development/desert-edge/runtime-exports/desert-macaw-chick-glow.png",
-      "source_sha256": "f9de0c60f91b0df4c811734f388cef99d8ff0b3d2ab6b8c3cb56e3b70c8ff822",
-      "source_bytes": 18023,
-      "source_rgba_sha256": "120994a102e37a02918dcd385897c8351731ce1fde6c0da31bbc9ef07d196e64",
-      "dimensions": [
-        316,
-        338
-      ],
-      "alpha": true,
-      "source_alpha_sha256": "ff28d18a322b416f3536ebb0b2ebaa42cba53d0f9b0363658ec18bc43f6d4d07",
-      "alpha_sha256": "45ffe58c0b6be05a37f90fb863d941c719d482539480d6255d9694e782e56c72",
-      "rgba_sha256": "f08b5a97ff110384b43d721b7bbbcf2313107184c140448dfebf18828e431075",
-      "sha256": "0a462f7308257c43333fb8e604475f94db8c711e51ad869efe4c6513dca583e9",
-      "bytes": 5416,
-      "quality": 35,
-      "lossless": false,
-      "subsampling": "444",
-      "speed": 6,
-      "design_dimensions": [
-        421,
-        451
-      ],
-      "scale": 0.75,
-      "master": "local/art-development/desert-edge/runtime-exports/desert-macaw-chick-glow.png",
-      "master_sha256": "f9de0c60f91b0df4c811734f388cef99d8ff0b3d2ab6b8c3cb56e3b70c8ff822",
-      "exact_alpha": false,
-      "alpha_quality": 90
-    },
     "assets/jungle/title/glow/campus-portrait-hiding-bush.avif": {
       "source": "local/art-development/campus-fix/campus-portrait-hiding-bush-glow.png",
       "source_sha256": "af8d29140da4d5870dd1d54a2047a66806c14bc6837be20d087e8a4a4e4e05dc",
@@ -32498,6 +31744,1128 @@
       "speed": 6,
       "exact_alpha": true,
       "alpha_quality": 100
+    },
+    "assets/jungle/title/objects/desert-bird-house.avif": {
+      "source": "local/art-development/desert-edge/runtime-exports/desert-bird-house.png",
+      "source_sha256": "135f6299915334c7115830fd35f6ae9d7bae97389ad2d69a91c843c2c653db35",
+      "source_bytes": 1260564,
+      "source_rgba_sha256": "e855cef9e02c5785b2bde3e86ec60dad690c624528efbcb1e5185723aaca8f41",
+      "dimensions": [
+        652,
+        902
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "89db10cdf60beddcccc1ed6f4c901c03b6599cdaee0ee8efe88c31b20eadc0d8",
+      "alpha_sha256": "f3e8ffd56196b93132437076e1479211396c5ddbd59ba147246084b7b5a856fd",
+      "rgba_sha256": "a354e57ea4230deee5aac0cafd8389c224fb0e55430807a3124ad3459a5672cc",
+      "sha256": "ce8f71cd9b1a0c46d6a1b0a113830dfc528d46e90c35bdfbad86701548056259",
+      "bytes": 37607,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "444",
+      "speed": 6,
+      "design_dimensions": [
+        870,
+        1202
+      ],
+      "scale": 0.75,
+      "master": "local/art-development/desert-edge/runtime-exports/desert-bird-house.png",
+      "master_sha256": "135f6299915334c7115830fd35f6ae9d7bae97389ad2d69a91c843c2c653db35",
+      "exact_alpha": false,
+      "alpha_quality": 90
+    },
+    "assets/jungle/title/objects/desert-bird-house-glow.avif": {
+      "source": "local/art-development/desert-edge/runtime-exports/desert-bird-house-glow.png",
+      "source_sha256": "c92ceaf2fedd00585e96ec57b4f679f0b7dadc831c8bf93b9f9150b4605e5aca",
+      "source_bytes": 39576,
+      "source_rgba_sha256": "28fe05bad36667aced9d8e7556ca3d91afee05f74d89c9e7d09fb8243afec81b",
+      "dimensions": [
+        652,
+        902
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "89db10cdf60beddcccc1ed6f4c901c03b6599cdaee0ee8efe88c31b20eadc0d8",
+      "alpha_sha256": "f3e8ffd56196b93132437076e1479211396c5ddbd59ba147246084b7b5a856fd",
+      "rgba_sha256": "5be46a8acb5f0d3e20daf6ba2d5d301434a4ad826bdf035e16f10ae72ea79a4e",
+      "sha256": "c1d08e36162a910f04d9bd6c813d30b00b7d168c398fac41b061ab55f68dd48f",
+      "bytes": 9792,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "444",
+      "speed": 6,
+      "design_dimensions": [
+        870,
+        1202
+      ],
+      "scale": 0.75,
+      "master": "local/art-development/desert-edge/runtime-exports/desert-bird-house-glow.png",
+      "master_sha256": "c92ceaf2fedd00585e96ec57b4f679f0b7dadc831c8bf93b9f9150b4605e5aca",
+      "exact_alpha": false,
+      "alpha_quality": 90
+    },
+    "assets/dino-paint/art/portrait1-thumb.avif": {
+      "source": "art/paint/portrait1.svg",
+      "source_sha256": "20b82773ebfed5069f939b190f6c93b36a2b6ee74eccb6695524b842b0274535",
+      "source_bytes": 72416,
+      "source_rgba_sha256": "68f156dfbd8ec36f46f5dfa4fdbdd367537bd58cb5883a67b31a8213a7d90044",
+      "dimensions": [
+        192,
+        256
+      ],
+      "alpha": false,
+      "source_alpha_sha256": "abd8e2a70d51a53287941838446e6ed141005d401faf597fd7c6de0bbc8c329d",
+      "alpha_sha256": "abd8e2a70d51a53287941838446e6ed141005d401faf597fd7c6de0bbc8c329d",
+      "rgba_sha256": "984a052427afbf7528b3e1bcdee9286758d01d27a7fc9f127d2487778e6237d3",
+      "sha256": "7913c5995a5c5c6f64ea7ded5b452651863ffa9e2d369aaf07d163ba98b68453",
+      "bytes": 6890,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "420",
+      "speed": 6
+    },
+    "assets/dino-paint/art/portrait2-thumb.avif": {
+      "source": "art/paint/portrait2.svg",
+      "source_sha256": "ff432bfd0691ab54f912dbfcf03de55abde00e05c82696012e6b7b04fb510ba2",
+      "source_bytes": 43701,
+      "source_rgba_sha256": "e7fcd7335f1a86e3fc2f8df939ecb3788c3320f649100bdd1d09eba07b7faf30",
+      "dimensions": [
+        192,
+        256
+      ],
+      "alpha": false,
+      "source_alpha_sha256": "abd8e2a70d51a53287941838446e6ed141005d401faf597fd7c6de0bbc8c329d",
+      "alpha_sha256": "abd8e2a70d51a53287941838446e6ed141005d401faf597fd7c6de0bbc8c329d",
+      "rgba_sha256": "93314d879704d146a2f1bad453bdf4e73f1075d72c09b8679a81a42bf30fe077",
+      "sha256": "6f936441e973ff7537a97ea9f502d94f303d5b827695af6bc171dc1bba8c11b7",
+      "bytes": 5056,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "420",
+      "speed": 6
+    },
+    "assets/dino-paint/art/portrait3-thumb.avif": {
+      "source": "art/paint/portrait3.svg",
+      "source_sha256": "f072bb2f53a18324914c53bd572482e6cff130c31fb427a779acbe1f95f1d5b2",
+      "source_bytes": 53290,
+      "source_rgba_sha256": "13f97ef1f2e2f2e36e8e7627ea7b421da3dff61dce1fd5af520ad1ef5d4416d5",
+      "dimensions": [
+        192,
+        256
+      ],
+      "alpha": false,
+      "source_alpha_sha256": "abd8e2a70d51a53287941838446e6ed141005d401faf597fd7c6de0bbc8c329d",
+      "alpha_sha256": "abd8e2a70d51a53287941838446e6ed141005d401faf597fd7c6de0bbc8c329d",
+      "rgba_sha256": "75ec59467be8156d0d2d4496b358a8b866357c501d6a3dd0ed0e03a67a84a67d",
+      "sha256": "dff2cf378bf16aa1b4a9fa1099dac7a6bfbe467d6c024f0f6bdb5223ed87df9b",
+      "bytes": 5548,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "420",
+      "speed": 6
+    },
+    "assets/dino-paint/art/portrait4-thumb.avif": {
+      "source": "art/paint/portrait4.svg",
+      "source_sha256": "c223142b863253d83fefe811d8ad23ba56d6eb7ed5e214abb840392f4d01a603",
+      "source_bytes": 108976,
+      "source_rgba_sha256": "59909f687d250f6f76e9322ee362e583e58a32af1966733f3db8215d66c06f99",
+      "dimensions": [
+        192,
+        256
+      ],
+      "alpha": false,
+      "source_alpha_sha256": "abd8e2a70d51a53287941838446e6ed141005d401faf597fd7c6de0bbc8c329d",
+      "alpha_sha256": "abd8e2a70d51a53287941838446e6ed141005d401faf597fd7c6de0bbc8c329d",
+      "rgba_sha256": "00ed21ae545c2c8bfb17dc60d7e0e7039067829507aba439cf4f6fffbca62f63",
+      "sha256": "c72f6613fff2636e1e5b1c04c9a15b440b1edd97d41b6667556c4e22b403f99c",
+      "bytes": 6579,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "420",
+      "speed": 6
+    },
+    "assets/dino-paint/art/portrait5-thumb.avif": {
+      "source": "art/paint/portrait5.svg",
+      "source_sha256": "310171c8c2c06360240df1831901cd180326ed7ae100642bd12edc6ff84bdd3d",
+      "source_bytes": 38071,
+      "source_rgba_sha256": "feb5035f73c806a4bbffe0ac5db1ff2f6031ddea7cdf702dd4d7c9172a8079f6",
+      "dimensions": [
+        192,
+        256
+      ],
+      "alpha": false,
+      "source_alpha_sha256": "abd8e2a70d51a53287941838446e6ed141005d401faf597fd7c6de0bbc8c329d",
+      "alpha_sha256": "abd8e2a70d51a53287941838446e6ed141005d401faf597fd7c6de0bbc8c329d",
+      "rgba_sha256": "9311b275c52b2b4e5d5e9e7b13c945172d00d65f5af54056dcc2d291bb6e5d63",
+      "sha256": "4a2bfed2a36be5adb318f07858a923027493ef3eed0c026f0b5285b70fce0b1f",
+      "bytes": 4625,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "420",
+      "speed": 6
+    },
+    "assets/dino-paint/art/portrait6-thumb.avif": {
+      "source": "art/paint/portrait6.svg",
+      "source_sha256": "d4af8b03c92a7bace330a1bf12dfdb5e7db276cae519eb793ad8f692784cf75b",
+      "source_bytes": 51525,
+      "source_rgba_sha256": "1d113db13eb79a3ad4da18479a1b7af5aef352afe1db7c31f841b2ec6a667a19",
+      "dimensions": [
+        192,
+        256
+      ],
+      "alpha": false,
+      "source_alpha_sha256": "abd8e2a70d51a53287941838446e6ed141005d401faf597fd7c6de0bbc8c329d",
+      "alpha_sha256": "abd8e2a70d51a53287941838446e6ed141005d401faf597fd7c6de0bbc8c329d",
+      "rgba_sha256": "d1b6bf232e9db72fcc1591aa4fa6219736da69786958016fb6c8248bae8ccb4e",
+      "sha256": "0bd2fdb3c4a43354155e4011a1483515a15bdad35cc235dd203feb51417ff992",
+      "bytes": 4917,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "420",
+      "speed": 6
+    },
+    "assets/dino-paint/art/portrait7-thumb.avif": {
+      "source": "art/paint/portrait7.svg",
+      "source_sha256": "63780da8519d6f46aa10fdc4ec8d01d599f8abb7ce8864e213c42625bb578413",
+      "source_bytes": 2886,
+      "source_rgba_sha256": "92e71079da63d3910c17fdf4dbed9273f77954dd0f40170694b963e447b998b3",
+      "dimensions": [
+        192,
+        256
+      ],
+      "alpha": false,
+      "source_alpha_sha256": "abd8e2a70d51a53287941838446e6ed141005d401faf597fd7c6de0bbc8c329d",
+      "alpha_sha256": "abd8e2a70d51a53287941838446e6ed141005d401faf597fd7c6de0bbc8c329d",
+      "rgba_sha256": "cc67bd736aa35620bd046a0dff4748b72e3e4ec1f26776338af188af7a95d7be",
+      "sha256": "daf8bea0a6a37482bbaf1399c5aeb2f82db06589f2cb495eb2fbac066908c92f",
+      "bytes": 2515,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "420",
+      "speed": 6
+    },
+    "assets/dino-paint/art/portrait8-thumb.avif": {
+      "source": "art/paint/portrait8.svg",
+      "source_sha256": "8171eea7eeed4d3705948b44aff189774fea4ed0e032c2f9704d956a71588dd5",
+      "source_bytes": 2490,
+      "source_rgba_sha256": "d3f54cb8aea309621ce1be8e62bd75242ee72f13ecb2f12e77631d30ff938a19",
+      "dimensions": [
+        192,
+        256
+      ],
+      "alpha": false,
+      "source_alpha_sha256": "abd8e2a70d51a53287941838446e6ed141005d401faf597fd7c6de0bbc8c329d",
+      "alpha_sha256": "abd8e2a70d51a53287941838446e6ed141005d401faf597fd7c6de0bbc8c329d",
+      "rgba_sha256": "d44406eedf2fda59f5ac6abe331b5d9ad20f44387dbb61ee3f95b437a9c8351e",
+      "sha256": "ae6b1d663416e15f496272c4530eef0fa1daf5582e9be74a17c3df542e55cc70",
+      "bytes": 3094,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "420",
+      "speed": 6
+    },
+    "assets/dino-paint/art/portrait9-thumb.avif": {
+      "source": "art/paint/portrait9.svg",
+      "source_sha256": "45669f40f61f890fe2a09a050f7fedf8926d65ffd076f712ee7f3f25b9fc504a",
+      "source_bytes": 1906,
+      "source_rgba_sha256": "7e58e8211c754425ecf5d9baa5347e6e187b49bf69e6cd0ffd2f913a98a6adbc",
+      "dimensions": [
+        192,
+        256
+      ],
+      "alpha": false,
+      "source_alpha_sha256": "abd8e2a70d51a53287941838446e6ed141005d401faf597fd7c6de0bbc8c329d",
+      "alpha_sha256": "abd8e2a70d51a53287941838446e6ed141005d401faf597fd7c6de0bbc8c329d",
+      "rgba_sha256": "cc2c2f0b7a760175fbddebb12b8524e98f67ddc56117739629d263b7c838718c",
+      "sha256": "353b5ecb19d889fcd67a0acf11e752ad3a82fca3805f3161514aa8a30debb931",
+      "bytes": 2248,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "420",
+      "speed": 6
+    },
+    "assets/dino-paint/art/portrait10-thumb.avif": {
+      "source": "art/paint/portrait10.svg",
+      "source_sha256": "4336b801053a5061cbe528978b9482efc055cba13c48032ea3e8eb1e38a5a978",
+      "source_bytes": 1499,
+      "source_rgba_sha256": "5e637eb0e9f53e30834a4de5ba24e5fbdd91669760ec34e4bc20357f41b6cac6",
+      "dimensions": [
+        192,
+        256
+      ],
+      "alpha": false,
+      "source_alpha_sha256": "abd8e2a70d51a53287941838446e6ed141005d401faf597fd7c6de0bbc8c329d",
+      "alpha_sha256": "abd8e2a70d51a53287941838446e6ed141005d401faf597fd7c6de0bbc8c329d",
+      "rgba_sha256": "187e1e2d8c263074c3d2eda720da52e12c4a7f860a4fcb8afbd574788e57896a",
+      "sha256": "b3ddde11c1d2b656d86d90fd8364a2b1fa07466f4064956616cfb601b73854f3",
+      "bytes": 2393,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "420",
+      "speed": 6
+    },
+    "assets/dino-paint/art/portrait11-thumb.avif": {
+      "source": "art/paint/portrait11.svg",
+      "source_sha256": "b6cc713eecdb07b0ec00211b5d395db1ad0b3fe198c2e1a9459abf2dfa7cc1f1",
+      "source_bytes": 2582,
+      "source_rgba_sha256": "f48372da9942920e4ac54409a91b57c7d26a6e52365f9ec147615f262e0f7b1c",
+      "dimensions": [
+        192,
+        256
+      ],
+      "alpha": false,
+      "source_alpha_sha256": "abd8e2a70d51a53287941838446e6ed141005d401faf597fd7c6de0bbc8c329d",
+      "alpha_sha256": "abd8e2a70d51a53287941838446e6ed141005d401faf597fd7c6de0bbc8c329d",
+      "rgba_sha256": "b65c471b5f7c0475ddbacd98d34fc91177bb038da510a4fca5436f9c2763ce76",
+      "sha256": "e8e35ebbd0a488b267a5a46a92c5839217fcb3a912ff6230376f25a1ed63c08a",
+      "bytes": 2783,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "420",
+      "speed": 6
+    },
+    "assets/dino-paint/art/portrait12-thumb.avif": {
+      "source": "art/paint/portrait12.svg",
+      "source_sha256": "9a6c19f0521ecdce8db9ba310ce047de568d196a4f5373f973abcacbe0ba181c",
+      "source_bytes": 2362,
+      "source_rgba_sha256": "e31f7a9e58dc88492b0d70e832b87dc8dcb794fa22ee2f05807231170eb69e45",
+      "dimensions": [
+        192,
+        256
+      ],
+      "alpha": false,
+      "source_alpha_sha256": "abd8e2a70d51a53287941838446e6ed141005d401faf597fd7c6de0bbc8c329d",
+      "alpha_sha256": "abd8e2a70d51a53287941838446e6ed141005d401faf597fd7c6de0bbc8c329d",
+      "rgba_sha256": "f3a8b8612df3b601dcd708a360810c0fa7d9905c42591372703d30737440bae1",
+      "sha256": "0d2edd93b027c7d504482323eaa13038a64eb8e346028902f59c536db9f36918",
+      "bytes": 2777,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "420",
+      "speed": 6
+    },
+    "assets/dino-paint/art/portrait13-thumb.avif": {
+      "source": "art/paint/portrait13.svg",
+      "source_sha256": "2fc993c28851fc5137f72b462d12eb7d42974ee0ca97e469b823c5c820369cff",
+      "source_bytes": 82697,
+      "source_rgba_sha256": "9ef28b308e4a8b5ace9f337219d0a4bf2798f837dd85355b8b98cee7ce560c9e",
+      "dimensions": [
+        192,
+        256
+      ],
+      "alpha": false,
+      "source_alpha_sha256": "abd8e2a70d51a53287941838446e6ed141005d401faf597fd7c6de0bbc8c329d",
+      "alpha_sha256": "abd8e2a70d51a53287941838446e6ed141005d401faf597fd7c6de0bbc8c329d",
+      "rgba_sha256": "83c42902625bbc91f4657b4a595bbbb340bb4e8ac75b6beaf70afd3957579d2e",
+      "sha256": "ee505cdc1d13ff1070ae9482878c0ec34b192d8e35d975303c3f89c64110317c",
+      "bytes": 6807,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "420",
+      "speed": 6
+    },
+    "assets/dino-paint/art/portrait14-thumb.avif": {
+      "source": "art/paint/portrait14.svg",
+      "source_sha256": "7f12b42d0751485884524d217349516871822bc12807432afa9ef0f7d262ca20",
+      "source_bytes": 99450,
+      "source_rgba_sha256": "c56c02576da50da122687d72eff9fd5fc61235f1da6833ac2e8fd84e7b70c36f",
+      "dimensions": [
+        192,
+        256
+      ],
+      "alpha": false,
+      "source_alpha_sha256": "abd8e2a70d51a53287941838446e6ed141005d401faf597fd7c6de0bbc8c329d",
+      "alpha_sha256": "abd8e2a70d51a53287941838446e6ed141005d401faf597fd7c6de0bbc8c329d",
+      "rgba_sha256": "8ecb59f8b87e2de94252d0d9f6c92c63741c4efed0c8f755c6e86d963e9b9fb4",
+      "sha256": "0d31e16f1bc045062d32a967123a54d2e330229d9fb2b1efd9d3adcd614bd4ae",
+      "bytes": 6885,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "420",
+      "speed": 6
+    },
+    "assets/dino-paint/art/portrait15-thumb.avif": {
+      "source": "art/paint/portrait15.svg",
+      "source_sha256": "e28eb9f430dbd9ac354b125e404de817e593486a167088d046a5bb5ef684856f",
+      "source_bytes": 131928,
+      "source_rgba_sha256": "5389306885b20cda910ca6ef95b572a6c0cf453009bbb77f1eedf54b83167142",
+      "dimensions": [
+        192,
+        256
+      ],
+      "alpha": false,
+      "source_alpha_sha256": "abd8e2a70d51a53287941838446e6ed141005d401faf597fd7c6de0bbc8c329d",
+      "alpha_sha256": "abd8e2a70d51a53287941838446e6ed141005d401faf597fd7c6de0bbc8c329d",
+      "rgba_sha256": "4d86c7c72f63a5c65cb912c5f648f485122accb40e45e833308957c9ecfd20ae",
+      "sha256": "0e09ca971bbb5840012a99d0d4b59d03e2ae5c0dc912b7cd066e8fb6459c45e7",
+      "bytes": 8625,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "420",
+      "speed": 6
+    },
+    "assets/dino-paint/art/portrait16-thumb.avif": {
+      "source": "art/paint/portrait16.svg",
+      "source_sha256": "67d4b71aa240771f9c8d2d9e8ff17a53a87b3f010970ced1c8e6288de52a1372",
+      "source_bytes": 85039,
+      "source_rgba_sha256": "6cb3e9a802cbc7fb85be940a7f49bbb7b121446904bbffe21323d3928668a70b",
+      "dimensions": [
+        192,
+        256
+      ],
+      "alpha": false,
+      "source_alpha_sha256": "abd8e2a70d51a53287941838446e6ed141005d401faf597fd7c6de0bbc8c329d",
+      "alpha_sha256": "abd8e2a70d51a53287941838446e6ed141005d401faf597fd7c6de0bbc8c329d",
+      "rgba_sha256": "07e063a88a8641480dfeaa8731485d083fc9ab25d5503015b476272e30f79d13",
+      "sha256": "4404d463f8f317ae2b31d3a21c146e5fbe1914b3a7e3d4e7bf079f110613da2c",
+      "bytes": 6461,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "420",
+      "speed": 6
+    },
+    "assets/dino-paint/art/portrait17-thumb.avif": {
+      "source": "art/paint/portrait17.svg",
+      "source_sha256": "78518f6372a2efb28592d505d9a5046e01a0654e8c02fbc1951433711818889c",
+      "source_bytes": 69461,
+      "source_rgba_sha256": "c916d73804eca7238b05bd77173e4aecd7e456b8878d054c94144aaffb7c5c26",
+      "dimensions": [
+        192,
+        256
+      ],
+      "alpha": false,
+      "source_alpha_sha256": "abd8e2a70d51a53287941838446e6ed141005d401faf597fd7c6de0bbc8c329d",
+      "alpha_sha256": "abd8e2a70d51a53287941838446e6ed141005d401faf597fd7c6de0bbc8c329d",
+      "rgba_sha256": "11e642bd68081260f442e0a8ee7219faafb244ed14c62a71cf6ecd3ab750ae40",
+      "sha256": "40150b4e5a8c74eaa0ae9a1a430383d9497a1520bef2f309c3031fd3b6f3f75f",
+      "bytes": 5208,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "420",
+      "speed": 6
+    },
+    "assets/dino-paint/art/portrait18-thumb.avif": {
+      "source": "art/paint/portrait18.svg",
+      "source_sha256": "aacc83552a2ba2a3eafff1e395394c777e0ec42881e4461ec590d1a2b1997f9f",
+      "source_bytes": 78747,
+      "source_rgba_sha256": "9a28124c18026194b5a1c09c329fd8cef96f890bc8c0753f29cc4254eb8aa870",
+      "dimensions": [
+        192,
+        256
+      ],
+      "alpha": false,
+      "source_alpha_sha256": "abd8e2a70d51a53287941838446e6ed141005d401faf597fd7c6de0bbc8c329d",
+      "alpha_sha256": "abd8e2a70d51a53287941838446e6ed141005d401faf597fd7c6de0bbc8c329d",
+      "rgba_sha256": "93daccbc74b4a1c22b3b6fa679a2baa23cd9e3def20f63d3645d7e3c6dfb04a4",
+      "sha256": "28a52016f592dd5021b48d3a03bfd3239b9ef5b42e3ff9281bcfb6ee28ac851a",
+      "bytes": 5374,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "420",
+      "speed": 6
+    },
+    "assets/dino-paint/art/portrait19-thumb.avif": {
+      "source": "art/paint/portrait19.svg",
+      "source_sha256": "7640e7e87597a12301aaad13b3b90b2bf8c4de767fb9339c2fd9be7a0aebe8e5",
+      "source_bytes": 35261,
+      "source_rgba_sha256": "84b7bd5205b4c22f832e615af3e1cc4f7ce1671c9798db30974b97c353dccc23",
+      "dimensions": [
+        192,
+        256
+      ],
+      "alpha": false,
+      "source_alpha_sha256": "abd8e2a70d51a53287941838446e6ed141005d401faf597fd7c6de0bbc8c329d",
+      "alpha_sha256": "abd8e2a70d51a53287941838446e6ed141005d401faf597fd7c6de0bbc8c329d",
+      "rgba_sha256": "552efd0c3c45810d6699edc33ad9cdab13f9ddc8a4a3cd731ddece0bf1e3c935",
+      "sha256": "58f15ad8dc5299a9e1db7fae92804e1e909f0b096525d2cc0365a0531f6c0006",
+      "bytes": 5188,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "420",
+      "speed": 6
+    },
+    "assets/dino-paint/art/portrait20-thumb.avif": {
+      "source": "art/paint/portrait20.svg",
+      "source_sha256": "4327f5b255aeebc28c7db811f0d51f59d8fa5ba9492ca91047387c89d4d7230d",
+      "source_bytes": 37003,
+      "source_rgba_sha256": "7c9b32089c352f4a8fc4218c9e2dba9ba5df6d1db41e9622f783f0ee512d63fc",
+      "dimensions": [
+        192,
+        256
+      ],
+      "alpha": false,
+      "source_alpha_sha256": "abd8e2a70d51a53287941838446e6ed141005d401faf597fd7c6de0bbc8c329d",
+      "alpha_sha256": "abd8e2a70d51a53287941838446e6ed141005d401faf597fd7c6de0bbc8c329d",
+      "rgba_sha256": "9e38f58754dc507f5e4d4017c07684a29fa6ab403582eeea475e86b360e5f1dc",
+      "sha256": "b6fe5c493e4aadc8bc80efbc4b0070000d8ec59aaf9cea678d7d7f34f69119c8",
+      "bytes": 4172,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "420",
+      "speed": 6
+    },
+    "assets/dino-paint/art/portrait21-thumb.avif": {
+      "source": "art/paint/portrait21.svg",
+      "source_sha256": "548e5c0882e056c00a52886f419b4381cabe02af72cecbd6b720f991940738e4",
+      "source_bytes": 74721,
+      "source_rgba_sha256": "0ea9321e8a2de59cd9818d3ff0b3c583b31247c455e1c7caf5a92fa3ccc52083",
+      "dimensions": [
+        192,
+        256
+      ],
+      "alpha": false,
+      "source_alpha_sha256": "abd8e2a70d51a53287941838446e6ed141005d401faf597fd7c6de0bbc8c329d",
+      "alpha_sha256": "abd8e2a70d51a53287941838446e6ed141005d401faf597fd7c6de0bbc8c329d",
+      "rgba_sha256": "a95a81f86e29adf7cd1d6a3d02ce365eb3bed19e4904845501a47641293630de",
+      "sha256": "9fbba95b09d915f6fe4d083f532cb8695923dfeb695f7865059dd78d452b7f08",
+      "bytes": 6557,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "420",
+      "speed": 6
+    },
+    "assets/dino-paint/art/portrait22-thumb.avif": {
+      "source": "art/paint/portrait22.svg",
+      "source_sha256": "1ed4cf79641335ea16ddcb97ab28b32662b65c64a5c8f1ad244950dd624abcae",
+      "source_bytes": 31581,
+      "source_rgba_sha256": "59d87ebfece05d09fce27a4ff8093505b92a48fc258655083940ed408ff5932d",
+      "dimensions": [
+        192,
+        256
+      ],
+      "alpha": false,
+      "source_alpha_sha256": "abd8e2a70d51a53287941838446e6ed141005d401faf597fd7c6de0bbc8c329d",
+      "alpha_sha256": "abd8e2a70d51a53287941838446e6ed141005d401faf597fd7c6de0bbc8c329d",
+      "rgba_sha256": "aa3b9fa29336fb201b86dd7e8cc5562690fcb04eab90cd5ae1e63faa802cec5f",
+      "sha256": "474bca1230cbec427d481af677526a872560ef87c75a4aed24f47d0d38277223",
+      "bytes": 3847,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "420",
+      "speed": 6
+    },
+    "assets/dino-paint/art/portrait23-thumb.avif": {
+      "source": "art/paint/portrait23.svg",
+      "source_sha256": "ccf82f3327ff7c521b58ddfa869babb55c177001d1569ab4506448905096c6b8",
+      "source_bytes": 41620,
+      "source_rgba_sha256": "2b7ae3dbe51210c77e59c55f3719f84ff00f0ff0160a13450bd7e72c30bca9b6",
+      "dimensions": [
+        192,
+        256
+      ],
+      "alpha": false,
+      "source_alpha_sha256": "abd8e2a70d51a53287941838446e6ed141005d401faf597fd7c6de0bbc8c329d",
+      "alpha_sha256": "abd8e2a70d51a53287941838446e6ed141005d401faf597fd7c6de0bbc8c329d",
+      "rgba_sha256": "75abb6efa4a9a1beaa51ecc77134c1526d0836fb3ad08409b5bd25b8426bd954",
+      "sha256": "b2188ad64b38cdb5ec454bc71d313c058d98d049a69d1deaa10067d5c129d28d",
+      "bytes": 6292,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "420",
+      "speed": 6
+    },
+    "assets/dino-paint/art/portrait24-thumb.avif": {
+      "source": "art/paint/portrait24.svg",
+      "source_sha256": "ff10856ce4144b09adc447353ac2f400420f1d5ca533f96cf6ef0d331309c22b",
+      "source_bytes": 61370,
+      "source_rgba_sha256": "3a1c65e29e8e5284204f66a3f9d17b8348212e7a1ea31e9e4c8889e56a49974f",
+      "dimensions": [
+        192,
+        256
+      ],
+      "alpha": false,
+      "source_alpha_sha256": "abd8e2a70d51a53287941838446e6ed141005d401faf597fd7c6de0bbc8c329d",
+      "alpha_sha256": "abd8e2a70d51a53287941838446e6ed141005d401faf597fd7c6de0bbc8c329d",
+      "rgba_sha256": "46a2b8be6d3c9b2553c6ddd69f1e40d39bf92680a30e0fdce87f6501a2455c83",
+      "sha256": "017d9c307ebd154e56111f877862d2b43b12377e5d67d6805f568982669a42f8",
+      "bytes": 6453,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "420",
+      "speed": 6
+    },
+    "assets/dino-paint/art/portrait25-thumb.avif": {
+      "source": "art/paint/portrait25.svg",
+      "source_sha256": "f9c817ab53519131b649af91b123750e9c81ea862212bed51315c02fdbbbbb14",
+      "source_bytes": 149668,
+      "source_rgba_sha256": "e4a062d5d01ee6b992c2c437073690b713a4ead72bbb90f1ef4cb73250630df8",
+      "dimensions": [
+        192,
+        256
+      ],
+      "alpha": false,
+      "source_alpha_sha256": "abd8e2a70d51a53287941838446e6ed141005d401faf597fd7c6de0bbc8c329d",
+      "alpha_sha256": "abd8e2a70d51a53287941838446e6ed141005d401faf597fd7c6de0bbc8c329d",
+      "rgba_sha256": "934095e6499a3c845189fe4f04aa29a6344ed57eec9d59abd85504bc7cbd3575",
+      "sha256": "aacf216a371c0d31cd8fec7f9f5dcb3cf3797e1cf237acc694127d9d708ab626",
+      "bytes": 7958,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "420",
+      "speed": 6
+    },
+    "assets/dino-paint/art/portrait26-thumb.avif": {
+      "source": "art/paint/portrait26.svg",
+      "source_sha256": "7f107b3deb431fe8ed9a7fb6431606ee3fefaff1dbe966673a664dd6f1262ca3",
+      "source_bytes": 157740,
+      "source_rgba_sha256": "d095755fc8b54733e47733b04c3a8499e09d216cda4e130381aee889d2bd134f",
+      "dimensions": [
+        192,
+        256
+      ],
+      "alpha": false,
+      "source_alpha_sha256": "abd8e2a70d51a53287941838446e6ed141005d401faf597fd7c6de0bbc8c329d",
+      "alpha_sha256": "abd8e2a70d51a53287941838446e6ed141005d401faf597fd7c6de0bbc8c329d",
+      "rgba_sha256": "61072a10196906790518ca09268745673f2a543534cbf25b1b29d5ce51470d8e",
+      "sha256": "86bf8cd310348819bd7200d64225178fc619311e765d140fa3a4f1c87e6ffe5d",
+      "bytes": 9374,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "420",
+      "speed": 6
+    },
+    "assets/dino-paint/art/portrait27-thumb.avif": {
+      "source": "art/paint/portrait27.svg",
+      "source_sha256": "7362d4615f65f88daa5ff46d765b8cf9f3b74eac578c6e36a9290d80199b7535",
+      "source_bytes": 47699,
+      "source_rgba_sha256": "dd83d8abb9bdbbfb4e2fd7fc6abd94574d24640a41820edba507c615bc7a9fa6",
+      "dimensions": [
+        192,
+        256
+      ],
+      "alpha": false,
+      "source_alpha_sha256": "abd8e2a70d51a53287941838446e6ed141005d401faf597fd7c6de0bbc8c329d",
+      "alpha_sha256": "abd8e2a70d51a53287941838446e6ed141005d401faf597fd7c6de0bbc8c329d",
+      "rgba_sha256": "060d09da36ac770660ca319d0d55199afe345e5fe3ecd9cfd3f6cbdcfe704667",
+      "sha256": "28462c46d74b6f0ee4e4d6a095524c35847a94e1fc825326d2a152dd7f1c7c19",
+      "bytes": 6432,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "420",
+      "speed": 6
+    },
+    "assets/dino-paint/art/portrait28-thumb.avif": {
+      "source": "art/paint/portrait28.svg",
+      "source_sha256": "1cccf4672fdf64e256f530666de752055f59fc2f78717e3deeb5809cce8a205b",
+      "source_bytes": 24432,
+      "source_rgba_sha256": "7e386a4cd60f12fc8ba48f33f4dbb7de8475018926c376bad0ee3bc24e235e5f",
+      "dimensions": [
+        192,
+        256
+      ],
+      "alpha": false,
+      "source_alpha_sha256": "abd8e2a70d51a53287941838446e6ed141005d401faf597fd7c6de0bbc8c329d",
+      "alpha_sha256": "abd8e2a70d51a53287941838446e6ed141005d401faf597fd7c6de0bbc8c329d",
+      "rgba_sha256": "a48aafc1b3d0e1f3ee35999990bcbb09078c3fd8b1edcd3498d7572fc730227f",
+      "sha256": "98b6d4b3b5ff088b6579fa53e67ff833ba8d3fff90dc20bb70089cfbb7275ff0",
+      "bytes": 3381,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "420",
+      "speed": 6
+    },
+    "assets/dino-paint/art/portrait29-thumb.avif": {
+      "source": "art/paint/portrait29.svg",
+      "source_sha256": "233e4f3c422e28f1cc51e23b46364dc61d4d8c139279dd0c0bf4475986daac9e",
+      "source_bytes": 64094,
+      "source_rgba_sha256": "c73e68e8fc8e2447bbd6a49f6007d8c0b19f5a13392ad6226776013a04d3bed1",
+      "dimensions": [
+        192,
+        256
+      ],
+      "alpha": false,
+      "source_alpha_sha256": "abd8e2a70d51a53287941838446e6ed141005d401faf597fd7c6de0bbc8c329d",
+      "alpha_sha256": "abd8e2a70d51a53287941838446e6ed141005d401faf597fd7c6de0bbc8c329d",
+      "rgba_sha256": "5a603b658d4aa8fcbf7173a0f3aac15d8be037e847955dad37aa351671eb6631",
+      "sha256": "a5a16c14423352fb44d354faceaf908579c9b5973ee11408291281e3bbf54194",
+      "bytes": 6759,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "420",
+      "speed": 6
+    },
+    "assets/dino-paint/art/portrait30-thumb.avif": {
+      "source": "art/paint/portrait30.svg",
+      "source_sha256": "2ea05ecc76db5c6deee849a5f914ed8413b93c2280165924354fa44b4230f6c5",
+      "source_bytes": 33132,
+      "source_rgba_sha256": "a1441c539917f30a7c7cb0c53b3b4c703c76e46c1a0fd4556d776571a8f64fed",
+      "dimensions": [
+        192,
+        256
+      ],
+      "alpha": false,
+      "source_alpha_sha256": "abd8e2a70d51a53287941838446e6ed141005d401faf597fd7c6de0bbc8c329d",
+      "alpha_sha256": "abd8e2a70d51a53287941838446e6ed141005d401faf597fd7c6de0bbc8c329d",
+      "rgba_sha256": "3e465332531a3870fe5883a4408eaf236a0bdd1fd12ea57046e8c9e402dac44a",
+      "sha256": "5923803251b4c767b81a3e9d754d3601ec0bb1c9096384dc62331a093465e2e9",
+      "bytes": 4361,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "420",
+      "speed": 6
+    },
+    "assets/jungle/title/objects/beach-crab-big.avif": {
+      "source": "local/art-development/beach-port-split/crabs/beach-crab-big.png",
+      "source_sha256": "b85dde01a09fefa7b21f4d424f5730d6405b396f3de2a2239f79b7288602de98",
+      "source_bytes": 52356,
+      "source_rgba_sha256": "18e56bac59608fc23d72553e62051a7b5ea5bff0fa560dba6f44c4035066a003",
+      "dimensions": [
+        168,
+        116
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "25195d0ab202c0c16824fdea68715ed775c02b3486f68eb47773aa035d091616",
+      "alpha_sha256": "45e0833d6c50c352ca4ce80a9277d800fc2628228cbb84e639a62572cabcdf47",
+      "rgba_sha256": "53d5a100d660e147f7342ba7ba74a9635cfd94720a374c2d7ec1720787cfef9a",
+      "sha256": "5ef93aeeb9dbd893f298e97b86462dc0b18c7ad30381a7cd44047c1f3e92d53f",
+      "bytes": 6659,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "444",
+      "speed": 6,
+      "design_dimensions": [
+        224,
+        155
+      ],
+      "scale": 0.75,
+      "master": "local/art-development/beach-port-split/crabs/beach-crab-big.png",
+      "master_sha256": "b85dde01a09fefa7b21f4d424f5730d6405b396f3de2a2239f79b7288602de98",
+      "exact_alpha": false,
+      "alpha_quality": 90
+    },
+    "assets/jungle/title/objects/beach-crab-big-glow.avif": {
+      "source": "local/art-development/beach-port-split/crabs/beach-crab-big-glow.png",
+      "source_sha256": "c3b049f4fcefc753636b6bd8661118e499a9ed457edb73cf5c2975a5d31b7476",
+      "source_bytes": 12042,
+      "source_rgba_sha256": "fae1b3229630ec8c0da88769ff38fee866bc872c33556b6c153cee794c4e13ed",
+      "dimensions": [
+        168,
+        116
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "25195d0ab202c0c16824fdea68715ed775c02b3486f68eb47773aa035d091616",
+      "alpha_sha256": "45e0833d6c50c352ca4ce80a9277d800fc2628228cbb84e639a62572cabcdf47",
+      "rgba_sha256": "cbc27c1b540fe454978688e43b9e514758c0e073d2cff29f759dfd49bba8fbf7",
+      "sha256": "ceb8c1a3f804a866dcddb10e5756e9388c823fa6ec9f6c655089154c3d17e947",
+      "bytes": 3178,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "444",
+      "speed": 6,
+      "design_dimensions": [
+        224,
+        155
+      ],
+      "scale": 0.75,
+      "master": "local/art-development/beach-port-split/crabs/beach-crab-big-glow.png",
+      "master_sha256": "c3b049f4fcefc753636b6bd8661118e499a9ed457edb73cf5c2975a5d31b7476",
+      "exact_alpha": false,
+      "alpha_quality": 90
+    },
+    "assets/jungle/title/objects/beach-crab-rosy.avif": {
+      "source": "local/art-development/beach-port-split/crabs/beach-crab-rosy.png",
+      "source_sha256": "ed5cec70595cc07f7888b9dea60572b375d0c44c69d323cea012abf451a0a203",
+      "source_bytes": 37209,
+      "source_rgba_sha256": "2d32d4845de59942b19dc8e1aa0a6c13a98d8231cbb226e76582da8bbe2b5885",
+      "dimensions": [
+        139,
+        92
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "8091c67753ab9a49a565901f06073dab77e05493c98f9fa8531c8b327fed1c76",
+      "alpha_sha256": "0a0d6d63238e823e94b1f87d9bc084d0d082ee6d9b59c104e8dad3911afaad1d",
+      "rgba_sha256": "caaba49ffc6bb94dece1604789467dd775877b79ef87977844832ffe58daead7",
+      "sha256": "724675f262fa22fa5a6d191c5a3e31022ed4d790143881217ab0800d919aa6bf",
+      "bytes": 5834,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "444",
+      "speed": 6,
+      "design_dimensions": [
+        185,
+        123
+      ],
+      "scale": 0.75,
+      "master": "local/art-development/beach-port-split/crabs/beach-crab-rosy.png",
+      "master_sha256": "ed5cec70595cc07f7888b9dea60572b375d0c44c69d323cea012abf451a0a203",
+      "exact_alpha": false,
+      "alpha_quality": 90
+    },
+    "assets/jungle/title/objects/beach-crab-rosy-glow.avif": {
+      "source": "local/art-development/beach-port-split/crabs/beach-crab-rosy-glow.png",
+      "source_sha256": "2e0f9a28c87176ffb85bfb44b277b6b6208694d5f0fa3fea69d2a2bc3b02bd16",
+      "source_bytes": 9549,
+      "source_rgba_sha256": "c34d812baba94a76a002ca3b3f96379ed9ba5a81a4d6cc287bc60ba9272ae98a",
+      "dimensions": [
+        139,
+        92
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "8091c67753ab9a49a565901f06073dab77e05493c98f9fa8531c8b327fed1c76",
+      "alpha_sha256": "0a0d6d63238e823e94b1f87d9bc084d0d082ee6d9b59c104e8dad3911afaad1d",
+      "rgba_sha256": "fa66013aa05d5fc852dc1ca01bd071f39c8baef9a8257496b2d539475c8d7723",
+      "sha256": "2357886498d2218249196796132210175f6200fe5241ebc0e3c0d9d649cd7968",
+      "bytes": 2915,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "444",
+      "speed": 6,
+      "design_dimensions": [
+        185,
+        123
+      ],
+      "scale": 0.75,
+      "master": "local/art-development/beach-port-split/crabs/beach-crab-rosy-glow.png",
+      "master_sha256": "2e0f9a28c87176ffb85bfb44b277b6b6208694d5f0fa3fea69d2a2bc3b02bd16",
+      "exact_alpha": false,
+      "alpha_quality": 90
+    },
+    "assets/jungle/title/objects/beach-crab-baby-wave.avif": {
+      "source": "local/art-development/beach-port-split/crabs/beach-crab-baby-wave.png",
+      "source_sha256": "5a119497a323a0e7c4da0ff548a475ecccf5d4fcbd6b78b6c6769664a785b2e1",
+      "source_bytes": 3517,
+      "source_rgba_sha256": "e33684328d7e59f5bb94e405b1f31ae2ac2d22a04a7d8fdfd4cc972819b94ae4",
+      "dimensions": [
+        36,
+        24
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "c4a71f9a43ffd5135b09a016a863c107230f52485100f2cef4586e84faf5bf26",
+      "alpha_sha256": "88a320c5b4cec12696a559f6dce6432bea6a0203bd5e4399d045a09073cf38a3",
+      "rgba_sha256": "d5443bfa6646d59ba083c970c3965d699e4ec555e0f373052834f46322b56413",
+      "sha256": "e165dcb0b52c53f780c1b4ffc1813b5f6b323c85a483073346b4945615f48d49",
+      "bytes": 1430,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "444",
+      "speed": 6,
+      "design_dimensions": [
+        48,
+        32
+      ],
+      "scale": 0.75,
+      "master": "local/art-development/beach-port-split/crabs/beach-crab-baby-wave.png",
+      "master_sha256": "5a119497a323a0e7c4da0ff548a475ecccf5d4fcbd6b78b6c6769664a785b2e1",
+      "exact_alpha": false,
+      "alpha_quality": 90
+    },
+    "assets/jungle/title/objects/beach-crab-baby-wave-glow.avif": {
+      "source": "local/art-development/beach-port-split/crabs/beach-crab-baby-wave-glow.png",
+      "source_sha256": "e561cf9b7b2db7de67ba6b4b81704963e97a5b78c59248e721163da7a693be38",
+      "source_bytes": 1460,
+      "source_rgba_sha256": "69f6c8406a8477861a77d9587699aa5eed27c4a093d92ae0d9b47168e5380a6b",
+      "dimensions": [
+        36,
+        24
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "c4a71f9a43ffd5135b09a016a863c107230f52485100f2cef4586e84faf5bf26",
+      "alpha_sha256": "88a320c5b4cec12696a559f6dce6432bea6a0203bd5e4399d045a09073cf38a3",
+      "rgba_sha256": "fdc4ea388cf89e46cda4aa834b052c97de0e1b5163537d7de72c5d966d77e642",
+      "sha256": "283f644986111ad70cae830bfc04833000c445f39c541e520e18cf352b924acd",
+      "bytes": 957,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "444",
+      "speed": 6,
+      "design_dimensions": [
+        48,
+        32
+      ],
+      "scale": 0.75,
+      "master": "local/art-development/beach-port-split/crabs/beach-crab-baby-wave-glow.png",
+      "master_sha256": "e561cf9b7b2db7de67ba6b4b81704963e97a5b78c59248e721163da7a693be38",
+      "exact_alpha": false,
+      "alpha_quality": 90
+    },
+    "assets/jungle/title/objects/beach-crab-baby-step.avif": {
+      "source": "local/art-development/beach-port-split/crabs/beach-crab-baby-step.png",
+      "source_sha256": "211bb66d2ed93dc071295ead9285511f9bd924ce8ac9c1ca142307068ebf6c48",
+      "source_bytes": 3041,
+      "source_rgba_sha256": "b37bf48393ff7dcd99ae66cc5818329f24fec51102d4b63a1b4c1d6b689c0291",
+      "dimensions": [
+        32,
+        23
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "356b1eceb0c856070044fe386fcbc2fd81d46458f188ddc1a27d1221b01690da",
+      "alpha_sha256": "9b7e0cface5d107f186cb622649cddc0c0cfd89b28cc3f21294f5c015ac61c0e",
+      "rgba_sha256": "f2bf795d484fd2b7f31d4e2b858fc551aa9298f638e4094be455086ad03abdcb",
+      "sha256": "71daa774a2e15af7d9bdebf2ab71f2df4dd9e0ec04a8f8772636124c766609fa",
+      "bytes": 1272,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "444",
+      "speed": 6,
+      "design_dimensions": [
+        43,
+        31
+      ],
+      "scale": 0.75,
+      "master": "local/art-development/beach-port-split/crabs/beach-crab-baby-step.png",
+      "master_sha256": "211bb66d2ed93dc071295ead9285511f9bd924ce8ac9c1ca142307068ebf6c48",
+      "exact_alpha": false,
+      "alpha_quality": 90
+    },
+    "assets/jungle/title/objects/beach-crab-baby-step-glow.avif": {
+      "source": "local/art-development/beach-port-split/crabs/beach-crab-baby-step-glow.png",
+      "source_sha256": "b4c5f6d9c4f05e52dfa0b243bad3b48f426acb52c3e044d118cc048eaabbd003",
+      "source_bytes": 1301,
+      "source_rgba_sha256": "6a0dff9f8a675640e28669fb0739e89102e9f8092befdddd3a5abd03188cc771",
+      "dimensions": [
+        32,
+        23
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "356b1eceb0c856070044fe386fcbc2fd81d46458f188ddc1a27d1221b01690da",
+      "alpha_sha256": "9b7e0cface5d107f186cb622649cddc0c0cfd89b28cc3f21294f5c015ac61c0e",
+      "rgba_sha256": "4b98b034887ecc35d8105e8851c8528aeb8d59153b4fe544d405712fdbb78ce1",
+      "sha256": "c41feda88288966058faa46044c34bd9d72f08e312aa5e0654ad37abb1eeb44f",
+      "bytes": 879,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "444",
+      "speed": 6,
+      "design_dimensions": [
+        43,
+        31
+      ],
+      "scale": 0.75,
+      "master": "local/art-development/beach-port-split/crabs/beach-crab-baby-step-glow.png",
+      "master_sha256": "b4c5f6d9c4f05e52dfa0b243bad3b48f426acb52c3e044d118cc048eaabbd003",
+      "exact_alpha": false,
+      "alpha_quality": 90
+    },
+    "assets/jungle/title/objects/beach-crab-baby-peek.avif": {
+      "source": "local/art-development/beach-port-split/crabs/beach-crab-baby-peek.png",
+      "source_sha256": "92813abca4ec2f3016d3e5902e526fc102100fa453841c2485aeaad5ac3423af",
+      "source_bytes": 3134,
+      "source_rgba_sha256": "0cab35457874d418b043077c67c3ce359a9b96e1b672752fed1bb93c263bdfc2",
+      "dimensions": [
+        34,
+        23
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "d75596790df5af639cf09af474b3ccac9f3a1351933cf9dec8c043a1f1cb07c9",
+      "alpha_sha256": "e3311df1be08b5a8eff6725b9cbf96e09e0262924126524b518e2971f4845c5a",
+      "rgba_sha256": "6ff42eaf65217c69a475fb322e61ff6bfa8f2ae84990518656a7ad6c117fd0b4",
+      "sha256": "671d019069f8c4e62dc63cd84f20d2c3bae17b24452218ca35d3dd9088b54a00",
+      "bytes": 1320,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "444",
+      "speed": 6,
+      "design_dimensions": [
+        45,
+        31
+      ],
+      "scale": 0.75,
+      "master": "local/art-development/beach-port-split/crabs/beach-crab-baby-peek.png",
+      "master_sha256": "92813abca4ec2f3016d3e5902e526fc102100fa453841c2485aeaad5ac3423af",
+      "exact_alpha": false,
+      "alpha_quality": 90
+    },
+    "assets/jungle/title/objects/beach-crab-baby-peek-glow.avif": {
+      "source": "local/art-development/beach-port-split/crabs/beach-crab-baby-peek-glow.png",
+      "source_sha256": "58c1f1e6c1ba09d231fd902d2a43752a2226689d4ffe613243df682cfa1b7042",
+      "source_bytes": 1308,
+      "source_rgba_sha256": "a4e82f7fd5dadd9bf9d68bc7f263c359840dab05a1da01500b081133f3345dc0",
+      "dimensions": [
+        34,
+        23
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "d75596790df5af639cf09af474b3ccac9f3a1351933cf9dec8c043a1f1cb07c9",
+      "alpha_sha256": "e3311df1be08b5a8eff6725b9cbf96e09e0262924126524b518e2971f4845c5a",
+      "rgba_sha256": "a12fc1d6b7fb785f795d663391258e601745f955c6194616f79320d836c770d5",
+      "sha256": "389b5d12c1d3125a09467b44c1db51aac55f1f99643ddae40e3ae96413dd56a8",
+      "bytes": 894,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "444",
+      "speed": 6,
+      "design_dimensions": [
+        45,
+        31
+      ],
+      "scale": 0.75,
+      "master": "local/art-development/beach-port-split/crabs/beach-crab-baby-peek-glow.png",
+      "master_sha256": "58c1f1e6c1ba09d231fd902d2a43752a2226689d4ffe613243df682cfa1b7042",
+      "exact_alpha": false,
+      "alpha_quality": 90
+    },
+    "assets/jungle/title/objects/beach-crab-sand-1.avif": {
+      "source": "local/art-development/beach-port-split/crabs/beach-crab-sand-1.png",
+      "source_sha256": "2f20c88df746e23d0e297a319a27097fd1b943fb6dd5c4b3e0b3b416e44923cd",
+      "source_bytes": 1848,
+      "source_rgba_sha256": "925fd39fef0d714f03a9d91f9210dd82894fb66b2890c97cbfdc94133dfd0d72",
+      "dimensions": [
+        24,
+        17
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "0cb1178a647446da0932b2d39782df3ecdc6b56edde8f9c4529db565547de3fc",
+      "alpha_sha256": "9e940856280a7336f75ab6f8c79f22412fcb324140d1b3ee7bb5cfcda375b513",
+      "rgba_sha256": "e61203b4b58e767732fe56ae1f0445e99fa505a5f1aba9162d9ed410d8184ae6",
+      "sha256": "345d3aa0d49456118f10c3f1a5f835f9f8ed7361a15953b6c47f584de2bbf65e",
+      "bytes": 1001,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "444",
+      "speed": 6,
+      "design_dimensions": [
+        32,
+        23
+      ],
+      "scale": 0.75,
+      "master": "local/art-development/beach-port-split/crabs/beach-crab-sand-1.png",
+      "master_sha256": "2f20c88df746e23d0e297a319a27097fd1b943fb6dd5c4b3e0b3b416e44923cd",
+      "exact_alpha": false,
+      "alpha_quality": 90
+    },
+    "assets/jungle/title/objects/beach-crab-sand-1-glow.avif": {
+      "source": "local/art-development/beach-port-split/crabs/beach-crab-sand-1-glow.png",
+      "source_sha256": "b05906293bc6703dd9ceae04de4ee5e9c35d90cd1e1aa6e2487babc06c4e0178",
+      "source_bytes": 847,
+      "source_rgba_sha256": "f78958998eac3625c2e027b107dc25f3c9582c7e677dbeb08bd083b206cc6912",
+      "dimensions": [
+        24,
+        17
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "0cb1178a647446da0932b2d39782df3ecdc6b56edde8f9c4529db565547de3fc",
+      "alpha_sha256": "9e940856280a7336f75ab6f8c79f22412fcb324140d1b3ee7bb5cfcda375b513",
+      "rgba_sha256": "b798a493ef599a5def86d3959ce96f31b8bae632e7b571927c80f68798c6e24a",
+      "sha256": "81a05620da7a19c1fd9758a4e26bf656d86202acbe150834b606f3032a393b65",
+      "bytes": 740,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "444",
+      "speed": 6,
+      "design_dimensions": [
+        32,
+        23
+      ],
+      "scale": 0.75,
+      "master": "local/art-development/beach-port-split/crabs/beach-crab-sand-1-glow.png",
+      "master_sha256": "b05906293bc6703dd9ceae04de4ee5e9c35d90cd1e1aa6e2487babc06c4e0178",
+      "exact_alpha": false,
+      "alpha_quality": 90
+    },
+    "assets/jungle/title/objects/beach-crab-sand-2.avif": {
+      "source": "local/art-development/beach-port-split/crabs/beach-crab-sand-2.png",
+      "source_sha256": "3da3f4af22b54a41d4d9673d8b6c42debd7557f11521642326c8d6a4ef8737c7",
+      "source_bytes": 1738,
+      "source_rgba_sha256": "3430e6f8dfc5ace05dd7120381a3bba050d8340cecf9695ccdbbe772d2cc08ba",
+      "dimensions": [
+        23,
+        16
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "118d4d07351ea855b0cb874bc34f2e4086762e092b79d99bf57b5309c1082425",
+      "alpha_sha256": "b7fef0e23b8229a612e074e1b22cc53393be1ddadfc15071796444f5a2f98b48",
+      "rgba_sha256": "da8079143b3cd3d89748958c31db0cc973c190188f4b3df818fe1d54ef82b09c",
+      "sha256": "7349f07f3c38d3fd4b1b0388376d8bfd222e599683575d44da89ed6ce92c4cbe",
+      "bytes": 940,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "444",
+      "speed": 6,
+      "design_dimensions": [
+        31,
+        22
+      ],
+      "scale": 0.75,
+      "master": "local/art-development/beach-port-split/crabs/beach-crab-sand-2.png",
+      "master_sha256": "3da3f4af22b54a41d4d9673d8b6c42debd7557f11521642326c8d6a4ef8737c7",
+      "exact_alpha": false,
+      "alpha_quality": 90
+    },
+    "assets/jungle/title/objects/beach-crab-sand-2-glow.avif": {
+      "source": "local/art-development/beach-port-split/crabs/beach-crab-sand-2-glow.png",
+      "source_sha256": "68bdd627d831a43d846d67cd3b4ef4ad76cff57e27d0c7102d77d326bc41f035",
+      "source_bytes": 802,
+      "source_rgba_sha256": "7994bbde1e9a98b54c009e79d3558f501411a8e47f4b2d279e249d6126be473f",
+      "dimensions": [
+        23,
+        16
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "118d4d07351ea855b0cb874bc34f2e4086762e092b79d99bf57b5309c1082425",
+      "alpha_sha256": "b7fef0e23b8229a612e074e1b22cc53393be1ddadfc15071796444f5a2f98b48",
+      "rgba_sha256": "e97fb0c286d1343745630c205e82fb9cfd7115e76fc3a2f23c6de63facee9aaa",
+      "sha256": "8b9a46de795c02b5b5ffeda686ec696f4466fab0c891ada53ed7fbed37016d14",
+      "bytes": 726,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "444",
+      "speed": 6,
+      "design_dimensions": [
+        31,
+        22
+      ],
+      "scale": 0.75,
+      "master": "local/art-development/beach-port-split/crabs/beach-crab-sand-2-glow.png",
+      "master_sha256": "68bdd627d831a43d846d67cd3b4ef4ad76cff57e27d0c7102d77d326bc41f035",
+      "exact_alpha": false,
+      "alpha_quality": 90
+    },
+    "assets/jungle/title/objects/beach-crab-sand-3.avif": {
+      "source": "local/art-development/beach-port-split/crabs/beach-crab-sand-3.png",
+      "source_sha256": "309637a9028c00dca2d05be5bf66df7d7040ad85d497e72c074f4a571b018c8a",
+      "source_bytes": 1988,
+      "source_rgba_sha256": "a47fed4f7c91660c608b5a94e7a5ef997314fbf4d52e3e8378686c33d166ebfb",
+      "dimensions": [
+        26,
+        18
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "04fc0182424fcfd6c9aed7814355bbcc260d69f6b8b0a2ddc553785ad2f7a2cb",
+      "alpha_sha256": "bd2e37ae2688d312df0b5c631d9cfdac6854894d0a98d819966acaf20af805d2",
+      "rgba_sha256": "9d69e22baed8f3e81addc49dd553a85b39ad172e77fb09e354a59690ab031700",
+      "sha256": "20c3e6fdbd5bb70d225db7335bdc76828c5e839ad1ed57c37a1699245b2e41bf",
+      "bytes": 1017,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "444",
+      "speed": 6,
+      "design_dimensions": [
+        35,
+        24
+      ],
+      "scale": 0.75,
+      "master": "local/art-development/beach-port-split/crabs/beach-crab-sand-3.png",
+      "master_sha256": "309637a9028c00dca2d05be5bf66df7d7040ad85d497e72c074f4a571b018c8a",
+      "exact_alpha": false,
+      "alpha_quality": 90
+    },
+    "assets/jungle/title/objects/beach-crab-sand-3-glow.avif": {
+      "source": "local/art-development/beach-port-split/crabs/beach-crab-sand-3-glow.png",
+      "source_sha256": "3f40afa612439fd524168646b3e6f7b7383f1b09b8579a8de939e63c7f55832e",
+      "source_bytes": 889,
+      "source_rgba_sha256": "11e13a998c4051ec3652a34afc96f2084088c3879947d900533bd5dcd34d8b28",
+      "dimensions": [
+        26,
+        18
+      ],
+      "alpha": true,
+      "source_alpha_sha256": "04fc0182424fcfd6c9aed7814355bbcc260d69f6b8b0a2ddc553785ad2f7a2cb",
+      "alpha_sha256": "bd2e37ae2688d312df0b5c631d9cfdac6854894d0a98d819966acaf20af805d2",
+      "rgba_sha256": "c94a1efffd8cc4929a07ad0b900d973685c2c021d63880813ec1542f6bbafe2f",
+      "sha256": "97fd0f98963b5bc793e813875fc672b4a3ece08b837760c6fc85e9c343adc2ef",
+      "bytes": 753,
+      "quality": 35,
+      "lossless": false,
+      "subsampling": "444",
+      "speed": 6,
+      "design_dimensions": [
+        35,
+        24
+      ],
+      "scale": 0.75,
+      "master": "local/art-development/beach-port-split/crabs/beach-crab-sand-3-glow.png",
+      "master_sha256": "3f40afa612439fd524168646b3e6f7b7383f1b09b8579a8de939e63c7f55832e",
+      "exact_alpha": false,
+      "alpha_quality": 90
     }
   },
   "encoder": "Version: 1.2.1 (dav1d [dec]:1.5.1, libgav1 [dec]:0.19.0, aom [enc/dec]:v3.12.1, rav1e [enc]:0.7.1 (UNKNOWN), svt [enc]:v2.3.0)\nlibyuv : available (1904)",

@@ -1,0 +1,86 @@
+#import, file "../games/paint/paint_picker_layout.zi";
+
+TOOLS :: 11
+
+Inside :: (r: PaintRect, x: s32, y: s32, w: s32, h: s32) -> bool {
+    return r.x >= x && r.y >= y && r.x + r.w <= x + w && r.y + r.h <= y + h
+}
+
+Overlaps :: (a: PaintRect, b: PaintRect) -> bool {
+    return a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h
+}
+
+// Every tool appears once, large enough for a child, inside its panel or
+// drawer, and no two tools overlap each other or the picture.
+ToolsFit :: (l: PaintMainLayout) -> bool {
+    canvas := PaintRect.{l.canvas_x, l.canvas_y, l.canvas_w, l.canvas_h}
+    for index: cast(s32)0..TOOLS - 1 {
+        r := PaintToolRect(l, index)
+        if r.w < PAINT_TOUCH_MINIMUM || r.h < PAINT_TOUCH_MINIMUM { return false }
+        if l.compact {
+            if !Inside(r, l.drawer_x, l.drawer_y, l.drawer_w, l.drawer_h) { return false }
+        } else {
+            if !Inside(r, 0, 0, l.width, l.height) || Overlaps(r, canvas) { return false }
+        }
+        for other: cast(s32)0..index - 1 { if Overlaps(r, PaintToolRect(l, other)) { return false } }
+    }
+    return true
+}
+
+// The picture stays on screen and keeps its page's shape.
+CanvasFits :: (l: PaintMainLayout, page_w: s32, page_h: s32) -> bool {
+    if l.canvas_x < 0 || l.canvas_y < 0 || l.canvas_x + l.canvas_w > l.width || l.canvas_y + l.canvas_h > l.height { return false }
+    shape := l.canvas_w * page_h - l.canvas_h * page_w
+    if shape < 0 { shape = -shape }
+    return shape <= page_w + page_h
+}
+
+#program_export
+main :: () -> s32 {
+    // A phone held upright: the picture takes the room, the tools a drawer.
+    phone := PaintMainBounds(360, 800, 720, 960, TOOLS)
+    if !phone.compact || phone.side || !CanvasFits(phone, 720, 960) { return 1 }
+    if phone.canvas_w < 320 || cast(s64)phone.canvas_w * phone.canvas_h * 2 < 360 * 800 { return 2 }
+    if !ToolsFit(phone) { return 3 }
+    // One Tools button and the status share the bar below the picture.
+    toggle := PaintRect.{phone.toggle_x, phone.toggle_y, phone.toggle_w, phone.toggle_h}
+    status := PaintRect.{phone.status_x, phone.status_y, phone.status_w, phone.status_h}
+    if toggle.w < PAINT_TOUCH_MINIMUM || toggle.h < PAINT_TOUCH_MINIMUM || Overlaps(toggle, status) { return 4 }
+    if !Inside(toggle, phone.bar_x, phone.bar_y, phone.bar_w, phone.bar_h) ||
+        !Inside(status, phone.bar_x, phone.bar_y, phone.bar_w, phone.bar_h) { return 5 }
+    if phone.bar_y < phone.canvas_y + phone.canvas_h || phone.bar_y + phone.bar_h > 800 { return 6 }
+    // The drawer opens over the picture, never over its own button.
+    drawer := PaintRect.{phone.drawer_x, phone.drawer_y, phone.drawer_w, phone.drawer_h}
+    if Overlaps(drawer, toggle) || drawer.y < 0 { return 7 }
+    // An upright phone starts tall pictures; the wide page would be smaller.
+    if !PaintPageTall(360, 800, TOOLS) { return 8 }
+    wide := PaintMainBounds(360, 800, 960, 720, TOOLS)
+    if !wide.compact || !CanvasFits(wide, 960, 720) || !ToolsFit(wide) || wide.canvas_w < 320 { return 9 }
+
+    // Landscape phones, laptops and desktops keep every tool in view.
+    sizes: [8]s32 = .[800, 360, 1280, 720, 1920, 1080, 1024, 768]
+    for at: cast(s32)0..3 {
+        width := sizes[at * 2]; height := sizes[at * 2 + 1]
+        l := PaintMainBounds(width, height, 960, 720, TOOLS)
+        if l.compact || !CanvasFits(l, 960, 720) || !ToolsFit(l) { return 10 + at }
+        if PaintPageTall(width, height, TOOLS) { return 14 + at }
+        // The tools take no more than a third of the width.
+        rail := l.columns * (l.tool_w + l.gap)
+        if rail * 3 > width + l.pad * 3 { return 18 + at }
+    }
+    // A tall desktop window has room for the tools below a tall picture.
+    upright := PaintMainBounds(1080, 1920, 720, 960, TOOLS)
+    if upright.compact || !ToolsFit(upright) || !CanvasFits(upright, 720, 960) { return 22 }
+    // A tablet held upright gives the picture the room as well.
+    tablet := PaintMainBounds(800, 1280, 720, 960, TOOLS)
+    if !tablet.compact || !ToolsFit(tablet) || !CanvasFits(tablet, 720, 960) || !PaintPageTall(800, 1280, TOOLS) { return 23 }
+    // A small landscape phone has no room for a rail; its drawer opens beside a side bar.
+    small := PaintMainBounds(568, 320, 960, 720, TOOLS)
+    if !small.compact || !small.side || !ToolsFit(small) || !CanvasFits(small, 960, 720) { return 26 }
+    if small.toggle_x + small.toggle_w > small.canvas_x || small.drawer_x + small.drawer_w > 568 { return 27 }
+    // Tool positions are the same grid each frame, for any index.
+    a := PaintToolRect(phone, 4); b := PaintToolRect(phone, 4)
+    if a.x != b.x || a.y != b.y || PaintToolRect(phone, 3).y <= PaintToolRect(phone, 0).y { return 24 }
+    if !PaintRectHolds(a, a.x, a.y) || PaintRectHolds(a, a.x + a.w, a.y) { return 25 }
+    return 0
+}

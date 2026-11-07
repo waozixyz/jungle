@@ -1,7 +1,7 @@
 // The Coloring Book's display: fills stay in page pixels, and the outlines are
 // drawn from their vector art at the scale the picture is shown.
 //
-// Two images make the picture. Colors is the page's 960 by 720 fills with each
+// Two images make the picture. Colors is the page's fills with each
 // outline pixel the vector art covers replaced by its nearest fill, so a fill
 // runs to the middle of its line and a staircase edge never shows. Ink is the
 // outlines' coverage, rendered for the visible part of the page at display
@@ -10,7 +10,9 @@
 //
 // The game sends the outlines as PaintViewOpsSet text, one operation a line,
 // bottom to top. Fractions are integers over the scales below.
-//   S <scene>                      a scene's ink
+//   D <width> <height>             a tall page, first: 720 960; without it
+//                                  the page is wide, 960 720
+//   S <scene>                      the scene's ink for that page
 //   O <stencil> <a b c d e f>      a stencil's body hides what is below, then
 //                                  its ink; a b c d e f maps it onto the page
 //   P <width> <x y x y ...>        a pencil line through page points
@@ -51,7 +53,9 @@ PaintViewRead :: #type (path: string) -> string;
 PaintViewTile :: struct { width: s32; height: s32; page_x: float32; page_y: float32; scale_x: float32; scale_y: float32; }
 
 paint_view_ops: string;
+paint_view_size: PaintPage = WIDE_PAGE;
 paint_view_scene_assets: [PAINT_VIEW_ASSET_COUNT]string;
+paint_view_tall_scene_assets: [PAINT_VIEW_ASSET_COUNT]string;
 paint_view_stencil_assets: [PAINT_VIEW_ASSET_COUNT]string;
 // Page pixels within one pixel of vector ink.
 paint_view_vector: [CANVAS_PIXELS]bool;
@@ -123,8 +127,8 @@ PaintViewHide :: (tile: PaintViewTile, target: VectorTarget) {
         page_y := FloorInteger((cast(float32)y + 0.5) / tile.scale_y + tile.page_y)
         for x: cast(s32)0..target.width - 1 {
             page_x := FloorInteger((cast(float32)x + 0.5) / tile.scale_x + tile.page_x)
-            if page_x >= 0 && page_y >= 0 && page_x < CANVAS_WIDTH && page_y < CANVAS_HEIGHT &&
-                paint_view_hide[page_y * CANVAS_WIDTH + page_x] != cast(u8)0 { target.coverage[at] = 0 }
+            if page_x >= 0 && page_y >= 0 && page_x < paint_view_size.width && page_y < paint_view_size.height &&
+                paint_view_hide[page_y * paint_view_size.width + page_x] != cast(u8)0 { target.coverage[at] = 0 }
             at += 1
         }
     }
@@ -144,10 +148,13 @@ PaintViewDraw :: (tile: PaintViewTile, target: VectorTarget, read: PaintViewRead
         if line.count < 2 { continue }
         kind := line[0]
         cursor: s64 = 1
+        if kind == #char "D" { continue }
         if kind == #char "S" {
             scene: s64
             if !PaintViewNumber(line, *cursor, *scene) { ok = false; continue }
-            file := PaintViewAsset(paint_view_scene_assets[:], scene, "scene", read)
+            tall := PageIsTall(paint_view_size)
+            file := PaintViewAsset(ifx tall then paint_view_tall_scene_assets[:] else paint_view_scene_assets[:], scene,
+                ifx tall then "portrait" else "scene", read)
             if file == "" { ok = false; continue }
             if !VectorPathFill(VectorFilePath(PaintViewBytes(file), 0), PaintViewTileTransform(tile), target, VectorMode.VectorAdd) { ok = false }
         } else if kind == #char "O" {
@@ -187,7 +194,7 @@ PaintViewDraw :: (tile: PaintViewTile, target: VectorTarget, read: PaintViewRead
             x: s64; y: s64; w: s64; h: s64
             if !PaintViewNumber(line, *cursor, *x) || !PaintViewNumber(line, *cursor, *y) ||
                !PaintViewNumber(line, *cursor, *w) || !PaintViewNumber(line, *cursor, *h) ||
-               x < 0 || y < 0 || w <= 0 || h <= 0 || x + w > CANVAS_WIDTH || y + h > CANVAS_HEIGHT { ok = false; continue }
+               x < 0 || y < 0 || w <= 0 || h <= 0 || x + w > paint_view_size.width || y + h > paint_view_size.height { ok = false; continue }
             if cursor >= line.count || line[cursor] != #char " " { ok = false; continue }
             cursor += 1
             count := w * h
@@ -195,7 +202,7 @@ PaintViewDraw :: (tile: PaintViewTile, target: VectorTarget, read: PaintViewRead
             for at_pixel: cast(s64)0..CANVAS_PIXELS - 1 { paint_view_hide[at_pixel] = 0 }
             for row: cast(s64)0..h - 1 {
                 for column: cast(s64)0..w - 1 {
-                    if paint_view_runs[row * w + column] != cast(u8)255 { paint_view_hide[(y + row) * CANVAS_WIDTH + x + column] = 1 }
+                    if paint_view_runs[row * w + column] != cast(u8)255 { paint_view_hide[(y + row) * paint_view_size.width + x + column] = 1 }
                 }
             }
             PaintViewHide(tile, target)
@@ -208,24 +215,39 @@ PaintViewOpsSame :: (ops: string) -> bool {
     return paint_view_ops == ops
 }
 
+// The page a D line names, WIDE_PAGE without one, or a zero page when the
+// line names neither page.
+PaintViewOpsPage :: (ops: string) -> PaintPage {
+    if ops.count < 2 || ops[0] != #char "D" { return WIDE_PAGE }
+    at: s64 = 1
+    width: s64; height: s64
+    if !PaintViewNumber(ops, *at, *width) || !PaintViewNumber(ops, *at, *height) { return PaintPage.{} }
+    if width == cast(s64)WIDE_PAGE.width && height == cast(s64)WIDE_PAGE.height { return WIDE_PAGE }
+    if width == cast(s64)TALL_PAGE.width && height == cast(s64)TALL_PAGE.height { return TALL_PAGE }
+    return PaintPage.{}
+}
+
 // Remembers the outlines and which page pixels their ink is near. A page INK
 // pixel away from all vector ink stays a page pixel, so a line is never lost.
 PaintViewOpsSet :: (ops: string, read: PaintViewRead) -> bool {
     if ops.count > PAINT_VIEW_OPS_LIMIT { return false }
     if PaintViewOpsSame(ops) { return true }
+    page := PaintViewOpsPage(ops)
+    if page.width == 0 { return false }
     owned: Vec(u8)
     BuilderAppend(owned, ops)
     paint_view_ops = BuilderFinish(owned)
-    page := PaintViewTile.{.width = CANVAS_WIDTH, .height = CANVAS_HEIGHT, .scale_x = 1.0, .scale_y = 1.0}
-    ok := PaintViewDraw(page, VectorTarget.{.width = CANVAS_WIDTH, .height = CANVAS_HEIGHT, .coverage = paint_view_page[:]}, read)
+    paint_view_size = page
+    whole := PaintViewTile.{.width = paint_view_size.width, .height = paint_view_size.height, .scale_x = 1.0, .scale_y = 1.0}
+    ok := PaintViewDraw(whole, VectorTarget.{.width = paint_view_size.width, .height = paint_view_size.height, .coverage = paint_view_page[:]}, read)
     for at: cast(s32)0..CANVAS_PIXELS - 1 { paint_view_vector[at] = false }
-    for y: cast(s32)0..CANVAS_HEIGHT - 1 {
-        for x: cast(s32)0..CANVAS_WIDTH - 1 {
-            if paint_view_page[y * CANVAS_WIDTH + x] == cast(u8)0 { continue }
+    for y: cast(s32)0..paint_view_size.height - 1 {
+        for x: cast(s32)0..paint_view_size.width - 1 {
+            if paint_view_page[y * paint_view_size.width + x] == cast(u8)0 { continue }
             for dy: cast(s32)-PAINT_VIEW_NEAR..PAINT_VIEW_NEAR {
                 for dx: cast(s32)-PAINT_VIEW_NEAR..PAINT_VIEW_NEAR {
                     ny := y + dy; nx := x + dx
-                    if nx >= 0 && ny >= 0 && nx < CANVAS_WIDTH && ny < CANVAS_HEIGHT { paint_view_vector[ny * CANVAS_WIDTH + nx] = true }
+                    if nx >= 0 && ny >= 0 && nx < paint_view_size.width && ny < paint_view_size.height { paint_view_vector[ny * paint_view_size.width + nx] = true }
                 }
             }
         }
@@ -270,12 +292,13 @@ PaintViewBleed :: (pixels: []u8, vector: []bool, width: s32, height: s32, distan
     }
 }
 
-// The PNG of the page's fills beneath the vector ink.
-PaintViewColorsPng :: (pixels: []u8) -> string {
-    if pixels.count != CANVAS_PIXELS { return "" }
+// The PNG of the page's fills beneath the vector ink. The fills' page must be
+// the outlines' page.
+PaintViewColorsPng :: (pixels: []u8, page: PaintPage) -> string {
+    if pixels.count != CANVAS_PIXELS || page.width != paint_view_size.width { return "" }
     for at: cast(s32)0..CANVAS_PIXELS - 1 { paint_view_colors[at] = pixels[at] }
-    PaintViewBleed(paint_view_colors[:], paint_view_vector[:], CANVAS_WIDTH, CANVAS_HEIGHT, paint_view_distance[:])
-    return PngIndexed(CANVAS_WIDTH, CANVAS_HEIGHT, paint_colors[:], paint_view_colors[:])
+    PaintViewBleed(paint_view_colors[:], paint_view_vector[:], paint_view_size.width, paint_view_size.height, paint_view_distance[:])
+    return PngIndexed(paint_view_size.width, paint_view_size.height, paint_colors[:], paint_view_colors[:])
 }
 
 // "<width> <height> <page x> <page y> <scale x> <scale y>": page position and

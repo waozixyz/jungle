@@ -82,25 +82,66 @@ class TitleVariants(unittest.TestCase):
                     self.assertEqual(routes[ident]['target'],target)
                     self.assertEqual(routes[ident]['sign']['label'],label)
                     self.assertEqual(routes[ident]['sign']['direction'],direction)
-                self.assertEqual(routes['crab-family']['target'],'game:Crab Family Counting')
+                self.assertEqual(routes['crab-big']['target'],'game:Crab Family Counting')
                 self.assertEqual(routes['fishing-boat']['target'],'game:Little Fishing Boat')
             if scene['name'].startswith('aquarium'):
                 self.assertEqual(scene['hotspots'][0]['target'],'scene:beach')
             for hotspot in scene['hotspots']:
                 self.assertNotEqual(hotspot.get('sign',{}).get('label'),'Jungle Path')
 
-    def test_beach_crabs_are_a_separate_transparent_overlay(self):
+    def test_each_beach_crab_is_its_own_layer_and_walks_its_own_way(self):
         _,scenes,_,_=title.Load()
         for scene in scenes:
-            if not scene['name'].startswith('beach'):
+            if scene['name'] not in ('beach','beach-portrait'):
                 continue
-            hotspot=next(h for h in scene['hotspots'] if h['id']=='crab-family')
-            self.assertEqual(hotspot['rest'],'assets/jungle/title/objects/beach-crab-family.avif')
-            with Image.open(ROOT/hotspot['rest']) as sprite:
-                self.assertEqual(sprite.mode,'RGBA')
-                self.assertEqual(sprite.getchannel('A').getextrema(),(0,255))
-            x,y,w,h=hotspot['glow_rect']
-            self.assertEqual(hit(scene,x+w*.3,y+h*.4),'crab-family')
+            crabs=[h for h in scene['hotspots'] if h['id'].startswith('crab-')]
+            self.assertEqual(len(crabs),8,'the family of five and three background crabs')
+            self.assertEqual(len({h['rest'] for h in crabs}),8,'every crab its own picture')
+            walks=set()
+            for crab in crabs:
+                with self.subTest(scene=scene['name'],crab=crab['id']):
+                    self.assertEqual(crab['target'],'game:Crab Family Counting')
+                    self.assertEqual(crab['rest'],f'assets/jungle/title/objects/beach-{crab["id"]}.avif')
+                    with Image.open(ROOT/crab['rest']) as sprite:
+                        self.assertEqual(sprite.mode,'RGBA')
+                        self.assertEqual(sprite.getchannel('A').getextrema(),(0,255))
+                    x,y,w,h=crab['glow_rect']
+                    self.assertEqual(hit(scene,x+w*.5,y+h*.55),crab['id'])
+                    walk=crab['walk']
+                    self.assertEqual(walk['stops'][0],[0,0,walk['stops'][0][2]])
+                    self.assertGreaterEqual(len(walk['stops']),3,'changes direction')
+                    self.assertTrue(any(stop[2]>0 for stop in walk['stops']),'pauses')
+                    walks.add((walk['speed'],walk['phase']))
+            self.assertEqual(len(walks),8,'no two crabs step together')
+
+    def test_beach_crabs_walk_on_dry_sand_clear_of_signs_and_whole_on_screen(self):
+        data=json.loads((ROOT/'tools/title_hotspots.json').read_text())
+        beach=next(s for s in data['scenes'] if s['name']=='beach')
+        for view,(width,height) in ((beach,(1672,941)),(beach['portrait'],(1024,1536))):
+            with Image.open(ROOT/view['image']) as plate:
+                scale=plate.width/width
+                hsv=plate.convert('HSV')
+            others=[h['glow_rect'] for h in view['hotspots'] if not h['id'].startswith('crab-')]
+            shapes=((9,20),(9,16),(3,4)) if height>width else ((4,3),(16,9),(20,9))
+            for crab in (h for h in view['hotspots'] if h['id'].startswith('crab-')):
+                x,y,w,h=crab['glow_rect']
+                stops=crab['walk']['stops']
+                for (ax,ay,_),(bx,by,_) in zip(stops,stops[1:]+stops[:1]):
+                    for t in (i/8 for i in range(8)):
+                        dx,dy=ax+(bx-ax)*t,ay+(by-ay)*t
+                        left,top=x+dx,y+dy
+                        with self.subTest(view=width,crab=crab['id'],at=(round(dx),round(dy))):
+                            # Its feet on dry sand (or a painted shell), never in the sea or plants.
+                            feet=[hsv.getpixel((round((left+w*f)*scale),round((top+h*0.95)*scale))) for f in (.25,.5,.75)]
+                            self.assertFalse(any(50<=hue<=175 and s>50 for hue,s,_ in feet),feet)
+                            # Never over a sign or landmark, so their taps stay theirs.
+                            for ox,oy,ow,oh in others:
+                                self.assertFalse(left<ox+ow and ox<left+w and top<oy+oh and oy<top+h,(ox,oy,ow,oh))
+                            for across,down in shapes:
+                                fit=max(across/width,down/height)
+                                edge_x,edge_y=(width-across/fit)/2,(height-down/fit)/2
+                                self.assertTrue(edge_x+4<=left and left+w<=width-edge_x-4,('cut at',across,down))
+                                self.assertTrue(edge_y+4<=top and top+h<=height-edge_y-4,('cut at',across,down))
 
     def test_portrait_campus_uses_approved_mapping_and_full_background(self):
         _, scenes, _, _ = title.Load()
