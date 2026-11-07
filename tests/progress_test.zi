@@ -4,17 +4,18 @@
 #program_export
 main :: () -> s32 {
     visits := ExplorationParse("")
-    if !visits.valid || visits.dirty || ExplorationHas(visits, "farm") { return 20 }
+    if !visits.valid || visits.dirty || ExplorationHas(*visits, "farm") { return 20 }
     if !ExplorationVisit(*visits, "treehouse") || !visits.dirty { return 21 }
     if ExplorationVisit(*visits, "treehouse") || ExplorationVisit(*visits, "") { return 22 }
     unused ExplorationVisit(*visits, "farm")
-    restored := ExplorationParse(ExplorationText(visits))
-    if !restored.valid || restored.dirty || !ExplorationHas(restored, "treehouse") ||
-        !ExplorationHas(restored, "farm") || ExplorationHas(restored, "port") { return 23 }
+    restored := ExplorationParse(ExplorationText(*visits))
+    if !restored.valid || restored.dirty || !ExplorationHas(*restored, "treehouse") ||
+        !ExplorationHas(*restored, "farm") || ExplorationHas(*restored, "port") { return 23 }
     future := ExplorationParse("JUNGLE EXPLORED 1\nfuture-island\nfarm\nfuture-island\n")
-    if !future.valid || ExplorationText(future) != "JUNGLE EXPLORED 1\nfuture-island\nfarm\n" { return 24 }
-    if ExplorationParse("JUNGLE EXPLORED 2\nfarm\n").valid ||
-        ExplorationParse("JUNGLE EXPLORED 1\nfarm!\n").valid { return 25 }
+    if !future.valid || ExplorationText(*future) != "JUNGLE EXPLORED 1\nfuture-island\nfarm\n" { return 24 }
+    newer := ExplorationParse("JUNGLE EXPLORED 2\nfarm\n")
+    damaged := ExplorationParse("JUNGLE EXPLORED 1\nfarm!\n")
+    if newer.valid || damaged.valid { return 25 }
     if ExplorationSceneArea("window-portrait") != "treehouse" || ExplorationSceneArea("bookshelf") != "treehouse" ||
         ExplorationSceneArea("map-portrait") != "" || ExplorationSceneArea("campus-portrait") != "campus" { return 26 }
     if AnimalLevels("skill 0 4 2 1\nskill 1 2 0 0\n") != "animal 4 0 2 1\n" { return 1 }

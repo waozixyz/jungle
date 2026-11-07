@@ -103,19 +103,19 @@ main :: () -> s32 {
     crab_result := BeachCrabMotionTest()
     if crab_result != 0 { return crab_result }
     exploration := ExplorationParse("")
-    if !TitleCloudCovered(exploration, 1330.0, 860.0) { return 740 }
+    if !TitleCloudCovered(*exploration, 1330.0, 860.0) { return 740 }
     unused ExplorationVisit(*exploration, "campus")
-    if TitleCloudCovered(exploration, 1330.0, 860.0) ||
-        !TitleCloudCovered(exploration, 2840.0, 1820.0) { return 741 }
-    restored := ExplorationParse(ExplorationText(exploration))
-    if TitleCloudCovered(restored, 1330.0, 860.0) || !TitleCloudCovered(restored, 3010.0, 1980.0) { return 742 }
-    if TitleFogVisits(exploration) != TitleFogVisits(restored) { return 743 }
+    if TitleCloudCovered(*exploration, 1330.0, 860.0) ||
+        !TitleCloudCovered(*exploration, 2840.0, 1820.0) { return 741 }
+    restored := ExplorationParse(ExplorationText(*exploration))
+    if TitleCloudCovered(*restored, 1330.0, 860.0) || !TitleCloudCovered(*restored, 3010.0, 1980.0) { return 742 }
+    if TitleFogVisits(*exploration) != TitleFogVisits(*restored) { return 743 }
     campus_area: s32 = -1
     for area: cast(s32)0..TITLE_MAP_AREA_COUNT-1 { if TITLE_MAP_AREA[area]=="campus" { campus_area=area } }
     if campus_area<0 { return 744 }
     cx:=cast(float32)TITLE_MAP_CENTER[campus_area*2]
     cy:=cast(float32)TITLE_MAP_CENTER[campus_area*2+1]
-    visits:=TitleFogVisits(exploration)
+    visits:=TitleFogVisits(*exploration)
     if TitleFogAlpha(cast(u32)0,cx,cy)!=cast(u8)255 || TitleFogAlpha(visits,cx,cy)!=cast(u8)0 { return 745 }
     previous_alpha: u8
     // Down from Campus into the unvisited forest: one smooth, rising rim.

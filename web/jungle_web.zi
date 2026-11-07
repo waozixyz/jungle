@@ -336,7 +336,7 @@ WebTitlePaperCollect :: (slug: string) -> bool { return WebCollectionService("ju
 // The awards, in the settings/awards.txt document; see host/jungle_awards.zi.
 WebExplorationSave :: () {
     if !title_exploration.dirty || !title_exploration.valid { return }
-    if Runner.DocumentWriteHost("settings/explored.txt", ExplorationText(title_exploration)) {
+    if Runner.DocumentWriteHost("settings/explored.txt", ExplorationText(*title_exploration)) {
         if Runner.DocumentFlushHost() { title_exploration.dirty = false }
     }
 }

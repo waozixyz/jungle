@@ -6,7 +6,7 @@
 // real place. Unknown future areas round-trip; malformed saves stay untouched.
 EXPLORATION_HEADER :: "JUNGLE EXPLORED 1\n"
 Exploration :: struct {
-    areas: string
+    areas: Text // Newline-terminated areas, in the order first visited.
     valid: bool
     dirty: bool
 }
@@ -22,29 +22,31 @@ ExplorationAreaValid :: (area: string) -> bool {
     return true
 }
 
-ExplorationHas :: (exploration: Exploration, area: string) -> bool {
+ExplorationHas :: (exploration: *Exploration, area: string) -> bool {
+    areas := TextView(exploration.areas)
     at: s64 = 0
-    while at < exploration.areas.count {
+    while at < areas.count {
         end := at
-        while end < exploration.areas.count && exploration.areas[end] != cast(u8)10 { end += 1 }
-        if exploration.areas[at:end] == area { return true }
+        while end < areas.count && areas[end] != cast(u8)10 { end += 1 }
+        if areas[at:end] == area { return true }
         at = end + 1
     }
     return false
 }
 
 ExplorationVisit :: (exploration: *Exploration, area: string) -> bool {
-    if !ExplorationAreaValid(area) || ExplorationHas(exploration.*, area) { return false }
-    exploration.areas = Cat(exploration.areas, area, "\n")
+    if !ExplorationAreaValid(area) || ExplorationHas(exploration, area) { return false }
+    BuilderAppend(exploration.areas.bytes, area)
+    BuilderAppend(exploration.areas.bytes, "\n")
     exploration.dirty = true
     return true
 }
 
 ExplorationParse :: (text: string) -> Exploration {
-    parsed: Exploration
-    if text == "" { parsed.valid = true; return parsed }
+    if text == "" { return Exploration.{.valid = true} }
     if text.count > 8192 || text.count < EXPLORATION_HEADER.count ||
-        text[:EXPLORATION_HEADER.count] != EXPLORATION_HEADER { return parsed }
+        text[:EXPLORATION_HEADER.count] != EXPLORATION_HEADER { return Exploration.{} }
+    parsed: Exploration
     at := EXPLORATION_HEADER.count
     while at < text.count {
         end := at
@@ -59,8 +61,8 @@ ExplorationParse :: (text: string) -> Exploration {
     return parsed
 }
 
-ExplorationText :: (exploration: Exploration) -> Text {
-    return Cat(EXPLORATION_HEADER, exploration.areas)
+ExplorationText :: (exploration: *Exploration) -> Text {
+    return Cat(EXPLORATION_HEADER, TextView(exploration.areas))
 }
 
 ExplorationSceneArea :: (name: string) -> string {

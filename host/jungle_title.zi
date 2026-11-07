@@ -247,13 +247,13 @@ TitleOnMap :: (scene: s32) -> bool {
 
 // Clouds clear around genuinely visited places, including those learned
 // from older activity progress. Looking at or hovering the map is no visit.
-TitleCloudCovered :: (exploration: Exploration, x: float32, y: float32) -> bool {
+TitleCloudCovered :: (exploration: *Exploration, x: float32, y: float32) -> bool {
     return TitleFogAlpha(TitleFogVisits(exploration), x, y) == cast(u8)255
 }
 
 // One bit per existing exploration ID; unknown future IDs stay in storage.
 // Rendering caches this value, never changing the saved exploration format.
-TitleFogVisits :: (exploration: Exploration) -> u32 {
+TitleFogVisits :: (exploration: *Exploration) -> u32 {
     visits: u32
     for area: cast(s32)0..TITLE_MAP_AREA_COUNT - 1 {
         if ExplorationHas(exploration,TITLE_MAP_AREA[area]) { visits |= cast(u32)1 << cast(u32)area }

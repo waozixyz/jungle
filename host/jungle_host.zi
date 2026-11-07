@@ -303,7 +303,7 @@ HostAwardsSave :: () {
 
 HostExplorationSave :: () {
     if !title_exploration.dirty || !title_exploration.valid || exploration_setting == "" { return }
-    if HostReplaceFile(exploration_setting, ExplorationText(title_exploration)) { title_exploration.dirty = false }
+    if HostReplaceFile(exploration_setting, ExplorationText(*title_exploration)) { title_exploration.dirty = false }
 }
 
 // <data>/treasure.txt: the toucan's gifts, saved the same way. An

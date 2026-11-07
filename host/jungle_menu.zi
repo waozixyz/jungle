@@ -250,7 +250,7 @@ TitleMapFog :: (session: Session, scene: s32, picture: Rectangle) {
         title_fog_image=Texture2D.{}
         title_fog_uploaded=false
     }
-    visits:=TitleFogVisits(title_exploration)
+    visits:=TitleFogVisits(*title_exploration)
     if !title_fog_mask_ready || title_fog_mask_visits!=visits {
         title_fog_mask_ready=TitleFogMask(visits,title_fog_pixels[:])
         title_fog_mask_visits=visits
@@ -617,7 +617,7 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
     action := MenuAction.{.game = -1}
     if !title_state.started { TitleStart(*title_state) }
     // Keys, pointer and glow see which world-map landmarks the fog still hides.
-    title_state.map_visits = TitleFogVisits(title_exploration)
+    title_state.map_visits = TitleFogVisits(*title_exploration)
     if guide_seen {
         TitleGuideSkip(*title_state)
         title_state.guide_finished_reported = true
