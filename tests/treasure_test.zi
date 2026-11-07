@@ -9,58 +9,58 @@ main :: () -> s32 {
     // A missing file is a fresh, valid start: the toucan waits with its letter.
     fresh := TreasureParse("")
     if !fresh.valid || fresh.intro_seen || fresh.day != 0 || fresh.next != 0 { return 1 }
-    if TreasureText(fresh) != "JUNGLE TREASURE 1\nintro no\nday 0\nnext 0\n" { return 2 }
-    if ToucanOffer(fresh, 20261105) != TOUCAN_OFFER_INTRO { return 3 }
+    if TreasureText(*fresh) != "JUNGLE TREASURE 1\nintro no\nday 0\nnext 0\n" { return 2 }
+    if ToucanOffer(*fresh, 20261105) != TOUCAN_OFFER_INTRO { return 3 }
     // Even an unknown clock shows the letter.
-    if ToucanOffer(fresh, 0) != TOUCAN_OFFER_INTRO { return 4 }
+    if ToucanOffer(*fresh, 0) != TOUCAN_OFFER_INTRO { return 4 }
 
     // The letter is that day's visit: nothing more until the next local day.
-    state := fresh
+    state := TreasureParse("")
     if ToucanClaim(*state, 20261105) != TOUCAN_OFFER_INTRO || !state.intro_seen || state.day != 20261105 { return 5 }
-    if ToucanOffer(state, 20261105) != TOUCAN_OFFER_NONE { return 6 }
-    if ToucanClaim(*state, 20261105) != TOUCAN_OFFER_NONE || state.items.count != 0 { return 7 }
+    if ToucanOffer(*state, 20261105) != TOUCAN_OFFER_NONE { return 6 }
+    if ToucanClaim(*state, 20261105) != TOUCAN_OFFER_NONE || TextView(state.items).count != 0 { return 7 }
 
     // The next day brings the first reward, a stencil; the same day nothing more.
-    if ToucanOffer(state, 20261106) != 0 || toucan_reward_kinds[0] != TOUCAN_REWARD_STENCIL { return 8 }
-    if ToucanClaim(*state, 20261106) != 0 || !TreasureRewardClaimed(state, 0) || state.next != 1 || state.day != 20261106 { return 9 }
+    if ToucanOffer(*state, 20261106) != 0 || toucan_reward_kinds[0] != TOUCAN_REWARD_STENCIL { return 8 }
+    if ToucanClaim(*state, 20261106) != 0 || !TreasureRewardClaimed(*state, 0) || state.next != 1 || state.day != 20261106 { return 9 }
     if ToucanClaim(*state, 20261106) != TOUCAN_OFFER_NONE || state.next != 1 { return 10 }
 
     // A clock moved backwards never grants another reward.
-    if ToucanOffer(state, 20261101) != TOUCAN_OFFER_NONE { return 11 }
+    if ToucanOffer(*state, 20261101) != TOUCAN_OFFER_NONE { return 11 }
     if ToucanClaim(*state, 20261101) != TOUCAN_OFFER_NONE || state.day != 20261106 { return 12 }
     if ToucanClaim(*state, 0) != TOUCAN_OFFER_NONE { return 13 }
 
     // A later day (even skipping several) brings only the next one: a treasure.
     if ToucanClaim(*state, 20261120) != 1 || toucan_reward_kinds[1] != TOUCAN_REWARD_TREASURE { return 14 }
-    if !TreasureHas(state, "shell-necklace") || state.next != 2 { return 15 }
-    if TreasureMask(state) != "3" || TreasureMask(fresh) != "0" { return 16 }
+    if !TreasureHas(*state, "shell-necklace") || state.next != 2 { return 15 }
+    if TreasureMask(state.items) != "3" || TreasureMask(fresh.items) != "0" { return 16 }
 
     // Saved and reopened, the schedule continues exactly.
-    saved := TreasureText(state)
+    saved := TreasureText(*state)
     if saved != "JUNGLE TREASURE 1\nintro yes\nday 20261120\nnext 2\npineapple\nshell-necklace\n" { return 17 }
     reopened := TreasureParse(saved)
-    if !reopened.valid || TreasureText(reopened) != saved { return 18 }
-    if ToucanOffer(reopened, 20261120) != TOUCAN_OFFER_NONE || ToucanOffer(reopened, 20261121) != 2 { return 19 }
+    if !reopened.valid || TreasureText(*reopened) != saved { return 18 }
+    if ToucanOffer(*reopened, 20261120) != TOUCAN_OFFER_NONE || ToucanOffer(*reopened, 20261121) != 2 { return 19 }
 
     // Every reward comes once; afterwards the toucan visits empty-beaked.
     day: s32 = 20261201
-    while ToucanOffer(reopened, day) >= 0 {
+    while ToucanOffer(*reopened, day) >= 0 {
         unused ToucanClaim(*reopened, day)
         day += 1
     }
     if reopened.next != TOUCAN_REWARD_COUNT { return 20 }
     for index: cast(s32)0..TOUCAN_REWARD_COUNT - 1 {
-        if !TreasureRewardClaimed(reopened, index) { return 21 }
+        if !TreasureRewardClaimed(*reopened, index) { return 21 }
     }
-    if ToucanOffer(reopened, 20301231) != TOUCAN_OFFER_NONE { return 22 }
+    if ToucanOffer(*reopened, 20301231) != TOUCAN_OFFER_NONE { return 22 }
 
     // A reward already in the save is skipped, never given twice.
     skipped := TreasureParse("JUNGLE TREASURE 1\nintro yes\nday 20261105\nnext 0\npineapple\n")
-    if !skipped.valid || ToucanOffer(skipped, 20261106) != 1 { return 23 }
+    if !skipped.valid || ToucanOffer(*skipped, 20261106) != 1 { return 23 }
 
     // CRLF, repeats and slugs from a newer version are kept in canonical order.
     mixed := TreasureParse("JUNGLE TREASURE 1\r\nintro yes\r\nday 20261105\r\nnext 3\r\nfuture-gem\r\nsloth\r\npineapple\r\nsloth\r\n")
-    if !mixed.valid || TreasureText(mixed) != "JUNGLE TREASURE 1\nintro yes\nday 20261105\nnext 3\npineapple\nsloth\nfuture-gem\n" { return 24 }
+    if !mixed.valid || TreasureText(*mixed) != "JUNGLE TREASURE 1\nintro yes\nday 20261105\nnext 3\npineapple\nsloth\nfuture-gem\n" { return 24 }
 
     // Corrupt saves are invalid, so the caller never writes over them, and
     // the toucan stays an ordinary visitor.
@@ -76,7 +76,7 @@ main :: () -> s32 {
     for index: cast(s32)0..8 {
         bad := TreasureParse(corrupt[index])
         if bad.valid { return 30 + index }
-        if ToucanOffer(bad, 20261106) != TOUCAN_OFFER_NONE || ToucanClaim(*bad, 20261106) != TOUCAN_OFFER_NONE { return 40 + index }
+        if ToucanOffer(*bad, 20261106) != TOUCAN_OFFER_NONE || ToucanClaim(*bad, 20261106) != TOUCAN_OFFER_NONE { return 40 + index }
     }
 
     // The chest lists the treasures in their order; stencils stay in Paint.

@@ -595,7 +595,7 @@ TitleObjects :: (session: Session, scene: s32, picture: Rectangle, view: TitleVi
 
 // SCENE's waiting paper, then the foreground layer that hides most of it.
 TitlePaperUnder :: (session: Session, scene: s32, picture: Rectangle, view: TitleView, bounds: Rectangle,
-    collection: Collection, layered: bool, now: float64) {
+    collection: *Collection, layered: bool, now: float64) {
     if !layered { return }
     paper := TitlePaperSpot(scene, view, bounds.width, bounds.height)
     if paper.index >= 0 && SecretPaperShown(title_papers.papers[paper.index], paper.index,
@@ -613,7 +613,7 @@ TitlePaperUnder :: (session: Session, scene: s32, picture: Rectangle, view: Titl
 // COLLECTION is what the child has earned; COLLECT earns a scene's paper.
 JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font: string,
     games: []MenuGame, choice: *s32, sound_muted: bool, guide_muted: bool, guide_seen: bool,
-    message: string, collection: Collection, collect: SecretPaperCollect) -> MenuAction {
+    message: string, collection: *Collection, collect: SecretPaperCollect) -> MenuAction {
     action := MenuAction.{.game = -1}
     if !title_state.started { TitleStart(*title_state) }
     if guide_seen {
@@ -937,7 +937,7 @@ TitlePaperFlights :: (x: s32, y: s32, width: s32, height: s32, now: float64) {
 }
 
 // Shared by native desktop/Android and web. Back belongs to the album while open.
-CollectionBookFrame :: (session: Session, bounds: Rectangle, key: s32, now: float64, muted: bool, collection: Collection) -> bool {
+CollectionBookFrame :: (session: Session, bounds: Rectangle, key: s32, now: float64, muted: bool, collection: *Collection) -> bool {
     bar := GameTitleBar(session, bounds, key, now, "Collection Book", muted)
     AlbumContent(collection, cast(s32)bounds.width, cast(s32)bounds.height)
     if bar.back || key == 256 { CollectionBookBack() }

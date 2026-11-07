@@ -40,7 +40,7 @@ TreasureChestButton :: (x: s32, y: s32) -> bool {
     return button.clicked
 }
 
-TreasureChestContent :: (treasure: Treasure, width: s32, height: s32) {
+TreasureChestContent :: (treasure: *Treasure, width: s32, height: s32) {
     BookBox(0, 56, width, height - 56, 0xfffcf3ff)
     if treasure_chest_selected >= 0 {
         reward := treasure_chest_selected

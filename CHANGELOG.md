@@ -3,6 +3,7 @@
 ## [Unreleased]
 
 - Use less memory while painting and saving games, so long sessions stay smooth.
+- The Collection Book, Treasure Chest, Picture Book and stories use less memory during long play.
 
 ## 0.1.39
 

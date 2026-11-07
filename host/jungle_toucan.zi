@@ -106,7 +106,7 @@ ToucanDraw :: (session: Session, path: string, scene_rect: Rectangle, picture: R
 ToucanRewardFrame :: (session: Session, index: s32, scene: s32, picture: Rectangle, view: TitleView, now: float64,
     fleeing: bool) -> (handled: bool, flee: bool, flee_x: float32, flee_y: float32) {
     if !ToucanEntry(index) || fleeing { return false, false, 0.0, 0.0 }
-    offer := ToucanOffer(toucan_treasure, toucan_today)
+    offer := ToucanOffer(*toucan_treasure, toucan_today)
     if offer == TOUCAN_OFFER_NONE { return false, false, 0.0, 0.0 }
     item := ToucanCarriedPicture(offer)
     perch := ToucanPose("toucan-perch-hold")

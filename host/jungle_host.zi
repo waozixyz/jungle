@@ -275,14 +275,19 @@ HostCollect :: (slug: string) -> s32 {
 
 HostCollectionService :: (service: string, request: string) -> string {
     reply, changed := CollectionService(*jungle_collection, service, request)
-    // Written whole beside the old file, then renamed over it. A failed write keeps the item in
-    // memory; the next new item writes them all.
-    if changed && collection_setting != "" {
-        next := Cat(collection_setting, ".new")
-        saved := WriteEntireFile(next, CollectionText(jungle_collection)) && RenamePath(next, collection_setting)
-        if !saved { unused RemoveFile(next) }
-    }
+    if changed { HostCollectionSave() }
     return reply
+}
+
+// Written whole beside the old file, then renamed over it. A failed write keeps the item in
+// memory; the next new item writes them all. The write is its own statement, in a procedure
+// that does not change the collection, so the text is freed once written.
+HostCollectionSave :: () {
+    if collection_setting == "" { return }
+    next := Cat(collection_setting, ".new")
+    saved := WriteEntireFile(next, CollectionText(jungle_collection.slugs))
+    if saved { saved = RenamePath(next, collection_setting) }
+    if !saved { unused RemoveFile(next) }
 }
 
 // <data>/awards.txt, written whole beside the old file and renamed over it,
@@ -311,7 +316,8 @@ treasure_day_checked: float64 = -1.0;
 HostTreasureSave :: () {
     if treasure_setting == "" || !toucan_treasure.valid { return }
     next := Cat(treasure_setting, ".new")
-    saved := WriteEntireFile(next, TreasureText(toucan_treasure)) && RenamePath(next, treasure_setting)
+    saved := WriteEntireFile(next, TreasureText(*toucan_treasure))
+    if saved { saved = RenamePath(next, treasure_setting) }
     if !saved { unused RemoveFile(next) }
 }
 
@@ -420,7 +426,7 @@ GameServices :: (context: *void, module: *u8, function: *u8,
             return 1
         }
         if service == "jungle.collection" {
-            result.* = Reply(CollectionMask(jungle_collection))
+            result.* = Reply(CollectionMask(jungle_collection.slugs))
             return 1
         }
         if service == "jungle.collect" {
@@ -428,7 +434,7 @@ GameServices :: (context: *void, module: *u8, function: *u8,
             return 1
         }
         if service == "jungle.treasure" {
-            result.* = Reply(TreasureMask(toucan_treasure))
+            result.* = Reply(TreasureMask(toucan_treasure.items))
             return 1
         }
         if service == "jungle.book-start" { result.* = Reply(title_book_requested); return 1 }
@@ -607,7 +613,7 @@ GameFrame :: (bounds: Rectangle, pointer: PointerFrame, secondary: SecondaryPoin
     if BeginFrame(app.session, cast(u64)1, bounds) != FrameStatus.FrameOk { return false }
     if collection_book_open {
         unused CursorSet(app.session, .{})
-        if CollectionBookFrame(app.session, bounds, key, seconds, sound_muted, jungle_collection) { ToggleSound() }
+        if CollectionBookFrame(app.session, bounds, key, seconds, sound_muted, *jungle_collection) { ToggleSound() }
         return EndFrame(app.session) == FrameStatus.FrameOk
     }
     bundle_drawing_app = *game
@@ -656,11 +662,11 @@ Menu :: (session: Session, bounds: Rectangle, key: s32) {
     HostAlbumPaths()
     unused ApplyTitleOrientationPolicy(true)
     if collection_book_open {
-        if CollectionBookFrame(session, bounds, key, JungleSeconds(), sound_muted, jungle_collection) { ToggleSound() }
+        if CollectionBookFrame(session, bounds, key, JungleSeconds(), sound_muted, *jungle_collection) { ToggleSound() }
         return
     }
     if treasure_chest_open {
-        if TreasureChestFrame(session, bounds, key, JungleSeconds(), sound_muted, toucan_treasure) { ToggleSound() }
+        if TreasureChestFrame(session, bounds, key, JungleSeconds(), sound_muted, *toucan_treasure) { ToggleSound() }
         return
     }
     HostTreasureToday(JungleSeconds())
@@ -670,7 +676,7 @@ Menu :: (session: Session, bounds: Rectangle, key: s32) {
         if TitleOpenSceneFromGame(*title_state, scene) { SoundPlay("assets/jungle/sounds/select.wav") }
     }
     action := JungleMenu(session, bounds, key, JungleSeconds(), FONT, games[:game_count], *chosen,
-        sound_muted, title_guide_muted, title_guide_seen, message, jungle_collection, TitlePaperCollect)
+        sound_muted, title_guide_muted, title_guide_seen, message, *jungle_collection, TitlePaperCollect)
     HostExplorationSave()
     if title_guide_playing && (action.guide_stop || action.language_changed ||
         (action.guide_mute_toggle && !title_guide_muted)) {

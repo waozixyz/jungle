@@ -76,7 +76,7 @@ AlbumPicture :: (index: s32, x: s32, y: s32, width: s32, height: s32) {
     BookPicture(path, x, y, width, height)
 }
 
-AlbumHas :: (collection: Collection, index: s32) -> bool {
+AlbumHas :: (collection: *Collection, index: s32) -> bool {
     if index < AWARD_COUNT { return awards_earned.earned[index] }
     return CollectionHas(collection, collectible_slugs[index - AWARD_COUNT])
 }
@@ -92,7 +92,7 @@ AlbumTapId :: (index: s32) -> s32 {
     return ifx index < AWARD_COUNT then 9200 + index else 9100 + index - AWARD_COUNT
 }
 
-AlbumContent :: (collection: Collection, width: s32, height: s32) {
+AlbumContent :: (collection: *Collection, width: s32, height: s32) {
     BookBox(0, 56, width, height - 56, 0xfffcf3ff)
     if album_selected >= 0 {
         AlbumPicture(album_selected, 16, 72, width - 32, height - 88)

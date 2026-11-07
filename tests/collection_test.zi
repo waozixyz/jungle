@@ -6,33 +6,34 @@
 main :: () -> s32 {
     // A missing file is an empty, valid collection.
     empty := CollectionParse("")
-    if !empty.valid || CollectionText(empty) != "JUNGLE COLLECTION 1\n" { return 1 }
+    if !empty.valid || CollectionText(empty.slugs) != "JUNGLE COLLECTION 1\n" { return 1 }
     header := CollectionParse("JUNGLE COLLECTION 1")
-    if !header.valid || header.slugs.count != 0 { return 2 }
+    if !header.valid || TextView(header.slugs).count != 0 { return 2 }
 
     // A corrupt header or line is empty and marked invalid so the caller keeps the old file.
     wrong := CollectionParse("JUNGLE COLLECTION 0\nmonkey\n")
-    if wrong.valid || CollectionText(wrong) != "JUNGLE COLLECTION 1\n" { return 3 }
+    if wrong.valid || CollectionText(wrong.slugs) != "JUNGLE COLLECTION 1\n" { return 3 }
     longer := CollectionParse("JUNGLE COLLECTION 10\nmonkey\n")
-    if longer.valid || longer.slugs.count != 0 { return 4 }
+    if longer.valid || TextView(longer.slugs).count != 0 { return 4 }
     bad_line := CollectionParse("JUNGLE COLLECTION 1\nmonkey\nNot-a-slug\n")
-    if bad_line.valid || bad_line.slugs.count != 0 { return 5 }
+    if bad_line.valid || TextView(bad_line.slugs).count != 0 { return 5 }
 
     // Duplicates collapse, known slugs sort by id, unknown slugs stay after them.
     duplicated := CollectionParse("JUNGLE COLLECTION 1\nsnail\nfuture-slug\nmonkey\nsnail\nfuture-slug\r\n")
     if !duplicated.valid ||
-        CollectionText(duplicated) != "JUNGLE COLLECTION 1\nmonkey\nsnail\nfuture-slug\n" { return 6 }
-    again := CollectionParse(CollectionText(duplicated))
-    if !again.valid || CollectionText(again) != CollectionText(duplicated) { return 7 }
+        CollectionText(duplicated.slugs) != "JUNGLE COLLECTION 1\nmonkey\nsnail\nfuture-slug\n" { return 6 }
+    again := CollectionParse(CollectionText(duplicated.slugs))
+    if !again.valid || CollectionText(again.slugs) != CollectionText(duplicated.slugs) { return 7 }
 
     crlf := CollectionParse("JUNGLE COLLECTION 1\r\nmonkey\r\ntreehouse-scene\r\n")
-    if !crlf.valid || CollectionText(crlf) != "JUNGLE COLLECTION 1\nmonkey\ntreehouse-scene\n" { return 8 }
+    if !crlf.valid || CollectionText(crlf.slugs) != "JUNGLE COLLECTION 1\nmonkey\ntreehouse-scene\n" { return 8 }
 
     // Each collectible is gained once; only the registry knows slugs.
     if CollectionAdd(*crlf, "monkey") != 0 || CollectionAdd(*crlf, "future-slug") != -1 ||
         CollectionAdd(*crlf, "panda") != 1 || CollectionAdd(*crlf, "panda") != 0 { return 9 }
-    if CollectionText(crlf) != "JUNGLE COLLECTION 1\nmonkey\ntreehouse-scene\npanda\n" { return 10 }
-    if CollectionText(CollectionParse(CollectionText(crlf))) !=
+    if CollectionText(crlf.slugs) != "JUNGLE COLLECTION 1\nmonkey\ntreehouse-scene\npanda\n" { return 10 }
+    reloaded := CollectionParse(CollectionText(crlf.slugs))
+    if CollectionText(reloaded.slugs) !=
         "JUNGLE COLLECTION 1\nmonkey\npanda\ntreehouse-scene\n" { return 11 }
 
     if CollectibleBySlug("toucan") != 7 || collectible_ids[CollectibleBySlug("toucan")] != 7 ||
@@ -42,32 +43,32 @@ main :: () -> s32 {
         CollectibleForTitle("music") != 14 { return 12 }
 
     // Ids 0, 1 and 11: digit 0 = 1 + 2, digit 1 = 0, digit 2 = 8.
-    mask := CollectionMask(crlf)
+    mask := CollectionMask(crlf.slugs)
     if mask != "308" { return 13 }
     if !CollectionMaskHas(mask, 0) || !CollectionMaskHas(mask, 1) || !CollectionMaskHas(mask, 11) ||
         CollectionMaskHas(mask, 4) || CollectionMaskHas(mask, 14) ||
         CollectionMaskHas(mask, -1) || CollectionMaskHas(mask, 252) { return 14 }
     CollectionAdd(*crlf, "music-scene")
-    if CollectionMask(crlf) != "3084" || !CollectionMaskHas("3084", 14) { return 15 }
+    if CollectionMask(crlf.slugs) != "3084" || !CollectionMaskHas("3084", 14) { return 15 }
 
     ladybug: Collection
     CollectionAdd(*ladybug, "ladybug")
-    if CollectionMask(ladybug) != "01" || !CollectionMaskHas("01", 4) || CollectionMaskHas("01", 0) { return 16 }
-    if CollectionMask(empty) != "0" || CollectionMaskHas("0", 0) || CollectionMaskHas("308G", 0) ||
+    if CollectionMask(ladybug.slugs) != "01" || !CollectionMaskHas("01", 4) || CollectionMaskHas("01", 0) { return 16 }
+    if CollectionMask(empty.slugs) != "0" || CollectionMaskHas("0", 0) || CollectionMaskHas("308G", 0) ||
         CollectionMaskHas("", 0) { return 17 }
 
     // The services games call: each item is new exactly once and the mask follows it.
     store := CollectionParse("")
-    if CollectionMask(store) != "0" { return 18 }
+    if CollectionMask(store.slugs) != "0" { return 18 }
     reply, changed := CollectionService(*store, "jungle.collect", "zebra")
-    if reply != "new" || !changed || CollectionText(store) != "JUNGLE COLLECTION 1\nzebra\n" { return 19 }
+    if reply != "new" || !changed || CollectionText(store.slugs) != "JUNGLE COLLECTION 1\nzebra\n" { return 19 }
     reply, changed = CollectionService(*store, "jungle.collect", "zebra")
     if reply != "had" || changed { return 20 }
     reply, changed = CollectionService(*store, "jungle.collect", "future-slug")
     if reply != "unknown" || changed { return 21 }
     reply, changed = CollectionService(*store, "jungle.collect", "")
-    if reply != "unknown" || changed || CollectionText(store) != "JUNGLE COLLECTION 1\nzebra\n" { return 22 }
-    zebra_mask := CollectionMask(store)
+    if reply != "unknown" || changed || CollectionText(store.slugs) != "JUNGLE COLLECTION 1\nzebra\n" { return 22 }
+    zebra_mask := CollectionMask(store.slugs)
     if zebra_mask != "4" || !CollectionMaskHas(zebra_mask, 2) { return 23 }
     reply, changed = CollectionService(*store, "jungle.sound", "zebra")
     if reply != "" || changed { return 24 }
@@ -78,7 +79,8 @@ main :: () -> s32 {
     if reply != "had" || changed { return 25 }
     reply, changed = CollectionService(*saved, "jungle.collect", "toucan")
     if reply != "new" || !changed { return 26 }
-    if CollectionText(CollectionParse(CollectionText(saved))) !=
+    reopened := CollectionParse(CollectionText(saved.slugs))
+    if CollectionText(reopened.slugs) !=
         "JUNGLE COLLECTION 1\nmonkey\ntoucan\nfuture-slug\n" { return 27 }
 
     // A corrupt file still collects for the session but never asks to be overwritten.
@@ -88,7 +90,7 @@ main :: () -> s32 {
     reply, changed = CollectionService(*corrupt, "jungle.collect", "panda")
     if reply != "had" || changed { return 29 }
     reply, changed = CollectionService(*corrupt, "jungle.collection", "")
-    if reply != "" || changed || CollectionMask(corrupt) != "2" { return 30 }
+    if reply != "" || changed || CollectionMask(corrupt.slugs) != "2" { return 30 }
     unloaded: Collection
     reply, changed = CollectionService(*unloaded, "jungle.collect", "snail")
     if reply != "new" || changed { return 31 }

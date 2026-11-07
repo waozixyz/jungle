@@ -6,7 +6,7 @@
 #import, file "jungle_treasure.zi";
 #import, file "jungle_treasure_chest.zi";
 
-TreasureChestFrame :: (session: Session, bounds: Rectangle, key: s32, now: float64, muted: bool, treasure: Treasure) -> bool {
+TreasureChestFrame :: (session: Session, bounds: Rectangle, key: s32, now: float64, muted: bool, treasure: *Treasure) -> bool {
     bar := GameTitleBar(session, bounds, key, now, "Treasure Chest", muted)
     TreasureChestContent(treasure, cast(s32)bounds.width, cast(s32)bounds.height)
     if bar.back || key == 256 { TreasureChestBack() }

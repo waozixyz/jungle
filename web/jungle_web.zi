@@ -344,7 +344,7 @@ WebExplorationSave :: () {
 // The toucan's gifts, in the settings/treasure.txt document; see host/jungle_treasure.zi.
 WebTreasureSave :: () {
     if toucan_treasure.valid {
-        if Runner.DocumentWriteHost("settings/treasure.txt", TreasureText(toucan_treasure)) { unused Runner.DocumentFlushHost() }
+        if Runner.DocumentWriteHost("settings/treasure.txt", TreasureText(*toucan_treasure)) { unused Runner.DocumentFlushHost() }
     }
 }
 
@@ -354,8 +354,13 @@ WebAwardsSave :: () {
 
 WebCollectionService :: (service: string, request: string) -> string {
     reply, changed := CollectionService(*web_collection, service, request)
-    if changed { unused Runner.DocumentWriteHost("settings/collection.txt", CollectionText(web_collection)) }
+    if changed { WebCollectionSave() }
     return reply
+}
+
+// Apart from the service, which changes the collection, so the text is freed once written.
+WebCollectionSave :: () {
+    unused Runner.DocumentWriteHost("settings/collection.txt", CollectionText(web_collection.slugs))
 }
 
 #program_export
@@ -418,9 +423,9 @@ WebService :: (name: string, request: string) -> string {
         }
         return "ok"
     }
-    if name == "jungle.collection" { return WebReply(CollectionMask(web_collection)) }
+    if name == "jungle.collection" { return WebReply(CollectionMask(web_collection.slugs)) }
     if name == "jungle.collect" { return WebCollectionService(name, request) }
-    if name == "jungle.treasure" { return WebReply(TreasureMask(toucan_treasure)) }
+    if name == "jungle.treasure" { return WebReply(TreasureMask(toucan_treasure.items)) }
     if name == "jungle.book-start" { return title_book_requested }
     // Picture Book's open book downloads alone, then the next one in the
     // background (index.html jungleBookOpen); "back" once its download was left.
@@ -570,11 +575,11 @@ JungleMain :: () -> s64 {
     // Games share this session; only a drawing game keeps its own cursor.
     if collection_book_open || active_game < 0 { unused CursorSet(AppSession(), .{}) }
     if collection_book_open {
-        if CollectionBookFrame(AppSession(), AppBounds(), key, AppNow(), web_muted, web_collection) { ToggleAudio() }
+        if CollectionBookFrame(AppSession(), AppBounds(), key, AppNow(), web_muted, *web_collection) { ToggleAudio() }
         return 0
     }
     if treasure_chest_open {
-        if TreasureChestFrame(AppSession(), AppBounds(), key, AppNow(), web_muted, toucan_treasure) { ToggleAudio() }
+        if TreasureChestFrame(AppSession(), AppBounds(), key, AppNow(), web_muted, *toucan_treasure) { ToggleAudio() }
         return 0
     }
     toucan_today = TreasureToday()
@@ -591,7 +596,7 @@ JungleMain :: () -> s64 {
         }
         if scene_status != 1 { return 0 }
         action := JungleMenu(AppSession(), AppBounds(), key, AppNow(), "assets/jungle/font.png", web_games[:],
-            *selected, web_muted, web_title_guide_muted, web_title_guide_seen, "", web_collection, WebTitlePaperCollect)
+            *selected, web_muted, web_title_guide_muted, web_title_guide_seen, "", *web_collection, WebTitlePaperCollect)
         WebExplorationSave()
         if action.paper_collected { PlayAudio(TITLE_PAPER_CHIME, false) }
         if web_title_guide && (action.guide_stop || action.language_changed ||

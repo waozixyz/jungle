@@ -68,15 +68,15 @@ Treasure :: struct {
     next: s32
     // Claimed reward slugs, newline-terminated; known ones in reward order
     // first, then any a newer version added.
-    items: string
+    items: Text
     valid: bool
 }
 
-TreasureHas :: (treasure: Treasure, slug: string) -> bool {
+TreasureHas :: (treasure: *Treasure, slug: string) -> bool {
     return CollectionHasSlug(treasure.items, slug)
 }
 
-TreasureRewardClaimed :: (treasure: Treasure, index: s32) -> bool {
+TreasureRewardClaimed :: (treasure: *Treasure, index: s32) -> bool {
     return index >= 0 && index < TOUCAN_REWARD_COUNT && TreasureHas(treasure, toucan_reward_slugs[index])
 }
 
@@ -101,9 +101,12 @@ TreasureDayValid :: (day: s32) -> bool {
 }
 
 TreasureParse :: (text: string) -> Treasure {
-    parsed: Treasure
-    if text.count == 0 { parsed.valid = true; return parsed }
-    if text.count > TREASURE_TEXT_LIMIT { return parsed }
+    // A record literal takes the owned items; every failure returns an empty invalid one.
+    if text.count == 0 { return Treasure.{.valid = true} }
+    intro_seen := false
+    day: s32 = 0
+    next: s32 = 0
+    if text.count > TREASURE_TEXT_LIMIT { return Treasure.{} }
     raw: Text
     line_number: s32 = 0
     at: s64 = 0
@@ -114,25 +117,25 @@ TreasureParse :: (text: string) -> Treasure {
         if line.count > 0 && line[line.count - 1] == cast(u8)13 { line = line[:line.count - 1] }
         at = end + 1
         if line_number == 0 {
-            if line != TREASURE_HEADER_LINE { return parsed }
+            if line != TREASURE_HEADER_LINE { return Treasure.{} }
         } else if line_number == 1 {
-            if line == "intro yes" { parsed.intro_seen = true }
-            else if line != "intro no" { return parsed }
+            if line == "intro yes" { intro_seen = true }
+            else if line != "intro no" { return Treasure.{} }
         } else if line_number == 2 {
-            if line.count < 5 || line[:4] != "day " { return parsed }
-            parsed.day = TreasureNumber(line[4:])
-            if parsed.day < 0 || !TreasureDayValid(parsed.day) { return parsed }
+            if line.count < 5 || line[:4] != "day " { return Treasure.{} }
+            day = TreasureNumber(line[4:])
+            if day < 0 || !TreasureDayValid(day) { return Treasure.{} }
         } else if line_number == 3 {
-            if line.count < 6 || line[:5] != "next " { return parsed }
-            parsed.next = TreasureNumber(line[5:])
-            if parsed.next < 0 || parsed.next > TREASURE_NEXT_LIMIT { return parsed }
+            if line.count < 6 || line[:5] != "next " { return Treasure.{} }
+            next = TreasureNumber(line[5:])
+            if next < 0 || next > TREASURE_NEXT_LIMIT { return Treasure.{} }
         } else if line.count > 0 {
-            if !CollectionSlugValid(line) { return parsed }
+            if !CollectionSlugValid(line) { return Treasure.{} }
             CollectionAppend(*raw, line) // A repeated slug is skipped.
         }
         line_number += 1
     }
-    if line_number < 4 { return parsed }
+    if line_number < 4 { return Treasure.{} }
     canonical: Text
     for index: cast(s32)0..TOUCAN_REWARD_COUNT - 1 {
         if CollectionHasSlug(raw, toucan_reward_slugs[index]) { CollectionAppend(*canonical, toucan_reward_slugs[index]) }
@@ -146,25 +149,24 @@ TreasureParse :: (text: string) -> Treasure {
         if ToucanRewardBySlug(slug) < 0 { CollectionAppend(*canonical, slug) }
         at = end + 1
     }
-    parsed.items = TextDetach(canonical)
-    parsed.valid = true
-    return parsed
+    return Treasure.{.intro_seen = intro_seen, .day = day, .next = next, .items = canonical, .valid = true}
 }
 
-TreasureText :: (treasure: Treasure) -> Text {
+TreasureText :: (treasure: *Treasure) -> Text {
     bytes: Vec(u8)
+    items := TextView(treasure.items)
     BuilderPrint(*bytes, "%", TREASURE_HEADER)
     BuilderPrint(*bytes, "%", ifx treasure.intro_seen then "intro yes\n" else "intro no\n")
     day := NumberText(treasure.day)
     next := NumberText(treasure.next)
     BuilderPrint(*bytes, "day %\nnext %\n", day, next)
-    BuilderPrint(*bytes, "%", treasure.items)
+    BuilderPrint(*bytes, "%", items)
     return BuilderFinish(bytes)
 }
 
 // What the toucan holds on local day TODAY (YYYYMMDD; 0 when the clock is
 // unknown). An invalid save keeps the toucan an ordinary visitor.
-ToucanOffer :: (treasure: Treasure, today: s32) -> s32 {
+ToucanOffer :: (treasure: *Treasure, today: s32) -> s32 {
     if !treasure.valid { return TOUCAN_OFFER_NONE }
     if !treasure.intro_seen { return TOUCAN_OFFER_INTRO }
     // The same day, or a clock set back before the last gift: nothing new.
@@ -178,7 +180,7 @@ ToucanOffer :: (treasure: Treasure, today: s32) -> s32 {
 // nothing). The intro counts as that day's visit, so the first reward comes
 // on the next local day.
 ToucanClaim :: (treasure: *Treasure, today: s32) -> s32 {
-    offer := ToucanOffer(treasure.*, today)
+    offer := ToucanOffer(treasure, today)
     if offer == TOUCAN_OFFER_INTRO {
         treasure.intro_seen = true
         if today > treasure.day { treasure.day = today }
@@ -192,11 +194,12 @@ ToucanClaim :: (treasure: *Treasure, today: s32) -> s32 {
 
 // Hex digit i holds reward indices 4i..4i+3, as CollectionMask does; "0" when
 // none is claimed. Paint reads it through the jungle.treasure service.
-TreasureMask :: (treasure: Treasure) -> Text {
+// ITEMS is a Treasure's items, as in TreasureMask(treasure.items).
+TreasureMask :: (items: string) -> Text {
     values: [16]s32
     highest: s32 = -1
     for index: cast(s32)0..TOUCAN_REWARD_COUNT - 1 {
-        if !TreasureRewardClaimed(treasure, index) { continue }
+        if !CollectionHasSlug(items, toucan_reward_slugs[index]) { continue }
         values[index / 4] |= 1 << (index % 4)
         highest = index
     }

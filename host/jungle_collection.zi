@@ -11,7 +11,7 @@ COLLECTION_SLUG_LIMIT :: 64
 // line parses as empty with valid = false: the caller must not write such a collection over
 // the file unless it chooses to discard the old contents.
 Collection :: struct {
-    slugs: string // Canonical newline-terminated slug storage; known slugs come first.
+    slugs: Text // Canonical newline-terminated slug storage; known slugs come first.
     valid: bool
 }
 
@@ -39,19 +39,8 @@ CollectionHasSlug :: (slugs: string, slug: string) -> bool {
     return false
 }
 
-CollectionHas :: (collection: Collection, slug: string) -> bool {
+CollectionHas :: (collection: *Collection, slug: string) -> bool {
     return CollectionHasSlug(collection.slugs, slug)
-}
-
-// Appends to a record's slug string, which keeps the new copy.
-CollectionAppend :: (slugs: *string, slug: string) -> bool {
-    if !CollectionSlugValid(slug) || CollectionHasSlug(slugs.*, slug) { return false }
-    bytes: Vec(u8)
-    BuilderPrint(*bytes, "%", slugs.*)
-    BuilderPrint(*bytes, "%", slug)
-    BuilderPrint(*bytes, "\n")
-    slugs.* = BuilderFinish(bytes)
-    return true
 }
 
 // Grows owned slug storage in place, as parsing does.
@@ -63,21 +52,18 @@ CollectionAppend :: (slugs: *Text, slug: string) -> bool {
 }
 
 CollectionParse :: (text: string) -> Collection {
-    parsed: Collection
-    if text.count == 0 {
-        parsed.valid = true
-        return parsed
-    }
+    // A record literal takes the owned slugs; every failure returns an empty invalid one.
+    if text.count == 0 { return Collection.{.valid = true} }
     if text.count > COLLECTION_TEXT_LIMIT || text.count < COLLECTION_HEADER_LINE.count ||
-        text[:COLLECTION_HEADER_LINE.count] != COLLECTION_HEADER_LINE { return parsed }
+        text[:COLLECTION_HEADER_LINE.count] != COLLECTION_HEADER_LINE { return Collection.{} }
 
     raw: Text
     at := COLLECTION_HEADER_LINE.count
     if at < text.count {
         if text[at] == cast(u8)13 {
-            if at + 1 >= text.count || text[at + 1] != cast(u8)10 { return parsed }
+            if at + 1 >= text.count || text[at + 1] != cast(u8)10 { return Collection.{} }
             at += 2
-        } else if text[at] == cast(u8)10 { at += 1 } else { return parsed }
+        } else if text[at] == cast(u8)10 { at += 1 } else { return Collection.{} }
     }
     while at < text.count {
         end := at
@@ -85,7 +71,7 @@ CollectionParse :: (text: string) -> Collection {
         line := text[at:end]
         if line.count > 0 && line[line.count - 1] == cast(u8)13 { line = line[:line.count - 1] }
         if line.count > 0 {
-            if !CollectionSlugValid(line) { return parsed }
+            if !CollectionSlugValid(line) { return Collection.{} }
             CollectionAppend(*raw, line) // A repeated slug is skipped.
         }
         at = end + 1
@@ -107,15 +93,15 @@ CollectionParse :: (text: string) -> Collection {
         if CollectibleBySlug(slug) < 0 { CollectionAppend(*canonical, slug) }
         at = end + 1
     }
-    parsed.slugs = TextDetach(canonical)
-    parsed.valid = true
-    return parsed
+    return Collection.{.slugs = canonical, .valid = true}
 }
 
-CollectionText :: (collection: Collection) -> Text {
+// SLUGS is a Collection's slugs, as in CollectionText(collection.slugs): the text and the
+// mask read only that view, so a caller's fresh result is freed after it is read.
+CollectionText :: (slugs: string) -> Text {
     bytes: Vec(u8)
     BuilderPrint(*bytes, "%", COLLECTION_HEADER)
-    BuilderPrint(*bytes, "%", collection.slugs)
+    BuilderPrint(*bytes, "%", slugs)
     return BuilderFinish(bytes)
 }
 
@@ -153,14 +139,14 @@ CollectionHexDigit :: (value: s32) -> string {
 
 // Hex digit i (from the left) holds ids 4i..4i+3, id 4i + b as bit value 1 << b. The text
 // ends at the digit of the highest collected id; an empty set is "0".
-CollectionMask :: (collection: Collection) -> Text {
+CollectionMask :: (slugs: string) -> Text {
     values: [63]s32
     highest: s32 = -1
     at: s64 = 0
-    while at < collection.slugs.count {
+    while at < slugs.count {
         end := at
-        while end < collection.slugs.count && collection.slugs[end] != cast(u8)10 { end += 1 }
-        index := CollectibleBySlug(collection.slugs[at:end])
+        while end < slugs.count && slugs[end] != cast(u8)10 { end += 1 }
+        index := CollectibleBySlug(slugs[at:end])
         if index >= 0 {
             id := collectible_ids[index]
             values[id / 4] |= 1 << (id % 4)
