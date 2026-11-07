@@ -36,7 +36,7 @@ award_pictures: [14]string = .["assets/jungle/awards/picture-book.avif", "assets
 // Slugs a newer version added are kept, in order, after the known ones.
 Awards :: struct {
     earned: [AWARD_COUNT]bool
-    later: string
+    later: Text // Newline-terminated slugs from a newer version, in file order.
     valid: bool
 }
 
@@ -77,19 +77,19 @@ AwardLineHas :: (lines: string, slug: string) -> bool {
 }
 
 AwardsParse :: (text: string) -> Awards {
-    parsed: Awards
-    if text.count == 0 { parsed.valid = true; return parsed }
+    // A record literal takes the owned later slugs; every failure returns an empty invalid one.
+    if text.count == 0 { return Awards.{.valid = true} }
     if text.count > AWARDS_TEXT_LIMIT || text.count < AWARDS_HEADER_LINE.count ||
-        text[:AWARDS_HEADER_LINE.count] != AWARDS_HEADER_LINE { return parsed }
+        text[:AWARDS_HEADER_LINE.count] != AWARDS_HEADER_LINE { return Awards.{} }
     at := AWARDS_HEADER_LINE.count
     if at < text.count {
         if text[at] == cast(u8)13 {
-            if at + 1 >= text.count || text[at + 1] != cast(u8)10 { return parsed }
+            if at + 1 >= text.count || text[at + 1] != cast(u8)10 { return Awards.{} }
             at += 2
-        } else if text[at] == cast(u8)10 { at += 1 } else { return parsed }
+        } else if text[at] == cast(u8)10 { at += 1 } else { return Awards.{} }
     }
     earned: [AWARD_COUNT]bool
-    later_text: string
+    later: Text
     while at < text.count {
         end := at
         while end < text.count && text[end] != cast(u8)10 { end += 1 }
@@ -97,35 +97,29 @@ AwardsParse :: (text: string) -> Awards {
         if line.count > 0 && line[line.count - 1] == cast(u8)13 { line = line[:line.count - 1] }
         at = end + 1
         if line.count == 0 { continue }
-        if !AwardSlugValid(line) { return parsed }
+        if !AwardSlugValid(line) { return Awards.{} }
         index := AwardBySlug(line)
         if index >= 0 { earned[index] = true }
-        else if !AwardLineHas(later_text, line) {
-            bytes: Vec(u8)
-            BuilderPrint(*bytes, "%", later_text)
-            BuilderPrint(*bytes, "%", line)
-            BuilderPrint(*bytes, "\n")
-            later_text = BuilderFinish(bytes)
+        else if !AwardLineHas(later, line) {
+            BuilderAppend(later.bytes, line)
+            BuilderAppend(later.bytes, "\n")
         }
     }
-    parsed.earned = earned
-    parsed.later = later_text
-    parsed.valid = true
-    return parsed
+    return Awards.{.earned = earned, .later = later, .valid = true}
 }
 
 // The canonical file: the header, earned awards in catalog order, then later slugs.
-AwardsText :: (awards: Awards) -> Text {
+AwardsText :: (awards: *Awards) -> Text {
     bytes: Vec(u8)
     BuilderPrint(*bytes, "%", AWARDS_HEADER)
     for index: cast(s32)0..AWARD_COUNT - 1 {
         if awards.earned[index] { BuilderPrint(*bytes, "%\n", award_slugs[index]) }
     }
-    BuilderPrint(*bytes, "%", awards.later)
+    BuilderPrint(*bytes, "%", TextView(awards.later))
     return BuilderFinish(bytes)
 }
 
-AwardsCount :: (awards: Awards) -> s32 {
+AwardsCount :: (awards: *Awards) -> s32 {
     count: s32 = 0
     for index: cast(s32)0..AWARD_COUNT - 1 {
         if awards.earned[index] { count += 1 }

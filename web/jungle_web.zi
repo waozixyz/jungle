@@ -349,7 +349,7 @@ WebTreasureSave :: () {
 }
 
 WebAwardsSave :: () {
-    if awards_earned.valid { unused Runner.DocumentWriteHost("settings/awards.txt", AwardsText(awards_earned)) }
+    if awards_earned.valid { unused Runner.DocumentWriteHost("settings/awards.txt", AwardsText(*awards_earned)) }
 }
 
 WebCollectionService :: (service: string, request: string) -> string {

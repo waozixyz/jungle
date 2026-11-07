@@ -279,33 +279,31 @@ HostCollectionService :: (service: string, request: string) -> string {
     return reply
 }
 
-// Written whole beside the old file, then renamed over it. A failed write keeps the item in
-// memory; the next new item writes them all. The write is its own statement, in a procedure
-// that does not change the collection, so the text is freed once written.
-HostCollectionSave :: () {
-    if collection_setting == "" { return }
-    next := Cat(collection_setting, ".new")
-    saved := WriteEntireFile(next, CollectionText(jungle_collection.slugs))
-    if saved { saved = RenamePath(next, collection_setting) }
-    if !saved { unused RemoveFile(next) }
+// Every save is written whole beside the old file, then renamed over it, so a failed write
+// never damages what was saved before.
+HostReplaceFile :: (path: string, text: string) -> bool {
+    next := Cat(path, ".new")
+    if WriteEntireFile(next, text) && RenamePath(next, path) { return true }
+    unused RemoveFile(next)
+    return false
 }
 
-// <data>/awards.txt, written whole beside the old file and renamed over it,
-// as the collection is. An unreadable or invalid file is never written over.
+// A failed write keeps the item in memory; the next new item writes them all.
+HostCollectionSave :: () {
+    if collection_setting != "" { unused HostReplaceFile(collection_setting, CollectionText(jungle_collection.slugs)) }
+}
+
+// <data>/awards.txt, saved as the collection is. An unreadable or invalid
+// file is never written over.
 awards_setting: string;
 
 HostAwardsSave :: () {
-    if awards_setting == "" || !awards_earned.valid { return }
-    next := Cat(awards_setting, ".new")
-    saved := WriteEntireFile(next, AwardsText(awards_earned)) && RenamePath(next, awards_setting)
-    if !saved { unused RemoveFile(next) }
+    if awards_setting != "" && awards_earned.valid { unused HostReplaceFile(awards_setting, AwardsText(*awards_earned)) }
 }
 
 HostExplorationSave :: () {
     if !title_exploration.dirty || !title_exploration.valid || exploration_setting == "" { return }
-    next := Cat(exploration_setting, ".new")
-    saved := WriteEntireFile(next, ExplorationText(title_exploration)) && RenamePath(next, exploration_setting)
-    if saved { title_exploration.dirty = false } else { unused RemoveFile(next) }
+    if HostReplaceFile(exploration_setting, ExplorationText(title_exploration)) { title_exploration.dirty = false }
 }
 
 // <data>/treasure.txt: the toucan's gifts, saved the same way. An
@@ -314,11 +312,7 @@ treasure_setting: string;
 treasure_day_checked: float64 = -1.0;
 
 HostTreasureSave :: () {
-    if treasure_setting == "" || !toucan_treasure.valid { return }
-    next := Cat(treasure_setting, ".new")
-    saved := WriteEntireFile(next, TreasureText(*toucan_treasure))
-    if saved { saved = RenamePath(next, treasure_setting) }
-    if !saved { unused RemoveFile(next) }
+    if treasure_setting != "" && toucan_treasure.valid { unused HostReplaceFile(treasure_setting, TreasureText(*toucan_treasure)) }
 }
 
 // The local calendar day, read again at most once a second.
@@ -352,8 +346,9 @@ WriteCanvas :: (request: string, preview: bool = false) -> string {
     data: string
     if preview { data = PaintPreviewPng(request) }
     else {
-        if PictureFromGame(request, canvas_pixels[:]) != request.count { return "" }
-        data = PngIndexed(CANVAS_WIDTH, CANVAS_HEIGHT, paint_colors[:], canvas_pixels[:])
+        page: PaintPage
+        if PictureFromGame(request, canvas_pixels[:], *page) != request.count { return "" }
+        data = PngIndexed(page.width, page.height, paint_colors[:], canvas_pixels[:])
     }
     return WriteCanvasPng(data)
 }
@@ -484,7 +479,8 @@ GameServices :: (context: *void, module: *u8, function: *u8,
         }
         if service == "jungle.paint-colors" {
             data := ""
-            if PictureFromGame(request, canvas_pixels[:]) == request.count { data = PaintViewColorsPng(canvas_pixels[:]) }
+            page: PaintPage
+            if PictureFromGame(request, canvas_pixels[:], *page) == request.count { data = PaintViewColorsPng(canvas_pixels[:], page) }
             result.* = Reply(WriteCanvasPng(data))
             return 1
         }

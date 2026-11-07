@@ -22,28 +22,31 @@ main :: () -> s32 {
 
     // Opening a game grants its award once: a second opening never celebrates again.
     awards := AwardsParse("")
-    if !awards.valid || AwardsCount(awards) != 0 || AwardsText(awards) != "JUNGLE AWARDS 1\n" { return 6 }
+    if !awards.valid || AwardsCount(*awards) != 0 || AwardsText(*awards) != "JUNGLE AWARDS 1\n" { return 6 }
     farm := AwardForBundle("jungle-garden.zx")
-    if !AwardGrant(*awards, farm) || AwardGrant(*awards, farm) || AwardsCount(awards) != 1 { return 7 }
-    if AwardGrant(*awards, -1) || AwardGrant(*awards, AWARD_COUNT) || AwardsCount(awards) != 1 { return 8 }
-    if !AwardGrant(*awards, 0) || AwardsText(awards) != "JUNGLE AWARDS 1\naward-picture-book\naward-farm\n" { return 9 }
+    if !AwardGrant(*awards, farm) || AwardGrant(*awards, farm) || AwardsCount(*awards) != 1 { return 7 }
+    if AwardGrant(*awards, -1) || AwardGrant(*awards, AWARD_COUNT) || AwardsCount(*awards) != 1 { return 8 }
+    if !AwardGrant(*awards, 0) || AwardsText(*awards) != "JUNGLE AWARDS 1\naward-picture-book\naward-farm\n" { return 9 }
 
     // Saved and read back unchanged; duplicates collapse to catalog order and
     // slugs from a newer version are kept after the known ones.
-    again := AwardsParse(AwardsText(awards))
-    if !again.valid || AwardsText(again) != AwardsText(awards) || !again.earned[farm] || !again.earned[0] { return 10 }
+    again := AwardsParse(AwardsText(*awards))
+    if !again.valid || AwardsText(*again) != AwardsText(*awards) || !again.earned[farm] || !again.earned[0] { return 10 }
     mixed := AwardsParse("JUNGLE AWARDS 1\r\naward-farm\r\naward-later\naward-abc\naward-farm\naward-later\n\n")
-    if !mixed.valid || AwardsText(mixed) != "JUNGLE AWARDS 1\naward-abc\naward-farm\naward-later\n" { return 11 }
-    if AwardGrant(*mixed, AwardBySlug("award-abc")) || AwardsCount(mixed) != 2 { return 12 }
+    if !mixed.valid || AwardsText(*mixed) != "JUNGLE AWARDS 1\naward-abc\naward-farm\naward-later\n" { return 11 }
+    if AwardGrant(*mixed, AwardBySlug("award-abc")) || AwardsCount(*mixed) != 2 { return 12 }
     header := AwardsParse("JUNGLE AWARDS 1")
-    if !header.valid || AwardsCount(header) != 0 { return 13 }
+    if !header.valid || AwardsCount(*header) != 0 { return 13 }
 
     // A damaged or foreign file is invalid, so the host never writes over it.
-    if AwardsParse("JUNGLE AWARDS 2\naward-abc\n").valid || AwardsParse("JUNGLE AWARDS 10\n").valid ||
-        AwardsParse("JUNGLE COLLECTION 1\nmonkey\n").valid || AwardsParse("JUNGLE AWARDS 1\nNot An Award\n").valid ||
-        AwardsParse("JUNGLE AWARDS 1\raward-abc\n").valid { return 14 }
+    damaged: [5]string = .["JUNGLE AWARDS 2\naward-abc\n", "JUNGLE AWARDS 10\n", "JUNGLE COLLECTION 1\nmonkey\n",
+        "JUNGLE AWARDS 1\nNot An Award\n", "JUNGLE AWARDS 1\raward-abc\n"];
+    for at: cast(s64)0..4 {
+        parsed := AwardsParse(damaged[at])
+        if parsed.valid { return 14 }
+    }
     broken := AwardsParse("JUNGLE AWARDS 1\naward-abc\n-bad\n")
-    if broken.valid || AwardsCount(broken) != 0 { return 15 }
+    if broken.valid || AwardsCount(*broken) != 0 { return 15 }
 
     // Saves from before awards: every game already opened gets its award
     // quietly, once, and only those games.
@@ -52,16 +55,16 @@ main :: () -> s32 {
     opened[0] = true
     opened[AwardForBundle("jungle-hide-seek.zx")] = true
     opened[farm] = true
-    if AwardsMigrate(*old, opened[:]) != 3 || AwardsCount(old) != 3 { return 16 }
-    if AwardsMigrate(*old, opened[:]) != 0 || AwardsCount(old) != 3 { return 17 }
+    if AwardsMigrate(*old, opened[:]) != 3 || AwardsCount(*old) != 3 { return 16 }
+    if AwardsMigrate(*old, opened[:]) != 0 || AwardsCount(*old) != 3 { return 17 }
     if AwardGrant(*old, farm) || AwardGrant(*old, 0) { return 18 }
     if !AwardGrant(*old, AwardForBundle("jungle-piano.zx")) { return 19 }
     // A shorter list only speaks for the games it covers.
     few: [2]bool
     few[1] = true
     if AwardsMigrate(*old, few[:]) != 1 { return 20 }
-    kept := AwardsParse(AwardsText(old))
-    if AwardsText(kept) != "JUNGLE AWARDS 1\naward-picture-book\naward-abc\naward-piano\naward-hide-seek\naward-farm\n" { return 21 }
+    kept := AwardsParse(AwardsText(*old))
+    if AwardsText(*kept) != "JUNGLE AWARDS 1\naward-picture-book\naward-abc\naward-piano\naward-hide-seek\naward-farm\n" { return 21 }
 
     // The celebration waits for its picture, then pops, rests, flies and ends.
     show: AwardShow
