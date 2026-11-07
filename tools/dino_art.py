@@ -19,6 +19,8 @@ import sys
 import numpy
 from PIL import Image, ImageDraw, ImageFilter, ImageOps
 
+from paint_joins import close_page
+
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'art/paint'
 SCENE_SIZE = (960, 720)
@@ -333,6 +335,8 @@ def portraits():
         raise FileNotFoundError('Missing portrait PNG inputs:\n' + '\n'.join(missing))
     for index in manifest['traced']:
         (OUT / f'portrait{index}.svg').write_text(scene_svg(sources / f'portrait{index}.png', size=PORTRAIT_SIZE))
+        # Traced lines stop short of each other here and there; close those gaps.
+        close_page(f'portrait{index}')
     print(f'Traced {len(manifest["traced"])} tall scenes.')
 
 

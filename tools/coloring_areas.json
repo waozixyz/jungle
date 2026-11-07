@@ -1,0 +1,52 @@
+{
+  "about": "Areas of a Coloring Book page that one fill must never cross, each named by a point inside it. tools/paint_joins.py closes the narrowest gap between every two of them, and tests/paint_stencil_regions_test.py checks that each stays its own area.",
+  "pages": {
+    "scene15": {
+      "sky": [480, 200],
+      "ground": [480, 560],
+      "back bushes": [330, 330],
+      "right bushes": [700, 330],
+      "left trunk": [100, 250],
+      "small bush": [190, 330],
+      "big bush": [640, 300],
+      "log": [765, 420],
+      "right trunk": [925, 340]
+    },
+    "scene16": {
+      "sky": [300, 40],
+      "bush": [650, 60],
+      "right stream": [850, 150],
+      "left stream": [263, 278],
+      "ground": [480, 350]
+    },
+    "portrait14": {
+      "sky": [360, 120],
+      "grass": [360, 750]
+    },
+    "portrait15": {
+      "sky": [400, 230],
+      "grass": [360, 650]
+    },
+    "portrait16": {
+      "sky": [395, 40],
+      "grass": [343, 735],
+      "left stream": [60, 440],
+      "right stream": [700, 330],
+      "back grass": [60, 270],
+      "far bank": [430, 248]
+    },
+    "portrait22": {
+      "sky": [480, 300],
+      "ground": [360, 700]
+    },
+    "portrait23": {
+      "water": [360, 330],
+      "sand": [360, 760]
+    },
+    "portrait26": {
+      "sky": [80, 30],
+      "sunset": [300, 220],
+      "grass": [360, 650]
+    }
+  }
+}

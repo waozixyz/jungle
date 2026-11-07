@@ -11,6 +11,7 @@
 - The Treehouse window now looks out over the jungle to the white dunes and lagoons of the world map.
 - On phones the Coloring Book picture fills the screen, and its tools open from a Tools button.
 - Every Coloring Book scene has a tall version for new pictures on portrait screens.
+- Paint stays inside its area in the Coloring Book forest, stream and other scenes, instead of spilling into the sky or grass.
 
 ## 0.1.39
 

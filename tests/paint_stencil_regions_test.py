@@ -1,3 +1,4 @@
+import json
 import unittest
 import sys
 from pathlib import Path
@@ -9,7 +10,7 @@ from scipy import ndimage
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'tools'))
-from paint_pages import dinosaur, render, fit, CANVAS
+from paint_pages import dinosaur, render, fit, CANVAS, TALL
 
 NEW_STENCILS = {
     53: 8,
@@ -57,6 +58,22 @@ class PaintStencilRegionsTest(unittest.TestCase):
                 # Tall/narrow silhouettes keep their aspect ratio; their long
                 # edge still reaches full page resolution.
                 self.assertGreaterEqual(max(image_size), 720)
+
+
+class PaintSceneAreasTest(unittest.TestCase):
+    def test_named_areas_stay_apart(self):
+        """A fill started in one named area never reaches another, on the
+        page's mask as tools/paint_pages.py makes it."""
+        pages = json.loads((ROOT / "tools/coloring_areas.json").read_text())["pages"]
+        four = ndimage.generate_binary_structure(2, 1)
+        for name, areas in pages.items():
+            with self.subTest(page=name):
+                size = TALL if name.startswith("portrait") else CANVAS
+                page = render((ROOT / f"art/paint/{name}.svg").read_text(), *size)
+                labels, _ = ndimage.label(np.asarray(page.convert("L")) >= 128, four)
+                found = {area: labels[y, x] for area, (x, y) in areas.items()}
+                self.assertNotIn(0, found.values(), f"a point is on a line: {found}")
+                self.assertEqual(len(set(found.values())), len(found), f"areas share a fill: {found}")
 
 
 if __name__ == "__main__":
