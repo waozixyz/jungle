@@ -1,11 +1,11 @@
 {
   "version": 1,
-  "count": 1248,
+  "count": 1246,
   "encoding": "Owner standard 2026-11-05: masters Lanczos-downscaled to 75%, AVIF q35 8-bit full range speed6 jobs1; opaque YUV420, transparent art YUV444 with q90 alpha. Pictures under 512 px, source-rectangle sheets, jigsaw (q60 YUV444), paint art and cursors keep their pixels.",
   "dimensions": "Full original dimensions; no downsampling, no regeneration",
   "reference": "local/image-format-research/previews/full-1x-book-page.png (label: 75% AVIF q35 + Lanczos); full dimensions retained for shipping",
-  "before_bytes": 458679060,
-  "after_bytes": 47305945,
+  "before_bytes": 434052744,
+  "after_bytes": 47025804,
   "files": {
     "assets/beach_families/background.avif": {
       "source": "assets/beach_families/background.webp",
@@ -10547,55 +10547,6 @@
       "lossless": false,
       "subsampling": "420",
       "speed": 6
-    },
-    "assets/jungle/title/world-map-portrait-low.avif": {
-      "source": "local/art-development/world-map-brazil/repair-v3/master-3072x2048.png",
-      "source_sha256": "0db8e4b38860dcce0829142182076864e25f6cab539162b2e96eaddf418ad1a7",
-      "source_bytes": 12313158,
-      "source_rgba_sha256": "69790034fc6cfb54d8925adc38f0285e777bedd7b8f9fce19921a80179609230",
-      "dimensions": [
-        240,
-        160
-      ],
-      "alpha": false,
-      "source_alpha_sha256": "2ddde7f605a8696614ed456fe76a935bca6ab8cdf96027071c05ec69705e4dbe",
-      "alpha_sha256": "2ddde7f605a8696614ed456fe76a935bca6ab8cdf96027071c05ec69705e4dbe",
-      "rgba_sha256": "e95ae943a5c0bc71031a9da1ec1207fa7dceb19f015f48c4536cf19ed2545956",
-      "sha256": "3b36224e06289f552c4705a127b8839df6b2de7b3aa76f698598cf7477956e7e",
-      "bytes": 5984,
-      "quality": 35,
-      "lossless": false,
-      "subsampling": "420",
-      "speed": 6
-    },
-    "assets/jungle/title/world-map-portrait.avif": {
-      "source": "local/art-development/world-map-brazil/repair-v3/master-3072x2048.png",
-      "source_sha256": "0db8e4b38860dcce0829142182076864e25f6cab539162b2e96eaddf418ad1a7",
-      "source_bytes": 12313158,
-      "source_rgba_sha256": "11dede8b263a38634825c314d7a4947a2c1a0d25455635294ef7d961edf20906",
-      "dimensions": [
-        2304,
-        1536
-      ],
-      "alpha": false,
-      "source_alpha_sha256": "7d333ab0fce26d8901ab4b7d1922f3d989d194833e3f00e7f318950604ceeb09",
-      "alpha_sha256": "e87ff9875359402d0782be2d0ccc6a9bcc6d7bb48d01a6f233c004e481cdf022",
-      "rgba_sha256": "26cfb308c4a410e5e0cf1416ef2e0609dee2cba133a47f306c430e4d8b771e97",
-      "sha256": "351d970da38f63640f4999dcdaf1c31ac9675e02fe1b96dfeabb206d2856c06f",
-      "bytes": 274157,
-      "quality": 35,
-      "lossless": false,
-      "subsampling": "420",
-      "speed": 6,
-      "design_dimensions": [
-        3072,
-        2048
-      ],
-      "scale": 0.75,
-      "master": "assets/jungle/title/world-map-portrait.avif",
-      "master_sha256": "26c2ea10a9ac49c94ed31e972d3419d96c2b70b219538e7ecaa2d1320e231599",
-      "exact_alpha": false,
-      "alpha_quality": 100
     },
     "assets/jungle/title/world-map.avif": {
       "source": "local/art-development/world-map-brazil/repair-v3/master-3072x2048.png",
