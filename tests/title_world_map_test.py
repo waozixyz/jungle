@@ -149,10 +149,11 @@ class WorldMapTest(unittest.TestCase):
             self.assertAlmostEqual(x + width/2, centers[mark['id']][0], delta=.5)
             self.assertAlmostEqual(y + height/2, centers[mark['id']][1], delta=.5)
         self.assertEqual(MAP['hotspots'], MAP['portrait']['hotspots'], 'one map must have identical hit shapes and placement')
-        for field in ('width', 'height', 'image', 'low', 'exploration'):
+        for field in ('width', 'height', 'image', 'low', 'exploration', 'exploration_routes'):
             self.assertEqual(MAP[field], MAP['portrait'][field], field)
-        self.assertEqual(MAP['exploration'], [dict(area=m['id'], center=m['center'])
+        self.assertEqual(MAP['exploration'], [dict(area=m['id'], center=m['center'], region=m['region'])
                                             for m in SPEC['landmarks'] if not m['target'].startswith('locked:')])
+        self.assertEqual(MAP['exploration_routes'], SPEC['routes'])
         self.assertTrue((ROOT/'assets/jungle/sounds/not-yet.wav').is_file())
         menu = (ROOT/'host/jungle_menu.zi').read_text()
         self.assertRegex(menu, r'TitleMapEntry\(scene\) && TitleMapButton\(')
@@ -161,6 +162,38 @@ class WorldMapTest(unittest.TestCase):
         self.assertIn('GameSceneBack(', (ROOT/'host/jungle_host.zi').read_text())
         labels = json.loads((ROOT/'locales/ui.json').read_text())
         self.assertEqual(len(labels['World map']), 2)
+
+    def test_each_place_reveals_its_own_landmark(self):
+        from world_map_geometry import fog_alpha
+        import numpy as np
+        areas = {place['area'] for place in MAP['exploration']}
+        for route in MAP['exploration_routes']:
+            self.assertLessEqual(set(route['areas']), areas, route)
+        for spot in MAP['hotspots']:
+            if spot['id'] not in areas:
+                continue
+            x, y, w, h = spot['glow_rect']
+            middle = np.array([[x + w / 2]], dtype=np.float32), np.array([[y + h / 2]], dtype=np.float32)
+            self.assertEqual(int(fog_alpha(MAP, {spot['id']}, *middle)[0, 0]), 0, spot['id'])
+            self.assertEqual(int(fog_alpha(MAP, set(), *middle)[0, 0]), 255, spot['id'])
+
+    def test_fog_lies_over_every_map_layer(self):
+        # The title frame paints the map's fog once, after every scene layer
+        # (picture, objects, landmarks, glow, signs, decorations), so nothing
+        # undiscovered shows through; only the guide and controls follow it.
+        menu = (ROOT/'host/jungle_menu.zi').read_text()
+        frame = menu[menu.index('JungleMenu :: ('):]
+        self.assertEqual(frame.count('TitleMapFog(session, scene, picture)'), 1)
+        fog = frame.index('TitleMapFog(session, scene, picture)')
+        for layer in ('TitleObjects(session, scene', 'TitleAnimations(session, scene', 'TitleWindowFrame(session',
+                      'TitlePicture(session, TitleHotspotRest(hotspot)', 'TitlePicture(session, TitleHotspotGlow(glowing)',
+                      'TitlePathSign(session, hotspot', 'TITLE_DECORATION_PATH[index]', 'TitlePaperUnder(session'):
+            self.assertLess(frame.rindex(layer, 0, frame.index('if guiding && !title_state.not_implemented')), fog, layer)
+        self.assertGreater(frame.index('if guiding && !title_state.not_implemented'), fog)
+        # One rule hides a fogged landmark from the pointer, hand, glow, taps and keys.
+        title = (ROOT/'host/jungle_title.zi').read_text()
+        self.assertIn('pointed := TitleSpotHit(title_state, ', frame)
+        self.assertEqual(title.count('TitleFogAlpha(state.map_visits'), 1)
 
 
 if __name__ == '__main__':

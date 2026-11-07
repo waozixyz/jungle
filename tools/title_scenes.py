@@ -476,6 +476,19 @@ def Render(data, scenes, parents, hotspots):
     rects = [value for hotspot in hotspots for value in hotspot['rect']]
     scene_count, hotspot_count = len(scenes), len(hotspots)
     exploration = next((s.get('exploration', []) for s in scenes if s['name'] == MAP), [])
+    map_routes = next((s.get('exploration_routes', []) for s in scenes if s['name'] == MAP), [])
+    area_index = {a['area']: i for i, a in enumerate(exploration)}
+    regions = [(area_index[a['area']], shape) for a in exploration for shape in a.get('region', [])]
+    if any(len(shape) != 4 or min(shape[2:]) <= 0 for _, shape in regions) or \
+            {i for i, _ in regions} != set(area_index.values()):
+        raise SystemExit('title scenes: every map area needs region ellipses [x, y, rx, ry]')
+    segments = []
+    for route in map_routes:
+        if len(route['areas']) != 2 or not set(route['areas']) <= set(area_index) or \
+                len(route['path']) < 2 or route['radius'] <= 0:
+            raise SystemExit('title scenes: a map route joins two areas along a path with a radius')
+        ends = [area_index[name] for name in route['areas']]
+        segments.extend((ends, [*a, *b, route['radius']]) for a, b in zip(route['path'], route['path'][1:]))
     decorations = [(i,layer) for i,scene in enumerate(scenes) for layer in scene.get("decorations", [])]
     portrait = [next((i for i, s in enumerate(scenes) if s['base'] == scene['base'] and i != s['base']), scene['base']) for scene in scenes]
     room_objects, object_first = [], []
@@ -520,6 +533,14 @@ def Render(data, scenes, parents, hotspots):
         f'TITLE_MAP_AREA_COUNT :: {len(exploration)}',
         f'TITLE_MAP_AREA: [{len(exploration)}]string = .[{Quoted(a["area"] for a in exploration)}];',
         f'TITLE_MAP_CENTER: [{len(exploration) * 2}]s32 = .[{Numbers(v for a in exploration for v in a["center"])}];',
+        '// Each visited area clears its core ellipses (x, y, rx, ry); two visited',
+        '// neighbours also clear the route segments (x1, y1, x2, y2, radius) joining them.',
+        f'TITLE_MAP_REGION_COUNT :: {len(regions)}',
+        f'TITLE_MAP_REGION_AREA: [{len(regions)}]s32 = .[{Numbers(i for i, _ in regions)}];',
+        f'TITLE_MAP_REGION: [{len(regions) * 4}]s32 = .[{Numbers(v for _, shape in regions for v in shape)}];',
+        f'TITLE_MAP_ROUTE_COUNT :: {len(segments)}',
+        f'TITLE_MAP_ROUTE_AREA: [{len(segments) * 2}]s32 = .[{Numbers(v for ends, _ in segments for v in ends)}];',
+        f'TITLE_MAP_ROUTE: [{len(segments) * 5}]s32 = .[{Numbers(v for _, segment in segments for v in segment)}];',
         '',
         f'TITLE_DECORATION_COUNT :: {len(decorations)}',
         f'TITLE_DECORATION_ROTATION: [{len(decorations)}]s32 = .[{Numbers(Rotation(o) for _,o in decorations)}];',

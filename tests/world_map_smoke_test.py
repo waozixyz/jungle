@@ -15,7 +15,7 @@ import time
 import numpy as np
 from PIL import Image, ImageChops, ImageStat
 import runtime_test as rt
-from world_map_geometry import selectable_point
+from world_map_geometry import fog_alpha, selectable_point
 
 SIZES = ((960, 600), (420, 900), (1080, 2340), (1366, 768), (768, 1024))
 ICON = (0x2e, 0x69, 0x56)
@@ -32,25 +32,21 @@ def painted_map(image, areas, metadata=None):
     # The map ships at 75%; its layout, clouds and landmarks use painting pixels.
     from design_size import design_size
     plate = plate.resize(design_size(image, plate), Image.Resampling.LANCZOS)
-    # A single smooth cover, rebuilt on exploration changes. Independent image
-    # composition verifies the native render rather than accepting puff gaps.
-    yy, xx = np.mgrid[:256, :384].astype(np.float32)
-    xx = (xx + .5) * plate.width / 384
-    yy = (yy + .5) * plate.height / 256
-    nearest = np.ones((256, 384), dtype=np.float32)
-    for area in world['exploration']:
-        if area['area'] in areas:
-            nearest = np.minimum(nearest, ((xx-area['center'][0])/590)**2 + ((yy-area['center'][1])/440)**2)
-    edge = np.clip((nearest-.64)/.36, 0, 1)
-    fog = np.empty((256, 384, 4), dtype=np.uint8)
-    fog[:, :, :3] = (242, 246, 242)
-    fog[:, :, 3] = (255 * edge**2 * (3-2*edge) + .5).astype(np.uint8)
-    plate.alpha_composite(Image.fromarray(fog).resize(plate.size, Image.Resampling.BILINEAR))
+    # Every landmark layer lies under one smooth cover, rebuilt on
+    # exploration changes. Independent image composition verifies the
+    # native render rather than accepting puff gaps or landmarks over fog.
     for spot in view['hotspots']:
         if spot['rest']:
             x, y, w, h = spot['glow_rect']
             with Image.open(rt.ROOT/spot['rest']) as mark:
                 plate.alpha_composite(mark.convert('RGBA').resize((w, h), Image.Resampling.BILINEAR), (x, y))
+    yy, xx = np.mgrid[:256, :384].astype(np.float32)
+    xx = (xx + .5) * plate.width / 384
+    yy = (yy + .5) * plate.height / 256
+    fog = np.empty((256, 384, 4), dtype=np.uint8)
+    fog[:, :, :3] = (242, 246, 242)
+    fog[:, :, 3] = fog_alpha(world, areas, xx, yy)
+    plate.alpha_composite(Image.fromarray(fog).resize(plate.size, Image.Resampling.BILINEAR))
     return plate.convert('RGB')
 
 
@@ -125,6 +121,9 @@ def main():
             state = Path(folder)
             (state/'sound.txt').write_text('on\n' if (w, h) == (960, 600) else 'off\n')
             (state/'guide.txt').write_text('seen\n')
+            # The Farm opens as a game, not a scene the keys walk through, so
+            # its earlier visit is saved: every landmark is out of the fog.
+            (state/'explored.txt').write_text('JUNGLE EXPLORED 1\nfarm\n')
             with rt.Desktop(binary, state, extra_env={'TMPDIR': str(state)}, screen_size='1400x2500') as d:
                 def tap(x, y):
                     rt.run(['xdotool', 'mousemove', '--window', d.window, str(round(x)), str(round(y))], d.env)

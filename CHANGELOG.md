@@ -4,6 +4,7 @@
 
 - Use less memory while painting and saving games, so long sessions stay smooth.
 - The Collection Book, Treasure Chest, Picture Book and stories use less memory during long play.
+- On the world map, fog hides every place you haven't found yet, and you can't tap those places. Visiting a place clears its whole region, and travelling between two places clears the land between them.
 
 ## 0.1.39
 

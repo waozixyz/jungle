@@ -26,6 +26,25 @@ TITLE_HOTSPOT_VISIBLE: [136]bool = .[
 TITLE_MAP_AREA_COUNT :: 9
 TITLE_MAP_AREA: [9]string = .["port", "beach", "aquarium", "market", "farm", "jungle-path", "treehouse", "campus", "desert"];
 TITLE_MAP_CENTER: [18]s32 = .[380, 280, 889, 254, 1187, 236, 330, 585, 738, 666, 1480, 550, 1434, 615, 1438, 723, 2840, 1820];
+// Each visited area clears its core ellipses (x, y, rx, ry); two visited
+// neighbours also clear the route segments (x1, y1, x2, y2, radius) joining them.
+TITLE_MAP_REGION_COUNT :: 13
+TITLE_MAP_REGION_AREA: [13]s32 = .[0, 1, 2, 2, 3, 3, 4, 5, 6, 7, 7, 8, 8];
+TITLE_MAP_REGION: [52]s32 = .[
+    380, 210, 400, 210, 890, 220, 300, 180, 1250, 190, 280, 190, 1620, 160, 330, 170, 330, 600, 300, 190, 70, 620, 130, 230,
+    790, 670, 270, 180, 1480, 470, 300, 170, 1440, 610, 200, 150, 1450, 690, 350, 200, 1850, 750, 200, 120, 2750, 1700, 560, 400,
+    2250, 1880, 400, 230,
+];
+TITLE_MAP_ROUTE_COUNT :: 13
+TITLE_MAP_ROUTE_AREA: [26]s32 = .[
+    6, 7, 7, 5, 7, 4, 7, 4, 7, 8, 7, 8, 7, 8, 1, 0, 1, 5, 1, 5, 1, 2, 0, 3,
+    3, 4,
+];
+TITLE_MAP_ROUTE: [65]s32 = .[
+    1434, 615, 1438, 723, 180, 1438, 723, 1480, 550, 180, 1438, 723, 1150, 790, 230, 1150, 790, 738, 666, 230, 1438, 723, 1950, 780,
+    300, 1950, 780, 2450, 1300, 300, 2450, 1300, 2840, 1820, 300, 889, 254, 380, 280, 200, 889, 254, 1150, 420, 220, 1150, 420, 1480,
+    550, 220, 889, 254, 1187, 236, 180, 380, 280, 330, 585, 200, 330, 585, 738, 666, 200,
+];
 
 TITLE_DECORATION_COUNT :: 4
 TITLE_DECORATION_ROTATION: [4]s32 = .[0, 0, 0, 0];

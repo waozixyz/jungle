@@ -54,3 +54,33 @@ def selectable_point(view, spot, size):
     cx,cy = (bx+br-1)/2,(by+bb-1)/2
     x,y = min(candidates,key=lambda p:(p[0]-cx)**2+(p[1]-cy)**2)
     return ((left+x-2+.5)/scale,(top+y-2+.5)/scale,low)
+
+
+FOG_RIM = 110.0
+
+
+def fog_alpha(world, areas, xx, yy):
+    """host/jungle_title.zi TitleFogAlpha over numpy sample grids XX, YY:
+    visited regions clear, routes clear between two visited neighbours,
+    then a smoothstep rim of FOG_RIM map pixels."""
+    import numpy as np
+    nearest = np.full(xx.shape, FOG_RIM, dtype=np.float32)
+    for place in world['exploration']:
+        if place['area'] not in areas:
+            continue
+        for cx, cy, rx, ry in place['region']:
+            nx, ny = (xx - cx) / rx, (yy - cy) / ry
+            q = nx * nx + ny * ny
+            s = np.sqrt(q)
+            distance = np.where(q <= 1, 0, (s - 1) * s / np.sqrt((nx / rx) ** 2 + (ny / ry) ** 2 + 1e-30))
+            nearest = np.minimum(nearest, distance)
+    for route in world['exploration_routes']:
+        if not set(route['areas']) <= set(areas):
+            continue
+        for (ax, ay), (bx, by) in zip(route['path'], route['path'][1:]):
+            ux, uy = bx - ax, by - ay
+            along = np.clip(((xx - ax) * ux + (yy - ay) * uy) / (ux * ux + uy * uy), 0, 1)
+            distance = np.hypot(xx - ax - ux * along, yy - ay - uy * along) - route['radius']
+            nearest = np.minimum(nearest, np.maximum(distance, 0))
+    edge = np.clip(nearest / FOG_RIM, 0, 1)
+    return (255 * edge * edge * (3 - 2 * edge) + .5).astype(np.uint8)

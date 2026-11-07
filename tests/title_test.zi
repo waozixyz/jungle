@@ -118,8 +118,9 @@ main :: () -> s32 {
     visits:=TitleFogVisits(exploration)
     if TitleFogAlpha(cast(u32)0,cx,cy)!=cast(u8)255 || TitleFogAlpha(visits,cx,cy)!=cast(u8)0 { return 745 }
     previous_alpha: u8
+    // Down from Campus into the unvisited forest: one smooth, rising rim.
     for offset: cast(s32)0..650 {
-        alpha:=TitleFogAlpha(visits,cx+cast(float32)offset,cy)
+        alpha:=TitleFogAlpha(visits,cx,cy+cast(float32)offset)
         if alpha<previous_alpha { return 746 }
         if offset>0 && cast(s32)alpha-cast(s32)previous_alpha>5 { return 747 }
         previous_alpha=alpha
@@ -670,6 +671,8 @@ main :: () -> s32 {
     if paper_failure != 0 { return paper_failure }
     map_failure := TitleMapChecks()
     if map_failure != 0 { return map_failure }
+    fog_failure := TitleFogChecks()
+    if fog_failure != 0 { return fog_failure }
     place_failure := TitlePlaceChecks()
     if place_failure != 0 { return place_failure }
     Report("local title scene test passed\n")
@@ -842,6 +845,110 @@ TitlePaperChecks :: () -> s32 {
 // The world map: every landmark is hovered and opens its place, a locked one
 // stays with a wobble, Back returns where the map was opened, every other scene
 // shows the map button, and the landmarks stay whole at every window size.
+// Every place on the map visited.
+TITLE_FOG_ALL :: 511
+
+TitleFogArea :: (name: string) -> s32 {
+    for area: cast(s32)0..TITLE_MAP_AREA_COUNT-1 { if TITLE_MAP_AREA[area]==name { return area } }
+    return -1
+}
+
+TitleFogBit :: (name: string) -> u32 {
+    area := TitleFogArea(name)
+    if area < 0 { return cast(u32)0 }
+    return cast(u32)1 << cast(u32)area
+}
+
+MapLandmark :: (scene: s32, id: string) -> s32 {
+    for hotspot: TITLE_SCENE_FIRST[scene]..TITLE_SCENE_FIRST[scene]+TITLE_SCENE_HOTSPOTS[scene]-1 {
+        if TITLE_HOTSPOT_ID[hotspot]==id { return hotspot }
+    }
+    return -1
+}
+
+// The fog follows the map: a visit clears that place's whole region, two
+// visited neighbours clear the land between them, and a landmark still under
+// fog takes no hover, pointing hand, glow, tap or key.
+TitleFogChecks :: () -> s32 {
+    if TITLE_MAP_AREA_COUNT != 9 || TitleFogBit("desert") != cast(u32)0x100 { return 780 }
+    campus := TitleFogBit("campus")
+    farm := TitleFogBit("farm")
+    both := campus | farm
+    // Campus, then Farm: the meadows, the forest between them and the path's
+    // edges are all clear; land only the route clears waits for both visits.
+    clear: [18]float32 = .[1438.0, 723.0, 738.0, 666.0, 1150.0, 790.0, 1000.0, 740.0, 1100.0, 650.0,
+        1250.0, 850.0, 900.0, 800.0, 1700.0, 760.0, 1060.0, 860.0]
+    for at: cast(s32)0..8 {
+        if TitleFogAlpha(both, clear[at*2], clear[at*2+1]) != cast(u8)0 { return 781 }
+    }
+    if TitleFogAlpha(campus, 1060.0, 860.0) < cast(u8)128 || TitleFogAlpha(farm, 1060.0, 860.0) < cast(u8)128 { return 782 }
+    // Unvisited places stay under full cover.
+    covered: [10]float32 = .[380.0, 280.0, 330.0, 585.0, 889.0, 254.0, 2840.0, 1820.0, 2400.0, 1500.0]
+    for at: cast(s32)0..4 {
+        if TitleFogAlpha(both, covered[at*2], covered[at*2+1]) != cast(u8)255 { return 783 }
+    }
+    // Every place's own landmark is usable once that place is visited.
+    map: s32 = TITLE_MAP_SCENE
+    for area: cast(s32)0..TITLE_MAP_AREA_COUNT-1 {
+        state: TitleState
+        TitleStart(*state)
+        TitleEnter(*state, map)
+        state.map_visits = cast(u32)1 << cast(u32)area
+        hotspot := MapLandmark(map, TITLE_MAP_AREA[area])
+        if hotspot < 0 { continue }
+        if !TitleHotspotDiscovered(state, hotspot) { return 784 }
+    }
+    // Only Campus and Farm visited: the Port, still under fog, ignores the
+    // pointer, the pointing hand, glow, taps and keys.
+    for portrait: cast(s32)0..1 {
+        width: float32 = ifx portrait == 1 then 420.0 else 960.0
+        height: float32 = ifx portrait == 1 then 900.0 else 600.0
+        state: TitleState
+        TitleStart(*state)
+        TitleEnter(*state, SceneNamed("campus"))
+        if !TitleMapOpen(*state, state.scene) { return 785 }
+        TitleResolve(*state, width, height)
+        shown := state.scene
+        state.map_visits = both
+        port := MapLandmark(shown, "port")
+        farm_spot := MapLandmark(shown, "farm")
+        if port < 0 || farm_spot < 0 || TitleHotspotDiscovered(state, port) || !TitleHotspotDiscovered(state, farm_spot) { return 786 }
+        x: float32
+        y: float32
+        if !OwnPoint(shown, port, *x, *y) { return 787 }
+        view := TitleFit(width, height, 0.0, 0.0, shown)
+        sx := view.x + x * view.scale
+        sy := view.y + y * view.scale
+        unused TitlePointer(*state, view, sx + 2.0, sy, false, false, false, false, 2.95)
+        unused TitlePointer(*state, view, sx, sy, false, false, false, false, 3.0)
+        pointed := TitleSpotHit(state, x, y)
+        if TitleHit(shown, x, y) != port || pointed != -1 || state.hovered != -1 || TitleGlowing(state) != -1 { return 788 }
+        if TitleCursorClickable(*state, port, false, false, false) || TitleCursorClickable(*state, pointed, false, false, false) { return 789 }
+        unused TitlePointer(*state, view, sx, sy, true, true, false, false, 3.1)
+        step := TitlePointer(*state, view, sx, sy, false, false, true, false, 3.2)
+        tick := TitleTick(*state, 4.0)
+        if step.moved || step.game >= 0 || tick.moved || tick.game >= 0 || state.scene != shown || state.pending >= 0 { return 790 }
+        direct := TitleActivate(*state, port)
+        key := TitleKey(*state, 49 + port - TITLE_SCENE_FIRST[shown])
+        if direct.moved || key.moved || state.scene != shown { return 791 }
+        // Arrow keys pass over landmarks under fog.
+        for press: cast(s32)0..TITLE_SCENE_HOTSPOTS[shown] {
+            unused TitleKey(*state, 262)
+            if state.selected < 0 || !TitleHotspotDiscovered(state, state.selected) { return 792 }
+        }
+        // Once the Port is visited, the same tap travels there.
+        state.map_visits = both | TitleFogBit("port")
+        if !TitleCursorClickable(*state, TitleSpotHit(state, x, y), false, false, false) { return 793 }
+        unused TitlePointer(*state, view, sx + 2.0, sy, false, false, false, false, 4.95)
+        unused TitlePointer(*state, view, sx, sy, false, false, false, false, 5.0)
+        if TitleGlowing(state) != port { return 795 }
+        unused TitlePointer(*state, view, sx, sy, true, true, false, false, 5.1)
+        step = TitlePointer(*state, view, sx, sy, false, false, true, false, 5.2)
+        if !step.moved || state.scene != TITLE_HOTSPOT_TARGET[port] { return 794 }
+    }
+    return 0
+}
+
 TitleMapChecks :: () -> s32 {
     map: s32 = TITLE_MAP_SCENE
     if map < 0 || TITLE_SCENE_NAME[map] != "map" || TITLE_SCENE_BACK[map] == 0 { return 700 }
@@ -870,6 +977,8 @@ TitleMapChecks :: () -> s32 {
             TitleStart(*state)
             TitleEnter(*state, campus)
             if !TitleMapOpen(*state, campus) || !TitleOnMap(state.scene) { return 707 }
+            // Every place visited: no landmark lies under fog.
+            state.map_visits = cast(u32)TITLE_FOG_ALL
             TitleResolve(*state, width, height)
             if state.scene != shown { return 708 }
             view := TitleFit(width, height, 0.0, 0.0, state.scene)

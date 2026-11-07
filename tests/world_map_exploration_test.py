@@ -6,7 +6,7 @@ import time
 from PIL import ImageStat
 
 import runtime_test as rt
-from world_map_smoke_test import difference, map_fit
+from world_map_smoke_test import difference, map_fit, scene_keys
 
 
 def opaque_mist(picture, box):
@@ -66,9 +66,14 @@ def main():
                 before = d.capture_actual(f'{w}-unvisited-port-clouds')
                 opaque_mist(before, far)
                 assert 'treehouse\n' in saved() and 'farm\n' in saved() and 'port\n' not in saved(), saved()
-                # Hovering and opening the map have not visited Port. Enter it now.
+                # Hovering and opening the map have not visited Port, so its
+                # fogged landmark ignores its key. Walk there through the scenes.
                 d.key('1')
                 time.sleep(.8)
+                assert 'port\n' not in saved(), saved()
+                for key in scene_keys(data, 'port'):
+                    d.key(key)
+                    time.sleep(.6)
                 assert 'port\n' in saved(), saved()
                 enter_map(d)
                 after = d.capture_actual(f'{w}-visited-port-clear')

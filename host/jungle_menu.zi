@@ -616,6 +616,8 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
     message: string, collection: *Collection, collect: SecretPaperCollect) -> MenuAction {
     action := MenuAction.{.game = -1}
     if !title_state.started { TitleStart(*title_state) }
+    // Keys, pointer and glow see which world-map landmarks the fog still hides.
+    title_state.map_visits = TitleFogVisits(title_exploration)
     if guide_seen {
         TitleGuideSkip(*title_state)
         title_state.guide_finished_reported = true
@@ -674,7 +676,7 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
     paper_available := TITLE_SCENE_BACKGROUND[title_state.scene] != "" &&
         TitleReady(TITLE_SCENE_BACKGROUND[title_state.scene]) && TitleObjectsReady(title_state.scene) &&
         (TITLE_SCENE_FOREGROUND[title_state.scene] == "" || TitleReady(TITLE_SCENE_FOREGROUND[title_state.scene]))
-    pointed := TitleHit(title_state.scene, TitleSourceX(view, px), TitleSourceY(view, py), now)
+    pointed := TitleSpotHit(title_state, TitleSourceX(view, px), TitleSourceY(view, py), now)
     if pointed >= 0 && TITLE_SIGN_LABEL[pointed] != "" {
         if !TitleReady(TitleHotspotRest(pointed)) ||
             (TITLE_SCENE_FOREGROUND[title_state.scene] != "" && !paper_available) { blocked = true }
@@ -738,7 +740,6 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
         TitlePicture(session, TITLE_SCENE_IMAGE[scene], picture)
         if TITLE_SCENE_BACKGROUND[scene] == "" { TitleObjects(session, scene, picture, view) }
     }
-    TitleMapFog(session, scene, picture)
     TitleAnimations(session, scene, picture, view, now)
     TitleWindowFrame(session, scene, picture, view)
     TitleAnimations(session, scene, picture, view, now, true)
@@ -769,6 +770,7 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
     guiding := guide.active
     if guiding && title_state.guide_step == 0 && title_state.pending < 0 && title_state.pressed < 0 {
         glowing = TitleGuideHotspot(0, scene)
+        if glowing >= 0 && !TitleHotspotDiscovered(title_state, glowing) { glowing = -1 }
     }
     action.guide_stop = guide.stop
     action.guide_finished = guide.finished
@@ -819,6 +821,9 @@ JungleMenu :: (session: Session, bounds: Rectangle, key: s32, now: float64, font
         }
     }
     if !shelf && TITLE_SCENE_FOREGROUND[scene] != "" { TitlePaperUnder(session, scene, picture, view, bounds, collection, layered, now) }
+    // The world map's fog lies over every scene layer (landmarks, animals,
+    // signs, decorations, glow) and under only the guide and corner controls.
+    TitleMapFog(session, scene, picture)
 
     if guiding && !title_state.not_implemented {
         guide_anchor = TitleGuideAnchor(*title_state, view, bounds, unit, width, height)

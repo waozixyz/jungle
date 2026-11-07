@@ -167,9 +167,13 @@ def main():
     for view in (scene, portrait):
         view['preload'] = ['assets/jungle/title/window-animation/cloud.avif',
                            'assets/jungle/title/window-animation/cloud-wisp.avif']
-    scene['exploration'] = [dict(area=m['id'], center=m['center']) for m in spec['landmarks']
+    # Each place clears its painted region ("region": core ellipses), and two
+    # visited neighbours clear the land along the route that joins them.
+    scene['exploration'] = [dict(area=m['id'], center=m['center'], region=m['region']) for m in spec['landmarks']
                             if not m['target'].startswith('locked:')]
+    scene['exploration_routes'] = spec['routes']
     portrait['exploration'] = scene['exploration']
+    portrait['exploration_routes'] = scene['exploration_routes']
     receipts, exports = [], []
     for orientation, view in (('landscape', scene), ('portrait', portrait)):
         hotspots = []

@@ -178,7 +178,15 @@ def run(base_url, renderer, w, h, browser='chromium', metadata=None):
         client.click((w_units - 83) * unit, 17 * unit)
         cloudy = until(client, on_map, 'map before Port visit')
         cloudy.save(output / 'before-visit.png')
+        # The Port's landmark is still under fog: a click there stays on the map.
         client.click(*centre('port'))
+        rest()
+        time.sleep(1)
+        assert on_map(shot(client)) and 'port\n' not in client.evaluate(EXPLORED), (renderer, w, h, 'a fogged landmark opened')
+        # Walk there through the painted scenes instead.
+        for key in scene_keys(data, 'port'):
+            client.key(key)
+            time.sleep(.6)
         client.until(f'{EXPLORED}.includes("port\\n")', 'genuine Port visit saved', 15)
         time.sleep(1)
         client.click((w_units - 83) * unit, 17 * unit)
