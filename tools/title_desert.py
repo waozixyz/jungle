@@ -1,10 +1,13 @@
-"""Integrate the Wüste (Desert) title scene: white dunes, a lagoon oasis and a big
-branch full of colorful birds, each bird its own cut-out layer.
+"""Integrate the Wüste (Desert) title scene: white dunes, a lagoon oasis and a giant
+tree at the side whose branch is full of colorful birds, each bird its own
+cut-out layer.
 
 The owner asked (2026-11-05) for the desert to look like the world map, white
 and with the oasis, with no camel or person but "a big branch of colorful
 parrots", and "each bird must be its own asset, not in the scene directly".
-The painted plates carry only the sand, oasis and branch; every bird is a
+On 2026-11-06 the owner asked for "a giant tree on the side with a branch ...
+not straight the full width, just half". The painted plates carry only the
+sand, oasis and tree; every bird is a
 separate transparent layer placed here. Tapping any bird opens the parrots'
 tap-through speech bubble beside the macaw. Masters stay in ignored
 local/art-development/desert-edge/; this explicit authoring command exports
@@ -26,42 +29,44 @@ PROVENANCE = ROOT/'tools/art_provenance/desert-edge.json'
 CANONICAL = ROOT/'tools/canonical_avif.json'
 OBJECTS = 'assets/jungle/title/objects/'
 CANVAS = {'landscape': (1672, 941), 'portrait': (1024, 1536)}
-# v3 (owner, 2026-11-05): white sand, a turquoise lagoon oasis and one big
-# mossy branch, painted without any bird; the jungle edge and the path straight
-# left to Campus keep their places from v2.
-PLATES = {'landscape': 'desert-landscape-v3.png', 'portrait': 'desert-portrait-v3.png'}
+# v4 (owner, 2026-11-06): v3's white sand and turquoise lagoon oasis, with a
+# giant tree at the left whose one mossy branch reaches about half the width
+# (portrait adds a shorter limb in the lower crown), painted without any bird.
+PLATES = {'landscape': 'desert-landscape-v4.png', 'portrait': 'desert-portrait-v4.png'}
 DIALOGUE = 'dialogue:desert-birds'
 SPEAKER = 'macaw'
 # Every bird: its trimmed transparent master in LOCAL/birds/.
 BIRDS = ('macaw', 'blue-parrot', 'green-parakeet', 'cockatiel', 'lovebird', 'pink-parrot',
          'budgie', 'finch', 'parrotlet', 'rosella', 'sky-chick', 'macaw-chick')
-# Where each bird perches, in paint order (earlier birds sit behind later
-# ones): center x, feet line on the branch and height in scene pixels. The back
-# row stands a little larger so the front birds, painted over it, own the
-# smaller glow rect and win the host's smallest-rect tap rule. All stay
-# whole at the centered cover fit from 4:3 tablets to 20:9 phones (landscape
-# 4:3 shows x 209-1463) and 3:4 tablets to 9:20 phones (portrait x 166-858).
-PLACES = {
-    'landscape': {
-        'cockatiel': (292, 511, 168), 'rosella': (472, 514, 168), 'pink-parrot': (651, 519, 168),
-        'parrotlet': (843, 523, 168), 'macaw-chick': (1038, 523, 168), 'budgie': (1244, 520, 168),
-        'blue-parrot': (388, 562, 150), 'lovebird': (557, 566, 150), 'macaw': (746, 572, 150),
-        'sky-chick': (940, 573, 150), 'green-parakeet': (1136, 572, 150), 'finch': (1352, 567, 150),
-    },
-    'portrait': {
-        'cockatiel': (236, 683, 138), 'rosella': (332, 692, 138), 'pink-parrot': (428, 704, 138),
-        'parrotlet': (518, 710, 138), 'macaw-chick': (610, 714, 138), 'budgie': (712, 704, 138),
-        'blue-parrot': (230, 733, 122), 'lovebird': (321, 743, 122), 'macaw': (429, 754, 122),
-        'sky-chick': (541, 761, 122), 'green-parakeet': (656, 760, 122), 'finch': (776, 749, 122),
-    },
+# Where the birds perch, per orientation: each perch line is a limb's painted
+# top edge as a polyline (x, y in scene pixels, measured on the plate), and
+# each row lays its birds evenly between its x range on one line, feet resting
+# FEET pixels below that edge. Rows paint in order; a back row stands a little
+# larger than the front row painted over it, so the front birds own the smaller
+# glow rect and win the host's smallest-rect tap rule. Everything stays whole at the centered
+# cover fit from 4:3 tablets to 20:9 phones (landscape 4:3 shows x 209-1463)
+# and 3:4 tablets to 9:20 phones (portrait x 166-858).
+PERCHES = {
+    'landscape': dict(
+        lines=dict(branch=[[200, 438], [250, 450], [300, 456], [400, 460], [650, 460], [700, 465], [770, 478]]),
+        rows=[dict(on='branch', height=118, feet=-6, range=[222, 772],
+                   names=['cockatiel', 'rosella', 'pink-parrot', 'parrotlet', 'macaw-chick', 'budgie']),
+              dict(on='branch', height=102, feet=44, range=[246, 760], front=True,
+                   names=['blue-parrot', 'lovebird', 'macaw', 'sky-chick', 'green-parakeet', 'finch'])]),
+    'portrait': dict(
+        lines=dict(crown=[[160, 487], [250, 490], [300, 492], [350, 496], [400, 501]],
+                   branch=[[160, 700], [200, 705], [300, 716], [400, 724], [500, 734]]),
+        rows=[dict(on='crown', height=88, feet=-4, range=[172, 394], names=['cockatiel', 'rosella', 'pink-parrot']),
+              dict(on='crown', height=80, feet=30, range=[178, 388], front=True,
+                   names=['blue-parrot', 'lovebird', 'sky-chick']),
+              dict(on='branch', height=100, feet=-4, range=[176, 496], names=['parrotlet', 'macaw-chick', 'budgie']),
+              dict(on='branch', height=92, feet=34, range=[180, 494], front=True,
+                   names=['macaw', 'green-parakeet', 'finch'])]),
 }
 # The Campus plank's v2 top and how far v3 moves it (rerunnable: the drop is
 # measured from the v2 top, not from whatever the manifest holds now).
 PLANK_TOP = {'landscape': 614, 'portrait': 1143}
 PLANK_DROP = {'landscape': 76, 'portrait': 0}
-# The back row stands behind the front birds; its feet are hidden, so only the
-# front row casts a contact shadow on the moss.
-BACK_ROW = {'cockatiel', 'rosella', 'pink-parrot', 'parrotlet', 'macaw-chick', 'budgie'}
 BANDS = 28
 ALPHA_FLOOR = 8
 
@@ -90,6 +95,31 @@ def cutout(name):
     cropped = Image.new('RGBA', (box[2] - box[0], box[3] - box[1]), (0, 0, 0, 0))
     cropped.paste(picture.crop(box), (0, 0))
     return source, cropped
+
+
+def limb_top(line, x):
+    """A limb's top edge at X, interpolated along its measured polyline."""
+    for (x0, y0), (x1, y1) in zip(line, line[1:]):
+        if x0 <= x <= x1:
+            return y0 + (y1 - y0) * (x - x0) / (x1 - x0)
+    raise SystemExit(f'x {x} is off the measured limb {line[0][0]}-{line[-1][0]}')
+
+
+def perches(spec, widths):
+    """Each bird's (center x, feet y, height, in front) on its perch line: a
+    row's birds share its height and spread evenly across its x range."""
+    places = {}
+    for row in spec['rows']:
+        sizes = [widths[name] * row['height'] for name in row['names']]
+        left, right = row['range']
+        gap = (right - left - sum(sizes)) / max(1, len(sizes) - 1)
+        x = left
+        for name, width in zip(row['names'], sizes):
+            center = x + width / 2
+            feet = round(limb_top(spec['lines'][row['on']], center) + row['feet'])
+            places[name] = (center, feet, row['height'], row.get('front', False))
+            x += width + gap
+    return places
 
 
 def outline(alpha, x, y, scale):
@@ -211,15 +241,17 @@ def main():
         view['objects'] = json.loads(json.dumps(old.get('objects', [])))
         for item in view['objects']:
             item['rect'][1] += drop
-        places = PLACES[orientation]
+        places = perches(PERCHES[orientation], {n: p.width / p.height for n, (p, _, _) in layers.items()})
         if set(places) != set(BIRDS):
             raise SystemExit(f'{orientation}: every bird needs exactly one perch')
-        for name, (center, feet, height) in places.items():
+        for name, (center, feet, height, front) in places.items():
             picture, rest, highlight = layers[name]
             scale = height / picture.height
             width = round(picture.width * scale)
             rect = [round(center - width / 2), feet - height, width, height]
-            if name not in BACK_ROW:
+            # Back-row feet hide behind the front birds; only front rows cast
+            # a contact shadow on the moss.
+            if front:
                 plate = shadow(plate, rect)
             hotspots.append(dict(id=f'desert-{name}', target=DIALOGUE, glow_rect=rect, rest=rest, glow=highlight,
                                  polygon=outline(picture.getchannel('A'), rect[0], rect[1], scale)))
@@ -245,13 +277,15 @@ def main():
     PROVENANCE.write_text(json.dumps(dict(
         owner_request='The desert must be like in the map, so white and with the oasis; no camel or person but a '
                       'big branch of colorful, unique parrots; each bird must be its own asset, not in the scene '
-                      'directly (owner, 2026-11-05).',
+                      'directly (owner, 2026-11-05). It should be a giant tree on the side with a branch, not '
+                      'straight the full width, just half (owner, 2026-11-06).',
         generator='Harmony generate_image (Codex built-in image generation); original Jungle watercolor',
         style_reference='the world map Desert (white dunes, turquoise lagoons, palm clumps) and the Campus '
                         'title painting; the owner\'s bird screenshot only as a mood guide',
-        method='v3 plates repaint the v2 desert edge as white sand with a lagoon oasis and one big mossy branch, '
-               'without birds; every bird is cut from its own transparent master and placed here as a '
-               'separate layer with a soft contact shadow on the branch. The Campus plank keeps its board.',
+        method='v4 plates repaint the v3 white-sand lagoon oasis with a giant tree at the left whose one mossy '
+               'branch reaches about half the width, without birds; every bird is cut from its own transparent '
+               'master and laid out along the measured limb lines in PERCHES as a separate layer with a soft '
+               'contact shadow. The Campus plank keeps its board.',
         assets=receipts), indent=2) + '\n')
     print('Integrated the Wüste scene; run python3 tools/title_scenes.py next')
 

@@ -1,8 +1,8 @@
 {
-  "owner_request": "The desert must be like in the map, so white and with the oasis; no camel or person but a big branch of colorful, unique parrots; each bird must be its own asset, not in the scene directly (owner, 2026-11-05).",
+  "owner_request": "The desert must be like in the map, so white and with the oasis; no camel or person but a big branch of colorful, unique parrots; each bird must be its own asset, not in the scene directly (owner, 2026-11-05). It should be a giant tree on the side with a branch, not straight the full width, just half (owner, 2026-11-06).",
   "generator": "Harmony generate_image (Codex built-in image generation); original Jungle watercolor",
   "style_reference": "the world map Desert (white dunes, turquoise lagoons, palm clumps) and the Campus title painting; the owner's bird screenshot only as a mood guide",
-  "method": "v3 plates repaint the v2 desert edge as white sand with a lagoon oasis and one big mossy branch, without birds; every bird is cut from its own transparent master and placed here as a separate layer with a soft contact shadow on the branch. The Campus plank keeps its board.",
+  "method": "v4 plates repaint the v3 white-sand lagoon oasis with a giant tree at the left whose one mossy branch reaches about half the width, without birds; every bird is cut from its own transparent master and laid out along the measured limb lines in PERCHES as a separate layer with a soft contact shadow. The Campus plank keeps its board.",
   "assets": [
     {
       "layer": "macaw",
@@ -162,25 +162,25 @@
     },
     {
       "plate": "landscape",
-      "generated": "local/art-development/desert-edge/desert-landscape-v3.png",
-      "generated_sha256": "8fa0938d011c9c11f9fd38dbbc9d78a781dae14dba770051e061a54f4c17bea3",
+      "generated": "local/art-development/desert-edge/desert-landscape-v4.png",
+      "generated_sha256": "edf8e0a9d82d3f96cb1a78f9079ff3582533d8fb2ebb91a0564224341736e627",
       "master": "local/art-development/desert-edge/desert-landscape-plate.png",
-      "master_sha256": "27b777580494e5b301542b6fd99d91b52fb08dc45dc11d0798221864da5ed66c",
+      "master_sha256": "3985a2c23f1977124f627c8dd35e22a3daf37fede4cc1ce4b79cb71a03917fc1",
       "runtime": "assets/jungle/title/desert.avif",
-      "sha256": "e6088d0a027dfa43471adf5928efc8af3344164c4c1d336b106cdcdd94830e8f",
+      "sha256": "004491cec9b8c34c0498c7ab266fe89508f7cd3ba1bd22eb619d1d38e96aa82b",
       "low": "assets/jungle/title/desert-low.avif",
-      "low_sha256": "f9be51827ac0dda07ecf3971819458ec3bb403576955e8e2e63ab0d556d3a13a"
+      "low_sha256": "8df108a208a7cde0654ce870dbea355d7634d8e172a87b6c49b82dd92b93f692"
     },
     {
       "plate": "portrait",
-      "generated": "local/art-development/desert-edge/desert-portrait-v3.png",
-      "generated_sha256": "13ec3564231cdf7d00e20657db6fae877d53284b3a5e3adec2cc842bd566b1f1",
+      "generated": "local/art-development/desert-edge/desert-portrait-v4.png",
+      "generated_sha256": "9ea8f0ff3aed8b166d51847377990dfad3593b4a992e3e7426b8e0d17c0c4515",
       "master": "local/art-development/desert-edge/desert-portrait-plate.png",
-      "master_sha256": "2249fda15f5d64fd3fa1d0e6a43f1cb7361becf24b4b48179c7d86d5c44421aa",
+      "master_sha256": "d6ab0a8bd87cb57ab1346cab33d9f28766dfade8ae19a9118e6e53ffa2f8ef6d",
       "runtime": "assets/jungle/title/desert-portrait.avif",
-      "sha256": "50577a3867acc52d9fc6d04465f98550f91d49380e5168c4b78cef6111ee9421",
+      "sha256": "7c0e1136a4d6c2951f1780bd9cae3c9876a79f59fa494c0d5596498e19a3564b",
       "low": "assets/jungle/title/desert-portrait-low.avif",
-      "low_sha256": "2674f3406396e72a60fbe26dfb8c93caff33acdab986a7c67c8a43e1ff7ef615"
+      "low_sha256": "61ab788ba6fbc4f17f13a254959cd80ee99784b28ac548a8099c61e598eab22f"
     }
   ]
 }

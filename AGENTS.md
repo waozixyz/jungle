@@ -159,8 +159,10 @@ is in `tools/book_prompts.json`; the full-size originals are kept in
   Market (AppService "jungle.home" "scene:market"). Path edits regenerate only
   a crop around the join (local/art-development/market, campus-object-layers).
   Desert (Wüste, tools/title_desert.py) looks like the world map: white dunes,
-  a turquoise lagoon oasis and one big branch, painted without birds. Every
-  bird on the branch is its own cut-out layer (no camel or person); tapping
+  a turquoise lagoon oasis and a giant tree at the left whose one branch
+  reaches only about half the width (portrait adds a shorter lower-crown
+  limb), painted without birds. Every bird is its own cut-out layer (no camel
+  or person), laid out along the measured limb lines in PERCHES; tapping
   any opens the parrots' tap-through speech bubble beside the macaw
   (tools/title_dialogue.json, EN/DE/ES, narrated), never a caption along the
   bottom. A left plank returns to Campus.
