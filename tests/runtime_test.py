@@ -316,9 +316,12 @@ class Desktop:
         from PIL import Image
         picture = Image.open(path).convert("RGB")
         self.actual_size = picture.size
-        # Jungle opens windowed at a default integral scale.
+        # Jungle opens windowed at a default integral scale. An open game sits
+        # below the 56-pixel game bar (host/jungle_game_layout.zi), whose
+        # bottom rule is one solid line across the window.
         if header is None:
-            header = 56 if picture.height > 56 and picture.getpixel((0,55)) in ((218,205,181), (213,225,231), (203,218,219)) else 0
+            rule = picture.crop((0, 55, picture.width, 56)).getcolors(1) if picture.height > 56 else None
+            header = 56 if rule and rule[0][1] != picture.getpixel((0, 56)) else 0
         scale = min(picture.width / 320, (picture.height - header) / 200)
         left = (picture.width - 320 * scale) / 2
         top = header + (picture.height - header - 200 * scale) / 2
@@ -490,8 +493,8 @@ def assert_dinosaur(before, after, mirror=False):
 def paint_ui(desktop, data):
     """The Coloring Book regression, also callable without unrelated games."""
     from PIL import ImageChops
-    from paint_history_test import open_slots, paint_layout, stencil_click, tool, changed, pixel_click
-    from paint_library_test import scene_click, placement_click
+    from paint_geometry import (changed, open_slots, paint_layout, paint_main, pixel_click, placement_click,
+                                scene_click, stencil_click, tool)
     folder = data / "games/jungle.paint"
     folder.mkdir(parents=True, exist_ok=True)
     # An existing Huge choice must open directly as an editable in-scene preview.
@@ -610,40 +613,62 @@ def paint_ui(desktop, data):
     desktop.key("F10")
     assert (data / "sound.txt").read_text() == "off\n", "in-game mute did not persist"
     print("local UI test: dinosaur placement, crayons, edited stories, save/load, overwrite, export and print", flush=True)
-    # On a tall window the nine tools occupy three rows below the picture.
+    # A tall phone-sized window gives the picture the room above a bar whose
+    # Tools button opens the drawer.
     desktop.key("Escape")
     desktop.resize(420, 700)
     tall = desktop.capture_actual("paint-portrait")
     width, height = tall.size
     assert height - 56 > width, f"the window did not turn tall: {tall.size}"
-    (cx, cy, cw, ch), tools = paint_layout(desktop)
+    main = paint_main(desktop)
+    assert main["compact"] and not main["side"], "a 420x700 window did not keep its tools in a drawer"
+    cx, cy, cw, ch = main["canvas"]
     assert tall.getpixel((round(cx + cw / 2), round(56 + cy + ch / 2))) != (227, 236, 228), "the picture is not across the top"
-    assert all(y > 56 + cy + ch for x, y in tools), "the picture runs into the tools"
+    assert main["bar"][1] > cy + ch, "the picture runs into the Tools bar"
     tool(desktop, 1)
     shown = {color for _, color in desktop.capture_actual("paint-portrait-colors").getcolors(1 << 20)}
     crayons = {(0x82, 0x82, 0x82), (0x00, 0x00, 0xff), (0x00, 0xa2, 0xc3), (0xb2, 0x00, 0xcb), (0x00, 0xc3, 0x51),
                (0xc3, 0x71, 0x00), (0xef, 0xef, 0x3c), (0x41, 0x41, 0xc0), (0x9a, 0x41, 0xa6), (0xc0, 0xc0, 0xc0)}
-    assert len(crayons & shown) == len(crayons), "the Color tool is not below the picture in portrait"
-    print("local UI test: portrait layout puts the tools below the picture", flush=True)
+    assert len(crayons & shown) == len(crayons), "the drawer's Color tool did not open in portrait"
+    print("local UI test: portrait layout opens the Color tool from the drawer below the picture", flush=True)
+
+
+def ui_work():
+    work = ROOT / "work/runtime-tests"
+    work.mkdir(parents=True, exist_ok=True)
+    return work
+
+
+def fake_printer(data):
+    """An lp that accepts only PostScript and records what it printed."""
+    fake = data / "bin"
+    fake.mkdir()
+    printer = fake / "lp"
+    printer.write_text("#!/usr/bin/env python3\nimport os,sys\nfrom pathlib import Path\n"
+                       "p=Path(sys.argv[-1]);assert p.read_text().startswith('%!PS')\n"
+                       "Path(os.environ['JUNGLE_PRINTER_LOG']).write_text(str(p))\n")
+    printer.chmod(0o700)
+    return {"PATH": str(fake) + os.pathsep + os.environ["PATH"],
+            "JUNGLE_PRINTER_LOG": str(data / "printed.txt")}
+
+
+def earn_every_award(data):
+    """Marks every game's award earned, so no first-opening badge covers the
+    walkthrough's captures; tests/awards_smoke_test.py covers earning them."""
+    source = (ROOT / "host/jungle_awards.zi").read_text()
+    slugs = re.findall(r'"(award-[a-z0-9-]+)"', source.split("award_slugs:", 1)[1].split(";", 1)[0])
+    assert len(slugs) == int(re.search(r"AWARD_COUNT :: (\d+)", source)[1]), slugs
+    (data / "awards.txt").write_text("JUNGLE AWARDS 1\n" + "".join(slug + "\n" for slug in slugs))
 
 
 def ui(binary):
     for tool in ("Xvfb", "xdotool", "import"):
         assert shutil.which(tool), f"UI tests need {tool}"
     from PIL import Image, ImageChops
-    work = ROOT / "work/runtime-tests"
-    work.mkdir(parents=True, exist_ok=True)
-    with tempfile.TemporaryDirectory(prefix="jungle-ui-", dir=work) as temporary:
+    with tempfile.TemporaryDirectory(prefix="jungle-ui-", dir=ui_work()) as temporary:
         data = Path(temporary)
-        fake = data / "bin"
-        fake.mkdir()
-        printer = fake / "lp"
-        printer.write_text("#!/usr/bin/env python3\nimport os,sys\nfrom pathlib import Path\n"
-                           "p=Path(sys.argv[-1]);assert p.read_text().startswith('%!PS')\n"
-                           "Path(os.environ['JUNGLE_PRINTER_LOG']).write_text(str(p))\n")
-        printer.chmod(0o700)
-        extra = {"PATH": str(fake) + os.pathsep + os.environ["PATH"],
-                 "JUNGLE_PRINTER_LOG": str(data / "printed.txt")}
+        extra = fake_printer(data)
+        earn_every_award(data)
         with Desktop(binary, data, extra) as desktop:
             # Home dismisses the first-run guide before taking a scene baseline.
             desktop.key("Home")
@@ -763,27 +788,13 @@ def ui(binary):
 
 
 def focused_paint_ui(binary):
-    global OUTPUT
-    from paint_history_test import Desktop as PaintDesktop, WORK
-    WORK.mkdir(parents=True, exist_ok=True)
-    with tempfile.TemporaryDirectory(prefix="legacy-paint-", dir=WORK) as temporary:
+    with tempfile.TemporaryDirectory(prefix="jungle-paint-ui-", dir=ui_work()) as temporary:
         data = Path(temporary)
-        fake = data / "bin"
-        fake.mkdir()
-        printer = fake / "lp"
-        printer.write_text("#!/usr/bin/env python3\nimport os,sys\nfrom pathlib import Path\n"
-                           "p=Path(sys.argv[-1]);assert p.read_text().startswith('%!PS')\n"
-                           "Path(os.environ['JUNGLE_PRINTER_LOG']).write_text(str(p))\n")
-        printer.chmod(0o700)
-        extra = {"PATH": str(fake) + os.pathsep + os.environ["PATH"],
-                 "JUNGLE_PRINTER_LOG": str(data / "printed.txt")}
-        with PaintDesktop(binary, data, extra) as desktop:
-            previous_output = OUTPUT
-            try:
-                OUTPUT = Path(desktop._captures.name)
-                paint_ui(desktop, data)
-            finally:
-                OUTPUT = previous_output
+        extra = fake_printer(data)
+        earn_every_award(data)
+        with Desktop(binary, data, extra) as desktop:
+            desktop.key("Home")
+            paint_ui(desktop, data)
 
 
 def main():

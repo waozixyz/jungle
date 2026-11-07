@@ -1,4 +1,5 @@
-"""Responsive scene-picker hit targets for private native UI tests. No numeric dependencies."""
+"""Coloring Book hit targets for private native UI tests. No numeric dependencies."""
+import time
 
 def scene_layout(desktop):
     """Scene content/viewport rectangles in window pixels at scroll zero."""
@@ -141,3 +142,125 @@ def label_fits(actual, rect):
     outside = [(px, py) for py in band for px in (*range(x + 3, x + 6), *range(x + w - 6, x + w - 3)) if ink(px, py)]
     inside = any(ink(px, py) for py in band for px in range(x + 6, x + w - 6))
     return not outside and inside
+
+
+TOOL_COUNT = 11  # games/paint/dino_paint.zi
+
+
+def paint_bounds(width, height, page=(960, 720)):
+    """Mirror of PaintMainBounds (games/paint/paint_picker_layout.zi) for the
+    game area below the game bar."""
+    page_w, page_h = page
+    shortest = min(width, height)
+    pad = max(6, min(20, shortest // 40))
+    gap = max(4, min(10, shortest // 80))
+    l = dict(pad=pad, gap=gap, side=width >= height, compact=False)
+
+    def fit(x, y, w, h):
+        cw, ch = w, w * page_h // page_w
+        if ch > h:
+            ch, cw = h, h * page_w // page_h
+        cw, ch = max(1, cw), max(1, ch)
+        l.update(canvas=(x + (w - cw) // 2, y + (h - ch) // 2, cw, ch))
+
+    if not l['side']:
+        tw = (width - pad * 2 - gap * 2) // 3
+        th = max(48, min(110, tw * 3 // 4))
+        rows = (TOOL_COUNT + 2) // 3
+        panel = rows * th + (rows - 1) * gap
+        if (panel + pad) * 3 <= height:
+            fit(pad, pad, width - pad * 2, height - pad * 3 - panel)
+            cy, ch = l['canvas'][1], l['canvas'][3]
+            l.update(columns=3, tool_w=tw, tool_h=th, tools_x=pad,
+                     tools_y=cy + ch + pad + (height - pad - (cy + ch + pad) - panel) // 2)
+            return l
+    else:
+        columns = 2 if height < 560 else 1
+        rows = (TOOL_COUNT + columns - 1) // columns
+        th = (height - pad * 2 - gap * (rows - 1)) // rows
+        tw = max(64, min(th * 5 // 2, width // (8 if columns == 2 else 5)))
+        rail = tw * columns + gap * (columns - 1)
+        if th >= 48 and (rail + pad) * 3 <= width:
+            fit(0, pad, width - pad * 3 - rail, height - pad * 2)
+            _, cy, cw, ch = l['canvas']
+            left = (width - rail - pad - cw) // 2
+            l.update(canvas=(left + rail + pad, cy, cw, ch), columns=columns, tool_w=tw, tool_h=th,
+                     tools_x=left, tools_y=max(pad, cy + (ch - th * rows - gap * (rows - 1)) // 2))
+            return l
+    # Compact: the picture keeps the room and the tools open from a drawer.
+    l['compact'] = True
+    bar = max(64, min(96, shortest // 5))
+    rows = (TOOL_COUNT + 2) // 3
+    if l['side']:
+        l.update(bar=(pad, pad, bar, height - pad * 2), toggle=(pad, pad, bar, bar))
+        fit(pad * 2 + bar, pad, width - pad * 3 - bar, height - pad * 2)
+        drawer_x, drawer_y, drawer_h = pad * 2 + bar, pad, height - pad * 2
+        th = max(1, min(110, (drawer_h - pad * 2 - gap * (rows - 1)) // rows))
+        tw = max(1, min(th * 2, (width - drawer_x - pad * 3 - gap * 2) // 3))
+    else:
+        bar_y, bar_w = height - pad - bar, width - pad * 2
+        l.update(bar=(pad, bar_y, bar_w, bar), toggle=(pad, bar_y, max(bar, min(bar_w // 2, bar * 2)), bar))
+        fit(pad, pad, width - pad * 2, bar_y - pad * 2)
+        drawer_x = 0
+        tw = (width - pad * 2 - gap * 2) // 3
+        th = max(56, min(110, tw * 3 // 4))
+        drawer_y = max(0, bar_y - pad - (rows * th + (rows - 1) * gap + pad * 2))
+    l.update(columns=3, tool_w=tw, tool_h=th, tools_x=drawer_x + pad, tools_y=drawer_y + pad)
+    return l
+
+
+def paint_main(desktop, page=(960, 720)):
+    """The main screen's layout this window shows, in window pixels below the game bar."""
+    width, height = desktop.actual_size
+    return paint_bounds(width, height - 56, page)
+
+
+def paint_layout(desktop, page=(960, 720)):
+    """The picture rectangle below the game bar and every tool's center in window
+    pixels (PaintToolRect); compact layouts show these tools once the drawer opens."""
+    l = paint_main(desktop, page)
+    tw, th, gap, columns = l['tool_w'], l['tool_h'], l['gap'], l['columns']
+    tools = [(l['tools_x'] + i % columns * (tw + gap) + tw / 2, 56 + l['tools_y'] + i // columns * (th + gap) + th / 2)
+             for i in range(TOOL_COUNT)]
+    return l['canvas'], tools
+
+
+def tool(desktop, index):
+    """Taps a tool, opening the compact drawer first where the tools wait in it."""
+    l = paint_main(desktop)
+    if l['compact']:
+        x, y, w, h = l['toggle']
+        desktop.click_actual(x + w / 2, 56 + y + h / 2)
+    desktop.click_actual(*paint_layout(desktop)[1][index])
+
+
+def pixel_click(desktop, x, y):
+    """Taps picture pixel x, y of the wide page at fit zoom."""
+    left, top, width, height = paint_layout(desktop)[0]
+    desktop.click_actual(left + (x + .5) * width / 960, 56 + top + (y + .5) * height / 720)
+
+
+def placement_click(desktop, place=True):
+    """Taps Place, or Cancel, below a pending stencil (PlacementView)."""
+    x, y, w, h = paint_layout(desktop)[0]
+    bw = max(44, min(140, (w - 18) // 2))
+    left = x + (w - bw * 2 - 6) // 2
+    desktop.click_actual(left + (bw + 6 if place else 0) + bw // 2, 56 + y + h - 26)
+
+
+def open_slots(desktop):
+    """Opens the gallery's save slots."""
+    tool(desktop, 4)
+    desktop.capture("paint-gallery", header=56)
+    desktop.click(250, 38)
+    desktop.capture("paint-slots", header=56)
+
+
+def changed(path, before, timeout=10):
+    """The file's new contents once they differ from BEFORE."""
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        if path.exists() and path.read_bytes() != before:
+            return path.read_bytes()
+        time.sleep(.1)
+    raise AssertionError(f"{path.name} did not change")

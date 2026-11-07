@@ -332,6 +332,7 @@ test-ui: all
 	python3 tests/title_smoke_test.py
 	python3 tests/desert_smoke_test.py
 	python3 tests/farm_smoke_test.py
+	python3 tests/runtime_test.py --ui
 
 BIN_DIR ?= $(HOME)/.local/bin
 LIB_DIR ?= $(HOME)/.local/lib/jungle
@@ -392,6 +393,12 @@ test-world-map-ui: all web
 	python3 tests/world_map_smoke_test.py
 	python3 tests/world_map_exploration_test.py
 	python3 tests/world_map_web_test.py --web-root build/web
+# A fresh profile's first Picture Book page shows its picture as its voice
+# starts, on both web renderers, also when the browser blocks or delays audio.
+test-ui: test-book-media-start-web
+.PHONY: test-book-media-start-web
+test-book-media-start-web: web
+	python3 tests/book_media_start_web_test.py --web-root build/web --renderer both
 
 .PHONY: test-cursor-hover
 # The pointing cursor shows only where a tap does something.
